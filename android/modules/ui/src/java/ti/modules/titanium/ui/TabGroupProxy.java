@@ -393,7 +393,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Load any tabs added before the tab group opened.
 		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
 		for (TabProxy tab : tabs) {
-			tg.addTab(tab);
+			if (tab != null) {
+				tg.addTab(tab);
+			} else {
+				tabs.remove(tab);
+			}
 		}
 
 		TabProxy activeTab = handleGetActiveTab();

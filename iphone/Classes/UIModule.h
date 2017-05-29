@@ -44,6 +44,7 @@
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_LEFT;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_CENTER;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_RIGHT;
+@property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_JUSTIFY;
 
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP;
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP;

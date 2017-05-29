@@ -34,6 +34,7 @@ public class ButtonProxy extends TiViewProxy
 	public ButtonProxy()
 	{
 		defaultValues.put(TiC.PROPERTY_TITLE, "");
+		defaultValues.put(TiC.PROPERTY_SHADOW_RADIUS, 1f);
 	}
 
 	@Override

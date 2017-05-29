@@ -35,7 +35,9 @@ import android.app.Activity;
 	TiC.PROPERTY_INCLUDE_FONT_PADDING,
 	TiC.PROPERTY_LINES,
 	TiC.PROPERTY_MAX_LINES,
-	TiC.PROPERTY_LINE_SPACING
+	TiC.PROPERTY_LINE_SPACING,
+	TiC.PROPERTY_INCLUDE_FONT_PADDING,
+	TiC.PROPERTY_MINIMUM_FONT_SIZE
 })
 public class LabelProxy extends TiViewProxy
 {
@@ -47,6 +49,7 @@ public class LabelProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_TEXT, "");
 		defaultValues.put(TiC.PROPERTY_ELLIPSIZE, UIModule.TEXT_ELLIPSIZE_TRUNCATE_END);
 		defaultValues.put(TiC.PROPERTY_WORD_WRAP, true);
+		defaultValues.put(TiC.PROPERTY_SHADOW_RADIUS, 1f);
 	}
 
 	@Override

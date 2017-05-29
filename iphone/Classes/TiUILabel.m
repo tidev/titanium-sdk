@@ -225,96 +225,86 @@
     }
 }
 
+// Code taken from https://github.com/AliSoftware/OHAttributedStringAdditions
+
+- (NSTextContainer*)currentTextContainer
+{
+    NSTextContainer *textContainer = [[NSTextContainer alloc] initWithSize:self.label.bounds.size];
+    textContainer.lineFragmentPadding  = 0;
+    textContainer.maximumNumberOfLines = (NSUInteger)self.label.numberOfLines;
+    textContainer.lineBreakMode = self.label.lineBreakMode;
+    return [textContainer autorelease];
+}
+
+- (NSUInteger)characterIndexAtPoint:(NSMutableAttributedString*)theString atPoint:(CGPoint)point
+{
+    NSTextContainer* textContainer = self.currentTextContainer;
+    NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:theString];
+    
+    NSLayoutManager *layoutManager = [NSLayoutManager new];
+    [textStorage addLayoutManager:layoutManager];
+    [layoutManager addTextContainer:textContainer];
+    
+    // UILabel centers its text vertically, so adjust the point coordinates accordingly
+    NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
+    CGRect wholeTextRect = [layoutManager boundingRectForGlyphRange:glyphRange
+                                                    inTextContainer:textContainer];
+    point.y -= (CGRectGetHeight(self.bounds)-CGRectGetHeight(wholeTextRect))/2;
+    
+    // Bail early if point outside the whole text bounding rect
+    if (!CGRectContainsPoint(wholeTextRect, point)) {
+        RELEASE_TO_NIL(textStorage);
+        RELEASE_TO_NIL(layoutManager);
+        return NSNotFound;
+    }
+    
+    // ask the layoutManager which glyph is under this tapped point
+    NSUInteger glyphIdx = [layoutManager glyphIndexForPoint:point
+                                            inTextContainer:textContainer
+                             fractionOfDistanceThroughGlyph:NULL];
+    
+    // as explained in Apple's documentation the previous method returns the nearest glyph
+    // if no glyph was present at that point. So if we want to ensure the point actually
+    // lies on that glyph, we should check that explicitly
+    CGRect glyphRect = [layoutManager boundingRectForGlyphRange:NSMakeRange(glyphIdx, 1)
+                                                inTextContainer:textContainer];
+    if (CGRectContainsPoint(glyphRect, point)) {
+        NSUInteger index = [layoutManager characterIndexForGlyphAtIndex:glyphIdx];
+        RELEASE_TO_NIL(textStorage);
+        RELEASE_TO_NIL(layoutManager);
+        return index;
+    } else {
+        RELEASE_TO_NIL(textStorage);
+        RELEASE_TO_NIL(layoutManager);
+        return NSNotFound;
+    }
+}
+
 -(BOOL)checkLinkAttributeForString:(NSMutableAttributedString*)theString atPoint:(CGPoint)p
 {
-    CGPoint thePoint = [self convertPoint:p toView:label];
-    CGRect drawRect = [label textRectForBounds:[label bounds] limitedToNumberOfLines:label.numberOfLines];
-    drawRect.origin.y = (label.bounds.size.height - drawRect.size.height)/2;
-    thePoint = CGPointMake(thePoint.x - drawRect.origin.x, thePoint.y - drawRect.origin.y);
-    //Convert to CT point;
-    thePoint.y = (drawRect.size.height - thePoint.y);
-    CTFramesetterRef theRef = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)theString);
-    if (theRef == NULL) {
-        return;
-    }
+    NSUInteger idx = [self characterIndexAtPoint:theString atPoint:p];
     
-    CGMutablePathRef path = CGPathCreateMutable();
-    
-    CGPathAddRect(path, NULL, drawRect);
-
-    CTFrameRef frame = CTFramesetterCreateFrame(theRef, CFRangeMake(0, [theString length]), path, NULL);
-    //Don't need this anymore
-    CFRelease(theRef);
-
-    if (frame == NULL) {
-        CFRelease(path);
-        return NO;
-    }
-    //Get Lines
-    CFArrayRef lines = CTFrameGetLines(frame);
-    if (lines == NULL) {
-        CFRelease(frame);
-        CFRelease(path);
+    if (idx == NSNotFound) {
         return NO;
     }
     
-    NSInteger lineCount = CFArrayGetCount(lines);
-    if (lineCount == 0) {
-        CFRelease(frame);
-        CFRelease(path);
-        //CFRelease(lines);
-        return NO;
-    }
-    //Get Line Origins
-    CGPoint lineOrigins[lineCount];
-    CTFrameGetLineOrigins(frame, CFRangeMake(0, lineCount), lineOrigins);
-    
-    NSUInteger idx = NSNotFound;
-    for (CFIndex lineIndex = 0; (lineIndex < lineCount) && (idx == NSNotFound); lineIndex++) {
-        
-        CGPoint lineOrigin = lineOrigins[lineIndex];
-        CTLineRef line = CFArrayGetValueAtIndex(lines, lineIndex);
-        
-        // Get bounding information of line
-        CGRect lineRect = CTLineGetBoundsWithOptions(line,0);
-        CGFloat ymin = lineRect.origin.y + lineOrigin.y;
-        CGFloat ymax = ymin + lineRect.size.height;
-        
-        if (ymin <= thePoint.y && ymax >= thePoint.y) {
-            if (thePoint.x >= lineOrigin.x && thePoint.x <= lineOrigin.x + lineRect.size.width) {
-                // Convert CT coordinates to line-relative coordinates
-                CGPoint relativePoint = CGPointMake(thePoint.x - lineOrigin.x, thePoint.y - lineOrigin.y);
-                idx = CTLineGetStringIndexForPosition(line, relativePoint);
-            }
-        }
-    }
-    
-    //Don't need frame,path or lines now
-    CFRelease(frame);
-    CFRelease(path);
-    //CFRelease(lines);
-    
-    if (idx != NSNotFound) {
-        if(idx > theString.string.length) {
-            return NO;
-        }
-        NSRange theRange = NSMakeRange(0, 0);
-        NSString *url = nil;
+    NSRange theRange = NSMakeRange(0, 0);
+    NSString *url = nil;
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-        TiUIAttributedStringProxy *tempString = [[self proxy] valueForKey:@"attributedString"];
-        url = [tempString getLink:idx];
+    TiUIAttributedStringProxy *tempString = [[self proxy] valueForKey:@"attributedString"];
+    url = [tempString getLink:idx];
 #endif
-        if(url != nil && url.length) {
-            NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                                       url, @"url",
-                                       [NSArray arrayWithObjects:NUMUINTEGER(theRange.location), NUMUINTEGER(theRange.length),nil],@"range",
-                                       nil];
-                                            
-            [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
-            return YES;
-        }
+    
+    if (url == nil || url.length == 0) {
+        return NO;
     }
-    return NO;
+        
+    NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                url, @"url",
+                                [NSArray arrayWithObjects:NUMUINTEGER(theRange.location), NUMUINTEGER(theRange.length),nil],@"range",
+                                    nil];
+    [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    return YES;
 }
 
 -(void)recognizedTap:(UITapGestureRecognizer*)recognizer

@@ -236,7 +236,7 @@ exports.init = function (logger, config, cli) {
 						lastLogLevel,
 						displayStartLog = true,
 						tiapiRegExp = /^(\w\/TiAPI\s*\:)/,
-						nonTiLogRegexp = /^\w\/\w+\s*\(\s*\d+\):/,
+						nonTiLogRegexp = /^\w\/.+\s*\(\s*\d+\):/,
 						instances = deviceInfo.length,
 						endLog = false;
 

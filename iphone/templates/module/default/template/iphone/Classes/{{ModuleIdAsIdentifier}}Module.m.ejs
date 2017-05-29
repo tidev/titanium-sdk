@@ -34,7 +34,7 @@
 	// you *must* call the superclass
 	[super startup];
 
-	NSLog(@"[INFO] %@ loaded",self);
+	NSLog(@"[DEBUG] %@ loaded",self);
 }
 
 -(void)shutdown:(id)sender
@@ -45,14 +45,6 @@
 
 	// you *must* call the superclass
 	[super shutdown:sender];
-}
-
-#pragma mark Cleanup
-
--(void)dealloc
-{
-	// release any resources that have been retained by the module
-	[super dealloc];
 }
 
 #pragma mark Internal Memory Management

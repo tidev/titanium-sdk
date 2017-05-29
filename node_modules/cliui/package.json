@@ -16,7 +16,6 @@
   "_from": "cliui@>=2.1.0 <3.0.0",
   "_id": "cliui@2.1.0",
   "_inCache": true,
-  "_installable": true,
   "_location": "/cliui",
   "_nodeVersion": "0.10.36",
   "_npmUser": {

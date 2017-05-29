@@ -425,10 +425,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(intent));
 			
-			if (getTiApp().isRootActivityAvailable()) {
-				TiBaseActivity activity = (TiBaseActivity) getTiApp().getRootOrCurrentActivity();
-				activity.getActivityProxy().fireEvent(TiC.EVENT_NEW_INTENT, data);
-			} else {
+			if (!getTiApp().isRootActivityAvailable()) {
 				activityProxy.fireEvent(TiC.PROPERTY_ON_INTENT, data);
 			}
 		}

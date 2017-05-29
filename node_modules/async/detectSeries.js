@@ -4,21 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _identity = require('lodash/identity');
+var _detectLimit = require('./detectLimit');
 
-var _identity2 = _interopRequireDefault(_identity);
+var _detectLimit2 = _interopRequireDefault(_detectLimit);
 
-var _createTester = require('./internal/createTester');
+var _doLimit = require('./internal/doLimit');
 
-var _createTester2 = _interopRequireDefault(_createTester);
-
-var _eachOfSeries = require('./eachOfSeries');
-
-var _eachOfSeries2 = _interopRequireDefault(_eachOfSeries);
-
-var _findGetResult = require('./internal/findGetResult');
-
-var _findGetResult2 = _interopRequireDefault(_findGetResult);
+var _doLimit2 = _interopRequireDefault(_doLimit);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -33,14 +25,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @alias findSeries
  * @category Collections
  * @param {Array|Iterable|Object} coll - A collection to iterate over.
- * @param {Function} iteratee - A truth test to apply to each item in `coll`.
- * The iteratee is passed a `callback(err, truthValue)` which must be called
- * with a boolean argument once it has completed. Invoked with (item, callback).
+ * @param {AsyncFunction} iteratee - A truth test to apply to each item in `coll`.
+ * The iteratee must complete with a boolean value as its result.
+ * Invoked with (item, callback).
  * @param {Function} [callback] - A callback which is called as soon as any
  * iteratee returns `true`, or after all the `iteratee` functions have finished.
  * Result will be the first item in the array that passes the truth test
  * (iteratee) or the value `undefined` if none passed. Invoked with
  * (err, result).
  */
-exports.default = (0, _createTester2.default)(_eachOfSeries2.default, _identity2.default, _findGetResult2.default);
+exports.default = (0, _doLimit2.default)(_detectLimit2.default, 1);
 module.exports = exports['default'];

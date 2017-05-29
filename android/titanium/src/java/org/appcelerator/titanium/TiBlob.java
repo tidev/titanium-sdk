@@ -158,8 +158,7 @@ public class TiBlob extends KrollProxy
 				data = bos.toByteArray();
 				mimeType = "image/png";
 			}
-		}
-		else {
+		} else {
 			if (image.compress(CompressFormat.JPEG, 100, bos)) {
 				data = bos.toByteArray();
 				mimeType = "image/jpeg";
@@ -239,7 +238,6 @@ public class TiBlob extends KrollProxy
 				is.mark(64);
 				byte[] bytes = new byte[64];
 				int length = is.read(bytes);
-				is.reset();
 				if (length == -1) {
 					return null;
 				}
@@ -259,7 +257,7 @@ public class TiBlob extends KrollProxy
 					}
 				}
 			} catch (Exception e) {
-				Log.e(TAG, e.getMessage(), e, Log.DEBUG_MODE);
+				Log.e(TAG, e.getMessage(), e);
 			}
 		}
 		return mt;
@@ -605,14 +603,14 @@ public class TiBlob extends KrollProxy
 					case TYPE_FILE:
 						bitmap = BitmapFactory.decodeStream(getInputStream(),null,opts);
 						if (key != null) {
-						    mMemoryCache.put(key, bitmap);
+							mMemoryCache.put(key, bitmap);
 						}
 						return bitmap;
 					case TYPE_DATA:
 						byte[] byteArray = (byte[]) data;
 						bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length,opts);
 						if (key != null) {
-						    mMemoryCache.put(key, bitmap);
+							mMemoryCache.put(key, bitmap);
 						}
 						return bitmap;
 				}
@@ -668,11 +666,11 @@ public class TiBlob extends KrollProxy
 			matrix.postRotate(rotation);
 			Bitmap imageCropped = Bitmap.createBitmap(img, x, y, widthCropped, heightCropped, matrix, true);
 			if (img != image && img != imageCropped) {
-			    img.recycle();
-			    img = null;
+				img.recycle();
+				img = null;
 			}
 			if (key != null) {
-			    mMemoryCache.put(key, imageCropped);
+				mMemoryCache.put(key, imageCropped);
 			}
 			return blobFromImage(imageCropped);
 		} catch (OutOfMemoryError e) {
@@ -766,7 +764,7 @@ public class TiBlob extends KrollProxy
 				img = null;
 			}
 			if (key != null) {
-			    mMemoryCache.put(key, imageResized);
+				mMemoryCache.put(key, imageResized);
 			}
 			return blobFromImage(imageResized);
 		} catch (OutOfMemoryError e) {
@@ -780,6 +778,55 @@ public class TiBlob extends KrollProxy
 			Log.e(TAG, "Unable to resize the image. Unknown exception: " + t.getMessage(), t);
 			return null;
 		}
+	}
+	
+	@Kroll.method
+	public TiBlob imageAsCompressed(Number compressionQuality)
+	{
+		Bitmap img = getImage();
+		if (img == null) {
+			return null;
+		}
+		
+		float quality = 1f;
+		if (compressionQuality != null) {
+			quality = compressionQuality.floatValue();
+		}
+		
+		TiBlob result = null;
+		ByteArrayOutputStream bos;
+		
+		try {
+			bos = new ByteArrayOutputStream();
+			if (image.compress(CompressFormat.JPEG, (int)(quality * 100), bos)) {
+				byte[] data = bos.toByteArray();
+				
+				BitmapFactory.Options bfOptions = new BitmapFactory.Options();
+				bfOptions.inPurgeable = true;
+				bfOptions.inInputShareable = true;
+				
+				result = TiBlob.blobFromData(data, "image/jpeg");
+			}
+		} catch (OutOfMemoryError e) {
+			TiBlobLruCache.getInstance().evictAll();
+			Log.e(TAG, "Unable to get the thumbnail image. Not enough memory: " + e.getMessage(), e);
+			return null;
+		} catch (IllegalArgumentException e) {
+			Log.e(TAG, "Unable to get the thumbnail image. Illegal Argument: " + e.getMessage(), e);
+			return null;
+		} catch (Throwable t) {
+			Log.e(TAG, "Unable to get the thumbnail image. Unknown exception: " + t.getMessage(), t);
+			return null;
+		} finally {
+			// [MOD-309] Free up memory to work around issue in Android
+			if (img != null) {
+				img.recycle();
+				img = null;
+			}
+			bos = null;
+		}
+		
+		return result;
 	}
 
 	@Kroll.method
@@ -843,7 +890,7 @@ public class TiBlob extends KrollProxy
 				imageFinal = TiImageHelper.rotateImage(imageFinal, rotation);
 			}
 			if (key != null) {
-			    mMemoryCache.put(key, imageFinal);
+				mMemoryCache.put(key, imageFinal);
 			}
 			return blobFromImage(imageFinal);
 
@@ -896,7 +943,7 @@ public class TiBlob extends KrollProxy
 				imageWithAlpha = TiImageHelper.rotateImage(imageWithAlpha, rotation);
 			}
 			if (key != null) {
-			    mMemoryCache.put(key, imageWithAlpha);
+				mMemoryCache.put(key, imageWithAlpha);
 			}
 			return blobFromImage(imageWithAlpha);
 		} catch (OutOfMemoryError e) {
@@ -955,7 +1002,7 @@ public class TiBlob extends KrollProxy
 				imageRoundedCorner = TiImageHelper.rotateImage(imageRoundedCorner, rotation);
 			}
 			if (key != null) {
-			    mMemoryCache.put(key, imageRoundedCorner);
+				mMemoryCache.put(key, imageRoundedCorner);
 			}
 			return blobFromImage(imageRoundedCorner);
 		} catch (OutOfMemoryError e) {
@@ -1010,7 +1057,7 @@ public class TiBlob extends KrollProxy
 				imageWithBorder = TiImageHelper.rotateImage(imageWithBorder, rotation);
 			}
 			if (key != null) {
-			    mMemoryCache.put(key, imageWithBorder);
+				mMemoryCache.put(key, imageWithBorder);
 			}
 			return blobFromImage(imageWithBorder);
 		} catch (OutOfMemoryError e) {

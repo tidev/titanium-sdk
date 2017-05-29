@@ -208,46 +208,6 @@ RELEASE_TO_NIL(x); \
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIOSANIMATIONSTYLE
-    RELEASE_TO_NIL(_animationStyleProxy);
-#endif
-#ifdef USE_TI_UIIOSROWANIMATIONSTYLE
-    RELEASE_TO_NIL(_RowAnimationStyle);
-#endif
-#ifdef USE_TI_UIIOSALERTDIALOGSTYLE
-    RELEASE_TO_NIL(_AlertDialogStyle);
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWCELLSELECTIONSTYLE) || defined (USE_TI_UIIOSLISTVIEWCELLSELECTIONSTYLE)
-    RELEASE_TO_NIL(_TableViewCellSelectionStyle);
-    RELEASE_TO_NIL(_ListViewCellSelectionStyle);
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
-    RELEASE_TO_NIL(_TableViewScrollPosition);
-    RELEASE_TO_NIL(_ListViewScrollPosition);
-#endif
-#if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
-    RELEASE_TO_NIL(_TableViewStyle);
-    RELEASE_TO_NIL(_ListViewStyle);
-#endif
-#ifdef USE_TI_UIIOSPROGRESSBARSTYLE
-    RELEASE_TO_NIL(_ProgressBarStyle);
-#endif
-#ifdef USE_TI_UIIOSSCROLLINDICATORSTYLE
-    RELEASE_TO_NIL(_ScrollIndicatorStyle);
-#endif
-#ifdef USE_TI_UIIOSSTATUSBAR
-    RELEASE_TO_NIL(_StatusBar);
-#endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTON
-    RELEASE_TO_NIL(_SystemButton);
-#endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-    RELEASE_TO_NIL(_SystemButtonStyle);
-#endif
-#ifdef USE_TI_UIIOSSYSTEMICON
-    RELEASE_TO_NIL(_SystemIcon);
-#endif
-
     [super dealloc];
 }
 
@@ -684,7 +644,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
         return nil;
     }
     
-    TiBlob *image = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge];
+    TiBlob *image = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge] autorelease];
     
     return image;
 }
@@ -803,22 +763,6 @@ MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER,kCGBlendModePlusLighter);
 MAKE_SYSTEM_STR(COLOR_GROUP_TABLEVIEW_BACKGROUND, IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND);
 MAKE_SYSTEM_STR(TABLEVIEW_INDEX_SEARCH, UITableViewIndexSearch);
 
--(NSString*)COLOR_SCROLLVIEW_BACKGROUND
-{
-    DEPRECATED_REMOVED(@"UI.iOS.COLOR_SCROLLVIEW_BACKGROUND",@"3.4.2",@"3.6.0")
-    return IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND;
-}
--(NSString*)COLOR_VIEW_FLIPSIDE_BACKGROUND
-{
-    DEPRECATED_REMOVED(@"UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND",@"3.4.2",@"3.6.0")
-    return IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND;
-}
--(NSString*)COLOR_UNDER_PAGE_BACKGROUND
-{
-    DEPRECATED_REMOVED(@"UI.iOS.COLOR_UNDER_PAGE_BACKGROUND",@"3.4.2",@"3.6.0")
-    return IOS_COLOR_UNDER_PAGE_BACKGROUND;
-}
-
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED,UIWebViewNavigationTypeLinkClicked);
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED,UIWebViewNavigationTypeFormSubmitted);
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD,UIWebViewNavigationTypeBackForward);
@@ -831,15 +775,6 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER,UIWebViewNavigationTypeOther);
 {
     return [[[TiUIiOSApplicationShortcutsProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
-
-#if IS_XCODE_8
-#ifdef USE_TI_UIIOSFEEDBACKGENERATOR
--(id)createFeedbackGenerator:(id)args
-{
-    return [[[TiUIiOSFeedbackGeneratorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-#endif
 
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_COMPOSE,UIApplicationShortcutIconTypeCompose);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_PLAY,UIApplicationShortcutIconTypePlay);
@@ -885,6 +820,12 @@ MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentCo
 
 #if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
+
+-(id)createFeedbackGenerator:(id)args
+{
+    return [[[TiUIiOSFeedbackGeneratorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_SELECTION, 0);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_IMPACT, 1);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_TYPE_NOTIFICATION, 2);
