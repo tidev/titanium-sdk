@@ -21,6 +21,7 @@
 		15CB44131C4ED51B00D81480 /* TiUIiOSSystemButtonStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44121C4ED51B00D81480 /* TiUIiOSSystemButtonStyleProxy.m */; };
 		15CB44151C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44141C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m */; };
 		15CB44191C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44181C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m */; };
+		1915592E1EDBDF9900274297 /* TiUIParagraphStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1915592D1EDBDF9900274297 /* TiUIParagraphStyleProxy.m */; };
 		1D0061C1160283820016BBEE /* TiBindingRunLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0061C0160283820016BBEE /* TiBindingRunLoop.m */; };
 		1D1029A815F9769200372EC0 /* TiBindingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D1029A715F9769100372EC0 /* TiBindingEvent.m */; };
 		1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */; };
@@ -377,6 +378,8 @@
 		15CB44161C4ED55B00D81480 /* TiUIiOSSystemButtonProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSSystemButtonProxy.h; sourceTree = "<group>"; };
 		15CB44171C4EEFDD00D81480 /* TiUIiOSSystemIconProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSSystemIconProxy.h; sourceTree = "<group>"; };
 		15CB44181C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSSystemIconProxy.m; sourceTree = "<group>"; };
+		1915592C1EDBDF9900274297 /* TiUIParagraphStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIParagraphStyleProxy.h; sourceTree = "<group>"; };
+		1915592D1EDBDF9900274297 /* TiUIParagraphStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIParagraphStyleProxy.m; sourceTree = "<group>"; };
 		1D0061BF160283820016BBEE /* TiBindingRunLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBindingRunLoop.h; sourceTree = "<group>"; };
 		1D0061C0160283820016BBEE /* TiBindingRunLoop.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBindingRunLoop.m; sourceTree = "<group>"; };
 		1D1029A615F9769100372EC0 /* TiBindingEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TiBindingEvent.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -2475,6 +2478,8 @@
 		BBDD81351A2C71E5003CDA10 /* AttributedString */ = {
 			isa = PBXGroup;
 			children = (
+				1915592C1EDBDF9900274297 /* TiUIParagraphStyleProxy.h */,
+				1915592D1EDBDF9900274297 /* TiUIParagraphStyleProxy.m */,
 				BBDD81321A2C71C9003CDA10 /* TiUIAttributedStringProxy.h */,
 				BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */,
 			);
@@ -2948,6 +2953,7 @@
 				502A68DD16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */,
 				502A68E016EEAA7500661EF6 /* TiUIListSectionProxy.m in Sources */,
 				502A68E316EEAA7500661EF6 /* TiUIListView.m in Sources */,
+				1915592E1EDBDF9900274297 /* TiUIParagraphStyleProxy.m in Sources */,
 				502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
 				502A68EB16F0428500661EF6 /* TiViewTemplate.m in Sources */,
 				84C3870217417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */,
