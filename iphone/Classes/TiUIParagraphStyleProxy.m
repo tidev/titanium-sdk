@@ -6,6 +6,8 @@
 //
 //
 
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+
 #import "TiUIParagraphStyleProxy.h"
 #import "TiUtils.h"
 
@@ -84,6 +86,9 @@
         case ParagraphAttributeBaseWritingDirection:
             [_paragraphStyle setBaseWritingDirection:[TiUtils intValue:value]];
             break;
+        case ParagraphAttributeTabInterval:
+            [_paragraphStyle setDefaultTabInterval:[TiUtils floatValue:value]];
+            break;
     }
 }
 
@@ -102,3 +107,5 @@
 }
 
 @end
+
+#endif

@@ -280,12 +280,22 @@
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
 
-
-#endif
-
 @property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_HYPHENATION_FACTOTR;
 @property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_LINE_SPACING;
 @property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_PARAGRAPH_SPACING;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_PARAGRAPH_SPACING_BEFORE;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_HEAD_INDENT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_TAIL_INDENT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_FIRST_LINE_HEAD_INDENT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_MINIUM_LINE_HEIGHT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_MAXIMUM_LINE_HEIGHT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_LINE_HEIGHT_MULTIPLE;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_LINE_BREAK_MODE;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_ALIGNMENT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_BASE_WRITING_DIRECTION;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_TAB_INTERVAL;
+
+#endif
 
 @property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_NONE;
 @property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE;

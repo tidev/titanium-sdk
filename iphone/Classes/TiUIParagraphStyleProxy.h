@@ -6,6 +6,8 @@
 //
 //
 
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+
 #import "TiProxy.h"
 
 typedef enum {
@@ -21,7 +23,8 @@ typedef enum {
     ParagraphAttributeLineHeightMultiple,
     ParagraphAttributeLineBreakMode,
     ParagraphAttributeAlignment,
-    ParagraphAttributeBaseWritingDirection
+    ParagraphAttributeBaseWritingDirection,
+    ParagraphAttributeTabInterval
 } ParagraphAttribute;
 
 @interface TiUIParagraphStyleProxy : TiProxy
@@ -32,3 +35,4 @@ typedef enum {
 - (NSMutableParagraphStyle *)paragraphStyle;
 
 @end
+#endif

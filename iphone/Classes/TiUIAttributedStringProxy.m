@@ -180,6 +180,7 @@
             break;
             
         case AttributeNameLineBreak:
+            DEPRECATED_REPLACED(@"Titanium.UI.ATTRIBUTE_LINE_BREAK", @"6.2.0", @"Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE")
             attrName = NSParagraphStyleAttributeName;
             NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
             NSNumber * num = [TiUtils numberFromObject:value];
