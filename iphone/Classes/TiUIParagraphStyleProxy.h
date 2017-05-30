@@ -11,7 +11,17 @@
 typedef enum {
     ParagraphAttributeHyphenationFactor,
     ParagraphAttributeLineSpacing,
-    ParagraphAttributeParagraphSpacing
+    ParagraphAttributeParagraphSpacing,
+    ParagraphAttributeParagraphSpacingBefore,
+    ParagraphAttributeHeadIndent,
+    ParagraphAttributeTailIndent,
+    ParagraphAttributeFirstLineHeadIndent,
+    ParagraphAttributeMinimumLineHeight,
+    ParagraphAttributeMaximumLineHeight,
+    ParagraphAttributeLineHeightMultiple,
+    ParagraphAttributeLineBreakMode,
+    ParagraphAttributeAlignment,
+    ParagraphAttributeBaseWritingDirection
 } ParagraphAttribute;
 
 @interface TiUIParagraphStyleProxy : TiProxy

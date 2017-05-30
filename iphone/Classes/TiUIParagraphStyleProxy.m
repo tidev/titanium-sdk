@@ -54,6 +54,36 @@
         case ParagraphAttributeParagraphSpacing:
             [_paragraphStyle setParagraphSpacing:[TiUtils floatValue:value]];
             break;
+        case ParagraphAttributeParagraphSpacingBefore:
+            [_paragraphStyle setParagraphSpacingBefore:[TiUtils floatValue:value]];
+            break;
+        case ParagraphAttributeHeadIndent:
+            [_paragraphStyle setHeadIndent:[TiUtils floatValue:value]];
+            break;
+        case ParagraphAttributeTailIndent:
+            [_paragraphStyle setTailIndent:[TiUtils floatValue:value]];
+            break;
+        case ParagraphAttributeFirstLineHeadIndent:
+            [_paragraphStyle setFirstLineHeadIndent:[TiUtils floatValue:value]];
+            break;
+        case ParagraphAttributeMinimumLineHeight:
+            [_paragraphStyle setMinimumLineHeight:[TiUtils floatValue:value]];
+            break;
+        case ParagraphAttributeMaximumLineHeight:
+            [_paragraphStyle setMaximumLineHeight:[TiUtils floatValue:value]];
+            break;
+        case ParagraphAttributeLineHeightMultiple:
+            [_paragraphStyle setLineHeightMultiple:[TiUtils floatValue:value]];
+            break;
+        case ParagraphAttributeLineBreakMode:
+            [_paragraphStyle setLineBreakMode:[TiUtils intValue:value]];
+            break;
+        case ParagraphAttributeAlignment:
+            [_paragraphStyle setAlignment:[TiUtils intValue:value]];
+            break;
+        case ParagraphAttributeBaseWritingDirection:
+            [_paragraphStyle setBaseWritingDirection:[TiUtils intValue:value]];
+            break;
     }
 }
 
