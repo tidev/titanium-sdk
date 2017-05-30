@@ -889,6 +889,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
+	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
@@ -3950,6 +3951,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
 			'-jar', this.androidInfo.sdk.dx,
 			'--dex', '--multi-dex',
+			'--set-max-idx-number=' + this.dxMaxIdxNumber,
 			'--output=' + this.buildBinClassesDex,
 		],
 		shrinkedAndroid = path.join(path.dirname(this.androidInfo.sdk.dx), 'shrinkedAndroid.jar'),
