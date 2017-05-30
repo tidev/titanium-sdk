@@ -89,16 +89,18 @@
     if ((count == 1) && [type isEqual:@"uploadprogress"]) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveUploadProgressNotification:) name:kTiURLUploadProgress object:nil];
     }
-    if ((count == 1) && [type isEqual:@"usernotificationsettings"]) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector
-         (didRegisterUserNotificationSettingsNotification:) name:kTiUserNotificationSettingsNotification object:nil];
-    }
-    if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
+    if ([TiUtils isIOS8OrGreater]){
+        if ((count == 1) && [type isEqual:@"usernotificationsettings"]) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector
+             (didRegisterUserNotificationSettingsNotification:) name:kTiUserNotificationSettingsNotification object:nil];
+        }
+        if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(didReceiveWatchExtensionRequestNotification:) name:kTiWatchKitExtensionRequest object:nil];
-    }
-    if ((count == 1) && [type isEqual:@"continueactivity"]) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveContinueActivityNotification:) name:kTiContinueActivity object:nil];
+        }
+        if ((count == 1) && [type isEqual:@"continueactivity"]) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveContinueActivityNotification:) name:kTiContinueActivity object:nil];
+        }
     }
     
     if([TiUtils isIOS9OrGreater]){
@@ -153,14 +155,16 @@
         [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiURLUploadProgress object:nil];
     }
     
-    if ((count == 1) && [type isEqual:@"usernotificationsetting"]) {
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiUserNotificationSettingsNotification object:nil];
-    }
-    if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiWatchKitExtensionRequest object:nil];
-    }
-    if ((count == 1) && [type isEqual:@"continueactivity"]) {
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContinueActivity object:nil];
+    if ([TiUtils isIOS8OrGreater]){
+        if ((count == 1) && [type isEqual:@"usernotificationsetting"]) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiUserNotificationSettingsNotification object:nil];
+        }
+        if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiWatchKitExtensionRequest object:nil];
+        }
+        if ((count == 1) && [type isEqual:@"continueactivity"]) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContinueActivity object:nil];
+        }
     }
     
     if([TiUtils isIOS9OrGreater]){
@@ -349,6 +353,11 @@
 
 -(id)createUserNotificationAction:(id)args
 {
+
+	if(![TiUtils isIOS8OrGreater]) {
+		return nil;
+	}
+
 	ENSURE_SINGLE_ARG(args,NSDictionary);
 	UIMutableUserNotificationAction *notifAction = [[UIMutableUserNotificationAction alloc] init];
 
@@ -388,6 +397,11 @@
 
 -(id)createUserNotificationCategory:(id)args
 {
+
+	if(![TiUtils isIOS8OrGreater]) {
+		return nil;
+	}
+	
 	ENSURE_SINGLE_ARG(args,NSDictionary);
 	UIMutableUserNotificationCategory *notifCategory = [[UIMutableUserNotificationCategory alloc] init];
 	
@@ -429,6 +443,8 @@
 
 -(void)registerUserNotificationSettings:(id)args
 {
+	if (![TiUtils isIOS8OrGreater]) return;
+	
 	ENSURE_SINGLE_ARG(args, NSDictionary);
     
     NSArray *categories;
@@ -478,7 +494,11 @@
 }
 
 -(NSArray*)supportedUserActivityTypes
-{
+{    
+    if (![TiUtils isIOS8OrGreater]) {
+        return nil;
+    }
+    
     NSArray *supportedActivityTypes = [[NSBundle mainBundle]
                                        objectForInfoDictionaryKey:@"NSUserActivityTypes"];
     
@@ -487,6 +507,10 @@
 
 -(NSDictionary*)currentUserNotificationSettings
 {
+    if (![TiUtils isIOS8OrGreater]) {
+        return nil;
+    }
+    
     __block NSDictionary* returnVal = nil;
     TiThreadPerformOnMainThread(^{
         UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
@@ -627,12 +651,14 @@
 		localNotif.userInfo = userInfo;
 	}
 
-    id category = [args objectForKey:@"category"];
-    if (category != nil && [category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
-        localNotif.category = [(TiAppiOSNotificationCategoryProxy*)category identifier];
-    } else if (category != nil && [category isKindOfClass:[NSString class]]) {
-        localNotif.category = category;
-    }
+	if([TiUtils isIOS8OrGreater]) {
+		id category = [args objectForKey:@"category"];
+		if (category != nil && [category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
+			localNotif.category = [(TiAppiOSNotificationCategoryProxy*)category identifier];
+		} else if (category != nil && [category isKindOfClass:[NSString class]]) {
+			localNotif.category = category;
+		}
+	}
 	
 	TiThreadPerformOnMainThread(^{
 		if (date!=nil) {
@@ -761,6 +787,10 @@
     if ([TiUtils isIOS9OrGreater]) {
         DebugLog(@"[WARN] Deprecated. Please use Ti.App.iOS.WatchConnectivity instead");
     }
+    if(![TiUtils isIOS8OrGreater]) {
+        return;
+    }
+    
     enum Args {
         kArgKey = 0,
         kArgCount,
@@ -807,33 +837,51 @@
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_NONE
 {
-    return NUMINT(UIUserNotificationTypeNone);
+	if ([TiUtils isIOS8OrGreater]) {
+		return NUMINT(UIUserNotificationTypeNone);
+	}
+	return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_BADGE
 {
-    return NUMINT(UIUserNotificationTypeBadge);
+	if ([TiUtils isIOS8OrGreater]) {
+		return NUMINT(UIUserNotificationTypeBadge);
+	}
+	return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_SOUND
 {
-    return NUMINT(UIUserNotificationTypeSound);
+	if ([TiUtils isIOS8OrGreater]) {
+		return NUMINT(UIUserNotificationTypeSound);
+	}
+	return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_TYPE_ALERT
 {
-    return NUMINT(UIUserNotificationTypeAlert);
+	if ([TiUtils isIOS8OrGreater]) {
+		return NUMINT(UIUserNotificationTypeAlert);
+	}
+	return NUMINT(0);
 }
 
 
 -(NSNumber*)USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
 {
-    return NUMINT(UIUserNotificationActivationModeBackground);
+	if ([TiUtils isIOS8OrGreater]) {
+		return NUMINT(UIUserNotificationActivationModeBackground);
+	}
+	return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND
 {
-    return NUMINT(UIUserNotificationActivationModeForeground);
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINT(UIUserNotificationActivationModeForeground);
+    }
+    return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_BEHAVIOR_DEFAULT
@@ -1070,7 +1118,10 @@
 
 -(NSString*)applicationOpenSettingsURL
 {
-    return UIApplicationOpenSettingsURLString;
+    if ([TiUtils isIOS8OrGreater]) {
+        return UIApplicationOpenSettingsURLString;
+    }
+    return nil;
 }
 
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED,@"accessibilitylayoutchanged");

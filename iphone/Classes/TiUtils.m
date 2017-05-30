@@ -118,18 +118,27 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 +(BOOL)isRetinaFourInch
 {
     CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
-    return (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width == 568);
+    if ([TiUtils isIOS8OrGreater]) {
+        return (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width == 568);
+    }
+    return (mainScreenBoundsSize.height == 568);
 }
 
 +(BOOL)isRetinaiPhone6
 {
-    CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
-    return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
+    if ([TiUtils isIOS8OrGreater]) {
+        CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+        return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
+    }
+    return NO;
 }
 
 +(BOOL)isRetinaHDDisplay
 {
-    return ([UIScreen mainScreen].scale == 3.0);
+    if ([TiUtils isIOS8OrGreater]) {
+        return ([UIScreen mainScreen].scale == 3.0);
+    }
+    return NO;
 }
 
 +(BOOL)isRetinaDisplay

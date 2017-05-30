@@ -700,7 +700,7 @@
     
     [self replaceValue:value forKey:@"hidesBarsOnSwipe" notification:NO];
     
-    if ((controller != nil) && ([controller navigationController] != nil)) {
+    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
         [[controller navigationController] setHidesBarsOnSwipe:[TiUtils boolValue:value def:NO]];
     }
 }
@@ -712,7 +712,7 @@
     
     [self replaceValue:value forKey:@"hidesBarsOnTap" notification:NO];
     
-    if ((controller != nil) && ([controller navigationController] != nil)) {
+    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
         [[controller navigationController] setHidesBarsOnTap:[TiUtils boolValue:value def:NO]];
     }
 }
@@ -724,7 +724,7 @@
     
     [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
     
-    if ((controller != nil) && ([controller navigationController] != nil)) {
+    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
         [[controller navigationController] setHidesBarsWhenKeyboardAppears:[TiUtils boolValue:value def:NO]];
     }
 }

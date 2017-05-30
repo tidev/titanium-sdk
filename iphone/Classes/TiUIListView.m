@@ -218,7 +218,9 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [self configureHeaders];
         _defaultSeparatorInsets = [_tableView separatorInset];
         
-        [_tableView setLayoutMargins:UIEdgeInsetsZero];
+        if ([TiUtils isIOS8OrGreater]) {
+            [_tableView setLayoutMargins:UIEdgeInsetsZero];
+        }
         
         if ([TiUtils isIOS9OrGreater]) {
             _tableView.cellLayoutMarginsFollowReadableWidth = NO;
@@ -1436,7 +1438,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             }
         }
         
-        if (tableView == _tableView) {
+        if ([TiUtils isIOS8OrGreater] && (tableView == _tableView)) {
             [cell setLayoutMargins:UIEdgeInsetsZero];
         }
         

@@ -55,13 +55,22 @@
 - (NSNumber*) platformWidth
 {
     CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-    return [NSNumber numberWithFloat:mainScreenBounds.size.width];
+    if ([TiUtils isIOS8OrGreater] || [self isUIPortrait]) {
+        return [NSNumber numberWithFloat:mainScreenBounds.size.width];
+    } else {
+        return [NSNumber numberWithFloat:mainScreenBounds.size.height];
+    }
 }
 
 - (NSNumber*) platformHeight
 {
     CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-    return [NSNumber numberWithFloat:mainScreenBounds.size.height];
+    if ([TiUtils isIOS8OrGreater] || [self isUIPortrait]) {
+        return [NSNumber numberWithFloat:mainScreenBounds.size.height];
+    } else {
+        return [NSNumber numberWithFloat:mainScreenBounds.size.width];
+    }
+
 }
 
 - (NSNumber*) logicalDensityFactor

@@ -306,14 +306,22 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         }
 		locationManager.headingFilter = heading;
 
-        if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
-            [locationManager requestAlwaysAuthorization];
-        } else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
-            [locationManager requestWhenInUseAuthorization];
+        if ([TiUtils isIOS8OrGreater]) {
+            if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
+                [locationManager requestAlwaysAuthorization];
+            } else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
+                [locationManager requestWhenInUseAuthorization];
+            } else {
+                NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml. Starting with iOS8 this is required.");
+            }
         } else {
-            NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml. Starting with iOS8 this is required.");
+            if (purpose != nil) {
+                DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. On iOS6 and above include the NSLocationUsageDescription key in your Info.plist");
+                if ([locationManager respondsToSelector:@selector(setPurpose:)]) {
+                    [locationManager performSelector:@selector(setPurpose:) withObject:purpose];
+                }
+            }
         }
-
         //This is set to NO by default for > iOS9.
         if ([TiUtils isIOS9OrGreater]) {
             locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
@@ -789,12 +797,18 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(NSNumber*)AUTHORIZATION_ALWAYS
 {
-    return NUMINT(kCLAuthorizationStatusAuthorizedAlways);
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINT(kCLAuthorizationStatusAuthorizedAlways);
+    }
+    return NUMINT(0);
 }
 
 -(NSNumber*)AUTHORIZATION_WHEN_IN_USE
 {
-    return NUMINT(kCLAuthorizationStatusAuthorizedWhenInUse);
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINT(kCLAuthorizationStatusAuthorizedWhenInUse);
+    }
+    return NUMINT(0);
 }
 
 -(CLLocationManager*)locationPermissionManager
@@ -811,10 +825,14 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 {
     BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
     CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
-    id value = [args objectAtIndex:0];
-    ENSURE_TYPE(value, NSNumber);
-    CLAuthorizationStatus requestedPermissionLevel = [TiUtils intValue: value];
-    return NUMBOOL(locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel);
+    if ([TiUtils isIOS8OrGreater]) {
+        id value = [args objectAtIndex:0];
+        ENSURE_TYPE(value, NSNumber);
+        CLAuthorizationStatus requestedPermissionLevel = [TiUtils intValue: value];
+        return NUMBOOL(locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel);
+    } else {
+        return NUMBOOL(locationServicesEnabled && currentPermissionLevel == kCLAuthorizationStatusAuthorized);
+    }
 }
 
 -(void)requestAuthorization:(id)value
@@ -848,6 +866,14 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 -(void)requestLocationPermissions:(id)args
 {
+    if (![TiUtils isIOS8OrGreater]) {
+        // It is required that delegate is created and permission is presented in main thread.
+        TiThreadPerformOnMainThread(^{
+            [self requestLocationPermissioniOS7:args];
+        }, NO);
+        return;
+    }
+    
     id value = [args objectAtIndex:0];
     ENSURE_TYPE(value, NSNumber);
     
@@ -946,10 +972,12 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 						   [NSNumber numberWithLongLong:(long long)([[newLocation timestamp] timeIntervalSince1970] * 1000)],@"timestamp",
 						   nil];
     
-    NSDictionary *floor = [NSDictionary dictionaryWithObjectsAndKeys:
-                           [NSNumber numberWithInteger:[[newLocation floor] level]],@"level",
-                           nil];
-    [data setObject:floor forKey:@"floor"];
+    if ([TiUtils isIOS8OrGreater]) {
+        NSDictionary *floor = [NSDictionary dictionaryWithObjectsAndKeys:
+                               [NSNumber numberWithInteger:[[newLocation floor] level]],@"level",
+                               nil];
+        [data setObject:floor forKey:@"floor"];
+    }
     
 	return data;
 }

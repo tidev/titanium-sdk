@@ -435,9 +435,10 @@
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
 		
 		
-		if (TiDimensionIsDip(rowHeight)) {
+		if (TiDimensionIsDip(rowHeight))
+		{
 			[tableview setRowHeight:rowHeight.value];
-		} else {
+		} else if ([TiUtils isIOS8OrGreater]) {
 			//TIMOB-17373 rowHeight on iOS8 is -1. Bug??
 			[tableview setRowHeight:44];
 		}
@@ -456,7 +457,9 @@
         
         defaultSeparatorInsets = [tableview separatorInset];
 		
-        [tableview setLayoutMargins:UIEdgeInsetsZero];
+        if ([TiUtils isIOS8OrGreater]) {
+            [tableview setLayoutMargins:UIEdgeInsetsZero];
+        }
         
         if ([TiUtils isIOS9OrGreater]) {
             tableview.cellLayoutMarginsFollowReadableWidth = NO;
@@ -2152,7 +2155,7 @@ return result;	\
 	}
     [row initializeTableViewCell:cell];
     
-    if (tableview == ourTableView) {
+    if ([TiUtils isIOS8OrGreater] && (tableview == ourTableView)) {
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
     
