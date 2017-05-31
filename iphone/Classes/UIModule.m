@@ -37,9 +37,8 @@
 #endif
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
-#endif
-
 #import "TiUIParagraphStyleProxy.h"
+#endif
 
 #import "TiApp.h"
 #import "ImageLoader.h"
