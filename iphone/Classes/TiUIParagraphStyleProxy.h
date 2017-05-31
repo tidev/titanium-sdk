@@ -23,8 +23,7 @@ typedef enum {
     ParagraphAttributeLineHeightMultiple,
     ParagraphAttributeLineBreakMode,
     ParagraphAttributeAlignment,
-    ParagraphAttributeBaseWritingDirection,
-    ParagraphAttributeTabInterval
+    ParagraphAttributeBaseWritingDirection
 } ParagraphAttribute;
 
 @interface TiUIParagraphStyleProxy : TiProxy

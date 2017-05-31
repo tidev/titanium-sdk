@@ -81,13 +81,10 @@
             [_paragraphStyle setLineBreakMode:[TiUtils intValue:value]];
             break;
         case ParagraphAttributeAlignment:
-            [_paragraphStyle setAlignment:[TiUtils intValue:value]];
+            [_paragraphStyle setAlignment:[TiUtils textAlignmentValue:value]];
             break;
         case ParagraphAttributeBaseWritingDirection:
             [_paragraphStyle setBaseWritingDirection:[TiUtils intValue:value]];
-            break;
-        case ParagraphAttributeTabInterval:
-            [_paragraphStyle setDefaultTabInterval:[TiUtils floatValue:value]];
             break;
     }
 }

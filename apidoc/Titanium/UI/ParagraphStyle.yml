@@ -1,0 +1,194 @@
+---
+name: Titanium.UI.ParagraphStyle
+summary: |
+    ParagraphStyle proxy manages the behaviour of string set.
+description: |
+    The ParagraphStyle proxy is created with the <Titanium.UI.createParagraphStyle> method.
+    
+    The attributes can either be set in the constructor or after it has been created.
+    This is used as an attribute of AttributedString <Titanium.UI.createAttributedString>.
+    Range for this should be whole string.
+
+platforms: [iphone, ipad]
+extends: Titanium.Proxy
+since: "6.2.0"
+
+properties:
+  - name: attributes
+    summary: |
+        An array of attributes to add.
+    description: |
+        Internally, this calls the [addAttribute](Titanium.UI.ParagraphStyle.addAttribute)
+        method for each of the attributes passed in.
+    type: Array<ParagraphAttribute>
+
+methods:
+  - name: addAttribute
+    summary: Adds an [attribute](ParagraphAttribute) with the given name and value to the string set.
+    parameters:
+      - name: attribute
+        summary: An attribute object.
+        type: ParagraphAttribute
+
+examples:
+  - title: Adds an array of attributes to a label
+    example: |
+        Creates an AttributedString proxy, adds some attributes to it, and applies them
+        to a <Titanium.UI.Label>.
+
+            var win = Titanium.UI.createWindow({
+                backgroundColor: '#ddd',
+            });
+
+            win.open();
+
+            var text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
+            var paragraphStyle = Titanium.UI.createParagraphStyle({
+                attributes:[
+                {
+                    type:Titanium.UI.PARAGRAPH_ATTRIBUTE_HYPHENATION_FACTOTR,
+                    value:.5
+                },
+                {
+                    type:Titanium.UI.PARAGRAPH_ATTRIBUTE_LINE_SPACING,
+                    value:10
+                },
+                {
+                    type:Titanium.UI.PARAGRAPH_ATTRIBUTE_LINE_BREAK_MODE,
+                    value:Ti.UI.ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD
+                }
+                ]
+                });
+
+            var attr = Titanium.UI.createAttributedString({
+                text: text,
+                attributes: [
+                    // Paragraph Style 
+                    {
+                        type: Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE,
+                        value: paragraphStyle,
+                        range: [0, text.length]
+                    },
+                    // Sets a background color
+                    {
+                        type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
+                        value: "red",
+                        range: [text.indexOf('Appcelerator'), ('Appcelerator').length]
+                    },
+                ]
+            });
+
+            var label = Titanium.UI.createLabel({
+                left: 20,
+                right: 20,
+                height: Titanium.UI.SIZE,
+                attributedString: attr
+            });
+
+            win.add(label);
+
+  - title: Adds attributes, one by one.
+    example: |
+
+            var win = Titanium.UI.createWindow({
+                backgroundColor: '#ddd',
+            });
+
+            win.open();
+
+            var text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
+            var paragraphStyle = Titanium.UI.createParagraphStyle();
+
+            paragraphStyle.addAttribute({
+                type:Titanium.UI.PARAGRAPH_ATTRIBUTE_LINE_SPACING,
+                value:10
+            });
+
+            var attr = Titanium.UI.createAttributedString({
+                text: text,
+                attributes: [
+                    // Paragraph Style 
+                    {
+                        type: Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE,
+                        value: paragraphStyle,
+                        range: [0, text.length]
+                    },
+                    // Sets a background color
+                    {
+                        type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
+                        value: "red",
+                        range: [text.indexOf('Appcelerator'), ('Appcelerator').length]
+                    },
+                ]
+            });
+
+
+            var label = Titanium.UI.createLabel({
+                left: 20,
+                right: 20,
+                height: Titanium.UI.SIZE,
+                attributedString: attr
+            });
+
+            win.add(label);
+
+
+
+---
+name: ParagraphAttribute
+summary: An abstract datatype for specifying an Paragraph style attribute.
+description: |
+    Attributes are added to the <Titanium.UI.ParagraphStyle> object to create
+    paragraph style, which whn used with attributed string will give styled text. 
+    The attribute is a JavaScript Object containing two properties:
+    `type` and `value`.
+
+platforms: [iphone, ipad]
+since: "6.2.0"
+
+properties:
+  - name: type
+    summary: Paragraph Attribute which will give styling to text.
+    type: Number
+    constants: [ Titanium.UI.PARAGRAPH_ATTRIBUTE_HYPHENATION_FACTOTR, Titanium.UI.PARAGRAPH_ATTRIBUTE_LINE_SPACING,
+                 Titanium.UI.PARAGRAPH_ATTRIBUTE_PARAGRAPH_SPACING, Titanium.UI.PARAGRAPH_ATTRIBUTE_PARAGRAPH_SPACING_BEFORE,
+                 Titanium.UI.PARAGRAPH_ATTRIBUTE_HEAD_INDENT, Titanium.UI.PARAGRAPH_ATTRIBUTE_TAIL_INDENT, 
+                 Titanium.UI.PARAGRAPH_ATTRIBUTE_FIRST_LINE_HEAD_INDENT, Titanium.UI.PARAGRAPH_ATTRIBUTE_MINIUM_LINE_HEIGHT,
+                 Titanium.UI.PARAGRAPH_ATTRIBUTE_MAXIMUM_LINE_HEIGHT, Titanium.UI.PARAGRAPH_ATTRIBUTE_LINE_HEIGHT_MULTIPLE,
+                 Titanium.UI.PARAGRAPH_ATTRIBUTE_LINE_BREAK_MODE, Titanium.UI.PARAGRAPH_ATTRIBUTE_ALIGNMENT,
+                 Titanium.UI.PARAGRAPH_ATTRIBUTE_BASE_WRITING_DIRECTION]
+
+  - name: value
+    summary: Paragraph Attribute value.
+    description: |
+        The `value` parameter depends on the `type` parameter. For example, to use hyphenation factor :
+        
+            {
+                type: Titanium.UI.PARAGRAPH_ATTRIBUTE_HYPHENATION_FACTOTR
+                value: .5
+            }
+        
+        For using Line break mode we can use constants <Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_*> as :
+
+            {
+                type: Titanium.UI.PARAGRAPH_ATTRIBUTE_LINE_BREAK_MODE
+                value: Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING | Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD
+            }
+
+        For using paragraph base writing direction (Titanium.UI.PARAGRAPH_ATTRIBUTE_BASE_WRITING_DIRECTION) we can use 
+        following three constants only:
+                <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_NATURAL>,
+                <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT>,
+                <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT>
+
+        For using paragraph text alignment (Titanium.UI.PARAGRAPH_ATTRIBUTE_ALIGNMENT) we can use 
+        following five constants only:
+                <Titanium.UI.TEXT_ALIGNMENT_LEFT>,
+                <Titanium.UI.TEXT_ALIGNMENT_CENTER>,
+                <Titanium.UI.TEXT_ALIGNMENT_RIGHT>,
+                <Titanium.UI.TEXT_ALIGNMENT_JUSTIFY>,
+                <Titanium.UI.TEXT_ALIGNMENT_NATURAL>
+
+        For other types we can use float value as mentioned above for hyphenation factor.
+
+    type: Number

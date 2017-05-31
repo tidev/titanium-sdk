@@ -45,6 +45,7 @@
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_CENTER;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_RIGHT;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_JUSTIFY;
+@property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_NATURAL;
 
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP;
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP;
@@ -293,7 +294,6 @@
 @property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_LINE_BREAK_MODE;
 @property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_ALIGNMENT;
 @property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_BASE_WRITING_DIRECTION;
-@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_TAB_INTERVAL;
 
 #endif
 
