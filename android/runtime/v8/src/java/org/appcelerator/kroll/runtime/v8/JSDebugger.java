@@ -43,7 +43,7 @@ public final class JSDebugger
 
 	// The handshake message
 	// FIXME Grab the v8 version from the system!
-	private static final String HANDSHAKE_MESSAGE = "Type: connect\r\nV8-Version: 5.1.281.59\r\nProtocol-Version: 1\r\nEmbedding-Host: Titanium v%s\r\nContent-Length: 0\r\n\r\n";
+	private static final String HANDSHAKE_MESSAGE = "Type: connect\r\nV8-Version: 5.7.492.71\r\nProtocol-Version: 1\r\nEmbedding-Host: Titanium v%s\r\nContent-Length: 0\r\n\r\n";
 
 	// The port to listen to for debugger connections
 	private final int port;

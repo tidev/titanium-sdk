@@ -1,5 +1,5 @@
 #!groovy
-
+library 'pipeline-library'
 currentBuild.result = 'SUCCESS'
 
 // Variables which we assign and share between nodes
@@ -12,12 +12,7 @@ def isPR = false
 // Variables we can change
 def nodeVersion = '4.7.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
 
-@NonCPS
-def jsonParse(def json) {
-	new groovy.json.JsonSlurperClassic().parseText(json)
-}
-
-def unitTests(os, nodeVersion) {
+def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
 		// TODO Customize labels by os we're testing
 		node('android-emulator && git && android-sdk && osx') {
@@ -32,7 +27,7 @@ def unitTests(os, nodeVersion) {
 				// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
 				dir('titanium-mobile-mocha-suite') {
 					// TODO Do a shallow clone, using same credentials as from scm object
-					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git'
+					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
 				}
 				// copy over any overridden unit tests into this workspace
 				unstash 'override-tests'
@@ -72,6 +67,7 @@ def unitTests(os, nodeVersion) {
 
 // Wrap in timestamper
 timestamps {
+	def targetBranch
 	try {
 		node('git && android-sdk && android-ndk && ant && gperf && osx') {
 			stage('Checkout') {
@@ -86,18 +82,18 @@ timestamps {
 				// FIXME: Workaround for missing env.GIT_COMMIT: http://stackoverflow.com/questions/36304208/jenkins-workflow-checkout-accessing-branch-name-and-git-commit
 				gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
 				isPR = env.BRANCH_NAME.startsWith('PR-')
+				// target branch of windows SDK to use and test suite to test with
+				targetBranch = isPR ? env.CHANGE_TARGET : env.BRANCH_NAME
+				if (!targetBranch) {
+					targetBranch = 'master'
+				}
 			}
 
 			// Skip the Windows SDK portion if a PR, we don't need it
 			stage('Windows') {
 				if (!isPR) {
-					// Grab Windows SDK from merge target banch, if unset assume master
-					def windowsBranch = env.CHANGE_TARGET
-					if (!windowsBranch) {
-						windowsBranch = 'master'
-					}
 					step([$class: 'CopyArtifact',
-						projectName: "../titanium_mobile_windows/${windowsBranch}",
+						projectName: "../titanium_mobile_windows/${targetBranch}",
 						selector: [$class: 'StatusBuildSelector', stable: false],
 						filter: 'dist/windows/'])
 					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
@@ -115,15 +111,23 @@ timestamps {
 				echo "VTAG:            ${vtag}"
 				basename = "dist/mobilesdk-${vtag}"
 				echo "BASENAME:        ${basename}"
-				// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
-				dir('build') {
-					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						timeout(5) {
-							sh 'npm install .'
-						}
+
+				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+					// Install dev dependencies
+					timeout(5) {
+						// We already check in our production dependencies, so only install devDependencies
+						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+					}
+					sh 'npm test' // Run linting first
+					// Then validate docs
+					dir('apidoc') {
+						sh 'node validate.js'
+					}
+					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
+					dir('build') {
 						timeout(15) {
 							sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
-						}
+						} // timeout
 						ansiColor('xterm') {
 							if (isPR) {
 								// For PR builds, just package android and iOS for osx
@@ -132,11 +136,11 @@ timestamps {
 								// For non-PR builds, do all platforms for all OSes
 								timeout(15) {
 									sh "node scons.js package --version-tag ${vtag} --all"
-								}
+								} // timeout
 							}
 						} // ansiColor
-					} // nodeJs
-				}
+					} // dir
+				} // nodeJs
 				archiveArtifacts artifacts: "${basename}-*.zip"
 				stash includes: 'dist/parity.html', name: 'parity'
 				stash includes: 'tests/', name: 'override-tests'
@@ -146,8 +150,8 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': unitTests('android', nodeVersion),
-				'iOS unit tests': unitTests('ios', nodeVersion),
+				'android unit tests': unitTests('android', nodeVersion, targetBranch),
+				'iOS unit tests': unitTests('ios', nodeVersion, targetBranch),
 				failFast: true
 			)
 		}
@@ -168,8 +172,10 @@ timestamps {
 						// ignore? Not able to grab the index.json, so assume it means it's a new branch
 					}
 					if (fileExists('index.json')) {
-						// FIXME The index.json we received may actually be an Access Denied xml file. If so we should catch here and assume empty JSON?
-						indexJson = jsonParse(readFile('index.json'))
+						def contents = readFile('index.json')
+						if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+							indexJson = jsonParse(contents)
+						}
 					}
 
 					// unarchive zips

@@ -43,6 +43,10 @@ methods:
         summary: Y coordinate from the scrollable region's coordinate system.
         type: Number
 
+      - name: animation
+        summary: Animation properties (since SDK 6.1.0).
+        type: ScrollViewAnimationProperties
+        optional: true
         
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
@@ -183,22 +187,23 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
-    since: "3.0.0"
+    platforms: [android, iphone, ipad, mobileweb]
+    since: { iphone: "3.0.0", ipad: "3.0.0", android: "6.2.0" }
    
   - name: dragend
     summary: Fired when the scrollable region stops being dragged.
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag 
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
     properties:
       - name: decelerate
         summary: |
             Indicates whether scrolling will continue but decelerate, now that the drag gesture has 
             been released by the touch. If `false`, scrolling will stop immediately.
+            Is always `true` on Android.
         type: Boolean
-    since: "3.0.0"
+    since: { iphone: "3.0.0", ipad: "3.0.0", android: "6.2.0" }
 
 properties:
   - name: canCancelEvents
@@ -516,3 +521,17 @@ properties:
     summary: Determines whether the scroll view's zooming is animated.
     type: Boolean
         
+---
+name: ScrollViewAnimationProperties
+summary: |
+    A simple object for specifying the animation properties when scrolling the view.
+platforms: [iphone, ipad, android]
+since: 6.1.0
+properties:
+  - name: animated
+    summary: When set to `true` it will scroll smoothly to the destination.
+    description: |
+        When set to `true` it will scroll smoothly to the destination. 
+        On iOS the default value is `true`.
+    type: Boolean
+    default: false
