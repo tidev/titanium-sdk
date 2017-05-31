@@ -1,13 +1,11 @@
-//
-//  TTiUIParagraphStyleProxy.h
-//  Titanium
-//
-//  Created by vijay vikram singh on 5/26/17.
-//
-//
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-
 #import "TiProxy.h"
 
 typedef enum {
@@ -34,4 +32,5 @@ typedef enum {
 - (NSMutableParagraphStyle *)paragraphStyle;
 
 @end
+
 #endif
