@@ -678,9 +678,9 @@ public class TiHTTPClient
 				if (requestHeaders.containsKey(header)){
 					// Appends a value to a header
 					// If it is a cookie, use ';'. If not, use ','.
-					String seperator = ("Cookie".equalsIgnoreCase(header))? "; " : ", ";
+					String separator = ("Cookie".equalsIgnoreCase(header))? "; " : ", ";
 					StringBuffer val = new StringBuffer(requestHeaders.get(header));
-					val.append(seperator+value);
+					val.append(separator+value);
 					requestHeaders.put(header, val.toString());
 				} else {
 					// Set header for the first time
