@@ -44,6 +44,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.graphics.Rect;
 
 /**
  * The parent class of view proxies.
@@ -1257,6 +1258,21 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		KrollDict destPoint = new KrollDict();
 		destPoint.put(TiC.PROPERTY_X, (int) points[0]);
 		destPoint.put(TiC.PROPERTY_Y, (int) points[1]);
+		return destPoint;
+	}
+
+	@Kroll.method
+	public KrollDict getLocationOnScreen()
+	{
+		int coords[] = new int[2];
+		view.getNativeView().getLocationInWindow(coords);
+
+		TiDimension nativeLeft = new TiDimension(coords[0], TiDimension.TYPE_LEFT);
+		TiDimension nativeTop = new TiDimension(coords[1], TiDimension.TYPE_TOP);
+
+		KrollDict destPoint = new KrollDict();
+		destPoint.put(TiC.PROPERTY_X, (int) nativeLeft.getAsDIP(view.getNativeView()));
+		destPoint.put(TiC.PROPERTY_Y, (int) nativeTop.getAsDIP(view.getNativeView()));
 		return destPoint;
 	}
 

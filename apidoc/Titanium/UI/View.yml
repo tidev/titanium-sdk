@@ -770,7 +770,21 @@ methods:
         [postlayout](Titanium.UI.View.postlayout) event.
         
         On Mobile Web, this method has no effect, but is included for parity.
+
+  - name: getLocationOnScreen
+    since: "6.1.0"
+    summary: |
+        Position of the view inside the window.
+    description: |
+        Will return the view position in relation to the window.
         
+        The `x` and `y` coordinates are the actual position of the view even if you animate the
+        translation of a view.
+        See the description of the [animate](Titanium.UI.View.animate) method for more information.
+    returns:
+        type: Point
+    platforms: [android]
+
   - name: hide
     summary: Hides this view.
     parameters:
