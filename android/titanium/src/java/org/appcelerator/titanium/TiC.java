@@ -506,6 +506,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_SLIDE = "slide";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_START = "start";
 
 	/**
@@ -577,21 +582,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_WEBVIEW_ON_LOAD_RESOURCE = "onLoadResource";
-
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_DRAWER_CLOSE = "drawerclose";
-
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_DRAWER_OPEN = "draweropen";
-
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_DRAWER_SLIDE = "drawerslide";
 
 	/**
 	 * @module.api
