@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui.widget;
 
 import ti.modules.titanium.ui.android.DrawerLayoutProxy;
-import ti.modules.titanium.ui.android.TiContentFrame;
 import ti.modules.titanium.ui.WindowProxy;
 
 import org.appcelerator.kroll.KrollDict;
@@ -107,58 +106,74 @@ public class TiUIDrawerLayout extends TiUIView {
         }
     }
 
+    private void drawerClosedEvent(View drawerView) {
+        if (proxy.hasListeners(TiC.EVENT_CLOSE)) {
+            KrollDict options = new KrollDict();
+            if (drawerView.equals(leftFrame)) {
+                options.put("drawer", "left");
+            } else if (drawerView.equals(rightFrame)) {
+                options.put("drawer", "right");
+            }
+            proxy.fireEvent(TiC.EVENT_CLOSE, options);
+        }
+    }
+
+    private void drawerOpenedEvent(View drawerView) {
+        if (proxy.hasListeners(TiC.EVENT_OPEN)) {
+            KrollDict options = new KrollDict();
+            if (drawerView.equals(leftFrame)) {
+                options.put("drawer", "left");
+            } else if (drawerView.equals(rightFrame)) {
+                options.put("drawer", "right");
+            }
+            proxy.fireEvent(TiC.EVENT_OPEN, options);
+        }
+    }
+
+    private void drawerStateChangedEvent(int state) {
+        if (proxy.hasListeners(TiC.EVENT_CHANGE)) {
+            KrollDict options = new KrollDict();
+            options.put("state", state);
+            options.put("idle", (state == DrawerLayout.STATE_IDLE));
+            options.put("dragging", (state == DrawerLayout.STATE_DRAGGING));
+            options.put("settling", (state == DrawerLayout.STATE_SETTLING));
+            proxy.fireEvent(TiC.EVENT_CHANGE, options);
+        }
+    }
+
+    private void drawerSlideEvent(View drawerView, float slideOffset) {
+        if (proxy.hasListeners(TiC.EVENT_SLIDE)) {
+            KrollDict options = new KrollDict();
+            options.put("offset", slideOffset);
+            if (drawerView.equals(leftFrame)) {
+                options.put("drawer", "left");
+            } else if (drawerView.equals(rightFrame)) {
+                options.put("drawer", "right");
+            }
+            proxy.fireEvent(TiC.EVENT_SLIDE, options);
+        }
+    }
+
     private class DrawerListener implements DrawerLayout.DrawerListener {
 
         @Override
         public void onDrawerClosed(View drawerView) {
-            if (proxy.hasListeners(TiC.EVENT_DRAWER_CLOSE)) {
-                KrollDict options = new KrollDict();
-                if (drawerView.equals(leftFrame)) {
-                    options.put("drawer", "left");
-                } else if (drawerView.equals(rightFrame)) {
-                    options.put("drawer", "right");
-                }
-                proxy.fireEvent(TiC.EVENT_DRAWER_CLOSE, options);
-            }
+            drawerClosedEvent(drawerView);
         }
 
         @Override
         public void onDrawerOpened(View drawerView) {
-            if (proxy.hasListeners(TiC.EVENT_DRAWER_OPEN)) {
-                KrollDict options = new KrollDict();
-                if (drawerView.equals(leftFrame)) {
-                    options.put("drawer", "left");
-                } else if (drawerView.equals(rightFrame)) {
-                    options.put("drawer", "right");
-                }
-                proxy.fireEvent(TiC.EVENT_DRAWER_OPEN, options);
-            }
+            drawerOpenedEvent(drawerView);
         }
 
         @Override
         public void onDrawerSlide(View drawerView, float slideOffset) {
-            if (proxy.hasListeners(TiC.EVENT_DRAWER_SLIDE)) {
-                KrollDict options = new KrollDict();
-                options.put("offset", slideOffset);
-                if (drawerView.equals(leftFrame)) {
-                    options.put("drawer", "left");
-                } else if (drawerView.equals(rightFrame)) {
-                    options.put("drawer", "right");
-                }
-                proxy.fireEvent(TiC.EVENT_DRAWER_SLIDE, options);
-            }
+            drawerSlideEvent(drawerView, slideOffset);
         }
 
         @Override
         public void onDrawerStateChanged(int state) {
-            if (proxy.hasListeners(TiC.EVENT_CHANGE)) {
-                KrollDict options = new KrollDict();
-                options.put("state", state);
-                options.put("idle", (state == DrawerLayout.STATE_IDLE));
-                options.put("dragging", (state == DrawerLayout.STATE_DRAGGING));
-                options.put("settling", (state == DrawerLayout.STATE_SETTLING));
-                proxy.fireEvent(TiC.EVENT_CHANGE, options);
-            }
+            drawerStateChangedEvent(state);
         }
     }
 
@@ -223,70 +238,22 @@ public class TiUIDrawerLayout extends TiUIView {
         drawerToggle = new ActionBarDrawerToggle(activity, layout, id_drawer_open_string, id_drawer_close_string) {
             @Override
             public void onDrawerClosed(View drawerView) {
-                if(!drawerView.equals(leftFrame)){
-                    return;
-                }
-                super.onDrawerClosed(drawerView);
-                if (proxy.hasListeners(TiC.EVENT_DRAWER_CLOSE)) {
-                    KrollDict options = new KrollDict();
-                    if (drawerView.equals(leftFrame)) {
-                        options.put("drawer", "left");
-                    } else if (drawerView.equals(rightFrame)) {
-                        options.put("drawer", "right");
-                    }
-                    proxy.fireEvent(TiC.EVENT_DRAWER_CLOSE, options);
-                }
+                drawerClosedEvent(drawerView);
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
-                if(!drawerView.equals(leftFrame)){
-                    return;
-                }
-                super.onDrawerOpened(drawerView);
-                if (proxy.hasListeners(TiC.EVENT_DRAWER_OPEN)) {
-                    KrollDict options = new KrollDict();
-                    if (drawerView.equals(leftFrame)) {
-                        options.put("drawer", "left");
-                    } else if (drawerView.equals(rightFrame)) {
-                        options.put("drawer", "right");
-                    }
-                    proxy.fireEvent(TiC.EVENT_DRAWER_OPEN, options);
-                }
+                drawerOpenedEvent(drawerView);
             }
 
             @Override
-            public void onDrawerSlide(View view, float offset) {
-
-                if(!view.equals(leftFrame)){
-                    return;
-                }
-
-                super.onDrawerSlide(view, offset);
-                if (proxy.hasListeners(TiC.EVENT_DRAWER_SLIDE)) {
-                    KrollDict options = new KrollDict();
-                    options.put("offset", offset);
-                    if (view.equals(leftFrame)) {
-                        options.put("drawer", "left");
-                    } else if (view.equals(rightFrame)) {
-                        options.put("drawer", "right");
-                    }
-                    proxy.fireEvent(TiC.EVENT_DRAWER_SLIDE, options);
-                }
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                drawerSlideEvent(drawerView, slideOffset);
             }
 
             @Override
             public void onDrawerStateChanged(int state) {
-                super.onDrawerStateChanged(state);
-
-                if (proxy.hasListeners(TiC.EVENT_CHANGE)) {
-                    KrollDict options = new KrollDict();
-                    options.put("state", state);
-                    options.put("idle", (state == DrawerLayout.STATE_IDLE));
-                    options.put("dragging", (state == DrawerLayout.STATE_DRAGGING));
-                    options.put("settling", (state == DrawerLayout.STATE_SETTLING));
-                    proxy.fireEvent(TiC.EVENT_CHANGE, options);
-                }
+                drawerStateChangedEvent(state);
             }
         };
         layout.setDrawerListener(drawerToggle);
