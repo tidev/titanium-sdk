@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.Authenticator;
 import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
@@ -50,6 +49,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 
+import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -151,6 +151,9 @@ public class TiHTTPClient
 	public static final int REDIRECTS = 5;
 
 	private TiFile responseFile;
+	private boolean hasAuthentication = false;
+	private String username;
+	private String password;
 
 	private void handleResponse(HttpURLConnection connection) throws IOException {
 		connected = true;
@@ -443,7 +446,7 @@ public class TiHTTPClient
 
 	public void setReadyState(int readyState)
 	{
-		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
+		Log.d(TAG, "Setting ready state to " + readyState);
 		this.readyState = readyState;
 		KrollDict data = new KrollDict();
 		data.put("readyState", Integer.valueOf(readyState));
@@ -800,12 +803,11 @@ public class TiHTTPClient
 				"Instantiating host with hostString='" + hostString + "', port='" + port + "', scheme='" + uri.getScheme() + "'",
 				Log.DEBUG_MODE);
 
-		final String username = ((HTTPClientProxy)proxy).getUsername();
-		final String password = ((HTTPClientProxy)proxy).getPassword();
-		final String domain = ((HTTPClientProxy)proxy).getDomain();
+		username = ((HTTPClientProxy)proxy).getUsername();
+		password = ((HTTPClientProxy)proxy).getPassword();
 
 		if ((username != null) && (password != null)) {
-			Authenticator.setDefault(new TiAuthenticator(domain, username, password));
+			hasAuthentication = true;
 		}
 
 		setReadyState(READY_STATE_OPENED);
@@ -1327,6 +1329,16 @@ public class TiHTTPClient
 				client.setDoOutput(true);
 			}
 			client.setUseCaches(false);
+			//Set Authorization value for Basic authentication
+			if (hasAuthentication) {
+				String domain = ((HTTPClientProxy)proxy).getDomain();
+				if (domain != null) {
+					username = domain + "\\" + username;
+				}
+				String userPasswordPair = username + ":" + password;
+				String encodedCredentials = Base64.encodeToString(userPasswordPair.getBytes(),Base64.DEFAULT);
+				client.setRequestProperty("Authorization", "Basic " + encodedCredentials);
+			}
 			// This is to set gzip default to disable
 			// https://code.google.com/p/android/issues/detail?id=174949
 			client.setRequestProperty("Accept-Encoding", "identity");
