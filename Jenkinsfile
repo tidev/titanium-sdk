@@ -173,28 +173,30 @@ timestamps {
 			} // end 'Build' stage
 			
 			stage('Security') {
-				// Clean up and install only production dependencies
-				sh 'yarn install --production'
+				if (!isPR) {
+					// Clean up and install only production dependencies
+					sh 'yarn install --production'
 
-				// Scan for NSP and RetireJS warnings
-			        def scanFiles = []
-			        sh 'yarn global add nsp'
-			        def nspExitCode = sh(returnStatus: true, script: 'nsp check --output json 2> nsp.json')
-			        if (nspExitCode != 0) {
-			           scanFiles << [path: 'nsp.json']
-			        }
+					// Scan for NSP and RetireJS warnings
+					def scanFiles = []
+					sh 'yarn global add nsp'
+					def nspExitCode = sh(returnStatus: true, script: 'nsp check --output json 2> nsp.json')
+					if (nspExitCode != 0) {
+					   scanFiles << [path: 'nsp.json']
+					}
 
-			        sh 'yarn global add retire'
-			        def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
+					sh 'yarn global add retire'
+					def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
 
-			        if (retireExitCode != 0) {
-			           scanFiles << [path: 'retire.json']
-			        }
+					if (retireExitCode != 0) {
+					   scanFiles << [path: 'retire.json']
+					}
 
-			        if (!scanFiles.isEmpty()) {
-			           step([$class: 'ThreadFixPublisher', appId: '128', scanFiles: scanFiles])
-			        }
-			        //step([$class: 'WarningsPublisher', canComputeNew: false, canResolveRelativePaths: false, consoleParsers: [[parserName: 'Node Security Project Vulnerabilities'], [parserName: 'RetireJS']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''])
+					if (!scanFiles.isEmpty()) {
+					   step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
+					}
+					//step([$class: 'WarningsPublisher', canComputeNew: false, canResolveRelativePaths: false, consoleParsers: [[parserName: 'Node Security Project Vulnerabilities'], [parserName: 'RetireJS']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''])
+				}
 			  } // stage
 			
 		} // end node for checkout/build
