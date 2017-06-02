@@ -103,7 +103,7 @@ public class TiHTTPClient
 
 	private static AtomicInteger httpClientThreadCounter;
 	private HttpURLConnection client;
-	private KrollProxy proxy;
+	private HTTPClientProxy proxy;
 	private int readyState;
 	private String responseText;
 	private DocumentProxy responseXml;
@@ -400,7 +400,7 @@ public class TiHTTPClient
 		}
 	}
 
-	public TiHTTPClient(KrollProxy proxy)
+	public TiHTTPClient(HTTPClientProxy proxy)
 	{
 		this.proxy = proxy;
 		if (httpClientThreadCounter == null) {
@@ -803,8 +803,8 @@ public class TiHTTPClient
 				"Instantiating host with hostString='" + hostString + "', port='" + port + "', scheme='" + uri.getScheme() + "'",
 				Log.DEBUG_MODE);
 
-		username = ((HTTPClientProxy)proxy).getUsername();
-		password = ((HTTPClientProxy)proxy).getPassword();
+		username = proxy.getUsername();
+		password = proxy.getPassword();
 
 		if ((username != null) && (password != null)) {
 			hasAuthentication = true;
@@ -917,8 +917,8 @@ public class TiHTTPClient
 
 		if (this.securityManager != null) {
 			if (this.securityManager.willHandleURL(this.uri)) {
-				TrustManager[] trustManagerArray = this.securityManager.getTrustManagers((HTTPClientProxy)this.proxy);
-				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers((HTTPClientProxy)this.proxy);
+				TrustManager[] trustManagerArray = this.securityManager.getTrustManagers(this.proxy);
+				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers(this.proxy);
 
 				try {
 					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
@@ -1331,12 +1331,11 @@ public class TiHTTPClient
 			client.setUseCaches(false);
 			//Set Authorization value for Basic authentication
 			if (hasAuthentication) {
-				String domain = ((HTTPClientProxy)proxy).getDomain();
+				String domain = proxy.getDomain();
 				if (domain != null) {
 					username = domain + "\\" + username;
 				}
-				String userPasswordPair = username + ":" + password;
-				String encodedCredentials = Base64.encodeToString(userPasswordPair.getBytes(),Base64.DEFAULT);
+				String encodedCredentials = Base64.encodeToString((username + ":" + password).getBytes(),Base64.DEFAULT);
 				client.setRequestProperty("Authorization", "Basic " + encodedCredentials);
 			}
 			// This is to set gzip default to disable
