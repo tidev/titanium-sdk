@@ -84,12 +84,12 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 			} else if (target.type == 'add-on') {
 				androidAddons += '  ' + (targetId + ') ' + target.id).cyan + '\n' +
 					'  ' + rpad('  ' + __('Name'))        + ' = ' + styleValue(target.name
-						+ ' (' + target['based-on'] ? __('Android %s (API level %s)', target['based-on']['android-version'], target['based-on']['api-level']) : __('unknown') + ')') + supported + '\n' +
-					'  ' + rpad('  ' + __('Vendor'))      + ' = ' + styleValue(target.vendor) + '\n' +
+						+ ' (' + (target['based-on'] ? __('Android %s (API level %s)', target['based-on']['android-version'], target['based-on']['api-level']) : __('unknown')) + ')') + supported + '\n' +
+					'  ' + rpad('  ' + __('Vendor'))      + ' = ' + styleValue(target.vendor || __('n/a')) + '\n' +
 					'  ' + rpad('  ' + __('Revision'))    + ' = ' + styleValue(target.revision) + '\n' +
-					'  ' + rpad('  ' + __('Description')) + ' = ' + styleValue(target.description) + '\n' +
-					'  ' + rpad('  ' + __('Skins'))       + ' = ' + styleValue(target.skins.join(', ')) + '\n' +
-					'  ' + rpad('  ' + __('ABIs'))        + ' = ' + styleValue(target.abis.join(', ')) + '\n' +
+					'  ' + rpad('  ' + __('Description')) + ' = ' + styleValue(target.description || __('n/a')) + '\n' +
+					'  ' + rpad('  ' + __('Skins'))       + ' = ' + styleValue(target.skins && target.skins.length ? target.skins.join(', ') : __('none')) + '\n' +
+					'  ' + rpad('  ' + __('ABIs'))        + ' = ' + styleValue(target.abis && target.abis.length ? target.abis.join(', ') : __('none')) + '\n' +
 					'  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(target.path) + '\n';
 
 				if (target.libraries && Object.keys(target.libraries).length) {
@@ -115,7 +115,7 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 			logger.log(emus.map(function (emu) {
 				return '  ' + emu.name.cyan + '\n' +
 					'  ' + rpad('  ' + __('ID'))          + ' = ' + styleValue(emu.id) + '\n' +
-					'  ' + rpad('  ' + __('SDK Version')) + ' = ' + styleValue(emu.target) + '\n' +
+					'  ' + rpad('  ' + __('SDK Version')) + ' = ' + styleValue(emu.target || __('not installed')) + '\n' +
 					'  ' + rpad('  ' + __('ABI'))         + ' = ' + styleValue(emu.abi) + '\n' +
 					'  ' + rpad('  ' + __('Skin'))        + ' = ' + styleValue(emu.skin) + '\n' +
 					'  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(emu.path) + '\n' +
