@@ -68,6 +68,13 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 	}
 }
 
+@NonCPS
+def isMajorVersionLessThan(version, minValue) {
+	def versionMatcher = version =~ /(\d+)\.(\d+)\.(\d+)/
+	def majorVersion = versionMatcher[0][1].toInteger()
+	return majorVersion < minValue
+}
+
 // Wrap in timestamper
 timestamps {
 	def targetBranch
@@ -129,10 +136,16 @@ timestamps {
 				echo "BASENAME:        ${basename}"
 
 				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+					// Ensure we have npm 5
+					def npmVersion = sh(returnStdout: true, script: 'npm -v').trim()
+					if (isMajorVersionLessThan(npmVersion, 5)) {
+						sh 'npm install -g npm@latest'
+					}
+
 					// Install dev dependencies
 					timeout(5) {
-						// We already check in our production dependencies, so only install devDependencies
-						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
+						sh 'npm install'
 					}
 					sh 'npm test' // Run linting first
 					// Then validate docs
