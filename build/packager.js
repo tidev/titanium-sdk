@@ -239,7 +239,7 @@ Packager.prototype.package = function (next) {
 		// FIXME Remove these hacks for titanium-sdk when titanium-cli has been released and the tisdk3fixes.js hook is gone!
 		// Now copy over hacked titanium-sdk fake node_module
 		function (cb) {
-			console.log('Copying titanium-sdk node_mdoule stub for backwards compatability with titanium-cli');
+			console.log('Copying titanium-sdk node_module stub for backwards compatibility with titanium-cli');
 			fs.copy(path.join(__dirname, 'titanium-sdk'), path.join(this.zipSDKDir, 'node_modules', 'titanium-sdk'), cb);
 		}.bind(this),
 		// Hack the package.json to include "titanium-sdk": "*" in dependencies
