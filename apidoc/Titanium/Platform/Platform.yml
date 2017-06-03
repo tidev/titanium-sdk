@@ -97,7 +97,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: availableMemory
-    summary: System's unused memory, measured in megabytes on iOS and bytes on Android.
+    summary: System's unused memory, measured in gigabytes on iOS and megabytes on Android.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
