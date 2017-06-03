@@ -176,12 +176,12 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	}
 
 	@Override
-	protected PersonProxy[] getAllPeople(int limit)
+	protected PersonProxy[] getAllPeople(int maxLimit, int offset)
 	{
-		return getPeople(limit, null, null);
+		return getPeople(maxLimit, null, null, offset);
 	}
 
-	private PersonProxy[] getPeople(int limit, String additionalCondition, String[] additionalSelectionArgs)
+	private PersonProxy[] getPeople(int maxLimit, String additionalCondition, String[] additionalSelectionArgs, int offset)
 	{
 		if (!hasContactsPermissions()) {
 			Log.e(TAG, "Contacts permissions missing");
@@ -214,7 +214,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 				additionalSelectionArgs,
 				"display_name COLLATE LOCALIZED asc, contact_id asc, mimetype asc, is_super_primary desc, is_primary desc");
 
-		while (cursor.moveToNext() && persons.size() < limit) {
+		while (cursor.moveToNext()) {
 			long id = cursor.getLong(DATA_COLUMN_CONTACT_ID);
 			CommonContactsApi.LightPerson person;
 			if (persons.containsKey(id)) {
@@ -229,7 +229,54 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 		cursor.close();
 
-		return proxifyPeople(persons);
+		return proxifyPeople(persons, maxLimit, offset);
+	}
+
+	@Override
+	protected int getSizeOfAllPeople() {
+	    if (!hasContactsPermissions()) {
+	        Log.e(TAG, "Contacts permissions missing");
+	        return -1;
+	    }
+
+	    if (TiApplication.getInstance() == null) {
+	        Log.e(TAG, "Failed to call getPeople(), application is null", Log.DEBUG_MODE);
+	        return -1;
+	    }
+
+	    Activity activity = TiApplication.getInstance().getRootOrCurrentActivity();
+	    if (activity == null) {
+	        Log.e(TAG, "Failed to call getPeople(), activity is null", Log.DEBUG_MODE);
+	        return -1;
+	    }
+
+	    LinkedHashMap<Long, CommonContactsApi.LightPerson> persons = new LinkedHashMap<Long, LightPerson>();
+
+	    String condition = "mimetype IN " + INConditionForKinds;
+
+	    Cursor cursor = activity.getContentResolver().query(
+	            DataUri,
+	            DATA_PROJECTION,
+	            condition,
+	            null,
+	            "display_name COLLATE LOCALIZED asc, contact_id asc, mimetype asc, is_super_primary desc, is_primary desc");
+
+	    while (cursor.moveToNext()) {
+	        long id = cursor.getLong(DATA_COLUMN_CONTACT_ID);
+	        CommonContactsApi.LightPerson person;
+	        if (persons.containsKey(id)) {
+	            person = persons.get(id);
+	        } else {
+	            person = new CommonContactsApi.LightPerson();
+	            person.addPersonInfoFromL5DataRow(cursor);
+	            persons.put(id, person);
+	        }
+	        person.addDataFromL5Cursor(cursor);
+	    }
+
+	    cursor.close();
+
+	    return persons.size();
 	}
 
 	@Override
@@ -241,7 +288,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	@Override
 	protected PersonProxy[] getPeopleWithName(String name)
 	{
-		return getPeople(Integer.MAX_VALUE, "display_name like ? or display_name like ?" , new String[]{name + '%', "% " + name + '%'});
+		return getPeople(Integer.MAX_VALUE, "display_name like ? or display_name like ?" , new String[]{name + '%', "% " + name + '%'}, 0);
 	}
 
 	protected void updateContactField(ArrayList<ContentProviderOperation> ops, String mimeType, String idKey,

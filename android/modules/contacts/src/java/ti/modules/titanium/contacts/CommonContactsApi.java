@@ -86,7 +86,8 @@ public abstract class CommonContactsApi
 	protected abstract PersonProxy addContact(KrollDict options);
 	protected abstract void save(Object people);
 	protected abstract PersonProxy getPersonByUri(Uri uri);
-	protected abstract PersonProxy[] getAllPeople(int limit);
+	protected abstract PersonProxy[] getAllPeople(int maxLimit, int offset);
+	protected abstract int getSizeOfAllPeople();
 	protected abstract PersonProxy[] getPeopleWithName(String name);
 	protected abstract Intent getIntentForContactsPicker();
 	protected abstract Bitmap getInternalContactImage(long id);
@@ -94,18 +95,36 @@ public abstract class CommonContactsApi
 
 	protected PersonProxy[] getAllPeople()
 	{
-		return getAllPeople(Integer.MAX_VALUE);
+		return getAllPeople(Integer.MAX_VALUE, 0);
 	}
 
 	protected PersonProxy[] proxifyPeople(Map<Long, LightPerson> persons)
 	{
-		PersonProxy[] proxies = new PersonProxy[persons.size()];
-		int index = 0;
-		for (LightPerson person: persons.values()) {
-			proxies[index] = person.proxify();
-			index++;
-		}
-		return proxies;
+	    PersonProxy[] proxies = new PersonProxy[persons.size()];
+	    int index = 0;
+	    for (LightPerson person: persons.values()) {
+	        proxies[index] = person.proxify();
+	        index++;
+	    }
+	    return proxies;
+	}
+
+	protected PersonProxy[] proxifyPeople(Map<Long, LightPerson> persons, int maxLimit, int offset)
+	{
+	    PersonProxy[] proxies = new PersonProxy[maxLimit];
+	    int index = 0;
+	    for (LightPerson person: persons.values()) {
+	        if (index<offset) {
+	            index++;
+	            continue;
+	        }
+	        if (index>=offset+maxLimit) {
+	            break;
+	        }
+	        proxies[index-offset] = person.proxify();
+	        index++;
+	    }
+	    return proxies;
 	}
 
 	// Happily, these codes are common across api level
