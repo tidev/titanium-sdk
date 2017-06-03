@@ -37,6 +37,7 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -793,6 +794,30 @@ public class MediaModule extends KrollModule
 							return;
 						}
 					} else {
+							Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+							int rotation = TiImageHelper.getOrientation(imageFile.getAbsolutePath());
+							if (rotation == 0) {
+								rotation += 90;
+							} else if (rotation == 180) {
+								rotation -= 90;
+							}
+							bitmap = TiImageHelper.rotateImage(bitmap, rotation);
+						BufferedOutputStream bos = null;
+						try {
+							bos = new BufferedOutputStream(new FileOutputStream(imageFile.getAbsolutePath()));
+							bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+						} catch (FileNotFoundException e) {
+							Log.e(TAG, "Bitmap source file is not found; unable to perform auto rotation: " + e);
+						} finally {
+							try {
+								if (bos != null) {
+									bos.close();
+								}
+							} catch (IOException e) {
+								Log.d(TAG, "I/O Error occurred while closing BufferedOutputStream: " + e);
+							}
+						}
+						
 						//Send out broadcast to add to image gallery
 						Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
 						Uri contentUri = Uri.fromFile(imageFile);
