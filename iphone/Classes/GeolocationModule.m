@@ -9,11 +9,11 @@
 #import "GeolocationModule.h"
 #import "TiApp.h"
 #import "TiEvaluator.h"
-#import "SBJSON.h"
-#import <sys/utsname.h>
 #import "NSData+Additions.h"
 #import "APSAnalytics.h"
 #import "AnalyticsModule.h"
+
+#import <sys/utsname.h>
 
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
@@ -148,10 +148,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)requestSuccess:(NSString*)locationString
 {
-	SBJSON *json = [[SBJSON alloc] init];
 	NSError * error = nil;
-	id event = [json fragmentWithString:locationString error:&error];
-	[json release];
+	id event = [TiUtils jsonParse:locationString error:&error];
 	if (error != nil) {
 		[self requestError:error];
 	}
@@ -591,15 +589,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSString *)lastGeolocation
 {
-	SBJSON *json = [[SBJSON alloc] init];
-	NSString * result = [json stringWithObject:lastLocationDict error:nil];
-	[json release];
-	return result;
+    return [TiUtils jsonStringify:lastLocationDict error:nil];
 }
 
 -(NSNumber*)highAccuracy
 {
-	return NUMBOOL(accuracy==kCLLocationAccuracyBest);
+	return NUMBOOL(accuracy == kCLLocationAccuracyBest);
 }
 
 -(void)setHighAccuracy:(NSNumber *)value

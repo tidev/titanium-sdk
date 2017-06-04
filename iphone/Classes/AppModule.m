@@ -8,7 +8,6 @@
 
 #import "AppModule.h"
 #import "TiHost.h"
-#import "SBJSON.h"
 #import "ListenerEntry.h"
 #import "TiApp.h"
 #if defined(USE_TI_APPIOS)
@@ -215,11 +214,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			// since this is cross context, we need to force into a JSON so the data can serialize
 			// we first force to string json, then we convert the string JSON back to a dictionary to
 			// eliminate any native things like functions, native objects, etc.
-			SBJSON *json = [[SBJSON alloc] init];
-			NSString *json_ = [SBJSON stringify:eventObject];
-			id jsonObject = [json fragmentWithString:json_ error:nil];
-			[json release];
-			for (ListenerEntry *entry in array)
+			NSString *json_ = [TiUtils jsonStringify:eventObject];
+			id jsonObject = [TiUtils jsonParse:json_ error:nil];
+
+            for (ListenerEntry *entry in array)
 			{
 				// fire application level event
 				[host fireEvent:[entry listener] withObject:jsonObject remove:NO context:[entry context] thisObject:nil];
