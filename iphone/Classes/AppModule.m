@@ -217,7 +217,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			NSString *json_ = [TiUtils jsonStringify:eventObject];
 			id jsonObject = [TiUtils jsonParse:json_ error:nil];
 
-            for (ListenerEntry *entry in array)
+			for (ListenerEntry *entry in array)
 			{
 				// fire application level event
 				[host fireEvent:[entry listener] withObject:jsonObject remove:NO context:[entry context] thisObject:nil];
