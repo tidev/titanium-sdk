@@ -15,5 +15,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/android-support-core-utils.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/android-support-fragment.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/android-support-media-compat.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/android-support-transition.jar"/>
+ 	<classpathentry exported="true" kind="lib" path="lib/android-support-v7-recyclerview.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
