@@ -48,7 +48,7 @@ And much, much more (see our [Documentation](http://docs.appcelerator.com/platfo
 
 Use Hyperloop, our latest addition to the Appcelerator Platform, to extend your Titanium apps by native API's using 
 JavaScript. Prior to Hyperloop, you would use [native modules](http://docs.appcelerator.com/platform/latest/#!/guide/Titanium_Module_Concepts) to extend the Titanium API. With
-Hyperloop, you are no able to implement native classes, 3rd-Party libraries (Cocoapods, local frameworks, .aar files) 
+Hyperloop, you are now able to implement native classes, 3rd-Party libraries (Cocoapods, local frameworks, .aar files) 
 and more directly into your apps. Hyperloop is available for iOS, Android and Windows Phone (Tech Preview). 
 
 ### Features
