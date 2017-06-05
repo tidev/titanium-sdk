@@ -990,15 +990,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	@Override
 	public void release()
 	{
-		super.release();
-		if (loader != null) {
-			synchronized (loader) {
-				loader.notify();
-			}
-			loader = null;
-		}
-		animating.set(false);
-		isStopping.set(true);
+		handleStop();
 		synchronized(releasedLock) {
 			if (imageSources != null) {
 				for (TiDrawableReference imageref : imageSources) {
@@ -1009,11 +1001,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				imageSources = null;
 			}
 		}
-		
 		if (timer != null) {
 			timer.cancel();
 			timer = null;
 		}
 		defaultImageSource = null;
+
+		super.release();
 	}
 }
