@@ -21,11 +21,14 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.AttributedStringProxy;
+import ti.modules.titanium.ui.UIModule;
+
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -45,6 +48,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -88,6 +92,7 @@ public class TiUIText extends TiUIView
 	private boolean disableChangeEvent = false;
 
 	protected TiUIEditText tv;
+	protected TextInputLayout textInputLayout;
 
 	public TiUIText(final TiViewProxy proxy, boolean field)
 	{
@@ -130,7 +135,10 @@ public class TiUIText extends TiUIView
 		} else {
 			tv.setGravity(Gravity.TOP | Gravity.LEFT);
 		}
-		setNativeView(tv);
+
+		textInputLayout = new TextInputLayout(proxy.getActivity());
+		textInputLayout.addView(tv, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+		setNativeView(textInputLayout);
 	}
 
 	@Override
@@ -159,7 +167,15 @@ public class TiUIText extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HINT_TEXT)) {
-			tv.setHint(d.getString(TiC.PROPERTY_HINT_TEXT));
+			String hintText = d.getString(TiC.PROPERTY_HINT_TEXT);
+			if (hintText != null) {
+				int type = TiConvert.toInt(d.get(TiC.PROPERTY_HINT_TYPE), UIModule.HINT_TYPE_STATIC);
+				if (type == UIModule.HINT_TYPE_STATIC) {
+					tv.setHint(hintText);
+				} else if (type == UIModule.HINT_TYPE_ANIMATED) {
+					textInputLayout.setHint(hintText);
+				}
+			}
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HINT_TEXT_COLOR)) {
@@ -285,6 +301,18 @@ public class TiUIText extends TiUIView
 			tv.setHint(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT_COLOR)) {
 			tv.setHintTextColor(TiConvert.toColor((String) newValue));
+		} else if (key.equals(TiC.PROPERTY_HINT_TYPE)) {
+			String hintText = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_HINT_TEXT));
+			if (hintText != null) {
+				int type = TiConvert.toInt(newValue);
+				if (type == UIModule.HINT_TYPE_STATIC) {
+					textInputLayout.setHint("");
+					tv.setHint(hintText);
+				} else if (type == UIModule.HINT_TYPE_ANIMATED) {
+					tv.setHint("");
+					textInputLayout.setHint(hintText);
+				}
+			}
 		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
 			if (TiConvert.toBoolean(newValue)) {
 				tv.setEllipsize(TruncateAt.END);
