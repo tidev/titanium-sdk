@@ -1579,6 +1579,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HINT_TYPE = "hintType";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_HOME = "home";
 
 	/**
