@@ -87,10 +87,8 @@
 #ifndef TI_USE_AUTOLAYOUT
 	RELEASE_TO_NIL(wrapperView);
 #endif
-#if IS_XCODE_8
 #ifdef USE_TI_UIREFRESHCONTROL
     RELEASE_TO_NIL(refreshControl);
-#endif
 #endif
 	RELEASE_TO_NIL(scrollView);
 	[super dealloc];
@@ -349,7 +347,6 @@
 
 -(void)setRefreshControl_:(id)args
 {
-#if IS_XCODE_8
 #ifdef USE_TI_UIREFRESHCONTROL
     if (![TiUtils isIOS10OrGreater]) {
         NSLog(@"[WARN] Ti.UI.RefreshControl inside Ti.UI.ScrollView is only available in iOS 10 and later.");
@@ -363,9 +360,6 @@
         refreshControl = [args retain];
         [[self scrollView] setRefreshControl:[refreshControl control]];
     }
-#endif
-#else
-    NSLog(@"[WARN] Ti.UI.RefreshControl inside Ti.UI.ScrollView is only available in iOS 10 and later.");
 #endif
 }
 

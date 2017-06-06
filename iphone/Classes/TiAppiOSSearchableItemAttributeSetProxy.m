@@ -1325,8 +1325,6 @@
     _attributes.URL = [self sanitizeURL:value];;
 }
 
-#if IS_XCODE_8
-
 // The fully formatted address of the item (obtained from MapKit)
 -(NSString*)fullyFormattedAddress
 {
@@ -1379,8 +1377,6 @@
     ENSURE_UI_THREAD(setThoroughfare, value);
     [_attributes setThoroughfare:[TiUtils stringValue:value]];
 }
-
-#endif
 
 @end
 #endif

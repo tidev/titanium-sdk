@@ -20,12 +20,7 @@
 #import "TiMediaItem.h"
 
 #import <AudioToolbox/AudioToolbox.h>
-#if IS_XCODE_8
 #import <AVFoundation/AVFAudio.h>
-#else
-#import <AVFoundation/AVAudioPlayer.h>
-#import <AVFoundation/AVAudioSession.h>
-#endif
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetExportSession.h>
 #import <AVFoundation/AVMediaFormat.h>

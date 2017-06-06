@@ -98,10 +98,8 @@
 #import "TiUIiOSStepperProxy.h"
 #endif
 
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 #import "TiUIiOSFeedbackGeneratorProxy.h"
-#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -456,21 +454,19 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 - (id)BLUR_EFFECT_STYLE_REGULAR
 {
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleRegular);
     }
-#endif
+    
     return [NSNull null];
 }
 
 - (id)BLUR_EFFECT_STYLE_PROMINENT
 {
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
         return NUMINTEGER(UIBlurEffectStyleProminent);
     }
-#endif
+    
     return [NSNull null];
 }
 #endif
@@ -507,9 +503,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 
 -(id)createAdView:(id)args
 {
-#if IS_XCODE_8
 	DebugLog(@"[WARN] iAd is deprecated in iOS 10 and will be removed in future versions of iOS. Please consider to replace it with a different service.");
-#endif
     
 	return [[[TiUIiOSAdViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
@@ -818,7 +812,6 @@ MAKE_SYSTEM_PROP(MODAL_PRESENTATION_PAGESHEET,UIModalPresentationPageSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FORMSHEET,UIModalPresentationFormSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT,UIModalPresentationCurrentContext);
 
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 
 -(id)createFeedbackGenerator:(id)args
@@ -837,7 +830,6 @@ MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR, UINotificationFeedb
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT, UIImpactFeedbackStyleLight);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM, UIImpactFeedbackStyleMedium);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY, UIImpactFeedbackStyleHeavy);
-#endif
 #endif
 
 @end

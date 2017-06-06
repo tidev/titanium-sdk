@@ -8,11 +8,7 @@
 #ifdef USE_TI_MEDIA
 
 #import "SCListener.h"
-#if IS_XCODE_8
 #import <AVFoundation/AVFAudio.h>
-#else
-#import <AVFoundation/AVAudioSession.h>
-#endif
 
 @interface SCListener (Private)
 

@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 
 #import "TiUIiOSFeedbackGeneratorProxy.h"
@@ -112,5 +111,4 @@
 
 @end
 
-#endif
 #endif

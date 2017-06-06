@@ -208,11 +208,12 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 
 +(BOOL)isIOS10OrGreater
 {
-#if IS_XCODE_8
     return [TiUtils isIOSVersionOrGreater:@"10.0"];
-#else
-    return NO;
-#endif
+}
+
++(BOOL)isIOS11OrGreater
+{
+    return [TiUtils isIOSVersionOrGreater:@"11.0"];
 }
 
 +(BOOL)isIOSVersionOrGreater:(NSString *)version

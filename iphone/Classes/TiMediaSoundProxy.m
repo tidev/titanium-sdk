@@ -7,12 +7,7 @@
 #ifdef USE_TI_MEDIASOUND
 
 #import <AudioToolbox/AudioToolbox.h>
-#if IS_XCODE_8
 #import <AVFoundation/AVFAudio.h>
-#else
-#import <AVFoundation/AVAudioPlayer.h>
-#import <AVFoundation/AVAudioSession.h>
-#endif
 
 #import "TiMediaSoundProxy.h"
 #import "TiUtils.h"

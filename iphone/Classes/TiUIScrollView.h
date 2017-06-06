@@ -6,10 +6,8 @@
  */
 #ifdef USE_TI_UISCROLLVIEW
 
-#if IS_XCODE_8
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
-#endif
 #endif
 
 #import "TiUIView.h"
@@ -35,14 +33,11 @@
 #endif
 	CGFloat minimumContentHeight;
     
-#if IS_XCODE_8
 #ifdef USE_TI_UIREFRESHCONTROL
     TiUIRefreshControlProxy* refreshControl;
 #endif
-#endif
-	
-	BOOL needsHandleContentSize;
-	
+    
+	BOOL needsHandleContentSize;	
 }
 
 @property(nonatomic,retain,readonly) TiUIScrollViewImpl * scrollView;

@@ -1,22 +1,19 @@
-/**
- * This file is used to validate iOS test-cases. It is ran using the Xcode
- * project in titanium_mobile/iphone/iphone/Titanium.xcodeproj.
- *
- * Change the below code to fit your use-case. By default, it included a button
- * to trigger a log that is displayed in the Xcode console.
- */
-
-var win = Ti.UI.createWindow({
-    backgroundColor: '#fff'
+var self = Ti.UI.createWindow({
+    backgroundColor:'white'
 });
 
-var btn = Ti.UI.createButton({
-    title: 'Trigger'
+var item = Titanium.UI.createDashboardItem({
+    image : '/images/dashboard/bouton_on.png',
+    width: 186,
+    height: 196,
+    badge: 12
+});
+        
+var dashboard = Titanium.UI.createDashboardView({
+    data: [item],
+    top: 200,
+    height : 360,
 });
 
-btn.addEventListener('click', function() {
-    Ti.API.info('Hello world!');
-});
-
-win.add(btn);
-win.open();
+self.add(dashboard);
+self.open();
