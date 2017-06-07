@@ -374,10 +374,10 @@ function getAppInfo(appPath, watchAppName) {
  * @param {Object} [options] - An object containing various settings.
  * @param {String} [options.appBeingInstalled] - The path to the iOS app to install after launching the iOS Simulator.
  * @param {Boolean} [options.bypassCache=false] - When true, re-detects Xcode and all simulators.
- * @param {Function [options.logger] - A function to log debug messages to.
+ * @param {Function} [options.logger] - A function to log debug messages to.
  * @param {String} [options.iosVersion] - The iOS version of the app so that ioslib picks the appropriate Xcode.
  * @param {String} [options.minIosVersion] - The minimum iOS SDK to detect.
- * @param {String} [options.minWatchosVersion] - The minimum WatchOS SDK to detect.
+ * @param {String} [options.minWatchosVersion] - The minimum watchOS SDK to detect.
  * @param {String|Array<String>} [options.searchPath] - One or more path to scan for Xcode installations.
  * @param {String|SimHandle} simHandleOrUDID - A iOS sim handle or the UDID of the iOS Simulator to launch or null if you want ioslib to pick one.
  * @param {String} [options.simType=iphone] - The type of simulator to launch. Must be either "iphone" or "ipad". Only applicable when udid is not specified.
@@ -491,7 +491,7 @@ function findSimulators(options, callback) {
 							});
 
 						if (!watchSimHandle) {
-							return callback(new Error(__('Specified iOS Simulator "%s" does not support watch apps.', options.simHandleOrUDID)));
+							return callback(new Error(__('Specified iOS Simulator "%s" does not support Watch apps.', options.simHandleOrUDID)));
 						}
 					}
 
@@ -541,12 +541,12 @@ function findSimulators(options, callback) {
 				logger(__('  iOS     = %s', simHandle.version));
 				if (watchSimHandle) {
 					if (options.watchAppBeingInstalled && options.watchHandleOrUDID) {
-						logger(__('Selected WatchOS Simulator: %s', watchSimHandle.name));
+						logger(__('Selected watchOS Simulator: %s', watchSimHandle.name));
 					} else {
-						logger(__('Autoselected WatchOS Simulator: %s', watchSimHandle.name));
+						logger(__('Autoselected watchOS Simulator: %s', watchSimHandle.name));
 					}
 					logger(__('  UDID    = %s', watchSimHandle.udid));
-					logger(__('  WatchOS = %s', watchSimHandle.version));
+					logger(__('  watchOS = %s', watchSimHandle.version));
 				}
 				logger(__('Autoselected Xcode: %s', selectedXcode.version));
 			} else {
@@ -610,7 +610,7 @@ function findSimulators(options, callback) {
 								for (var k = 0; !simHandle && k < sims.length; k++) {
 									if (!options.simType || sims[k].family === options.simType) {
 										if (!options.appBeingInstalled || !options.watchAppBeingInstalled) {
-											logger(__('No app being installed, so picking first simulator'));
+											logger(__('No app being installed, so picking first Simulator'));
 											simHandle = new SimHandle(sims[k]);
 											Object.keys(simHandle.supportsXcode).sort().reverse().forEach(function (id) {
 												if (simHandle.supportsXcode[id]) {
@@ -676,12 +676,12 @@ function findSimulators(options, callback) {
 				logger(__('  iOS     = %s', simHandle.version));
 				if (watchSimHandle) {
 					if (options.watchAppBeingInstalled && options.watchHandleOrUDID) {
-						logger(__('Selected WatchOS Simulator: %s', watchSimHandle.name));
+						logger(__('Selected watchOS Simulator: %s', watchSimHandle.name));
 					} else {
-						logger(__('Autoselected WatchOS Simulator: %s', watchSimHandle.name));
+						logger(__('Autoselected watchOS Simulator: %s', watchSimHandle.name));
 					}
 					logger(__('  UDID    = %s', watchSimHandle.udid));
-					logger(__('  WatchOS = %s', watchSimHandle.version));
+					logger(__('  watchOS = %s', watchSimHandle.version));
 				}
 				logger(__('Autoselected Xcode: %s', selectedXcode.version));
 			}
@@ -717,7 +717,7 @@ function findSimulators(options, callback) {
  * @param {String} [options.logFilename] - The name of the log file to search for in the iOS Simulator's "Documents" folder. This file is created after the app is started.
  * @param {Number} [options.logServerPort] - The TCP port to connect to get log messages.
  * @param {String} [options.minIosVersion] - The minimum iOS SDK to detect.
- * @param {String} [options.minWatchosVersion] - The minimum WatchOS SDK to detect.
+ * @param {String} [options.minWatchosVersion] - The minimum watchOS SDK to detect.
  * @param {String|Array<String>} [options.searchPath] - One or more path to scan for Xcode installations.
  * @param {String} [options.simType=iphone] - The type of simulator to launch. Must be either "iphone" or "ipad". Only applicable when udid is not specified.
  * @param {String} [options.simVersion] - The iOS version to boot. Defaults to the most recent version.
