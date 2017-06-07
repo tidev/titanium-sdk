@@ -4,7 +4,7 @@
  * @module simctl
  *
  * @copyright
- * Copyright (c) 2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2016-2017 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -328,7 +328,7 @@ function shutdown(params, callback) {
 		}
 
 		if (!sim) {
-			return cb(new Error(__('Unable to find simulator %s', params.udid)));
+			return cb(new Error(__('Unable to find Simulator %s', params.udid)));
 		}
 
 		if (sim.availability !== '(available)') {
@@ -508,7 +508,7 @@ function waitUntilBooted(params, callback) {
 	if (params.timeout) {
 		timer = setTimeout(function () {
 			timedOut = true;
-			log('Timed out waiting for the simulator to boot');
+			log('Timed out waiting for the Simulator to boot');
 		}, params.timeout);
 	}
 
@@ -523,7 +523,7 @@ function waitUntilBooted(params, callback) {
 				}
 
 				if (!sim) {
-					return cb(new Error(__('Unable to find simulator %s', params.udid)));
+					return cb(new Error(__('Unable to find Simulator %s', params.udid)));
 				}
 
 				if (sim.availability !== '(available)') {
