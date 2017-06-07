@@ -236,6 +236,20 @@ Packager.prototype.package = function (next) {
 				cb();
 			});
 		}.bind(this),
+		// Now include all the pre-built node-ios-device bindings/binaries
+		function (cb) {
+			if (this.targetOS == 'osx') {
+				exec('node bin/download-all.js', {cwd: path.join(this.zipSDKDir, 'node_modules', 'node-ios-device')}, function (err, stdout, stderr) {
+					if (err) {
+						console.log(stdout);
+						console.error(stderr);
+						return cb(err);
+					}
+					cb();
+				});
+			}
+			cb();
+		}.bind(this),
 		// FIXME Remove these hacks for titanium-sdk when titanium-cli has been released and the tisdk3fixes.js hook is gone!
 		// Now copy over hacked titanium-sdk fake node_module
 		function (cb) {
