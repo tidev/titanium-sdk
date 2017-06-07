@@ -1,5 +1,5 @@
 #!groovy
-
+library 'pipeline-library'
 currentBuild.result = 'SUCCESS'
 
 // Variables which we assign and share between nodes
@@ -12,12 +12,7 @@ def isPR = false
 // Variables we can change
 def nodeVersion = '4.7.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
 
-@NonCPS
-def jsonParse(def json) {
-	new groovy.json.JsonSlurperClassic().parseText(json)
-}
-
-def unitTests(os, nodeVersion) {
+def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
 		// TODO Customize labels by os we're testing
 		node('android-emulator && git && android-sdk && osx') {
@@ -32,7 +27,7 @@ def unitTests(os, nodeVersion) {
 				// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
 				dir('titanium-mobile-mocha-suite') {
 					// TODO Do a shallow clone, using same credentials as from scm object
-					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git'
+					git changelog: false, poll: false, credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
 				}
 				// copy over any overridden unit tests into this workspace
 				unstash 'override-tests'
@@ -72,32 +67,50 @@ def unitTests(os, nodeVersion) {
 
 // Wrap in timestamper
 timestamps {
+	def targetBranch
 	try {
 		node('git && android-sdk && android-ndk && ant && gperf && osx') {
 			stage('Checkout') {
+				// Update our shared reference repo for all branches/PRs
+				dir('..') {
+					sh 'mkdir -p titanium_mobile'
+					dir('titanium_mobile') {
+						checkout(changelog: false, poll: false, scm: [
+							$class: 'GitSCM',
+							branches: [[name: '**']],
+							extensions: [
+								[$class: 'CloneOption', depth: 0, noTags: true, reference: '', shallow: false, timeout: 60]
+							],
+							userRemoteConfigs: scm.userRemoteConfigs
+						])
+					}
+				}
+
 				// checkout scm
 				// Hack for JENKINS-37658 - see https://support.cloudbees.com/hc/en-us/articles/226122247-How-to-Customize-Checkout-for-Pipeline-Multibranch
 				checkout([
 					$class: 'GitSCM',
 					branches: scm.branches,
-					extensions: scm.extensions + [[$class: 'CleanBeforeCheckout'], [$class: 'CloneOption', honorRefspec: true, noTags: true, reference: '', shallow: true, depth: 30, timeout: 30]],
+					extensions: scm.extensions + [
+						[$class: 'CleanBeforeCheckout'],
+						[$class: 'CloneOption', honorRefspec: true, noTags: true, reference: "${pwd()}/../titanium_mobile", shallow: true, depth: 30, timeout: 30]],
 					userRemoteConfigs: scm.userRemoteConfigs
 				])
 				// FIXME: Workaround for missing env.GIT_COMMIT: http://stackoverflow.com/questions/36304208/jenkins-workflow-checkout-accessing-branch-name-and-git-commit
 				gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
 				isPR = env.BRANCH_NAME.startsWith('PR-')
+				// target branch of windows SDK to use and test suite to test with
+				targetBranch = isPR ? env.CHANGE_TARGET : env.BRANCH_NAME
+				if (!targetBranch) {
+					targetBranch = 'master'
+				}
 			}
 
 			// Skip the Windows SDK portion if a PR, we don't need it
 			stage('Windows') {
 				if (!isPR) {
-					// Grab Windows SDK from merge target branch, if unset assume master
-					def windowsBranch = isPR ? env.CHANGE_TARGET : env.BRANCH_NAME
-					if (!windowsBranch) {
-						windowsBranch = 'master'
-					}
 					step([$class: 'CopyArtifact',
-						projectName: "../titanium_mobile_windows/${windowsBranch}",
+						projectName: "../titanium_mobile_windows/${targetBranch}",
 						selector: [$class: 'StatusBuildSelector', stable: false],
 						filter: 'dist/windows/'])
 					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
@@ -154,8 +167,8 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': unitTests('android', nodeVersion),
-				'iOS unit tests': unitTests('ios', nodeVersion),
+				'android unit tests': unitTests('android', nodeVersion, targetBranch),
+				'iOS unit tests': unitTests('ios', nodeVersion, targetBranch),
 				failFast: true
 			)
 		}
