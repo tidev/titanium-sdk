@@ -1745,6 +1745,11 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					}.bind(this));
 				}
 
+				// respackageinfo file
+				if (this.manifest.respackage) {
+					dest.append(this.manifest.respackage, { name: path.join(moduleFolder,'respackageinfo') });
+				}
+
 				dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolder,'LICENSE') });
 				dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolder,'manifest') });
 				dest.append(fs.createReadStream(this.moduleJarFile), { name: path.join(moduleFolder, this.moduleJarName) });
