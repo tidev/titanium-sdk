@@ -460,6 +460,10 @@ public class TiUIWebView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_DISABLE_CONTEXT_MENU)) {
 			disableContextMenu = TiConvert.toBoolean(d, TiC.PROPERTY_DISABLE_CONTEXT_MENU);
 		}
+
+		if (d.containsKey(TiC.PROPERTY_ZOOM_BY)) {
+			getWebView().zoomBy(TiConvert.toFloat(d,TiC.PROPERTY_ZOOM_BY));
+		}
 	}
 
 	@Override
@@ -491,6 +495,8 @@ public class TiUIWebView extends TiUIView
 			}
 		} else if (TiC.PROPERTY_DISABLE_CONTEXT_MENU.equals(key)) {
 			disableContextMenu = TiConvert.toBoolean(newValue);
+		} else if (TiC.PROPERTY_ZOOM_BY.equals(key)) {
+			getWebView().zoomBy(TiConvert.toFloat(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
