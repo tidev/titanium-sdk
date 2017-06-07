@@ -16,7 +16,7 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
 		// TODO Customize labels by os we're testing
 		node('android-emulator && git && android-sdk && osx') {
-			timeout(20) {
+			timeout(40) {
 				// Unarchive the osx build of the SDK (as a zip)
 				sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
 				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip'] // grab the osx zip from our current build
