@@ -9,6 +9,7 @@ package org.appcelerator.titanium.util;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
@@ -54,6 +55,10 @@ public class TiDownloadManager implements Handler.Callback
 
 	public void download(URI uri, TiDownloadListener listener)
 	{
+		try {
+			uri = new URI(URLDecoder.decode(uri.toString(), "utf8"));
+		} catch (Exception e) {
+		}
 		if (TiResponseCache.peek(uri)) {
 			sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
 		} else {

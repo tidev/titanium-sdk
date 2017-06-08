@@ -20,6 +20,7 @@ import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -229,8 +230,9 @@ public class TiFileHelper implements Handler.Callback
 	private InputStream handleNetworkURL(String path) throws IOException
 	{
 		InputStream is = null;
+		URL u = new URL(path);
 		try {
-			URI uri = new URI(path);
+			URI uri = new URI(URLDecoder.decode(path, "utf8"));
 			if (TiResponseCache.peek(uri)) {
 				InputStream stream = TiResponseCache.openCachedStream(uri);
 				if (stream != null) {
@@ -238,10 +240,10 @@ public class TiFileHelper implements Handler.Callback
 					return stream;
 				}
 			}
+			u = uri.toURL();
 		} catch (URISyntaxException uriException) {
 		}
 
-		URL u = new URL(path);
 		InputStream lis = u.openStream();
 		ByteArrayOutputStream bos = null;
 		try {
