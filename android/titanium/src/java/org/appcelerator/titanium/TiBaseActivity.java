@@ -82,7 +82,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private static final String TAG = "TiBaseActivity";
 
 	private static OrientationChangedListener orientationChangedListener = null;
-	private OrientationEventListener orientationListener;
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
@@ -706,32 +705,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// for later use
 		originalOrientationMode = getRequestedOrientation();
 
-		orientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
-			@Override
-			public void onOrientationChanged(int orientation) {
-			    DisplayMetrics dm = new DisplayMetrics();
-			    getWindowManager().getDefaultDisplay().getMetrics(dm);
-			    int width = dm.widthPixels;
-			    int height = dm.heightPixels;
-			    int rotation = getWindowManager().getDefaultDisplay().getRotation();
-
-			    if ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)
-			            && rotation != previousOrientation) {
-			        callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity(), width, height, rotation);
-			    } else if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
-			            && rotation != previousOrientation) {
-			        callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity(), width, height, rotation);
-			    }
-			}
-		};
-
-		if (orientationListener.canDetectOrientation() == true) {
-			orientationListener.enable();
-		} else {
-			Log.w(TAG, "Cannot detect orientation");
-			orientationListener.disable();
-		}
-
 		if (window != null) {
 			window.onWindowActivityCreated();
 		}
@@ -1116,6 +1089,16 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
+
+		// Check if we have attached a listener for orientation changed
+		if (orientationChangedListener != null) {
+			DisplayMetrics dm = new DisplayMetrics();
+			getWindowManager().getDefaultDisplay().getMetrics(dm);
+			int width = dm.widthPixels;
+			int height = dm.heightPixels;
+			int rotation = getWindowManager().getDefaultDisplay().getRotation();
+			callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity(), width, height, rotation);
+		}
 
 		for (WeakReference<ConfigurationChangedListener> listener : configChangedListeners) {
 			if (listener.get() != null) {
@@ -1547,11 +1530,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
 			}
-		}
-
-		if (orientationListener != null) {
-			orientationListener.disable();
-			orientationListener = null;
 		}
 
 		super.onDestroy();
