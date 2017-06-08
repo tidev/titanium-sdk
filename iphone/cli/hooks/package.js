@@ -243,6 +243,9 @@ exports.init = function (logger, config, cli) {
 				if (!pp) {
 					findPP('adhoc');
 				}
+				if (!pp) {
+					findPP('enterprise');
+				}
 
 				var targetName = target === 'dist-appstore' ? 'Distribution' : 'Ad Hoc';
 
