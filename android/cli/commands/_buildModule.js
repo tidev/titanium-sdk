@@ -1153,7 +1153,8 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 		}),
 		closureJarFile = path.join(this.platformPath, 'lib', 'closure-compiler.jar');
 
-	jsFilesToEncrypt.forEach(function (file) {
+	// Limit to 5 instances of Java in parallel at max, to be careful/conservative
+	async.eachLimit(jsFilesToEncrypt, 5, function(file, callback) {
 
 		var outputDir = path.dirname(path.join(this.buildGenJsDir, file)),
 			filePath = path.join(this.assetsDir, file);
@@ -1178,11 +1179,9 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 				'--jscomp_off=internetExplorerChecks'
 			],
 			{},
-			next
+			callback
 		);
-
-	}, this);
-
+	}.bind(this), next);
 };
 
 /*
