@@ -663,10 +663,10 @@ public class TiCompositeLayout extends ViewGroup
             int leftOrTopPixels = leftOrTop.getAsPixels(parent);
             pos[0] = layoutPosition0 + leftOrTopPixels;
             pos[1] = layoutPosition0 + leftOrTopPixels + measuredSize;
-        } else if (optionCenter != null && optionCenter.getValue() != 0.0) {
-            // Don't calculate position based on center dimension if it's 0.0
+        } else if (optionCenter != null) {
             int halfSize = measuredSize / 2;
-            pos[0] = layoutPosition0 + optionCenter.getAsPixels(parent) - halfSize;
+            int centerPixels = optionCenter.getAsPixels(parent);
+            pos[0] = layoutPosition0 + centerPixels - halfSize;
             pos[1] = pos[0] + measuredSize;
         } else if (rightOrBottom != null) {
             // peg right/bottom
