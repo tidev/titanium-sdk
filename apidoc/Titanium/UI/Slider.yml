@@ -409,6 +409,13 @@ properties:
     type: String
     platforms: [iphone, ipad]
 
+  - name: splitTrack
+    summary: Separates the thumbImage from the slider track.
+    type: Boolean
+    default: false
+    since: 6.2.0
+    platforms: [android]
+
   - name: thumbImage
     summary: Image for the slider thumb.
     description: |
