@@ -729,6 +729,9 @@
     }
 }
 
+/*
+ //Removed Orientation
+
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
@@ -751,7 +754,18 @@
 {
     
 }
+*/
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
+    NSArray* childProxies = [self children];
+    for (TiViewProxy * thisProxy in childProxies) {
+        if ([thisProxy respondsToSelector:@selector(viewWillTransitionToSize:withTransitionCoordinator:)]) {
+            [(id)thisProxy viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+        }
+    }
+}
 
 #pragma mark - TiAnimation Delegate Methods
 -(BOOL)animationShouldTransition:(TiAnimation *)sender

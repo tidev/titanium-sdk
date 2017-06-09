@@ -160,6 +160,8 @@
     }
     [super viewDidDisappear:animated];
 }
+/*
+ //Removed Orientation
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     id masterView = [self valueForUndefinedKey:@"masterView"];
@@ -196,7 +198,19 @@
     }
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
-
+*/
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    id masterView = [self valueForUndefinedKey:@"masterView"];
+    if ([masterView conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)masterView viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    }
+    id detailView = [self valueForUndefinedKey:@"detailView"];
+    if ([detailView conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)detailView viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    }
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
 
 @end
 #endif

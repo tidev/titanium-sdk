@@ -38,9 +38,12 @@
 -(void)viewWillDisappear:(BOOL)animated;
 -(void)viewDidAppear:(BOOL)animated;
 -(void)viewDidDisappear:(BOOL)animated;
+/*
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration;
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation;
+*/
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator;
 //Focus callbacks from containing or hosting controller
 -(void)gainFocus;
 -(void)resignFocus;

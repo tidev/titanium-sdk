@@ -166,6 +166,9 @@
     }
     [super viewDidDisappear:animated];
 }
+/*
+ //Removed Orientation
+
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
    	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
@@ -187,7 +190,15 @@
     }
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
+*/
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    }
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
 #pragma mark - Status Bar Appearance
 
 - (BOOL)prefersStatusBarHidden
