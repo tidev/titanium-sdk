@@ -55,7 +55,7 @@ extern "C" {
  synchronization is required.
 @result The created TiContextGroup.
 */
-JS_EXPORT TiContextGroupRef TiContextGroupCreate() CF_AVAILABLE(10_6, 7_0);
+JS_EXPORT TiContextGroupRef TiContextGroupCreate(void) CF_AVAILABLE(10_6, 7_0);
 
 /*!
 @function

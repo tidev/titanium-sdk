@@ -24,7 +24,7 @@ typedef enum {
 EXTERN_FUNC void* TiDebuggerCreate(KrollContext*,TiObjectRef);
 EXTERN_FUNC void  TiDebuggerDestroy(KrollContext*,TiObjectRef,void*);
 EXTERN_FUNC void  TiDebuggerStart(NSString*,NSInteger);
-EXTERN_FUNC void  TiDebuggerStop();
+EXTERN_FUNC void  TiDebuggerStop(void);
 EXTERN_FUNC void  TiDebuggerBeginScript(KrollContext*,const char*);
 EXTERN_FUNC void  TiDebuggerEndScript(KrollContext*);
 EXTERN_FUNC void  TiDebuggerLogMessage(DebuggerLogLevel level,NSString* message);

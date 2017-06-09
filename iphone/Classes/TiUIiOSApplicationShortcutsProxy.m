@@ -184,7 +184,7 @@
     [UIApplication sharedApplication].shortcutItems = shortcuts;
 }
 
--(UIApplicationShortcutIcon*)findIcon:(id)value
+-(UIApplicationShortcutIcon *)findIcon:(id)value
 {
     if(value == nil) {
         return nil;
@@ -211,7 +211,7 @@
     }
     
     NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: Invalid icon provided, defaulting to Ti.UI.iOS.SHORTCUT_ICON_TYPE_COMPOSE.");
-    return UIApplicationShortcutIconTypeCompose;
+    return [UIApplicationShortcutIcon iconWithType:UIApplicationShortcutIconTypeCompose];
 }
 
 -(NSString*)urlInAssetCatalog:(NSString*)url

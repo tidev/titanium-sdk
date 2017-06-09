@@ -1151,7 +1151,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #endif
 }
 
--(void)invokeBlockOnThread:(void (^)())block
+-(void)invokeBlockOnThread:(void (^)(void))block
 {
 #ifdef TI_USE_KROLL_THREAD
     if (![self isKJSThread]) {
@@ -1165,7 +1165,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
     pthread_mutex_unlock(&KrollEntryLock);
 }
 
-+ (void)invokeBlock:(void (^)())block
++ (void)invokeBlock:(void (^)(void))block
 {
 	pthread_mutex_lock(&KrollEntryLock);
 	block();

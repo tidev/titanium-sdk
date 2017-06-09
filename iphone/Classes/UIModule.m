@@ -116,10 +116,10 @@ MAKE_SYSTEM_PROP(RETURNKEY_EMERGENCY_CALL,UIReturnKeyEmergencyCall);
 -(NSNumber*)RETURNKEY_CONTINUE
 {
     if ([TiUtils isIOS9OrGreater] == YES) {
-        return [NSNumber numberWithInt:UIReturnKeyContinue];
+        return NUMINT(UIReturnKeyContinue);
     }
 
-    return UIReturnKeyDefault;
+    return NUMINT(UIReturnKeyDefault);
 }
 
 MAKE_SYSTEM_PROP(KEYBOARD_TYPE_DEFAULT,UIKeyboardTypeDefault);
