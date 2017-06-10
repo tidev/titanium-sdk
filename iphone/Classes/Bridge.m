@@ -63,9 +63,12 @@
 
 -(void)booted
 {
-	if (callback!=nil)
-	{
-		[callback performSelector:@selector(booted:) withObject:self];
+	if (callback != nil) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+	    // Selector warning is tolerated in here, since the receiver varies
+	    [callback performSelector:@selector(booted:) withObject:self];
+#pragma clang diagnostic pop
 		[callback release];
 		callback = nil;
 	}

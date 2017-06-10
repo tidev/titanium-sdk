@@ -429,7 +429,7 @@ self.p = v;\
         options |= ([autoreverse boolValue] ? (UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat) : 0);
         options |= (([repeat intValue] > 0) ? UIViewAnimationOptionRepeat : 0);
         
-        void (^animation)() = ^{
+        void (^animation)(void) = ^{
             CGFloat repeatCount = [repeat intValue];
             if ((options & UIViewAnimationOptionAutoreverse)) {
                 // What we have to do here in order to get the 'correct' animation 

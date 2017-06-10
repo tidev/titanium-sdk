@@ -543,7 +543,7 @@
 	return [visibleProxy keyboardAccessoryView];
 }
 
--(void) handleNewKeyboardStatus
+-(void)handleNewKeyboardStatus
 {
 	updatingAccessoryView = NO;
 	UIView * ourView = [self viewForKeyboardAccessory];
@@ -799,11 +799,15 @@
     }
     
     DebugLog(@"[INFO] UI SHUTDOWN COMPLETE. TRYING TO RESUME RESTART");
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+    // Supressing selector-warning, since the "_resumeRestart:" method is generated dynamically
     if ([arg respondsToSelector:@selector(_resumeRestart:)]) {
         [arg performSelector:@selector(_resumeRestart:) withObject:nil];
     } else {
         DebugLog(@"[WARN] Could not resume. No selector _resumeRestart: found for arg");
     }
+#pragma clang diagnostic pop
 }
 #endif
 

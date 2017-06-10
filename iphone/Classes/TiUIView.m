@@ -490,6 +490,11 @@ DEFINE_EXCEPTIONS
 
 #pragma mark Public APIs
 
+- (void)setColor_:(id)color
+{
+    // Overriden by subclasses
+}
+
 -(void)setTintColor_:(id)color
 {
     TiColor *ticolor = [TiUtils colorValue:color];

@@ -121,13 +121,16 @@ TiProxy * TiBindingEventNextBubbleTargetProxy(TiBindingEvent event, TiProxy * cu
 		parentOnly = false;
 		currentTarget = [currentTarget parentForBubbling];
         
-        //TIMOB-11691. Ensure that tableviewrowproxy modifies the event object before passing it along.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+        // TIMOB-11691. Ensure that tableviewrowproxy modifies the event object before passing it along.
         if ([currentTarget respondsToSelector:@selector(createEventObject:)]) {
             NSDictionary *curPayload = event->payloadDictionary;
             NSDictionary *modifiedPayload = [currentTarget performSelector:@selector(createEventObject:) withObject:curPayload];
             [event->payloadDictionary release];
             event->payloadDictionary = [modifiedPayload copy];
         }
+#pragma clang diagnostic pop
 	}
 	return currentTarget;
 }

@@ -49,7 +49,7 @@
 @property (nonatomic, readonly) NSString *EVENT_ACCESSIBILITY_CHANGED;
 
 #ifdef USE_TI_APPIOS
-@property(nonatomic,readonly)			TiProxy* iOS;
+@property(nonatomic,readonly) TiProxy* iOS;
 #endif
 
 @end

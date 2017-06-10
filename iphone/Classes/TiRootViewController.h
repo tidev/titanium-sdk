@@ -56,24 +56,25 @@
     NSInteger activeAlertControllerCount;
 }
 
-//Titanium Support
--(CGRect)resizeView;
--(void)repositionSubviews;
--(UIView *)topWindowProxyView;
--(NSUInteger)supportedOrientationsForAppDelegate;
--(void)incrementActiveAlertControllerCount;
--(void)decrementActiveAlertControllerCount;
--(UIViewController*)topPresentedController;
--(UIInterfaceOrientation) lastValidOrientation:(TiOrientationFlags)orientationFlags;
--(void)updateStatusBar;
+// Titanium Support
+- (CGRect)resizeView;
+- (void)repositionSubviews;
+- (UIView *)topWindowProxyView;
+- (NSUInteger)supportedOrientationsForAppDelegate;
+- (void)incrementActiveAlertControllerCount;
+- (void)decrementActiveAlertControllerCount;
+- (UIViewController *)topPresentedController;
+- (UIInterfaceOrientation) lastValidOrientation:(TiOrientationFlags)orientationFlags;
+- (void)updateStatusBar;
+- (void)handleNewKeyboardStatus;
+#if defined(DEBUG) || defined(DEVELOPER)
+- (void)shutdownUi:(id)arg;
+#endif
+- (UIImage *)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom *) imageIdiom;
+
 @property (nonatomic, readonly) BOOL statusBarInitiallyHidden;
 @property (nonatomic, readonly) UIStatusBarStyle defaultStatusBarStyle;
 @property (nonatomic, readonly) BOOL statusBarVisibilityChanged;
 @property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
-#if defined(DEBUG) || defined(DEVELOPER)
--(void)shutdownUi:(id)arg;
-#endif
-- (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom;
-
 
 @end

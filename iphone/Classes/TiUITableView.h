@@ -33,10 +33,10 @@
 
 -(void)handleEvent:(NSString*)type;
 
--(void) setBackgroundGradient_:(TiGradient *)newGradient;
--(void) setSelectedBackgroundGradient_:(TiGradient *)newGradient;
+-(void)setBackgroundGradient_:(TiGradient *)newGradient;
+-(void)setSelectedBackgroundGradient_:(TiGradient *)newGradient;
 
--(void) updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated;
+-(void)updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated;
 -(CGSize)computeCellSize;
 
 @end
@@ -96,6 +96,7 @@
 -(UITableView*)tableView;
 -(void)setScrollsToTop_:(id)value;
 -(void)setContentOffset_:(id)args withObject:(id)obj;
+-(void)setContentInsets_:(id)value withObject:(id)props;
 
 #pragma Private
 -(void)selectRow:(id)args;

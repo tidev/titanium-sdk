@@ -10,6 +10,7 @@
 #import "Webcolor.h"
 #import "TiBase.h"
 #import "TiErrorController.h"
+#import "TiAppiOSBackgroundServiceProxy.h"
 #import "NSData+Additions.h"
 #import "ImageLoader.h"
 #import <QuartzCore/QuartzCore.h>
@@ -41,7 +42,7 @@ extern BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER;
 
 NSString * TITANIUM_VERSION;
 
-extern void UIColorFlushCache();
+extern void UIColorFlushCache(void);
 
 #define SHUTDOWN_TIMEOUT_IN_SEC	3
 #define TIV @"TiVerify"
@@ -49,7 +50,7 @@ extern void UIColorFlushCache();
 
 BOOL applicationInMemoryPanic = NO;
 
-TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+TI_INLINE void waitForMemoryPanicCleared(void);   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 
 @interface TiApp()
 - (void)checkBackgroundServices;
@@ -287,6 +288,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[[[NSClassFromString(TIV) alloc] init] autorelease];
 }
+
 - (void)booted:(id)bridge
 {
 	if ([bridge isKindOfClass:[KrollBridge class]])
@@ -1219,20 +1221,19 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	if (runningServices == nil) {
 		runningServices = [[NSMutableArray alloc] initWithCapacity:[backgroundServices count]];
 	}
-	
-	for (TiProxy *proxy in backgroundServices)
-	{
+    
+	for (TiAppiOSBackgroundServiceProxy *proxy in backgroundServices) {
 		[runningServices addObject:proxy];
-		[proxy performSelector:@selector(beginBackground)];
+		[proxy beginBackground];
 	}
 	[self checkBackgroundServices];
 }
 
 -(void)endBackgrounding
 {
-	for (TiProxy *proxy in backgroundServices)
+	for (TiAppiOSBackgroundServiceProxy *proxy in backgroundServices)
 	{
-		[proxy performSelector:@selector(endBackground)];
+		[proxy endBackground];
 		[runningServices removeObject:proxy];
 	}
 

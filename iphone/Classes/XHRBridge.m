@@ -13,6 +13,7 @@
 #import "SBJSON.h"
 #import "TiModule.h"
 #import "Mimetypes.h"
+#import "APIModule.h"
 
 static XHRBridge *xhrBridge = nil;
 
@@ -92,7 +93,11 @@ static XHRBridge *xhrBridge = nil;
 	{
 		NSString *level = [event objectForKey:@"level"];
 		NSString *message = [event objectForKey:@"message"];
-		[tiModule performSelector:@selector(log:) withObject:[NSArray arrayWithObjects:level,message,nil]];
+        
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+        [tiModule performSelector:@selector(log:) withObject:[NSArray arrayWithObjects:level,message,nil]];
+#pragma clang diagnostic pop
 	}
 	else
 	{

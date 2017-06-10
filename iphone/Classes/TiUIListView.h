@@ -21,6 +21,7 @@
 - (void)setContentInsets_:(id)value withObject:(id)props;
 - (void)deselectAll:(BOOL)animated;
 - (void)updateIndicesForVisibleRows;
+- (void)cleanup:(id)unused;
 
 + (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
 

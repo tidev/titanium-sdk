@@ -13,6 +13,7 @@
 #endif
 //By declaring a scrollView protocol, TiUITextWidget can access 
 @class TiUIView;
+@class TiRect;
 
 /**
  The protocol for scrolling.
@@ -105,19 +106,19 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 /**
  Provides access to a proxy object of the view. 
  */
-@property(nonatomic,readwrite,assign)	TiProxy *proxy;
+@property(nonatomic,readwrite,assign) TiProxy *proxy;
 
 /**
  Provides access to touch delegate of the view.
  
  Touch delegate is the control that receives all touch events.
  */
-@property(nonatomic,readwrite,assign)	UIView *touchDelegate;
+@property(nonatomic,readwrite,assign) UIView *touchDelegate;
 
 /**
  Returns view's transformation matrix.
  */
-@property(nonatomic,readonly)			id transformMatrix;
+@property(nonatomic,readonly) id transformMatrix;
 
 /**
  Provides access to background image of the view.
@@ -163,6 +164,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  @param newAnimation The animation to start.
  */
 -(void)animate:(TiAnimation *)newAnimation;
+
+-(void)fillBoundsToRect:(TiRect*)rect;
 
 #pragma mark Framework
 
@@ -258,6 +261,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(void)setVisible_:(id)visible;
 
 -(void)setBackgroundImage_:(id)value;
+
+-(void)setColor_:(id)color;
 
 -(UIView *)gradientWrapperView;
 -(void)checkBounds;

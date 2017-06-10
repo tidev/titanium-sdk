@@ -201,7 +201,7 @@
     UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
     if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
         if (animate) {
-            void (^animation)() = ^{
+            void (^animation)(void) = ^{
                 [self layoutSubviewsForOrientation:curOrientation];
             };
             [UIView animateWithDuration:0.2 animations:animation];
@@ -223,7 +223,7 @@
     UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
     if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
         if (animate) {
-            void (^animation)() = ^{
+            void (^animation)(void) = ^{
                 [self layoutSubviewsForOrientation:curOrientation];
             };
             [UIView animateWithDuration:0.2 animations:animation];

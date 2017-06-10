@@ -823,7 +823,8 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 		arg1 = [args objectAtIndex:0];
 		arg2 = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
 	}
-	[[self view] performSelector:@selector(setContentInsets_:withObject:) withObject:arg1 withObject:arg2];
+    
+    [(TiUITableView *)[self view] setContentInsets_:arg1 withObject:arg2];
 }
 
 DEFINE_DEF_PROP(scrollsToTop,[NSNumber numberWithBool:YES]);

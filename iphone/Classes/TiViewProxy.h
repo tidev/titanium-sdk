@@ -177,6 +177,7 @@ enum
 -(void)setTempProperty:(id)propVal forKey:(id)propName;
 -(void)processTempProperties:(NSDictionary*)arg;
 -(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check;
+-(void)parentListenersChanged;
 -(void)setProxyObserver:(id)arg;
 
 /**
