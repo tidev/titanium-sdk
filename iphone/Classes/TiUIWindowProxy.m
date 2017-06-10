@@ -818,6 +818,31 @@
     }, [NSThread isMainThread]);
 }
 
+- (void)setLargeTitleEnabled:(id)value
+{
+    ENSURE_UI_THREAD(setLargeTitleEnabled, value);
+    ENSURE_TYPE(value, NSNumber);
+    
+    [self replaceValue:value forKey:@"largeTitleEnabled" notification:NO];
+    
+    if (@available(iOS 11.0, *) && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+        [[[controller navigationController] navigationBar] setPrefersLargeTitles:[TiUtils boolValue:value def:NO]];
+    }
+}
+
+- (void)setLargeTitleDisplayMode:(id)value
+{
+    ENSURE_UI_THREAD(setLargeTitleDisplayMode, value);
+    ENSURE_TYPE(value, NSNumber);
+    
+    [self replaceValue:value forKey:@"largeTitleDisplayMode" notification:NO];
+    
+    if (@available(iOS 11.0, *) && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+        [[controller navigationItem] setLargeTitleDisplayMode:[TiUtils intValue:value def:UINavigationItemLargeTitleDisplayModeAutomatic]];
+    }
+}
+#endif
+
 -(void)setTitlePrompt:(NSString*)title_
 {
 	ENSURE_UI_THREAD(setTitlePrompt,title_);
@@ -940,11 +965,11 @@ else{\
     }
     
     [[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
-    //Need to clear title for titleAttributes to apply correctly on iOS6.
-    [[controller navigationItem] setTitle:nil];
     SETPROP(@"titleAttributes",setTitleAttributes);
     SETPROP(@"title",setTitle);
     SETPROP(@"titlePrompt",setTitlePrompt);
+    SETPROP(@"largeTitleEnabled",setLargeTitleEnabled);
+    SETPROP(@"largeTitleDisplayMode",setLargeTitleDisplayMode);
     [self updateTitleView];
     SETPROP(@"barColor",setBarColor);
     SETPROP(@"navTintColor",setNavTintColor);
