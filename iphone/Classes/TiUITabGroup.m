@@ -199,10 +199,8 @@ DEFINE_EXCEPTIONS
 		UIBarButtonItem* editButton = [navItem rightBarButtonItem];
 		if (editTitle != nil) {
 			editButton.title = editTitle;
-		}
-		else {
-			// TODO: Need to get the localized value here
-			editButton.title = @"Edit";
+		} else {
+			editButton.title = NSLocalizedString(@"Edit", nil);
 		}
 	}
 }

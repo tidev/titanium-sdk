@@ -70,9 +70,9 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 		{
 			APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
 			if (TI_APPLICATION_BUILD_TYPE != nil || (TI_APPLICATION_BUILD_TYPE.length > 0)) {
-				[sharedAnalytics performSelector:@selector(setBuildType:) withObject:TI_APPLICATION_BUILD_TYPE];
+				[sharedAnalytics setBuildType:TI_APPLICATION_BUILD_TYPE];
 			}
-			[sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@",[module performSelector:@selector(version)]]];
+			[sharedAnalytics setSDKVersion:[NSString stringWithFormat:@"ti.%@",[module performSelector:@selector(version)]]];
 			[sharedAnalytics enableWithAppKey:TI_APPLICATION_GUID andDeployType:TI_APPLICATION_DEPLOYTYPE];
 		}
 	}

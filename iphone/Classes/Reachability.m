@@ -157,9 +157,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 	if (_reachabilityRef != NULL)
 	{
 		CFRelease(_reachabilityRef);
-	}
-    
-	[super dealloc];
+	}    
 }
 
 

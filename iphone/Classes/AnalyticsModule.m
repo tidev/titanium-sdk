@@ -35,7 +35,7 @@ static const NSInteger ANALYTICS_DISABLED     = -2;
 
 -(NSString*)lastEvent
 {
-    return [[APSAnalytics sharedInstance] performSelector:@selector(getLastEvent)];
+    return [[APSAnalytics sharedInstance] getLastEvent];
 }
 
 -(void)navEvent:(id)args
