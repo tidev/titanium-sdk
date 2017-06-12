@@ -207,7 +207,7 @@
     if ([moduleAssets respondsToSelector:@selector(resolveModuleAsset:)]) {
        // Look up the file by it's original name. We preserve the filename in our Node-js based module build
         NSData* data = [moduleAssets performSelector:@selector(resolveModuleAsset:) withObject:fromPath];
-        if (data != null) {
+        if (data != nil) {
           return data;
         }
         // FIXME Remove once we no longer support modules built by the old python code!
