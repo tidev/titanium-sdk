@@ -170,6 +170,10 @@ IOS.prototype.package = function (packager, next) {
 				// Copy support/osx/* to zipSDKDir
 				function (cb) {
 					fs.copy(path.join(SUPPORT_DIR, 'osx'), packager.zipSDKDir, cb);
+				}.bind(this),
+				// Copy iphone/Resources/modules to iphone/
+				function (cb) {
+					fs.copy(path.join(IOS_ROOT, 'Resources', 'modules'), path.join(DEST_IOS, 'modules'), cb);
 				}.bind(this)
 			], callback);
 		}.bind(this)
