@@ -177,7 +177,7 @@
 
 - (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
 {
-   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy systemLayoutFittingSizeDidChangeForChildContentContainer:container];
     }
     [super systemLayoutFittingSizeDidChangeForChildContentContainer:container];
@@ -185,7 +185,7 @@
 
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
-   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
     }
     [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
@@ -193,7 +193,7 @@
 
 - (void)preferredContentSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
 {
-   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy preferredContentSizeDidChangeForChildContentContainer:container];
     }
     [super preferredContentSizeDidChangeForChildContentContainer:container];
