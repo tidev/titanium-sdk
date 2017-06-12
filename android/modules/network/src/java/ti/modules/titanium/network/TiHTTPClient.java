@@ -1009,9 +1009,6 @@ public class TiHTTPClient
 
 	public void send(Object userData) throws UnsupportedEncodingException
 	{
-		//Clear parts and nvPairs before sending new data
-		nvPairs.clear();
-		parts.clear();
 
 		aborted = false;
 
@@ -1147,6 +1144,8 @@ public class TiHTTPClient
 							} catch (UnsupportedEncodingException e) {
 								Log.e(TAG, "Unsupported encoding: ", e);
 							}
+							//clear nvPairs after form entity is created
+							nvPairs.clear();
 						}
 
 						// calculate content length
@@ -1200,7 +1199,8 @@ public class TiHTTPClient
 										+ parts.get(name).getContentLength(), Log.DEBUG_MODE);
 								addFilePart(name, parts.get(name));
 							}
-
+							//clear parts after they have been used
+							parts.clear();
 							if (form != null) {
 								try {
 									ByteArrayOutputStream bos = new ByteArrayOutputStream((int) form.getContentLength());
