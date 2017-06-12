@@ -160,45 +160,7 @@
     }
     [super viewDidDisappear:animated];
 }
-/*
- //Removed Orientation
--(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    id masterView = [self valueForUndefinedKey:@"masterView"];
-    if ([masterView conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        [(id<TiWindowProtocol>)masterView willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    id detailView = [self valueForUndefinedKey:@"detailView"];
-    if ([detailView conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        [(id<TiWindowProtocol>)detailView willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
--(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    id masterView = [self valueForUndefinedKey:@"masterView"];
-    if ([masterView conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        [(id<TiWindowProtocol>)masterView willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    id detailView = [self valueForUndefinedKey:@"detailView"];
-    if ([detailView conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        [(id<TiWindowProtocol>)detailView willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
--(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-    id masterView = [self valueForUndefinedKey:@"masterView"];
-    if ([masterView conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        [(id<TiWindowProtocol>)masterView didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    }
-    id detailView = [self valueForUndefinedKey:@"detailView"];
-    if ([detailView conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        [(id<TiWindowProtocol>)detailView didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    }
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-}
-*/
+
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
     id masterView = [self valueForUndefinedKey:@"masterView"];
@@ -210,6 +172,45 @@
         [(id<TiWindowProtocol>)detailView viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
     }
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
+
+- (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    id masterView = [self valueForUndefinedKey:@"masterView"];
+    if ([masterView conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)masterView willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+    }
+    id detailView = [self valueForUndefinedKey:@"detailView"];
+    if ([detailView conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)detailView willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+    }
+    [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+}
+
+- (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+    id masterView = [self valueForUndefinedKey:@"masterView"];
+    if ([masterView conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)masterView systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+    }
+    id detailView = [self valueForUndefinedKey:@"detailView"];
+    if ([detailView conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)detailView systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+    }
+    [super systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+}
+
+- (void)preferredContentSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+    id masterView = [self valueForUndefinedKey:@"masterView"];
+    if ([masterView conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)masterView preferredContentSizeDidChangeForChildContentContainer:container];
+    }
+    id detailView = [self valueForUndefinedKey:@"detailView"];
+    if ([detailView conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)detailView preferredContentSizeDidChangeForChildContentContainer:container];
+    }
+    [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
 
 @end

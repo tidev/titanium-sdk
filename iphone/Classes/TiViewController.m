@@ -166,31 +166,6 @@
     }
     [super viewDidDisappear:animated];
 }
-/*
- //Removed Orientation
-
--(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        [(id<TiWindowProtocol>)_proxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
--(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        [(id<TiWindowProtocol>)_proxy willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
--(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        [(id<TiWindowProtocol>)_proxy didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    }
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-}
-*/
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
@@ -199,6 +174,31 @@
     }
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
+
+- (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+    }
+    [super systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+}
+
+- (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+    }
+    [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+}
+
+- (void)preferredContentSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy preferredContentSizeDidChangeForChildContentContainer:container];
+    }
+    [super preferredContentSizeDidChangeForChildContentContainer:container];
+}
+
 #pragma mark - Status Bar Appearance
 
 - (BOOL)prefersStatusBarHidden

@@ -431,27 +431,25 @@ DEFINE_EXCEPTIONS
 }
 
 #pragma mark Public APIs
-/*
- //Removed Orientation
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-   [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
-
--(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    [controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
-
--(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-    [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-}
-*/
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
     [controller viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
+
+- (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    [controller willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+}
+
+- (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+    [controller systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+}
+
+- (void)preferredContentSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+    [controller preferredContentSizeDidChangeForChildContentContainer:container];
 }
 
 -(void)setTranslucent_:(id)value
