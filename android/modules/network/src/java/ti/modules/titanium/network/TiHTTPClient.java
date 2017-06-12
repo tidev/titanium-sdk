@@ -1009,6 +1009,10 @@ public class TiHTTPClient
 
 	public void send(Object userData) throws UnsupportedEncodingException
 	{
+		//Clear parts and nvPairs before sending new data
+		nvPairs.clear();
+		parts.clear();
+
 		aborted = false;
 
 		// TODO consider using task manager
