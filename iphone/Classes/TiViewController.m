@@ -169,7 +169,7 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
-   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
         [(id<TiWindowProtocol>)_proxy viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
     }
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
