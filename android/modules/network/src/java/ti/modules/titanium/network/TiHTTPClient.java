@@ -51,7 +51,6 @@ import javax.net.ssl.X509TrustManager;
 
 import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
@@ -154,6 +153,8 @@ public class TiHTTPClient
 	private boolean hasAuthentication = false;
 	private String username;
 	private String password;
+
+	private boolean requestPending = false;
 
 	private void handleResponse(HttpURLConnection connection) throws IOException {
 		connected = true;
@@ -625,7 +626,7 @@ public class TiHTTPClient
 				client.disconnect();
 				client = null;
 			}
-			// Fire the disposehandle event if the request is aborted.
+			// Fire the disposehandle event if the is aborted.
 			// And it will dispose the handle of the httpclient in the JS.
 			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 		}
@@ -730,6 +731,11 @@ public class TiHTTPClient
 
 	public void open(String method, String url)
 	{
+		if (requestPending) {
+			Log.w(TAG,"Open canceled. Connection is already opened and a request is pending.");
+			return;
+		}
+
 		Log.d(TAG, "open request method=" + method + " url=" + url, Log.DEBUG_MODE);
 
 		if (url == null)
@@ -1010,6 +1016,12 @@ public class TiHTTPClient
 	public void send(Object userData) throws UnsupportedEncodingException
 	{
 
+		if (requestPending) {
+			//Log.w(TAG,"Request currently in transmission!");
+			Log.w(TAG,"Send canceled. A request with the same TiHTTPClient is pending!");
+			return;
+		}
+		requestPending = true;
 		aborted = false;
 
 		// TODO consider using task manager
@@ -1302,7 +1314,7 @@ public class TiHTTPClient
 
 				client = null;
 				clientThread = null;
-
+				requestPending = false;
 				// Fire the disposehandle event if the request is finished successfully or the errors occur.
 				// And it will dispose the handle of the httpclient in the JS.
 				proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
