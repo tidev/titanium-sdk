@@ -2,6 +2,9 @@
 library 'pipeline-library'
 currentBuild.result = 'SUCCESS'
 
+// Keep logs/reports/etc of last 5 builds, only keep build artifacts of last 3 builds
+properties([buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '3'))])
+
 // Variables which we assign and share between nodes
 // Don't modify these yourself
 def gitCommit = ''

@@ -3342,7 +3342,7 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 		}
 		if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
 			var theme = this.tiappAndroidManifest.application.theme;
-			if (theme.startsWith('@style/')) {
+			if (theme.startsWith('@style/') && theme !== '@style/Theme.Titanium') {
 				flags = theme.replace('@style/', '');
 			}
 		}
