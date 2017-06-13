@@ -80,11 +80,11 @@ timestamps {
 					dir('titanium_mobile') {
 						checkout(changelog: false, poll: false, scm: [
 							$class: 'GitSCM',
-							branches: [[name: '**']],
+							branches: [[name: 'refs/heads/*']],
 							extensions: [
-								[$class: 'CloneOption', depth: 0, noTags: true, reference: '', shallow: false, timeout: 60]
+								[$class: 'CloneOption', depth: 0, honorRefspec: true, noTags: true, reference: '', shallow: false, timeout: 60]
 							],
-							userRemoteConfigs: scm.userRemoteConfigs
+							userRemoteConfigs: [[refspec: '+refs/heads/*:refs/remotes/origin/*', url: 'git@github.com:appcelerator/titanium_mobile.git']]
 						])
 					}
 				}
