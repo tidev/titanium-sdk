@@ -60,8 +60,8 @@ timestamps {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
-					if (fileExists('titanium_mobile.git') {
-						dir ('titanium_mobile.git') {
+					if (fileExists('titanium_mobile.git')) {
+						dir('titanium_mobile.git') {
 							sh 'git remote update -p' // update the clone
 						}
 					} else {
