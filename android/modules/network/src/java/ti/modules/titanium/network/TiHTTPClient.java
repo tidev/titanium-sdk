@@ -626,7 +626,7 @@ public class TiHTTPClient
 				client.disconnect();
 				client = null;
 			}
-			// Fire the disposehandle event if the is aborted.
+			// Fire the disposehandle event if the request is aborted.
 			// And it will dispose the handle of the httpclient in the JS.
 			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 		}
