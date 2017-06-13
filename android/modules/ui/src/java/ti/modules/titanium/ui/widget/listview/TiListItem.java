@@ -38,7 +38,9 @@ public class TiListItem extends TiUIView {
 	}
 	
 	public void processProperties(KrollDict d) {
-
+		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
+			d.remove(TiC.PROPERTY_LAYOUT);
+		}
 		if (d.containsKey(TiC.PROPERTY_ACCESSORY_TYPE)) {
 			int accessory = TiConvert.toInt(d.get(TiC.PROPERTY_ACCESSORY_TYPE), -1);
 			handleAccessory(accessory);
