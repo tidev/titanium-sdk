@@ -20,6 +20,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
@@ -323,6 +324,17 @@ public class AndroidModule extends KrollModule
 			r = new RProxy(RProxy.RESOURCE_TYPE_ANDROID);
 		}
 		return r;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public ActivityProxy getCurrentActivity() {
+		TiBaseActivity resultBaseActivity = TiApplication.getAppCurrentActivity();
+		if (resultBaseActivity != null) {
+			return resultBaseActivity.getActivityProxy();
+		} else {
+			Log.w(TAG, "Application instance no longer available. Unable to get current activity.");
+			return null;
+		}
 	}
 
 	@Kroll.method
