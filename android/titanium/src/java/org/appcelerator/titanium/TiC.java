@@ -1504,6 +1504,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_GROUP = "group";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_GROUP_ALERT_BEHAVIOUR = "groupAlertBehaviour";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_GROUP_SUMMARY = "groupSummary";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_HAS_CHECK = "hasCheck";
 
 	/**
