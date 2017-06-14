@@ -120,6 +120,17 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_PRIORITY)) {
 			setPriority(TiConvert.toInt(d, TiC.PROPERTY_PRIORITY));
 		}
+		if (d.containsKey(TiC.PROPERTY_GROUP)) {
+			setGroup(TiConvert.toString(d, TiC.PROPERTY_GROUP));
+		}
+		/*
+		if (d.containsKey(TiC.PROPERTY_GROUP_ALERT_BEHAVIOUR)) {
+			setGroupAlertBehaviour(TiConvert.toInt(d, TiC.PROPERTY_GROUP_ALERT_BEHAVIOUR));
+		}
+		*/
+		if (d.containsKey(TiC.PROPERTY_GROUP_SUMMARY)) {
+			setGroupSummary(TiConvert.toBoolean(d, TiC.PROPERTY_GROUP_SUMMARY));
+		}
 		checkLatestEventInfoProperties(d);
 	}
 
@@ -308,6 +319,27 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_VIBRATE_PATTERN, pattern);
 	}
 
+	@Kroll.method @Kroll.setProperty
+	public void setGroup(String groupKey) {
+		notificationBuilder.setGroup(groupKey);
+		setProperty(TiC.PROPERTY_GROUP, groupKey);
+	}
+
+	/*
+	TODO: expose after updating to android.support.v4 v26.0.0
+	@Kroll.method @Kroll.setProperty
+	public void setGroupAlertBehaviour(int groupAlertBehaviour) {
+		notificationBuilder.setGroupAlertBehaviour(groupAlertBehaviour);
+		setProperty(TiC.PROPERTY_GROUP_ALERT_BEHAVIOUR, groupAlertBehaviour);
+	}
+	*/
+
+	@Kroll.method @Kroll.setProperty
+	public void setGroupSummary(boolean isGroupSummary) {
+		notificationBuilder.setGroupSummary(isGroupSummary);
+		setProperty(TiC.PROPERTY_GROUP_SUMMARY, isGroupSummary);
+	}
+
 	protected void checkLatestEventInfoProperties(KrollDict d)
 	{
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)
@@ -342,7 +374,13 @@ public class NotificationProxy extends KrollProxy
 	public Notification buildNotification()
 	{
 		Notification notification = notificationBuilder.build();
-		notification.flags = this.flags;
+		
+		if (hasProperty(TiC.PROPERTY_GROUP)) {
+			// remove FLAG_AUTO_CANCEL as this will prevent group notifications
+			this.flags &= ~Notification.FLAG_AUTO_CANCEL;
+		}
+		notification.flags |= this.flags;
+
 		return notification;
 	}
 
