@@ -732,7 +732,7 @@ public class TiHTTPClient
 	public void open(String method, String url)
 	{
 		if (requestPending) {
-			Log.w(TAG,"Open canceled. Connection is already opened and a request is pending.");
+			Log.w(TAG, "open cancelled, a request is already pending for response.");
 			return;
 		}
 
@@ -1017,8 +1017,7 @@ public class TiHTTPClient
 	{
 
 		if (requestPending) {
-			//Log.w(TAG,"Request currently in transmission!");
-			Log.w(TAG,"Send canceled. A request with the same TiHTTPClient is pending!");
+			Log.w(TAG, "send cancelled, a request is already pending for response.");
 			return;
 		}
 		requestPending = true;
