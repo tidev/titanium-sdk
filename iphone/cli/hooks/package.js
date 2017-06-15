@@ -180,6 +180,7 @@ exports.init = function (logger, config, cli) {
 
 		var exportsOptionsPlistFile = path.join(builder.buildDir, 'export_options.plist');
 		var exportsOptions = new appc.plist();
+		var pp = builder.provisioningProfile;
 
 		// Build the options plist file
 		if (target === 'dist-appstore') {
@@ -187,24 +188,12 @@ exports.init = function (logger, config, cli) {
 		} else {
 			exportsOptions.method = 'ad-hoc';
 
-			var pp = null;
-			builder.iosInfo.provisioning.adhoc.some(function (p) {
-				if (p.uuid === builder.provisioningProfileUUID) {
-					pp = p;
-					return true;
-				}
-			});
-			if (!pp) {
-				builder.iosInfo.provisioning.enterprise.some(function (p) {
-					if (p.uuid === builder.provisioningProfileUUID) {
-						pp = p;
-						exportsOptions.method = 'enterprise';
-						return true;
-					}
-				});
+			if (pp.type === 'enterprise') {
+				exportsOptions.method = 'enterprise';
 			}
-			if (pp && pp.team && pp.team.length) {
-				exportsOptions.teamId = pp.team[0];
+
+			if (pp.appPrefix) {
+				exportsOptions.teamId = pp.appPrefix;
 			}
 		}
 
@@ -227,29 +216,12 @@ exports.init = function (logger, config, cli) {
 				output.split('\n').forEach(logger.trace);
 				logger.error(__('Failed to export archive to ipa'));
 
-				var pp = null;
-				var ppType = null;
-
-				function findPP(type) {
-					builder.iosInfo.provisioning[type].some(function (p) {
-						if (p.uuid === builder.provisioningProfileUUID) {
-							pp = p;
-							ppType = type;
-						}
-					});
-				}
-
-				findPP('distribution');
-				if (!pp) {
-					findPP('adhoc');
-				}
-
 				var targetName = target === 'dist-appstore' ? 'Distribution' : 'Ad Hoc';
 
 				if (pp) {
-					if (ppType === 'distribution' && target === 'dist-adhoc') {
+					if (pp.type === 'distribution' && target === 'dist-adhoc') {
 						logger.error(__('The selected provisioning profile "%s (%s)" appears to be a Distribution provisioning profile and not an Ad Hoc provisioning profile.', pp.name, pp.uuid));
-					} else if (ppType === 'adhoc' && target === 'dist-appstore') {
+					} else if (pp.type === 'adhoc' && target === 'dist-appstore') {
 						logger.error(__('The selected provisioning profile "%s (%s)" appears to be an Ad Hoc provisioning profile and not a Distribution provisioning profile.', pp.name, pp.uuid));
 					}
 					else {
