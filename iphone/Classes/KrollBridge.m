@@ -1149,7 +1149,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return nil;
 }
 
-- (TiModule * _Nullable)cachedRequireModuleFromPath:(NSString *)path
+- (TiModule * _Nullable)loadWithCaching:(NSString *)path
 {
 	// See if we cached this path already
 	TiModule *module = [modules objectForKey:path];
@@ -1158,7 +1158,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 
 	// Load the path if it does not exist in the path-cache so far
-	module = [self loadAsFileOrDirectory:[[path substringFromIndex:1] stringByStandardizingPath] withContext:context];
+	module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
 
 	// Cache the new path if it exists
 	if (module != nil) {
@@ -1189,7 +1189,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			NSString *relativePath = (workingPath == nil) ? path : [workingPath stringByAppendingPathComponent:path];
 
 			// Load cached require-module if exists
-			module = [self cachedRequireModuleFromPath:relativePath];
+			module = [self loadWithCaching:relativePath];
 
 			if (module != nil) {
 				return module;
@@ -1199,7 +1199,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		} else if ([path hasPrefix:@"/"]) {
 
 			// Load cached require-module if exists
-			module = [self cachedRequireModuleFromPath:path];
+			module = [self loadWithCaching:[path substringFromIndex:1]];
 
 			if (module != nil) {
 				return module;
