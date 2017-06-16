@@ -328,11 +328,11 @@ function shutdown(params, callback) {
 		}
 
 		if (!sim) {
-			return cb(new Error(__('Unable to find Simulator %s', params.udid)));
+			return callback(new Error(__('Unable to find Simulator %s', params.udid)));
 		}
 
 		if (sim.availability !== '(available)') {
-			return cb(new Error(__('Simulator is not available')));
+			return callback(new Error(__('Simulator is not available')));
 		}
 
 		log('Sim state: ' + sim.state);
