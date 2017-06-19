@@ -1149,6 +1149,26 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return nil;
 }
 
+- (TiModule * _Nullable)loadWithCaching:(NSString *)path
+{
+	// See if we cached this path already
+	TiModule *module = [modules objectForKey:path];
+	if (module != nil) {
+		return module;
+	}
+
+	// Load the path if it does not exist in the path-cache so far
+	module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
+
+	// Cache the new path if it exists
+	if (module != nil) {
+		[modules setObject:module forKey:path];
+		return module;
+	}
+
+	return nil;
+}
+
 - (id)require:(KrollContext *)kroll path:(NSString *)path
 {
 	NSURL *oldURL = [self currentURL];
@@ -1163,18 +1183,25 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 		// 2. If X begins with './' or '/' or '../'
 		if ([path hasPrefix:@"./"] || [path hasPrefix:@"../"]) {
+
 			// Need base path to work from for relative modules...
 			NSString *workingPath = [oldURL relativePath];
 			NSString *relativePath = (workingPath == nil) ? path : [workingPath stringByAppendingPathComponent:path];
-			module = [self loadAsFileOrDirectory:[relativePath stringByStandardizingPath] withContext:context];
-			if (module) {
+
+			// Load cached require-module if exists
+			module = [self loadWithCaching:relativePath];
+
+			if (module != nil) {
 				return module;
 			}
+
 			// Treat '/' special as absolute, drop the leading '/'
-		}
-		else if ([path hasPrefix:@"/"]) {
-			module = [self loadAsFileOrDirectory:[[path substringFromIndex:1] stringByStandardizingPath] withContext:context];
-			if (module) {
+		} else if ([path hasPrefix:@"/"]) {
+
+			// Load cached require-module if exists
+			module = [self loadWithCaching:[path substringFromIndex:1]];
+
+			if (module != nil) {
 				return module;
 			}
 		} else {
