@@ -236,7 +236,6 @@ public class TiUILabel extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
 			wordWrap = TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP, true);
-			tv.setSingleLine(!wordWrap);
 		}
 		if (d.containsKey(TiC.PROPERTY_MAX_LINES)) {
 			tv.setMaxLines(TiConvert.toInt(d, TiC.PROPERTY_MAX_LINES));
@@ -388,7 +387,6 @@ public class TiUILabel extends TiUIView
 			tv.setEllipsize(ellipsize);
 		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
 			wordWrap = TiConvert.toBoolean(newValue, true);
-			tv.setSingleLine(!wordWrap);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
 			Linkify.addLinks(tv, TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
