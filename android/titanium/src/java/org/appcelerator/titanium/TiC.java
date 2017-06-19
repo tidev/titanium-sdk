@@ -2565,11 +2565,6 @@ public class TiC
 	public static final String PROPERTY_SOURCE_POSITION = "sourcePosition";
 
 	/**
-	* @module.api
-	*/
-	public static final String PROPERTY_SPLIT_ACTIONBAR = "splitActionBar";
-
-	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_SPLIT_TRACK = "splitTrack";
