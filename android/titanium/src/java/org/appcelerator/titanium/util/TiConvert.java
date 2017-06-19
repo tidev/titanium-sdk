@@ -331,11 +331,12 @@ public class TiConvert
 	 */
 	public static boolean toBoolean(Object value, boolean def)
 	{
-		try {
-			return toBoolean(value);
-		} catch (IllegalArgumentException e) {
-			return def;
+		boolean result = def;
+		if (value != null) {
+			try { result = toBoolean(value); }
+			catch (Exception e) {}
 		}
+		return result;
 	}
 
 	/**
@@ -423,11 +424,12 @@ public class TiConvert
 	 */
 	public static int toInt(Object value, int def)
 	{
-		try {
-			return toInt(value);
-		} catch (NumberFormatException e) {
-			return def;
+		int result = def;
+		if (value != null) {
+			try { result = toInt(value); }
+			catch (Exception e) {}
 		}
+		return result;
 	}
 
 	/**
@@ -478,11 +480,12 @@ public class TiConvert
 	 */
 	public static float toFloat(Object value, float def)
 	{
-		try {
-			return toFloat(value);
-		} catch (NumberFormatException e) {
-			return def;
+		float result = def;
+		if (value != null) {
+			try { result = toFloat(value); }
+			catch (Exception e) {}
 		}
+		return result;
 	}
 
 	/**
