@@ -1173,13 +1173,13 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		// First let's check if we cached the resolved path for this require string
 		// and if we did, try and load a cached module for this path
 		if (pathCache != nil && modules != nil) {
-			// FIXME Node calculates the possible search paths and uses that in the cache key
-			// for requests whose length < 2 OR not starting with '..' or './', it basically just uses empty path array
-			// then it appends the "parent paths"
-			// Basically it's building up the set of directories to look under
-			// So we need to take the working path and determine the set of paths to look for modules
 			NSLog(@"[WARN] workingPath : %@", workingPath);
-			pathCacheKey = [[path stringByAppendingString:@"|"] stringByAppendingString: ((workingPath == nil) ? @"" : workingPath)];
+			// We generate a path resolution cache key, first part is the requested module id/path
+			pathCacheKey = [path stringByAppendingString:@"|"];
+			// If request is not-absolute and we're not at the top-level dir, then append current dir as second part of cache key
+			if (workingPath != nil && ![path hasPrefix:@"/"]) {
+				pathCacheKey = [pathCacheKey stringByAppendingString: workingPath];
+			}
 			NSString *resolvedPath = [pathCache objectForKey:pathCacheKey];
 			if (resolvedPath != nil) {
 				NSLog(@"[WARN][PATH CACHE HIT] : %@ -> %@ ", path, resolvedPath);
