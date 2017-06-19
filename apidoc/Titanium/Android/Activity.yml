@@ -193,6 +193,12 @@ methods:
         type: Titanium.Android.Intent
         optional: true
 
+  - name: setSupportActionBar
+    summary: Sets a toolbar instance to be used as an ActionBar.
+    parameters:
+      - name: toolbar
+        type: Titanium.UI.Android.Toolbar  
+
   - name: startActivity
     summary: Starts a new activity, using the passed in `Intent` as the description. 
     description: |
@@ -435,6 +441,10 @@ properties:
     type: Number
     permission: write-only
 
+  - name: supportToolbar
+    summary: Toolbar instance that serves as ActionBar
+    type: Titanium.UI.Android.Toolbar
+    
 examples:
   - title: Callback Example
     example: |
