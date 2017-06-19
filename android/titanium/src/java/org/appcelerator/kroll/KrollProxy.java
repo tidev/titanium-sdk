@@ -1294,6 +1294,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 	}
 
+	/**
+	 * Only release kroll, but maintain instance
+	 * @module.api
+	 */
+	public void releaseKroll()
+	{
+		if (krollObject != null) {
+			krollObject.release();
+		}
+	}
+
 	// For subclasses to override
 	@Kroll.method @Kroll.getProperty
 	public String getApiName()
