@@ -80,25 +80,28 @@ describe('Titanium.UI.AlertDialog', function () {
 		should(bar.getCancel()).eql(1);
 	});
 	
-// Skip on Android, since it's an iOS-only property
-(utilities.isAndroid() ? it.skip : it)('tintColor', function () {
-	var bar = Ti.UI.createAlertDialog({
-		tintColor: 'red'
+	// Skip on other platforms, since it's an iOS-only property
+	(utilities.isIOS() ? it : it.skip)('tintColor', function () {
+		var bar = Ti.UI.createAlertDialog({
+			tintColor: 'red'
+		});
+		
+		// Check getter
+		should(bar.tintColor).be.a.String;
+		should(bar.getTintColor).be.a.Function;
+		should(bar.tintColor).eql('red');
+		should(bar.getTintColor()).eql('red');
+		
+		// Set new value
+		bar.tintColor = '#f00';
+		
+		// Check getter again
+		should(bar.tintColor).eql('#f00');
+		should(bar.getTintColor()).eql('#f00');
+		
+		// Check setter
+		should(bar.setTintColor).be.a.Function;
+		bar.setTintColor('#0f0');
+		should(bar.tintColor).eql('#0f0');
 	});
-	
-	// Check getter
-	should(bar.tintColor).be.a.String;
-	should(bar.getTintColor).be.a.Function;
-	should(bar.tintColor).eql('red');
-	should(bar.getTintColor()).eql('red');
-	
-	// Set new value
-	bar.tintColor = '#f00';
-	
-	// Check getter again
-	should(bar.tintColor).be.a.String;
-	should(bar.getTintColor).be.a.Function;
-	should(bar.tintColor).eql('#f00');
-	should(bar.getTintColor()).eql('#f00');
-});
 });
