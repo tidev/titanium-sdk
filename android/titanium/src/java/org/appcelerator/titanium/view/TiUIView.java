@@ -830,20 +830,7 @@ public abstract class TiUIView
 							applyTouchFeedback(bgColor, d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) ? TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) : null);
 						} else {
 							nativeView.setBackgroundColor(bgColor);
-							// A bug only on Android 2.3 (TIMOB-14311).
-							if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-								setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
-							}
 						}
-						nativeView.postInvalidate();
-					}
-				} else {
-					if (key.equals(TiC.PROPERTY_OPACITY)) {
-						setOpacity(TiConvert.toFloat(newValue, 1f));
-					}
-					if (!nativeViewNull) {
-						nativeView.setBackgroundDrawable(null);
-						nativeView.postInvalidate();
 					}
 				}
 			} else {
@@ -889,14 +876,9 @@ public abstract class TiUIView
 				}
 
 				applyCustomBackground();
-
-				if (key.equals(TiC.PROPERTY_OPACITY)) {
-					setOpacity(TiConvert.toFloat(newValue, 1f));
-				} else if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-					// A bug only on Android 2.3 (TIMOB-14311).
-					setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
-				}
-
+			}
+			if (key.equals(TiC.PROPERTY_OPACITY)) {
+				setOpacity(TiConvert.toFloat(newValue, 1f));
 			}
 			if (!nativeViewNull) {
 				nativeView.postInvalidate();
