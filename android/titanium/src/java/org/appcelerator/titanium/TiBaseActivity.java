@@ -658,6 +658,13 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			this.setTheme(theme);
 		}
 
+		// Set ActionBar into split mode must be done before the decor view has been created
+		// we need to do this before calling super.onCreate()
+		if (intent != null && intent.hasExtra(TiC.PROPERTY_SPLIT_ACTIONBAR)) {
+			getWindow().setUiOptions(ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW);
+		}
+
+
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily
 		// so we don't run into problems when we give the proxy the event
