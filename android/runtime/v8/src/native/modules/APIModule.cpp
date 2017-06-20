@@ -8,12 +8,11 @@
 #include <android/log.h>
 #include <v8.h>
 #include <v8-debug.h>
-#include <string.h>
+#include <cstring>
 #include <signal.h>
 #include <unistd.h>
 
 #include "AndroidUtil.h"
-
 #include "APIModule.h"
 #include "JNIUtil.h"
 #include "V8Runtime.h"
@@ -76,8 +75,22 @@ void APIModule::Initialize(Local<Object> target, Local<Context> context)
 	}
 	// Make API extend from KrollModule
 	constructor->Inherit(KrollModule::getProxyTemplate(isolate));
+
 	// export an instance of API as "API" (basically make a static singleton)
-	target->Set(NEW_SYMBOL(isolate, "API"), constructor->GetFunction(context).ToLocalChecked()->NewInstance(context).ToLocalChecked());
+	v8::TryCatch tryCatch(isolate);
+	Local<Function> constructorFunction;
+	MaybeLocal<Function> maybeConstructor = constructor->GetFunction(context);
+	if (!maybeConstructor.ToLocal(&constructorFunction)) {
+		V8Util::fatalException(isolate, tryCatch);
+		return;
+	}
+	MaybeLocal<Object> maybeInstance = constructorFunction->NewInstance(context);
+	Local<Object> moduleInstance;
+	if (!maybeInstance.ToLocal(&moduleInstance)) {
+		V8Util::fatalException(isolate, tryCatch);
+		return;
+	}
+	target->Set(NEW_SYMBOL(isolate, "API"), moduleInstance);
 }
 
 void APIModule::logDebug(const FunctionCallbackInfo<Value>& args)

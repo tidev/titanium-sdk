@@ -537,22 +537,22 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
 }
 
-- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
-    RELEASE_TO_NIL(remoteNotification);
-    [self generateNotification:userInfo];
-    NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
-    event[@"data"] = remoteNotification;
-    if (identifier != nil) {
-        event[@"identifier"] = identifier;
-    }
-    NSString *category = remoteNotification[@"category"];
-    if (category != nil) {
-        event[@"category"] = category;
-    }
-    
-    [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
+// iOS 9+
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
+{
+    [self handleRemoteNotificationWithIdentifier:identifier
+                                     andUserInfo:userInfo
+                                    responseInfo:responseInfo
+                               completionHandler:completionHandler];
 }
 
+// iOS < 9
+- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
+    [self handleRemoteNotificationWithIdentifier:identifier
+                                     andUserInfo:userInfo
+                                    responseInfo:nil // iOS 9+ only
+                               completionHandler:completionHandler];
+}
 
 #pragma mark Apple Watchkit handleWatchKitExtensionRequest
 - (void)application:(UIApplication *)application
@@ -1306,6 +1306,32 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     }
     
     return YES;
+}
+
+- (void)handleRemoteNotificationWithIdentifier:(NSString *)identifier
+                                   andUserInfo:(NSDictionary *)userInfo
+                                  responseInfo:(NSDictionary *)responseInfo
+                             completionHandler:(void(^)())completionHandler
+{
+    RELEASE_TO_NIL(remoteNotification);
+    [self generateNotification:userInfo];
+    
+    NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
+    NSString *category = remoteNotification[@"category"];
+    
+    event[@"data"] = remoteNotification;
+    
+    if (identifier != nil) {
+        event[@"identifier"] = identifier;
+    }
+    if (responseInfo[UIUserNotificationActionResponseTypedTextKey] != nil) {
+        event[@"typedText"] = responseInfo[UIUserNotificationActionResponseTypedTextKey];
+    }
+    if (category != nil) {
+        event[@"category"] = category;
+    }
+    
+    [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
 }
 
 - (void)application:(UIApplication *)application
