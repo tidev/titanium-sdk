@@ -506,11 +506,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
         [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
 
-        // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
-        // the bridge completes processing of app.js (adding the event into notification center).
-
-        [self postNotificationwithKey:[NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil] withNotificationName:kTiBackgroundFetchNotification] ;
-
+        [self tryToPostBackgroundModeNotification:[NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil]
+                             withNotificationName:kTiBackgroundFetchNotification];
+        
         // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
         NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
         [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
@@ -643,7 +641,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 //Clear out  the pendingCompletionHandlerQueue
 -(void)flushCompletionHandlerQueue
 {
-    //FunctionName();
     if (pendingCompletionHandlers !=nil) {
         for (id key in pendingCompletionHandlers) {
             [self completionHandler:key withResult:2]; //UIBackgroundFetchResultFailed
@@ -655,7 +652,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 // This method gets called when the wall clock runs out and the completionhandler is still there.
 -(void)fireCompletionHandler:(NSTimer*)timer
 {
-    //FunctionName();
     id key = timer.userInfo;
     if ([pendingCompletionHandlers objectForKey:key]) {
         [self completionHandler:key withResult:UIBackgroundFetchResultFailed];
@@ -663,10 +659,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     }
 }
 
-// gets called when user ends finishes with backgrounding stuff. By default this would always be called with UIBackgroundFetchResultNoData.
+// Gets called when user ends finishes with backgrounding stuff. By default this would always be called with UIBackgroundFetchResultNoData.
 -(void)completionHandler:(id)key withResult:(int)result
 {
-    //FunctionName();
     if ([pendingCompletionHandlers objectForKey:key]) {
         void (^completionHandler)(UIBackgroundFetchResult);
         completionHandler = [pendingCompletionHandlers objectForKey:key];
@@ -677,7 +672,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     }
 }
 
-//Called to mark the end of background transfer while in the background.
+// Called to mark the end of background transfer while in the background.
 -(void)completionHandlerForBackgroundTransfer:(id)key
 {
     if ([backgroundTransferCompletionHandlers objectForKey:key] != nil) {
@@ -694,16 +689,15 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #pragma mark Remote Notifications iOS 7
 
 #ifdef USE_TI_SILENTPUSH
-//Delegate callback for Silent Remote Notification.
+// Delegate callback for Silent Remote Notification.
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
 {
-    //FunctionName();
-    //Forward the callback
+    // Forward the callback
     if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
         [self application:application didReceiveRemoteNotification:userInfo];
     }
     
-    //This only here for Simulator builds.
+    // This only here for Simulator builds.
     
     NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
     if ([backgroundModes containsObject:@"remote-notification"]) {
@@ -718,12 +712,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         
         [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease ]forKey:key];
         
-        // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
-        // the bridge completes processing of app.js (adding the event into notification center).
-        
         NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil];
         [dict addEntriesFromDictionary:userInfo];
-        [self postNotificationwithKey:dict withNotificationName:kTiSilentPushNotification];
+        
+        [self tryToPostBackgroundModeNotification:dict
+                             withNotificationName:kTiSilentPushNotification];
         
         // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
         NSTimer*  flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO] ;
@@ -739,7 +732,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 //Delegate callback for Background Transfer completes.
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
 {
-    //FunctionName();
     // Generate unique key with timestamp.
     id key = [NSString stringWithFormat:@"Session-%f",[[NSDate date] timeIntervalSince1970]];
     
@@ -761,8 +753,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
-	//FunctionName();
-	//copy downloaded file from location to tempFile (in NSTemporaryDirectory), because file in location will be removed after delegate completes
+	// Copy downloaded file from location to tempFile (in NSTemporaryDirectory), because file in location will be removed after delegate completes
 	NSError *error;
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSString *destinationFilename = location.lastPathComponent;
@@ -824,8 +815,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    //FunctionName();
-    
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                  [NSNumber numberWithUnsignedInteger:task.taskIdentifier], @"taskIdentifier",
                           nil];
@@ -1000,7 +989,6 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 -(void)applicationDidEnterBackground:(UIApplication *)application
 {
-	//FunctionName();
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
 	
 	if (backgroundServices==nil)
@@ -1034,7 +1022,6 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 -(void)applicationWillEnterForeground:(UIApplication *)application
 {
-    //FunctionName(); Uncomment to see function name printed when it is called.
     [self flushCompletionHandlerQueue];
     [sessionId release];
     sessionId = [[TiUtils createUUID] retain];
