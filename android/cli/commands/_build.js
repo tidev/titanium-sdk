@@ -3342,7 +3342,7 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 		}
 		if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
 			var theme = this.tiappAndroidManifest.application.theme;
-			if (theme.startsWith('@style/')) {
+			if (theme.startsWith('@style/') && theme !== '@style/Theme.Titanium') {
 				flags = theme.replace('@style/', '');
 			}
 		}
@@ -3686,7 +3686,8 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
 			'-F', this.ap_File,
-			'--output-text-symbols', bundlesPath
+			'--output-text-symbols', bundlesPath,
+			'--no-version-vectors'
 		];
 
 	var runAapt = function runAapt() {
