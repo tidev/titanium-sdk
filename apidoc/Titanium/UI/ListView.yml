@@ -1056,15 +1056,20 @@ properties:
     type: Dictionary
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad] 
+
+  - name: dimBackgroundForSearch
+    summary: A Boolean indicating whether the underlying content is dimmed during a search.
+    description: |
+          If you do not want to show the dimmed background when user click on search bar, 
+          set this property false. 
+    type: Boolean
+    default: true 
+    since: 6.2.0
     platforms: [iphone, ipad]
+    availability: creation
 
   - name: resultsBackgroundColor
-    deprecated:
-        since: 6.2.0
-        removed: 6.2.0
-        notes: |
-          The background color of the search table-view is determined by it's table-view, 
-          so there is no additional property required.
     summary: The background color of the search results (iOS-only).
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
@@ -1077,12 +1082,6 @@ properties:
     availability: creation
 
   - name: resultsSeparatorColor
-    deprecated:
-        since: 6.2.0
-        removed: 6.2.0
-        notes: |
-            The background color of the search table-view is determined by it's table-view, 
-            so there is no additional property required.
     summary: | 
         Separator line color between rows inside search results, 
         as a color name or hex triplet (iOS-only).
@@ -1097,12 +1096,6 @@ properties:
     availability: creation
     
   - name: resultsSeparatorStyle
-    deprecated:
-        since: 6.2.0
-        removed: 6.2.0
-        notes: |
-            The background color of the search table-view is determined by it's table-view, 
-            so there is no additional styling required.
     summary: The separator style of the search results (iOS-only).
     type: Number
     constants: Titanium.UI.iPhone.ListViewSeparatorStyle.*
@@ -1111,12 +1104,6 @@ properties:
     availability: creation
 
   - name: resultsSeparatorInsets
-    deprecated:
-        since: 6.2.0
-        removed: 6.2.0
-        notes: |
-            The background color of the search table-view is determined by it's table-view, 
-            so there is no additional property required.
     summary: | 
         The insets for search results separators (applies to all cells & iOS-only). 
     description: |

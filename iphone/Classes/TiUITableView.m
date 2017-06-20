@@ -2125,7 +2125,6 @@
 	BOOL animated = [TiUtils boolValue:@"animated" properties:props def:NO];
     void (^setInset)(void) = ^{
         [self searchString];
-        [_searchTableView setContentInset:insets];
         [tableview setContentInset:insets];
     };
     if (animated) {
