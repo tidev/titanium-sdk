@@ -784,9 +784,6 @@ properties:
     type: Boolean
     since: 3.6.0
     availability: creation
-    deprecated:
-        since: 6.2.0
-        removed: 6.2.0
 
   - name: statusBarStyle
     summary: The status bar style associated with this window. 
