@@ -1510,7 +1510,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_GROUP = "group";
+	public static final String PROPERTY_GROUP_KEY = "groupKey";
 
 	/**
 	 * @module.api

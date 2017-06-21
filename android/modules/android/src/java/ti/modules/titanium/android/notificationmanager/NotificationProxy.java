@@ -120,8 +120,8 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_PRIORITY)) {
 			setPriority(TiConvert.toInt(d, TiC.PROPERTY_PRIORITY));
 		}
-		if (d.containsKey(TiC.PROPERTY_GROUP)) {
-			setGroup(TiConvert.toString(d, TiC.PROPERTY_GROUP));
+		if (d.containsKey(TiC.PROPERTY_GROUP_KEY)) {
+			setGroupKey(TiConvert.toString(d, TiC.PROPERTY_GROUP_KEY));
 		}
 		/*
 		if (d.containsKey(TiC.PROPERTY_GROUP_ALERT_BEHAVIOUR)) {
@@ -320,9 +320,9 @@ public class NotificationProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.setProperty
-	public void setGroup(String groupKey) {
+	public void setGroupKey(String groupKey) {
 		notificationBuilder.setGroup(groupKey);
-		setProperty(TiC.PROPERTY_GROUP, groupKey);
+		setProperty(TiC.PROPERTY_GROUP_KEY, groupKey);
 	}
 
 	/*
@@ -375,7 +375,7 @@ public class NotificationProxy extends KrollProxy
 	{
 		Notification notification = notificationBuilder.build();
 		
-		if (hasProperty(TiC.PROPERTY_GROUP)) {
+		if (hasProperty(TiC.PROPERTY_GROUP_KEY)) {
 			// remove FLAG_AUTO_CANCEL as this will prevent group notifications
 			this.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		}
