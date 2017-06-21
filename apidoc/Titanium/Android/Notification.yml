@@ -105,7 +105,7 @@ examples:
                         icon: Ti.Android.R.drawable.ic_dialog_info,
                         contentTitle: 'NOTIFICATION #' + i,
                         contentText : 'Lorem ipsum dolor sit amet, facer eruditi omittantur cu pri, nibh nonumy putant eam eu.'
-                        group: groupKey
+                        groupKey: groupKey
                     })
                 );
             }
@@ -114,7 +114,7 @@ examples:
                     icon: Ti.Android.R.drawable.ic_dialog_info,
                     contentTitle: 'NOTIFICATIONS',
                     contentText : 'You have 3 notifications.',
-                    group: group,
+                    groupKey: groupKey,
                     groupSummary: true
                 })
             );
@@ -224,17 +224,17 @@ properties:
         Titanium.Android.FLAG_ONLY_ALERT_ONCE, Titanium.Android.FLAG_SHOW_LIGHTS ]
     default: <Titanium.Android.FLAG_AUTO_CANCEL>
 
-  - name: group
+  - name: groupKey
     summary: The group key that the notification will belong to.
     type: String
     since: "6.2.0"
-    osver: {android: {min: "7.0"}}
+    osver: {android: {min: "5.1"}}
 
   - name: groupSummary
     summary: Specifies if this is a group summary notification.
     type: Boolean
     since: "6.2.0"
-    osver: {android: {min: "7.0"}}
+    osver: {android: {min: "5.1"}}
 
   - name: icon
     summary:
