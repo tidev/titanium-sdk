@@ -43,6 +43,7 @@ exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli, appc) {
 	cli.on('build.pre.compile', {
+		priority: 1100,
 		post: function(builder, callback) {
 			registerHyperloopCompatibilityFixes(cli, builder, appc, logger);
 			scanProjectAndStartTransform(builder, logger, callback);
