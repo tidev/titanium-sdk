@@ -538,7 +538,7 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 	}.bind(this));
 };
 
-iOSModuleBuilder.prototype.packageModule = function packageModule() {
+iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 	var dest = archiver('zip', {
 			forceUTC: true
 		}),
@@ -564,6 +564,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		zipStream = fs.createWriteStream(moduleZipFullPath);
 		zipStream.on('close', function() {
 			console.error = origConsoleError;
+			next();
 		});
 		dest.catchEarlyExitAttached = true; // silence exceptions
 		dest.pipe(zipStream);
