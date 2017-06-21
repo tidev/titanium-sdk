@@ -613,9 +613,10 @@ public class TiUIScrollView extends TiUIView
 		View nativeView = getNativeView();
 		if (nativeView instanceof TiVerticalScrollView) {
 			return ((TiVerticalScrollView) nativeView).layout;
-		} else {
+		} else if (nativeView instanceof TiHorizontalScrollView) {
 			return ((TiHorizontalScrollView) nativeView).layout;
 		}
+		return null;
 	}
 	
 	@Override
