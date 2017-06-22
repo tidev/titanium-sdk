@@ -10,8 +10,6 @@ var zlib = require('zlib');
 var log = require('npmlog');
 var existsAsync = fs.exists || path.exists;
 var versioning = require('./util/versioning.js');
-var testbinary = require('./testbinary.js');
-var clean = require('./clean.js');
 
 var npgVersion = 'unknown';
 try {
@@ -147,7 +145,6 @@ function install(gyp, argv, callback) {
     var source_build = gyp.opts['build-from-source'] || gyp.opts.build_from_source;
     var update_binary = gyp.opts['update-binary'] || gyp.opts.update_binary;
     var should_do_source_build = source_build === package_json.name || (source_build === true || source_build === 'true');
-    var no_rollback = gyp.opts.hasOwnProperty('rollback') && gyp.opts.rollback === false;
     if (should_do_source_build) {
         log.info('build','requesting source compile');
         return do_build(gyp,argv,callback);
@@ -178,29 +175,9 @@ function install(gyp, argv, callback) {
         var binary_module = path.join(to,opts.module_name + '.node');
         if (existsAsync(binary_module,function(found) {
             if (found && !update_binary) {
-                testbinary(gyp, argv, function(err) {
-                    if (err) {
-                        console.error('['+package_json.name+'] ' + err.message);
-                        log.error("Testing local pre-built binary failed, attempting to re-download");
-                        place_binary(from,to,opts,function(err) {
-                            if (err) {
-                                if (should_do_fallback_build) {
-                                    print_fallback_error(err,opts,package_json);
-                                    return do_build(gyp,argv,callback);
-                                } else {
-                                    return callback(err);
-                                }
-                            } else {
-                                console.log('['+package_json.name+'] Success: "' + binary_module + '" is reinstalled via remote');
-                                return callback();
-                            }
-                        });
-                    } else {
-                        console.log('['+package_json.name+'] Success: "' + binary_module + '" already installed');
-                        console.log('Pass --update-binary to reinstall or --build-from-source to recompile');
-                        return callback();
-                    }
-                });
+                console.log('['+package_json.name+'] Success: "' + binary_module + '" already installed');
+                console.log('Pass --update-binary to reinstall or --build-from-source to recompile');
+                return callback();
             } else {
                 if (!update_binary) log.info('check','checked for "' + binary_module + '" (not found)');
                 place_binary(from,to,opts,function(err) {
@@ -210,27 +187,8 @@ function install(gyp, argv, callback) {
                     } else if (err) {
                         return callback(err);
                     } else {
-                        testbinary(gyp, argv, function(err) {
-                            if (err) {
-                                if (no_rollback) {
-                                    return callback(err);
-                                }
-                                gyp.opts.silent_clean = true;
-                                clean(gyp, argv, function(error) {
-                                    if (error) console.log(error);
-                                    if (should_do_fallback_build) {
-                                        console.error('['+package_json.name+'] ' + err.message);
-                                        log.error("Testing pre-built binary failed, attempting to source compile");
-                                        return do_build(gyp,argv,callback);
-                                    } else {
-                                        return callback(err);
-                                    }
-                                });
-                            } else {
-                                console.log('['+package_json.name+'] Success: "' + binary_module + '" is installed via remote');
-                                return callback();
-                            }
-                        });
+                        console.log('['+package_json.name+'] Success: "' + binary_module + '" is installed via remote');
+                        return callback();
                     }
                 });
             }
