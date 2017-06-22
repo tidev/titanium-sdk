@@ -3026,28 +3026,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		if (this.keychain) {
 			buildSettings.OTHER_CODE_SIGN_FLAGS = '"--keychain ' + this.keychain + '"';
 		}
-	}
-
-	if (this.target === 'device') {
-		Object.keys(keychains).some(function (keychain) {
-			return (keychains[keychain].developer || []).some(function (d) {
-				if (!d.invalid && d.name === this.certDeveloperName) {
-					buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
-					buildSettings.CODE_SIGN_STYLE = 'Manual';
-					return true;
-				}
-			}, this);
-		}, this);
-	} else if (/dist-appstore|dist\-adhoc/.test(this.target)) {
-		Object.keys(keychains).some(function (keychain) {
-			return (keychains[keychain].distribution || []).some(function (d) {
-				if (!d.invalid && d.name === this.certDistributionName) {
-					buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
-					buildSettings.CODE_SIGN_STYLE = 'Manual';
-					return true;
-				}
-			}, this);
-		}, this);
+		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Distribution"';
+		buildSettings.CODE_SIGN_STYLE = 'Manual';
 	}
 
 	// add the post-compile build phase for dist-appstore builds

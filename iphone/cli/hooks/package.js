@@ -174,9 +174,12 @@ exports.init = function (logger, config, cli) {
 		}
 
 		// make sure the output directory is good to go
-		fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
+		if (fs.existsSync(outputDir)) {
+			logger.info(__('Deleting dist directory: %s', outputDir.cyan));
+			wrench.rmdirSyncRecursive(outputDir);
+		}
+		wrench.mkdirSyncRecursive(outputDir);
 		var ipaFile = path.join(outputDir, builder.tiapp.name + '.ipa');
-		fs.existsSync(ipaFile) && fs.unlinkSync(ipaFile);
 
 		var exportsOptionsPlistFile = path.join(builder.buildDir, 'export_options.plist');
 		var exportsOptions = new appc.plist();
@@ -196,6 +199,18 @@ exports.init = function (logger, config, cli) {
 				exportsOptions.teamId = pp.appPrefix;
 			}
 		}
+
+		var keychains = builder.iosInfo.certs.keychains;
+		Object.keys(keychains).some(function (keychain) {
+			return (keychains[keychain].distribution || []).some(function (d) {
+				if (!d.invalid && d.name === builder.certDistributionName) {
+					exportsOptions.signingCertificate = d.fullname;
+				}
+			}, this);
+		}, this);
+
+		exportsOptions.provisioningProfiles = {};
+		exportsOptions.provisioningProfiles[pp.appId] = pp.uuid;
 
 		fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
 

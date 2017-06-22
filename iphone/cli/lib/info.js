@@ -37,6 +37,10 @@ exports.detect = function (types, config, next) {
 		minWatchosVersion: iosPackageJson.minWatchosVersion,
 		supportedVersions: iosPackageJson.vendorDependencies.xcode
 	}, function (err, results) {
+		if (err) {
+			return next(err);
+		}
+
 		results.devices.unshift({
 			'udid': 'itunes',
 			'name': 'iTunes Sync'
