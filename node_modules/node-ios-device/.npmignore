@@ -5,8 +5,9 @@
 .travis.yml
 *.tgz
 binding
-build
-node_modules
-out
+/build
+/node_modules
+/out
 npm-debug.log*
 env.properties
+/Jenkinsfile
