@@ -246,15 +246,14 @@ public class TiUILabel extends TiUIView
 
 			// Text does not fit within the width of view. Downscale the font.
 			float newFontSize = (viewContentWidth / textWidth) * currentFontSize;
-			{
-				// Don't let the font scale up. Can happen due to inaccuracies with above calculation.
-				// If it has, then downscale the font by 1dp (aka: device-independed point).
-				newFontSize = Math.min(newFontSize, currentFontSize - densityScale);
-			}
-			{
-				// Don't allow the font size to exceed the configured minimum.
-				newFontSize = Math.max(newFontSize, this.minimumFontSizeInPixels);
-			}
+
+			// Don't let the font scale up. Can happen due to inaccuracies with above calculation.
+			// If it has, then downscale the font by 1dp (aka: device-independed point).
+			// Note: This also prevents an infinite loop by guaranteeing to downscale by at least 1dp.
+			newFontSize = Math.min(newFontSize, currentFontSize - densityScale);
+
+			// Don't allow the font size to exceed the configured minimum.
+			newFontSize = Math.max(newFontSize, this.minimumFontSizeInPixels);
 
 			// Apply the downscaled font size to the view.
 			textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, newFontSize);
@@ -324,8 +323,8 @@ public class TiUILabel extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
 			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
- 		}
- 		
+		}
+		
 		if (d.containsKey(TiC.PROPERTY_MINIMUM_FONT_SIZE)) {
 			setMinimumFontSize(TiConvert.toString(d, TiC.PROPERTY_MINIMUM_FONT_SIZE));
 		}
@@ -702,7 +701,7 @@ public class TiUILabel extends TiUIView
 		if (movementMethod != null) {
 			// Android doesn't support start/middle ellipsis when a MovementMethod is configured.
 			// If this is what's configured, then use "end" ellipsis mode instead.
-			// Note: In the future, we can work-around this by not using LinkMovementMethod for links above
+			// TODO: In the future, we can work-around this by not using LinkMovementMethod for links above
 			//       and handle the URLs in onTouchEvent() ourselves as seen in Google's "TextView.java" code.
 			if ((updatedEllipsizeType == TruncateAt.START) || (updatedEllipsizeType == TruncateAt.MIDDLE)) {
 				updatedEllipsizeType = TruncateAt.END;

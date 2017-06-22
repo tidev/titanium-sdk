@@ -333,8 +333,10 @@ public class TiConvert
 	{
 		boolean result = def;
 		if (value != null) {
-			try { result = toBoolean(value); }
-			catch (Exception e) {}
+			try {
+				result = toBoolean(value);
+			} catch (Exception e) {
+			}
 		}
 		return result;
 	}
@@ -426,8 +428,10 @@ public class TiConvert
 	{
 		int result = def;
 		if (value != null) {
-			try { result = toInt(value); }
-			catch (Exception e) {}
+			try {
+				result = toInt(value);
+			} catch (Exception e) {
+			}
 		}
 		return result;
 	}
@@ -482,8 +486,10 @@ public class TiConvert
 	{
 		float result = def;
 		if (value != null) {
-			try { result = toFloat(value); }
-			catch (Exception e) {}
+			try {
+				result = toFloat(value);
+			} catch (Exception e) {
+			}
 		}
 		return result;
 	}
