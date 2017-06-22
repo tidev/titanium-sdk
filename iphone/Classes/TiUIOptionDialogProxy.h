@@ -9,9 +9,8 @@
 #import "TiProxy.h"
 @class TiViewProxy;
 
-@interface TiUIOptionDialogProxy : TiProxy<UIActionSheetDelegate,UIPopoverPresentationControllerDelegate> {
+@interface TiUIOptionDialogProxy : TiProxy<UIPopoverPresentationControllerDelegate> {
 
-    UIActionSheet *actionSheet;
     UIAlertController* alertController;
     TiViewProxy *dialogView;
     UIColor *tintColor;
@@ -26,9 +25,6 @@
 }
 
 @property(nonatomic,retain,readwrite)	TiViewProxy *dialogView;
-
--(void)deviceRotationBegan:(NSNotification *)notification;
--(void)updateOptionDialogNow;
 
 @end
 
