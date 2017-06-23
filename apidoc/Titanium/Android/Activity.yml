@@ -196,7 +196,7 @@ methods:
   - name: setSupportActionBar
     summary: Sets a toolbar instance to be used as an ActionBar.
     description: |
-        This methos is used if you want to add a Toolbar as an ActionBar after the Activity has been created.
+        This method is used if you want to add a Toolbar as an ActionBar after the Activity has been created.
         If you want to set it up before that [supportToolbar](Titanium.Android.Activity.supportToolbar) must be used.
     parameters:
       - name: toolbar

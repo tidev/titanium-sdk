@@ -286,8 +286,9 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method
 	public void setSupportActionBar(TiToolbarProxy tiToolbarProxy) {
 		TiBaseActivity activity = (TiBaseActivity) getWrappedActivity();
-		if (activity != null)
-			activity.setSupportActionBar((Toolbar)tiToolbarProxy.getToolbarInstance());
+		if (activity != null) {
+			activity.setSupportActionBar((Toolbar) tiToolbarProxy.getToolbarInstance());
+		}
 	}
 
 	private void handleOpenOptionsMenu()
