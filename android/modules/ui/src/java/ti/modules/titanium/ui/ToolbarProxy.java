@@ -194,13 +194,13 @@ public class ToolbarProxy extends TiToolbarProxy {
 	//Sets the content insets for this toolbar.
 	@Kroll.method
 	public void setContentInsetsAbsolute(int insetLeft, int insetRight) {
-		getTiToolbarView().setContentInsetsAbsolute(insetLeft,insetRight);
+		getTiToolbarView().setContentInsetsAbsolute(insetLeft, insetRight);
 	}
 
 	//Sets the content insets for this toolbar relative to layout direction.
 	@Kroll.method
 	public void setContentInsetsRelative(int insetStart, int insetEnd) {
-		getTiToolbarView().setContentInsetsRelative(insetStart,insetEnd);
+		getTiToolbarView().setContentInsetsRelative(insetStart, insetEnd);
 	}
 
 	@Kroll.method
