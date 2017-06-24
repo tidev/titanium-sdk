@@ -203,7 +203,7 @@ public class TiTableView extends FrameLayout
 				// TIMOB-24560: prevent duplicate TableViewRowProxyItem on Android N
 				if (Build.VERSION.SDK_INT > 23) {
 					ArrayList<Item> models = viewModel.getViewModel();
-					if (models.contains(v.getRowData())) {
+					if (models != null && models.contains(v.getRowData())) {
 						return v;
 					}
 				}
