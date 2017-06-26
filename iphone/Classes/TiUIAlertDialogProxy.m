@@ -112,7 +112,7 @@ static BOOL alertShowing = NO;
         }
 
         style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
-        
+
         RELEASE_TO_NIL(alertController);
         [[[TiApp app] controller] incrementActiveAlertControllerCount];
         
@@ -120,8 +120,14 @@ static BOOL alertShowing = NO;
                                                                message:[TiUtils stringValue:[self valueForKey:@"message"]]
                                                         preferredStyle:UIAlertControllerStyleAlert] retain];
         int curIndex = 0;
+      
+        id tintColor = [self valueForKey:@"tintColor"];
+            
+        if (tintColor != nil) {
+            [[alertController view] setTintColor:[[TiUtils colorValue:tintColor] color]];
+        }
         
-        //Configure the Buttons
+        // Configure the Buttons
         for (id btn in buttonNames) {
             NSString* btnName = [TiUtils stringValue:btn];
             if (!IS_NULL_OR_NIL(btnName)) {
