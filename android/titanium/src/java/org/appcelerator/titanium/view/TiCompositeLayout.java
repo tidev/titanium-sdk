@@ -663,10 +663,10 @@ public class TiCompositeLayout extends ViewGroup
             int leftOrTopPixels = leftOrTop.getAsPixels(parent);
             pos[0] = layoutPosition0 + leftOrTopPixels;
             pos[1] = layoutPosition0 + leftOrTopPixels + measuredSize;
-        } else if (optionCenter != null && optionCenter.getValue() != 0.0) {
-            // Don't calculate position based on center dimension if it's 0.0
+        } else if (optionCenter != null) {
             int halfSize = measuredSize / 2;
-            pos[0] = layoutPosition0 + optionCenter.getAsPixels(parent) - halfSize;
+            int centerPixels = optionCenter.getAsPixels(parent);
+            pos[0] = layoutPosition0 + centerPixels - halfSize;
             pos[1] = pos[0] + measuredSize;
         } else if (rightOrBottom != null) {
             // peg right/bottom
@@ -731,14 +731,9 @@ public class TiCompositeLayout extends ViewGroup
             right = Math.min(right, layoutRight);
         }
         
-        if (optionLeft == null && optionRight != null) {
-            hpos[0] = layoutRight - left;
-            hpos[1] = layoutRight - horiztonalLayoutPreviousRight;
-        } else {
-            hpos[0] = left;
-            hpos[1] = right;
-            horizontalLayoutCurrentLeft = right;
-        }
+        hpos[0] = left;
+        hpos[1] = right;
+        horizontalLayoutCurrentLeft = right;
 
         if (enableHorizontalWrap) {
             // Don't update row on the first iteration since we already do it
