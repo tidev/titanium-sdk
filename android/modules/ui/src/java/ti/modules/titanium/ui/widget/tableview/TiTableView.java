@@ -194,23 +194,20 @@ public class TiTableView extends FrameLayout
 				// Default creates view for each Item
 				boolean sameView = false;
 				if (item.proxy instanceof TableViewRowProxy) {
-					TableViewRowProxy row = (TableViewRowProxy)item.proxy;
+					TableViewRowProxy row = (TableViewRowProxy) item.proxy;
 					if (row.getTableViewRowProxyItem() != null) {
 						sameView = row.getTableViewRowProxyItem().equals(convertView);
 					}
-					// TIMOB-24560: prevent duplicate TableViewRowProxyItem on Android N
-					if (Build.VERSION.SDK_INT > 23) {
-						ArrayList<Item> models = viewModel.getViewModel();
-						for (Item model : models) {
-							TableViewRowProxy proxy = (TableViewRowProxy) model.proxy;
-							if (proxy.getTableViewRowProxyItem().equals(convertView)) {
-								sameView = true;
-								v = null;
-								break;
-							}
-						}
+				}
+
+				// TIMOB-24560: prevent duplicate TableViewRowProxyItem on Android N
+				if (Build.VERSION.SDK_INT > 23) {
+					ArrayList<Item> models = viewModel.getViewModel();
+					if (models != null && models.contains(v.getRowData())) {
+						return v;
 					}
 				}
+
 				if (!sameView) {
 					if (v.getClassName().equals(TableViewProxy.CLASSNAME_DEFAULT)) {
 						if (v.getRowData() != item) {
