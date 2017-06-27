@@ -17,6 +17,7 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	"min", "max", "minRange",
 	"maxRange", "thumbImage",
+	TiC.PROPERTY_SPLIT_TRACK,
 	"leftTrackImage","rightTrackImage",
 	TiC.PROPERTY_VALUE
 })
@@ -25,6 +26,7 @@ public class SliderProxy extends TiViewProxy
 	public SliderProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_SPLIT_TRACK, false);
 	}
 
 	@Override
