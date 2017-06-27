@@ -11,7 +11,6 @@
 #import "TiApp.h"
 #import "TiUtils.h" 
 #import "TiProxy.h"
-#import "SBJSON.h"
 #import "TiHost.h"
 #import "Webcolor.h"
 #import "TiBlob.h"
@@ -965,7 +964,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     {
         NSDictionary *event = (NSDictionary*)obj;
         NSString *name = [event objectForKey:@"type"];
-        NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);",name,listener,[SBJSON stringify:event]];
+        NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);",name,listener,[TiUtils jsonStringify:event]];
         // Not waiting for JS execution since this can cause deadlock on main queue.
         [webview performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:)
                                   withObject:js

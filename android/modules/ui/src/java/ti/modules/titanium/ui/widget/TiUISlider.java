@@ -91,11 +91,12 @@ public class TiUISlider extends TiUIView
 		} else {
 			maxRange = max;
 		}
-		
 		if (d.containsKey("thumbImage")) {
 			updateThumb(seekBar, d);
 		}
-		
+		if (d.containsKey(TiC.PROPERTY_SPLIT_TRACK)) {
+			seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
+		}
 		if (d.containsKey("leftTrackImage") || d.containsKey("rightTrackImage")) {
 			updateTrackingImages(seekBar, d);
 		}
@@ -267,6 +268,8 @@ public class TiUISlider extends TiUIView
 			//updateThumb(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
 			Log.i(TAG, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
+		} else if (key.equals(TiC.PROPERTY_SPLIT_TRACK)) {
+			seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
 		} else if (key.equals("leftTrackImage") || key.equals("rightTrackImage")) {
 			//updateTrackingImages(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
