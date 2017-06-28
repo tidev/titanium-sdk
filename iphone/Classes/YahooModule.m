@@ -9,7 +9,6 @@
 #import "YahooModule.h"
 #include <CommonCrypto/CommonHMAC.h>
 #include "Base64Transcoder.h"
-#import "SBJSON.h"
 #import "TiApp.h"
 
 #ifdef YQL_OAUTH

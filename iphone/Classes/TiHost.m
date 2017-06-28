@@ -8,7 +8,6 @@
 #import "TiHost.h"
 #import "TiProxy.h"
 #import "TiModule.h"
-#import "SBJSON.h"
 
 #ifdef DEBUG
 #define DEBUG_EVENTS 0
