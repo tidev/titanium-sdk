@@ -414,10 +414,20 @@ public class TiUrl
 			// Copy and encode the URL's path.
 			// Example: <Scheme>://<Authority>/<Path>?<AueryParams>#<Fragment>
 			String path = uri.getEncodedPath();
-			if (path != null) {
+			if ((path != null) && (path.length() > 0)) {
+				// Encode the given path.
 				path = Uri.encode(path, "!$&'()*+,;=:@/");
 				path = path.replace("%25", "%");                // Restore %-encoded chars in original URL.
 				uriBuilder.encodedPath(path);
+			} else if (uri.getEncodedQuery() != null) {
+				// The URL has query params, but no path or slash. Inject a '/' before the '?'.
+				// --------------------------------------------------------------------------------
+				// This works-around a Java URL parsing bug where...
+				// > "http://test.com?test=abc/xyz"
+				// ...will be transmitted like this...
+				// > "http://test.com/xyz?test=abc/xyz"
+				// --------------------------------------------------------------------------------
+				uriBuilder.encodedPath("/");
 			}
 
 			// Copy and encode the URL's anchor tag.
@@ -440,11 +450,22 @@ public class TiUrl
 
 				// The above is overly aggressive and encodes "legal" characters. Convert them back.
 				// This is important because some servers won't accept these characters in encoded form.
+				queryString = queryString.replace("%21", "!");
+				queryString = queryString.replace("%24", "$");
 				queryString = queryString.replace("%26", "&");
+				queryString = queryString.replace("%27", "'");
+				queryString = queryString.replace("%28", "(");
+				queryString = queryString.replace("%29", ")");
+				queryString = queryString.replace("%2B", "+");
+				queryString = queryString.replace("%2b", "+");
+				queryString = queryString.replace("%2C", ",");
+				queryString = queryString.replace("%2c", ",");
 				queryString = queryString.replace("%2F", "/");
 				queryString = queryString.replace("%2f", "/");
 				queryString = queryString.replace("%3A", ":");
 				queryString = queryString.replace("%3a", ":");
+				queryString = queryString.replace("%3B", ";");
+				queryString = queryString.replace("%3b", ";");
 				queryString = queryString.replace("%3D", "=");
 				queryString = queryString.replace("%3d", "=");
 				queryString = queryString.replace("%3F", "?");
