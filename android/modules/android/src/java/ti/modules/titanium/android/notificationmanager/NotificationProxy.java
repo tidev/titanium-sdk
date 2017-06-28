@@ -124,8 +124,8 @@ public class NotificationProxy extends KrollProxy
 			setGroupKey(TiConvert.toString(d, TiC.PROPERTY_GROUP_KEY));
 		}
 		/*
-		if (d.containsKey(TiC.PROPERTY_GROUP_ALERT_BEHAVIOUR)) {
-			setGroupAlertBehaviour(TiConvert.toInt(d, TiC.PROPERTY_GROUP_ALERT_BEHAVIOUR));
+		if (d.containsKey(TiC.PROPERTY_GROUP_ALERT_BEHAVIOR)) {
+			setGroupAlertBehavior(TiConvert.toInt(d, TiC.PROPERTY_GROUP_ALERT_BEHAVIOR));
 		}
 		*/
 		if (d.containsKey(TiC.PROPERTY_GROUP_SUMMARY)) {
@@ -328,9 +328,9 @@ public class NotificationProxy extends KrollProxy
 	/*
 	TODO: expose after updating to android.support.v4 v26.0.0
 	@Kroll.method @Kroll.setProperty
-	public void setGroupAlertBehaviour(int groupAlertBehaviour) {
-		notificationBuilder.setGroupAlertBehaviour(groupAlertBehaviour);
-		setProperty(TiC.PROPERTY_GROUP_ALERT_BEHAVIOUR, groupAlertBehaviour);
+	public void setGroupAlertBehavior(int groupAlertBehavior) {
+		notificationBuilder.setGroupAlertBehavior(groupAlertBehavior);
+		setProperty(TiC.PROPERTY_GROUP_ALERT_BEHAVIOR, groupAlertBehavior);
 	}
 	*/
 

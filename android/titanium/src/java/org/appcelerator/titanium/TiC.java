@@ -1509,7 +1509,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_GROUP_ALERT_BEHAVIOUR = "groupAlertBehaviour";
+	public static final String PROPERTY_GROUP_ALERT_BEHAVIOR = "groupAlertBehavior";
 
 	/**
 	 * @module.api
