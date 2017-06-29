@@ -1217,6 +1217,10 @@ properties:
     type: Dictionary
     optional: true
     since: "5.4.0"
+    
+  - name: inBackground
+    summary: Boolean indicating if notification was received while app was in background. 
+    since: "6.2.0"
 
 ---
 name: LaunchOptionsType
