@@ -57,8 +57,6 @@ public class ActivityProxy extends KrollProxy
 
 	private KrollFunction resultCallback;
 
-	public TiToolbarProxy toolbarProxy;
-
 	public ActivityProxy()
 	{
 	}

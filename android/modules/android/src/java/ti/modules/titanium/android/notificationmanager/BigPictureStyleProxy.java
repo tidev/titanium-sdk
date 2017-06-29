@@ -16,11 +16,9 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
 import ti.modules.titanium.android.AndroidModule;
-import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat.BigPictureStyle;
-import ti.modules.titanium.filesystem.ResourceHelper;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_DECODE_RETRIES
@@ -83,7 +81,7 @@ public class BigPictureStyleProxy extends StyleProxy {
 	@Kroll.method @Kroll.setProperty
 	public void setBigPicture(Object picture)
 	{
-		TiDrawableReference source = ResourceHelper.getInstance().makeImageSource(this, picture);
+		TiDrawableReference source = TiDrawableReference.fromObject(this.getActivity(), picture);
 
 		// Check for decodeRetries
 		if (hasProperty(TiC.PROPERTY_DECODE_RETRIES)) {
