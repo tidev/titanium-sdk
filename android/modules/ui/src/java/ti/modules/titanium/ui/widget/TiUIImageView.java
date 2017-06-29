@@ -37,7 +37,6 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
-import ti.modules.titanium.filesystem.ResourceHelper;
 import ti.modules.titanium.ui.ImageViewProxy;
 import ti.modules.titanium.ui.ScrollViewProxy;
 import android.app.Activity;
@@ -670,10 +669,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		imageSources = new ArrayList<TiDrawableReference>();
 		if (object instanceof Object[]) {
 			for (Object o : (Object[]) object) {
-				imageSources.add(ResourceHelper.getInstance().makeImageSource(getProxy(), o));
+				imageSources.add(TiDrawableReference.fromObject(getProxy().getActivity(), o));
 			}
 		} else {
-			imageSources.add(ResourceHelper.getInstance().makeImageSource(getProxy(), object));
+			imageSources.add(TiDrawableReference.fromObject(getProxy().getActivity(), object));
 		}
 	}
 
@@ -810,7 +809,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			// processProperties is also called from TableView, we need check if we changed before re-creating the
 			// bitmap
 			boolean changeImage = true;
-			TiDrawableReference source = ResourceHelper.getInstance().makeImageSource(getProxy(), d.get(TiC.PROPERTY_IMAGE));
+			TiDrawableReference source = TiDrawableReference.fromObject(getProxy().getActivity(), d.get(TiC.PROPERTY_IMAGE));
 			if (imageSources != null && imageSources.size() == 1) {
 				if (imageSources.get(0).equals(source)) {
 					changeImage = false;
@@ -862,7 +861,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
-				TiDrawableReference source = ResourceHelper.getInstance().makeImageSource(getProxy(), newValue);
+				TiDrawableReference source = TiDrawableReference.fromObject(getProxy().getActivity(), newValue);
 				Object autoRotate = proxy.getProperty(TiC.PROPERTY_AUTOROTATE);
 				if (autoRotate != null && TiConvert.toBoolean(autoRotate)) {
 					view.setOrientation(source.getOrientation());
