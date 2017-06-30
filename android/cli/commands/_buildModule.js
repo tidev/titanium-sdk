@@ -1803,12 +1803,7 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 		}
 	}
 
-	function runTiCommand(cmd, args, logger, callback) {
-		// when calling a Windows batch file, we need to escape ampersands in the command
-		if (process.platform == 'win32' && /\.bat$/.test(cmd)) {
-			args.unshift('/S', '/C', cmd.replace(/\&/g, '^&'));
-			cmd = 'cmd.exe';
-		}
+	function runTiCommand(cmd, args, logger, callback) {		
 
 		var child = spawn(cmd, args);
 
@@ -1845,8 +1840,9 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
 
 			runTiCommand(
-				'ti',
+				process.execPath,
 				[
+					process.argv[1],
 					'create',
 					'--id', this.manifest.moduleid,
 					'-n', this.manifest.name,
@@ -1893,8 +1889,9 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 			this.logger.debug(__('Running example project...', tmpDir.cyan));
 
 			runTiCommand(
-				'ti',
+				process.execPath,
 				[
+					process.argv[1],
 					'build',
 					'-p', 'android',
 					'-d', tmpProjectDir
