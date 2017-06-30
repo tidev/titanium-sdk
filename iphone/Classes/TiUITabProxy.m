@@ -747,6 +747,15 @@
 	}
 }
 
+-(void)popToRootWindow:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+    
+    TiThreadPerformOnMainThread(^{
+        [controller popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
+    }, YES);
+}
+
 #pragma mark - TiOrientationController
 
 @synthesize parentOrientationController;
