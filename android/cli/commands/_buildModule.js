@@ -1607,7 +1607,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 			moduleJarArchive.on('error', cb);
 			moduleJarArchive.pipe(moduleJarStream);
 
-			var excludeRegex = /.*\/R\.class$|.*\/R\$(.*)\.class$/i;
+			var excludeRegex = new RegExp('.*\\' + path.sep + 'R\\\.class$|.*\\' + path.sep + 'R\\\$(.*)\\\.class$', 'i');
 
 			var assetsParentDir = path.join(this.assetsDir, '..');
 			this.dirWalker(this.assetsDir, function (file) {
