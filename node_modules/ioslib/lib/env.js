@@ -4,7 +4,7 @@
  * @module env
  *
  * @copyright
- * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License.
@@ -68,7 +68,7 @@ exports.detect = function detect(options, callback) {
 							type: 'error',
 							message: __("Unable to find the 'security' executable.") + '\n'
 								+ __('Please verify your system path.') + '\n'
-								+ __("This program is distributed with Mac OS X and if it's missing, you'll have to restore it from a backup or another computer, or reinstall Mac OS X.")
+								+ __("This program is distributed with macOS and if it's missing, you'll have to restore it from a backup or another computer, or reinstall macOS.")
 						});
 					} else {
 						results.executables.security = result;

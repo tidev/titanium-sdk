@@ -10,7 +10,6 @@
 #import "NetworkModule.h"
 #import "Reachability.h"
 #import "TiApp.h"
-#import "SBJSON.h"
 #import "TiBlob.h"
 #import "TiNetworkSocketProxy.h"
 #import "TiUtils.h"
