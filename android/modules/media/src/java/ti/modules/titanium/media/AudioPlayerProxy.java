@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import android.app.Activity;
+import android.media.AudioManager;
 
 @Kroll.proxy(creatableInModule=MediaModule.class, propertyAccessors={
 	TiC.PROPERTY_VOLUME
@@ -37,6 +38,14 @@ public class AudioPlayerProxy extends KrollProxy
 	@Kroll.constant public static final int STATE_WAITING_FOR_DATA = TiSound.STATE_WAITING_FOR_DATA;
 	@Kroll.constant public static final int STATE_WAITING_FOR_QUEUE = TiSound.STATE_WAITING_FOR_QUEUE;
 
+	@Kroll.constant public static final int STREAM_ALARM = AudioManager.STREAM_ALARM;
+	@Kroll.constant public static final int STREAM_DTMF = AudioManager.STREAM_DTMF;
+	@Kroll.constant public static final int STREAM_MUSIC = AudioManager.STREAM_MUSIC;
+	@Kroll.constant public static final int STREAM_NOTIFICATION = AudioManager.STREAM_NOTIFICATION;
+	@Kroll.constant public static final int STREAM_RING = AudioManager.STREAM_RING;
+	@Kroll.constant public static final int STREAM_SYSTEM = AudioManager.STREAM_SYSTEM;
+	@Kroll.constant public static final int STREAM_VOICE_CALL = AudioManager.STREAM_VOICE_CALL;
+
 	protected TiSound snd;
 	private boolean windowFocused;
 	private boolean resumeInOnWindowFocusChanged;
@@ -51,6 +60,7 @@ public class AudioPlayerProxy extends KrollProxy
 
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
 		defaultValues.put(TiC.PROPERTY_TIME,0);
+		defaultValues.put(TiC.PROPERTY_AUDIO_STREAM_TYPE, AudioManager.STREAM_MUSIC);
 	}
 
 	@Override
@@ -104,6 +114,16 @@ public class AudioPlayerProxy extends KrollProxy
 			return s.getDuration();
 		}
 		return 0;
+	}
+
+  @Kroll.method @Kroll.getProperty
+	public int getAudioStreamType() {
+		return TiConvert.toInt(getProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE));
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setAudioStreamType(int val) {
+    setProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE, val);
 	}
 
 	@Kroll.getProperty @Kroll.method
