@@ -263,6 +263,48 @@ properties:
     summary: Player is waiting for audio data to fill the queue.
     type: Number
     permission: read-only
+  - name: STREAM_ALARM
+    summary: Used to identify the volume of audio streams for alarms.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+  - name: STREAM_DTMF
+    summary: Used to identify the volume of audio streams for DTMF Tones.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+  - name: STREAM_MUSIC
+    summary: Used to identify the volume of audio streams for music playback.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+  - name: STREAM_NOTIFICATION
+    summary: Used to identify the volume of audio streams for notifications.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+  - name: STREAM_RING
+    summary: Used to identify the volume of audio streams for the phone ring.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+  - name: STREAM_SYSTEM
+    summary: Used to identify the volume of audio streams for system sounds.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+  - name: STREAM_VOICE_CALL
+    summary: Used to identify the volume of audio streams for phone calls.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
   - name: allowBackground
     summary: |
         Boolean to indicate if audio should continue playing even if the associated
@@ -283,6 +325,11 @@ properties:
     default: false
     availability: creation
     platforms: [android]
+  - name: audioStreamType
+    summary: Changes the audio-stream-type.
+    platforms: [android]
+    since: "6.2.0"
+    default: <Titanium.Media.AudioPlayer.STREAM_MUSIC>
   - name: bitRate
     summary: Bit rate of the current playback stream.
     type: Number
