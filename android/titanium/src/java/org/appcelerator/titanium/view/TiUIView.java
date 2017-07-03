@@ -1127,7 +1127,7 @@ public abstract class TiUIView
 	 * @return true if touch feedback can be applied. 
 	 */
 	protected boolean canApplyTouchFeedback(@NonNull KrollDict props) {
-		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) && props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false) && !hasBorder(props));
+		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) && props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false));
 	}
 	
 	/**
