@@ -62,7 +62,7 @@ public class TiSound
 	public static final String EVENT_PROGRESS = "progress";
 
 	public static final String EVENT_COMPLETE_JSON = "{ type : '" + EVENT_COMPLETE + "' }";
-	
+
 	private boolean paused = false;
 	private boolean looping = false;
 
@@ -72,13 +72,13 @@ public class TiSound
 	protected boolean playOnResume;
 	protected boolean remote;
 	protected Timer progressTimer;
-	
+
 	private boolean pausePending = false;
 	private boolean stopPending = false;
 	private boolean playPending = false;
 	private boolean prepareRequired = false;
 	public static boolean audioFocus;
-	
+
 	public TiSound(KrollProxy proxy)
 	{
 		this.proxy = proxy;
@@ -91,7 +91,8 @@ public class TiSound
 	{
 		try {
 			mp = new MediaPlayer();
-			mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			// Default stream type: AudioManager.STREAM_MUSIC
+			mp.setAudioStreamType(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE)));
 			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
 			boolean isAsset = URLUtil.isAssetUrl(url);
 			if (isAsset || url.startsWith("android.resource")) {
@@ -148,7 +149,7 @@ public class TiSound
 					mp.setDataSource(url);
 				}
 			}
-			
+
 			String loop = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LOOPING));
 			if (loop != null) {
 				looping = Boolean.parseBoolean(loop);
@@ -158,7 +159,7 @@ public class TiSound
 			mp.setOnErrorListener(this);
 			mp.setOnInfoListener(this);
 			mp.setOnBufferingUpdateListener(this);
-			
+
 			if (remote) { // try async
 				mp.setOnPreparedListener(this);
 				mp.prepareAsync();
@@ -264,7 +265,7 @@ public class TiSound
 			startPlaying();
 		}
 	}
-	
+
 	public void reset()
 	{
 		try {
@@ -281,14 +282,14 @@ public class TiSound
 			Log.w(TAG, "Issue while resetting : ", t);
 		}
 	}
-    
+
 	public int  getAudioSessionId() {
 		if (mp != null) {
 			return mp.getAudioSessionId();
 		}
 		return 0;
 	}
-    
+
 	public void release()
 	{
 		try {
@@ -380,9 +381,9 @@ public class TiSound
 			}
 
 			try {
-			    if (mp.getDuration() >= 0) {
-			        mp.seekTo(position);
-			    }
+					if (mp.getDuration() >= 0) {
+							mp.seekTo(position);
+					}
 			} catch (IllegalStateException e) {
 				Log.w(TAG, "Error calling seekTo() in an incorrect state. Ignoring.");
 			}
@@ -621,7 +622,7 @@ public class TiSound
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}
 	}
-	
+
 	private void startPlaying()
 	{
 		if (mp != null) {
