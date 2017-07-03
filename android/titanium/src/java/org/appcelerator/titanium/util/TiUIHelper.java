@@ -149,8 +149,8 @@ public class TiUIHelper
 	{ 
 		if (autoLink != null) {
 			//Default to Ti.UI.AUTOLINK_NONE
-			boolean success = Linkify.addLinks(tv, TiConvert.toInt(autoLink, 16));
-			if (!success && tv.getText() instanceof Spanned) {
+			boolean success = Linkify.addLinks(tv, TiConvert.toInt(autoLink, 0) & Linkify.ALL);
+			if (success && tv.getText() instanceof Spanned) {
 				tv.setMovementMethod(LinkMovementMethod.getInstance());
 			}
 		}

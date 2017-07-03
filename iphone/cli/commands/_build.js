@@ -1434,6 +1434,26 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 			.shift();
 		var globalBuildSettings = ext.objs.XCBuildConfiguration[globalCfgId].buildSettings;
 
+		// check that the PP UUID is correct
+		var pps = [];
+		if (cli.argv.target === 'device') {
+			pps = this.iosInfo.provisioning.development;
+		} else if (cli.argv.target === 'dist-appstore') {
+			pps = this.iosInfo.provisioning.distribution;
+		} else if (cli.argv.target === 'dist-adhoc') {
+			pps = [].concat(this.iosInfo.provisioning.adhoc, this.iosInfo.provisioning.enterprise).filter(function (p) { return p; });
+		}
+
+		function getPPbyUUID(ppuuid) {
+			return pps
+				.filter(function (p) {
+					if (!p.expired && !p.managed && p.uuid === ppuuid) {
+						return true;
+					}
+				})
+				.shift();
+		}
+
 		// find our targets
 		ext.project.targets.forEach(function (t) {
 			var targetName = t.comment;
@@ -1575,28 +1595,9 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 					}
 				}
 
-				// check that the PP UUID is correct
+				// find the selected provisioning profile
 				var ppuuid = tiappTargets[targetName].ppUUIDs[cli.argv.target];
-				var pps = [];
-				var pp;
-
-				function getPPbyUUID() {
-					return pps
-						.filter(function (p) {
-							if (!p.expired && !p.managed && p.uuid === ppuuid) {
-								return true;
-							}
-						})
-						.shift();
-				}
-
-				if (cli.argv.target === 'device') {
-					pps = this.iosInfo.provisioning.development;
-					pp = getPPbyUUID();
-				} else if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
-					pps = [].concat(this.iosInfo.provisioning.distribution, this.iosInfo.provisioning.adhoc);
-					pp = getPPbyUUID();
-				}
+				var pp = getPPbyUUID(ppuuid);
 
 				if (!pp) {
 					logger.error(__('iOS extension "%s" target "%s" has invalid provisioning profile UUID in tiapp.xml.', projectName, targetName));
