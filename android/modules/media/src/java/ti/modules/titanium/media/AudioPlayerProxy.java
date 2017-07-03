@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -116,14 +116,14 @@ public class AudioPlayerProxy extends KrollProxy
 		return 0;
 	}
 
-  @Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty
 	public int getAudioStreamType() {
 		return TiConvert.toInt(getProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE));
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setAudioStreamType(int val) {
-    setProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE, val);
+		setProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE, val);
 	}
 
 	@Kroll.getProperty @Kroll.method
