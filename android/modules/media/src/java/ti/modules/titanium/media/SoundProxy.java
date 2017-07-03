@@ -118,14 +118,14 @@ public class SoundProxy extends KrollProxy
 		}
 	}
 
-  @Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty
 	public int getAudioStreamType() {
 		return TiConvert.toInt(getProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE));
 	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setAudioStreamType(int val) {
-    setProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE, val);
+		setProperty(TiC.PROPERTY_AUDIO_STREAM_TYPE, val);
 	}
 
 	@Kroll.method @Kroll.getProperty
