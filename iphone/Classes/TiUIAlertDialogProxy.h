@@ -6,9 +6,8 @@
  */
 #import "TiViewProxy.h"
 
-@interface TiUIAlertDialogProxy : TiViewProxy<UIAlertViewDelegate> {
+@interface TiUIAlertDialogProxy : TiViewProxy {
 @private
-    UIAlertView *alert;
     UIAlertController* alertController;
     BOOL persistentFlag;
     int cancelIndex;

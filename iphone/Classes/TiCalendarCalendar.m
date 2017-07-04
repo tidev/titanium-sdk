@@ -182,7 +182,7 @@
     [comps setMinute:0];
     [comps setSecond:0];
 
-    NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
 
     NSDate *date1, *date2;
     date1 = [cal dateFromComponents:comps];
@@ -209,14 +209,14 @@
     [comps setMinute:0];
     [comps setSecond:0];
     
-    NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     
     NSDate *date1, *date2;
     date1 = [cal dateFromComponents:comps];
     
     NSTimeInterval secondsPerDay = 24 * 60 * 60;
-    NSRange days = [cal rangeOfUnit:NSDayCalendarUnit
-                             inUnit:NSMonthCalendarUnit
+    NSRange days = [cal rangeOfUnit:NSCalendarUnitDay
+                             inUnit:NSCalendarUnitMonth
                             forDate:date1];
     
     date2 = [date1 dateByAddingTimeInterval:(secondsPerDay * days.length)];
@@ -242,7 +242,7 @@
     [comps setMinute:0];
     [comps setSecond:0];
     
-    NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     
     NSDate *date1, *date2;
     date1 = [cal dateFromComponents:comps];

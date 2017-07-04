@@ -2,6 +2,9 @@
 library 'pipeline-library'
 currentBuild.result = 'SUCCESS'
 
+// Keep logs/reports/etc of last 5 builds, only keep build artifacts of last 3 builds
+properties([buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '3'))])
+
 // Variables which we assign and share between nodes
 // Don't modify these yourself
 def gitCommit = ''
@@ -27,7 +30,7 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 				// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
 				dir('titanium-mobile-mocha-suite') {
 					// TODO Do a shallow clone, using same credentials as from scm object
-					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
+					git changelog: false, poll: false, credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
 				}
 				// copy over any overridden unit tests into this workspace
 				unstash 'override-tests'
@@ -71,12 +74,25 @@ timestamps {
 	try {
 		node('git && android-sdk && android-ndk && ant && gperf && osx') {
 			stage('Checkout') {
+				// Update our shared reference repo for all branches/PRs
+				dir('..') {
+					if (fileExists('titanium_mobile.git')) {
+						dir('titanium_mobile.git') {
+							sh 'git remote update -p' // update the clone
+						}
+					} else {
+						sh 'git clone --mirror git@github.com:appcelerator/titanium_mobile.git' // create a mirror
+					}
+				}
+
 				// checkout scm
 				// Hack for JENKINS-37658 - see https://support.cloudbees.com/hc/en-us/articles/226122247-How-to-Customize-Checkout-for-Pipeline-Multibranch
 				checkout([
 					$class: 'GitSCM',
 					branches: scm.branches,
-					extensions: scm.extensions + [[$class: 'CleanBeforeCheckout'], [$class: 'CloneOption', honorRefspec: true, noTags: true, reference: '', shallow: true, depth: 30, timeout: 30]],
+					extensions: scm.extensions + [
+						[$class: 'CleanBeforeCheckout'],
+						[$class: 'CloneOption', honorRefspec: true, noTags: true, reference: "${pwd()}/../titanium_mobile.git", shallow: true, depth: 30, timeout: 30]],
 					userRemoteConfigs: scm.userRemoteConfigs
 				])
 				// FIXME: Workaround for missing env.GIT_COMMIT: http://stackoverflow.com/questions/36304208/jenkins-workflow-checkout-accessing-branch-name-and-git-commit
