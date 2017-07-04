@@ -1468,7 +1468,7 @@
 	}
     
 	if (!searchActivated) {
-		[searchField ensureSearchBarHeirarchy];
+		[searchField ensureSearchBarHierarchy];
 	}
 
 	[super frameSizeChanged:frame bounds:bounds];
@@ -1926,10 +1926,10 @@
 -(void)setDimBackgroundForSearch_:(id)arg
 {
     ENSURE_SINGLE_ARG_OR_NIL(arg,NSNumber);
+
     if (searchController) {
         searchController.dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
-    }
-    else {
+    } else {
         _dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
     }
 }
@@ -2813,7 +2813,7 @@ return result;	\
     if (viewWillDetach) {
         return;
     }
-    //[searchField ensureSearchBarHeirarchy];
+
     animateHide = YES;
     [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
     // Since we clear the searchbar, the search string and indexes can be cleared as well.
@@ -2830,8 +2830,7 @@ return result;	\
     UIViewController *viewController = nil;
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
         viewController = [proxy windowHoldingController];
-    }
-    else {
+    } else {
         viewController = [[TiApp app] controller];
     }
     viewController.definesPresentationContext = YES;
@@ -2858,25 +2857,7 @@ return result;	\
         [tableview reloadData];
     }
 }
-/*
-#pragma mark Search Display Controller Delegates
 
-- (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
-{
-    if (viewWillDetach) {
-        return;
-    }
-
-    //IOS7 DP3. TableView seems to be adding the searchView to
-    //tableView. Bug on IOS7?
-    [searchField ensureSearchBarHeirarchy];
-    animateHide = YES;
-    [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
-    // Since we clear the searchbar, the search string and indexes can be cleared as well.
-    [self setSearchString:nil];
-    RELEASE_TO_NIL(searchResultIndexes);
-}
- */
 @end
 
 #endif

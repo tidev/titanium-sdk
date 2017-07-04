@@ -453,10 +453,9 @@
 
 - (UIViewController *)windowHoldingController
 {
-    if (controller) {
+    if (controller != nil) {
         return controller;
-    }
-    else {
+    } else {
         return [[TiApp app] controller];
     }
 }

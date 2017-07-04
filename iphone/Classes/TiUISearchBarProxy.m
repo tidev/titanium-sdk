@@ -78,7 +78,7 @@
     [(TiUISearchBar*)[self view] setSearchBar:searchBar];
 }
 
--(void)ensureSearchBarHeirarchy
+-(void)ensureSearchBarHierarchy
 {
     WARN_IF_BACKGROUND_THREAD;
     if ([self viewAttached]) {
