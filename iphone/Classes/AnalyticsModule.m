@@ -7,7 +7,7 @@
 
 #import "AnalyticsModule.h"
 #import "APSAnalytics/APSAnalytics.h"
-#import "SBJSON.h"
+
 extern BOOL const TI_APPLICATION_ANALYTICS;
 static NSMutableArray* _filteredEvents;
 
@@ -78,7 +78,7 @@ static const NSInteger ANALYTICS_DISABLED     = -2;
                 value = [NSDictionary dictionaryWithObject:data forKey:@"data"];
         } else {
             //if all else fails fall back old behavior
-            value = [SBJSON stringify:data];
+            value = [TiUtils jsonStringify:data];
             value = [NSDictionary dictionaryWithObject:value forKey:@"data"];
         }
         data = value;

@@ -43,6 +43,7 @@ exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
 	cli.on('build.pre.compile', {
+		priority: 1100,
 		post: function(builder, callback) {
 			scanProjectAndStartTransform(builder, logger, callback);
 		}

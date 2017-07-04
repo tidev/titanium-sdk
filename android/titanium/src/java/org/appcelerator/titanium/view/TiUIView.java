@@ -830,20 +830,7 @@ public abstract class TiUIView
 							applyTouchFeedback(bgColor, d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) ? TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) : null);
 						} else {
 							nativeView.setBackgroundColor(bgColor);
-							// A bug only on Android 2.3 (TIMOB-14311).
-							if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-								setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
-							}
 						}
-						nativeView.postInvalidate();
-					}
-				} else {
-					if (key.equals(TiC.PROPERTY_OPACITY)) {
-						setOpacity(TiConvert.toFloat(newValue, 1f));
-					}
-					if (!nativeViewNull) {
-						nativeView.setBackgroundDrawable(null);
-						nativeView.postInvalidate();
 					}
 				}
 			} else {
@@ -889,14 +876,9 @@ public abstract class TiUIView
 				}
 
 				applyCustomBackground();
-
-				if (key.equals(TiC.PROPERTY_OPACITY)) {
-					setOpacity(TiConvert.toFloat(newValue, 1f));
-				} else if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-					// A bug only on Android 2.3 (TIMOB-14311).
-					setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
-				}
-
+			}
+			if (key.equals(TiC.PROPERTY_OPACITY)) {
+				setOpacity(TiConvert.toFloat(newValue, 1f));
 			}
 			if (!nativeViewNull) {
 				nativeView.postInvalidate();
@@ -1418,27 +1400,24 @@ public abstract class TiUIView
 					}
 					borderView.setRadius(radius);
 				}
-				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-					if (bgColor != null) {
-						borderView.setBgColor(bgColor);
-					}
-					if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-						borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
-					} else {
-						if (bgColor != null) {
-							borderView.setColor(bgColor);
-						}
-					}
-					Object borderWidth = "1";
-					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-						borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
-					}
+				
+				if (bgColor != null) {
+					borderView.setBgColor(bgColor);
+					borderView.setColor(bgColor);
+				}
+				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
+					borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+				}
 
-					TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
+				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+					TiDimension width = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
 					if (width != null) {
-						borderView.setBorderWidth((float)width.getPixels(getNativeView()));
+						borderView.setBorderWidth((float) width.getPixels(borderView));
 					}
 				}
+
+				nativeView.invalidate();
+				borderView.invalidate();
 			}
 		}
 	}
@@ -1903,6 +1882,7 @@ public abstract class TiUIView
 				view.setOnClickListener(null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
 			}
 			view.setClickable(false);
+			view.setOnClickListener(null);
 			view.setOnLongClickListener(null);
 			view.setLongClickable(false);
 		} else if ( ! (view instanceof AdapterView) ) {
