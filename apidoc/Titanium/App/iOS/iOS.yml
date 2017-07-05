@@ -659,6 +659,10 @@ events:
         summary: Custom data object.
         type: Dictionary
 
+      - name: inBackground
+        summary: Boolean indicating if notification was received while app was in background (since Titanium SDK 6.2.0). 
+        type: Boolean
+
   - name: localnotificationaction
     summary: Fired when a user selects an action for an interactive local notification.
     properties:
@@ -706,6 +710,10 @@ events:
       - name: userInfo
         summary: Custom data object.
         type: Dictionary
+
+      - name: inBackground
+        summary: Boolean indicating if notification was received while app was in background (since Titanium SDK 6.2.0). 
+        type: Boolean
 
   - name: remotenotificationaction
     summary: Fired when a user selects an action for an interactive remote notification.
@@ -1217,10 +1225,6 @@ properties:
     type: Dictionary
     optional: true
     since: "5.4.0"
-    
-  - name: inBackground
-    summary: Boolean indicating if notification was received while app was in background. 
-    since: "6.2.0"
 
 ---
 name: LaunchOptionsType
