@@ -60,7 +60,7 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 		androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
 			this.androidInfo = androidInfo;
 
-			if (!this.androidInfo.ndk.path) {
+			if (!this.androidInfo.ndk) {
 				logger.error(__('Unable to find a suitable installed Android NDK.') + '\n');
 				process.exit(1);
 			}
