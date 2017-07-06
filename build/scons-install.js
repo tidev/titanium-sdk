@@ -24,7 +24,7 @@ function install(versionTag, next) {
 		osName = os.platform();
 
 	if (osName === 'win32') {
-		return next('Unable to unzip files on Windows currently. FIXME!');
+		dest = path.join(process.env.ProgramData, 'Titanium');
 	}
 
 	if (osName === 'darwin') {
@@ -38,7 +38,7 @@ function install(versionTag, next) {
 
 	// TODO Combine with unzip method in packager.js?
 	// TODO Support unzipping on windows
-	exec('/usr/bin/unzip -q -o -d "' + dest + '" "' + zipfile + '"', function (err, stdout, stderr) {
+	exec('unzip -q -o -d "' + dest + '" "' + zipfile + '"', function (err, stdout, stderr) {
 		if (err) {
 			return next(err);
 		}
