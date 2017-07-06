@@ -129,7 +129,7 @@ Android.prototype.package = function (packager, next) {
 		},
 		// Copy over module resources
 		function (cb) {
-			filterRegExp = new RegExp('\\' + path.sep  + 'android(\\' + path.sep + 'titanium\-(.+)?\.(jar|res\.zip|respackage))?$');
+			var filterRegExp = new RegExp('\\' + path.sep  + 'android(\\' + path.sep + 'titanium\-(.+)?\.(jar|res\.zip|respackage))?$');
 			fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: filterRegExp}, cb);
 		}
 	], next);
