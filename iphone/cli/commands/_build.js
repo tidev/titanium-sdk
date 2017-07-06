@@ -3026,12 +3026,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		if (this.keychain) {
 			buildSettings.OTHER_CODE_SIGN_FLAGS = '"--keychain ' + this.keychain + '"';
 		}
-		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Distribution"';
-		buildSettings.CODE_SIGN_STYLE = 'Manual';
 	}
 
 	// add the post-compile build phase for dist-appstore builds
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
+		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Distribution"';
+		buildSettings.CODE_SIGN_STYLE = 'Manual';
+
 		xobjs.PBXShellScriptBuildPhase || (xobjs.PBXShellScriptBuildPhase = {});
 		var buildPhaseUuid = this.generateXcodeUuid(xcodeProject);
 		var name = 'Copy Resources to Archive';
