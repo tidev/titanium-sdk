@@ -5,7 +5,8 @@ var exec = require('child_process').exec,
 	path = require('path'),
 	async = require('async'),
 	program = require('commander'),
-	version = require('../package.json').version;
+	version = require('../package.json').version,
+	appc = require('node-appc');
 
 program
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
@@ -36,14 +37,7 @@ function install(versionTag, next) {
 	zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
 	console.log('Installing %s...', zipfile);
 
-	// TODO Combine with unzip method in packager.js?
-	// TODO Support unzipping on windows
-	exec('unzip -q -o -d "' + dest + '" "' + zipfile + '"', function (err, stdout, stderr) {
-		if (err) {
-			return next(err);
-		}
-		return next();
-	});
+	appc.zip.unzip(zipfile, dest, { overwrite:true }, next);
 }
 
 install(versionTag, function (err) {
