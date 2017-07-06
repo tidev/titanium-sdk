@@ -205,6 +205,7 @@ exports.init = function (logger, config, cli) {
 			return (keychains[keychain].distribution || []).some(function (d) {
 				if (!d.invalid && d.name === builder.certDistributionName) {
 					exportsOptions.signingCertificate = d.fullname;
+					return true;
 				}
 			}, this);
 		}, this);
