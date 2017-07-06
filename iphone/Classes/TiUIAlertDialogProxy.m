@@ -83,6 +83,11 @@ static BOOL alertShowing = NO;
         // alert show should block the JS thread like the browser
         TiThreadPerformOnMainThread(^{[self show:args];}, YES);
     } else {
+#ifndef TI_USE_KROLL_THREAD
+        //TIMOB-24349: Force the heap to be GC'd to avoid Ti.UI.AlertDialog references to grow much.
+        KrollContext *krollContext = [self.pageContext krollContext];
+        [krollContext forceGarbageCollectNow];
+#endif
         persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:NO];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
         NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];

@@ -1406,27 +1406,24 @@ public abstract class TiUIView
 					}
 					borderView.setRadius(radius);
 				}
-				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-					if (bgColor != null) {
-						borderView.setBgColor(bgColor);
-					}
-					if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-						borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
-					} else {
-						if (bgColor != null) {
-							borderView.setColor(bgColor);
-						}
-					}
-					Object borderWidth = "1";
-					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-						borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
-					}
+				
+				if (bgColor != null) {
+					borderView.setBgColor(bgColor);
+					borderView.setColor(bgColor);
+				}
+				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
+					borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+				}
 
-					TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
+				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+					TiDimension width = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
 					if (width != null) {
-						borderView.setBorderWidth((float)width.getPixels(getNativeView()));
+						borderView.setBorderWidth((float) width.getPixels(borderView));
 					}
 				}
+
+				nativeView.invalidate();
+				borderView.invalidate();
 			}
 
 			// TIMOB-24898: disable HW acceleration to allow transparency
