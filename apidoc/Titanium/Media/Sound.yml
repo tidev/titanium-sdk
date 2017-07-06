@@ -225,50 +225,43 @@ properties:
     since: "3.2.0"
     platforms: [android]
     
-  - name: STREAM_ALARM
+  - name: AUDIO_TYPE_ALARM
     summary: Used to identify the volume of audio streams for alarms.
     type: Number
     permission: read-only
     platforms: [android]
     since: "6.2.0"
-    
-  - name: STREAM_DTMF
-    summary: Used to identify the volume of audio streams for DTMF Tones.
+
+  - name: AUDIO_TYPE_SIGNALLING
+    summary: Used to identify the volume of audio streams for DTMF tones or beeps.
     type: Number
     permission: read-only
     platforms: [android]
     since: "6.2.0"
-    
-  - name: STREAM_MUSIC
-    summary: Used to identify the volume of audio streams for music playback.
+
+  - name: AUDIO_TYPE_MEDIA
+    summary: Used to identify the volume of audio streams for media playback.
     type: Number
     permission: read-only
     platforms: [android]
     since: "6.2.0"
-    
-  - name: STREAM_NOTIFICATION
+
+  - name: AUDIO_TYPE_NOTIFICATION
     summary: Used to identify the volume of audio streams for notifications.
     type: Number
     permission: read-only
     platforms: [android]
     since: "6.2.0"
-    
-  - name: STREAM_RING
+
+  - name: AUDIO_TYPE_RING
     summary: Used to identify the volume of audio streams for the phone ring.
     type: Number
     permission: read-only
     platforms: [android]
     since: "6.2.0"
-    
-  - name: STREAM_SYSTEM
-    summary: Used to identify the volume of audio streams for system sounds.
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: "6.2.0"
-    
-  - name: STREAM_VOICE_CALL
-    summary: Used to identify the volume of audio streams for phone calls.
+
+  - name: AUDIO_TYPE_VOICE
+    summary: Used to identify the volume of audio streams for voice calls.
     type: Number
     permission: read-only
     platforms: [android]
@@ -283,11 +276,11 @@ properties:
     availability: creation
     accessors: false
 
-  - name: audioStreamType
+  - name: audioType
     summary: Changes the audio-stream-type.
     type: Number
-    constants: Titanium.Media.Sound.STREAM_*
-    default: <Titanium.Media.AudioPlayer.STREAM_MUSIC>
+    constants: Titanium.Media.Sound.AUDIO_TYPE_*
+    default: <Titanium.Media.AudioPlayer.AUDIO_TYPE_MEDIA>
     platforms: [android]
     since: "6.2.0"
 
