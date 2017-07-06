@@ -1805,11 +1805,10 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 
 	function runTiCommand(cmd, args, logger, callback) {		
 
-        // when calling on Windows, we need to escape ampersands in the command
-        if (process.platform == 'win32') {
-            cmd.replace(/\&/g, '^&');
-        }
-
+		// when calling on Windows, we need to escape ampersands in the command
+		if (process.platform == 'win32') {
+			cmd.replace(/\&/g, '^&');
+		}
 
 		var child = spawn(cmd, args);
 
