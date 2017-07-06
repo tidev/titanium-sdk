@@ -80,7 +80,7 @@ excludes:
                  backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
                  backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,bottom,center,
                  children,clipMode,focusable,height,horizontalWrap,keepScreenOn,layout,left,opacity,overrideCurrentAnimation,
-                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,tintColor,top,touchEnabled,transform,
+                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,top,touchEnabled,transform,
                  viewShadowColor,viewShadowOffset,viewShadowRadius,visible,width,zIndex]
 
 events:
@@ -129,6 +129,16 @@ events:
             <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
         type: String
         platforms: [iphone, ipad]
+                
+      - name: tintColor
+        summary: The tint-color of the dialog.
+        description: |
+            This property is a direct correspondant of the `tintColor` property of 
+            UIView on iOS. For a dialog, it will tint the color of it's buttons.
+        type: [String]
+        since: "6.2.0"
+        osver: {ios: {min: "8.0"}}
+        platforms: [iphone,ipad]
 
 methods:
   - name: show
