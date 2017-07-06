@@ -2,6 +2,9 @@
 library 'pipeline-library'
 currentBuild.result = 'SUCCESS'
 
+// Keep logs/reports/etc of last 5 builds, only keep build artifacts of last 3 builds
+properties([buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '3'))])
+
 // Variables which we assign and share between nodes
 // Don't modify these yourself
 def gitCommit = ''
@@ -73,16 +76,12 @@ timestamps {
 			stage('Checkout') {
 				// Update our shared reference repo for all branches/PRs
 				dir('..') {
-					sh 'mkdir -p titanium_mobile'
-					dir('titanium_mobile') {
-						checkout(changelog: false, poll: false, scm: [
-							$class: 'GitSCM',
-							branches: [[name: '**']],
-							extensions: [
-								[$class: 'CloneOption', depth: 0, noTags: true, reference: '', shallow: false, timeout: 60]
-							],
-							userRemoteConfigs: scm.userRemoteConfigs
-						])
+					if (fileExists('titanium_mobile.git')) {
+						dir('titanium_mobile.git') {
+							sh 'git remote update -p' // update the clone
+						}
+					} else {
+						sh 'git clone --mirror git@github.com:appcelerator/titanium_mobile.git' // create a mirror
 					}
 				}
 
@@ -93,7 +92,7 @@ timestamps {
 					branches: scm.branches,
 					extensions: scm.extensions + [
 						[$class: 'CleanBeforeCheckout'],
-						[$class: 'CloneOption', honorRefspec: true, noTags: true, reference: "${pwd()}/../titanium_mobile", shallow: true, depth: 30, timeout: 30]],
+						[$class: 'CloneOption', honorRefspec: true, noTags: true, reference: "${pwd()}/../titanium_mobile.git", shallow: true, depth: 30, timeout: 30]],
 					userRemoteConfigs: scm.userRemoteConfigs
 				])
 				// FIXME: Workaround for missing env.GIT_COMMIT: http://stackoverflow.com/questions/36304208/jenkins-workflow-checkout-accessing-branch-name-and-git-commit
