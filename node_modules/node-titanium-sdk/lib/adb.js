@@ -105,7 +105,12 @@ Connection.prototype.exec = function exec(cmd, callback, opts) {
 			port: this.port
 		}, function () {
 			DEBUG && console.log('[' + this.connNum + '] CONNECTED');
-			send();
+
+			// TIMOB-24906: in some circumstances sending a command to adb right away
+			// can yield no response. So we allow 100ms before sending the initial command
+			setTimeout(function() {
+				send();
+			}, 100);
 		}.bind(this));
 
 		socket.setKeepAlive(true);
