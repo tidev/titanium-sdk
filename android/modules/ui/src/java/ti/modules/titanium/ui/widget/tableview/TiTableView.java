@@ -365,11 +365,11 @@ public class TiTableView extends FrameLayout
 		    setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE), UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
 		}
 		adapter = new TTVListAdapter(viewModel);
-		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
 			listView.addHeaderView(layoutHeaderOrFooter(view).getOuterView(), null, false);
 		}
-		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
 			listView.addFooterView(layoutHeaderOrFooter(view).getOuterView(), null, false);
 		}
@@ -416,7 +416,7 @@ public class TiTableView extends FrameLayout
 
 	public void setHeaderView()
 	{
-		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 			listView.setAdapter(null);
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
 			listView.addHeaderView(layoutHeaderOrFooter(view).getOuterView(), null, false);
@@ -435,7 +435,7 @@ public class TiTableView extends FrameLayout
 
 	public void setFooterView()
 	{
-		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
 			listView.setAdapter(null);
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
 			listView.addFooterView(layoutHeaderOrFooter(view).getOuterView(), null, false);
@@ -467,7 +467,7 @@ public class TiTableView extends FrameLayout
 
 	public Item getItemAtPosition(int position)
 	{
-		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 			position -= 1;
 		}
 		if (position == -1 || position == adapter.getCount()) {
