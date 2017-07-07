@@ -185,14 +185,6 @@
 // Base64DecodeData is now TI_Base64DecodeData
 #endif
 
-// SBJSON
-#ifndef SBJSONErrorDomain
-#define SBJSONErrorDomain __TI_NS_SYMBOL(SBJSONErrorDomain)
-#endif
-#ifndef SBJSON
-#define SBJSON __TI_NS_SYMBOL(SBJSON)
-#endif
-
 // PlausibleDatabase
 #ifndef PlausibleDatabase
 #define PlausibleDatabase __TI_NS_SYMBOL(PlausibleDatabase)
