@@ -20,6 +20,7 @@ const
 	fs = require('fs'),
 	magik = require('./utilities').magik,
 	checkOutdated = require('./utilities').checkOutdated,
+	emulator = require('./emulator'),
 	path = require('path'),
 	spawn = require('child_process').spawn,
 	visualstudio = require('./visualstudio'),
@@ -95,7 +96,7 @@ function parseWinAppDeployCmdListing(out) {
 	while ((match = deviceListingRE.exec(out)) !== null)
 	{
 		// TODO How can we know what SDK is on the phone? My win 8.1U1 phone shows up in listings when connected via USB
-		devices.push({name: match[5], udid: match[3], index: i, wpsdk: null, ip: match[1]});
+		devices.push({name: match[5], udid: match[3], index: i, wpsdk: null, ip: match[1], type: 'device'});
 		i++;
 	}
 
@@ -197,7 +198,7 @@ function parseAppDeployCmdListing(out, wpsdk) {
 	var match;
 	while ((match = deviceListingRE.exec(out)) !== null)
 	{
-		emulators.push({name: match[2], udid: wpsdk.replace('.', '-') + "-" + match[1], index: parseInt(match[1]), wpsdk: wpsdk});
+		emulators.push({name: match[2], udid: wpsdk.replace('.', '-') + "-" + match[1], index: parseInt(match[1]), wpsdk: wpsdk, type: 'emulator'});
 	}
 
 	// TIMOB-19576
@@ -258,7 +259,7 @@ function nativeEnumerate(wpsdk, options, next) {
 			} else {
 				var emulators = parseAppDeployCmdListing(out, wpsdk);
 				next(null, {
-					devices: [{name: 'Device', udid: 0, index: 0, wpsdk: null}],
+					devices: [{name: 'Device', udid: 0, index: 0, wpsdk: null, type: 'device'}],
 					emulators: emulators
 				});
 			}
@@ -602,7 +603,8 @@ function wpToolConnect(device, options, callback) {
 		],
 		child = spawn(wptool, args),
 		out = '',
-		abortTimer;
+		abortTimer,
+		timedOut = false;
 
 	child.stdout.on('data', function (data) {
 		out += data.toString();
@@ -616,21 +618,55 @@ function wpToolConnect(device, options, callback) {
 		clearTimeout(abortTimer);
 
 		try {
-			var result = JSON.parse(out);
+			var result = JSON.parse(out),
+				pollEmulator;
+
 			if (!result.success) {
-				var ex = new Error(__('Failed to connect to %s', device.name));
-				return callback(ex);
+				clearTimeout(abortTimer);
+				return callback(new Error(__('Failed to connect to %s', device.name)));
 			}
 			device.ip = result.ip;
-			device.running = true; // mark it as running so we don't try and launch it again via connect
-			callback(null, device);
+			// If this is an emulator we should poll the status and wait until it's 'Running' before moving on
+			// I'm seeing consistent failures to install an app on Windows 10 emulators in our builds here.
+			if (device.type == 'emulator') {
+				pollEmulator = function() {
+					if (timedOut) {
+						return;
+					}
+
+					// check if emulator is running...
+					emulator.status(device, function(err, status) {
+						if (err) {
+							clearTimeout(abortTimer);
+							return callback(err);
+						}
+
+						if (status == 2) { // running state
+							clearTimeout(abortTimer);
+							device.running = true; // mark it as running so we don't try and launch it again via connect
+							callback(null, device);
+						} else {
+							// try again in 500ms
+							setTimeout(pollEmulator, 500);
+						}
+					});
+				};
+				// wait 250ms and check status of emulator
+				setTimeout(pollEmulator, 250);
+			} else {
+				// It's a device, just assume we're ok
+				clearTimeout(abortTimer);
+				device.running = true; // mark it as running so we don't try and launch it again via connect
+				callback(null, device);
+			}
 		} catch (e) {
-			var ex = new Error(__('Failed to connect to %s', device.name));
-			callback(ex);
+			clearTimeout(abortTimer);
+			callback(new Error(__('Failed to connect to %s', device.name)));
 		}
 	});
 	if (options.timeout) {
 		abortTimer = setTimeout(function () {
+			timedOut = true; // set flag so we don't poll on emulator state change
 			child.kill();
 
 			var ex = new Error(__('Timed out after %d milliseconds trying to connect to %s', options.timeout, device.name));

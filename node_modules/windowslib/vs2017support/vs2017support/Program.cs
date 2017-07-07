@@ -14,7 +14,7 @@ namespace vs2017support
 
             try
             {
-                var config = GetSetupConfiguration();
+                var config = new SetupConfiguration();
                 var instances = config.EnumAllInstances();
 
                 Console.WriteLine("\"visualstudio\": {");
@@ -49,46 +49,27 @@ namespace vs2017support
             }
             catch (Exception e)
             {
-                Console.Write("\"issues\": [");
-                Console.Write("\n\t{");
-                Console.Write("\n\t\t\"id\": \"WINDOWS_VISUALSTUDIO_2017_DETECT\",");
-                Console.Write("\n\t\t\"type\": \"error\",");
-                Console.Write("\n\t\t\"message\": \"" + SanitizeForJSON(e.Message) + "\"");
-                Console.Write("\n\t}");
-                Console.WriteLine("\n]");
-
+                if (e.HResult != REGDB_E_CLASSNOTREG)
+                {
+                    Console.Write("\"issues\": [");
+                    Console.Write("\n\t{");
+                    Console.Write("\n\t\t\"id\": \"WINDOWS_VISUALSTUDIO_2017_DETECT\",");
+                    Console.Write("\n\t\t\"type\": \"error\",");
+                    Console.Write("\n\t\t\"message\": \"" + SanitizeForJSON(e.Message) + "\"");
+                    Console.Write("\n\t}");
+                    Console.WriteLine("\n]");
+                }
+                else
+                {
+                    Console.Write("\"issues\": []");
+                }
             }
-
             Console.WriteLine("}");
-
         }
 
         static String SanitizeForJSON(String str)
         {
             return str.Replace("\"", "\\\"").Replace("\r", "\\r").Replace("\n", "\\n");
         }
-
-        static ISetupConfiguration2 GetSetupConfiguration()
-        {
-            try
-            {
-                return new SetupConfiguration();
-            }
-            catch (COMException e) when (e.HResult == REGDB_E_CLASSNOTREG)
-            {
-                ISetupConfiguration config;
-                if (GetSetupConfiguration(out config, IntPtr.Zero) < 0)
-                {
-                    return null;
-                }
-                return (ISetupConfiguration2)config;
-            }
-        }
-
-        [DllImport("Microsoft.VisualStudio.Setup.Configuration.Native.dll", ExactSpelling = true, PreserveSig = true)]
-        private static extern int GetSetupConfiguration(
-            [MarshalAs(UnmanagedType.Interface), Out] out ISetupConfiguration configuration,
-            IntPtr reserved);
-
     }
 }
