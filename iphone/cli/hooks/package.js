@@ -211,7 +211,7 @@ exports.init = function (logger, config, cli) {
 		}, this);
 
 		exportsOptions.provisioningProfiles = {};
-		exportsOptions.provisioningProfiles[pp.appId] = pp.uuid;
+		exportsOptions.provisioningProfiles[builder.tiapp.id] = pp.uuid;
 
 		fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
 
