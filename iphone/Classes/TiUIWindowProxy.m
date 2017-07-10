@@ -803,6 +803,7 @@
     }, [NSThread isMainThread]);
 }
 
+#if IS_XCODE_9
 - (void)setLargeTitleEnabled:(id)value
 {
     ENSURE_UI_THREAD(setLargeTitleEnabled, value);
@@ -826,6 +827,7 @@
         [[controller navigationItem] setLargeTitleDisplayMode:[TiUtils intValue:value def:UINavigationItemLargeTitleDisplayModeAutomatic]];
     }
 }
+#endif
 
 -(void)setTitlePrompt:(NSString*)title_
 {
