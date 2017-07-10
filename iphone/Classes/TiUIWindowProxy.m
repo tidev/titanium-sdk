@@ -826,7 +826,6 @@
         [[controller navigationItem] setLargeTitleDisplayMode:[TiUtils intValue:value def:UINavigationItemLargeTitleDisplayModeAutomatic]];
     }
 }
-#endif
 
 -(void)setTitlePrompt:(NSString*)title_
 {
