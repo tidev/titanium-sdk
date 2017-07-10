@@ -380,6 +380,16 @@ properties:
     type: Number
     constants: Titanium.UI.KEYBOARD_TYPE_*
     default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
+
+  - name: textContentType
+    summary: Provide the keyboard with extra information about the semantic intent of the text 
+        document.
+    type: String
+    constants: Titanium.UI.iOS.CONTENT_TYPE_*
+    default: <NULL>
+    platforms: [iphone, ipad]
+    since: "6.2.0"
+    osver: {ios: {min: "10.0"}}
     
   - name: leftButton
     summary: Left button view to display in the `TextField`.

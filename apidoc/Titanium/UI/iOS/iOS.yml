@@ -1699,6 +1699,231 @@ properties:
     osver: {ios: {min: "9.1"}}
     since: "5.1.0"
 
+  - name: CONTENT_TYPE_NAME
+    summary: Tell keyboard that content type is, name.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0"
+
+  - name: CONTENT_TYPE_NAME_PREFIX
+    summary: Tell keyboard that content type is, name's prefix.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0"
+
+  - name: CONTENT_TYPE_GIVEN_NAME
+    summary: Tell keyboard that content type is, given name.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0"
+
+  - name: CONTENT_TYPE_MIDDLE_NAME
+    summary: Tell keyboard that content type is, middle name.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0"
+
+  - name: CONTENT_TYPE_FAMILY_NAME
+    summary: Tell keyboard that content type is, family name.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0"
+
+  - name: ONTENT_TYPE_NAME_SUFFIX
+    summary: Tell keyboard that content type is, name's suffix.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0"
+
+  - name: CONTENT_TYPE_NICK_NAME
+    summary: Tell keyboard that content type is, nick name.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0"  
+
+  - name: CONTENT_TYPE_JOB_TITLE
+    summary: Tell keyboard that content type is, job title.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_ORGANIZATION_NAME
+    summary: Tell keyboard that content type is, organization name.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_LOCATION
+    summary: Tell keyboard that content type is, location.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_FULL_STREET_ADDRESS
+    summary: Tell keyboard that content type is, full street address.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0"  
+
+  - name: CONTENT_TYPE_ADDRESS_LINE1
+    summary: Tell keyboard that content type is, line1 of address.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_ADDRESS_LINE2
+    summary: Tell keyboard that content type is, line2 of address.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_ADDRESS_CITY
+    summary: Tell keyboard that content type is, city of address.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_ADDRESS_STATE
+    summary: Tell keyboard that content type is, state of address.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_ADDRESS_CITY_STATE
+    summary: Tell keyboard that content type is, city and state of address.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_SUBLOCALITY
+    summary: Tell keyboard that content type is, sublocality.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_COUNTRY_NAME
+    summary: Tell keyboard that content type is, country name.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_POSTAL_CODE
+    summary: Tell keyboard that content type is, postal code.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_TELEPHONE_NUMBER
+    summary: Tell keyboard that content type is, telephone number.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_EMAIL_ADDRESSS
+    summary: Tell keyboard that content type is, email address.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_URL
+    summary: Tell keyboard that content type is, url.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_CREDIT_CARD_NUMBER
+    summary: Tell keyboard that content type is, credit card number.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_USER_NAME
+    summary: Tell keyboard that content type is, user name.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "11.0"}}
+    since: "6.2.0" 
+
+  - name: CONTENT_TYPE_PASSWORD
+    summary: Tell keyboard that content type is, password.
+    description: |
+        Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
+    type: String
+    permission: read-only
+    osver: {ios: {min: "11.0"}}
+    since: "6.2.0" 
+
   - name: appBadge
     summary: Value of the badge for the application's springboard icon.
     type: Number
