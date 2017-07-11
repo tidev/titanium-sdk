@@ -876,7 +876,7 @@ public abstract class TiUIView
 
 					// TIMOB-24898: disable HW acceleration to allow transparency
 					// when the backgroundColor alpha channel has been set
-					if ((byte)(bgColor >> 24) < 0xFF) {
+					if (bgColor != null && ((byte)(bgColor >> 24) < 0xFF)) {
 						disableHWAcceleration();
 					}
 				}
@@ -987,7 +987,7 @@ public abstract class TiUIView
 		} else if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && !nativeViewNull) {
 			bgColor = TiConvert.toColor(d, TiC.PROPERTY_BACKGROUND_COLOR);
 
-			
+
 			if (canApplyTouchFeedback(d)) {
 				applyTouchFeedback(bgColor, d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) ? TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) : null);
 			} else {
@@ -1130,15 +1130,15 @@ public abstract class TiUIView
 
 	/**
 	 * @param props View's property dictionary
-	 * @return true if touch feedback can be applied. 
+	 * @return true if touch feedback can be applied.
 	 */
 	protected boolean canApplyTouchFeedback(@NonNull KrollDict props) {
 		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) && props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false) && !hasBorder(props));
 	}
-	
+
 	/**
-	 * Applies touch feedback. Should check canApplyTouchFeedback() before calling this. 
-	 * @param backgroundColor The background color of the view. 
+	 * Applies touch feedback. Should check canApplyTouchFeedback() before calling this.
+	 * @param backgroundColor The background color of the view.
 	 * @param rippleColor The ripple color.
 	 */
 	private void applyTouchFeedback(@NonNull Integer backgroundColor, @Nullable Integer rippleColor) {
@@ -1406,7 +1406,7 @@ public abstract class TiUIView
 					}
 					borderView.setRadius(radius);
 				}
-				
+
 				if (bgColor != null) {
 					borderView.setBgColor(bgColor);
 					borderView.setColor(bgColor);
@@ -1428,7 +1428,7 @@ public abstract class TiUIView
 
 			// TIMOB-24898: disable HW acceleration to allow transparency
 			// when the backgroundColor alpha channel has been set
-			if ((byte)(bgColor >> 24) < 0xFF) {
+			if (bgColor != null && ((byte)(bgColor >> 24) < 0xFF)) {
 				disableHWAcceleration();
 			}
 		}
