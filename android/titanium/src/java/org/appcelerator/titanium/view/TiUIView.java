@@ -876,7 +876,7 @@ public abstract class TiUIView
 
 					// TIMOB-24898: disable HW acceleration to allow transparency
 					// when the backgroundColor alpha channel has been set
-					if ((byte)(bgColor >> 24) < 0xFF) {
+					if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
 						disableHWAcceleration();
 					}
 				}
@@ -1428,7 +1428,7 @@ public abstract class TiUIView
 
 			// TIMOB-24898: disable HW acceleration to allow transparency
 			// when the backgroundColor alpha channel has been set
-			if ((byte)(bgColor >> 24) < 0xFF) {
+			if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
 				disableHWAcceleration();
 			}
 		}
