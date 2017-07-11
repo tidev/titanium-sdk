@@ -873,6 +873,12 @@ public abstract class TiUIView
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
 					}
+
+					// TIMOB-24898: disable HW acceleration to allow transparency
+					// when the backgroundColor alpha channel has been set
+					if ((byte)(bgColor >> 24) < 0xFF) {
+						disableHWAcceleration();
+					}
 				}
 
 				applyCustomBackground();
@@ -1400,27 +1406,30 @@ public abstract class TiUIView
 					}
 					borderView.setRadius(radius);
 				}
-				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-					if (bgColor != null) {
-						borderView.setBgColor(bgColor);
-					}
-					if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-						borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
-					} else {
-						if (bgColor != null) {
-							borderView.setColor(bgColor);
-						}
-					}
-					Object borderWidth = "1";
-					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-						borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
-					}
+				
+				if (bgColor != null) {
+					borderView.setBgColor(bgColor);
+					borderView.setColor(bgColor);
+				}
+				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
+					borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+				}
 
-					TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
+				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+					TiDimension width = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
 					if (width != null) {
-						borderView.setBorderWidth((float)width.getPixels(getNativeView()));
+						borderView.setBorderWidth((float) width.getPixels(borderView));
 					}
 				}
+
+				nativeView.invalidate();
+				borderView.invalidate();
+			}
+
+			// TIMOB-24898: disable HW acceleration to allow transparency
+			// when the backgroundColor alpha channel has been set
+			if ((byte)(bgColor >> 24) < 0xFF) {
+				disableHWAcceleration();
 			}
 		}
 	}
@@ -1933,6 +1942,9 @@ public abstract class TiUIView
 	}
 
 	public boolean fireEvent(String eventName, KrollDict data, boolean bubbles) {
+		if (proxy == null) {
+			return false;
+		}
 		if (data == null && additionalEventData != null) {
 			data = new KrollDict(additionalEventData);
 		} else if (additionalEventData != null) {
