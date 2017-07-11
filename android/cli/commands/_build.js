@@ -3338,18 +3338,21 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 		this.logger.info(__('Generating %s', themeFile.cyan));
 
 		var flags = 'Theme.AppCompat';
+		var defaultProvidedTheme = '@style/' + flags;
 		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
 			flags += '.Fullscreen';
 		}
 		if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
 			var theme = this.tiappAndroidManifest.application.theme;
+			defaultProvidedTheme = this.tiappAndroidManifest.application.theme;
 			if (theme.startsWith('@style/') && theme !== '@style/Theme.Titanium') {
 				flags = theme.replace('@style/', '');
 			}
 		}
 
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
-			flags: flags
+			flags: flags,
+			defaultProvidedTheme: defaultProvidedTheme
 		}));
 	}
 
