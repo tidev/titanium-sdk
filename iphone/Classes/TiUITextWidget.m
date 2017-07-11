@@ -163,66 +163,69 @@
 -(void)setTextContentType_:(id)value
 {
     ENSURE_TYPE_OR_NIL(value, NSString);
-    if (@available(iOS 10.0, *)) {
-        UITextContentType contentType = nil;
-        if ([value isEqualToString:UITextContentTypeName]) {
-            contentType = UITextContentTypeName;
-        } else if ([value isEqualToString:UITextContentTypeNamePrefix]) {
-            contentType = UITextContentTypeNamePrefix;
-        } else if ([value isEqualToString:UITextContentTypeGivenName]) {
-            contentType = UITextContentTypeGivenName;
-        } else if ([value isEqualToString:UITextContentTypeMiddleName]) {
-            contentType = UITextContentTypeMiddleName;
-        } else if ([value isEqualToString:UITextContentTypeFamilyName]) {
-            contentType = UITextContentTypeFamilyName;
-        } else if ([value isEqualToString:UITextContentTypeNameSuffix]) {
-            contentType = UITextContentTypeNameSuffix;
-        } else if ([value isEqualToString:UITextContentTypeNickname]) {
-            contentType = UITextContentTypeNickname;
-        } else if ([value isEqualToString:UITextContentTypeJobTitle]) {
-            contentType = UITextContentTypeJobTitle;
-        } else if ([value isEqualToString:UITextContentTypeOrganizationName]) {
-            contentType = UITextContentTypeOrganizationName;
-        } else if ([value isEqualToString:UITextContentTypeLocation]) {
-            contentType = UITextContentTypeLocation;
-        } else if ([value isEqualToString:UITextContentTypeFullStreetAddress]) {
-            contentType = UITextContentTypeFullStreetAddress;
-        } else if ([value isEqualToString:UITextContentTypeStreetAddressLine1]) {
-            contentType = UITextContentTypeStreetAddressLine1;
-        } else if ([value isEqualToString:UITextContentTypeStreetAddressLine2]) {
-            contentType = UITextContentTypeStreetAddressLine2;
-        } else if ([value isEqualToString:UITextContentTypeAddressCity]) {
-            contentType = UITextContentTypeAddressCity;
-        } else if ([value isEqualToString:UITextContentTypeAddressState]) {
-            contentType = UITextContentTypeAddressState;
-        } else if ([value isEqualToString:UITextContentTypeAddressCityAndState]) {
-            contentType = UITextContentTypeAddressCityAndState;
-        } else if ([value isEqualToString:UITextContentTypeSublocality]) {
-            contentType = UITextContentTypeSublocality;
-        } else if ([value isEqualToString:UITextContentTypeCountryName]) {
-            contentType = UITextContentTypeCountryName;
-        } else if ([value isEqualToString:UITextContentTypePostalCode]) {
-            contentType = UITextContentTypePostalCode;
-        } else if ([value isEqualToString:UITextContentTypeTelephoneNumber]) {
-            contentType = UITextContentTypeTelephoneNumber;
-        } else if ([value isEqualToString:UITextContentTypeEmailAddress]) {
-            contentType = UITextContentTypeEmailAddress;
-        } else if ([value isEqualToString:UITextContentTypeURL]) {
-            contentType = UITextContentTypeURL;
-        } else if ([value isEqualToString:UITextContentTypeCreditCardNumber]) {
-            contentType = UITextContentTypeCreditCardNumber;
-        }
-        
-        if (@available(iOS 11.0, *)) {
-            if ([value isEqualToString:UITextContentTypeUsername]) {
-                contentType = UITextContentTypeUsername;
-            } else if ([value isEqualToString:UITextContentTypePassword]) {
-                contentType = UITextContentTypePassword;
-            }
-        }
-        
-        [[self textWidgetView] setTextContentType:contentType];
+    if (![TiUtils isIOS10OrGreater]) {
+        NSLog(@"Setting a textContentType is only available on iOS 10 and later");
+        return;
     }
+    
+    UITextContentType contentType = nil;
+    if ([value isEqualToString:UITextContentTypeName]) {
+        contentType = UITextContentTypeName;
+    } else if ([value isEqualToString:UITextContentTypeNamePrefix]) {
+        contentType = UITextContentTypeNamePrefix;
+    } else if ([value isEqualToString:UITextContentTypeGivenName]) {
+        contentType = UITextContentTypeGivenName;
+    } else if ([value isEqualToString:UITextContentTypeMiddleName]) {
+        contentType = UITextContentTypeMiddleName;
+    } else if ([value isEqualToString:UITextContentTypeFamilyName]) {
+        contentType = UITextContentTypeFamilyName;
+    } else if ([value isEqualToString:UITextContentTypeNameSuffix]) {
+        contentType = UITextContentTypeNameSuffix;
+    } else if ([value isEqualToString:UITextContentTypeNickname]) {
+        contentType = UITextContentTypeNickname;
+    } else if ([value isEqualToString:UITextContentTypeJobTitle]) {
+        contentType = UITextContentTypeJobTitle;
+    } else if ([value isEqualToString:UITextContentTypeOrganizationName]) {
+        contentType = UITextContentTypeOrganizationName;
+    } else if ([value isEqualToString:UITextContentTypeLocation]) {
+        contentType = UITextContentTypeLocation;
+    } else if ([value isEqualToString:UITextContentTypeFullStreetAddress]) {
+        contentType = UITextContentTypeFullStreetAddress;
+    } else if ([value isEqualToString:UITextContentTypeStreetAddressLine1]) {
+        contentType = UITextContentTypeStreetAddressLine1;
+    } else if ([value isEqualToString:UITextContentTypeStreetAddressLine2]) {
+        contentType = UITextContentTypeStreetAddressLine2;
+    } else if ([value isEqualToString:UITextContentTypeAddressCity]) {
+        contentType = UITextContentTypeAddressCity;
+    } else if ([value isEqualToString:UITextContentTypeAddressState]) {
+        contentType = UITextContentTypeAddressState;
+    } else if ([value isEqualToString:UITextContentTypeAddressCityAndState]) {
+        contentType = UITextContentTypeAddressCityAndState;
+    } else if ([value isEqualToString:UITextContentTypeSublocality]) {
+        contentType = UITextContentTypeSublocality;
+    } else if ([value isEqualToString:UITextContentTypeCountryName]) {
+        contentType = UITextContentTypeCountryName;
+    } else if ([value isEqualToString:UITextContentTypePostalCode]) {
+        contentType = UITextContentTypePostalCode;
+    } else if ([value isEqualToString:UITextContentTypeTelephoneNumber]) {
+        contentType = UITextContentTypeTelephoneNumber;
+    } else if ([value isEqualToString:UITextContentTypeEmailAddress]) {
+        contentType = UITextContentTypeEmailAddress;
+    } else if ([value isEqualToString:UITextContentTypeURL]) {
+        contentType = UITextContentTypeURL;
+    } else if ([value isEqualToString:UITextContentTypeCreditCardNumber]) {
+        contentType = UITextContentTypeCreditCardNumber;
+    }
+    
+    if (@available(iOS 11.0, *)) {
+        if ([value isEqualToString:UITextContentTypeUsername]) {
+            contentType = UITextContentTypeUsername;
+        } else if ([value isEqualToString:UITextContentTypePassword]) {
+            contentType = UITextContentTypePassword;
+        }
+    }
+    
+    [[self textWidgetView] setTextContentType:contentType];
 }
 #pragma mark Responder methods
 //These used to be blur/focus, but that's moved to the proxy only.

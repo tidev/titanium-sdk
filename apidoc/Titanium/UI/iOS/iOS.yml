@@ -1700,7 +1700,7 @@ properties:
     since: "5.1.0"
 
   - name: CONTENT_TYPE_NAME
-    summary: Tell keyboard that content type is, name.
+    summary: Specifies the expectation of a name.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1709,7 +1709,7 @@ properties:
     since: "6.2.0"
 
   - name: CONTENT_TYPE_NAME_PREFIX
-    summary: Tell keyboard that content type is, name's prefix.
+    summary: Specifies the expectation of a prefix or title, such as “Dr.”.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1718,7 +1718,7 @@ properties:
     since: "6.2.0"
 
   - name: CONTENT_TYPE_GIVEN_NAME
-    summary: Tell keyboard that content type is, given name.
+    summary: Specifies the expectation of a given name.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1727,7 +1727,7 @@ properties:
     since: "6.2.0"
 
   - name: CONTENT_TYPE_MIDDLE_NAME
-    summary: Tell keyboard that content type is, middle name.
+    summary: Specifies the expectation of a middle name.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1736,7 +1736,7 @@ properties:
     since: "6.2.0"
 
   - name: CONTENT_TYPE_FAMILY_NAME
-    summary: Tell keyboard that content type is, family name.
+    summary: Specifies the expectation of a family name.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1745,7 +1745,7 @@ properties:
     since: "6.2.0"
 
   - name: ONTENT_TYPE_NAME_SUFFIX
-    summary: Tell keyboard that content type is, name's suffix.
+    summary: Specifies the expectation of a suffix, such as “Jr.”.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1754,7 +1754,7 @@ properties:
     since: "6.2.0"
 
   - name: CONTENT_TYPE_NICKNAME
-    summary: Tell keyboard that content type is, nick name.
+    summary: Specifies the expectation of a nickname.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1763,7 +1763,7 @@ properties:
     since: "6.2.0"  
 
   - name: CONTENT_TYPE_JOB_TITLE
-    summary: Tell keyboard that content type is, job title.
+    summary: Specifies the expectation of a job title.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1772,7 +1772,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_ORGANIZATION_NAME
-    summary: Tell keyboard that content type is, organization name.
+    summary: Specifies the expectation of an organization name.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1781,7 +1781,9 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_LOCATION
-    summary: Tell keyboard that content type is, location.
+    summary: |
+        Specifies the expectation of a location, such as a point of interest, 
+        an address, or another way to identify a location.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1790,7 +1792,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_FULL_STREET_ADDRESS
-    summary: Tell keyboard that content type is, full street address.
+    summary: Specifies the expectation of a street address that fully identifies a location.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1799,7 +1801,7 @@ properties:
     since: "6.2.0"  
 
   - name: CONTENT_TYPE_ADDRESS_LINE1
-    summary: Tell keyboard that content type is, line1 of address.
+    summary: Specifies the expectation of the first line of a street address.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1808,7 +1810,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_ADDRESS_LINE2
-    summary: Tell keyboard that content type is, line2 of address.
+    summary: Specifies the expectation of the second line of a street address.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1817,7 +1819,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_ADDRESS_CITY
-    summary: Tell keyboard that content type is, city of address.
+    summary: Specifies the expectation of a city name.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1826,7 +1828,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_ADDRESS_STATE
-    summary: Tell keyboard that content type is, state of address.
+    summary: Specifies the expectation of a state name.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1835,7 +1837,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_ADDRESS_CITY_STATE
-    summary: Tell keyboard that content type is, city and state of address.
+    summary: Specifies the expectation of a city name combined with a state name.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1844,7 +1846,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_SUBLOCALITY
-    summary: Tell keyboard that content type is, sublocality.
+    summary: Specifies the expectation of a sublocality.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1853,7 +1855,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_COUNTRY_NAME
-    summary: Tell keyboard that content type is, country name.
+    summary: Specifies the expectation of a country name.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1862,7 +1864,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_POSTAL_CODE
-    summary: Tell keyboard that content type is, postal code.
+    summary: Specifies the expectation of a postal code.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1871,7 +1873,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_TELEPHONE_NUMBER
-    summary: Tell keyboard that content type is, telephone number.
+    summary: Specifies the expectation of a telephone number.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1880,7 +1882,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_EMAIL_ADDRESSS
-    summary: Tell keyboard that content type is, email address.
+    summary: Specifies the expectation of an email address.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1889,7 +1891,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_URL
-    summary: Tell keyboard that content type is, url.
+    summary: Specifies the expectation of a URL.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1898,7 +1900,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_CREDIT_CARD_NUMBER
-    summary: Tell keyboard that content type is, credit card number.
+    summary: Specifies the expectation of a credit card number.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1907,7 +1909,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_USERNAME
-    summary: Tell keyboard that content type is, user name.
+    summary: Specifies the expectation of an account or login name.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
@@ -1916,7 +1918,7 @@ properties:
     since: "6.2.0" 
 
   - name: CONTENT_TYPE_PASSWORD
-    summary: Tell keyboard that content type is, password.
+    summary: Specifies the expectation of a password.
     description: |
         Use with <Titanium.UI.TextField.textContentType> or <Titanium.UI.TextArea.textContentType>.    
     type: String
