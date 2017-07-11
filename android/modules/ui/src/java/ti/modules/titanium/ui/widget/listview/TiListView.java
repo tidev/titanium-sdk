@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import android.view.MotionEvent;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -82,6 +83,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	private boolean caseInsensitive;
 	private RelativeLayout searchLayout;
 	private static final String TAG = "TiListView";
+	private boolean canScroll = true;
 
 
 	/* We cache properties that already applied to the recycled list tiem in ViewItem.java
@@ -117,6 +119,16 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	    public int getVerticalScrollOffset() {
 	        return computeVerticalScrollOffset();
 	    }
+		
+		@Override
+		public boolean dispatchTouchEvent(MotionEvent ev) {
+			if (!canScroll) {
+				if (ev.getAction() == MotionEvent.ACTION_MOVE) {
+					return true;
+				}
+			}
+			return super.dispatchTouchEvent(ev);
+		}
 	}
 
 	class ListViewWrapper extends FrameLayout {
@@ -199,9 +211,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	}
 	
 	public class TiBaseAdapter extends BaseAdapter {
-
-		Activity context;
 		
+		Activity context;
+
 		public TiBaseAdapter(Activity activity) {
 			context = activity;
 		}
@@ -511,7 +523,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		if (d.containsKey(TiC.PROPERTY_TEMPLATES)) {
 			Object templates = d.get(TiC.PROPERTY_TEMPLATES);
 			if (templates != null) {
-				processTemplates(new KrollDict((HashMap)templates));
+				processTemplates(new KrollDict((HashMap) templates));
 			}
 		} 
 		
@@ -614,6 +626,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		if (footerView == null) {
 			footerView = inflater.inflate(headerFooterId, null);
 			footerView.findViewById(titleId).setVisibility(View.GONE);
+		}
+		
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_CAN_SCROLL)) {
+			canScroll = TiConvert.toBoolean(d.get(TiC.PROPERTY_CAN_SCROLL), true);
 		}
 
 		//Have to add header and footer before setting adapter
@@ -761,6 +777,8 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				dividerHeight = height;
 				listView.setDividerHeight(height);
 			}
+		} else if (key.equals(TiC.PROPERTY_CAN_SCROLL)) {
+			canScroll = TiConvert.toBoolean(newValue, true);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -797,7 +815,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	protected void processTemplates(KrollDict templates) {
 		for (String key : templates.keySet()) {
 			//Here we bind each template with a key so we can use it to look up later
-			KrollDict properties = new KrollDict((HashMap)templates.get(key));
+			KrollDict properties = new KrollDict((HashMap) templates.get(key));
 			TiListViewTemplate template = new TiListViewTemplate(key, properties);
 			//Set type to template, for recycling purposes.
 			template.setType(getItemType());

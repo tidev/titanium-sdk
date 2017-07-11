@@ -11,6 +11,7 @@
 #import "TiViewProxy.h"
 #import "ImageLoader.h"
 #import "Webcolor.h"
+#import "TiApp.h"
 
 @implementation TiUIListItem {
 	TiUIListItemProxy *_proxy;
@@ -529,8 +530,12 @@
 - (void)recordChangeValue:(id)value forKeyPath:(NSString *)keyPath withBlock:(void(^)(void))block
 {
 	if ([_initialValues objectForKey:keyPath] == nil) {
-		id initialValue = [self valueForKeyPath:keyPath];
-		[_initialValues setObject:(initialValue != nil ? initialValue : [NSNull null]) forKey:keyPath];
+		@try {
+			id initialValue = [self valueForKeyPath:keyPath];
+			[_initialValues setObject:(initialValue != nil ? initialValue : [NSNull null]) forKey:keyPath];
+		} @catch (NSException *exception) {
+			[[TiApp app] showModalError:[NSString stringWithFormat:@"The bindId \"%@\" is reserved by the system, please choose a different name and try again.", [[keyPath componentsSeparatedByString:@"."] firstObject]]];
+		}
 	}
 	block();
 	if (value != nil) {

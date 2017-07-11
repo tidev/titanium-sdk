@@ -78,6 +78,7 @@ public class ListViewProxy extends TiViewProxy {
 		preloadMarkers = new ArrayList<HashMap<String, Integer>>();
 		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
 		defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
+		defaultValues.put(TiC.PROPERTY_CAN_SCROLL, true);
 		super.handleCreationArgs(createdInModule, args);
 		
 	}
@@ -90,6 +91,9 @@ public class ListViewProxy extends TiViewProxy {
 			if (obj instanceof Object[]) {
 				addPreloadSections((Object[]) obj, -1, true);
 			}
+		}
+		if (options.containsKey(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE)) {
+			setProperty(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, options.get(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE));
 		}
 	}
 	
@@ -149,11 +153,15 @@ public class ListViewProxy extends TiViewProxy {
 	}
 	
 	public int handleSectionCount () {
+		if (peekView() == null && getParent() != null) {
+			getParent().getOrCreateView();
+		}
 		TiUIView listView = peekView();
+		
 		if (listView != null) {
 			return ((TiListView) listView).getSectionCount();
 		}
-		return 0;
+		return preloadSections.size();
 	}
 
 	@Kroll.method
@@ -456,8 +464,23 @@ public class ListViewProxy extends TiViewProxy {
 		}
 	}
 	
+	@Kroll.method @Kroll.setProperty
+	public void setCanScroll(boolean canScroll)
+	{
+		setProperty(TiC.PROPERTY_CAN_SCROLL, canScroll);
+	}
+	
+	@Kroll.method @Kroll.getProperty
+	public boolean getCanScroll()
+	{
+		return (Boolean) getProperty(TiC.PROPERTY_CAN_SCROLL);
+	}
+	
 	private ListSectionProxy[] handleSections()
 	{
+		if (peekView() == null && getParent() != null) {
+			getParent().getOrCreateView();
+		}
 		TiUIView listView = peekView();
 
 		if (listView != null) {

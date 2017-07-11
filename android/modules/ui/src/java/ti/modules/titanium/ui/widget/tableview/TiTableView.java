@@ -29,6 +29,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -193,11 +194,20 @@ public class TiTableView extends FrameLayout
 				// Default creates view for each Item
 				boolean sameView = false;
 				if (item.proxy instanceof TableViewRowProxy) {
-					TableViewRowProxy row = (TableViewRowProxy)item.proxy;
+					TableViewRowProxy row = (TableViewRowProxy) item.proxy;
 					if (row.getTableViewRowProxyItem() != null) {
 						sameView = row.getTableViewRowProxyItem().equals(convertView);
 					}
 				}
+
+				// TIMOB-24560: prevent duplicate TableViewRowProxyItem on Android N
+				if (Build.VERSION.SDK_INT > 23) {
+					ArrayList<Item> models = viewModel.getViewModel();
+					if (models != null && models.contains(v.getRowData())) {
+						return v;
+					}
+				}
+
 				if (!sameView) {
 					if (v.getClassName().equals(TableViewProxy.CLASSNAME_DEFAULT)) {
 						if (v.getRowData() != item) {

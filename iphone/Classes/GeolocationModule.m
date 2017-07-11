@@ -9,11 +9,11 @@
 #import "GeolocationModule.h"
 #import "TiApp.h"
 #import "TiEvaluator.h"
-#import "SBJSON.h"
-#import <sys/utsname.h>
 #import "NSData+Additions.h"
 #import "APSAnalytics.h"
 #import "AnalyticsModule.h"
+
+#import <sys/utsname.h>
 
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
@@ -148,10 +148,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)requestSuccess:(NSString*)locationString
 {
-	SBJSON *json = [[SBJSON alloc] init];
 	NSError * error = nil;
-	id event = [json fragmentWithString:locationString error:&error];
-	[json release];
+	id event = [TiUtils jsonParse:locationString error:&error];
 	if (error != nil) {
 		[self requestError:error];
 	}
@@ -338,9 +336,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			NSString *title = NSLocalizedString(@"Location Services Disabled",@"Location Services Disabled Alert Title");
 			NSString *msg = NSLocalizedString(@"You currently have all location services for this device disabled. If you proceed, you will be asked to confirm whether location services should be reenabled.",@"Location Services Disabled Alert Message");
 			NSString *ok = NSLocalizedString(@"OK",@"Location Services Disabled Alert OK Button");
-			UIAlertView *servicesDisabledAlert = [[UIAlertView alloc] initWithTitle:title message:msg delegate:nil cancelButtonTitle:ok otherButtonTitles:nil];
-			[servicesDisabledAlert show];
-			[servicesDisabledAlert release];
+            
+            		UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
+            		UIAlertAction *action = [UIAlertAction actionWithTitle:ok style:UIAlertActionStyleCancel handler:nil];
+            		[alertController addAction:action];
+            		[[TiApp app] showModalController:alertController animated:YES];
 		}
 	}
 	[lock unlock];
@@ -535,7 +535,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	ENSURE_ARG_COUNT(args,3);
 	KrollCallback *callback = [args objectAtIndex:2];
 	ENSURE_TYPE(callback,KrollCallback);
-#ifndef __clang_analyzer__ //ignore static analyzer error here, memory will be released
+#ifndef __clang_analyzer__ // Ignore static analyzer error here, memory will be released. See TIMOB-19444
 	CGFloat lat = [TiUtils floatValue:[args objectAtIndex:0]];
 	CGFloat lon = [TiUtils floatValue:[args objectAtIndex:1]];
 	ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
@@ -548,7 +548,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	ENSURE_ARG_COUNT(args,2);
 	KrollCallback *callback = [args objectAtIndex:1];
 	ENSURE_TYPE(callback,KrollCallback);
-#ifndef __clang_analyzer__ //ignore static analyzer error here, memory will be released
+#ifndef __clang_analyzer__ // Ignore static analyzer error here, memory will be released. See TIMOB-19444
 	ForwardGeoCallback *fcb = [[ForwardGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
 	[self performGeo:@"f" address:[TiUtils stringValue:[args objectAtIndex:0]] callback:fcb];
 #endif
@@ -591,15 +591,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSString *)lastGeolocation
 {
-	SBJSON *json = [[SBJSON alloc] init];
-	NSString * result = [json stringWithObject:lastLocationDict error:nil];
-	[json release];
-	return result;
+    return [TiUtils jsonStringify:lastLocationDict error:nil];
 }
 
 -(NSNumber*)highAccuracy
 {
-	return NUMBOOL(accuracy==kCLLocationAccuracyBest);
+	return NUMBOOL(accuracy == kCLLocationAccuracyBest);
 }
 
 -(void)setHighAccuracy:(NSNumber *)value

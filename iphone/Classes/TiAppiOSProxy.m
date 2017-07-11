@@ -193,6 +193,7 @@
     }
     
     [self fireEvent:@"shortcutitemclick" withObject:event];
+    RELEASE_TO_NIL(event);
 }
 
 -(void)didHandleURL:(NSNotification*)info
@@ -576,16 +577,16 @@
 	id repeat = [args objectForKey:@"repeat"];
 	if (repeat!=nil) {
 		if ([repeat isEqual:@"weekly"]) {
-			localNotif.repeatInterval = NSWeekCalendarUnit;
+			localNotif.repeatInterval = NSCalendarUnitWeekOfYear;
 		}
 		else if ([repeat isEqual:@"daily"]) {
-			localNotif.repeatInterval = NSDayCalendarUnit;
+			localNotif.repeatInterval = NSCalendarUnitDay;
 		}
 		else if ([repeat isEqual:@"yearly"]) {
-			localNotif.repeatInterval = NSYearCalendarUnit;
+			localNotif.repeatInterval = NSCalendarUnitYear;
 		}
 		else if ([repeat isEqual:@"monthly"]) {
-			localNotif.repeatInterval = NSMonthCalendarUnit;
+			localNotif.repeatInterval = NSCalendarUnitMonth;
 		}
 	}
 	
@@ -623,13 +624,14 @@
 		CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
         
 		if (!CLLocationCoordinate2DIsValid(center)) {
+			RELEASE_TO_NIL(localNotif);
 			NSLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
 			return;
 		}
         
-		localNotif.region = [[CLCircularRegion alloc] initWithCenter:center
+		localNotif.region = [[[CLCircularRegion alloc] initWithCenter:center
                                                               radius:kCLDistanceFilterNone
-                                                          identifier:identifier ? identifier : @"notification"];
+                                                          identifier:identifier ? identifier : @"notification"] autorelease];
 		
 		localNotif.regionTriggersOnce = regionTriggersOnce;
 	}

@@ -57,7 +57,7 @@ describe('visualstudio', function () {
 
 function checkVisualStudio(visualstudio) {
 	should(visualstudio).be.an.Object;
-	should(visualstudio).have.keys('version', 'registryKey', 'supported', 'vcvarsall', 'msbuildVersion', 'wpsdk', 'selected', 'path', 'clrVersion');
+	should(visualstudio).have.keys('version', 'registryKey', 'supported', 'vcvarsall', 'msbuildVersion', 'wpsdk', 'selected', 'path', 'clrVersion', 'vsDevCmd');
 
 	should(visualstudio.version).be.a.String;
 	should(visualstudio.version).not.equal('');

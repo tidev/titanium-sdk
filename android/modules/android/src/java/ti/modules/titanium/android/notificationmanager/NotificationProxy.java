@@ -180,7 +180,7 @@ public class NotificationProxy extends KrollProxy
 		notificationBuilder.setPriority(priority);
 		setProperty(TiC.PROPERTY_PRIORITY, priority);
 	}
-
+	
 	@Kroll.method @Kroll.setProperty
 	public void setTickerText(String tickerText)
 	{
@@ -331,6 +331,12 @@ public class NotificationProxy extends KrollProxy
 		notificationBuilder.setContentIntent(contentIntent.getPendingIntent())
 		.setContentText(contentText)
 		.setContentTitle(contentTitle);
+	}
+	
+	@Kroll.method
+	public void setProgress(int max, int progress, boolean indeterminate)
+	{
+		notificationBuilder.setProgress(max, progress, indeterminate);
 	}
 
 	public Notification buildNotification()

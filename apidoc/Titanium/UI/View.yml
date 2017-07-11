@@ -104,7 +104,7 @@ description: |
     
     For more details see: 
     
-    * [UI Composite Layout Spec](http://docs.appcelerator.com/platform/latest/!/guide/UI_Composite_Layout_Behavior_Spec)
+    * [UI Composite Layout Spec](http://docs.appcelerator.com/platform/latest/#!/guide/UI_Composite_Layout_Behavior_Spec)
     
     #### Size and Position
     
@@ -949,6 +949,20 @@ methods:
             is not a view, an exception will be raised.
         type: Titanium.UI.View
 
+  - name: getViewById
+    summary: Returns the matching view of a given view ID.
+    returns:
+        type: Titanium.UI.View
+    parameters:
+      - name: id
+        summary: |
+            The ID of the view that should be returned. Use the `id` property in your views to 
+            enable it for indexing in this method.
+        type: String
+        optional: false
+    since: 6.1.0
+    platforms: [iphone, ipad, android]
+
 properties:
   - name: accessibilityHidden
     summary: Whether the view should be "hidden" from (i.e., ignored by) the accessibility service.
@@ -1317,12 +1331,12 @@ properties:
     constants: [Titanium.UI.FILL, Titanium.UI.SIZE]
     type: [Number,String]
     
-  - name: hiddenBahavior
+  - name: hiddenBehavior
     summary: Sets the behavior when hiding an object to release or keep the free space
     description: |
-        If setting `hiddenBahavior` to <Titanium.UI.HIDDEN_BEHAVIOR_GONE> it will automatically release the space the view occupied.
+        If setting `hiddenBehavior` to <Titanium.UI.HIDDEN_BEHAVIOR_GONE> it will automatically release the space the view occupied.
         For example: in a vertical layout the views below the object will move up when you hide
-        an object with `hiddenBahavior:Titanium.UI.HIDDEN_BEHAVIOR_GONE`.
+        an object with `hiddenBehavior:Titanium.UI.HIDDEN_BEHAVIOR_GONE`.
 
         * <Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE>. Keeps the space and just hides the object (default).
         * <Titanium.UI.HIDDEN_BEHAVIOR_GONE>. Releases the space and hides the object.

@@ -468,6 +468,9 @@ properties:
         Use with <Attribute.type> to stretch the text horizontally.
     description: |
         Set <Attribute.value> to a float value to specify how much to stretch the text.
+        
+        For iOS, the default value is 0.0 and has no minimum/maximum range specified.
+        For Windows, the default value is 0.0 and the valid range is between 0.5 and 1.0.
 
         See <Attribute> for more information.
     type: Number

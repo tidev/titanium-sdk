@@ -260,7 +260,7 @@ Module.prototype.require = function (request, context) {
 		}
 	// Root/absolute path (internally when reading the file, we prepend "Resources/" as root dir)
 	} else if (request.substring(0, 1) === '/') {
-		loaded = this.loadAsFileOrDirectory(request, context);
+		loaded = this.loadAsFileOrDirectory(path.normalize(request), context);
 		if (loaded) {
 			return loaded;
 		}
@@ -293,7 +293,7 @@ Module.prototype.require = function (request, context) {
 		// So for now, let's just be quite about it. In future versions of the SDK (7.0?) we should warn (once 5.x is end of life so backwards compat is not necessary)
 		//kroll.log(TAG, "require called with un-prefixed module id: " + request + ", should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /" + request);
 
-		loaded = this.loadAsFileOrDirectory('/' + request, context);
+		loaded = this.loadAsFileOrDirectory(path.normalize('/' + request), context);
 		if (loaded) {
 			return loaded;
 		}
@@ -384,6 +384,15 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
  * @return {[String]}              The array of paths to search
  */
 Module.prototype.nodeModulesPaths = function (startDir) {
+	// Make sure we have an absolute path to start with
+	startDir = path.resolve(startDir);
+
+	// Return early if we are at root, this avoids doing a pointless loop
+	// and also returning an array with duplicate entries
+	// e.g. ["/node_modules", "/node_modules"]
+	if (startDir === '/') {
+		return ['/node_modules'];
+	}
 	// 1. let PARTS = path split(START)
 	var parts = startDir.split('/'),
 		// 2. let I = count of PARTS - 1
@@ -395,7 +404,8 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 	// 4. while I >= 0,
 	while (i >= 0) {
 		// a. if PARTS[I] = "node_modules" CONTINUE
-		if (parts[i] === 'node_modules') {
+		if (parts[i] === 'node_modules' || parts[i] === '') {
+  			i = i - 1;
 			continue;
 		}
 		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
@@ -405,6 +415,8 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 		// d. let I = I - 1
 		i = i - 1;
 	}
+	// Always add /node_modules to the search path
+	dirs.push('/node_modules');
 	return dirs;
 }
 

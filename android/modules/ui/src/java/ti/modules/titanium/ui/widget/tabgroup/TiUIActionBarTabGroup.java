@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
+import android.graphics.drawable.ColorDrawable;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -333,6 +334,22 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		if (tempTabsDisabled && shouldUpdateTabsDisabled) {
 			pendingDisableTabs = true;
 			checkAndDisableTabsIfRequired();
+		}
+
+		// Set the background color of the entire tab bar.
+		// Note: ActionBar does not support setting individual tab colors. (Would require custom views to be made.)
+		Object backgroundColorValue = tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR);
+		if ((backgroundColorValue instanceof String) == false) {
+			TabGroupProxy tabGroupProxy = tabProxy.getTabGroup();
+			if (tabGroupProxy != null) {
+				backgroundColorValue = tabGroupProxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR);
+			}
+		}
+		if (backgroundColorValue instanceof String) {
+			ColorDrawable drawable = TiConvert.toColorDrawable((String)backgroundColorValue);
+			if (drawable != null) {
+				actionBar.setStackedBackgroundDrawable(drawable);
+			}
 		}
 	}
 

@@ -8,6 +8,7 @@
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
 #import "TiUIiOSLivePhotoView.h"
 #import "TiUIiOSLivePhotoViewProxy.h"
+#import "TiViewProxy.h"
 
 @implementation TiUIiOSLivePhotoView
 
@@ -62,6 +63,7 @@
     autoHeight = livePhoto.size.height;
     
     [[self livePhotoView] setLivePhoto:livePhoto];
+    [(TiViewProxy*)self.proxy relayout];
 }
 
 -(void)setWidth_:(id)width_
