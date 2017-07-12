@@ -2080,6 +2080,10 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 
 +(NSString*)jsonStringify:(id)value error:(NSError**)error
 {
+    if (value == nil) {
+        return nil;
+    }
+    
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:value
                                                        options:kNilOptions
                                                          error:error];
