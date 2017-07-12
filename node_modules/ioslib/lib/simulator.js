@@ -210,11 +210,13 @@ function detect(options, callback) {
 								if (runtime) {
 									runtime.versions = [ runtime.version ];
 								}
-							} else if (xc.simRuntimes[plist.runtime]) {
+							} else {
 								runtime.versions = [ runtime.version ];
-								var ver = xc.simRuntimes[plist.runtime].version;
-								if (ver !== runtime.version) {
-									runtime.versions.push(ver);
+								if (xc.simRuntimes[plist.runtime]) {
+									var ver = xc.simRuntimes[plist.runtime].version;
+									if (ver !== runtime.version) {
+										runtime.versions.push(ver);
+									}
 								}
 							}
 
