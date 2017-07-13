@@ -873,6 +873,12 @@ public abstract class TiUIView
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
 					}
+
+					// TIMOB-24898: disable HW acceleration to allow transparency
+					// when the backgroundColor alpha channel has been set
+					if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
+						disableHWAcceleration();
+					}
 				}
 
 				applyCustomBackground();
@@ -1127,7 +1133,7 @@ public abstract class TiUIView
 	 * @return true if touch feedback can be applied. 
 	 */
 	protected boolean canApplyTouchFeedback(@NonNull KrollDict props) {
-		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) && props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false) && !hasBorder(props));
+		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) && props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false));
 	}
 	
 	/**
@@ -1418,6 +1424,12 @@ public abstract class TiUIView
 
 				nativeView.invalidate();
 				borderView.invalidate();
+			}
+
+			// TIMOB-24898: disable HW acceleration to allow transparency
+			// when the backgroundColor alpha channel has been set
+			if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
+				disableHWAcceleration();
 			}
 		}
 	}
@@ -1930,6 +1942,9 @@ public abstract class TiUIView
 	}
 
 	public boolean fireEvent(String eventName, KrollDict data, boolean bubbles) {
+		if (proxy == null) {
+			return false;
+		}
 		if (data == null && additionalEventData != null) {
 			data = new KrollDict(additionalEventData);
 		} else if (additionalEventData != null) {
