@@ -876,7 +876,7 @@ public abstract class TiUIView
 
 					// TIMOB-24898: disable HW acceleration to allow transparency
 					// when the backgroundColor alpha channel has been set
-					if ((byte)(bgColor >> 24) < 0xFF) {
+					if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
 						disableHWAcceleration();
 					}
 				}
@@ -1133,7 +1133,7 @@ public abstract class TiUIView
 	 * @return true if touch feedback can be applied. 
 	 */
 	protected boolean canApplyTouchFeedback(@NonNull KrollDict props) {
-		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) && props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false) && !hasBorder(props));
+		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) && props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false));
 	}
 	
 	/**
@@ -1428,7 +1428,7 @@ public abstract class TiUIView
 
 			// TIMOB-24898: disable HW acceleration to allow transparency
 			// when the backgroundColor alpha channel has been set
-			if ((byte)(bgColor >> 24) < 0xFF) {
+			if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
 				disableHWAcceleration();
 			}
 		}
