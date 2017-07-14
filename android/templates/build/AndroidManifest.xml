@@ -14,7 +14,7 @@
 	<application android:icon="@drawable/appicon"
 		android:label="<%- tiapp.name %>" android:name="<%- classname %>Application"
 		android:debuggable="false"
-		android:theme="@style/Theme.AppCompat<% if (tiapp.fullscreen || tiapp['statusbar-hidden'] || tiapp['navbar-hidden']) { %>.NoTitleBar<% if (tiapp.fullscreen || tiapp['statusbar-hidden']) { %>.Fullscreen<% } %><% } %>">
+		android:theme="@style/Theme.Titanium<% if (tiapp.fullscreen || tiapp['statusbar-hidden'] || tiapp['navbar-hidden']) { %>.NoTitleBar<% if (tiapp.fullscreen || tiapp['statusbar-hidden']) { %>.Fullscreen<% } %><% } %>">
 
 		<activity android:name=".<%- classname %>Activity"
 			android:label="@string/app_name" android:theme="@style/Theme.Titanium"
