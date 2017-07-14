@@ -889,6 +889,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
+	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
@@ -3342,9 +3343,10 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 		}
 		if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
 			var theme = this.tiappAndroidManifest.application.theme;
-			if (theme.startsWith('@style/')) {
+			if (theme.startsWith('@style/') && theme !== '@style/Theme.Titanium') {
 				flags = theme.replace('@style/', '');
 			}
+			delete this.tiappAndroidManifest.application.theme;
 		}
 
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
@@ -3686,7 +3688,8 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
 			'-F', this.ap_File,
-			'--output-text-symbols', bundlesPath
+			'--output-text-symbols', bundlesPath,
+			'--no-version-vectors'
 		];
 
 	var runAapt = function runAapt() {
@@ -3950,6 +3953,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
 			'-jar', this.androidInfo.sdk.dx,
 			'--dex', '--multi-dex',
+			'--set-max-idx-number=' + this.dxMaxIdxNumber,
 			'--output=' + this.buildBinClassesDex,
 		],
 		shrinkedAndroid = path.join(path.dirname(this.androidInfo.sdk.dx), 'shrinkedAndroid.jar'),

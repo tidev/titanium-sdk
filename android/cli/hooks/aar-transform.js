@@ -41,9 +41,11 @@ const LIBRARY_ORIGIN_PORJECT = 'Project';
 
 exports.cliVersion = '>=3.2';
 
-exports.init = function (logger, config, cli) {
+exports.init = function (logger, config, cli, appc) {
 	cli.on('build.pre.compile', {
+		priority: 1100,
 		post: function(builder, callback) {
+			registerHyperloopCompatibilityFixes(cli, builder, appc, logger);
 			scanProjectAndStartTransform(builder, logger, callback);
 		}
 	});
@@ -443,4 +445,103 @@ class SimpleFileCache {
 		}
 		fs.writeFileSync(this.cachePathAndFilename, dataToWrite);
 	}
+}
+
+/**
+ * Hyperloop versions below 2.2.0 have their own AAR handling which we need to
+ * disable by hooking into the affected hooks and reverting the changes Hyperloop
+ * made.
+ *
+ * @param {Object} cli CLI instance
+ * @param {Object} builder Builder instance
+ * @param {Object} appc Appc node utilities
+ * @param {Object} logger Logger instance
+ */
+function registerHyperloopCompatibilityFixes(cli, builder, appc, logger) {
+	var hyperloopModule = null;
+	builder.nativeLibModules.some(function (module) {
+		if (module.id === 'hyperloop' && appc.version.lt(module.version, '2.2.0')) {
+			hyperloopModule = module;
+			return true;
+		}
+	});
+	if (hyperloopModule === null) {
+		return;
+	}
+
+	var hyperloopBuildPath = path.join(builder.projectDir, 'build/hyperloop/android');
+
+	cli.on('build.android.aapt', {
+		priority: 1100,
+		/**
+		 * Remove parameters passed to AAPT which are not required anymore since 6.1.0
+		 *
+		 * @param {Object} data Hook data
+		 * @param {Function} callback Callback function
+		 */
+		pre: function (data, callback) {
+			logger.trace('Cleaning AAPT options from changes made by Hyperloop');
+			var aaptOptions = data.args[1];
+			var extraPackagesIndex = aaptOptions.indexOf('--extra-packages') + 1;
+			if (extraPackagesIndex === -1) {
+				return callback();
+			}
+			var extraPackages = aaptOptions[extraPackagesIndex];
+			var parameterIndex = aaptOptions.indexOf('-S');
+			var packageNameRegex = /package="(.*)"/;
+			while (parameterIndex !== -1) {
+				var resourcePath = aaptOptions[parameterIndex + 1];
+				if (resourcePath.indexOf(hyperloopBuildPath) !== -1) {
+					var manifestPathAndFilename = path.join(resourcePath, '../AndroidManifest.xml');
+					if (fs.existsSync(manifestPathAndFilename)) {
+						var manifestContent = fs.readFileSync(manifestPathAndFilename).toString();
+						var packageNameMatch = manifestContent.match(packageNameRegex);
+						if (packageNameMatch !== null) {
+							var packageName = packageNameMatch[1];
+							extraPackages = extraPackages.split(':').filter(n => n !== packageName).join(':');
+							logger.trace('Removed package ' + packageName + ' from AAPT --extra-packages option');
+						}
+					}
+					aaptOptions.splice(parameterIndex, 2);
+					logger.trace('Removed AAPT -S resource path ' + resourcePath);
+					parameterIndex = aaptOptions.indexOf('-S', parameterIndex);
+				} else {
+					parameterIndex = aaptOptions.indexOf('-S', parameterIndex + 1);
+				}
+			}
+			aaptOptions[extraPackagesIndex] = extraPackages;
+			callback();
+		}
+	});
+
+
+	cli.on('build.android.dexer', {
+		priority: 1100,
+		/**
+		 * Fixes repeated adding of the same JAR to the dexer to avoid crashing
+		 * with a dreaded "already added" exception
+		 *
+		 * @param {Object} data Hook data
+		 * @param {Function} callback Callback function
+		 */
+		pre: function (data, callback) {
+			logger.trace('Cleaning dexer paths from changes made by Hyperloop');
+			var builder = data.ctx;
+			var dexerOptions = data.args[1].slice(0, 6);
+			var dexerPaths = data.args[1].slice(6);
+			if (builder.androidLibraries.length > 0) {
+				var fixedDexerPaths = [];
+				dexerPaths.forEach(function (entryPathAndFilename) {
+					var isHyperloopExtractedAarPath = entryPathAndFilename.indexOf(hyperloopBuildPath) !== -1;
+					if (builder.isExternalAndroidLibraryAvailable(entryPathAndFilename) || isHyperloopExtractedAarPath) {
+						logger.trace('Removed ' + entryPathAndFilename + ' from dexer paths.');
+					} else {
+						fixedDexerPaths.push(entryPathAndFilename);
+					}
+				}, builder);
+				data.args[1] = dexerOptions.concat(fixedDexerPaths);
+			}
+			callback();
+		}
+	});
 }

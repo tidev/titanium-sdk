@@ -65,7 +65,7 @@ methods:
       - name: options
         summary: |
             Options supporting a single `animated` boolean property to determine whether the windows
-            will be animated (default) while being closed (default: false).
+            will be animated while being closed (default: false).
         type: Dictionary
     since: "6.0.0"
 
