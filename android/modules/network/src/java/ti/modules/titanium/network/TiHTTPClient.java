@@ -1350,7 +1350,7 @@ public class TiHTTPClient
 				if (domain != null) {
 					username = domain + "\\" + username;
 				}
-				String encodedCredentials = Base64.encodeToString((username + ":" + password).getBytes(),Base64.DEFAULT);
+				String encodedCredentials = Base64.encodeToString((username + ":" + password).getBytes(),Base64.NO_WRAP);
 				client.setRequestProperty("Authorization", "Basic " + encodedCredentials);
 			}
 			// This is to set gzip default to disable
