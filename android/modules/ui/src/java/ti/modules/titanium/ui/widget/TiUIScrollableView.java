@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiEventHelper;
@@ -22,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
 import ti.modules.titanium.ui.widget.listview.ListItemProxy;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -100,8 +102,11 @@ public class TiUIScrollableView extends TiUIView
 					int index = getCurrentItem();
 					if (index < mViews.size()) {
 						TiUIView view = mViews.get(index).getOrCreateView();
-						int height = view.getLayoutParams().optionHeight.getAsPixels(this);
-						heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+						TiDimension optionHeight = view.getLayoutParams().optionHeight;
+						if (optionHeight != null) {
+							int height = optionHeight.getAsPixels(this);
+							heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+						}
 					}
 				}
 				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
