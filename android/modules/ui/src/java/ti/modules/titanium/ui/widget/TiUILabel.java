@@ -95,9 +95,10 @@ public class TiUILabel extends TiUIView
 				// Auto-downscale the font to fit the view's width, if enabled.
 				adjustTextFontSize(this);
 
-				// Apply ellipsis if enabled and if the view has a fixed height (ie: not auto-sized).
+				// Apply ellipsis if enabled and if view has fixed height (ie: not sized to fit text).
 				if (!isSingleLine() && (viewHeightInLines <= 0) && (ellipsize != null) &&
-				    (layoutParams != null) && (layoutParams.optionHeight != null))
+				    (layoutParams != null) &&
+				    ((layoutParams.optionHeight != null) || layoutParams.autoFillsHeight))
 				{
 					// First, we must reset/re-measure the text based on the original max lines setting.
 					// Note: Calling onMeasure() updates the view's StaticLayout and its getLineCount().
@@ -587,9 +588,9 @@ public class TiUILabel extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
 			// Update the view's height.
 			// Note: We may need to update lines/maxLines settings when switching to an auto-sized height.
-			boolean hadFixedSize = (this.layoutParams != null) && (this.layoutParams.optionHeight != null);
+			boolean hadFixedSize = (this.layoutParams != null) && ((this.layoutParams.optionHeight != null) || this.layoutParams.autoFillsHeight);
 			super.propertyChanged(key, oldValue, newValue, proxy);
-			boolean isAutoSized = (this.layoutParams != null) && (this.layoutParams.optionHeight == null);
+			boolean isAutoSized = (this.layoutParams != null) && (this.layoutParams.optionHeight == null) && !this.layoutParams.autoFillsHeight;
 			if (hadFixedSize && isAutoSized) {
 				updateLabelText();
 			}
