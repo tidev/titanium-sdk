@@ -97,8 +97,11 @@ methods:
         horizontally or vertically. For vertical scroll views, `scrollToTop` moves the top
         of the scrollable region into the viewable area. For horizontal scroll views,
         `scrollToTop` moves the leftmost edge of of the scrollable region into the viewable area.
-    platforms: [android]
-    since: {android: "6.2.0"}
+        
+        On iOS, `scrollToTop` moves the top-left corner of the scrollable region into the 
+        viewable area.
+    platforms: [iphone, ipad, android]
+    since: "6.2.0"
         
 events:
   - name: scale
