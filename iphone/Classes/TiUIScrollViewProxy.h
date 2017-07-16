@@ -12,7 +12,7 @@
 {
     TiPoint * contentOffset;
 }
--(void) setContentOffset:(id)value withObject:(id)animated;
+-(void)setContentOffset:(id)value withObject:(id)animated;
 -(void)layoutChildrenAfterContentSize:(BOOL)optimize;
 
 @end

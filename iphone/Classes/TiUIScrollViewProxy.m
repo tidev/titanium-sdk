@@ -352,21 +352,28 @@ static NSArray* scrollViewKeySequence;
     [offset release];
 }
 
--(void)scrollToBottom:(id)args
+-(void)scrollToBottom:(id)unused
 {
     TiThreadPerformOnMainThread(^{
         [(TiUIScrollView *)[self view] scrollToBottom];
     }, YES);
 }
 
--(void) setContentOffset:(id)value withObject:(id)animated
+- (void)scrollToTop:(id)unused
+{
+    TiThreadPerformOnMainThread(^{
+        [(TiUIScrollView *)[self view] scrollToTop];
+    }, YES);
+}
+
+-(void)setContentOffset:(id)value withObject:(id)animated
 {
     TiThreadPerformOnMainThread(^{
         [(TiUIScrollView *)[self view] setContentOffset_:value withObject:animated];
     }, YES);
 }
 
--(void) setZoomScale:(id)value withObject:(id)animated
+-(void)setZoomScale:(id)value withObject:(id)animated
 {
     TiThreadPerformOnMainThread(^{
         [(TiUIScrollView *)[self view] setZoomScale_:value withObject:animated];
