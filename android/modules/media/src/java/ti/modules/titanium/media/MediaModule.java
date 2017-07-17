@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Arrays;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -212,8 +213,8 @@ public class MediaModule extends KrollModule
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_QUALITY)) {
 			videoQuality = cameraOptions.getInt(TiC.PROPERTY_VIDEO_QUALITY);
 		}
-		if (cameraOptions.containsKeyAndNotNull("mediaTypes")) {
-			mediaTypes = cameraOptions.getStringArray("mediaTypes");
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_MEDIA_TYPES)) {
+			mediaTypes = cameraOptions.getStringArray(TiC.PROPERTY_MEDIA_TYPES);
 			if (Arrays.asList(mediaTypes).contains(MEDIA_TYPE_VIDEO)){
 				mediaType = MEDIA_TYPE_VIDEO;
 				intentType = MediaStore.ACTION_VIDEO_CAPTURE;
@@ -336,8 +337,8 @@ public class MediaModule extends KrollModule
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_QUALITY)) {
 			videoQuality = cameraOptions.getInt(TiC.PROPERTY_VIDEO_QUALITY);
 		}
-		if (cameraOptions.containsKeyAndNotNull("mediaTypes")) {
-			mediaTypes = cameraOptions.getStringArray("mediaTypes");
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_MEDIA_TYPES)) {
+			mediaTypes = cameraOptions.getStringArray(TiC.PROPERTY_MEDIA_TYPES);
 			if (Arrays.asList(mediaTypes).contains(MEDIA_TYPE_VIDEO)){
 				mediaType = MEDIA_TYPE_VIDEO;
 				extension = ".mp4";
@@ -899,7 +900,24 @@ public class MediaModule extends KrollModule
 
 		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
 		galleryIntent.getIntent().setAction(Intent.ACTION_GET_CONTENT);
-		galleryIntent.getIntent().setType("image/*");
+		
+		if (options.containsKey(TiC.PROPERTY_MEDIA_TYPES)) {
+			List<String> typesList = Arrays.asList(options.getStringArray(TiC.PROPERTY_MEDIA_TYPES));
+			if (typesList.contains(MEDIA_TYPE_PHOTO) && !typesList.contains(MEDIA_TYPE_VIDEO)) {
+				// User only specifies photos
+				galleryIntent.getIntent().setType("image/*");
+			} else if (typesList.contains(MEDIA_TYPE_VIDEO) && !typesList.contains(MEDIA_TYPE_PHOTO)) {
+				// User only specifies videos
+				galleryIntent.getIntent().setType("video/*");
+			} else {
+				// User specifies both photos and videos
+				galleryIntent.getIntent().setType("*/*");
+			}
+		} else {
+			// Defaults to photos and videos
+			galleryIntent.getIntent().setType("*/*");
+		}
+		
 		galleryIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
 		galleryIntent.setWindowId(TiIntentWrapper.createActivityName("GALLERY"));
 

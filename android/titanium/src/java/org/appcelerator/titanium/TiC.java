@@ -1860,6 +1860,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MEDIA_TYPES = "mediaTypes";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
 
 	/**
