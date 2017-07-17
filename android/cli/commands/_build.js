@@ -3633,6 +3633,21 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		});
 	}
 
+	if (this.realTargetSDK >= 24 && !finalAndroidManifest.application.hasOwnProperty('resizeableActivity')) {
+		finalAndroidManifest.application.resizeableActivity = true;
+	}
+
+	if (this.realTargetSDK >= 24) {
+		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
+			var activity = finalAndroidManifest.application.activity[name];
+			if (!activity.configChanges) {
+				activity.configChanges = ['density'];
+			} else if (activity.configChanges.indexOf('density') == -1) {
+				activity.configChanges.push('density');
+			}
+		});
+	}
+
 	// add permissions
 	if (!this.tiapp['override-permissions']) {
 		Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);

@@ -44,7 +44,6 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 
 	public static float applicationScaleFactor = 1.0F;
 	public static int applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
-	private static boolean applicationDisplayInfoInitialized = false;
 
 	private static class InstanceHolder
 	{
@@ -68,28 +67,24 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 
 	public synchronized void intializeDisplayMetrics(Activity activity)
 	{
-		if (!applicationDisplayInfoInitialized) {
-			DisplayMetrics dm = new DisplayMetrics();
-			activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+		DisplayMetrics dm = new DisplayMetrics();
+		activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-			// Note: this isn't public API, so there should be lots of error checking here
-			try {
-				Method gciMethod = Resources.class.getMethod("getCompatibilityInfo");
-				Object compatInfo = gciMethod.invoke(activity.getResources());
-				applicationScaleFactor = (Float) compatInfo.getClass().getField("applicationScale").get(compatInfo);
-			} catch (Exception e) {
-				Log.w(TAG, "Unable to get application scale factor, using reported density and its factor", Log.DEBUG_MODE);
-			}
+		// Note: this isn't public API, so there should be lots of error checking here
+		try {
+			Method gciMethod = Resources.class.getMethod("getCompatibilityInfo");
+			Object compatInfo = gciMethod.invoke(activity.getResources());
+			applicationScaleFactor = (Float) compatInfo.getClass().getField("applicationScale").get(compatInfo);
+		} catch (Exception e) {
+			Log.w(TAG, "Unable to get application scale factor, using reported density and its factor", Log.DEBUG_MODE);
+		}
 
-			if (applicationScaleFactor == 1.0f) {
-				applicationLogicalDensity = dm.densityDpi;
-			} else if (applicationScaleFactor > 1.0f) {
-				applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
-			} else {
-				applicationLogicalDensity = DisplayMetrics.DENSITY_LOW;
-			}
-
-			applicationDisplayInfoInitialized = true;
+		if (applicationScaleFactor == 1.0f) {
+			applicationLogicalDensity = dm.densityDpi;
+		} else if (applicationScaleFactor > 1.0f) {
+			applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
+		} else {
+			applicationLogicalDensity = DisplayMetrics.DENSITY_LOW;
 		}
 	}
 
