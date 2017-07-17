@@ -1009,10 +1009,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
 {
-    if ([searchController isActive]) {
-        return nil;
-    }
-    
     if (editing) {
         return nil;
     }
@@ -1030,10 +1026,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)theIndex
 {
-    if ([searchController isActive]) {
-        return 0;
-    }
-    
     if (editing) {
         return 0;
     }
@@ -1572,10 +1564,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    if ([searchController isActive]) {
-        return nil;
-    }
-    
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
             NSInteger realSection = [self sectionForSearchSection:section];
@@ -1590,10 +1578,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
 {
-    if ([searchController isActive]) {
-        return nil;
-    }
-    
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
             NSInteger realSection = [self sectionForSearchSection:section];
@@ -1689,10 +1673,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    if ([searchController isActive]) {
-        return nil;
-    }
-    
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
             NSInteger realSection = [self sectionForSearchSection:section];
@@ -1707,10 +1687,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
-    if ([searchController isActive]) {
-        return nil;
-    }
-    
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
             NSInteger realSection = [self sectionForSearchSection:section];
@@ -1727,10 +1703,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    if ([searchController isActive]) {
-        return 0.0;
-    }
-    
     NSInteger realSection = section;
     
     if (searchActive) {
@@ -1789,10 +1761,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
-    if ([searchController isActive]) {
-        return 0.0;
-    }
-    
     NSInteger realSection = section;
     
     if (searchActive) {
