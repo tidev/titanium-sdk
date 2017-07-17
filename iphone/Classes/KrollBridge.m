@@ -988,7 +988,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return module;
 }
 
-- (KrollWrapper *)cachedLoadAsFile:(NSString *)path asJSON:(bool)json withContext:(KrollContext *)kroll
+- (KrollWrapper *)cachedLoadAsFile:(NSString *)path asJSON:(BOOL)json withContext:(KrollContext *)kroll
 {
 	// check cache first
 	if (modules != nil) {
@@ -1018,7 +1018,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// 1. If X is a file, load X as JavaScript text.  STOP
 	// Note: I modified the algorithm here to handle .json files as JSON, everything else as JS
 	NSString *ext = [filename pathExtension];
-	bool json = (ext != nil && [ext isEqual:@"json"]);
+	BOOL json = (ext != nil && [ext isEqual:@"json"]);
 	KrollWrapper *module = [self cachedLoadAsFile:filename asJSON:json withContext:context];
 	if (module != nil) {
 		return module;
@@ -1026,14 +1026,14 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
 	filename = [path stringByAppendingString:@".js"];
-	module = [self cachedLoadAsFile:filename asJSON:false withContext:context];
+	module = [self cachedLoadAsFile:filename asJSON:NO withContext:context];
 	if (module != nil) {
 		return module;
 	}
 
 	// 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
 	filename = [path stringByAppendingString:@".json"];
-	module = [self cachedLoadAsFile:filename asJSON:true withContext:context];
+	module = [self cachedLoadAsFile:filename asJSON:YES withContext:context];
 	if (module != nil) {
 		return module;
 	}
@@ -1067,14 +1067,14 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	// 2. If X/index.js is a file, load X/index.js as JavaScript text.  STOP
 	filename = [path stringByAppendingPathComponent:@"index.js"];
-	KrollWrapper *module = [self cachedLoadAsFile:filename asJSON:false withContext:context];
+	KrollWrapper *module = [self cachedLoadAsFile:filename asJSON:NO withContext:context];
 	if (module != nil) {
 		return module;
 	}
 
 	// 3. If X/index.json is a file, parse X/index.json to a JavaScript object. STOP
 	filename = [path stringByAppendingPathComponent:@"index.json"];
-	module = [self cachedLoadAsFile:filename asJSON:true withContext:context];
+	module = [self cachedLoadAsFile:filename asJSON:YES withContext:context];
 	if (module != nil) {
 		return module;
 	}
@@ -1168,7 +1168,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 {
 	NSURL *oldURL = [self currentURL];
 	NSString *workingPath = [oldURL relativePath];
-	NSString *pathCacheKey;
+	NSMutableString *pathCacheKey;
 	@try {
 		// First let's check if we cached the resolved path for this require string
 		// and if we did, try and load a cached module for this path
@@ -1228,7 +1228,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 					// For CommonJS we need to look for module.id/module.id.js first...
 					// Only look for this _exact file_. DO NOT APPEND .js or .json to it!
 					NSString *filename = [[path stringByAppendingPathComponent:path] stringByAppendingPathExtension:@"js"];
-					module = [self cachedLoadAsFile:filename asJSON:false withContext:context];
+					module = [self cachedLoadAsFile:filename asJSON:NO withContext:context];
 					if (module) {
 						return module;
 					}
