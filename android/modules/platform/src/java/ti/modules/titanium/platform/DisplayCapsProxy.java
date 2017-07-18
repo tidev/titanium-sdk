@@ -18,7 +18,7 @@ import android.view.Display;
 @Kroll.proxy(parentModule=PlatformModule.class)
 public class DisplayCapsProxy extends KrollProxy
 {
-	private final DisplayMetrics dm;
+	private DisplayMetrics dm;
 	private SoftReference<Display> softDisplay;
 
 	public DisplayCapsProxy()
@@ -56,30 +56,21 @@ public class DisplayCapsProxy extends KrollProxy
 	public String getDensity() {
 		synchronized(dm) {
 			getDisplay().getMetrics(dm);
-			switch(dm.densityDpi) {
-			case DisplayMetrics.DENSITY_HIGH :
+			int dpi = dm.densityDpi;
+			if (dpi >= 560) {        // DisplayMetrics.DENSITY_560
+				return "xxxhigh";
+			} else if (dpi >= 400) { // DisplayMetrics.DENSITY_400
+				return "xxhigh";
+			} else if (dpi >= 280) { // DisplayMetrics.DENSITY_280
+				return "xhigh";
+			} else if (dpi >= DisplayMetrics.DENSITY_HIGH) {
 				return "high";
-			case DisplayMetrics.DENSITY_MEDIUM :
-				return "medium";
-			case 213: //TV
+			} else if (dpi >= DisplayMetrics.DENSITY_TV) {
 				return "tvdpi";
-			case 280: //Introduce in API 22.
-				return "xhigh";
-			case 320:
-				return "xhigh";
-			case 400:
-				return "xxhigh";
-			case 480 :
-				return "xxhigh";
-			case 560:
-				return "xxxhigh";
-			case 640:
-				return "xxxhigh";
-			case DisplayMetrics.DENSITY_LOW :
-				return "low";
-			default :
+			} else if (dpi >= DisplayMetrics.DENSITY_MEDIUM) {
 				return "medium";
 			}
+			return "low";
 		}
 	}
 
