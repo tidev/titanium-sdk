@@ -7,15 +7,15 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="1aa5a15a-a39a-4720-86b8-14fbc4fbdc22"
-    Publisher="CN=cwilliams"
+    Name="a65bd402-a289-4c74-b511-d998b45048ef"
+    Publisher="CN=build"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="1aa5a15a-a39a-4720-86b8-14fbc4fbdc22" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="a65bd402-a289-4c74-b511-d998b45048ef" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>TestApp10.0</DisplayName>
-    <PublisherDisplayName>cwilliams</PublisherDisplayName>
+    <PublisherDisplayName>build</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

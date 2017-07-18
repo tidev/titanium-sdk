@@ -176,16 +176,24 @@ function install(udid, appPath, options, callback) {
 					devHandle.ip = dev.ip; // copy the IP address we got from connecting
 					devHandle.running = dev.running || true; // copy running status we got fromc onnecting
 					// device is good to go, install the app!
-					var timeout = options.timeout !== void 0 && Math.max(~~options.timeout, 1000); // minimum of 1 second
-					wptool.install(devHandle, appPath, appc.util.mix({timeout: timeout}, options))
+					var timeout = options.timeout !== void 0 && Math.max(~~options.timeout, 1000), // minimum of 1 second
+						mixedOptions = appc.util.mix({timeout: timeout}, options);
+					wptool.install(devHandle, appPath, mixedOptions)
 					.on('error', function (err) {
 						emitter.emit('error', err);
 						callback(err);
 					}).on('installed', function () {
 						emitter.emit('installed', devHandle);
-						callback(null, devHandle);
+						// If we're not going to launch, this is the end of the lifecycle here.
+						if (mixedOptions.skipLaunch) {
+							callback(null, devHandle);
+						}
 					}).on('launched', function () {
 						emitter.emit('launched', devHandle);
+						// Don't do callback until we launch if we're supposed to be launching
+						if (!mixedOptions.skipLaunch) {
+							callback(null, devHandle);
+						}
 					}).on('timeout', function (err) {
 						err || (err = new Error(__('Timed out after %d milliseconds waiting to launch the device.', timeout)));
 						emitter.emit('timeout', err);

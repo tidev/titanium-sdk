@@ -113,7 +113,8 @@ namespace wptool
 						Console.WriteLine("\t\t\t\"udid\": " + id + ",");
 						Console.WriteLine("\t\t\t\"index\": " + id + ",");
 						Console.WriteLine("\t\t\t\"version\": \"" + versionString + "\","); // windows 8.1: "6.3", windows 10: "10.0"
-						Console.WriteLine("\t\t\t\"wpsdk\": " + sdk);
+						Console.WriteLine("\t\t\t\"wpsdk\": " + sdk + ",");
+						Console.WriteLine("\t\t\t\"type\": \"device\"");
 						Console.Write("\t\t}");
 						j++;
 					}
@@ -138,7 +139,8 @@ namespace wptool
 						Console.WriteLine("\t\t\t\"guid\": \"" + dev.Id + "\",");
 						Console.WriteLine("\t\t\t\"version\": \"" + dev.Version + "\","); // 6.3 for 8.1 emulators, 6.4 for 10 emulators, 2147483647.2147483647.2147483647.2147483647 for device
 						Console.WriteLine("\t\t\t\"uapVersion\": \"" + dev.UapVersion + "\","); // blank/empty for 8.1 emulators and device, 10.0.10586.0 for win 10 emulators
-						Console.WriteLine("\t\t\t\"wpsdk\": \"" + wpsdk + "\"");
+						Console.WriteLine("\t\t\t\"wpsdk\": \"" + wpsdk + "\",");
+						Console.WriteLine("\t\t\t\"type\": \"emulator\"");
 						Console.Write("\t\t}");
 						j++;
 					}

@@ -89,7 +89,7 @@ function create(appid, certificateFile, options, callback) {
 				}
 
 				// first lets create the cert
-				appc.subprocess.run(vsInfo.vcvarsall.replace(/\ /g, '^ '), [
+				appc.subprocess.run(vsInfo.vsDevCmd.replace(/[ \(\)\&]/g, '^$&'), [
 					'&&',
 					options.powershell || 'powershell',
 					'-ExecutionPolicy', 'Bypass', '-NoLogo', '-NonInteractive', '-NoProfile',
@@ -221,7 +221,7 @@ function generate(subjectName, certificateFile, options, callback) {
 				'-e', expirationDate, '-sv', pvk, cer
 			];
 
-			appc.subprocess.run(vsInfo.vcvarsall.replace(/\ /g, '^ '), args, function (code, out, err) {
+			appc.subprocess.run(vsInfo.vsDevCmd.replace(/[ \(\)\&]/g, '^$&'), args, function (code, out, err) {
 				if (code) {
 					var ex = new Error(__('Failed to create certificate (code %s)', code));
 					emitter.emit('error', ex);
@@ -305,7 +305,7 @@ function generatePFX(privateKeyFile, certificateFile, pfxDestinationFile, passwo
 			}
 
 			// package the certificate as pfx
-			appc.subprocess.run(vsInfo.vcvarsall.replace(/\ /g, '^ '), args, function (code, out, err) {
+			appc.subprocess.run(vsInfo.vsDevCmd.replace(/[ \(\)\&]/g, '^$&'), args, function (code, out, err) {
 				if (code) {
 					var ex = new Error(__('Failed to convert certificate to pfx (code %s)', code));
 					emitter.emit('error', ex);
