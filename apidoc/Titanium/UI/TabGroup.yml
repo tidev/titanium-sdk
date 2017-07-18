@@ -424,16 +424,16 @@ properties:
     summary: A Boolean value that indicates whether the tab bar is translucent.
     description: |
         When the value of this property is `true`, the tab group adds a translucent effect to its background 
-        image or tint color. When translucency is enabled, part of the tab bar’s underlying content is able 
+        image or tint color. When translucency is enabled, part of the tab bar's underlying content is able 
         to show through, although the amount that shows through depends on the rest of the tab bar configuration. 
         For example, a background image can wholly or partially obscure the background content. Setting this 
         property to NO causes the tab bar to render its bar tint color or background image on top of an opaque backdrop.
         
         The default value of this property is dependent on the configuration of the tab bar:
           * The default value is `true` when the tab bar does not have a custom background image.
-          * The default value is `true` when a custom background image contains any transparency — that is, 
+          * The default value is `true` when a custom background image contains any transparency - that is, 
             at least one pixel has an alpha value of less than 1.0.
-          * The default value is `false` when the custom background image is completely opaque — that is, 
+          * The default value is `false` when the custom background image is completely opaque - that is, 
             all pixels have an alpha value of 1.0.
     type: Boolean
     since: "6.2.0"
