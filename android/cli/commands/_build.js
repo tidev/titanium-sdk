@@ -3347,7 +3347,6 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 			if (theme.startsWith('@style/') && theme !== '@style/Theme.Titanium') {
 				flags = theme.replace('@style/', '');
 			}
-			delete this.tiappAndroidManifest.application.theme;
 		}
 
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
