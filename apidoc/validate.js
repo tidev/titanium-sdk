@@ -11,6 +11,8 @@ var fs = require('fs'),
 	colors = require('colors'),
 	nodeappc = require('node-appc'),
 	common = require('./lib/common.js'),
+	pagedown = require('pagedown'),
+	converter = new pagedown.Converter(),
 	basePath = '.',
 	rv = {},
 	doc = {},
@@ -19,112 +21,130 @@ var fs = require('fs'),
 	standaloneFlag = false,
 	argc = 0;
 
-var validSyntax = {
-	'name' : 'String',
-	'summary' : 'String',
-	'description' : 'String',
-	'createable' : 'Boolean',
-	'platforms' : [common.VALID_PLATFORMS],
-	'exclude-platforms' : [common.VALID_PLATFORMS],
-	'excludes' : {
-		'events' : 'Array<events.name>',
-		'methods' : 'Array<methods.name>',
-		'properties' : 'Array<properties.name>'
-	},
-	'examples' : [{
+var Examples = [{
+	required: {
 		'title' : 'String',
-		'example' : 'String'
-	}],
-	'osver' : 'OSVersions',
-	'extends' : 'Class',
-	'deprecated' : {
-		'since' : 'Since',
+		'example' : 'Markdown'
+	}
+}];
+
+var Deprecated = {
+	required: {
+		'since' : 'Since'
+	},
+	optional: {
 		'removed' : 'String',
 		'notes' : 'String'
+	}
+};
+
+var validSyntax = {
+	required: {
+		'name' : 'String',
+		'summary' : 'String',
 	},
-	'since' : 'Since',
-	'events' : [{
-		'name' : 'String',
-		'summary' : 'String',
-		'description' : 'String',
+	optional: {
+		'description' : 'Markdown',
+		'createable' : 'Boolean',
 		'platforms' : [common.VALID_PLATFORMS],
-		'since' : 'Since',
-		'deprecated' : {
-			'since' : 'Since',
-			'removed' : 'String',
-			'notes' : 'String'
-		},
-		'osver' : 'OSVersions',
-		'properties' : [{
-			'name' : 'String',
-			'summary' : 'String',
-			'type' : 'DataType',
-			'platforms' : [common.VALID_PLATFORMS],
-			'deprecated' : {
-				'since' : 'Since',
-				'removed' : 'String',
-				'notes' : 'String'
-			},
-			'since': 'Since',
-			'exclude-platforms' : [common.VALID_PLATFORMS],
-			'constants' : 'Constants'
-		}],
-		'exclude-platforms' : [common.VALID_PLATFORMS]
-	}],
-	'methods' : [{
-		'name' : 'String',
-		'summary' : 'String',
-		'description' : 'String',
-		'returns' : 'Returns',
-		'platforms' : [common.VALID_PLATFORMS],
-		'since' : 'Since',
-		'deprecated' : {
-			'since' : 'Since',
-			'removed' : 'String',
-			'notes' : 'String'
-		},
-		'examples' : [{
-			'title' : 'String',
-			'example' : 'String'
-		}],
-		'osver' : 'OSVersions',
-		'parameters' : [{
-			'name' : 'String',
-			'summary' : 'String',
-			'type' : 'DataType',
-			'optional' : 'Boolean',
-			'default' : 'Default',
-			'repeatable' : 'Boolean',
-			'constants' : 'Constants'
-		}],
-		'exclude-platforms' : [common.VALID_PLATFORMS]
-	}],
-	'properties' : [{
-		'name' : 'String',
-		'summary' : 'String',
-		'description' : 'String',
-		'platforms' : [common.VALID_PLATFORMS],
-		'since' : 'Since',
-		'type' : 'DataType',
-		'deprecated' : {
-			'since' : 'Since',
-			'removed' : 'String',
-			'notes' : 'String'
-		},
-		'osver' : 'OSVersions',
-		'examples' : [{
-			'title' : 'String',
-			'example' : 'String'
-		}],
-		'permission' : ['read-only', 'write-only', 'read-write'],
-		'availability' : ['always', 'creation', 'not-creation'],
-		'accessors' : 'Boolean',
-		'optional' : 'Boolean',
-		'value' : 'Primitive',
-		'default' : 'Default',
 		'exclude-platforms' : [common.VALID_PLATFORMS],
-		'constants' : 'Constants'
-	}]
+		'excludes' : {
+			optional: {
+				'events' : 'Array<events.name>',
+				'methods' : 'Array<methods.name>',
+				'properties' : 'Array<properties.name>'
+			}
+		},
+		'examples' : Examples,
+		'osver' : 'OSVersions',
+		'extends' : 'Class',
+		'deprecated' : Deprecated,
+		'since' : 'Since',
+		'events' : [{
+			required: {
+				'name' : 'String',
+				'summary' : 'String',
+			},
+			optional: {
+				'description' : 'String',
+				'platforms' : [common.VALID_PLATFORMS],
+				'since' : 'Since',
+				'deprecated' : Deprecated,
+				'osver' : 'OSVersions',
+				'properties' : [{
+					required: {
+						'name' : 'String',
+						'summary' : 'String',
+					},
+					optional: {
+						'type' : 'DataType',
+						'platforms' : [common.VALID_PLATFORMS],
+						'deprecated' : Deprecated,
+						'since': 'Since',
+						'exclude-platforms' : [common.VALID_PLATFORMS],
+						'constants' : 'Constants'
+					}
+				}],
+				'exclude-platforms' : [common.VALID_PLATFORMS],
+				'notes': 'Invalid'
+			}
+		}],
+		'methods' : [{
+			required: {
+				'name' : 'String',
+				'summary' : 'String'
+			},
+			optional: {
+				'description' : 'String',
+				'returns' : 'Returns', // FIXME Validate 'Returns' has a required 'type' String property
+				'platforms' : [common.VALID_PLATFORMS],
+				'since' : 'Since',
+				'deprecated' : Deprecated,
+				'examples' : Examples,
+				'osver' : 'OSVersions',
+				'parameters' : [{
+					required: {
+						'name' : 'String',
+						'summary' : 'String',
+						'type' : 'DataType'
+					},
+					optional: {
+						'optional' : 'Boolean',
+						'default' : 'Default',
+						'repeatable' : 'Boolean',
+						'constants' : 'Constants',
+						'notes': 'Invalid'
+					}
+				}],
+				'exclude-platforms' : [common.VALID_PLATFORMS],
+				'notes': 'Invalid'
+			}
+		}],
+		'properties' : [{
+			required: {
+				'name' : 'String',
+				'summary' : 'String',
+				'type' : 'DataType'
+			},
+			optional: {
+				'description' : 'String',
+				'platforms' : [common.VALID_PLATFORMS],
+				'since' : 'Since',
+				'deprecated' : Deprecated,
+				'osver' : 'OSVersions',
+				'examples' : Examples,
+				'permission' : ['read-only', 'write-only', 'read-write'], // FIXME Enforce permission must be set to 'read-only' if name of property is all caps: [A-Z]+[A-Z_]*
+				'availability' : ['always', 'creation', 'not-creation'],
+				'accessors' : 'Boolean',
+				'optional' : 'Boolean',
+				'value' : 'Primitive',
+				'default' : 'Default',
+				'exclude-platforms' : [common.VALID_PLATFORMS],
+				'constants' : 'Constants',
+				'notes': 'Invalid'
+			}
+		}]
+	}
 };
 
 /**
@@ -382,7 +402,7 @@ function validateSince (version) {
 /**
  * Validate string
  */
-function validateString (str) {
+function validateString(str) {
 	if (typeof str !== 'string') {
 		return 'Not a string value: ' + str;
 	}
@@ -392,9 +412,26 @@ function validateString (str) {
 }
 
 /**
+ * Validate markdown
+ */
+function validateMarkdown(str) {
+	var stringResult = validateString(str);
+	if (stringResult != null) {
+		return stringResult;
+	}
+
+	try {
+		converter.makeHtml(str);
+	} catch (e) {
+		return 'Error parsing markdown block "' + str + '": ' + e;
+	}
+	return null;
+}
+
+/**
  * Validate version
  */
-function validateVersion (version) {
+function validateVersion(version) {
 	try {
 		nodeappc.version.lt('0.0.1', version);
 	}
@@ -407,12 +444,76 @@ function validateVersion (version) {
  * Validates an object against a syntax dictionary
  * @param obj {Object} Object to validate
  * @param syntax {Object} Dictionary defining the syntax
+ * @param className {String} Name of class being validated
+ * @returns {Object} Syntax errors
+ */
+function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
+	// If syntax is a dictionary, validate object against syntax dictionary
+	var errors = {},
+		err = '',
+		requiredKeys = syntax.required,
+		optionalKeys = syntax.optional;
+	// Ensure required keys exist and then validate them
+	for (var requiredKey in requiredKeys) {
+		if (requiredKey in obj) {
+			if ((err = validateKey(obj[requiredKey], requiredKeys[requiredKey], requiredKey, className))) {
+				errors[requiredKey] = err;
+			}
+		} else {
+			// We're missing a required field. Check the parent to see if it's filled in there.
+			// Only do this check when we're overriding an event, property or method, not top-level fileds like 'summary'
+			var parentClassName = doc[className]['extends'],
+				parent = doc[parentClassName],
+				parentValue = null;
+			if (type && parent) {
+				var array = parent[type];
+				if (array) {
+					// find matching name in array
+					for (var i = 0; array.length; i++) {
+						if (array[i].name === currentKey) {
+							parent = array[i];
+							break;
+						}
+					}
+					if (parent) {
+						parentValue = parent[requiredKey];
+					}
+				}
+			}
+
+			if (!parentValue) {
+				errors[requiredKey] = 'Required property "' + requiredKey + '" not found';
+			}
+		}
+	}
+	// Validate optional keys if they're on the object
+	for (var optionalKey in optionalKeys) {
+		if (optionalKey in obj) {
+			if ((err = validateKey(obj[optionalKey], optionalKeys[optionalKey], optionalKey, className))) {
+				errors[optionalKey] = err;
+			}
+		}
+	}
+	// Find keys on obj that aren't required or optional!
+	for (var possiblyInvalidKey in obj) {
+		if (key.indexOf('__') === 0 && !(possiblyInvalidKey in requiredKeys) && !(possiblyInvalidKey in optionalKeys)) {
+			errors[possiblyInvalidKey] = 'Invalid key(s) in ' + className + ': ' + possiblyInvalidKey;
+		}
+	}
+	return errors;
+}
+
+/**
+ * Validates an object against a syntax dictionary
+ * @param obj {Object} Object to validate
+ * @param syntax {Object} Dictionary defining the syntax
  * @param currentKey {String} Current key being validated
  * @param className {String} Name of class being validated
  * @returns {Object} Syntax errors
  */
-function validateKey (obj, syntax, currentKey, className) {
-	var errors = {}, err = '';
+function validateKey(obj, syntax, currentKey, className) {
+	var errors = {},
+		err = '';
 
 	if (Array.isArray(syntax)) {
 		if (syntax.length === 1) {
@@ -428,19 +529,11 @@ function validateKey (obj, syntax, currentKey, className) {
 					errors = errs;
 				}
 			} else {
-				// Validate object keys against syntax dictionary
+				// Validate each object against the syntax
 				obj.forEach(function (elem) {
-					var errs = {};
-					for (var key in elem) {
-						if (key in syntax[0]) {
-							if ((err = validateKey(elem[key], syntax[0][key], key, className))) {
-								errs[key] = err;
-							}
-						} else {
-							errs[key] = ('Invalid key: ' + key);
-						}
-					}
-					errors[elem.name || '__noname'] = errs;
+					var name = elem.name || '__noname';
+					var errs = validateObjectAgainstSyntax(elem, syntax[0], currentKey, name, className);
+					errors[name] = errs;
 				});
 			}
 		} else {
@@ -450,16 +543,7 @@ function validateKey (obj, syntax, currentKey, className) {
 			}
 		}
 	} else if (typeof syntax === 'object') {
-		// If syntax is a dictionary, validate object against syntax dictionary
-		for (var key in obj) {
-			if (key in syntax) {
-				if ((err = validateKey(obj[key], syntax[key], key, className))) {
-					errors[key] = err;
-				}
-			} else if (!~key.indexOf('__'))	{
-				errors[key] = 'Invalid key: ' + key;
-			}
-		}
+		errors = validateObjectAgainstSyntax(obj, syntax, null, currentKey, className);
 	} else {
 		// Else we have a specific syntax element to validate against
 		switch (syntax) {
@@ -487,27 +571,27 @@ function validateKey (obj, syntax, currentKey, className) {
 					errors[currentKey] = err;
 				}
 				break;
-			case 'Default' :
+			case 'Default':
 				if ((err = validateDefault(obj))) {
 					errors[currentKey] = err;
 				}
 				break;
-			case 'Number' :
+			case 'Number':
 				if ((err = validateNumber(obj))) {
 					errors[currentKey] = err;
 				}
 				break;
-			case 'OSVersions' :
+			case 'OSVersions':
 				if ((err = validateOSVersions(obj))) {
 					errors[currentKey] = err;
 				}
 				break;
-			case 'Primitive' :
+			case 'Primitive':
 				if ((err = validatePrimitive(obj))) {
 					errors[currentKey] = err;
 				}
 				break;
-			case 'Returns' :
+			case 'Returns':
 				if ((err = validateReturns(obj))) {
 					errors[currentKey] = err;
 				}
@@ -521,6 +605,14 @@ function validateKey (obj, syntax, currentKey, className) {
 				if ((err = validateString(obj))) {
 					errors[currentKey] = err;
 				}
+				break;
+			case 'Markdown' :
+				if ((err = validateMarkdown(obj))) {
+					errors[currentKey] = err;
+				}
+				break;
+			case 'Invalid' :
+				errors[currentKey] = 'Invalid field "' + currentKey + '"';
 				break;
 			default:
 				if (syntax.indexOf('Array') === 0) {
@@ -649,6 +741,8 @@ if (Object.keys(doc).length === 0) {
 	process.exit(1);
 }
 
+// FIXME This needs to handle type hierarchy. If a method/property/event overrides a parent, then the parent may have "filled out" a required field/value!
+
 // Validate YAML
 for (var key in doc) {
 	var cls = doc[key],
@@ -660,6 +754,7 @@ for (var key in doc) {
 		errors = outputErrors(validateKey(cls, validSyntax, null, key), 1);
 	} catch (e) {
 		common.log(common.LOG_ERROR, 'PARSING ERROR:\n%s\n%s', currentFile, e);
+		console.error(e.stack);
 		errorCount++;
 	}
 

@@ -5,10 +5,10 @@
  * See the LICENSE file for more information.
  */
 
-var ADB = require('titanium-sdk/lib/adb'),
+var ADB = require('node-titanium-sdk/lib/adb'),
 	appc = require('node-appc'),
 	async = require('async'),
-	EmulatorManager = require('titanium-sdk/lib/emulator'),
+	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
 	fs = require('fs'),
 	path = require('path'),
 	__ = appc.i18n(__dirname).__;
@@ -196,7 +196,7 @@ exports.init = function (logger, config, cli) {
 
 								adb.installApp(device.id, builder.apkFile, { logger: logger }, function (err) {
 									if (err) {
-										if (err instanceof Error && err.message.indexOf('Could not access the Package Manager') != -1) {
+										if (err instanceof Error && (err.message.indexOf('Could not access the Package Manager') !== -1 || err.message.indexOf('Can\'t find service: package') !== -1)) {
 											logger.debug(__('ADB install failed because package manager service is still starting, trying again in %sms...', retryInterval));
 											intervalTimer = setTimeout(installApp, retryInterval);
 											return;
@@ -245,7 +245,7 @@ exports.init = function (logger, config, cli) {
 
 						// start of a new log message
 						if (device.appPidRegExp.test(line)) {
-							line = line.trim().replace(/\%/g, '%%').replace(device.appPidRegExp, ':');
+							line = line.trim().replace(device.appPidRegExp, ':');
 							logLevel = line.charAt(0).toLowerCase();
 							if (tiapiRegExp.test(line)) {
 								line = line.replace(tiapiRegExp, '').trim();

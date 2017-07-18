@@ -757,14 +757,14 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if((Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 				&& (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)){
 			dialog = new TiTimePickerDialog(
-					getActivity(),
+					TiApplication.getAppCurrentActivity(),
 					timeSetListener,
 					calendar.get(Calendar.HOUR_OF_DAY),
 					calendar.get(Calendar.MINUTE),
 					is24HourView);
 		} else {
 			dialog = new TimePickerDialog(
-					getActivity(),
+					TiApplication.getAppCurrentActivity(),
 					timeSetListener,
 					calendar.get(Calendar.HOUR_OF_DAY),
 					calendar.get(Calendar.MINUTE),

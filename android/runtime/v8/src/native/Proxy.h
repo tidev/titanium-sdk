@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,44 +30,87 @@ public:
 	static v8::Persistent<v8::String> inheritSymbol, propertiesSymbol;
 	static v8::Persistent<v8::String> lengthSymbol, sourceUrlSymbol;
 
-	Proxy(jobject javaProxy);
+	Proxy();
 
-	// Initialize the base proxy template
+	/**
+	 * Initialize the base proxy template
+	 * @param exports The module exports object to hang types/methods off of.
+	 * @param context The context to use.
+	 */
 	static void bindProxy(v8::Local<v8::Object> exports, Local<Context> context);
 
-	// Query the property value from the internal property map.
-	// Proxies that have only setters in Java store the value
-	// on the JavaScript side in this map. This getter is then
-	// used when the user script requests the value.
-	static void getProperty(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& args);
-	static void getProperty(const v8::FunctionCallbackInfo<v8::Value>& args);
+	/**
+	 * Query the property value from the internal property map ("_properties").
+	 * Proxies that have only setters in Java store the value
+	 * on the JavaScript side in this map. This getter is then
+	 * used when the user script requests the value.
+	 * See #proxyConstructor for creation of "_properties"
+	 *
+	 * @param name property name
+	 * @param info property callback info used to return the value
+	 */
+	static void getProperty(v8::Local<v8::Name> name, const v8::PropertyCallbackInfo<v8::Value>& info);
+	// Used when the property is called as a function
+	static void getProperty(const v8::FunctionCallbackInfo<v8::Value>& info);
 
-	// Stores the new value for the property into the internal map.
+	/**
+	 * Stores the new value for the property into the internal map ("_properties").
+	 * See #proxyConstructor for creation of "_properties"
+	 *
+	 * @param name  property name
+	 * @param value new value
+	 * @param info  property setter callback info
+	 */
 	static void setProperty(v8::Local<v8::Name> name,
-                    		v8::Local<v8::Value> value,
-                    		const v8::PropertyCallbackInfo<void>& info);
+												v8::Local<v8::Value> value,
+												const v8::PropertyCallbackInfo<void>& info);
 
-	// Setter that reports to the Java proxy when a property has changed.
-	// Used by proxies that use accessor based properties.
+	/**
+	 * Setter that reports to the Java proxy when a property has changed.
+	 * Used by proxies that use accessor based properties.
+	 *
+	 * @param name  property name
+	 * @param value new value
+	 * @param info  [description]
+	 */
 	static void onPropertyChanged(v8::Local<v8::Name> name,
-                    			  v8::Local<v8::Value> value,
-                    			  const v8::PropertyCallbackInfo<void>& info);
+														v8::Local<v8::Value> value,
+														const v8::PropertyCallbackInfo<void>& info);
+	// Used when called as a function
 	static void onPropertyChanged(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-	// Fetches an indexed property value from the Java proxy.
+	/**
+	 * Fetches an indexed property value from the Java proxy.
+	 *
+	 * @param index [description]
+	 * @param info  [description]
+	 */
 	static void getIndexedProperty(uint32_t index,
-	                                                const v8::PropertyCallbackInfo<v8::Value>& info);
+																 const v8::PropertyCallbackInfo<v8::Value>& info);
 
-	// Sets an indexed property on the Java proxy.
+	/**
+	 * Sets an indexed property on the Java proxy.
+	 *
+	 * @param index index of the property to set
+	 * @param value new value
+	 * @param info  property callback info
+	 */
 	static void setIndexedProperty(uint32_t index,
-	                                                v8::Local<v8::Value> value,
-	                                                const v8::PropertyCallbackInfo<v8::Value>& info);
+																 v8::Local<v8::Value> value,
+																 const v8::PropertyCallbackInfo<v8::Value>& info);
 
-	// Called by EventEmitter to notify when listeners
-	// are watching for a type of event. Notifies the Java proxy when this changes.
+	/**
+	 * Called by EventEmitter to notify when listeners
+	 * are watching for a type of event. Notifies the Java proxy when this changes.
+	 * @param args [description]
+	 */
 	static void hasListenersForEventType(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-	// Called by EventEmitter when we fire events from JS to Java
+	/**
+	 * Called by EventEmitter when we fire events from JS to Java
+	 *
+	 * @param args [description]
+	 */
 	static void onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 	// This provides Javascript a way to extend one of our native / wrapped
@@ -92,7 +135,9 @@ public:
 		args.GetReturnValue().Set(newType->GetFunction());
 	}
 
-	// Inherit a built-in proxy template for use in Javascript (used by generated code)
+	/**
+	 * Inherit a built-in proxy template for use in Javascript (used by generated code)
+	 */
 	static v8::Local<v8::FunctionTemplate> inheritProxyTemplate(
 		v8::Isolate* isolate,
 		v8::Local<v8::FunctionTemplate> superTemplate,
@@ -100,25 +145,41 @@ public:
 		v8::Local<v8::String> className,
 		v8::Local<v8::Function> callback = v8::Local<v8::Function>());
 
-	static inline Proxy* unwrap(v8::Local<v8::Object> value)
-	{
-		if (!JavaObject::isJavaObject(value)) {
-			return NULL;
-		}
-
-		void *ptr = value->GetAlignedPointerFromInternalField(0);
-		if (!ptr) {
-			return NULL;
-		}
-
-		return static_cast<Proxy*>(ptr);
-	}
-
 	static void dispose(v8::Isolate* isolate);
 
 private:
+
+	/**
+	 * This is the callback used when we need to construct a native Proxy for a JS object.
+	 * Here we typically:
+	 * - wrap the js object in a Proxy instance
+	 * - define an own property "_properties" used for #getProperty and #setProperty callbacks
+	 * -
+	 * - look up the prototype of the JS object, grab the constructor, then ask for the __javaClass__ property.
+	 *   (See #javaClassPropertyCallback below) to get the jclass we need to instantiate
+	 * - attach the Java Proxy instantiated to this native Proxy.
+	 * - Deal with argunents passed
+	 * - If using the inherit function, look for that hanging as the Data() of args and invoke it.
+	 *
+	 * @param args The constructor arguments.
+	 */
 	static void proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+	/**
+	 * Callback to propagate property changes up to the Java object from #setPropertiesAndFire called in JS.
+	 *
+	 * @param args The function arguments.
+	 */
 	static void proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+	/**
+	 * Used by proxyConstructor() to create a new V8/JS object. We need a way to
+	 * pass the Java object we wrap in that JS Object. This is done by passing it
+	 * as an v8::External argument.
+	 * @param  args The arguments received in our proxy constructor call
+	 * @return      The Java object passed within the arguments (first arg, as an External)
+	 */
+	static jobject unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
 }
