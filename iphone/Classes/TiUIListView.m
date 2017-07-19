@@ -57,7 +57,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     BOOL pullActive;
     CGPoint tapPoint;
     BOOL editing;
-    BOOL editingOnSearchResult;
     BOOL pruneSections;
     
     BOOL caseInsensitiveSearch;
@@ -532,22 +531,20 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                 }
             }
             if (thisSection != nil) {
-                if ([thisSection count] > 0) {
-                    [_searchResults addObject:thisSection];
-                    
-                    if (sectionTitles != nil && sectionIndices != nil) {
-                        NSNumber* theIndex = [NSNumber numberWithInt:i];
-                        if ([sectionIndices containsObject:theIndex]) {
-                            id theTitle = [sectionTitles objectAtIndex:[sectionIndices indexOfObject:theIndex]];
-                            if (filteredTitles == nil) {
-                                filteredTitles = [[NSMutableArray alloc] init];
-                            }
-                            if (filteredIndices == nil) {
-                                filteredIndices = [[NSMutableArray alloc] init];
-                            }
-                            [filteredTitles addObject:theTitle];
-                            [filteredIndices addObject:NUMUINTEGER([_searchResults count] -1)];
+                [_searchResults addObject:thisSection];
+                
+                if (sectionTitles != nil && sectionIndices != nil) {
+                    NSNumber* theIndex = [NSNumber numberWithInt:i];
+                    if ([sectionIndices containsObject:theIndex]) {
+                        id theTitle = [sectionTitles objectAtIndex:[sectionIndices indexOfObject:theIndex]];
+                        if (filteredTitles == nil) {
+                            filteredTitles = [[NSMutableArray alloc] init];
                         }
+                        if (filteredIndices == nil) {
+                            filteredIndices = [[NSMutableArray alloc] init];
+                        }
+                        [filteredTitles addObject:theTitle];
+                        [filteredIndices addObject:NUMUINTEGER([_searchResults count] -1)];
                     }
                 }
                 [thisSection release];
@@ -880,27 +877,19 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 -(void)setEditing_:(id)args
 {
-    if ([self isSearchActive]) {
-        return;
-    }
     if ([TiUtils boolValue:args def:NO] != editing) {
-        editing = !editing;
-        [[self tableView] beginUpdates];
-        [_tableView setEditing:editing animated:YES];
-        [_tableView endUpdates];
-    }
-}
-
--(void)setEditingOnSearchResult_:(id)args
-{
-    if (!searchActive || ![searchController isActive]) {
-        return;
-    }
-    if ([TiUtils boolValue:args def:NO] != editingOnSearchResult) {
-        editingOnSearchResult = !editingOnSearchResult;
-        [[resultViewController tableView] beginUpdates];
-        [[resultViewController tableView] setEditing:editingOnSearchResult animated:YES];
-        [[resultViewController tableView] endUpdates];
+        if ([searchController isActive] && searchActive) {
+            editing = !editing;
+            [[resultViewController tableView] beginUpdates];
+            [[resultViewController tableView] setEditing:editing animated:YES];
+            [[resultViewController tableView] endUpdates];
+            
+        } else {
+            editing = !editing;
+            [[self tableView] beginUpdates];
+            [_tableView setEditing:editing animated:YES];
+            [_tableView endUpdates];
+        }
     }
 }
 
@@ -1139,7 +1128,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             
             // Hide editActions after selection
             [[self tableView] setEditing:NO];
-            if (searchActive) {
+            if ([searchController isActive]) {
                 [[resultViewController tableView] setEditing:NO];
             }
 
@@ -1169,9 +1158,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (editing) {
         return [self canMoveRowAtIndexPath:realIndexPath];
     }
-    if (editingOnSearchResult && [self isSearchActive]) {
-        return [self canMoveRowAtIndexPath:realIndexPath];
-    }
     return NO;
 }
 
@@ -1188,27 +1174,29 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
         [self fireEditEventWithName:@"delete" andSection:theSection atIndexPath:realIndexPath item:theItem];
         [theItem release];
-        
-        if (searchActive) {
-            [self buildResultsForSearchText];
-        }
-        
+
         BOOL emptyTable = NO;
         NSUInteger sectionCount = [[self.listViewProxy sectionCount] unsignedIntValue];
             
-        if ( sectionCount == 0) {
+        if (sectionCount == 0) {
             emptyTable = YES;
         }
         
         BOOL emptySection = NO;
         
-        if ((([theSection itemCount] == 0) && !_searchResults) || (_searchResults && [_searchResults count] == 0)) {
+        if ([theSection itemCount] == 0) {
             emptySection = YES;
-            if (pruneSections && !_searchResults) {
+            if (pruneSections) {
                 [self.listViewProxy deleteSectionAtIndex:realIndexPath.section];
-            } else if (_searchResults && searchActive) {
-                [_searchResults insertObject:[NSArray array] atIndex:indexPath.section];
             }
+        }
+        
+        if (searchActive) {
+            [self buildResultsForSearchText];
+        }
+        
+        if ([self isSearchActive] && _searchResults && ([_searchResults count] == 0) && !keepSectionsInSearch) {
+            [_searchResults insertObject:[NSArray array] atIndex:indexPath.section];
         }
 
         //Reload the data now.
@@ -1219,28 +1207,31 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [tableView reloadSections:theSet withRowAnimation:UITableViewRowAnimationFade];
         } else if (emptySection) {
             //Section is empty.
-            if (pruneSections && !_searchResults) {
-                //Delete the section
-                
-                BOOL needsReload = (indexPath.section < sectionCount);
-                //If this is not the last section we need to set indices for all the sections coming in after this that are visible.
-                //Otherwise the events will not work properly since the indexPath stored in the cell will be incorrect.
-                
-                if (needsReload) {
-                    NSArray* visibleRows = [tableView indexPathsForVisibleRows];
-                    [visibleRows enumerateObjectsUsingBlock:^(NSIndexPath *vIndexPath, NSUInteger idx, BOOL *stop) {
-                        if (vIndexPath.section > indexPath.section) {
-                            //This belongs to the next section. So set the right indexPath otherwise events wont work properly.
-                            NSIndexPath *newIndex = [NSIndexPath indexPathForRow:vIndexPath.row inSection:(vIndexPath.section -1)];
-                            UITableViewCell* theCell = [tableView cellForRowAtIndexPath:vIndexPath];
-                            if ([theCell isKindOfClass:[TiUIListItem class]]) {
-                                ((TiUIListItem*)theCell).proxy.indexPath = newIndex;
+            if (pruneSections) {
+                if (!keepSectionsInSearch && searchActive) {
+                    [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                } else {
+                    //Delete the section
+                    BOOL needsReload = (indexPath.section < sectionCount);
+                    //If this is not the last section we need to set indices for all the sections coming in after this that are visible.
+                    //Otherwise the events will not work properly since the indexPath stored in the cell will be incorrect.
+                    
+                    if (needsReload) {
+                        NSArray* visibleRows = [tableView indexPathsForVisibleRows];
+                        [visibleRows enumerateObjectsUsingBlock:^(NSIndexPath *vIndexPath, NSUInteger idx, BOOL *stop) {
+                            if (vIndexPath.section > indexPath.section) {
+                                //This belongs to the next section. So set the right indexPath otherwise events wont work properly.
+                                NSIndexPath *newIndex = [NSIndexPath indexPathForRow:vIndexPath.row inSection:(vIndexPath.section -1)];
+                                UITableViewCell* theCell = [tableView cellForRowAtIndexPath:vIndexPath];
+                                if ([theCell isKindOfClass:[TiUIListItem class]]) {
+                                    ((TiUIListItem*)theCell).proxy.indexPath = newIndex;
+                                }
                             }
-                        }
-                    }];
+                        }];
+                    }
+                    NSIndexSet *deleteSet = [NSIndexSet indexSetWithIndex:indexPath.section];
+                    [tableView deleteSections:deleteSet withRowAnimation:UITableViewRowAnimationFade];
                 }
-                NSIndexSet *deleteSet = [NSIndexSet indexSetWithIndex:indexPath.section];
-                [tableView deleteSections:deleteSet withRowAnimation:UITableViewRowAnimationFade];
             } else {
                 //Just delete the row. Section stays
                 [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
@@ -1269,8 +1260,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         [tableView endUpdates];
     } else if(editingStyle == UITableViewCellEditingStyleInsert) {
-        NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
-        [self fireEditEventWithName:@"insert" andSection:theSection atIndexPath:indexPath item:theItem];
+        NSDictionary *theItem = [[theSection itemAtIndex:realIndexPath.row] retain];
+        [self fireEditEventWithName:@"insert" andSection:theSection atIndexPath:realIndexPath item:theItem];
         [theItem release];
     }
     [theSection release];
@@ -1321,29 +1312,16 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)tableView:(UITableView *)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (tableView == _searchTableView) {
-        editingOnSearchResult = YES;
-        [self.proxy replaceValue:NUMBOOL(editingOnSearchResult) forKey:@"editingOnSearchResult" notification:NO];
-    } else {
-        editing = YES;
-        [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
-    }
+    editing = YES;
+    [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
 }
 
 - (void)tableView:(UITableView *)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (tableView == _searchTableView) {
-        editingOnSearchResult = [tableView isEditing];
-        [self.proxy replaceValue:NUMBOOL(editingOnSearchResult) forKey:@"editingOnSearchResult" notification:NO];
-        if (!editingOnSearchResult) {
-            [tableView performSelector:@selector(reloadData) withObject:nil afterDelay:0.1];
-        }
-    } else {
-        editing = [tableView isEditing];
-        [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
-        if (!editing) {
-            [tableView performSelector:@selector(reloadData) withObject:nil afterDelay:0.1];
-        }
+    editing = [tableView isEditing];
+    [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
+    if (!editing) {
+        [tableView performSelector:@selector(reloadData) withObject:nil afterDelay:0.1];
     }
 }
 
@@ -1570,8 +1548,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-            NSInteger realSection = [self sectionForSearchSection:section];
-            return [[self.listViewProxy sectionForIndex:realSection] headerTitle];
+            return [[self.listViewProxy sectionForIndex:section] headerTitle];
         } else {
             return nil;
         }
@@ -1584,8 +1561,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-            NSInteger realSection = [self sectionForSearchSection:section];
-            return [[self.listViewProxy sectionForIndex:realSection] footerTitle];
+            return [[self.listViewProxy sectionForIndex:section] footerTitle];
         } else {
             return nil;
         }
@@ -1679,8 +1655,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-            NSInteger realSection = [self sectionForSearchSection:section];
-            return [self sectionView:realSection forLocation:@"headerView" section:nil];
+            return [self sectionView:section forLocation:@"headerView" section:nil];
         } else {
             return nil;
         }
@@ -1693,8 +1668,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-            NSInteger realSection = [self sectionForSearchSection:section];
-            return [self sectionView:realSection forLocation:@"footerView" section:nil];
+            return [self sectionView:section forLocation:@"footerView" section:nil];
         } else {
             return nil;
         }
@@ -1711,7 +1685,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-            realSection = [self sectionForSearchSection:section];
+            realSection = section;
         } else {
             return 0.0;
         }
@@ -1769,7 +1743,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-            realSection = [self sectionForSearchSection:section];
+            realSection = section;
         } else {
             return 0.0;
         }
@@ -2118,6 +2092,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 }
 
 #pragma mark - UISearchControllerDelegate
+- (void)willDismissSearchController:(UISearchController *)searchController
+{
+    [[resultViewController tableView] setEditing:NO];
+    [_tableView setEditing:NO];
+}
 
 - (void)didDismissSearchController:(UISearchController *)searchController
 {
@@ -2199,6 +2178,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     // as soon as we remove iOS < 9 support
     id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
     [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
+    [[resultViewController tableView] setEditing:NO];
+    [_tableView setEditing:NO];
 }
 
 #pragma mark - UISearchResultsUpdating
