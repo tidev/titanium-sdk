@@ -168,7 +168,7 @@ describe('wptool', function () {
 		}).on('error', function () {}); // squelch mocha
 	});
 
-	(process.platform === 'win32' ? it : it.skip)('should connect to a device with a valid udid', function (done) {
+	((process.env.JENKINS || process.platform !== 'win32') ? it.skip : it)('should connect to a device with a valid udid', function (done) {
 		this.timeout(10000);
 		this.slow(9000);
 

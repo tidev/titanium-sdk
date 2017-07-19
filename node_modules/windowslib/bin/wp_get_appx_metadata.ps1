@@ -1,3 +1,4 @@
+Add-Type -assembly "system.io.compression.filesystem"
 $AppPackagePath = $Args[0]
 
 $shell = new-object -com shell.application
@@ -22,12 +23,25 @@ if ($item.extension -eq ".appxbundle") {
 
 $manifest = @{ "Name" = "AppxManifest.xml" }
 $manifest.Path = Join-Path $directory $manifest.Name
-$manifest.File = $shell.NameSpace($zipFilePath).Items() | ? { $_.Name -eq $manifest.Name }
-$shell.Namespace($directory).CopyHere($manifest.File)
+
+$zip = [io.compression.zipfile]::OpenRead($zipFilePath)
+$file = $zip.Entries | where-object { $_.Name -eq $manifest.Name}
+$stream = $file.Open()
+
+$reader = New-Object IO.StreamReader($stream)
+$text = $reader.ReadToEnd()
+$text | Out-File -filepath  $manifest.Path -Force
+
 $manifest.Xml = [xml](get-content $manifest.Path)
+
+
+$reader.Close()
+$stream.Close()
+$zip.Dispose()
 
 Remove-Item $zipFilePath
 Remove-Item $manifest.Path
+
 
 $var=@($manifest.Xml.Package.Identity.Name,$manifest.Xml.Package.PhoneIdentity.PhoneProductId)[![String]::IsNullOrEmpty($manifest.Xml.Package.PhoneIdentity.PhoneProductId)]
 $var
