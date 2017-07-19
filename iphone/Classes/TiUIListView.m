@@ -578,10 +578,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     if (searchActive) {
         [self buildResultsForSearchText];
-        [resultViewController.tableView reloadData];
     }
-    else {
-        [_tableView reloadData];
+    [_tableView reloadData];
+    if ([searchController isActive]) {
+        [resultViewController.tableView reloadData];
     }
 }
 
@@ -898,7 +898,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
     if (searchActive) {
         [self buildResultsForSearchText];
-        [_tableView reloadData];
+        if ([searchController isActive]) {
+            [[resultViewController tableView] reloadData];
+        } else {
+            [_tableView reloadData];
+        }
     }
 }
 
