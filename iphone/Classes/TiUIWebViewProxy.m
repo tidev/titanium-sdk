@@ -62,7 +62,6 @@
     [super _initWithProperties:properties];
 }
 
-
 - (NSString*)evalJS:(id)code
 {
 	ENSURE_SINGLE_ARG(code,NSString);
@@ -117,6 +116,11 @@ USE_VIEW_FOR_CONTENT_WIDTH
 	}, YES);
     
 	return NUMBOOL(loading);
+}
+
+- (void)zoomLevel
+{
+    return [[(TiUIWebView *)[self view] webview] stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom"];
 }
 
 -(void)goBack:(id)args
