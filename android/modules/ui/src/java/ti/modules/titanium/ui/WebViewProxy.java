@@ -37,7 +37,7 @@ import android.webkit.WebView;
 	TiC.PROPERTY_OVER_SCROLL_MODE,
 	TiC.PROPERTY_CACHE_MODE,
 	TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
-	TiC.PROPERTY_ZOOM_BY
+	TiC.PROPERTY_ZOOM_LEVEL
 })
 public class WebViewProxy extends ViewProxy
 	implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
@@ -76,6 +76,7 @@ public class WebViewProxy extends ViewProxy
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
 		defaultValues.put(TiC.PROPERTY_BORDER_RADIUS, 0);
 		defaultValues.put(TiC.PROPERTY_DISABLE_CONTEXT_MENU, false);
+		defaultValues.put(TiC.PROPERTY_ZOOM_LEVEL, 1);
 	}
 
 	@Override
