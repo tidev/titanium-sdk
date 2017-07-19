@@ -204,7 +204,6 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'ndkBuild',
 		'ndkLocalBuild',
 		'compileAllFinal',
-		'processResources',
 		'packageZip',
 		'runModule',
 
