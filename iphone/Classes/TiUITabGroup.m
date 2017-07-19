@@ -334,6 +334,10 @@ DEFINE_EXCEPTIONS
 
 - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController
 {
+	// TIMOB-24663: Previous implementations nil'd the VC and then passed it, which is invalid.
+	// Now we check if the VC should be passed and if not we pass nil instead of nilling the VC itself.
+	BOOL shouldPassVC = YES;
+
 	if ([tabBarController moreNavigationController] == viewController)
 	{
 		if (self != [(UINavigationController *)viewController delegate])
@@ -349,11 +353,12 @@ DEFINE_EXCEPTIONS
 		else
 		{
 			[self updateMoreBar:(UINavigationController *)viewController];
+			shouldPassVC = NO;
 		}
 
 	}
 
-	[self handleDidShowTab:(TiUITabProxy *)[(UINavigationController *)viewController delegate]];
+	[self handleDidShowTab:shouldPassVC ? (TiUITabProxy *)[(UINavigationController *)viewController delegate] : nil];
 }
 
 - (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed
@@ -396,6 +401,12 @@ DEFINE_EXCEPTIONS
     [[controller tabBar] setUnselectedItemTintColor:[[TiUtils colorValue:value] color]];
 }
 #endif
+
+-(void)setTabsTranslucent_:(id)value
+{
+    BOOL tabsTranslucent =  [TiUtils boolValue:value def:YES];
+    controller.tabBar.translucent = tabsTranslucent;
+}
 
 -(void)setTabsBackgroundImage_:(id)value
 {

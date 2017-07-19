@@ -80,7 +80,7 @@ excludes:
                  backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
                  backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,bottom,center,
                  children,clipMode,focusable,height,horizontalWrap,keepScreenOn,layout,left,opacity,overrideCurrentAnimation,
-                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,tintColor,top,touchEnabled,transform,
+                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,top,touchEnabled,transform,
                  viewShadowColor,viewShadowOffset,viewShadowRadius,visible,width,zIndex]
 
 events:
@@ -129,6 +129,16 @@ events:
             <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
         type: String
         platforms: [iphone, ipad]
+                
+      - name: tintColor
+        summary: The tint-color of the dialog.
+        description: |
+            This property is a direct correspondant of the `tintColor` property of 
+            UIView on iOS. For a dialog, it will tint the color of it's buttons.
+        type: [String]
+        since: "6.2.0"
+        osver: {ios: {min: "8.0"}}
+        platforms: [iphone,ipad]
 
 methods:
   - name: show
@@ -288,6 +298,15 @@ properties:
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_NEXT>
 
+  - name: loginValue
+    summary: Value of the login text field inside the dialog.
+    description: |
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+    type: String
+    since: "6.1.0"
+    platforms: [iphone, ipad]    
+
   - name: loginKeyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
     description: |
@@ -351,6 +370,15 @@ properties:
     since: 5.1.0
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DONE>
+
+  - name: passwordValue
+    summary: Value of the password text field inside the dialog.
+    description: |
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
+    type: String
+    since: "6.1.0"
+    platforms: [iphone, ipad]    
 
   - name: passwordKeyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -430,6 +458,16 @@ properties:
     summary: Key identifying a string in the locale file to use for the title text. 
     type: String
     platforms: [android, iphone, ipad, mobileweb]
+    
+  - name: value
+    summary: Value of the text field inside the dialog.
+    description: |
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
+        <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
+    type: String
+    since: "6.1.0"
+    platforms: [iphone, ipad]    
 
 examples:
   - title: Single-button Alert Dialog (using alias)

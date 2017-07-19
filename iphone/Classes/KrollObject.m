@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <objc/runtime.h>
-#import "SBJSON.h"
 #import "KrollObject.h"
 #import "KrollMethod.h"
 #import "KrollCallback.h"
@@ -73,7 +72,7 @@ NSDictionary* TiValueToDict(KrollContext *context, TiValueRef value)
 //
 NSString* TiValueToJSON(KrollContext *context, TiValueRef value)
 {
-	return [SBJSON stringify:TiValueToId(context,value)];
+	return [TiUtils jsonStringify:TiValueToId(context,value)];
 }
 
 //

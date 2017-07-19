@@ -10,7 +10,6 @@
 #import "XHRBridge.h"
 #import "TiHost.h"
 #import "TiProxy.h"
-#import "SBJSON.h"
 #import "TiModule.h"
 #import "Mimetypes.h"
 
@@ -63,9 +62,8 @@ static XHRBridge *xhrBridge = nil;
 	NSString *arguments = prearg==nil ? @"" : [prearg stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	
 	
-	SBJSON *decoder = [[[SBJSON alloc] init] autorelease];
 	NSError *error = nil;
-	NSDictionary *event = [decoder fragmentWithString:arguments error:&error];
+	NSDictionary *event = [TiUtils jsonParse:arguments error:&error];
 	
 	id<TiEvaluator> context = [[xhrBridge host] contextForToken:pageToken];
 	TiModule *tiModule = (TiModule*)[[xhrBridge host] moduleNamed:module context:context];
