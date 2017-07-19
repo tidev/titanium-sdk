@@ -2556,6 +2556,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SPLIT_TRACK = "splitTrack";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SPOUSE = "spouse";
 
 	/**
