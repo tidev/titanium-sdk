@@ -43,8 +43,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	// every time we add a row. No sense checking it each time.
 	private static boolean ICS_OR_GREATER = (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH);
 
-	private static final int LEFT_MARGIN = 5;
-	private static final int RIGHT_MARGIN = 27;
+	private static final String LEFT_MARGIN = "6dp";
+	private static final String RIGHT_MARGIN = "6dp";
+	private static final String RIGHT_SIZE = "17dp";
 	private static final int MIN_HEIGHT = 48;
 
 	private BitmapDrawable hasChildDrawable, hasCheckDrawable;
@@ -324,7 +325,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 
 			if (params.optionRight == null) {
-				params.optionRight = new TiDimension(LEFT_MARGIN, TiDimension.TYPE_RIGHT);
+				params.optionRight = new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT);
 			}
 			params.autoFillsWidth = true;
 			content.addView(v, params);
@@ -464,7 +465,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			measureChild(leftImage, widthMeasureSpec, heightMeasureSpec);
 			leftImageWidth = leftImage.getMeasuredWidth();
 			leftImageHeight = leftImage.getMeasuredHeight();
-			imageHMargin += LEFT_MARGIN;
+			imageHMargin += new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT).getAsPixels(this);
 		}
 
 		int rightImageWidth = 0;
@@ -473,7 +474,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			measureChild(rightImage, widthMeasureSpec, heightMeasureSpec);
 			rightImageWidth = rightImage.getMeasuredWidth();
 			rightImageHeight = rightImage.getMeasuredHeight();
-			imageHMargin += RIGHT_MARGIN;
+			imageHMargin += new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getAsPixels(this);
 		}
 
 		int adjustedWidth = w - leftImageWidth - rightImageWidth - imageHMargin;
@@ -542,7 +543,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (leftImage != null && leftImage.getVisibility() != GONE) {
 			int w = leftImage.getMeasuredWidth();
 			int h = leftImage.getMeasuredHeight();
-			int leftMargin = LEFT_MARGIN;
+			int leftMargin = new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT).getAsPixels(this);
 
 			contentLeft += w + leftMargin;
 			int offset = (height - h) / 2;
@@ -550,18 +551,17 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 
 		if (rightImage != null && rightImage.getVisibility() != GONE) {
-			int w = rightImage.getMeasuredWidth();
-			int h = rightImage.getMeasuredHeight();
-			int rightMargin = RIGHT_MARGIN;
-
+			int w = new TiDimension(RIGHT_SIZE, TiDimension.TYPE_RIGHT).getAsPixels(this);
+			int h = new TiDimension(RIGHT_SIZE, TiDimension.TYPE_RIGHT).getAsPixels(this);
+			int rightMargin = new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getAsPixels(this);
 			contentRight -= w + rightMargin;
 			int offset = (height - h) / 2;
 			rightImage.layout(right-w-rightMargin, top+offset, right-rightMargin, top+offset+h);
 		}
 
 //		if (hasControls) {
-//			contentLeft = left + LEFT_MARGIN;
-//			contentRight = right - RIGHT_MARGIN;
+//			contentLeft = left + new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT).getAsPixels(this);
+//			contentRight = right - new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getAsPixels(this);
 //		}
 
 		if (content != null) {
