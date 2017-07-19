@@ -1776,6 +1776,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 		return appc.string.capitalize(word.toLowerCase());
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
+	this.mainActivity = '.' + this.classname + 'Activity';
 
 	this.buildOnly = argv['build-only'];
 
@@ -3346,7 +3347,6 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 			if (theme.startsWith('@style/') && theme !== '@style/Theme.Titanium') {
 				flags = theme.replace('@style/', '');
 			}
-			delete this.tiappAndroidManifest.application.theme;
 		}
 
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
@@ -3538,6 +3538,14 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			if (parameters['launchMode']) {
 				delete parameters['launchMode'];
 				this.logger.warn(__('%s should not be used. Ignoring definition from %s', 'android:launchMode'.red, activity.cyan));
+			}
+		}
+
+		// TIMOB-24917: make sure the main activity is themed
+		if (tiappAndroidManifest.application.activity && tiappAndroidManifest.application.activity[this.mainActivity]) {
+			var parameters = tiappAndroidManifest.application.activity[this.mainActivity];
+			if (!parameters.theme) {
+				parameters.theme = '@style/Theme.Titanium';
 			}
 		}
 	}
