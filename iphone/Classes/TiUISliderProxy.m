@@ -7,6 +7,7 @@
 #ifdef USE_TI_UISLIDER
 
 #import "TiUISliderProxy.h"
+#import "TiUISlider.h"
 
 NSArray* sliderKeySequence;
 
@@ -38,7 +39,6 @@ NSArray* sliderKeySequence;
     [super _initWithProperties:properties];
 }
 
-
 -(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
 	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
@@ -49,8 +49,14 @@ NSArray* sliderKeySequence;
     return TiDimensionAutoSize;
 }
 
-
 USE_VIEW_FOR_VERIFY_HEIGHT
+
+#pragma mark Public API's
+
+- (void)setValue:(id)args
+{
+    [(TiUISlider *)[self view] _setValue:args];
+}
 
 @end
 
