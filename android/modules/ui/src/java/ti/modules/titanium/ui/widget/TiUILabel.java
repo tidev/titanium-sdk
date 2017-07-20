@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -25,8 +26,11 @@ import android.os.Build;
 import android.text.Html;
 import android.text.InputType;
 import android.text.Layout;
+import android.text.method.LinkMovementMethod;
+import android.text.method.MovementMethod;
 import android.text.Selection;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.Spannable.Factory;
 import android.text.SpannedString;
 import android.text.TextUtils.TruncateAt;
@@ -43,6 +47,7 @@ public class TiUILabel extends TiUIView
 {
 	private static final String TAG = "TiUILabel";
 	private static final float DEFAULT_SHADOW_RADIUS = 1f;
+	private static final float FONT_SIZE_EPSILON = 0.1f;
 
 	private int defaultColor;
 	private boolean wordWrap = true;
@@ -51,8 +56,13 @@ public class TiUILabel extends TiUIView
 	private float shadowX = 0f;
 	private float shadowY = 0f;
 	private int shadowColor = Color.TRANSPARENT;
-	private String minimumFontSize = null;
-	private String autoshrinkSetFontSize = null;
+	private int autoLinkFlags;
+	private int viewHeightInLines;
+	private int maxLines = Integer.MAX_VALUE;
+	private float minimumFontSizeInPixels = -1.0f;
+	private float unscaledFontSizeInPixels = -1.0f;
+	private CharSequence originalText = "";
+	private boolean isInvalidationAndLayoutsEnabled = true;
 
 	public TiUILabel(final TiViewProxy proxy)
 	{
@@ -63,12 +73,14 @@ public class TiUILabel extends TiUIView
 			@Override
 			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 			{
-				// Only allow label to exceed the size of parent when it's size behavior with both wordwrap and ellipsize disabled
-				if (!wordWrap && ellipsize == null && layoutParams.optionWidth == null && !layoutParams.autoFillsWidth) {
-					widthMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec),
-						MeasureSpec.UNSPECIFIED);
-					heightMeasureSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec),
-						MeasureSpec.UNSPECIFIED);
+				// Only allow label to exceed width of parent if single-line and ellipsize is disabled.
+				if (isSingleLine() && (ellipsize == null) && (minimumFontSizeInPixels < FONT_SIZE_EPSILON) &&
+				    (layoutParams != null) && (layoutParams.optionWidth == null) && !layoutParams.autoFillsWidth)
+				{
+					widthMeasureSpec = MeasureSpec.makeMeasureSpec(
+							MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.UNSPECIFIED);
+					heightMeasureSpec = MeasureSpec.makeMeasureSpec(
+							MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.UNSPECIFIED);
 				}
 
 				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -77,110 +89,251 @@ public class TiUILabel extends TiUIView
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
+				// Update this view's layout.
 				super.onLayout(changed, left, top, right, bottom);
-				
+
+				// Auto-downscale the font to fit the view's width, if enabled.
 				adjustTextFontSize(this);
-				
+
+				// Apply ellipsis if enabled and if view has fixed height (ie: not sized to fit text).
+				if (!isSingleLine() && (viewHeightInLines <= 0) && (ellipsize != null) &&
+				    (layoutParams != null) &&
+				    ((layoutParams.optionHeight != null) || layoutParams.autoFillsHeight))
+				{
+					// First, we must reset/re-measure the text based on the original max lines setting.
+					// Note: Calling onMeasure() updates the view's StaticLayout and its getLineCount().
+					isInvalidationAndLayoutsEnabled = false;  // Suppress invalidate() and requestLayout().
+					setMaxLines((TiUILabel.this.maxLines > 0) ? TiUILabel.this.maxLines : Integer.MAX_VALUE);
+					isInvalidationAndLayoutsEnabled = true;
+					int measuredWidth = MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY);
+					int measuredHeight = MeasureSpec.makeMeasureSpec(bottom - top, MeasureSpec.EXACTLY);
+					onMeasure(measuredWidth, measuredHeight);
+
+					// Calculate the number of "fully" visible lines within the TextView.
+					// Note: We can't assume all lines have the same height since we support stylized
+					//       spannable text via the "html" and "attributedString" properties.
+					int visibleLines = 0;
+					Layout layout = getLayout();
+					if (layout != null) {
+						int maxY = getHeight() - (getTotalPaddingTop() + getTotalPaddingBottom());
+						if (maxY > 0) {
+							int lineCount = layout.getLineCount();
+							for (int lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+								if (layout.getLineTop(lineIndex + 1) > maxY) {
+									break;
+								}
+								visibleLines++;
+							}
+						}
+					} else {
+						visibleLines = Integer.MAX_VALUE;
+					}
+
+					// The only way to apply ellipsis on Android is via the TextView's max lines setting.
+					// Also, make sure new setting doesn't exceed Titanium's "maxLines" property, if set.
+					int maxLines = Math.max(visibleLines, 1);
+					if (TiUILabel.this.maxLines > 0) {
+						maxLines = Math.min(maxLines, TiUILabel.this.maxLines);
+					}
+					isInvalidationAndLayoutsEnabled = false;  // Suppress invalidate() and requestLayout().
+					setMaxLines(maxLines);
+					isInvalidationAndLayoutsEnabled = true;
+					onMeasure(measuredWidth, measuredHeight);
+				}
+
+				// Fire a "postLayout" event in Titanium.
 				if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
 					proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 				}
 			}
-			
+
+			@Override
+			public void invalidate()
+			{
+				if (isInvalidationAndLayoutsEnabled) {
+					super.invalidate();
+				}
+			}
+
+			@Override
+			public void requestLayout()
+			{
+				if (isInvalidationAndLayoutsEnabled) {
+					super.requestLayout();
+				}
+			}
+
 			@Override
 			public boolean onTouchEvent(MotionEvent event) {
-			        TextView textView = (TextView) this;
-			        Object text = textView.getText();
-			        //For html texts, we will manually detect url clicks.
-			        if (text instanceof SpannedString) {
-			            SpannedString spanned = (SpannedString) text;
-			            Spannable buffer = Factory.getInstance().newSpannable(spanned.subSequence(0, spanned.length()));
+				TextView textView = (TextView) this;
+				Object text = textView.getText();
 
-			            int action = event.getAction();
+				//For html texts, we will manually detect url clicks.
+				if (text instanceof SpannedString) {
+					SpannedString spanned = (SpannedString) text;
+					Spannable buffer = Factory.getInstance().newSpannable(spanned.subSequence(0, spanned.length()));
 
-			            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
-			                int x = (int) event.getX();
-			                int y = (int) event.getY();
+					int action = event.getAction();
 
-			                x -= textView.getTotalPaddingLeft();
-			                y -= textView.getTotalPaddingTop();
+					if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
+						int x = (int) event.getX();
+						int y = (int) event.getY();
 
-			                x += textView.getScrollX();
-			                y += textView.getScrollY();
+						x -= textView.getTotalPaddingLeft();
+						y -= textView.getTotalPaddingTop();
 
-			                Layout layout = textView.getLayout();
-			                int line = layout.getLineForVertical(y);
-			                int off = layout.getOffsetForHorizontal(line, x);
+						x += textView.getScrollX();
+						y += textView.getScrollY();
 
-			                ClickableSpan[] link = buffer.getSpans(off, off,
-			                        ClickableSpan.class);
+						Layout layout = textView.getLayout();
+						int line = layout.getLineForVertical(y);
+						int off = layout.getOffsetForHorizontal(line, x);
 
-							if (link.length != 0) {
-								ClickableSpan cSpan = link[0]; 
-								if (action == MotionEvent.ACTION_UP) {
-									TiViewProxy proxy = getProxy();
-									if(proxy.hasListeners("link") && (cSpan instanceof URLSpan)) {
-										KrollDict evnt = new KrollDict();
-										evnt.put("url", ((URLSpan)cSpan).getURL());
-										proxy.fireEvent("link", evnt, false);
-									} else {
-										cSpan.onClick(textView);
-									}
-								} else if (action == MotionEvent.ACTION_DOWN) {
-									Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
+						ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
+
+						if (link.length != 0) {
+							ClickableSpan cSpan = link[0]; 
+							if (action == MotionEvent.ACTION_UP) {
+								TiViewProxy proxy = getProxy();
+								if(proxy.hasListeners("link") && (cSpan instanceof URLSpan)) {
+									KrollDict evnt = new KrollDict();
+									evnt.put("url", ((URLSpan)cSpan).getURL());
+									proxy.fireEvent("link", evnt, false);
+								} else {
+									cSpan.onClick(textView);
 								}
+							} else if (action == MotionEvent.ACTION_DOWN) {
+								Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
 							}
-			            }
+						}
+					}
 
-			        }
-			        return super.onTouchEvent(event);
-			    }
+				}
+				return super.onTouchEvent(event);
+			}
 		};
 		tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		tv.setPadding(0, 0, 0, 0);
-		tv.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-		tv.setKeyListener(null);
 		tv.setFocusable(false);
-		tv.setSingleLine(false);
-		tv.setEllipsize(ellipsize);
+		tv.setEllipsize(this.ellipsize);
+		tv.setSingleLine(!this.wordWrap);
 		TiUIHelper.styleText(tv, null);
-		defaultColor =  tv.getCurrentTextColor();
+		this.unscaledFontSizeInPixels = tv.getTextSize();
+		this.defaultColor =  tv.getCurrentTextColor();
 		setNativeView(tv);
-
 	}
-	
+
 	/**
 	 * Method used to decrease the fontsize of the text to fit the width
 	 * fontsize should be >= than the property minimumFontSize
-	 * @param v
+	 * @param view
 	 */
-	private void adjustTextFontSize(View v){	
-		if (minimumFontSize != null){
-			TextView tv = (TextView) v;
+	private void adjustTextFontSize(View view)
+	{
+		// Do not continue if auto-sizing the font is disabled.
+		if (this.minimumFontSizeInPixels < FONT_SIZE_EPSILON) {
+			return;
+		}
 
-			if (tv != null) {
-				if (autoshrinkSetFontSize != null) {
-					if (tv.getTextSize() == TiConvert.toFloat(autoshrinkSetFontSize)) {
-						String[] fontProperties = TiUIHelper.getFontProperties(proxy.getProperties());
+		// Make sure the given view is a TextView.
+		if ((view instanceof TextView) == false) {
+			return;
+		}
+		TextView textView = (TextView)view;
 
-						if (fontProperties.length > TiUIHelper.FONT_SIZE_POSITION && fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
-							tv.setTextSize(TiUIHelper.getSizeUnits(fontProperties[TiUIHelper.FONT_SIZE_POSITION]), TiUIHelper.getSize(fontProperties[TiUIHelper.FONT_SIZE_POSITION]));
-						} else {
-							tv.setTextSize(TiUIHelper.getSizeUnits(null), TiUIHelper.getSize(null));
-						}
-					}
-				}
-			    
-			    TextPaint textPaint = tv.getPaint();
-				if (textPaint != null) {
-					float stringWidth = textPaint.measureText(tv.getText().toString());
-					int textViewWidth = tv.getWidth();
-					if (textViewWidth < stringWidth && stringWidth > 0) {
-						float fontSize = (textViewWidth / stringWidth) * tv.getTextSize();
-						autoshrinkSetFontSize = fontSize > TiConvert.toFloat(minimumFontSize, 0) ? String.valueOf(fontSize) : minimumFontSize;
-						tv.setTextSize(TiUIHelper.getSizeUnits(autoshrinkSetFontSize), TiUIHelper.getSize(autoshrinkSetFontSize));
-					}
-				}
+		// Fetch the display's density scale and calculate pixel's per virtual point, rounded up.
+		// Note: To keep it simple, don't let the scale be below 1x.
+		//       Only obsolete "ldpi" devices use scales lower than this.
+		float densityScale = view.getResources().getDisplayMetrics().density;
+		if (densityScale <= 0) {
+			densityScale = 1.0f;
+		}
+
+		// Calculate the pixel width within the view that the text will be rendered to.
+		float viewContentWidth;
+		{
+			int value = textView.getWidth();
+			{
+				// Exlude the view's padding and borders.
+				value -= textView.getTotalPaddingLeft() + textView.getTotalPaddingRight();
 			}
+			if ((this.layoutParams != null) &&
+			    (this.layoutParams.optionWidth != null) && !layoutParams.autoFillsWidth)
+			{
+				// Shave off 1 dp (device-independent pixel) from the width.
+				// This prevents ellipsis from being applied for text that just-fits within the view.
+				// Note: We don't want to do this if the view is auto-sized to fit its text
+				//       because the font/text might shrink on every call to onLayout() method.
+				int pixelsPerPoint = (int)Math.ceil((double)densityScale);	// Round up.
+				value -= pixelsPerPoint;
+			}
+			if (value <= 0) {
+				return;
+			}
+			viewContentWidth = (float)value;
+		}
+
+		// Fetch the view's text.
+		String text = null;
+		if (textView.getText() != null) {
+			text = textView.getText().toString();
+		}
+		if ((text == null) || (text.length() <= 0)) {
+			return;
+		}
+
+		// Restore the view's original font size.
+		float previousFontSize = textView.getTextSize();
+		textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, this.unscaledFontSizeInPixels);
+
+		// Automatically downscale the font size to fit the width of the view.
+		// Note: Downscaling text width-wise is inaccurate and may take a few attempts.
+		while (true) {
+			// Fetch the view's current font size. Do not continue if already below the min.
+			float currentFontSize = textView.getTextSize();
+			if (currentFontSize < (this.minimumFontSizeInPixels + FONT_SIZE_EPSILON)) {
+				break;
+			}
+
+			// Fetch the view's painting object.
+			// Note: Font settings applied to the view will be applied to this paint object as well.
+			TextPaint textPaint = textView.getPaint();
+			if (textPaint == null) {
+				break;
+			}
+
+			// Calculate the width of the view's current text in pixels.
+			float textWidth = textPaint.measureText(text);
+
+			// Do not continue if the text fits within the view's bounds. (Don't need to downscale.)
+			if (textWidth <= viewContentWidth) {
+				break;
+			}
+
+			// Text does not fit within the width of view. Downscale the font.
+			float newFontSize = (viewContentWidth / textWidth) * currentFontSize;
+
+			// Don't let the font scale up. Can happen due to inaccuracies with above calculation.
+			// If it has, then downscale the font by 1dp (aka: device-independed point).
+			// Note: This also prevents an infinite loop by guaranteeing to downscale by at least 1dp.
+			newFontSize = Math.min(newFontSize, currentFontSize - densityScale);
+
+			// Don't allow the font size to exceed the configured minimum.
+			newFontSize = Math.max(newFontSize, this.minimumFontSizeInPixels);
+
+			// Apply the downscaled font size to the view.
+			textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, newFontSize);
+		}
+
+		// If the view's font size has changed, then the view's height has changed. Request a re-layout.
+		if (Math.abs(textView.getTextSize() - previousFontSize) >= FONT_SIZE_EPSILON) {
+			final View finalView = view;
+			view.post(new Runnable() {
+				@Override
+				public void run() {
+					finalView.requestLayout();
+				}
+			});
 		}
 	}
 
@@ -193,53 +346,66 @@ public class TiUILabel extends TiUIView
 		
 		boolean needShadow = false;
 
-		// Only accept one, html has priority
-		if (d.containsKey(TiC.PROPERTY_HTML)) {
-			String html = TiConvert.toString(d, TiC.PROPERTY_HTML);
-			if (html == null) {
-				//If html is null, set text if applicable
-				if (d.containsKey(TiC.PROPERTY_TEXT)) {
-					tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT));
-				} else {
-					tv.setText(Html.fromHtml(""));
+		// Update the label's text, if provided.
+		{
+			// Fetch text from one of the supported properties. (Order is important.)
+			CharSequence newText = null;
+			boolean hasProperty = false;
+			if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+				hasProperty = true;
+				Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+				if (attributedString instanceof AttributedStringProxy) {
+					newText = AttributedStringProxy.toSpannable(
+							((AttributedStringProxy)attributedString),
+							TiApplication.getAppCurrentActivity());
 				}
-			} else {
-				tv.setMovementMethod(null);
-				// Before Jelly Bean (API < 16), disabling the movement method will 
-				// disable focusable, clickable and longclickable.
-				if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
-					tv.setFocusable(true);
-					tv.setClickable(true);
-					tv.setLongClickable(true);
-				}
-				tv.setText(Html.fromHtml(html));
 			}
-		} else if (d.containsKey(TiC.PROPERTY_TEXT)) {
-			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TEXT), TextView.BufferType.SPANNABLE);
-			
-		} else if (d.containsKey(TiC.PROPERTY_TITLE)) { // For table view rows
-			tv.setText(TiConvert.toString(d,TiC.PROPERTY_TITLE), TextView.BufferType.SPANNABLE);
+			if ((newText == null) && d.containsKey(TiC.PROPERTY_HTML)) {
+				hasProperty = true;
+				String html = TiConvert.toString(d, TiC.PROPERTY_HTML);
+				if (html != null) {
+					newText = Html.fromHtml(html);
+				}
+			}
+			if ((newText == null) && d.containsKey(TiC.PROPERTY_TEXT)) {
+				hasProperty = true;
+				newText = TiConvert.toString(d.get(TiC.PROPERTY_TEXT));
+			}
+			if ((newText == null) && d.containsKey(TiC.PROPERTY_TITLE)) {
+				hasProperty = true;
+				newText = TiConvert.toString(d.get(TiC.PROPERTY_TITLE));
+			}
+
+			// Update the stored text if provided and if changed.
+			if (hasProperty) {
+				if (newText == null) {
+					newText = "";
+				}
+				if (!newText.equals(this.originalText)) {
+					this.originalText = newText;
+				}
+			}
 		}
 
 		if (d.containsKey(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
 			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
- 		}
- 		
+		}
+		
 		if (d.containsKey(TiC.PROPERTY_MINIMUM_FONT_SIZE)) {
-			//it enables font scaling to fit and forces the label content to be limited to a single line.
-			minimumFontSize =  TiConvert.toString(d, TiC.PROPERTY_MINIMUM_FONT_SIZE);
-			tv.setSingleLine(true);
-			tv.setEllipsize(TruncateAt.END);
+			setMinimumFontSize(TiConvert.toString(d, TiC.PROPERTY_MINIMUM_FONT_SIZE));
 		}
 		if (d.containsKey(TiC.PROPERTY_LINES)) {
-			tv.setLines(TiConvert.toInt(d, TiC.PROPERTY_LINES));
+			this.viewHeightInLines = TiConvert.toInt(d.get(TiC.PROPERTY_LINES), 0);
 		}
 		if (d.containsKey(TiC.PROPERTY_WORD_WRAP)) {
-			wordWrap = TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP, true);
-			tv.setSingleLine(!wordWrap);
+			this.wordWrap = TiConvert.toBoolean(d, TiC.PROPERTY_WORD_WRAP, true);
 		}
 		if (d.containsKey(TiC.PROPERTY_MAX_LINES)) {
-			tv.setMaxLines(TiConvert.toInt(d, TiC.PROPERTY_MAX_LINES));
+			int value = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LINES), Integer.MAX_VALUE);
+			if (value < 1) {
+				value = Integer.MAX_VALUE;
+			}
+			this.maxLines = value;
 		}
 		if (d.containsKey(TiC.PROPERTY_LINE_SPACING)) {
 			Object value = d.get(TiC.PROPERTY_LINE_SPACING);
@@ -261,6 +427,7 @@ public class TiUILabel extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
+			this.unscaledFontSizeInPixels = tv.getTextSize();
 		}
 		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN) || d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
 			String textAlign = d.optString(TiC.PROPERTY_TEXT_ALIGN, "left");
@@ -269,14 +436,11 @@ public class TiUILabel extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
-			
 			Object value = d.get(TiC.PROPERTY_ELLIPSIZE);
-			if (value instanceof Boolean){
+			if (value instanceof Boolean) {
 				ellipsize = (Boolean) value ? TruncateAt.END : null;
-			}
-
-			if (value instanceof Integer){
-				switch((Integer)value){
+			} else if (value instanceof Integer) {
+				switch((Integer)value) {
 					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_START: 
 						ellipsize = TruncateAt.START; break;
 					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_MIDDLE: 
@@ -284,15 +448,14 @@ public class TiUILabel extends TiUIView
 					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_END: 
 						ellipsize = TruncateAt.END; break;
 					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_MARQUEE: 
-						// marquee effect only works in single line mode
-						tv.setSingleLine(true);
-						tv.setSelected(true);
 						ellipsize = TruncateAt.MARQUEE; break;
 					default:
 						ellipsize = null;
 				}
 			}
-			tv.setEllipsize(ellipsize);
+		}
+		if (d.containsKey(TiC.PROPERTY_AUTO_LINK)) {
+			this.autoLinkFlags = TiConvert.toInt(d.get(TiC.PROPERTY_AUTO_LINK), 0) & Linkify.ALL;
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_OFFSET)) {
 			Object value = d.get(TiC.PROPERTY_SHADOW_OFFSET);
@@ -314,17 +477,9 @@ public class TiUILabel extends TiUIView
 		if (needShadow) {
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		}
-		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
-			if (attributedString instanceof AttributedStringProxy) {
-				Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)attributedString), TiApplication.getAppCurrentActivity());
-				if (spannableText != null) {
-					tv.setText(spannableText, TextView.BufferType.NORMAL);
-				}
-			}
-		}
+
 		// This needs to be the last operation.
-		TiUIHelper.linkifyIfEnabled(tv, d.get(TiC.PROPERTY_AUTO_LINK));
+		updateLabelText();
 		tv.invalidate();
 	}
 	
@@ -332,14 +487,28 @@ public class TiUILabel extends TiUIView
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		TextView tv = (TextView) getNativeView();
-		if (key.equals(TiC.PROPERTY_HTML)) {
-			tv.setText(Html.fromHtml(TiConvert.toString(newValue)));
-			TiUIHelper.linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
-			tv.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_TEXT) || key.equals(TiC.PROPERTY_TITLE)) {
-			tv.setText(TiConvert.toString(newValue));
-			TiUIHelper.linkifyIfEnabled(tv, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
-			tv.requestLayout();
+		if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) || key.equals(TiC.PROPERTY_HTML) ||
+		    key.equals(TiC.PROPERTY_TEXT) || key.equals(TiC.PROPERTY_TITLE))
+		{
+			CharSequence newText = null;
+			if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+				if (newValue instanceof AttributedStringProxy) {
+					newText = AttributedStringProxy.toSpannable(
+							(AttributedStringProxy)newValue, TiApplication.getAppCurrentActivity());
+				}
+				if (newText == null) {
+					newText = "";
+				}
+			} else if (key.equals(TiC.PROPERTY_HTML)) {
+				newText = Html.fromHtml(TiConvert.toString(newValue, ""));
+			} else {
+				newText = TiConvert.toString(newValue, "");
+			}
+			if ((newText != null) && !newText.equals(this.originalText)) {
+				this.originalText = newText;
+				updateLabelText();
+				tv.requestLayout();
+			}
 		} else if (key.equals(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
 			tv.setIncludeFontPadding(TiConvert.toBoolean(newValue, true));
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
@@ -357,18 +526,15 @@ public class TiUILabel extends TiUIView
 			TiUIHelper.setAlignment(tv, null, TiConvert.toString(newValue));
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_MINIMUM_FONT_SIZE)) {
-			minimumFontSize = TiConvert.toString(newValue);
-			tv.setSingleLine(true);
-			tv.setEllipsize(TruncateAt.END);
-			tv.requestLayout();
+			setMinimumFontSize(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, (HashMap) newValue);
+			this.unscaledFontSizeInPixels = tv.getTextSize();
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
-			if (newValue instanceof Boolean){
+			if (newValue instanceof Boolean) {
 				ellipsize = (Boolean) newValue ? TruncateAt.END : null;
-			}
-			if (newValue instanceof Integer){
+			} else if (newValue instanceof Integer) {
 				switch((Integer)newValue){
 					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_START: 
 						ellipsize = TruncateAt.START; break;
@@ -377,20 +543,18 @@ public class TiUILabel extends TiUIView
 					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_END: 
 						ellipsize = TruncateAt.END; break;
 					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_MARQUEE: 
-						// marquee effect only works in single line mode
-						tv.setSingleLine(true);
-						tv.setSelected(true);
 						ellipsize = TruncateAt.MARQUEE; break;
 					default:
 						ellipsize = null;
 				}
 			}
-			tv.setEllipsize(ellipsize);
+			updateLabelText();
 		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
-			wordWrap = TiConvert.toBoolean(newValue, true);
-			tv.setSingleLine(!wordWrap);
+			this.wordWrap = TiConvert.toBoolean(newValue, true);
+			updateLabelText();
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
-			Linkify.addLinks(tv, TiConvert.toInt(newValue));
+			this.autoLinkFlags = TiConvert.toInt(newValue, 0) & Linkify.ALL;
+			updateLabelText();
 		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
 			if (newValue instanceof HashMap) {
 				HashMap dict = (HashMap) newValue;
@@ -405,18 +569,30 @@ public class TiUILabel extends TiUIView
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_LINES)) {
-			tv.setLines(TiConvert.toInt(newValue));
+			this.viewHeightInLines = TiConvert.toInt(newValue, 0);
+			updateLabelText();
 		} else if (key.equals(TiC.PROPERTY_MAX_LINES)) {
-			tv.setMaxLines(TiConvert.toInt(newValue));	
-		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
-			Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)newValue), TiApplication.getAppCurrentActivity());
-			if (spannableText != null) {
-				tv.setText(spannableText, TextView.BufferType.NORMAL);
+			int value = TiConvert.toInt(newValue, Integer.MAX_VALUE);
+			if (value < 1) {
+				value = Integer.MAX_VALUE;
+			}
+			if (value != this.maxLines) {
+				this.maxLines = value;
+				updateLabelText();
 			}
 		} else if (key.equals(TiC.PROPERTY_LINE_SPACING)) {
 			if (newValue instanceof HashMap) {
 				HashMap dict = (HashMap) newValue;
 				tv.setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0), TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
+			}
+		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
+			// Update the view's height.
+			// Note: We may need to update lines/maxLines settings when switching to an auto-sized height.
+			boolean hadFixedSize = (this.layoutParams != null) && ((this.layoutParams.optionHeight != null) || this.layoutParams.autoFillsHeight);
+			super.propertyChanged(key, oldValue, newValue, proxy);
+			boolean isAutoSized = (this.layoutParams != null) && (this.layoutParams.optionHeight == null) && !this.layoutParams.autoFillsHeight;
+			if (hadFixedSize && isAutoSized) {
+				updateLabelText();
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
@@ -425,5 +601,189 @@ public class TiUILabel extends TiUIView
 
 	public void setClickable(boolean clickable) {
 		((TextView)getNativeView()).setClickable(clickable);
+	}
+
+	/**
+	 * Assigns the given value to this object's "minimumFontSizeInPixels" member variable
+	 * and updates the Android "TextView" with the new setting.
+	 * <p>
+	 * Expected to be called when the JavaScript "minimumFontSize" property has been assigned.
+	 * @param stringValue
+	 * String providing the font size as a fractional number in non-localized US-English form.
+	 * <p>
+	 * Can optionally have measurements units appended to this number such as "px", "dp", etc.
+	 * If units are not assigned, then the default units assigned to Titanium will be used.
+	 * <p>
+	 * String can be null or empty, in which case, the min font size setting will be cleared
+	 * and the auto-downscaling feature will be disabled.
+	 */
+	private void setMinimumFontSize(String stringValue)
+	{
+		// Extract the font size and units (if any) from the given string.
+		float newSizeInPixels = -1.0f;
+		TiDimension dimension = TiConvert.toTiDimension(stringValue, TiDimension.TYPE_UNDEFINED);
+		if (dimension != null) {
+			newSizeInPixels = (float)dimension.getPixels(getNativeView());
+		}
+
+		// Do not continue if the font size isn't changing.
+		if ((newSizeInPixels < FONT_SIZE_EPSILON) && (this.minimumFontSizeInPixels < FONT_SIZE_EPSILON)) {
+			return;
+		}
+		float delta = Math.abs(newSizeInPixels - this.minimumFontSizeInPixels);
+		if (delta < FONT_SIZE_EPSILON) {
+			return;
+		}
+
+		// Store the given setting.
+		this.minimumFontSizeInPixels = newSizeInPixels;
+
+		// Update the view with the above change.
+		updateLabelText();
+	}
+
+	/**
+	 * Determines if the Android "TextView" is to be displayed single-line or multiline.
+	 * @return Returns true if in single-line mode. Returns false if in multiline mode.
+	 */
+	private boolean isSingleLine()
+	{
+		// We're single-line if word wrapping (aka: line wrapping) is disabled.
+		if (this.wordWrap == false) {
+			return true;
+		}
+
+		// We're single-line if font auto-scaling is enabled.
+		if (this.minimumFontSizeInPixels >= FONT_SIZE_EPSILON) {
+			return true;
+		}
+
+		// We're single-line if using one of the following ellipsis modes.
+		// Note: This is an Android limitation. These ellipsis modes are not supported by multiline text.
+		if (this.ellipsize != null) {
+			switch (this.ellipsize) {
+				case START:
+				case MIDDLE:
+				case MARQUEE:
+					return true;
+			}
+		}
+
+		// The TextView is in multiline mode.
+		return false;
+	}
+
+	/**
+	 * Updates this object's Android "TextView" with the current member variable settings that affect
+	 * how text is displayed, which includes the single-line/multiline and ellipsize related settings.
+	 */
+	private void updateLabelText()
+	{
+		// Fetch the text view.
+		TextView textView = (TextView)getNativeView();
+		if (textView == null) {
+			return;
+		}
+
+		// Set up the view for single-line/multiline mode and apply text line settings.
+		// Note: API call order is important! setSingleLine() method must be called before setLines().
+		//       The setMinLines() and setMaxLines() methods must be called last. This is because
+		//       the setSingleLine() and setLines() change the TextView's internal min/max line settings.
+		boolean isSingleLine = isSingleLine();
+		boolean isAutoScalingFont = (this.minimumFontSizeInPixels >= FONT_SIZE_EPSILON);
+		boolean isTrimmingNewlines = isAutoScalingFont;
+		textView.setSingleLine(isSingleLine);
+		if (this.viewHeightInLines > 0) {
+			textView.setLines(this.viewHeightInLines);
+		} else {
+			textView.setMinLines(0);
+		}
+		if (isSingleLine) {
+			textView.setMaxLines(1);
+		} else {
+			int value = (this.maxLines > 0) ? this.maxLines : 1;
+			if ((this.viewHeightInLines > 0) && (value > this.viewHeightInLines)) {
+				value = this.viewHeightInLines;
+			}
+			textView.setMaxLines(value);
+		}
+
+		// Fetch the text to be displayed in the view.
+		CharSequence text = this.originalText;
+		if (text == null) {
+			text = new SpannableStringBuilder("");
+		}
+
+		// If set up to be single-line, then trim off any text proceeding a newline character, if any.
+		// Note: We do this to match iOS' behavior. Android's default behavior is to replace '\n' with spaces.
+		if (isTrimmingNewlines && (text.length() > 0)) {
+			// Find the first line ending character in the string.
+			int index;
+			for (index = 0; index < text.length(); index++) {
+				char nextCharacter = text.charAt(index);
+				if ((nextCharacter == '\r') || (nextCharacter == '\n')) {
+					break;
+				}
+			}
+
+			// If a line ending was found, then create a new substring with extra lines trimmed off.
+			// Note: Create a Spannable substring. This is in case we were given a Spannable type such as
+			//       HTML or AttributedString so that we can preserve the text styles applied to its characters.
+			if (index < text.length()) {
+				text = new SpannableStringBuilder(text, 0, index);
+			}
+		}
+
+		// Convert the given text to a "Spannable" derived type, if not already done.
+		// Reasons:
+		// 1) Works-around bug with some Samsung Android forks where calling TextView.setEnable(false)
+		//    will cause a crash if the text is not of type Spannable. (See: TIMOB-16911)
+		// 2) Ellipsis modes START and MIDDLE only work reliably with text types String and Spannable.
+		if ((text instanceof Spannable) == false) {
+			text = new SpannableStringBuilder(text);
+		}
+
+		// If auto-link is enabled, then scan the text for links and apply URLSpans to it.
+		// Note: This must be done after the text has been turned into a Spannable up above.
+		boolean hasLinks = false;
+		if (this.autoLinkFlags != 0) {
+			hasLinks = Linkify.addLinks((Spannable)text, this.autoLinkFlags);
+		}
+		MovementMethod movementMethod = hasLinks ? LinkMovementMethod.getInstance() : null;
+		if (movementMethod != textView.getMovementMethod()) {
+			// Fetch the view's current focus/enable states.
+			boolean isFocusable = textView.isFocusable();
+			boolean isClickable = textView.isClickable();
+			boolean isLongClickable = textView.isLongClickable();
+
+			// Update the view's movement method. (Will either add link support or remove it.)
+			textView.setMovementMethod(movementMethod);
+
+			// Restore the view's focus/enable states.
+			// We need to do this because setMovementMethod() resets these settings.
+			textView.setFocusable(isFocusable);
+			textView.setClickable(isClickable);
+			textView.setLongClickable(isLongClickable);
+		}
+
+		// Update the text view's ellipsize feature.
+		TruncateAt updatedEllipsizeType = this.ellipsize;
+		if (movementMethod != null) {
+			// Android doesn't support start/middle ellipsis when a MovementMethod is configured.
+			// If this is what's configured, then use "end" ellipsis mode instead.
+			// TODO: In the future, we can work-around this by not using LinkMovementMethod for links above
+			//       and handle the URLs in onTouchEvent() ourselves as seen in Google's "TextView.java" code.
+			if ((updatedEllipsizeType == TruncateAt.START) || (updatedEllipsizeType == TruncateAt.MIDDLE)) {
+				updatedEllipsizeType = TruncateAt.END;
+			}
+		}
+		textView.setEllipsize(updatedEllipsizeType);
+		if (updatedEllipsizeType == TruncateAt.MARQUEE) {
+			textView.setSelected(true);		// Start the marquee animation.
+		}
+
+		// Update the view's text.
+		textView.setText(text, TextView.BufferType.NORMAL);
+		textView.requestLayout();
 	}
 }
