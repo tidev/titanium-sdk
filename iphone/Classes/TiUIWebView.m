@@ -11,7 +11,6 @@
 #import "TiApp.h"
 #import "TiUtils.h" 
 #import "TiProxy.h"
-#import "SBJSON.h"
 #import "TiHost.h"
 #import "Webcolor.h"
 #import "TiBlob.h"
@@ -715,8 +714,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     CGRect oldBounds = [[self webview] bounds];
     BOOL oldVal = webview.scalesPageToFit;
     [webview setScalesPageToFit:NO];
-    [webview setBounds:CGRectMake(0, 0, 10, 1)];
-    CGFloat ret = [webview sizeThatFits:CGSizeMake(10, 1)].height;
+    [webview setBounds:CGRectMake(0, 0, value, 1)];
+    CGFloat ret = [webview sizeThatFits:CGSizeMake(value, 1)].height;
     [webview setBounds:oldBounds];
     [webview setScalesPageToFit:oldVal];
     return ret;
@@ -965,7 +964,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     {
         NSDictionary *event = (NSDictionary*)obj;
         NSString *name = [event objectForKey:@"type"];
-        NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);",name,listener,[SBJSON stringify:event]];
+        NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);",name,listener,[TiUtils jsonStringify:event]];
         // Not waiting for JS execution since this can cause deadlock on main queue.
         [webview performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:)
                                   withObject:js

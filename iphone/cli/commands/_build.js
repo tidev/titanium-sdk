@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -101,6 +101,9 @@ function iOSBuilder() {
 	this.useAutoLayout = false;
 	// populated the first time getDeviceInfo() is called
 	this.deviceInfoCache = null;
+
+	// the selected provisioning profile info when doing a device, dist-appstore, or dist-adhoc build
+	this.provisioningProfile = null;
 
 	// cache of provisioning profiles
 	this.provisioningProfileLookup = {};
@@ -1434,6 +1437,26 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 			.shift();
 		var globalBuildSettings = ext.objs.XCBuildConfiguration[globalCfgId].buildSettings;
 
+		// check that the PP UUID is correct
+		var pps = [];
+		if (cli.argv.target === 'device') {
+			pps = this.iosInfo.provisioning.development;
+		} else if (cli.argv.target === 'dist-appstore') {
+			pps = this.iosInfo.provisioning.distribution;
+		} else if (cli.argv.target === 'dist-adhoc') {
+			pps = [].concat(this.iosInfo.provisioning.adhoc, this.iosInfo.provisioning.enterprise).filter(function (p) { return p; });
+		}
+
+		function getPPbyUUID(ppuuid) {
+			return pps
+				.filter(function (p) {
+					if (!p.expired && !p.managed && p.uuid === ppuuid) {
+						return true;
+					}
+				})
+				.shift();
+		}
+
 		// find our targets
 		ext.project.targets.forEach(function (t) {
 			var targetName = t.comment;
@@ -1575,28 +1598,9 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 					}
 				}
 
-				// check that the PP UUID is correct
+				// find the selected provisioning profile
 				var ppuuid = tiappTargets[targetName].ppUUIDs[cli.argv.target];
-				var pps = [];
-				var pp;
-
-				function getPPbyUUID() {
-					return pps
-						.filter(function (p) {
-							if (!p.expired && !p.managed && p.uuid === ppuuid) {
-								return true;
-							}
-						})
-						.shift();
-				}
-
-				if (cli.argv.target === 'device') {
-					pps = this.iosInfo.provisioning.development;
-					pp = getPPbyUUID();
-				} else if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
-					pps = [].concat(this.iosInfo.provisioning.distribution, this.iosInfo.provisioning.adhoc);
-					pp = getPPbyUUID();
-				}
+				var pp = getPPbyUUID(ppuuid);
 
 				if (!pp) {
 					logger.error(__('iOS extension "%s" target "%s" has invalid provisioning profile UUID in tiapp.xml.', projectName, targetName));
@@ -1930,39 +1934,6 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 					next();
 				}.bind(this));
-			},
-
-			function validateCapabilities() {
-				// check if we have any capabilities or if we're building with a watch app using Xcode 8 or newer that we should need a team id
-				if (!this.tiapp.ios['team-id']) {
-					var hasCapabilities = Object.keys(this.tiapp.ios.capabilities).some(function (cap) { return this.tiapp.ios.capabilities[cap]; }, this);
-					var hasWatchApp = this.hasWatchAppV2orNewer && version.gte(this.xcodeEnv.version, '8.0.0');
-					if (hasCapabilities || hasWatchApp) {
-						if (hasCapabilities) {
-							logger.error(__('Found iOS capabilities in the tiapp.xml, but a <team-id> is not set.') + '\n');
-						} else {
-							logger.error(__('Xcode %s requires Watch Extensions have a team specified, but a <team-id> is not set.', this.xcodeEnv.version) + '\n');
-						}
-
-						if (Object.keys(this.xcodeEnv.teams).length) {
-							logger.log(__('Available teams:'));
-							Object.keys(this.xcodeEnv.teams).forEach(function (id) {
-								var team = this.xcodeEnv.teams[id];
-								logger.log('  ' + id.cyan + '  ' + team.name + ' - ' + team.type + (' (' + team.status + ')').grey);
-							}, this);
-							logger.log();
-						} else {
-							logger.log(__('Log into the Apple Developer website and create a team, then add/refresh your account in Xcode\'s preferences window in order for Titanium to see your teams.') + '\n');
-						}
-						logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-						logger.log('    <ios>'.grey);
-						logger.log('        <team-id>TEAM ID</team-id>'.magenta);
-						logger.log('    </ios>'.grey);
-						logger.log('</ti:app>'.grey);
-						logger.log();
-						process.exit(1);
-					}
-				}
 			},
 
 			function toSymlinkOrNotToSymlink() {
@@ -2350,6 +2321,10 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.defaultLaunchScreenStoryboard = false;
 	}
 
+	if (this.provisioningProfileUUID) {
+		this.provisioningProfile = this.findProvisioningProfile(this.target, this.provisioningProfileUUID);
+	}
+
 	var defaultColor = this.defaultLaunchScreenStoryboard ? 'ffffff' : null,
 		color = this.tiapp.ios['default-background-color'] || defaultColor;
 	if (color) {
@@ -2370,6 +2345,30 @@ iOSBuilder.prototype.initialize = function initialize() {
 				this.logger.warn(__('Using default background color "%s"', '#' + defaultColor));
 			}
 		}
+	}
+};
+
+iOSBuilder.prototype.findProvisioningProfile = function findProvisioningProfile(target, uuid) {
+	var provisioning = this.iosInfo.provisioning;
+
+	function getPP(type, uuid) {
+		var list = provisioning[type];
+		for (var i = 0, l = list.length; i < l; i++) {
+			if (list[i].uuid === uuid) {
+				list[i].getTaskAllow = !!list[i].getTaskAllow;
+				list[i].type = type;
+				return list[i];
+			}
+		}
+	}
+
+	switch (target) {
+		case 'device':
+			return getPP('development', uuid);
+		case 'dist-appstore':
+			return getPP('distribution', uuid);
+		case 'dist-adhoc':
+		 	return getPP('adhoc', uuid) || getPP('enterprise', uuid);
 	}
 };
 
@@ -2980,7 +2979,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		frameworksBuildPhase = xobjs.PBXFrameworksBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXFrameworksBuildPhase[phase.value]; })[0].value],
 		resourcesBuildPhase = xobjs.PBXResourcesBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXResourcesBuildPhase[phase.value]; })[0].value],
 		keychains = this.iosInfo.certs.keychains,
-		teamId = this.tiapp.ios['team-id'],
 		caps = this.tiapp.ios.capabilities,
 		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ],
 		buildSettings = {
@@ -3024,35 +3022,17 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	buildSettings.GCC_PREPROCESSOR_DEFINITIONS = '"' + gccDefs.join(' ') + '"';
 
 	if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
-		buildSettings.PROVISIONING_PROFILE = '"' + this.provisioningProfileUUID + '"';
 		buildSettings.DEPLOYMENT_POSTPROCESSING = 'YES';
 		if (this.keychain) {
 			buildSettings.OTHER_CODE_SIGN_FLAGS = '"--keychain ' + this.keychain + '"';
 		}
 	}
 
-	if (this.target === 'device') {
-		Object.keys(keychains).some(function (keychain) {
-			return (keychains[keychain].developer || []).some(function (d) {
-				if (!d.invalid && d.name === this.certDeveloperName) {
-					buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
-					return true;
-				}
-			}, this);
-		}, this);
-	} else if (/dist-appstore|dist\-adhoc/.test(this.target)) {
-		Object.keys(keychains).some(function (keychain) {
-			return (keychains[keychain].distribution || []).some(function (d) {
-				if (!d.invalid && d.name === this.certDistributionName) {
-					buildSettings.CODE_SIGN_IDENTITY = '"' + d.fullname + '"';
-					return true;
-				}
-			}, this);
-		}, this);
-	}
-
 	// add the post-compile build phase for dist-appstore builds
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
+		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Distribution"';
+		buildSettings.CODE_SIGN_STYLE = 'Manual';
+
 		xobjs.PBXShellScriptBuildPhase || (xobjs.PBXShellScriptBuildPhase = {});
 		var buildPhaseUuid = this.generateXcodeUuid(xcodeProject);
 		var name = 'Copy Resources to Archive';
@@ -3077,13 +3057,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
 	}
 
-	// inject the team id
-	if (teamId) {
+	// inject the team id and app groups
+	if (this.provisioningProfile) {
 		var attr = pbxProject.attributes || (pbxProject.attributes = {});
 		var targetAttr = attr.TargetAttributes || (attr.TargetAttributes = {});
 		var mainTargetAttr = targetAttr[mainTargetUuid] || (targetAttr[mainTargetUuid] = {});
 
-		mainTargetAttr.DevelopmentTeam = teamId;
+		mainTargetAttr.DevelopmentTeam = this.provisioningProfile.appPrefix;
 
 		// turn on any capabilities
 		Object.keys(caps).forEach(function (cap) {
@@ -3106,7 +3086,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 		var bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
 		delete bs['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
-	});
+		if (this.provisioningProfile) {
+			bs.DEVELOPMENT_TEAM = this.provisioningProfile.appPrefix;
+			bs.PROVISIONING_PROFILE = '"' + this.provisioningProfile.uuid + '"';
+			bs.PROVISIONING_PROFILE_SPECIFIER = '"' + this.provisioningProfile.name + '"';
+		}
+	}, this);
 
 	// if the storyboard launch screen is disabled, remove it from the resources build phase
 	if (!this.enableLaunchScreenStoryboard) {
@@ -3260,9 +3245,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					pbxProject.attributes.TargetAttributes[targetUuid] = extPBXProject.attributes.TargetAttributes[targetUuid];
 				}
 
-				if (teamId) {
+				if (this.provisioningProfile) {
 					var ta = pbxProject.attributes.TargetAttributes[targetUuid] || (pbxProject.attributes.TargetAttributes[targetUuid] = {});
-					ta.DevelopmentTeam = teamId;
+					ta.DevelopmentTeam = this.provisioningProfile.appPrefix;
 
 					Object.keys(caps).forEach(function (cap) {
 						ta.SystemCapabilities || (ta.SystemCapabilities = {});
@@ -3424,7 +3409,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				xobjs.XCConfigurationList[buildConfigurationListUuid] = extObjs.XCConfigurationList[buildConfigurationListUuid];
 				xobjs.XCConfigurationList[buildConfigurationListUuid + '_comment'] = extObjs.XCConfigurationList[buildConfigurationListUuid + '_comment']
 
-				var haveEntitlements = teamId && Object.keys(caps).some(function (cap) { return /^(app\-groups)$/.test(cap); });
+				var haveEntitlements = this.provisioningProfile && Object.keys(caps).some(function (cap) { return /^(app\-groups)$/.test(cap); });
 
 				xobjs.XCConfigurationList[buildConfigurationListUuid].buildConfigurations.forEach(function (conf) {
 					xobjs.XCBuildConfiguration[conf.value] = extObjs.XCBuildConfiguration[conf.value];
@@ -3447,7 +3432,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					}
 
 					if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
-						extBuildSettings.PROVISIONING_PROFILE = '"' + target.ppUUIDs[this.target] + '"';
+						var pp = this.findProvisioningProfile(this.target, target.ppUUIDs[this.target]);
+						extBuildSettings.PROVISIONING_PROFILE = '"' + pp.uuid + '"';
+						extBuildSettings.DEVELOPMENT_TEAM = pp.appPrefix;
+						extBuildSettings.PROVISIONING_PROFILE_SPECIFIER = '"' + pp.name + '"';
 						extBuildSettings.DEPLOYMENT_POSTPROCESSING = 'YES';
 						if (this.keychain) {
 							extBuildSettings.OTHER_CODE_SIGN_FLAGS = '"--keychain ' + this.keychain + '"';
@@ -3725,23 +3713,7 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(ne
 
 	// allow the project to have its own custom entitlements
 	var entitlementsFile = path.join(this.projectDir, 'Entitlements.plist'),
-		plist = new appc.plist(),
-		pp = (function (provisioning, target, uuid) {
-			function getPP(list, uuid) {
-				for (var i = 0, l = list.length; i < l; i++) {
-					if (list[i].uuid === uuid) {
-						list[i].getTaskAllow = !!list[i].getTaskAllow;
-						return list[i];
-					}
-				}
-			}
-
-			if (target === 'device') {
-				return getPP(provisioning.development, uuid);
-			} else if (target === 'dist-appstore' || target === 'dist-adhoc') {
-				return getPP(provisioning.distribution, uuid) || getPP(provisioning.adhoc, uuid) || getPP(provisioning.enterprise, uuid);
-			}
-		}(this.iosInfo.provisioning, this.target, this.provisioningProfileUUID));
+		plist = new appc.plist();
 
 	// check if we have a custom entitlements plist file
 	if (fs.existsSync(entitlementsFile)) {
@@ -3755,6 +3727,7 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(ne
 	}
 
 	// if we have a provisioning profile, make sure some entitlement settings are correct set
+	var pp = this.provisioningProfile;
 	if (pp) {
 		// attempt to customize it by reading provisioning profile
 		if (!plist.hasOwnProperty('application-identifier')) {

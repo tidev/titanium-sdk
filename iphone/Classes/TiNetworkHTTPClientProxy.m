@@ -234,18 +234,14 @@ extern NSString * const TI_APPLICATION_GUID;
     }
     
     BOOL async = [TiUtils boolValue:[self valueForUndefinedKey:@"async"] def:YES];
-    
-    NSOperationQueue *operationQueue = [NetworkModule operationQueue];
-    
     [[TiApp app] startNetwork];
-    if(async) {
-        [httpRequest setTheQueue:operationQueue];
+    
+    if (async) {
+        [httpRequest setTheQueue:[NetworkModule operationQueue]];
         [httpRequest send];
     } else {
         [httpRequest setSynchronous:YES];
         [httpRequest send];
-        [[TiApp app] stopNetwork];
-        [self forgetSelf];
     }
 }
 
