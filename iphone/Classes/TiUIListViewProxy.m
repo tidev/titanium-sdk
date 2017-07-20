@@ -426,26 +426,28 @@
 
 - (void)selectItem:(id)args
 {
-  if (view != nil) {
     ENSURE_ARG_COUNT(args, 2);
-    NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
-    NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
-    TiThreadPerformOnMainThread(^{
-      if ([_sections count] <= sectionIndex) {
-        DebugLog(@"[WARN] ListView: Select section index is out of range");
-        return;
-      }
-      TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
-      if (section.itemCount <= itemIndex) {
-        DebugLog(@"[WARN] ListView: Select item index is out of range");
-        return;
-      }
-      NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
-      [self.listView.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
-      [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-    },
-        NO);
-  }
+    
+    if (view != nil) {
+        NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
+        NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
+        
+        if ([_sections count] <= sectionIndex) {
+            DebugLog(@"[WARN] ListView: Select section index is out of range");
+            return;
+        }
+        TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+        if (section.itemCount <= itemIndex) {
+            DebugLog(@"[WARN] ListView: Select item index is out of range");
+            return;
+        }
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
+        
+        TiThreadPerformOnMainThread(^{
+            [self.listView.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
+            [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+        }, [NSThread isMainThread]);
+    }
 }
 
 - (void)deselectItem:(id)args
@@ -505,7 +507,7 @@
       [NSThread isMainThread]);
 }
 
-- (NSMutableArray *)selectedRows
+- (NSMutableArray *)selectedItems
 {
     NSMutableArray *result = [[NSMutableArray alloc] init];
     NSArray *selectedRows = [[self.listView tableView] indexPathsForSelectedRows];
@@ -529,7 +531,7 @@
                 }
                 [result addObject:eventObject];
             }
-        }, [NSThread isMainThread]);
+        }, YES);
     }
     return result;
 }
