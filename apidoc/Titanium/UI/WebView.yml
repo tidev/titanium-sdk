@@ -760,7 +760,8 @@ properties:
 
   - name: zoomLevel
     summary: Manage the zoom-level of the current page.
-    type: String
+    type: Number
+    default: 1
     platforms: [android, iphone, ipad]
     since: "6.2.0"
 
