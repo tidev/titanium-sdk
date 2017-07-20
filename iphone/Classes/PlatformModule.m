@@ -237,6 +237,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 }
 
 #if defined(USE_TI_PLATFORMIDENTIFIERFORADVERTISING) || defined(USE_TI_PLATFORMGETIDENTIFIERFORADVERTISING)
+- (NSNumber *)isAdvertisingTrackingEnabled
+{
+    return NUMBOOL([[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled]);
+}
+
 - (NSString *)identifierForAdvertising
 {
     return [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];

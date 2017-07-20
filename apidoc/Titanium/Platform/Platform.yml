@@ -182,6 +182,18 @@ properties:
     type: String
     permission: read-only
     since: "6.2.0"
+    
+  - name: isAdvertisingTrackingEnabled
+    summary: A Boolean value that indicates whether the user has limited ad tracking.
+    description: |
+        Check the value of this property before performing any advertising tracking. 
+        If the value is false, use the advertising identifier only for the following 
+        purposes: frequency capping, attribution, conversion events, estimating the 
+        number of unique users, advertising fraud detection, and debugging.
+    platforms: [iphone, ipad]
+    type: Boolean
+    permission: read-only
+    since: "6.2.0"
         
   - name: locale
     summary: System's default language.
