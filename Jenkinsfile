@@ -13,7 +13,7 @@ def vtag = ''
 def isPR = false
 
 // Variables we can change
-def nodeVersion = '4.7.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def nodeVersion = 'node 6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
