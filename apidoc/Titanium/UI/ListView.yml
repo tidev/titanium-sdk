@@ -705,10 +705,17 @@ properties:
     platforms: [iphone, ipad]
 
   - name: allowsSelectionDuringEditing
-    summary: Determines whether this list View rows can be selected while editing the table.
+    summary: Determines whether this list view rows can be selected while editing the table.
     type: Boolean
     default: false
     since: "5.4.0"
+    platforms: [iphone, ipad]
+
+  - name: allowsMultipleSelectionDuringEditing
+    summary: Determines whether multiple rows of this list view can be selected at the same time while editing the table.
+    type: Boolean
+    default: true
+    since: "6.2.0"
     platforms: [iphone, ipad]
 
   - name: lazyLoadingEnabled
@@ -1104,6 +1111,12 @@ properties:
     since: 6.1.0
     platforms: [iphone, ipad]
     availability: creation
+    
+  - name: selectedRows
+    summary: Returns the selected list view rows. 
+    type: Array<ListItemEventType>
+    since: "6.2.0"
+    platforms: [iphone, ipad]
     
 methods:
   - name: scrollToItem
