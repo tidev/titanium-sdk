@@ -136,11 +136,8 @@ timestamps {
 				echo "BASENAME:        ${basename}"
 
 				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-					// Ensure we have npm 5
-					def npmVersion = sh(returnStdout: true, script: 'npm -v').trim()
-					if (isMajorVersionLessThan(npmVersion, 5)) {
-						sh 'npm install -g npm@latest'
-					}
+					// Ennfore npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
+					sh 'npm install -g npm@5.2'
 
 					// Install dev dependencies
 					timeout(5) {
