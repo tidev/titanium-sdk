@@ -1112,6 +1112,12 @@ properties:
     platforms: [iphone, ipad]
     availability: creation
     
+  - name: selectedRows
+    summary: Returns the selected list view rows. 
+    type: Array<ListItemEventType>
+    since: "6.2.0"
+    platforms: [iphone, ipad]
+    
 methods:
   - name: scrollToItem
     summary: Scrolls to a specific item.
