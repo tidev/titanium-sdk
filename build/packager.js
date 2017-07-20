@@ -220,10 +220,6 @@ Packager.prototype.package = function (next) {
 			// Copy some root files, cli/, templates/, node_modules minus .bin sub-dir
 			this.copy(['CREDITS', 'README.md', 'package.json', 'cli', 'node_modules', 'templates'], cb);
 		}.bind(this),
-		// Remove binary scripts from node_modules
-		function (cb) {
-			fs.remove(path.join(this.zipSDKDir, 'node_modules', '.bin'), cb);
-		}.bind(this),
 		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
 		function (cb) {
 			console.log('Pruning to production npm dependencies');
@@ -236,6 +232,10 @@ Packager.prototype.package = function (next) {
 				cb();
 			});
 		}.bind(this),
+		// Remove any remaining binary scripts from node_modules
+		function (cb) {
+			fs.remove(path.join(this.zipSDKDir, 'node_modules', '.bin'), cb);
+		}.bind(this),
 		// Now include all the pre-built node-ios-device bindings/binaries
 		function (cb) {
 			if (this.targetOS == 'osx') {
@@ -247,8 +247,9 @@ Packager.prototype.package = function (next) {
 					}
 					cb();
 				});
+			} else {
+				cb();
 			}
-			cb();
 		}.bind(this),
 		// FIXME Remove these hacks for titanium-sdk when titanium-cli has been released and the tisdk3fixes.js hook is gone!
 		// Now copy over hacked titanium-sdk fake node_module
