@@ -323,7 +323,7 @@ properties:
         [hintText](Titanium.UI.TextField.hintText) property.
     description: Only one of `hintText` or `hinttextid` should be specified.
     type: String
-    since: "6.1.0"
+    since: "6.2.0"
 
   - name: inputType
     summary: Input type to accept in the text field. Also influences the Keyboard type to display.
