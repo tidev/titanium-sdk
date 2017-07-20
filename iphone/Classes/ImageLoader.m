@@ -550,12 +550,8 @@ DEFINE_EXCEPTIONS
     return [self loadRemote:url withRequestHeaders:nil];
 }
 
--(UIImage *)loadRemote:(NSURL*)url withRequestHeaders:(NSDictionary *)requestHeaders
-{
-    if (url == nil) {
-        return nil;
-    }
-    
+- (UIImage *)loadRemote:(NSURL *)url withRequestHeaders:(NSDictionary * _Nullable)requestHeaders
+{    
     UIImage *image = [[self entryForKey:url] imageForSize:CGSizeZero];
     
     if (image != nil) {
@@ -568,7 +564,7 @@ DEFINE_EXCEPTIONS
     
     [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
 
-    if (requestHeaders) {
+    if (requestHeaders != nil) {
         for (NSString *key in requestHeaders) {
             [req addRequestHeader:key value:[requestHeaders valueForKey:key]];
         }
@@ -579,8 +575,7 @@ DEFINE_EXCEPTIONS
     [req send];
     [[TiApp app] stopNetwork];
     
-    if (req!=nil && [[req response] error]==nil)
-    {
+    if (req != nil && [[req response] error] == nil) {
         NSData *data = [[req response] responseData];
         UIImage *resultImage = [UIImage imageWithData:data];
         ImageCacheEntry *result = [self setImage:resultImage forKey:url hires:NO];
