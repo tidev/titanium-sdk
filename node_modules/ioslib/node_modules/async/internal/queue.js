@@ -17,10 +17,6 @@ var _noop = require('lodash/noop');
 
 var _noop2 = _interopRequireDefault(_noop);
 
-var _rest = require('./rest');
-
-var _rest2 = _interopRequireDefault(_rest);
-
 var _onlyOnce = require('./onlyOnce');
 
 var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
@@ -33,6 +29,10 @@ var _DoublyLinkedList = require('./DoublyLinkedList');
 
 var _DoublyLinkedList2 = _interopRequireDefault(_DoublyLinkedList);
 
+var _wrapAsync = require('./wrapAsync');
+
+var _wrapAsync2 = _interopRequireDefault(_wrapAsync);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function queue(worker, concurrency, payload) {
@@ -41,6 +41,10 @@ function queue(worker, concurrency, payload) {
     } else if (concurrency === 0) {
         throw new Error('Concurrency must not be zero');
     }
+
+    var _worker = (0, _wrapAsync2.default)(worker);
+    var numRunning = 0;
+    var workersList = [];
 
     function _insert(data, insertAtFront, callback) {
         if (callback != null && typeof callback !== 'function') {
@@ -73,8 +77,8 @@ function queue(worker, concurrency, payload) {
     }
 
     function _next(tasks) {
-        return (0, _rest2.default)(function (args) {
-            workers -= 1;
+        return function (err) {
+            numRunning -= 1;
 
             for (var i = 0, l = tasks.length; i < l; i++) {
                 var task = tasks[i];
@@ -83,14 +87,14 @@ function queue(worker, concurrency, payload) {
                     workersList.splice(index);
                 }
 
-                task.callback.apply(task, args);
+                task.callback.apply(task, arguments);
 
-                if (args[0] != null) {
-                    q.error(args[0], task.data);
+                if (err != null) {
+                    q.error(err, task.data);
                 }
             }
 
-            if (workers <= q.concurrency - q.buffer) {
+            if (numRunning <= q.concurrency - q.buffer) {
                 q.unsaturated();
             }
 
@@ -98,11 +102,10 @@ function queue(worker, concurrency, payload) {
                 q.drain();
             }
             q.process();
-        });
+        };
     }
 
-    var workers = 0;
-    var workersList = [];
+    var isProcessing = false;
     var q = {
         _tasks: new _DoublyLinkedList2.default(),
         concurrency: concurrency,
@@ -125,8 +128,17 @@ function queue(worker, concurrency, payload) {
         unshift: function (data, callback) {
             _insert(data, true, callback);
         },
+        remove: function (testFn) {
+            q._tasks.remove(testFn);
+        },
         process: function () {
-            while (!q.paused && workers < q.concurrency && q._tasks.length) {
+            // Avoid trying to start too many processing operations. This can occur
+            // when callbacks resolve synchronously (#1267).
+            if (isProcessing) {
+                return;
+            }
+            isProcessing = true;
+            while (!q.paused && numRunning < q.concurrency && q._tasks.length) {
                 var tasks = [],
                     data = [];
                 var l = q._tasks.length;
@@ -137,31 +149,33 @@ function queue(worker, concurrency, payload) {
                     data.push(node.data);
                 }
 
+                numRunning += 1;
+                workersList.push(tasks[0]);
+
                 if (q._tasks.length === 0) {
                     q.empty();
                 }
-                workers += 1;
-                workersList.push(tasks[0]);
 
-                if (workers === q.concurrency) {
+                if (numRunning === q.concurrency) {
                     q.saturated();
                 }
 
                 var cb = (0, _onlyOnce2.default)(_next(tasks));
-                worker(data, cb);
+                _worker(data, cb);
             }
+            isProcessing = false;
         },
         length: function () {
             return q._tasks.length;
         },
         running: function () {
-            return workers;
+            return numRunning;
         },
         workersList: function () {
             return workersList;
         },
         idle: function () {
-            return q._tasks.length + workers === 0;
+            return q._tasks.length + numRunning === 0;
         },
         pause: function () {
             q.paused = true;
@@ -171,12 +185,7 @@ function queue(worker, concurrency, payload) {
                 return;
             }
             q.paused = false;
-            var resumeCount = Math.min(q.concurrency, q._tasks.length);
-            // Need to call q.process once per concurrent
-            // worker to preserve full concurrency after pause
-            for (var w = 1; w <= resumeCount; w++) {
-                (0, _setImmediate2.default)(q.process);
-            }
+            (0, _setImmediate2.default)(q.process);
         }
     };
     return q;

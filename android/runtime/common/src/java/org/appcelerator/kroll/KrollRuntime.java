@@ -218,6 +218,9 @@ public abstract class KrollRuntime implements Handler.Callback
 
 		// Set state to released when since we have not fully disposed of it yet
 		synchronized (runtimeState) {
+			if (runtimeState == State.DISPOSED) {
+				return;
+			}
 			runtimeState = State.RELEASED;
 		}
 
@@ -229,7 +232,6 @@ public abstract class KrollRuntime implements Handler.Callback
 
 		if (isRuntimeThread()) {
 			internalDispose();
-
 		} else {
 			handler.sendEmptyMessage(MSG_DISPOSE);
 		}
@@ -372,6 +374,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	// to execute on the runtime, and we can therefore dispose of it.
 	public static void incrementActivityRefCount()
 	{
+		waitForInit();
+
 		activityRefCount++;
 		if ((activityRefCount + serviceReceiverRefCount) == 1 && instance != null) {
 			syncInit();
@@ -399,6 +403,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	// Similar to {@link #incrementActivityRefCount} but for a Titanium Service.
 	public static void incrementServiceReceiverRefCount()
 	{
+		waitForInit();
+		
 		serviceReceiverRefCount++;
 		if ((activityRefCount + serviceReceiverRefCount) == 1 && instance != null) {
 			syncInit();
@@ -423,6 +429,9 @@ public abstract class KrollRuntime implements Handler.Callback
 	private void internalDispose()
 	{
 		synchronized (runtimeState) {
+			if (runtimeState == State.DISPOSED) {
+				return;
+			}
 			if (runtimeState == State.RELAUNCHED) {
 				// Abort the dispose if the application has been re-launched since we scheduled this dispose during the
 				// last exit. Then set it back to the initialized state.

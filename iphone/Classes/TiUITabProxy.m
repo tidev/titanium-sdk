@@ -168,8 +168,14 @@
 
 - (void)closeWindowProxy:(TiWindowProxy*)window animated:(BOOL)animated
 {
-    [window retain];
-    UIViewController *windowController = [[window hostingController] retain];
+	// TIMOB-20623: This can happen when the application is currently
+	// terminating and the rootWindow property has already been deallocated.
+	if (!rootWindow) {
+		return;
+	}
+
+	[window retain];
+	UIViewController *windowController = [[window hostingController] retain];
     
 	// Manage the navigation controller stack
 	UINavigationController* navController = [[self rootController] navigationController];
@@ -183,8 +189,8 @@
 	// and not let the window simply close by itself. this will ensure that we tell the
 	// tab that we're doing that
 	[window close:nil];
-    RELEASE_TO_NIL_AUTORELEASE(window);
-    RELEASE_TO_NIL(windowController);
+	RELEASE_TO_NIL_AUTORELEASE(window);
+	RELEASE_TO_NIL(windowController);
 }
 
 -(void)popGestureStateHandler:(UIGestureRecognizer *)recognizer
@@ -739,6 +745,15 @@
 			[thisProxy willChangeSize];
 		}
 	}
+}
+
+-(void)popToRootWindow:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+    
+    TiThreadPerformOnMainThread(^{
+        [controller popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
+    }, YES);
 }
 
 #pragma mark - TiOrientationController

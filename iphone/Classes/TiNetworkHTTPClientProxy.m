@@ -234,18 +234,14 @@ extern NSString * const TI_APPLICATION_GUID;
     }
     
     BOOL async = [TiUtils boolValue:[self valueForUndefinedKey:@"async"] def:YES];
-    
-    NSOperationQueue *operationQueue = [NetworkModule operationQueue];
-    
     [[TiApp app] startNetwork];
-    if(async) {
-        [httpRequest setTheQueue:operationQueue];
+    
+    if (async) {
+        [httpRequest setTheQueue:[NetworkModule operationQueue]];
         [httpRequest send];
     } else {
         [httpRequest setSynchronous:YES];
         [httpRequest send];
-        [[TiApp app] stopNetwork];
-        [self forgetSelf];
     }
 }
 
@@ -334,13 +330,13 @@ extern NSString * const TI_APPLICATION_GUID;
     if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
         [event setObject:@"error" forKey:@"type"];
-        [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result){
+        [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result) {
             [self forgetSelf];
         }];
     } else if(hasOnload) {
         NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
         [event setObject:@"load" forKey:@"type"];
-        [self fireCallback:@"onload" withArg:event withSource:self withHandler:^(id result){
+        [self fireCallback:@"onload" withArg:event withSource:self withHandler:^(id result) {
             [self forgetSelf];
         }];
     } else {

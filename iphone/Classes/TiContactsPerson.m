@@ -615,7 +615,7 @@ static NSDictionary* iOS9propertyKeys;
 	ENSURE_UI_THREAD(setBirthday, date)
 	if ([TiUtils isIOS9OrGreater]) {
 		NSDate *saveDate = [TiUtils dateForUTCDate:date];
-		unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit;
+		unsigned unitFlags = NSCalendarUnitYear | NSCalendarUnitMonth |  NSCalendarUnitDay;
 		NSCalendar * cal = [NSCalendar currentCalendar];
 		person.birthday = [cal components:unitFlags fromDate:saveDate];
 		[self checkAndNotifyObserver];
@@ -809,7 +809,7 @@ static NSDictionary* iOS9propertyKeys;
 				NSArray *objects = [value objectForKey:key];
 				for (NSString *object in objects) {
 					NSDate *saveDate = [TiUtils dateForUTCDate:object];
-					unsigned unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit |  NSDayCalendarUnit;
+					unsigned unitFlags = NSCalendarUnitYear | NSCalendarUnitMonth |  NSCalendarUnitDay;
 					NSCalendar * cal = [NSCalendar currentCalendar];
 					NSDateComponents *dateComps = [cal components:unitFlags fromDate:saveDate];
 					CNLabeledValue *labeledValue = [CNLabeledValue labeledValueWithLabel:[[[TiContactsPerson iOS9multiValueLabels] allKeysForObject:key] objectAtIndex:0] value:dateComps];
