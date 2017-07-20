@@ -13,7 +13,7 @@ def vtag = ''
 def isPR = false
 
 // Variables we can change
-def nodeVersion = '4.7.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
@@ -66,6 +66,13 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 			} // timeout
 		}
 	}
+}
+
+@NonCPS
+def isMajorVersionLessThan(version, minValue) {
+	def versionMatcher = version =~ /(\d+)\.(\d+)\.(\d+)/
+	def majorVersion = versionMatcher[0][1].toInteger()
+	return majorVersion < minValue
 }
 
 // Wrap in timestamper
@@ -129,10 +136,13 @@ timestamps {
 				echo "BASENAME:        ${basename}"
 
 				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+					// Ennfore npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
+					sh 'npm install -g npm@5.2'
+
 					// Install dev dependencies
 					timeout(5) {
-						// We already check in our production dependencies, so only install devDependencies
-						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
+						sh 'npm install'
 					}
 					sh 'npm test' // Run linting first
 					// Then validate docs
