@@ -505,12 +505,10 @@
       [NSThread isMainThread]);
 }
 
--(NSMutableArray *)getSelectedRows:(id)unused
+- (NSMutableArray *)selectedRows
 {
-    ENSURE_ARG_COUNT(unused, 0);
-
-    NSMutableArray *result=[[NSMutableArray alloc]init];
-    NSArray *selectedRows = [self.listView.tableView indexPathsForSelectedRows];
+    NSMutableArray *result = [[NSMutableArray alloc] init];
+    NSArray *selectedRows = [[self.listView tableView] indexPathsForSelectedRows];
 
     if (selectedRows != nil) {
         TiThreadPerformOnMainThread(^{
