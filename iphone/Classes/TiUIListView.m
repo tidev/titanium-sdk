@@ -913,12 +913,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 -(void)setAllowsMultipleSelectionDuringEditing_:(id)value
 {
-    NSLog(@"setAllowsMultipleSelectionDuringEditing_");
     ENSURE_TYPE(value, NSNumber);
+    [[self proxy] replaceValue:value forKey:@"allowsMultipleSelectionDuringEditing" notification:NO];
+
     [[self tableView] beginUpdates];
     [[self tableView] setAllowsMultipleSelectionDuringEditing:[TiUtils boolValue:value]];
     [[self tableView] endUpdates];
-    [[self proxy] replaceValue:value forKey:@"allowsMultipleSelectionDuringEditing_" notification:NO];
 }
 
 #pragma mark - Search Support
