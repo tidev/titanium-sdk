@@ -294,7 +294,7 @@ properties:
         [loginHintText](Titanium.UI.AlertDialog.loginHintText) property.
     description: Only one of `loginHintText` or `loginhinttextid` should be specified.
     type: String
-    since: "6.1.0"
+    since: "6.2.0"
     platforms: [iphone, ipad]
 
   - name: loginReturnKeyType
@@ -376,7 +376,7 @@ properties:
         [passwordHintText](Titanium.UI.AlertDialog.passwordHintText) property.
     description: Only one of `passwordHintText` or `hinttextid` should be specified.
     type: String
-    since: "6.1.0"
+    since: "6.2.0"
     platforms: [iphone, ipad]
 
   - name: passwordReturnKeyType
@@ -437,7 +437,7 @@ properties:
         [hintText](Titanium.UI.AlertDialog.hintText) property.
     description: Only one of `hintText` or `hinttextid` should be specified.
     type: String
-    since: "6.1.0"
+    since: "6.2.0"
     platforms: [iphone, ipad]
 
   - name: persistent
@@ -509,7 +509,7 @@ examples:
               fullscreen: false
             });
 
-            win.addEventListener('click', function(e){
+            win.addEventListener('click', function(e) {
               alert('The file has been deleted');
             });
             win.open();
@@ -527,7 +527,7 @@ examples:
             fullscreen: false
             });
 
-            win.addEventListener('click', function(e){
+            win.addEventListener('click', function(e) {
               var dialog = Ti.UI.createAlertDialog({
                 message: 'The file has been deleted',
                 ok: 'Okay',
@@ -549,15 +549,15 @@ examples:
               exitOnClose: true,
               fullscreen: false
             });
-            win.addEventListener('click', function(e){
+            win.addEventListener('click', function(e) {
               var dialog = Ti.UI.createAlertDialog({
                 cancel: 1,
                 buttonNames: ['Confirm', 'Cancel', 'Help'],
                 message: 'Would you like to delete the file?',
                 title: 'Delete'
               });
-              dialog.addEventListener('click', function(e){
-                if (e.index === e.source.cancel){
+              dialog.addEventListener('click', function(e) {
+                if (e.index === e.source.cancel) {
                   Ti.API.info('The cancel button was clicked');
                 }
                 Ti.API.info('e.cancel: ' + e.cancel);
@@ -578,13 +578,13 @@ examples:
             var win = Ti.UI.createWindow({
               title: 'Click window to test'
             });
-            win.addEventListener('click', function(e){
+            win.addEventListener('click', function(e) {
               var dialog = Ti.UI.createAlertDialog({
                 title: 'Enter text',
                 style: Ti.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT,
                 buttonNames: ['OK']
               });
-              dialog.addEventListener('click', function(e){
+              dialog.addEventListener('click', function(e) {
                 Ti.API.info('e.text: ' + e.text);
               });
               dialog.show();
@@ -616,10 +616,10 @@ examples:
 
         alertdialog.js:
 
-            function showDialog(){
+            function showDialog() {
                 $.dialog.show();
-            };
+            }
 
-            function doClick(e){
+            function doClick(e) {
                 Ti.API.info('e.text: ' + e.text);
-            };
+            }
