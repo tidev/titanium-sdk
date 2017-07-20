@@ -335,9 +335,22 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			pendingDisableTabs = true;
 			checkAndDisableTabsIfRequired();
 		}
-		ColorDrawable drawable = (tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR) != null) ? TiConvert.toColorDrawable((String) tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)) : TiConvert.toColorDrawable((String) tabProxy.getTabGroup().getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR));
-		actionBar.setStackedBackgroundDrawable(drawable);
-		actionBar.setBackgroundDrawable(drawable);
+
+		// Set the background color of the entire tab bar.
+		// Note: ActionBar does not support setting individual tab colors. (Would require custom views to be made.)
+		Object backgroundColorValue = tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR);
+		if ((backgroundColorValue instanceof String) == false) {
+			TabGroupProxy tabGroupProxy = tabProxy.getTabGroup();
+			if (tabGroupProxy != null) {
+				backgroundColorValue = tabGroupProxy.getProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR);
+			}
+		}
+		if (backgroundColorValue instanceof String) {
+			ColorDrawable drawable = TiConvert.toColorDrawable((String)backgroundColorValue);
+			if (drawable != null) {
+				actionBar.setStackedBackgroundDrawable(drawable);
+			}
+		}
 	}
 
 	@Override

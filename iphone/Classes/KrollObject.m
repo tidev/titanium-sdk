@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import <objc/runtime.h>
-#import "SBJSON.h"
 #import "KrollObject.h"
 #import "KrollMethod.h"
 #import "KrollCallback.h"
@@ -73,7 +72,7 @@ NSDictionary* TiValueToDict(KrollContext *context, TiValueRef value)
 //
 NSString* TiValueToJSON(KrollContext *context, TiValueRef value)
 {
-	return [SBJSON stringify:TiValueToId(context,value)];
+	return [TiUtils jsonStringify:TiValueToId(context,value)];
 }
 
 //
@@ -1178,6 +1177,11 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 				initWithTarget:self selector:_cmd object:key object:eventData object:thisObject];
 		[context enqueue:safeInvoke];
 		[safeInvoke release];
+
+		if (block != nil) {
+			block(nil);
+		}
+
 		return;
 	}
 #else
@@ -1195,7 +1199,9 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	jsProxyHash = TiValueToObject(jsContext, jsProxyHash, &exception);
 	if ((jsProxyHash == NULL) || (TiValueGetType(jsContext,jsProxyHash) != kTITypeObject))
 	{
-        if (block != nil) block(nil);
+		if (block != nil) {
+			block(nil);
+		}
 		return;
 	}
 
@@ -1205,7 +1211,9 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 
 	if ((jsCallback == NULL) || (TiValueGetType(jsContext,jsCallback) != kTITypeObject))
 	{
-        if (block != nil) block(nil);
+		if (block != nil) {
+			block(nil);
+		}
 		return;
 	}
 
@@ -1216,9 +1224,10 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 		id excm = [KrollObject toID:context value:exception];
 		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
 	}
-        if (block != nil) {
-            block(TiValueToId(context, result));
-        };
+
+	if (block != nil) {
+		block(TiValueToId(context, result));
+	};
 #ifndef TI_USE_KROLL_THREAD
     };
     TiThreadPerformOnMainThread(mainBlock, NO);

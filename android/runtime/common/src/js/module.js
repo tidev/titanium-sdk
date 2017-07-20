@@ -166,7 +166,9 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 function extendModuleWithCommonJs(externalModule, id, thiss, context) {
 	if (kroll.isExternalCommonJsModule(id)) {
 		var jsModule = new Module(id + ".commonjs", thiss, context);
-		jsModule.load(id, kroll.getExternalCommonJsModule(id));
+		// Load under fake name, or the commonjs side of the native module gets cached in place of the native module!
+		// See TIMOB-24932
+		jsModule.load(id + ".commonjs", kroll.getExternalCommonJsModule(id));
 		if (jsModule.exports) {
 			if (kroll.DBG) {
 				kroll.log(TAG, "Extending native module '" + id + "' with the CommonJS module that was packaged with it.");
@@ -339,7 +341,6 @@ Module.prototype.loadCoreModule = function (id, context) {
 				// found it
 				// FIXME Re-use loadAsJavaScriptText?
 				var module = new Module(id, this, context);
-				Module.cache[id] = module;
 				module.load(id, externalCommonJsContents);
 				return module.exports;
 			}
@@ -384,6 +385,15 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
  * @return {[String]}              The array of paths to search
  */
 Module.prototype.nodeModulesPaths = function (startDir) {
+	// Make sure we have an absolute path to start with
+	startDir = path.resolve(startDir);
+
+	// Return early if we are at root, this avoids doing a pointless loop
+	// and also returning an array with duplicate entries
+	// e.g. ["/node_modules", "/node_modules"]
+	if (startDir === '/') {
+		return ['/node_modules'];
+	}
 	// 1. let PARTS = path split(START)
 	var parts = startDir.split('/'),
 		// 2. let I = count of PARTS - 1
@@ -395,7 +405,8 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 	// 4. while I >= 0,
 	while (i >= 0) {
 		// a. if PARTS[I] = "node_modules" CONTINUE
-		if (parts[i] === 'node_modules') {
+		if (parts[i] === 'node_modules' || parts[i] === '') {
+  			i = i - 1;
 			continue;
 		}
 		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
@@ -405,6 +416,8 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 		// d. let I = I - 1
 		i = i - 1;
 	}
+	// Always add /node_modules to the search path
+	dirs.push('/node_modules');
 	return dirs;
 }
 

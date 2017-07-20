@@ -427,9 +427,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			listItemId = TiRHelper.getResource("layout.titanium_ui_list_item");
 			titleId = TiRHelper.getResource("id.titanium_ui_list_header_or_footer_title");
 			listContentId = TiRHelper.getResource("id.titanium_ui_list_item_content");
-			isCheck = TiRHelper.getResource("drawable.btn_check_buttonless_on_64");
-			hasChild = TiRHelper.getResource("drawable.btn_more_64");
-			disclosure = TiRHelper.getResource("drawable.disclosure_64");
+			isCheck = TiRHelper.getImageRessource("drawable.btn_check_buttonless_on");
+			hasChild = TiRHelper.getImageRessource("drawable.btn_more");
+			disclosure = TiRHelper.getImageRessource("drawable.disclosure");
 			accessory = TiRHelper.getResource("id.titanium_ui_list_item_accessoryType");
 		} catch (ResourceNotFoundException e) {
 			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
@@ -438,6 +438,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		this.wrapper = wrapper;
 		setNativeView(wrapper);
 	}
+	
 	
 	public String getSearchText() {
 		return searchText;
@@ -523,7 +524,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		if (d.containsKey(TiC.PROPERTY_TEMPLATES)) {
 			Object templates = d.get(TiC.PROPERTY_TEMPLATES);
 			if (templates != null) {
-				processTemplates(new KrollDict((HashMap)templates));
+				processTemplates(new KrollDict((HashMap) templates));
 			}
 		} 
 		
@@ -815,7 +816,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	protected void processTemplates(KrollDict templates) {
 		for (String key : templates.keySet()) {
 			//Here we bind each template with a key so we can use it to look up later
-			KrollDict properties = new KrollDict((HashMap)templates.get(key));
+			KrollDict properties = new KrollDict((HashMap) templates.get(key));
 			TiListViewTemplate template = new TiListViewTemplate(key, properties);
 			//Set type to template, for recycling purposes.
 			template.setType(getItemType());

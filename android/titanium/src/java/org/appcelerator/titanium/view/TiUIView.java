@@ -88,6 +88,7 @@ public abstract class TiUIView
 
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+	private static final boolean LOWER_THAN_JELLYBEAN = (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2);
 
 	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String TAG = "TiUIView";
@@ -829,20 +830,7 @@ public abstract class TiUIView
 							applyTouchFeedback(bgColor, d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) ? TiConvert.toColor(d, TiC.PROPERTY_TOUCH_FEEDBACK_COLOR) : null);
 						} else {
 							nativeView.setBackgroundColor(bgColor);
-							// A bug only on Android 2.3 (TIMOB-14311).
-							if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-								setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
-							}
 						}
-						nativeView.postInvalidate();
-					}
-				} else {
-					if (key.equals(TiC.PROPERTY_OPACITY)) {
-						setOpacity(TiConvert.toFloat(newValue, 1f));
-					}
-					if (!nativeViewNull) {
-						nativeView.setBackgroundDrawable(null);
-						nativeView.postInvalidate();
 					}
 				}
 			} else {
@@ -885,17 +873,18 @@ public abstract class TiUIView
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
 						handleBorderProperty(key, newValue);
 					}
+
+					// TIMOB-24898: disable HW acceleration to allow transparency
+					// when the backgroundColor alpha channel has been set
+					if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
+						disableHWAcceleration();
+					}
 				}
 
 				applyCustomBackground();
-
-				if (key.equals(TiC.PROPERTY_OPACITY)) {
-					setOpacity(TiConvert.toFloat(newValue, 1f));
-				} else if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB && proxy.hasProperty(TiC.PROPERTY_OPACITY)) {
-					// A bug only on Android 2.3 (TIMOB-14311).
-					setOpacity(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY), 1f));
-				}
-
+			}
+			if (key.equals(TiC.PROPERTY_OPACITY)) {
+				setOpacity(TiConvert.toFloat(newValue, 1f));
 			}
 			if (!nativeViewNull) {
 				nativeView.postInvalidate();
@@ -935,9 +924,9 @@ public abstract class TiUIView
 				ViewCompat.setTranslationZ(getOuterView(), TiConvert.toFloat(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TRANSITION_NAME)) {
-		    if (LOLLIPOP_OR_GREATER && (nativeView != null)) {
-		        ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
-		    }
+			if (LOLLIPOP_OR_GREATER && (nativeView != null)) {
+				ViewCompat.setTransitionName(nativeView, TiConvert.toString(newValue));
+			}
 		} else if (key.equals(TiC.PROPERTY_SCALE_X)) {
 			if (getOuterView() != null) {
 				ViewCompat.setScaleX(getOuterView(), TiConvert.toFloat(newValue));
@@ -961,7 +950,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_HIDDEN_BEHAVIOR)) {
 			hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
 		} else if (Log.isDebugModeEnabled()) {
-		    Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
+			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
 	}
 
@@ -1097,8 +1086,8 @@ public abstract class TiUIView
 		}
 
 		if (LOLLIPOP_OR_GREATER && !nativeViewNull
-		        && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
-		    ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
+				&& d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
+			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
 	}
 
@@ -1144,7 +1133,7 @@ public abstract class TiUIView
 	 * @return true if touch feedback can be applied. 
 	 */
 	protected boolean canApplyTouchFeedback(@NonNull KrollDict props) {
-		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) && props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false) && !hasBorder(props));
+		return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) && props.optBoolean(TiC.PROPERTY_TOUCH_FEEDBACK, false));
 	}
 	
 	/**
@@ -1412,32 +1401,35 @@ public abstract class TiUIView
 					if (radiusDim != null) {
 						radius = (float) radiusDim.getPixels(getNativeView());
 					}
-					if (radius > 0f && HONEYCOMB_OR_GREATER) {
+					if (radius > 0f && HONEYCOMB_OR_GREATER && LOWER_THAN_JELLYBEAN) {
 						disableHWAcceleration();
 					}
 					borderView.setRadius(radius);
 				}
-				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR) || d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-					if (bgColor != null) {
-						borderView.setBgColor(bgColor);
-					}
-					if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
-						borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
-					} else {
-						if (bgColor != null) {
-							borderView.setColor(bgColor);
-						}
-					}
-					Object borderWidth = "1";
-					if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-						borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
-					}
+				
+				if (bgColor != null) {
+					borderView.setBgColor(bgColor);
+					borderView.setColor(bgColor);
+				}
+				if (d.containsKey(TiC.PROPERTY_BORDER_COLOR)) {
+					borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
+				}
 
-					TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
+				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
+					TiDimension width = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
 					if (width != null) {
-						borderView.setBorderWidth((float)width.getPixels(getNativeView()));
+						borderView.setBorderWidth((float) width.getPixels(borderView));
 					}
 				}
+
+				nativeView.invalidate();
+				borderView.invalidate();
+			}
+
+			// TIMOB-24898: disable HW acceleration to allow transparency
+			// when the backgroundColor alpha channel has been set
+			if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
+				disableHWAcceleration();
 			}
 		}
 	}
@@ -1455,7 +1447,7 @@ public abstract class TiUIView
 			if (radiusDim != null) {
 				radius = (float) radiusDim.getPixels(getNativeView());
 			}
-			if (radius > 0f && HONEYCOMB_OR_GREATER) {
+			if (radius > 0f && HONEYCOMB_OR_GREATER && LOWER_THAN_JELLYBEAN) {
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
@@ -1722,9 +1714,12 @@ public abstract class TiUIView
 
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
-			if (!enabled) {
-				touchable.setEnabled(false);
-			}
+			touchable.setEnabled(enabled);
+		}
+		//Checking and setting touch sound for view
+		if (proxy.hasProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED)) {
+			boolean soundEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED), true);
+			touchable.setSoundEffectsEnabled(soundEnabled);
 		}
 		registerTouchEvents(touchable);
 
@@ -1740,7 +1735,6 @@ public abstract class TiUIView
 		doSetClickable(touchable);
 
 	}
-
 
 	public void registerForKeyPress()
 	{
@@ -1900,6 +1894,7 @@ public abstract class TiUIView
 				view.setOnClickListener(null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
 			}
 			view.setClickable(false);
+			view.setOnClickListener(null);
 			view.setOnLongClickListener(null);
 			view.setLongClickable(false);
 		} else if ( ! (view instanceof AdapterView) ) {
@@ -1947,6 +1942,9 @@ public abstract class TiUIView
 	}
 
 	public boolean fireEvent(String eventName, KrollDict data, boolean bubbles) {
+		if (proxy == null) {
+			return false;
+		}
 		if (data == null && additionalEventData != null) {
 			data = new KrollDict(additionalEventData);
 		} else if (additionalEventData != null) {

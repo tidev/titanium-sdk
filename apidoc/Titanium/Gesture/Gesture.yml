@@ -56,10 +56,10 @@ properties:
         <Titanium.UI.FACE_DOWN>, 
         or <Titanium.UI.UNKNOWN>. 
         
-        On iOS, returns the current orientation of the *device*, regardless of the screen
-        orientation. To determine the current screen orientation on iOS, use 
-        <Titanium.UI.orientation>. 
-        
+        On iOS and Windows, returns the current orientation of the *device*, 
+        regardless of the window orientation. To determine the current window orientation, 
+        use [Window.orientation](Titanium.UI.Window.orientation).
+
         On Android and Mobile Web, returns the orientation of the current window, and never reports
         the "reverse" orientations (`LANDSCAPE_RIGHT` and `UPSIDE_PORTRAIT`). 
         

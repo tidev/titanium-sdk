@@ -65,9 +65,7 @@
 		// the string having trailing spaces when given size parameter width is equal to the expected return width, so we adjust it here.
 		maxSize.width += 0.00001;
 	}
-    CGSize returnVal = [value boundingRectWithSize:maxSize
-                                           options:NSStringDrawingUsesLineFragmentOrigin
-                                           context:nil].size;
+    CGSize returnVal = [value size];
     CGSize size = CGSizeMake(ceilf(returnVal.width), ceilf(returnVal.height));
 	if (shadowOffset.width > 0)
 	{
