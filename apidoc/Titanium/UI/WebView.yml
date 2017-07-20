@@ -761,7 +761,7 @@ properties:
   - name: zoomLevel
     summary: Manage the zoom-level of the current page.
     type: Number
-    default: 1
+    default: undefined. Behaves as no zoom applied.
     platforms: [android, iphone, ipad]
     since: "6.2.0"
 
