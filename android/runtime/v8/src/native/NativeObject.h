@@ -79,7 +79,7 @@ class NativeObject
 
 
   inline void MakeWeak(void) {
-    persistent().SetWeak(this, WeakCallback);
+    persistent().SetWeak(this, WeakCallback, v8::WeakCallbackType::kParameter);
     persistent().MarkIndependent();
   }
 
@@ -113,15 +113,10 @@ class NativeObject
   int refs_;  // ro
 
  private:
-  static void WeakCallback(
-      const v8::WeakCallbackData<v8::Object, NativeObject>& data) {
-    v8::Isolate* isolate = data.GetIsolate();
-    v8::HandleScope scope(isolate);
+  static void WeakCallback(const v8::WeakCallbackInfo<NativeObject>& data) {
     NativeObject* wrap = data.GetParameter();
     assert(wrap->refs_ == 0);
     assert(wrap->handle_.IsNearDeath());
-    assert(
-        data.GetValue() == v8::Local<v8::Object>::New(isolate, wrap->handle_));
     wrap->handle_.Reset();
     delete wrap;
   }

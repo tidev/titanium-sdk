@@ -45,7 +45,7 @@ using namespace v8;
 Persistent<FunctionTemplate> ${className}::proxyTemplate;
 jclass ${className}::javaClass = NULL;
 
-${className}::${className}(jobject javaObject) : titanium::Proxy(javaObject)
+${className}::${className}() : titanium::Proxy()
 {
 }
 
@@ -54,13 +54,26 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 	Isolate* isolate = context->GetIsolate();
 
 	Local<FunctionTemplate> pt = getProxyTemplate(isolate);
-	Local<Function> proxyConstructor = pt->GetFunction(context).ToLocalChecked();
+
+	v8::TryCatch tryCatch(isolate);
+	Local<Function> constructor;
+	MaybeLocal<Function> maybeConstructor = pt->GetFunction(context);
+	if (!maybeConstructor.ToLocal(&constructor)) {
+		titanium::V8Util::fatalException(isolate, tryCatch);
+		return;
+	}
+
 	Local<String> nameSymbol = NEW_SYMBOL(isolate, "${proxyAttrs.name}"); // use symbol over string for efficiency
 	<#if isModule>
-	Local<Object> moduleInstance = proxyConstructor->NewInstance(context).ToLocalChecked();
+	MaybeLocal<Object> maybeInstance = constructor->NewInstance(context);
+	Local<Object> moduleInstance;
+	if (!maybeInstance.ToLocal(&moduleInstance)) {
+		titanium::V8Util::fatalException(isolate, tryCatch);
+		return;
+	}
 	exports->Set(nameSymbol, moduleInstance);
 	<#else>
-	exports->Set(nameSymbol, proxyConstructor);
+	exports->Set(nameSymbol, constructor);
 	</#if>
 }
 
@@ -82,7 +95,7 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 		return proxyTemplate.Get(isolate);
 	}
 
-	LOGD(TAG, "GetProxyTemplate");
+	LOGD(TAG, "${className}::getProxyTemplate()");
 
 	<#-- Query the class for the Java proxy -->
 	javaClass = titanium::JNIUtil::findClass("${packageName?replace('.','/')}/${className}");
@@ -100,9 +113,7 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 
 	proxyTemplate.Reset(isolate, t);
 	t->Set(titanium::Proxy::inheritSymbol.Get(isolate),
-		FunctionTemplate::New(isolate, titanium::Proxy::inherit<${className}>)->GetFunction());
-
-	titanium::ProxyFactory::registerProxyPair(javaClass, *t);
+		FunctionTemplate::New(isolate, titanium::Proxy::inherit<${className}>));
 
 	// Method bindings --------------------------------------------------------
 	<@Proxy.listMethods ; isFirst, name, method, signature>
@@ -127,12 +138,28 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 	<@Proxy.listConstants ; isFirst, name, constant>
 
 	<#if (constant.value)??>
-		<#if constant.type = "java.lang.String">
-		DEFINE_STRING_CONSTANT(isolate, prototypeTemplate, "${name}", "${constant.value}");
-		<#elseif constant.type = "int" || constant.type = "long" || constant.type = "short">
-		DEFINE_INT_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+		<#if isModule>
+			<#if constant.type = "java.lang.String">
+			DEFINE_STRING_CONSTANT(isolate, prototypeTemplate, "${name}", "${constant.value}");
+			<#elseif constant.type = "int" || constant.type = "long" || constant.type = "short">
+			DEFINE_INT_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			<#else>
+			DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			</#if>
 		<#else>
-		DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			<#if constant.type = "java.lang.String">
+			DEFINE_STRING_CONSTANT(isolate, t, "${name}", "${constant.value}");
+			// TODO: deprecate in 7.0.0
+			DEFINE_STRING_CONSTANT(isolate, prototypeTemplate, "${name}", "${constant.value}");
+			<#elseif constant.type = "int" || constant.type = "long" || constant.type = "short">
+			DEFINE_INT_CONSTANT(isolate, t, "${name}", ${constant.value?c});
+			// TODO: deprecate in 7.0.0
+			DEFINE_INT_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			<#else>
+			DEFINE_NUMBER_CONSTANT(isolate, t, "${name}", ${constant.value?c});
+			// TODO: deprecate in 7.0.0
+			DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			</#if>
 		</#if>
 	<#else>
 		<#if constant.type = "java.lang.String">
@@ -225,7 +252,7 @@ void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 		holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
 	}
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(holder);
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(holder);
 
 	<#if method.args?size &gt; 0>
 	<@Proxy.verifyAndConvertArguments method.args method />
@@ -259,7 +286,7 @@ void ${className}::getter_${name}(Local<Name> property, const PropertyCallbackIn
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=property.getMethodName signature=getSignature logOnly=false/>
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(args.Holder());
 
 	if (!proxy) {
 		args.GetReturnValue().Set(Undefined(isolate));
@@ -292,7 +319,7 @@ void ${className}::setter_${name}(Local<Name> property, Local<Value> value, cons
 
 	<@Proxy.initMethodID className=className name=property.setMethodName signature=setSignature logOnly=true />
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(args.Holder());
 	if (!proxy) {
 		return;
 	}
@@ -328,7 +355,7 @@ void ${className}::interceptor(Local<String> property, const v8::PropertyCallbac
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=interceptor.name signature="(Ljava/lang/String;)Ljava/lang/Object;" logOnly=false/>
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(args.Holder());
 
 	if (!proxy) {
 		args.GetReturnValue().Set(Undefined(isolate));
@@ -345,9 +372,7 @@ void ${className}::interceptor(Local<String> property, const v8::PropertyCallbac
 	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(env, property);
 	jobject jResult = (jobject) env->CallObjectMethod(javaProxy, methodID, javaProperty);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 	env->DeleteLocalRef(javaProperty);
 
 	if (env->ExceptionCheck()) {

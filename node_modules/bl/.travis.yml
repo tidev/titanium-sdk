@@ -4,10 +4,12 @@ node_js:
   - '0.10'
   - '0.12'
   - '4'
-  - '5'
+  - '6'
+  - '7'
 branches:
   only:
     - master
 notifications:
   email:
     - rod@vagg.org
+    - matteo.collina@gmail.com

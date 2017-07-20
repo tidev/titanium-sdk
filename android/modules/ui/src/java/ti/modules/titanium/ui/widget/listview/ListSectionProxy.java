@@ -454,7 +454,7 @@ public class ListSectionProxy extends ViewProxy{
 		for (int i = 0; i < items.length; i++) {
 			Object itemData = items[i];
 			if (itemData instanceof HashMap) {
-				KrollDict d = new KrollDict((HashMap)itemData);
+				KrollDict d = new KrollDict((HashMap) itemData);
 				TiListViewTemplate template = processTemplate(d, i + offset);
 				template.updateOrMergeWithDefaultProperties(d, true);
 				temps[i] = template;
@@ -464,7 +464,7 @@ public class ListSectionProxy extends ViewProxy{
 		for (int i = 0; i < items.length; i++) {
 			Object itemData = items[i];
 			if (itemData instanceof HashMap) {
-				KrollDict d = new KrollDict((HashMap)itemData);
+				KrollDict d = new KrollDict((HashMap) itemData);
 				TiListViewTemplate template = temps[i];
 				if (template != null) {
 					template.updateOrMergeWithDefaultProperties(d, false);

@@ -9,7 +9,7 @@ var path = require('path'),
 	globCopy = utils.globCopy;
 
 function readProperties(filepath) {
-	var contents = fs.readFileSync(filepath).toString(),
+	var contents = fs.readFileSync(filepath).toString().replace(/\r\n/g, '\n'),
 		regexp = /^([^=]+)\s*=\s*(.+)$/gm,
 		matches,
 		result = {};
@@ -129,7 +129,8 @@ Android.prototype.package = function (packager, next) {
 		},
 		// Copy over module resources
 		function (cb) {
-			fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: /\/android(\/titanium\-(.+)?\.(jar|res\.zip|respackage))?$/ }, cb);
+			var filterRegExp = new RegExp('\\' + path.sep  + 'android(\\' + path.sep + 'titanium\-(.+)?\.(jar|res\.zip|respackage))?$');
+			fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: filterRegExp}, cb);
 		}
 	], next);
 };
