@@ -501,15 +501,14 @@
 
 -(NSMutableArray *)getSelectedRows:(id)unused
 {
-    NSLog(@"gettingSelectedROWS");
     ENSURE_ARG_COUNT(unused, 0);
+
     NSMutableArray *result=[[NSMutableArray alloc]init];
     NSArray *selectedRows = [self.listView.tableView indexPathsForSelectedRows];
-    if(selectedRows!=nil)
-    {
+
+    if (selectedRows != nil) {
         TiThreadPerformOnMainThread(^{
-            for (NSIndexPath* indexPath in [self.listView.tableView indexPathsForSelectedRows])
-            {
+            for (NSIndexPath* indexPath in [self.listView.tableView indexPathsForSelectedRows]) {
                 NSIndexPath *realIndexPath = [self.listView pathForSearchPath:indexPath];
                 TiUIListSectionProxy *section = [self sectionForIndex:realIndexPath.section];
                 NSDictionary *item = [section itemAtIndex:realIndexPath.row];
