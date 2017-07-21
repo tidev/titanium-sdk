@@ -28,6 +28,7 @@
 - (void)updateIndicesForVisibleRows;
 
 + (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
+- (NSIndexPath *)pathForSearchPath:(NSIndexPath *)indexPath;
 
 @end
 
