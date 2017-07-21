@@ -621,7 +621,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 	
 	// iOS-only properties
-	((!utilities.isIOS()) ? it.skip : it)('ListView.getSelectedRows', function () {	
+	((!utilities.isIOS()) ? it.skip : it)('ListView.getSelectedItems', function () {	
 		var win = Ti.UI.createWindow();
 		 
 		var list = Ti.UI.createListView({
@@ -656,11 +656,11 @@ describe('Titanium.UI.ListView', function () {
 	});
 	
 	// iOS-only properties
-	((!utilities.isIOS()) ? it.skip : it)('ListView.getSelectedRows', function () {	
+	((!utilities.isIOS()) ? it.skip : it)('ListView.allowsMultipleSelectionDuringEditing', function () {	
 		var win = Ti.UI.createWindow();
 		 
 		var list = Ti.UI.createListView({
-			allowsMultipleSelectionDuringEditing: true,
+		    allowsMultipleSelectionDuringEditing: true,
 		    sections: [Ti.UI.createListSection({
 		        items: [{
 		            properties: {
