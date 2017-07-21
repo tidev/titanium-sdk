@@ -823,11 +823,11 @@ properties:
         status bar style on the application.
 
         If this value is undefined, the value is set to UIStatusBarStyle defined in tiapp.xml.
-        If that is not defined it defaults to <Titanium.UI.iPhone.StatusBar.DEFAULT>.
+        If that is not defined it defaults to <Titanium.UI.iOS.StatusBar.DEFAULT>.
     type: [Number]
-    constants: [ Titanium.UI.iPhone.StatusBar.DEFAULT, Titanium.UI.iPhone.StatusBar.GRAY,
-                 Titanium.UI.iPhone.StatusBar.GREY, Titanium.UI.iPhone.StatusBar.LIGHT_CONTENT,
-                 Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK, Titanium.UI.iPhone.StatusBar.TRANSLUCENT_BLACK ]
+    constants: [ Titanium.UI.iOS.StatusBar.DEFAULT, Titanium.UI.iOS.StatusBar.GRAY,
+                 Titanium.UI.iOS.StatusBar.GREY, Titanium.UI.iOS.StatusBar.LIGHT_CONTENT,
+                 Titanium.UI.iOS.StatusBar.OPAQUE_BLACK, Titanium.UI.iOS.StatusBar.TRANSLUCENT_BLACK ]
     since: "3.1.3"
     platforms: [iphone,ipad]
 
@@ -935,11 +935,11 @@ properties:
                 <NavigationWindow>
                     <Window>
                         <WindowToolbar>
-                            <Button id="send" title="Send" style="Ti.UI.iPhone.SystemButtonStyle.DONE" />
+                            <Button id="send" title="Send" style="Ti.UI.iOS.SystemButtonStyle.DONE" />
                             <FlexSpace/>
-                            <Button id="camera" systemButton="Ti.UI.iPhone.SystemButton.CAMERA" />
+                            <Button id="camera" systemButton="Ti.UI.iOS.SystemButton.CAMERA" />
                             <FlexSpace/>
-                            <Button id="cancel" systemButton="Ti.UI.iPhone.SystemButton.CANCEL" />
+                            <Button id="cancel" systemButton="Ti.UI.iOS.SystemButton.CANCEL" />
                         </WindowToolbar>
                     </Window>
                 </NavigationWindow>
@@ -1355,7 +1355,7 @@ description: |
 
     By default, modal windows appear from the bottom of the screen and slide up. To change the default
     transition, set the `modalTransitionStyle` property to a
-    `Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_*` constant in the dictionary passed to the Window
+    `Titanium.UI.iOS.MODAL_TRANSITION_STYLE_*` constant in the dictionary passed to the Window
     object's `open()` method.
 
     Modal windows should not support orientation modes that the window they are opened over do not
@@ -1446,7 +1446,7 @@ description: |
     #### iOS Transition Animations
 
     iOS contains built-in transition animations when switching between non-modal windows. In the Window's
-    `open` method, set the `transition` property to a `Titanium.UI.iPhone.AnimationStyle` constant to use an animation.
+    `open` method, set the `transition` property to a `Titanium.UI.iOS.AnimationStyle` constant to use an animation.
     For example, to flip right-to-left between two windows:
 
     `app/views/index.xml`:
@@ -1461,7 +1461,7 @@ description: |
 
         function animateOpen() {
             Alloy.createController('win2').getView().open({
-                transition: Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT
+                transition: Ti.UI.iOS.AnimationStyle.FLIP_FROM_LEFT
             });
         }
         $.index.open();
@@ -1773,16 +1773,16 @@ properties:
   - name: modalStyle
     summary: Presentation style of this modal window.
     platforms: [iphone, ipad]
-    constants: Titanium.UI.iPhone.MODAL_PRESENTATION_*
+    constants: Titanium.UI.iOS.MODAL_PRESENTATION_*
     type: Number
-    default: <Titanium.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN>
+    default: <Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN>
 
   - name: modalTransitionStyle
     summary: Transition style of this modal window.
     platforms: [iphone, ipad]
     type: Number
-    constants: Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_*
-    default: <Titanium.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL>
+    constants: Titanium.UI.iOS.MODAL_TRANSITION_STYLE_*
+    default: <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL>
 
   - name: navBarHidden
     summary: For modal windows, hides the nav bar (`true`) or shows the nav bar (`false`).
@@ -1813,8 +1813,8 @@ properties:
     summary: Transition style of this non-modal window.
     platforms: [iphone, ipad]
     type: Number
-    constants: Titanium.UI.iPhone.AnimationStyle.*
-    default: <Titanium.UI.iPhone.AnimationStyle.NONE>
+    constants: Titanium.UI.iOS.AnimationStyle.*
+    default: <Titanium.UI.iOS.AnimationStyle.NONE>
 
   - name: width
     summary: Window's width, in platform-specific units.

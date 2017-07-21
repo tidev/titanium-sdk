@@ -7,6 +7,10 @@ extends: Titanium.Proxy
 since: "0.9"
 platforms: [iphone, ipad]
 createable: false
+deprecated:
+    since: "5.2.0"
+    removed: "7.0.0"
+    notes: Use <Titanium.UI.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE> and <Titanium.UI.UI.TABLE_VIEW_SEPARATOR_STYLE_NONE> instead.
 
 properties:
   - name: NONE

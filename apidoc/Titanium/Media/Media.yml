@@ -948,6 +948,7 @@ properties:
     osver: {ios: {min: "7.0"}}
     deprecated:
         since: "5.2.0"
+        since: "7.0.0"
         notes: Use <Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN> instead.
   - name: CAMERA_AUTHORIZATION_UNKNOWN
     summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.

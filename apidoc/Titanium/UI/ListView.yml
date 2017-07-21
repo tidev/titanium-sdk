@@ -1098,7 +1098,7 @@ properties:
   - name: resultsSeparatorStyle
     summary: The separator style of the search results (iOS-only).
     type: Number
-    constants: Titanium.UI.iPhone.ListViewSeparatorStyle.*
+    constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     since: 6.1.0
     platforms: [iphone, ipad]
     availability: creation
