@@ -718,13 +718,18 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void requestThumbnailImagesAtTimes(Object[] times, Object option, KrollFunction callback)
 	{
 		if (hasProperty(TiC.PROPERTY_URL)) {
-			String url = TiConvert.toString(getProperty(TiC.PROPERTY_URL));
-			String path = url.contains(":") ? new TitaniumBlob(url).getNativePath() : resolveUrl(null, url);
-			Uri uri = Uri.parse(path);
-
 			cancelAllThumbnailImageRequests();
 			mTiThumbnailRetriever = new TiThumbnailRetriever();
-			mTiThumbnailRetriever.setUri(uri);
+			String url = TiConvert.toString(getProperty(TiC.PROPERTY_URL));
+			if (url.contains("file://")) {
+				mTiThumbnailRetriever.setUri(Uri.parse(this.resolveUrl(null, TiConvert.toString(this.getProperty(TiC.PROPERTY_URL)))));
+			} else {
+				String path = url.contains(":") ? new TitaniumBlob(url).getNativePath() : resolveUrl(null, url);
+				Uri uri = Uri.parse(path);
+				mTiThumbnailRetriever.setUri(uri);
+			}
+
+
 			mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option), createThumbnailResponseHandler(callback));
 		}
 	}
