@@ -1565,6 +1565,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HINT_TEXT = "hintText";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HINT_TEXT_ID = "hinttextid";
 
 	/**
 	 * @module.api

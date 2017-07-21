@@ -13,7 +13,7 @@ def vtag = ''
 def isPR = false
 
 // Variables we can change
-def nodeVersion = '4.7.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
@@ -68,6 +68,13 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 	}
 }
 
+@NonCPS
+def isMajorVersionLessThan(version, minValue) {
+	def versionMatcher = version =~ /(\d+)\.(\d+)\.(\d+)/
+	def majorVersion = versionMatcher[0][1].toInteger()
+	return majorVersion < minValue
+}
+
 // Wrap in timestamper
 timestamps {
 	def targetBranch
@@ -116,23 +123,26 @@ timestamps {
 				} // !isPR
 			} // stage
 
-			stage('Build') {
-				// Normal build, pull out the version
-				def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
-				echo "VERSION:         ${version}"
-				// Create a timestamp
-				def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
-				echo "TIMESTAMP:       ${timestamp}"
-				vtag = "${version}.v${timestamp}"
-				echo "VTAG:            ${vtag}"
-				basename = "dist/mobilesdk-${vtag}"
-				echo "BASENAME:        ${basename}"
+			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+				stage('Build') {
+					// Normal build, pull out the version
+					def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
+					echo "VERSION:         ${version}"
+					// Create a timestamp
+					def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
+					echo "TIMESTAMP:       ${timestamp}"
+					vtag = "${version}.v${timestamp}"
+					echo "VTAG:            ${vtag}"
+					basename = "dist/mobilesdk-${vtag}"
+					echo "BASENAME:        ${basename}"
 
-				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+					// Enforce npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
+					sh 'npm install -g npm@5.2'
+
 					// Install dev dependencies
 					timeout(5) {
-						// We already check in our production dependencies, so only install devDependencies
-						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
+						sh 'npm install'
 					}
 					sh 'npm test' // Run linting first
 					// Then validate docs
@@ -156,11 +166,38 @@ timestamps {
 							}
 						} // ansiColor
 					} // dir
-				} // nodeJs
-				archiveArtifacts artifacts: "${basename}-*.zip"
-				stash includes: 'dist/parity.html', name: 'parity'
-				stash includes: 'tests/', name: 'override-tests'
-			} // end 'Build' stage
+					archiveArtifacts artifacts: "${basename}-*.zip"
+					stash includes: 'dist/parity.html', name: 'parity'
+					stash includes: 'tests/', name: 'override-tests'
+				} // end 'Build' stage
+
+				stage('Security') {
+					// Clean up and install only production dependencies
+					sh 'npm prune --production'
+
+					// Scan for NSP and RetireJS warnings
+					def scanFiles = []
+					sh 'npm install -g nsp'
+					def nspExitCode = sh(returnStatus: true, script: 'nsp check --output json 2> nsp.json')
+					if (nspExitCode != 0) {
+						scanFiles << [path: 'nsp.json']
+					}
+
+					sh 'npm install -g retire'
+					def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
+
+					if (retireExitCode != 0) {
+						scanFiles << [path: 'retire.json']
+					}
+
+					if (!scanFiles.isEmpty()) {
+						step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
+					}
+
+					// re-install dev dependencies for testing later...
+					sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+				} // end 'Security' stage
+			} // nodeJs
 		} // end node for checkout/build
 
 		// Run unit tests in parallel for android/iOS
