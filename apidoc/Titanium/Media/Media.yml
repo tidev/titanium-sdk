@@ -1330,12 +1330,14 @@ properties:
     summary: Constant for disabling repeat on video playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
+    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0", mobileweb: "1.8"}
   - name: VIDEO_REPEAT_MODE_ONE
     summary: Constant for repeating one video (i.e., the one video will repeat constantly) during playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
+    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0", mobileweb: "1.8"}
   - name: VIDEO_SCALING_ASPECT_FILL
     summary: Scale video to fill the screen, clipping edges if necessary.
     description: |
