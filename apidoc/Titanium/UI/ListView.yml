@@ -1112,8 +1112,8 @@ properties:
     platforms: [iphone, ipad]
     availability: creation
     
-  - name: selectedRows
-    summary: Returns the selected list view rows. 
+  - name: selectedItems
+    summary: Returns the selected list view items. 
     type: Array<ListItemEventType>
     since: "6.2.0"
     platforms: [iphone, ipad]
