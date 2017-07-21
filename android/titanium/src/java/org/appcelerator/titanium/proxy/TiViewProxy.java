@@ -296,10 +296,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
 
 						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
-						View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
-
-						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+						View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
+						if (decorView != null) {
+							d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+						}
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -326,12 +327,13 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 						TiDimension nativeTop = new TiDimension(position[1], TiDimension.TYPE_TOP);
 
 						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
-						View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
-
-						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
-						d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
-						d.put(TiC.PROPERTY_Y, nativeTop.getAsDefault(decorView));
+						View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
+						if (decorView != null) {
+							d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_Y, nativeTop.getAsDefault(decorView));
+						}
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {

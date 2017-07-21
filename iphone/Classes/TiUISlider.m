@@ -241,18 +241,18 @@
 	[[self sliderView] setMaximumValue:[TiUtils floatValue:value]];
 }
 
--(void)setValue_:(id)value withObject:(id)properties
+-(void)_setValue:(id)value
 {
-	CGFloat newValue = [TiUtils floatValue:value];
-	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
-	UISlider * ourSlider = [self sliderView];
-	[ourSlider setValue:newValue animated:animated];
-	[self sliderChanged:ourSlider];
-}
-
--(void)setValue_:(id)value
-{
-	[self setValue_:value withObject:nil];
+    if ([value isKindOfClass:[NSNumber class]]) {
+        [[self sliderView] setValue:[TiUtils floatValue:value] animated:NO];
+    } else if ([value isKindOfClass:[NSArray class]]) {
+        CGFloat newValue = [TiUtils floatValue:[value objectAtIndex:0]];
+        NSDictionary *properties = (NSDictionary *)[value objectAtIndex:1];
+        
+        [[self sliderView] setValue:newValue animated:[TiUtils boolValue:@"animated" properties:properties def:NO]];
+    }
+    
+    [self sliderChanged:[self sliderView]];
 }
 
 -(void)setEnabled_:(id)value
@@ -275,7 +275,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 #pragma mark Delegates 
 
-- (IBAction)sliderChanged:(id)sender
+- (void)sliderChanged:(id)sender
 {
 	NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider *)sender value]];
 	[self.proxy replaceValue:newValue forKey:@"value" notification:NO];
@@ -286,7 +286,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
--(IBAction)sliderBegin:(id)sender
+-(void)sliderBegin:(id)sender
 {
     NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
     if ([[self proxy] _hasListeners:@"touchstart"])
@@ -299,7 +299,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
     }
 }
 
--(IBAction)sliderEnd:(id)sender
+-(void)sliderEnd:(id)sender
 {
 	// APPLE BUG: Sometimes in a double-click our 'UIControlEventTouchUpInside' event is fired more than once.  This is
 	// ALWAYS indicated by a sub-0.1s difference between the clicks, and results in an additional fire of the event.
@@ -321,7 +321,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
     lastTimeInterval = currentTimeInterval;
     RELEASE_TO_NIL(lastTouchUp);
     lastTouchUp = now;
-
 }
 
 @end

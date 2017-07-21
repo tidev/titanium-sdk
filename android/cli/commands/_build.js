@@ -889,6 +889,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
+	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
@@ -1775,6 +1776,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 		return appc.string.capitalize(word.toLowerCase());
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
+	this.mainActivity = '.' + this.classname + 'Activity';
 
 	this.buildOnly = argv['build-only'];
 
@@ -3342,7 +3344,7 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 		}
 		if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
 			var theme = this.tiappAndroidManifest.application.theme;
-			if (theme.startsWith('@style/')) {
+			if (theme.startsWith('@style/') && theme !== '@style/Theme.Titanium') {
 				flags = theme.replace('@style/', '');
 			}
 		}
@@ -3538,6 +3540,14 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				this.logger.warn(__('%s should not be used. Ignoring definition from %s', 'android:launchMode'.red, activity.cyan));
 			}
 		}
+
+		// TIMOB-24917: make sure the main activity is themed
+		if (tiappAndroidManifest.application.activity && tiappAndroidManifest.application.activity[this.mainActivity]) {
+			var parameters = tiappAndroidManifest.application.activity[this.mainActivity];
+			if (!parameters.theme) {
+				parameters.theme = '@style/Theme.Titanium';
+			}
+		}
 	}
 
 	// gather activities
@@ -3631,6 +3641,21 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		});
 	}
 
+	if (this.realTargetSDK >= 24 && !finalAndroidManifest.application.hasOwnProperty('resizeableActivity')) {
+		finalAndroidManifest.application.resizeableActivity = true;
+	}
+
+	if (this.realTargetSDK >= 24) {
+		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
+			var activity = finalAndroidManifest.application.activity[name];
+			if (!activity.configChanges) {
+				activity.configChanges = ['density'];
+			} else if (activity.configChanges.indexOf('density') == -1) {
+				activity.configChanges.push('density');
+			}
+		});
+	}
+
 	// add permissions
 	if (!this.tiapp['override-permissions']) {
 		Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
@@ -3686,7 +3711,8 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-S', this.buildResDir,
 			'-I', this.androidTargetSDK.androidJar,
 			'-F', this.ap_File,
-			'--output-text-symbols', bundlesPath
+			'--output-text-symbols', bundlesPath,
+			'--no-version-vectors'
 		];
 
 	var runAapt = function runAapt() {
@@ -3950,6 +3976,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
 			'-jar', this.androidInfo.sdk.dx,
 			'--dex', '--multi-dex',
+			'--set-max-idx-number=' + this.dxMaxIdxNumber,
 			'--output=' + this.buildBinClassesDex,
 		],
 		shrinkedAndroid = path.join(path.dirname(this.androidInfo.sdk.dx), 'shrinkedAndroid.jar'),
