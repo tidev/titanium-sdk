@@ -5,6 +5,7 @@ var path = require('path'),
 	appc = require('node-appc'),
 	request = require('request'),
 	temp = require('temp'),
+	util = require('util'),
 	Utils = {};
 
 Utils.copyFile = function (srcFolder, destFolder, filename, next) {
@@ -72,10 +73,12 @@ Utils.downloadURL = function (url, callback) {
 	});
 
 	req.on('response', function (req) {
+		var err;
 		if (req.statusCode >= 400) {
 			// something went wrong, abort
 			console.log();
-			console.error('Request failed with HTTP status code %s %s', req.statusCode, req.statusMessage);
+			err = util.format('Request for %s failed with HTTP status code %s %s', url, req.statusCode, req.statusMessage);
+			console.error(new Error(err));
 			return callback(err);
 		} else if (req.headers['content-length']) {
 			// we know how big the file is, display the progress bar

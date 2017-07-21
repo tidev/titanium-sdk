@@ -166,12 +166,15 @@ Packager.prototype.includePackagedModules = function (next) {
 	// Read modules.json, grab the object for each supportedPlatform
 	contents = fs.readFileSync(path.join(SUPPORT_DIR, 'module', 'packaged', 'modules.json')).toString(),
 	modulesJSON = JSON.parse(contents);
+	var newModuleURLS = [];
 	for (var x = 0; x < supportedPlatforms.length; x++) {
-		urls = urls.concat(modulesJSON[supportedPlatforms[x]]);
+		newModuleURLS = modulesJSON[supportedPlatforms[x]];
+		urls = urls.concat(newModuleURLS || []);
 	}
 
 	// Fetch the listed modules from URLs...
 	async.each(urls, function (url, cb) {
+		// FIXME Don't show progress bars, because they clobber each other
 		downloadURL(url, function (err, file) {
 			if (err) {
 				return cb(err);
@@ -187,8 +190,8 @@ Packager.prototype.includePackagedModules = function (next) {
 		}
 
 		// MUST RUN IN SERIES or they will clobber each other and unzip will fail mysteriously
-		async.eachSeries(items, function (item, cb) {
-			unzip(item.path, outDir, function (err) {
+		async.eachSeries(zipFiles, function (zipFile, cb) {
+			unzip(zipFile, outDir, function (err) {
 				if (err) {
 					return cb(err);
 				}
