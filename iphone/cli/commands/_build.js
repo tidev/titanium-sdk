@@ -49,9 +49,13 @@ var platformsRegExp = /^(android|ios|iphone|ipad|mobileweb|blackberry|windows|ti
 function iOSBuilder() {
 	Builder.apply(this, arguments);
 
+	// the minimum supported iOS SDK required when building
 	this.minSupportedIosSdk = parseInt(version.parseMin(this.packageJson.vendorDependencies['ios sdk']));
+
+	// the maximum supported iOS SDK required when building
 	this.maxSupportedIosSdk = parseInt(version.parseMax(this.packageJson.vendorDependencies['ios sdk']));
 
+	// object mapping the build-targets to their deploy-types
 	this.deployTypes = {
 		'simulator': 'development',
 		'device': 'test',
@@ -59,8 +63,11 @@ function iOSBuilder() {
 		'dist-adhoc': 'production'
 	};
 
+	// list of available build-targets
 	this.targets = ['simulator', 'device', 'dist-appstore', 'dist-adhoc'];
 
+	// object of device families to map the --device-family parameter to the 
+	// native TARGETED_DEVICE_FAMILY build-setting
 	this.deviceFamilies = {
 		iphone: '1',
 		ipad: '2',
@@ -68,8 +75,11 @@ function iOSBuilder() {
 		watch: '4'
 	};
 
+	// device-family set by the --device-family parameter
 	this.deviceFamily = null;
 
+	// blacklisted files and directories that throw an error when used and will 
+	// lead to a rejection when submitted 
 	this.blacklistDirectories = [
 		'contents',
 		'resources',
@@ -85,20 +95,26 @@ function iOSBuilder() {
 		'hyperloop'
 	];
 
+	// graylisted directories that throw a warning when used and may lead to a
+	// rejection when submitted 
 	this.graylistDirectories = [
 		'frameworks'
 	];
 
+	// templates-directory to render the ApplicationRouting.m into
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
 
+	// object of all used Titanium symbols, used to determine preprocessor statements, e.g. USE_TI_UIWINDOW
 	this.tiSymbols = {};
 
 	// when true, uses the JavaScriptCore that ships with iOS instead of the original Titanium version
-	this.useJSCore = false;
+	this.useJSCore = true;
+
 	// when false, JavaScript will run on its own thread - the Kroll Thread
-	this.runOnMainThread = false;
+	this.runOnMainThread = true;
 
 	this.useAutoLayout = false;
+
 	// populated the first time getDeviceInfo() is called
 	this.deviceInfoCache = null;
 
@@ -2269,18 +2285,29 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS
 	this.currentBuildManifest.showErrorController          = this.showErrorController
 
-	// This is default behavior for now. Move this to true in phase 2.
-	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
-	// TIMOB-17892
-	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
-	// Remove this check on 6.0.0
+	// Use native JSCore by default (TIMOB-23136)
+	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
+
+	// Remove this check on 7.0.0
 	if (this.tiapp.ios && (this.tiapp.ios.hasOwnProperty('run-on-main-thread'))) {
-		this.logger.info(__('run-on-main-thread no longer set in the <ios> section of the tiapp.xml. Use <property name="run-on-main-thread" type="bool">true</property> instead'));
+		this.logger.warn(__('run-on-main-thread no longer set in the <ios> section of the tiapp.xml. Use <property name="run-on-main-thread" type="bool">true</property> instead'));
 		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.ios['run-on-main-thread'] === true);
 	} else {
 		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('run-on-main-thread') && this.tiapp.properties['run-on-main-thread'].value || false);
 	}
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
+
+	// Deprecate TiJSCore and leave a warning if used anyway
+	if (!this.useJSCore) {
+		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy JavaScriptCore library in favor of the built-in JavaScriptCore.'));
+		this.logger.warn(__('The legacy JavaScriptCore library will be removed in Titanium SDK 8.0.0.'));
+	}
+
+	// Deprecate KrollThread and leave a warning if used anyway
+	if (!this.runOnMainThread) {
+		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy UI-execution on Kroll-Thread in favor of the Main-Thread.'));
+		this.logger.warn(__('The legacy execution will be removed in Titanium SDK 8.0.0.'));
+	}
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
