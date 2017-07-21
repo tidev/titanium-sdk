@@ -143,10 +143,13 @@ AndroidBaseBuilder.prototype.isExternalAndroidLibraryAvailable = function isExte
 		'android.support.compat': ['android-support-compat.jar'],
 		'android.support.coreui': ['android-support-core-ui.jar'],
 		'android.support.coreutils': ['android-support-core-utils.jar'],
+		'android.support.design': ['android-support-design.jar'],
 		'android.support.fragment': ['android-support-fragment.jar'],
 		'android.support.mediacompat': ['android-support-media-compat.jar'],
+		'android.support.transition': ['android-support-transition.jar'],
 		'android.support.v7.appcompat': ['android-support-v7-appcompat.jar'],
-		'android.support.v7.cardview': ['android-support-v7-cardview.jar']
+		'android.support.v7.cardview': ['android-support-v7-cardview.jar'],
+		'android.support.v7.recyclerview': ['android-support-v7-recyclerview.jar']
 	};
 	return this.androidLibraries.some(function(libraryInfo) {
 		if (!replaceableAndroidLibraries[libraryInfo.packageName]) {
