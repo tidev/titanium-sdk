@@ -242,8 +242,7 @@ properties:
   - name: runtime
     summary: Short name of the JavaScript runtime in use.
     description: |
-      On iOS this is "javascriptcore", on Android either "v8" or "rhino" and on Mobile Web it is
-      determined by the browser used.
+      On iOS this is "javascriptcore", on Android either "v8" or "rhino".
     type: String
     permission: read-only
 

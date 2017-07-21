@@ -19,9 +19,6 @@ description: |
 
     * On iOS, a Switch appears as an iOS on/off switch and doesn't have any text associated with it.
 
-    * On Mobile Web, a switch always has text associated with it, and appears as a toggle button,
-    similar to Android.
-
     Use the <Titanium.UI.createSwitch> method or **`<Switch>`** Alloy element to create a switch.
 
 extends: Titanium.UI.View
@@ -94,14 +91,11 @@ properties:
         <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX>, this property is only effective if the
         [width](Titanium.UI.Switch.width) property is set to a value greater than the width of the
         [title](Titanium.UI.Switch.title) contents.
-
-        On Mobile Web this property is always supported, as the `style` property is not supported.
     type: [String, Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: |
         <Titanium.UI.TEXT_ALIGNMENT_CENTER> (toggle button, Android),
-        <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox, Android),
-        <Titanium.UI.TEXT_ALIGNMENT_CENTER> (Mobile Web)
+        <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox, Android)
     platforms: [android, ]
 
   - name: title
@@ -172,7 +166,7 @@ properties:
         On iOS, be aware that this property must be set when the switch is rendered, otherwise it
         will not be visible. This is a known issue.
     type: Boolean
-    default: undefined (visual state off, Android), false (Mobile Web)
+    default: undefined (visual state off, Android)
 
   - name: verticalAlign
     summary: Vertical alignment for the text field.

@@ -8,9 +8,6 @@ description: |
     calling a method on the proxy object results in a method invokation on the native
     object.
 
-    In Mobile Web, there is no true `Proxy` type -- all Titanium objects are ordinary JavaScript
-    objects.
-
     Some Titanium objects are _createable_: new instances of these objects can be created using
     factory methods. For example, a [Window](Titanium.UI.Window) object can be created using the
     <Titanium.UI.createWindow> method.

@@ -162,8 +162,6 @@ methods:
         <Titanium.Codec.LITTLE_ENDIAN>).
     description: |
         See "Byte Order" in the main discussion of <Titanium.Codec> for more information.
-
-        On Mobile Web, this property always returns <Titanium.Codec.LITTLE_ENDIAN>.
     returns:
         type: Number
         summary: OS native byte order.
@@ -184,8 +182,6 @@ methods:
 
         *   If `byteOrder` is included in the `options` dictionary, the specified byte order
             is used -- otherwise, the native byte order is assumed.
-
-        On Mobile Web, `position` is not supported.
     parameters:
       - name: options
         summary: Named parameters.
@@ -238,8 +234,6 @@ methods:
             is used -- otherwise, the native byte order is assumed.
 
         Throws an exception if `source` is null, or `position` is greater than `source.length`
-
-        On Mobile Web, `position` and `byteOrder` are not supported.
     parameters:
       - name: options
         summary: Named parameters.
@@ -300,8 +294,6 @@ methods:
         Throws an exception if `charset` is not a valid character set,
         `source` is null, or either `sourcePosition`, `sourceLength`, or
         `sourcePosition`+`sourceLength` is greater than `source.length`.
-
-        On Mobile Web, the `charset` option is not supported. All strings are treated as UTF-8.
     parameters:
 
       - name: options
@@ -359,8 +351,6 @@ methods:
 
         Throws an exception if `charset` is not a valid character set, `source` is null,
         or either `position`, `length`, or `position`+`length` is greater than `source.length`.
-
-        On Mobile Web, `charset` is not supported. All strings are treated as UTF-8.
     parameters:
 
       - name: options

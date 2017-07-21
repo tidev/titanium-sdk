@@ -23,13 +23,13 @@ description: |
     Use the <Titanium.UI.createButton> method or a **`<Button>`** Alloy element to create a button
     (see [Examples](#!/api/Titanium.UI.Button-examples)) .
 
-    #### Android and Mobile Web Platform Notes
+    #### Android Platform Notes
 
-    Android and Mobile Web use default button images for the normal, focused, selected and disabled
+    Android uses default button images for the normal, focused, selected and disabled
     states. If you use a custom button image, you should specify versions for the focused
     and selected states (and the disabled state, if the button is ever disabled).
 
-    Android and Mobile Web also support setting the background color for each of the states. These are not
+    Android also supports setting the background color for each of the states. These are not
     supported on iOS.
 
     #### iOS Platform Notes
@@ -88,7 +88,7 @@ description: |
     * Similarly, for an assigned background gradient to show through, the `backgroundColor` may need to be
     set to 'transparent'.
 
-    Unlike Android and Mobile Web, iOS doesn't supply any default background images for buttons--
+    Unlike Android, iOS doesn't supply any default background images for buttons--
     system button styles serve this purpose.
 
     The `systemButton` property lets you create a predefined system-defined button,

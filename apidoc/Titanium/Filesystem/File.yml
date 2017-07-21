@@ -329,7 +329,7 @@ properties:
     summary: |
         `true` if the file is executable.
     description: |
-        On iOS, Mobile Web, this property exists but is always `false`.
+        On iOS, this property exists but is always `false`.
     type: Boolean
     platforms: [android, iphone, ipad]
     permission: read-only
@@ -338,7 +338,7 @@ properties:
     summary:
         Set to `true` if the file is hidden.
     description: |
-        On iOS, Mobile Web, this property exists but is always `false`.
+        On iOS, this property exists but is always `false`.
     type: Boolean
     platforms: [android, iphone, ipad]
 

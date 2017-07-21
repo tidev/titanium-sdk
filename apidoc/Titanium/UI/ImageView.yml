@@ -62,12 +62,12 @@ methods:
 
   - name: start
     summary: |
-        Starts the image animation. On Android and Mobile Web, also resets `index` to the first image.
+        Starts the image animation. On Android, also resets `index` to the first image.
     description:  This method only works if multiple images are specified.
 
 
   - name: stop
-    summary: Stops a running animation. On iOS and Mobile Web, also resets `index` to the first image.
+    summary: Stops a running animation. On iOS, also resets `index` to the first image.
     description:  This method only works if multiple images are specified.
 
 
@@ -136,7 +136,7 @@ properties:
     summary: |
         Indicates whether animation is running.
     type: Boolean
-    default: false on creation, true on load (Android), false (iPhone, iPad, Mobile Web)
+    default: false on creation, true on load (Android), false (iPhone, iPad)
     permission: read-only
 
 
@@ -144,7 +144,6 @@ properties:
     summary: |
         Indicates whether the image should be rotated based on exif orientation data.
         By default, this is false on android and true on iOS.
-        The auto rotate behavior is not supported on Mobile Web.
     type: Boolean
     default: false on android, true on iOS.
     availability: creation
@@ -173,7 +172,7 @@ properties:
         started, duration will be set to the number of images multiplied by 33 ms. If no images
         are assigned, duration will be set to 100 ms.
 
-        On iOS and Mobile Web, prior to release 2.1.1, the default is 30 ms.
+        On iOS, prior to release 2.1.1, the default is 30 ms.
 
         On Android, if the value of duration is changed, [stop](Titanium.UI.ImageView.stop)
         and [start](Titanium.UI.ImageView.start) need to be called for the new value to take effect.
@@ -205,8 +204,7 @@ properties:
     summary: Image to display.
     description: |
         Image to display, defined using a local filesystem path, a `File` object, a remote URL,
-        or a `Blob` object containing image data. `Blob` and `File` objects are not supported on
-        Mobile Web.
+        or a `Blob` object containing image data.
 
         For Android, if there is a redirect and change in protocol, it will not follow. For example,
         from http to https and vice versa. See [Java Bug Database](http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4620571)
@@ -216,8 +214,7 @@ properties:
   - name: images
     summary: |
         Array of images to animate, defined using local filesystem paths, `File` objects,
-        remote URLs (Android only), or `Blob` objects containing image data. `Blob` and `File`
-        objects are not supported on Mobile Web.
+        remote URLs (Android only), or `Blob` objects containing image data.
 
         When using this property, an initial `start()` needs to be called upon the ImageView before any image will show in this imageview.
 

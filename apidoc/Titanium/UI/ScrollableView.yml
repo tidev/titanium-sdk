@@ -8,7 +8,7 @@ description: |
     a scrollable view.
 
     The `ScrollableView` supports an on-screen paging control to indicate whether a previous or next
-    page exists. When the paging control is enabled on iOS or Mobile Web, by default it appears as
+    page exists. When the paging control is enabled on iOS, by default it appears as
     small dots on the bottom of the screen, whereas Android displays arrows on the left and
     right-hand sides.
 
@@ -71,7 +71,7 @@ methods:
   - name: removeView
     summary: Removes an existing page from this Scrollable View.
     description: |
-        On Android and Mobile Web, does nothing if the page does not exist in
+        On Android, does nothing if the page does not exist in
         <Titanium.UI.ScrollableView.views>.
 
         On iOS, throws an exception if the page does not exist in <Titanium.UI.ScrollableView.views>

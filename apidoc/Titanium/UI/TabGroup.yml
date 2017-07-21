@@ -27,12 +27,12 @@ description: |
     tab's associated control. Tabs can be removed, and the user may (optionally) be allowed to
     reorder tabs.
 
-    * On iOS and Mobile Web, it is also possible to add tabs by updating the
+    * On iOS, it is also possible to add tabs by updating the
     [tabs](Titanium.UI.TabGroup.tabs) property, and to switch active tabs by setting the
     [active](Titanium.UI.Tab.active) property on one of the tabs to `true`. Since these mechanisms
     are platform-specific, it is recommended that you use `addTab` and `setActiveTab` instead.
 
-    * If you use the iOS/Mobile Web-specific mechanisms, it is possible to add multiple active tabs
+    * If you use the iOS-specific mechanisms, it is possible to add multiple active tabs
     to a tab group. In this case, the result of which tab is initially selected is undefined.
 
     #### Further Reading
@@ -449,8 +449,6 @@ properties:
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
     description: |
-        On Mobile Web, a tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
-
         On iOS, requires iOS 5.0 or later; ignored on earlier versions.
     type: String
     platforms: [iphone, ipad]

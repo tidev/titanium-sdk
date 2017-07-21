@@ -129,8 +129,6 @@ properties:
     description: |
         One of the activity indicator style constants.
 
-        On Mobile Web, setting the style automatically sets the indicator color and diameter.
-
         See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
         [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
     type: Number

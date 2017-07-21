@@ -100,12 +100,12 @@ events:
 
       - name: cancel
         summary: |
-            Boolean type on Android; Number on iOS and Mobile Web.
+            Boolean type on Android; Number on iOS.
 
             On Android, indicates whether the cancel button was clicked, in which
             case returns `true`.
 
-            On iOS and Mobile Web, the value of the [cancel](Titanium.UI.OptionDialog.cancel)
+            On iOS, the value of the [cancel](Titanium.UI.OptionDialog.cancel)
             property is returned, if defined, or `-1` otherwise.
         type: [Boolean, Number]
 
@@ -186,7 +186,7 @@ properties:
         Note that the cancel button is never shown on iPad, since the user can cancel the
         dialog by clicking outside of the dialog.
     type: Number
-    default: undefined (Android), -1 (iOS, Mobile Web)
+    default: undefined (Android), -1 (iOS)
 
 
   - name: destructive

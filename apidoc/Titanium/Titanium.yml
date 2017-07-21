@@ -3,8 +3,7 @@ name: Titanium
 summary: The top-level Titanium module.
 description: |
     The Titanium module provides the Titanium Mobile API, allowing developers to access native
-    features of each target environment. Currently, the Android, iOS and Mobile Web (beta)
-    environments are supported.
+    features of each target environment. Currently, the Android and iOSenvironments are supported.
 
     #### Titanium Namespace
 

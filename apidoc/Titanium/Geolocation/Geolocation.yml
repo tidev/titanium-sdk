@@ -130,23 +130,9 @@ description: |
         [frequency](Titanium.Geolocation.frequency) property. The `preferredProvider`
         and `frequency` properties are not used in any other mode.
 
-    #### Configuring Location Updates on Mobile Web
-
-    Location services on Mobile Web operate similarly to the *simple mode* operations on
-    Android. Setting [accuracy](Titanium.Geolocation.accuracy) property to
-    [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) yeilds the best available location
-    updates, with the hightest power consumption.
-    Using [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) provides lower-quality location
-    updates with lower power consumption.
-
-    In addition to the accuracy setting, there are several Mobile Web-specific settings.
-    See <Titanium.Geolocation.MobileWeb> for details.
-
     #### Using the Compass
 
     Both iOS and Android support a receiving heading updates from a hardware compass, if available.
-    On Mobile Web, heading updates are supported if the browser supports this feature.
-    Currently, this support is only available on Mobile Safari.
 
     Check the [hasCompass](Titanium.Geolocation.hasCompass) property to see if the current
     device supports a compass.
@@ -1118,9 +1104,6 @@ properties:
         a value of 10 means the heading is plus or minus 10 degrees from the
         actual value. A negative value indicates the compass heading is invalid;
         for example, if there is magnetic interference, or if the compass is not calibrated.
-
-        On Mobile Web, compass is currently supported only on iOS, and returns
-        the same value as iOS native.
 
         On Android, the value is set to either 1 (low accuracy), 2 (medium accuracy)
         or 3 (high accuracy). No specific definition of these accuracy values is supplied.

@@ -291,7 +291,7 @@ properties:
         Specifies the value of the slider when the thumb is all the way to the right. This
         value is inclusive.
 
-        On Android and Mobile Web, the selectable values can be limited using the
+        On Android, the selectable values can be limited using the
         [minRange](Titanium.UI.Slider.minRange) and [maxRange](Titanium.UI.Slider.maxRange)
         properties.
 

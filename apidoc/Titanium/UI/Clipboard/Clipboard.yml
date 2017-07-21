@@ -5,7 +5,7 @@ description: |
     The Clipboard is a temporary data store, used to save a single item of data that may then
     be accessed by the user using UI copy and paste interactions within an app or between apps.
 
-    On iOS and Mobile Web, the module's `*Data()` methods enable multiple representations of the
+    On iOS, the module's `*Data()` methods enable multiple representations of the
     same data item to be stored together with their respective
     [MIME type](http://en.wikipedia.org/wiki/Internet_media_type) to describe their format. For
     example, `'text'` and `'text/plain'` for text, and `'image/jpg'` and `'image/png'` for an image.

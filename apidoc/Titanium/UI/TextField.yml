@@ -189,7 +189,7 @@ properties:
 
         If this property is not explicitly defined, it behaves as though it were set to `true`.
 
-        On iOS and Mobile Web, the returned default value is `false`, and on Android, the returned
+        On iOS, the returned default value is `false`, and on Android, the returned
         default value is undefined, but all behave as if the value is `true`.
     type: Boolean
 
@@ -469,9 +469,6 @@ properties:
     summary: Obscure the input text from the user.
     description: |
         Set to `true` to hide entered characters.
-
-        On Mobile Web, if you set a `keyboardType` and enable the `passwordMask`, the `passwordMask`
-        will always take precedence and the default keyboard will be used.
 
         Note: on iOS, `passwordMask` *must* be specified when this text field is created.
     type: Boolean

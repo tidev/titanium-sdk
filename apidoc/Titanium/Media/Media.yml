@@ -328,7 +328,7 @@ methods:
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
-        On Android and Mobile Web, a `pattern` argument can be provided to specify a
+        On Android, a `pattern` argument can be provided to specify a
         vibration pattern.
 
         The `pattern` is an array of Number values.  Each number in the array is
@@ -340,8 +340,6 @@ methods:
 
         Would cause the vibration to start immediately (delay = 0), and perform three
         long vibrations (500 ms) separated by short pauses (100ms).
-
-        On Mobile Web, calling `vibrate` without a `pattern` will stop the vibration.
     parameters:
       - name: pattern
         summary: Array of values identifying a vibrate pattern (only used on Android).

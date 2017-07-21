@@ -141,8 +141,7 @@ properties:
 
         If this property is not explicitly defined, it behaves as though it were set to `true`.
 
-        On Android and iOS, the returned default value is undefined, and on Mobile Web, the returned
-        default value is `false`, but all behave as if the value is `true`.
+        On Android and iOS, the returned default value is undefined, but behave as if the value is `true`.
     type: Boolean
     platforms: [android, iphone, ipad, ]
 
