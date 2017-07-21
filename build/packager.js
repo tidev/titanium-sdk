@@ -7,6 +7,7 @@ var path = require('path'),
 	utils = require('./utils'),
 	copyFile = utils.copyFile,
 	copyFiles = utils.copyFiles,
+	downloadURL = utils.downloadURL,
 	ROOT_DIR = path.join(__dirname, '..'),
 	SUPPORT_DIR = path.join(ROOT_DIR, 'support'),
 	DOC_DIR = path.join(ROOT_DIR, 'apidoc');
@@ -151,35 +152,53 @@ Packager.prototype.includePackagedModules = function (next) {
 	// Unzip all the zipfiles in support/module/packaged
 	var outDir = this.zipDir,
 		supportedPlatforms = this.platforms.concat(['commonjs']),
-		items = [];
+		urls = [], // urls of module zips to grab
+		zipFiles = [],
+		contents = '',
+		modulesJSON = {};
 	// Include aliases for ios/iphone/ipad
 	if (supportedPlatforms.indexOf('ios') != -1 ||
 		supportedPlatforms.indexOf('iphone') != -1 ||
 		supportedPlatforms.indexOf('ipad') != -1) {
 		supportedPlatforms = supportedPlatforms.concat(['ios', 'iphone', 'ipad']);
 	}
-	fs.walk(path.join(SUPPORT_DIR, 'module', 'packaged'))
-		.on('data', function (item) {
-			var m,
-				r = /([\w\.]+)?-(\w+)?-([\d\.]+)\.zip$/;
-			// Skip modules for platforms we're not bundling!
-			if (m = item.path.match(r)) {
-				if (supportedPlatforms.indexOf(m[2]) != -1) {
-					items.push(item);
-				}
+
+	// Read modules.json, grab the object for each supportedPlatform
+	contents = fs.readFileSync(path.join(SUPPORT_DIR, 'module', 'packaged', 'modules.json')).toString(),
+	modulesJSON = JSON.parse(contents);
+	var newModuleURLS = [];
+	for (var x = 0; x < supportedPlatforms.length; x++) {
+		newModuleURLS = modulesJSON[supportedPlatforms[x]];
+		urls = urls.concat(newModuleURLS || []);
+	}
+
+	// Fetch the listed modules from URLs...
+	async.each(urls, function (url, cb) {
+		// FIXME Don't show progress bars, because they clobber each other
+		downloadURL(url, function (err, file) {
+			if (err) {
+				return cb(err);
 			}
-		})
-		.on('end', function () {
-			// MUST RUN IN SERIES or they will clobber each other and unzip will fail mysteriously
-			async.eachSeries(items, function (item, cb) {
-				unzip(item.path, outDir, function (err) {
-					if (err) {
-						return cb(err);
-					}
-					cb();
-				});
-			}, next);
+			zipFiles.push(file);
+			cb();
 		});
+	},
+	// ...then unzip them
+	function (err) {
+		if (err) {
+			return next(err);
+		}
+
+		// MUST RUN IN SERIES or they will clobber each other and unzip will fail mysteriously
+		async.eachSeries(zipFiles, function (zipFile, cb) {
+			unzip(zipFile, outDir, function (err) {
+				if (err) {
+					return cb(err);
+				}
+				cb();
+			});
+		}, next);
+	});
 };
 
 /**
