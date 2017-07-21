@@ -2286,7 +2286,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.showErrorController          = this.showErrorController
 
 	// Use native JSCore by default (TIMOB-23136)
-	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || true);
+	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
 
 	// Remove this check on 7.0.0
 	if (this.tiapp.ios && (this.tiapp.ios.hasOwnProperty('run-on-main-thread'))) {
@@ -2299,7 +2299,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 
 	// Deprecate TiJSCore and leave a warning if used anyway
 	if (!this.useJSCore) {
-		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy JavaScriptCore library in favor of the built-in JavaScriptCore'.));
+		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy JavaScriptCore library in favor of the built-in JavaScriptCore.'));
 		this.logger.warn(__('The legacy JavaScriptCore library will be removed in Titanium SDK 8.0.0.'));
 	}
 
