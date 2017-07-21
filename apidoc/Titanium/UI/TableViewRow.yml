@@ -126,7 +126,7 @@ events:
     
   - name: swipe
     summary: Fired when the device detects a swipe gesture against the view.
-    platforms: [mobileweb]
+    platforms: []
     properties:
       - name: direction
         summary: Direction of the swipe--either 'left' or 'right'. Android also supports 'up' and 'down'.
@@ -153,7 +153,7 @@ events:
         
         On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -173,7 +173,7 @@ events:
         
         On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -193,7 +193,7 @@ events:
         
         On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
         will fire immediately following the scroll.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -364,7 +364,7 @@ properties:
     description: |
         To set the opacity of a row on iOS, specify an aRGB value with the
         <Titanium.UI.TableViewRow.backgroundColor> property.
-    platforms: [android, mobileweb]
+    platforms: [android, ]
 
   - name: rightImage
     summary: Image to render in the right image area of the row, specified as a local path or URL.

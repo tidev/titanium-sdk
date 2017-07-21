@@ -24,11 +24,11 @@ exports.VALID_OSES = [ 'android', 'blackberry', 'ios', 'mobileweb', 'windowsphon
 exports.DEFAULT_VERSIONS = {
 	'android' : '0.8',
 	'iphone' : '0.8',
-	'ipad' : '0.8',
-	'mobileweb' : '1.8'
+	'ipad' : '0.8'
 };
 exports.ADDON_VERSIONS = {
 	'blackberry' : '3.1.2',
+	'mobileweb' : '1.8',
 	'windowsphone' : '4.1.0'
 };
 exports.DATA_TYPES = [ 'Array', 'Boolean', 'Callback', 'Date', 'Dictionary', 'Number', 'Object', 'String' ];

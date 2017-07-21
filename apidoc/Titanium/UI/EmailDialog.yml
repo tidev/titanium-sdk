@@ -130,7 +130,7 @@ properties:
     summary: Constant for the `SAVED` status result. On Android, this property exists but is not used.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
     
   - name: SENT
     summary: Constant for the `SENT` status result.
@@ -164,7 +164,7 @@ properties:
         especially those for the desktop, do not support them.
     type: Boolean
     default: false
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
     
   - name: messageBody
     summary: Email message body.

@@ -8,10 +8,9 @@ description: |
       <tr>
         <td><img src="images/alertdialog/alertdialog_android.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_ios.png" height="75" /></td>
-        <td><img src="images/alertdialog/alertdialog_mobileweb.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
 
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
@@ -327,7 +326,7 @@ properties:
   - name: messageid
     summary: Key identifying a string in the locale file to use for the message text.
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
 
   - name: ok
     summary: Text for the `OK` button.
@@ -341,7 +340,7 @@ properties:
     description: |
         If `buttonNames` is defined, this property is ignored.
     type: String
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
 
   - name: passwordPlaceholder
     summary: Placeholder of the password text field inside the dialog.
@@ -484,7 +483,7 @@ properties:
   - name: titleid
     summary: Key identifying a string in the locale file to use for the title text.
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
 
   - name: value
     summary: Value of the text field inside the dialog.

@@ -14,7 +14,7 @@ description: |
     another type of node, it throws an exception.
 
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad, ]
 
 properties:
 
@@ -145,7 +145,7 @@ properties:
         [Text](Titanium.XML.Text) nodes only.
     type: String
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
     accessors: false
 
   - name: text
@@ -313,7 +313,7 @@ methods:
 
   - name: normalize
     summary: Normalizes text and attribute nodes in this node's child hierarchy.
-    platforms: [android, mobileweb]
+    platforms: [android, ]
 
   - name: removeChild
     summary: Removes a child node from this node.

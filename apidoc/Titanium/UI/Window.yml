@@ -298,7 +298,7 @@ events:
         if it was previously backgrounded.
         The application needs to monitor the <Titanium.App.resumed> event.
         See <Titanium.App> for more information on the iOS application lifecycle.
-    platforms: [android,  iphone, ipad, mobileweb]
+    platforms: [android,  iphone, ipad, ]
 
   - name: open
     summary: Fired when the window is opened.
@@ -350,7 +350,7 @@ properties:
         Background color for the nav bar, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
     type: String
 
   - name: barImage
@@ -360,7 +360,7 @@ properties:
         of the SDK created a custom image view and inserted it as a child of the navigation bar.
         The titanium sdk now uses the native call to set the background image of the navigation bar.
         You can set it to a 1px transparent png to use a combination of `barColor` and `hideShadow:true`.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
     type: String
 
   - name: bottom
@@ -530,7 +530,7 @@ properties:
                     </Tab>
                 </TabGroup>
             </Alloy>
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
     type: Titanium.UI.View
 
   - name: leftNavButtons
@@ -578,7 +578,7 @@ properties:
         effect. By default, the action bar is always displayed.  To hide the action bar, see the
         [Android Action Bar guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
 
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
     default: false
     type: Boolean
 
@@ -758,7 +758,7 @@ properties:
                 </TabGroup>
             </Alloy>
 
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
     type: Titanium.UI.View
     
   - name: rightNavButtons
@@ -862,12 +862,12 @@ properties:
                     </TitleControl>
                 </Window>
             </Alloy>
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
     type: Titanium.UI.View
 
   - name: titleImage
     summary: Image to show in the title area of the nav bar, specified as a local file path or URL.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
     type: String
 
   - name: titlePrompt
@@ -942,7 +942,7 @@ properties:
 
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
     default: true on iOS7 and above, false otherwise.
     type: Boolean
 

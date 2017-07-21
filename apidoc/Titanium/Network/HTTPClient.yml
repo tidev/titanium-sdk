@@ -355,7 +355,7 @@ properties:
         Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
     since: 3.0.0
 
   - name: enableKeepAlive
@@ -374,7 +374,7 @@ properties:
         On Android and Mobile Web, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
     since: {android: 3.4.0}
 
   - name: location
@@ -446,7 +446,7 @@ properties:
     description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
     since: 3.0.0
 
   - name: readyState
@@ -521,7 +521,7 @@ properties:
     description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
     since: 3.0.0
 
   - name: validatesSecureCertificate
@@ -545,7 +545,7 @@ properties:
         request to be asynchronous.
     type: Boolean
     default: false
-    platforms: [mobileweb]
+    platforms: []
     
   - name: tlsVersion
     summary: Sets the TLS version to use for handshakes.

@@ -146,7 +146,7 @@ properties:
          platform-specific, using [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) 
          is recommended instead.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad, ]
 
   - name: activeIcon
     summary: Icon URL for this tab when active.
@@ -170,14 +170,14 @@ properties:
   - name: backgroundColor
     summary: Sets the color of the tab when it is inactive.
     description: For information about color values, see the "Colors" section of <Titanium.UI>.
-    platforms: [android, mobileweb]
+    platforms: [android, ]
     since: {android: 3.0.0}
 
   - name: backgroundDisabledColor
-    platforms: [mobileweb]
+    platforms: []
 
   - name: backgroundDisabledImage
-    platforms: [mobileweb]
+    platforms: []
 
   - name: backgroundFocusedColor
     summary: Sets the color of the tab when it is focused.
@@ -185,17 +185,17 @@ properties:
         On the Android platform, this sets the color of the active tab.
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    platforms: [android, mobileweb]
+    platforms: [android, ]
     since: {android: 3.0.0}
 
   - name: backgroundFocusedImage
-    platforms: [mobileweb]
+    platforms: []
 
   - name: backgroundImage
-    platforms: [mobileweb]
+    platforms: []
 
   - name: backgroundSelectedImage
-    platforms: [mobileweb]
+    platforms: []
 
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
@@ -303,7 +303,7 @@ properties:
     platforms: [iphone,ipad]
 
   - name: touchEnabled
-    platforms: [mobileweb]
+    platforms: []
 
   - name: window
     summary: Root-level tab window.  All tabs must have at least one root-level tab window.
@@ -329,7 +329,7 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
 
   - name: unselected
     summary: Fired when the tab is no longer selected.
@@ -347,17 +347,17 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
 
   - name: click
     summary: Fired when this tab is clicked in the tab group.
     exclude-platforms: [iphone, ipad]
 
   - name: dblclick
-    platforms: [mobileweb]
+    platforms: []
 
   - name: doubletap
-    platforms: [mobileweb]
+    platforms: []
 
   - name: focus
     summary: Fired when the tab gains focus.
@@ -377,7 +377,7 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
 
   - name: selected
     summary: Fired when the tab is selected.
@@ -395,13 +395,13 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
 
   - name: longpress
-    platforms: [mobileweb]
+    platforms: []
 
   - name: postlayout
-    platforms: [mobileweb]
+    platforms: []
 
   - name: selected
     summary: Fired when the tab is selected.
@@ -409,22 +409,22 @@ events:
     since: "3.6.0"
 
   - name: singletap
-    platforms: [mobileweb]
+    platforms: []
 
   - name: swipe
-    platforms: [mobileweb]
+    platforms: []
 
   - name: touchcancel
-    platforms: [mobileweb]
+    platforms: []
 
   - name: touchend
-    platforms: [mobileweb]
+    platforms: []
 
   - name: touchmove
-    platforms: [mobileweb]
+    platforms: []
 
   - name: touchstart
-    platforms: [mobileweb]
+    platforms: []
 
   - name: unselected
     summary: Fired when the tab is unselected.

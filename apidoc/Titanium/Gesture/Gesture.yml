@@ -33,7 +33,7 @@ properties:
     type: Boolean
     accessors: false
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
 
   - name: landscape
     summary: Indicates whether current window is considered landscape by the device.
@@ -42,7 +42,7 @@ properties:
     type: Boolean
     accessors: false
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, ]
 
   - name: orientation
     summary: Orientation of the current window.  
