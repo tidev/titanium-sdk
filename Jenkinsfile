@@ -123,20 +123,20 @@ timestamps {
 				} // !isPR
 			} // stage
 
-			stage('Build') {
-				// Normal build, pull out the version
-				def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
-				echo "VERSION:         ${version}"
-				// Create a timestamp
-				def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
-				echo "TIMESTAMP:       ${timestamp}"
-				vtag = "${version}.v${timestamp}"
-				echo "VTAG:            ${vtag}"
-				basename = "dist/mobilesdk-${vtag}"
-				echo "BASENAME:        ${basename}"
+			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+				stage('Build') {
+					// Normal build, pull out the version
+					def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
+					echo "VERSION:         ${version}"
+					// Create a timestamp
+					def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
+					echo "TIMESTAMP:       ${timestamp}"
+					vtag = "${version}.v${timestamp}"
+					echo "VTAG:            ${vtag}"
+					basename = "dist/mobilesdk-${vtag}"
+					echo "BASENAME:        ${basename}"
 
-				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-					// Ennfore npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
+					// Enforce npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
 					sh 'npm install -g npm@5.2'
 
 					// Install dev dependencies
@@ -166,11 +166,38 @@ timestamps {
 							}
 						} // ansiColor
 					} // dir
-				} // nodeJs
-				archiveArtifacts artifacts: "${basename}-*.zip"
-				stash includes: 'dist/parity.html', name: 'parity'
-				stash includes: 'tests/', name: 'override-tests'
-			} // end 'Build' stage
+					archiveArtifacts artifacts: "${basename}-*.zip"
+					stash includes: 'dist/parity.html', name: 'parity'
+					stash includes: 'tests/', name: 'override-tests'
+				} // end 'Build' stage
+
+				stage('Security') {
+					// Clean up and install only production dependencies
+					sh 'npm prune --production'
+
+					// Scan for NSP and RetireJS warnings
+					def scanFiles = []
+					sh 'npm install -g nsp'
+					def nspExitCode = sh(returnStatus: true, script: 'nsp check --output json 2> nsp.json')
+					if (nspExitCode != 0) {
+						scanFiles << [path: 'nsp.json']
+					}
+
+					sh 'npm install -g retire'
+					def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
+
+					if (retireExitCode != 0) {
+						scanFiles << [path: 'retire.json']
+					}
+
+					if (!scanFiles.isEmpty()) {
+						step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
+					}
+
+					// re-install dev dependencies for testing later...
+					sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+				} // end 'Security' stage
+			} // nodeJs
 		} // end node for checkout/build
 
 		// Run unit tests in parallel for android/iOS
