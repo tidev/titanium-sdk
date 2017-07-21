@@ -1,18 +1,19 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#include <cstring>
+
+#include <string.h>
 
 #include <v8.h>
-
 #include "V8Util.h"
 #include "JNIUtil.h"
 #include "JSException.h"
 #include "AndroidUtil.h"
 #include "TypeConverter.h"
+
 
 namespace titanium {
 using namespace v8;
@@ -129,6 +130,7 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 	}
 
 	if (showLine) {
+		Local<Message> message = tryCatch.Message();
 		if (!message.IsEmpty()) {
 			titanium::Utf8Value filename(message->GetScriptResourceName());
 			titanium::Utf8Value msg(message->Get());
@@ -138,7 +140,7 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 	}
 
 	Local<Value> stackTrace = tryCatch.StackTrace();
-	titanium::Utf8Value trace(stackTrace);
+	titanium::Utf8Value trace(tryCatch.StackTrace());
 
 	if (trace.length() > 0 && !stackTrace->IsUndefined()) {
 		LOGD(EXC_TAG, *trace);

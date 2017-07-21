@@ -85,14 +85,7 @@ void WrappedScript::Initialize(Local<Object> target, Local<Context> context)
 	SetTemplateMethod(isolate, constructor, "runInThisContext", WrappedScript::CompileRunInThisContext);
 	SetTemplateMethod(isolate, constructor, "runInNewContext", WrappedScript::CompileRunInNewContext);
 
-	v8::TryCatch tryCatch(isolate);
-	MaybeLocal<Function> maybeConstructor = constructor->GetFunction(context);
-	Local<Function> localFunction;
-	if (!maybeConstructor.ToLocal(&localFunction)) {
-		V8Util::fatalException(isolate, tryCatch);
-		return;
-	}
-	target->Set(symbol, localFunction);
+	target->Set(symbol, constructor->GetFunction(context).ToLocalChecked());
 }
 
 void WrappedScript::New(const FunctionCallbackInfo<Value>& args)

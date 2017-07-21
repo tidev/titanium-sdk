@@ -667,7 +667,9 @@ beprovided to handle the result.
 	</#if>
 
 	<#-- Delete java proxy reference once done making the call. -->
-	proxy->unreferenceJavaObject(${jobjectVar});
+	if (!JavaObject::useGlobalRefs) {
+		env->DeleteLocalRef(${jobjectVar});
+	}
 
 	<@Proxy.cleanupMethodArguments args=methodArgs hasInvocation=hasInvocation/>
 

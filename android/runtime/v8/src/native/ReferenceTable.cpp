@@ -1,25 +1,26 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #include "ReferenceTable.h"
+
 #include "JNIUtil.h"
 
 namespace titanium {
 
-jlong ReferenceTable::createReference(jobject object)
+jint ReferenceTable::createReference(jobject object)
 {
 	JNIEnv* env = JNIUtil::getJNIEnv();
-	return env->CallStaticLongMethod(
+	return env->CallStaticIntMethod(
 		JNIUtil::referenceTableClass,
 		JNIUtil::referenceTableCreateReferenceMethod,
 		object);
 }
 
-void ReferenceTable::destroyReference(jlong key)
+void ReferenceTable::destroyReference(jint key)
 {
 	JNIEnv* env = JNIUtil::getJNIEnv();
 	env->CallStaticVoidMethod(
@@ -28,7 +29,7 @@ void ReferenceTable::destroyReference(jlong key)
 		key);
 }
 
-void ReferenceTable::makeWeakReference(jlong key)
+void ReferenceTable::makeWeakReference(jint key)
 {
 	JNIEnv* env = JNIUtil::getJNIEnv();
 	env->CallStaticVoidMethod(
@@ -37,7 +38,7 @@ void ReferenceTable::makeWeakReference(jlong key)
 		key);
 }
 
-jobject ReferenceTable::clearWeakReference(jlong key)
+jobject ReferenceTable::clearWeakReference(jint key)
 {
 	JNIEnv* env = JNIUtil::getJNIEnv();
 	return env->CallStaticObjectMethod(
@@ -46,7 +47,7 @@ jobject ReferenceTable::clearWeakReference(jlong key)
 		key);
 }
 
-jobject ReferenceTable::getReference(jlong key)
+jobject ReferenceTable::getReference(jint key)
 {
 	JNIEnv* env = JNIUtil::getJNIEnv();
 	return env->CallStaticObjectMethod(
@@ -56,3 +57,4 @@ jobject ReferenceTable::getReference(jlong key)
 }
 
 } // namespace titanium
+

@@ -6,7 +6,7 @@
  */
 #include <dlfcn.h>
 #include <map>
-#include <cstring>
+#include <string.h>
 #include <vector>
 #include <v8.h>
 #include <jni.h>
