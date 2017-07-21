@@ -77,7 +77,7 @@
     "node": "4.x || 6.x"
   },
   "engines": {
-    "node": ">=4.0"
+    "node": ">=6"
   },
   "license": "Apache-2.0"
 }
