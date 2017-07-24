@@ -251,6 +251,7 @@ timestamps {
 							indexJson = jsonParse(contents)
 						}
 					}
+					// FIXME Add branch to branches.json file as well if the <branch>/index.json didn't exist!
 
 					// unarchive zips
 					unarchive mapping: ['dist/': '.']
