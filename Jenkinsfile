@@ -130,15 +130,17 @@ timestamps {
 						// ignore? Not able to grab the branches.json, what should we assume? In 99.9% of the cases, it's not a new build
 					}
 
-					if (!isFirstBuildOnBranch) {
-						step([$class: 'CopyArtifact',
-							projectName: "../titanium_mobile_windows/${targetBranch}",
-							selector: [$class: 'StatusBuildSelector', stable: false],
-							filter: 'dist/windows/'])
-						sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
-					} else {
-						// TODO Just mark the build unstable for now or somehow denote that we're intentionally skipping Windows right now?
+					// If there's no windows build for this branch yet, use master
+					def windowsBranch = targetBranch
+					if (isFirstBuildOnBranch) {
+						windowsBranch = 'master'
+						manager.addWarningBadge("Looks like the first build on branch ${env.BRANCH_NAME}. Using 'master' branch build of Windows SDK to bootstrap.")
 					}
+					step([$class: 'CopyArtifact',
+						projectName: "../titanium_mobile_windows/${windowsBranch}",
+						selector: [$class: 'StatusBuildSelector', stable: false],
+						filter: 'dist/windows/'])
+					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
 				} // !isPR
 			} // stage
 
