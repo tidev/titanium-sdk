@@ -707,10 +707,16 @@ public class ListSectionProxy extends ViewProxy{
 	
 	public void generateChildContentViews(DataItem item, TiUIView parentContent, TiBaseListViewItem rootItem, boolean root) {
 
+		android.app.Activity activity = getActivity();
+		if (activity == null) {
+			return;
+		}
+
 		ArrayList<DataItem> childrenItem = item.getChildren();
 		for (int i = 0; i < childrenItem.size(); i++) {
 			DataItem child = childrenItem.get(i);
 			TiViewProxy proxy = child.getViewProxy();
+			proxy.setActivity(activity);
 			TiUIView view = proxy.createView(proxy.getActivity());
 			view.registerForTouch();
 			proxy.setView(view);
@@ -895,8 +901,18 @@ public class ListSectionProxy extends ViewProxy{
 		return (footerTitle != null && pos == getItemCount() - 1);
 	}
 	
-	public void setListView(TiListView l) {
-		listView = new WeakReference<TiListView>(l);
+	public void setListView(TiListView listView) {
+		// Store a weak reference to the given ListView.
+		this.listView = new WeakReference<TiListView>(listView);
+
+		// Updates this proxy to use the given ListView's activity. Will end up using its theme.
+		// Note: Odds are this proxy was initialized with the previous activity upon creation.
+		if (listView != null) {
+			TiViewProxy listViewProxy = listView.getProxy();
+			if ((listViewProxy != null) && (listViewProxy.getActivity() != null)) {
+				setActivity(listViewProxy.getActivity());
+			}
+		}
 	}
 	
 	public TiListView getListView() {

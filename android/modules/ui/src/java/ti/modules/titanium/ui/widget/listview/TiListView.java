@@ -825,7 +825,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		}
 	}
 	
-	public View layoutHeaderOrFooterView (TiViewProxy viewProxy) {
+	public View layoutHeaderOrFooterView(TiViewProxy viewProxy) {
 		TiUIView tiView = viewProxy.peekView();
 		if (tiView != null) {
 			TiViewProxy parentProxy = viewProxy.getParent();
@@ -837,6 +837,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				}
 			}
 		} else {
+			TiViewProxy listViewProxy = getProxy();
+			if ((listViewProxy != null) && (listViewProxy.getActivity() != null)) {
+				viewProxy.setActivity(listViewProxy.getActivity());
+			}
 			tiView = viewProxy.forceCreateView();
 		}
 		View outerView = tiView.getOuterView();
