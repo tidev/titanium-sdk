@@ -427,9 +427,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			listItemId = TiRHelper.getResource("layout.titanium_ui_list_item");
 			titleId = TiRHelper.getResource("id.titanium_ui_list_header_or_footer_title");
 			listContentId = TiRHelper.getResource("id.titanium_ui_list_item_content");
-			isCheck = TiRHelper.getResource("drawable.btn_check_buttonless_on_64");
-			hasChild = TiRHelper.getResource("drawable.btn_more_64");
-			disclosure = TiRHelper.getResource("drawable.disclosure_64");
+			isCheck = TiRHelper.getImageRessource("drawable.btn_check_buttonless_on");
+			hasChild = TiRHelper.getImageRessource("drawable.btn_more");
+			disclosure = TiRHelper.getImageRessource("drawable.disclosure");
 			accessory = TiRHelper.getResource("id.titanium_ui_list_item_accessoryType");
 		} catch (ResourceNotFoundException e) {
 			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
@@ -438,6 +438,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		this.wrapper = wrapper;
 		setNativeView(wrapper);
 	}
+	
 	
 	public String getSearchText() {
 		return searchText;
