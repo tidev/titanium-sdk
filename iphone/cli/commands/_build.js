@@ -3784,7 +3784,6 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	var defaultInfoPlistFile = path.join(this.platformPath, 'Info.plist'),
 		customInfoPlistFile = this.projectDir + '/Info.plist',
 		plist = this.infoPlist = new appc.plist(),
-		iphone = this.tiapp.iphone, // deprected in 2.1.0, removed in 7.0.0
 		ios = this.tiapp.ios,
 		fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'] && this.tiapp.properties['ti.facebook.appid'].value,
 		iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'), // note: this is basically stripping the file extension
@@ -3934,15 +3933,15 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		plist.UIStatusBarStyle = 'UIStatusBarStyleBlackTranslucent';
 	}
 
-	if (iphone) {
+	if (this.tiapp.iphone) {
 		this.logger.error(__('The <iphone> section of the tiapp.xml has been removed in Titanium SDK 7.0.0 and later.'));
 		this.logger.log(__('Please use the <ios> section of the tiapp.xml to specify iOS-specific values instead:'));
 		this.logger.log();
 		this.logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
 		this.logger.log('    <ios>'.grey);
 		this.logger.log('        <plist>'.grey);
-		this.logger.log(('           <dict>').grey);
-		this.logger.log(('               <!-- Enter your Info.plist keys here -->').magenta);
+		this.logger.log('            <dict>'.grey);
+		this.logger.log('                <!-- Enter your Info.plist keys here -->'.magenta);
 		this.logger.log('            </dict>'.grey);
 		this.logger.log('        </plist>'.grey);
 		this.logger.log('    </ios>'.grey);
