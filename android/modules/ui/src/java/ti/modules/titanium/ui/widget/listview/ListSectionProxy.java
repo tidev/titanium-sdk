@@ -28,6 +28,7 @@ import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.ViewProxy;
 import ti.modules.titanium.ui.widget.listview.TiListView.TiBaseAdapter;
 import ti.modules.titanium.ui.widget.listview.TiListViewTemplate.DataItem;
+import android.app.Activity;
 import android.os.Message;
 import android.view.View;
 
@@ -707,7 +708,7 @@ public class ListSectionProxy extends ViewProxy{
 	
 	public void generateChildContentViews(DataItem item, TiUIView parentContent, TiBaseListViewItem rootItem, boolean root) {
 
-		android.app.Activity activity = getActivity();
+		Activity activity = getActivity();
 		if (activity == null) {
 			return;
 		}
