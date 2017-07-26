@@ -528,11 +528,11 @@ static const NSTimeInterval kLauncherViewFastTransitionDuration = 0.2;
 			
 			if (animated) 
 			{
-	            [UIView animateWithDuration:kLauncherViewFastTransitionDuration delay:0.0 options:kNilOptions animations:^{
-	                [self layoutButtons];
-	                button.transform = CGAffineTransformMakeScale(0.01, 0.01);
-	                button.alpha = 0;
-	            } completion:^(BOOL finished) {}];
+				[UIView animateWithDuration:kLauncherViewFastTransitionDuration delay:0.0 options:kNilOptions animations:^{
+	                		[self layoutButtons];
+	                		button.transform = CGAffineTransformMakeScale(0.01, 0.01);
+	                		button.alpha = 0;
+	            		} completion:^(BOOL finished) {}];
 			} 
 			else 
 			{
