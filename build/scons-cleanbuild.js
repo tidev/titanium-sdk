@@ -10,6 +10,7 @@ var exec = require('child_process').exec,
 	Documentation = require('./docs'),
 	git = require('./git'),
 	Packager = require('./packager'),
+	appc = require('node-appc'),
 	platforms = [],
 	oses = [],
 	// TODO Move common constants somewhere?
@@ -49,26 +50,23 @@ function install(versionTag, next) {
 		osName = os.platform();
 
 	if (osName === 'win32') {
-		return next('Unable to unzip files on Windows currently. FIXME!');
+		dest = path.join(process.env.ProgramData, 'Titanium');
 	}
 
 	if (osName === 'darwin') {
 		osName = 'osx';
 		dest = path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
 	}
-	// TODO Where should we install on Windows?
+
+	if (osName === 'linux') {
+		osName = 'linux';
+		dest = path.join(process.env.HOME, '.titanium');
+	}
 
 	zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
 	console.log('Installing %s...', zipfile);
 
-	// TODO Combine with unzip method in packager.js?
-	// TODO Support unzipping on windows
-	exec('/usr/bin/unzip -q -o -d "' + dest + '" "' + zipfile + '"', function (err, stdout, stderr) {
-		if (err) {
-			return next(err);
-		}
-		return next();
-	});
+	appc.zip.unzip(zipfile, dest, {}, next);
 }
 
 var versionTag = program.versionTag || program.sdkVersion;

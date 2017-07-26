@@ -42,7 +42,7 @@ function install(versionTag, next) {
 	zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
 	console.log('Installing %s...', zipfile);
 
-	appc.zip.unzip(zipfile, dest, { overwrite:true }, next);
+	appc.zip.unzip(zipfile, dest, {}, next);
 }
 
 install(versionTag, function (err) {
