@@ -6,7 +6,6 @@
  */
 #import <Foundation/Foundation.h>
 #import "Bridge.h"
-#import "SBJSON.h"
 #import "TiModule.h"
 #import "TiHost.h"
 

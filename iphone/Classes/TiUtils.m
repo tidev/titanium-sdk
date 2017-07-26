@@ -1326,7 +1326,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	{
 		WebFont *font = [[WebFont alloc] init];
 		font.family = value;
-		font.size = 14;
+		font.size = 17;
 		return [font autorelease];
 	}
 	return def;
@@ -1335,11 +1335,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(WebFont*)fontValue:(id)value
 {
-	WebFont * result = [self fontValue:value def:nil];
-	if (result == nil) {
-		result = [WebFont defaultFont];
-	}
-	return result;
+	return [self fontValue:value def:[WebFont defaultFont]];
 }
 
 +(TiScriptError*) scriptErrorValue:(id)value;
@@ -2086,6 +2082,10 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 
 +(NSString*)jsonStringify:(id)value error:(NSError**)error
 {
+    if (value == nil) {
+        return nil;
+    }
+    
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:value
                                                        options:kNilOptions
                                                          error:error];

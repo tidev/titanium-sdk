@@ -398,6 +398,12 @@ DEFINE_EXCEPTIONS
     [[controller tabBar] setUnselectedItemTintColor:[[TiUtils colorValue:value] color]];
 }
 
+-(void)setTabsTranslucent_:(id)value
+{
+    BOOL tabsTranslucent =  [TiUtils boolValue:value def:YES];
+    controller.tabBar.translucent = tabsTranslucent;
+}
+
 -(void)setTabsBackgroundImage_:(id)value
 {
     controller.tabBar.backgroundImage = [self loadImage:value];

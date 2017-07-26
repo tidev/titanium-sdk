@@ -35,6 +35,7 @@ import android.os.Message;
 	TiC.PROPERTY_FONT,
 	TiC.PROPERTY_FULLSCREEN,
 	TiC.PROPERTY_HINT_TEXT,
+	TiC.PROPERTY_HINT_TEXT_ID,
 	TiC.PROPERTY_HINT_TEXT_COLOR,
 	TiC.PROPERTY_INPUT_TYPE,
 	TiC.PROPERTY_KEYBOARD_TYPE,
@@ -70,6 +71,13 @@ public class TextFieldProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUIText(this, true);
+	}
+	
+	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put(TiC.PROPERTY_HINT_TEXT, TiC.PROPERTY_HINT_TEXT_ID);
+		return table;
 	}
 
 	@Kroll.method

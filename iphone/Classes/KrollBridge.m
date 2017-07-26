@@ -913,7 +913,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 - (NSString *)loadFile:(NSString *)path
 {
 	NSURL *url_ = [NSURL URLWithString:path relativeToURL:[[self host] baseURL]];
-	NSData *data = [TiUtils loadAppResource:url_];
+	NSData *data = [TiUtils loadAppResource:url_]; // try to load encrypted file
 
 	if (data == nil) {
 		data = [NSData dataWithContentsOfURL:url_];
