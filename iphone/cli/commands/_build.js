@@ -3784,7 +3784,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	var defaultInfoPlistFile = path.join(this.platformPath, 'Info.plist'),
 		customInfoPlistFile = this.projectDir + '/Info.plist',
 		plist = this.infoPlist = new appc.plist(),
-		iphone = this.tiapp.iphone,
+		iphone = this.tiapp.iphone, // deprected in 2.1.0, removed in 7.0.0
 		ios = this.tiapp.ios,
 		fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'] && this.tiapp.properties['ti.facebook.appid'].value,
 		iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'), // note: this is basically stripping the file extension
@@ -3935,63 +3935,21 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	}
 
 	if (iphone) {
-		if (iphone.orientations) {
-			var orientationsMap = {
-				'PORTRAIT':        'UIInterfaceOrientationPortrait',
-				'UPSIDE_PORTRAIT': 'UIInterfaceOrientationPortraitUpsideDown',
-				'LANDSCAPE_LEFT':  'UIInterfaceOrientationLandscapeLeft',
-				'LANDSCAPE_RIGHT': 'UIInterfaceOrientationLandscapeRight'
-			};
+		this.logger.error(__('The <iphone> section of the tiapp.xml has been removed in Titanium SDK 7.0.0 and later.'));
+		this.logger.log(__('Please use the <ios> section of the tiapp.xml to specify iOS-specific values instead:'));
+		this.logger.log();
+		this.logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		this.logger.log('    <ios>'.grey);
+		this.logger.log('        <plist>'.grey);
+		this.logger.log(('           <dict>').grey);
+		this.logger.log(('               <!-- Enter your Info.plist keys here -->').magenta);
+		this.logger.log('            </dict>'.grey);
+		this.logger.log('        </plist>'.grey);
+		this.logger.log('    </ios>'.grey);
+		this.logger.log('</ti:app>'.grey);
+		this.logger.log();
 
-			Object.keys(iphone.orientations).forEach(function (key) {
-				var entry = 'UISupportedInterfaceOrientations' + (key === 'ipad' ? '~ipad' : '');
-
-				Array.isArray(plist[entry]) || (plist[entry] = []);
-				iphone.orientations[key].forEach(function (name) {
-					var value = orientationsMap[name.split('.').pop().toUpperCase()] || name;
-					// name should be in the format Ti.UI.PORTRAIT, so pop the last part and see if it's in the map
-					if (plist[entry].indexOf(value) === -1) {
-						plist[entry].push(value);
-					}
-				});
-			});
-		}
-
-		if (iphone.backgroundModes) {
-			plist.UIBackgroundModes = (plist.UIBackgroundModes || []).concat(iphone.backgroundModes);
-		}
-
-		if (iphone.requires) {
-			plist.UIRequiredDeviceCapabilities = (plist.UIRequiredDeviceCapabilities || []).concat(iphone.requiredFeatures);
-		}
-
-		if (iphone.types) {
-			Array.isArray(plist.CFBundleDocumentTypes) || (plist.CFBundleDocumentTypes = []);
-			iphone.types.forEach(function (type) {
-				var types = plist.CFBundleDocumentTypes,
-					match = false,
-					i = 0;
-
-				for (; i < types.length; i++) {
-					if (types[i].CFBundleTypeName === type.name) {
-						types[i].CFBundleTypeIconFiles = type.icon;
-						types[i].LSItemContentTypes = type.uti;
-						types[i].LSHandlerRank = type.owner ? 'Owner' : 'Alternate';
-						match = true;
-						break;
-					}
-				}
-
-				if (!match) {
-					types.push({
-						CFBundleTypeName: type.name,
-						CFBundleTypeIconFiles: type.icon,
-						LSItemContentTypes: type.uti,
-						LSHandlerRank: type.owner ? 'Owner' : 'Alternate'
-					});
-				}
-			});
-		}
+		process.exit(1);
 	}
 
 	// custom Info.plist from the tiapp.xml overrides everything
