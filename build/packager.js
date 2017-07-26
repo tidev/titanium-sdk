@@ -257,15 +257,31 @@ Packager.prototype.package = function (next) {
 		}.bind(this),
 		// Now include all the pre-built node-ios-device bindings/binaries
 		function (cb) {
-			if (this.targetOS == 'osx') {
-				exec('node bin/download-all.js', {cwd: path.join(this.zipSDKDir, 'node_modules', 'node-ios-device')}, function (err, stdout, stderr) {
-					if (err) {
-						console.log(stdout);
-						console.error(stderr);
-						return cb(err);
-					}
-					cb();
-				});
+			if (this.targetOS === 'osx') {
+				console.log(path.join(this.zipSDKDir, 'node_modules', 'node-ios-device'));
+				const hoistedPath = path.join(this.zipSDKDir, 'node_modules', 'node-ios-device');
+				const normalPath = path.join(this.zipSDKDir, 'node_modules', 'ioslib', 'node_modules', 'node-ios-device');
+				if (fs.existsSync(hoistedPath)) {
+					exec('node bin/download-all.js', {cwd: hoistedPath}, function (err, stdout, stderr) {
+						if (err) {
+							console.log(stdout);
+							console.error(stderr);
+							return cb(err);
+						}
+						cb();
+					});
+				} else if (fs.existsSync(normalPath)) {
+					exec('node bin/download-all.js', {cwd: normalPath}, function (err, stdout, stderr) {
+						if (err) {
+							console.log(stdout);
+							console.error(stderr);
+							return cb(err);
+						}
+						cb();
+					});
+				} else {
+					return cb(new Error('Unable to find node-ios-device module'))
+				}
 			} else {
 				cb();
 			}
