@@ -42,10 +42,11 @@ extern NSString * TitaniumModuleRequireFormat;
 	KrollContext *context;
 	NSDictionary *preload;
 	NSMutableDictionary *modules;
+	NSMutableDictionary *pathCache;
 	TitaniumObject *titanium;
-    KrollObject* console;
+	KrollObject* console;
 	BOOL shutdown;
-    BOOL evaluationError;
+	BOOL evaluationError;
 	//NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
 	//CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
 	CFMutableDictionaryRef registeredProxies;
@@ -70,4 +71,3 @@ extern NSString * TitaniumModuleRequireFormat;
 -(int)forceGarbageCollectNow;
 
 @end
-
