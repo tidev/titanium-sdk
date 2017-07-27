@@ -21,7 +21,7 @@ OSNAME := $(OS)
 
 ifeq ($(OSNAME), Windows_NT)
 CP_SEP := ;
-GPERF := ..\..\..\build\win32\gperf
+GPERF := ..\..\..\support\win32\gperf-3.0.1\bin\gperf
 endif
 
 GEN_BOOTSTRAP := $(THIS_DIR)/../../tools/genBootstrap.py
