@@ -1,0 +1,200 @@
+# -*- Makefile -*- for gperf
+
+# Copyright (C) 2003 Free Software Foundation, Inc.
+# Written by Bruno Haible <bruno@clisp.org>.
+#
+# This file is part of GNU GPERF.
+#
+# GNU GPERF is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# GNU GPERF is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; see the file COPYING.
+# If not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+
+#### Start of system configuration section. ####
+
+# Flags that can be set on the nmake command line:
+#   MFLAGS={-ML|-MT|-MD} for defining the compilation model
+#     MFLAGS=-ML (the default)  Single-threaded, statically linked - libc.lib
+#     MFLAGS=-MT                Multi-threaded, statically linked  - libcmt.lib
+#     MFLAGS=-MD                Multi-threaded, dynamically linked - msvcrt.lib
+#   DEBUG=1   for compiling with debugging information
+!if !defined(DEBUG)
+DEBUG=0
+!endif
+!if !defined(MFLAGS)
+MFLAGS=
+!endif
+
+# Directories used by "make":
+srcdir = .
+
+# Directories used by "make install":
+prefix = c:\usr
+exec_prefix = $(prefix)
+datadir = $(prefix)\share
+bindir = $(exec_prefix)\bin
+mandir = $(datadir)\man
+man1dir = $(mandir)\man1
+docdir = $(datadir)\doc\gperf
+
+# Programs used by "make":
+
+CC = cl
+CXX = cl -TP
+
+# Set to -W3 if you want to see maximum amount of warnings, including stupid
+# ones. Set to -W1 to avoid warnings about signed/unsigned combinations.
+WARN_CFLAGS = -W1
+
+!if $(DEBUG)
+OPTIMFLAGS = -Od -Z7
+DEBUGFLAGS = -Z7
+!else
+# Some people prefer -O2 -G6 instead of -O1, but -O2 is not reliable in MSVC5.
+OPTIMFLAGS = -D_NDEBUG -O1
+DEBUGFLAGS =
+!endif
+
+CFLAGS = $(MFLAGS) $(WARN_CFLAGS) $(OPTIMFLAGS)
+CXXFLAGS = $(MFLAGS) $(WARN_CFLAGS) $(OPTIMFLAGS)
+
+INCLUDES = -Ilib -Isrc
+
+LN = copy
+RM = -del
+
+# Programs used by "make install":
+INSTALL = copy
+INSTALL_PROGRAM = copy
+INSTALL_DATA = copy
+
+#### End of system configuration section. ####
+
+SHELL = /bin/sh
+
+LIB_OBJECTS = lib\getopt.obj lib\getopt1.obj lib\getline.obj lib\hash.obj
+SRC_OBJECTS = src\version.obj src\positions.obj src\options.obj src\keyword.obj src\keyword-list.obj src\input.obj src\bool-array.obj src\hash-table.obj src\search.obj src\output.obj src\main.obj
+OBJECTS = $(LIB_OBJECTS) $(SRC_OBJECTS)
+
+all : gperf.exe
+
+src\config.h : src\config.h.msvc
+	-$(RM) src\config.h
+	$(LN) src\config.h.msvc src\config.h
+
+lib\getopt.obj : lib\getopt.c
+	$(CC) $(INCLUDES) $(CFLAGS) -c lib\getopt.c -Folib\getopt.obj
+
+lib\getopt1.obj : lib\getopt1.c
+	$(CC) $(INCLUDES) $(CFLAGS) -c lib\getopt1.c -Folib\getopt1.obj
+
+lib\getline.obj : lib\getline.cc
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c lib\getline.cc -Folib\getline.obj
+
+lib\hash.obj : lib\hash.cc
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c lib\hash.cc -Folib\hash.obj
+
+# Dependencies.
+CONFIG_H = src\config.h
+VERSION_H = src\version.h
+POSITIONS_H = src\positions.h src\positions.icc
+OPTIONS_H = src\options.h src\options.icc $(POSITIONS_H)
+KEYWORD_H = src\keyword.h src\keyword.icc
+KEYWORD_LIST_H = src\keyword-list.h src\keyword-list.icc $(KEYWORD_H)
+INPUT_H = src\input.h $(KEYWORD_LIST_H)
+BOOL_ARRAY_H = src\bool-array.h src\bool-array.icc $(OPTIONS_H)
+HASH_TABLE_H = src\hash-table.h $(KEYWORD_H)
+SEARCH_H = src\search.h $(KEYWORD_LIST_H) $(POSITIONS_H) $(BOOL_ARRAY_H)
+OUTPUT_H = src\output.h $(KEYWORD_LIST_H) $(POSITIONS_H)
+
+src\version.obj : src\version.cc $(VERSION_H)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c src\version.cc -Fosrc\version.obj
+
+src\positions.obj : src\positions.cc $(POSITIONS_H)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c src\positions.cc -Fosrc\positions.obj
+
+src\options.obj : src\options.cc $(OPTIONS_H) $(VERSION_H)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c src\options.cc -Fosrc\options.obj
+
+src\keyword.obj : src\keyword.cc $(KEYWORD_H) $(POSITIONS_H)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c src\keyword.cc -Fosrc\keyword.obj
+
+src\keyword-list.obj : src\keyword-list.cc $(KEYWORD_LIST_H)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c src\keyword-list.cc -Fosrc\keyword-list.obj
+
+src\input.obj : src\input.cc $(INPUT_H) $(OPTIONS_H)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c src\input.cc -Fosrc\input.obj
+
+src\bool-array.obj : src\bool-array.cc $(BOOL_ARRAY_H) $(OPTIONS_H)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c src\bool-array.cc -Fosrc\bool-array.obj
+
+src\hash-table.obj : src\hash-table.cc $(HASH_TABLE_H) $(OPTIONS_H)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c src\hash-table.cc -Fosrc\hash-table.obj
+
+src\search.obj : src\search.cc $(SEARCH_H) $(OPTIONS_H) $(HASH_TABLE_H) $(CONFIG_H)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c src\search.cc -Fosrc\search.obj
+
+src\output.obj : src\output.cc $(OUTPUT_H) $(OPTIONS_H) $(VERSION_H)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c src\output.cc -Fosrc\output.obj
+
+src\main.obj : src\main.cc $(OPTIONS_H) $(INPUT_H) $(SEARCH_H) $(OUTPUT_H)
+	$(CXX) $(INCLUDES) $(CXXFLAGS) -c src\main.cc -Fosrc\main.obj
+
+gperf.exe : $(OBJECTS)
+	$(CC) $(MFLAGS) $(DEBUGFLAGS) $(OBJECTS) -Fegperf.exe
+
+install : all force
+	-mkdir $(prefix)
+	-mkdir $(exec_prefix)
+	-mkdir $(bindir)
+	$(INSTALL_PROGRAM) gperf.exe $(bindir)\gperf.exe
+	-mkdir $(datadir)
+	-mkdir $(mandir)
+	-mkdir $(man1dir)
+	$(INSTALL_DATA) doc\gperf.1 $(man1dir)\gperf.1
+	-mkdir $(datadir)\doc
+	-mkdir $(docdir)
+	$(INSTALL_DATA) doc\gperf.html $(docdir)\gperf.html
+
+installdirs : force
+	-mkdir $(prefix)
+	-mkdir $(exec_prefix)
+	-mkdir $(bindir)
+	-mkdir $(datadir)
+	-mkdir $(mandir)
+	-mkdir $(man1dir)
+	-mkdir $(datadir)\doc
+	-mkdir $(docdir)
+
+uninstall : force
+	$(RM) $(bindir)\gperf.exe
+	$(RM) $(man1dir)\gperf.1
+	$(RM) $(docdir)\gperf.html
+
+check : all
+
+mostlyclean : clean
+
+clean : force
+	$(RM) lib\*.obj
+	$(RM) src\*.obj
+	$(RM) gperf.exe
+	$(RM) core
+
+distclean : clean
+	$(RM) src\config.h
+
+maintainer-clean : distclean
+
+force :
+
