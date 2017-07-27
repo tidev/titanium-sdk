@@ -28,7 +28,7 @@ description: |
 excludes:
     events: [ 'click', 'longclick', 'pinch', 'swipe', 'touchend', 'touchmove' ]
 extends: Titanium.UI.View
-platforms: [android, iphone, ipad, ]
+platforms: [android, iphone, ipad]
 since: "0.8"
 
 methods:
@@ -209,7 +209,7 @@ events:
         since: "3.0.0"
         notes: Use <Titanium.UI.ScrollableView.scrollend> instead.
     summary: Fired when the view has stopped moving completely.
-    platforms: [iphone, ipad, android, ]
+    platforms: [iphone, ipad, android]
     since: "2.1.0"
 
     properties:
@@ -237,7 +237,7 @@ events:
         since: "3.0.0"
         notes: Use <Titanium.UI.ScrollableView.dragend> instead.
     summary: Fired when the scrolling drag gesture on the view has been completed.
-    platforms: [android, ]
+    platforms: [android]
     since: "2.1.0"
     properties:
       - name: currentPage
@@ -270,7 +270,7 @@ events:
 
   - name: dragend
     summary: Fired when the scrolling drag gesture on the view has been completed.
-    platforms: [android, ]
+    platforms: [android]
     since: "3.0.0"
     properties:
       - name: currentPage
@@ -357,7 +357,7 @@ properties:
     type: Number
     availability: creation
     default: 3000
-    platforms: [android, ]
+    platforms: [android]
 
   - name: pagingControlAlpha
     summary: Alpha value of the paging control.
@@ -391,7 +391,7 @@ properties:
     description: If this property is unset or `true`, scrolling is enabled.
     type: Boolean
     default: undefined (scrolling enabled)
-    platforms: [iphone, ipad, android, ]
+    platforms: [iphone, ipad, android]
     since: { android: "2.1.0", iphone: "2.0.0", ipad: "2.0.0" }
 
   - name: views

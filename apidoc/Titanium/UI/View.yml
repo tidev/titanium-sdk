@@ -310,7 +310,7 @@ events:
         A `longpress` and a `longclick` can occur together.
 
         In contrast to a `longclick`, this event returns the `x` and `y` coordinates of the touch.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -364,7 +364,7 @@ events:
 
   - name: swipe
     summary: Fired when the device detects a swipe gesture against the view.
-    platforms: [android,iphone,ipad,]
+    platforms: [android,iphone,ipad]
     properties:
       - name: direction
         summary: Direction of the swipe--either 'left', 'right', 'up', or 'down'.
@@ -913,7 +913,7 @@ methods:
         the return value.
     returns:
         type: Point
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: { android: "1.8", iphone: "1.8", ipad: "1.8" }
     parameters:
       - name: point
@@ -1185,14 +1185,14 @@ properties:
 
         `focusable` must be true for normal views.
     type: String
-    platforms: [android, ]
+    platforms: [android]
     default: Background color of this view.
 
   - name: backgroundSelectedImage
     summary: Selected background image url for the view, specified as a local file path or URL.
     description: For normal views, the selected background is only used if `focusable` is `true`.
     type: String
-    platforms: [android, ]
+    platforms: [android]
     default: |
         If `backgroundSelectedImage` is undefined, and the normal background image
         `backgroundImage` is set, the normal image is used when this view is selected.
@@ -1774,7 +1774,7 @@ properties:
 ---
 name: Gradient
 summary: A simple object defining a color gradient.
-platforms: [iphone, ipad, ]
+platforms: [iphone, ipad]
 since: "1.8.0"
 properties:
   - name: type

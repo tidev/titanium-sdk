@@ -3,7 +3,7 @@ name: Titanium.UI.ActivityIndicatorStyle
 summary: A set of constants for the styles available for <Titanium.UI.ActivityIndicator> objects.
 extends: Titanium.Module
 since: {iphone: "5.1.0", ipad: "5.1.0", android: "3.0.0"}
-platforms: [iphone, ipad, android, ]
+platforms: [iphone, ipad, android]
 createable: false
 
 properties:
@@ -19,7 +19,7 @@ properties:
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android, ]
+    platforms: [iphone, ipad, android]
 
   - name: DARK
     summary: Small gray spinning indicator.
@@ -33,7 +33,7 @@ properties:
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android, ]
+    platforms: [iphone, ipad, android]
 
   - name: BIG_DARK
     summary: Large gray spinning indicator.
@@ -52,7 +52,7 @@ properties:
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
-    platforms: [android, ]
+    platforms: [android]
 
   - name: PLAIN
     summary: Small white spinning indicator (default).
@@ -66,4 +66,4 @@ properties:
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android, ]
+    platforms: [iphone, ipad, android]

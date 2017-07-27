@@ -16,12 +16,12 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
 properties:
   - name: attributedString
@@ -134,7 +134,7 @@ properties:
 
   - name: html
     summary: Simple HTML formatting.
-    platforms: [android, ]
+    platforms: [android]
     type: String
 
   - name: includeFontPadding
@@ -180,7 +180,7 @@ properties:
         Use in conjunction with [shadowOffset](Titanium.UI.Label.shadowOffset) and [shadowRadius](Titanium.UI.Label.shadowRadius).
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: {android: "3.2.0"}
 
   - name: shadowOffset
@@ -188,7 +188,7 @@ properties:
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Label.shadowColor) and [shadowRadius](Titanium.UI.Label.shadowRadius).
     type: Dictionary
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: {android: "3.2.0"}
 
   - name: shadowRadius
@@ -196,7 +196,7 @@ properties:
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Label.shadowColor) and [shadowOffset](Titanium.UI.Label.shadowOffset).
     type: Number
-    platforms: [android, ]
+    platforms: [android]
     since: "3.2.0"
 
   - name: text
@@ -227,7 +227,7 @@ properties:
     summary: Enable or disable word wrapping in the label.
     type: Boolean
     default: true
-    platforms: [android, ]
+    platforms: [android]
 
   - name: verticalAlign
     summary: |

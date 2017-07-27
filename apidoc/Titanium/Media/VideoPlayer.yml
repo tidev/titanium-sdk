@@ -302,7 +302,7 @@ events:
             is used. Otherwise, this value will be -1.
         type: Number
         platforms: [android]
-    platforms: [android, ]
+    platforms: [android]
 
   - name: fullscreen
     summary: Fired when a movie changes to or from fullscreen view.
@@ -310,7 +310,7 @@ events:
         On iOS, this event is fired at the beginning of the transition to
         fullscreen mode. A `duration` property is provided, indicating the duration
         of the animated transition to or from fullscreen mode.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     properties:
 
       - name: entering
@@ -405,7 +405,7 @@ events:
 
   - name: playing
     summary: Fired when the currently playing movie changes.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     properties:
       - name: url
         summary: URL of the media.
@@ -413,7 +413,7 @@ events:
 
   - name: preload
     summary: Fired when the movie has preloaded and is ready to play.
-    platforms: [android, ]
+    platforms: [android]
 
   - name: resize
     summary: Fired when the movie player is resized.
@@ -461,7 +461,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, ]
+    platforms: [android]
 
   - name: singletap
     summary: Fired when the device detects a single tap against the view.
@@ -472,7 +472,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, ]
+    platforms: [android]
 
   - name: touchcancel
     summary: Fired when a touch event is interrupted by the device.
@@ -486,7 +486,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, ]
+    platforms: [android]
 
   - name: touchend
     summary: Fired when a touch event is completed.
@@ -500,7 +500,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, ]
+    platforms: [android]
 
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
@@ -513,7 +513,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    platforms: [android, ]
+    platforms: [android]
 
 properties:
 

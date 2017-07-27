@@ -10,7 +10,7 @@ description: |
     Both iOS and Android lack DTD support.
 extends: Titanium.Module
 since: "0.9"
-platforms: [android, iphone, ipad, ]
+platforms: [android, iphone, ipad]
 methods:
 
   - name: parseString

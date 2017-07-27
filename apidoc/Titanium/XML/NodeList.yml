@@ -6,7 +6,7 @@ summary: A list of <Titanium.XML.Node> objects. Implements the
     on Android and iOS.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, ]
+platforms: [android, iphone, ipad]
 methods:
   - name: item
     summary: Returns the <Titanium.XML.Node> object at the specified index.

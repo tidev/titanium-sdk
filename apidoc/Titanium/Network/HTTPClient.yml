@@ -327,7 +327,7 @@ properties:
         Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: 3.0.0
 
   - name: enableKeepAlive
@@ -346,7 +346,7 @@ properties:
         On Android, can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
     type: String
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: {android: 3.4.0}
 
   - name: location
@@ -418,7 +418,7 @@ properties:
     description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: 3.0.0
 
   - name: readyState
@@ -491,7 +491,7 @@ properties:
     description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: 3.0.0
 
   - name: validatesSecureCertificate

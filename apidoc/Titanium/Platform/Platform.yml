@@ -36,14 +36,14 @@ methods:
 
   - name: createUUID
     summary: Creates a globally-unique identifier.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     returns:
         type: String
 
   - name: openURL
     summary: |
         Opens this URL using the system's default application for its protocol.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     returns:
         type: Boolean
     parameters:
@@ -55,7 +55,7 @@ methods:
     summary: Returns whether the system settings are configured to show times in 24-hour format.
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
 properties:
   - name: BATTERY_STATE_CHARGING
@@ -105,7 +105,7 @@ properties:
 
   - name: batteryMonitoring
     summary: Determines whether battery monitoring is enabled.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     default: false
     type: Boolean
 
@@ -134,7 +134,7 @@ properties:
         this has been restricted by Apple. For more information, see
         [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
         documentation.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     type: String
     permission: read-only
 
@@ -146,7 +146,7 @@ properties:
         [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
         sections of wikipedia for reference.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     type: String
     permission: read-only
 

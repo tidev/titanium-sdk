@@ -9,7 +9,7 @@ summary: An interface extending <Titanium.XML.Node> with a set of
     UTF-8 instead of UTF-16 on Android and iOS.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, ]
+platforms: [android, iphone, ipad]
 methods:
   - name: appendData
     summary: Append the string to the end of the character data of the node.

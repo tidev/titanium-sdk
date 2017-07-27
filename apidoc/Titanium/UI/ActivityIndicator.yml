@@ -57,7 +57,7 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: hide
     summary: Hides the activity indicator and stops the animation.
@@ -68,7 +68,7 @@ methods:
         Adding children to an `ActivityIndicator` is not supported on all platforms.
 
         See also: [add](Titanium.UI.ActivityIndicator.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: show
     summary: Shows the activity indicator and starts the animation.

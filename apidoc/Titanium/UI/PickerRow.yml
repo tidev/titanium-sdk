@@ -8,7 +8,7 @@ description: |
     as a shorthand for `<PickerRow>` (see Examples).
 
     Views added to picker rows is only supported on iOS.
-platforms: [android, iphone, ipad, ]
+platforms: [android, iphone, ipad]
 extends: Titanium.UI.View
 since: "0.9"
 

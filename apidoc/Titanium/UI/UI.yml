@@ -174,7 +174,7 @@ properties:
         slowly and speeds up.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: ANIMATION_CURVE_EASE_IN_OUT
     summary: |
@@ -182,7 +182,7 @@ properties:
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: ANIMATION_CURVE_EASE_OUT
     summary: |
@@ -190,7 +190,7 @@ properties:
         quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: ANIMATION_CURVE_LINEAR
     summary: |
@@ -198,7 +198,7 @@ properties:
         at a constant rate.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: ATTRIBUTE_FONT
     summary: |

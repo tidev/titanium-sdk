@@ -146,7 +146,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -163,7 +163,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -180,7 +180,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -348,7 +348,7 @@ properties:
     description: |
         To set the opacity of a row on iOS, specify an aRGB value with the
         <Titanium.UI.TableViewRow.backgroundColor> property.
-    platforms: [android, ]
+    platforms: [android]
 
   - name: rightImage
     summary: Image to render in the right image area of the row, specified as a local path or URL.

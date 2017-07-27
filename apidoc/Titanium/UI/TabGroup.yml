@@ -139,7 +139,7 @@ events:
 
   - name: close
     summary: Fired when the tab group is closed.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: focus
     summary: |
@@ -257,7 +257,7 @@ methods:
 
   - name: removeTab
     summary: Removes a tab from the tab group.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     parameters:
       - name: tab
         summary: Tab to remove.
@@ -407,7 +407,7 @@ properties:
         property is ignored on earlier versions of iOS.
     type: String
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: tabsTintColor
     summary: The tintColor to apply to the tabs.
@@ -534,7 +534,7 @@ properties:
         A tab's [backgroundSelectedColor](Titanium.UI.Tab.backgroundSelectedColor) property takes
         precedence if set.
     type: String
-    platforms: [android, ]
+    platforms: [android]
     since: {android: "3.0.0"}
 
   - name: tabsBackgroundSelectedImage

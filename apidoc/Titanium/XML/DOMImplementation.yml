@@ -7,7 +7,7 @@ summary: The <Titanium.XML.DOMImplementation> interface provides a number of met
     on Android and iOS.
 since: "1.8"
 createable: false
-platforms: [android, iphone, ipad, ]
+platforms: [android, iphone, ipad]
 methods:
   - name: createDocument
     summary: Creates an <Titanium.XML.Document> object of the specified type with its document

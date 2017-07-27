@@ -9,7 +9,7 @@ summary: >
     Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-745549614)
     on Android and iOS with some non-standard extensions.
 createable: false
-platforms: [android, iphone, ipad, ]
+platforms: [android, iphone, ipad]
 methods:
   - name: getAttribute
     summary: Retrieves an attribute value by name, returning it as a string.
@@ -234,4 +234,4 @@ properties:
         [Text](Titanium.XML.Text) nodes only.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]

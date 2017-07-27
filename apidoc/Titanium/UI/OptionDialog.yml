@@ -112,7 +112,7 @@ events:
       - name: destructive
         summary: Index of the destructive option if defined or `-1` otherwise.
         type: Number
-        platforms: [iphone, ipad, ]
+        platforms: [iphone, ipad]
 
 methods:
   - name: show
@@ -193,7 +193,7 @@ properties:
     summary: Index to define the destructive option, indicated by a visual cue when rendered.
     type: Number
     default: -1
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     availability: creation
 
 

@@ -43,22 +43,22 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: pause
     summary: Pauses a running animation. Use `resume` method to continue.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.ImageView.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: resume
     summary: Resumes an animation from a `pause` state.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: start
     summary: |
@@ -128,7 +128,7 @@ events:
 
   - name: pause
     summary: Fired when the animation pauses.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: { android: "2.1.1" }
 
 properties:
@@ -251,7 +251,7 @@ properties:
     summary: The view's tintColor.
     type: String
     default: null
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: { android: "5.4.0", iphone: "5.4.0", ipad: "5.4.0"}
 
   - name: url

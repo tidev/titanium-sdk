@@ -50,7 +50,7 @@ methods:
 
   - name: setContentOffset
     summary: Sets the value of the [contentOffset](Titanium.UI.ScrollView.contentOffset) property.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     parameters:
       - name: contentOffset
         summary: |
@@ -113,7 +113,7 @@ events:
       - name: decelerating
         summary: Indicates whether the scroll is decelerating.
         type: Boolean
-        platforms: [iphone, ipad, ]
+        platforms: [iphone, ipad]
 
       - name: dragging
         summary: |
@@ -121,7 +121,7 @@ events:
             remained in contact with the display to physically drag the view, as opposed to it being
             the result of scrolling momentum.
         type: Boolean
-        platforms: [iphone, ipad, ]
+        platforms: [iphone, ipad]
 
       - name: zooming
         summary: |
@@ -160,7 +160,7 @@ events:
 
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: dragEnd
     summary: Fired when the scrollable region stops being dragged.
@@ -169,7 +169,7 @@ events:
 
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     properties:
       - name: decelerate
         summary: |
@@ -187,7 +187,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "6.2.0" }
 
   - name: dragend
@@ -195,7 +195,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     properties:
       - name: decelerate
         summary: |
@@ -259,7 +259,7 @@ properties:
         This property takes precedence over the `horizontalBounce` and `verticalBounce` properties.
     type: Boolean
     default: false
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: horizontalBounce
     summary: Determines whether horizontal scroll bounce of the scrollable region is enabled.
@@ -274,7 +274,7 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: keyboardDismissMode
     summary: The manner in which the keyboard is dismissed when a drag begins in the scroll view.
@@ -358,7 +358,7 @@ properties:
     summary: Determines whether scrolling is enabled for the view.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "3.0.0" }
 
   - name: showHorizontalScrollIndicator
@@ -388,7 +388,7 @@ properties:
         `verticalBounce` properties.
     type: Boolean
     default: true
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: zoomScale
     summary: Scaling factor of the scroll view's content.

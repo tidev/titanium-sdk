@@ -45,7 +45,7 @@ excludes:
     methods: [ remove, removeAllChildren ]
 
 since: "0.8"
-platforms: [android, iphone, ipad, ]
+platforms: [android, iphone, ipad]
 methods:
   - name: add
     summary: Adds rows or columns to the picker.

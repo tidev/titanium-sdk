@@ -71,7 +71,7 @@ methods:
             Array of [Annotation](Titanium.Map.Annotation) objects, or an array of
             dictionaries describing of properties for the annotation.
         type: [Array<Titanium.Map.Annotation>, Array<Dictionary<Titanium.Map.Annotation>>]
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: addRoute
     summary: Adds a route to the map.
@@ -79,7 +79,7 @@ methods:
       - name: route
         summary: Simple dictionary object describing the route.
         type: MapRouteType
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: { android: "2.1.0" }
 
   - name: deselectAnnotation
@@ -90,11 +90,11 @@ methods:
       - name: annotation
         summary: Annotation to deselect, identified by an annotation title or a <Titanium.Map.Annotation> reference.
         type: [String,Titanium.Map.Annotation]
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: removeAllAnnotations
     summary: Removes all annotations from the map.
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: removeAnnotation
     summary: Removes an existing annotation from the map.
@@ -112,7 +112,7 @@ methods:
       - name: annotations
         summary: Array of annotations to remove.
         type: [Array<String>, Array<Titanium.Map.Annotation>]
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: removeRoute
     summary: Remove a previously added route.
@@ -120,7 +120,7 @@ methods:
       - name: route
         summary: Same route object passed to [addRoute](Titanium.Map.View.addRoute).
         type: MapRouteType
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: { android: "2.1.0" }
 
   - name: selectAnnotation
@@ -206,7 +206,7 @@ events:
       - name: index
         summary: the annotation index.
         type: Number
-        platforms: [iphone, ipad, ]
+        platforms: [iphone, ipad]
 
       - name: title
         summary: Title of the annotation.
@@ -215,12 +215,12 @@ events:
       - name: subtitle
         summary: Subtitle of the annotation.
         type: String
-        platforms: [android, ]
+        platforms: [android]
 
       - name: map
         summary: The map view instance.
         type: Titanium.Map.View
-        platforms: [iphone, ipad, ]
+        platforms: [iphone, ipad]
 
       - name: clicksource
         summary: Source of the click event, such as `pin`, or `leftButton`.
@@ -233,16 +233,16 @@ events:
       - name: latitude
         summary: Latitude of the clicked annotation.
         type: Number
-        platforms: [android, ]
+        platforms: [android]
 
       - name: longitude
         summary: Longitude of the clicked annotation.
         type: Number
-        platforms: [android, ]
+        platforms: [android]
 
   - name: complete
     summary: Fired when the map completes loading.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     properties:
       - name: success
         summary: Indicates a successful operation. Returns `true`.
@@ -277,7 +277,7 @@ events:
 
   - name: loading
     summary: Fired when the map begins loading.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: longpress
     since: { android: 3.1.0 }
@@ -493,7 +493,7 @@ properties:
 ---
 name: MapRouteType
 summary: Simple object defining a map route.
-platforms: [android, iphone, ipad, ]
+platforms: [android, iphone, ipad]
 properties:
 
   - name: name

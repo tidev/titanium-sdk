@@ -56,7 +56,7 @@ properties:
     description: For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     default: black
-    platforms: [android, ]
+    platforms: [android]
 
   - name: enabled
     summary: Determines whether the switch is enabled.
@@ -71,7 +71,7 @@ properties:
   - name: font
     summary: Font to use for the switch text.
     type: Font
-    platforms: [android, ]
+    platforms: [android]
 
   - name: style
     summary: Style of the switch.
@@ -96,7 +96,7 @@ properties:
     default: |
         <Titanium.UI.TEXT_ALIGNMENT_CENTER> (toggle button, Android),
         <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox, Android)
-    platforms: [android, ]
+    platforms: [android]
 
   - name: title
     summary: Text to display next to the switch, when the checkbox style is in use.
@@ -107,7 +107,7 @@ properties:
         Use the [textAlign](Titanium.UI.Switch.textAlign) property to align this text within the
         switch.
     type: String
-    platforms: [android, ]
+    platforms: [android]
 
   - name: titleOff
     summary: Text to display on the switch in its "off" state, when the toggle button style is in use.
@@ -118,7 +118,7 @@ properties:
         changing size between its on/off state.
     type: String
     default: Off
-    platforms: [android, ]
+    platforms: [android]
 
   - name: titleOn
     summary: Text to display on the switch in its "on" state, when the toggle button style is in use.
@@ -129,7 +129,7 @@ properties:
         changing size between its on/off state.
     type: String
     default: On
-    platforms: [android, ]
+    platforms: [android]
 
   - name: tintColor
     summary: The color used to tint the outline of the switch when it is turned off.
@@ -173,7 +173,7 @@ properties:
     type: [Number,String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [android, ]
+    platforms: [android]
 
 events:
   - name: change

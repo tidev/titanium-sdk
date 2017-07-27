@@ -10,7 +10,7 @@ summary: This interface represents an entity, either parsed or unparsed, in
     on Android and iOS.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, ]
+platforms: [android, iphone, ipad]
 properties:
   - name: notationName
     summary: For unparsed entities, the name of the notation for the entity.

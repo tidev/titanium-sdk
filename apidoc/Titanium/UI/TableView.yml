@@ -378,19 +378,19 @@ events:
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, ]
+        platforms: [iphone, ipad]
 
       - name: contentSize
         summary: |
             Dictionary with `width` and `height` properties containing the size of the content
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, ]
+        platforms: [iphone, ipad]
 
       - name: firstVisibleItem
         summary: Row index of the topmost visible row in the view.
         type: Number
-        platforms: [android, ]
+        platforms: [android]
 
       - name: size
         summary: |
@@ -401,12 +401,12 @@ events:
       - name: totalItemCount
         summary: Total number of rows in the view.
         type: Number
-        platforms: [android, ]
+        platforms: [android]
 
       - name: visibleItemCount
         summary: Number of rows currently visible in the view.
         type: Number
-        platforms: [android, ]
+        platforms: [android]
 
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -430,12 +430,12 @@ events:
             Dictionary with `width` and `height` properties containing the size of the content
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, ]
+        platforms: [iphone, ipad]
 
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, ]
+        platforms: [iphone, ipad]
 
       - name: size
         summary: |
@@ -460,12 +460,12 @@ events:
             Dictionary with `width` and `height` properties containing the size of the content
             (regardless of the display size in the case of scrolling).
         type: Dictionary
-        platforms: [iphone, ipad, ]
+        platforms: [iphone, ipad]
 
       - name: contentOffset
         summary: Dictionary with `x` and `y` properties containing the content offset.
         type: Point
-        platforms: [iphone, ipad, ]
+        platforms: [iphone, ipad]
 
       - name: size
         summary: |
@@ -563,7 +563,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -764,7 +764,7 @@ events:
 
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -782,7 +782,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: dragEnd
     deprecated:
@@ -792,7 +792,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     properties:
       - name: decelerate
         summary: |
@@ -805,7 +805,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     since: '3.0.0'
 
   - name: dragend
@@ -813,7 +813,7 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
     properties:
       - name: decelerate
         summary: |
@@ -1515,7 +1515,7 @@ properties:
     type: Number
     permission: read-only
     since: 3.0.0
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: sections
     summary: Sections of this table.
@@ -1526,7 +1526,7 @@ properties:
         for adding sections on iOS.
     type: Array<Titanium.UI.TableViewSection>
     since: { android: 3.1.0, iphone: 3.0.0, ipad: 3.0.0 }
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: separatorColor
     summary: Separator line color between rows, as a color name or hex triplet.

@@ -188,7 +188,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure.
         type: Callback<ForwardGeocodeResponse>
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: getCurrentHeading
     summary: Retrieves the current compass heading.
@@ -196,7 +196,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of obtaining the current heading.
         type: Callback<HeadingResponse>
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: getCurrentPosition
     summary: Retrieves the last known location from the device.
@@ -209,7 +209,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of obtaining the current location.
         type: Callback<LocationResults>
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: hasLocationPermissions
     summary: Returns `true` if the app has location access.
@@ -269,7 +269,7 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure.
         type: Callback<ReverseGeocodeResponse>
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
 events:
 
@@ -427,7 +427,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: "2.0.0"
 
   - name: ACCURACY_BEST_FOR_NAVIGATION
@@ -452,7 +452,7 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
     since: "2.0.0"
 
   - name: AUTHORIZATION_AUTHORIZED
@@ -719,7 +719,7 @@ properties:
     summary: Indicates whether the current device supports a compass.
     type: Boolean
     permission: read-only
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: headingFilter
     summary: Minimum heading change (in degrees) before a `heading` event is fired.
@@ -971,13 +971,13 @@ properties:
     summary: Indicates if the operation succeeded.
     description: Returns `true` if request succeeded, `false` otherwise.
     type: Boolean
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: error
     summary: Error message, if any returned.
     description: Will be undefined if `success` is `true`.
     type: String
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: code
     summary: Error code. Returns 0 if `success` is `true`.
@@ -987,7 +987,7 @@ properties:
         Otherwise, this value will be -1.
     type: Number
     since: { android: "3.1.0", iphone: "3.1.0", ipad: "3.1.0" }
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: accuracy
     summary: Estimated accuracy of the geocoding, in meters.
@@ -997,12 +997,12 @@ properties:
   - name: longitude
     summary: Longitude of the geocoded address.
     type: String
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: latitude
     summary: Latitude of the geocoded address.
     type: String
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: street
     summary: Street name, without street address.

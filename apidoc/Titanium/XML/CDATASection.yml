@@ -8,4 +8,4 @@ description: |
     Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-667469212) on
     Android and iOS with some non-standard extensions.
 createable: false
-platforms: [android, iphone, ipad, ]
+platforms: [android, iphone, ipad]

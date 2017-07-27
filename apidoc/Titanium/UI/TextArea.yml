@@ -143,7 +143,7 @@ properties:
 
         On Android and iOS, the returned default value is undefined, but behave as if the value is `true`.
     type: Boolean
-    platforms: [android, iphone, ipad, ]
+    platforms: [android, iphone, ipad]
 
   - name: autoLink
     summary: Automatically convert text to clickable links.
@@ -343,7 +343,7 @@ properties:
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.
     type: Boolean
-    platforms: [iphone, ipad, ]
+    platforms: [iphone, ipad]
 
   - name: textAlign
     summary: Text alignment within this text area.
