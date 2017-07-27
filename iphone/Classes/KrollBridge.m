@@ -994,10 +994,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	if (modules != nil) {
 		KrollWrapper *module = [modules objectForKey:path];
 		if (module != nil) {
-			NSLog(@"[WARN][MODULE CACHE HIT] : %@", path);
 			return module;
 		}
-		NSLog(@"[WARN][MODULE CACHE MISS] : %@", path);
 	}
 
 	// Fall back to trying to load file
@@ -1173,7 +1171,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		// First let's check if we cached the resolved path for this require string
 		// and if we did, try and load a cached module for this path
 		if (pathCache != nil && modules != nil) {
-			NSLog(@"[WARN] workingPath : %@", workingPath);
 			// We generate a path resolution cache key, first part is the requested module id/path
 			pathCacheKey = [path stringByAppendingString:@"|"];
 			// If request is not-absolute and we're not at the top-level dir, then append current dir as second part of cache key
@@ -1182,15 +1179,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			}
 			NSString *resolvedPath = [pathCache objectForKey:pathCacheKey];
 			if (resolvedPath != nil) {
-				NSLog(@"[WARN][PATH CACHE HIT] : %@ -> %@ ", path, resolvedPath);
 				TiModule *module = [modules objectForKey:resolvedPath];
 				if (module != nil) {
-					NSLog(@"[WARN][MODULE CACHE HIT] : %@", resolvedPath);
 					return module;
 				}
-				NSLog(@"[WARN][MODULE CACHE MISS] : %@", resolvedPath);
 			}
-			NSLog(@"[WARN][PATH CACHE MISS] : %@", path);
 		}
 
 		id module; // may be TiModule* if it was a core module with no hybrid JS, or KrollWrapper* in all other cases
