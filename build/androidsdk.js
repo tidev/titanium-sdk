@@ -1,7 +1,7 @@
 var os = require('os'),
 	fs = require('fs-extra'),
 	path = require('path'),
-	DEFAULT_API_LEVEL = 23,
+	DEFAULT_API_LEVEL = 25,
 	ANDROID_API_LEVELS = {
 		3: 'android-1.5',
 		4: 'android-1.6',
