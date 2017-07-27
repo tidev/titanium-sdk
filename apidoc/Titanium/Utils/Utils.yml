@@ -10,10 +10,6 @@ platforms: [android, iphone, ipad, ]
 methods:
   - name: base64decode
     summary: Returns the specified data decoded from Base64.
-    description: |
-        On Mobile Web, if `obj` is a [Titanium.Blob] containing binary data, then `obj` is
-        returned unmodified because the binary blob would be decoded only to be re-encoded
-        in the returned blob object.
     returns:
         type: Titanium.Blob
     parameters:

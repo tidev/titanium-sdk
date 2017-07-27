@@ -70,10 +70,6 @@ methods:
 events:
   - name: complete
     summary: Fired when this email dialog has completed sending an email.
-
-    description: |
-        On Mobile Web, as the platform cannot determine whether a message has been sent or not,
-        this event fires immediately after calling open() and always reports success.
     properties:
       - name: success
         summary: |
@@ -151,9 +147,6 @@ properties:
         Determines whether the email message, specifically the contents of
         [messageBody](Titanium.UI.EmailDialog.messageBody), should be sent as HTML content type
         rather than plain text.
-    description: |
-        On Mobile Web, while iPhone and iPad properly interpret HTML messages, some email clients,
-        especially those for the desktop, do not support them.
     type: Boolean
     default: false
     platforms: [android, iphone, ipad, ]

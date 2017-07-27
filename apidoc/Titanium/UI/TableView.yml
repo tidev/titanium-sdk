@@ -71,9 +71,6 @@ description: |
         ([TIMOB-12625](https://jira.appcelerator.org/browse/TIMOB-12625)). This issue has been
         addressed in Release 3.3.0 of the Titanium SDK
 
-    *   On Mobile Web, click events fail to fire after calling the `updateSection` method.
-        ([TIMOB-12630](https://jira.appcelerator.org/browse/TIMOB-12630))
-
     #### Row Editing and Moving Modes (iOS only)
 
     On iOS, table views have an `editing` and a `moving` mode that may be activated to using their
@@ -566,9 +563,6 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-
-        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
-        will fire immediately following the scroll.
     platforms: [iphone, ipad, ]
     properties:
       - name: x
@@ -611,9 +605,6 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-
-        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
-        will fire immediately following the scroll.
     properties:
       - name: index
         summary: Row index.
@@ -715,9 +706,6 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-
-        On Mobile Web, a scroll may occur in the middle of a touch, in which case a `touchend`
-        will fire immediately following the scroll.
     platforms: [iphone, ipad, android]
     properties:
       - name: index
@@ -1047,12 +1035,6 @@ methods:
         the top. A positive value scrolls it down, and a negative value scrolls the list up
         above the first item.
 
-        On Mobile Web, the `top` value is interpreted as a pixel offset between the top of the top
-        row of data and the top of the table view. So a `top` value of 0 scrolls the list to
-        the top. A positive value scrolls it down. Values outside the scrollable range are clipped
-        so that negative numbers scroll the list to the top, and large positive values scroll the
-        list to the bottom.
-
         On iOS, specify a <TableViewAnimationProperties> object with `animated` set to `false` to
         disable the scrolling animation.
     parameters:
@@ -1157,10 +1139,9 @@ methods:
     description: |
         Known issues:
 
-        *   On iOS and Mobile Web, event listeners do not fire correctly after table view sections are
+        *   On iOS, event listeners do not fire correctly after table view sections are
             updated using the `updateSection` methods.
-            ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616),
-            [TIMOB-12630](https://jira.appcelerator.org/browse/TIMOB-12630))
+            ([TIMOB-12616](https://jira.appcelerator.org/browse/TIMOB-12616)
     parameters:
       - name: index
         summary: Index of the section to update.

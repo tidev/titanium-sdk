@@ -25,9 +25,6 @@ methods:
     summary: |
         Returns whether the system is configured with a default application to handle the URL's protocol.
     description: |
-        On Mobile Web, this method always returns true, even if the browser can't open the specific URL,
-        unless the URL is empty or undefined.
-
         On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](http://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
     returns:
         type: Boolean
@@ -56,8 +53,6 @@ methods:
 
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.
-    description: |
-        On Mobile Web, this function always returns false.
     returns:
         type: Boolean
     platforms: [android, iphone, ipad, ]
@@ -70,7 +65,6 @@ properties:
 
   - name: BATTERY_STATE_FULL
     summary: Constant to indicate that the battery is fully charged.
-    description: On Mobile Web, `BATTERY_STATE_FULL` is defined, but will never be a valid state.
     type: Number
     permission: read-only
 
@@ -117,9 +111,6 @@ properties:
 
   - name: batteryState
     summary: Indicates the state of the battery. Accessible only when `batteryMonitoring` is enabled.
-    description: |
-        On Mobile Web, battery state will either be charging, unplugged, or unknown. Full charge state
-        is not supported.
     type: Number
     constants: Titanium.Platform.BATTERY_STATE_*
     permission: read-only
@@ -187,10 +178,6 @@ properties:
         Virtual devices will also return a value. For example, `sdk` for the standard Android SDK
         and `google_sdk` for the enhanced Android Google APIs SDK running in an emulator, and
         `Simulator` for iOS running in a simulator.
-
-        Mobile Web will return the browser Agent information, such as
-        `Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0` for
-        Firefox 12 running on Ubuntu.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]

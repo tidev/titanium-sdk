@@ -476,12 +476,6 @@ properties:
 
   - name: returnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
-    description: |
-        Mobile Web on iOS devices only supports `RETURNKEY_DEFAULT`,
-        `RETURNKEY_GO`, `RETURNKEY_GOOGLE`, `RETURNKEY_SEARCH`, and `RETURNKEY_YAHOO`. Note that
-        `RETURNKEY_GOOGLE`, `RETURNKEY_SEARCH`, and `RETURNKEY_YAHOO` all display the word "Search".
-
-        Mobile Web on Android devices will only display "Go" regardless of this property's value.
     type: Number
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DEFAULT>

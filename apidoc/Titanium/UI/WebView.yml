@@ -167,15 +167,11 @@ methods:
 
   - name: canGoBack
     summary: Returns `true` if the web view can go back in its history list.
-    description: |
-        For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
 
   - name: canGoForward
     summary: Returns `true` if the web view can go forward in its history list.
-    description: |
-        For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
 
@@ -197,8 +193,6 @@ methods:
         call returns the empty string:
 
             myWebView.evalJS('return document.title');
-
-        For Mobile Web, you can only execute JavaScript when the contents are on the same domain.
     returns:
         type: String
     parameters:
@@ -209,16 +203,9 @@ methods:
 
   - name: goBack
     summary: Goes back one entry in the web view's history list, to the previous page.
-    description: |
-        For Mobile Web, you can only go back for same domain pages. If you set the initial `url` to a
-        remote page, the back function will not work. If you load a local page, then the user navigates
-        away to a remote page, you cannot go back.
 
   - name: goForward
     summary: Goes forward one entry in this web view's history list, if possible.
-    description: |
-        For Mobile Web, you can only go forward for same domain pages. If you set the initial `url`
-        to a remote page, the forward function will not work.
 
   - name: pause
     summary: Pauses native webview plugins.
@@ -233,12 +220,6 @@ methods:
 
   - name: reload
     summary: Reloads the current webpage.
-    description: |
-        For Mobile Web, when you reload, the last visited same domain page or the original `url`
-        is the page that is reloaded and all local URL history is reset. The history of remote URLs is
-        preserved.
-
-        You may need to simply reset the `url` property to reinitialize the WebView's iframe.
 
   - name: repaint
     summary: Forces the web view to repaint its contents.
@@ -275,19 +256,6 @@ methods:
 
   - name: stopLoading
     summary: Stops loading a currently loading page.
-    description: |
-        For Mobile Web, due to browser permissions, this will issue a stop on all windows including
-        the parent and all other web views.  Generally, this feature does not work reliably and instead
-        you may choose to set the `hardStop` argument to true.
-
-        When `hardStop` is set to `true`, the Mobile Web platforms will destroy the iFrame
-        used to display the content, so nothing is displayed where the web view used to
-        be. The actual web view component is *not* destroyed, and you can redisplay it by
-        calling [reload](Titanium.UI.WebView.reload), or by specifying new content.
-    parameters:
-      - name: hardStop
-        summary: Forces the web view to destroy the iFrame (Mobile Web only).
-        type: Boolean
 
 events:
 
@@ -297,10 +265,6 @@ events:
         This event may fire multiple times depending on the content or URL.  For example, if you set
         the URL of the web view to a URL that redirects to another URL, such as an HTTP URL
         redirecting to an HTTPS URL, this event is fired for the original URL and the redirect URL.
-
-        For Mobile Web, if you pass the `url` into the constructor, you must attach the event listener
-        before adding the web view to its parent, otherwise the event will fire before you have a
-        chance to add the event listener.
 
         This event does not fire when navigating remote web pages.
     properties:
@@ -316,7 +280,6 @@ events:
   - name: error
     summary: Fired when the web view cannot load the content.
     description: |
-        For Mobile Web, generally this event will **not** fire, even for 404, 500, and invalid URLs.
         The `errorCode` value refers to one of the <Titanium.UI> URL_ERROR constants or, if it does not
         match one of those constants, it refers to a platform-specific constant. The platform-specific
         values are underlying [iOS NSURLError*](https://developer.apple.com/library/ios/#documentation/Cocoa/Reference/Foundation/Miscellaneous/Foundation_Constants/Reference/reference.html#//apple_ref/doc/uid/TP40003793-CH3g-SW40)
@@ -358,10 +321,6 @@ events:
 
   - name: load
     summary: Fired when the web view content is loaded.
-    description: |
-        For Mobile Web, the `url` returned in the load event is generally accurate when loading
-        same domain pages and remote pages that you explicitly set using the `url` property.
-        If you navigate to a remote page, then this `url` is set to the initial remote page's URL.
     properties:
       - name: url
         summary: URL of the web document.
@@ -444,9 +403,6 @@ properties:
     summary: Web content to load.
     description: |
         Android only supports loading data from a `Blob`, not a `File`.
-
-        For Mobile Web, setting new content will reset the `url` and the WebView's history. The WebView's
-        "onload" event will have already fired prior to the data being set inside the WebView.
 
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
     type: [Titanium.Blob, Titanium.Filesystem.File]

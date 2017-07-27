@@ -363,9 +363,6 @@ properties:
   - name: readonly
     summary: |
         `true` if the file identified by this object is read-only.
-    description: |
-        On Mobile Web, this property exists but is always `true` for files in the resources directory
-        and `false` for application data and temporary files.
     type: Boolean
     permission: read-only
     platforms: [android]
@@ -394,8 +391,6 @@ properties:
   - name: symbolicLink
     summary: |
         `true` if the file identified by this object is a symbolic link.
-    description: |
-        On Mobile Web, this property exists but is always `false`.
     type: Boolean
     permission: read-only
 

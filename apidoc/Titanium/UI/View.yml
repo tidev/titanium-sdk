@@ -70,7 +70,7 @@ description: |
         corresponds to 2 pixels of width or height on a Retina display.
 
     The absolute measures, such as inches, are dependent on the device correctly reporting
-    its density. On Mobile Web, in particular, these values are unlikely to be exact.
+    its density.
 
     If no units are specified, a system-default unit is assumed. The system default unit is:
 
@@ -346,7 +346,6 @@ events:
         This event is typically triggered by either changing layout
         properties or by changing the orientation of the device. Note that changing the
         layout of child views or ancestors can also trigger a relayout of this view.
-        On Mobile Web, this event can also be triggered by resizing the browser window.
 
         Note that altering any properties that affect layout from the `postlayout` callback
         may result in an endless loop.
@@ -698,9 +697,9 @@ methods:
         and <Titanium.UI.TabGroup>.  Other types of views must be added
         to a top-level container in order to be displayed on screen.
 
-        The special containers <Titanium.UI.MobileWeb.NavigationGroup>,
-        <Titanium.UI.iOS.NavigationWindow>, <Titanium.UI.iPad.SplitWindow>,
-        <Titanium.UI.Tab>, and <Titanium.UI.TabGroup> manage windows.
+        The special containers <Titanium.UI.iOS.NavigationWindow>,
+        <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.Tab>, and
+        <Titanium.UI.TabGroup> manage windows.
         These managed windows may be referred to as *children* of the
         container, but they are not added using the `add` method.
 
@@ -729,8 +728,7 @@ methods:
         reflect the original values set by the user, not the actual position of the view.
 
         The [rect](Titanium.UI.View.rect) property can be used to determine the actual size and
-        position of the view. Note that on Mobile Web, the `rect` property is not updated after
-        animation. This is a known issue [TIMOB-8930](https://jira.appcelerator.org/browse/TIMOB-8930).
+        position of the view.
 
     parameters:
       - name: animation
@@ -758,8 +756,6 @@ methods:
 
         To be notified when the layout pass completes, add a listener for the
         [postlayout](Titanium.UI.View.postlayout) event.
-
-        On Mobile Web, this method has no effect, but is included for parity.
 
   - name: hide
     summary: Hides this view.
@@ -840,14 +836,11 @@ methods:
         Note that _any_ property changes made during the batch update _may_ be deferred until
         `finishLayout` is called. This may vary somewhat by platform. For example, changing the
         text of a label may trigger a layout pass. In iOS, updating the label text is
-        deferred, while on Mobile Web, the label text is updated immediately but the control is
-        not resized until `finishLayout` is called.
+        deferred.
 
         See also: [updateLayout](Titanium.UI.View.updateLayout),
         [finishLayout](Titanium.UI.View.finishLayout),
         [postlayout](Titanium.UI.View.postlayout) event.
-
-        On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
@@ -898,8 +891,6 @@ methods:
         See also: [startLayout](Titanium.UI.View.startLayout),
         [finishLayout](Titanium.UI.View.finishLayout),
         [postlayout](Titanium.UI.View.postlayout) event.
-
-        On Mobile Web, this method is included for parity only, and thus has no effect.
     since: "2.0.0"
     deprecated:
         since: "3.0.0"
@@ -1108,9 +1099,6 @@ properties:
 
             colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ]
 
-        Mobile Web has two limitations: backfillStart and backfillEnd are ignored and the system
-        behaves as if they are true, and endPoint is not supported for radial gradients.
-
         Android currently only supports linear gradients. It also ignores backfillStart and backfillEnd
         treating them as if they are true.
     examples:
@@ -1221,7 +1209,7 @@ properties:
     summary: Border color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-    default: Same as the normal background color of this view (Android, Mobile Web), black (iOS).
+    default: Same as the normal background color of this view (Android), black (iOS).
     type: String
 
 
@@ -1445,7 +1433,7 @@ properties:
             it is wrapped to a new row. The height of each row is equal to the maximum height of
             the children in that row.
 
-            Wrapping behavior is available on iOS, Android and Mobile Web (Release 2.1.0 and later).
+            Wrapping behavior is available on iOS and Android (Release 2.1.0 and later).
             When the `horizontalWrap` property is set to true, the first row is placed at the top of the
             parent view, and successive rows are placed below the first row. Each child is
             positioned vertically _within its row_ somewhat like composite layout mode.

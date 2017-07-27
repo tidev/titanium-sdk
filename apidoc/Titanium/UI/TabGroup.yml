@@ -558,8 +558,6 @@ properties:
 
   - name: activeTabBackgroundImage
     summary: Default background image for the active tab.
-    description: |
-        On Mobile Web, a tab's [backgroundImage](Titanium.UI.Tab.backgroundImage) property takes precedence if set.
     type: String
     platforms: [iphone, ipad]
     since: { iphone: "3.1.0", ipad: "3.1.0" }

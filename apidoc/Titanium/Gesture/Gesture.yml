@@ -97,11 +97,6 @@ events:
 
         The `timestamp` property represents the interval between shake events. It is measured in
         milliseconds on Android, and in seconds on iOS.
-
-        Note that Mobile Web detect shake gestures using the device accelerometer, if the device
-        and browser support this. This event cannot be generated on Mobile Web in the iOS simulator.
-        The simulator's **Shake Gesture** menu item generates a native shake event, but does not
-        generate accelerometer events to the browser.
     properties:
 
       - name: timestamp

@@ -1206,7 +1206,6 @@ description: |
     * [SplitWindow](Titanium.UI.iPad.SplitWindow)
     * [TabGroup](Titanium.UI.TabGroup)
     * [Tab](Titanium.UI.Tab)
-    * [NavigationGroup](Titanium.UI.MobileWeb.NavigationGroup)
 
     By default, windows occupy the entire screen except for the navigation bar,
     status bar, and in the case of windows contained in tab groups, the tab bar.
@@ -1367,7 +1366,7 @@ description: |
             modalTransitionStyle: Ti.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL,
             modalStyle: Ti.UI.iOS.MODAL_PRESENTATION_FORMSHEET
         });
-        
+
 
     ### Animations
 
