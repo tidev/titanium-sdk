@@ -32,12 +32,17 @@ function install(versionTag, next) {
 		osName = 'osx';
 		dest = path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
 	}
+
+	if (osName === 'linux') {
+		osName = 'linux';
+		dest = path.join(process.env.HOME, '.titanium');
+	}
 	// TODO Where should we install on Windows?
 
 	zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
 	console.log('Installing %s...', zipfile);
 
-	appc.zip.unzip(zipfile, dest, { overwrite:true }, next);
+	appc.zip.unzip(zipfile, dest, {}, next);
 }
 
 install(versionTag, function (err) {
