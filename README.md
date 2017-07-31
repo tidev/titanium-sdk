@@ -1,6 +1,8 @@
-# Appcelerator Titanium [![Build Status](https://jenkins.appcelerator.org/buildStatus/icon?job=titanium-sdk/titanium_mobile/master)](https://jenkins.appcelerator.org/job/titanium-sdk/job/titanium_mobile/job/master/)
+<p align="center"><a href="https://appcelerator.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
 
-Welcome to the Titanium open source project. Titanium provides a mature platform for developers to build 
+<h1 align="center">Titanium <a href="https://jenkins.appcelerator.org/job/titanium-sdk/job/titanium_mobile/job/master/" target="_blank"><img src="https://jenkins.appcelerator.org/buildStatus/icon?job=titanium-sdk/titanium_mobile/master" /></a></h1>
+
+Welcome to the Titanium open source project. Titanium provides a mature platform for developers to build
 completely native cross-platform mobile applications using JavaScript.
 
 Currently supported native platforms are iOS, Android and Windows Phone / Windows Desktop.
@@ -9,6 +11,23 @@ Titanium is licensed under the OSI approved Apache Public License (version 2). P
 see the LICENSE file for specific details.
 
 *[Download Pre-built Titanium](http://builds.appcelerator.com/#master)*
+
+# Table of Contents
+1. [Features](#features)
+2. [Hyperloop](#hyperloop)
+3. [Alloy](#alloy)
+4. [Getting Help](#getting-help)
+    * [Official Documentation, Tutorials and Videos](#official-documentation-tutorials-and-videos)
+    * [Developer Community](#developer-community)
+    * [Video Tutorials](#video-tutorials)
+    * [Slack](#slack)
+    * [Twitter](#twitter)
+    * [Blog](#blog)
+    * [Commercial Support, Licensing](#commercial-support-licensing)
+5. [Contributing](#contributing)
+6. [Building Locally](#building-locally)
+    * [Unit tests](#unit-tests)
+7. [Legal Stuff](#legal-stuff)
 
 ## Features
 
@@ -46,10 +65,10 @@ And much, much more (see our [Documentation](http://docs.appcelerator.com/platfo
 
 ## Hyperloop
 
-Use Hyperloop, our latest addition to the Appcelerator Platform, to extend your Titanium apps by native API's using 
+Use Hyperloop, our latest addition to the Appcelerator Platform, to extend your Titanium apps by native API's using
 JavaScript. Prior to Hyperloop, you would use [native modules](http://docs.appcelerator.com/platform/latest/#!/guide/Titanium_Module_Concepts) to extend the Titanium API. With
-Hyperloop, you are no able to implement native classes, 3rd-Party libraries (Cocoapods, local frameworks, .aar files) 
-and more directly into your apps. Hyperloop is available for iOS, Android and Windows Phone (Tech Preview). 
+Hyperloop, you are now able to implement native classes, 3rd-Party libraries (Cocoapods, local frameworks, .aar files)
+and more directly into your apps. Hyperloop is available for iOS, Android and Windows Phone (Tech Preview).
 
 ### Features
 
@@ -98,8 +117,8 @@ Check out our [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-e
 
 ## Alloy
 
-[Alloy](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Quick_Start) is the MVC application framework built 
-on top of Titanium. It is optional. It rocks. Check it out if you're considering using Titanium. 
+[Alloy](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Quick_Start) is the MVC application framework built
+on top of Titanium. It is optional. It rocks. Check it out if you're considering using Titanium.
 It is also a separate [open source project](https://github.com/appcelerator/alloy) available under Apache Public License.
 
 ### Example
@@ -186,9 +205,11 @@ To protect the interests of the Titanium contributors, Appcelerator, customers a
 Previously Titanium used scons and python scripts to build the SDK.
 If you'd like to build the SDK locally, we've replaced scons with some Node.JS scripts. Typical usage would be:
 
-	npm install
-	cd build
-	node scons.js cleanbuild --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk
+```bash
+npm install
+cd build
+node scons.js cleanbuild --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk
+```
 
 The build and package commands will default to all target platforms on your host OS unless explicitly specified. (i.e. Android, iOS on macOS; Windows and Android on Windows). It will compile, package and install the locally-built SDK for you
 as well, so you can test it in your own applications without any further procedures.
@@ -197,10 +218,54 @@ The build command will look for Android NDK and SDK using $ANDROID_NDK and $ANDR
 
 You can use the `-h` flag to display the full list of comands and options.
 
-	npm install
-	cd build
-	node scons.js cleanbuild [platform1] [platform2] --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk /Users/build/android-sdk-macosx
+```bash
+npm install
+cd build
+node scons.js cleanbuild [platform1] [platform2] --android-ndk /opt/android-ndk --android-sdk /opt/android-sdk /Users/build/android-sdk-macosx
+```
 
+### Unit tests
+
+We have a [common unit test suite](https://github.com/appcelerator/titanium-mobile-mocha-suite) intended to run across all supported platforms.
+
+To invoke the tests, you must create a local build of the sdk via the steps above and have an sdk zip in your `dist` directory. Then you'd run:
+
+```bash
+cd build
+node scons.js test [platform]
+```
+
+#### How it works
+
+The common test suite generates a single titaniun project targeting the specified platform, builds the project for emulator, launches the app on the emulator and then runs a series of tests defined via ti-mocha and should.js.
+
+The tests spit out their results to the console log, and the test scripts listen to the logs to gather the results. We then generate an overview on the console as well as a junit report xml file (to be consume by CI build systems like Jenkins).
+
+#### How to modify the tests locally and in your PRs
+
+The `tests` folder acts as an override folder for the common suite. Any files living within that directory are copied on top of the common suite's app structure.
+
+##### Adding a new test suite
+
+In practical terms that means if we need to add new test files, you'd place the new file under `tests/Resources`, and then copy the `titanium-mobile-mocha-suite/Resources/app.js` to `tests/Resources/app.js` and editing the copy to require the new file(s).
+
+For example, if we want to test a new `Ti.Foo` namespace, we'd create a new test file at `tests/Resources/ti.foo.test.js`. We'd then copy `titanium-mobile-mocha-suite/Resources/app.js` to `tests/Resources/app.js` and add the line:
+
+```javascript
+require('./ti.foo.test')
+```
+
+##### Editing an existing test suite
+
+If we want to edit the set of tests for the `Ti.App` namespace, we'd copy the existing test from `titanium-mobile-mocha-suite/Resources/ti.app.test.js` to `tests/Resources/ti.foo.test.js`. We'd then edit the file to add/remove/modify the existing suite.
+
+##### Merging the modified tests back to the common suite
+
+We do not have any automated process for merging the modified tests from the `tests` override folder back to the [common unit test suite](https://github.com/appcelerator/titanium-mobile-mocha-suite).
+
+As a result, we need to manually 'migrate' the modified files back to the suite ourselves. This involves copying the modified folders to a clone of that repository on the same mainline branch (i.e. master, 6_1_X, 7_0_X), committing and pushing it up to the common suite; then removing the files from `titanium_mobile/tests`.
+
+A future improvement could be to modify our Jenkins build in `Jenkinsfile` to automate this merge back to the common suite if all tests run and pass on a mainline branch.
 
 ## Legal Stuff
 

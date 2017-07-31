@@ -1181,22 +1181,19 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// TODO stub
 	}
 
-	private void dispatchCallback(String name, KrollDict data) {
+	private void dispatchCallback(final String name, KrollDict data) {
 		if (data == null) {
 			data = new KrollDict();
 		}
-
 		data.put("source", activityProxy);
 
-		// TIMOB-19903
-		if (TiApplication.getInstance().runOnMainThread()) {
-			// We must call this synchornously to ensure it happens before we release the Activity reference on the V8/Native side!
-			activityProxy.callPropertySync(name, new Object[] { data });
-		} else {
-			// This hopefully finishes before we release the reference on the native side?! I have seen it crash because it didn't before though...
-			// Not sure it's safe to keep this behavior...
-			activityProxy.callPropertyAsync(name, new Object[] { data });
-		}
+		final KrollDict d = data;
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				activityProxy.callPropertySync(name, new Object[] { d });
+			}
+		});
 	}
 
 	private void releaseDialogs(boolean finish)
@@ -1584,8 +1581,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (window != null) {
 			window.closeFromActivity(isFinishing);
 			window.releaseViews();
-			window.removeAllChildren();
-			window.release();
+			window.releaseKroll();
 			window = null;
 		}
 

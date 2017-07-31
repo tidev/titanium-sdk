@@ -153,6 +153,10 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DRAGSTART = "dragstart";
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DRAGEND = "dragend";
 
 	/**
@@ -1501,6 +1505,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_GROUP_KEY = "groupKey";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_GROUP_ALERT_BEHAVIOR = "groupAlertBehavior";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_GROUP_SUMMARY = "groupSummary";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_HAS_CHECK = "hasCheck";
 
 	/**
@@ -1562,6 +1581,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HINT_TEXT = "hintText";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HINT_TEXT_ID = "hinttextid";
 
 	/**
 	 * @module.api
@@ -2549,6 +2573,11 @@ public class TiC
 	* @module.api
 	*/
 	public static final String PROPERTY_SPLIT_ACTIONBAR = "splitActionBar";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SPLIT_TRACK = "splitTrack";
 
 	/**
 	 * @module.api

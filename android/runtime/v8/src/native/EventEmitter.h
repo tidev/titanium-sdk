@@ -9,7 +9,6 @@
 #ifndef EVENT_EMITTER_H
 #define EVENT_EMITTER_H
 
-#include <jni.h>
 #include <v8.h>
 
 #include "NativeObject.h"

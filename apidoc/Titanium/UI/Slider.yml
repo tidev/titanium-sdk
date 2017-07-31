@@ -43,20 +43,20 @@ examples:
                 top: 50,
                 min: 0,
                 max: 100,
-                width: '100%',
+                width: Ti.UI.FILL,
                 value: 50
                 });
                 
             var label = Ti.UI.createLabel({
                 text: slider.value,
-                width: '100%',
+                width: Ti.UI.FILL,
                 top: 30,
                 left: 0,
                 textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
-                });
+            });
             
             slider.addEventListener('change', function(e) {
-                label.text = String.format("%3.1f", e.value);
+                label.text = String.format('%3.1f', e.value);
             });
 
   - title: Alloy XML Markup
@@ -69,19 +69,19 @@ examples:
         index.xml:
 
             <Alloy>
-                <Window id="win" backgroundColor="white">
-                    <Slider id="slider" top="50" min="0" max="100" width="100%" value="50" onChange="updateLabel"/>
-                    <Label id="label" width="100%" top="30" left="0" />
+                <Window id="window" backgroundColor="white">
+                    <Slider id="slider" top="50" min="0" max="100" width="Ti.UI.FILL" value="50" onChange="updateLabel"/>
+                    <Label id="label" width="Ti.UI.FILL" top="30" left="0" />
                 </Window>
             </Alloy>
 
         index.js:
 
             $.slider.text = $.slider.value;
-            function updateLabel(e){
-                $.label.text = String.format("%3.1f", e.value);
+            function updateLabel(e) {
+                $.label.text = String.format(''%3.1f', e.value);
             }
-            $.win.open();
+            $.window.open();
 
 methods: 
     # main doc inherited from Ti.UI.View.add
@@ -120,7 +120,6 @@ methods:
             on iOS.
         type: Dictionary
         optional: true
-
 
 events:
 
@@ -408,6 +407,13 @@ properties:
     summary: Image URL of the slider thumb when in the selected state.
     type: String
     platforms: [iphone, ipad]
+
+  - name: splitTrack
+    summary: Separates the thumbImage from the slider track.
+    type: Boolean
+    default: false
+    since: 6.2.0
+    platforms: [android]
 
   - name: thumbImage
     summary: Image for the slider thumb.

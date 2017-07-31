@@ -126,6 +126,17 @@ methods:
         summary: Root window of the tab.
         type: Titanium.UI.Window
 
+  - name: popToRootWindow
+    summary: Closes all windows that are currently opened inside the tab.
+    description: Note that only the `close` event of the most recently opened window is fired.
+    parameters:
+      - name: options
+        summary: |
+            Options supporting a single `animated` boolean property to determine whether the windows
+            will be animated while being closed (default: false).
+        type: Dictionary
+    since: "6.2.0"
+
 properties:
   - name: active
     summary: |
@@ -426,12 +437,16 @@ examples:
         
         In this example, we create a simple tab and add it to a tab group.
         
-            var mywin = Titanium.UI.createWindow({title: "Hello"});
-            var tab = Titanium.UI.createTab({
-            	window:mywin,
-            	title:'Hello',
-            	icon:'myicon.png'
+            var window = Ti.UI.createWindow({
+                title: 'My Tab'
             });
+            
+            var tab = Ti.UI.createTab({
+                window: window,
+                title: 'My Tab',
+                icon: 'myicon.png'
+            });
+            
             tabGroup.addTab(tab);
 
   - title: Alloy XML Markup
@@ -440,8 +455,8 @@ examples:
 
             <Alloy>
                 <TabGroup id="tabGroup">
-                    <Tab id="tab" title="Hello" icon="myicon.png">
-                        <Window id="mywin" title="Hello"/>
+                    <Tab id="tab" title="My Tab" icon="myicon.png">
+                        <Window id="window" title="My Tab" />
                     </Tab>
                  </TabGroup>
             </Alloy>
