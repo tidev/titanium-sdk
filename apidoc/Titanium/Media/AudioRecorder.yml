@@ -4,8 +4,11 @@ summary: An audio recorder object used for recording audio from the device micro
 description: |
     Use the <Titanium.Media.createAudioRecorder> method to create an audio recorder. 
 extends: Titanium.Proxy
-since: "0.9"
-platforms: [iphone, ipad]
+since: 
+  iphone: "0.9"
+  ipad: "0.9"
+  android: "6.2.0"
+platforms: [android, iphone, ipad]
 methods:
 
   - name: pause
@@ -29,12 +32,14 @@ properties:
     type: Number
     constants: Titanium.Media.AUDIO_FORMAT_*
     default: <Titanium.Media.AUDIO_FORMAT_LINEAR_PCM>
+    platforms: [iphone, ipad]
 
   - name: format
     summary: Audio format to be used for the recording.
     type: Number
     constants: Titanium.Media.AUDIO_FILEFORMAT_*
     default: <Titanium.Media.AUDIO_FILEFORMAT_CAF>
+    platforms: [iphone, ipad]
 
   - name: paused
     summary: Indicates if the audio recorder is paused.
