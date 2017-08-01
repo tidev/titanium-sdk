@@ -210,6 +210,11 @@ public class KrollAPIUpdater
 		ArrayList<String> cardViewHack = new ArrayList<String>();
 		cardViewHack.add("cardview");
 		modulesJSON.put("titanium-cardview.jar", cardViewHack);
+
+		//Hack in the design module for now. revisit later.
+		ArrayList<String> designHack = new ArrayList<String>();
+		designHack.add("design");
+		modulesJSON.put("titanium-design.jar", designHack);
 		
 		File modules = new File(modulesDestDir, "modules.json");
 
