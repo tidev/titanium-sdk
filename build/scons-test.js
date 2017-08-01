@@ -55,6 +55,7 @@ function runTests(platforms, next) {
 				fs.removeSync(MOCHA_TESTS_DIR);
 			}
 			// clone the common test suite shallow
+			// FIXME Determine the correct branch of the suite to clone like we do in the Jenkinsfile
 			exec('git clone --depth 1 https://github.com/appcelerator/titanium-mobile-mocha-suite.git', { cwd: path.join(__dirname, '..') }, cb);
 		},
 		function (cb) {
