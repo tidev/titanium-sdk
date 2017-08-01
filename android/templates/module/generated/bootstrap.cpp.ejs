@@ -17,14 +17,14 @@ namespace titanium {
 		struct BindEntry;
 		
 		struct Hash {
-			// FNV-1 hashing algorithm
-			// https://tools.ietf.org/html/draft-eastlake-fnv-03
+			// FNV-1a hashing algorithm
+			// http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-1a
 			std::size_t operator()(const char* name) const {
 				std::size_t length = strlen(name);
 				std::size_t hash = 0x811C9DC5;
 				for (std::size_t i = 0; i < length; ++i) {
-					hash += (hash << 24) + (hash << 8) + (hash << 7) + (hash << 4) + (hash << 1);
 					hash ^= name[i];
+					hash += (hash << 24) + (hash << 8) + (hash << 7) + (hash << 4) + (hash << 1);
 				}
 				return hash;
 			}
