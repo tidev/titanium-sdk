@@ -1550,33 +1550,6 @@
     [super viewDidDisappear:animated];
 }
 
-/*
- //Removed Orientation
--(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    [self updateOrientationHistory:toInterfaceOrientation];
-    [self rotateDefaultImageViewToOrientation:toInterfaceOrientation];
-    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
--(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        [thisWindow willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
--(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        [thisWindow didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    }
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-}
-*/
-
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
@@ -1586,6 +1559,30 @@
     [self updateOrientationHistory:interfaceOrientation];
     [self rotateDefaultImageViewToOrientation:interfaceOrientation];
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
+
+- (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+        [thisWindow systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+    }
+    [super systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+}
+
+- (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+        [thisWindow willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+    }
+    [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+}
+
+- (void)preferredContentSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+        [thisWindow preferredContentSizeDidChangeForChildContentContainer:container];
+    }
+    [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
 
 #pragma mark - Status Bar Appearance
