@@ -92,6 +92,33 @@ examples:
             // Send the notification.
             Titanium.Android.NotificationManager.notify(1, notification);
 
+  - title: Bundled Notifications Example
+    example: |
+        The following example shows how to create bundled notifications.
+
+            var id = 100,
+                groupKey = 'group_key';
+
+            for (var i = 3; i > 0; i--) {
+                Ti.Android.NotificationManager.notify(id++,
+                    Ti.Android.createNotification({
+                        icon: Ti.Android.R.drawable.ic_dialog_info,
+                        contentTitle: 'NOTIFICATION #' + i,
+                        contentText : 'Lorem ipsum dolor sit amet, facer eruditi omittantur cu pri, nibh nonumy putant eam eu.'
+                        groupKey: groupKey
+                    })
+                );
+            }
+            Ti.Android.NotificationManager.notify(id++,
+                Ti.Android.createNotification({
+                    icon: Ti.Android.R.drawable.ic_dialog_info,
+                    contentTitle: 'NOTIFICATIONS',
+                    contentText : 'You have 3 notifications.',
+                    groupKey: groupKey,
+                    groupSummary: true
+                })
+            );
+
 extends: Titanium.Proxy
 since: "1.5"
 platforms: [android]
@@ -196,6 +223,18 @@ properties:
         Titanium.Android.FLAG_NO_CLEAR, Titanium.Android.FLAG_ONGOING_EVENT,
         Titanium.Android.FLAG_ONLY_ALERT_ONCE, Titanium.Android.FLAG_SHOW_LIGHTS ]
     default: <Titanium.Android.FLAG_AUTO_CANCEL>
+
+  - name: groupKey
+    summary: The group key that the notification will belong to.
+    type: String
+    since: "6.2.0"
+    osver: {android: {min: "5.1"}}
+
+  - name: groupSummary
+    summary: Specifies if this is a group summary notification.
+    type: Boolean
+    since: "6.2.0"
+    osver: {android: {min: "5.1"}}
 
   - name: icon
     summary:

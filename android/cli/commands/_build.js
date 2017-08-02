@@ -1776,6 +1776,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 		return appc.string.capitalize(word.toLowerCase());
 	}).join('');
 	/^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);
+	this.mainActivity = '.' + this.classname + 'Activity';
 
 	this.buildOnly = argv['build-only'];
 
@@ -3341,12 +3342,6 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
 			flags += '.Fullscreen';
 		}
-		if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
-			var theme = this.tiappAndroidManifest.application.theme;
-			if (theme.startsWith('@style/') && theme !== '@style/Theme.Titanium') {
-				flags = theme.replace('@style/', '');
-			}
-		}
 
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
 			flags: flags
@@ -3539,6 +3534,14 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				this.logger.warn(__('%s should not be used. Ignoring definition from %s', 'android:launchMode'.red, activity.cyan));
 			}
 		}
+
+		// TIMOB-24917: make sure the main activity is themed
+		if (tiappAndroidManifest.application.activity && tiappAndroidManifest.application.activity[this.mainActivity]) {
+			var parameters = tiappAndroidManifest.application.activity[this.mainActivity];
+			if (!parameters.theme) {
+				parameters.theme = '@style/Theme.Titanium';
+			}
+		}
 	}
 
 	// gather activities
@@ -3628,6 +3631,21 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 				activity.configChanges = ['screenSize'];
 			} else if (activity.configChanges.indexOf('screenSize') == -1) {
 				activity.configChanges.push('screenSize');
+			}
+		});
+	}
+
+	if (this.realTargetSDK >= 24 && !finalAndroidManifest.application.hasOwnProperty('resizeableActivity')) {
+		finalAndroidManifest.application.resizeableActivity = true;
+	}
+
+	if (this.realTargetSDK >= 24) {
+		Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
+			var activity = finalAndroidManifest.application.activity[name];
+			if (!activity.configChanges) {
+				activity.configChanges = ['density'];
+			} else if (activity.configChanges.indexOf('density') == -1) {
+				activity.configChanges.push('density');
 			}
 		});
 	}
