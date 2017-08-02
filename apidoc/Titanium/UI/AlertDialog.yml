@@ -80,7 +80,7 @@ excludes:
                  backgroundImage,backgroundLeftCap,backgroundRepeat,backgroundSelectedColor,
                  backgroundSelectedImage,backgroundTopCap,borderColor,borderRadius,borderWidth,bottom,center,
                  children,clipMode,focusable,height,horizontalWrap,keepScreenOn,layout,left,opacity,overrideCurrentAnimation,
-                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,tintColor,top,touchEnabled,transform,
+                 pullBackgroundColor,rect,right,size,softKeyboardOnFocus,top,touchEnabled,transform,
                  viewShadowColor,viewShadowOffset,viewShadowRadius,visible,width,zIndex]
 
 events:
@@ -129,6 +129,16 @@ events:
             <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
         type: String
         platforms: [iphone, ipad]
+                
+      - name: tintColor
+        summary: The tint-color of the dialog.
+        description: |
+            This property is a direct correspondant of the `tintColor` property of 
+            UIView on iOS. For a dialog, it will tint the color of it's buttons.
+        type: [String]
+        since: "6.2.0"
+        osver: {ios: {min: "8.0"}}
+        platforms: [iphone,ipad]
 
 methods:
   - name: show
@@ -278,6 +288,15 @@ properties:
     since: "5.4.0"
     platforms: [iphone, ipad]
 
+  - name: loginhinttextid
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [loginHintText](Titanium.UI.AlertDialog.loginHintText) property.
+    description: Only one of `loginHintText` or `loginhinttextid` should be specified.
+    type: String
+    since: "6.2.0"
+    platforms: [iphone, ipad]
+
   - name: loginReturnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
     description: |
@@ -351,6 +370,15 @@ properties:
     since: "5.4.0"
     platforms: [iphone, ipad]
 
+  - name: passwordhinttextid
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [passwordHintText](Titanium.UI.AlertDialog.passwordHintText) property.
+    description: Only one of `passwordHintText` or `hinttextid` should be specified.
+    type: String
+    since: "6.2.0"
+    platforms: [iphone, ipad]
+
   - name: passwordReturnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
     description: |
@@ -401,6 +429,15 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
     since: "5.4.0"
+    platforms: [iphone, ipad]
+
+  - name: hinttextid
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [hintText](Titanium.UI.AlertDialog.hintText) property.
+    description: Only one of `hintText` or `hinttextid` should be specified.
+    type: String
+    since: "6.2.0"
     platforms: [iphone, ipad]
 
   - name: persistent
@@ -472,7 +509,7 @@ examples:
               fullscreen: false
             });
 
-            win.addEventListener('click', function(e){
+            win.addEventListener('click', function(e) {
               alert('The file has been deleted');
             });
             win.open();
@@ -490,7 +527,7 @@ examples:
             fullscreen: false
             });
 
-            win.addEventListener('click', function(e){
+            win.addEventListener('click', function(e) {
               var dialog = Ti.UI.createAlertDialog({
                 message: 'The file has been deleted',
                 ok: 'Okay',
@@ -512,15 +549,15 @@ examples:
               exitOnClose: true,
               fullscreen: false
             });
-            win.addEventListener('click', function(e){
+            win.addEventListener('click', function(e) {
               var dialog = Ti.UI.createAlertDialog({
                 cancel: 1,
                 buttonNames: ['Confirm', 'Cancel', 'Help'],
                 message: 'Would you like to delete the file?',
                 title: 'Delete'
               });
-              dialog.addEventListener('click', function(e){
-                if (e.index === e.source.cancel){
+              dialog.addEventListener('click', function(e) {
+                if (e.index === e.source.cancel) {
                   Ti.API.info('The cancel button was clicked');
                 }
                 Ti.API.info('e.cancel: ' + e.cancel);
@@ -541,13 +578,13 @@ examples:
             var win = Ti.UI.createWindow({
               title: 'Click window to test'
             });
-            win.addEventListener('click', function(e){
+            win.addEventListener('click', function(e) {
               var dialog = Ti.UI.createAlertDialog({
                 title: 'Enter text',
                 style: Ti.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT,
                 buttonNames: ['OK']
               });
-              dialog.addEventListener('click', function(e){
+              dialog.addEventListener('click', function(e) {
                 Ti.API.info('e.text: ' + e.text);
               });
               dialog.show();
@@ -579,10 +616,10 @@ examples:
 
         alertdialog.js:
 
-            function showDialog(){
+            function showDialog() {
                 $.dialog.show();
-            };
+            }
 
-            function doClick(e){
+            function doClick(e) {
                 Ti.API.info('e.text: ' + e.text);
-            };
+            }

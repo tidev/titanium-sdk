@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.Authenticator;
 import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
@@ -50,8 +49,8 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 
+import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
@@ -103,7 +102,7 @@ public class TiHTTPClient
 
 	private static AtomicInteger httpClientThreadCounter;
 	private HttpURLConnection client;
-	private KrollProxy proxy;
+	private HTTPClientProxy proxy;
 	private int readyState;
 	private String responseText;
 	private DocumentProxy responseXml;
@@ -151,6 +150,11 @@ public class TiHTTPClient
 	public static final int REDIRECTS = 5;
 
 	private TiFile responseFile;
+	private boolean hasAuthentication = false;
+	private String username;
+	private String password;
+
+	private boolean requestPending = false;
 
 	private void handleResponse(HttpURLConnection connection) throws IOException {
 		connected = true;
@@ -397,7 +401,7 @@ public class TiHTTPClient
 		}
 	}
 
-	public TiHTTPClient(KrollProxy proxy)
+	public TiHTTPClient(HTTPClientProxy proxy)
 	{
 		this.proxy = proxy;
 		if (httpClientThreadCounter == null) {
@@ -443,7 +447,7 @@ public class TiHTTPClient
 
 	public void setReadyState(int readyState)
 	{
-		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
+		Log.d(TAG, "Setting ready state to " + readyState);
 		this.readyState = readyState;
 		KrollDict data = new KrollDict();
 		data.put("readyState", Integer.valueOf(readyState));
@@ -727,6 +731,11 @@ public class TiHTTPClient
 
 	public void open(String method, String url)
 	{
+		if (requestPending) {
+			Log.w(TAG, "open cancelled, a request is already pending for response.");
+			return;
+		}
+
 		Log.d(TAG, "open request method=" + method + " url=" + url, Log.DEBUG_MODE);
 
 		if (url == null)
@@ -800,12 +809,11 @@ public class TiHTTPClient
 				"Instantiating host with hostString='" + hostString + "', port='" + port + "', scheme='" + uri.getScheme() + "'",
 				Log.DEBUG_MODE);
 
-		final String username = ((HTTPClientProxy)proxy).getUsername();
-		final String password = ((HTTPClientProxy)proxy).getPassword();
-		final String domain = ((HTTPClientProxy)proxy).getDomain();
+		username = proxy.getUsername();
+		password = proxy.getPassword();
 
 		if ((username != null) && (password != null)) {
-			Authenticator.setDefault(new TiAuthenticator(domain, username, password));
+			hasAuthentication = true;
 		}
 
 		setReadyState(READY_STATE_OPENED);
@@ -915,8 +923,8 @@ public class TiHTTPClient
 
 		if (this.securityManager != null) {
 			if (this.securityManager.willHandleURL(this.uri)) {
-				TrustManager[] trustManagerArray = this.securityManager.getTrustManagers((HTTPClientProxy)this.proxy);
-				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers((HTTPClientProxy)this.proxy);
+				TrustManager[] trustManagerArray = this.securityManager.getTrustManagers(this.proxy);
+				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers(this.proxy);
 
 				try {
 					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
@@ -1007,6 +1015,12 @@ public class TiHTTPClient
 
 	public void send(Object userData) throws UnsupportedEncodingException
 	{
+
+		if (requestPending) {
+			Log.w(TAG, "send cancelled, a request is already pending for response.");
+			return;
+		}
+		requestPending = true;
 		aborted = false;
 
 		// TODO consider using task manager
@@ -1141,6 +1155,8 @@ public class TiHTTPClient
 							} catch (UnsupportedEncodingException e) {
 								Log.e(TAG, "Unsupported encoding: ", e);
 							}
+							//clear nvPairs after form entity is created
+							nvPairs.clear();
 						}
 
 						// calculate content length
@@ -1194,7 +1210,8 @@ public class TiHTTPClient
 										+ parts.get(name).getContentLength(), Log.DEBUG_MODE);
 								addFilePart(name, parts.get(name));
 							}
-
+							//clear parts after they have been used
+							parts.clear();
 							if (form != null) {
 								try {
 									ByteArrayOutputStream bos = new ByteArrayOutputStream((int) form.getContentLength());
@@ -1296,7 +1313,7 @@ public class TiHTTPClient
 
 				client = null;
 				clientThread = null;
-
+				requestPending = false;
 				// Fire the disposehandle event if the request is finished successfully or the errors occur.
 				// And it will dispose the handle of the httpclient in the JS.
 				proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
@@ -1327,6 +1344,15 @@ public class TiHTTPClient
 				client.setDoOutput(true);
 			}
 			client.setUseCaches(false);
+			//Set Authorization value for Basic authentication
+			if (hasAuthentication) {
+				String domain = proxy.getDomain();
+				if (domain != null) {
+					username = domain + "\\" + username;
+				}
+				String encodedCredentials = Base64.encodeToString((username + ":" + password).getBytes(),Base64.NO_WRAP);
+				client.setRequestProperty("Authorization", "Basic " + encodedCredentials);
+			}
 			// This is to set gzip default to disable
 			// https://code.google.com/p/android/issues/detail?id=174949
 			client.setRequestProperty("Accept-Encoding", "identity");

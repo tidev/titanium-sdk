@@ -376,7 +376,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			}
 		}
 
-		properties.putAll(dict);
+		for (String key : dict.keySet()) {
+			setProperty(key, dict.get(key));
+		}
 		handleDefaultValues();
 		handleLocaleProperties();
 
@@ -1275,6 +1277,30 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @module.api
 	 */
 	public void release()
+	{
+		if (eventListeners != null) {
+			eventListeners.clear();
+			eventListeners = null;
+		}
+		if (properties != null) {
+			properties.clear();
+			properties = null;
+		}
+		if (defaultValues != null) {
+			defaultValues.clear();
+			defaultValues = null;
+		}
+		if (krollObject != null) {
+			krollObject.release();
+			krollObject = null;
+		}
+	}
+
+	/**
+	 * Only release kroll, but maintain instance
+	 * @module.api
+	 */
+	public void releaseKroll()
 	{
 		if (krollObject != null) {
 			krollObject.release();

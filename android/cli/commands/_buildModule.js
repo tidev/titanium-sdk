@@ -60,7 +60,7 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 		androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
 			this.androidInfo = androidInfo;
 
-			if (!this.androidInfo.ndk.path) {
+			if (!this.androidInfo.ndk) {
 				logger.error(__('Unable to find a suitable installed Android NDK.') + '\n');
 				process.exit(1);
 			}
@@ -203,7 +203,6 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'ndkBuild',
 		'ndkLocalBuild',
 		'compileAllFinal',
-		'verifyBuildArch',
 		'packageZip',
 		'runModule',
 
@@ -1153,7 +1152,8 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 		}),
 		closureJarFile = path.join(this.platformPath, 'lib', 'closure-compiler.jar');
 
-	jsFilesToEncrypt.forEach(function (file) {
+	// Limit to 5 instances of Java in parallel at max, to be careful/conservative
+	async.eachLimit(jsFilesToEncrypt, 5, function(file, callback) {
 
 		var outputDir = path.dirname(path.join(this.buildGenJsDir, file)),
 			filePath = path.join(this.assetsDir, file);
@@ -1178,11 +1178,9 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 				'--jscomp_off=internetExplorerChecks'
 			],
 			{},
-			next
+			callback
 		);
-
-	}, this);
-
+	}.bind(this), next);
 };
 
 /*
@@ -1746,6 +1744,11 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					}.bind(this));
 				}
 
+				// respackageinfo file
+				if (this.manifest.respackage) {
+					dest.append(this.manifest.respackage, { name: path.join(moduleFolder,'respackageinfo') });
+				}
+
 				dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolder,'LICENSE') });
 				dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolder,'manifest') });
 				dest.append(fs.createReadStream(this.moduleJarFile), { name: path.join(moduleFolder, this.moduleJarName) });
@@ -1800,10 +1803,10 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 	}
 
 	function runTiCommand(cmd, args, logger, callback) {
-		// when calling a Windows batch file, we need to escape ampersands in the command
-		if (process.platform == 'win32' && /\.bat$/.test(cmd)) {
-			args.unshift('/S', '/C', cmd.replace(/\&/g, '^&'));
-			cmd = 'cmd.exe';
+
+		// when calling on Windows, we need to escape ampersands in the command
+		if (process.platform == 'win32') {
+			cmd.replace(/\&/g, '^&');
 		}
 
 		var child = spawn(cmd, args);
@@ -1841,8 +1844,9 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
 
 			runTiCommand(
-				'ti',
+				process.execPath,
 				[
+					process.argv[1],
 					'create',
 					'--id', this.manifest.moduleid,
 					'-n', this.manifest.name,
@@ -1889,8 +1893,9 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 			this.logger.debug(__('Running example project...', tmpDir.cyan));
 
 			runTiCommand(
-				'ti',
+				process.execPath,
 				[
+					process.argv[1],
 					'build',
 					'-p', 'android',
 					'-d', tmpProjectDir

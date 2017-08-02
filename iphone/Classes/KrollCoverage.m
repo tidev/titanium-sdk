@@ -9,7 +9,6 @@
 #import "KrollCoverage.h"
 #import "TiUtils.h"
 #import "TiModule.h"
-#import "SBJSON.h"
 
 @implementation KrollCoverageObject
 

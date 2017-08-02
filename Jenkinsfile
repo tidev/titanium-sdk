@@ -2,6 +2,9 @@
 library 'pipeline-library'
 currentBuild.result = 'SUCCESS'
 
+// Keep logs/reports/etc of last 5 builds, only keep build artifacts of last 3 builds
+properties([buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '3'))])
+
 // Variables which we assign and share between nodes
 // Don't modify these yourself
 def gitCommit = ''
@@ -10,7 +13,7 @@ def vtag = ''
 def isPR = false
 
 // Variables we can change
-def nodeVersion = '4.7.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
@@ -27,7 +30,7 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 				// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
 				dir('titanium-mobile-mocha-suite') {
 					// TODO Do a shallow clone, using same credentials as from scm object
-					git credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
+					git changelog: false, poll: false, credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
 				}
 				// copy over any overridden unit tests into this workspace
 				unstash 'override-tests'
@@ -65,18 +68,38 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 	}
 }
 
+@NonCPS
+def isMajorVersionLessThan(version, minValue) {
+	def versionMatcher = version =~ /(\d+)\.(\d+)\.(\d+)/
+	def majorVersion = versionMatcher[0][1].toInteger()
+	return majorVersion < minValue
+}
+
 // Wrap in timestamper
 timestamps {
 	def targetBranch
 	try {
 		node('git && android-sdk && android-ndk && ant && gperf && osx') {
 			stage('Checkout') {
+				// Update our shared reference repo for all branches/PRs
+				dir('..') {
+					if (fileExists('titanium_mobile.git')) {
+						dir('titanium_mobile.git') {
+							sh 'git remote update -p' // update the clone
+						}
+					} else {
+						sh 'git clone --mirror git@github.com:appcelerator/titanium_mobile.git' // create a mirror
+					}
+				}
+
 				// checkout scm
 				// Hack for JENKINS-37658 - see https://support.cloudbees.com/hc/en-us/articles/226122247-How-to-Customize-Checkout-for-Pipeline-Multibranch
 				checkout([
 					$class: 'GitSCM',
 					branches: scm.branches,
-					extensions: scm.extensions + [[$class: 'CleanBeforeCheckout'], [$class: 'CloneOption', honorRefspec: true, noTags: true, reference: '', shallow: true, depth: 30, timeout: 30]],
+					extensions: scm.extensions + [
+						[$class: 'CleanBeforeCheckout'],
+						[$class: 'CloneOption', honorRefspec: true, noTags: true, reference: "${pwd()}/../titanium_mobile.git", shallow: true, depth: 30, timeout: 30]],
 					userRemoteConfigs: scm.userRemoteConfigs
 				])
 				// FIXME: Workaround for missing env.GIT_COMMIT: http://stackoverflow.com/questions/36304208/jenkins-workflow-checkout-accessing-branch-name-and-git-commit
@@ -92,31 +115,55 @@ timestamps {
 			// Skip the Windows SDK portion if a PR, we don't need it
 			stage('Windows') {
 				if (!isPR) {
+					// This may be the very first build on this branch, so there's no windows build to grab yet
+					def isFirstBuildOnBranch = false
+					try {
+						sh 'curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/branches.json'
+						if (fileExists('branches.json')) {
+							def contents = readFile('branches.json')
+							if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+								def branchesJSON = jsonParse(contents)
+								isFirstBuildOnBranch = !(branchesJSON['branches'].contains(env.BRANCH_NAME))
+							}
+						}
+					} catch (err) {
+						// ignore? Not able to grab the branches.json, what should we assume? In 99.9% of the cases, it's not a new build
+					}
+
+					// If there's no windows build for this branch yet, use master
+					def windowsBranch = targetBranch
+					if (isFirstBuildOnBranch) {
+						windowsBranch = 'master'
+						manager.addWarningBadge("Looks like the first build on branch ${env.BRANCH_NAME}. Using 'master' branch build of Windows SDK to bootstrap.")
+					}
 					step([$class: 'CopyArtifact',
-						projectName: "../titanium_mobile_windows/${targetBranch}",
+						projectName: "../titanium_mobile_windows/${windowsBranch}",
 						selector: [$class: 'StatusBuildSelector', stable: false],
 						filter: 'dist/windows/'])
 					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
 				} // !isPR
 			} // stage
 
-			stage('Build') {
-				// Normal build, pull out the version
-				def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
-				echo "VERSION:         ${version}"
-				// Create a timestamp
-				def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
-				echo "TIMESTAMP:       ${timestamp}"
-				vtag = "${version}.v${timestamp}"
-				echo "VTAG:            ${vtag}"
-				basename = "dist/mobilesdk-${vtag}"
-				echo "BASENAME:        ${basename}"
+			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+				stage('Build') {
+					// Normal build, pull out the version
+					def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
+					echo "VERSION:         ${version}"
+					// Create a timestamp
+					def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
+					echo "TIMESTAMP:       ${timestamp}"
+					vtag = "${version}.v${timestamp}"
+					echo "VTAG:            ${vtag}"
+					basename = "dist/mobilesdk-${vtag}"
+					echo "BASENAME:        ${basename}"
 
-				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+					// Enforce npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
+					sh 'npm install -g npm@5.2'
+
 					// Install dev dependencies
 					timeout(5) {
-						// We already check in our production dependencies, so only install devDependencies
-						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
+						sh 'npm install'
 					}
 					sh 'npm test' // Run linting first
 					// Then validate docs
@@ -140,11 +187,38 @@ timestamps {
 							}
 						} // ansiColor
 					} // dir
-				} // nodeJs
-				archiveArtifacts artifacts: "${basename}-*.zip"
-				stash includes: 'dist/parity.html', name: 'parity'
-				stash includes: 'tests/', name: 'override-tests'
-			} // end 'Build' stage
+					archiveArtifacts artifacts: "${basename}-*.zip"
+					stash includes: 'dist/parity.html', name: 'parity'
+					stash includes: 'tests/', name: 'override-tests'
+				} // end 'Build' stage
+
+				stage('Security') {
+					// Clean up and install only production dependencies
+					sh 'npm prune --production'
+
+					// Scan for NSP and RetireJS warnings
+					def scanFiles = []
+					sh 'npm install -g nsp'
+					def nspExitCode = sh(returnStatus: true, script: 'nsp check --output json 2> nsp.json')
+					if (nspExitCode != 0) {
+						scanFiles << [path: 'nsp.json']
+					}
+
+					sh 'npm install -g retire'
+					def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
+
+					if (retireExitCode != 0) {
+						scanFiles << [path: 'retire.json']
+					}
+
+					if (!scanFiles.isEmpty()) {
+						step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
+					}
+
+					// re-install dev dependencies for testing later...
+					sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+				} // end 'Security' stage
+			} // nodeJs
 		} // end node for checkout/build
 
 		// Run unit tests in parallel for android/iOS
@@ -177,6 +251,7 @@ timestamps {
 							indexJson = jsonParse(contents)
 						}
 					}
+					// FIXME Add branch to branches.json file as well if the <branch>/index.json didn't exist!
 
 					// unarchive zips
 					unarchive mapping: ['dist/': '.']

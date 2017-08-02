@@ -165,10 +165,11 @@ properties:
   - name: minimumFontSize
     summary: Minimum font size when the font is sized based on the contents. 
     description: |
-        Enables font scaling to fit and forces the label content to be limited to a single line.
-        
-        On Android, setting this property will force the `ellipsize` property to be
-        <Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_END> which is the default behavior as well.
+        When set to a valid font size, this property enables single-line mode and the font
+        will be auto-downscaled so that its text will fit the label's width if necessary.
+        Will not downscale the font lower than the assigned minimum font size.
+
+        When set to less than or equal to zero, the font auto-downscaling feature will be disabled.
     type: Number
     since: {iphone: "0.8.0", ipad: "0.8.0", android: "6.1.0"}
     platforms: [android, iphone, ipad]
