@@ -416,6 +416,8 @@
     [super resignFocus];
 }
 
+/*
+ //Removed Orientation
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     if ([self viewAttached]) {
@@ -436,6 +438,15 @@
         [navController didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+}
+*/
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    if ([self viewAttached]) {
+        [navController viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    }
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
 

@@ -250,6 +250,8 @@ static NSArray* tabGroupKeySequence;
     [super viewDidDisappear:animated];
 }
 
+/*
+ //Removed Orientation
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
@@ -273,6 +275,13 @@ static NSArray* tabGroupKeySequence;
 	{
 		[(TiUITabGroup *)[self view] didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 	}
+}
+*/
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    if ([self viewAttached]) {
+        [(TiUITabGroup *)[self view] viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    }
 }
 
 -(UIStatusBarStyle)preferredStatusBarStyle;

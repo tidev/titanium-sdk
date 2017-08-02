@@ -336,7 +336,17 @@
     return result;
 }
 
+/*
+ //Removed Orientation
+
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    if ([self viewAttached]) {
+        [(TiUIScrollableView*)[self view] manageRotation];
+    }
+}
+*/
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
     if ([self viewAttached]) {
         [(TiUIScrollableView*)[self view] manageRotation];

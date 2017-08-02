@@ -432,11 +432,13 @@ DEFINE_EXCEPTIONS
 		controller.tabBar.tintColor = color.color;
 	}
 	else {
-		controller.tabBar.selectedImageTintColor = color.color; //deprecated for >= ios8
+		controller.tabBar.tintColor = color.color;
 	}
 }
 
 #pragma mark Public APIs
+/*
+ //Removed Orientation
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
@@ -451,6 +453,11 @@ DEFINE_EXCEPTIONS
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
     [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+}
+*/
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    [controller viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
 -(void)setTranslucent_:(id)value
