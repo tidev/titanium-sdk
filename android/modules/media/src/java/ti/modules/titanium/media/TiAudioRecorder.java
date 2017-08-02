@@ -42,7 +42,7 @@ public class TiAudioRecorder {
 
 	public TiAudioRecorder() {
 		//Get the minimum buffer size according to the device recording capabilities
-		bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLE_RATE,RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING);
+		bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLE_RATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
 	}
 
 	public boolean isPaused() {
@@ -59,14 +59,14 @@ public class TiAudioRecorder {
 
 	public void startRecording() {
 		try {
-			tempFileReference =  TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_TEMP_FILE,true);
+			tempFileReference =  TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_TEMP_FILE, true);
 			fileOutputStream = new FileOutputStream(tempFileReference);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 		//Initialize the audio recorded with big enough buffer to ensure smooth reading from it without overlap
-		audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,RECORDER_SAMPLE_RATE, RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING, bufferSize*4);
+		audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,RECORDER_SAMPLE_RATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING, bufferSize*4);
 
 		audioData = new byte[bufferSize];
 
@@ -91,13 +91,13 @@ public class TiAudioRecorder {
 			audioRecord.release();
 			audioRecord = null;
 			try {
-				resultFile = TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_FILE_EXT_WAV,true);
+				resultFile = TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_FILE_EXT_WAV, true);
 				createWaveFile(resultFile.getAbsolutePath());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		return resultFile != null ? resultFile.getAbsolutePath():"";
+		return resultFile != null ? resultFile.getAbsolutePath() : "";
 	}
 
 	public void pauseRecording() {
@@ -113,7 +113,7 @@ public class TiAudioRecorder {
 		if (audioRecord != null) {
 			paused = false;
 			audioRecord.startRecording();
-			audioRecord.read(audioData,0,bufferSize);
+			audioRecord.read(audioData, 0, bufferSize);
 		}
 	}
 
@@ -138,7 +138,7 @@ public class TiAudioRecorder {
 			totalDataLen = totalAudioLen + 36;
 
 			//Write the WAV header
-			writeWaveFileHeader(out, totalAudioLen, totalDataLen,RECORDER_SAMPLE_RATE, channels, byteRate);
+			writeWaveFileHeader(out, totalAudioLen, totalDataLen, RECORDER_SAMPLE_RATE, channels, byteRate);
 
 			//Write the audio data
 			while(in.read(data) != -1){
@@ -155,54 +155,39 @@ public class TiAudioRecorder {
 
 	private void writeWaveFileHeader(FileOutputStream out, long totalAudioLen, long totalDataLen,
 									 long longSampleRate, int channels, long byteRate) throws IOException {
-		byte[] header = new byte[44];
+		byte[] header = {
+			'R', 'I', 'F', 'F', // RIFF/WAVE header
+			(byte) (totalDataLen & 0xff),
+			(byte) ((totalDataLen >> 8) & 0xff),
+			(byte) ((totalDataLen >> 16) & 0xff),
+			(byte) ((totalDataLen >> 24) & 0xff),
+			'W', 'A', 'V', 'E',
+			'f', 'm', 't', ' ', // 'fmt ' chunk
+			16, 0, 0, 0, // 4 bytes: size of 'fmt ' chunk
+			1, // format = 1
+			0,
+			(byte) channels, // channels
+			0,
+			(byte) (longSampleRate & 0xff),
+			(byte) ((longSampleRate >> 8) & 0xff),
+			(byte) ((longSampleRate >> 16) & 0xff),
+			(byte) ((longSampleRate >> 24) & 0xff),
+			(byte) (byteRate & 0xff),
+			(byte) ((byteRate >> 8) & 0xff),
+			(byte) ((byteRate >> 16) & 0xff),
+			(byte) ((byteRate >> 24) & 0xff),
+			(byte) (2 * 16 / 8), // block align
+			0,
+			RECORDER_BPP, // bits per sample
+			0,
+			'd', 'a', 't', 'a',
+			(byte) (totalAudioLen & 0xff),
+			(byte) ((totalAudioLen >> 8) & 0xff),
+			(byte) ((totalAudioLen >> 16) & 0xff),
+			(byte) ((totalAudioLen >> 24) & 0xff)
+		};
 
-		header[0] = 'R'; // RIFF/WAVE header
-		header[1] = 'I';
-		header[2] = 'F';
-		header[3] = 'F';
-		header[4] = (byte) (totalDataLen & 0xff);
-		header[5] = (byte) ((totalDataLen >> 8) & 0xff);
-		header[6] = (byte) ((totalDataLen >> 16) & 0xff);
-		header[7] = (byte) ((totalDataLen >> 24) & 0xff);
-		header[8] = 'W';
-		header[9] = 'A';
-		header[10] = 'V';
-		header[11] = 'E';
-		header[12] = 'f'; // 'fmt ' chunk
-		header[13] = 'm';
-		header[14] = 't';
-		header[15] = ' ';
-		header[16] = 16; // 4 bytes: size of 'fmt ' chunk
-		header[17] = 0;
-		header[18] = 0;
-		header[19] = 0;
-		header[20] = 1; // format = 1
-		header[21] = 0;
-		header[22] = (byte) channels;
-		header[23] = 0;
-		header[24] = (byte) (longSampleRate & 0xff);
-		header[25] = (byte) ((longSampleRate >> 8) & 0xff);
-		header[26] = (byte) ((longSampleRate >> 16) & 0xff);
-		header[27] = (byte) ((longSampleRate >> 24) & 0xff);
-		header[28] = (byte) (byteRate & 0xff);
-		header[29] = (byte) ((byteRate >> 8) & 0xff);
-		header[30] = (byte) ((byteRate >> 16) & 0xff);
-		header[31] = (byte) ((byteRate >> 24) & 0xff);
-		header[32] = (byte) (2 * 16 / 8); // block align
-		header[33] = 0;
-		header[34] = RECORDER_BPP; // bits per sample
-		header[35] = 0;
-		header[36] = 'd';
-		header[37] = 'a';
-		header[38] = 't';
-		header[39] = 'a';
-		header[40] = (byte) (totalAudioLen & 0xff);
-		header[41] = (byte) ((totalAudioLen >> 8) & 0xff);
-		header[42] = (byte) ((totalAudioLen >> 16) & 0xff);
-		header[43] = (byte) ((totalAudioLen >> 24) & 0xff);
-
-		out.write(header, 0, 44);
+		out.write(header, 0, header.length);
 	}
 
 
