@@ -12,7 +12,7 @@
     <string msgid="3405795526292276155" name="abc_capital_on">"ACTIVADO"</string>
     <string msgid="7723749260725869598" name="abc_search_hint">"Buscar…"</string>
     <string msgid="3691816814315814921" name="abc_searchview_description_clear">"Eliminar la consulta"</string>
-    <string msgid="2550479030709304392" name="abc_searchview_description_query">"Consulta de búsqueda"</string>
+    <string msgid="2550479030709304392" name="abc_searchview_description_query">"Búsqueda"</string>
     <string msgid="8264924765203268293" name="abc_searchview_description_search">"Búsqueda"</string>
     <string msgid="8928215447528550784" name="abc_searchview_description_submit">"Enviar consulta"</string>
     <string msgid="893419373245838918" name="abc_searchview_description_voice">"Búsqueda por voz"</string>
