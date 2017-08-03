@@ -67,7 +67,10 @@
 {
 	CGSize fontSize = [self sizeForFont:width];
 	CGSize progressSize = [progress sizeThatFits:fontSize];
-	return fontSize.height + progressSize.height;
+    if (messageLabel == nil) {
+        return fontSize.height + progressSize.height;
+    }
+	return fontSize.height + progressSize.height + 5;
 }
 #endif
 
