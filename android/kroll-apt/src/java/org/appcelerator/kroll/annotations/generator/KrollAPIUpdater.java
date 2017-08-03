@@ -215,6 +215,11 @@ public class KrollAPIUpdater
 		ArrayList<String> designHack = new ArrayList<String>();
 		designHack.add("design");
 		modulesJSON.put("titanium-design.jar", designHack);
+
+		//Hack in the compat module for now. revisit later.
+		ArrayList<String> compatHack = new ArrayList<String>();
+		compatHack.add("compat");
+		modulesJSON.put("titanium-compat.jar", compatHack);
 		
 		File modules = new File(modulesDestDir, "modules.json");
 
