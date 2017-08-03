@@ -15,7 +15,7 @@
     <string msgid="2550479030709304392" name="abc_searchview_description_query">"عبارت جستجو"</string>
     <string msgid="8264924765203268293" name="abc_searchview_description_search">"جستجو"</string>
     <string msgid="8928215447528550784" name="abc_searchview_description_submit">"ارسال عبارت جستجو"</string>
-    <string msgid="893419373245838918" name="abc_searchview_description_voice">"جستجوی شفاهی"</string>
+    <string msgid="893419373245838918" name="abc_searchview_description_voice">"جستجوی گفتاری"</string>
     <string msgid="3421042268587513524" name="abc_shareactionprovider_share_with">"اشتراک‌گذاری با"</string>
     <string msgid="7165123711973476752" name="abc_shareactionprovider_share_with_application">"‏اشتراک‌گذاری با %s"</string>
     <string msgid="1603543279005712093" name="abc_toolbar_collapse_description">"کوچک کردن"</string>
