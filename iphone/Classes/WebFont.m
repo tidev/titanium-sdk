@@ -23,11 +23,10 @@
 
 -(CGFloat) size
 {
-	if (size < 4) 
-	{
-		size=14;
-	}
-	return size;
+	if (size < 4)  {
+        size = 17;
+    }
+    return size;
 }
 
 -(BOOL) isSizeNotSet
@@ -324,7 +323,7 @@
 +(WebFont *)defaultBoldFont
 {
 	WebFont * result = [[self alloc] init];
-	result.size = 15;
+	result.size = 17;
 	result.isBoldWeight = YES;
 	return [result autorelease];
 }
@@ -332,7 +331,7 @@
 +(WebFont *)defaultItalicFont
 {
     WebFont * result = [[self alloc] init];
-    result.size = 15;
+    result.size = 17;
     result.isItalicStyle = YES;
     return [result autorelease];
 }
@@ -341,7 +340,7 @@
 +(WebFont *)defaultFont
 {
 	WebFont * result = [[self alloc] init];
-	result.size = 15;
+	result.size = 17;
 	return [result autorelease];
 }
 
@@ -349,16 +348,8 @@
 {
 	WebFont * result = [[[self alloc] init] autorelease];
 	result.family = [[name copy] autorelease];
-	result.size = 15;
+	result.size = 17;
 	return result;
-}
-
-+(WebFont *)tableRowFont
-{
-	WebFont * result = [[self alloc] init];
-	result.isBoldWeight = YES;
-	result.size = 20;
-	return [result autorelease];
 }
 
 @end

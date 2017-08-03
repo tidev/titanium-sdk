@@ -996,12 +996,13 @@ formats.forEach(function (format) {
 	}
 
 	if (!~['addon'].indexOf(format)) {
-		if (fs.writeFile(output, render) <= 0) {
-			common.log(common.LOG_ERROR, 'Failed to write to file: %s', output);
-			process.exit(1);
-		} else {
+		fs.writeFile(output, render, function (err) {
+			if (err) {
+				common.log(common.LOG_ERROR, 'Failed to write to file: %s with error: %s', output, err);
+				process.exit(1);
+			}
 			common.log('Generated output at %s', output);
-		}
+		});
 	}
 	exporter = exportData = null;
 
