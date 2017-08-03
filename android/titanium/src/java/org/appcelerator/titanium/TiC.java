@@ -23,6 +23,7 @@ public class TiC
 	public static final int PERMISSION_CODE_EXTERNAL_STORAGE = 103;
 	public static final int PERMISSION_CODE_LOCATION= 104;
 	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
+	public static final int PERMISSION_CODE_MICROPHONE = 106;
 
 
 	public static final String PERMISSION_CALENDAR = "calendar";
@@ -1500,6 +1501,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_GROUP_ID = "groupId";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_GROUP_KEY = "groupKey";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_GROUP_ALERT_BEHAVIOR = "groupAlertBehavior";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_GROUP_SUMMARY = "groupSummary";
 
 	/**
 	 * @module.api
