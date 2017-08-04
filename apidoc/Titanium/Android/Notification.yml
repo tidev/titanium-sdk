@@ -154,6 +154,22 @@ methods:
         summary: Allows to enable the indeterminate mode.
         type: Boolean
 
+  - name: addAction
+    summary: Add an action button to the notification
+    since: "6.2.0"
+    parameters:
+      - name: icon
+        summary: Icon of the action button as URL or resource ID
+        type: [Number, String]
+
+      - name: title
+        summary: Title of the action button 
+        type: Number
+
+      - name: intent
+        summary: Intent of the action button
+        type: Titanium.Android.PendingIntent
+
 properties:
 
   - name: audioStreamType

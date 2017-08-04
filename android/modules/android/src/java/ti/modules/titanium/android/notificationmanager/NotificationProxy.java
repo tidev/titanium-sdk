@@ -123,11 +123,9 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_GROUP_KEY)) {
 			setGroupKey(TiConvert.toString(d, TiC.PROPERTY_GROUP_KEY));
 		}
-		/*
 		if (d.containsKey(TiC.PROPERTY_GROUP_ALERT_BEHAVIOR)) {
 			setGroupAlertBehavior(TiConvert.toInt(d, TiC.PROPERTY_GROUP_ALERT_BEHAVIOR));
 		}
-		*/
 		if (d.containsKey(TiC.PROPERTY_GROUP_SUMMARY)) {
 			setGroupSummary(TiConvert.toBoolean(d, TiC.PROPERTY_GROUP_SUMMARY));
 		}
@@ -325,14 +323,11 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_GROUP_KEY, groupKey);
 	}
 
-	/*
-	TODO: expose after updating to android.support.v4 v26.0.0
 	@Kroll.method @Kroll.setProperty
 	public void setGroupAlertBehavior(int groupAlertBehavior) {
 		notificationBuilder.setGroupAlertBehavior(groupAlertBehavior);
 		setProperty(TiC.PROPERTY_GROUP_ALERT_BEHAVIOR, groupAlertBehavior);
 	}
-	*/
 
 	@Kroll.method @Kroll.setProperty
 	public void setGroupSummary(boolean isGroupSummary) {
@@ -369,6 +364,24 @@ public class NotificationProxy extends KrollProxy
 	public void setProgress(int max, int progress, boolean indeterminate)
 	{
 		notificationBuilder.setProgress(max, progress, indeterminate);
+	}
+
+	@Kroll.method
+	public void addAction(Object icon, String title, PendingIntentProxy pendingIntent)
+	{
+		int iconId = -1;
+		if (icon instanceof Number) {
+			iconId = ((Number)icon).intValue();
+		} else {
+			String iconUrl = TiConvert.toString(icon);
+			if (iconUrl == null) {
+				Log.e(TAG, "Url is null");
+				return;
+			}
+			String iconFullUrl = resolveUrl(null, iconUrl);
+			iconId = TiUIHelper.getResourceId(iconFullUrl);
+		}
+		notificationBuilder.addAction(iconId, title, pendingIntent.getPendingIntent());
 	}
 
 	public Notification buildNotification()
