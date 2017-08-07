@@ -3,7 +3,7 @@ module.exports = function (grunt) {
 	// Project configuration.
 	grunt.initConfig({
 		appcJs: {
-			src: ['apidoc/**/*.js', '!apidoc/node_modules/**']
+			src: [ 'Gruntfile.js', 'apidoc/**/*.js' ]
 		},
 		clangFormat: {
 			src: [] // unused ATM
@@ -17,11 +17,13 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
 	// register tasks
-	grunt.registerTask('lint', ['appcJs']);
+	grunt.registerTask('lint', [ 'appcJs' ]);
 
 	// register tasks
-	grunt.registerTask('format', ['clangFormat']);
+	grunt.registerTask('format', [ 'clangFormat' ]);
 
 	// register tasks
-	grunt.registerTask('default', ['lint']);
+	grunt.registerTask('default', [ 'lint' ]);
+
+	// TODO Add doc validation!
 };

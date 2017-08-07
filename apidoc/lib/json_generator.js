@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2017 Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  *
  * Script to convert data to JSON format for third-party extensions
@@ -7,23 +7,6 @@
 var common = require('./common.js'),
 	assert = common.assertObjectKey,
 	doc = {};
-
-/**
- * Locates an API in the docs
- */
-function findAPI (className, memberName, type) {
-	var cls = doc[className],
-		x = 0;
-
-	if (cls && type in cls && cls[type]) {
-		for (x = 0; x < cls[type].length; x++) {
-			if (cls[type][x].name === memberName) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
 
 /**
  * Convert API name to an HTML link
@@ -42,14 +25,12 @@ function convertAPIToLink (apiName) {
 		if (!(cls in doc)) {
 			common.log(common.LOG_WARN, 'Cannot find class: %s', cls);
 			return apiName;
-		} else {
-			if (findAPI(cls, member, 'properties')) {
-				url = cleanAPIName(apiName) + '-property.html';
-			} else if (findAPI(cls, member, 'methods')) {
-				url = cleanAPIName(apiName) + '-method.html';
-			} else if (findAPI(cls, member, 'events')) {
-				url = cleanAPIName(apiName) + '-event.html';
-			}
+		} else if (common.findAPI(doc, cls, member, 'properties')) {
+			url = cleanAPIName(apiName) + '-property.html';
+		} else if (common.findAPI(doc, cls, member, 'methods')) {
+			url = cleanAPIName(apiName) + '-method.html';
+		} else if (common.findAPI(doc, cls, member, 'events')) {
+			url = cleanAPIName(apiName) + '-event.html';
 		}
 	}
 
@@ -155,7 +136,7 @@ function exportExamples (api) {
 				code = code.replace(/<p\>/g, '').replace(/<\/p\>/g, '');
 				code = '<pre><code>' + code + '</code></pre>';
 			}
-			rv.push({'description': example.title, 'code': code});
+			rv.push({ 'description': example.title, 'code': code });
 		});
 	}
 	return rv;
@@ -206,7 +187,7 @@ function exportReturnTypes (api) {
 	var rv = [];
 	if (assert(api, 'returns')) {
 		if (!Array.isArray(api.returns)) {
-			api.returns = [api.returns];
+			api.returns = [ api.returns ];
 		}
 		api.returns.forEach(function (ret) {
 			var x = {};
@@ -217,7 +198,7 @@ function exportReturnTypes (api) {
 			rv.push(x);
 		});
 	} else {
-		rv.push({'type': 'void'});
+		rv.push({ 'type': 'void' });
 	}
 	if (rv.length === 1) {
 		return rv[0];
@@ -229,7 +210,8 @@ function exportReturnTypes (api) {
  * Export since field
  */
 function exportPlatforms (api) {
-	var rv = [], platform = null;
+	var rv = [],
+		platform = null;
 	for (platform in api.since) {
 		rv.push({
 			'pretty_name': common.PRETTY_PLATFORM[platform],
@@ -331,7 +313,7 @@ exports.exportData = function exportJSON (apis) {
 		annotatedClass.filename = exportClassFilename(cls);
 		annotatedClass.type = cls.__subtype || 'object';
 		annotatedClass.subtype = null;
-		if (~['proxy', 'view'].indexOf(annotatedClass.type)) {
+		if (~[ 'proxy', 'view' ].indexOf(annotatedClass.type)) {
 			annotatedClass.subtype = annotatedClass.type;
 			annotatedClass.type = 'object';
 		}

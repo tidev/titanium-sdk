@@ -5,23 +5,6 @@ var common = require('./common.js'),
 	doc = {};
 
 /**
- * Locate API in docs
- */
-function findAPI (className, memberName, type) {
-	var cls = doc[className],
-		x = 0;
-
-	if (cls && type in cls && cls[type]) {
-		for (x = 0; x < cls[type].length; x++) {
-			if (cls[type][x].name === memberName) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-/**
  * Convert API name to JSDuck-style link
  */
 function convertAPIToLink (apiName) {
@@ -34,13 +17,13 @@ function convertAPIToLink (apiName) {
 			common.log(common.LOG_WARN, 'Cannot find class: %s', cls);
 			return null;
 		} else {
-			if (findAPI(cls, member, 'properties')) {
+			if (common.findAPI(doc, cls, member, 'properties')) {
 				return cls + '#property-' + member;
 			}
-			if (findAPI(cls, member, 'methods')) {
+			if (common.findAPI(doc, cls, member, 'methods')) {
 				return cls + '#method-' + member;
 			}
-			if (findAPI(cls, member, 'events')) {
+			if (common.findAPI(doc, cls, member, 'events')) {
 				return cls + '#event-' + member;
 			}
 		}
@@ -216,11 +199,11 @@ function exportType (api) {
 	if ('type' in api && api.type) {
 		var types = api.type;
 		if (!Array.isArray(api.type)) {
-			types = [api.type];
+			types = [ api.type ];
 		}
 		types.forEach(function (type) {
 			if (type.indexOf('Array') === 0) {
-				rv.push(exportType({'type': type.slice(type.indexOf('<') + 1, type.lastIndexOf('>'))}) + '[]');
+				rv.push(exportType({ 'type': type.slice(type.indexOf('<') + 1, type.lastIndexOf('>')) }) + '[]');
 			} else {
 				rv.push(type);
 			}
@@ -248,7 +231,7 @@ function exportParams (apis) {
 			member.type = 'String';
 		}
 		if (!Array.isArray(member.type)) {
-			member.type = [member.type];
+			member.type = [ member.type ];
 		}
 		if ('platforms' in member) {
 			platforms = ' (' + member.platforms.join(' ') + ') ';
@@ -276,7 +259,7 @@ function exportReturns (api) {
 
 	if ('returns' in api && api.returns) {
 		if (!Array.isArray(api.returns)) {
-			api.returns = [api.returns];
+			api.returns = [ api.returns ];
 		}
 		api.returns.forEach(function (ret) {
 			if (Array.isArray(ret.type)) {
@@ -293,9 +276,9 @@ function exportReturns (api) {
 			}
 		});
 		if (constants.length) {
-			summary += exportConstants({'constants': constants});
+			summary += exportConstants({ 'constants': constants });
 		}
-		rv = '{' + exportType({'type': types}) + '}' + summary;
+		rv = '{' + exportType({ 'type': types }) + '}' + summary;
 	}
 	return rv;
 
@@ -323,7 +306,7 @@ function exportDefault (api) {
 function exportEditUrl (api) {
 	var file = api.__file;
 	var rv = '';
-	var blackList = ['appcelerator.https', 'ti.geofence']; // Don't include Edit button for these modules
+	var blackList = [ 'appcelerator.https', 'ti.geofence' ]; // Don't include Edit button for these modules
 	var modulename, modulepath;
 	var basePath = 'https://github.com/appcelerator/titanium_mobile/edit/master/';
 	var index = 0;

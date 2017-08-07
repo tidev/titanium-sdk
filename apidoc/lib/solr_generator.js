@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2017 Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  *
  * Script to generate JSON-formmatted data for consumption by the SOLR indexer
@@ -79,7 +79,7 @@ function exportType (api) {
 	var rv = [];
 	if (assert(api, 'type')) {
 		if (!Array.isArray(api.type)) {
-			api.type = [api.type];
+			api.type = [ api.type ];
 		}
 		api.type.forEach(function (t) {
 			if (t.indexOf('Dictionary<') === 0) {
@@ -167,7 +167,7 @@ function exportAPI (api, type, className) {
 		url = api.name;
 
 	if (className) {
-		url = [className, type, api.name].join('-');
+		url = [ className, type, api.name ].join('-');
 		content.push(className);
 		api.name = className + '.' + api.name;
 	} else {

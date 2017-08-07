@@ -8,7 +8,6 @@
  */
 
 var fs = require('fs'),
-	colors = require('colors'),
 	nodeappc = require('node-appc'),
 	common = require('./lib/common.js'),
 	pagedown = require('pagedown'),
@@ -46,8 +45,8 @@ var validSyntax = {
 	optional: {
 		'description' : 'Markdown',
 		'createable' : 'Boolean',
-		'platforms' : [common.VALID_PLATFORMS],
-		'exclude-platforms' : [common.VALID_PLATFORMS],
+		'platforms' : [ common.VALID_PLATFORMS ],
+		'exclude-platforms' : [ common.VALID_PLATFORMS ],
 		'excludes' : {
 			optional: {
 				'events' : 'Array<events.name>',
@@ -67,7 +66,7 @@ var validSyntax = {
 			},
 			optional: {
 				'description' : 'String',
-				'platforms' : [common.VALID_PLATFORMS],
+				'platforms' : [ common.VALID_PLATFORMS ],
 				'since' : 'Since',
 				'deprecated' : Deprecated,
 				'osver' : 'OSVersions',
@@ -78,14 +77,14 @@ var validSyntax = {
 					},
 					optional: {
 						'type' : 'DataType',
-						'platforms' : [common.VALID_PLATFORMS],
+						'platforms' : [ common.VALID_PLATFORMS ],
 						'deprecated' : Deprecated,
 						'since': 'Since',
-						'exclude-platforms' : [common.VALID_PLATFORMS],
+						'exclude-platforms' : [ common.VALID_PLATFORMS ],
 						'constants' : 'Constants'
 					}
 				}],
-				'exclude-platforms' : [common.VALID_PLATFORMS],
+				'exclude-platforms' : [ common.VALID_PLATFORMS ],
 				'notes': 'Invalid'
 			}
 		}],
@@ -97,7 +96,7 @@ var validSyntax = {
 			optional: {
 				'description' : 'String',
 				'returns' : 'Returns', // FIXME Validate 'Returns' has a required 'type' String property
-				'platforms' : [common.VALID_PLATFORMS],
+				'platforms' : [ common.VALID_PLATFORMS ],
 				'since' : 'Since',
 				'deprecated' : Deprecated,
 				'examples' : Examples,
@@ -116,7 +115,7 @@ var validSyntax = {
 						'notes': 'Invalid'
 					}
 				}],
-				'exclude-platforms' : [common.VALID_PLATFORMS],
+				'exclude-platforms' : [ common.VALID_PLATFORMS ],
 				'notes': 'Invalid'
 			}
 		}],
@@ -128,18 +127,18 @@ var validSyntax = {
 			},
 			optional: {
 				'description' : 'String',
-				'platforms' : [common.VALID_PLATFORMS],
+				'platforms' : [ common.VALID_PLATFORMS ],
 				'since' : 'Since',
 				'deprecated' : Deprecated,
 				'osver' : 'OSVersions',
 				'examples' : Examples,
-				'permission' : ['read-only', 'write-only', 'read-write'], // FIXME Enforce permission must be set to 'read-only' if name of property is all caps: [A-Z]+[A-Z_]*
-				'availability' : ['always', 'creation', 'not-creation'],
+				'permission' : [ 'read-only', 'write-only', 'read-write' ], // FIXME Enforce permission must be set to 'read-only' if name of property is all caps: [A-Z]+[A-Z_]*
+				'availability' : [ 'always', 'creation', 'not-creation' ],
 				'accessors' : 'Boolean',
 				'optional' : 'Boolean',
 				'value' : 'Primitive',
 				'default' : 'Default',
-				'exclude-platforms' : [common.VALID_PLATFORMS],
+				'exclude-platforms' : [ common.VALID_PLATFORMS ],
 				'constants' : 'Constants',
 				'notes': 'Invalid'
 			}
@@ -149,9 +148,9 @@ var validSyntax = {
 
 /**
  * Validate if an API exists in a class and its ancestors
- * @param obj {Array<String>} Array of API names to verify
- * @param type {string} API type ('event', 'methods' or 'properties')
- * @param className {string} Name of class to check
+ * @param {Array<String>} obj Array of API names to verify
+ * @param {string} type API type ('event', 'methods' or 'properties')
+ * @param {string} className Name of class to check
  * @returns {string} Error with unverified API names or null if no errors
  */
 function validateAPINames(obj, type, className) {
@@ -179,16 +178,14 @@ function validateAPINames(obj, type, className) {
 	}
 	if ('extends' in doc[className]) {
 		// Evaluate parent class
-		var parent = doc[className]['extends'];
+		const parent = doc[className]['extends'];
 		if (parent in doc) {
 			return validateAPINames(obj, type, parent);
+		} else if (standaloneFlag) {
+			console.warn('WARNING! Cannot validate parent class: %s'.yellow, parent);
+			return;
 		} else {
-			if (standaloneFlag) {
-				console.warn('WARNING! Cannot validate parent class: %s'.yellow, parent);
-				return;
-			} else {
-				return 'Invalid parent class: ' + parent;
-			}
+			return 'Invalid parent class: ' + parent;
 		}
 	}
 	if (obj.length > 0) {
@@ -198,6 +195,8 @@ function validateAPINames(obj, type, className) {
 
 /**
  * Validate boolean type
+ * @param {Object} bool possible boolean value
+ * @return {string} error string if not a boolean
  */
 function validateBoolean (bool) {
 	if (typeof bool !== 'boolean') {
@@ -207,6 +206,8 @@ function validateBoolean (bool) {
 
 /**
  * Validate class is in docs
+ * @param {string} cls class name
+ * @returns {string} error string if not found in docs
  */
 function validateClass (cls) {
 	if (!(cls in doc)) {
@@ -216,24 +217,26 @@ function validateClass (cls) {
 
 /**
  * Validate constant is in docs
+ * @param {Array|string} constants arry or string of constant names
+ * @returns {Array<string>} array of error strings if any given constants weren't found in the docs
  */
 function validateConstants (constants) {
-	var errors = [];
+	let errors = [];
 	if (Array.isArray(constants)) {
 		constants.forEach(function (constant) {
 			errors = errors.concat(validateConstants(constant));
 		});
 	} else {
-		var prop = constants.split('.').pop(),
-			cls = constants.substring(0, constants.lastIndexOf('.'));
-		if (!(cls in doc) || !('properties' in doc[cls]) || doc[cls] == null) {
+		let prop = constants.split('.').pop();
+		const cls = constants.substring(0, constants.lastIndexOf('.'));
+		if (!(cls in doc) || !('properties' in doc[cls]) || doc[cls] === null) {
 			errors.push('Invalid constant: ' + constants);
 		} else {
-			var properties = doc[cls].properties;
+			const properties = doc[cls].properties;
 			if (prop.charAt(prop.length - 1) === '*') {
 				prop = prop.substring(0, prop.length - 1);
 			}
-			for (var i = 0; i < properties.length; i++) {
+			for (let i = 0; i < properties.length; i++) {
 				if (properties[i].name.indexOf(prop) === 0) {
 					return errors;
 				}
@@ -246,6 +249,8 @@ function validateConstants (constants) {
 
 /**
  * Validate type
+ * @param {string|string[]} type array of strings, or single string with a type name
+ * @returns {string[]} array of error strings
  */
 function validateDataType (type) {
 	var errors = [];
@@ -253,14 +258,14 @@ function validateDataType (type) {
 		type.forEach(function (elem) {
 			errors = errors.concat(validateDataType(elem));
 		});
-	} else if ((~type.indexOf('<') && ~type.indexOf('>')) &&
-		(type.indexOf('Array') === 0 || type.indexOf('Callback') === 0 ||  type.indexOf('Dictionary') === 0)) {
+	} else if ((~type.indexOf('<') && ~type.indexOf('>'))
+		&& (type.indexOf('Array') === 0 || type.indexOf('Callback') === 0 ||  type.indexOf('Dictionary') === 0)) {
 		if (type === 'Callback<void>') {
 			return errors;
 		}
 		// Compound data type
 		errors = errors.concat(validateDataType(type.slice(type.indexOf('<') + 1, type.lastIndexOf('>'))));
-	} else if (validateClass(type) == null || ~common.DATA_TYPES.indexOf(type)) {
+	} else if (validateClass(type) === null || ~common.DATA_TYPES.indexOf(type)) {
 		return errors;
 	} else if (standaloneFlag) {
 		// For standalone mode, log warning but not an error
@@ -274,15 +279,19 @@ function validateDataType (type) {
 
 /**
  * Validate default value
+ * @param {object} val possible primitive or object
+ * @returns {string} error string if not a primitive or object
  */
 function validateDefault (val) {
-	if (validatePrimitive(val) != null && (typeof val !== 'object')) {
+	if (validatePrimitive(val) !== null && (typeof val !== 'object')) {
 		return 'Not a valid data type or string: ' + val;
 	}
 }
 
 /**
  * Validate number
+ * @param {object} number possible number
+ * @returns {string} error string if not a number
  */
 function validateNumber (number) {
 	if (typeof number !== 'number') {
@@ -292,13 +301,15 @@ function validateNumber (number) {
 
 /**
  * Validate OS version
+ * @param {object} oses map of os names to versions
+ * @returns {string[]} array of error strings
  */
 function validateOSVersions (oses) {
-	var errors = [];
-	for (var key in oses) {
+	let errors = [];
+	for (const key in oses) {
 		if (~common.VALID_OSES.indexOf(key)) {
-			for (var x in oses[key]) {
-				var err;
+			for (const x in oses[key]) {
+				let err;
 				switch (x) {
 					case 'max' :
 					case 'min' :
@@ -327,29 +338,32 @@ function validateOSVersions (oses) {
 
 /**
  * Validate primitive
+ * @param {object|number|boolean|string} x possible primitive value
+ * @return {string} error string if not a primitive
  */
 function validatePrimitive (x) {
-	if (validateBoolean(x) != null) {
-		if (validateNumber(x) != null) {
-			if (validateString(x) != null) {
-				return 'Not a primitive value (Boolean, Number, String): ' + x;
-			}
-		}
+	if (validateBoolean(x) !== null && validateNumber(x) !== null && validateString(x) !== null) {
+		return 'Not a primitive value (Boolean, Number, String): ' + x;
 	}
 }
 
 /**
  * Validate return value
+ * @param {object|object[]} ret An array of objects, or object
+ * @param {object} [ret.type] return type
+ * @param {object} [ret.summary] summary of value
+ * @param {object} [ret.constants] possible constant values
+ * @returns {string[]} error strings
  */
 function validateReturns (ret) {
 	var errors = [];
 	if (Array.isArray(ret)) {
-		ret.forEach (function (elem) {
+		ret.forEach(function (elem) {
 			errors = errors.concat(validateReturns(elem));
 		});
 	} else {
-		var err;
-		for (var key in ret) {
+		let err;
+		for (const key in ret) {
 			switch (key) {
 				case 'type' :
 					if ((err = validateDataType(ret[key])) && ret[key] !== 'void') {
@@ -376,18 +390,19 @@ function validateReturns (ret) {
 
 /**
  * Validate since version
+ * @param {object|string} version object holding platform/os to version string; or a normal version string
+ * @returns {string[]} array of error strings
  */
 function validateSince (version) {
 	if (typeof version === 'object') {
-		var errors = [];
-		for (var platform in version) {
+		let errors = [];
+		for (const platform in version) {
 			if (platform in common.DEFAULT_VERSIONS) {
 				try {
 					if (nodeappc.version.lt(version[platform], common.DEFAULT_VERSIONS[platform])) {
 						errors.push('Minimum version for ' + platform + ' is ' + common.DEFAULT_VERSIONS[platform]);
 					}
-				}
-				catch (e) {
+				} catch (e) {
 					errors.push('Invalid version string:' + version[platform]);
 				}
 			} else {
@@ -401,22 +416,26 @@ function validateSince (version) {
 
 /**
  * Validate string
+ * @param {string|object|number} str possible string value
+ * @returns {string} error string if value isn't a string
  */
 function validateString(str) {
 	if (typeof str !== 'string') {
 		return 'Not a string value: ' + str;
 	}
-	if (!/^[\x00-\x7F]*$/.test(str)) {
+	if (!/^[\x00-\x7F]*$/.test(str)) { // eslint-disable-line no-control-regex
 		return 'String contains non-ASCII characters.';
 	}
 }
 
 /**
  * Validate markdown
+ * @param {string} str possible markdown string
+ * @returns {string} error string if not valid markdown
  */
 function validateMarkdown(str) {
-	var stringResult = validateString(str);
-	if (stringResult != null) {
+	const stringResult = validateString(str);
+	if (stringResult !== null) {
 		return stringResult;
 	}
 
@@ -430,47 +449,50 @@ function validateMarkdown(str) {
 
 /**
  * Validate version
+ * @param {string} version possible version string
+ * @return {string} error string if not a value version string
  */
 function validateVersion(version) {
 	try {
 		nodeappc.version.lt('0.0.1', version);
-	}
-	catch (e) {
+	} catch (e) {
 		return 'Invalid version: ' + version;
 	}
 }
 
 /**
  * Validates an object against a syntax dictionary
- * @param obj {Object} Object to validate
- * @param syntax {Object} Dictionary defining the syntax
- * @param className {String} Name of class being validated
+ * @param {Object} obj Object to validate
+ * @param {Object} syntax Dictionary defining the syntax
+ * @param {string} type type name?
+ * @param {string} currentKey current key
+ * @param {string} className Name of class being validated
  * @returns {Object} Syntax errors
  */
 function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 	// If syntax is a dictionary, validate object against syntax dictionary
-	var errors = {},
-		err = '',
-		requiredKeys = syntax.required,
+	let errors = {},
+		err = '';
+	const requiredKeys = syntax.required,
 		optionalKeys = syntax.optional;
 	// Ensure required keys exist and then validate them
-	for (var requiredKey in requiredKeys) {
+	for (const requiredKey in requiredKeys) {
 		if (requiredKey in obj) {
 			if ((err = validateKey(obj[requiredKey], requiredKeys[requiredKey], requiredKey, className))) {
 				errors[requiredKey] = err;
 			}
 		} else {
 			// We're missing a required field. Check the parent to see if it's filled in there.
-			// Only do this check when we're overriding an event, property or method, not top-level fileds like 'summary'
-			var parentClassName = doc[className]['extends'],
-				parent = doc[parentClassName],
+			// Only do this check when we're overriding an event, property or method, not top-level fields like 'summary'
+			const parentClassName = doc[className]['extends'];
+			let parent = doc[parentClassName],
 				parentValue = null;
 			if (type && parent) {
-				var array = parent[type];
+				const array = parent[type];
 				if (array) {
 					// find matching name in array
-					for (var i = 0; array.length; i++) {
-						if (array[i].name === currentKey) {
+					for (let i = 0; array.length; i++) {
+						if (array[i].name === currentKey) { // eslint-disable-line max-depth
 							parent = array[i];
 							break;
 						}
@@ -487,7 +509,7 @@ function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 		}
 	}
 	// Validate optional keys if they're on the object
-	for (var optionalKey in optionalKeys) {
+	for (const optionalKey in optionalKeys) {
 		if (optionalKey in obj) {
 			if ((err = validateKey(obj[optionalKey], optionalKeys[optionalKey], optionalKey, className))) {
 				errors[optionalKey] = err;
@@ -495,8 +517,8 @@ function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 		}
 	}
 	// Find keys on obj that aren't required or optional!
-	for (var possiblyInvalidKey in obj) {
-		if (key.indexOf('__') === 0 && !(possiblyInvalidKey in requiredKeys) && !(possiblyInvalidKey in optionalKeys)) {
+	for (const possiblyInvalidKey in obj) {
+		if (possiblyInvalidKey.indexOf('__') !== 0 && !(possiblyInvalidKey in requiredKeys) && !(possiblyInvalidKey in optionalKeys)) {
 			errors[possiblyInvalidKey] = 'Invalid key(s) in ' + className + ': ' + possiblyInvalidKey;
 		}
 	}
@@ -505,11 +527,11 @@ function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 
 /**
  * Validates an object against a syntax dictionary
- * @param obj {Object} Object to validate
- * @param syntax {Object} Dictionary defining the syntax
- * @param currentKey {String} Current key being validated
- * @param className {String} Name of class being validated
- * @returns {Object} Syntax errors
+ * @param {Object} obj Object to validate
+ * @param {Object} syntax Dictionary defining the syntax
+ * @param {String} currentKey Current key being validated
+ * @param {String} className Name of class being validated
+ * @returns {Object} Syntax errors, string key to error string as value
  */
 function validateKey(obj, syntax, currentKey, className) {
 	var errors = {},
@@ -519,7 +541,7 @@ function validateKey(obj, syntax, currentKey, className) {
 		if (syntax.length === 1) {
 			if (Array.isArray(syntax[0])) {
 				// Validate array elements against syntax array
-				var errs = [];
+				const errs = [];
 				obj.forEach(function (elem) {
 					if (!~syntax[0].indexOf(elem)) {
 						errs.push('Invalid array element: ' + elem + '; possible values: ' + syntax[0]);
@@ -531,16 +553,14 @@ function validateKey(obj, syntax, currentKey, className) {
 			} else {
 				// Validate each object against the syntax
 				obj.forEach(function (elem) {
-					var name = elem.name || '__noname';
-					var errs = validateObjectAgainstSyntax(elem, syntax[0], currentKey, name, className);
+					const name = elem.name || '__noname',
+						errs = validateObjectAgainstSyntax(elem, syntax[0], currentKey, name, className);
 					errors[name] = errs;
 				});
 			}
-		} else {
-			// Validate object value against syntax array
-			if (!~syntax.indexOf(obj)) {
-				errors = 'Invalid array element: ' + obj + '; possible values: ' + syntax;
-			}
+		// Validate object value against syntax array
+		} else if (!~syntax.indexOf(obj)) {
+			errors = 'Invalid array element: ' + obj + '; possible values: ' + syntax;
 		}
 	} else if (typeof syntax === 'object') {
 		errors = validateObjectAgainstSyntax(obj, syntax, null, currentKey, className);
@@ -646,10 +666,12 @@ function validateKey(obj, syntax, currentKey, className) {
 
 /**
  * Add padding for log output
+ * @param {number} level log indent level
+ * @returns {string} padding string given indent level
  */
 function addPadding (level) {
 	var padding = '';
-	for (var i = 0; i < level; i++) {
+	for (let i = 0; i < level; i++) {
 		padding += '	';
 	}
 	return padding;
@@ -657,14 +679,17 @@ function addPadding (level) {
 
 /**
  * Format and output errors
+ * @param {Array} errors array of error stringResult
+ * @param {number} level logi indent level?
+ * @return {string} error output
  */
 function outputErrors (errors, level) {
 	var errorOutput = '';
-	for (var key in errors) {
-		var error = errors[key];
-		if (error.length > 0 || error != null) {
+	for (const key in errors) {
+		let error = errors[key];
+		if (error.length > 0 || error !== null) {
 			if (Array.isArray(error)) {
-				error.forEach(function (err) {
+				error.forEach(function (err) { // eslint-disable-line no-loop-func
 					if (err.length === 0) {
 						return;
 					}
@@ -700,7 +725,7 @@ function cliUsage () {
 // Start of Main Flow
 // Check command arguments
 if ((argc = process.argv.length) > 2) {
-	for (var x = 2; x < argc; x++) {
+	for (let x = 2; x < argc; x++) {
 		switch (process.argv[x]) {
 			case '--help' :
 				cliUsage();
@@ -744,12 +769,13 @@ if (Object.keys(doc).length === 0) {
 // FIXME This needs to handle type hierarchy. If a method/property/event overrides a parent, then the parent may have "filled out" a required field/value!
 
 // Validate YAML
-for (var key in doc) {
-	var cls = doc[key],
-		currentErrors = errorCount,
-		errors = '',
-		diff = 0,
+for (const key in doc) {
+	const cls = doc[key],
 		currentFile = cls.__file;
+	let currentErrors = errorCount,
+		errors = '',
+		diff = 0;
+
 	try {
 		errors = outputErrors(validateKey(cls, validSyntax, null, key), 1);
 	} catch (e) {

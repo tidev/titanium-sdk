@@ -45,10 +45,8 @@ function cleanNamespace (ns) {
 			ns[x] = cleanNamespace(ns[x]);
 		}
 		return ns.join('.');
-	} else {
-		if (/[0-9]/.test(ns[0])) {
-			return '_' + ns;
-		}
+	} else if (/[0-9]/.test(ns[0])) {
+		return '_' + ns;
 	}
 	return ns;
 }
@@ -114,7 +112,7 @@ function exportExamples (api) {
 				code = code.replace(/<p\>/g, '').replace(/<\/p\>/g, '');
 				code = '<pre><code>' + code + '</code></pre>';
 			}
-			rv.push({'title': example.title, 'code': code});
+			rv.push({ 'title': example.title, 'code': code });
 		});
 	}
 	return rv;
@@ -172,7 +170,7 @@ function exportReturnTypes (api) {
 	var rv = [];
 	if ('returns' in api && api.returns) {
 		if (!Array.isArray(api.returns)) {
-			api.returns = [api.returns];
+			api.returns = [ api.returns ];
 		}
 		api.returns.forEach(function (ret) {
 			rv.push({
@@ -182,7 +180,7 @@ function exportReturnTypes (api) {
 			});
 		});
 	} else {
-		rv.push({'type': 'void', 'description': '', 'constants': []});
+		rv.push({ 'type': 'void', 'description': '', 'constants': [] });
 	}
 	return rv;
 }
@@ -192,7 +190,8 @@ function exportReturnTypes (api) {
  * @param {Object} api
  */
 function exportSince (api) {
-	var rv = [], platform = null;
+	var rv = [],
+		platform = null;
 	for (platform in api.since) {
 		rv.push({
 			'name': 'Titanium Mobile SDK - ' + common.PRETTY_PLATFORM[platform],
@@ -243,7 +242,7 @@ function exportUserAgents (api) {
 	var rv = [],
 		platform = null;
 	for (platform in api.since) {
-		rv.push({'platform': platform});
+		rv.push({ 'platform': platform });
 	}
 	return rv;
 }
@@ -324,7 +323,7 @@ exports.exportData = function exportJSCA (apis) {
 		annotatedClass = {},
 		rv = {
 			'types': [],
-			'aliases': [{'type': 'Titanium', 'name': 'Ti'}]
+			'aliases': [{ 'type': 'Titanium', 'name': 'Ti' }]
 		};
 
 	common.log(common.LOG_INFO, 'Annotating JSCA-specific attributes...');
@@ -358,7 +357,7 @@ exports.exportData = function exportJSCA (apis) {
 			}
 		}
 
-		if (~['Titanium.Event', 'Titanium.Proxy', 'Titanium.Module'].indexOf(className)) {
+		if (~[ 'Titanium.Event', 'Titanium.Proxy', 'Titanium.Module' ].indexOf(className)) {
 			annotatedClass.isInternal = true;
 		}
 

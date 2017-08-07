@@ -8,7 +8,8 @@ var common = require('./common.js'),
 
 /**
  * Sort the array by name
- * @param {Array} array
+ * @param {Array} array original array
+ * @return {Array} the sorted array
  */
 function sortArray (array) {
 	return array.sort(function (a, b) {
@@ -24,35 +25,17 @@ function sortArray (array) {
 
 /**
  * Replace unsafe HMTL characters with dashes
- * @param {string} api
+ * @param {string} api raw api name
+ * @return {string} converted api name with ':' -> '-'
  */
 function cleanAPIName (api) {
 	return api.replace(/:/g, '-');
 }
 
 /**
- * Find the API in the docs
- * @param {Object} className
- * @param {Object} memberName
- * @param {Object} type
- */
-function findAPI (className, memberName, type) {
-	var cls = doc[className],
-		x = 0;
-
-	if (cls && type in cls && cls[type]) {
-		for (x = 0; x < cls[type].length; x++) {
-			if (cls[type][x].name === memberName) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-/**
  * Convert API name to an HTML link
- * @param {string} apiName
+ * @param {string} apiName original raw api name
+ * @return {string} HTML-ified link to the api
  */
 function convertAPIToLink (apiName) {
 	var url = null;
@@ -66,14 +49,14 @@ function convertAPIToLink (apiName) {
 			url = exportClassFilename(apiName) + '.html';
 		}
 	} else if ((apiName.match(/\./g) || []).length) {
-		var member = apiName.split('.').pop(),
+		const member = apiName.split('.').pop(),
 			cls = apiName.substring(0, apiName.lastIndexOf('.'));
 
 		if (!(cls in doc)) {
 			common.log(common.LOG_WARN, 'Cannot find class: %s', cls);
 			return apiName;
 		} else {
-			if (findAPI(cls, member, 'properties')) {
+			if (common.findAPI(doc, cls, member, 'properties')) {
 				if (remoteURL) {
 					if (!~doc.__modules.indexOf(cls)) {
 						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-property-' + member;
@@ -84,7 +67,7 @@ function convertAPIToLink (apiName) {
 					url = cleanAPIName(apiName) + '-property.html';
 				}
 			}
-			if (findAPI(cls, member, 'methods')) {
+			if (common.findAPI(doc, cls, member, 'methods')) {
 				if (remoteURL) {
 					if (!~doc.__modules.indexOf(cls)) {
 						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-method-' + member;
@@ -95,7 +78,7 @@ function convertAPIToLink (apiName) {
 					url = cleanAPIName(apiName) + '-method.html';
 				}
 			}
-			if (findAPI(cls, member, 'events')) {
+			if (common.findAPI(doc, cls, member, 'events')) {
 				if (remoteURL) {
 					if (!~doc.__modules.indexOf(cls)) {
 						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-event-' + member;
@@ -118,7 +101,8 @@ function convertAPIToLink (apiName) {
 
 /**
  * Scans converted markdown-to-html text for internal links
- * @param {string} text
+ * @param {string} text  raw markdown/html
+ * @return {string} converted links
  */
 function convertLinks (text) {
 	var matches = text.match(common.REGEXP_HREF_LINKS),
@@ -151,7 +135,8 @@ function convertLinks (text) {
 
 /**
  * Convert markdown text to HTML
- * @param {string} text
+ * @param {string} text raw markdown text
+ * @return {string} converted markdown to HTML
  */
 function markdownToHTML (text) {
 	return convertLinks(common.markdownToHTML(text));
@@ -159,7 +144,8 @@ function markdownToHTML (text) {
 
 /**
  * Convert class name to HTML filename
- * @param {Object} name
+ * @param {Object} name raw class/api name
+ * @return {string} URL of the target class name on our doc site
  */
 function exportClassFilename (name) {
 	if (assert(doc, name)) {
@@ -174,7 +160,8 @@ function exportClassFilename (name) {
 
 /**
  * Export the constants field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
 function exportConstants (api) {
 	var rv = '';
@@ -188,7 +175,8 @@ function exportConstants (api) {
 
 /**
  * Export the deprecated field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {object|boolean}
  */
 function exportDeprecated (api) {
 	var rv = {};
@@ -208,7 +196,8 @@ function exportDeprecated (api) {
 
 /**
  * Export the fields for the API description
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
 function exportDescription (api) {
 	var rv = '';
@@ -226,7 +215,8 @@ function exportDescription (api) {
 
 /**
  * Export the example field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {object[]}
  */
 function exportExamples (api) {
 	var rv = [],
@@ -236,10 +226,10 @@ function exportExamples (api) {
 			code = markdownToHTML(example.example);
 			// If we don't find a <code> tag, assume entire example should be code formatted
 			if (!~code.indexOf('<code>')) {
-				code = code.replace(/<p\>/g, '').replace(/<\/p\>/g, '');
+				code = code.replace(/<p>/g, '').replace(/<\/p>/g, '');
 				code = '<pre><code>' + code + '</code></pre>';
 			}
-			rv.push({'title': example.title, 'code': code});
+			rv.push({ 'title': example.title, 'code': code });
 		});
 	}
 	return rv;
@@ -247,12 +237,13 @@ function exportExamples (api) {
 
 /**
  * Export the osver field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string} HTML
  */
 function exportOSVer (api) {
 	var rv = '';
 	rv += '<p> <b>Requires:</b> \n';
-	for (var key in api.osver) {
+	for (const key in api.osver) {
 		if (Array.isArray(api.osver[key])) {
 			rv += '<li> ' + common.PRETTY_PLATFORM[key] + ' ' + api.osver[key].join(', ') + ' \n';
 		} else {
@@ -270,8 +261,9 @@ function exportOSVer (api) {
 
 /**
  * Export the method parameters or event properties field
- * @param {Object} apis
- * @param {string} type
+ * @param {object[]} apis list of api objects
+ * @param {string} type member type
+ * @return {object[]}
  */
 function exportParams (apis, type) {
 	var rv = [],
@@ -302,31 +294,31 @@ function exportParams (apis, type) {
 
 /**
  * Export the parent of the class
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {object}
  */
 function exportParent(api) {
-	var rv = null,
-		cls = api.name.substring(0, api.name.lastIndexOf('.'));
+	const cls = api.name.substring(0, api.name.lastIndexOf('.'));
 	if (cls !== '' && assert(doc, cls)) {
-		rv = {
+		return {
 			'name': cls,
 			'filename': exportClassFilename(doc[cls].name)
 		};
 	}
-	return rv;
+	return null;
 }
 
 /**
  * Export the platforms field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {object[]}
  */
 function exportPlatforms (api) {
-	var rv = [],
-		key = null;
+	const rv = [];
 	if (!assert(api, 'since')) {
 		api.since = common.DEFAULT_VERSIONS;
 	}
-	for (key in api.since) {
+	for (const key in api.since) {
 		rv.push({
 			name: key,
 			'pretty_name': common.PRETTY_PLATFORM[key],
@@ -338,14 +330,15 @@ function exportPlatforms (api) {
 
 /**
  * Export the children of the class
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {object[]}
  */
 function exportProxies (api) {
 	var rv = [];
 	Object.keys(doc).forEach(function (name) {
-		if ((name.indexOf(api.name) === 0) &&
-			(name !== api.name) &&
-			(name.split('.').length - 1 === api.name.split('.').length)) {
+		if ((name.indexOf(api.name) === 0)
+			&& (name !== api.name)
+			&& (name.split('.').length - 1 === api.name.split('.').length)) {
 			rv.push({
 				name: doc[name].name,
 				summary: exportSummary(doc[name]),
@@ -359,7 +352,8 @@ function exportProxies (api) {
 
 /**
  * Export the returns field
- * @param {Object} api
+ * @param {Object} api api Object
+ * @return {string} HTML
  */
 function exportReturnTypes (api) {
 	var rv = 'void',
@@ -367,7 +361,7 @@ function exportReturnTypes (api) {
 		constants = [];
 	if (assert(api, 'returns')) {
 		if (!Array.isArray(api.returns)) {
-			api.returns = [api.returns];
+			api.returns = [ api.returns ];
 		}
 		api.returns.forEach(function (ret) {
 			types.push(exportType(ret));
@@ -387,7 +381,8 @@ function exportReturnTypes (api) {
 
 /**
  * Export the summary field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string} HTML
  */
 function exportSummary (api) {
 	var rv = '';
@@ -399,20 +394,21 @@ function exportSummary (api) {
 
 /**
  * Export the type field
- * @param {Object} api
+ * @param {Object} api api Object
+ * @return {string[]}
  */
 function exportType (api) {
 	var rv = [];
 	if (assert(api, 'type')) {
 		if (!Array.isArray(api.type)) {
-			api.type = [api.type];
+			api.type = [ api.type ];
 		}
 		api.type.forEach(function (t) {
 
 			if (t.indexOf('Array<') === 0) {
 				t = t.substring(t.indexOf('<') + 1, t.lastIndexOf('>'));
 				if (t.indexOf('<')) {
-					t = 'Array&lt;' + exportType({type: t}) + '&gt;';
+					t = 'Array&lt;' + exportType({ type: t }) + '&gt;';
 				} else {
 					t = 'Array&lt;' + convertAPIToLink(t) + '&gt;';
 				}
@@ -435,21 +431,23 @@ function exportType (api) {
 
 /**
  * Export the platform field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {object[]}
  */
 function exportUserAgents (api) {
 	var rv = [],
 		platform = null;
 	for (platform in api.since) {
-		rv.push({'platform': platform});
+		rv.push({ 'platform': platform });
 	}
 	return rv;
 }
 
 /**
  * Export the API members
- * @param {Object} api
- * @param {string} type
+ * @param {Object} api api object
+ * @param {string} type member type
+ * @return {object[]}
  */
 function exportAPIs (api, type) {
 	var rv = [],
@@ -510,7 +508,8 @@ function exportAPIs (api, type) {
 
 /**
  * Returns a JSON object formatted for HTML EJS templates
- * @param {Object} apis
+ * @param {Object} apis full api tree
+ * @return {object}
  */
 exports.exportData = function exportHTML (apis) {
 	var className = null,
@@ -559,8 +558,8 @@ exports.exportData = function exportHTML (apis) {
 		rv.method = rv.method.concat(annotatedClass.methods);
 		rv.property = rv.property.concat(annotatedClass.properties);
 
-		if (~['Global', 'Modules', 'Titanium'].indexOf(cls.name)) {
-			rv['__' + cls.name] = [annotatedClass].concat(annotatedClass.proxies);
+		if (~[ 'Global', 'Modules', 'Titanium' ].indexOf(cls.name)) {
+			rv['__' + cls.name] = [ annotatedClass ].concat(annotatedClass.proxies);
 		}
 
 		cls = annotatedClass = {};

@@ -55,7 +55,7 @@
     "commander": "*",
     "fs-extra": "~0.30.0",
     "grunt": "^1.0.1",
-    "grunt-appc-js": "*",
+    "grunt-appc-js": "^2.0.1",
     "grunt-clang-format": "^0.4.0",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
