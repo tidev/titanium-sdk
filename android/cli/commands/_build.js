@@ -3176,12 +3176,16 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	if (android && android.services) {
 		var serviceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSService.java')).toString(),
 			intervalServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSIntervalService.java')).toString();
+			quickSettingsServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSQuickSettingsService.java')).toString();
 		Object.keys(android.services).forEach(function (name) {
 			var service = android.services[name],
 				tpl = serviceTemplate;
 			if (service.type == 'interval') {
 				tpl = intervalServiceTemplate;
 				this.logger.debug(__('Generating interval service class: %s', service.classname.cyan));
+			} else if (service.type == 'quicksettings') {
+				tpl = quickSettingsServiceTemplate;
+				this.logger.debug(__('Generating quick settings service class: %s', service.classname.cyan));
 			} else {
 				this.logger.debug(__('Generating service class: %s', service.classname.cyan));
 			}
@@ -3350,6 +3354,28 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 
 	next();
 };
+
+var serviceParser = function(serviceNode, result) {
+	//add service attributes
+	appc.xml.forEachAttr(serviceNode, function (attr) {
+		result[attr.localName] = attr.value;
+	});
+	appc.xml.forEachElement(serviceNode, function (node) {
+		if (!result[node.tagName]) {
+			result[node.tagName] = [];
+		}
+		//create intent-filter instance
+		var intentFilter = {};
+		var action = [];
+		intentFilter['action'] = action;
+		//add atrributes from parent
+		appc.xml.forEachElement(node, function(intentFilterAaction) {
+			intentFilter['action'].push(appc.xml.getAttr(intentFilterAaction,'android:name'));
+		});
+		//add intent filter object to array
+		result[node.tagName].push(intentFilter);
+	});
+}
 
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {
 	if (!this.forceRebuild && fs.existsSync(this.androidManifestFile)) {
@@ -3568,14 +3594,35 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	tiappServices && Object.keys(tiappServices).forEach(function (filename) {
 		var service = tiappServices[filename];
 		if (service.url) {
-			var s = {
-				'name': this.appid + '.' + service.classname
-			};
-			Object.keys(service).forEach(function (key) {
-				if (!/^(type|name|url|options|classname|android\:name)$/.test(key)) {
-					s[key.replace(/^android\:/, '')] = service[key];
+			var s;
+			if (service.type == 'quicksettings') {
+				s = {};
+				var serviceName = this.appid + '.' + service.classname;
+				var icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
+				if (service.icon) {
+					icon = '@drawable/' + service.icon.replace(/((\.9)?\.(png|jpg))$/, '');
 				}
-			});
+				var label = this.tiapp.name;
+				if (service.label) {
+					label = service.label;
+				}
+				serviceXML = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'QuickService.xml')).toString(), {
+					serviceName: serviceName,
+					icon: icon,
+					label: label
+				});
+				doc = new DOMParser().parseFromString(serviceXML,"text/xml");
+				serviceParser(doc.firstChild,s);
+			} else {
+				s = {
+					'name': this.appid + '.' + service.classname
+				};
+				Object.keys(service).forEach(function (key) {
+				if (!/^(type|name|url|options|classname|android\:name)$/.test(key)) {
+						s[key.replace(/^android\:/, '')] = service[key];
+					}
+				});
+			}
 			finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 			finalAndroidManifest.application.service[s.name] = s;
 		}
