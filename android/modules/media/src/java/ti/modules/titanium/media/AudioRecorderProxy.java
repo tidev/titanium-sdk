@@ -58,7 +58,7 @@ public class AudioRecorderProxy extends KrollProxy {
 
 	@Kroll.method
 	public TiFileProxy stop() {
-		return new TiFileProxy(TiFileFactory.createTitaniumFile(tiAudioRecorder.stopRecording(),false));
+		return new TiFileProxy(TiFileFactory.createTitaniumFile(tiAudioRecorder.stopRecording(), false));
 	}
 
 	@Kroll.method
