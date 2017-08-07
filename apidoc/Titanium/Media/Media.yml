@@ -405,8 +405,11 @@ methods:
         for more information.
     returns:
         type: Boolean
-    platforms: [iphone, ipad]
-    since: "6.1.0"
+    platforms: [android, iphone, ipad]
+    since:
+        android: "6.2.0" 
+        iphone: "6.1.0"
+        ipad: "6.1.0"
 
   - name: requestAudioPermissions
     summary: Request the user's permission for audio recording.
@@ -442,8 +445,11 @@ methods:
         own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
         will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
-    platforms: [iphone, ipad]
-    since: 6.1.0
+    platforms: [android, iphone, ipad]
+    since:
+        android: "6.2.0" 
+        iphone: "6.1.0"
+        ipad: "6.1.0"
     parameters:
       - name: callback
         summary: Callback function to execute when the users responds to the authorization alert.
@@ -1504,7 +1510,9 @@ properties:
     summary: |
         `true` if the device has a recording input device available.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since:
+        android: "6.2.0"
     permission: read-only
   - name: currentRoute
     summary: |
