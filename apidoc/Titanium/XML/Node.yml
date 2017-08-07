@@ -127,6 +127,7 @@ properties:
 
     type: String
     permission: read-only
+    accessors: false
 
   - name: nodeValue
     summary: Content (value) of this node.
@@ -135,6 +136,7 @@ properties:
         Document, DocumentFragment, DocumentType, Element, Entity, EntityReference, and
         Notation nodes.
     type: String
+    accessors: false
 
   - name: textContent
     summary: Content (value) of all text nodes within this node.
@@ -144,6 +146,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad, mobileweb]
+    accessors: false
 
   - name: text
     deprecated:
@@ -154,6 +157,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
+    accessors: false
 
   - name: nodeType
     type: Number
@@ -162,36 +166,43 @@ properties:
         `ENTITY_REFERENCE_NODE`, `ENTITY_NODE`, `PROCESSING_INSTRUCTION_NODE`, `COMMENT_NODE`,
         `DOCUMENT_NODE`, `DOCUMENT_TYPE_NODE`, `DOCUMENT_FRAGMENT_NODE`, `NOTATION_NODE`.
     permission: read-only
+    accessors: false
 
   - name: parentNode
     summary: This node's parent node.
     type:  Titanium.XML.Node
     permission: read-only
+    accessors: false
 
   - name: childNodes
     summary: A <Titanium.XML.NodeList> of this node's children.
     type: Titanium.XML.NodeList
     permission: read-only
+    accessors: false
 
   - name: firstChild
     summary: This node's first child.
     type: Titanium.XML.Node
     permission: read-only
+    accessors: false
 
   - name: lastChild
     summary: This node's last child.
     type: Titanium.XML.Node
     permission: read-only
+    accessors: false
 
   - name: previousSibling
     summary: This node's previous sibling.
     type: Titanium.XML.Node
     permission: read-only
+    accessors: false
 
   - name: nextSibling
     summary: This node's next sibling.
     type: Titanium.XML.Node
     permission: read-only
+    accessors: false
 
   - name: attributes
     summary: A map of this node's attributes.
@@ -211,17 +222,20 @@ properties:
         in the W3C DOM FAQ.
     type: Titanium.XML.Document
     permission: read-only
+    accessors: false
 
   - name: namespaceURI
     summary: Namespace URI of this node.
     type: String
     permission: read-only
+    accessors: false
 
   - name: prefix
     summary: Namespace prefix of this node.
     description: |
         Read-only on iOS, read-write on other platforms.
     type: String
+    accessors: false
 
   - name: localName
     summary: Local part of the qualified name of this node.
@@ -229,6 +243,7 @@ properties:
         The local part of the qualified name that comes after the colon. That is,
         the name without the namespace prefix.
     type: String
+    accessors: false
 
 methods:
 
@@ -240,9 +255,7 @@ methods:
     returns:
         type: Titanium.XML.Node
         summary: Newly-appended node.
-
     parameters:
-
       - name: newChild
         type: Titanium.XML.Node
         summary: New node to append.
@@ -252,9 +265,7 @@ methods:
     returns:
         type: Titanium.XML.Node
         summary: Cloned node.
-
     parameters:
-
       - name: deep
         type: Boolean
         summary: Whether or not to perform a deep copy of this node.
@@ -279,12 +290,10 @@ methods:
     returns:
         type: Titanium.XML.Node
         summary: The inserted node.
-
     parameters:
       - name: newChild
         type: Titanium.XML.Node
         summary: Node to insert.
-
       - name : refChild
         type: Titanium.XML.Node
         summary: Node to insert `newChild` before.
@@ -294,13 +303,10 @@ methods:
     returns:
         type: Boolean
         summary: True if the feature is supported, false if it is not.
-
     parameters:
-
       - name: feature
         type: String
         summary: Name of the feature.
-
       - name: version
         type: String
         summary: Version number of the feature.
@@ -317,9 +323,7 @@ methods:
     returns:
         type: Titanium.XML.Node
         summary: Node that was removed.
-
     parameters:
-
       - name: oldChild
         type: Titanium.XML.Node
         summary: Node to remove.
@@ -333,13 +337,9 @@ methods:
         type: Titanium.XML.Node
         summary: Node that was replaced.
     parameters:
-
       - name: newChild
         type: Titanium.XML.Node
         summary: New node.
-
       - name: oldChild
         type: Titanium.XML.Node
         summary: Node being replaced.
-
-
