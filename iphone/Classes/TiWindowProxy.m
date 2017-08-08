@@ -729,29 +729,49 @@
     }
 }
 
--(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
     //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
     NSArray* childProxies = [self children];
-	for (TiViewProxy * thisProxy in childProxies)
-	{
-		if ([thisProxy respondsToSelector:@selector(willAnimateRotationToInterfaceOrientation:duration:)])
-		{
-			[(id)thisProxy willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-		}
-	}
+    for (TiViewProxy * thisProxy in childProxies) {
+        if ([thisProxy respondsToSelector:@selector(viewWillTransitionToSize:withTransitionCoordinator:)]) {
+            [(id)thisProxy viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+        }
+    }
 }
 
--(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
-    
+    //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
+    NSArray* childProxies = [self children];
+    for (TiViewProxy * thisProxy in childProxies) {
+        if ([thisProxy respondsToSelector:@selector(willTransitionToTraitCollection:withTransitionCoordinator:)]) {
+            [(id)thisProxy willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+        }
+    }
 }
 
--(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+- (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
 {
-    
+    //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
+    NSArray* childProxies = [self children];
+    for (TiViewProxy * thisProxy in childProxies) {
+        if ([thisProxy respondsToSelector:@selector(systemLayoutFittingSizeDidChangeForChildContentContainer:)]) {
+            [(id)thisProxy systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+        }
+    }
 }
 
+- (void)preferredContentSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+    //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
+    NSArray* childProxies = [self children];
+    for (TiViewProxy * thisProxy in childProxies) {
+        if ([thisProxy respondsToSelector:@selector(preferredContentSizeDidChangeForChildContentContainer:)]) {
+            [(id)thisProxy preferredContentSizeDidChangeForChildContentContainer:container];
+        }
+    }
+}
 
 #pragma mark - TiAnimation Delegate Methods
 -(BOOL)animationShouldTransition:(TiAnimation *)sender
