@@ -12,23 +12,24 @@
 @class TiFilesystemFileStreamProxy;
 
 @interface TiFilesystemFileProxy : TiFile {
-  @private
-  NSFileManager *fm;
+@private
+	NSFileManager *fm;
 }
 
 - (id)initWithFile:(NSString *)path;
 
 - (TiFilesystemFileStreamProxy *)open:(id)args;
 
-+ (id)makeTemp:(BOOL)isDirectory;
++ (TiFilesystemFileProxy *)makeTemp:(BOOL)isDirectory;
 
-@property (nonatomic, readonly) id name;
-@property (nonatomic, readonly) id nativePath;
-@property (nonatomic, readonly) id readonly;
-@property (nonatomic, readonly) id writable;
-@property (nonatomic, readonly) id symbolicLink;
-@property (nonatomic, readonly) id executable;
-@property (nonatomic, readonly) id hidden;
+@property(nonatomic, readonly) NSString *name;
+@property(nonatomic, readonly) NSString *nativePath;
+@property(nonatomic, readonly) NSNumber *readonly;
+@property(nonatomic, readonly) NSNumber *writable;
+@property(nonatomic, readonly) NSNumber *symbolicLink;
+@property(nonatomic, readonly) NSNumber *executable;
+@property(nonatomic, readonly) NSNumber *hidden;
+@property(nonatomic, readonly) TiFilesystemFileProxy *parent;
 
 @end
 
