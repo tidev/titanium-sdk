@@ -24,6 +24,7 @@
 
 -(void)setDelegate:(id<UISearchBarDelegate>)delegate;
 -(UISearchBar*)searchBar;
+-(void)setSearchBar:(UISearchBar *)searchBar;
 
 @end
 
