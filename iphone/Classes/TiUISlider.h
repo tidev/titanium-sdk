@@ -24,7 +24,13 @@
     TiDimension rightTrackTopCap;
 }
 
-- (IBAction)sliderChanged:(id)sender;
+/**
+ * Internal method used to trigger the value-change from the proxy instead.
+ * This is required in order to handle complex arguments, e.g. number and 
+ * animated-flag in one command.
+ */
+- (void)_setValue:(id)value;
+
 
 @end
 

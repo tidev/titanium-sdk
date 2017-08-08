@@ -1389,6 +1389,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     [event setObject:NOTNIL([notification soundName]) forKey:@"sound"];
     [event setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
     [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
+    [event setObject:NUMBOOL([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) forKey:@"inBackground"];
 	//include category for ios8
 	if ([TiUtils isIOS8OrGreater]) {
 		[event setObject:NOTNIL([notification category]) forKey:@"category"];
