@@ -6,28 +6,24 @@
  *
  * Dependencies: colors ~0.6.2 and node-appc ~0.2.14
  */
-
-var fs = require('fs'),
+const fs = require('fs'),
 	nodeappc = require('node-appc'),
+	colors = require('colors'), // eslint-disable-line no-unused-vars
 	common = require('./lib/common.js'),
 	pagedown = require('pagedown'),
-	converter = new pagedown.Converter(),
-	basePath = '.',
-	rv = {},
-	doc = {},
-	parseErrors = [],
+	converter = new pagedown.Converter();
+let doc = {},
 	errorCount = 0,
-	standaloneFlag = false,
-	argc = 0;
+	standaloneFlag = false;
 
-var Examples = [{
+const Examples = [{
 	required: {
 		'title' : 'String',
 		'example' : 'Markdown'
 	}
 }];
 
-var Deprecated = {
+const Deprecated = {
 	required: {
 		'since' : 'Since'
 	},
@@ -37,7 +33,7 @@ var Deprecated = {
 	}
 };
 
-var validSyntax = {
+const validSyntax = {
 	required: {
 		'name' : 'String',
 		'summary' : 'String',
@@ -154,11 +150,11 @@ var validSyntax = {
  * @returns {string} Error with unverified API names or null if no errors
  */
 function validateAPINames(obj, type, className) {
-	var apis = doc[className][type],
-		index;
+	const apis = doc[className][type];
 	if (apis) {
 		apis.forEach(function (api) {
-			if (~(index = obj.indexOf(api.name))) {
+			const index = obj.indexOf(api.name);
+			if (~index) {
 				obj.splice(index);
 			}
 		});
@@ -166,12 +162,15 @@ function validateAPINames(obj, type, className) {
 	if (type === 'methods' && 'properties' in doc[className]) {
 		// Evaluate setters and getters
 		doc[className].properties.forEach(function (property) {
-			var setter = 'set' + property.name.charAt(0).toUpperCase() + property.name.slice(1),
-				getter = 'get' + property.name.charAt(0).toUpperCase() + property.name.slice(1);
-			if (~(index = obj.indexOf(setter))) {
+			const basename = property.name.charAt(0).toUpperCase() + property.name.slice(1),
+				setter = 'set' + basename,
+				getter = 'get' + basename;
+			let index = obj.indexOf(setter);
+			if (~index) {
 				obj.splice(index);
 			}
-			if (~(index = obj.indexOf(getter))) {
+			index = obj.indexOf(getter);
+			if (~index) {
 				obj.splice(index);
 			}
 		});
@@ -181,12 +180,14 @@ function validateAPINames(obj, type, className) {
 		const parent = doc[className]['extends'];
 		if (parent in doc) {
 			return validateAPINames(obj, type, parent);
-		} else if (standaloneFlag) {
+		}
+
+		if (standaloneFlag) {
 			console.warn('WARNING! Cannot validate parent class: %s'.yellow, parent);
 			return;
-		} else {
-			return 'Invalid parent class: ' + parent;
 		}
+
+		return 'Invalid parent class: ' + parent;
 	}
 	if (obj.length > 0) {
 		return 'Could not find: ' + obj;
@@ -198,7 +199,7 @@ function validateAPINames(obj, type, className) {
  * @param {Object} bool possible boolean value
  * @return {string} error string if not a boolean
  */
-function validateBoolean (bool) {
+function validateBoolean(bool) {
 	if (typeof bool !== 'boolean') {
 		return 'Not a boolean value: ' + bool;
 	}
@@ -209,7 +210,7 @@ function validateBoolean (bool) {
  * @param {string} cls class name
  * @returns {string} error string if not found in docs
  */
-function validateClass (cls) {
+function validateClass(cls) {
 	if (!(cls in doc)) {
 		return 'Not a valid class: ' + cls;
 	}
@@ -220,7 +221,7 @@ function validateClass (cls) {
  * @param {Array|string} constants arry or string of constant names
  * @returns {Array<string>} array of error strings if any given constants weren't found in the docs
  */
-function validateConstants (constants) {
+function validateConstants(constants) {
 	let errors = [];
 	if (Array.isArray(constants)) {
 		constants.forEach(function (constant) {
@@ -252,7 +253,7 @@ function validateConstants (constants) {
  * @param {string|string[]} type array of strings, or single string with a type name
  * @returns {string[]} array of error strings
  */
-function validateDataType (type) {
+function validateDataType(type) {
 	var errors = [];
 	if (Array.isArray(type)) {
 		type.forEach(function (elem) {
@@ -265,7 +266,7 @@ function validateDataType (type) {
 		}
 		// Compound data type
 		errors = errors.concat(validateDataType(type.slice(type.indexOf('<') + 1, type.lastIndexOf('>'))));
-	} else if (validateClass(type) === null || ~common.DATA_TYPES.indexOf(type)) {
+	} else if (!validateClass(type) || ~common.DATA_TYPES.indexOf(type)) {
 		return errors;
 	} else if (standaloneFlag) {
 		// For standalone mode, log warning but not an error
@@ -282,8 +283,8 @@ function validateDataType (type) {
  * @param {object} val possible primitive or object
  * @returns {string} error string if not a primitive or object
  */
-function validateDefault (val) {
-	if (validatePrimitive(val) !== null && (typeof val !== 'object')) {
+function validateDefault(val) {
+	if (validatePrimitive(val) && (typeof val !== 'object')) {
 		return 'Not a valid data type or string: ' + val;
 	}
 }
@@ -293,7 +294,7 @@ function validateDefault (val) {
  * @param {object} number possible number
  * @returns {string} error string if not a number
  */
-function validateNumber (number) {
+function validateNumber(number) {
 	if (typeof number !== 'number') {
 		return 'Not a number value: ' + number;
 	}
@@ -304,7 +305,7 @@ function validateNumber (number) {
  * @param {object} oses map of os names to versions
  * @returns {string[]} array of error strings
  */
-function validateOSVersions (oses) {
+function validateOSVersions(oses) {
 	let errors = [];
 	for (const key in oses) {
 		if (~common.VALID_OSES.indexOf(key)) {
@@ -341,8 +342,8 @@ function validateOSVersions (oses) {
  * @param {object|number|boolean|string} x possible primitive value
  * @return {string} error string if not a primitive
  */
-function validatePrimitive (x) {
-	if (validateBoolean(x) !== null && validateNumber(x) !== null && validateString(x) !== null) {
+function validatePrimitive(x) {
+	if (validateBoolean(x) && validateNumber(x) && validateString(x)) {
 		return 'Not a primitive value (Boolean, Number, String): ' + x;
 	}
 }
@@ -355,7 +356,7 @@ function validatePrimitive (x) {
  * @param {object} [ret.constants] possible constant values
  * @returns {string[]} error strings
  */
-function validateReturns (ret) {
+function validateReturns(ret) {
 	var errors = [];
 	if (Array.isArray(ret)) {
 		ret.forEach(function (elem) {
@@ -393,7 +394,7 @@ function validateReturns (ret) {
  * @param {object|string} version object holding platform/os to version string; or a normal version string
  * @returns {string[]} array of error strings
  */
-function validateSince (version) {
+function validateSince(version) {
 	if (typeof version === 'object') {
 		let errors = [];
 		for (const platform in version) {
@@ -435,7 +436,7 @@ function validateString(str) {
  */
 function validateMarkdown(str) {
 	const stringResult = validateString(str);
-	if (stringResult !== null) {
+	if (stringResult) {
 		return stringResult;
 	}
 
@@ -518,7 +519,10 @@ function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 	}
 	// Find keys on obj that aren't required or optional!
 	for (const possiblyInvalidKey in obj) {
-		if (possiblyInvalidKey.indexOf('__') !== 0 && !(possiblyInvalidKey in requiredKeys) && !(possiblyInvalidKey in optionalKeys)) {
+		// If doesn't start with underscores, and isn't required or optional...
+		const isRequired = requiredKeys ? (possiblyInvalidKey in requiredKeys) : false;
+		const isOptional = optionalKeys ? (possiblyInvalidKey in optionalKeys) : false;
+		if (possiblyInvalidKey.indexOf('__') !== 0 && !isRequired && !isOptional) {
 			errors[possiblyInvalidKey] = 'Invalid key(s) in ' + className + ': ' + possiblyInvalidKey;
 		}
 	}
@@ -669,8 +673,8 @@ function validateKey(obj, syntax, currentKey, className) {
  * @param {number} level log indent level
  * @returns {string} padding string given indent level
  */
-function addPadding (level) {
-	var padding = '';
+function addPadding(level) {
+	let padding = '';
 	for (let i = 0; i < level; i++) {
 		padding += '	';
 	}
@@ -683,8 +687,8 @@ function addPadding (level) {
  * @param {number} level logi indent level?
  * @return {string} error output
  */
-function outputErrors (errors, level) {
-	var errorOutput = '';
+function outputErrors(errors, level) {
+	let errorOutput = '';
 	for (const key in errors) {
 		let error = errors[key];
 		if (error.length > 0 || error !== null) {
@@ -724,7 +728,9 @@ function cliUsage () {
 
 // Start of Main Flow
 // Check command arguments
-if ((argc = process.argv.length) > 2) {
+const argc = process.argv.length;
+let basePath = '.';
+if (argc > 2) {
 	for (let x = 2; x < argc; x++) {
 		switch (process.argv[x]) {
 			case '--help' :
@@ -758,9 +764,9 @@ if (!fs.existsSync(basePath) || !fs.statSync(basePath).isDirectory()) {
 }
 
 // Load YAML files
-rv = common.parseYAML(basePath);
+const rv = common.parseYAML(basePath);
 doc = rv.data;
-parseErrors = rv.errors;
+const parseErrors = rv.errors;
 if (Object.keys(doc).length === 0) {
 	common.log(common.LOG_ERROR, 'Could not find YAML files in %s', basePath);
 	process.exit(1);

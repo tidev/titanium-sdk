@@ -4,17 +4,18 @@
  *
  * Common Library for Doctools
  */
-
-var yaml = require('js-yaml'),
+const yaml = require('js-yaml'),
 	fs = require('fs'),
+	colors = require('colors'), // eslint-disable-line no-unused-vars
 	nodeappc = require('node-appc'),
 	pagedown = require('pagedown'),
 	converter = new pagedown.Converter(),
 	ignoreList = [ 'node_modules', '.travis.yml' ],
 	LOG_INFO = 0,
 	LOG_WARN = LOG_INFO + 1,
-	LOG_ERROR = LOG_WARN + 1,
-	logLevel = LOG_INFO;
+	LOG_ERROR = LOG_WARN + 1;
+
+let logLevel = LOG_INFO;
 
 exports.VALID_PLATFORMS = [ 'android', 'blackberry', 'iphone', 'ipad', 'mobileweb', 'windowsphone' ];
 exports.VALID_OSES = [ 'android', 'blackberry', 'ios', 'mobileweb', 'windowsphone' ];
@@ -151,7 +152,10 @@ function errorMessage () {
  * @returns {Object} Dictionary containing the parsed data and any YAML errors
  */
 exports.parseYAML = function parseYAML(path) {
-	const rv = { data : {}, errors : [] };
+	const rv = {
+		data : {},
+		errors : []
+	};
 	let currentFile = path;
 	try {
 		const fsArray = fs.readdirSync(path);
@@ -178,7 +182,7 @@ exports.parseYAML = function parseYAML(path) {
 								return;
 							}
 							// data does not exist in doc
-							if (rv.data[doc.name] === null) {
+							if (!rv.data[doc.name]) {
 								rv.data[doc.name] = doc;
 								rv.data[doc.name].__file = currentFile;
 							} else {
