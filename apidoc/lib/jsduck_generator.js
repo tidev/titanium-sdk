@@ -1,31 +1,35 @@
 /**
  * Script to export JSON to JSDuck comments
  */
-var common = require('./common.js'),
-	doc = {};
+const common = require('./common.js');
+let doc = {};
 
 /**
  * Convert API name to JSDuck-style link
+ * @param {string} apiName api name
+ * @return {string|null} jsduck style link to api name
  */
-function convertAPIToLink (apiName) {
+function convertAPIToLink(apiName) {
 	if (apiName in doc) {
 		return apiName;
-	} else if ((apiName.match(/\./g) || []).length) {
-		var member = apiName.split('.').pop(),
+	}
+
+	if ((apiName.match(/\./g) || []).length) {
+		const member = apiName.split('.').pop(),
 			cls = apiName.substring(0, apiName.lastIndexOf('.'));
 		if (!(cls in doc)) {
 			common.log(common.LOG_WARN, 'Cannot find class: %s', cls);
 			return null;
-		} else {
-			if (common.findAPI(doc, cls, member, 'properties')) {
-				return cls + '#property-' + member;
-			}
-			if (common.findAPI(doc, cls, member, 'methods')) {
-				return cls + '#method-' + member;
-			}
-			if (common.findAPI(doc, cls, member, 'events')) {
-				return cls + '#event-' + member;
-			}
+		}
+
+		if (common.findAPI(doc, cls, member, 'properties')) {
+			return cls + '#property-' + member;
+		}
+		if (common.findAPI(doc, cls, member, 'methods')) {
+			return cls + '#method-' + member;
+		}
+		if (common.findAPI(doc, cls, member, 'events')) {
+			return cls + '#event-' + member;
 		}
 	}
 	common.log(common.LOG_WARN, 'Cannot find API: %s', apiName);
@@ -34,8 +38,10 @@ function convertAPIToLink (apiName) {
 
 /**
  * Scans converted markdown-to-html text for internal links and converts them to JSDuck-style syntax
+ * @param {string} text markdown text
+ * @return {string} markdown text with jsduck style links
  */
-function convertLinks (text) {
+function convertLinks(text) {
 	var matches = text.match(common.REGEXP_HREF_LINKS),
 		tokens,
 		replace,
@@ -68,27 +74,30 @@ function convertLinks (text) {
 
 /**
  * Convert markdown text to HTML
+ * @param {string} text markdown text
+ * @return {string} converted HTML-ified text
  */
-function markdownToHTML (text) {
+function markdownToHTML(text) {
 	return convertLinks(common.markdownToHTML(text));
 }
 
 /**
  * Export example field
+ * @param {object} api api object
+ * @return {string}
  */
-function exportExamples (api) {
-	var rv = '',
-		code = '';
+function exportExamples(api) {
+	let rv = '';
 	if ('examples' in api && api.examples.length > 0) {
 		rv += '<h3>Examples</h3>\n';
 		api.examples.forEach(function (example) {
 			if (example.title) {
 				rv += '<h4>' + example.title + '</h4>\n';
 			}
-			code = markdownToHTML(example.example);
+			let code = markdownToHTML(example.example);
 			// If we don't find a <code> tag, assume entire example should be code formatted
 			if (!~code.indexOf('<code>')) {
-				code = code.replace(/<p\>/g, '').replace(/<\/p\>/g, '');
+				code = code.replace(/<p>/g, '').replace(/<\/p>/g, '');
 				code = '<pre><code>' + code + '</code></pre>';
 			}
 			rv += code;
@@ -99,10 +108,11 @@ function exportExamples (api) {
 
 /**
  * Export deprecated field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
-function exportDeprecated (api) {
-	var rv = '';
+function exportDeprecated(api) {
+	let rv = '';
 	if ('deprecated' in api && api.deprecated) {
 		if ('removed' in api.deprecated) {
 			rv += '@removed ' + api.deprecated.removed;
@@ -118,13 +128,14 @@ function exportDeprecated (api) {
 
 /**
  * Export osver field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
-function exportOSVer (api) {
-	var rv = '';
+function exportOSVer(api) {
+	let rv = '';
 	if ('osver' in api) {
 		rv += '<p> <b>Requires:</b> \n';
-		for (var key in api.osver) {
+		for (const key in api.osver) {
 			if (Array.isArray(api.osver[key])) {
 				rv += '<li> ' + common.PRETTY_PLATFORM[key] + ' ' + api.osver[key].join(', ') + ' \n';
 			} else {
@@ -143,10 +154,11 @@ function exportOSVer (api) {
 
 /**
  * Export constants field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
-function exportConstants (api) {
-	var rv = '';
+function exportConstants(api) {
+	let rv = '';
 	if ('constants' in api && api.constants && api.constants.length) {
 		rv = '\n<p>This API can be assigned the following constants:<ul>\n';
 		api.constants.forEach(function (constant) {
@@ -159,9 +171,10 @@ function exportConstants (api) {
 
 /**
  * Export value field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
-function exportValue (api) {
+function exportValue(api) {
 	if ('value' in api && api.value) {
 		return '<p><b>Constant value:</b>' + api.value + '</p>\n';
 	}
@@ -170,9 +183,10 @@ function exportValue (api) {
 
 /**
  * Export summary field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
-function exportSummary (api) {
+function exportSummary(api) {
 	if ('summary' in api && api.summary) {
 		return markdownToHTML(api.summary);
 	}
@@ -181,9 +195,10 @@ function exportSummary (api) {
 
 /**
  * Export description field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
-function exportDescription (api) {
+function exportDescription(api) {
 	if ('description' in api && api.description) {
 		return markdownToHTML(api.description);
 	}
@@ -192,12 +207,13 @@ function exportDescription (api) {
 
 /**
  * Export type field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
-function exportType (api) {
-	var rv = [];
+function exportType(api) {
+	const rv = [];
 	if ('type' in api && api.type) {
-		var types = api.type;
+		let types = api.type;
 		if (!Array.isArray(api.type)) {
 			types = [ api.type ];
 		}
@@ -218,15 +234,15 @@ function exportType (api) {
 
 /**
  * Export method parameters or event properties field
- * @param {Object} apis
+ * @param {Object[]} apis full api tree
+ * @return {string[]}
  */
-function exportParams (apis) {
-	var rv = [],
-		str = '';
+function exportParams(apis) {
+	const rv = [];
 	apis.forEach(function (member) {
-		var platforms = '',
-			optional = '';
-		str = '';
+		let platforms = '',
+			optional = '',
+			str = '';
 		if (!('type' in member) || !member.type) {
 			member.type = 'String';
 		}
@@ -249,10 +265,11 @@ function exportParams (apis) {
 
 /**
  * Export method returns field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
-function exportReturns (api) {
-	var types = [],
+function exportReturns(api) {
+	let types = [],
 		summary = '',
 		constants = [],
 		rv = 'void';
@@ -286,9 +303,10 @@ function exportReturns (api) {
 
 /**
  * Export default field
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
-function exportDefault (api) {
+function exportDefault(api) {
 	if ('default' in api && api['default'] !== 'undefined') {
 		if (typeof api['default'] === 'string') {
 			return convertLinks(api['default']);
@@ -301,26 +319,26 @@ function exportDefault (api) {
 
 /**
  * Returns GitHub edit URL for current API file.
- * @param {Object} api
+ * @param {Object} api api object
+ * @return {string}
  */
-function exportEditUrl (api) {
-	var file = api.__file;
-	var rv = '';
-	var blackList = [ 'appcelerator.https', 'ti.geofence' ]; // Don't include Edit button for these modules
-	var modulename, modulepath;
-	var basePath = 'https://github.com/appcelerator/titanium_mobile/edit/master/';
-	var index = 0;
+function exportEditUrl(api) {
+	const file = api.__file,
+		blackList = [ 'appcelerator.https', 'ti.geofence' ]; // Don't include Edit button for these modules
+	let rv = '',
+		basePath = 'https://github.com/appcelerator/titanium_mobile/edit/master/';
 
 	// Determine edit URL by file's folder location
 	if (file.indexOf('titanium_mobile/apidoc') !== -1) {
-		var startIndex = file.indexOf('apidoc/'),
+		const startIndex = file.indexOf('apidoc/'),
 			path = file.substr(startIndex);
 		rv = basePath + path;
 	} else if (file.indexOf('titanium_modules') !== -1 || file.indexOf('appc_modules') !== -1) {
 		// URL template with placeholders for module name and path.
-		var urlTemplate = 'https://github.com/appcelerator-modules/%MODULE_NAME%/edit/master/%MODULE_PATH%';
-		var re = /titanium_modules|appc_modules\/(.+)\/apidoc/;
-		var match = file.match(re);
+		const urlTemplate = 'https://github.com/appcelerator-modules/%MODULE_NAME%/edit/master/%MODULE_PATH%',
+			re = /titanium_modules|appc_modules\/(.+)\/apidoc/,
+			match = file.match(re);
+		let modulename;
 		if (match) {
 			modulename = match[1];
 			if (blackList.indexOf(modulename) !== -1) {
@@ -331,7 +349,7 @@ function exportEditUrl (api) {
 			return rv;
 		}
 
-		var urlReplacements = {
+		const urlReplacements = {
 			'%MODULE_NAME%': modulename,
 			'%MODULE_PATH%': file.substr(file.indexOf('apidoc/') || 0)
 		};
@@ -339,7 +357,7 @@ function exportEditUrl (api) {
 			return urlReplacements[all] || all;
 		});
 	} else if (file.indexOf('titanium_mobile_tizen/modules/tizen/apidoc') !== -1) {
-		index = file.indexOf('modules/tizen/apidoc/');
+		let index = file.indexOf('modules/tizen/apidoc/');
 		basePath = 'https://github.com/appcelerator/titanium_mobile_tizen/edit/master/';
 		if (index !== -1) {
 			rv = basePath + file.substr(index);
@@ -354,10 +372,11 @@ function exportEditUrl (api) {
 
 /**
  * Export member APIs
- * @param {Object} api
- * @param {Object} type
+ * @param {Object} api api object
+ * @param {Object} type type name
+ * @return {object[]}
  */
-function exportAPIs (api, type) {
+function exportAPIs(api, type) {
 	var x = 0,
 		member = {},
 		annotatedMember = {},
@@ -419,35 +438,34 @@ function exportAPIs (api, type) {
 
 /**
  * Returns a JSON object that can be applied to the JSDuck EJS template
- * @param {Object} apis
+ * @param {Object} apis full api tree
+ * @return {object[]}
  */
-exports.exportData = function exportJsDuck (apis) {
-	var className = null,
-		rv = [],
-		annotatedClass = {},
-		cls = {};
-	doc = apis;
+exports.exportData = function exportJsDuck(apis) {
+	const rv = [];
+	doc = apis; // TODO make doc a field on a type, rather than this weird file-global!
 
 	common.log(common.LOG_INFO, 'Annotating JSDuck-specific attributes...');
 
-	for (className in apis) {
-		cls = apis[className];
-		annotatedClass.name = cls.name;
-		annotatedClass.extends = cls.extends || null;
-		annotatedClass.subtype = cls.__subtype;
-		annotatedClass.since = cls.since;
-		annotatedClass.summary = exportSummary(cls);
-		annotatedClass.deprecated = exportDeprecated(cls);
-		annotatedClass.osver = exportOSVer(cls);
-		annotatedClass.description = exportDescription(cls);
-		annotatedClass.examples = exportExamples(cls);
+	for (const className in apis) {
+		const cls = apis[className];
+		const annotatedClass = {
+			name: cls.name,
+			extends: cls.extends || null,
+			subtype: cls.__subtype,
+			since: cls.since,
+			summary: exportSummary(cls),
+			deprecated: exportDeprecated(cls),
+			osver: exportOSVer(cls),
+			description: exportDescription(cls),
+			examples: exportExamples(cls),
+			events: exportAPIs(cls, 'events') || [],
+			methods: exportAPIs(cls, 'methods') || [],
+			properties: exportAPIs(cls, 'properties') || [],
+			editurl: exportEditUrl(cls)
+		};
 
-		annotatedClass.events = exportAPIs(cls, 'events') || [];
-		annotatedClass.methods = exportAPIs(cls, 'methods') || [];
-		annotatedClass.properties = exportAPIs(cls, 'properties') || [];
-		annotatedClass.editurl = exportEditUrl(cls);
 		rv.push(annotatedClass);
-		cls = annotatedClass = {};
 	}
 	return rv;
 };

@@ -4,22 +4,25 @@
  *
  * Script to convert data to JSON format for third-party extensions
  */
-var common = require('./common.js'),
-	assert = common.assertObjectKey,
-	doc = {};
+const common = require('./common.js'),
+	assert = common.assertObjectKey;
+let doc = {};
 
 /**
  * Convert API name to an HTML link
+ * @param {string} apiName api name
+ * @return {string} HTML-ified name. May be wrapped in code block, or in code block with link
  */
-function convertAPIToLink (apiName) {
-	var url = null;
-
+function convertAPIToLink(apiName) {
 	if (~common.DATA_TYPES.indexOf(apiName) || apiName === 'void') {
 		return '<code>' + apiName + '</code>';
-	} else if (apiName in doc) {
+	}
+
+	let url = null;
+	if (apiName in doc) {
 		url = exportClassFilename(apiName) + '.html';
 	} else if ((apiName.match(/\./g) || []).length) {
-		var member = apiName.split('.').pop(),
+		const member = apiName.split('.').pop(),
 			cls = apiName.substring(0, apiName.lastIndexOf('.'));
 
 		if (!(cls in doc)) {
@@ -43,8 +46,10 @@ function convertAPIToLink (apiName) {
 
 /**
  * Scans converted markdown-to-html text for internal links
+ * @param {string} text markdown text
+ * @return {string}
  */
-function convertLinks (text) {
+function convertLinks(text) {
 	var matches = text.match(common.REGEXP_HREF_LINKS),
 		tokens,
 		link;
@@ -75,22 +80,28 @@ function convertLinks (text) {
 
 /**
  * Convert markdown to HTML
+ * @param {string} text markdown text
+ * @return {string} HTML-ified text
  */
-function markdownToHTML (text) {
+function markdownToHTML(text) {
 	return convertLinks(common.markdownToHTML(text));
 }
 
 /**
  * Replace unsafe HMTL characters with dashes
+ * @param {string} api api name
+ * @return {string} replaced ':' with '-'
  */
-function cleanAPIName (api) {
+function cleanAPIName(api) {
 	return api.replace(/:/g, '-');
 }
 
 /**
  * Convert classname to filename
+ * @param {string} name class name
+ * @return {string|null} file basename for the class
  */
-function exportClassFilename (name) {
+function exportClassFilename(name) {
 	if (assert(doc, name)) {
 		return (doc[name].__subtype === 'module') ? name + '-module' : name + '-object';
 	}
@@ -99,8 +110,10 @@ function exportClassFilename (name) {
 
 /**
  * Export deprecated field
+ * @param {object} api api object
+ * @return {object|null}
  */
-function exportDeprecated (api) {
+function exportDeprecated(api) {
 	if ('deprecated' in api && api.deprecated) {
 		return {
 			notes_html: markdownToHTML(api.deprecated.notes || ''),
@@ -113,9 +126,11 @@ function exportDeprecated (api) {
 
 /**
  * Export summary field
+ * @param {object} api api object
+ * @return {string} HTML-ified summary text
  */
-function exportSummary (api) {
-	var rv = '';
+function exportSummary(api) {
+	let rv = '';
 	if ('summary' in api && api.summary) {
 		rv = api.summary;
 	}
@@ -124,16 +139,17 @@ function exportSummary (api) {
 
 /**
  * Export examples field
+ * @param {object} api api object
+ * @return {object[]}
  */
-function exportExamples (api) {
-	var rv = [],
-		code = null;
+function exportExamples(api) {
+	const rv = [];
 	if ('examples' in api && api.examples.length > 0) {
 		api.examples.forEach(function (example) {
-			code = markdownToHTML(example.example);
+			let code = markdownToHTML(example.example);
 			// If we don't find a <code> tag, assume entire example should be code formatted
 			if (!~code.indexOf('<code>')) {
-				code = code.replace(/<p\>/g, '').replace(/<\/p\>/g, '');
+				code = code.replace(/<p>/g, '').replace(/<\/p>/g, '');
 				code = '<pre><code>' + code + '</code></pre>';
 			}
 			rv.push({ 'description': example.title, 'code': code });
@@ -144,12 +160,16 @@ function exportExamples (api) {
 
 /**
  * Export method parameters or event properties field
+ * @param {object[]} apis api tree
+ * @param {string} type type name
+ * @param {string} filename file name
+ * @return {object[]}
  */
-function exportParams (apis, type, filename) {
-	var rv = [],
-		annotatedMember = {};
+function exportParams(apis, type, filename) {
+	const rv = [];
 	if (apis) {
 		apis.forEach(function (member) {
+			const annotatedMember = {};
 			annotatedMember.name = member.name;
 			annotatedMember.deprecated = exportDeprecated(member);
 			annotatedMember.summary = exportSummary(member);
@@ -163,7 +183,6 @@ function exportParams (apis, type, filename) {
 				annotatedMember.filename = filename + '.' + member.name + '-param';
 			}
 			rv.push(annotatedMember);
-			annotatedMember = {};
 		});
 	}
 	return rv;
@@ -171,26 +190,29 @@ function exportParams (apis, type, filename) {
 
 /**
  * Export description field
+ * @param {object} api api object
+ * @return {string|null} HTML-ified description
  */
-function exportDescription (api) {
-	var rv = null;
+function exportDescription(api) {
 	if ('description' in api && api.description) {
-		rv = markdownToHTML(api.description);
+		return markdownToHTML(api.description);
 	}
-	return rv;
+	return null;
 }
 
 /**
  * Export returns field
+ * @param {object} api api object
+ * @return {object|object[]}
  */
-function exportReturnTypes (api) {
-	var rv = [];
+function exportReturnTypes(api) {
+	const rv = [];
 	if (assert(api, 'returns')) {
 		if (!Array.isArray(api.returns)) {
 			api.returns = [ api.returns ];
 		}
 		api.returns.forEach(function (ret) {
-			var x = {};
+			const x = {};
 			if (assert(ret, 'summary')) {
 				x.summary = ret.summary;
 			}
@@ -208,11 +230,12 @@ function exportReturnTypes (api) {
 
 /**
  * Export since field
+ * @param {object} api api object
+ * @return {object[]}
  */
-function exportPlatforms (api) {
-	var rv = [],
-		platform = null;
-	for (platform in api.since) {
+function exportPlatforms(api) {
+	const rv = [];
+	for (const platform in api.since) {
 		rv.push({
 			'pretty_name': common.PRETTY_PLATFORM[platform],
 			'since': api.since[platform],
@@ -224,8 +247,11 @@ function exportPlatforms (api) {
 
 /**
  * Export members API
+ * @param {object} api api object
+ * @param {string} type type name
+ * @return {object[]}
  */
-function exportAPIs (api, type) {
+function exportAPIs(api, type) {
 	var rv = [],
 		x = 0,
 		member = {},
@@ -288,38 +314,38 @@ function exportAPIs (api, type) {
 
 /**
  * Annotate JSON data for consumption by third-party tools
+ * @param {object[]} apis api tree
+ * @return {object[]}
  */
-exports.exportData = function exportJSON (apis) {
-	var className = null,
-		cls = {},
-		annotatedClass = {},
-		rv = {};
-	doc = apis;
+exports.exportData = function exportJSON(apis) {
+	const rv = {};
+	doc = apis; // TODO make doc a field on a type, rather than this weird file-global!
 
 	common.log(common.LOG_INFO, 'Annotating JSON-specific attributes...');
 
-	for (className in apis) {
-		cls = apis[className];
-		annotatedClass.name = cls.name;
-		annotatedClass.summary = exportSummary(cls);
-		annotatedClass.deprecated = exportDeprecated(cls);
-		annotatedClass.events = exportAPIs(cls, 'events');
-		annotatedClass.examples = exportExamples(cls);
-		annotatedClass.methods = exportAPIs(cls, 'methods');
-		annotatedClass['extends'] = cls['extends'] || 'Object';
-		annotatedClass.properties = exportAPIs(cls, 'properties');
-		annotatedClass.description = exportDescription(cls);
-		annotatedClass.platforms = exportPlatforms(cls);
-		annotatedClass.filename = exportClassFilename(cls);
-		annotatedClass.type = cls.__subtype || 'object';
-		annotatedClass.subtype = null;
+	for (const className in apis) {
+		const cls = apis[className];
+		const annotatedClass = {
+			name: cls.name,
+			summary: exportSummary(cls),
+			deprecated: exportDeprecated(cls),
+			events: exportAPIs(cls, 'events'),
+			examples: exportExamples(cls),
+			methods: exportAPIs(cls, 'methods'),
+			'extends': cls['extends'] || 'Object',
+			properties: exportAPIs(cls, 'properties'),
+			description: exportDescription(cls),
+			platforms: exportPlatforms(cls),
+			filename: exportClassFilename(cls),
+			type: cls.__subtype || 'object',
+			subtype: null
+		};
 		if (~[ 'proxy', 'view' ].indexOf(annotatedClass.type)) {
 			annotatedClass.subtype = annotatedClass.type;
 			annotatedClass.type = 'object';
 		}
 
 		rv[className] = annotatedClass;
-		cls = annotatedClass = {};
 	}
 	return rv;
 };
