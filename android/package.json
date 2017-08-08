@@ -13,7 +13,7 @@
 	"maintainers": [
 		"Chris Barber <cbarber@appcelerator.com>"
 	],
-	"minSDKVersion": "14",
+	"minSDKVersion": "16",
 	"vendorDependencies": {
 		"android sdk": ">=23 <=25.x",
 		"android build tools": ">=23 <=25.x",

@@ -2,6 +2,10 @@ var path = require('path'),
 	async = require('async'),
 	fs = require('fs-extra'),
 	glob = require('glob'),
+	appc = require('node-appc'),
+	request = require('request'),
+	temp = require('temp'),
+	util = require('util'),
 	Utils = {};
 
 Utils.copyFile = function (srcFolder, destFolder, filename, next) {
@@ -48,5 +52,68 @@ Utils.copyAndModifyFiles = function (srcFolder, destFolder, files, substitutions
 		Utils.copyAndModifyFile(srcFolder, destFolder, file, substitutions, cb);
 	}, next);
 }
+
+Utils.downloadURL = function (url, callback) {
+	console.log('Downloading %s', url);
+
+	var tempName = temp.path({ suffix: '.gz' }),
+		tempDir = path.dirname(tempName);
+	fs.existsSync(tempDir) || fs.mkdirsSync(tempDir);
+
+	var tempStream = fs.createWriteStream(tempName),
+		req = request({ url: url });
+
+	req.pipe(tempStream);
+
+	req.on('error', function (err) {
+		fs.existsSync(tempName) && fs.unlinkSync(tempName);
+		console.log();
+		console.error('Failed to download: %s', err.toString());
+		callback(err);
+	});
+
+	req.on('response', function (req) {
+		var err;
+		if (req.statusCode >= 400) {
+			// something went wrong, abort
+			console.log();
+			err = util.format('Request for %s failed with HTTP status code %s %s', url, req.statusCode, req.statusMessage);
+			console.error(new Error(err));
+			return callback(err);
+		} else if (req.headers['content-length']) {
+			// we know how big the file is, display the progress bar
+			var total = parseInt(req.headers['content-length']),
+				bar = new appc.progress('  :paddedPercent [:bar] :etas', {
+				complete: '='.cyan,
+				incomplete: '.'.grey,
+				width: 40,
+				total: total
+			});
+
+			req.on('data', function (buffer) {
+				bar.tick(buffer.length);
+			});
+
+			tempStream.on('close', function () {
+				if (bar) {
+					bar.tick(total);
+					console.log('\n');
+				}
+				callback(null, tempName);
+			});
+		} else {
+			// we don't know how big the file is, display a spinner
+			var busy = new appc.busyindicator;
+			busy.start();
+
+			tempStream.on('close', function () {
+				busy && busy.stop();
+				console.log();
+				callback(null, tempName);
+			});
+		}
+	});
+}
+
 
 module.exports = Utils;

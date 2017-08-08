@@ -250,29 +250,32 @@ static NSArray* tabGroupKeySequence;
     [super viewDidDisappear:animated];
 }
 
-
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
-	if ([self viewAttached])
-	{
-		[(TiUITabGroup *)[self view] willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	}
-	[super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    if ([self viewAttached]) {
+        [(TiUITabGroup *)[self view] viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    }
 }
 
--(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
-	if ([self viewAttached])
-	{
-		[(TiUITabGroup *)[self view] willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-	}
+    if ([self viewAttached]) {
+        [(TiUITabGroup *)[self view] willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+    }
 }
--(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+
+- (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
 {
-    if ([self viewAttached])
-	{
-		[(TiUITabGroup *)[self view] didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-	}
+    if ([self viewAttached]) {
+        [(TiUITabGroup *)[self view] systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+    }
+}
+
+- (void)preferredContentSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+    if ([self viewAttached]) {
+        [(TiUITabGroup *)[self view] preferredContentSizeDidChangeForChildContentContainer:container];
+    }
 }
 
 -(UIStatusBarStyle)preferredStatusBarStyle;
