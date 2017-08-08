@@ -168,22 +168,6 @@
 #define SCListener __TI_NS_SYMBOL(SCListener)
 #endif
 
-// Base64Transcoder
-#ifndef EstimateBas64EncodedDataSize
-#define EstimateBas64EncodedDataSize __TI_NS_SYMBOL(EstimateBas64EncodedDataSize)
-#endif
-#ifndef EstimateBas64DecodedDataSize
-// libtiverify dependency
-// EstimateBas64DecodedDataSize is now TI_EstimateBas64DecodedDataSize
-#endif
-#ifndef Base64EncodeData
-#define Base64EncodeData __TI_NS_SYMBOL(Base64EncodeData)
-#endif
-#ifndef Base64DecodeData
-// libtiverify dependency
-// Base64DecodeData is now TI_Base64DecodeData
-#endif
-
 // PlausibleDatabase
 #ifndef PlausibleDatabase
 #define PlausibleDatabase __TI_NS_SYMBOL(PlausibleDatabase)

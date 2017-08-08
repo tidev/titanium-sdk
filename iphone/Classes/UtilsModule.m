@@ -7,7 +7,6 @@
 #ifdef USE_TI_UTILS
 
 #import "UtilsModule.h"
-#import "Base64Transcoder.h"
 #import "TiBlob.h"
 #import "TiFile.h"
 #import "TiUtils.h"
@@ -36,27 +35,22 @@
 - (TiBlob *)base64encode:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSObject);
-  const char *data;
-  size_t len;
+  NSData *data;
 
   if ([args isKindOfClass:[TiBlob class]]) {
-    NSData *blobData = [(TiBlob *)args data];
-    data = (char *)[blobData bytes];
-    len = [blobData length];
+    data = [(TiBlob *)args data];
   } else {
-    NSString *str = [self convertToString:args];
-    data = (char *)[str UTF8String];
-    len = [str length];
+    data = [[self convertToString:args] dataUsingEncoding:NSUTF8StringEncoding];
   }
 
-  char *base64Result;
-  size_t theResultLength;
-  bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
-  if (result) {
-    NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-    free(base64Result);
-    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:theData mimetype:@"application/octet-stream"] autorelease];
+  NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
+
+  if (base64Encoded != nil) {
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext]
+                                         andData:[base64Encoded dataUsingEncoding:NSUTF8StringEncoding]
+                                        mimetype:@"application/octet-stream"] autorelease];
   }
+
   return nil;
 }
 
@@ -65,28 +59,12 @@
   ENSURE_SINGLE_ARG(args, NSObject);
 
   NSString *str = [self convertToString:args];
+  NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:str options:0];
 
-  const char *data = [str UTF8String];
-  size_t len = [str length];
-
-  size_t outsize = TI_EstimateBas64DecodedDataSize(len);
-  char *base64Result = NULL;
-  if (len > 0) {
-    base64Result = malloc(sizeof(char) * outsize);
+  if (decodedData != nil) {
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:decodedData mimetype:@"application/octet-stream"] autorelease];
   }
 
-  if (base64Result == NULL) {
-    return nil;
-  }
-
-  size_t theResultLength = outsize;
-  bool result = TI_Base64DecodeData(data, len, base64Result, &theResultLength);
-  if (result) {
-    NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-    free(base64Result);
-    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:theData mimetype:@"application/octet-stream"] autorelease];
-  }
-  free(base64Result);
   return nil;
 }
 
