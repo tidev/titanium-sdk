@@ -4,26 +4,21 @@
  * copying template files.
  *
  * @copyright
- * Copyright (c) 2012-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2017 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-var appc = require('node-appc'),
+const appc = require('node-appc'),
 	async = require('async'),
 	fields = require('fields'),
 	fs = require('fs'),
-	http = require('http'),
 	i18n = appc.i18n(__dirname),
 	path = require('path'),
-	request = require('request'),
-	temp = require('temp'),
 	ti = require('node-titanium-sdk'),
-	wrench = require('wrench'),
-	__ = i18n.__,
-	__n = i18n.__n;
+	__ = i18n.__;
 
 exports.cliVersion = '>=3.2.1';
 exports.title = __('Create');
@@ -47,6 +42,7 @@ function CreateCommand() {
  * @param {Object} logger - The logger instance
  * @param {Object} config - The CLI config
  * @param {Object} cli - The CLI instance
+ * @return {Function}
  */
 CreateCommand.prototype.config = function config(logger, config, cli) {
 	this.logger = logger;
@@ -57,7 +53,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 
 	return function (finished) {
 		// find and load the creators
-		var creatorDir = path.join(__dirname, '..', 'lib', 'creators'),
+		const creatorDir = path.join(__dirname, '..', 'lib', 'creators'),
 			jsRegExp = /\.js$/,
 			typeConf = {};
 
@@ -66,7 +62,7 @@ CreateCommand.prototype.config = function config(logger, config, cli) {
 				return next();
 			}
 
-			var creator = new (require(path.join(creatorDir, filename)))(logger, config, cli);
+			const creator = new (require(path.join(creatorDir, filename)))(logger, config, cli); // eslint-disable-line security/detect-non-literal-require
 			this.creators[creator.type] = creator;
 
 			try {
@@ -191,4 +187,4 @@ CreateCommand.prototype.run = function run(logger, config, cli, finished) {
 (function (createCommand) {
 	exports.config   = createCommand.config.bind(createCommand);
 	exports.run      = createCommand.run.bind(createCommand);
-}(new CreateCommand));
+}(new CreateCommand()));
