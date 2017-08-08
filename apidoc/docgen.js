@@ -792,7 +792,7 @@ if ((argc = process.argv.length) > 2) {
 	}
 }
 
-if (~formats.indexOf('addon') && searchPlatform === null) {
+if (~formats.indexOf('addon') && !searchPlatform) {
 	common.log(common.LOG_ERROR, 'Specify a platform to extract with the -p option.');
 	process.exit(1);
 }

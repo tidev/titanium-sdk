@@ -377,27 +377,26 @@ function exportEditUrl(api) {
  * @return {object[]}
  */
 function exportAPIs(api, type) {
-	var x = 0,
-		member = {},
-		annotatedMember = {},
-		rv = [];
+	const rv = [];
 
 	if (type in api) {
-		for (x = 0; x < api[type].length; x++) {
-			member = api[type][x];
+		for (let x = 0; x < api[type].length; x++) {
+			const member = api[type][x];
 
 			if ('__inherits' in member && member.__inherits !== api.name) {
 				continue;
 			}
 
-			annotatedMember.name = member.name;
-			annotatedMember.summary = exportSummary(member);
-			annotatedMember.deprecated = exportDeprecated(member);
-			annotatedMember.osver = exportOSVer(member);
-			annotatedMember.description = exportDescription(member);
-			annotatedMember.examples = exportExamples(member);
-			annotatedMember.hide = member.__hide || false;
-			annotatedMember.since = (JSON.stringify(member.since) === JSON.stringify(api.since)) ? {} : member.since;
+			const annotatedMember = {
+				name: member.name,
+				summary: exportSummary(member),
+				deprecated: exportDeprecated(member),
+				osver: exportOSVer(member),
+				description: exportDescription(member),
+				examples: exportExamples(member),
+				hide: member.__hide || false,
+				since: (JSON.stringify(member.since) === JSON.stringify(api.since)) ? {} : member.since
+			};
 
 			switch (type) {
 				case 'events':
@@ -428,7 +427,6 @@ function exportAPIs(api, type) {
 			}
 
 			rv.push(annotatedMember);
-			annotatedMember = member = {};
 		}
 
 	}

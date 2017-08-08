@@ -1,9 +1,9 @@
 /**
  * Script to export JSON to HTML-annotated JSON for EJS templates
  */
-var common = require('./common.js'),
-	assert = common.assertObjectKey,
-	doc = {},
+const common = require('./common.js'),
+	assert = common.assertObjectKey;
+let doc = {},
 	remoteURL = false;
 
 /**
@@ -11,7 +11,7 @@ var common = require('./common.js'),
  * @param {Array} array original array
  * @return {Array} the sorted array
  */
-function sortArray (array) {
+function sortArray(array) {
 	return array.sort(function (a, b) {
 		if (a.name > b.name) {
 			return 1;
@@ -28,7 +28,7 @@ function sortArray (array) {
  * @param {string} api raw api name
  * @return {string} converted api name with ':' -> '-'
  */
-function cleanAPIName (api) {
+function cleanAPIName(api) {
 	return api.replace(/:/g, '-');
 }
 
@@ -37,8 +37,8 @@ function cleanAPIName (api) {
  * @param {string} apiName original raw api name
  * @return {string} HTML-ified link to the api
  */
-function convertAPIToLink (apiName) {
-	var url = null;
+function convertAPIToLink(apiName) {
+	let url = null;
 
 	if (~common.DATA_TYPES.indexOf(apiName) || apiName === 'void') {
 		return '<code>' + apiName + '</code>';
@@ -104,15 +104,14 @@ function convertAPIToLink (apiName) {
  * @param {string} text  raw markdown/html
  * @return {string} converted links
  */
-function convertLinks (text) {
-	var matches = text.match(common.REGEXP_HREF_LINKS),
-		tokens,
-		link;
+function convertLinks(text) {
+	let matches = text.match(common.REGEXP_HREF_LINKS);
 	if (matches && matches.length) {
 		matches.forEach(function (match) {
-			tokens = common.REGEXP_HREF_LINK.exec(match);
+			let tokens = common.REGEXP_HREF_LINK.exec(match);
 			if (tokens && tokens[1].indexOf('http') !== 0 && !~match.indexOf('#')) {
-				if ((link = convertAPIToLink(tokens[1]))) {
+				let link = convertAPIToLink(tokens[1]);
+				if (link) {
 					link = link.replace('>' + tokens[1] + '<', '>' + tokens[2] + '<');
 					text = text.replace(match, link);
 				}
@@ -123,8 +122,9 @@ function convertLinks (text) {
 	if (matches && matches.length) {
 		matches.forEach(function (match) {
 			if (!common.REGEXP_HTML_TAG.exec(match) && !~match.indexOf(' ') && !~match.indexOf('/') && !~match.indexOf('#')) {
-				tokens = common.REGEXP_CHEVRON_LINK.exec(match);
-				if ((link = convertAPIToLink(tokens[1]))) {
+				let tokens = common.REGEXP_CHEVRON_LINK.exec(match),
+					link = convertAPIToLink(tokens[1]);
+				if (link) {
 					text = text.replace(match, link);
 				}
 			}
@@ -138,7 +138,7 @@ function convertLinks (text) {
  * @param {string} text raw markdown text
  * @return {string} converted markdown to HTML
  */
-function markdownToHTML (text) {
+function markdownToHTML(text) {
 	return convertLinks(common.markdownToHTML(text));
 }
 
@@ -147,7 +147,7 @@ function markdownToHTML (text) {
  * @param {Object} name raw class/api name
  * @return {string} URL of the target class name on our doc site
  */
-function exportClassFilename (name) {
+function exportClassFilename(name) {
 	if (assert(doc, name)) {
 		if (remoteURL && !~doc.__modules.indexOf(name)) {
 			return 'http://docs.appcelerator.com/platform/latest/#!/api/' + name;
@@ -163,9 +163,8 @@ function exportClassFilename (name) {
  * @param {Object} api api object
  * @return {string}
  */
-function exportConstants (api) {
-	var rv = '';
-	rv = '\n<p>This API can be assigned the following constants:<ul>\n';
+function exportConstants(api) {
+	let rv = '\n<p>This API can be assigned the following constants:<ul>\n';
 	api.constants.forEach(function (constant) {
 		rv += ' <li>' + convertAPIToLink(constant) + '</li>\n';
 	});
@@ -178,19 +177,20 @@ function exportConstants (api) {
  * @param {Object} api api object
  * @return {object|boolean}
  */
-function exportDeprecated (api) {
-	var rv = {};
+function exportDeprecated(api) {
 	if (!('deprecated' in api && api.deprecated)) {
 		return false;
-	} else {
-		Object.keys(api.deprecated).forEach(function (key) {
-			if (key === 'notes') {
-				rv.notes = markdownToHTML(api.deprecated.notes);
-			} else {
-				rv[key] = api.deprecated[key];
-			}
-		});
 	}
+
+	const rv = {};
+	Object.keys(api.deprecated).forEach(function (key) {
+		if (key === 'notes') {
+			rv.notes = markdownToHTML(api.deprecated.notes);
+		} else {
+			rv[key] = api.deprecated[key];
+		}
+	});
+
 	return rv;
 }
 
@@ -199,8 +199,8 @@ function exportDeprecated (api) {
  * @param {Object} api api object
  * @return {string}
  */
-function exportDescription (api) {
-	var rv = '';
+function exportDescription(api) {
+	let rv = '';
 	if (assert(api, 'osver')) {
 		rv += exportOSVer(api);
 	}
@@ -218,12 +218,11 @@ function exportDescription (api) {
  * @param {Object} api api object
  * @return {object[]}
  */
-function exportExamples (api) {
-	var rv = [],
-		code = null;
+function exportExamples(api) {
+	const rv = [];
 	if (assert(api, 'examples')) {
 		api.examples.forEach(function (example) {
-			code = markdownToHTML(example.example);
+			let code = markdownToHTML(example.example);
 			// If we don't find a <code> tag, assume entire example should be code formatted
 			if (!~code.indexOf('<code>')) {
 				code = code.replace(/<p>/g, '').replace(/<\/p>/g, '');
@@ -240,9 +239,8 @@ function exportExamples (api) {
  * @param {Object} api api object
  * @return {string} HTML
  */
-function exportOSVer (api) {
-	var rv = '';
-	rv += '<p> <b>Requires:</b> \n';
+function exportOSVer(api) {
+	let rv = '<p> <b>Requires:</b> \n';
 	for (const key in api.osver) {
 		if (Array.isArray(api.osver[key])) {
 			rv += '<li> ' + common.PRETTY_PLATFORM[key] + ' ' + api.osver[key].join(', ') + ' \n';
@@ -265,19 +263,20 @@ function exportOSVer (api) {
  * @param {string} type member type
  * @return {object[]}
  */
-function exportParams (apis, type) {
-	var rv = [],
-		annotatedMember = {};
+function exportParams(apis, type) {
+	const rv = [];
+
 	if (apis) {
 		apis.forEach(function (member) {
-			annotatedMember.name = member.name;
-			annotatedMember.constants = member.constants || [];
+			const annotatedMember = {
+				name: member.name,
+				constants: member.constants || [],
+				summary: exportSummary(member),
+				type: exportType(member)
+			};
 			if (type === 'properties') {
 				annotatedMember.deprecated = exportDeprecated(member);
-			}
-			annotatedMember.summary = exportSummary(member);
-			annotatedMember.type = exportType(member);
-			if (type === 'parameters') {
+			} else if (type === 'parameters') {
 				if (assert(member, 'optional')) {
 					annotatedMember.optional = true;
 				}
@@ -286,7 +285,6 @@ function exportParams (apis, type) {
 				}
 			}
 			rv.push(annotatedMember);
-			annotatedMember = {};
 		});
 	}
 	return rv;
@@ -313,7 +311,7 @@ function exportParent(api) {
  * @param {Object} api api object
  * @return {object[]}
  */
-function exportPlatforms (api) {
+function exportPlatforms(api) {
 	const rv = [];
 	if (!assert(api, 'since')) {
 		api.since = common.DEFAULT_VERSIONS;
@@ -333,8 +331,8 @@ function exportPlatforms (api) {
  * @param {Object} api api object
  * @return {object[]}
  */
-function exportProxies (api) {
-	var rv = [];
+function exportProxies(api) {
+	const rv = [];
 	Object.keys(doc).forEach(function (name) {
 		if ((name.indexOf(api.name) === 0)
 			&& (name !== api.name)
@@ -355,10 +353,10 @@ function exportProxies (api) {
  * @param {Object} api api Object
  * @return {string} HTML
  */
-function exportReturnTypes (api) {
-	var rv = 'void',
-		types = [],
+function exportReturnTypes(api) {
+	let rv = 'void',
 		constants = [];
+	const types = [];
 	if (assert(api, 'returns')) {
 		if (!Array.isArray(api.returns)) {
 			api.returns = [ api.returns ];
@@ -384,8 +382,8 @@ function exportReturnTypes (api) {
  * @param {Object} api api object
  * @return {string} HTML
  */
-function exportSummary (api) {
-	var rv = '';
+function exportSummary(api) {
+	let rv = '';
 	if ('summary' in api && api.summary) {
 		rv += api.summary;
 	}
@@ -397,8 +395,8 @@ function exportSummary (api) {
  * @param {Object} api api Object
  * @return {string[]}
  */
-function exportType (api) {
-	var rv = [];
+function exportType(api) {
+	const rv = [];
 	if (assert(api, 'type')) {
 		if (!Array.isArray(api.type)) {
 			api.type = [ api.type ];
@@ -434,10 +432,9 @@ function exportType (api) {
  * @param {Object} api api object
  * @return {object[]}
  */
-function exportUserAgents (api) {
-	var rv = [],
-		platform = null;
-	for (platform in api.since) {
+function exportUserAgents(api) {
+	const rv = [];
+	for (const platform in api.since) {
 		rv.push({ 'platform': platform });
 	}
 	return rv;
@@ -449,35 +446,34 @@ function exportUserAgents (api) {
  * @param {string} type member type
  * @return {object[]}
  */
-function exportAPIs (api, type) {
-	var rv = [],
-		x = 0,
-		member = {},
-		annotatedMember = {};
+function exportAPIs(api, type) {
+	const rv = [];
 
 	if (type in api) {
-		for (x = 0; x < api[type].length; x++) {
-			member = api[type][x];
+		for (let x = 0; x < api[type].length; x++) {
+			const member = api[type][x];
 			if (member.__hide) {
 				continue;
 			}
 
-			annotatedMember.name = member.name;
-			annotatedMember.deprecated = exportDeprecated(member);
-			annotatedMember.description = exportDescription(member);
-			annotatedMember.examples = exportExamples(member);
-			annotatedMember.filename = api.name + '.' + cleanAPIName(member.name) + '-' + member.__subtype;
-			annotatedMember.parent = {
-				name: api.name,
-				filename: exportClassFilename(api.name)
+			const annotatedMember = {
+				name: member.name,
+				deprecated: exportDeprecated(member),
+				description: exportDescription(member),
+				examples: exportExamples(member),
+				filename: api.name + '.' + cleanAPIName(member.name) + '-' + member.__subtype,
+				parent: {
+					name: api.name,
+					filename: exportClassFilename(api.name)
+				},
+				platforms: exportPlatforms(member),
+				summary: exportSummary(member),
+				typestr: member.__subtype,
+				inherits: (assert(member, '__inherits') && member.__inherits !== api.name) ? {
+					name: member.__inherits,
+					filename: exportClassFilename(member.__inherits)
+				} : null
 			};
-			annotatedMember.platforms = exportPlatforms(member);
-			annotatedMember.summary = exportSummary(member);
-			annotatedMember.typestr = member.__subtype;
-			annotatedMember.inherits = (assert(member, '__inherits') && member.__inherits !== api.name) ? {
-				name: member.__inherits,
-				filename: exportClassFilename(member.__inherits)
-			} : null;
 
 			switch (type) {
 				case 'events':
@@ -499,7 +495,6 @@ function exportAPIs (api, type) {
 			}
 
 			rv.push(annotatedMember);
-			member = annotatedMember = {};
 		}
 	}
 
@@ -511,16 +506,13 @@ function exportAPIs (api, type) {
  * @param {Object} apis full api tree
  * @return {object}
  */
-exports.exportData = function exportHTML (apis) {
-	var className = null,
-		cls = {},
-		annotatedClass = {},
-		rv = {
-			'proxy': [],
-			'event': [],
-			'method': [],
-			'property': []
-		};
+exports.exportData = function exportHTML(apis) {
+	const rv = {
+		'proxy': [],
+		'event': [],
+		'method': [],
+		'property': []
+	};
 	doc = apis;
 
 	common.log(common.LOG_INFO, 'Annotating HTML-specific attributes...');
@@ -529,29 +521,31 @@ exports.exportData = function exportHTML (apis) {
 		remoteURL = true;
 	}
 
-	for (className in apis) {
+	for (const className in apis) {
 		if (className.indexOf('__') === 0) {
 			continue;
 		}
-		cls = apis[className];
-		annotatedClass.name = cls.name;
-		annotatedClass.summary = exportSummary(cls);
-		annotatedClass.description = exportDescription(cls);
-		annotatedClass.deprecated = exportDeprecated(cls);
-		annotatedClass.events = sortArray(exportAPIs(cls, 'events'));
-		annotatedClass.examples = exportExamples(cls);
-		annotatedClass.filename = exportClassFilename(cls.name);
-		annotatedClass.inherits = (assert(cls, 'extends')) ? {
-			name: cls.extends,
-			filename: exportClassFilename(cls.extends)
-		} : null;
-		annotatedClass.methods = sortArray(exportAPIs(cls, 'methods'));
-		annotatedClass.parent = exportParent(cls);
-		annotatedClass.platforms = exportPlatforms(cls);
-		annotatedClass.properties = sortArray(exportAPIs(cls, 'properties'));
-		annotatedClass.proxies = sortArray(exportProxies(cls));
-		annotatedClass.typestr = cls.__subtype;
-		annotatedClass.userAgents = exportUserAgents(cls);
+		const cls = apis[className];
+		const annotatedClass = {
+			name: cls.name,
+			summary: exportSummary(cls),
+			description: exportDescription(cls),
+			deprecated: exportDeprecated(cls),
+			events: sortArray(exportAPIs(cls, 'events')),
+			examples: exportExamples(cls),
+			filename: exportClassFilename(cls.name),
+			inherits: (assert(cls, 'extends')) ? {
+				name: cls.extends,
+				filename: exportClassFilename(cls.extends)
+			} : null,
+			methods: sortArray(exportAPIs(cls, 'methods')),
+			parent: exportParent(cls),
+			platforms: exportPlatforms(cls),
+			properties: sortArray(exportAPIs(cls, 'properties')),
+			proxies: sortArray(exportProxies(cls)),
+			typestr: cls.__subtype,
+			userAgents: exportUserAgents(cls)
+		};
 
 		rv.proxy.push(annotatedClass);
 		rv.event = rv.event.concat(annotatedClass.events);
@@ -561,8 +555,6 @@ exports.exportData = function exportHTML (apis) {
 		if (~[ 'Global', 'Modules', 'Titanium' ].indexOf(cls.name)) {
 			rv['__' + cls.name] = [ annotatedClass ].concat(annotatedClass.proxies);
 		}
-
-		cls = annotatedClass = {};
 	}
 	return rv;
 };

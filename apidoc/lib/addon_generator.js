@@ -4,15 +4,15 @@
  *
  * Script to convert JSON data for add-on YAML files.
  */
+const common = require('./common.js');
+let doc = {};
 
-var common = require('./common.js'),
-	doc = {};
 /**
  * Scans description for special occurrences of the platform name.
  * @param {Object} api api object
  * @param {string} [className] class name (optional)
  */
-function scanDescription (api, className) {
+function scanDescription(api, className) {
 	const regex = new RegExp('[\\#+|\\*+|On] ' + common.PRETTY_PLATFORM[doc.__platform], 'gm'); // eslint-disable-line security/detect-non-literal-regexp
 	if (common.assertObjectKey(api, 'description')) {
 		const matches = api.description.match(regex);
@@ -30,7 +30,7 @@ function scanDescription (api, className) {
  * @param {Object} type type name
  * @return {object[]}
  */
-function exportAPIs (api, type) {
+function exportAPIs(api, type) {
 	const rv = [];
 	let annotatedMember = {};
 
@@ -72,7 +72,7 @@ function exportAPIs (api, type) {
  * @param {Object} apis api tree
  * @return {object}
  */
-exports.exportData = function exportJSON (apis) {
+exports.exportData = function exportJSON(apis) {
 	let annotatedClass = {};
 	const rv = { '__copyList': [] };
 	doc = apis;
