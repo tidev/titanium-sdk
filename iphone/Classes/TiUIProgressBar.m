@@ -65,12 +65,12 @@
 
 -(CGFloat)contentHeightForWidth:(CGFloat)width
 {
-	CGSize fontSize = [self sizeForFont:width];
-	CGSize progressSize = [progress sizeThatFits:fontSize];
+    CGSize fontSize = [self sizeForFont:width];
+    CGSize progressSize = [progress sizeThatFits:fontSize];
     if (messageLabel == nil) {
         return fontSize.height + progressSize.height;
     }
-	return fontSize.height + progressSize.height + 5;
+    return fontSize.height + progressSize.height + 5;
 }
 #endif
 
