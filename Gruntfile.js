@@ -3,7 +3,7 @@ module.exports = function (grunt) {
 	// Project configuration.
 	grunt.initConfig({
 		appcJs: {
-			src: [ 'Gruntfile.js', 'apidoc/**/*.js' ]
+			src: [ 'Gruntfile.js', 'apidoc/**/*.js', 'build/**/*.js' ]
 		},
 		clangFormat: {
 			src: [] // unused ATM
