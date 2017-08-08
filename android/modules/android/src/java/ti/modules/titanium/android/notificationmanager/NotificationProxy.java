@@ -381,6 +381,10 @@ public class NotificationProxy extends KrollProxy
 			String iconFullUrl = resolveUrl(null, iconUrl);
 			iconId = TiUIHelper.getResourceId(iconFullUrl);
 		}
+		if (pendingIntent == null) {
+			Log.e(TAG, "a pending intent for the action button must be provided");
+			return;
+		}
 		notificationBuilder.addAction(iconId, title, pendingIntent.getPendingIntent());
 	}
 

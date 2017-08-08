@@ -156,6 +156,8 @@ methods:
 
   - name: addAction
     summary: Add an action button to the notification
+    description: |
+        Up to three actions buttons can be added, additional buttons will be ignored.
     since: "6.2.0"
     parameters:
       - name: icon
@@ -164,7 +166,7 @@ methods:
 
       - name: title
         summary: Title of the action button 
-        type: Number
+        type: String
 
       - name: intent
         summary: Intent of the action button
