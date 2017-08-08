@@ -101,7 +101,7 @@ methods:
         On iOS, `scrollToTop` moves the top-left corner of the scrollable region into the 
         viewable area.
     platforms: [iphone, ipad, android]
-    since: "6.2.0"
+    since: "7.0.0"
         
 events:
   - name: scale
