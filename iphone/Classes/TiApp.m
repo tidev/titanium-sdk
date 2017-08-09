@@ -535,7 +535,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
 }
 
-<<<<<<< HEAD
 // iOS 9+
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
 {
@@ -543,22 +542,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
                                      andUserInfo:userInfo
                                     responseInfo:responseInfo
                                completionHandler:completionHandler];
-=======
-- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
-    RELEASE_TO_NIL(remoteNotification);
-    [self generateNotification:userInfo];
-    NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
-    event[@"data"] = remoteNotification;
-    if (identifier != nil) {
-        event[@"identifier"] = identifier;
-    }
-    NSString *category = remoteNotification[@"category"];
-    if (category != nil) {
-        event[@"category"] = category;
-    }
-    
-    [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
->>>>>>> eee214f357... [TIMOB-20272] Better fix - resolve all boot delays
 }
 
 // iOS < 9
@@ -1335,9 +1318,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
         event[@"category"] = category;
     }
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteNotificationAction object:event userInfo:nil];
-    [event autorelease];
-    completionHandler();
+    [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
 }
 
 - (void)application:(UIApplication *)application
