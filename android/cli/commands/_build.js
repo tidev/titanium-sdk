@@ -2416,7 +2416,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						// find all js files referenced in this html file
 						let htmlRelPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
 						htmlRelPath.pop(); // remove the filename
-						htmlRelPath = relPath.join('/');
+						htmlRelPath = htmlRelPath.join('/');
 						jsanalyze.analyzeHtmlFile(from, htmlRelPath).forEach(function (file) {
 							htmlJsFiles[file] = 1;
 						});
