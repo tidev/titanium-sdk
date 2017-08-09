@@ -2,14 +2,12 @@ var exec = require('child_process').exec,
 	path = require('path'),
 	async = require('async'),
 	fs = require('fs-extra'),
-	appc = require('node-appc'), // TODO Can we remove this dependency? Brings in a lot of transitive dependencies
-	request = require('request'), // TODO Can we remove this dependency? Brings in a lot of transitive dependencies
-	temp = require('temp'),
 	utils = require('./utils'),
 	copyFiles = utils.copyFiles,
 	copyAndModifyFile = utils.copyAndModifyFile,
 	copyAndModifyFiles = utils.copyAndModifyFiles,
 	globCopy = utils.globCopy,
+	downloadURL = utils.downloadURL,
 	ROOT_DIR = path.join(__dirname, '..'),
 	IOS_ROOT = path.join(ROOT_DIR, 'iphone'),
 	SUPPORT_DIR = path.join(ROOT_DIR, 'support'),
@@ -23,66 +21,6 @@ function gunzip(gzFile, destFile, next) {
 			return next(err);
 		}
 		next();
-	});
-}
-
-function downloadURL(url, callback) {
-	console.log('Downloading %s', url);
-
-	var tempName = temp.path({ suffix: '.gz' }),
-		tempDir = path.dirname(tempName);
-	fs.existsSync(tempDir) || fs.mkdirsSync(tempDir);
-
-	var tempStream = fs.createWriteStream(tempName),
-		req = request({ url: url });
-
-	req.pipe(tempStream);
-
-	req.on('error', function (err) {
-		fs.existsSync(tempName) && fs.unlinkSync(tempName);
-		console.log();
-		console.error('Failed to download: %s', err.toString());
-		callback(err);
-	});
-
-	req.on('response', function (req) {
-		if (req.statusCode >= 400) {
-			// something went wrong, abort
-			console.log();
-			console.error('Request failed with HTTP status code %s %s', req.statusCode, req.statusMessage);
-			return callback(err);
-		} else if (req.headers['content-length']) {
-			// we know how big the file is, display the progress bar
-			var total = parseInt(req.headers['content-length']),
-				bar = new appc.progress('  :paddedPercent [:bar] :etas', {
-				complete: '='.cyan,
-				incomplete: '.'.grey,
-				width: 40,
-				total: total
-			});
-
-			req.on('data', function (buffer) {
-				bar.tick(buffer.length);
-			});
-
-			tempStream.on('close', function () {
-				if (bar) {
-					bar.tick(total);
-					console.log('\n');
-				}
-				callback(null, tempName);
-			});
-		} else {
-			// we don't know how big the file is, display a spinner
-			var busy = new appc.busyindicator;
-			busy.start();
-
-			tempStream.on('close', function () {
-				busy && busy.stop();
-				console.log();
-				callback(null, tempName);
-			});
-		}
 	});
 }
 

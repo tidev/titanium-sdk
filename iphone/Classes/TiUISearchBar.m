@@ -54,6 +54,19 @@
 	return searchView;
 }	
 
+-(void)setSearchBar:(UISearchBar *)searchBar
+{
+    if (searchView)
+    {
+        [searchView removeFromSuperview];
+        [searchView setDelegate:nil];
+        RELEASE_TO_NIL(searchView);
+    }
+    searchView = searchBar;
+    [searchView setDelegate:self];
+    [self addSubview:searchView];
+}
+
 - (id)accessibilityElement
 {
 	return [self searchBar];
