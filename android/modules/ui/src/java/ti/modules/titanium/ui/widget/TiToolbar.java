@@ -96,8 +96,10 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	private void handleBackgroundColor(String color) {
 		toolbar.setBackgroundColor((TiColorHelper.parseColor(color)));
-		if (((Boolean) proxy.getProperty(TiC.PROPERTY_TRANSLUCENT))) {
-			toolbar.getBackground().setAlpha(BACKGROUND_TRANSLUCENT_VALUE);
+		if (proxy.hasProperty(TiC.PROPERTY_TRANSLUCENT)) {
+			if ((Boolean) proxy.getProperty(TiC.PROPERTY_TRANSLUCENT)) {
+				toolbar.getBackground().setAlpha(BACKGROUND_TRANSLUCENT_VALUE);
+			}
 		}
 	}
 

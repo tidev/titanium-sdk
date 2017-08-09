@@ -10,7 +10,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.TiToolbar;
 
-@Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
+@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 		TiC.PROPERTY_BAR_COLOR,
 		TiC.PROPERTY_EXTEND_BACKGROUND,
 		TiC.PROPERTY_ITEMS,
