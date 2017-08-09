@@ -151,9 +151,9 @@
                 }
             }
             if (font == nil) {
-                //NO valid family specified. Just check for characteristics. Semi bold is ignored here.
+                //NO valid family specified. Just check for characteristics.
                 if (self.isBoldWeight) {
-                    UIFont* theFont = [UIFont boldSystemFontOfSize:self.size];
+                    UIFont* theFont = [UIFont systemFontOfSize:self.size weight:UIFontWeightBold];
                     if (self.isItalicStyle) {
                         NSString* fontFamily = [theFont familyName];
                         NSArray* fontNames = [UIFont fontNamesForFamilyName:fontFamily];
@@ -180,14 +180,16 @@
                     }
                 } else if (self.isItalicStyle) {
                     font = [[UIFont italicSystemFontOfSize:self.size] retain];
+                } else if (self.isSemiboldWeight) {
+                    font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightSemibold] retain];
                 } else {
                     font = [[UIFont systemFontOfSize:self.size] retain];
                 }
             }
         }
-        
     }
-    //WORST-CASE-SCENARIO
+
+    // WORST-CASE-SCENARIO
     if (font == nil) {
         font = [[UIFont systemFontOfSize:self.size] retain];
     }
