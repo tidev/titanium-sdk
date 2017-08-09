@@ -416,28 +416,37 @@
     [super resignFocus];
 }
 
--(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
     if ([self viewAttached]) {
-        [navController willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+        [navController viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
     }
-    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
--(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    if ([self viewAttached]) {
-        [navController willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
--(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
-{
-    if ([self viewAttached]) {
-        [navController didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    }
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
+- (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+    if ([self viewAttached]) {
+        [navController systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+    }
+    [super systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+}
+
+- (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    if ([self viewAttached]) {
+        [navController willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+    }
+    [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+}
+
+- (void)preferredContentSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+    if ([self viewAttached]) {
+        [navController preferredContentSizeDidChangeForChildContentContainer:container];
+    }
+    [super preferredContentSizeDidChangeForChildContentContainer:container];
+}
 
 
 #pragma mark - TiViewProxy overrides
