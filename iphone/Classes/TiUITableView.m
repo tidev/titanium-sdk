@@ -1861,7 +1861,8 @@
     searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
     searchController.hidesNavigationBarDuringPresentation = NO;
     searchController.dimsBackgroundDuringPresentation = NO;
-    searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, searchController.searchBar.frame.size.width, 44.0);
+    searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
+    searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     searchController.searchBar.placeholder = [[searchField searchBar] placeholder];
     searchController.searchBar.text = [[searchField searchBar] text];
     [searchField setSearchBar:searchController.searchBar];
@@ -2747,7 +2748,7 @@ return result;	\
     if (viewWillDetach) {
         return;
     }
-    [searchField ensureSearchBarHeirarchy];
+    //[searchField ensureSearchBarHeirarchy];
     animateHide = YES;
     [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
     // Since we clear the searchbar, the search string and indexes can be cleared as well.
