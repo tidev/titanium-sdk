@@ -41,34 +41,36 @@
 
 @end
 
-@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrolling,TiProxyObserver> {
+@interface TiUITableView : TiUIView<UISearchResultsUpdating, UISearchControllerDelegate, UIScrollViewDelegate, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, TiScrolling, TiProxyObserver> {
 @private
-	UITableView *tableview;
-	BOOL moving;
-	BOOL editing;
-	BOOL searchHidden;
+    UITableView *tableview;
+    UITableView *_searchTableView;
+    BOOL moving;
+    BOOL editing;
+    BOOL searchHidden;
     BOOL hideOnSearch; // For backcompat, default 'true'
     BOOL animateHide;
-	BOOL editable;
-	BOOL moveable;
-	NSMutableArray * sectionIndex;
-	NSMutableDictionary * sectionIndexMap;
-	TiDimension rowHeight;
-	TiDimension minRowHeight;
-	TiDimension maxRowHeight;
-	TiUISearchBarProxy * searchField;
-	UIView * tableHeaderView;
-	UIView * tableHeaderPullView;
-	UIButton * searchScreenView;
-	NSString * filterAttribute;
-	NSString * searchString;
-	NSMutableArray * searchResultIndexes;
+    BOOL editable;
+    BOOL moveable;
+    NSMutableArray * sectionIndex;
+    NSMutableDictionary * sectionIndexMap;
+    TiDimension rowHeight;
+    TiDimension minRowHeight;
+    TiDimension maxRowHeight;
+    TiUISearchBarProxy * searchField;
+    UIView * tableHeaderView;
+    UIView * tableHeaderPullView;
+    UIButton * searchScreenView;
+    NSString * filterAttribute;
+    NSString * searchString;
+    NSMutableArray * searchResultIndexes;
     BOOL searchActivated;
-	BOOL filterAnchored;
-	BOOL filterCaseInsensitive;
-	BOOL allowsSelectionSet;
-	UITableViewController *tableController;
-	UISearchDisplayController *searchController;
+    BOOL filterAnchored;
+    BOOL filterCaseInsensitive;
+    BOOL allowsSelectionSet;
+    UISearchController *searchController;
+    UITableViewController *resultViewController;
+    BOOL _dimsBackgroundDuringPresentation;
     TiViewProxy* headerViewProxy;
     TiViewProxy* footerViewProxy;
     BOOL viewWillDetach;
