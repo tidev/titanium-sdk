@@ -14,25 +14,10 @@ anvil/driver/config.js
 ._*
 npm-debug.log
 
-node_modules/.bin
-node_modules/grunt-appc-js
-node_modules/grunt-clang-format
-node_modules/grunt-cli
-node_modules/grunt-contrib-clean
-node_modules/grunt-mocha-test
-node_modules/grunt
-node_modules/mocha
-node_modules/should
-node_modules/node-ios-device/build
-!node_modules/**/*~
-!node_modules/**/*.orig
+node_modules/
 
 anvil/driver/titanium_mobile
 anvil/hub/config.js
-support/mobileweb/dependencyAnalyzer/node_modules/*
-anvil/driver/node_modules/*
-apidoc/node_modules/*
-
 support/ti_mocha_script/testApp
 
 /titanium-mobile-mocha-suite

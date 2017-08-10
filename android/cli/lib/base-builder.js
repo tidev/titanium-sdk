@@ -54,6 +54,16 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 		}
 		fs.writeFileSync(dest, '<?xml version="1.0" encoding="UTF-8"?>\n' + srcDoc.toString());
 		return;
+	} else {
+		// Resource sets under a qualifier all need to be merged into a single values
+		// file so we adjust the destination path here if necessary
+		var valueResourcesPattern = /res\/(values(?:-[^/]+)?)\/.*/i;
+		var match = dest.match(valueResourcesPattern);
+		if (match !== null) {
+			var resourceQualifier = match[1];
+			dest = path.join(destDir, resourceQualifier + '.xml');
+			destExists = fs.existsSync(dest);
+		}
 	}
 
 	if (destExists) {

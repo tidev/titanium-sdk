@@ -1370,6 +1370,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
     [event setObject:NOTNIL([notification category]) forKey:@"category"];
     [event setObject:NOTNIL(identifier) forKey:@"identifier"];
+    [event setObject:NUMBOOL([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) forKey:@"inBackground"];
     
     return event;
 }

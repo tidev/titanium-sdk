@@ -553,16 +553,16 @@
 	id repeat = [args objectForKey:@"repeat"];
 	if (repeat!=nil) {
 		if ([repeat isEqual:@"weekly"]) {
-			localNotif.repeatInterval = NSWeekCalendarUnit;
+			localNotif.repeatInterval = NSCalendarUnitWeekOfYear;
 		}
 		else if ([repeat isEqual:@"daily"]) {
-			localNotif.repeatInterval = NSDayCalendarUnit;
+			localNotif.repeatInterval = NSCalendarUnitDay;
 		}
 		else if ([repeat isEqual:@"yearly"]) {
-			localNotif.repeatInterval = NSYearCalendarUnit;
+			localNotif.repeatInterval = NSCalendarUnitYear;
 		}
 		else if ([repeat isEqual:@"monthly"]) {
-			localNotif.repeatInterval = NSMonthCalendarUnit;
+			localNotif.repeatInterval = NSCalendarUnitMonth;
 		}
 	}
 	

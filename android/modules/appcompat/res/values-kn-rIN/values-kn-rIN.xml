@@ -13,11 +13,12 @@
     <string msgid="7723749260725869598" name="abc_search_hint">"ಹುಡುಕಿ…"</string>
     <string msgid="3691816814315814921" name="abc_searchview_description_clear">"ಪ್ರಶ್ನೆಯನ್ನು ತೆರವುಗೊಳಿಸು"</string>
     <string msgid="2550479030709304392" name="abc_searchview_description_query">"ಪ್ರಶ್ನೆಯನ್ನು ಹುಡುಕಿ"</string>
-    <string msgid="8264924765203268293" name="abc_searchview_description_search">"ಹುಡುಕು"</string>
+    <string msgid="8264924765203268293" name="abc_searchview_description_search">"ಹುಡುಕಿ"</string>
     <string msgid="8928215447528550784" name="abc_searchview_description_submit">"ಪ್ರಶ್ನೆಯನ್ನು ಸಲ್ಲಿಸು"</string>
     <string msgid="893419373245838918" name="abc_searchview_description_voice">"ಧ್ವನಿ ಹುಡುಕಾಟ"</string>
     <string msgid="3421042268587513524" name="abc_shareactionprovider_share_with">"ಇವರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಿ"</string>
     <string msgid="7165123711973476752" name="abc_shareactionprovider_share_with_application">"%s ಜೊತೆಗೆ ಹಂಚಿಕೊಳ್ಳಿ"</string>
     <string msgid="1603543279005712093" name="abc_toolbar_collapse_description">"ಸಂಕುಚಿಸು"</string>
+    <string msgid="146198913615257606" name="search_menu_title">"ಹುಡುಕಿ"</string>
     <string msgid="2869576371154716097" name="status_bar_notification_info_overflow">"999+"</string>
 </resources>

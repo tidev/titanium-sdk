@@ -18,7 +18,6 @@
 
 - (void) dealloc
 {
-    RELEASE_TO_NIL(actionSheet);
     RELEASE_TO_NIL(dialogView);
     RELEASE_TO_NIL(tintColor);
     RELEASE_TO_NIL_AUTORELEASE(alertController);
@@ -147,7 +146,7 @@
     if (!showDialog) {
         return;
     }
-	if (actionSheet == nil && alertController == nil){
+	if (alertController == nil) {
 		return;
 	}
 
@@ -158,14 +157,7 @@
 	BOOL animatedhide = [TiUtils boolValue:@"animated" properties:options def:YES];
 
     TiThreadPerformOnMainThread(^{
-        if (actionSheet != nil) {
-            if ([actionSheet isVisible]) {
-                [actionSheet dismissWithClickedButtonIndex:[actionSheet cancelButtonIndex] animated:animatedhide];
-            }
-            else if(showDialog) {
-                [self completeWithButton:[actionSheet cancelButtonIndex]];
-            }
-        } else if (alertController != nil) {
+        if (alertController != nil) {
             [alertController dismissViewControllerAnimated:animated completion:^{
                 [self cleanup];
             }];
@@ -251,32 +243,6 @@
     [self cleanup];
 }
 
-#pragma mark AlertView Delegate
-
-- (void)willPresentActionSheet:(UIActionSheet *)actionSheet_
-{
-    //TIMOB-15939. Workaround rendering issue on iPAD on iOS7
-    if (actionSheet_ == actionSheet && forceOpaqueBackground && [TiUtils isIPad]) {
-        NSArray* subviews = [actionSheet subviews];
-        
-        for (UIView* subview in subviews) {
-            [subview setBackgroundColor:[UIColor whiteColor]];
-        }
-        [actionSheet setBackgroundColor:[UIColor whiteColor]];
-    }
-}
-
-- (void)actionSheet:(UIActionSheet *)actionSheet_ didDismissWithButtonIndex:(NSInteger)buttonIndex;
-{
-	if (buttonIndex == -2)
-	{
-		return;
-		//A -2 is used by us to indicate that this was programatically dismissed to properly
-		//place the option dialog during a roation.
-	}
-	[self completeWithButton:buttonIndex];
-}
-
 #pragma mark Internal Use Only
 -(void) fireClickEventWithAction:(UIAlertAction*)theAction
 {
@@ -311,105 +277,6 @@
         [self release];
     }
 }
-
--(void)completeWithButton:(NSInteger)buttonIndex
-{
-    if (showDialog) {
-        showDialog = NO;
-        if ([self _hasListeners:@"click"])
-        {
-            NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                   NUMINTEGER(buttonIndex),@"index",
-                                   NUMINTEGER([actionSheet cancelButtonIndex]),@"cancel",
-                                   NUMINTEGER([actionSheet destructiveButtonIndex]),@"destructive",
-                                   nil];
-            [self fireEvent:@"click" withObject:event];
-        }
-        [[NSNotificationCenter defaultCenter] removeObserver:self];
-        [self forgetSelf];
-        [self release];
-    }
-}
-
-
--(void)deviceRotationBegan:(NSNotification *)notification
-{
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateOptionDialogNow) object:nil];
-    NSTimeInterval delay = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
-    UIInterfaceOrientation nextOrientation = [[notification.userInfo objectForKey:UIApplicationStatusBarOrientationUserInfoKey] intValue];
-    UIInterfaceOrientation currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
-    if (UIInterfaceOrientationIsPortrait(currentOrientation) == UIInterfaceOrientationIsPortrait(nextOrientation)) {
-        ++accumulatedOrientationChanges; // double for a 180 degree orientation change
-    }
-    if (++accumulatedOrientationChanges > 1) {
-        delay *= MIN(accumulatedOrientationChanges, 4);
-    }
-	[actionSheet dismissWithClickedButtonIndex:-2 animated:animated];
-	[self performSelector:@selector(updateOptionDialogNow) withObject:nil afterDelay:delay];
-}
-
--(void)updateOptionDialogNow;
-{
-	if (!showDialog) {
-		return;
-	}
-    accumulatedOrientationChanges = 0;
-	UIView *view = nil;
-	if (dialogView==nil)
-	{
-		view = [[[[TiApp app] window] subviews] lastObject];
-	}
-	else 
-	{
-		//TODO: need to deal with button in a Toolbar which will have a nil view
-		
-		if ([dialogView supportsNavBarPositioning] && [dialogView isUsingBarButtonItem])
-		{
-			UIBarButtonItem *button = [dialogView barButtonItem];
-			[actionSheet showFromBarButtonItem:button animated:animated];
-			return;
-		}
-		
-		if ([dialogView conformsToProtocol:@protocol(TiToolbar)])
-		{
-			UIToolbar *toolbar = [(id<TiToolbar>)dialogView toolbar];
-			[actionSheet showFromToolbar:toolbar];
-			return;
-		}
-		
-		if ([dialogView conformsToProtocol:@protocol(TiTab)])
-		{
-			id<TiTab> tab = (id<TiTab>)dialogView;
-			UITabBar *tabbar = [[tab tabGroup] tabbar];
-			[actionSheet showFromTabBar:tabbar];
-			return;
-		}
-		
-		view = [dialogView view];
-		CGRect rect;
-		if (CGRectIsEmpty(dialogRect))
-		{
-			if(view == nil)
-			{
-				rect = CGRectZero;
-			}
-			else
-			{
-				rect = [view bounds];
-			}
-
-		}
-		else
-		{
-			rect = dialogRect;
-		}
-
-		[actionSheet showFromRect:rect inView:view animated:animated];
-		return;
-	}
-	[actionSheet showInView:view];
-}
-
 
 @end
 
