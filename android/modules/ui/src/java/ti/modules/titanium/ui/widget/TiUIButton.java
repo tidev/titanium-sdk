@@ -8,6 +8,8 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.HashMap;
 
+import android.text.TextUtils;
+import android.view.ViewTreeObserver;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -82,6 +84,17 @@ public class TiUIButton extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			btn.setText(d.getString(TiC.PROPERTY_TITLE));
+			ViewTreeObserver vto = btn.getViewTreeObserver();
+			vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+				@Override
+				public void onGlobalLayout() {
+					if(btn.getLineCount()>1 && btn.getMeasuredHeight() > btn.getLineHeight()){
+						btn.setEllipsize(TextUtils.TruncateAt.END);
+						btn.setMaxLines(1);
+					}
+				}
+			});
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
@@ -142,6 +155,17 @@ public class TiUIButton extends TiUIView
 		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
+			ViewTreeObserver vto = btn.getViewTreeObserver();
+			vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+				@Override
+				public void onGlobalLayout() {
+					if(btn.getLineCount()>1 && btn.getMeasuredHeight() > btn.getLineHeight()){
+						btn.setEllipsize(TextUtils.TruncateAt.END);
+						btn.setMaxLines(1);
+					}
+				}
+			});
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			btn.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
@@ -180,7 +204,7 @@ public class TiUIButton extends TiUIView
 			if (newValue == null){
 				btn.getBackground().clearColorFilter();
 			} else {
-				btn.getBackground().setColorFilter( TiConvert.toColor(TiConvert.toString(newValue)), Mode.MULTIPLY);						
+				btn.getBackground().setColorFilter( TiConvert.toColor(TiConvert.toString(newValue)), Mode.MULTIPLY);
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
