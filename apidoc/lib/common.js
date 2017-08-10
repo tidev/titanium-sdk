@@ -73,8 +73,8 @@ exports.LOG_ERROR = LOG_ERROR;
  * @param {number} level log level
  * @param {string} message log message
  */
-exports.log = function log (level, message) {
-	var args = [];
+exports.log = function log(level, message) {
+	const args = [];
 
 	if (level < logLevel) {
 		return;
@@ -114,7 +114,7 @@ exports.log = function log (level, message) {
  * Sets the log level for output
  * @param {number} level target log level for filtering
  */
-exports.setLogLevel = function setLogLevel (level) {
+exports.setLogLevel = function setLogLevel(level) {
 	logLevel = level;
 };
 
@@ -142,7 +142,7 @@ exports.assertObjectKey = function assertObjectKey(obj, key) {
  * Error message
  * @return {string} error message
  */
-function errorMessage () {
+function errorMessage() {
 	return 'ERROR: Missing name for doc in file';
 }
 
@@ -153,14 +153,14 @@ function errorMessage () {
  */
 exports.parseYAML = function parseYAML(path) {
 	const rv = {
-		data : {},
-		errors : []
+		data: {},
+		errors: []
 	};
 	let currentFile = path;
 	try {
 		const fsArray = fs.readdirSync(path);
 		fsArray.forEach(function (fsElement) {
-			var elem = path + '/' + fsElement,
+			const elem = path + '/' + fsElement,
 				stat = fs.statSync(elem);
 			currentFile = elem;
 
@@ -197,11 +197,11 @@ exports.parseYAML = function parseYAML(path) {
 				}
 			}
 		});
-		return rv;
 	} catch (e) {
 		e.__file = currentFile;
 		rv.errors.push(e);
 	}
+	return rv;
 };
 
 /**
