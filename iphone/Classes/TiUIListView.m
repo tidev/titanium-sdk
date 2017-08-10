@@ -103,6 +103,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 {
     _tableView.delegate = nil;
     _tableView.dataSource = nil;
+    
+    _searchTableView.delegate = nil;
+    _searchTableView.dataSource = nil;
+    RELEASE_TO_NIL(_searchTableView)
 
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
@@ -127,6 +131,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     RELEASE_TO_NIL(_footerViewProxy);
     RELEASE_TO_NIL(searchViewProxy);
     RELEASE_TO_NIL(searchController);
+    RELEASE_TO_NIL(resultViewController);
     RELEASE_TO_NIL(sectionTitles);
     RELEASE_TO_NIL(sectionIndices);
     RELEASE_TO_NIL(filteredTitles);
@@ -916,6 +921,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     [searchViewProxy setDelegate:nil];
     RELEASE_TO_NIL(searchViewProxy);
     RELEASE_TO_NIL(searchController);
+    RELEASE_TO_NIL(resultViewController);
+
     [_searchWrapper removeAllChildren:nil];
 
     if (args != nil) {
@@ -2122,14 +2129,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
     [searchViewProxy ensureSearchBarHeirarchy];
     [_tableView reloadData];
-}
-
-- (void)didPresentSearchController:(UISearchController *)searchController
-{
-}
-
-- (void)willPresentSearchController:(UISearchController *)searchController
-{
 }
 
 - (void)presentSearchController:(UISearchController *)controller
