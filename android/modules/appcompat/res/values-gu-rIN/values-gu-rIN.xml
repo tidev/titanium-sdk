@@ -7,7 +7,7 @@
     <string msgid="3588849162933574182" name="abc_action_menu_overflow_description">"વધુ વિકલ્પો"</string>
     <string msgid="4076576682505996667" name="abc_action_mode_done">"થઈ ગયું"</string>
     <string msgid="7468859129482906941" name="abc_activity_chooser_view_see_all">"બધું જુઓ"</string>
-    <string msgid="2031811694353399454" name="abc_activitychooserview_choose_application">"એક એપ્લિકેશન પસંદ કરો"</string>
+    <string msgid="2031811694353399454" name="abc_activitychooserview_choose_application">"એક ઍપ્લિકેશન પસંદ કરો"</string>
     <string msgid="121134116657445385" name="abc_capital_off">"બંધ"</string>
     <string msgid="3405795526292276155" name="abc_capital_on">"ચાલુ"</string>
     <string msgid="7723749260725869598" name="abc_search_hint">"શોધો…"</string>
@@ -19,5 +19,6 @@
     <string msgid="3421042268587513524" name="abc_shareactionprovider_share_with">"આની સાથે શેર કરો"</string>
     <string msgid="7165123711973476752" name="abc_shareactionprovider_share_with_application">"%s સાથે શેર કરો"</string>
     <string msgid="1603543279005712093" name="abc_toolbar_collapse_description">"સંકુચિત કરો"</string>
+    <string msgid="146198913615257606" name="search_menu_title">"શોધો"</string>
     <string msgid="2869576371154716097" name="status_bar_notification_info_overflow">"999+"</string>
 </resources>

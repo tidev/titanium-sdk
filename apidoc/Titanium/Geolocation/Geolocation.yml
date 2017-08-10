@@ -1116,16 +1116,17 @@ properties:
   - name: accuracy
     summary: Accuracy of the compass heading, in platform-specific units.
     description: |
-        On iOS, accuracy is returned as a maximum deviation in degrees. For example, 
-        a value of 10 means the heading is plus or minus degrees from the actual value.
-        A negative value indicates the compass heading is invalid; for example,
-        if there is magnetic interference, or if the compass is not calibrated.
-
-        On Mobile Web, compass is currently supported only on iOS, and returns the same
-        value as iOS native.
-
-        On Android, the value is set to either 1 (low accuracy), 2 (medium accuracy) or 3
-        (high accuracy). No specific definition of these accuracy values is supplied.
+        On iOS, accuracy is returned as a maximum deviation in degrees, 
+        the smaller the value, the more accurate the heading is. For example, 
+        a value of 10 means the heading is plus or minus 10 degrees from the 
+        actual value. A negative value indicates the compass heading is invalid; 
+        for example, if there is magnetic interference, or if the compass is not calibrated.
+        
+        On Mobile Web, compass is currently supported only on iOS, and returns 
+        the same value as iOS native.
+        
+        On Android, the value is set to either 1 (low accuracy), 2 (medium accuracy) 
+        or 3 (high accuracy). No specific definition of these accuracy values is supplied.
     type: Number
 
   - name: magneticHeading
@@ -1302,4 +1303,3 @@ properties:
 name: LocationAuthorizationResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse
-
