@@ -746,7 +746,7 @@ if (argc > 2) {
 			case '-q':
 				common.setLogLevel(common.LOG_WARN);
 				break;
-			default :
+			default:
 				if (x === argc - 1) {
 					basePath = process.argv[process.argv.length - 1];
 				} else {

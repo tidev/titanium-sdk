@@ -13,9 +13,10 @@ module.exports = function (grunt) {
 	grunt.registerTask('validate_docs', 'Validates the docs.', function () {
 		const done = this.async();
 		const fork = require('child_process').fork, // eslint-disable-line security/detect-child-process
-			path = require('path');
+			path = require('path'),
+			apidoc = path.join(__dirname, 'apidoc');
 
-		const validate = fork(path.join(__dirname, 'apidoc', 'validate'), [], { silent: true });
+		const validate = fork(path.join(apidoc, 'validate'), [], { cwd: apidoc, silent: true });
 		let output = '';
 		validate.stdout.on('data', function (data) {
 			output += data;
