@@ -1056,7 +1056,18 @@ properties:
     type: Dictionary
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad] 
+
+  - name: dimBackgroundForSearch
+    summary: A Boolean indicating whether the underlying content is dimmed during a search.
+    description: |
+          If you do not want to show the dimmed background when clicking on the search bar, 
+          set this property `false` during creation. 
+    type: Boolean
+    default: true 
+    since: 6.2.0
     platforms: [iphone, ipad]
+    availability: creation
 
   - name: resultsBackgroundColor
     summary: The background color of the search results (iOS-only).
@@ -1083,7 +1094,7 @@ properties:
     since: 6.1.0
     platforms: [iphone, ipad]
     availability: creation
-
+    
   - name: resultsSeparatorStyle
     summary: The separator style of the search results (iOS-only).
     type: Number
@@ -1104,7 +1115,7 @@ properties:
     since: 6.1.0
     platforms: [iphone, ipad]
     availability: creation
-    
+ 
 methods:
   - name: scrollToItem
     summary: Scrolls to a specific item.
