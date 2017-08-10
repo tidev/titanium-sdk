@@ -288,7 +288,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     if (![searchController isActive]) {
-        [searchViewProxy ensureSearchBarHeirarchy];
+        [searchViewProxy ensureSearchBarHierarchy];
 #ifndef TI_USE_AUTOLAYOUT
         if (_searchWrapper != nil) {
             CGFloat rowWidth = [self computeRowWidth:_tableView];
@@ -623,10 +623,10 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 -(void)setDimBackgroundForSearch_:(id)arg
 {
     ENSURE_SINGLE_ARG_OR_NIL(arg,NSNumber);
+
     if (searchController) {
         searchController.dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
-    }
-    else {
+    } else {
         _dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
     }
 }
@@ -840,7 +840,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         keepSectionsInSearch = [TiUtils boolValue:args def:NO];
         if (searchActive) {
             [self buildResultsForSearchText];
-            [resultViewController.tableView reloadData];
+            [[resultViewController tableView] reloadData];
         }
         else {
             [_tableView reloadData];
@@ -937,7 +937,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         [self initSearchController:self];
         if (self.searchString) {
             [self buildResultsForSearchText];
-            [resultViewController.tableView reloadData];
+            [[resultViewController tableView] reloadData];
         }
         keepSectionsInSearch = NO;
     } else {
@@ -1432,9 +1432,8 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     NSUInteger sectionCount = 0;
-    bool active = searchController.active;
     
-    //TIMOB-15526
+    // TIMOB-15526
     if ([searchController isActive] && tableView.backgroundColor == [UIColor clearColor]) {
         tableView.backgroundColor = [UIColor whiteColor];
     }
@@ -1455,7 +1454,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         }
         NSArray* theSection = [_searchResults objectAtIndex:section];
         return [theSection count];
-        
     } else {
         TiUIListSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
         if (theSection != nil) {
@@ -2068,7 +2066,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
     [self buildResultsForSearchText];
     if (searchController.isActive) {
-        [resultViewController.tableView reloadData];
+        [[resultViewController tableView] reloadData];
     }
     else {
         [_tableView reloadData];
@@ -2127,7 +2125,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     }
     _searchTableView.tableHeaderView = nil;
 
-    [searchViewProxy ensureSearchBarHeirarchy];
+    [searchViewProxy ensureSearchBarHierarchy];
     [_tableView reloadData];
 }
 
