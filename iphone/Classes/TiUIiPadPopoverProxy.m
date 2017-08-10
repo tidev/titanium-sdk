@@ -292,11 +292,13 @@ static NSArray* popoverSequence;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     [contentViewProxy windowDidClose];
     
-    UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
-    if ([topWindowView isKindOfClass:[TiUIView class]]) {
-        TiViewProxy *theProxy = (TiViewProxy *)[(TiUIView *)topWindowView proxy];
-        if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-            [(id<TiWindowProtocol>)theProxy gainFocus];
+    if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
+        UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
+        if ([topWindowView isKindOfClass:[TiUIView class]]) {
+            TiViewProxy *theProxy = (TiViewProxy *)[(TiUIView *)topWindowView proxy];
+            if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+                [(id<TiWindowProtocol>)theProxy gainFocus];
+            }
         }
     }
     

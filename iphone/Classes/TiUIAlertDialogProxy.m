@@ -69,14 +69,14 @@ static BOOL alertShowing = NO;
 
 -(void)show:(id)args
 {
-	if (alertCondition==nil) {
+    if (alertCondition==nil) {
         alertCondition = [[NSCondition alloc] init];
     }
-
+    
     // prevent more than one JS thread from showing an alert box at a time
     if ([NSThread isMainThread]==NO) {
         [self rememberSelf];
-		
+        
         [alertCondition lock];
         if (alertShowing) {
             [alertCondition wait];
@@ -114,22 +114,22 @@ static BOOL alertShowing = NO;
         if (destructiveIndex >= [buttonNames count]) {
             destructiveIndex = -1;
         }
-
+        
         if (preferredIndex >= [buttonNames count]) {
             preferredIndex = -1;
         }
-
+        
         style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
-
+        
         RELEASE_TO_NIL(alertController);
         [[[TiApp app] controller] incrementActiveAlertControllerCount];
         
         alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
                                                                message:[TiUtils stringValue:[self valueForKey:@"message"]]
                                                         preferredStyle:UIAlertControllerStyleAlert] retain];
-        int curIndex = 0;      
+        int curIndex = 0;
         id tintColor = [self valueForKey:@"tintColor"];
-            
+        
         if (tintColor != nil) {
             [[alertController view] setTintColor:[[TiUtils colorValue:tintColor] color]];
         }
@@ -190,10 +190,10 @@ static BOOL alertShowing = NO;
                 textField.secureTextEntry = YES;
             }];
         }
-      
+        
         [self retain];
         [[TiApp app] showModalController:alertController animated:YES];
-	}
+    }
 }
 
 -(void)suspended:(NSNotification*)note
