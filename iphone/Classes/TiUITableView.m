@@ -339,10 +339,7 @@
 		footerViewProxy = nil;
 	}
     
-	RELEASE_TO_NIL(tableController);
-    
-    searchController.searchResultsDataSource =  nil;
-    searchController.searchResultsDelegate = nil;
+    searchController.searchResultsUpdater =  nil;
     searchController.delegate = nil;
 	RELEASE_TO_NIL(searchController);
     
@@ -964,7 +961,7 @@
                              name:(NSString*)name
 {
 	NSIndexPath* index = indexPath;
-	if (viaSearch) {
+	if (viaSearch && searchResultIndexes) {
 		index = [self indexPathFromSearchIndex:[indexPath row]];
 	}
 	NSInteger sectionIdx = [index section];
@@ -1119,7 +1116,7 @@
         
         
         BOOL viaSearch = [searchController isActive];
-        UITableView* theTableView = viaSearch ? [searchController searchResultsTableView] : [self tableView];
+        UITableView *theTableView = [self tableView];
         CGPoint point = [recognizer locationInView:theTableView];
         CGPoint pointInView = [recognizer locationInView:self];
         NSIndexPath* indexPath = nil;
@@ -1176,7 +1173,7 @@
 -(void)recognizedTap:(UITapGestureRecognizer*)recognizer
 {
     BOOL viaSearch = [searchController isActive];
-    UITableView* theTableView = viaSearch ? [searchController searchResultsTableView] : [self tableView];
+    UITableView *theTableView = [self tableView];
     CGPoint point = [recognizer locationInView:theTableView];
     CGPoint pointInView = [recognizer locationInView:self];
     NSIndexPath* indexPath = nil;
@@ -1254,7 +1251,7 @@
         CGPoint point = [recognizer locationInView:ourTableView];
         NSIndexPath *indexPath = [ourTableView indexPathForRowAtPoint:point];
 
-        BOOL search = (ourTableView != tableview);
+        BOOL search = [searchController isActive];
         
         if (indexPath == nil) {
             //indexPath will also be nil if you click the header of the first section. TableView Bug??
@@ -1351,7 +1348,7 @@
 
 - (void)updateSearchResultIndexes
 {
-	if ([searchString length]==0) {
+	if ([searchString length] == 0) {
         RELEASE_TO_NIL(searchResultIndexes);
         
         //Need to reload the tableview, as some of the cells might be reused as part
@@ -1514,7 +1511,7 @@
     // * The animation only occurs once
     
     if ([searchController isActive]) {
-        [searchController setActive:NO animated:YES];
+        [searchController setActive:NO];
         searchActivated = NO;
         return;
     }
@@ -1611,26 +1608,6 @@
     searchActivated = YES;
     // Dont reload here since user started editing but not yet started typing.
     // Also if a previous search string exists this reload results in blank cells.
-}
-
-/*
- * This is no longer required since we do it from the 
- * searchDisplayControllerDidEndSearch method
- */
-/*
-- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
-{
-    if (searchActivated && ([searchBar.text length] == 0)) {
-        searchActivated = NO;
-        [tableview reloadData];
-    }
-}
-*/
-- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
-{
-	[self setSearchString:searchText];
-	// called when text changes (including clear)
-	[self updateSearchResultIndexes];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar                    
@@ -1734,7 +1711,6 @@
 {
     allowsSelectionSet = [TiUtils boolValue:arg];
     [[self tableView] setAllowsSelection:allowsSelectionSet];
-    [tableController setClearsSelectionOnViewWillAppear:!allowsSelectionSet];
 }
 
 -(void)setAllowsSelectionDuringEditing_:(id)arg
@@ -1851,7 +1827,6 @@
 		[searchField setDelegate:nil];
 	}
 	RELEASE_TO_NIL(searchField);
-	RELEASE_TO_NIL(tableController);
 	RELEASE_TO_NIL(searchController);
 	
 	if (search!=nil)
@@ -1862,16 +1837,11 @@
 		searchField = [search retain];
 		[searchField windowWillOpen];
 		[searchField setDelegate:self];
-		tableController = [[UITableViewController alloc] init];
-		[TiUtils configureController:tableController withObject:nil];
-		tableController.tableView = [self tableView];
-		[tableController setClearsSelectionOnViewWillAppear:!allowsSelectionSet];
-		searchController = [[UISearchDisplayController alloc] initWithSearchBar:[search searchBar] contentsController:tableController];
-		searchController.searchResultsDataSource = self;
-		searchController.searchResultsDelegate = self;
-		searchController.delegate = self;
-		
+        [self tableView];
+
 		[self updateSearchView];
+        
+        [self initSearhController];
 
 		if (searchHidden)
 		{
@@ -1886,6 +1856,19 @@
 	{
 		[self updateSearchView];
 	}
+}
+
+-(void)initSearhController
+{
+    searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
+    searchController.hidesNavigationBarDuringPresentation = NO;
+    searchController.dimsBackgroundDuringPresentation = NO;
+    searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, searchController.searchBar.frame.size.width, 44.0);
+    searchController.searchBar.placeholder = [[searchField searchBar] placeholder];
+    searchController.searchBar.text = [[searchField searchBar] text];
+    [searchField setSearchBar:searchController.searchBar];
+    searchController.delegate = self;
+    searchController.searchResultsUpdater = self;
 }
 
 -(void)setScrollIndicatorStyle_:(id)value
@@ -2093,7 +2076,7 @@
 
 
 #define RETURN_IF_SEARCH_TABLE_VIEW(result)	\
-if(ourTableView != tableview)	\
+if([searchController isActive])	\
 {	\
 	return result;	\
 }
@@ -2106,7 +2089,7 @@ return result;	\
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
-	if(table != tableview)
+	if([searchController isActive] && searchResultIndexes)
 	{
 		int rowCount = 0;
 		for (NSIndexSet * thisSet in searchResultIndexes) 
@@ -2126,7 +2109,7 @@ return result;	\
 - (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	NSIndexPath* index = indexPath;
-	if (ourTableView != tableview) {
+	if ([searchController isActive] && searchResultIndexes) {
 		index = [self indexPathFromSearchIndex:[indexPath row]];
 	}
 	
@@ -2155,7 +2138,7 @@ return result;	\
 	}
     [row initializeTableViewCell:cell];
     
-    if ([TiUtils isIOS8OrGreater] && (tableview == ourTableView)) {
+    if ([TiUtils isIOS8OrGreater] && ([searchController isActive])) {
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
     
@@ -2169,7 +2152,7 @@ return result;	\
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView
 {
     //TIMOB-15526
-    if (ourTableView != tableview && ourTableView.backgroundColor == [UIColor clearColor]) {
+    if ([searchController isActive] && ourTableView.backgroundColor == [UIColor clearColor]) {
         ourTableView.backgroundColor = [UIColor whiteColor];
     }
 
@@ -2406,7 +2389,7 @@ return result;	\
 	{
 		[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
 	}
-	if(ourTableView != tableview)
+	if([searchController isActive])
 	{
 		search = YES;
 	}
@@ -2417,7 +2400,7 @@ return result;	\
 -(void)tableView:(UITableView *)ourTableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	NSIndexPath* index = indexPath;
-	if (ourTableView != tableview) {
+	if ([searchController isActive] && searchResultIndexes) {
 		index = [self indexPathFromSearchIndex:[indexPath row]];
 	}
 	
@@ -2474,7 +2457,7 @@ return result;	\
 	{
 		[ourTableView deselectRowAtIndexPath:indexPath animated:YES];
 	}
-	if(ourTableView != tableview)
+	if([searchController isActive])
 	{
 		search = YES;
 	}
@@ -2532,7 +2515,7 @@ return result;	\
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	NSIndexPath* index = indexPath;
-	if (ourTableView != tableview) {
+	if ([searchController isActive] && searchResultIndexes) {
 		index = [self indexPathFromSearchIndex:[indexPath row]];
 	}
 	
@@ -2759,6 +2742,30 @@ return result;	\
 	}
 }
 
+#pragma mark - UISearchControllerDelegate
+
+- (void)didDismissSearchController:(UISearchController *)searchController
+{
+    if (viewWillDetach) {
+        return;
+    }
+    [searchField ensureSearchBarHeirarchy];
+    animateHide = YES;
+    [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
+    // Since we clear the searchbar, the search string and indexes can be cleared as well.
+    [self setSearchString:nil];
+    RELEASE_TO_NIL(searchResultIndexes);
+}
+
+#pragma mark - UISearchResultsUpdating
+
+- (void)updateSearchResultsForSearchController:(UISearchController *)controller
+{
+    self.searchString = [controller.searchBar text];
+    [self updateSearchResultIndexes];
+    [tableview reloadData];
+}
+/*
 #pragma mark Search Display Controller Delegates
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
@@ -2776,6 +2783,7 @@ return result;	\
     [self setSearchString:nil];
     RELEASE_TO_NIL(searchResultIndexes);
 }
+ */
 @end
 
 #endif
