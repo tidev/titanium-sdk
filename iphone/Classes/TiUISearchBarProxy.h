@@ -27,6 +27,8 @@
 
 #pragma mark - Titanium Internal Use
 -(void)ensureSearchBarHeirarchy;
+-(void)setSearchBar:(UISearchBar *)searchBar;
+
 @end
 
 #endif
