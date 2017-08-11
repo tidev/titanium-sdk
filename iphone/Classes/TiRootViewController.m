@@ -908,17 +908,17 @@
     BOOL trulyAnimated = animated;
     UIViewController* presenter = [theController presentingViewController];
     
-        if ([presenter isKindOfClass:[UIAlertController class]]) {
-            if (((UIAlertController*)presenter).preferredStyle == UIAlertControllerStyleAlert ) {
-                trulyAnimated = NO;
-            }
+    if ([presenter isKindOfClass:[UIAlertController class]]) {
+        if (((UIAlertController*)presenter).preferredStyle == UIAlertControllerStyleAlert ) {
+            trulyAnimated = NO;
         }
+    }
     [presenter dismissViewControllerAnimated:trulyAnimated completion:^{
         if (presenter == self) {
             [self didCloseWindow:nil];
         } else {
             [self dismissKeyboard];
-
+            
             if ([presenter respondsToSelector:@selector(proxy)]) {
                 id theProxy = [(id)presenter proxy];
                 if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {

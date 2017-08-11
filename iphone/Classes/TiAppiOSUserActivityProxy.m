@@ -66,10 +66,10 @@
             _isValid = YES;
             return YES;
         }
-    } else {
-        DebugLog(@"[ERROR] activityType property is required on creation");
-        return NO;
     }
+    
+    DebugLog(@"[ERROR] activityType property is required on creation");
+    return NO;
 }
 
 -(void) buildInitialActivity:(NSDictionary *)props

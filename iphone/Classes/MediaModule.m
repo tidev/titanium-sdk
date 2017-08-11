@@ -1506,7 +1506,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [thePresenter setPermittedArrowDirections:arrowDirection];
     [thePresenter setDelegate:self];
     [[TiApp app] showModalController:theController animated:animatedPicker];
-    return;
 }
 #endif
 
