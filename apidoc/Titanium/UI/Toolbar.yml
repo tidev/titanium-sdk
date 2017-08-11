@@ -18,12 +18,6 @@ description: |
     * On the iPhone and Android, a toolbar should be at the bottom of the window.
     * On the iPad, a toolbar should appear at the top or bottom of a window.
 
-    On iOS, you can specify that a border be drawn on the top or bottom of the toolbar, using the
-    [borderTop](Titanium.UI.Toolbar.borderTop) and
-    [borderBottom](Titanium.UI.Toolbar.borderBottom) properties. The standard
-    `borderColor`, `borderWidth`, and `borderRadius` properties are also supported but using 
-    them adds a border on all four sides of the control, which may be undesirable.
-
     Due to an iOS limitation, the buttons in the toolbar only support the `click` event.
     The native object underlying a toolbar button does not generate standard view events,
     such as `touchstart` and `touchend`.
@@ -61,19 +55,7 @@ properties:
     summary: An array of buttons (or other widgets) contained in the toolbar.
     type: Array<Titanium.UI.View>
     platforms: [iphone, ipad]
-    
-  - name: borderTop
-    summary: If `true`, a border is drawn on the top of the toolbar. This property is ignored on iOS 7 and above.
-    type: Boolean
-    default: true
-    platforms: [iphone, ipad]
-   
-  - name: borderBottom
-    summary: If `true`, a border is drawn on the bottom of the toolbar. This property is ignored on iOS 7 and above.
-    type: Boolean
-    default: true
-    platforms: [iphone, ipad]
-    
+
   - name: extendBackground
     summary: If `true`, the background of the toolbar extends upwards.
     description: |
@@ -124,9 +106,7 @@ examples:
             
             var toolbar = Ti.UI.createToolbar({
                 items: [send, flexSpace, camera, flexSpace, cancel],
-                bottom: 0,
-                borderTop: true,
-                borderBottom: false
+                bottom: 0
             });
             
             win.add(toolbar);
