@@ -451,6 +451,15 @@
     return controller;
 }
 
+- (UIViewController *)windowHoldingController
+{
+    if (controller != nil) {
+        return controller;
+    } else {
+        return [[TiApp app] controller];
+    }
+}
+
 #pragma mark - Private Methods
 -(TiProxy*)tabGroup
 {
