@@ -38,9 +38,7 @@ description: |
     iOS buttons have two special properties, `style` and `systemButton`.
 
     The `style` property specifies the type of button decoration, and can be set to one 
-    of the values described in <Titanium.UI.iOS.SystemButtonStyle>. On iOS 6 and earlier, the 
-    default `SystemButtonStyle` is [BORDERED](Titanium.UI.iOS.SystemButtonStyle.BORDERED), which
-    decorates the button with a rounded rectangle. On iOS 7, the rounded rectangle button has been deprecated.
+    of the values described in <Titanium.UI.iOS.SystemButtonStyle>.
 
     <div style="text-align: center; margin-bottom: 10px">
     <div style="display: table-cell; width: 240px">
