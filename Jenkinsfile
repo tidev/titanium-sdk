@@ -115,8 +115,29 @@ timestamps {
 			// Skip the Windows SDK portion if a PR, we don't need it
 			stage('Windows') {
 				if (!isPR) {
+					// This may be the very first build on this branch, so there's no windows build to grab yet
+					def isFirstBuildOnBranch = false
+					try {
+						sh 'curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/branches.json'
+						if (fileExists('branches.json')) {
+							def contents = readFile('branches.json')
+							if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+								def branchesJSON = jsonParse(contents)
+								isFirstBuildOnBranch = !(branchesJSON['branches'].contains(env.BRANCH_NAME))
+							}
+						}
+					} catch (err) {
+						// ignore? Not able to grab the branches.json, what should we assume? In 99.9% of the cases, it's not a new build
+					}
+
+					// If there's no windows build for this branch yet, use master
+					def windowsBranch = targetBranch
+					if (isFirstBuildOnBranch) {
+						windowsBranch = 'master'
+						manager.addWarningBadge("Looks like the first build on branch ${env.BRANCH_NAME}. Using 'master' branch build of Windows SDK to bootstrap.")
+					}
 					step([$class: 'CopyArtifact',
-						projectName: "../titanium_mobile_windows/${targetBranch}",
+						projectName: "../titanium_mobile_windows/${windowsBranch}",
 						selector: [$class: 'StatusBuildSelector', stable: false],
 						filter: 'dist/windows/'])
 					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
@@ -230,6 +251,7 @@ timestamps {
 							indexJson = jsonParse(contents)
 						}
 					}
+					// FIXME Add branch to branches.json file as well if the <branch>/index.json didn't exist!
 
 					// unarchive zips
 					unarchive mapping: ['dist/': '.']
