@@ -37,34 +37,35 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 
 	TiContextGroupRef contextGroup;
 	KrollBridge *kjsBridge;
-    
+
 #ifdef USE_TI_UIWEBVIEW
 	XHRBridge *xhrBridge;
 #endif
-	
+
 	NSMutableDictionary *launchOptions;
 	NSTimeInterval started;
-	
+
 	int32_t networkActivityCount;
-	
+
 	TiRootViewController *controller;
 	NSString *userAgent;
 	NSString *remoteDeviceUUID;
 	
 	id remoteNotificationDelegate;
-	NSDictionary* remoteNotification;
-	NSMutableDictionary* pendingCompletionHandlers;
-    NSMutableDictionary* pendingReplyHandlers;
-    NSMutableDictionary* backgroundTransferCompletionHandlers;
-    BOOL appBooted;
-    
+	NSDictionary *remoteNotification;
+	NSMutableDictionary *pendingCompletionHandlers;
+	NSMutableDictionary *pendingReplyHandlers;
+	NSMutableDictionary *backgroundTransferCompletionHandlers;
+	NSMutableDictionary *queuedBootEvents;
+	BOOL appBooted;
+
 	NSString *sessionId;
 
 	UIBackgroundTaskIdentifier bgTask;
 	NSMutableArray *backgroundServices;
 	NSMutableArray *runningServices;
 	NSDictionary *localNotification;
-    UIApplicationShortcutItem *launchedShortcutItem;
+	UIApplicationShortcutItem *launchedShortcutItem;
 }
 
 @property (nonatomic) BOOL forceSplashAsSnapshot;
