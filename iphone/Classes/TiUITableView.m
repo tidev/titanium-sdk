@@ -1907,7 +1907,7 @@
     if (searchController == nil) {
         resultViewController = [[UITableViewController alloc] init];
         resultViewController.tableView = [self searchTableView];
-        searchController = [[UISearchController alloc] initWithSearchResultsController:resultViewController];
+        searchController = [[[UISearchController alloc] initWithSearchResultsController:resultViewController] retain];
         searchController.hidesNavigationBarDuringPresentation = NO;
         searchController.dimsBackgroundDuringPresentation = _dimsBackgroundDuringPresentation;
         searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);

@@ -2324,7 +2324,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     if (sender == self && searchController == nil) {
         resultViewController = [[UITableViewController alloc]  init];
         resultViewController.tableView = [self searchTableView];
-        searchController = [[UISearchController alloc] initWithSearchResultsController:resultViewController];
+        searchController = [[[UISearchController alloc] initWithSearchResultsController:resultViewController] retain];
         searchController.delegate = self;
         searchController.searchResultsUpdater = self;
         searchController.hidesNavigationBarDuringPresentation = NO;
