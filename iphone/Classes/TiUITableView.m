@@ -2199,7 +2199,7 @@ return result;	\
 	}
     [row initializeTableViewCell:cell];
     
-    if (tableview == ourTableView) {
+    if ([searchController isActive]) {
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
     
