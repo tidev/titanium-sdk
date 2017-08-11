@@ -2324,6 +2324,48 @@ properties:
     type: Number
     permission: read-only
 
+  - name: IMPORTANCE_DEFAULT
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+
+  - name: IMPORTANCE_HIGH
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+
+  - name: IMPORTANCE_LOW
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+
+  - name: IMPORTANCE_MAX
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+
+  - name: IMPORTANCE_MIN
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+
+  - name: IMPORTANCE_NONE
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+
+  - name: IMPORTANCE_UNSPECIFIED
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+
   - name: currentActivity
     summary: Activity of the active context.
     type: Titanium.Android.Activity
