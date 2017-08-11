@@ -2315,6 +2315,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_REPEAT_MODE = "repeatMode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_REQUEST_HEADERS = "requestHeaders";
 
 	/**
