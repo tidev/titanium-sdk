@@ -49,9 +49,13 @@ var platformsRegExp = /^(android|ios|iphone|ipad|mobileweb|blackberry|windows|ti
 function iOSBuilder() {
 	Builder.apply(this, arguments);
 
+	// the minimum supported iOS SDK required when building
 	this.minSupportedIosSdk = parseInt(version.parseMin(this.packageJson.vendorDependencies['ios sdk']));
+
+	// the maximum supported iOS SDK required when building
 	this.maxSupportedIosSdk = parseInt(version.parseMax(this.packageJson.vendorDependencies['ios sdk']));
 
+	// object mapping the build-targets to their deploy-types
 	this.deployTypes = {
 		'simulator': 'development',
 		'device': 'test',
@@ -59,8 +63,11 @@ function iOSBuilder() {
 		'dist-adhoc': 'production'
 	};
 
+	// list of available build-targets
 	this.targets = ['simulator', 'device', 'dist-appstore', 'dist-adhoc'];
 
+	// object of device families to map the --device-family parameter to the 
+	// native TARGETED_DEVICE_FAMILY build-setting
 	this.deviceFamilies = {
 		iphone: '1',
 		ipad: '2',
@@ -68,8 +75,11 @@ function iOSBuilder() {
 		watch: '4'
 	};
 
+	// device-family set by the --device-family parameter
 	this.deviceFamily = null;
 
+	// blacklisted files and directories that throw an error when used and will 
+	// lead to a rejection when submitted 
 	this.blacklistDirectories = [
 		'contents',
 		'resources',
@@ -85,20 +95,26 @@ function iOSBuilder() {
 		'hyperloop'
 	];
 
+	// graylisted directories that throw a warning when used and may lead to a
+	// rejection when submitted 
 	this.graylistDirectories = [
 		'frameworks'
 	];
 
+	// templates-directory to render the ApplicationRouting.m into
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
 
+	// object of all used Titanium symbols, used to determine preprocessor statements, e.g. USE_TI_UIWINDOW
 	this.tiSymbols = {};
 
 	// when true, uses the JavaScriptCore that ships with iOS instead of the original Titanium version
-	this.useJSCore = false;
+	this.useJSCore = true;
+
 	// when false, JavaScript will run on its own thread - the Kroll Thread
-	this.runOnMainThread = false;
+	this.runOnMainThread = true;
 
 	this.useAutoLayout = false;
+
 	// populated the first time getDeviceInfo() is called
 	this.deviceInfoCache = null;
 
@@ -2269,18 +2285,29 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS
 	this.currentBuildManifest.showErrorController          = this.showErrorController
 
-	// This is default behavior for now. Move this to true in phase 2.
-	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
-	// TIMOB-17892
-	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
-	// Remove this check on 6.0.0
+	// Use native JSCore by default (TIMOB-23136)
+	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
+
+	// Remove this check on 7.0.0
 	if (this.tiapp.ios && (this.tiapp.ios.hasOwnProperty('run-on-main-thread'))) {
-		this.logger.info(__('run-on-main-thread no longer set in the <ios> section of the tiapp.xml. Use <property name="run-on-main-thread" type="bool">true</property> instead'));
+		this.logger.warn(__('run-on-main-thread no longer set in the <ios> section of the tiapp.xml. Use <property name="run-on-main-thread" type="bool">true</property> instead'));
 		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.ios['run-on-main-thread'] === true);
 	} else {
 		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('run-on-main-thread') && this.tiapp.properties['run-on-main-thread'].value || false);
 	}
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
+
+	// Deprecate TiJSCore and leave a warning if used anyway
+	if (!this.useJSCore) {
+		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy JavaScriptCore library in favor of the built-in JavaScriptCore.'));
+		this.logger.warn(__('The legacy JavaScriptCore library will be removed in Titanium SDK 8.0.0.'));
+	}
+
+	// Deprecate KrollThread and leave a warning if used anyway
+	if (!this.runOnMainThread) {
+		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy UI-execution on Kroll-Thread in favor of the Main-Thread.'));
+		this.logger.warn(__('The legacy execution will be removed in Titanium SDK 8.0.0.'));
+	}
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
@@ -3757,7 +3784,6 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	var defaultInfoPlistFile = path.join(this.platformPath, 'Info.plist'),
 		customInfoPlistFile = this.projectDir + '/Info.plist',
 		plist = this.infoPlist = new appc.plist(),
-		iphone = this.tiapp.iphone,
 		ios = this.tiapp.ios,
 		fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'] && this.tiapp.properties['ti.facebook.appid'].value,
 		iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'), // note: this is basically stripping the file extension
@@ -3907,64 +3933,22 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		plist.UIStatusBarStyle = 'UIStatusBarStyleBlackTranslucent';
 	}
 
-	if (iphone) {
-		if (iphone.orientations) {
-			var orientationsMap = {
-				'PORTRAIT':        'UIInterfaceOrientationPortrait',
-				'UPSIDE_PORTRAIT': 'UIInterfaceOrientationPortraitUpsideDown',
-				'LANDSCAPE_LEFT':  'UIInterfaceOrientationLandscapeLeft',
-				'LANDSCAPE_RIGHT': 'UIInterfaceOrientationLandscapeRight'
-			};
+	if (this.tiapp.iphone) {
+		this.logger.error(__('The <iphone> section of the tiapp.xml has been removed in Titanium SDK 7.0.0 and later.'));
+		this.logger.log(__('Please use the <ios> section of the tiapp.xml to specify iOS-specific values instead:'));
+		this.logger.log();
+		this.logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		this.logger.log('    <ios>'.grey);
+		this.logger.log('        <plist>'.grey);
+		this.logger.log('            <dict>'.grey);
+		this.logger.log('                <!-- Enter your Info.plist keys here -->'.magenta);
+		this.logger.log('            </dict>'.grey);
+		this.logger.log('        </plist>'.grey);
+		this.logger.log('    </ios>'.grey);
+		this.logger.log('</ti:app>'.grey);
+		this.logger.log();
 
-			Object.keys(iphone.orientations).forEach(function (key) {
-				var entry = 'UISupportedInterfaceOrientations' + (key === 'ipad' ? '~ipad' : '');
-
-				Array.isArray(plist[entry]) || (plist[entry] = []);
-				iphone.orientations[key].forEach(function (name) {
-					var value = orientationsMap[name.split('.').pop().toUpperCase()] || name;
-					// name should be in the format Ti.UI.PORTRAIT, so pop the last part and see if it's in the map
-					if (plist[entry].indexOf(value) === -1) {
-						plist[entry].push(value);
-					}
-				});
-			});
-		}
-
-		if (iphone.backgroundModes) {
-			plist.UIBackgroundModes = (plist.UIBackgroundModes || []).concat(iphone.backgroundModes);
-		}
-
-		if (iphone.requires) {
-			plist.UIRequiredDeviceCapabilities = (plist.UIRequiredDeviceCapabilities || []).concat(iphone.requiredFeatures);
-		}
-
-		if (iphone.types) {
-			Array.isArray(plist.CFBundleDocumentTypes) || (plist.CFBundleDocumentTypes = []);
-			iphone.types.forEach(function (type) {
-				var types = plist.CFBundleDocumentTypes,
-					match = false,
-					i = 0;
-
-				for (; i < types.length; i++) {
-					if (types[i].CFBundleTypeName === type.name) {
-						types[i].CFBundleTypeIconFiles = type.icon;
-						types[i].LSItemContentTypes = type.uti;
-						types[i].LSHandlerRank = type.owner ? 'Owner' : 'Alternate';
-						match = true;
-						break;
-					}
-				}
-
-				if (!match) {
-					types.push({
-						CFBundleTypeName: type.name,
-						CFBundleTypeIconFiles: type.icon,
-						LSItemContentTypes: type.uti,
-						LSHandlerRank: type.owner ? 'Owner' : 'Alternate'
-					});
-				}
-			});
-		}
+		process.exit(1);
 	}
 
 	// custom Info.plist from the tiapp.xml overrides everything
