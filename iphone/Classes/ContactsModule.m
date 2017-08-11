@@ -387,7 +387,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
     }
     picker = [[ABPeoplePickerNavigationController alloc] init];
     [picker setPeoplePickerDelegate:self];
-    
+
     if (selectedPropertyCallback == nil) {
         [picker setPredicateForSelectionOfProperty:[NSPredicate predicateWithValue:NO]];
     }
@@ -396,7 +396,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         [picker setPredicateForSelectionOfPerson:[NSPredicate predicateWithValue:NO]];
     }
     
-	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+    animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	
 	NSArray* fields = [args objectForKey:@"fields"];
 	ENSURE_TYPE_OR_NIL(fields, NSArray)

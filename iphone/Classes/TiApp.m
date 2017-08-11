@@ -332,24 +332,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         UIImage * defaultImage = [controller defaultImageForOrientation:
                                   (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
                                                    resultingOrientation:&imageOrientation idiom:&imageIdiom];
-        if([TiUtils isIPad] && ![TiUtils isIOS8OrGreater]) {
-            CGAffineTransform transform;
-            switch ([[UIApplication sharedApplication] statusBarOrientation]) {
-                case UIInterfaceOrientationPortraitUpsideDown:
-                    transform = CGAffineTransformMakeRotation(M_PI);
-                    break;
-                case UIInterfaceOrientationLandscapeLeft:
-                    transform = CGAffineTransformMakeRotation(-M_PI_2);
-                    break;
-                case UIInterfaceOrientationLandscapeRight:
-                    transform = CGAffineTransformMakeRotation(M_PI_2);
-                    break;
-                default:
-                    transform = CGAffineTransformIdentity;
-                    break;
-            }
-            [splashScreenImage setTransform:transform];
-        }
         [splashScreenImage setImage: defaultImage];
         [splashScreenImage setFrame:[[UIScreen mainScreen] bounds]];
     }
@@ -1387,14 +1369,12 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     [event setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
     [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
     [event setObject:NUMBOOL([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) forKey:@"inBackground"];
-	//include category for ios8
-	if ([TiUtils isIOS8OrGreater]) {
-		[event setObject:NOTNIL([notification category]) forKey:@"category"];
-		[event setObject:NOTNIL(identifier) forKey:@"identifier"];
-	}
-	
-	return event;
+
+    //include category for ios8
+    [event setObject:NOTNIL([notification category]) forKey:@"category"];
+    [event setObject:NOTNIL(identifier) forKey:@"identifier"];
     
+    return event;
 }
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification
 {
