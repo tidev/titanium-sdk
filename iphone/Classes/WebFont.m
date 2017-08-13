@@ -11,7 +11,7 @@
 
 @implementation WebFont
 
-@synthesize family, size, isBoldWeight, isNormalWeight, isItalicStyle, isNormalStyle, isSemiboldWeight, textStyle;
+@synthesize family, size, isBoldWeight, isNormalWeight, isThinWeight, isLightWeight, isUltraLightWeight, isItalicStyle, isNormalStyle, isSemiboldWeight, textStyle;
 
 -(void)dealloc
 {
@@ -180,6 +180,12 @@
                     }
                 } else if (self.isItalicStyle) {
                     font = [[UIFont italicSystemFontOfSize:self.size] retain];
+                } else if (self.isThinWeight) {
+                  font = [UIFont systemFontOfSize:self.size weight:UIFontWeightThin];
+                } else if (self.isLightWeight) {
+                  font = [UIFont systemFontOfSize:self.size weight:UIFontWeightLight];
+                } else if (self.isUltraLightWeight) {
+                  font = [UIFont systemFontOfSize:self.size weight:UIFontWeightUltraLight];
                 } else {
                     font = [[UIFont systemFontOfSize:self.size] retain];
                 }
@@ -255,21 +261,54 @@
 	NSString * fontWeightObject = [fontDict objectForKey:@"fontWeight"];
 	if([fontWeightObject isKindOfClass:[NSString class]]){
 		fontWeightObject = [fontWeightObject lowercaseString];
-		if([fontWeightObject isEqualToString:@"semibold"]) {
-            didChange |= !(self.isSemiboldWeight)||(self.isBoldWeight)||(self.isNormalWeight);
-            self.isSemiboldWeight = YES;
-            self.isBoldWeight = NO;
-            self.isNormalWeight = NO;
-        } else if([fontWeightObject isEqualToString:@"bold"]){
-            didChange |= !(self.isBoldWeight)||(self.isSemiboldWeight)||(self.isNormalWeight);
-            self.isBoldWeight = YES;
-            self.isSemiboldWeight = NO;
-            self.isNormalWeight = NO;
-		} else if([fontWeightObject isEqualToString:@"normal"]){
-			didChange |= (self.isBoldWeight)||(self.isSemiboldWeight)||!(self.isNormalWeight);
+		if ([fontWeightObject isEqualToString:@"semibold"]) {
+			didChange |= !(self.isSemiboldWeight)||(self.isBoldWeight)||(self.isNormalWeight)||(self.isThinWeight)||(self.isLightWeight)||(self.isUltraLightWeight);
+    	self.isSemiboldWeight = YES;
 			self.isBoldWeight = NO;
-            self.isSemiboldWeight = NO;
+			self.isNormalWeight = NO;
+			self.isThinWeight = NO;
+			self.isLightWeight = NO;
+			self.isUltraLightWeight = NO;
+		} else if ([fontWeightObject isEqualToString:@"bold"]) {
+			didChange |= !(self.isBoldWeight)||(self.isSemiboldWeight)||(self.isNormalWeight)||(self.isThinWeight)||(self.isLightWeight)||(self.isUltraLightWeight);
+			self.isBoldWeight = YES;
+			self.isSemiboldWeight = NO;
+			self.isNormalWeight = NO;
+			self.isThinWeight = NO;
+			self.isLightWeight = NO;
+			self.isUltraLightWeight = NO;
+		} else if ([fontWeightObject isEqualToString:@"thin"]) {
+			didChange |= !(self.isThinWeight)||(self.isBoldWeight)||(self.isSemiboldWeight)||(self.isNormalWeight)||(self.isLightWeight)||(self.isUltraLightWeight);
+			self.isThinWeight = YES;
+			self.isBoldWeight = NO;
+			self.isSemiboldWeight = NO;
+			self.isNormalWeight = NO;
+			self.isLightWeight = NO;
+			self.isUltraLightWeight = NO;
+		} else if ([fontWeightObject isEqualToString:@"light"]) {
+			didChange |= !(self.isLightWeight)||(self.isBoldWeight)||(self.isSemiboldWeight)||(self.isNormalWeight)||(self.isThinWeight)||(self.isUltraLightWeight);
+			self.isLightWeight = YES;
+			self.isBoldWeight = NO;
+			self.isSemiboldWeight = NO;
+			self.isNormalWeight = NO;
+			self.isThinWeight = NO;
+			self.isUltraLightWeight = NO;
+		} else if ([fontWeightObject isEqualToString:@"ultralight"]) {
+			didChange |= !(self.isUltraLightWeight)||(self.isBoldWeight)||(self.isSemiboldWeight)||(self.isNormalWeight)||(self.isLightWeight)||(self.isThinWeight);
+			self.isUltraLightWeight = YES;
+			self.isBoldWeight = NO;
+			self.isSemiboldWeight = NO;
+			self.isNormalWeight = NO;
+			self.isLightWeight = NO;
+			self.isThinWeight = NO;
+		} else if ([fontWeightObject isEqualToString:@"normal"]) {
+			didChange |= (self.isBoldWeight)||(self.isSemiboldWeight)||!(self.isNormalWeight)||(self.isThinWeight)||(self.isLightWeight)||(self.isUltraLightWeight);
+			self.isBoldWeight = NO;
+			self.isSemiboldWeight = NO;
 			self.isNormalWeight = YES;
+			self.isThinWeight = NO;
+			self.isLightWeight = NO;
+			self.isUltraLightWeight = NO;
 		}
 	} else if((inheritedFont != NULL) && (fontWeightObject == nil)) {
 		BOOL isBoldBool = inheritedFont.isBoldWeight;

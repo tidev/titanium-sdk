@@ -78,8 +78,13 @@ properties:
     type: [ Number, String ]
     default: 15px
   - name: fontWeight
-    summary: Font weight. Valid values are "bold" or "normal".
-    description: The "semibold" weight is recognized on iOS only.
+    summary: |
+        Font weight. Valid values are "bold", "semibold", "normal", "thin", 
+        "light" and "ultralight".
+    description: |
+        The "semibold", "thin", "light" and "ultralight" weights are recognized 
+        on iOS only. "thin", "light" and "ultralight" are only available on iOS 8.2
+        and later.
     type: String
     default: normal
   - name: fontStyle
