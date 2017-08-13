@@ -8,6 +8,7 @@
 #import "TiUIAttributedStringProxy.h"
 #import "TiProxy.h"
 #import "TiUtils.h"
+#import "TiUIParagraphStyleProxy.h"
 
 @implementation TiUIAttributedStringProxy
 
@@ -77,8 +78,9 @@
             break;
             
         case AttributeNameParagraphStyle:
+            ENSURE_SINGLE_ARG_OR_NIL(value, TiUIParagraphStyleProxy);
             attrName = NSParagraphStyleAttributeName;
-            errorMessage = @"ATTRIBUTE_PARAGRAPH_STYLE not yet supported";
+            attrValue = [value paragraphStyle];
             break;
             
         case AttributeNameForegroundColor:
@@ -178,6 +180,7 @@
             break;
             
         case AttributeNameLineBreak:
+            DEPRECATED_REPLACED(@"Titanium.UI.ATTRIBUTE_LINE_BREAK", @"6.2.0", @"Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE")
             attrName = NSParagraphStyleAttributeName;
             NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
             NSNumber * num = [TiUtils numberFromObject:value];

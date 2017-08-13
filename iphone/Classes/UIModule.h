@@ -45,6 +45,7 @@
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_CENTER;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_RIGHT;
 @property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_JUSTIFY;
+@property(nonatomic,readonly) NSNumber *TEXT_ALIGNMENT_NATURAL;
 
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP;
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP;
@@ -280,6 +281,19 @@
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
 
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_HYPHENATION_FACTOTR;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_LINE_SPACING;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_PARAGRAPH_SPACING;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_PARAGRAPH_SPACING_BEFORE;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_HEAD_INDENT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_TAIL_INDENT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_FIRST_LINE_HEAD_INDENT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_MINIUM_LINE_HEIGHT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_MAXIMUM_LINE_HEIGHT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_LINE_HEIGHT_MULTIPLE;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_LINE_BREAK_MODE;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_ALIGNMENT;
+@property (nonatomic,readonly) NSNumber* PARAGRAPH_ATTRIBUTE_BASE_WRITING_DIRECTION;
 
 #endif
 
