@@ -153,7 +153,7 @@
             if (font == nil) {
                 //NO valid family specified. Just check for characteristics. Semi bold is ignored here.
                 if (self.isBoldWeight) {
-                    UIFont* theFont = [UIFont boldSystemFontOfSize:self.size];
+                    UIFont* theFont = ([TiUtils isIOSVersionOrGreater:@"8.2"]) ? [UIFont systemFontOfSize:self.size weight:UIFontWeightBold] : [UIFont boldSystemFontOfSize:self.size];
                     if (self.isItalicStyle) {
                         NSString* fontFamily = [theFont familyName];
                         NSArray* fontNames = [UIFont fontNamesForFamilyName:fontFamily];
@@ -178,14 +178,20 @@
                     } else {
                         font = [theFont retain];
                     }
-                } else if (self.isItalicStyle) {
-                    font = [[UIFont italicSystemFontOfSize:self.size] retain];
-                } else if (self.isThinWeight) {
-                  font = [UIFont systemFontOfSize:self.size weight:UIFontWeightThin];
-                } else if (self.isLightWeight) {
-                  font = [UIFont systemFontOfSize:self.size weight:UIFontWeightLight];
-                } else if (self.isUltraLightWeight) {
-                  font = [UIFont systemFontOfSize:self.size weight:UIFontWeightUltraLight];
+                } else if ([TiUtils isIOSVersionOrGreater:@"8.2"]) {
+                    if (self.isSemiboldWeight) {
+                        font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightSemibold] retain];
+                    } else if (self.isItalicStyle) {
+                        font = [[UIFont italicSystemFontOfSize:self.size] retain];
+                    } else if (self.isThinWeight) {
+                        font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightThin] retain];
+                    } else if (self.isLightWeight) {
+                        font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightLight] retain];
+                    } else if (self.isUltraLightWeight) {
+                        font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightUltraLight] retain];
+                    } else {
+                        font = [[UIFont systemFontOfSize:self.size] retain];
+                    }
                 } else {
                     font = [[UIFont systemFontOfSize:self.size] retain];
                 }
@@ -193,7 +199,7 @@
         }
         
     }
-    //WORST-CASE-SCENARIO
+    // WORST-CASE-SCENARIO
     if (font == nil) {
         font = [[UIFont systemFontOfSize:self.size] retain];
     }
