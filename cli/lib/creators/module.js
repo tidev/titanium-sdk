@@ -3,7 +3,7 @@
  * Logic for creating new Titanium modules.
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -143,9 +143,11 @@ ModuleCreator.prototype.run = function run(callback) {
 						next();
 					} else {
 						this.logger.info(__('Template directory: %s', templateDir.cyan));
-						this.copyDir(dir, projectDir, next, variables);
+						this.cli.createHook('create.copyFiles', this, function (vars, done) {
+							this.copyDir(dir, projectDir, done, vars);
+						}.bind(this))(appc.util.mix({}, variables), next);
 					}
-				}
+				}.bind(this)
 			];
 
 		platforms.scrubbed.forEach(function (platform) {
@@ -156,7 +158,6 @@ ModuleCreator.prototype.run = function run(callback) {
 			if (usingBuiltinTemplate) {
 				this.cli.scanHooks(path.join(platformTemplateDir, 'hooks'));
 			}
-
 
 			tasks.push(function (next) {
 				this.cli.emit([
