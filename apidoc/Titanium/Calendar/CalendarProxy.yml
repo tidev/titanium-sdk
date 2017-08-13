@@ -7,6 +7,26 @@ since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
 methods:
+  - name: createCalendar
+    summary: Create a new calendar.
+    returns:
+        type: Titanium.Calendar.Calendar
+    parameters:
+      - name: properties
+        summary: Properties of the calendar
+        type: Dictionary<Titanium.Calendar.Calendar>
+    platforms: [android, iphone, ipad]
+
+  - name: deleteCalendarById
+    summary: Delete a calendar by its ID
+    returns:
+        type: Boolean
+    parameters: 
+      - name: id
+        summary: ID of the calendar
+        type: String
+    platforms: [android, iphone, ipad]
+
   - name: createEvent
     summary: Creates an event in this calendar.
     returns:

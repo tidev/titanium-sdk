@@ -17,6 +17,8 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.Manifest;
 import android.app.Activity;
@@ -26,6 +28,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.text.format.DateUtils;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.CalendarContract;
 
 @Kroll.proxy(parentModule=CalendarModule.class)
 public class CalendarProxy extends KrollProxy {
@@ -52,6 +60,10 @@ public class CalendarProxy extends KrollProxy {
 		}
 
 		return "content://calendar";
+	}
+
+	public static String getAccountName() {
+		return TiApplication.getInstance().getAppInfo().getId();
 	}
 
 	public static ArrayList<CalendarProxy> queryCalendars(String query, String[] queryArgs)
@@ -215,6 +227,53 @@ public class CalendarProxy extends KrollProxy {
 	public boolean getHidden()
 	{
 		return hidden;
+	}
+
+	@Kroll.method
+	public static String create(KrollDict data) 
+	{
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		if (!hasCalendarPermissions()) {
+			return null;
+		}
+
+		ContentValues calendarValues = new ContentValues();
+
+		calendarValues.put(CalendarContract.Calendars.ACCOUNT_NAME, CalendarProxy.getAccountName());
+		calendarValues.put(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
+
+		calendarValues.put(CalendarContract.Calendars.NAME, TiApplication.getInstance().getAppInfo().getName());
+		calendarValues.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, TiApplication.getInstance().getAppInfo().getName());
+		calendarValues.put(CalendarContract.Calendars.VISIBLE, 1);
+		calendarValues.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
+		calendarValues.put(CalendarContract.Calendars.SYNC_EVENTS, 1);
+
+		Uri.Builder builder = CalendarContract.Calendars.CONTENT_URI.buildUpon();
+		builder.appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, CalendarProxy.getAccountName());
+		builder.appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
+		builder.appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true");
+
+		Uri uri = contentResolver.insert(builder.build(), calendarValues);
+		String id = uri.getLastPathSegment();
+
+		return id;
+	}
+
+	@Kroll.method
+	public Boolean remove() 
+	{
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		if (!hasCalendarPermissions()) {
+			return false;
+		}
+
+		Uri.Builder builder = CalendarContract.Calendars.CONTENT_URI.buildUpon();
+		builder.appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, CalendarProxy.getAccountName());
+		builder.appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
+		builder.appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true");
+
+		int rows = contentResolver.delete(builder.build(), CalendarContract.Calendars._ID + "=?", new String[]{ this.id });
+		return (rows == 1);
 	}
 
 	@Override

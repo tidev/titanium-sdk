@@ -391,6 +391,61 @@ public class TiConvert
 	}
 
 	/**
+	 * If value is a Double, Integer, Long or String, converts it to Long. Otherwise
+	 * an exception is thrown.
+	 * @param value the value to convert.
+	 * @return a long value.
+	 * @module.api
+	 */
+	public static long toLong(Object value)
+	{
+		if (value instanceof Double) {
+			return ((Double) value).longValue();
+
+		} else if (value instanceof Integer) {
+			return ((Integer) value).longValue();
+
+		} else if (value instanceof Long) {
+			return ((Long) value);
+
+		} else if (value instanceof String) {
+			return Long.parseLong((String) value);
+
+		} else {
+			throw new NumberFormatException("Unable to convert " + (value == null ? "null" : value));
+		}
+	}
+
+	/**
+	 * If value is a Double, Integer, Long or String, converts it to Long. Otherwise
+	 * returns default value.
+	 * @param value the value to convert.
+	 * @param def the default value to return
+	 * @return a long value.
+	 * @module.api
+	 */
+	public static long toLong(Object value, long def)
+	{
+		try {
+			return toLong(value);
+		} catch (NumberFormatException e) {
+			return def;
+		}
+	}
+
+	/**
+	 * Takes a value out of a hash table then attempts to convert it using {@link #toLong(Object)}.
+	 * @param hashMap the hash map to search.
+	 * @param key the lookup key.
+	 * @return a long value.
+	 * @module.api
+	 */
+	public static long toLong(HashMap<String, Object> hashMap, String key)
+	{
+		return toLong(hashMap.get(key));
+	}
+
+	/**
 	 * If value is a Double, Integer, Long or String, converts it to Integer. Otherwise
 	 * an exception is thrown.
 	 * @param value the value to convert.

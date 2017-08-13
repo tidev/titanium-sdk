@@ -175,8 +175,12 @@
     NSDateComponents *comps = [[NSDateComponents alloc] init];
     NSTimeInterval secondsPerDay = 24 * 60 * 60;
 
+    int month = [TiUtils intValue:[arg objectAtIndex:1]];
+    // We should do +1 for parity with Android, but for retrocomp until 7.0.0 keep this
+    // month += 1;
+
     [comps setDay:[TiUtils intValue:[arg objectAtIndex:2]]];
-    [comps setMonth:[TiUtils intValue:[arg objectAtIndex:1]]];
+    [comps setMonth:month];
     [comps setYear:[TiUtils intValue:[arg objectAtIndex:0]]];
     [comps setHour:0];
     [comps setMinute:0];
@@ -198,12 +202,16 @@
 -(NSArray*)getEventsInMonth:(id)args
 {
     ENSURE_ARG_COUNT(args, 2);
+
+    // We do this for parity with Javascript and Android
+    int month = [TiUtils intValue:[args objectAtIndex:1]];
+    // We should do +1 for parity with Android, but for retrocomp until 7.0.0 keep this
+    // month += 1;
     
     NSDateComponents *comps = [[NSDateComponents alloc] init];
-        
     
     [comps setDay:1];
-    [comps setMonth:[TiUtils intValue:[args objectAtIndex:1]]];
+    [comps setMonth:month];
     [comps setYear:[TiUtils intValue:[args objectAtIndex:0]]];
     [comps setHour:0];
     [comps setMinute:0];

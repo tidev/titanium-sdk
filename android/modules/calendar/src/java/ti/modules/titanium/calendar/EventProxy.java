@@ -15,6 +15,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.ContentResolver;
@@ -25,6 +26,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Instances;
+import android.text.format.DateUtils;
 
 // Columns and value constants taken from android.provider.Calendar in the android source base
 @Kroll.proxy(parentModule=CalendarModule.class)
@@ -40,10 +42,12 @@ public class EventProxy extends KrollProxy {
 	public static final int VISIBILITY_PRIVATE = 2;
 	public static final int VISIBILITY_PUBLIC = 3;
 
-	protected String id, title, description, location;
+	protected String id, title, description, location, rrule;
 	protected Date begin, end;
-	protected boolean allDay, hasAlarm = true, hasExtendedProperties = true;
+	protected Long duration;
+	protected boolean allDay, hasAlarm = false, hasExtendedProperties = true, isInstance;
 	protected int status, visibility;
+	protected String calendarID;
 	protected KrollDict extendedProperties = new KrollDict();
 
 	protected String recurrenceRule, recurrenceDate, recurrenceExceptionRule, recurrenceExceptionDate;
@@ -54,14 +58,107 @@ public class EventProxy extends KrollProxy {
 		super();
 	}
 
-	public static String getEventsUri()
+	public EventProxy(TiContext context)
 	{
-		return CalendarProxy.getBaseCalendarUri() + "/events";
+		this();
 	}
 
-	public static String getInstancesWhenUri()
+	private static long RFC2445ToMilliseconds(String str)
 	{
-		return CalendarProxy.getBaseCalendarUri() + "/instances/when";
+		if(str == null || str.isEmpty())
+			throw new IllegalArgumentException("Null or empty RFC string");
+
+		int sign = 1;
+		int weeks = 0;
+		int days = 0;
+		int hours = 0;
+		int minutes = 0;
+		int seconds = 0;
+
+		int len = str.length();
+		int index = 0;
+		char c;
+
+		c = str.charAt(0);
+
+		if (c == '-')
+		{
+			sign = -1;
+			index++;
+		}
+
+		else if (c == '+')
+			index++;
+
+		if (len < index)
+			return 0;
+
+		c = str.charAt(index);
+
+		if (c != 'P')
+			throw new IllegalArgumentException("Duration.parse(str='" + str + "') expected 'P' at index="+ index);
+
+		index++;
+		c = str.charAt(index);
+		if (c == 'T')
+			index++;
+
+		int n = 0;
+		for (; index < len; index++)
+		{
+			c = str.charAt(index);
+
+			if (c >= '0' && c <= '9')
+			{
+				n *= 10;
+				n += ((int)(c-'0'));
+			}
+
+			else if (c == 'W')
+			{
+				weeks = n;
+				n = 0;
+			}
+
+			else if (c == 'H')
+			{
+				hours = n;
+				n = 0;
+			}
+
+			else if (c == 'M')
+			{
+				minutes = n;
+				n = 0;
+			}
+
+			else if (c == 'S')
+			{
+				seconds = n;
+				n = 0;
+			}
+
+			else if (c == 'D')
+			{
+				days = n;
+				n = 0;
+			}
+
+			else if (c == 'T')
+			{
+			}
+			else
+				throw new IllegalArgumentException ("Duration.parse(str='" + str + "') unexpected char '" + c + "' at index=" + index);
+		}
+
+		long factor = 1000 * sign;
+		long result = factor * ((7*24*60*60*weeks)
+			+ (24*60*60*days)
+			+ (60*60*hours)
+			+ (60*minutes)
+			+ seconds);
+
+		return result;
 	}
 
 	public static String getExtendedPropertiesUri()
@@ -71,7 +168,12 @@ public class EventProxy extends KrollProxy {
 
 	public static ArrayList<EventProxy> queryEvents(String query, String[] queryArgs)
 	{
-		return queryEvents(Uri.parse(getEventsUri()), query, queryArgs, "dtstart ASC");
+		return queryEvents(Events.CONTENT_URI, query, queryArgs, "dtstart ASC");
+	}
+
+	public static ArrayList<EventProxy> queryEvents(TiContext context, String query, String[] queryArgs)
+	{
+		return queryEvents(query, queryArgs);
 	}
 
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, String query, String[] queryArgs)
@@ -82,20 +184,15 @@ public class EventProxy extends KrollProxy {
 		}
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
-		Uri.Builder builder = Uri.parse(getInstancesWhenUri()).buildUpon();
+		Uri.Builder builder = Instances.CONTENT_URI.buildUpon();
 
 		ContentUris.appendId(builder, date1);
 		ContentUris.appendId(builder, date2);
 
-		String visibility = "";
-		if (Build.VERSION.SDK_INT >= 14) {
-			visibility = Instances.ACCESS_LEVEL;
-		} else {
-			visibility = "visibility";
-		}
+		Uri builderBuilded = builder.build();
 
-		Cursor eventCursor = contentResolver.query(builder.build(), new String[] { "event_id", "title", "description",
-			"eventLocation", "begin", "end", "allDay", "hasAlarm", "eventStatus", visibility }, query, queryArgs,
+		Cursor eventCursor = contentResolver.query(builderBuilded, new String[] { "event_id", "title", "description",
+			"eventLocation", "begin", "end", "allDay", "hasAlarm", "eventStatus", Instances.ACCESS_LEVEL, "rrule", "calendar_id" }, query, queryArgs,
 			"startDay ASC, startMinute ASC");
 
 		if (eventCursor == null) {
@@ -112,10 +209,14 @@ public class EventProxy extends KrollProxy {
 			event.location = eventCursor.getString(3);
 			event.begin = new Date(eventCursor.getLong(4));
 			event.end = new Date(eventCursor.getLong(5));
+			event.duration = event.end.getTime() - event.begin.getTime();
 			event.allDay = !eventCursor.getString(6).equals("0");
 			event.hasAlarm = !eventCursor.getString(7).equals("0");
 			event.status = eventCursor.getInt(8);
 			event.visibility = eventCursor.getInt(9);
+			event.rrule = eventCursor.getString(10);
+			event.calendarID = eventCursor.getString(11);
+			event.isInstance = true;
 
 			events.add(event);
 		}
@@ -125,23 +226,24 @@ public class EventProxy extends KrollProxy {
 		return events;
 	}
 
+	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, String query,
+		String[] queryArgs)
+	{
+		return queryEventsBetweenDates(date1, date2, query, queryArgs);
+	}
+
 	public static ArrayList<EventProxy> queryEvents(Uri uri, String query, String[] queryArgs, String orderBy)
 	{
 		ArrayList<EventProxy> events = new ArrayList<EventProxy>();
 		if (!CalendarProxy.hasCalendarPermissions()) {
 			return events;
 		}
+
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
-		String visibility = "";
-		if (Build.VERSION.SDK_INT >= 14) {
-			visibility = Instances.ACCESS_LEVEL;
-		} else {
-			visibility = "visibility";
-		}
 
 		Cursor eventCursor = contentResolver.query(uri, new String[] { "_id", "title", "description", "eventLocation",
-			"dtstart", "dtend", "allDay", "hasAlarm", "eventStatus", visibility, "hasExtendedProperties" }, query,
+			"dtstart", "dtend", "duration","allDay", "hasAlarm", "eventStatus", Instances.ACCESS_LEVEL, "hasExtendedProperties", "rrule", "calendar_id" }, query,
 			queryArgs, orderBy);
 
 		while (eventCursor.moveToNext()) {
@@ -152,11 +254,20 @@ public class EventProxy extends KrollProxy {
 			event.location = eventCursor.getString(3);
 			event.begin = new Date(eventCursor.getLong(4));
 			event.end = new Date(eventCursor.getLong(5));
-			event.allDay = !eventCursor.getString(6).equals("0");
-			event.hasAlarm = !eventCursor.getString(7).equals("0");
-			event.status = eventCursor.getInt(8);
-			event.visibility = eventCursor.getInt(9);
-			event.hasExtendedProperties = !eventCursor.getString(10).equals("0");
+			event.allDay = !eventCursor.getString(7).equals("0");
+			event.hasAlarm = !eventCursor.getString(8).equals("0");
+			event.status = eventCursor.getInt(9);
+			event.visibility = eventCursor.getInt(10);
+			event.hasExtendedProperties = !eventCursor.getString(11).equals("0");
+			event.rrule = eventCursor.getString(12);
+			event.calendarID = eventCursor.getString(13);
+			event.isInstance = uri == Instances.CONTENT_URI;
+
+			if (eventCursor.getString(6) != null) {
+				event.duration = RFC2445ToMilliseconds(eventCursor.getString(6));
+			} else {
+				event.duration = event.end.getTime() - event.begin.getTime();
+			}
 
 			events.add(event);
 		}
@@ -164,83 +275,168 @@ public class EventProxy extends KrollProxy {
 		return events;
 	}
 
+	public static ArrayList<EventProxy> queryEvents(TiContext context, Uri uri, String query, String[] queryArgs,
+		String orderBy)
+	{
+		return queryEvents(uri, query, queryArgs, orderBy);
+	}
+
 	public static EventProxy createEvent(CalendarProxy calendar, KrollDict data)
 	{
-		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
-		if (!CalendarProxy.hasCalendarPermissions()) {
-			return null;
-		}
 		EventProxy event = new EventProxy();
 
-		ContentValues eventValues = new ContentValues();
-		eventValues.put("hasAlarm", 1);
-		eventValues.put("hasExtendedProperties", 1);
+		event.calendarID = calendar.getId();
 
-		if (!data.containsKey("title")) {
-			Log.e(TAG, "Title was not created, no title found for event");
-			return null;
+		if (data.containsKey("title")) {
+			event.setTitle(TiConvert.toString(data, "title"));
 		}
-
-		event.title = TiConvert.toString(data, "title");
-		eventValues.put("title", event.title);
-		eventValues.put("calendar_id", calendar.getId());
-
-		// ICS requires eventTimeZone field when inserting new event
-		if (Build.VERSION.SDK_INT >= 14) {
-			eventValues.put(Events.EVENT_TIMEZONE, new Date().toString());
-		}
-
 		if (data.containsKey(TiC.PROPERTY_LOCATION)) {
-			event.location = TiConvert.toString(data, TiC.PROPERTY_LOCATION);
-			eventValues.put(CalendarModule.EVENT_LOCATION, event.location);
+			event.setLocation(TiConvert.toString(data, TiC.PROPERTY_LOCATION));
 		}
 		if (data.containsKey("description")) {
-			event.description = TiConvert.toString(data, "description");
-			eventValues.put("description", event.description);
+			event.setDescription(TiConvert.toString(data, "description"));
 		}
 		if (data.containsKey("begin")) {
-			event.begin = TiConvert.toDate(data, "begin");
-			if (event.begin != null) {
-				eventValues.put("dtstart", event.begin.getTime());
-			}
+			event.setBegin(TiConvert.toDate(data, "begin"));
 		}
 		if (data.containsKey("end")) {
-			event.end = TiConvert.toDate(data, "end");
-			if (event.end != null) {
-				eventValues.put("dtend", event.end.getTime());
-			}
+			event.setEnd(TiConvert.toDate(data, "end"));
 		}
 		if (data.containsKey("allDay")) {
-			event.allDay = TiConvert.toBoolean(data, "allDay");
-			eventValues.put("allDay", event.allDay ? 1 : 0);
+			event.setAllDay(TiConvert.toBoolean(data, "allDay"));
 		}
-
+		if (data.containsKey("rrule")) {
+			event.setRrule(TiConvert.toString(data, "rrule"));
+		}
 		if (data.containsKey("hasExtendedProperties")) {
 			event.hasExtendedProperties = TiConvert.toBoolean(data, "hasExtendedProperties");
-			eventValues.put("hasExtendedProperties", event.hasExtendedProperties ? 1 : 0);
 		}
-
 		if (data.containsKey("hasAlarm")) {
 			event.hasAlarm = TiConvert.toBoolean(data, "hasAlarm");
-			eventValues.put("hasAlarm", event.hasAlarm ? 1 : 0);
 		}
-
-		Uri eventUri = contentResolver.insert(Uri.parse(CalendarProxy.getBaseCalendarUri() + "/events"), eventValues);
-		Log.d("TiEvents", "created event with uri: " + eventUri, Log.DEBUG_MODE);
-
-		String eventId = eventUri.getLastPathSegment();
-		event.id = eventId;
 
 		return event;
 	}
 
+	public static EventProxy createEvent(TiContext context, CalendarProxy calendar, KrollDict data)
+	{
+		return createEvent(calendar, data);
+	}
+
+	@Kroll.method
+	public boolean save()
+	{
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		if (!CalendarProxy.hasCalendarPermissions()) {
+			Log.e(TAG, "Missing calendar permissions");
+			return false;
+		}
+
+		ContentValues eventValues = new ContentValues();
+		eventValues.put("hasAlarm", 0);
+		eventValues.put("hasExtendedProperties", 1);
+
+		Date start = begin;
+		Date finish = end;
+
+		if (isInstance == true) {
+			ArrayList<EventProxy> events = queryEvents("_id = ?", new String[] { ""+id });
+			if (events.size() > 0) {
+				start = events.get(0).begin;
+				finish = events.get(0).end;
+			}
+		}
+
+		if (title == null) {
+			Log.e(TAG, "Title was not created, no title found for event");
+			return false;
+		}
+
+		if (calendarID == null) {
+			Log.e(TAG, "Calendar ID was not created, no calendarID found for event");
+			return false;
+		}
+
+		eventValues.put("title", title);
+		eventValues.put("calendar_id", calendarID);
+
+		// ICS requires eventTimeZone field when inserting new event
+		eventValues.put(Events.EVENT_TIMEZONE, new Date().toString());
+
+		if (location != null) {
+			eventValues.put(CalendarModule.EVENT_LOCATION, location);
+		}
+		if (description != null) {
+			eventValues.put("description", description);
+		}
+		if (start != null) {
+			eventValues.put("dtstart", start.getTime());
+		} else {
+			Log.e(TAG, "Begin date was not created, no begin found for event");
+			return false;
+		}
+		if (rrule != null) {
+			eventValues.put("rrule", rrule);
+
+			if (allDay == true) {
+				Double days = Math.ceil(((duration + DateUtils.DAY_IN_MILLIS - 1) / DateUtils.DAY_IN_MILLIS));
+
+				eventValues.put("duration", "P" + days.intValue() + "D");
+			} else {
+				Double seconds = Math.ceil((duration / DateUtils.SECOND_IN_MILLIS));
+
+				eventValues.put("duration", "PT" + seconds.intValue() + "S");
+			}
+			eventValues.putNull("dtend");
+		} else {
+			eventValues.put("dtend", finish != null ? finish.getTime() : start.getTime());
+			eventValues.putNull("duration");
+
+			eventValues.put("allDay", allDay ? 1 : 0);
+		}
+
+		eventValues.put("hasExtendedProperties", hasExtendedProperties ? 1 : 0);
+
+		eventValues.put("hasAlarm", hasAlarm ? 1 : 0);
+
+		Uri eventUri = null;
+
+		if (id != null) {
+			eventUri = ContentUris.withAppendedId(Events.CONTENT_URI, Long.parseLong(id));
+			int updatedRows = contentResolver.update(eventUri, eventValues, null, null);
+
+			if (updatedRows <= 0) {
+				eventUri = null;
+			}
+		} else {
+			eventUri = contentResolver.insert(Events.CONTENT_URI, eventValues);
+		}
+
+		if (eventUri != null) {
+			String eventId = eventUri.getLastPathSegment();
+
+			if (eventId != null) {
+				id = eventId;
+			} else {
+				Log.e(TAG, "Event not created.");
+				return false;
+			}
+		} else {
+			Log.e(TAG, "Event not created.");
+			return false;
+		}
+
+		return true;
+	}
+
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, CalendarProxy calendar)
 	{
-		if (Build.VERSION.SDK_INT >= 11) {
-			return queryEventsBetweenDates(date1, date2, "calendar_id=" + calendar.getId(), null);
-		} else {
-			return queryEventsBetweenDates(date1, date2, "Calendars._id=" + calendar.getId(), null);
-		}
+		return queryEventsBetweenDates(date1, date2, "calendar_id = ?", new String[]{ calendar.getId() });
+	}
+
+	public static ArrayList<EventProxy> queryEventsBetweenDates(TiContext context, long date1, long date2, CalendarProxy calendar)
+	{
+		return queryEventsBetweenDates(date1, date2, calendar);
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -288,10 +484,22 @@ public class EventProxy extends KrollProxy {
 		return title;
 	}
 
+	@Kroll.setProperty @Kroll.method
+	public void setTitle(String newTitle)
+	{
+		title = newTitle;
+	}
+
 	@Kroll.getProperty @Kroll.method
 	public String getDescription()
 	{
 		return description;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setDescription(String newDescription)
+	{
+		description = newDescription;
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -300,16 +508,59 @@ public class EventProxy extends KrollProxy {
 		return location;
 	}
 
+	@Kroll.setProperty @Kroll.method
+	public void setLocation(String newLocation)
+	{
+		location = newLocation;
+	}
+
 	@Kroll.getProperty @Kroll.method
 	public Date getBegin()
 	{
 		return begin;
 	}
 
+	@Kroll.setProperty @Kroll.method
+	public void setBegin(Date newBegin)
+	{
+		begin = newBegin;
+
+		setDuration();
+	}
+
 	@Kroll.getProperty @Kroll.method
 	public Date getEnd()
 	{
-		return end;
+		if (rrule != null) {
+			return new Date(begin.getTime() + duration);
+		} else {
+			return end;
+		}
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setEnd(Date newEnd)
+	{
+		end = newEnd;
+
+		setDuration();
+	}
+
+	private void setDuration() {
+		Date start = new Date();
+		Date finish = new Date();
+
+		if (begin != null) {
+			start = begin;
+		}
+
+		if (end != null) {
+			finish = end;
+		} else {
+			finish = start;
+		}
+
+		duration = finish.getTime() - start.getTime();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -318,10 +569,22 @@ public class EventProxy extends KrollProxy {
 		return allDay;
 	}
 
+	@Kroll.setProperty @Kroll.method
+	public void setAllDay(boolean newAllDay)
+	{
+		allDay = newAllDay;
+	}
+
 	@Kroll.getProperty @Kroll.method
 	public boolean getHasAlarm()
 	{
 		return hasAlarm;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getCalendarID()
+	{
+		return calendarID;
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -373,6 +636,18 @@ public class EventProxy extends KrollProxy {
 	}
 
 	@Kroll.getProperty @Kroll.method
+	public String getRrule()
+	{
+		return rrule;
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setRrule(String newRrule)
+	{
+		rrule = newRrule;
+	}
+
+	@Kroll.getProperty @Kroll.method
 	public KrollDict getExtendedProperties()
 	{
 		KrollDict extendedProperties = new KrollDict();
@@ -421,7 +696,6 @@ public class EventProxy extends KrollProxy {
 		if (!hasExtendedProperties) {
 			hasExtendedProperties = true;
 		}
-		Log.d("TiEvent", "set extended property: " + name + " = " + value, Log.DEBUG_MODE);
 
 		// we need to update the DB
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
