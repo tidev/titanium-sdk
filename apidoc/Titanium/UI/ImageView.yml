@@ -139,6 +139,12 @@ properties:
     default: false on creation, true on load (Android), false (iPhone, iPad, Mobile Web)
     permission: read-only
 
+  - name: aspectFill
+    summary: Scale the content to fill the size of the image view. Some portion of the content may be clipped to fill the view’s bounds.
+    type: Boolean
+    default: false
+    platforms: [ios,android]
+    since: "6.1.0"
   
   - name: autorotate
     summary: |

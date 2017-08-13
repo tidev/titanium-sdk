@@ -780,6 +780,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ASPECT_FILL = "aspectFill";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_AUDIO_STREAM_TYPE = "audioStreamType";
 
 	/**
