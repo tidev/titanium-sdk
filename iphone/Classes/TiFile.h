@@ -6,7 +6,6 @@
  */
 #import "TiProxy.h"
 
-
 /**
  The main interface for File-based proxies -- this is in the API
  since Filesystem implements it but we want to be able to have other
@@ -14,27 +13,27 @@
  but without causing a compile-time dependency on Filesystem module.
  */
 @interface TiFile : TiProxy {
-@protected 
-	NSString *path;
-	BOOL deleteOnExit;
+  @protected
+  NSString *path;
+  BOOL deleteOnExit;
 }
 
 /**
  Returns absolute path of the file on file system.
  */
-@property(nonatomic,readonly) NSString *path;
+@property (nonatomic, readonly) NSString *path;
 
 /**
  Returns size of the file on file.
  */
-@property(nonatomic,readonly) unsigned long long size;
+@property (nonatomic, readonly) unsigned long long size;
 
 /**
  Creates new instance of TiFile with specified path.
  @param path The absolute path.
  @return A created instance of TiFile.
  */
--(id)initWithPath:(NSString*)path;
+- (id)initWithPath:(NSString *)path;
 
 /**
  Creates new instance of TiFile for a temporary file with specified path.
@@ -43,21 +42,21 @@
  @param path The absolute path.
  @return A created instance of TiFile.
  */
--(id)initWithTempFilePath:(NSString*)path;
+- (id)initWithTempFilePath:(NSString *)path;
 
 /**
  Creates a new instance of TiFile for a temporary file created with specified extension in the default temporary folder.
  @param extension The temporary file extension.
  @return A created instance of TiFile.
  */
-+(TiFile*)createTempFile:(NSString*)extension;
++ (TiFile *)createTempFile:(NSString *)extension;
 
 /**
  Returns the contents of the file as a TiBlob.
  @return The TiBlob object.
  */
--(id)blob;
+- (id)blob;
 
--(id)toBlob:(id)args;
+- (id)toBlob:(id)args;
 
 @end

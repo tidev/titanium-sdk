@@ -8,26 +8,25 @@
 
 #ifdef USE_TI_APPIOS
 
-@interface TiAppiOSUserDefaultsProxy : TiProxy
-{
+@interface TiAppiOSUserDefaultsProxy : TiProxy {
 }
 
-@property(nonatomic, retain) NSUserDefaults *defaultsObject;
+@property (nonatomic, retain) NSUserDefaults *defaultsObject;
 
--(id)getBool:(id)args;
--(id)getDouble:(id)args;
--(id)getInt:(id)args;
--(id)getString:(id)args;
--(id)getList:(id)args;
--(void)setBool:(id)args;
--(void)setDouble:(id)args;
--(void)setInt:(id)args;
--(void)setString:(id)args;
--(void)setList:(id)args;
--(void)removeProperty:(id)args;
--(void)removeAllProperties:(id)unused;
--(id)hasProperty:(id)args;
--(id)listProperties:(id)unused;
+- (id)getBool:(id)args;
+- (id)getDouble:(id)args;
+- (id)getInt:(id)args;
+- (id)getString:(id)args;
+- (id)getList:(id)args;
+- (void)setBool:(id)args;
+- (void)setDouble:(id)args;
+- (void)setInt:(id)args;
+- (void)setString:(id)args;
+- (void)setList:(id)args;
+- (void)removeProperty:(id)args;
+- (void)removeAllProperties:(id)unused;
+- (id)hasProperty:(id)args;
+- (id)listProperties:(id)unused;
 
 @end
 

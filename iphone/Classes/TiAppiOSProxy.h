@@ -11,8 +11,8 @@
 #import "TiAppiOSBackgroundServiceProxy.h"
 
 @interface TiAppiOSProxy : TiProxy {
-@private
-	NSMutableDictionary *backgroundServices;
+  @private
+  NSMutableDictionary *backgroundServices;
 }
 @property (nonatomic, readonly) NSString *EVENT_ACCESSIBILITY_LAYOUT_CHANGED;
 @property (nonatomic, readonly) NSString *EVENT_ACCESSIBILITY_SCREEN_CHANGED;

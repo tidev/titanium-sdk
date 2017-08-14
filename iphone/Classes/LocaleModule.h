@@ -8,8 +8,7 @@
 
 @interface LocaleModule : TiModule {
 
-@private
-
+  @private
 }
 
 @end

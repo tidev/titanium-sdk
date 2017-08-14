@@ -9,13 +9,12 @@
 #import "TiProxy.h"
 
 @interface TiUIiPhoneAlertDialogStyleProxy : TiProxy {
-
 }
 
-@property(nonatomic, readonly) NSNumber *DEFAULT;
-@property(nonatomic, readonly) NSNumber *PLAIN_TEXT_INPUT;
-@property(nonatomic, readonly) NSNumber *SECURE_TEXT_INPUT;
-@property(nonatomic, readonly) NSNumber *LOGIN_AND_PASSWORD_INPUT;
+@property (nonatomic, readonly) NSNumber *DEFAULT;
+@property (nonatomic, readonly) NSNumber *PLAIN_TEXT_INPUT;
+@property (nonatomic, readonly) NSNumber *SECURE_TEXT_INPUT;
+@property (nonatomic, readonly) NSNumber *LOGIN_AND_PASSWORD_INPUT;
 
 @end
 

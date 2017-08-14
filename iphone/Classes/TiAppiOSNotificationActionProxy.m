@@ -12,50 +12,50 @@
 
 @implementation TiAppiOSNotificationActionProxy
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(_notificationAction);
-	[super dealloc];
+  RELEASE_TO_NIL(_notificationAction);
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-	return @"Ti.App.iOS.NotificationAction";
+  return @"Ti.App.iOS.NotificationAction";
 }
 
--(UIMutableUserNotificationAction*) notificationAction
+- (UIMutableUserNotificationAction *)notificationAction
 {
-	if (_notificationAction == nil) {
-		_notificationAction = [[UIMutableUserNotificationAction alloc] init];
-	}
-	return _notificationAction;
+  if (_notificationAction == nil) {
+    _notificationAction = [[UIMutableUserNotificationAction alloc] init];
+  }
+  return _notificationAction;
 }
 
--(NSString*)identifier
+- (NSString *)identifier
 {
-	return [[self notificationAction] identifier];
+  return [[self notificationAction] identifier];
 }
--(NSString*)title
+- (NSString *)title
 {
-	return [[self notificationAction] title];
+  return [[self notificationAction] title];
 }
--(NSNumber*)activationMode
+- (NSNumber *)activationMode
 {
-	return NUMINT([[self notificationAction] activationMode]);
+  return NUMINT([[self notificationAction] activationMode]);
 }
 
--(void)setIdentifier:(NSString*)args
+- (void)setIdentifier:(NSString *)args
 {
-	[[self notificationAction] setIdentifier: args];
+  [[self notificationAction] setIdentifier:args];
 }
--(void)setTitle:(NSString*)args
+- (void)setTitle:(NSString *)args
 {
-	[[self notificationAction] setTitle: args];
+  [[self notificationAction] setTitle:args];
 }
--(void)setActivationMode:(NSNumber*)args
+- (void)setActivationMode:(NSNumber *)args
 {
-	UIUserNotificationActivationMode activationMode = [TiUtils intValue:args def:0];
-	[[self notificationAction] setActivationMode: activationMode];
+  UIUserNotificationActivationMode activationMode = [TiUtils intValue:args def:0];
+  [[self notificationAction] setActivationMode:activationMode];
 }
 @end
 

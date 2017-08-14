@@ -9,41 +9,41 @@
 #import "TiViewProxy.h"
 
 @interface TiUIiOSPreviewActionProxy : TiViewProxy {
-    UIPreviewAction *action;
+  UIPreviewAction *action;
 }
 
 /**
     The index of the action inside the previewing context.
  */
-@property(nonatomic, assign) NSUInteger actionIndex;
+@property (nonatomic, assign) NSUInteger actionIndex;
 
 /**
     The style of the preview action
  */
-@property(nonatomic, assign) UIPreviewActionStyle style;
+@property (nonatomic, assign) UIPreviewActionStyle style;
 
 /**
     The title of the preview action
  */
-@property(nonatomic, retain) NSString *title;
+@property (nonatomic, retain) NSString *title;
 
 /**
     The indexPath for accessing section and item of
     the tableView if specified.
 */
-@property(nonatomic, retain) NSDictionary *listViewEvent;
+@property (nonatomic, retain) NSDictionary *listViewEvent;
 
 /**
     Returns a configured preview action.
     @return The configured UIPreviewAction.
  */
--(UIPreviewAction*)action;
+- (UIPreviewAction *)action;
 
 /**
     Fires an event when an action is clicked.
     @param The clicked UIPreviewAction.
  */
--(void)fireEventWithAction:(UIPreviewAction*)action;
+- (void)fireEventWithAction:(UIPreviewAction *)action;
 
 @end
 
