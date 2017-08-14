@@ -66,7 +66,7 @@ function iOSBuilder() {
 	// list of available build-targets
 	this.targets = ['simulator', 'device', 'dist-appstore', 'dist-adhoc'];
 
-	// object of device families to map the --device-family parameter to the 
+	// object of device families to map the --device-family parameter to the
 	// native TARGETED_DEVICE_FAMILY build-setting
 	this.deviceFamilies = {
 		iphone: '1',
@@ -78,8 +78,8 @@ function iOSBuilder() {
 	// device-family set by the --device-family parameter
 	this.deviceFamily = null;
 
-	// blacklisted files and directories that throw an error when used and will 
-	// lead to a rejection when submitted 
+	// blacklisted files and directories that throw an error when used and will
+	// lead to a rejection when submitted
 	this.blacklistDirectories = [
 		'contents',
 		'resources',
@@ -96,7 +96,7 @@ function iOSBuilder() {
 	];
 
 	// graylisted directories that throw a warning when used and may lead to a
-	// rejection when submitted 
+	// rejection when submitted
 	this.graylistDirectories = [
 		'frameworks'
 	];
@@ -5400,22 +5400,16 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					'Default@2x.png':                { idiom: 'iphone', extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 640, height: 960, scale: 2 },
 					// iPhone Portrait - iOS 7-9 - Retina 4 (640x1136)
 					'Default-568h@2x.png':           { idiom: 'iphone', extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 640, height: 1136, scale: 2, subtype: 'retina4' },
-					// iPhone Portrait - iOS 8,9 - Retina HD 4.7 (750x1334) iPhone 6
-					'Default-667h@2x.png':           { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'portrait', width: 750, height: 1334, scale: 2, subtype: '667h' },
 
 					// iPad Landscape - iOS 7-9 - 1x (1024x768)
 					'Default-Landscape.png':         { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'landscape', width: 1024, height: 768, scale: 1 },
 					// iPad Landscape - iOS 7-9 - 2x (2048x1536)
 					'Default-Landscape@2x.png':      { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'landscape', width: 2048, height: 1536, scale: 2 },
-					// iPhone Landscape - iOS 8,9 - Retina HD 5.5 (2208x1242)
-					'Default-Landscape-736h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'landscape', width: 2208, height: 1242, scale: 3, subtype: '736h' },
 
 					// iPad Portrait - iOS 7-9 - 1x (????)
 					'Default-Portrait.png':          { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 768, height: 1024, scale: 1 },
 					// iPad Portrait - iOS 7-9 - 2x (????)
-					'Default-Portrait@2x.png':       { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 1536, height: 2048, scale: 2 },
-					// iPhone Portrait - iOS 8,9 - Retina HD 5.5 (1242x2208)
-					'Default-Portrait-736h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'portrait', width: 1242, height: 2208, scale: 3, subtype: '736h' }
+					'Default-Portrait@2x.png':       { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 1536, height: 2048, scale: 2 }
 				},
 				found = {};
 
