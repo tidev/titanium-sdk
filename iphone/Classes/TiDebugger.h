@@ -8,11 +8,11 @@
 #include "TiToJS.h"
 
 typedef enum {
-    OUT,
-    LOG_DEBUG, // Have to distinguish from the DEBUG macro
-    TRACE,
-    WARN,
-    ERR
+  OUT,
+  LOG_DEBUG, // Have to distinguish from the DEBUG macro
+  TRACE,
+  WARN,
+  ERR
 } DebuggerLogLevel;
 
 #ifdef __cplusplus
@@ -21,11 +21,11 @@ typedef enum {
 #define EXTERN_FUNC extern
 #endif
 
-EXTERN_FUNC void* TiDebuggerCreate(KrollContext*,TiObjectRef);
-EXTERN_FUNC void  TiDebuggerDestroy(KrollContext*,TiObjectRef,void*);
-EXTERN_FUNC void  TiDebuggerStart(NSString*,NSInteger);
-EXTERN_FUNC void  TiDebuggerStop();
-EXTERN_FUNC void  TiDebuggerBeginScript(KrollContext*,const char*);
-EXTERN_FUNC void  TiDebuggerEndScript(KrollContext*);
-EXTERN_FUNC void  TiDebuggerLogMessage(DebuggerLogLevel level,NSString* message);
-EXTERN_FUNC void  TiDebuggerDiscoveryStart(NSString*, NSArray*, void(^)(NSString *, NSInteger));
+EXTERN_FUNC void *TiDebuggerCreate(KrollContext *, TiObjectRef);
+EXTERN_FUNC void TiDebuggerDestroy(KrollContext *, TiObjectRef, void *);
+EXTERN_FUNC void TiDebuggerStart(NSString *, NSInteger);
+EXTERN_FUNC void TiDebuggerStop();
+EXTERN_FUNC void TiDebuggerBeginScript(KrollContext *, const char *);
+EXTERN_FUNC void TiDebuggerEndScript(KrollContext *);
+EXTERN_FUNC void TiDebuggerLogMessage(DebuggerLogLevel level, NSString *message);
+EXTERN_FUNC void TiDebuggerDiscoveryStart(NSString *, NSArray *, void (^)(NSString *, NSInteger));

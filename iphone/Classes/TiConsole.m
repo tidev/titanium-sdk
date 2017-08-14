@@ -7,12 +7,11 @@
 
 #import "TiConsole.h"
 
-
 @implementation TiConsole
 
--(void)log:(NSArray*)args
+- (void)log:(NSArray *)args
 {
-    [self logMessage:args severity:@"info"];
+  [self logMessage:args severity:@"info"];
 }
 
 @end

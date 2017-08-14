@@ -15,50 +15,49 @@
 #import "TiUIView.h"
 
 @interface TiUIScrollViewImpl : UIScrollView {
-@private
-    TiUIView * touchHandler;
-    UIView * touchedContentView;
+  @private
+  TiUIView *touchHandler;
+  UIView *touchedContentView;
 }
--(void)setTouchHandler:(TiUIView*)handler;
+- (void)setTouchHandler:(TiUIView *)handler;
 @end
 
-@interface TiUIScrollView : TiUIView<TiScrolling,UIScrollViewDelegate> {
+@interface TiUIScrollView : TiUIView <TiScrolling, UIScrollViewDelegate> {
 
-@private
-	TiUIScrollViewImpl * scrollView;
+  @private
+  TiUIScrollViewImpl *scrollView;
 #ifdef TI_USE_AUTOLAYOUT
-    TiLayoutView* contentView;
+  TiLayoutView *contentView;
 #else
-	UIView * wrapperView;
-	TiDimension contentWidth;
-	TiDimension contentHeight;
+  UIView *wrapperView;
+  TiDimension contentWidth;
+  TiDimension contentHeight;
 #endif
-	CGFloat minimumContentHeight;
-    
+  CGFloat minimumContentHeight;
+
 #if IS_XCODE_8
 #ifdef USE_TI_UIREFRESHCONTROL
-    TiUIRefreshControlProxy* refreshControl;
+  TiUIRefreshControlProxy *refreshControl;
 #endif
 #endif
-	
-	BOOL needsHandleContentSize;
-	
+
+  BOOL needsHandleContentSize;
 }
 
-@property(nonatomic,retain,readonly) TiUIScrollViewImpl * scrollView;
+@property (nonatomic, retain, readonly) TiUIScrollViewImpl *scrollView;
 
-@property(nonatomic,readonly) TiDimension contentWidth;
+@property (nonatomic, readonly) TiDimension contentWidth;
 
--(void)setNeedsHandleContentSize;
--(void)setNeedsHandleContentSizeIfAutosizing;
--(BOOL)handleContentSizeIfNeeded;
--(void)handleContentSize;
--(void)setContentOffset_:(id)value withObject:(id)property;
--(void)setZoomScale_:(id)value withObject:(id)property;
+- (void)setNeedsHandleContentSize;
+- (void)setNeedsHandleContentSizeIfAutosizing;
+- (BOOL)handleContentSizeIfNeeded;
+- (void)handleContentSize;
+- (void)setContentOffset_:(id)value withObject:(id)property;
+- (void)setZoomScale_:(id)value withObject:(id)property;
 #ifndef TI_USE_AUTOLAYOUT
--(UIView *)wrapperView;
+- (UIView *)wrapperView;
 #endif
--(void)scrollToBottom;
+- (void)scrollToBottom;
 
 @end
 

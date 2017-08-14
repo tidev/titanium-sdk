@@ -17,18 +17,18 @@
  This method is called when the object is attached to a toolbar.
  @param toolbar The toolbar to attach to.
  */
--(void)setToolbar:(id<TiToolbar>)toolbar;
+- (void)setToolbar:(id<TiToolbar>)toolbar;
 
 /**
  Returns the toolbar the button is attached to.
  @return The toolbar.
  */
--(id<TiToolbar>)toolbar;
+- (id<TiToolbar>)toolbar;
 
 /**
  Whether or not the button it attached to a toolbar.
  @return _YES_ if the button is attached to a toolbar, _NO_ otherwise.
  */
--(BOOL)attachedToToolbar;
+- (BOOL)attachedToToolbar;
 
 @end

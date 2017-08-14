@@ -10,8 +10,7 @@
 
 @interface TiUIMaskedImageProxy : TiViewProxy {
 
-@private
-
+  @private
 }
 
 @end

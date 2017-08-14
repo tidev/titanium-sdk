@@ -6,21 +6,20 @@
  */
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 
-#import "TiUIView.h"
 #import "AFOpenFlow/AFOpenFlowView.h"
 #import "ImageLoader.h"
+#import "TiUIView.h"
 
-@interface TiUIiOSCoverFlowView : TiUIView <AFOpenFlowViewDataSource,AFOpenFlowViewDelegate,ImageLoaderDelegate>
-{
-@private
-	AFOpenFlowView *view;
-	NSMutableDictionary* toLoad;
-	NSMutableDictionary* loading;
-	NSRecursiveLock* loadLock;
-	NSInteger previous;
+@interface TiUIiOSCoverFlowView : TiUIView <AFOpenFlowViewDataSource, AFOpenFlowViewDelegate, ImageLoaderDelegate> {
+  @private
+  AFOpenFlowView *view;
+  NSMutableDictionary *toLoad;
+  NSMutableDictionary *loading;
+  NSRecursiveLock *loadLock;
+  NSInteger previous;
 }
 
--(void)setImage:(id)image forIndex:(NSInteger)index;
+- (void)setImage:(id)image forIndex:(NSInteger)index;
 
 @end
 
