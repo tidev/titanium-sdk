@@ -117,7 +117,7 @@ exports.init = function (logger, config, cli) {
 							});
 							logger.error(__n('Note: this crash may or may not be related to running your app.', 'Note: these crashes may or may not be related to running your app.', code.crashFiles.length) + '\n');
 						} else {
-							logger.error(__('An error occurred running the iOS Simulator (ios-sim exit code %s)', code));
+							logger.error(__('An error occurred running the iOS Simulator (exit code %s)', code));
 						}
 					}
 					endLog();
