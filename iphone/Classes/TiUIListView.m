@@ -883,7 +883,6 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
             [[resultViewController tableView] beginUpdates];
             [[resultViewController tableView] setEditing:editing animated:YES];
             [[resultViewController tableView] endUpdates];
-            
         } else {
             editing = !editing;
             [[self tableView] beginUpdates];
