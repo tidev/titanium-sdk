@@ -291,16 +291,17 @@ Packager.prototype.package = function (next) {
 		this.includePackagedModules.bind(this),
 		function (cb) {
 			var ignoreDirs = ['packaged', '.pyc'];
+			ignoreDirs.push(path.join(SUPPORT_DIR, 'dev'));
 			// Copy support/ into root, but filter out folders based on OS
 			if (this.targetOS == 'win32') {
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'iphone'))
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'osx'))
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'iphone'));
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'osx'));
 			} else if (this.targetOS == 'linux') {
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'iphone'))
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'osx'))
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'win32'))
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'iphone'));
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'osx'));
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'win32'));
 			} else if (this.targetOS == 'osx') {
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'win32'))
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'win32'));
 			}
 			fs.copy(SUPPORT_DIR, this.zipSDKDir, { filter: function (src) {
 				for (var x = 0; x < ignoreDirs.length; x++) {

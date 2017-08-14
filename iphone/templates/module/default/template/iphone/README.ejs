@@ -1,10 +1,10 @@
 Appcelerator Titanium iPhone Module Project
 ===========================================
 
-This is a skeleton Titanium Mobile iPhone module project.  Modules can be 
+This is a skeleton Titanium Mobile iPhone module project.  Modules can be
 used to extend the functionality of Titanium by providing additional native
 code that is compiled into your application at build time and can expose certain
-APIs into JavaScript. 
+APIs into JavaScript.
 
 MODULE NAMING
 --------------
@@ -25,21 +25,21 @@ A component (widget, proxy, etc) must be named with the pattern:
 For example, if you component was called Foo, your proxy would be named:
 
 	TiMyfirstFooProxy
-	
-For view proxies or widgets, you must create both a view proxy and a view implementation. 
+
+For view proxies or widgets, you must create both a view proxy and a view implementation.
 If you widget was named proxy, you would create the following files:
 
 	TiMyfirstFooProxy.h
 	TiMyfirstFooProxy.m
 	TiMyfirstFoo.h
 	TiMyfirstFoo.m
-	
-The view implementation is named the same except it does contain the suffix `Proxy`.  
+
+The view implementation is named the same except it does contain the suffix `Proxy`.
 
 View implementations extend the Titanium base class `TiUIView`.  View Proxies extend the
-Titanium base class `TiUIViewProxy` or `TiUIWidgetProxy`.  
+Titanium base class `TiUIViewProxy` or `TiUIWidgetProxy`.
 
-For proxies that are simply native objects that can be returned to JavaScript, you can 
+For proxies that are simply native objects that can be returned to JavaScript, you can
 simply extend `TiProxy` and no view implementation is required.
 
 
@@ -56,7 +56,7 @@ BUILD TIME COMPILER CONFIG
 --------------------------
 
 You can edit the file `module.xcconfig` to include any build time settings that should be
-set during application compilation that your module requires.  This file will automatically get `#include` in the main application project.  
+set during application compilation that your module requires.  This file will automatically get `#include` in the main application project.
 
 For more information about this file, please see the Apple documentation at:
 
@@ -76,7 +76,7 @@ For more information on the Markdown syntax, refer to this documentation at:
 TEST HARNESS EXAMPLE FOR YOUR MODULE
 ------------------------------------
 
-The `example` directory contains a skeleton application test harness that can be 
+The `example` directory contains a skeleton application test harness that can be
 used for testing and providing an example of usage to the users of your module.
 
 
@@ -103,7 +103,7 @@ dependencies and copy appropriate image assets into the application.
 USING YOUR MODULE IN CODE
 -------------------------
 
-To use your module in code, you will need to require it. 
+To use your module in code, you will need to require it.
 
 For example,
 
@@ -123,7 +123,7 @@ This file must be in the Common JS format.  For example:
 	{
 		return s;
 	};
-	
+
 Any functions and properties that are exported will be made available as part of your
 module.  All other code inside your JS will be private to your module.
 
@@ -133,11 +133,11 @@ can leave it as-is and build.
 TESTING YOUR MODULE
 -------------------
 
-Run the `titanium.py` script to test your module or test from within XCode.
+Run the `appc` CLI to test your module or test from within XCode.
 To test with the script, execute:
 
-	titanium run --dir=YOURMODULEDIR
-	
+	appc run --project-dir YOURMODULEDIR
+
 
 This will execute the app.js in the example folder as a Titanium application.
 
