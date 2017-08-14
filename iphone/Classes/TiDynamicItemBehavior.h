@@ -6,40 +6,40 @@
  */
 #ifdef USE_TI_UIIOSANIMATOR
 #ifdef USE_TI_UIIOSDYNAMICITEMBEHAVIOR
-#import "TiProxy.h"
 #import "TiAnimatorProxy.h"
-@interface TiDynamicItemBehavior : TiProxy <TiBehaviorProtocol>{
-    NSMutableArray* _items;
-    NSMutableArray* _angularVelocities;
-    NSMutableArray* _linearVelocities;
-    UIDynamicItemBehavior* _dynamicItemBehavior;
-    CGFloat _friction;
-    CGFloat _elasticity;
-    CGFloat _resistance;
-    CGFloat _angularResistance;
-    BOOL _allowsRotation;
-    CGFloat _density;
+#import "TiProxy.h"
+@interface TiDynamicItemBehavior : TiProxy <TiBehaviorProtocol> {
+  NSMutableArray *_items;
+  NSMutableArray *_angularVelocities;
+  NSMutableArray *_linearVelocities;
+  UIDynamicItemBehavior *_dynamicItemBehavior;
+  CGFloat _friction;
+  CGFloat _elasticity;
+  CGFloat _resistance;
+  CGFloat _angularResistance;
+  BOOL _allowsRotation;
+  CGFloat _density;
 }
 #pragma mark - Public API
--(void)addItem:(id)args;
--(void)removeItem:(id)args;
--(NSArray*)items;
--(void)setAllowsRotation:(id)args;
--(NSNumber*)allowsRotation;
--(void)setAngularResistance:(id)args;
--(NSNumber*)angularResistance;
--(void)setResistance:(id)args;
--(NSNumber*)resistance;
--(void)setDensity:(id)args;
--(NSNumber*)density;
--(void)setElasticity:(id)args;
--(NSNumber*)elasticity;
--(void)setFriction:(id)args;
--(NSNumber*)friction;
--(void)addAngularVelocityForItem:(id)args;
--(void)addLinearVelocityForItem:(id)args;
--(NSNumber*)angularVelocityForItem:(id)args;
--(NSDictionary*)linearVelocityForItem:(id)args;
+- (void)addItem:(id)args;
+- (void)removeItem:(id)args;
+- (NSArray *)items;
+- (void)setAllowsRotation:(id)args;
+- (NSNumber *)allowsRotation;
+- (void)setAngularResistance:(id)args;
+- (NSNumber *)angularResistance;
+- (void)setResistance:(id)args;
+- (NSNumber *)resistance;
+- (void)setDensity:(id)args;
+- (NSNumber *)density;
+- (void)setElasticity:(id)args;
+- (NSNumber *)elasticity;
+- (void)setFriction:(id)args;
+- (NSNumber *)friction;
+- (void)addAngularVelocityForItem:(id)args;
+- (void)addLinearVelocityForItem:(id)args;
+- (NSNumber *)angularVelocityForItem:(id)args;
+- (NSDictionary *)linearVelocityForItem:(id)args;
 @end
 #endif
 #endif

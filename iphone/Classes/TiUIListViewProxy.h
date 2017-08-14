@@ -6,20 +6,20 @@
  */
 #ifdef USE_TI_UILISTVIEW
 
-#import "TiViewProxy.h"
 #import "TiUIListSectionProxy.h"
+#import "TiViewProxy.h"
 
-@interface TiUIListViewProxy : TiViewProxy < TiUIListViewDelegate >
+@interface TiUIListViewProxy : TiViewProxy <TiUIListViewDelegate>
 
 @property (nonatomic, readonly) NSArray *sections;
 @property (nonatomic, readonly) NSNumber *sectionCount;
 
 - (TiUIListSectionProxy *)sectionForIndex:(NSUInteger)index;
-- (void) deleteSectionAtIndex:(NSUInteger)index;
-- (void) setMarker:(id)args;
+- (void)deleteSectionAtIndex:(NSUInteger)index;
+- (void)setMarker:(id)args;
 @end
 
 @interface TiUIListViewProxy (internal)
--(void)willDisplayCell:(NSIndexPath*)indexPath;
+- (void)willDisplayCell:(NSIndexPath *)indexPath;
 @end
 #endif

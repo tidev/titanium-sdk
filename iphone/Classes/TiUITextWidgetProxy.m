@@ -13,305 +13,296 @@
 
 @implementation TiUITextWidgetProxy
 @synthesize suppressFocusEvents;
-DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
+DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 
--(void)_initWithProperties:(NSDictionary *)properties
+- (void)_initWithProperties:(NSDictionary *)properties
 {
-    [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
-    [self initializeProperty:@"editable" defaultValue:NUMBOOL(YES)];
-    [super _initWithProperties:properties];
+  [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
+  [self initializeProperty:@"editable" defaultValue:NUMBOOL(YES)];
+  [super _initWithProperties:properties];
 }
 
 - (void)windowWillClose
 {
-	if([self viewInitialized])
-	{
-		[self blur:nil];
-	}
-	[(TiViewProxy *)[keyboardTiView proxy] windowWillClose];
-	for (TiViewProxy * thisToolBarItem in keyboardToolbarItems)
-	{
-		[thisToolBarItem windowWillClose];
-        [self forgetProxy:thisToolBarItem];
-	}
-	[super windowWillClose];
+  if ([self viewInitialized]) {
+    [self blur:nil];
+  }
+  [(TiViewProxy *)[keyboardTiView proxy] windowWillClose];
+  for (TiViewProxy *thisToolBarItem in keyboardToolbarItems) {
+    [thisToolBarItem windowWillClose];
+    [self forgetProxy:thisToolBarItem];
+  }
+  [super windowWillClose];
 }
 
-- (void) dealloc
-{	
-	[keyboardTiView removeFromSuperview];
-	[keyboardUIToolbar removeFromSuperview];
-	RELEASE_TO_NIL(keyboardTiView);
-    for (TiProxy* proxy in keyboardToolbarItems) {
-        [self forgetProxy:proxy];
-    }
-	RELEASE_TO_NIL(keyboardToolbarItems);
-	RELEASE_TO_NIL(keyboardUIToolbar);
-	[super dealloc];
-}
-
--(NSString*)apiName
+- (void)dealloc
 {
-    return @"Ti.UI.TextWidget";
+  [keyboardTiView removeFromSuperview];
+  [keyboardUIToolbar removeFromSuperview];
+  RELEASE_TO_NIL(keyboardTiView);
+  for (TiProxy *proxy in keyboardToolbarItems) {
+    [self forgetProxy:proxy];
+  }
+  RELEASE_TO_NIL(keyboardToolbarItems);
+  RELEASE_TO_NIL(keyboardUIToolbar);
+  [super dealloc];
 }
 
-
--(NSNumber*)hasText:(id)unused
+- (NSString *)apiName
 {
-    if ([self viewAttached]) {
-        __block BOOL viewHasText = NO;
-        TiThreadPerformOnMainThread(^{
-            viewHasText = [(TiUITextWidget*)[self view] hasText];
-        }, YES);
-        return [NSNumber numberWithBool:viewHasText];
-    }
-    else {
-        NSString *value = [self valueForKey:@"value"];
-        BOOL viewHasText = value!=nil && [value length] > 0;
-        return [NSNumber numberWithBool:viewHasText];
-    }
+  return @"Ti.UI.TextWidget";
 }
 
-
--(void)blur:(id)args
+- (NSNumber *)hasText:(id)unused
 {
-	ENSURE_UI_THREAD_1_ARG(args)
-	if ([self viewAttached])
-	{
-		[[(TiUITextWidget*)[self view] textWidgetView] resignFirstResponder];
-	}
+  if ([self viewAttached]) {
+    __block BOOL viewHasText = NO;
+    TiThreadPerformOnMainThread(^{
+      viewHasText = [(TiUITextWidget *)[self view] hasText];
+    },
+        YES);
+    return [NSNumber numberWithBool:viewHasText];
+  } else {
+    NSString *value = [self valueForKey:@"value"];
+    BOOL viewHasText = value != nil && [value length] > 0;
+    return [NSNumber numberWithBool:viewHasText];
+  }
 }
 
--(void)focus:(id)args
+- (void)blur:(id)args
 {
-	ENSURE_UI_THREAD_1_ARG(args)
-	if ([self viewAttached])
-	{
-		[[(TiUITextWidget*)[self view] textWidgetView] becomeFirstResponder];
-	}
+  ENSURE_UI_THREAD_1_ARG(args)
+  if ([self viewAttached]) {
+    [[(TiUITextWidget *)[self view] textWidgetView] resignFirstResponder];
+  }
 }
 
--(BOOL)focused:(id)unused
+- (void)focus:(id)args
 {
-    if (![NSThread isMainThread]) {
-        __block BOOL result=NO;
-        TiThreadPerformOnMainThread(^{
-            result = [self focused:nil];
-        }, YES);
-        return result;
-    }
-    BOOL result = NO;
-	if ([self viewAttached])
-	{
-		result = [(TiUITextWidget*)[self view] isFirstResponder];
-	}
-
-	return result;
+  ENSURE_UI_THREAD_1_ARG(args)
+  if ([self viewAttached]) {
+    [[(TiUITextWidget *)[self view] textWidgetView] becomeFirstResponder];
+  }
 }
 
--(void)noteValueChange:(NSString *)newValue
+- (BOOL)focused:(id)unused
 {
-	if (![[self valueForKey:@"value"] isEqual:newValue])
-	{
-		[self replaceValue:newValue forKey:@"value" notification:NO];
-		[self contentsWillChange];
-		[self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
-        TiThreadPerformOnMainThread(^{
-            //Make sure the text widget is in view when editing.
-            [(TiUITextWidget*)[self view] updateKeyboardStatus];
-        }, NO);
-	}
+  if (![NSThread isMainThread]) {
+    __block BOOL result = NO;
+    TiThreadPerformOnMainThread(^{
+      result = [self focused:nil];
+    },
+        YES);
+    return result;
+  }
+  BOOL result = NO;
+  if ([self viewAttached]) {
+    result = [(TiUITextWidget *)[self view] isFirstResponder];
+  }
+
+  return result;
+}
+
+- (void)noteValueChange:(NSString *)newValue
+{
+  if (![[self valueForKey:@"value"] isEqual:newValue]) {
+    [self replaceValue:newValue forKey:@"value" notification:NO];
+    [self contentsWillChange];
+    [self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+    TiThreadPerformOnMainThread(^{
+      //Make sure the text widget is in view when editing.
+      [(TiUITextWidget *)[self view] updateKeyboardStatus];
+    },
+        NO);
+  }
 }
 
 #pragma mark Toolbar
 
-- (CGFloat) keyboardAccessoryHeight
+- (CGFloat)keyboardAccessoryHeight
 {
-	CGFloat result = MAX(keyboardAccessoryHeight,40);
+  CGFloat result = MAX(keyboardAccessoryHeight, 40);
 #ifndef TI_USE_AUTOLAYOUT
-	if ([[keyboardTiView proxy] respondsToSelector:@selector(verifyHeight:)]) {
-		result = [(TiViewProxy<LayoutAutosizing>*)[keyboardTiView proxy] verifyHeight:result];
-	}
+  if ([[keyboardTiView proxy] respondsToSelector:@selector(verifyHeight:)]) {
+    result = [(TiViewProxy<LayoutAutosizing> *)[keyboardTiView proxy] verifyHeight:result];
+  }
 #endif
-	return result;
+  return result;
 }
 
--(void)setKeyboardToolbarHeight:(id)value
+- (void)setKeyboardToolbarHeight:(id)value
 {
-	ENSURE_UI_THREAD_1_ARG(value);
-	keyboardAccessoryHeight = [TiUtils floatValue:value];
-	//TODO: If we're focused or the toolbar is otherwise onscreen, we need to let the root view controller know and update.
+  ENSURE_UI_THREAD_1_ARG(value);
+  keyboardAccessoryHeight = [TiUtils floatValue:value];
+  //TODO: If we're focused or the toolbar is otherwise onscreen, we need to let the root view controller know and update.
 }
 
--(void)setKeyboardToolbarColor:(id)value
+- (void)setKeyboardToolbarColor:(id)value
 {
-	//Because views aren't lock-protected, ANY and all references, even checking if non-nil, should be done in the main thread.
-	ENSURE_UI_THREAD_1_ARG(value);
-	[self replaceValue:value forKey:@"keyboardToolbarColor" notification:YES];
-	if(keyboardUIToolbar != nil){ //It already exists, update it.
-		UIColor * newColor = [[TiUtils colorValue:value] _color];
-		[keyboardUIToolbar setBarTintColor:newColor];
-	}
+  //Because views aren't lock-protected, ANY and all references, even checking if non-nil, should be done in the main thread.
+  ENSURE_UI_THREAD_1_ARG(value);
+  [self replaceValue:value forKey:@"keyboardToolbarColor" notification:YES];
+  if (keyboardUIToolbar != nil) { //It already exists, update it.
+    UIColor *newColor = [[TiUtils colorValue:value] _color];
+    [keyboardUIToolbar setBarTintColor:newColor];
+  }
 }
 
--(void)updateUIToolbar
+- (void)updateUIToolbar
 {
-	NSMutableArray *items = [NSMutableArray arrayWithCapacity:[keyboardToolbarItems count]];
-	for (TiViewProxy *proxy in keyboardToolbarItems)
-	{
-		if ([proxy supportsNavBarPositioning])
-		{
-			UIBarButtonItem* button = [proxy barButtonItem];
-			[items addObject:button];
-		}
-	}
-	[keyboardUIToolbar setItems:items animated:YES];
-}
-
--(UIToolbar *)keyboardUIToolbar
-{
-	if(keyboardUIToolbar == nil)
-	{
-		keyboardUIToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320,[self keyboardAccessoryHeight])];
-		UIColor * newColor = [[TiUtils colorValue:[self valueForKey:@"keyboardToolbarColor"]] _color];
-		if(newColor != nil){
-			[keyboardUIToolbar setBarTintColor:newColor];
-		}
-		[self updateUIToolbar];
-	}
-	return keyboardUIToolbar;
-}
-
--(void)setKeyboardToolbar:(id)value
-{
-    // TODO: The entire codebase needs to be evaluated for the following:
-    //
-    // - Any property setter which potentially takes an array of proxies MUST ALWAYS have its
-    // content evaluated to protect them. This is INCREDIBLY CRITICAL and almost certainly a major
-    // source of memory bugs in Titanium iOS!!!
-    //
-    // - Any property setter which is active on the main thread only MAY NOT protect their object
-    // correctly or in time (see the comment in -[KrollObject noteKeylessKrollObject:]).
-    //
-    // This may have to be done as part of TIMOB-6990 (convert KrollContext to serialized GCD)
-    
-    if ([value isKindOfClass:[NSArray class]]) {
-        for (id item in value) {
-            ENSURE_TYPE(item, TiProxy);
-            [self rememberProxy:item];
-        }
+  NSMutableArray *items = [NSMutableArray arrayWithCapacity:[keyboardToolbarItems count]];
+  for (TiViewProxy *proxy in keyboardToolbarItems) {
+    if ([proxy supportsNavBarPositioning]) {
+      UIBarButtonItem *button = [proxy barButtonItem];
+      [items addObject:button];
     }
-    
-	//Because views aren't lock-protected, ANY and all references, even checking if non-nil, should be done in the main thread.
-    
-    // TODO: ENSURE_UI_THREAD needs to be deprecated in favor of more effective and concicse mechanisms
-    // which use the main thread only when necessary to reduce latency.
-	ENSURE_UI_THREAD_1_ARG(value);
-	[self replaceValue:value forKey:@"keyboardToolbar" notification:YES];
-    
-	if (value == nil)
-	{
-//TODO: Should we remove these gracefully?
-		[keyboardTiView removeFromSuperview];
-		[keyboardUIToolbar removeFromSuperview];
-        for (TiProxy* proxy in keyboardToolbarItems) {
-            [self forgetProxy:proxy];
-        }
-		RELEASE_TO_NIL(keyboardTiView);
-		RELEASE_TO_NIL(keyboardToolbarItems);
-		[keyboardUIToolbar setItems:nil];
-		return;
-	}
+  }
+  [keyboardUIToolbar setItems:items animated:YES];
+}
 
-	if ([value isKindOfClass:[NSArray class]])
-	{
-//TODO: Should we remove these gracefully?
-		[keyboardTiView removeFromSuperview];
-		RELEASE_TO_NIL(keyboardTiView);
+- (UIToolbar *)keyboardUIToolbar
+{
+  if (keyboardUIToolbar == nil) {
+    keyboardUIToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, 320, [self keyboardAccessoryHeight])];
+    UIColor *newColor = [[TiUtils colorValue:[self valueForKey:@"keyboardToolbarColor"]] _color];
+    if (newColor != nil) {
+      [keyboardUIToolbar setBarTintColor:newColor];
+    }
+    [self updateUIToolbar];
+  }
+  return keyboardUIToolbar;
+}
 
-        // TODO: Check for proxies
-		[keyboardToolbarItems autorelease];
-        for (TiProxy* proxy in keyboardToolbarItems) {
-            [self forgetProxy:proxy];
-        }
-        
-		keyboardToolbarItems = [value copy];
-		if(keyboardUIToolbar != nil) {
-			[self updateUIToolbar];
-		}        
-//TODO: If we have focus while this happens, we need to signal an update.
-		return;
-	}
+- (void)setKeyboardToolbar:(id)value
+{
+  // TODO: The entire codebase needs to be evaluated for the following:
+  //
+  // - Any property setter which potentially takes an array of proxies MUST ALWAYS have its
+  // content evaluated to protect them. This is INCREDIBLY CRITICAL and almost certainly a major
+  // source of memory bugs in Titanium iOS!!!
+  //
+  // - Any property setter which is active on the main thread only MAY NOT protect their object
+  // correctly or in time (see the comment in -[KrollObject noteKeylessKrollObject:]).
+  //
+  // This may have to be done as part of TIMOB-6990 (convert KrollContext to serialized GCD)
 
-	if ([value isKindOfClass:[TiViewProxy class]])
-	{
-		TiUIView * valueView = [(TiViewProxy *)value view];
-		if (valueView == keyboardTiView)
-		{//Nothing to do here.
-			return;
-		}
-//TODO: Should we remove these gracefully?
-		[keyboardTiView removeFromSuperview];
-		[keyboardUIToolbar removeFromSuperview];
-		RELEASE_TO_NIL(keyboardTiView);
-        for (TiProxy* proxy in keyboardToolbarItems) {
-            [self forgetProxy:proxy];
-        }
-		RELEASE_TO_NIL(keyboardToolbarItems);
-		[keyboardUIToolbar setItems:nil];
-	
-		keyboardTiView = [valueView retain];
-//TODO: If we have focus while this happens, we need to signal an update.
-	}
+  if ([value isKindOfClass:[NSArray class]]) {
+    for (id item in value) {
+      ENSURE_TYPE(item, TiProxy);
+      [self rememberProxy:item];
+    }
+  }
+
+  //Because views aren't lock-protected, ANY and all references, even checking if non-nil, should be done in the main thread.
+
+  // TODO: ENSURE_UI_THREAD needs to be deprecated in favor of more effective and concicse mechanisms
+  // which use the main thread only when necessary to reduce latency.
+  ENSURE_UI_THREAD_1_ARG(value);
+  [self replaceValue:value forKey:@"keyboardToolbar" notification:YES];
+
+  if (value == nil) {
+    //TODO: Should we remove these gracefully?
+    [keyboardTiView removeFromSuperview];
+    [keyboardUIToolbar removeFromSuperview];
+    for (TiProxy *proxy in keyboardToolbarItems) {
+      [self forgetProxy:proxy];
+    }
+    RELEASE_TO_NIL(keyboardTiView);
+    RELEASE_TO_NIL(keyboardToolbarItems);
+    [keyboardUIToolbar setItems:nil];
+    return;
+  }
+
+  if ([value isKindOfClass:[NSArray class]]) {
+    //TODO: Should we remove these gracefully?
+    [keyboardTiView removeFromSuperview];
+    RELEASE_TO_NIL(keyboardTiView);
+
+    // TODO: Check for proxies
+    [keyboardToolbarItems autorelease];
+    for (TiProxy *proxy in keyboardToolbarItems) {
+      [self forgetProxy:proxy];
+    }
+
+    keyboardToolbarItems = [value copy];
+    if (keyboardUIToolbar != nil) {
+      [self updateUIToolbar];
+    }
+    //TODO: If we have focus while this happens, we need to signal an update.
+    return;
+  }
+
+  if ([value isKindOfClass:[TiViewProxy class]]) {
+    TiUIView *valueView = [(TiViewProxy *)value view];
+    if (valueView == keyboardTiView) { //Nothing to do here.
+      return;
+    }
+    //TODO: Should we remove these gracefully?
+    [keyboardTiView removeFromSuperview];
+    [keyboardUIToolbar removeFromSuperview];
+    RELEASE_TO_NIL(keyboardTiView);
+    for (TiProxy *proxy in keyboardToolbarItems) {
+      [self forgetProxy:proxy];
+    }
+    RELEASE_TO_NIL(keyboardToolbarItems);
+    [keyboardUIToolbar setItems:nil];
+
+    keyboardTiView = [valueView retain];
+    //TODO: If we have focus while this happens, we need to signal an update.
+  }
 }
 
 - (UIView *)keyboardAccessoryView;
 {
-	if(keyboardTiView != nil){
-		return keyboardTiView;
-	}
+  if (keyboardTiView != nil) {
+    return keyboardTiView;
+  }
 
-	if([keyboardToolbarItems count] > 0){
-		return [self keyboardUIToolbar];
-	}
+  if ([keyboardToolbarItems count] > 0) {
+    return [self keyboardUIToolbar];
+  }
 
-	return nil;
+  return nil;
 }
 
 #ifndef TI_USE_AUTOLAYOUT
--(TiDimension)defaultAutoWidthBehavior:(id)unused
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 #endif
 
--(NSDictionary*)selection
+- (NSDictionary *)selection
 {
-    if ([self viewAttached]) {
-        __block NSDictionary* result = nil;
-        TiThreadPerformOnMainThread(^{
-            result = [[(TiUITextWidget*)[self view] selectedRange] retain];
-        }, YES);
-        return [result autorelease];
-    }
-    return nil;
+  if ([self viewAttached]) {
+    __block NSDictionary *result = nil;
+    TiThreadPerformOnMainThread(^{
+      result = [[(TiUITextWidget *)[self view] selectedRange] retain];
+    },
+        YES);
+    return [result autorelease];
+  }
+  return nil;
 }
 
--(void)setSelection:(id)arg withObject:(id)property
+- (void)setSelection:(id)arg withObject:(id)property
 {
-    NSInteger start = [TiUtils intValue:arg def: -1];
-    NSInteger end = [TiUtils intValue:property def:-1];
-    NSString* curValue = [TiUtils stringValue:[self valueForKey:@"value"]];
-    NSInteger textLength = [curValue length];
-    if ((start < 0) || (start > textLength) || (end < 0) || (end > textLength)) {
-        DebugLog(@"Invalid range for text selection. Ignoring.");
-        return;
-    }
-    TiThreadPerformOnMainThread(^{[(TiUITextWidget*)[self view] setSelectionFrom:arg to:property];}, NO);
+  NSInteger start = [TiUtils intValue:arg def:-1];
+  NSInteger end = [TiUtils intValue:property def:-1];
+  NSString *curValue = [TiUtils stringValue:[self valueForKey:@"value"]];
+  NSInteger textLength = [curValue length];
+  if ((start < 0) || (start > textLength) || (end < 0) || (end > textLength)) {
+    DebugLog(@"Invalid range for text selection. Ignoring.");
+    return;
+  }
+  TiThreadPerformOnMainThread(^{
+    [(TiUITextWidget *)[self view] setSelectionFrom:arg to:property];
+  },
+      NO);
 }
 #ifndef TI_USE_AUTOLAYOUT
 USE_VIEW_FOR_CONTENT_HEIGHT

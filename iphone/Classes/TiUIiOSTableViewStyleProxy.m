@@ -5,18 +5,18 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
-#import "TiBase.h"
 #import "TiUIiOSTableViewStyleProxy.h"
+#import "TiBase.h"
 
 @implementation TiUIiOSTableViewStyleProxy
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.TableViewStyle";
+  return @"Ti.UI.iOS.TableViewStyle";
 }
 
-MAKE_SYSTEM_PROP(PLAIN,UITableViewStylePlain);
-MAKE_SYSTEM_PROP(GROUPED,UITableViewStyleGrouped);
+MAKE_SYSTEM_PROP(PLAIN, UITableViewStylePlain);
+MAKE_SYSTEM_PROP(GROUPED, UITableViewStyleGrouped);
 
 @end
 

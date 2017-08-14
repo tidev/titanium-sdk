@@ -6,125 +6,119 @@
  */
 #ifdef USE_TI_UIIOSDOCUMENTVIEWER
 #import "TiUIiOSDocumentViewerProxy.h"
-#import "TiUtils.h"
-#import "TiBlob.h"
 #import "TiApp.h"
+#import "TiBlob.h"
+#import "TiUtils.h"
 #import "TiViewProxy.h"
 
 @implementation TiUIiOSDocumentViewerProxy
 
--(void)_destroy
+- (void)_destroy
 {
-	controller.delegate = nil;
-	RELEASE_TO_NIL(controller);
-	[super _destroy];
+  controller.delegate = nil;
+  RELEASE_TO_NIL(controller);
+  [super _destroy];
 }
 
--(UIDocumentInteractionController*)controller
+- (UIDocumentInteractionController *)controller
 {
-	if (controller==nil)
-	{
-		NSURL *url = [TiUtils toURL:[self valueForUndefinedKey:@"url"] proxy:self];
-		controller = [[UIDocumentInteractionController interactionControllerWithURL:url] retain];
-		controller.delegate = self;
-	}
-	return controller;
+  if (controller == nil) {
+    NSURL *url = [TiUtils toURL:[self valueForUndefinedKey:@"url"] proxy:self];
+    controller = [[UIDocumentInteractionController interactionControllerWithURL:url] retain];
+    controller.delegate = self;
+  }
+  return controller;
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.DocumentViewer";
+  return @"Ti.UI.iOS.DocumentViewer";
 }
 
--(void)setAnnotation:(id)args
+- (void)setAnnotation:(id)args
 {
-	[self controller].annotation = [args objectAtIndex:0];
+  [self controller].annotation = [args objectAtIndex:0];
 }
 
--(void)show:(id)args
+- (void)show:(id)args
 {
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-	[self rememberSelf];
-	ENSURE_UI_THREAD(show, args);
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+  [self rememberSelf];
+  ENSURE_UI_THREAD(show, args);
+  BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 
-	TiViewProxy* view = [args objectForKey:@"view"];
-	if (view!=nil)
-	{
-		if ([view supportsNavBarPositioning] && [view isUsingBarButtonItem])
-		{
-			UIBarButtonItem *item = [view barButtonItem];
-			[[self controller] presentOptionsMenuFromBarButtonItem:item animated:animated];
-			return;
-		}
-		
-		CGRect rect = [TiUtils rectValue:args];
-		[[self controller] presentOptionsMenuFromRect:rect inView:[view view] animated:animated];
-		return;
-	}
-	
-	[[self controller] presentPreviewAnimated:animated];
+  TiViewProxy *view = [args objectForKey:@"view"];
+  if (view != nil) {
+    if ([view supportsNavBarPositioning] && [view isUsingBarButtonItem]) {
+      UIBarButtonItem *item = [view barButtonItem];
+      [[self controller] presentOptionsMenuFromBarButtonItem:item animated:animated];
+      return;
+    }
+
+    CGRect rect = [TiUtils rectValue:args];
+    [[self controller] presentOptionsMenuFromRect:rect inView:[view view] animated:animated];
+    return;
+  }
+
+  [[self controller] presentPreviewAnimated:animated];
 }
 
--(void)hide:(id)args
+- (void)hide:(id)args
 {
-	ENSURE_TYPE_OR_NIL(args,NSDictionary);
-	ENSURE_UI_THREAD(hide, args);
-	BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-	[[self controller] dismissPreviewAnimated:animated];
+  ENSURE_TYPE_OR_NIL(args, NSDictionary);
+  ENSURE_UI_THREAD(hide, args);
+  BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+  [[self controller] dismissPreviewAnimated:animated];
 }
 
--(id)url
+- (id)url
 {
-	if (controller!=nil)
-	{
-		return [[[self controller] URL] absoluteString];
-	}
-	return nil;
+  if (controller != nil) {
+    return [[[self controller] URL] absoluteString];
+  }
+  return nil;
 }
 
--(void)setUrl:(id)value
+- (void)setUrl:(id)value
 {
-	ENSURE_TYPE(value,NSString);
-	NSURL *url = [TiUtils toURL:value proxy:self];
-	//UIDocumentInteractionController is recommended to be a new instance for every different url
-	//instead of having titanium developer create a new instance every time a new document url is loaded
-	//we assume that setUrl is called to change doc, so we go ahead and release the controller and create
-	//a new one when asked to present
-	RELEASE_TO_NIL(controller);
-	[self replaceValue:url forKey:@"url" notification:NO];
+  ENSURE_TYPE(value, NSString);
+  NSURL *url = [TiUtils toURL:value proxy:self];
+  //UIDocumentInteractionController is recommended to be a new instance for every different url
+  //instead of having titanium developer create a new instance every time a new document url is loaded
+  //we assume that setUrl is called to change doc, so we go ahead and release the controller and create
+  //a new one when asked to present
+  RELEASE_TO_NIL(controller);
+  [self replaceValue:url forKey:@"url" notification:NO];
 }
 
--(id)icons
+- (id)icons
 {
-	NSMutableArray *result = [NSMutableArray array];
-	
-	for (UIImage *image in [self controller].icons)
-	{
-		TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image];
-		[result addObject:image];
-		[blob release];
-	}
-	
-	return result;
+  NSMutableArray *result = [NSMutableArray array];
+
+  for (UIImage *image in [self controller].icons) {
+    TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image];
+    [result addObject:image];
+    [blob release];
+  }
+
+  return result;
 }
 
--(id)name
+- (id)name
 {
-	if (controller!=nil)
-	{
-		return [controller name];
-	}
-	return nil;
+  if (controller != nil) {
+    return [controller name];
+  }
+  return nil;
 }
 
 #pragma mark Delegates
 
 - (UIViewController *)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController *)controller
 {
-    return [[TiApp controller] topPresentedController];
+  return [[TiApp controller] topPresentedController];
 }
- 
+
 /*
 - (UIView *)documentInteractionControllerViewForPreview:(UIDocumentInteractionController *)controller
 {
@@ -133,41 +127,34 @@
 
 - (void)documentInteractionControllerWillBeginPreview:(UIDocumentInteractionController *)controller
 {
-	if ([self _hasListeners:@"load"])
-	{
-		[self fireEvent:@"load" withObject:nil];
-	}
+  if ([self _hasListeners:@"load"]) {
+    [self fireEvent:@"load" withObject:nil];
+  }
 }
 
 - (void)documentInteractionControllerDidEndPreview:(UIDocumentInteractionController *)controller
 {
-	if ([self _hasListeners:@"unload"])
-	{
-		[self fireEvent:@"unload" withObject:nil];
-	}
-	[self forgetSelf];
+  if ([self _hasListeners:@"unload"]) {
+    [self fireEvent:@"unload" withObject:nil];
+  }
+  [self forgetSelf];
 }
-
 
 - (void)documentInteractionControllerWillPresentOpenInMenu:(UIDocumentInteractionController *)controller
 {
-	if ([self _hasListeners:@"menu"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:@"open" forKey:@"type"];
-		[self fireEvent:@"menu" withObject:event];
-	}
+  if ([self _hasListeners:@"menu"]) {
+    NSDictionary *event = [NSDictionary dictionaryWithObject:@"open" forKey:@"type"];
+    [self fireEvent:@"menu" withObject:event];
+  }
 }
 
 - (void)documentInteractionControllerWillPresentOptionsMenu:(UIDocumentInteractionController *)controller
 {
-	if ([self _hasListeners:@"menu"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:@"options" forKey:@"type"];
-		[self fireEvent:@"menu" withObject:event];
-	}
+  if ([self _hasListeners:@"menu"]) {
+    NSDictionary *event = [NSDictionary dictionaryWithObject:@"options" forKey:@"type"];
+    [self fireEvent:@"menu" withObject:event];
+  }
 }
-
-
 
 @end
 

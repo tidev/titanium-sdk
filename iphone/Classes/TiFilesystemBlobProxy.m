@@ -9,165 +9,165 @@
 #ifdef USE_TI_FILESYSTEM
 #import "TiBase.h"
 
-#import "TiUtils.h"
-#import "TiBlob.h"
 #import "Mimetypes.h"
-
+#import "TiBlob.h"
+#import "TiUtils.h"
 
 @implementation TiFilesystemBlobProxy
 
--(id)initWithURL:(NSURL*)url_ data:(NSData*)data_
+- (id)initWithURL:(NSURL *)url_ data:(NSData *)data_
 {
-	if (self = [super initWithPath:[url_ path]])
-	{
-		url = [url_ retain];
-		data = [data_ retain];
-	}
-	return self;
+  if (self = [super initWithPath:[url_ path]]) {
+    url = [url_ retain];
+    data = [data_ retain];
+  }
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(url);
-	RELEASE_TO_NIL(data);
-	[super dealloc];
+  RELEASE_TO_NIL(url);
+  RELEASE_TO_NIL(data);
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    //Should we return Ti.FileSystem.Blob? 
-    return @"Ti.Filesystem.File";
+  //Should we return Ti.FileSystem.Blob?
+  return @"Ti.Filesystem.File";
 }
 
--(id)nativePath
+- (id)nativePath
 {
-	return [[NSURL fileURLWithPath:path] absoluteString];
+  return [[NSURL fileURLWithPath:path] absoluteString];
 }
 
--(id)exists:(id)args
+- (id)exists:(id)args
 {
-	return NUMBOOL(YES);
+  return NUMBOOL(YES);
 }
 
--(id)readonly
+- (id)readonly
 {
-	return NUMBOOL(YES);
+  return NUMBOOL(YES);
 }
 
--(id)symbolicLink
+- (id)symbolicLink
 {
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
--(id)writable
+- (id)writable
 {
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
-#define FILENOOP(name) \
--(id)name\
-{\
-return NUMBOOL(NO);\
-}\
+#define FILENOOP(name)  \
+  -(id)name             \
+  {                     \
+    return NUMBOOL(NO); \
+  }
 
 FILENOOP(executable);
 FILENOOP(hidden);
-FILENOOP(setReadonly:(id)x);
-FILENOOP(setExecutable:(id)x);
-FILENOOP(setHidden:(id)x);
+FILENOOP(setReadonly
+         : (id)x);
+FILENOOP(setExecutable
+         : (id)x);
+FILENOOP(setHidden
+         : (id)x);
 
--(id)createTimestamp:(id)args
+- (id)createTimestamp:(id)args
 {
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
--(id)modificationTimestamp:(id)args
+- (id)modificationTimestamp:(id)args
 {
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
--(id)getDirectoryListing:(id)args
+- (id)getDirectoryListing:(id)args
 {
-	return [NSArray array];
+  return [NSArray array];
 }
 
--(id)spaceAvailable:(id)args
+- (id)spaceAvailable:(id)args
 {
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
--(id)createDirectory:(id)args
+- (id)createDirectory:(id)args
 {
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
--(id)createFile:(id)args
+- (id)createFile:(id)args
 {
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
--(id)deleteDirectory:(id)args
+- (id)deleteDirectory:(id)args
 {
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
--(id)deleteFile:(id)args
+- (id)deleteFile:(id)args
 {
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
--(id)move:(id)args
+- (id)move:(id)args
 {
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
--(id)rename:(id)args
+- (id)rename:(id)args
 {
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
--(id)read:(id)args
+- (id)read:(id)args
 {
-	NSString *mimetype = [Mimetypes mimeTypeForExtension:[[url path]lastPathComponent]];
-	return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:data mimetype:mimetype] autorelease];
+  NSString *mimetype = [Mimetypes mimeTypeForExtension:[[url path] lastPathComponent]];
+  return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:data mimetype:mimetype] autorelease];
 }
 
--(id)append:(id)args
+- (id)append:(id)args
 {
-	return NUMBOOL(NO);
-}            
-
--(id)write:(id)args
-{
-	return NUMBOOL(NO);
+  return NUMBOOL(NO);
 }
 
--(id)extension:(id)args
+- (id)write:(id)args
 {
-	return [path pathExtension];
+  return NUMBOOL(NO);
 }
 
--(id)getParent:(id)args
+- (id)extension:(id)args
 {
-	return nil;
+  return [path pathExtension];
 }
 
--(id)name
+- (id)getParent:(id)args
 {
-	return [path lastPathComponent];
+  return nil;
 }
 
--(id)resolve:(id)args
+- (id)name
 {
-	return [self nativePath];
+  return [path lastPathComponent];
 }
 
--(id)description
+- (id)resolve:(id)args
 {
-	return path;
+  return [self nativePath];
+}
+
+- (id)description
+{
+  return path;
 }
 
 @end
-
 
 #endif

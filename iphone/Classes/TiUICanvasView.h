@@ -11,12 +11,12 @@
 @class TiUICanvasViewContextProxy;
 
 @interface TiUICanvasView : TiUIView {
-@private
-	NSMutableArray *operations;
+  @private
+  NSMutableArray *operations;
 }
 
--(void)begin;
--(void)commit;
+- (void)begin;
+- (void)commit;
 
 @end
 

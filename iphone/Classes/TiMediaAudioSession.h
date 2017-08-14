@@ -6,32 +6,32 @@
  */
 #ifdef USE_TI_MEDIA
 
-extern NSString * const kTiMediaAudioSessionInterruptionBegin;
-extern NSString * const kTiMediaAudioSessionInterruptionEnd;
-extern NSString * const kTiMediaAudioSessionRouteChange;
-extern NSString * const kTiMediaAudioSessionVolumeChange;
-extern NSString * const kTiMediaAudioSessionInputChange;
+extern NSString *const kTiMediaAudioSessionInterruptionBegin;
+extern NSString *const kTiMediaAudioSessionInterruptionEnd;
+extern NSString *const kTiMediaAudioSessionRouteChange;
+extern NSString *const kTiMediaAudioSessionVolumeChange;
+extern NSString *const kTiMediaAudioSessionInputChange;
 
 @interface TiMediaAudioSession : NSObject {
-@private
-	NSInteger count;
-	NSLock *lock;
+  @private
+  NSInteger count;
+  NSLock *lock;
 }
 
-@property (readwrite, assign) NSString* sessionMode;
+@property (readwrite, assign) NSString *sessionMode;
 
-+(TiMediaAudioSession*)sharedSession;
++ (TiMediaAudioSession *)sharedSession;
 
--(void)startAudioSession;
--(void)stopAudioSession;
--(BOOL)canRecord;
--(BOOL)canPlayback;
--(BOOL)isActive;
--(NSDictionary*)currentRoute;
--(CGFloat)volume;
--(BOOL)isAudioPlaying;
--(BOOL)hasInput;
--(void)setRouteOverride:(UInt32)mode;
+- (void)startAudioSession;
+- (void)stopAudioSession;
+- (BOOL)canRecord;
+- (BOOL)canPlayback;
+- (BOOL)isActive;
+- (NSDictionary *)currentRoute;
+- (CGFloat)volume;
+- (BOOL)isAudioPlaying;
+- (BOOL)hasInput;
+- (void)setRouteOverride:(UInt32)mode;
 
 @end
 

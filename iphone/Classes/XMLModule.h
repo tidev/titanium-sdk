@@ -8,9 +8,7 @@
 
 #ifdef USE_TI_XML
 
-
 @interface XMLModule : TiModule {
-
 }
 
 @end
