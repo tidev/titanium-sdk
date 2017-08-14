@@ -10,13 +10,12 @@
 
 @interface TiUIiPhoneScrollIndicatorStyleProxy : TiProxy {
 
-@private
-
+  @private
 }
 
-@property(nonatomic,readonly) NSNumber *DEFAULT;
-@property(nonatomic,readonly) NSNumber *BLACK;
-@property(nonatomic,readonly) NSNumber *WHITE;
+@property (nonatomic, readonly) NSNumber *DEFAULT;
+@property (nonatomic, readonly) NSNumber *BLACK;
+@property (nonatomic, readonly) NSNumber *WHITE;
 
 @end
 

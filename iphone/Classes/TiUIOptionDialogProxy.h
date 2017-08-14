@@ -9,22 +9,22 @@
 #import "TiProxy.h"
 @class TiViewProxy;
 
-@interface TiUIOptionDialogProxy : TiProxy<UIPopoverPresentationControllerDelegate> {
+@interface TiUIOptionDialogProxy : TiProxy <UIPopoverPresentationControllerDelegate> {
 
-    UIAlertController* alertController;
-    TiViewProxy *dialogView;
-    UIColor *tintColor;
-    CGRect dialogRect;
-    BOOL animated;
-    NSUInteger accumulatedOrientationChanges;
-    BOOL showDialog;
-    BOOL persistentFlag;
-    BOOL forceOpaqueBackground;
-    int cancelButtonIndex;
-    int destructiveButtonIndex;
+  UIAlertController *alertController;
+  TiViewProxy *dialogView;
+  UIColor *tintColor;
+  CGRect dialogRect;
+  BOOL animated;
+  NSUInteger accumulatedOrientationChanges;
+  BOOL showDialog;
+  BOOL persistentFlag;
+  BOOL forceOpaqueBackground;
+  int cancelButtonIndex;
+  int destructiveButtonIndex;
 }
 
-@property(nonatomic,retain,readwrite)	TiViewProxy *dialogView;
+@property (nonatomic, retain, readwrite) TiViewProxy *dialogView;
 
 @end
 

@@ -8,7 +8,6 @@
 #import "TiViewProxy.h"
 
 @interface TiUIiOSBlurViewProxy : TiViewProxy {
-
 }
 
 @end
