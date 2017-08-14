@@ -12,27 +12,27 @@
 /**
  The menu items to be presented inside the menu.
  */
-@property(nonatomic,retain) NSMutableArray *menuItems;
+@property (nonatomic, retain) NSMutableArray *menuItems;
 
 /**
  Shows the menu popup.
  */
--(void)show:(id)args;
+- (void)show:(id)args;
 
 /**
  Hides the menu popup.
  */
--(void)hide:(id)args;
+- (void)hide:(id)args;
 
 /*
  Sets the items of the menu.
  */
--(void)setItems:(id)args;
+- (void)setItems:(id)args;
 
 /*
  Determines if the menu is currenty visible.
  */
--(NSNumber*)isVisible:(id)unused;
+- (NSNumber *)isVisible:(id)unused;
 
 @end
 #endif

@@ -8,11 +8,11 @@
 #import "TiUIView.h"
 
 @interface TiUIiOSStepper : TiUIView {
-@private
-    UIStepper *stepper;
-    UIImage *backgroundImageCache;
-    bool touchStarted;
+  @private
+  UIStepper *stepper;
+  UIImage *backgroundImageCache;
+  bool touchStarted;
 }
--(UIStepper*)stepper;
+- (UIStepper *)stepper;
 @end
 #endif

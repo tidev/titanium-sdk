@@ -8,12 +8,11 @@
 
 #import "TiViewProxy.h"
 
-@interface TiUIScrollViewProxy : TiViewProxy<UIScrollViewDelegate> 
-{
-    TiPoint * contentOffset;
+@interface TiUIScrollViewProxy : TiViewProxy <UIScrollViewDelegate> {
+  TiPoint *contentOffset;
 }
--(void) setContentOffset:(id)value withObject:(id)animated;
--(void)layoutChildrenAfterContentSize:(BOOL)optimize;
+- (void)setContentOffset:(id)value withObject:(id)animated;
+- (void)layoutChildrenAfterContentSize:(BOOL)optimize;
 
 @end
 

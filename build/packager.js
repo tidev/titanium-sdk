@@ -7,6 +7,7 @@ var path = require('path'),
 	utils = require('./utils'),
 	copyFile = utils.copyFile,
 	copyFiles = utils.copyFiles,
+	downloadURL = utils.downloadURL,
 	ROOT_DIR = path.join(__dirname, '..'),
 	SUPPORT_DIR = path.join(ROOT_DIR, 'support'),
 	DOC_DIR = path.join(ROOT_DIR, 'apidoc');
@@ -151,35 +152,53 @@ Packager.prototype.includePackagedModules = function (next) {
 	// Unzip all the zipfiles in support/module/packaged
 	var outDir = this.zipDir,
 		supportedPlatforms = this.platforms.concat(['commonjs']),
-		items = [];
+		urls = [], // urls of module zips to grab
+		zipFiles = [],
+		contents = '',
+		modulesJSON = {};
 	// Include aliases for ios/iphone/ipad
 	if (supportedPlatforms.indexOf('ios') != -1 ||
 		supportedPlatforms.indexOf('iphone') != -1 ||
 		supportedPlatforms.indexOf('ipad') != -1) {
 		supportedPlatforms = supportedPlatforms.concat(['ios', 'iphone', 'ipad']);
 	}
-	fs.walk(path.join(SUPPORT_DIR, 'module', 'packaged'))
-		.on('data', function (item) {
-			var m,
-				r = /([\w\.]+)?-(\w+)?-([\d\.]+)\.zip$/;
-			// Skip modules for platforms we're not bundling!
-			if (m = item.path.match(r)) {
-				if (supportedPlatforms.indexOf(m[2]) != -1) {
-					items.push(item);
-				}
+
+	// Read modules.json, grab the object for each supportedPlatform
+	contents = fs.readFileSync(path.join(SUPPORT_DIR, 'module', 'packaged', 'modules.json')).toString(),
+	modulesJSON = JSON.parse(contents);
+	var newModuleURLS = [];
+	for (var x = 0; x < supportedPlatforms.length; x++) {
+		newModuleURLS = modulesJSON[supportedPlatforms[x]];
+		urls = urls.concat(newModuleURLS || []);
+	}
+
+	// Fetch the listed modules from URLs...
+	async.each(urls, function (url, cb) {
+		// FIXME Don't show progress bars, because they clobber each other
+		downloadURL(url, function (err, file) {
+			if (err) {
+				return cb(err);
 			}
-		})
-		.on('end', function () {
-			// MUST RUN IN SERIES or they will clobber each other and unzip will fail mysteriously
-			async.eachSeries(items, function (item, cb) {
-				unzip(item.path, outDir, function (err) {
-					if (err) {
-						return cb(err);
-					}
-					cb();
-				});
-			}, next);
+			zipFiles.push(file);
+			cb();
 		});
+	},
+	// ...then unzip them
+	function (err) {
+		if (err) {
+			return next(err);
+		}
+
+		// MUST RUN IN SERIES or they will clobber each other and unzip will fail mysteriously
+		async.eachSeries(zipFiles, function (zipFile, cb) {
+			unzip(zipFile, outDir, function (err) {
+				if (err) {
+					return cb(err);
+				}
+				cb();
+			});
+		}, next);
+	});
 };
 
 /**
@@ -220,10 +239,6 @@ Packager.prototype.package = function (next) {
 			// Copy some root files, cli/, templates/, node_modules minus .bin sub-dir
 			this.copy(['CREDITS', 'README.md', 'package.json', 'cli', 'node_modules', 'templates'], cb);
 		}.bind(this),
-		// Remove binary scripts from node_modules
-		function (cb) {
-			fs.remove(path.join(this.zipSDKDir, 'node_modules', '.bin'), cb);
-		}.bind(this),
 		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
 		function (cb) {
 			console.log('Pruning to production npm dependencies');
@@ -236,10 +251,33 @@ Packager.prototype.package = function (next) {
 				cb();
 			});
 		}.bind(this),
+		// Remove any remaining binary scripts from node_modules
+		function (cb) {
+			fs.remove(path.join(this.zipSDKDir, 'node_modules', '.bin'), cb);
+		}.bind(this),
+		// Now include all the pre-built node-ios-device bindings/binaries
+		function (cb) {
+			if (this.targetOS === 'osx') {
+				var dir = path.join(this.zipSDKDir, 'node_modules', 'node-ios-device');
+
+				if (!fs.existsSync(dir)) {
+				    dir = path.join(this.zipSDKDir, 'node_modules', 'ioslib', 'node_modules', 'node-ios-device');
+				}
+
+				if (!fs.existsSync(dir)) {
+				    return cb(new Error('Unable to find node-ios-device module'));
+				}
+
+				exec('node bin/download-all.js', { cwd: dir, stdio: 'inherit' }, cb);
+
+			} else {
+				cb();
+			}
+		}.bind(this),
 		// FIXME Remove these hacks for titanium-sdk when titanium-cli has been released and the tisdk3fixes.js hook is gone!
 		// Now copy over hacked titanium-sdk fake node_module
 		function (cb) {
-			console.log('Copying titanium-sdk node_mdoule stub for backwards compatability with titanium-cli');
+			console.log('Copying titanium-sdk node_module stub for backwards compatibility with titanium-cli');
 			fs.copy(path.join(__dirname, 'titanium-sdk'), path.join(this.zipSDKDir, 'node_modules', 'titanium-sdk'), cb);
 		}.bind(this),
 		// Hack the package.json to include "titanium-sdk": "*" in dependencies
@@ -253,16 +291,17 @@ Packager.prototype.package = function (next) {
 		this.includePackagedModules.bind(this),
 		function (cb) {
 			var ignoreDirs = ['packaged', '.pyc'];
+			ignoreDirs.push(path.join(SUPPORT_DIR, 'dev'));
 			// Copy support/ into root, but filter out folders based on OS
 			if (this.targetOS == 'win32') {
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'iphone'))
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'osx'))
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'iphone'));
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'osx'));
 			} else if (this.targetOS == 'linux') {
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'iphone'))
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'osx'))
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'win32'))
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'iphone'));
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'osx'));
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'win32'));
 			} else if (this.targetOS == 'osx') {
-				ignoreDirs.push(path.join(SUPPORT_DIR, 'win32'))
+				ignoreDirs.push(path.join(SUPPORT_DIR, 'win32'));
 			}
 			fs.copy(SUPPORT_DIR, this.zipSDKDir, { filter: function (src) {
 				for (var x = 0; x < ignoreDirs.length; x++) {

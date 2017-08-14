@@ -185,7 +185,7 @@ exports.init = function (logger, config, cli) {
 						logger.trace(__('Checking if package manager service is started'));
 
 						(function installApp() {
-							adb.shell(device.id, 'ps', function (err, output) {
+							adb.ps(device.id, function (err, output) {
 								if (err || output.toString().indexOf('system_server') === -1) {
 									logger.trace(__('Package manager not started yet, trying again in %sms...', retryInterval));
 									intervalTimer = setTimeout(installApp, retryInterval);
@@ -245,7 +245,7 @@ exports.init = function (logger, config, cli) {
 
 						// start of a new log message
 						if (device.appPidRegExp.test(line)) {
-							line = line.trim().replace(/\%/g, '%%').replace(device.appPidRegExp, ':');
+							line = line.trim().replace(device.appPidRegExp, ':');
 							logLevel = line.charAt(0).toLowerCase();
 							if (tiapiRegExp.test(line)) {
 								line = line.replace(tiapiRegExp, '').trim();

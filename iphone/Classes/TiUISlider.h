@@ -8,23 +8,27 @@
 
 #import "TiUIView.h"
 
+@interface TiUISlider : TiUIView <LayoutAutosizing> {
+  @private
+  UISlider *sliderView;
+  NSDate *lastTouchUp;
+  NSTimeInterval lastTimeInterval;
 
-@interface TiUISlider : TiUIView<LayoutAutosizing> {
-@private
-	UISlider *sliderView;
-	NSDate* lastTouchUp;
-	NSTimeInterval lastTimeInterval;
-	
-	UIControlState thumbImageState;
-	UIControlState rightTrackImageState;
-	UIControlState leftTrackImageState;
-    TiDimension leftTrackLeftCap;
-    TiDimension leftTrackTopCap;
-    TiDimension rightTrackLeftCap;
-    TiDimension rightTrackTopCap;
+  UIControlState thumbImageState;
+  UIControlState rightTrackImageState;
+  UIControlState leftTrackImageState;
+  TiDimension leftTrackLeftCap;
+  TiDimension leftTrackTopCap;
+  TiDimension rightTrackLeftCap;
+  TiDimension rightTrackTopCap;
 }
 
-- (IBAction)sliderChanged:(id)sender;
+/**
+ * Internal method used to trigger the value-change from the proxy instead.
+ * This is required in order to handle complex arguments, e.g. number and 
+ * animated-flag in one command.
+ */
+- (void)_setValue:(id)value;
 
 @end
 

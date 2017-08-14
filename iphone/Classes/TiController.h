@@ -7,15 +7,14 @@
 
 #import "TiViewProxy.h"
 
-
 //TODO: rename tab controller
 
 @protocol TiController
 
 @optional
--(id)initWithViewProxy:(TiViewProxy*)proxy;
+- (id)initWithViewProxy:(TiViewProxy *)proxy;
 
 @required
--(TiViewProxy*)proxy;
+- (TiViewProxy *)proxy;
 
 @end

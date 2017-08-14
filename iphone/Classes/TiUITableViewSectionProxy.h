@@ -11,29 +11,28 @@
 @class TiUITableViewRowProxy;
 @class TiUITableView;
 
-@interface TiUITableViewSectionProxy : TiViewProxy <TiProxyDelegate,NSFastEnumeration> 
-{
-@private
-	NSMutableArray *rows;
-	TiUITableView *table;
-	NSInteger section;
+@interface TiUITableViewSectionProxy : TiViewProxy <TiProxyDelegate, NSFastEnumeration> {
+  @private
+  NSMutableArray *rows;
+  TiUITableView *table;
+  NSInteger section;
 }
 
-@property(nonatomic,readonly) NSMutableArray *rows;
-@property(nonatomic,readonly) NSInteger rowCount;
-@property(nonatomic,readonly,assign) NSString *headerTitle;
-@property(nonatomic,readonly,assign) NSString *footerTitle;
+@property (nonatomic, readonly) NSMutableArray *rows;
+@property (nonatomic, readonly) NSInteger rowCount;
+@property (nonatomic, readonly, assign) NSString *headerTitle;
+@property (nonatomic, readonly, assign) NSString *footerTitle;
 
--(void)add:(id)proxy;
--(void)remove:(id)proxy;
+- (void)add:(id)proxy;
+- (void)remove:(id)proxy;
 
 #pragma mark Framework
--(TiUITableViewRowProxy*)rowAtIndex:(NSInteger)index;
-@property(nonatomic,readwrite,assign) TiUITableView *table;
-@property(nonatomic,readwrite,assign) NSInteger section;
+- (TiUITableViewRowProxy *)rowAtIndex:(NSInteger)index;
+@property (nonatomic, readwrite, assign) TiUITableView *table;
+@property (nonatomic, readwrite, assign) NSInteger section;
 
--(void)triggerSectionUpdate;
--(void)reorderRows;
+- (void)triggerSectionUpdate;
+- (void)reorderRows;
 
 @end
 

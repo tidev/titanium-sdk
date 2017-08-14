@@ -19,6 +19,8 @@
         <item name="android:listPreferredItemPaddingLeft">@dimen/abc_list_item_padding_horizontal_material</item>
         <item name="android:listPreferredItemPaddingRight">@dimen/abc_list_item_padding_horizontal_material</item>
     </style>
+    <style name="TextAppearance.AppCompat.Notification" parent="@android:style/TextAppearance.StatusBar.EventContent"/>
+    <style name="TextAppearance.AppCompat.Notification.Title" parent="@android:style/TextAppearance.StatusBar.EventContent.Title"/>
     <style name="TextAppearance.StatusBar.EventContent" parent="@android:style/TextAppearance.StatusBar.EventContent"/>
     <style name="TextAppearance.StatusBar.EventContent.Info"/>
     <style name="TextAppearance.StatusBar.EventContent.Line2">

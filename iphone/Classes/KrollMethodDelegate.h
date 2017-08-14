@@ -11,14 +11,14 @@
 // invoked. it provides a clean separation between Kroll and an implementation
 //
 @interface KrollMethodDelegate : NSObject {
-@private
-	id target;
-	SEL selector;
-	BOOL args;
+  @private
+  id target;
+  SEL selector;
+  BOOL args;
 }
--(id)initWithTarget:(id)target selector:(SEL)selector args:(BOOL)args_;
--(id)target;
--(SEL)selector;
--(BOOL)args;
+- (id)initWithTarget:(id)target selector:(SEL)selector args:(BOOL)args_;
+- (id)target;
+- (SEL)selector;
+- (BOOL)args;
 
 @end

@@ -7,7 +7,6 @@
 #import "TiProxy.h"
 #ifdef USE_TI_CALENDAR
 @interface TiCalendarReminder : TiProxy {
-
 }
 
 @end
