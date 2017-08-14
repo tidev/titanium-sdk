@@ -7,13 +7,13 @@
 #import "TiModule.h"
 #import <WatchConnectivity/watchConnectivity.h>
 
-@interface WatchSessionModule : TiModule<WCSessionDelegate> {
-@private
-    WCSession *watchSession;
+@interface WatchSessionModule : TiModule <WCSessionDelegate> {
+  @private
+  WCSession *watchSession;
 }
 
-@property(nonatomic,readonly) NSNumber* ACTIVATION_STATE_NOT_ACTIVATED;
-@property(nonatomic,readonly) NSNumber* ACTIVATION_STATE_INACTIVE;
-@property(nonatomic,readonly) NSNumber* ACTIVATION_STATE_ACTIVATED;
+@property (nonatomic, readonly) NSNumber *ACTIVATION_STATE_NOT_ACTIVATED;
+@property (nonatomic, readonly) NSNumber *ACTIVATION_STATE_INACTIVE;
+@property (nonatomic, readonly) NSNumber *ACTIVATION_STATE_ACTIVATED;
 
 @end

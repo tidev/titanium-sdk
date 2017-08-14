@@ -10,6 +10,6 @@
 
 @interface TiUIiOSLivePhoto : TiProxy
 
-@property(nonatomic,retain) PHLivePhoto *livePhoto;
+@property (nonatomic, retain) PHLivePhoto *livePhoto;
 
 @end

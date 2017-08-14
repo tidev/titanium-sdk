@@ -11,18 +11,17 @@
 
 @implementation TiUICanvasViewProxy
 
--(void)begin:(id)args
+- (void)begin:(id)args
 {
-	TiUICanvasView *canvas = (TiUICanvasView*)[self view];
-	[canvas begin];
+  TiUICanvasView *canvas = (TiUICanvasView *)[self view];
+  [canvas begin];
 }
 
--(void)commit:(id)args
+- (void)commit:(id)args
 {
-	TiUICanvasView *canvas = (TiUICanvasView*)[self view];
-	[canvas commit];
+  TiUICanvasView *canvas = (TiUICanvasView *)[self view];
+  [canvas commit];
 }
-
 
 @end
 

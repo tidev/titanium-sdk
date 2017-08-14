@@ -11,14 +11,14 @@
 
 @implementation TiUIiPhoneListViewCellSelectionStyleProxy
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iPhone.ListViewCellSelectionStyle";
+  return @"Ti.UI.iPhone.ListViewCellSelectionStyle";
 }
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(NONE,UITableViewCellSelectionStyleNone,    @"UI.iPhone.ListViewCellSelectionStyle.NONE",@"5.4.0",@"UI.iOS.ListViewCellSelectionStyle.NONE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLUE,UITableViewCellSelectionStyleBlue,    @"UI.iPhone.ListViewCellSelectionStyle.BLUE",@"5.4.0",@"UI.iOS.ListViewCellSelectionStyle.BLUE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(GRAY,UITableViewCellSelectionStyleGray,    @"UI.iPhone.ListViewCellSelectionStyle.GRAY",@"5.4.0",@"UI.iOS.ListViewCellSelectionStyle.GRAY");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(NONE, UITableViewCellSelectionStyleNone, @"UI.iPhone.ListViewCellSelectionStyle.NONE", @"5.4.0", @"UI.iOS.ListViewCellSelectionStyle.NONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLUE, UITableViewCellSelectionStyleBlue, @"UI.iPhone.ListViewCellSelectionStyle.BLUE", @"5.4.0", @"UI.iOS.ListViewCellSelectionStyle.BLUE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(GRAY, UITableViewCellSelectionStyleGray, @"UI.iPhone.ListViewCellSelectionStyle.GRAY", @"5.4.0", @"UI.iOS.ListViewCellSelectionStyle.GRAY");
 
 @end
 

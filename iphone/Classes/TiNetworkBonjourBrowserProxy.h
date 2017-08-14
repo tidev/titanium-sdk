@@ -9,29 +9,29 @@
 
 #ifdef USE_TI_NETWORK
 
-#import <Foundation/Foundation.h>
 #import "TiProxy.h"
+#import <Foundation/Foundation.h>
 #import <Foundation/NSNetServices.h>
 
 // NSNetServiceBrowser delegate
-@interface TiNetworkBonjourBrowserProxy : TiProxy<NSNetServiceBrowserDelegate> {
-    NSNetServiceBrowser* browser;
-    NSString* serviceType;
-    NSString* domain;
-    
-    NSMutableArray* services;
-    
-    BOOL searching;
-    NSString* error;
-    NSCondition* searchCondition;
+@interface TiNetworkBonjourBrowserProxy : TiProxy <NSNetServiceBrowserDelegate> {
+  NSNetServiceBrowser *browser;
+  NSString *serviceType;
+  NSString *domain;
+
+  NSMutableArray *services;
+
+  BOOL searching;
+  NSString *error;
+  NSCondition *searchCondition;
 }
 
--(void)search:(id)unused;
--(void)stopSearch:(id)unused;
+- (void)search:(id)unused;
+- (void)stopSearch:(id)unused;
 
-@property(readonly, nonatomic) NSString* serviceType;
-@property(readonly, nonatomic) NSString* domain;
-@property(readonly, nonatomic, getter=isSearching) NSNumber* searching;
+@property (readonly, nonatomic) NSString *serviceType;
+@property (readonly, nonatomic) NSString *domain;
+@property (readonly, nonatomic, getter=isSearching) NSNumber *searching;
 
 @end
 

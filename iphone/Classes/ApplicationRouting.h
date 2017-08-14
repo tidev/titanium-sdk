@@ -8,5 +8,5 @@
 
 @interface ApplicationRouting : NSObject {
 }
-+ (NSData*) resolveAppAsset:(NSString*)path;
++ (NSData *)resolveAppAsset:(NSString *)path;
 @end

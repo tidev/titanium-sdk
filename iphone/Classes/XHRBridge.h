@@ -6,20 +6,17 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import <Foundation/Foundation.h>
 #import "Bridge.h"
+#import <Foundation/Foundation.h>
 
 @class XHRBridge;
 
-@interface AppProtocolHandler : NSURLProtocol
-{
+@interface AppProtocolHandler : NSURLProtocol {
 }
-+ (void) registerSpecialProtocol;
++ (void)registerSpecialProtocol;
 @end
 
-@interface XHRBridge : Bridge
-{
-
+@interface XHRBridge : Bridge {
 }
 
 @end
