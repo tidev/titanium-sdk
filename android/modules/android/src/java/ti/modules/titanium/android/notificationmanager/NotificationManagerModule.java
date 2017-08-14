@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,11 +14,13 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.kroll.KrollDict;
 
 import ti.modules.titanium.android.AndroidModule;
+
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+
 import java.util.HashMap;
 
 @Kroll.module(parentModule=AndroidModule.class)
@@ -78,13 +80,12 @@ public class NotificationManagerModule extends KrollModule
 	{
 		getManager().notify(id, notificationProxy.buildNotification());
 
-		HashMap wakeParams = notificationProxy.wakeParams;
+		HashMap wakeParams = notificationProxy.getWakeParams();
 		if (wakeParams != null) {
 			int wakeTime = TiConvert.toInt(wakeParams.get("time"), 3000);
 			int wakeFlags = TiConvert.toInt(wakeParams.get("flags"), (PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE));
 			PowerManager pm = (PowerManager) TiApplication.getInstance().getSystemService(TiApplication.getInstance().getApplicationContext().POWER_SERVICE);
-			boolean isScreenOn = pm.isScreenOn();
-			if (isScreenOn == false) {
+			if (pm != null && !pm.isScreenOn()) {
 				WakeLock wl = pm.newWakeLock(wakeFlags, "TiWakeLock");
 				wl.acquire(wakeTime);
 			}
