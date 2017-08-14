@@ -119,8 +119,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 		if (krollDict.containsKey(TiC.PROPERTY_MESSAGE)) {
 			builder.setMessage(krollDict.getString(TiC.PROPERTY_MESSAGE));
 		}
-		if (krollDict.containsKey(TiC.PROPERTY_BUTTON_NAMES))
-		{
+		if (krollDict.containsKey(TiC.PROPERTY_BUTTON_NAMES)) {
 			buttonText = krollDict.getStringArray(TiC.PROPERTY_BUTTON_NAMES);
 		} else if (krollDict.containsKey(TiC.PROPERTY_OK)) {
 			buttonText = new String[]{krollDict.getString(TiC.PROPERTY_OK)};
@@ -175,7 +174,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 					builder.setPositiveButton(text, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							fireEvent(TiC.EVENT_TILE_DIALOG_POSITIVE,null);
+							fireEvent(TiC.EVENT_TILE_DIALOG_POSITIVE, null);
 						}
 					});
 					break;
@@ -183,7 +182,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 					builder.setNeutralButton(text, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							fireEvent(TiC.EVENT_TILE_DIALOG_NEUTRAL,null);
+							fireEvent(TiC.EVENT_TILE_DIALOG_NEUTRAL, null);
 						}
 					});
 					break;
@@ -191,7 +190,7 @@ public class QuickSettingsServiceProxy extends ServiceProxy {
 					builder.setNegativeButton(text, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							fireEvent(TiC.EVENT_TILE_DIALOG_NEGATIVE,null);
+							fireEvent(TiC.EVENT_TILE_DIALOG_NEGATIVE, null);
 						}
 					});
 					break;

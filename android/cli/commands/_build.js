@@ -3598,14 +3598,8 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			if (service.type == 'quicksettings') {
 				s = {};
 				var serviceName = this.appid + '.' + service.classname;
-				var icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
-				if (service.icon) {
-					icon = '@drawable/' + service.icon.replace(/((\.9)?\.(png|jpg))$/, '');
-				}
-				var label = this.tiapp.name;
-				if (service.label) {
-					label = service.label;
-				}
+				var icon = '@drawable/' + (service.label || this.tiapp).icon.replace(/((\.9)?\.(png|jpg))$/, '');
+				var label = service.label || this.tiapp.name;
 				serviceXML = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'QuickService.xml')).toString(), {
 					serviceName: serviceName,
 					icon: icon,
