@@ -153,6 +153,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DRAGSTART = "dragstart";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DRAGEND = "dragend";
 
 	/**

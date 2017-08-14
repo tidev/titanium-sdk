@@ -427,7 +427,7 @@ properties:
     description: |
         If the timestamp is set to 0, no time is displayed in the notification
         window for this notification.
-    type: [Date,Number]
+    type: [Date, Number]
 
 ---
 name: wakeLockOptions
@@ -436,10 +436,10 @@ since: 6.2.0
 properties:
   - name: time
     summary: Minimum time the device will be switched on (plus device switch-off time)
-    type: int
+    type: Number
     default: 3000
   - name: flags
     summary: Wake lock level and flag. See [PowerManager.newWakeLock in the Android API Reference](https://developer.android.com/reference/android/os/PowerManager.html#newWakeLock(int,%20java.lang.String))
-    type: int
+    type: Number
     constants: [Titanium.Android.WAKE_LOCK_*]
     default: Titanium.Android.WAKE_LOCK_FULL | Titanium.Android.WAKE_LOCK_ACQUIRE_CAUSES_WAKEUP | Titanium.Android.WAKE_LOCK_ON_AFTER_RELEASE
