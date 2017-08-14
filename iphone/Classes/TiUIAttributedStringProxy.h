@@ -19,6 +19,7 @@
 typedef enum {
 	AttributeNameFont,
 	AttributeNameParagraphStyle,
+	AttributeNameLineSpacing,
 	AttributeNameForegroundColor,
 	AttributeNameBackgroundColor,
 	AttributeNameLigature,
