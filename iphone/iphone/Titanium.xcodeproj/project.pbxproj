@@ -1652,13 +1652,6 @@
 			name = Coverflow;
 			sourceTree = "<group>";
 		};
-		24CA8C5E1111655E0084E2DE /* iPhone */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = iPhone;
-			sourceTree = "<group>";
-		};
 		24CA8C5F111165720084E2DE /* Option Dialog */ = {
 			isa = PBXGroup;
 			children = (
@@ -1880,7 +1873,6 @@
 				2BDEA4F41448FFCB004EC750 /* Tabbedbar */,
 				24CA8C5D111165550084E2DE /* Coverflow */,
 				24D06FE311D0216100F615D8 /* iAd */,
-				24CA8C5E1111655E0084E2DE /* iPhone */,
 				24FB4ECF115C8120001AAF99 /* iPad */,
 				24E50E031160661600AF54AF /* Dashboard */,
 				24D0700411D0253D00F615D8 /* TiUIiOSProxy.h */,
