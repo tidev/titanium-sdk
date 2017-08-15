@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-
-var exec = require('child_process').exec;
-var spawn = require('child_process').spawn;
-var fs = require('fs');
-var path = require('path');
+const exec = require('child_process').exec, // eslint-disable-line security/detect-child-process
+	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
+	fs = require('fs'),
+	path = require('path');
 
 if (parseInt(process.versions.modules) < 46) {
 	console.error('You must run this using Node.js 4.0 or newer. Sorry.');
@@ -31,7 +30,7 @@ function rm(dir, ignore) {
 	});
 }
 
-exec('npm -v', function (err, stdout, stderr) {
+exec('npm -v', function (err, stdout) {
 	if (err) {
 		console.error(err);
 		process.exit(1);
@@ -43,10 +42,10 @@ exec('npm -v', function (err, stdout, stderr) {
 	}
 
 	// make sure we're in the right directory
-	var titaniumDir = __dirname;
+	let titaniumDir = __dirname;
 	while (1) {
-		var p = path.join(titaniumDir, 'package.json');
-		if (fs.existsSync(p) && require(p).name === 'titanium-mobile') {
+		const p = path.join(titaniumDir, 'package.json');
+		if (fs.existsSync(p) && require(p).name === 'titanium-mobile') { // eslint-disable-line security/detect-non-literal-require
 			break;
 		}
 		titaniumDir = path.dirname(titaniumDir);
@@ -62,7 +61,7 @@ exec('npm -v', function (err, stdout, stderr) {
 
 	console.log('\nRunning npm install');
 
-	exec('npm install --production --force', function (err, stdout, stderr) {
+	exec('npm install --production --force', function (err) {
 		if (err) {
 			console.error(err);
 			process.exit(1);
@@ -70,8 +69,8 @@ exec('npm -v', function (err, stdout, stderr) {
 
 		console.log('\nBuilding node-ios-device binaries');
 
-		var nodeIosDeviceDir = path.join(titaniumDir, 'node_modules', 'node-ios-device');
-		var child = spawn('sh', [ path.join(nodeIosDeviceDir, 'bin', 'build-all.sh') ], { cwd: nodeIosDeviceDir, stdio: 'inherit' });
+		const nodeIosDeviceDir = path.join(titaniumDir, 'node_modules', 'node-ios-device'),
+			child = spawn('sh', [ path.join(nodeIosDeviceDir, 'bin', 'build-all.sh') ], { cwd: nodeIosDeviceDir, stdio: 'inherit' });
 
 		child.on('close', function (code) {
 			if (code) {
