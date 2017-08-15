@@ -7,16 +7,16 @@
 //
 #ifdef USE_TI_MEDIA
 
-#import <Foundation/Foundation.h>
 #import <AudioToolbox/AudioQueue.h>
 #import <AudioToolbox/AudioServices.h>
+#import <Foundation/Foundation.h>
 
 @interface SCListener : NSObject {
-	AudioQueueLevelMeterState *levels;
-	
-	AudioQueueRef queue;
-	AudioStreamBasicDescription format;
-	Float64 sampleRate;
+  AudioQueueLevelMeterState *levels;
+
+  AudioQueueRef queue;
+  AudioStreamBasicDescription format;
+  Float64 sampleRate;
 }
 
 + (SCListener *)sharedListener;

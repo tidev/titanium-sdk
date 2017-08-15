@@ -1,6 +1,6 @@
 //
 //  AsyncUdpSocket.h
-//  
+//
 //  This class is in the public domain.
 //  Originally created by Robbie Hanson on Wed Oct 01 2008.
 //  Updated and maintained by Deusty Designs and the Mac development community.
@@ -16,49 +16,47 @@
 extern NSString *const AsyncUdpSocketException;
 extern NSString *const AsyncUdpSocketErrorDomain;
 
-enum AsyncUdpSocketError
-{
-	AsyncUdpSocketCFSocketError = kCFSocketError,	// From CFSocketError enum
-	AsyncUdpSocketNoError = 0,						// Never used
-	AsyncUdpSocketBadParameter,                     // Used if given a bad parameter (such as an improper address)
-	AsyncUdpSocketIPv4Unavailable,                  // Used if you bind/connect using IPv6 only
-	AsyncUdpSocketIPv6Unavailable,                  // Used if you bind/connect using IPv4 only (or iPhone)
-	AsyncUdpSocketSendTimeoutError,
-	AsyncUdpSocketReceiveTimeoutError
+enum AsyncUdpSocketError {
+  AsyncUdpSocketCFSocketError = kCFSocketError, // From CFSocketError enum
+  AsyncUdpSocketNoError = 0, // Never used
+  AsyncUdpSocketBadParameter, // Used if given a bad parameter (such as an improper address)
+  AsyncUdpSocketIPv4Unavailable, // Used if you bind/connect using IPv6 only
+  AsyncUdpSocketIPv6Unavailable, // Used if you bind/connect using IPv4 only (or iPhone)
+  AsyncUdpSocketSendTimeoutError,
+  AsyncUdpSocketReceiveTimeoutError
 };
 typedef enum AsyncUdpSocketError AsyncUdpSocketError;
 
-@interface AsyncUdpSocket : NSObject
-{
-	CFSocketRef theSocket4;            // IPv4 socket
-	CFSocketRef theSocket6;            // IPv6 socket
-	
-	CFRunLoopSourceRef theSource4;     // For theSocket4
-	CFRunLoopSourceRef theSource6;     // For theSocket6
-	CFRunLoopRef theRunLoop;
-	CFSocketContext theContext;
-	NSArray *theRunLoopModes;
-	
-	NSMutableArray *theSendQueue;
-	AsyncSendPacket *theCurrentSend;
-	NSTimer *theSendTimer;
-	
-	NSMutableArray *theReceiveQueue;
-	AsyncReceivePacket *theCurrentReceive;
-	NSTimer *theReceiveTimer;
-	
-	id theDelegate;
-	UInt16 theFlags;
-	
-	long theUserData;
-	
-	NSString *cachedLocalHost;
-	UInt16 cachedLocalPort;
-	
-	NSString *cachedConnectedHost;
-	UInt16 cachedConnectedPort;
-	
-	UInt32 maxReceiveBufferSize;
+@interface AsyncUdpSocket : NSObject {
+  CFSocketRef theSocket4; // IPv4 socket
+  CFSocketRef theSocket6; // IPv6 socket
+
+  CFRunLoopSourceRef theSource4; // For theSocket4
+  CFRunLoopSourceRef theSource6; // For theSocket6
+  CFRunLoopRef theRunLoop;
+  CFSocketContext theContext;
+  NSArray *theRunLoopModes;
+
+  NSMutableArray *theSendQueue;
+  AsyncSendPacket *theCurrentSend;
+  NSTimer *theSendTimer;
+
+  NSMutableArray *theReceiveQueue;
+  AsyncReceivePacket *theCurrentReceive;
+  NSTimer *theReceiveTimer;
+
+  id theDelegate;
+  UInt16 theFlags;
+
+  long theUserData;
+
+  NSString *cachedLocalHost;
+  UInt16 cachedLocalPort;
+
+  NSString *cachedConnectedHost;
+  UInt16 cachedConnectedPort;
+
+  UInt32 maxReceiveBufferSize;
 }
 
 /**

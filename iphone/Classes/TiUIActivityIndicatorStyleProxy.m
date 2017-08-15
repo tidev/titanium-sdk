@@ -10,9 +10,9 @@
 
 @implementation TiUIActivityIndicatorStyleProxy
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.ActivityIndicatorStyle";
+  return @"Ti.UI.ActivityIndicatorStyle";
 }
 
 MAKE_SYSTEM_PROP(PLAIN, UIActivityIndicatorViewStyleWhite);

@@ -12,7 +12,6 @@
 
 #import <JavaScriptCore/JavaScriptCore.h>
 
-
 #define TiCheckScriptSyntax JSCheckScriptSyntax
 #define TiClassCreate JSClassCreate
 #define TiClassDefinition JSClassDefinition
