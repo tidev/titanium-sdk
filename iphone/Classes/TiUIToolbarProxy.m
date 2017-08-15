@@ -15,72 +15,72 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 
 - (UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-    return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
+  return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
 }
 
 - (id)_initWithPageContext:(id<TiEvaluator>)context_ args:(NSArray *)args apiName:(NSString *)apiName
 {
-    if (self = [super _initWithPageContext:context_ args:args]) {
-        _apiName = [apiName retain];
-    }
-    
-    return self;
+  if (self = [super _initWithPageContext:context_ args:args]) {
+    _apiName = [apiName retain];
+  }
+
+  return self;
 }
 
 - (void)dealloc
 {
-    RELEASE_TO_NIL(_apiName);
-    [super dealloc];
+  RELEASE_TO_NIL(_apiName);
+  [super dealloc];
 }
 
 - (NSString *)apiName
 {
-    return _apiName;
+  return _apiName;
 }
 
 - (UIToolbar *)toolbar
 {
-    TiUIToolbar *theview = (TiUIToolbar *)[self view];
-    return [theview toolBar];
+  TiUIToolbar *theview = (TiUIToolbar *)[self view];
+  return [theview toolBar];
 }
 
 - (void)setItems:(NSArray *)newItems
 {
-    NSArray *oldItems = [self valueForUndefinedKey:@"items"];
-    if (![oldItems isKindOfClass:[NSArray class]]) {
-        oldItems = nil;
-    }
+  NSArray *oldItems = [self valueForUndefinedKey:@"items"];
+  if (![oldItems isKindOfClass:[NSArray class]]) {
+    oldItems = nil;
+  }
 
-    BOOL newItemsIsArray = [newItems isKindOfClass:[NSArray class]];
-    if (newItemsIsArray) {
-        for (TiViewProxy *currentItem in newItems) {
-            if (![currentItem respondsToSelector:@selector(supportsNavBarPositioning)] || ![currentItem supportsNavBarPositioning]) {
-                NSString* errorString = [NSString stringWithFormat:@"%@ does not support being in a toolbar!", currentItem];
-                [self throwException:errorString subreason:nil location:CODELOCATION];
-                /*
+  BOOL newItemsIsArray = [newItems isKindOfClass:[NSArray class]];
+  if (newItemsIsArray) {
+    for (TiViewProxy *currentItem in newItems) {
+      if (![currentItem respondsToSelector:@selector(supportsNavBarPositioning)] || ![currentItem supportsNavBarPositioning]) {
+        NSString *errorString = [NSString stringWithFormat:@"%@ does not support being in a toolbar!", currentItem];
+        [self throwException:errorString subreason:nil location:CODELOCATION];
+        /*
 				 *	Note that this theoretically could mean proxies are improperly remembered
 				 *	if a later entry causes this exception to be thrown. However, the javascript
 				 *	should NOT be using nonproxy objects and the onus is on the Javascript
 				 */
-            }
+      }
 
-            if (![oldItems containsObject:currentItem]) {
-                [self rememberProxy:currentItem];
-            }
-        }
+      if (![oldItems containsObject:currentItem]) {
+        [self rememberProxy:currentItem];
+      }
     }
-    for (TiViewProxy *currentItem in oldItems) {
-        if (newItemsIsArray && [newItems containsObject:currentItem]) {
-            continue;
-        }
-        [self forgetProxy:currentItem];
+  }
+  for (TiViewProxy *currentItem in oldItems) {
+    if (newItemsIsArray && [newItems containsObject:currentItem]) {
+      continue;
     }
-    [self replaceValue:newItems forKey:@"items" notification:YES];
+    [self forgetProxy:currentItem];
+  }
+  [self replaceValue:newItems forKey:@"items" notification:YES];
 }
 
 - (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 
 @end
