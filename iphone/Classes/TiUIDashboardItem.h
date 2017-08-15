@@ -10,8 +10,7 @@
 
 @interface TiUIDashboardItem : TiUIView {
 
-@private
-
+  @private
 }
 
 @end

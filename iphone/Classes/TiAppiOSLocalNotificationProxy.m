@@ -14,22 +14,25 @@
 
 @synthesize notification = _notification;
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(_notification);
-	[super dealloc];
+  RELEASE_TO_NIL(_notification);
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.App.iOS.LocalNotification";
+  return @"Ti.App.iOS.LocalNotification";
 }
 
--(void)cancel:(id)args
+- (void)cancel:(id)args
 {
-	UILocalNotification * cancelledNotification = [self.notification retain];
-	TiThreadPerformOnMainThread(^{[[UIApplication sharedApplication] cancelLocalNotification:cancelledNotification];
-		[cancelledNotification release];}, NO);
+  UILocalNotification *cancelledNotification = [self.notification retain];
+  TiThreadPerformOnMainThread(^{
+    [[UIApplication sharedApplication] cancelLocalNotification:cancelledNotification];
+    [cancelledNotification release];
+  },
+      NO);
 }
 
 @end

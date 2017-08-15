@@ -8,12 +8,12 @@
 #import "TiUIView.h"
 
 @interface TiUIiOSBlurView : TiUIView {
-    UIVisualEffectView *blurView;
-    
-    TiDimension width;
-    TiDimension height;
-    CGFloat autoHeight;
-    CGFloat autoWidth;
+  UIVisualEffectView *blurView;
+
+  TiDimension width;
+  TiDimension height;
+  CGFloat autoHeight;
+  CGFloat autoWidth;
 }
 
 @end

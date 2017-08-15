@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-
-var commander = require('commander'),
+const commander = require('commander'),
 	version = require('../package.json').version;
 
 commander

@@ -6,9 +6,8 @@
  */
 #ifdef USE_TI_UIIOSTOOLBAR
 
-
-#import "TiViewProxy.h"
 #import "TiToolbar.h"
+#import "TiViewProxy.h"
 
 @interface TiUIiOSToolbarProxy : TiViewProxy <TiToolbar> {
 }

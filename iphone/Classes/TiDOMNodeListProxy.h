@@ -6,20 +6,20 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TiProxy.h"
 #import "GDataXMLNode.h"
+#import "TiProxy.h"
 
 @interface TiDOMNodeListProxy : TiProxy {
-@private
-	NSArray *nodes;
-	GDataXMLDocument* document;
+  @private
+  NSArray *nodes;
+  GDataXMLDocument *document;
 }
 
-@property(nonatomic,readonly) NSNumber *length;
--(id)item:(id)args;
--(NSNumber*)length;
+@property (nonatomic, readonly) NSNumber *length;
+- (id)item:(id)args;
+- (NSNumber *)length;
 
--(id)_initWithPageContext:(id<TiEvaluator>)context nodes:(NSArray*)nodeList document:(GDataXMLDocument*)theDocument;
+- (id)_initWithPageContext:(id<TiEvaluator>)context nodes:(NSArray *)nodeList document:(GDataXMLDocument *)theDocument;
 
 @end
 

@@ -14,17 +14,16 @@
 
 #import "TiUIView.h"
 
-
-@interface TiUISearchBar : TiUIView<UISearchBarDelegate> {
-@private
-	UISearchBar *searchView;
-	CALayer * backgroundLayer;
-	id<UISearchBarDelegate> delegate;
+@interface TiUISearchBar : TiUIView <UISearchBarDelegate> {
+  @private
+  UISearchBar *searchView;
+  CALayer *backgroundLayer;
+  id<UISearchBarDelegate> delegate;
 }
 
--(void)setDelegate:(id<UISearchBarDelegate>)delegate;
--(UISearchBar*)searchBar;
--(void)setSearchBar:(UISearchBar *)searchBar;
+- (void)setDelegate:(id<UISearchBarDelegate>)delegate;
+- (UISearchBar *)searchBar;
+- (void)setSearchBar:(UISearchBar *)searchBar;
 
 @end
 
