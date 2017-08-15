@@ -45,7 +45,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	private static final String LEFT_MARGIN = "6dp";
 	private static final String RIGHT_MARGIN = "6dp";
-	private static final String RIGHT_SIZE = "17dp";
 	private static final int MIN_HEIGHT = 48;
 
 	private BitmapDrawable hasChildDrawable, hasCheckDrawable;
@@ -551,9 +550,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 
 		if (rightImage != null && rightImage.getVisibility() != GONE) {
-			int w = new TiDimension(RIGHT_SIZE, TiDimension.TYPE_RIGHT).getAsPixels(this);
-			int h = new TiDimension(RIGHT_SIZE, TiDimension.TYPE_RIGHT).getAsPixels(this);
+			int w = rightImage.getMeasuredWidth();
+			int h = rightImage.getMeasuredHeight();
 			int rightMargin = new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getAsPixels(this);
+			
 			contentRight -= w + rightMargin;
 			int offset = (height - h) / 2;
 			rightImage.layout(right-w-rightMargin, top+offset, right-rightMargin, top+offset+h);
