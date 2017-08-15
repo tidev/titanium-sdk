@@ -6,20 +6,19 @@
  */
 #ifdef USE_TI_UILISTVIEW
 
-#import <UIKit/UIKit.h>
-#import "TiUIListView.h"
-#import "TiUIListItemProxy.h"
 #import "TiSelectedCellbackgroundView.h"
+#import "TiUIListItemProxy.h"
+#import "TiUIListView.h"
+#import <UIKit/UIKit.h>
 
 enum {
-	TiUIListItemTemplateStyleCustom = -1
+  TiUIListItemTemplateStyleCustom = -1
 };
 
-@interface TiUIListItem : UITableViewCell
-{
-	TiGradientLayer * gradientLayer;
-	TiGradient * backgroundGradient;
-	TiGradient * selectedBackgroundGradient;
+@interface TiUIListItem : UITableViewCell {
+  TiGradientLayer *gradientLayer;
+  TiGradient *backgroundGradient;
+  TiGradient *selectedBackgroundGradient;
 }
 
 @property (nonatomic, readonly) NSInteger templateStyle;
@@ -32,7 +31,7 @@ enum {
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
 - (void)setPosition:(int)position isGrouped:(BOOL)grouped;
 - (void)configureCellBackground;
-- (void) ensureVisibleSelectorWithTableView:(UITableView*)tableView;
+- (void)ensureVisibleSelectorWithTableView:(UITableView *)tableView;
 @end
 
 #endif

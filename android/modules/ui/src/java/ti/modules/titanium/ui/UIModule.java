@@ -178,6 +178,9 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int INPUT_TYPE_CLASS_NUMBER = InputType.TYPE_CLASS_NUMBER;
 	@Kroll.constant public static final int INPUT_TYPE_CLASS_TEXT = InputType.TYPE_CLASS_TEXT;
 
+	@Kroll.constant public static final int HINT_TYPE_STATIC = 0;
+	@Kroll.constant public static final int HINT_TYPE_ANIMATED = 1;
+
 	@Kroll.constant public static final int HIDDEN_BEHAVIOR_GONE = View.GONE;
 	@Kroll.constant public static final int HIDDEN_BEHAVIOR_INVISIBLE = View.INVISIBLE;
 

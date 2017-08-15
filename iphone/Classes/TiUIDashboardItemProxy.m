@@ -13,101 +13,99 @@
 
 @synthesize item;
 
--(void)_destroy
+- (void)_destroy
 {
-	item.userData = nil;
-	item.view = nil;
-	RELEASE_TO_NIL(item);
-	[super _destroy];
+  item.userData = nil;
+  item.view = nil;
+  RELEASE_TO_NIL(item);
+  [super _destroy];
 }
 
--(void)dealloc{
-	item.userData = nil;
-    item.button = nil;
-	item.view = nil;
-	RELEASE_TO_NIL(item);
-	[super dealloc];
+- (void)dealloc
+{
+  item.userData = nil;
+  item.button = nil;
+  item.view = nil;
+  RELEASE_TO_NIL(item);
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.DashboardItem";
+  return @"Ti.UI.DashboardItem";
 }
 
--(void)setItem:(LauncherItem*)item_
+- (void)setItem:(LauncherItem *)item_
 {
-	if (item!=nil)
-	{
-		item.userData = nil;
-		item.view = nil;
-		RELEASE_TO_NIL(item);
-	}
-	item = [item_ retain];
-	item.userData = self;
+  if (item != nil) {
+    item.userData = nil;
+    item.view = nil;
+    RELEASE_TO_NIL(item);
+  }
+  item = [item_ retain];
+  item.userData = self;
 }
 
--(LauncherItem*)ensureItem
+- (LauncherItem *)ensureItem
 {
-	if (item==nil)
-	{
-		item = [[LauncherItem alloc] init];
-		item.userData = self;
-	}
-	return item;
+  if (item == nil) {
+    item = [[LauncherItem alloc] init];
+    item.userData = self;
+  }
+  return item;
 }
 
--(void)setBadge:(id)value
+- (void)setBadge:(id)value
 {
-	NSInteger badgeValue = [TiUtils intValue:value];
-	[[self ensureItem] setBadgeValue:badgeValue];
+  NSInteger badgeValue = [TiUtils intValue:value];
+  [[self ensureItem] setBadgeValue:badgeValue];
 }
 
--(void)setTitle:(id)value
+- (void)setTitle:(id)value
 {
-	NSString* badgeValue = [TiUtils stringValue:value];
-	[[self ensureItem] setTitle:badgeValue];
+  NSString *badgeValue = [TiUtils stringValue:value];
+  [[self ensureItem] setTitle:badgeValue];
 }
 
--(void)setImage:(id)value
+- (void)setImage:(id)value
 {
-	UIImage *image = [TiUtils image:value proxy:self];
-	[[self ensureItem] setImage:image];
+  UIImage *image = [TiUtils image:value proxy:self];
+  [[self ensureItem] setImage:image];
 }
 
--(void)setSelectedImage:(id)value
+- (void)setSelectedImage:(id)value
 {
-	UIImage *image = [TiUtils image:value proxy:self];
-	[[self ensureItem] setSelectedImage:image];
+  UIImage *image = [TiUtils image:value proxy:self];
+  [[self ensureItem] setSelectedImage:image];
 }
 
--(void)setCanDelete:(id)value
+- (void)setCanDelete:(id)value
 {
-	BOOL canDelete = [TiUtils boolValue:value];
-	[[self ensureItem] setCanDelete:canDelete];
+  BOOL canDelete = [TiUtils boolValue:value];
+  [[self ensureItem] setCanDelete:canDelete];
 }
 
 #pragma mark internal
 
--(void)add:(id)child
+- (void)add:(id)child
 {
-	[super add:child];
-	
-	// called when we have a child, which means we want to use ourself
-	// as the view
-    
-    // TODO: This isn't entirely accurate... doing this may cause the view to be set twice
-    // because -[TiViewProxy add:] could exit early if it's not on the main thread.
-    // On the other hand, blocking this to execute on the main thread only doesn't appear to work right.
-    
-	TiThreadPerformOnMainThread(^{
-        LauncherItem *item_ = [self  ensureItem];
-        if (item_.view==nil)
-        {
-            [item_ setView:[self view]];
-        }
-	}, NO);
-}
+  [super add:child];
 
+  // called when we have a child, which means we want to use ourself
+  // as the view
+
+  // TODO: This isn't entirely accurate... doing this may cause the view to be set twice
+  // because -[TiViewProxy add:] could exit early if it's not on the main thread.
+  // On the other hand, blocking this to execute on the main thread only doesn't appear to work right.
+
+  TiThreadPerformOnMainThread(^{
+    LauncherItem *item_ = [self ensureItem];
+    if (item_.view == nil) {
+      [item_ setView:[self view]];
+    }
+  },
+      NO);
+}
 
 @end
 

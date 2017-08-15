@@ -5,11 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-
 // A good bit of this code was derived from the Three20 project
 // and was customized to work inside Titanium
 //
-// All modifications by Appcelerator are licensed under 
+// All modifications by Appcelerator are licensed under
 // the Apache License, Version 2.0
 //
 //
@@ -35,76 +34,74 @@
 @class LauncherItem;
 @protocol LauncherViewDelegate;
 
-
-@interface LauncherView : UIView<UIScrollViewDelegate> {
-@private
-	id<LauncherViewDelegate> delegate;
-	UIScrollView *scrollView;
-	UIPageControl *pager;
-	NSMutableArray *pages;
-	NSMutableArray *buttons;
-	NSInteger columnCount;
-	NSInteger rowCount;
-	LauncherButton *dragButton;
-	NSTimer* editHoldTimer;
-	NSTimer* springLoadTimer;
-	UITouch* dragTouch;
-	NSInteger positionOrigin;
-	CGPoint dragOrigin;
-	CGPoint touchOrigin;
-	BOOL editing;
-	BOOL springing;	
-    BOOL editable;
-    BOOL renderingButtons;
+@interface LauncherView : UIView <UIScrollViewDelegate> {
+  @private
+  id<LauncherViewDelegate> delegate;
+  UIScrollView *scrollView;
+  UIPageControl *pager;
+  NSMutableArray *pages;
+  NSMutableArray *buttons;
+  NSInteger columnCount;
+  NSInteger rowCount;
+  LauncherButton *dragButton;
+  NSTimer *editHoldTimer;
+  NSTimer *springLoadTimer;
+  UITouch *dragTouch;
+  NSInteger positionOrigin;
+  CGPoint dragOrigin;
+  CGPoint touchOrigin;
+  BOOL editing;
+  BOOL springing;
+  BOOL editable;
+  BOOL renderingButtons;
 }
 
-@property(nonatomic) NSInteger columnCount;
-@property(nonatomic) NSInteger rowCount;
-@property(nonatomic) NSInteger currentPageIndex;
-@property(nonatomic,assign) id<LauncherViewDelegate> delegate;
-@property(nonatomic,readonly) BOOL editing;
-@property(nonatomic,assign) BOOL editable;
+@property (nonatomic) NSInteger columnCount;
+@property (nonatomic) NSInteger rowCount;
+@property (nonatomic) NSInteger currentPageIndex;
+@property (nonatomic, assign) id<LauncherViewDelegate> delegate;
+@property (nonatomic, readonly) BOOL editing;
+@property (nonatomic, assign) BOOL editable;
 
 - (id)initWithFrame:(CGRect)frame withRowCount:(int)newRowCount withColumnCount:(int)newColumnCount;
 
-- (void)addItem:(LauncherItem*)item animated:(BOOL)animated;
-- (void)removeItem:(LauncherItem*)item animated:(BOOL)animated;
+- (void)addItem:(LauncherItem *)item animated:(BOOL)animated;
+- (void)removeItem:(LauncherItem *)item animated:(BOOL)animated;
 
 - (void)beginEditing;
 - (void)endEditing;
 - (void)recreateButtons;
 - (void)layoutButtons;
 
-- (LauncherItem*)itemForIndex:(NSInteger)index;
-- (NSArray*)launcheritems_;
-- (NSArray*)items;
+- (LauncherItem *)itemForIndex:(NSInteger)index;
+- (NSArray *)launcheritems_;
+- (NSArray *)items;
 
 @end
-
 
 @protocol LauncherViewDelegate <NSObject>
 
 @optional
 
-- (void)launcherView:(LauncherView*)launcher didAddItem:(LauncherItem*)item;
+- (void)launcherView:(LauncherView *)launcher didAddItem:(LauncherItem *)item;
 
-- (void)launcherView:(LauncherView*)launcher didRemoveItem:(LauncherItem*)item;
+- (void)launcherView:(LauncherView *)launcher didRemoveItem:(LauncherItem *)item;
 
-- (void)launcherView:(LauncherView*)launcher willDragItem:(LauncherItem*)item;
+- (void)launcherView:(LauncherView *)launcher willDragItem:(LauncherItem *)item;
 
-- (void)launcherView:(LauncherView*)launcher didDragItem:(LauncherItem*)item;
+- (void)launcherView:(LauncherView *)launcher didDragItem:(LauncherItem *)item;
 
-- (void)launcherView:(LauncherView*)launcher didMoveItem:(LauncherItem*)item;
+- (void)launcherView:(LauncherView *)launcher didMoveItem:(LauncherItem *)item;
 
-- (void)launcherView:(LauncherView*)launcher didSelectItem:(LauncherItem*)item;
+- (void)launcherView:(LauncherView *)launcher didSelectItem:(LauncherItem *)item;
 
-- (void)launcherViewDidBeginEditing:(LauncherView*)launcher;
+- (void)launcherViewDidBeginEditing:(LauncherView *)launcher;
 
-- (void)launcherViewDidEndEditing:(LauncherView*)launcher;
+- (void)launcherViewDidEndEditing:(LauncherView *)launcher;
 
-- (BOOL)launcherViewShouldWobble:(LauncherView*)launcher;
+- (BOOL)launcherViewShouldWobble:(LauncherView *)launcher;
 
-- (void)launcherView:(LauncherView*)launcher didChangePage:(NSNumber*)pageNo;
+- (void)launcherView:(LauncherView *)launcher didChangePage:(NSNumber *)pageNo;
 
 @end
 

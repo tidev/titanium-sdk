@@ -14,12 +14,12 @@
 /**
  Shows the menu popup.
  */
--(void)show:(id)args;
+- (void)show:(id)args;
 
 /**
  Hides the menu popup.
  */
--(void)hide:(id)args;
+- (void)hide:(id)args;
 
 @end
 #endif
