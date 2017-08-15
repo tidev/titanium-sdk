@@ -99,7 +99,6 @@
   }
 
   return items;
->>>>>>> master
 }
 
 - (void)setQueue:(id)arg
