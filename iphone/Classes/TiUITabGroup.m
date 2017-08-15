@@ -426,14 +426,9 @@ DEFINE_EXCEPTIONS
 
 -(void) setActiveTabIconTint_:(id)value
 {
-	TiColor* color = [TiUtils colorValue:value];
-	//A nil tintColor is fine, too.
-	if ([TiUtils isIOS8OrGreater]) {
-		controller.tabBar.tintColor = color.color;
-	}
-	else {
-		controller.tabBar.tintColor = color.color;
-	}
+    TiColor* color = [TiUtils colorValue:value];
+    //A nil tintColor is fine, too.
+    controller.tabBar.tintColor = color.color;
 }
 
 #pragma mark Public APIs
