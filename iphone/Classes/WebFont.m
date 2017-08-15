@@ -178,11 +178,11 @@
                     } else {
                         font = [theFont retain];
                     }
+                } else if (self.isItalicStyle) {
+                  font = [[UIFont italicSystemFontOfSize:self.size] retain];
                 } else if ([TiUtils isIOSVersionOrGreater:@"8.2"]) {
                     if (self.isSemiboldWeight) {
                         font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightSemibold] retain];
-                    } else if (self.isItalicStyle) {
-                        font = [[UIFont italicSystemFontOfSize:self.size] retain];
                     } else if (self.isThinWeight) {
                         font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightThin] retain];
                     } else if (self.isLightWeight) {
@@ -197,7 +197,6 @@
                 }
             }
         }
-        
     }
     // WORST-CASE-SCENARIO
     if (font == nil) {
@@ -269,7 +268,7 @@
 		fontWeightObject = [fontWeightObject lowercaseString];
 		if ([fontWeightObject isEqualToString:@"semibold"]) {
 			didChange |= !(self.isSemiboldWeight)||(self.isBoldWeight)||(self.isNormalWeight)||(self.isThinWeight)||(self.isLightWeight)||(self.isUltraLightWeight);
-    	self.isSemiboldWeight = YES;
+			self.isSemiboldWeight = YES;
 			self.isBoldWeight = NO;
 			self.isNormalWeight = NO;
 			self.isThinWeight = NO;
@@ -327,11 +326,11 @@
 			didChange = YES;
 			self.isNormalWeight = isNormalBool;
 		}
-        BOOL isSemiboldBool = inheritedFont.isSemiboldWeight;
-        if (self.isSemiboldWeight != isSemiboldBool) {
-            didChange = YES;
-            self.isSemiboldWeight = isSemiboldBool;
-        }
+		BOOL isSemiboldBool = inheritedFont.isSemiboldWeight;
+		if (self.isSemiboldWeight != isSemiboldBool) {
+			didChange = YES;
+			self.isSemiboldWeight = isSemiboldBool;
+		}
 	}
     
     NSString* fontStyleObject = [fontDict objectForKey:@"fontStyle"];
