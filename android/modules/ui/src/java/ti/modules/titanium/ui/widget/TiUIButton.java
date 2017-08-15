@@ -52,6 +52,8 @@ public class TiUIButton extends TiUIView
 		};
 		btn.setGravity(Gravity.CENTER);
 		defaultColor = btn.getCurrentTextColor();
+		btn.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+		btn.setMaxLines(1);
 		setNativeView(btn);
 	}
 
@@ -83,8 +85,6 @@ public class TiUIButton extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			btn.setText(d.getString(TiC.PROPERTY_TITLE));
-			btn.setEllipsize(TextUtils.TruncateAt.MIDDLE);
-			btn.setMaxLines(1);
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
