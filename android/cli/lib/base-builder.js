@@ -1,3 +1,5 @@
+'use strict';
+
 const appc = require('node-appc'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	DOMParser = require('xmldom').DOMParser,

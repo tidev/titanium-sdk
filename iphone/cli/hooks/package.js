@@ -5,6 +5,8 @@
  * See the LICENSE file for more information.
  */
 
+'use strict';
+
 const appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__,
 	afs = appc.fs,
