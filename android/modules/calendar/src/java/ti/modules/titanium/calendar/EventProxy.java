@@ -269,7 +269,7 @@ public class EventProxy extends KrollProxy {
 															cursor.getInt(cursor.getColumnIndex(CalendarContract.Attendees.ATTENDEE_RELATIONSHIP))
 					);
 			//add the proxy to the result array
-			result[index++]=proxyForRow;
+			result[index++] = proxyForRow;
 		}
 			return result;
 	}
