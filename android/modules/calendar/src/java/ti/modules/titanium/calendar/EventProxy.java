@@ -9,6 +9,7 @@ package ti.modules.titanium.calendar;
 import java.util.ArrayList;
 import java.util.Date;
 
+import android.provider.CalendarContract;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -243,6 +244,36 @@ public class EventProxy extends KrollProxy {
 		}
 	}
 
+	private AttendeeProxy[] getAttendeeProxies() {
+		final String[] attendeeProjection = new String[]{
+				CalendarContract.Attendees._ID,
+				CalendarContract.Attendees.EVENT_ID,
+				CalendarContract.Attendees.ATTENDEE_NAME,
+				CalendarContract.Attendees.ATTENDEE_EMAIL,
+				CalendarContract.Attendees.ATTENDEE_TYPE,
+				CalendarContract.Attendees.ATTENDEE_RELATIONSHIP,
+				CalendarContract.Attendees.ATTENDEE_STATUS
+		};
+		final String query = "(" + CalendarContract.Attendees.EVENT_ID + " = ?)";
+		final String[] args = new String[]{id};
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		final Cursor cursor = contentResolver.query(CalendarContract.Attendees.CONTENT_URI, attendeeProjection, query, args, null);
+		int index = 0;
+		AttendeeProxy[] result = new AttendeeProxy[cursor.getCount()];
+		while (cursor.moveToNext()) {
+			//create a proxy instance
+			AttendeeProxy proxyForRow = new AttendeeProxy(cursor.getString(cursor.getColumnIndex(CalendarContract.Attendees.ATTENDEE_EMAIL)),
+															cursor.getString(cursor.getColumnIndex(CalendarContract.Attendees.ATTENDEE_NAME)),
+															cursor.getInt(cursor.getColumnIndex(CalendarContract.Attendees.ATTENDEE_TYPE)),
+															cursor.getInt(cursor.getColumnIndex(CalendarContract.Attendees.ATTENDEE_STATUS)),
+															cursor.getInt(cursor.getColumnIndex(CalendarContract.Attendees.ATTENDEE_RELATIONSHIP))
+					);
+			//add the proxy to the result array
+			result[index++]=proxyForRow;
+		}
+			return result;
+	}
+
 	@Kroll.method @Kroll.getProperty
 	public ReminderProxy[] getReminders()
 	{
@@ -316,6 +347,11 @@ public class EventProxy extends KrollProxy {
 	public boolean getAllDay()
 	{
 		return allDay;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public AttendeeProxy[] getAttendees() {
+		return getAttendeeProxies();
 	}
 
 	@Kroll.getProperty @Kroll.method
