@@ -11,6 +11,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+'use strict';
+
 const android = require('node-titanium-sdk/lib/android'),
 	ADB = require('node-titanium-sdk/lib/adb'),
 	EmulatorManager = require('node-titanium-sdk/lib/emulator'),

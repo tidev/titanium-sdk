@@ -4,6 +4,8 @@
  *
  * Common Library for Doctools
  */
+'use strict';
+
 const yaml = require('js-yaml'),
 	fs = require('fs'),
 	colors = require('colors'), // eslint-disable-line no-unused-vars

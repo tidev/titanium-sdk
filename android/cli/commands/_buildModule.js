@@ -11,6 +11,8 @@
 * Please see the LICENSE included with this distribution for details.
 */
 
+'use strict';
+
 const AdmZip = require('adm-zip'),
 	androidDetect = require('../lib/detect').detect,
 	appc = require('node-appc'),
