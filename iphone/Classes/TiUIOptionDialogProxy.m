@@ -156,7 +156,8 @@
                                             [self cleanup];
                                           }];
     }
-  }, NO);
+  },
+      NO);
 }
 
 - (void)suspended:(NSNotification *)note
