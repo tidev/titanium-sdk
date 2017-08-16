@@ -11,6 +11,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+'use strict';
+
 const appc = require('node-appc'),
 	async = require('async'),
 	bufferEqual = require('buffer-equal'),

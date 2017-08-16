@@ -4,6 +4,8 @@
  * @author Jeff Haynie
  * @date 02/06/2014
  */
+'use strict';
+
 const fs = require('fs'),
 	path = require('path'),
 	os = require('os'),

@@ -14,6 +14,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+'use strict';
+
 const ADB = require('node-titanium-sdk/lib/adb'),
 	AdmZip = require('adm-zip'),
 	android = require('node-titanium-sdk/lib/android'),
