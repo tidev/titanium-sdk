@@ -2,6 +2,7 @@
 * Copyright (c) 2015-2017 Appcelerator, Inc. All Rights Reserved.
 * Licensed under the terms of the Apache Public License.
 */
+'use strict';
 
 if (!String.prototype.contains) {
 	/**

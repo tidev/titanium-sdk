@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+'use strict';
+
 const path = require('path'),
 	async = require('async'),
 	program = require('commander'),

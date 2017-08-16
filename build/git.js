@@ -1,3 +1,5 @@
+'use strict';
+
 const exec = require('child_process').exec, // eslint-disable-line security/detect-child-process
 	Git = {};
 /**
