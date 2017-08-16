@@ -300,7 +300,6 @@
         <item name="windowNoTitle">true</item>
     </style>
     <style name="Widget.Design.AppBarLayout" parent="Base.Widget.Design.AppBarLayout">
-        <item name="android:paddingLeft">300px</item>
     </style>
     <style name="Widget.Design.BottomNavigationView" parent="">
         <item name="itemBackground">?attr/selectableItemBackgroundBorderless</item>
