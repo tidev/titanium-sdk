@@ -11,36 +11,35 @@
 
 @implementation TiAppiOSSearchableItemProxy
 
--(id)initWithUniqueIdentifier:(NSString *)identifier
-         withDomainIdentifier:(NSString*)domainIdentifier
-             withAttributeSet:(CSSearchableItemAttributeSet *)attributeSet
+- (id)initWithUniqueIdentifier:(NSString *)identifier
+          withDomainIdentifier:(NSString *)domainIdentifier
+              withAttributeSet:(CSSearchableItemAttributeSet *)attributeSet
 {
-    if (self = [super init]) {
-        _item = [[CSSearchableItem alloc] initWithUniqueIdentifier:identifier
-                                                  domainIdentifier:domainIdentifier
-                                                      attributeSet:attributeSet];
-        
-    }
-    return self;
+  if (self = [super init]) {
+    _item = [[CSSearchableItem alloc] initWithUniqueIdentifier:identifier
+                                              domainIdentifier:domainIdentifier
+                                                  attributeSet:attributeSet];
+  }
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(_item);
-	[super dealloc];
+  RELEASE_TO_NIL(_item);
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.App.iOS.SearchableItem";
+  return @"Ti.App.iOS.SearchableItem";
 }
 
 // Should be unique to your application group.
 // REQUIRED since this is the way you will refer to the item to update the index / delete it from the index
 // Starts with an UUID for ease of use, but you can replace it with an UID of your own before the item is first indexed if you wish.
--(NSString*) uniqueIdentifier
+- (NSString *)uniqueIdentifier
 {
-    return _item.uniqueIdentifier;
+  return _item.uniqueIdentifier;
 }
 
 // An optional identifier that represents the "domain" or owner of this item.
@@ -48,31 +47,31 @@
 // In that case the domainIdentifier should be of the form <account-id>.<mailbox-id> where <account-id> and <mailbox-id> should not contains periods.
 // Calling deleteSearchableItemsWithDomainIdentifiers with <account-id>.<mailbox-id> will delete all items with that domain identifier.
 // Calling deleteSearchableItemsWithDomainIdentifiers with <account-id> will delete all items with <account-id> and any <mailbox-id>.
--(NSString*) domainIdentifier
+- (NSString *)domainIdentifier
 {
-    return _item.domainIdentifier;
+  return _item.domainIdentifier;
 }
 
--(TiAppiOSSearchableItemAttributeSetProxy*)attributeSet
+- (TiAppiOSSearchableItemAttributeSetProxy *)attributeSet
 {
-    return [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemAttributeSet:_item.attributeSet] autorelease];
+  return [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemAttributeSet:_item.attributeSet] autorelease];
 }
 
 // Searchable items have an expiration date or time to live.  By default it's set to 1 month.
--(NSString*) expirationDate
+- (NSString *)expirationDate
 {
-    if(_item.expirationDate == nil){
-        return nil;
-    }
-    
-    return [TiUtils UTCDateForDate:_item.expirationDate];
+  if (_item.expirationDate == nil) {
+    return nil;
+  }
+
+  return [TiUtils UTCDateForDate:_item.expirationDate];
 }
 
--(void)setExpirationDate:(id)value
+- (void)setExpirationDate:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSString);
-    ENSURE_UI_THREAD(setExpirationDate,value);
-    _item.expirationDate = [TiUtils dateForUTCDate:value];
+  ENSURE_SINGLE_ARG(value, NSString);
+  ENSURE_UI_THREAD(setExpirationDate, value);
+  _item.expirationDate = [TiUtils dateForUTCDate:value];
 }
 
 @end

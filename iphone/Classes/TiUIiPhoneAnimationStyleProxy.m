@@ -11,16 +11,16 @@
 
 @implementation TiUIiPhoneAnimationStyleProxy
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iPhone.AnimationStyle";
+  return @"Ti.UI.iPhone.AnimationStyle";
 }
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(NONE,              UIViewAnimationOptionTransitionNone,     @"UI.iPhone.AnimationStyle.NONE",@"5.4.0",@"UI.iOS.AnimationStyle.NONE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(CURL_UP,           UIViewAnimationOptionTransitionCurlUp, @"UI.iPhone.AnimationStyle.CURL_UP",@"5.4.0",@"UI.iOS.AnimationStyle.CURL_UP");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(CURL_DOWN,         UIViewAnimationOptionTransitionCurlDown, @"UI.iPhone.AnimationStyle.CURL_DOWN",@"5.4.0",@"UI.iOS.AnimationStyle.CURL_DOWN");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(FLIP_FROM_LEFT,    UIViewAnimationOptionTransitionFlipFromLeft,@"UI.iPhone.AnimationStyle.FLIP_FROM_LEFT",@"5.4.0",@"UI.iOS.AnimationStyle.FLIP_FROM_LEFT");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(FLIP_FROM_RIGHT,   UIViewAnimationOptionTransitionFlipFromRight,  @"UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT",@"5.4.0",@"UI.iOS.AnimationStyle.FLIP_FROM_RIGHT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(NONE, UIViewAnimationOptionTransitionNone, @"UI.iPhone.AnimationStyle.NONE", @"5.4.0", @"UI.iOS.AnimationStyle.NONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(CURL_UP, UIViewAnimationOptionTransitionCurlUp, @"UI.iPhone.AnimationStyle.CURL_UP", @"5.4.0", @"UI.iOS.AnimationStyle.CURL_UP");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(CURL_DOWN, UIViewAnimationOptionTransitionCurlDown, @"UI.iPhone.AnimationStyle.CURL_DOWN", @"5.4.0", @"UI.iOS.AnimationStyle.CURL_DOWN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(FLIP_FROM_LEFT, UIViewAnimationOptionTransitionFlipFromLeft, @"UI.iPhone.AnimationStyle.FLIP_FROM_LEFT", @"5.4.0", @"UI.iOS.AnimationStyle.FLIP_FROM_LEFT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(FLIP_FROM_RIGHT, UIViewAnimationOptionTransitionFlipFromRight, @"UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT", @"5.4.0", @"UI.iOS.AnimationStyle.FLIP_FROM_RIGHT");
 
 @end
 

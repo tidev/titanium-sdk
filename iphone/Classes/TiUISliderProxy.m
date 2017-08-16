@@ -9,44 +9,43 @@
 #import "TiUISliderProxy.h"
 #import "TiUISlider.h"
 
-NSArray* sliderKeySequence;
+NSArray *sliderKeySequence;
 
 @implementation TiUISliderProxy
 
--(NSArray *)keySequence
+- (NSArray *)keySequence
 {
-	if (sliderKeySequence == nil)
-	{
-		sliderKeySequence = [[NSArray arrayWithObjects:@"min",@"max",@"value",@"leftTrackLeftCap",@"leftTrackTopCap",@"rightTrackLeftCap",@"rightTrackTopCap",
-                              @"leftTrackImage",@"selectedLeftTrackImage", @"highlightedLeftTrackImage", @"disabledLeftTrackImage",
-                              @"rightTrackImage",@"selectedRightTrackImage", @"highlightedRightTrackImage", @"disabledRightTrackImage",nil] retain];
-	}
-	return sliderKeySequence;
+  if (sliderKeySequence == nil) {
+    sliderKeySequence = [[NSArray arrayWithObjects:@"min", @"max", @"value", @"leftTrackLeftCap", @"leftTrackTopCap", @"rightTrackLeftCap", @"rightTrackTopCap",
+                                  @"leftTrackImage", @"selectedLeftTrackImage", @"highlightedLeftTrackImage", @"disabledLeftTrackImage",
+                                  @"rightTrackImage", @"selectedRightTrackImage", @"highlightedRightTrackImage", @"disabledRightTrackImage", nil] retain];
+  }
+  return sliderKeySequence;
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.Slider";
+  return @"Ti.UI.Slider";
 }
 
--(void)_initWithProperties:(NSDictionary *)properties
+- (void)_initWithProperties:(NSDictionary *)properties
 {
-    [self initializeProperty:@"leftTrackLeftCap" defaultValue:NUMFLOAT(1.0)];
-    [self initializeProperty:@"leftTrackTopCap" defaultValue:NUMFLOAT(1.0)];
-    [self initializeProperty:@"rightTrackLeftCap" defaultValue:NUMFLOAT(1.0)];
-    [self initializeProperty:@"rightTrackTopCap" defaultValue:NUMFLOAT(1.0)];
-    [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
-    [super _initWithProperties:properties];
+  [self initializeProperty:@"leftTrackLeftCap" defaultValue:NUMFLOAT(1.0)];
+  [self initializeProperty:@"leftTrackTopCap" defaultValue:NUMFLOAT(1.0)];
+  [self initializeProperty:@"rightTrackLeftCap" defaultValue:NUMFLOAT(1.0)];
+  [self initializeProperty:@"rightTrackTopCap" defaultValue:NUMFLOAT(1.0)];
+  [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
+  [super _initWithProperties:properties];
 }
 
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
+- (UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
+  return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
 }
 
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 
 USE_VIEW_FOR_VERIFY_HEIGHT
@@ -55,7 +54,7 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 
 - (void)setValue:(id)args
 {
-    [(TiUISlider *)[self view] _setValue:args];
+  [(TiUISlider *)[self view] _setValue:args];
 }
 
 @end

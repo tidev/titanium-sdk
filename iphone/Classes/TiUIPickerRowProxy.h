@@ -8,13 +8,12 @@
 
 #import "TiViewProxy.h"
 
-@interface TiUIPickerRowProxy : TiViewProxy 
-{
-@private
-    UIImage* snapshot;
+@interface TiUIPickerRowProxy : TiViewProxy {
+  @private
+  UIImage *snapshot;
 }
 
--(UIView*)viewWithFrame:(CGRect)theFrame reusingView:(UIView*)theView;
+- (UIView *)viewWithFrame:(CGRect)theFrame reusingView:(UIView *)theView;
 
 @end
 

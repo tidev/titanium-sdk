@@ -13,16 +13,16 @@
 
 @interface TiCalendarAlert : TiProxy {
 
-@private
-    CalendarModule* module;
-    EKAlarm* alert;
+  @private
+  CalendarModule *module;
+  EKAlarm *alert;
 }
 
--(id)_initWithPageContext:(id<TiEvaluator>)context
-                    alert:(EKAlarm*)alert_
-                   module:(CalendarModule*)module_;
+- (id)_initWithPageContext:(id<TiEvaluator>)context
+                     alert:(EKAlarm *)alert_
+                    module:(CalendarModule *)module_;
 
--(EKAlarm*)alert;
+- (EKAlarm *)alert;
 @end
-    
+
 #endif

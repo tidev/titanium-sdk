@@ -16,6 +16,8 @@ npm-debug.log
 
 node_modules/
 
+retirejs.output.json
+
 anvil/driver/titanium_mobile
 anvil/hub/config.js
 support/ti_mocha_script/testApp

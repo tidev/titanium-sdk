@@ -166,10 +166,7 @@ timestamps {
 						sh 'npm install'
 					}
 					sh 'npm test' // Run linting first
-					// Then validate docs
-					dir('apidoc') {
-						sh 'node validate.js'
-					}
+
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
 					dir('build') {
 						timeout(15) {

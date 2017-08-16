@@ -6,25 +6,25 @@
  */
 #ifdef USE_TI_MEDIA
 
-#import <Foundation/Foundation.h>
-#import <MediaPlayer/MediaPlayer.h>
 #import "TiBlob.h"
 #import "TiProxy.h"
+#import <Foundation/Foundation.h>
+#import <MediaPlayer/MediaPlayer.h>
 
 // Not 'officially' a proxy since we don't want users being able to create these; they're
 // generated internally only for the media player.
 @interface TiMediaItem : TiProxy {
-	MPMediaItem* item;
+  MPMediaItem *item;
 }
 
 #pragma mark Properties
 
-@property(nonatomic,readonly) TiBlob* artwork;
+@property (nonatomic, readonly) TiBlob *artwork;
 
 #pragma mark Internal
 
--(id)_initWithPageContext:(id<TiEvaluator>)context item:(MPMediaItem*)item_;
--(MPMediaItem*)item;
+- (id)_initWithPageContext:(id<TiEvaluator>)context item:(MPMediaItem *)item_;
+- (MPMediaItem *)item;
 
 @end
 
