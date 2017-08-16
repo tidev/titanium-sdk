@@ -4,6 +4,8 @@
  *
  * Script to convert JSON data for add-on YAML files.
  */
+'use strict';
+
 const common = require('./common.js');
 let doc = {};
 

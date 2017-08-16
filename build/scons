@@ -1,2 +1,4 @@
 #!/usr/bin/env node
+'use strict';
+
 require('./scons.js');
