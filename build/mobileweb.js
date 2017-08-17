@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path'),
 	async = require('async'),
 	utils = require('./utils'),

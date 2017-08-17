@@ -5,6 +5,8 @@
  * See the LICENSE file for more information.
  */
 
+'use strict';
+
 const appc = require('node-appc'),
 	ioslib = require('ioslib'),
 	i18n = appc.i18n(__dirname),

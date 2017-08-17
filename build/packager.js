@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path'),
 	os = require('os'),
 	exec = require('child_process').exec, // eslint-disable-line security/detect-child-process

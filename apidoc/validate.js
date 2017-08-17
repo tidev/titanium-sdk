@@ -6,6 +6,8 @@
  *
  * Dependencies: colors ~0.6.2 and node-appc ~0.2.14
  */
+'use strict';
+
 const fs = require('fs'),
 	nodeappc = require('node-appc'),
 	colors = require('colors'), // eslint-disable-line no-unused-vars

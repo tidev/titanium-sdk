@@ -5,6 +5,7 @@
  * Script to preprocess the YAML docs in to a common JSON format,
  * then calls an generator script to format the API documentation.
  */
+'use strict';
 
 var common = require('./lib/common.js'),
 	nodeappc = require('node-appc'),
