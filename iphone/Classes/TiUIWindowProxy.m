@@ -966,6 +966,8 @@ else{\
     }
     
     [[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
+    //Need to clear title for titleAttributes to apply correctly on iOS6.
+    [[controller navigationItem] setTitle:nil];
     SETPROP(@"titleAttributes",setTitleAttributes);
     SETPROP(@"title",setTitle);
     SETPROP(@"titlePrompt",setTitlePrompt);
