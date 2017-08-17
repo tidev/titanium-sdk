@@ -26,7 +26,7 @@ LOCAL_SRC_FILES := $(SRC_FILES)
 LOCAL_JS_FILES := $(JS_FILES)
 
 # When setting v8_enable_i18n_support=0
-LOCAL_WHOLE_STATIC_LIBRARIES := libv8_libbase libv8_libplatform libv8_base libv8_nosnapshot
+LOCAL_WHOLE_STATIC_LIBRARIES := libv8_libbase libv8_libplatform libv8_base libv8_nosnapshot libv8_builtins_generators libv8_builtins_setup
 
 include $(BUILD_SHARED_LIBRARY)
 

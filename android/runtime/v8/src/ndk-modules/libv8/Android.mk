@@ -51,7 +51,7 @@ LOCAL_EXPORT_C_INCLUDES := $(LIBV8_DIR)/include
 LOCAL_STATIC_LIBRARIES := libv8_libbase
 include $(PREBUILT_STATIC_LIBRARY)
 
-# base
+# v8_base
 include $(CLEAR_VARS)
 LOCAL_MODULE := libv8_base
 LOCAL_SRC_FILES := $(LIBV8_DIR)/libs/$(SIMPLIFIED_ARCH)/$(LOCAL_MODULE).a
@@ -73,4 +73,20 @@ LOCAL_MODULE    := libv8_nosnapshot
 LOCAL_SRC_FILES := $(LIBV8_DIR)/libs/$(SIMPLIFIED_ARCH)/$(LOCAL_MODULE).a
 LOCAL_EXPORT_C_INCLUDES := $(LIBV8_DIR)/include
 LOCAL_STATIC_LIBRARIES := libv8_base
+include $(PREBUILT_STATIC_LIBRARY)
+
+# v8_builtins_generators
+include $(CLEAR_VARS)
+LOCAL_MODULE    := libv8_builtins_generators
+LOCAL_SRC_FILES := $(LIBV8_DIR)/libs/$(SIMPLIFIED_ARCH)/$(LOCAL_MODULE).a
+LOCAL_EXPORT_C_INCLUDES := $(LIBV8_DIR)/include
+LOCAL_STATIC_LIBRARIES := libv8_base
+include $(PREBUILT_STATIC_LIBRARY)
+
+# v8_builtins_setup
+include $(CLEAR_VARS)
+LOCAL_MODULE    := libv8_builtins_setup
+LOCAL_SRC_FILES := $(LIBV8_DIR)/libs/$(SIMPLIFIED_ARCH)/$(LOCAL_MODULE).a
+LOCAL_EXPORT_C_INCLUDES := $(LIBV8_DIR)/include
+LOCAL_STATIC_LIBRARIES := libv8_builtins_generators
 include $(PREBUILT_STATIC_LIBRARY)
