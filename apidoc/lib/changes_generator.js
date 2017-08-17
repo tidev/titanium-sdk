@@ -1,12 +1,19 @@
 /**
- * Copyright (c) 2015 Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2017 Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  */
+'use strict';
+
 var common = require('./common.js'),
 	assert = common.assertObjectKey,
 	nodeappc = require('node-appc').version;
 /**
  * Sort the array by API name
+ * @param {object} a first array item to compare
+ * @param {string} a.name name of the api in the first item
+ * @param {object} b second array item to compare
+ * @param {string} b.name name of the api in the second item
+ * @return {number}
  */
 function arraySort (a, b) {
 	if (a.name < b.name) {
@@ -19,17 +26,24 @@ function arraySort (a, b) {
 
 /**
  * Replace links with the label
+ * @param {string} str html string
+ * @return {string} stripped value of the link
  */
 function removeLinks (str) {
 	var rv = str || '';
 	rv = rv.replace(/<([^>]+?)>/g, '$1');
-	rv = rv.replace(/\[([^\]]+?)\]\([^\)]+?\)/g, '$1');
+	rv = rv.replace(/\[([^\]]+?)\]\([^\)]+?\)/g, '$1'); // eslint-disable-line no-useless-escape
 	rv = rv.replace(common.REGEXP_HREF_LINKS, '$2');
 	return common.markdownToHTML(rv);
 }
 
 /**
  * Checks to see if the API is new, deprecated or removed within the versions.
+ * @param {object} api api object
+ * @param {string} startVersion start version
+ * @param {string} endVersion end version
+ * @param {string} className class name
+ * @return {object}
  */
 function checkVersions(api, startVersion, endVersion, className) {
 	var rv = {},
@@ -43,8 +57,8 @@ function checkVersions(api, startVersion, endVersion, className) {
 		}
 	}
 	if (rv.platforms.length > 0) {
-		var pretty_platforms_string,
-			pretty_platforms = rv.platforms.map(function (item) {
+		let pretty_platforms_string;
+		const pretty_platforms = rv.platforms.map(function (item) {
 			return common.PRETTY_PLATFORM[item];
 		});
 		if (pretty_platforms.length > 1) {
@@ -83,6 +97,8 @@ function checkVersions(api, startVersion, endVersion, className) {
 
 /**
  * Filters JSON data for APIs that were added, deprecated or removed.
+ * @param {object} apis full api tree
+ * @return {object}
  */
 exports.exportData = function exportChanges (apis) {
 	var className = null,
@@ -114,13 +130,12 @@ exports.exportData = function exportChanges (apis) {
 		} else if (changed.platforms.length > 0) {
 			rv.new.push(changed);
 		} else {
-			['properties', 'methods', 'events'].forEach(function (type) {
-				cls[type].forEach(function (member) {
-					var changed;
+			[ 'properties', 'methods', 'events' ].forEach(function (type) { // eslint-disable-line no-loop-func
+				cls[type].forEach(function (member) { // eslint-disable-line no-loop-func
 					if (member.__inherits !== className) {
 						return;
 					}
-					changed = checkVersions(member, startVersion, endVersion, className);
+					const changed = checkVersions(member, startVersion, endVersion, className);
 					changed.type = member.__subtype;
 					if (changed.removed) {
 						rv.removed.push(changed);

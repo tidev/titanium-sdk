@@ -11,129 +11,138 @@
 
 @implementation TiAppiOSSearchableIndexProxy
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.App.iOS.SearchableIndex";
+  return @"Ti.App.iOS.SearchableIndex";
 }
 
--(id)isSupported:(id)unused
+- (id)isSupported:(id)unused
 {
-    if([TiUtils isIOS9OrGreater]){
-        return NUMBOOL([CSSearchableIndex isIndexingAvailable]);
-    }else{
-        return NUMBOOL(NO);
+  if ([TiUtils isIOS9OrGreater]) {
+    return NUMBOOL([CSSearchableIndex isIndexingAvailable]);
+  } else {
+    return NUMBOOL(NO);
+  }
+}
+
+- (void)addToDefaultSearchableIndex:(id)args
+{
+  ENSURE_ARG_COUNT(args, 2);
+  NSArray *searchItems = [args objectAtIndex:0];
+  ENSURE_TYPE(searchItems, NSArray);
+
+  KrollCallback *callback = [args objectAtIndex:1];
+  ENSURE_TYPE(callback, KrollCallback);
+
+  ENSURE_UI_THREAD(addToDefaultSearchableIndex, args);
+
+  //Convert from Proxy to search item
+  NSMutableArray *items = [[[NSMutableArray alloc] init] autorelease];
+  for (TiAppiOSSearchableItemProxy *item in searchItems) {
+    [items addObject:item.item];
+  }
+
+  [[CSSearchableIndex defaultSearchableIndex] indexSearchableItems:items
+                                                 completionHandler:^(NSError *__nullable error) {
+
+                                                   NSMutableDictionary *event = [[[NSMutableDictionary alloc] init] autorelease];
+                                                   [event setObject:NUMBOOL((!error)) forKey:@"success"];
+
+                                                   if (error) {
+                                                     [event setObject:[error localizedDescription] forKey:@"error"];
+                                                   }
+
+                                                   if (callback) {
+                                                     [self _fireEventToListener:@"added"
+                                                                     withObject:event
+                                                                       listener:callback
+                                                                     thisObject:nil];
+                                                   }
+
+                                                 }];
+}
+
+- (void)deleteAllSearchableItems:(id)arg
+{
+  ENSURE_ARG_COUNT(arg, 1);
+  KrollCallback *callback = [arg objectAtIndex:0];
+  ENSURE_TYPE(callback, KrollCallback);
+
+  ENSURE_UI_THREAD(deleteAllSearchableItems, arg);
+
+  [[CSSearchableIndex defaultSearchableIndex] deleteAllSearchableItemsWithCompletionHandler:^(NSError *_Nullable error) {
+    NSMutableDictionary *event = [[[NSMutableDictionary alloc] init] autorelease];
+    [event setObject:NUMBOOL((!error)) forKey:@"success"];
+
+    if (error) {
+      [event setObject:[error localizedDescription] forKey:@"error"];
     }
-}
 
--(void)addToDefaultSearchableIndex:(id)args
-{
-    ENSURE_ARG_COUNT(args,2);
-    NSArray *searchItems = [args objectAtIndex:0];
-    ENSURE_TYPE(searchItems,NSArray);
-    
-    KrollCallback *callback = [args objectAtIndex:1];
-    ENSURE_TYPE(callback,KrollCallback);
-    
-    ENSURE_UI_THREAD(addToDefaultSearchableIndex,args);
-    
-    //Convert from Proxy to search item
-    NSMutableArray *items = [[[NSMutableArray alloc] init] autorelease];
-    for (TiAppiOSSearchableItemProxy *item in searchItems) {
-        [items addObject:item.item];
+    if (callback) {
+      [self _fireEventToListener:@"removedAll"
+                      withObject:event
+                        listener:callback
+                      thisObject:nil];
     }
-    
-    [[CSSearchableIndex defaultSearchableIndex] indexSearchableItems:items completionHandler: ^(NSError * __nullable error) {
-        
-        NSMutableDictionary *event = [[[NSMutableDictionary alloc] init] autorelease];
-        [event setObject:NUMBOOL((!error)) forKey:@"success"];
-        
-        if(error){
-            [event setObject:[error localizedDescription] forKey:@"error"];
-        }
-        
-        if (callback){
-            [self _fireEventToListener:@"added"
-                            withObject:event listener:callback thisObject:nil];
-        }
-        
-    }];
+  }];
 }
 
--(void)deleteAllSearchableItems:(id)arg
+- (void)deleteAllSearchableItemByDomainIdenifiers:(id)args
 {
-    ENSURE_ARG_COUNT(arg,1);
-    KrollCallback *callback = [arg objectAtIndex:0];
-    ENSURE_TYPE(callback,KrollCallback);
-    
-    ENSURE_UI_THREAD(deleteAllSearchableItems,arg);
-    
-    [[CSSearchableIndex defaultSearchableIndex] deleteAllSearchableItemsWithCompletionHandler:^(NSError * _Nullable error) {
-        NSMutableDictionary *event = [[[NSMutableDictionary alloc] init] autorelease];
-        [event setObject:NUMBOOL((!error)) forKey:@"success"];
-        
-        if(error){
-            [event setObject:[error localizedDescription] forKey:@"error"];
-        }
-        
-        if (callback){
-            [self _fireEventToListener:@"removedAll"
-                            withObject:event listener:callback thisObject:nil];
-        }
-    }];
-    
+  ENSURE_ARG_COUNT(args, 2);
+  NSArray *domainIdentifiers = [args objectAtIndex:0];
+  ENSURE_TYPE(domainIdentifiers, NSArray);
+
+  KrollCallback *callback = [args objectAtIndex:1];
+  ENSURE_TYPE(callback, KrollCallback);
+
+  ENSURE_UI_THREAD(deleteAllSearchableItemByDomainIdenifiers, args);
+
+  [[CSSearchableIndex defaultSearchableIndex] deleteSearchableItemsWithDomainIdentifiers:domainIdentifiers
+                                                                       completionHandler:^(NSError *_Nullable error) {
+                                                                         NSMutableDictionary *event = [[[NSMutableDictionary alloc] init] autorelease];
+                                                                         [event setObject:NUMBOOL((!error)) forKey:@"success"];
+
+                                                                         if (error) {
+                                                                           [event setObject:[error localizedDescription] forKey:@"error"];
+                                                                         }
+
+                                                                         if (callback) {
+                                                                           [self _fireEventToListener:@"removed"
+                                                                                           withObject:event
+                                                                                             listener:callback
+                                                                                           thisObject:nil];
+                                                                         }
+                                                                       }];
 }
 
--(void)deleteAllSearchableItemByDomainIdenifiers:(id)args
+- (void)deleteSearchableItemsByIdentifiers:(id)args
 {
-    ENSURE_ARG_COUNT(args,2);
-    NSArray * domainIdentifiers = [args objectAtIndex:0];
-    ENSURE_TYPE(domainIdentifiers,NSArray);
-    
-    KrollCallback *callback = [args objectAtIndex:1];
-    ENSURE_TYPE(callback,KrollCallback);
-    
-    ENSURE_UI_THREAD(deleteAllSearchableItemByDomainIdenifiers,args);
-    
-    [[CSSearchableIndex defaultSearchableIndex] deleteSearchableItemsWithDomainIdentifiers:domainIdentifiers completionHandler:^(NSError * _Nullable error) {
-        NSMutableDictionary *event = [[[NSMutableDictionary alloc] init] autorelease];
-        [event setObject:NUMBOOL((!error)) forKey:@"success"];
-        
-        if(error){
-            [event setObject:[error localizedDescription] forKey:@"error"];
-        }
-        
-        if (callback){
-            [self _fireEventToListener:@"removed"
-                            withObject:event listener:callback thisObject:nil];
-        }
-    }];
-    
-}
+  ENSURE_ARG_COUNT(args, 2);
+  NSArray *identifiers = [args objectAtIndex:0];
+  ENSURE_TYPE(identifiers, NSArray);
 
--(void)deleteSearchableItemsByIdentifiers:(id)args
-{
-    ENSURE_ARG_COUNT(args,2);
-    NSArray * identifiers = [args objectAtIndex:0];
-    ENSURE_TYPE(identifiers,NSArray);
-    
-    KrollCallback *callback = [args objectAtIndex:1];
-    ENSURE_TYPE(callback,KrollCallback);
-    
-    ENSURE_UI_THREAD(deleteSearchableItemsByIdentifiers,args);
-    
-    [[CSSearchableIndex defaultSearchableIndex] deleteSearchableItemsWithIdentifiers:identifiers completionHandler:^(NSError * _Nullable error) {
-        NSMutableDictionary *event = [[[NSMutableDictionary alloc] init] autorelease];
-        [event setObject:NUMBOOL((!error)) forKey:@"success"];
-        
-        if(error){
-            [event setObject:[error localizedDescription] forKey:@"error"];
-        }
-        
-        if (callback){
-            [self _fireEventToListener:@"removed"
-                            withObject:event listener:callback thisObject:nil];
-        }
-    }];
+  KrollCallback *callback = [args objectAtIndex:1];
+  ENSURE_TYPE(callback, KrollCallback);
+
+  ENSURE_UI_THREAD(deleteSearchableItemsByIdentifiers, args);
+
+  [[CSSearchableIndex defaultSearchableIndex] deleteSearchableItemsWithIdentifiers:identifiers
+                                                                 completionHandler:^(NSError *_Nullable error) {
+                                                                   NSMutableDictionary *event = [[[NSMutableDictionary alloc] init] autorelease];
+                                                                   [event setObject:NUMBOOL((!error)) forKey:@"success"];
+
+                                                                   if (error) {
+                                                                     [event setObject:[error localizedDescription] forKey:@"error"];
+                                                                   }
+
+                                                                   if (callback) {
+                                                                     [self _fireEventToListener:@"removed"
+                                                                                     withObject:event
+                                                                                       listener:callback
+                                                                                     thisObject:nil];
+                                                                   }
+                                                                 }];
 }
 
 @end

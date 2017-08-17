@@ -7,64 +7,64 @@
 
 #import <UIKit/UIKit.h>
 
-#import "TiHost.h"
 #import "KrollBridge.h"
+#import "TiHost.h"
 #ifdef USE_TI_UIWEBVIEW
-	#import "XHRBridge.h"
+#import "XHRBridge.h"
 #endif
 #import "TiRootViewController.h"
 #import "TiToJS.h"
 
 extern BOOL applicationInMemoryPanic;
 
-TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 {
-    while (applicationInMemoryPanic) {
-        [NSThread sleepForTimeInterval:0.01];
-    }
+  while (applicationInMemoryPanic) {
+    [NSThread sleepForTimeInterval:0.01];
+  }
 }
 
 /**
  TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
  @see app
  */
-@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
-{
-	UIWindow *window;
-	UIImageView *loadView;
-	UIImageView *splashScreenImage;
-	BOOL loaded;
+@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate> {
+  UIWindow *window;
+  UIImageView *loadView;
+  UIImageView *splashScreenImage;
+  BOOL loaded;
 
-	TiContextGroupRef contextGroup;
-	KrollBridge *kjsBridge;
-    
+  TiContextGroupRef contextGroup;
+  KrollBridge *kjsBridge;
+
 #ifdef USE_TI_UIWEBVIEW
-	XHRBridge *xhrBridge;
+  XHRBridge *xhrBridge;
 #endif
-	
-	NSMutableDictionary *launchOptions;
-	NSTimeInterval started;
-	
-	int32_t networkActivityCount;
-	
-	TiRootViewController *controller;
-	NSString *userAgent;
-	NSString *remoteDeviceUUID;
-	
-	id remoteNotificationDelegate;
-	NSDictionary* remoteNotification;
-	NSMutableDictionary* pendingCompletionHandlers;
-    NSMutableDictionary* pendingReplyHandlers;
-    NSMutableDictionary* backgroundTransferCompletionHandlers;
-    BOOL appBooted;
-    
-	NSString *sessionId;
 
-	UIBackgroundTaskIdentifier bgTask;
-	NSMutableArray *backgroundServices;
-	NSMutableArray *runningServices;
-	NSDictionary *localNotification;
-    UIApplicationShortcutItem *launchedShortcutItem;
+  NSMutableDictionary *launchOptions;
+  NSTimeInterval started;
+
+  int32_t networkActivityCount;
+
+  TiRootViewController *controller;
+  NSString *userAgent;
+  NSString *remoteDeviceUUID;
+
+  id remoteNotificationDelegate;
+  NSDictionary *remoteNotification;
+  NSMutableDictionary *pendingCompletionHandlers;
+  NSMutableDictionary *pendingReplyHandlers;
+  NSMutableDictionary *backgroundTransferCompletionHandlers;
+  NSMutableDictionary *queuedBootEvents;
+  BOOL appBooted;
+
+  NSString *sessionId;
+
+  UIBackgroundTaskIdentifier bgTask;
+  NSMutableArray *backgroundServices;
+  NSMutableArray *runningServices;
+  NSDictionary *localNotification;
+  UIApplicationShortcutItem *launchedShortcutItem;
 }
 
 @property (nonatomic) BOOL forceSplashAsSnapshot;
@@ -78,16 +78,15 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 
 @property (nonatomic, assign) id remoteNotificationDelegate;
 
-
-@property (nonatomic, readonly) NSMutableDictionary* pendingCompletionHandlers;
-@property (nonatomic, readonly) NSMutableDictionary* backgroundTransferCompletionHandlers;
+@property (nonatomic, readonly) NSMutableDictionary *pendingCompletionHandlers;
+@property (nonatomic, readonly) NSMutableDictionary *backgroundTransferCompletionHandlers;
 
 /**
  Returns details for the last remote notification.
  
  Dictionary containing details about remote notification, or _nil_.
  */
-@property (nonatomic, readonly) NSDictionary* remoteNotification;
+@property (nonatomic, readonly) NSDictionary *remoteNotification;
 
 /**
  Returns local notification that has bees sent on the application.
@@ -95,40 +94,40 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  @return Dictionary containing details about local notification, or _nil_.
  */
 
-@property (nonatomic, readonly) NSDictionary* localNotification;
+@property (nonatomic, readonly) NSDictionary *localNotification;
 
 /**
  Returns the application's root view controller.
  */
-@property (nonatomic, retain) TiRootViewController* controller;
+@property (nonatomic, retain) TiRootViewController *controller;
 
 @property (nonatomic, readonly) TiContextGroupRef contextGroup;
 
-@property (nonatomic,readonly) BOOL willTerminate;
+@property (nonatomic, readonly) BOOL willTerminate;
 /**
  Returns singleton instance of TiApp application object.
  */
-+(TiApp*)app;
++ (TiApp *)app;
 
 /**
  * Returns a read-only dictionary from tiapp.xml properties
  */
-+(NSDictionary *)tiAppProperties;
++ (NSDictionary *)tiAppProperties;
 
 /*
  Convenience method to returns root view controller for TiApp instance.
  @return The application's root view controller.
  @see controller
  */
-+(TiRootViewController*)controller;
++ (TiRootViewController *)controller;
 
-+(TiContextGroupRef)contextGroup;
++ (TiContextGroupRef)contextGroup;
 
--(BOOL)windowIsKeyWindow;
+- (BOOL)windowIsKeyWindow;
 
--(UIView *) topMostView;
+- (UIView *)topMostView;
 
--(void)attachXHRBridgeIfRequired;
+- (void)attachXHRBridgeIfRequired;
 
 /**
  Returns application launch options
@@ -136,14 +135,14 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  The method provides access to application launch options that became available when application just launched.
  @return The launch options dictionary.
  */
--(NSDictionary*)launchOptions;
+- (NSDictionary *)launchOptions;
 
 /**
  Returns remote UUID for the current running device.
  
  @return Current device UUID.
  */
--(NSString*)remoteDeviceUUID;
+- (NSString *)remoteDeviceUUID;
 
 /**
  Tells application to show network activity indicator.
@@ -151,7 +150,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  Every call of startNetwork should be paired with <stopNetwork>.
  @see stopNetwork
  */
--(void)startNetwork;
+- (void)startNetwork;
 
 /**
  Tells application to hide network activity indicator.
@@ -159,7 +158,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  Every call of stopNetwork should have corresponding <startNetwork> call.
  @see startNetwork
  */
--(void)stopNetwork;
+- (void)stopNetwork;
 
 /**
  Prevents network activity indicator from showing.
@@ -170,7 +169,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  */
 @property (nonatomic, assign) BOOL disableNetworkActivityIndicator;
 
--(void)showModalError:(NSString*)message;
+- (void)showModalError:(NSString *)message;
 
 /**
  Tells application to display modal view controller.
@@ -178,7 +177,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  @param controller The view controller to display.
  @param animated If _YES_, animates the view controller as it’s presented; otherwise, does not.
  */
--(void)showModalController:(UIViewController*)controller animated:(BOOL)animated;
+- (void)showModalController:(UIViewController *)controller animated:(BOOL)animated;
 
 /**
  Tells application to hide modal view controller.
@@ -186,45 +185,44 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  @param controller The view controller to hide.
  @param animated If _YES_, animates the view controller as it’s hidden; otherwise, does not.
  */
--(void)hideModalController:(UIViewController*)controller animated:(BOOL)animated;
+- (void)hideModalController:(UIViewController *)controller animated:(BOOL)animated;
 
 /**
  Returns unique identifier for the current application launch.
  
  @return Current session id.
  */
--(NSString*)sessionId;
+- (NSString *)sessionId;
 
 /**
  Starts searching for background services.
  */
--(void)beginBackgrounding;
+- (void)beginBackgrounding;
 
 /**
  Ends background services operations.
  */
--(void)endBackgrounding;
+- (void)endBackgrounding;
 
 /**
  Returns the user agent string to use for system network requests.
  */
--(NSString*)systemUserAgent;
+- (NSString *)systemUserAgent;
 
 /**
  Returns or set the user agent string to use for network requests.
  */
-@property(nonatomic, retain) NSString* userAgent;
+@property (nonatomic, retain) NSString *userAgent;
 
 /**
  Determines if the application finished booting.
  */
-@property(nonatomic,readonly) BOOL appBooted;
+@property (nonatomic, readonly) BOOL appBooted;
 
--(void)registerBackgroundService:(TiProxy*)proxy;
--(void)unregisterBackgroundService:(TiProxy*)proxy;
--(void)stopBackgroundService:(TiProxy*)proxy;
--(void)completionHandler:(id)key withResult:(int)result;
--(void)completionHandlerForBackgroundTransfer:(id)key;
--(void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary*)userInfo;
+- (void)registerBackgroundService:(TiProxy *)proxy;
+- (void)unregisterBackgroundService:(TiProxy *)proxy;
+- (void)stopBackgroundService:(TiProxy *)proxy;
+- (void)completionHandler:(id)key withResult:(int)result;
+- (void)completionHandlerForBackgroundTransfer:(id)key;
+- (void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary *)userInfo;
 @end
-

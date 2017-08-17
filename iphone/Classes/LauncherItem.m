@@ -5,11 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-
 // A good bit of this code was derived from the Three20 project
 // and was customized to work inside Titanium
 //
-// All modifications by Appcelerator are licensed under 
+// All modifications by Appcelerator are licensed under
 // the Apache License, Version 2.0
 //
 //
@@ -39,68 +38,68 @@
 
 @synthesize title, canDelete, badgeValue, image, selectedImage, button, userData, view;
 
--(id)init
+- (id)init
 {
-	if (self = [super init])
-	{
-		canDelete = YES;
-		badgeValue = 0;
-	}
-	return self;
+  if (self = [super init]) {
+    canDelete = YES;
+    badgeValue = 0;
+  }
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	[title release];
-	[image release];
-	[selectedImage release];
-	[view release];
-	[super dealloc];
+  [title release];
+  [image release];
+  [selectedImage release];
+  [view release];
+  [super dealloc];
 }
 
--(void)repaint
+- (void)repaint
 {
-	if (button!=nil)
-	{
-		TiThreadPerformOnMainThread(^{[button setNeedsLayout];}, NO);
-	}
+  if (button != nil) {
+    TiThreadPerformOnMainThread(^{
+      [button setNeedsLayout];
+    },
+        NO);
+  }
 }
 
--(void)setBadgeValue:(NSInteger)value
+- (void)setBadgeValue:(NSInteger)value
 {
-	badgeValue = value;
-	[self repaint];
+  badgeValue = value;
+  [self repaint];
 }
 
--(void)setImage:(UIImage*)image_
+- (void)setImage:(UIImage *)image_
 {
-	[image release];
-	image = [image_ retain];
-	[self repaint];
+  [image release];
+  image = [image_ retain];
+  [self repaint];
 }
 
--(void)setSelectedImage:(UIImage*)image_
+- (void)setSelectedImage:(UIImage *)image_
 {
-	[selectedImage release];
-	selectedImage = [image_ retain];
-	[self repaint];
+  [selectedImage release];
+  selectedImage = [image_ retain];
+  [self repaint];
 }
 
--(void)setButton:(LauncherButton *)button_
+- (void)setButton:(LauncherButton *)button_
 {
-	button = button_;
-	[self repaint];
+  button = button_;
+  [self repaint];
 }
 
--(void)setView:(UIView*)view_
+- (void)setView:(UIView *)view_
 {
-	if (view != view_) {
-		[view release];
-		view = [view_ retain];
-		[self repaint];
-	}
+  if (view != view_) {
+    [view release];
+    view = [view_ retain];
+    [self repaint];
+  }
 }
-
 
 @end
 

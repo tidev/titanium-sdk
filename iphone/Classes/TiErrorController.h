@@ -6,15 +6,15 @@
  */
 
 @interface TiErrorController : UIViewController {
-	
-	NSString *error;
-    UILabel *disclosureLabel;
-    UILabel *messageLabel;
-    UIButton *dismissButton;
-    UIView *centerView;
-    UILabel *titleLabel;
+
+  NSString *error;
+  UILabel *disclosureLabel;
+  UILabel *messageLabel;
+  UIButton *dismissButton;
+  UIView *centerView;
+  UILabel *titleLabel;
 }
 
--(id)initWithError:(NSString*)error_;
+- (id)initWithError:(NSString *)error_;
 
 @end

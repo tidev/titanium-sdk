@@ -10,57 +10,59 @@
 
 @implementation TiUIiOSPreviewActionProxy
 
--(void)_initWithProperties:(NSDictionary *)properties
+- (void)_initWithProperties:(NSDictionary *)properties
 {
-    [self setTitle:[TiUtils stringValue:[properties valueForKey:@"title"]]];
-    [self setStyle:[TiUtils intValue:[properties valueForKey:@"style"] def:UIPreviewActionStyleDefault]];
-    
-    [super _initWithProperties:properties];
-}
-                  
--(void)dealloc
-{
-    RELEASE_TO_NIL(_title);
-    RELEASE_TO_NIL(_listViewEvent);
-    RELEASE_TO_NIL(action);
-    
-    [super dealloc];
+  [self setTitle:[TiUtils stringValue:[properties valueForKey:@"title"]]];
+  [self setStyle:[TiUtils intValue:[properties valueForKey:@"style"] def:UIPreviewActionStyleDefault]];
+
+  [super _initWithProperties:properties];
 }
 
--(NSString*)apiName
+- (void)dealloc
 {
-    return @"Ti.UI.iOS.PreviewAction";
+  RELEASE_TO_NIL(_title);
+  RELEASE_TO_NIL(_listViewEvent);
+  RELEASE_TO_NIL(action);
+
+  [super dealloc];
 }
 
--(UIPreviewAction*)action
+- (NSString *)apiName
 {
-    if (action == nil) {
-        action = [UIPreviewAction actionWithTitle:_title style:_style handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
-            if ([self _hasListeners:@"click"]) {
-                [self fireEventWithAction:_action];
-            }
-        }];
-    }
-    
-    return action;
+  return @"Ti.UI.iOS.PreviewAction";
 }
 
--(void)fireEventWithAction:(UIPreviewAction*)action
+- (UIPreviewAction *)action
 {
-    NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:@{
-        @"index" : NUMINTEGER([self actionIndex]),
-        @"title" : [self title],
-        @"style" : NUMINT([self style])
-    }];
-    
-    if ([self listViewEvent] != nil) {
-        [event setValue:NUMINTEGER([TiUtils intValue:[[self listViewEvent] valueForKey:@"sectionIndex"]]) forKey:@"sectionIndex"];
-        [event setValue:NUMINTEGER([TiUtils intValue:[[self listViewEvent] valueForKey:@"itemIndex"]]) forKey:@"itemIndex"];
-        [event setValue:[[self listViewEvent] valueForKey:@"itemId"] forKey:@"itemId"];
-    }
-    
-    [self fireEvent:@"click" withObject:event];
-    RELEASE_TO_NIL(event);
+  if (action == nil) {
+    action = [[UIPreviewAction actionWithTitle:_title
+                                         style:_style
+                                       handler:^void(UIPreviewAction *_action, UIViewController *_controller) {
+                                         if ([self _hasListeners:@"click"]) {
+                                           [self fireEventWithAction:_action];
+                                         }
+                                       }] retain];
+  }
+
+  return action;
+}
+
+- (void)fireEventWithAction:(UIPreviewAction *)action
+{
+  NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:@{
+    @"index" : NUMINTEGER([self actionIndex]),
+    @"title" : [self title],
+    @"style" : NUMINT([self style])
+  }];
+
+  if ([self listViewEvent] != nil) {
+    [event setValue:NUMINTEGER([TiUtils intValue:[[self listViewEvent] valueForKey:@"sectionIndex"]]) forKey:@"sectionIndex"];
+    [event setValue:NUMINTEGER([TiUtils intValue:[[self listViewEvent] valueForKey:@"itemIndex"]]) forKey:@"itemIndex"];
+    [event setValue:[[self listViewEvent] valueForKey:@"itemId"] forKey:@"itemId"];
+  }
+
+  [self fireEvent:@"click" withObject:event];
+  RELEASE_TO_NIL(event);
 }
 
 @end

@@ -4,14 +4,16 @@
  * @module lib/detect
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-var android = require('node-titanium-sdk/lib/android'),
+'use strict';
+
+const android = require('node-titanium-sdk/lib/android'),
 	ADB = require('node-titanium-sdk/lib/adb'),
 	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
 	appc = require('node-appc'),
@@ -34,7 +36,7 @@ exports.detect = android.detect;
  * @param {Function} finished - Callback when detection is finished
  */
 exports.detectEmulators = function detectEmulators(config, opts, finished) {
-	if (opts && typeof opts == 'function') {
+	if (opts && typeof opts === 'function') {
 		finished = opts;
 		opts = {};
 	}

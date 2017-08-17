@@ -1,4 +1,6 @@
-var path = require('path'),
+'use strict';
+
+const path = require('path'),
 	async = require('async'),
 	fs = require('fs-extra'),
 	glob = require('glob'),
@@ -10,57 +12,56 @@ var path = require('path'),
 
 Utils.copyFile = function (srcFolder, destFolder, filename, next) {
 	fs.copy(path.join(srcFolder, filename), path.join(destFolder, filename), next);
-}
+};
 
 Utils.copyFiles = function (srcFolder, destFolder, files, next) {
 	async.each(files, function (file, cb) {
 		Utils.copyFile(srcFolder, destFolder, file, cb);
 	}, next);
-}
+};
 
 Utils.globCopy = function (pattern, srcFolder, destFolder, next) {
-	glob(pattern, {cwd: srcFolder}, function (err, files) {
+	glob(pattern, { cwd: srcFolder }, function (err, files) {
 		if (err) {
 			return next(err);
 		}
 		Utils.copyFiles(srcFolder, destFolder, files, next);
 	});
-}
+};
 
 Utils.copyAndModifyFile = function (srcFolder, destFolder, filename, substitutions, next) {
 	// FIXME If this is a directory, we need to recurse into directory!
 
 	// read in src file, modify contents, write to dest folder
 	fs.readFile(path.join(srcFolder, filename), function (err, data) {
-		var str;
 		if (err) {
 			return next(err);
 		}
 		// Go through each substitution and replace!
-		str = data.toString();
-		for (var key in substitutions) {
-			if (substitutions.hasOwnProperty(key) ) {
+		let str = data.toString();
+		for (const key in substitutions) {
+			if (substitutions.hasOwnProperty(key)) {
 				str = str.split(key).join(substitutions[key]);
 			}
 		}
 		fs.writeFile(path.join(destFolder, filename), str, next);
 	});
-}
+};
 
 Utils.copyAndModifyFiles = function (srcFolder, destFolder, files, substitutions, next) {
 	async.each(files, function (file, cb) {
 		Utils.copyAndModifyFile(srcFolder, destFolder, file, substitutions, cb);
 	}, next);
-}
+};
 
 Utils.downloadURL = function (url, callback) {
 	console.log('Downloading %s', url);
 
-	var tempName = temp.path({ suffix: '.gz' }),
+	const tempName = temp.path({ suffix: '.gz' }),
 		tempDir = path.dirname(tempName);
 	fs.existsSync(tempDir) || fs.mkdirsSync(tempDir);
 
-	var tempStream = fs.createWriteStream(tempName),
+	const tempStream = fs.createWriteStream(tempName),
 		req = request({ url: url });
 
 	req.pipe(tempStream);
@@ -73,22 +74,21 @@ Utils.downloadURL = function (url, callback) {
 	});
 
 	req.on('response', function (req) {
-		var err;
 		if (req.statusCode >= 400) {
 			// something went wrong, abort
 			console.log();
-			err = util.format('Request for %s failed with HTTP status code %s %s', url, req.statusCode, req.statusMessage);
+			const err = util.format('Request for %s failed with HTTP status code %s %s', url, req.statusCode, req.statusMessage);
 			console.error(new Error(err));
 			return callback(err);
 		} else if (req.headers['content-length']) {
 			// we know how big the file is, display the progress bar
-			var total = parseInt(req.headers['content-length']),
+			const total = parseInt(req.headers['content-length']),
 				bar = new appc.progress('  :paddedPercent [:bar] :etas', {
-				complete: '='.cyan,
-				incomplete: '.'.grey,
-				width: 40,
-				total: total
-			});
+					complete: '='.cyan,
+					incomplete: '.'.grey,
+					width: 40,
+					total: total
+				});
 
 			req.on('data', function (buffer) {
 				bar.tick(buffer.length);
@@ -103,7 +103,7 @@ Utils.downloadURL = function (url, callback) {
 			});
 		} else {
 			// we don't know how big the file is, display a spinner
-			var busy = new appc.busyindicator;
+			const busy = new appc.busyindicator();
 			busy.start();
 
 			tempStream.on('close', function () {
@@ -113,7 +113,6 @@ Utils.downloadURL = function (url, callback) {
 			});
 		}
 	});
-}
-
+};
 
 module.exports = Utils;

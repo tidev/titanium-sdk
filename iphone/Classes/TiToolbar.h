@@ -18,6 +18,6 @@
  Returns the underlying toolbar.
  @return The toolbar.
  */
--(UIToolbar*)toolbar;
+- (UIToolbar *)toolbar;
 
 @end

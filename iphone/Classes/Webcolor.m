@@ -9,233 +9,212 @@
 #import "TiBase.h"
 #import "TiUtils.h"
 
-NSString * const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND = @"scrollview_textured";
-NSString * const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND = @"view_flipside";
-NSString * const IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND = @"group_tableview";
+NSString *const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND = @"scrollview_textured";
+NSString *const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND = @"view_flipside";
+NSString *const IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND = @"group_tableview";
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
-NSString * const IOS_COLOR_UNDER_PAGE_BACKGROUND = @"under_page";
+NSString *const IOS_COLOR_UNDER_PAGE_BACKGROUND = @"under_page";
 #endif
 
-UIColor * checkmarkColor = nil;
-NSMutableDictionary * colorLookup = nil;
+UIColor *checkmarkColor = nil;
+NSMutableDictionary *colorLookup = nil;
 
 BOOL isASCIIHexDigit(unichar c) { return (c >= '0' && c <= '9') || ((c | 0x20) >= 'a' && (c | 0x20) <= 'f'); }
-int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
+int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
 
 @implementation Webcolor
 
-+(UIColor*)checkmarkColor
++ (UIColor *)checkmarkColor
 {
-	if(checkmarkColor==nil)
-	{
-		checkmarkColor = RGBACOLOR(55.0,79.0,130.0,1);
-	}
-	return checkmarkColor;
+  if (checkmarkColor == nil) {
+    checkmarkColor = RGBACOLOR(55.0, 79.0, 130.0, 1);
+  }
+  return checkmarkColor;
 }
 
-+(UIColor*)webColorNamed:(NSString*)colorName
++ (UIColor *)webColorNamed:(NSString *)colorName
 {
-	if (![colorName isKindOfClass:[NSString class]])
-	{
-		return nil;
-	}
-	colorName = [colorName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-	if (colorLookup == nil)
-	{
-		UIColor * white = [UIColor whiteColor];
-		UIColor * black = [UIColor blackColor];
-		colorLookup = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-					   black,@"black",
-					   [UIColor grayColor],@"gray",
-					   [UIColor darkGrayColor],@"darkgray",
-					   [UIColor lightGrayColor],@"lightgray",
-					   white,@"white",
-					   [UIColor redColor],@"red",
-					   [UIColor greenColor],@"green",
-					   [UIColor blueColor],@"blue",
-					   [UIColor cyanColor],@"cyan",
-					   [UIColor yellowColor],@"yellow",
-					   [UIColor magentaColor],@"magenta",
-					   [UIColor orangeColor],@"orange",
-					   [UIColor purpleColor],@"purple",
-					   [UIColor brownColor],@"brown",
-					   [UIColor clearColor],@"transparent",
-					   [UIColor groupTableViewBackgroundColor],@"stripped",
-					   [UIColor groupTableViewBackgroundColor],IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND,
-					   [UIColor clearColor],IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND,
-					   [UIColor clearColor],IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND,
-					   [UIColor clearColor],IOS_COLOR_UNDER_PAGE_BACKGROUND,
-					   // these are also defined by the W3C HTML spec so we support them
-					   [Webcolor colorForHex:@"0ff"],@"aqua",
-					   [Webcolor colorForHex:@"f0f"],@"fuchsia",
-					   [Webcolor colorForHex:@"0f0"],@"lime",
-					   [Webcolor colorForHex:@"800"],@"maroon",
-					   [Webcolor colorForHex:@"FFC0CB"],@"pink",
-					   [Webcolor colorForHex:@"000080"],@"navy",
-					   [Webcolor colorForHex:@"c0c0c0"],@"silver",
-					   [Webcolor colorForHex:@"808000"],@"olive",
-					   [Webcolor colorForHex:@"008080"],@"teal",
-					   
-					   white,@"fff",
-					   white,@"ffff",
-					   white,@"ffffff",
-					   white,@"ffffffff",
-					   black,@"000",
-					   black,@"f000",
-					   black,@"000000",
-					   black,@"ff000000",
-					   nil];
-	}
-	if ([colorName hasPrefix:@"#"])
-	{
-		colorName = [colorName substringFromIndex:1];
-	}
-	colorName = [colorName lowercaseString];
-	UIColor * result = [colorLookup objectForKey:colorName];
-	
-	if (result != nil)
-	{
-		return result;
-	}
-	
-	result = [Webcolor colorForHex:colorName];
-	
-	if (result == nil)
-	{
-		result = [Webcolor colorForRGBFunction:colorName];
-	}
-	
-	if (result != nil) 
-	{
-		[colorLookup setObject:result forKey:colorName];
-	}
-	
-	return result;
+  if (![colorName isKindOfClass:[NSString class]]) {
+    return nil;
+  }
+  colorName = [colorName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+  if (colorLookup == nil) {
+    UIColor *white = [UIColor whiteColor];
+    UIColor *black = [UIColor blackColor];
+    colorLookup = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                   black, @"black",
+                                               [UIColor grayColor], @"gray",
+                                               [UIColor darkGrayColor], @"darkgray",
+                                               [UIColor lightGrayColor], @"lightgray",
+                                               white, @"white",
+                                               [UIColor redColor], @"red",
+                                               [UIColor greenColor], @"green",
+                                               [UIColor blueColor], @"blue",
+                                               [UIColor cyanColor], @"cyan",
+                                               [UIColor yellowColor], @"yellow",
+                                               [UIColor magentaColor], @"magenta",
+                                               [UIColor orangeColor], @"orange",
+                                               [UIColor purpleColor], @"purple",
+                                               [UIColor brownColor], @"brown",
+                                               [UIColor clearColor], @"transparent",
+                                               [UIColor groupTableViewBackgroundColor], @"stripped",
+                                               [UIColor groupTableViewBackgroundColor], IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND,
+                                               [UIColor clearColor], IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND,
+                                               [UIColor clearColor], IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND,
+                                               [UIColor clearColor], IOS_COLOR_UNDER_PAGE_BACKGROUND,
+                                               // these are also defined by the W3C HTML spec so we support them
+                                               [Webcolor colorForHex:@"0ff"], @"aqua",
+                                               [Webcolor colorForHex:@"f0f"], @"fuchsia",
+                                               [Webcolor colorForHex:@"0f0"], @"lime",
+                                               [Webcolor colorForHex:@"800"], @"maroon",
+                                               [Webcolor colorForHex:@"FFC0CB"], @"pink",
+                                               [Webcolor colorForHex:@"000080"], @"navy",
+                                               [Webcolor colorForHex:@"c0c0c0"], @"silver",
+                                               [Webcolor colorForHex:@"808000"], @"olive",
+                                               [Webcolor colorForHex:@"008080"], @"teal",
+
+                                               white, @"fff",
+                                               white, @"ffff",
+                                               white, @"ffffff",
+                                               white, @"ffffffff",
+                                               black, @"000",
+                                               black, @"f000",
+                                               black, @"000000",
+                                               black, @"ff000000",
+                                               nil];
+  }
+  if ([colorName hasPrefix:@"#"]) {
+    colorName = [colorName substringFromIndex:1];
+  }
+  colorName = [colorName lowercaseString];
+  UIColor *result = [colorLookup objectForKey:colorName];
+
+  if (result != nil) {
+    return result;
+  }
+
+  result = [Webcolor colorForHex:colorName];
+
+  if (result == nil) {
+    result = [Webcolor colorForRGBFunction:colorName];
+  }
+
+  if (result != nil) {
+    [colorLookup setObject:result forKey:colorName];
+  }
+
+  return result;
 }
 
-+(UIColor*)colorForRGBFunction:(NSString*)functionString
++ (UIColor *)colorForRGBFunction:(NSString *)functionString
 {
-	NSUInteger stringLength=[functionString length];
-	NSRange openParensRange = [functionString rangeOfString:@"("];
-	if (openParensRange.location == NSNotFound) 
-	{
-		return nil;
-	}
-	
-	//Last char must be terminating ).
-	if ([functionString characterAtIndex:stringLength-1] != ')') 
-	{
-		return nil;
-	}
-	
-	NSRange searchRange;
-	NSRange nextTokenRange;
-	NSUInteger segmentLength;
-	
-	searchRange.location = openParensRange.location + 1; //Skipping starting (
-	searchRange.length = stringLength - searchRange.location - 1; //-1 for terminating ).
-	
-	nextTokenRange = [functionString rangeOfString:@"," options:NSLiteralSearch range:searchRange];
-	if (nextTokenRange.location == NSNotFound)
-	{
-		return nil;
-	}
-	
-	segmentLength = nextTokenRange.location - searchRange.location; //This does NOT include a comma.
-	float firstArg = [[functionString substringWithRange:NSMakeRange(searchRange.location, segmentLength)] floatValue];
-	
-	searchRange.location += segmentLength + 1;	searchRange.length -= segmentLength + 1;
-	
-	nextTokenRange = [functionString rangeOfString:@"," options:NSLiteralSearch range:searchRange];
-	if (nextTokenRange.location == NSNotFound) 
-	{
-		return nil;
-	}
-	
-	segmentLength = nextTokenRange.location - searchRange.location; //This does NOT include a comma.
-	float secondArg = [[functionString substringWithRange:NSMakeRange(searchRange.location, segmentLength)] floatValue];
-	
-	searchRange.location += segmentLength + 1;	searchRange.length -= segmentLength + 1;
-	
-	nextTokenRange = [functionString rangeOfString:@"," options:NSLiteralSearch range:searchRange];
-	
-	float thirdArg, fourthArg = 1.0;
-	if (nextTokenRange.location == NSNotFound) 
-	{
-		thirdArg = [[functionString substringWithRange:searchRange] floatValue];
-	} 
-	else 
-	{
-		segmentLength = nextTokenRange.location - searchRange.location;
-		thirdArg = [[functionString substringWithRange:NSMakeRange(searchRange.location, segmentLength)] floatValue];
-		fourthArg = [[functionString substringWithRange:NSMakeRange(nextTokenRange.location+1,searchRange.length - segmentLength - 1)] floatValue];
-	}
-	
-	return RGBACOLOR(firstArg,secondArg,thirdArg,fourthArg);
+  NSUInteger stringLength = [functionString length];
+  NSRange openParensRange = [functionString rangeOfString:@"("];
+  if (openParensRange.location == NSNotFound) {
+    return nil;
+  }
+
+  //Last char must be terminating ).
+  if ([functionString characterAtIndex:stringLength - 1] != ')') {
+    return nil;
+  }
+
+  NSRange searchRange;
+  NSRange nextTokenRange;
+  NSUInteger segmentLength;
+
+  searchRange.location = openParensRange.location + 1; //Skipping starting (
+  searchRange.length = stringLength - searchRange.location - 1; //-1 for terminating ).
+
+  nextTokenRange = [functionString rangeOfString:@"," options:NSLiteralSearch range:searchRange];
+  if (nextTokenRange.location == NSNotFound) {
+    return nil;
+  }
+
+  segmentLength = nextTokenRange.location - searchRange.location; //This does NOT include a comma.
+  float firstArg = [[functionString substringWithRange:NSMakeRange(searchRange.location, segmentLength)] floatValue];
+
+  searchRange.location += segmentLength + 1;
+  searchRange.length -= segmentLength + 1;
+
+  nextTokenRange = [functionString rangeOfString:@"," options:NSLiteralSearch range:searchRange];
+  if (nextTokenRange.location == NSNotFound) {
+    return nil;
+  }
+
+  segmentLength = nextTokenRange.location - searchRange.location; //This does NOT include a comma.
+  float secondArg = [[functionString substringWithRange:NSMakeRange(searchRange.location, segmentLength)] floatValue];
+
+  searchRange.location += segmentLength + 1;
+  searchRange.length -= segmentLength + 1;
+
+  nextTokenRange = [functionString rangeOfString:@"," options:NSLiteralSearch range:searchRange];
+
+  float thirdArg, fourthArg = 1.0;
+  if (nextTokenRange.location == NSNotFound) {
+    thirdArg = [[functionString substringWithRange:searchRange] floatValue];
+  } else {
+    segmentLength = nextTokenRange.location - searchRange.location;
+    thirdArg = [[functionString substringWithRange:NSMakeRange(searchRange.location, segmentLength)] floatValue];
+    fourthArg = [[functionString substringWithRange:NSMakeRange(nextTokenRange.location + 1, searchRange.length - segmentLength - 1)] floatValue];
+  }
+
+  return RGBACOLOR(firstArg, secondArg, thirdArg, fourthArg);
 }
 
-+(UIColor*)colorForHex:(NSString*)hexCode
++ (UIColor *)colorForHex:(NSString *)hexCode
 {
-    NSUInteger length = [hexCode length];
-    float alpha = 1.0;
-    if ((length != 3) && (length != 4) && (length != 6) && (length!=7) && (length != 8))
-    {
-        if ([hexCode rangeOfString:@"rgb"].location == NSNotFound)
-        {
-            DebugLog(@"[WARN] Hex color passed looks invalid: %@",hexCode);
-        }
-        return nil;
+  NSUInteger length = [hexCode length];
+  float alpha = 1.0;
+  if ((length != 3) && (length != 4) && (length != 6) && (length != 7) && (length != 8)) {
+    if ([hexCode rangeOfString:@"rgb"].location == NSNotFound) {
+      DebugLog(@"[WARN] Hex color passed looks invalid: %@", hexCode);
     }
-    unsigned value = 0;
-	
-    for (size_t i = 0; i < length; ++i)
-    {
-        unichar thisChar = [hexCode characterAtIndex:i];
-        if (thisChar=='#') continue;
-        if (!isASCIIHexDigit(thisChar))
-        {
-            return nil;
-        }
-        value <<= 4;
-        value |= toASCIIHexValue(thisChar);
-    }
+    return nil;
+  }
+  unsigned value = 0;
 
-    if (length < 6)
-    {
-        value = ((value & 0xF000) << 16) |
-        ((value & 0xFF00) << 12) |
-        ((value & 0xFF0) << 8) |
-        ((value & 0xFF) << 4) |
-        (value & 0xF);
+  for (size_t i = 0; i < length; ++i) {
+    unichar thisChar = [hexCode characterAtIndex:i];
+    if (thisChar == '#')
+      continue;
+    if (!isASCIIHexDigit(thisChar)) {
+      return nil;
     }
-	
-    if((length % 4)==0)
-    {
-        alpha = ((value >> 24) & 0xFF) / 255.0;
-    }
-	
-    int red = (value >> 16) & 0xFF;
-    int green = (value >> 8) & 0xFF;
-    int blue = value & 0xFF;
-	
-    return RGBACOLOR(red,green,blue,alpha);
+    value <<= 4;
+    value |= toASCIIHexValue(thisChar);
+  }
+
+  if (length < 6) {
+    value = ((value & 0xF000) << 16) | ((value & 0xFF00) << 12) | ((value & 0xFF0) << 8) | ((value & 0xFF) << 4) | (value & 0xF);
+  }
+
+  if ((length % 4) == 0) {
+    alpha = ((value >> 24) & 0xFF) / 255.0;
+  }
+
+  int red = (value >> 16) & 0xFF;
+  int green = (value >> 8) & 0xFF;
+  int blue = value & 0xFF;
+
+  return RGBACOLOR(red, green, blue, alpha);
 }
 
-+(void)flushCache
++ (void)flushCache
 {
-	RELEASE_TO_NIL(colorLookup);
-	RELEASE_TO_NIL(checkmarkColor);
+  RELEASE_TO_NIL(colorLookup);
+  RELEASE_TO_NIL(checkmarkColor);
 }
 
-+(BOOL)isDarkColor:(UIColor*)color
++ (BOOL)isDarkColor:(UIColor *)color
 {
-	const CGFloat * components = CGColorGetComponents([color CGColor]);
-	CGFloat red = components[0];
-	CGFloat green = components[1];
-	CGFloat blue = components[2];
-	CGFloat formula = (red*299) + (green*587) + (blue*114) / 1000;
-	return formula < 125;
+  const CGFloat *components = CGColorGetComponents([color CGColor]);
+  CGFloat red = components[0];
+  CGFloat green = components[1];
+  CGFloat blue = components[2];
+  CGFloat formula = (red * 299) + (green * 587) + (blue * 114) / 1000;
+  return formula < 125;
 }
 
 @end
