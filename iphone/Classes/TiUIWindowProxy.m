@@ -800,7 +800,7 @@
       [NSThread isMainThread]);
 }
 
-#if IS_XCODE_9
+#ifdef __IPHONE_11
 - (void)setLargeTitleEnabled:(id)value
 {
   ENSURE_UI_THREAD(setLargeTitleEnabled, value);
