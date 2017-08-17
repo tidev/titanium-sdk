@@ -1513,7 +1513,7 @@ properties:
         It is ignored on older devices and can manually be checked using <Titanium.UI.iOS.forceTouchSupported>.
     platforms: [iphone]
     since: "5.1.0"
-    type: Titanium.UI.View
+    type: Titanium.UI.iOS.PreviewContext
     osver: {ios: {min: "9.0"}}
 
   - name: right
