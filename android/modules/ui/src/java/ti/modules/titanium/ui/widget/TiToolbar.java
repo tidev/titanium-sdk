@@ -62,7 +62,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	public TiToolbar(TiViewProxy proxy) {
 		super(proxy);
 		toolbar = new Toolbar(proxy.getActivity());
-		toolbar.setContentInsetsAbsolute(0,0);
+		toolbar.setContentInsetsAbsolute(0, 0);
 		setNativeView(toolbar);
 	}
 
@@ -127,9 +127,9 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 			//Calculate Status bar's height
 			int statusBarHeight = calculateStatusBarHeight();
 			//Add padding to extend the toolbar's background
-			toolbar.setPadding(toolbar.getPaddingLeft(),statusBarHeight + toolbar.getPaddingTop(), toolbar.getPaddingRight(),toolbar.getPaddingBottom());
+			toolbar.setPadding(toolbar.getPaddingLeft(), statusBarHeight + toolbar.getPaddingTop(), toolbar.getPaddingRight(), toolbar.getPaddingBottom());
 			//Set flags for the current window that allow drawing behind status bar
-			window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+			window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 		}
 	}
 
@@ -159,11 +159,11 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	}
 
 	/**
-	 *  Handler for translucency change
+	 * Handler for translucency change
 	 * @param value Boolean value to set to translucency.
 	 */
 	private void handleTranslucency(boolean value) {
-		toolbar.getBackground().setAlpha(value ? BACKGROUND_TRANSLUCENT_VALUE:BACKGROUND_SOLID_VALUE);
+		toolbar.getBackground().setAlpha(value ? BACKGROUND_TRANSLUCENT_VALUE : BACKGROUND_SOLID_VALUE);
 	}
 
 	/**
@@ -176,10 +176,10 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	private View convertLayoutParamsForView(TiUIView source) {
 		View res = source.getNativeView();
 		TiDimension widthDimension = source.getLayoutParams().optionWidth;
-		int width = widthDimension != null ? widthDimension.getAsPixels(toolbar):Toolbar.LayoutParams.WRAP_CONTENT;
+		int width = widthDimension != null ? widthDimension.getAsPixels(toolbar) : Toolbar.LayoutParams.WRAP_CONTENT;
 		TiDimension heightDimension = source.getLayoutParams().optionHeight;
-		int height = heightDimension != null ? heightDimension.getAsPixels(toolbar):Toolbar.LayoutParams.WRAP_CONTENT;
-		res.setLayoutParams(new Toolbar.LayoutParams(width,height));
+		int height = heightDimension != null ? heightDimension.getAsPixels(toolbar) : Toolbar.LayoutParams.WRAP_CONTENT;
+		res.setLayoutParams(new Toolbar.LayoutParams(width, height));
 		return res;
 	}
 
@@ -225,7 +225,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	public void setLogo(Object object) {
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_LOGO),object);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_LOGO), object);
 		} else {
 			handleSetLogo(object);
 		}
@@ -255,7 +255,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	public void setNavigationIcon(Object object) {
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_NAVIGATION_ICON),object);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_NAVIGATION_ICON), object);
 		} else {
 			handleSetNavigationIcon(object);
 		}
@@ -285,7 +285,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	public void setOverflowMenuIcon(Object object) {
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_OVERFLOW_MENU_ICON),object);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_OVERFLOW_MENU_ICON), object);
 		} else {
 			handleSetOverflowMenuIcon(object);
 		}
@@ -333,7 +333,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	public void setTitle(String value) {
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_TITLE),value);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_TITLE), value);
 		} else {
 			handleSetTitle(value);
 		}
@@ -353,7 +353,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	public void setTitleTextColor(String value) {
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_TITLE_TEXT_COLOR),value);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_TITLE_TEXT_COLOR), value);
 		} else {
 			handleSetTitleTextColor(value);
 		}
@@ -373,7 +373,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	public void setSubtitle(String value) {
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_SUBTITLE),value);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_SUBTITLE), value);
 		} else {
 			handleSetSubtitle(value);
 		}
@@ -393,7 +393,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	public void setSubtitleTextColor(String value) {
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_SUBTITLE_TEXT_COLOR),value);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_SUBTITLE_TEXT_COLOR), value);
 		} else {
 			handleSetSubtitleTextColor(value);
 		}
@@ -441,7 +441,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 
 	public void setContentInsetEndWithActions(int value) {
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSET_END_WITH_ACTIONS),value);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSET_END_WITH_ACTIONS), value);
 		} else {
 			handleSetContentInsetEndWithActions(value);
 		}
@@ -453,7 +453,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 
 	public void setContentInsetStartWithNavigation(int value) {
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSET_START_WITH_NAVIGATION),value);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSET_START_WITH_NAVIGATION), value);
 		} else {
 			handleSetContentInsetStartWithNavigation(value);
 		}
@@ -464,29 +464,29 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	}
 
 	public void setContentInsetsAbsolute(int insetLeft, int insetRight) {
-		Integer[] values = new Integer[]{insetLeft,insetRight};
+		Integer[] values = new Integer[]{insetLeft, insetRight};
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSETS_ABSOLUTE),values);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSETS_ABSOLUTE), values);
 		} else {
 			handleSetContentInsetsAbsolute(values);
 		}
 	}
 
 	private void handleSetContentInsetsAbsolute(Integer values[]) {
-		toolbar.setContentInsetsAbsolute(values[0],values[1]);
+		toolbar.setContentInsetsAbsolute(values[0], values[1]);
 	}
 
 	public void setContentInsetsRelative(int insetLeft, int insetRight) {
-		Integer[] values = new Integer[]{insetLeft,insetRight};
+		Integer[] values = new Integer[]{insetLeft, insetRight};
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSETS_RELATIVE),values);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_CONTENT_INSETS_RELATIVE), values);
 		} else {
 			handleSetContentInsetsRelative(values);
 		}
 	}
 
 	private void handleSetContentInsetsRelative(Integer values[]) {
-		toolbar.setContentInsetsAbsolute(values[0],values[1]);
+		toolbar.setContentInsetsAbsolute(values[0], values[1]);
 	}
 
 	@Override

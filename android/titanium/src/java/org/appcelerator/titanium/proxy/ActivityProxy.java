@@ -23,7 +23,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import org.appcelerator.titanium.view.TiUIView;;
 
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_SUPPORT_TOOLBAR,
