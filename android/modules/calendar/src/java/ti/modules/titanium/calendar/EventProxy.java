@@ -286,9 +286,9 @@ public class EventProxy extends KrollProxy {
 				//safely create parameters for Attendee
 				String attendeeEmail = setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_EMAIL, "").toString();
 				String attendeeName = setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_NAME, "").toString();
-				int attendeeType = (int) setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_TYPE, CalendarModule.ATTENDEE_STATUS_NONE);
-				int attendeeStatus = (int) setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_STATUS, CalendarModule.ATTENDEE_STATUS_NONE);
-				int attendeeRelationship = (int) setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_RELATIONSHIP, CalendarModule.RELATIONSHIP_NONE);
+				int attendeeType = (Integer) setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_TYPE, CalendarModule.ATTENDEE_STATUS_NONE);
+				int attendeeStatus = (Integer) setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_STATUS, CalendarModule.ATTENDEE_STATUS_NONE);
+				int attendeeRelationship = (Integer) setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_RELATIONSHIP, CalendarModule.RELATIONSHIP_NONE);
 				//create a proxy instance
 				AttendeeProxy proxyForRow = new AttendeeProxy(attendeeEmail, attendeeName, attendeeType, attendeeStatus, attendeeRelationship);
 				//add the proxy to the result array
