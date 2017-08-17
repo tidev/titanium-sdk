@@ -513,6 +513,7 @@ properties:
     default: false
     type: String
     since: "6.2.0"
+    platforms: [iphone, ipad]
     osver: {ios: {min: "11.0"}}
 
   - name: largeTitleDisplayMode
@@ -526,9 +527,9 @@ properties:
         will show the large title if the navigation bar has `largeTitleEnabled = true`.
     type: Number
     constants: [Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_*]
-    permission: read-only
     default: Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
     since: "6.2.0"
+    platforms: [iphone, ipad]
     osver: {ios: {min: "11.0"}}
 
   - name: left
