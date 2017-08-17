@@ -48,6 +48,7 @@ public class CalendarModule extends KrollModule
 	@Kroll.constant public static final int RELATIONSHIP_ORGANIZER = CalendarContract.Attendees.RELATIONSHIP_ORGANIZER;
 	@Kroll.constant public static final int RELATIONSHIP_PERFORMER = CalendarContract.Attendees.RELATIONSHIP_PERFORMER;
 	@Kroll.constant public static final int RELATIONSHIP_SPEAKER = CalendarContract.Attendees.RELATIONSHIP_SPEAKER;
+	@Kroll.constant public static final int RELATIONSHIP_UNKNOWN = 11001;
 	//endregion
 
 	//region attendee status
@@ -56,13 +57,15 @@ public class CalendarModule extends KrollModule
 	@Kroll.constant public static final int ATTENDEE_STATUS_INVITED = CalendarContract.Attendees.ATTENDEE_STATUS_INVITED;
 	@Kroll.constant public static final int ATTENDEE_STATUS_NONE = CalendarContract.Attendees.ATTENDEE_STATUS_NONE;
 	@Kroll.constant public static final int ATTENDEE_STATUS_TENTATIVE = CalendarContract.Attendees.ATTENDEE_STATUS_TENTATIVE;
+	@Kroll.constant public static final int ATTENDEE_STATUS_UNKNOWN = 11001;
 	//endregion
 
 	//region attendee type
 	@Kroll.constant public static final int ATTENDEE_TYPE_NONE = CalendarContract.Attendees.TYPE_NONE;
 	@Kroll.constant public static final int ATTENDEE_TYPE_OPTIONAL = CalendarContract.Attendees.TYPE_OPTIONAL;
 	@Kroll.constant public static final int ATTENDEE_TYPE_RESOURCE = CalendarContract.Attendees.TYPE_RESOURCE;
-	@Kroll.constant public static final int ATTENDEE_TYPE_REQUIERED = CalendarContract.Attendees.TYPE_REQUIRED;
+	@Kroll.constant public static final int ATTENDEE_TYPE_REQUIRED = CalendarContract.Attendees.TYPE_REQUIRED;
+	@Kroll.constant public static final int ATTENDEE_TYPE_UNKNOWN = 11001;
 	//endregion
 
 	public static final String EVENT_LOCATION = "eventLocation";
