@@ -931,8 +931,8 @@
   SETPROP(@"titleAttributes", setTitleAttributes);
   SETPROP(@"title", setTitle);
   SETPROP(@"titlePrompt", setTitlePrompt);
-  SETPROP(@"largeTitleEnabled",setLargeTitleEnabled);
-  SETPROP(@"largeTitleDisplayMode",setLargeTitleDisplayMode);
+  SETPROP(@"largeTitleEnabled", setLargeTitleEnabled);
+  SETPROP(@"largeTitleDisplayMode", setLargeTitleDisplayMode);
   [self updateTitleView];
   SETPROP(@"barColor", setBarColor);
   SETPROP(@"navTintColor", setNavTintColor);
