@@ -13,14 +13,14 @@
  * can call a callback either on or off the main UI thread.
  */
 @interface OperationQueue : NSObject {
-	NSOperationQueue *queue;
+  NSOperationQueue *queue;
 }
 
 /**
  Returns shared instance.
  @return The shared instance.
  */
-+(OperationQueue*)sharedQueue;
++ (OperationQueue *)sharedQueue;
 
 /**
  Queues an operation.
@@ -35,6 +35,6 @@
  @param on The after target.
  @param ui The flag to invoke after on UI thread.
  */
--(void)queue:(SEL)selector target:(id)target arg:(id)arg after:(SEL)after on:(id)on ui:(BOOL)ui;
+- (void)queue:(SEL)selector target:(id)target arg:(id)arg after:(SEL)after on:(id)on ui:(BOOL)ui;
 
 @end

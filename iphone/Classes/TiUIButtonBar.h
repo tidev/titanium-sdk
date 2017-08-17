@@ -6,14 +6,14 @@
  */
 #import "TiUIView.h"
 
-@interface TiUIButtonBar : TiUIView<LayoutAutosizing> {
-	NSInteger selectedIndex;
-	BOOL controlSpecifiedWidth;
-	UISegmentedControl * segmentedControl;
+@interface TiUIButtonBar : TiUIView <LayoutAutosizing> {
+  NSInteger selectedIndex;
+  BOOL controlSpecifiedWidth;
+  UISegmentedControl *segmentedControl;
 }
 
-- (void)setTabbedBar: (BOOL)newIsTabbed;
+- (void)setTabbedBar:(BOOL)newIsTabbed;
 
--(IBAction)onSegmentChange:(id)sender;
+- (IBAction)onSegmentChange:(id)sender;
 
 @end

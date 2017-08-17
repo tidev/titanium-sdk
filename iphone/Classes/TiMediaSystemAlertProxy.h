@@ -10,14 +10,14 @@
 #import <AudioToolbox/AudioServices.h>
 
 @interface TiMediaSystemAlertProxy : TiProxy {
-    NSURL* url;
-    SystemSoundID sound;
+  NSURL *url;
+  SystemSoundID sound;
 }
-    
-@property (nonatomic,readonly) NSURL *url;
- 
--(void)play:(id)args;
- 
+
+@property (nonatomic, readonly) NSURL *url;
+
+- (void)play:(id)args;
+
 @end
 
 #endif

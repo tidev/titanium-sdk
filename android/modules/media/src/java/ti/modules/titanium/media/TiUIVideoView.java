@@ -139,6 +139,9 @@ public class TiUIVideoView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_VOLUME)) {
 			videoView.setVolume(TiConvert.toFloat(d, TiC.PROPERTY_VOLUME, 1.0f));
 		}
+		if (d.containsKey(TiC.PROPERTY_REPEAT_MODE)) {
+			videoView.setRepeatMode(TiConvert.toInt(d, TiC.PROPERTY_REPEAT_MODE));
+		}
 	}
 
 	@Override
@@ -166,6 +169,8 @@ public class TiUIVideoView extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_VOLUME)) {
 			videoView.setVolume(TiConvert.toFloat(newValue));
 
+		} else if (key.equals(TiC.PROPERTY_REPEAT_MODE)) {
+			videoView.setRepeatMode(TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -186,6 +191,15 @@ public class TiUIVideoView extends TiUIView
 		}
 
 		videoView.setScalingMode(mode);
+	}
+	
+	public void setRepeatMode(int mode)
+	{
+		if (videoView == null) {
+			return;
+		}
+
+		videoView.setRepeatMode(mode);
 	}
 
 	public void setMediaControlStyle(int style)

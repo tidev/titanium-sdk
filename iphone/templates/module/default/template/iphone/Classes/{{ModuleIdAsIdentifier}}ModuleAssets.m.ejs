@@ -7,14 +7,14 @@ extern NSData* filterDataInRange(NSData* thedata, NSRange range);
 
 @implementation <%- moduleIdAsIdentifier %>ModuleAssets
 
-- (NSData*) moduleAsset
+- (NSData *)moduleAsset
 {
 	<%- mainEncryptedAsset %>
 
 	<%- mainEncryptedAssetReturn %>
 }
 
-- (NSData*) resolveModuleAsset:(NSString*)path
+- (NSData *)resolveModuleAsset:(NSString *)path
 {
 	<%- allEncryptedAssets %>
 
