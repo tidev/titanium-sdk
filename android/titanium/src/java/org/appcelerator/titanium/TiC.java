@@ -2397,6 +2397,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_PIVOT_X = "pivotX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PIVOT_Y = "pivotY";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SCALING_MODE = "scalingMode";
 
 	/**
