@@ -149,12 +149,6 @@
     return;
   }
 
-  id options = nil;
-  if ([args count] > 0) {
-    options = [args objectAtIndex:0];
-  }
-  BOOL animatedhide = [TiUtils boolValue:@"animated" properties:options def:YES];
-
   TiThreadPerformOnMainThread(^{
     if (alertController != nil) {
       [alertController dismissViewControllerAnimated:animated

@@ -1,6 +1,8 @@
 /**
  * Script to export JSON to HTML-annotated JSON for EJS templates
  */
+'use strict';
+
 const common = require('./common.js'),
 	assert = common.assertObjectKey;
 let doc = {},

@@ -1,3 +1,5 @@
+'use strict';
+
 const spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	fs = require('fs'),
 	path = require('path'),

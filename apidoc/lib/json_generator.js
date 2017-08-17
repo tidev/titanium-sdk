@@ -4,6 +4,8 @@
  *
  * Script to convert data to JSON format for third-party extensions
  */
+'use strict';
+
 const common = require('./common.js'),
 	assert = common.assertObjectKey;
 let doc = {};

@@ -13,6 +13,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+'use strict';
+
 const appc = require('node-appc'),
 	Creator = require('../creator'),
 	DOMParser = require('xmldom').DOMParser,

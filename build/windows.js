@@ -1,3 +1,5 @@
+'use strict';
+
 const copyFile = require('./utils').copyFile;
 
 /**
