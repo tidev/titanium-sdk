@@ -11,14 +11,14 @@
 @protocol ios6ToolbarDelegate
 - (NSInteger)positionForBar:(id)bar;
 @end
-@interface TiUIiOSToolbar : TiUIView<LayoutAutosizing,ios6ToolbarDelegate> {
-    UIToolbar * toolBar;
-    BOOL hideTopBorder;
-    BOOL showBottomBorder;
-    BOOL extendsBackground;
+@interface TiUIiOSToolbar : TiUIView <LayoutAutosizing, ios6ToolbarDelegate> {
+  UIToolbar *toolBar;
+  BOOL hideTopBorder;
+  BOOL showBottomBorder;
+  BOOL extendsBackground;
 }
 
--(UIToolbar *)toolBar;
+- (UIToolbar *)toolBar;
 
 @end
 

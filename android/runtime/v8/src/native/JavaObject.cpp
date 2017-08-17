@@ -220,7 +220,11 @@ void JavaObject::DeleteJavaRef()
 		ASSERT(javaObject_ != NULL);
 		// Wipe the V8Object ptr value back to 0, to denote that the native C++ proxy is gone
 		JNIUtil::removePointer(javaObject_);
-		env->DeleteGlobalRef(javaObject_);
+		if (isWeakRef_) {
+			env->DeleteWeakGlobalRef(javaObject_);
+		} else {
+			env->DeleteGlobalRef(javaObject_);
+		}
 		javaObject_ = NULL;
 	} else {
 		LOGD(TAG, "Deleting ref in ReferenceTable for key: %d, pointer: %p", refTableKey_, this);

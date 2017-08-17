@@ -1,11 +1,13 @@
 /*
  * clean.js: Titanium Mobile CLI clean command
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
-var appc = require('node-appc'),
+'use strict';
+
+const appc = require('node-appc'),
 	i18n = appc.i18n(__dirname),
 	__ = i18n.__,
 	__n = i18n.__n,
@@ -121,7 +123,7 @@ exports.run = function (logger, config, cli) {
 
 		// scan platform SDK specific clean hooks
 		if (ti.targetPlatforms) {
-			ti.targetPlatforms.forEach(function(platform) {
+			ti.targetPlatforms.forEach(function (platform) {
 				cli.scanHooks(path.join(__dirname, '..', '..', platform, 'cli', 'hooks'));
 			});
 		}

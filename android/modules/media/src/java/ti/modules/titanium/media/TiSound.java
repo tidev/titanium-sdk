@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.media.AudioManager;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
@@ -25,6 +24,8 @@ import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -56,13 +57,20 @@ public class TiSound
 	public static final String STATE_WAITING_FOR_DATA_DESC = "waiting for data";  // current playback is in the waiting for audio data from the network state
 	public static final String STATE_WAITING_FOR_QUEUE_DESC = "waiting for queue"; //	current playback is in the waiting for audio data to fill the queue state
 
+	public static final int AUDIO_TYPE_MEDIA = 0;
+	public static final int AUDIO_TYPE_ALARM = 1;
+	public static final int AUDIO_TYPE_SIGNALLING = 2;
+	public static final int AUDIO_TYPE_RING = 3;
+	public static final int AUDIO_TYPE_VOICE = 4;
+	public static final int AUDIO_TYPE_NOTIFICATION = 5;
+
 	public static final String EVENT_COMPLETE = "complete";
 	public static final String EVENT_ERROR = "error";
 	public static final String EVENT_CHANGE = "change";
 	public static final String EVENT_PROGRESS = "progress";
 
 	public static final String EVENT_COMPLETE_JSON = "{ type : '" + EVENT_COMPLETE + "' }";
-	
+
 	private boolean paused = false;
 	private boolean looping = false;
 
@@ -72,13 +80,13 @@ public class TiSound
 	protected boolean playOnResume;
 	protected boolean remote;
 	protected Timer progressTimer;
-	
+
 	private boolean pausePending = false;
 	private boolean stopPending = false;
 	private boolean playPending = false;
 	private boolean prepareRequired = false;
 	public static boolean audioFocus;
-	
+
 	public TiSound(KrollProxy proxy)
 	{
 		this.proxy = proxy;
@@ -91,7 +99,67 @@ public class TiSound
 	{
 		try {
 			mp = new MediaPlayer();
-			mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			
+			int audioType = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_AUDIO_TYPE));
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				int streamType = -1;
+				switch (audioType) {
+					case AUDIO_TYPE_ALARM:
+						streamType = AudioManager.STREAM_ALARM;
+						break;
+					case AUDIO_TYPE_SIGNALLING:
+						streamType = AudioManager.STREAM_DTMF;
+						break;
+					case AUDIO_TYPE_RING:
+						streamType = AudioManager.STREAM_RING;
+						break;
+					case AUDIO_TYPE_VOICE:
+						streamType = AudioManager.STREAM_VOICE_CALL;
+						break;
+					case AUDIO_TYPE_NOTIFICATION:
+						streamType = AudioManager.STREAM_NOTIFICATION;
+						break;
+					case AUDIO_TYPE_MEDIA:
+					default:
+						streamType = AudioManager.STREAM_MUSIC;
+
+				}
+				if (streamType != -1) {
+					mp.setAudioStreamType(streamType);
+				} else {
+					Log.w(TAG, "unable to set setAudioStreamType()");
+				}
+			} else {
+				int usage = -1;
+				switch (audioType) {
+					case AUDIO_TYPE_ALARM:
+						usage = AudioAttributes.USAGE_ALARM;
+						break;
+					case AUDIO_TYPE_SIGNALLING:
+						usage = AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
+						break;
+					case AUDIO_TYPE_RING:
+						usage = AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+						break;
+					case AUDIO_TYPE_VOICE:
+						usage = AudioAttributes.USAGE_VOICE_COMMUNICATION;
+						break;
+					case AUDIO_TYPE_NOTIFICATION:
+						usage = AudioAttributes.USAGE_NOTIFICATION;
+						break;
+					case AUDIO_TYPE_MEDIA:
+					default:
+						usage = AudioAttributes.USAGE_MEDIA;
+
+				}
+				if (usage != -1) {
+					AudioAttributes attributes = new AudioAttributes.Builder().setUsage(usage).build();
+					mp.setAudioAttributes(attributes);
+				} else {
+					Log.w(TAG, "unable to set setAudioAttributes()");
+				}
+			}
+
 			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
 			boolean isAsset = URLUtil.isAssetUrl(url);
 			if (isAsset || url.startsWith("android.resource")) {
@@ -148,7 +216,7 @@ public class TiSound
 					mp.setDataSource(url);
 				}
 			}
-			
+
 			String loop = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LOOPING));
 			if (loop != null) {
 				looping = Boolean.parseBoolean(loop);
@@ -158,7 +226,7 @@ public class TiSound
 			mp.setOnErrorListener(this);
 			mp.setOnInfoListener(this);
 			mp.setOnBufferingUpdateListener(this);
-			
+
 			if (remote) { // try async
 				mp.setOnPreparedListener(this);
 				mp.prepareAsync();
@@ -264,7 +332,7 @@ public class TiSound
 			startPlaying();
 		}
 	}
-	
+
 	public void reset()
 	{
 		try {
@@ -281,14 +349,14 @@ public class TiSound
 			Log.w(TAG, "Issue while resetting : ", t);
 		}
 	}
-    
+
 	public int  getAudioSessionId() {
 		if (mp != null) {
 			return mp.getAudioSessionId();
 		}
 		return 0;
 	}
-    
+
 	public void release()
 	{
 		try {
@@ -380,9 +448,9 @@ public class TiSound
 			}
 
 			try {
-			    if (mp.getDuration() >= 0) {
-			        mp.seekTo(position);
-			    }
+				if (mp.getDuration() >= 0) {
+					mp.seekTo(position);
+				}
 			} catch (IllegalStateException e) {
 				Log.w(TAG, "Error calling seekTo() in an incorrect state. Ignoring.");
 			}
@@ -621,7 +689,7 @@ public class TiSound
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}
 	}
-	
+
 	private void startPlaying()
 	{
 		if (mp != null) {

@@ -1269,6 +1269,24 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
+  - name: HINT_TYPE_STATIC
+    deprecated:
+        since: "6.2.0"
+    summary: |
+        Use when creating a TextField to specify the hintType as static.
+    type: Number
+    permission: read-only
+    platforms: [android]
+
+  - name: HINT_TYPE_ANIMATED
+    deprecated:
+        since: "6.2.0"
+    summary: |
+        Use when creating a TextField to specify the hintType as animated.
+    type: Number
+    permission: read-only
+    platforms: [android]
   
   - name: TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP
     summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.

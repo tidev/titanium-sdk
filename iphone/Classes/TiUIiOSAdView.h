@@ -11,17 +11,17 @@
 #import "TiUIiOSAdViewProxy.h"
 #import <iAd/iAd.h>
 
-@interface TiUIiOSAdView : TiUIView<ADBannerViewDelegate> {
+@interface TiUIiOSAdView : TiUIView <ADBannerViewDelegate> {
 
-@private
-	ADBannerView *adview;
+  @private
+  ADBannerView *adview;
 }
 
-@property (nonatomic, readonly) ADBannerView* adview;
+@property (nonatomic, readonly) ADBannerView *adview;
 
 #pragma mark - Titanium Internal Use
--(CGFloat)contentHeightForWidth:(CGFloat)value;
--(CGFloat)contentWidthForWidth:(CGFloat)value;
+- (CGFloat)contentHeightForWidth:(CGFloat)value;
+- (CGFloat)contentWidthForWidth:(CGFloat)value;
 @end
 
 #endif

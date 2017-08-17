@@ -6,8 +6,8 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TiProxy.h"
 #import "GDataXMLNode.h"
+#import "TiProxy.h"
 
 @interface TIDOMDOMImplementation : TiProxy {
 }

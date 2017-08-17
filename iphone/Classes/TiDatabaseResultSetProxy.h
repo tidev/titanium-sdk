@@ -13,17 +13,17 @@
 @class TiDatabaseProxy;
 
 @interface TiDatabaseResultSetProxy : TiProxy {
-@private
-	TiDatabaseProxy *database;
-	PLSqliteResultSet *results;
-	BOOL validRow;
-	int rowCount;
+  @private
+  TiDatabaseProxy *database;
+  PLSqliteResultSet *results;
+  BOOL validRow;
+  int rowCount;
 }
 
--(id)initWithResults:(PLSqliteResultSet*)results database:(TiDatabaseProxy*)database pageContext:(id<TiEvaluator>)context;
+- (id)initWithResults:(PLSqliteResultSet *)results database:(TiDatabaseProxy *)database pageContext:(id<TiEvaluator>)context;
 
-@property(nonatomic,readonly) NSNumber *rowCount;
-@property(nonatomic,readonly) NSNumber *validRow;
+@property (nonatomic, readonly) NSNumber *rowCount;
+@property (nonatomic, readonly) NSNumber *validRow;
 
 @end
 

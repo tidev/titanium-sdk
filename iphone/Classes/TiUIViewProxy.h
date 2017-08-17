@@ -7,8 +7,6 @@
 
 #import "TiViewProxy.h"
 
-@interface TiUIViewProxy : TiViewProxy 
-{
+@interface TiUIViewProxy : TiViewProxy {
 }
 @end
-
