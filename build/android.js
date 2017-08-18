@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path'),
 	async = require('async'),
 	fs = require('fs-extra'),
@@ -57,7 +59,7 @@ Android.prototype.build = function (next) {
 
 Android.prototype.package = function (packager, next) {
 	console.log('Zipping Android platform...');
-	// FIXME This is a hot mess. Why can't we place artifacts in their proper location already like mobileweb or Windows?
+	// FIXME This is a hot mess. Why can't we place artifacts in their proper location already like Windows?
 	const DIST_ANDROID = path.join(packager.outputDir, 'android'),
 		ANDROID_ROOT = path.join(packager.srcDir, 'android'),
 		ANDROID_DEST = path.join(packager.zipSDKDir, 'android'),

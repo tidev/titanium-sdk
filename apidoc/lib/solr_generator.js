@@ -4,6 +4,8 @@
  *
  * Script to generate JSON-formmatted data for consumption by the SOLR indexer
  */
+'use strict';
+
 const common = require('./common.js'),
 	assert = common.assertObjectKey,
 	solr_category = 'platform';

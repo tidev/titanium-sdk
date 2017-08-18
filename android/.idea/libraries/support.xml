@@ -1,0 +1,19 @@
+<component name="libraryTable">
+  <library name="support">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-v4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-media-compat.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-annotations.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-core-utils.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-v7-appcompat.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-animated-vector-drawable.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-transition.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-v7-recyclerview.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-vector-drawable.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-core-ui.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-fragment.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

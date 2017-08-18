@@ -1,3 +1,5 @@
+'use strict';
+
 const Ant = {},
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	exec = require('child_process').exec, // eslint-disable-line security/detect-child-process

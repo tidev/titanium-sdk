@@ -11,6 +11,8 @@
 * Please see the LICENSE included with this distribution for details.
 */
 
+'use strict';
+
 const AdmZip = require('adm-zip'),
 	androidDetect = require('../lib/detect').detect,
 	appc = require('node-appc'),
@@ -35,6 +37,7 @@ const AdmZip = require('adm-zip'),
 function AndroidModuleBuilder() {
 	Builder.apply(this, arguments);
 
+	this.compileSdkVersion = this.packageJson.compileSDKVersion; // this should always be >= maxSupportedApiLevel
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
@@ -71,6 +74,14 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 					targetSDKMap[t.id.replace('android-', '')] = t;
 				}
 			}, this);
+
+			// check the Android SDK we require to build exists
+			this.androidCompileSDK = targetSDKMap[this.compileSdkVersion];
+			if (!this.androidCompileSDK) {
+				logger.error(__('Unable to find Android SDK API %s', this.compileSdkVersion));
+				logger.error(__('Android SDK API %s is required to build Android modules', this.compileSdkVersion) + '\n');
+				process.exit(1);
+			}
 
 			// if no target sdk, then default to most recent supported/installed
 			if (!this.targetSDK) {
@@ -252,7 +263,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.metaData = [];
 	this.documentation = [];
 	this.classPaths = {};
-	this.classPaths[this.androidTargetSDK.androidJar] = 1;
+	this.classPaths[this.androidCompileSDK.androidJar] = 1;
 	this.manifestFile = path.join(this.projectDir, 'manifest');
 
 	[ 'lib', 'modules', '' ].forEach(function (folder) {
@@ -549,7 +560,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 			const aaptOptions = [
 				'package',
 				'-f',
-				'-I', this.androidTargetSDK.androidJar,
+				'-I', this.androidCompileSDK.androidJar,
 				'-M', path.join(this.buildIntermediatesDir, 'manifests/aapt/AndroidManifest.xml'),
 				'-S', mergedResPath,
 				'-m',
@@ -631,8 +642,8 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next) {
 	this.logger.log(__('Generating java files from the .aidl files'));
 
-	if (!this.androidTargetSDK.aidl) {
-		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTargetSDK['api-level']));
+	if (!this.androidCompileSDK.aidl) {
+		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidCompileSDK['api-level']));
 		return next();
 	}
 
@@ -668,7 +679,7 @@ AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next
 
 			aidlHook(
 				this.androidInfo.sdk.executables.aidl,
-				[ '-p' + this.androidTargetSDK.aidl, '-I' + this.javaSrcDir, file ],
+				[ '-p' + this.androidCompileSDK.aidl, '-I' + this.javaSrcDir, file ],
 				{},
 				callback
 			);

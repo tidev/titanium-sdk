@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+'use strict';
+
 const os = require('os'),
 	path = require('path'),
 	async = require('async'),
@@ -13,9 +15,9 @@ const os = require('os'),
 	ROOT_DIR = path.join(__dirname, '..'),
 	DIST_DIR = path.join(ROOT_DIR, 'dist'),
 	OS_TO_PLATFORMS = {
-		'win32': [ 'android', 'mobileweb', 'windows' ],
-		'osx': [ 'android', 'ios', 'mobileweb' ],
-		'linux': [ 'android', 'mobileweb' ]
+		'win32': [ 'android', 'windows' ],
+		'osx': [ 'android', 'ios' ],
+		'linux': [ 'android' ]
 	};
 
 program
