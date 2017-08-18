@@ -46,8 +46,8 @@ var validSyntax = {
 	optional: {
 		'description' : 'Markdown',
 		'createable' : 'Boolean',
-		'platforms' : [common.VALID_PLATFORMS],
-		'exclude-platforms' : [common.VALID_PLATFORMS],
+		'platforms' : [ common.VALID_PLATFORMS ],
+		'exclude-platforms' : [ common.VALID_PLATFORMS ],
 		'excludes' : {
 			optional: {
 				'events' : 'Array<events.name>',
@@ -67,7 +67,7 @@ var validSyntax = {
 			},
 			optional: {
 				'description' : 'String',
-				'platforms' : [common.VALID_PLATFORMS],
+				'platforms' : [ common.VALID_PLATFORMS ],
 				'since' : 'Since',
 				'deprecated' : Deprecated,
 				'osver' : 'OSVersions',
@@ -78,14 +78,14 @@ var validSyntax = {
 					},
 					optional: {
 						'type' : 'DataType',
-						'platforms' : [common.VALID_PLATFORMS],
+						'platforms' : [ common.VALID_PLATFORMS ],
 						'deprecated' : Deprecated,
 						'since': 'Since',
-						'exclude-platforms' : [common.VALID_PLATFORMS],
+						'exclude-platforms' : [ common.VALID_PLATFORMS ],
 						'constants' : 'Constants'
 					}
 				}],
-				'exclude-platforms' : [common.VALID_PLATFORMS],
+				'exclude-platforms' : [ common.VALID_PLATFORMS ],
 				'notes': 'Invalid'
 			}
 		}],
@@ -97,7 +97,7 @@ var validSyntax = {
 			optional: {
 				'description' : 'String',
 				'returns' : 'Returns', // FIXME Validate 'Returns' has a required 'type' String property
-				'platforms' : [common.VALID_PLATFORMS],
+				'platforms' : [ common.VALID_PLATFORMS ],
 				'since' : 'Since',
 				'deprecated' : Deprecated,
 				'examples' : Examples,
@@ -116,7 +116,7 @@ var validSyntax = {
 						'notes': 'Invalid'
 					}
 				}],
-				'exclude-platforms' : [common.VALID_PLATFORMS],
+				'exclude-platforms' : [ common.VALID_PLATFORMS ],
 				'notes': 'Invalid'
 			}
 		}],
@@ -128,18 +128,18 @@ var validSyntax = {
 			},
 			optional: {
 				'description' : 'String',
-				'platforms' : [common.VALID_PLATFORMS],
+				'platforms' : [ common.VALID_PLATFORMS ],
 				'since' : 'Since',
 				'deprecated' : Deprecated,
 				'osver' : 'OSVersions',
 				'examples' : Examples,
-				'permission' : ['read-only', 'write-only', 'read-write'], // FIXME Enforce permission must be set to 'read-only' if name of property is all caps: [A-Z]+[A-Z_]*
-				'availability' : ['always', 'creation', 'not-creation'],
+				'permission' : [ 'read-only', 'write-only', 'read-write' ], // FIXME Enforce permission must be set to 'read-only' if name of property is all caps: [A-Z]+[A-Z_]*
+				'availability' : [ 'always', 'creation', 'not-creation' ],
 				'accessors' : 'Boolean',
 				'optional' : 'Boolean',
 				'value' : 'Primitive',
 				'default' : 'Default',
-				'exclude-platforms' : [common.VALID_PLATFORMS],
+				'exclude-platforms' : [ common.VALID_PLATFORMS ],
 				'constants' : 'Constants',
 				'notes': 'Invalid'
 			}
@@ -182,13 +182,11 @@ function validateAPINames(obj, type, className) {
 		var parent = doc[className]['extends'];
 		if (parent in doc) {
 			return validateAPINames(obj, type, parent);
+		} else if (standaloneFlag) {
+			console.warn('WARNING! Cannot validate parent class: %s'.yellow, parent);
+			return;
 		} else {
-			if (standaloneFlag) {
-				console.warn('WARNING! Cannot validate parent class: %s'.yellow, parent);
-				return;
-			} else {
-				return 'Invalid parent class: ' + parent;
-			}
+			return 'Invalid parent class: ' + parent;
 		}
 	}
 	if (obj.length > 0) {
@@ -253,8 +251,8 @@ function validateDataType (type) {
 		type.forEach(function (elem) {
 			errors = errors.concat(validateDataType(elem));
 		});
-	} else if ((~type.indexOf('<') && ~type.indexOf('>')) &&
-		(type.indexOf('Array') === 0 || type.indexOf('Callback') === 0 ||  type.indexOf('Dictionary') === 0)) {
+	} else if ((~type.indexOf('<') && ~type.indexOf('>'))
+		&& (type.indexOf('Array') === 0 || type.indexOf('Callback') === 0 ||  type.indexOf('Dictionary') === 0)) {
 		if (type === 'Callback<void>') {
 			return errors;
 		}
@@ -344,7 +342,7 @@ function validatePrimitive (x) {
 function validateReturns (ret) {
 	var errors = [];
 	if (Array.isArray(ret)) {
-		ret.forEach (function (elem) {
+		ret.forEach(function (elem) {
 			errors = errors.concat(validateReturns(elem));
 		});
 	} else {
@@ -386,8 +384,7 @@ function validateSince (version) {
 					if (nodeappc.version.lt(version[platform], common.DEFAULT_VERSIONS[platform])) {
 						errors.push('Minimum version for ' + platform + ' is ' + common.DEFAULT_VERSIONS[platform]);
 					}
-				}
-				catch (e) {
+				} catch (e) {
 					errors.push('Invalid version string:' + version[platform]);
 				}
 			} else {
@@ -434,8 +431,7 @@ function validateMarkdown(str) {
 function validateVersion(version) {
 	try {
 		nodeappc.version.lt('0.0.1', version);
-	}
-	catch (e) {
+	} catch (e) {
 		return 'Invalid version: ' + version;
 	}
 }
@@ -470,7 +466,7 @@ function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 				if (array) {
 					// find matching name in array
 					for (var i = 0; array.length; i++) {
-						if (array[i].name === currentKey) {
+						if (array[i] && array[i].name === currentKey) {
 							parent = array[i];
 							break;
 						}
