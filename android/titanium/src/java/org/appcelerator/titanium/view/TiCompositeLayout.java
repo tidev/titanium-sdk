@@ -298,7 +298,7 @@ public class TiCompositeLayout extends ViewGroup
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != View.GONE) {
-                constrainChild(child, w, wMode, h, hMode, wRemain);
+                constrainChild(child, w, wMode, h, hMode, wRemain, h - maxHeight);
             }
 
             int childWidth = child.getMeasuredWidth();
@@ -372,17 +372,21 @@ public class TiCompositeLayout extends ViewGroup
         setMeasuredDimension(measuredWidth, measuredHeight);
     }
 
-    protected void constrainChild(View child, int width, int wMode, int height, int hMode, int remainWidth)
+    protected void constrainChild(
+        View child, int width, int wMode, int height, int hMode, int remainWidth, int remainHeight)
     {
         // Floor arguments to valid values.
-        if (width < 0) {
-            width = 0;
-        }
-        if (height < 0) {
-            height = 0;
-        }
         if (remainWidth < 0) {
             remainWidth = 0;
+        }
+        if (remainHeight < 0) {
+            remainHeight = 0;
+        }
+        if (width < remainWidth) {
+            width = remainWidth;
+        }
+        if (height < remainHeight) {
+            height = remainHeight;
         }
 
         // Fetch the child view's layout settings.
@@ -411,18 +415,22 @@ public class TiCompositeLayout extends ViewGroup
                 }
             }
         } else if (p.autoFillsWidth) {
-            // Use the remaing width of the parent view to fill it.
+            // Use the remaining width of the parent view to fill it.
             // Note: Do not use Android's MATCH_PARENT or FILL_PARENT constant here, because if the
             //       parent view is WRAP_CONTENT (ie: Ti.UI.SIZE), then the child will use min size
             //       instead of filling parent's remaing space like iOS/Windows. (See: TIMOB-25173)
             childDimension = Math.max(remainWidth - widthPadding, 0);
+        } else if (!p.sizeOrFillWidthEnabled) {
+            // Attempt to calculate a width based on left/center/right properties, if provided.
+            childDimension = calculateWidthFromPins(p, 0, remainWidth, remainWidth, childDimension);
         }
         int widthSpec = ViewGroup.getChildMeasureSpec(
-                MeasureSpec.makeMeasureSpec(remainWidth, wMode), widthPadding, childDimension);
+                MeasureSpec.makeMeasureSpec(width, wMode), widthPadding, childDimension);
 
         // Determine the height that should be applied to the child view.
         // Note: If "optionHeight" and "autoFillsHeight" are null, then default to auto-size behavior.
         childDimension = LayoutParams.WRAP_CONTENT;
+        int heightPadding = getViewHeightPadding(child, height);
         if (p.optionHeight != null) {
             // Fetch the view's configured height.
             if (p.optionHeight.isUnitPercent()) {
@@ -434,10 +442,13 @@ public class TiCompositeLayout extends ViewGroup
                 childDimension = 0;
             }
         } else if (p.autoFillsHeight) {
-            // Use the remaing height of the parent view to fill it.
-            childDimension = height;
+            // Use the remaining height of the parent view to fill it.
+            childDimension = Math.max(remainHeight - heightPadding, 0);
+        } else if (!p.sizeOrFillHeightEnabled) {
+            // Attempt to calculate a height based on top/center/bottom properties, if provided.
+            childDimension = calculateHeightFromPins(
+                    p, height - remainHeight, height, remainHeight, childDimension);
         }
-        int heightPadding = getViewHeightPadding(child, height);
         int heightSpec = ViewGroup.getChildMeasureSpec(
                 MeasureSpec.makeMeasureSpec(height, hMode), heightPadding, childDimension);
 
