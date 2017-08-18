@@ -6,23 +6,22 @@ description: |
       <tr>
         <td><img src="images/progressbar/progressbar_android.png" height="50" /></td>
         <td><img src="images/progressbar/progressbar_ios.png" height="25" /></td>
-        <td><img src="images/progressbar/progressbar_mobileweb.png" height="25" /></td>
         <td><img src="images/progressbar/progressbar_wp.png" height="25" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
 
-    A progress bar is used for displaying an ongoing activity with a defined progression. 
-    For an activity without a defined progression, you can use <Titanium.UI.ActivityIndicator>. 
+    A progress bar is used for displaying an ongoing activity with a defined progression.
+    For an activity without a defined progression, you can use <Titanium.UI.ActivityIndicator>.
 
-    Unlike most views, progress bars are hidden by default, so you must explicitly 
+    Unlike most views, progress bars are hidden by default, so you must explicitly
     show the progress bar.
 
     Use the <Titanium.UI.createProgressBar> method or **`<ProgressBar>`** Alloy element to create a progress bar.
 
     #### Android Platform Notes
 
-    In SDK 3.0, use <Titanium.UI.Android.ProgressIndicator> to display a progress indicator 
+    In SDK 3.0, use <Titanium.UI.Android.ProgressIndicator> to display a progress indicator
     in a modal dialog or window title bar. Use `ProgressBar` to display the progress bar inside
     another view.
 
@@ -33,7 +32,7 @@ description: |
     Make sure the window is modal and not full screen, and that the navigation bar is not hidden.
 extends: Titanium.UI.View
 since: "0.8"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 
 methods:
     # main doc inherited from Ti.UI.View.add
@@ -41,24 +40,24 @@ methods:
     description: |
         Adding children to a `ProgressBar` is not supported on all platforms.
 
-        If you need to display views on top of this object, consider using 
-        another view as a container for both this object and the views you want 
+        If you need to display views on top of this object, consider using
+        another view as a container for both this object and the views you want
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.ProgressBar.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
 
 properties:
 
   - name: color
     summary: Color of the progress bar message, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
 
   - name: font
@@ -82,7 +81,7 @@ properties:
     summary: Minimum value of the progress bar.
     type: Number
   - name: style
-    summary: Style of the progress bar. 
+    summary: Style of the progress bar.
     description: For iOS, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.iOS.ProgressBarStyle).
     type: Number
     platforms: [iphone,ipad]
@@ -91,9 +90,9 @@ properties:
     type: Number
 examples:
   - title: Simple Progress Bar
-    example: |    
-        In this example we create a progress bar with the min value of `0` and the max value 
-        of `10` and the current value of `0`. Changing the `value` property causes the 
+    example: |
+        In this example we create a progress bar with the min value of `0` and the max value
+        of `10` and the current value of `0`. Changing the `value` property causes the
         displayed progress bar to update.
 
             var pb = Ti.UI.createProgressBar({

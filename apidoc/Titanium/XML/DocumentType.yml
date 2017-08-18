@@ -1,20 +1,19 @@
 ---
 name: Titanium.XML.DocumentType
 extends: Titanium.XML.Node
-summary: Each <Titanium.XML.Document> has a `doctype` attribute whose value 
+summary: Each <Titanium.XML.Document> has a `doctype` attribute whose value
     is either 'null' or a <Titanium.XML.DocumentType> object.
-    
+
 description: |
-    This provides an interface to the list of entities that are defined for the document. Implements the 
-    [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-412266927) on Android and iOS. Exposes the 
-    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-412266927) implementation on Mobile Web.
+    This provides an interface to the list of entities that are defined for the document. Implements the
+    [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-412266927) on Android and iOS.
 
     As of version 3.1, Android still does not truly support DTDs.  A document with a DTD can be
     parsed, however it is not validated, none of its default attributes will automatically be put
     into the tree, etc.  [Google is aware of the issue](http://code.google.com/p/android/issues/detail?id=7395).
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 properties:
   - name: entities
     summary: >
@@ -34,8 +33,8 @@ properties:
     permission: read-only
   - name: notations
     summary: >
-        A <Titanium.XML.NamedNodeMap> containing the notations declared 
-        in the DTD. Duplicates are discarded. Every node in this map also 
+        A <Titanium.XML.NamedNodeMap> containing the notations declared
+        in the DTD. Duplicates are discarded. Every node in this map also
         implements the <Titanium.XML.Notation> interface.
     type: Titanium.XML.NamedNodeMap
     permission: read-only

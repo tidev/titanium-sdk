@@ -6,23 +6,19 @@ description: |
       <tr>
         <td><img src="images/switch/switch_android.png" height="75" /></td>
         <td><img src="images/switch/switch_ios.png" height="75" /></td>
-        <td><img src="images/switch/switch_mobileweb.png" height="75" /></td>
         <td><img src="images/switch/switch_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
-    
-    The appearance of a `Switch` control varies by platform: 
+
+    The appearance of a `Switch` control varies by platform:
 
     * On Android, a Switch object can be styled either as a switch, checkbox or
     toggle button based on the <Titanium.UI.Switch.style> property. The checkbox style can
     optionally display a label next to the control.
-    
-    * On iOS, a Switch appears as an iOS on/off switch and doesn't have any text associated with it. 
-    
-    * On Mobile Web, a switch always has text associated with it, and appears as a toggle button,
-    similar to Android.
-    
+
+    * On iOS, a Switch appears as an iOS on/off switch and doesn't have any text associated with it.
+
     Use the <Titanium.UI.createSwitch> method or **`<Switch>`** Alloy element to create a switch.
 
 extends: Titanium.UI.View
@@ -34,22 +30,22 @@ methods:
     description: |
         Adding children to a `Switch` is not supported on all platforms.
 
-        If you need to display something on top of this object, consider using 
-        another view as a container for both this object and views you want 
+        If you need to display something on top of this object, consider using
+        another view as a container for both this object and views you want
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [mobileweb]
+    platforms: []
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.Switch.add), <Titanium.UI.View.add>.
-    platforms: [mobileweb]
+    platforms: []
 
 properties:
   - name: animated
     summary: Determines if there is animation when the switch value changes.
-    description: Set to `true` if animation is desired or `false` for no animation. 
+    description: Set to `true` if animation is desired or `false` for no animation.
     type: Boolean
     default: undefined (equivalent to true)
     platforms: [iphone, ipad]
@@ -57,26 +53,26 @@ properties:
 
   - name: color
     summary: Color to use for switch text, as a color name or hex triplet.
-    description: For information about color values, see the "Colors" section of <Titanium.UI>. 
+    description: For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     default: black
-    platforms: [android, mobileweb]
-    
+    platforms: [android]
+
   - name: enabled
     summary: Determines whether the switch is enabled.
     description: |
-         Be careful not to confused this with the [value](Titanium.UI.Switch.value) property, which 
-         is used to turn the switch on and off. 
-         
+         Be careful not to confused this with the [value](Titanium.UI.Switch.value) property, which
+         is used to turn the switch on and off.
+
          Set to `true` to enable or `false` to disable the switch.
     type: Boolean
     default: undefined (equivalent to enabled)
-    
+
   - name: font
     summary: Font to use for the switch text.
     type: Font
-    platforms: [android, mobileweb]
-    
+    platforms: [android]
+
   - name: style
     summary: Style of the switch.
     description: |
@@ -86,58 +82,55 @@ properties:
     platforms: [android]
     default: |
         Titanium.UI.Android.SWITCH_STYLE_SWITCH; prior to Release 4.0, Titanium.UI.Android.SWITCH_STYLE_TOGGLEBUTTON
-    
+
   - name: textAlign
     summary: |
         Horizontal text alignment of the switch title.
     description: |
-        On Android, when the switch [style](Titanium.UI.Switch.style) property is set to 
-        <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX>, this property is only effective if the 
-        [width](Titanium.UI.Switch.width) property is set to a value greater than the width of the 
-        [title](Titanium.UI.Switch.title) contents. 
-        
-        On Mobile Web this property is always supported, as the `style` property is not supported.
+        On Android, when the switch [style](Titanium.UI.Switch.style) property is set to
+        <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX>, this property is only effective if the
+        [width](Titanium.UI.Switch.width) property is set to a value greater than the width of the
+        [title](Titanium.UI.Switch.title) contents.
     type: [String, Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: |
-        <Titanium.UI.TEXT_ALIGNMENT_CENTER> (toggle button, Android), 
-        <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox, Android), 
-        <Titanium.UI.TEXT_ALIGNMENT_CENTER> (Mobile Web)
-    platforms: [android, mobileweb]
-    
+        <Titanium.UI.TEXT_ALIGNMENT_CENTER> (toggle button, Android),
+        <Titanium.UI.TEXT_ALIGNMENT_LEFT> (checkbox, Android)
+    platforms: [android]
+
   - name: title
     summary: Text to display next to the switch, when the checkbox style is in use.
     description: |
-        This property is only effective when the <Titanium.UI.Switch.style> property is set to 
-        <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX>. 
-        
-        Use the [textAlign](Titanium.UI.Switch.textAlign) property to align this text within the 
+        This property is only effective when the <Titanium.UI.Switch.style> property is set to
+        <Titanium.UI.Android.SWITCH_STYLE_CHECKBOX>.
+
+        Use the [textAlign](Titanium.UI.Switch.textAlign) property to align this text within the
         switch.
     type: String
-    platforms: [android, mobileweb]
-    
+    platforms: [android]
+
   - name: titleOff
     summary: Text to display on the switch in its "off" state, when the toggle button style is in use.
     description: |
-        Set to an empty string to remove title text. 
-        
-        It is typically useful to set the `width` and/or `height` properties, to prevent the switch 
+        Set to an empty string to remove title text.
+
+        It is typically useful to set the `width` and/or `height` properties, to prevent the switch
         changing size between its on/off state.
     type: String
     default: Off
-    platforms: [android, mobileweb]
-    
+    platforms: [android]
+
   - name: titleOn
     summary: Text to display on the switch in its "on" state, when the toggle button style is in use.
     description: |
-        Set to an empty string to remove title text. 
-        
-        It is typically useful to set the `width` and/or `height` properties, to prevent the switch 
+        Set to an empty string to remove title text.
+
+        It is typically useful to set the `width` and/or `height` properties, to prevent the switch
         changing size between its on/off state.
     type: String
     default: On
-    platforms: [android, mobileweb]
-    
+    platforms: [android]
+
   - name: tintColor
     summary: The color used to tint the outline of the switch when it is turned off.
     description: |
@@ -146,41 +139,41 @@ properties:
     default: Undefined.
     platforms: [iphone, ipad]
     since: "3.3.0"
-    
+
   - name: onTintColor
     summary: The color used to tint the appearance of the switch when it is turned on.
     type: String
     default: Undefined.
     platforms: [iphone, ipad]
     since: "3.3.0"
-    
+
   - name: thumbTintColor
     summary: The color used to tint the appearance of the thumb.
     type: String
     default: Undefined.
     platforms: [iphone, ipad]
     since: "3.3.0"
-    
+
   - name: value
     summary: |
-        Indicates whether the switch has been turned on or off by the user. May also be set 
+        Indicates whether the switch has been turned on or off by the user. May also be set
         programmatically.
     description: |
-        Set to `true` to turn on and `false` to turn off the switch. 
-        
-        On Android, if this property is not defined, the rendered state of the switch is off. 
-        
-        On iOS, be aware that this property must be set when the switch is rendered, otherwise it 
-        will not be visible. This is a known issue. 
+        Set to `true` to turn on and `false` to turn off the switch.
+
+        On Android, if this property is not defined, the rendered state of the switch is off.
+
+        On iOS, be aware that this property must be set when the switch is rendered, otherwise it
+        will not be visible. This is a known issue.
     type: Boolean
-    default: undefined (visual state off, Android), false (Mobile Web)
-    
+    default: undefined (visual state off, Android)
+
   - name: verticalAlign
     summary: Vertical alignment for the text field.
     type: [Number,String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [android, mobileweb]
+    platforms: [android]
 
 events:
   - name: change
@@ -199,7 +192,7 @@ events:
         A singletap event is generated when the user taps the screen briefly
         without moving their finger. This gesture will also generate a click event.
 
-        However, a click event can also be generated when the user touches, 
+        However, a click event can also be generated when the user touches,
         moves their finger, and then removes it from the screen.
 
         The click event can also be generated by a trackball click.
@@ -210,7 +203,7 @@ events:
       - name: x
         type: Number
         summary: X coordinate of the event from the `source` view's coordinate system.
-    
+
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
@@ -218,35 +211,35 @@ events:
 examples:
   - title: Simple Switch Example
     example: |
-        Create a standard switch, using default values, and output value property on each `change` 
+        Create a standard switch, using default values, and output value property on each `change`
         event.
-        
+
             var win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
-            
+
             var basicSwitch = Ti.UI.createSwitch({
-              value:true // mandatory property for iOS 
+              value:true // mandatory property for iOS
             });
             win.add(basicSwitch);
-            
+
             basicSwitch.addEventListener('change',function(e){
               Ti.API.info('Switch value: ' + basicSwitch.value);
             });
-            
+
             win.open();
-            
+
             // print initial value
             Ti.API.info('Switch value: ' + basicSwitch.value);
   - title: Toggle Button Switch Example (Android)
     example: |
-        Create a standard (toggle button) switch with a customized title for each on/off state, and 
+        Create a standard (toggle button) switch with a customized title for each on/off state, and
         output value property on each `change` event.
-        
+
             var win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
-            
+
             var basicSwitch = Ti.UI.createSwitch({
               style: Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
               titleOn:'Notifications Enabled',
@@ -255,20 +248,20 @@ examples:
               width: 200, height:120
             });
             win.add(basicSwitch);
-            
+
             basicSwitch.addEventListener('change',function(e){
               Ti.API.info('Switch value: ' + basicSwitch.value);
             });
-            
+
             win.open();
   - title: Checkbox Switch Example (Android)
     example: |
         Create a checkbox switch, and output value property on each `change` event.
-        
+
             var win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
-            
+
             var basicSwitch = Ti.UI.createSwitch({
               style: Ti.UI.Android.SWITCH_STYLE_CHECKBOX,
               textAlign:Ti.UI.TEXT_ALIGNMENT_CENTER,
@@ -277,11 +270,11 @@ examples:
               width: 300 // necessary for textAlign to be effective
             });
             win.add(basicSwitch);
-            
+
             basicSwitch.addEventListener('change',function(e){
               Ti.API.info('Switch value: ' + basicSwitch.value);
             });
-            
+
             win.open();
 
   - title: Alloy XML Markup

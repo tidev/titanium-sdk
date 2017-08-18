@@ -2,29 +2,28 @@
 name: Titanium.XML.NamedNodeMap
 extends: Titanium.Proxy
 summary: >
-    A key-value paired map that maps String objects to 
-    <Titanium.XML.Node> objects. 
-    
-    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1780488922) 
-    on Android and iOS. Exposes the 
-    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1780488922) implementation on Mobile Web.
+    A key-value paired map that maps String objects to
+    <Titanium.XML.Node> objects.
+
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1780488922)
+    on Android and iOS.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 methods:
   - name: getNamedItem
-    summary: Retrieves a node specified by name. 
+    summary: Retrieves a node specified by name.
     returns:
         type: Titanium.XML.Node
         summary: The specified node, or `null` if no node with the name is in the map
-    parameters: 
+    parameters:
       - name: name
         summary: The name of the node to retrieve.
         type: String
   - name: setNamedItem
     summary: >
         Adds a node using its `nodeName` attribute. If a node with that
-        name is already present, it is replaced. 
+        name is already present, it is replaced.
         Throws an exception if the argument is from a different document,
         the map is read-only, or the argument is an attribute of another element.
     returns:
@@ -86,7 +85,7 @@ methods:
         type: Titanium.XML.Node
   - name: removeNamedItemNS
     summary: >
-        Removes a node from the map specified by local name and namespace URI. 
+        Removes a node from the map specified by local name and namespace URI.
         When this map contains attributes attached to an element, if the removed
         attribtue is known to have a default, it is replaced with that value.
         Returns the node removed from the map, or `null` if there is no

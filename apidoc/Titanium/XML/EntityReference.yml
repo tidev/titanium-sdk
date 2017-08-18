@@ -4,8 +4,7 @@ extends: Titanium.XML.Node
 summary: |
     Represents an XML entity reference.
 description: |
-    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-11C98490) 
-    on Android and iOS. Exposes the 
-    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-11C98490) implementation on Mobile Web.
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-11C98490)
+    on Android and iOS.
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]

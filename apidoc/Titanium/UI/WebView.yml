@@ -1,15 +1,15 @@
 ---
 name: Titanium.UI.WebView
 summary: |
-    The web view allows you to open an HTML5 based view which can load either local or remote content. 
+    The web view allows you to open an HTML5 based view which can load either local or remote content.
 description: |
     Use the <Titanium.UI.createWebView> method or **`<WebView>`** Alloy element to create a web view.
 
     Web views are more expensive to create than other native views because of the requirement to
     load the HTML browser into memory.
 
-    The web view content can be any valid web content such as HTML, PDF, SVG or other WebKit supported 
-    content types. 
+    The web view content can be any valid web content such as HTML, PDF, SVG or other WebKit supported
+    content types.
 
     #### JavaScript Context in WebViews--Local vs. Remote Content
 
@@ -21,11 +21,11 @@ description: |
     When running local web content
     (that is, content that is included in the application's resources), scripts have
     access to the Titanium namespace. In particular, when running local web content:
-    
+
     - You can use <Titanium.App.addEventListener> and
       <Titanium.App.fireEvent> to receive and send application-level events.
 
-    - Events can be logged using the <Titanium.API> logging methods. 
+    - Events can be logged using the <Titanium.API> logging methods.
 
     **Remote Scripts**
 
@@ -59,8 +59,8 @@ description: |
     do not reach the native web view, and the user will not be able to scroll, zoom, click
     on links, and so on. To prevent this default behavior, set
     [willHandleTouches](Titanium.UI.WebView.willHandleTouches) to `false`.
-    
-    In other words, you can have either Titanium-style events against the 
+
+    In other words, you can have either Titanium-style events against the
     web view instance, or internal JavaScript events in the DOM, but not both.
 
     #### Android Platform Implementation Notes
@@ -128,7 +128,7 @@ description: |
     <Titanium.Network.removeSystemCookie>, <Titanium.Network.removeAllSystemCookies>.
 
     #### For More Information
-    
+
     See [Integrating Web
     Content](http://docs.appcelerator.com/platform/latest/#!/guide/Integrating_Web_Content)
     in the Titanium Mobile Guides for more information on using web views, including use
@@ -144,14 +144,14 @@ methods:
   - name: setHtml
     summary: Sets the value of [html](Titanium.UI.WebView.html) property.
     description: |
-      The `options` parameter can be used to specify two options that affect 
+      The `options` parameter can be used to specify two options that affect
       the WebView main content presentation:
 
       *  `baseURL`. Sets the base URL for the content.
       *  `mimeType`. Sets the MIME type for the content. Defaults to "text/html" if not specified.
 
       For example:
-              
+
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
                   {baseURL:'http://developer.appcelerator.com/'});
     parameters:
@@ -167,15 +167,11 @@ methods:
 
   - name: canGoBack
     summary: Returns `true` if the web view can go back in its history list.
-    description: |
-        For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
 
   - name: canGoForward
     summary: Returns `true` if the web view can go forward in its history list.
-    description: |
-        For Mobile Web, returns true if `url` is set.
     returns:
         type: Boolean
 
@@ -190,15 +186,13 @@ methods:
         The `evalJS` method returns a string representing the value of the expression. For
         example, the following call retrieves the `document.title` element from the
         document currently loaded into the web view.
-        
+
             var docTitle = myWebView.evalJS('document.title');
 
         It is not necessary to include `return` in the JavaScript. In fact, the following
         call returns the empty string:
 
             myWebView.evalJS('return document.title');
-
-        For Mobile Web, you can only execute JavaScript when the contents are on the same domain.
     returns:
         type: String
     parameters:
@@ -209,22 +203,15 @@ methods:
 
   - name: goBack
     summary: Goes back one entry in the web view's history list, to the previous page.
-    description: |
-        For Mobile Web, you can only go back for same domain pages. If you set the initial `url` to a 
-        remote page, the back function will not work. If you load a local page, then the user navigates 
-        away to a remote page, you cannot go back.
 
   - name: goForward
     summary: Goes forward one entry in this web view's history list, if possible.
-    description: |
-        For Mobile Web, you can only go forward for same domain pages. If you set the initial `url` 
-        to a remote page, the forward function will not work.
 
   - name: pause
-    summary: Pauses native webview plugins. 
+    summary: Pauses native webview plugins.
     description: |
         Add a `pause` handler to your <Titanium.Android.Activity> and invoke
-        this method to pause native plugins. This is important with Flash content 
+        this method to pause native plugins. This is important with Flash content
         as it will continue in the background unless this method is invoked.
 
         Call [resume](Titanium.UI.WebView.resume) to unpause native plugins.
@@ -233,24 +220,18 @@ methods:
 
   - name: reload
     summary: Reloads the current webpage.
-    description: |
-        For Mobile Web, when you reload, the last visited same domain page or the original `url`
-        is the page that is reloaded and all local URL history is reset. The history of remote URLs is
-        preserved.
-
-        You may need to simply reset the `url` property to reinitialize the WebView's iframe. 
 
   - name: repaint
     summary: Forces the web view to repaint its contents.
     platforms: [iphone, ipad]
-    
+
   - name: release
     summary: Releases memory when the web view is no longer needed.
     since: "2.0.0"
     platforms: [android]
 
   - name: resume
-    summary: Resume native webview plugins. 
+    summary: Resume native webview plugins.
     description: |
         Used to unpause native plugins after calling [pause](Titanium.UI.WebView.pause).
 
@@ -272,22 +253,9 @@ methods:
       - name: password
         summary: Basic auth password.
         type: String
-        
+
   - name: stopLoading
     summary: Stops loading a currently loading page.
-    description: |
-        For Mobile Web, due to browser permissions, this will issue a stop on all windows including 
-        the parent and all other web views.  Generally, this feature does not work reliably and instead 
-        you may choose to set the `hardStop` argument to true.
-
-        When `hardStop` is set to `true`, the Mobile Web platforms will destroy the iFrame
-        used to display the content, so nothing is displayed where the web view used to
-        be. The actual web view component is *not* destroyed, and you can redisplay it by
-        calling [reload](Titanium.UI.WebView.reload), or by specifying new content.
-    parameters:
-      - name: hardStop
-        summary: Forces the web view to destroy the iFrame (Mobile Web only).
-        type: Boolean
 
 events:
 
@@ -298,10 +266,6 @@ events:
         the URL of the web view to a URL that redirects to another URL, such as an HTTP URL
         redirecting to an HTTPS URL, this event is fired for the original URL and the redirect URL.
 
-        For Mobile Web, if you pass the `url` into the constructor, you must attach the event listener
-        before adding the web view to its parent, otherwise the event will fire before you have a 
-        chance to add the event listener.
-        
         This event does not fire when navigating remote web pages.
     properties:
       - name: url
@@ -314,9 +278,8 @@ events:
         platforms: [ipad, iphone]
 
   - name: error
-    summary: Fired when the web view cannot load the content. 
+    summary: Fired when the web view cannot load the content.
     description: |
-        For Mobile Web, generally this event will **not** fire, even for 404, 500, and invalid URLs.
         The `errorCode` value refers to one of the <Titanium.UI> URL_ERROR constants or, if it does not
         match one of those constants, it refers to a platform-specific constant. The platform-specific
         values are underlying [iOS NSURLError*](https://developer.apple.com/library/ios/#documentation/Cocoa/Reference/Foundation/Miscellaneous/Foundation_Constants/Reference/reference.html#//apple_ref/doc/uid/TP40003793-CH3g-SW40)
@@ -329,7 +292,7 @@ events:
       - name: error
         summary: Error message, if any returned. May be undefined.
         type: String
-    
+
       - name: code
         summary: |
             Error code.
@@ -341,11 +304,11 @@ events:
       - name: url
         summary: URL of the web document.
         type: String
-        platforms: [iphone, ipad, mobileweb, android]
+        platforms: [iphone, ipad, android]
       - name: message
         summary: Error message. Use error instead.
         type: String
-        platforms: [iphone, ipad, mobileweb, android]
+        platforms: [iphone, ipad, android]
         deprecated:
             since: "3.1.0"
       - name: errorCode
@@ -358,13 +321,9 @@ events:
 
   - name: load
     summary: Fired when the web view content is loaded.
-    description: |
-        For Mobile Web, the `url` returned in the load event is generally accurate when loading
-        same domain pages and remote pages that you explicitly set using the `url` property. 
-        If you navigate to a remote page, then this `url` is set to the initial remote page's URL.
     properties:
       - name: url
-        summary: URL of the web document. 
+        summary: URL of the web document.
 
   - name: onLoadResource
     summary: Fired when loading resource.
@@ -380,7 +339,7 @@ events:
   - name: sslerror
     summary: Fired when an SSL error occurred.
     description: |
-        Android only. This is a synchronous event and the developer can change the value of `ignoreSslError` 
+        Android only. This is a synchronous event and the developer can change the value of `ignoreSslError`
         to control if the request should proceed or fail.
     platforms: [android]
     since: "3.3.0"
@@ -399,7 +358,7 @@ events:
     deprecated:
         since: "6.1.0"
         notes: Use the  cross-platform `blacklisturl` event instead.
-        
+
   - name: blacklisturl
     summary: Fired when a blacklisted URL is stopped.
     platforms: [android, iphone, ipad]
@@ -407,20 +366,20 @@ events:
     properties:
       - name: url
         summary: The URL of the web document that is stopped.
-        
+
 properties:
 
   - name: allowsLinkPreview
     summary: |
-        A Boolean value that determines whether pressing on a link displays a preview of the 
+        A Boolean value that determines whether pressing on a link displays a preview of the
         destination for the link.
     description: |
         This property is available on devices that support 3D Touch. Default value is `false`.
 
-        If you set this value to `true` for a web view, users (with devices that support 3D Touch) 
-        can preview link destinations, and can preview detected data such as addresses, by pressing on links. 
-        Such previews are known to users as peeks. If a user presses deeper, the preview navigates (or pops, 
-        in user terminology) to the destination. Because pop navigation switches the user from your app to 
+        If you set this value to `true` for a web view, users (with devices that support 3D Touch)
+        can preview link destinations, and can preview detected data such as addresses, by pressing on links.
+        Such previews are known to users as peeks. If a user presses deeper, the preview navigates (or pops,
+        in user terminology) to the destination. Because pop navigation switches the user from your app to
         Safari, it is opt-in, by way of this property, rather default behavior for this class.
     type: Boolean
     default: false
@@ -445,9 +404,6 @@ properties:
     description: |
         Android only supports loading data from a `Blob`, not a `File`.
 
-        For Mobile Web, setting new content will reset the `url` and the WebView's history. The WebView's
-        "onload" event will have already fired prior to the data being set inside the WebView.
-
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
     type: [Titanium.Blob, Titanium.Filesystem.File]
 
@@ -459,10 +415,10 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad]
-    
+
   - name: disableContextMenu
     summary: Determines whether or not the webview should not be able to display the context menu.
-    description: | 
+    description: |
         Set to `true` to disable the context menu. Note that disabling the context menu will
         also disable the text selection on iOS.
     type: Boolean
@@ -483,9 +439,9 @@ properties:
   - name: handlePlatformUrl
     summary: Lets the webview handle platform supported urls
     description: |
-        By default any urls that are not handled by the Titanium platform but can be handled by the 
+        By default any urls that are not handled by the Titanium platform but can be handled by the
         shared application are automatically sent to the shared application and the webview does not
-        open these. When this property is set to `true` the webview will attempt to handle these 
+        open these. When this property is set to `true` the webview will attempt to handle these
         urls and they will not be sent to the shared application. An example is links to telephone
         numbers.
     type: Boolean
@@ -503,32 +459,12 @@ properties:
   - name: html
     summary: HTML content of this web view.
     description: |
-        
+
         See [setHtml](Titanium.UI.WebView.setHtml) for additional parameters that can be
         specified when setting HTML content.
 
-        The web view's content can also be set using the [data](Titanium.UI.WebView.data) or 
+        The web view's content can also be set using the [data](Titanium.UI.WebView.data) or
         [url](Titanium.UI.WebView.url) properties.
-
-        #### Mobile Web Platform Notes
-
-        For Mobile Web, setting new content will reset the `url` and the WebView's
-        history. 
-        
-        Content added using the `html` property (or the `setHtml` method) will never
-        receive an "onload" DOM event. 
-
-        When querying this the `html` property, Mobile Web return a modified version of the original html.
-        The `<html>` tag is stripped off, along with any comments outside of the `<html>` tag. Some default 
-        attributes may be added as well. For example, a web page with the code:
-        
-            <html><head></head><body>hello</body></html> 
-            
-        returns:
-
-            <head></head><body marginwidth="0" marginheight="0">hello</body>
-
-        in Safari.
 
         See also: [data](Titanium.UI.WebView.data) and [url](Titanium.UI.WebView.url).
     type: String
@@ -536,9 +472,9 @@ properties:
   - name: keyboardDisplayRequiresUserAction
     summary: A Boolean value indicating whether web content can programmatically display the keyboard.
     description: |
-        When this property is set to true, the user must explicitly tap the elements in the web view 
-        to display the keyboard (or other relevant input view) for that element. When set to false, 
-        a focus event on an element causes the input view to be displayed and associated with 
+        When this property is set to true, the user must explicitly tap the elements in the web view
+        to display the keyboard (or other relevant input view) for that element. When set to false,
+        a focus event on an element causes the input view to be displayed and associated with
         that element automatically.
     type: Boolean
     default: undefined but behaves as true
@@ -550,7 +486,7 @@ properties:
     description: |
         If set to `true`, the web page loads despite having an invalid SSL certificate.
         If set to `false`, a web page with an invalid SSL certificate does not load.
-        
+
         iOS Note: As soon as you set this property to `true`, iOS will cache the response
         for the lifetime of the current web view.
     type: Boolean
@@ -614,7 +550,7 @@ properties:
     default: Titanium.UI.Android.OVER_SCROLL_ALWAYS
     platforms: [android]
     since: "3.1.0"
-    
+
   - name: cacheMode
     summary: Determines how a cache is used in this web view.
     type: Number
@@ -640,9 +576,9 @@ properties:
                 </manifest>
             </android>
 
-        See Android documentation for 
-        [WebSettings.PluginState](http://developer.android.com/reference/android/webkit/WebSettings.PluginState.html). 
-        
+        See Android documentation for
+        [WebSettings.PluginState](http://developer.android.com/reference/android/webkit/WebSettings.PluginState.html).
+
         This property only works on Android devices at API Level 8 or greater.
     type: Number
     constants: Titanium.UI.Android.WEBVIEW_PLUGINS_*
@@ -654,11 +590,11 @@ properties:
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
     description: |
-        The scroll-to-top gesture is a tap on the status bar; The default value of this property is true. 
+        The scroll-to-top gesture is a tap on the status bar; The default value of this property is true.
         This gesture works when you have a single visible web view.
         If there are multiple table views, web views, text areas, and/or scroll views visible,
         you will need to disable (set to false) on the above views you DON'T want this
-        behaviour on. The remaining view will then respond to scroll-to-top gesture. 
+        behaviour on. The remaining view will then respond to scroll-to-top gesture.
     type: Boolean
     default: true
     platforms: [iphone,ipad]
@@ -667,7 +603,7 @@ properties:
   - name: showScrollbars
     summary: If `true`, scrollbars are displayed if content is larger than the web view.
     type: Boolean
-    platforms: [mobileweb]
+    platforms: []
     since: "1.8.2"
     default: true
 
@@ -682,29 +618,29 @@ properties:
     summary: If `true`, scale contents to fit the web view.
     description: |
         On iOS, setting this to `true` sets the initial zoom level to show the entire
-        page, and enables the user to zoom the web view in and out. Setting this to 
+        page, and enables the user to zoom the web view in and out. Setting this to
         `false` prevents the user from zooming the web view.
 
         On Android, only controls the initial zoom level.
     platforms: [android, iphone, ipad]
     type: Boolean
     default: |
-        `false` on iOS. On Android, `false` when content is specified as a local URL, 
+        `false` on iOS. On Android, `false` when content is specified as a local URL,
         `true` for any other kind of content (remote URL, `Blob`, or `File`).
 
   - name: url
-    summary: URL to the web document. 
+    summary: URL to the web document.
     description: |
         This property changes as the content of the webview changes (such as when the user
         clicks a hyperlink inside the web view).
-        
+
         See also: [data](Titanium.UI.WebView.data) and [html](Titanium.UI.WebView.html).
     type: String
 
   - name: userAgent
     summary: The User-Agent header used by the web view when requesting content.
     description: |
-        On the iOS platform, this is not per-webview. Once you have set this property for a webview 
+        On the iOS platform, this is not per-webview. Once you have set this property for a webview
         it will not change for same. But while creating new webview it can be changed to new user agent.
     type: String
     default: System default user-agent value.
@@ -715,11 +651,11 @@ properties:
     summary: Explicitly specifies if this web view handles touches.
     description: |
         On the iOS platform, if this web view **or any of its parent views** have touch
-        listeners, the Titanium component intercepts **all** touch events. This 
+        listeners, the Titanium component intercepts **all** touch events. This
         prevents the user from interacting with the native web view components.
 
-        Set this flag to `false` to disable the default behavior. Setting this property to `false` 
-        allows the user to interact with the native web view and still honor any `touch` events sent to 
+        Set this flag to `false` to disable the default behavior. Setting this property to `false`
+        allows the user to interact with the native web view and still honor any `touch` events sent to
         its parents. No `touch` events will be generated when the user interacts with the web view itself.
 
         Set this flag to `true` if you want to receive touch events from the web view and
@@ -731,12 +667,12 @@ properties:
     platforms: [iphone, ipad]
     since: "1.8.2"
     default: true
-    
+
   - name: lightTouchEnabled
     summary: Enables using light touches to make a selection and activate mouseovers.
     description: |
         Setting this property solves the problem of web links with specific length not triggering a link click in Android.
-        
+
         This is only an Android specific property and has no effect starting from API level 18.
 
         This flag is `true` by default to retain backwards compatibility with previous
@@ -745,13 +681,13 @@ properties:
     platforms: [android]
     since: "3.2.0"
     default: true
-    
+
   - name: requestHeaders
     summary: Sets extra request headers for this web view to use on subsequent URL requests.
     description: |
         Setting this property allows you to set custom headers to the URL requests.
         The parameter will be key-value pairs: `{"Custom-field1":"value1", "Custom-field2":"value2"}`
-        
+
         On Android you should avoid Calling `setRequestHeaders()` right after `createWebView()`. Use the `requestHeaders` property
         inside `createWebView()` or put it inside the window `open` event.
     type: Dictionary
@@ -760,10 +696,10 @@ properties:
 
 
 examples:
-  - title: Basic Web View to External URL 
+  - title: Basic Web View to External URL
     example: |
         Create a web view to a remote URL and open the window as modal.
-        
+
               var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
             	var window = Titanium.UI.createWindow();
             	window.add(webview);

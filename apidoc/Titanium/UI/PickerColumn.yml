@@ -12,7 +12,7 @@ description: |
     See <Titanium.UI.Picker> for further examples of usage.
 extends: Titanium.UI.View
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 
 methods:
   - name: addRow
@@ -64,7 +64,7 @@ properties:
   - name: selectedRow
     summary: The selected row in this column.
     type: Titanium.UI.PickerRow
-    platforms: [mobileweb]
+    platforms: []
   
   - name: font
     summary: Font to use for text.

@@ -7,14 +7,14 @@ description: |
 since: "1.7"
 extends: Titanium.Proxy
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 
 methods:
 
   - name: read
     summary: Reads data from this stream into a buffer.
     description: |
-        If `offset` and `length` are specified, data is written into the buffer starting at 
+        If `offset` and `length` are specified, data is written into the buffer starting at
         position `offset`. Data is read from this stream until one of the following occurs:
 
         *   the end of this stream is reached
@@ -23,16 +23,16 @@ methods:
 
         If `offset` and `length` are omitted, data is written starting at the beginning
         of the buffer.
-        
+
         Returns the number of bytes read, or -1 if the end of stream was reached before
         any data was read.
 
         Throws an exception on error. For example, if the `offset` value is past
-        the last byte of `buffer`. 
+        the last byte of `buffer`.
 
         This method is synchronous. To perform an asynchronous read on an `IOStream`, use
         <Titanium.Stream.read>.
-    
+
     returns:
         type: Number
         summary: Number of bytes read.
@@ -69,9 +69,9 @@ methods:
 
         If `offset` and `length` are omitted, all of the data in the buffer is written to
         this stream.
-        
+
         Returns the number of bytes actually written.
-        
+
         Throws an exception if an error is encountered.
     returns:
         type: Number
@@ -123,35 +123,35 @@ examples:
             var outBuffer = Ti.createBuffer({data: "write me"});
             // stream object could be socket, file, buffer or blob
             var outStream = Ti.Stream.createStream({mode: Ti.Stream.MODE_WRITE});
-            
+
             var bytesWritten = outStream.write(outBuffer);  // writes entire buffer to stream
             Ti.API.info("Bytes written:" + bytesWritten);  // should be 8
-            
+
             bytesWritten = outStream.write(outBuffer, 2, 5);  // only writes "ite m" to stream
             Ti.API.info("Bytes written:" + bytesWritten);  // should be 5
 
-  - title: Read Data From a Stream 
+  - title: Read Data From a Stream
     example: |
         This shows a simple example of reading data from a stream, one buffer full at a
-        time. 
-        
+        time.
+
             var size = 0;
             // read data one buffer full at a time
             while ((size = instream.read(buffer)) > -1) {
                 // do something with the data here ...
                 Ti.API.info("Read " + size + " bytes.");
             }
-            
+
   - title: Read Data With Offset and Length
     example: |
         This example shows how to read data from a stream into a buffer. We assume that
-        the `inStream` variable holds a previously initialized stream that contains the 
+        the `inStream` variable holds a previously initialized stream that contains the
         string, "World Titanium".
 
             var inBuffer = Ti.createBuffer({ value: "Hello [           ]" });
 
             // Read the first 6 bytes from the stream to the buffer, starting at position 10.
-            var bytesRead = inStream.read(inBuffer, 10, 6);  
+            var bytesRead = inStream.read(inBuffer, 10, 6);
 
             Ti.API.info("Bytes read: " + bytesRead);
             Ti.API.info(inBuffer.toString());
@@ -169,4 +169,3 @@ examples:
             [INFO] Hello [   World   ]
             [INFO] Bytes read: 8
             [INFO] Hello [ Titanium  ]
-

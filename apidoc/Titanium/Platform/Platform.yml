@@ -1,7 +1,7 @@
 ---
 name: Titanium.Platform
 summary: |
-  The top-level Platform module.  The Platform module is used to access the device's platform-related 
+  The top-level Platform module.  The Platform module is used to access the device's platform-related
   functionality.
 extends: Titanium.Module
 since: "0.1"
@@ -14,20 +14,17 @@ events:
         summary: The battery state.
         type: Number
         constants: Titanium.Platform.BATTERY_*
-        
+
       - name: level
         summary: Percentage battery power level.
         type: Number
     platforms: [android, iphone, ipad]
-    
+
 methods:
   - name: canOpenURL
     summary: |
         Returns whether the system is configured with a default application to handle the URL's protocol.
     description: |
-        On Mobile Web, this method always returns true, even if the browser can't open the specific URL, 
-        unless the URL is empty or undefined.
-        
         On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](http://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
     returns:
         type: Boolean
@@ -36,129 +33,123 @@ methods:
       - name: url
         summary: The url to check.
         type: String
-        
+
   - name: createUUID
     summary: Creates a globally-unique identifier.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     returns:
         type: String
-        
+
   - name: openURL
     summary: |
         Opens this URL using the system's default application for its protocol.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     returns:
         type: Boolean
     parameters:
       - name: url
         summary: The url to open.
         type: String
-        
+
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.
-    description: |
-        On Mobile Web, this function always returns false.
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
-    
+    platforms: [android, iphone, ipad]
+
 properties:
   - name: BATTERY_STATE_CHARGING
     summary: Constant to indicate that the system is plugged in and currently being charged.
     type: Number
     permission: read-only
-    
+
   - name: BATTERY_STATE_FULL
     summary: Constant to indicate that the battery is fully charged.
-    description: On Mobile Web, `BATTERY_STATE_FULL` is defined, but will never be a valid state.
     type: Number
     permission: read-only
-    
+
   - name: BATTERY_STATE_UNKNOWN
     summary: Constant to indicate that the battery state is not known or monitoring is disabled.
     type: Number
     permission: read-only
-    
+
   - name: BATTERY_STATE_UNPLUGGED
     summary: Constant to indicate that the system is unplugged.
     type: Number
     permission: read-only
-    
+
   - name: address
     summary: System's WIFI IP address. No other network types are supported.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: architecture
     summary: System's processor architecture.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: availableMemory
     summary: System's unused memory, measured in megabytes on iOS and bytes on Android.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: batteryLevel
     summary: |
-        Battery level in percent, accessible only when `batteryMonitoring` is enabled. Measured 
+        Battery level in percent, accessible only when `batteryMonitoring` is enabled. Measured
         in 5% increments on iPhone/iPad.
     type: Number
     permission: read-only
-    
+
   - name: batteryMonitoring
     summary: Determines whether battery monitoring is enabled.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     default: false
     type: Boolean
-    
+
   - name: batteryState
     summary: Indicates the state of the battery. Accessible only when `batteryMonitoring` is enabled.
-    description: |
-        On Mobile Web, battery state will either be charging, unplugged, or unknown. Full charge state
-        is not supported.
     type: Number
     constants: Titanium.Platform.BATTERY_STATE_*
     permission: read-only
-    
+
   - name: displayCaps
     summary: |
         Returns the DisplayCaps object.
     description: |
-        Note that the `displayCaps` property begins with a lowercase letter, which differentiates it 
+        Note that the `displayCaps` property begins with a lowercase letter, which differentiates it
         from the `DisplayCaps` object that it returns.
     type: Titanium.Platform.DisplayCaps
     permission: read-only
-    
+
   - name: id
     summary: Applications's globally-unique ID (UUID).
     description: |
         On Android, this may be the UDID (unique device ID). For iOS, this
         is a unique identifier for this install of the application.
-        
+
         Previously on iOS this may have been a UDID, but access to
         this has been restricted by Apple. For more information, see
         [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
         documentation.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     type: String
     permission: read-only
-        
+
   - name: locale
     summary: System's default language.
     description: |
-        Locale, as a combination of ISO 2-letter language and country codes. For example, 
-        `en-US` or `en-GB`. See the 
-        [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
-        [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+        Locale, as a combination of ISO 2-letter language and country codes. For example,
+        `en-US` or `en-GB`. See the
+        [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and
+        [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
         sections of wikipedia for reference.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     type: String
     permission: read-only
-    
+
   - name: macaddress
     summary: System's network interface mac address, or app UUID.
     description: |
@@ -168,7 +159,7 @@ properties:
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
-  
+
   - name: manufacturer
     summary: Manufacturer of the device.
     description: |
@@ -183,14 +174,10 @@ properties:
     summary: Model of the device.
     description: |
         An identifier of the hardware model of the device. For example, `HTC Sensation Z710e`.
-        
-        Virtual devices will also return a value. For example, `sdk` for the standard Android SDK 
-        and `google_sdk` for the enhanced Android Google APIs SDK running in an emulator, and 
+
+        Virtual devices will also return a value. For example, `sdk` for the standard Android SDK
+        and `google_sdk` for the enhanced Android Google APIs SDK running in an emulator, and
         `Simulator` for iOS running in a simulator.
-        
-        Mobile Web will return the browser Agent information, such as 
-        `Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0` for 
-        Firefox 12 running on Ubuntu.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -203,57 +190,56 @@ properties:
                 } else {
                   // Add Accelerometer event listener
                 }
-                
+
   - name: name
     summary: |
         Name of the platform. Returns `android` for the Android platform, `iPhone OS` for the iOS
-        platform (iPhone, iPad, or iPod Touch), `windows` for the Windows platform, and `mobileweb` for the Mobile Web platform.
-        
+        platform (iPhone, iPad, or iPod Touch), and `windows` for the Windows platform.
+
         Since iOS 10 this property returns `iOS` for for the iOS platform (iPhone, iPad, or iPod Touch).
     type: String
     permission: read-only
-    
+
   - name: netmask
     summary: System's WIFI network mask. No other network types are supported.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: osname
     summary: |
         Short name of the system's Operating System. Returns `android` for the Android platfrom,
-        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, `windowsphone` for Windows Phone, `windowsstore` for Windows Store, and `mobileweb` for the Mobile Web
+        `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, `windowsphone` for Windows Phone, and `windowsstore` for Windows Store
         platform.
     type: String
     permission: read-only
-    
+
   - name: ostype
     summary: Operating System architecture. On Android, this is `32bit`.
-    platforms: [android, iphone, mobileweb, ipad]
+    platforms: [android, iphone, ipad]
     type: String
     permission: read-only
-    
+
   - name: processorCount
     summary: Number of processing cores.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: runtime
     summary: Short name of the JavaScript runtime in use.
     description: |
-      On iOS this is "javascriptcore", on Android either "v8" or "rhino" and on Mobile Web it is 
-      determined by the browser used.
+      On iOS this is "javascriptcore", on Android either "v8" or "rhino".
     type: String
     permission: read-only
-    
+
   - name: username
     summary: |
       System name, if set. On iOS, this can be found in Settings > General > About > Name.
     type: String
     permission: read-only
     platforms: [android, iphone, ipad]
-    
+
   - name: version
     summary: System's OS version.
     type: String
@@ -263,11 +249,10 @@ examples:
   - title: Battery Event Example
     example: |
         Obtaining battery data when the battery state changes.
-        
+
             Titanium.Platform.addEventListener('battery', function(e){
               Ti.API.info('The battery state has changed to ' + e.state);
               Ti.API.info('The battery level is ' + e.level);
               Ti.API.info('The battery event source is ' + e.source);
               Ti.API.info('The battery event name ' + e.type);
             });
-    

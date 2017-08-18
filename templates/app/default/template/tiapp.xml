@@ -43,15 +43,6 @@
 	</ios>
 	<android xmlns:android="http://schemas.android.com/apk/res/android">
 	</android>
-	<mobileweb>
-		<precache>
-		</precache>
-		<splash>
-			<enabled>true</enabled>
-			<inline-css-images>true</inline-css-images>
-		</splash>
-		<theme>default</theme>
-	</mobileweb>
 	<modules>
 	</modules>
 </ti:app>

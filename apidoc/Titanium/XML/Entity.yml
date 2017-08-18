@@ -1,25 +1,24 @@
 ---
 name: Titanium.XML.Entity
 extends: Titanium.XML.Node
-summary: This interface represents an entity, either parsed or unparsed, in 
+summary: This interface represents an entity, either parsed or unparsed, in
     an XML document. Note that this models the entity itself not the entity
     declaration. The nodeName attribute that is inherited from Node contains the
-    name of the entity. An Entity node does not have any parent. 
-    
-    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-527DCFF2) 
-    on Android and iOS. Exposes the 
-    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-527DCFF2) implementation on Mobile Web.
+    name of the entity. An Entity node does not have any parent.
+
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-527DCFF2)
+    on Android and iOS.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 properties:
   - name: notationName
-    summary: For unparsed entities, the name of the notation for the entity. 
+    summary: For unparsed entities, the name of the notation for the entity.
         For parsed entities, this is `null`.
     type: String
     permission: read-only
   - name: publicId
-    summary: The public identifier associated with the entity, if specified. 
+    summary: The public identifier associated with the entity, if specified.
         If the public identifier was not specified, this is `null`.
     type: String
     permission: read-only
@@ -27,4 +26,3 @@ properties:
     summary: The system identifier associated with the entity, if specified. If the system identifier was not specified, this is null.
     type: String
     permission: read-only
-

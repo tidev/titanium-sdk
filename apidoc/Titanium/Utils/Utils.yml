@@ -1,32 +1,25 @@
 ---
 name: Titanium.Utils
 summary: |
-    The top-level Utils module, containing a set of JavaScript methods that are often useful when 
+    The top-level Utils module, containing a set of JavaScript methods that are often useful when
     building applications.
 extends: Titanium.Module
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 
 methods:
   - name: base64decode
     summary: Returns the specified data decoded from Base64.
-    description: |
-        On Mobile Web, if `obj` is a [Titanium.Blob] containing binary data, then `obj` is
-        returned unmodified because the binary blob would be decoded only to be re-encoded
-        in the returned blob object.
     returns:
         type: Titanium.Blob
     parameters:
       - name: obj
         summary: Data to decode.
         type: [String, Titanium.Blob]
-        
+
   - name: base64encode
     summary: Returns the specified data encoded to Base64.
     description: |
-        On Mobile Web, if `obj` is a [Titanium.Blob] containing binary data, then `obj` is
-        returned unmodified because the binary blob is already base64 encoded.
-
         Starting from Titanium 3.3.0, `obj` can be a [File](Titanium.Filesystem.File) object
         on Android.
     returns:
@@ -35,7 +28,7 @@ methods:
       - name: obj
         summary: Data to encode.
         type: [String, Titanium.Blob, Titanium.Filesystem.File]
-        
+
   - name: md5HexDigest
     summary: Returns a MD5 digest of the specified data as a hex-based String.
     returns:
@@ -44,7 +37,7 @@ methods:
       - name: obj
         summary: Data to calculate.
         type: [String, Titanium.Blob]
-        
+
   - name: sha1
     since: "1.3.2"
     summary: Returns a SHA-1 hash of the specified data as a hex-based String.
@@ -54,7 +47,7 @@ methods:
       - name: obj
         summary: Data to calculate.
         type: [String, Titanium.Blob]
-        
+
   - name: sha256
     since: "1.8.0"
     summary: Returns a SHA-256 hash of the specified data as a hex-based String.
