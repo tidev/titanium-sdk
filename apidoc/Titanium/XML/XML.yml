@@ -3,22 +3,18 @@ name: Titanium.XML
 summary: The top level XML module.  The XML module is used for parsing and processing XML-based content.
 description: |
     The API for this module is based on the W3C DOM specification.
-    
+
     Android and iOS implement the [DOM Level 2](http://www.w3.org/TR/DOM-Level-2-Core/core.html) specification
     with some non-standard extensions, which are documented in the appropriate places.
 
     Both iOS and Android lack DTD support.
-
-    Mobile Web directly exposes the [DOM Level 3](http://www.w3.org/TR/DOM-Level-3-Core/core.html) 
-    implementation in the browser. New features introduced in DOM Level 3 are not documented here 
-    for brevity. For information on these features, please use the W3C documentation.
 extends: Titanium.Module
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 methods:
 
   - name: parseString
-    summary: | 
+    summary: |
         Parses an XML string into a <Titanium.XML.Document> object.
     description:
         Throws an exception if the string can't be parsed into a valid

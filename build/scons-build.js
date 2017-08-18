@@ -6,7 +6,7 @@ const path = require('path'),
 	program = require('commander'),
 	version = require('../package.json').version,
 	git = require('./git'),
-	ALL_PLATFORMS = [ 'ios', 'android', 'mobileweb', 'windows' ];
+	ALL_PLATFORMS = [ 'ios', 'android', 'windows' ];
 
 program
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)

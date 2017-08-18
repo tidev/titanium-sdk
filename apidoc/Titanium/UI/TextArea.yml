@@ -1,15 +1,14 @@
 ---
 name: Titanium.UI.TextArea
-summary: A multiline text field that supports editing and scrolling. 
+summary: A multiline text field that supports editing and scrolling.
 description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/textarea/textarea_android.png" height="50" /></td>
         <td><img src="images/textarea/textarea_ios.png" height="50" /></td>
-        <td><img src="images/textarea/textarea_mobileweb.png" height="50" /></td>
         <td><img src="images/textarea/textarea_wp.png" height="50" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
 
     Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area.
@@ -22,14 +21,14 @@ methods:
     description: |
         Adding children to a `TextArea` is not supported on all platforms.
 
-        If you need to display views on top of this object, consider using 
-        another view as a container for both this object and the views you want 
+        If you need to display views on top of this object, consider using
+        another view as a container for both this object and the views you want
         to appear on top of it.
     platforms: [iphone, ipad]
 
   - name: blur
     summary: Forces this text area to lose focus.
-    
+
   - name: focus
     summary: Forces this text area to gain focus.
 
@@ -44,7 +43,7 @@ methods:
     description: |
         See also: [add](Titanium.UI.TextArea.add), <Titanium.UI.View.add>.
     platforms: [iphone, ipad]
-    
+
   - name: setSelection
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad]
@@ -58,10 +57,10 @@ methods:
         summary: End index for selection, not inclusive. Value ranges from 0 to the text's length.
         type: Number
     description: |
-          Selects the text in range (start, end). If start equals end, no text will be selected, 
-          and the cursor will move to the start position. End is not inclusive, meaning setSelection(0,0) 
+          Selects the text in range (start, end). If start equals end, no text will be selected,
+          and the cursor will move to the start position. End is not inclusive, meaning setSelection(0,0)
           will not select the first character, but will move the cursor to the position before the first character.
-          
+
           On iOS, soft keyboard would show when text is selected.
 
 
@@ -86,8 +85,8 @@ properties:
   - name: attributedString
     summary: TextArea attributed string.
     description: |
-        The underlying attributed string drawn by the textArea. If set, avoid setting common attributes 
-        in textArea, such as `value`, `color` and `font`, as unexpected behaviors may result. 
+        The underlying attributed string drawn by the textArea. If set, avoid setting common attributes
+        in textArea, such as `value`, `color` and `font`, as unexpected behaviors may result.
 
         Prior to Release 3.6.0, assign this property an object from the
         <Titanium.UI.iOS.AttributedString> class.
@@ -129,12 +128,12 @@ properties:
         ipad: 3.2.0
 
   - name: autocapitalization
-    summary: Determines how text is capitalized during typing. 
+    summary: Determines how text is capitalized during typing.
     type: Number
     constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
     default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
     platforms: [android, iphone, ipad]
-    
+
   - name: autocorrect
     summary: Determines whether to automatically correct text entered into this text area.
     description: |
@@ -142,59 +141,58 @@ properties:
 
         If this property is not explicitly defined, it behaves as though it were set to `true`.
 
-        On Android and iOS, the returned default value is undefined, and on Mobile Web, the returned
-        default value is `false`, but all behave as if the value is `true`.
+        On Android and iOS, the returned default value is undefined, but behave as if the value is `true`.
     type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
-    
+    platforms: [android, iphone, ipad]
+
   - name: autoLink
-    summary: Automatically convert text to clickable links. 
+    summary: Automatically convert text to clickable links.
     description: |
         iOS supports an additional autolink type, [AUTOLINK_CALENDAR](Titanium.UI.AUTOLINK_CALENDAR).
-        
+
         Multiple autolink values can be combined with a bitwise OR. For example:
-            
+
             textArea.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
 
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants.
-        
+
         On Android, the `LINKIFY` legacy constants are defined in <Titanium.UI.Android>.
 
         On iOS, the `AUTODETECT` legacy constants are defined in <Titanium.UI.iOS>.
-        
+
     type: Number
     constants: Titanium.UI.AUTOLINK_*
     default: <Titanium.UI.AUTOLINK_NONE>
     since: {android: "3.0.0"}
     platforms: [android, iphone, ipad]
-    
+
   - name: clearOnEdit
     summary: Determines whether the value of this text area should be cleared when it is focused.
     type: Boolean
     default: false
     platforms: [android]
-    
+
   - name: color
     summary: Color of the text in this text area, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    
+
   - name: editable
     summary: Determines whether this field can be edited.
     type: Boolean
     default: true
-    
+
   - name: ellipsize
     summary: Determines whether an ellipsis (`...`) should be used to indicate truncated text.
     type: Boolean
     default: false
     platforms: [android]
-    
+
   - name: enableReturnKey
     summary: |
-        Determines whether the return key is enabled automatically when there is text in this text 
+        Determines whether the return key is enabled automatically when there is text in this text
         area.
     description: |
         If `true`, the return key is **disabled** when this text area is empty, and
@@ -205,7 +203,7 @@ properties:
   - name: font
     summary: Font to use for text.
     type: Font
-    
+
   - name: fullscreen
     summary: |
         Leave some space above the keyboard in landscape mode or not.
@@ -216,22 +214,22 @@ properties:
     default: true
     platforms: [android]
     since: {android: "6.1.0"}
-    
+
   - name: hintText
     summary: Hint text to display when the field is empty.
     description: |
         Hint text is hidden when the user enters text into this text area.
-        
-        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
-        line. 
-        
-        Use unicode characters, such as those included in (but not limited to) the 
-        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
+
+        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new
+        line.
+
+        Use unicode characters, such as those included in (but not limited to) the
+        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols)
         section of wikipedia, to insert special characters and symbols.
     type: String
     default: No hint text.
     platforms: [android]
-    
+
   - name: hintTextColor
     summary: Color of hint text that displays when field is empty.
     platforms: [android]
@@ -256,16 +254,16 @@ properties:
     summary: Specifies if the text area should allow user interaction with the given URL in the given range of text.
     description: |
         When the text is specified using an attributed string and the text has an attribute of type [ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK),
-        this property controls if the system should handle that link automatically. Only valid on iOS 7 and above. 
+        this property controls if the system should handle that link automatically. Only valid on iOS 7 and above.
     type: Boolean
     default: false
     platforms: [iphone,ipad]
     osver: {ios: {min: "7.0"}}
     since: 3.2.0
-    
+
   - name: keyboardToolbar
     summary: |
-        Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the 
+        Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the
         keyboard is displayed.
     description: |
         As of Release 2.0, because iOS disallows a view (including toolbar buttons) to be in two places at
@@ -274,45 +272,45 @@ properties:
         toolbar buttons.
     type: [Array<Titanium.UI.View>, Titanium.UI.iOS.Toolbar]
     platforms: [iphone, ipad]
-    
+
   - name: keyboardToolbarColor
     summary: Color of the keyboard toolbar if keyboardToolbar is an array, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     platforms: [iphone,ipad]
-    
+
   - name: keyboardToolbarHeight
     summary: Height of the keyboard toolbar if keyboardToolbar is an array.
     type: Number
     platforms: [iphone, ipad]
-    
+
   - name: keyboardType
     summary: Keyboard type to display when this text area is focused.
     description: |
-        When asking for a specific kind of user input, such as a phone number or email 
+        When asking for a specific kind of user input, such as a phone number or email
         address, you should always specify the appropriate keyboard type.
     type: Number
     constants: Titanium.UI.KEYBOARD_*
     default: <Titanium.UI.KEYBOARD_DEFAULT>
     platforms: [android, iphone, ipad]
-    
+
   - name: maxLength
-    summary: Maximum length of text field input. 
-    description: Any attempt to input text beyond this length (including pasting a string 
-        larger than `maxLength`) will not edit the field's contents. A value of -1 
+    summary: Maximum length of text field input.
+    description: Any attempt to input text beyond this length (including pasting a string
+        larger than `maxLength`) will not edit the field's contents. A value of -1
         indicates unlimited length.
     default: -1
     type: Number
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
     platforms: [android, iphone, ipad]
- 
+
   - name: padding
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
     type: TextAreaPadding
     platforms: [android, iphone, ipad]
     since: {android: "6.0.0", iphone: "6.1.0", ipad: "6.1.0"}
-        
+
   - name: returnKeyType
     summary: |
         Specifies the text to display on the keyboard `Return` key when this text area is focused.
@@ -324,11 +322,11 @@ properties:
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
     description: |
-        The scroll-to-top gesture is a tap on the status bar; The default value of this property is true. 
+        The scroll-to-top gesture is a tap on the status bar; The default value of this property is true.
         This gesture works when you have a single visible text area.
         If there are multiple table views, web views, text areas, and/or scroll views visible,
         you will need to disable (set to false) on the above views you DON'T want this
-        behaviour on. The remaining view will then respond to scroll-to-top gesture. 
+        behaviour on. The remaining view will then respond to scroll-to-top gesture.
     type: Boolean
     default: true
     platforms: [iphone,ipad]
@@ -345,45 +343,45 @@ properties:
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb]
-    
+    platforms: [iphone, ipad]
+
   - name: textAlign
     summary: Text alignment within this text area.
     type: [String, Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
 
-    
+
   - name: value
     summary: Value of this text area, which may be set programmatically and modified by the user.
     description: |
-        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
-        line. 
-        
-        Use unicode characters, such as those included in (but not limited to) the 
-        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
+        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new
+        line.
+
+        Use unicode characters, such as those included in (but not limited to) the
+        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols)
         section of wikipedia, to insert special characters and symbols.
     type: String
-    
+
   - name: scrollable
     summary: Determines whether this text area can be scrolled.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
-    
+
   - name: selection
     summary: Returns the currently selected text of the text area.
     description: |
-        This property is useful to track the current cursor position of the text area. On iOS this property 
+        This property is useful to track the current cursor position of the text area. On iOS this property
         can be used in lieu of the [selected](Titanium.UI.TextArea.selected) event.
 
-        This method will return null on android and undefined on iOS if the view has not yet been attached 
+        This method will return null on android and undefined on iOS if the view has not yet been attached
         to the window.
     type: textAreaSelectedParams
     permission: read-only
     platforms: [iphone, ipad, android]
     since: "3.3.0"
-    
+
   - name: verticalAlign
     summary: Vertical alignment within this text area.
     type: [Number, String]
@@ -398,25 +396,25 @@ events:
       - name: value
         summary: Value of this text area.
         type: String
-        
+
   - name: change
     summary: Fired when this text area value changes.
     properties:
       - name: value
         summary: New value of this text area.
         type: String
-    
+
   - name: focus
     summary: Fired when this text area gains focus.
     properties:
       - name: value
         summary: Value of this text area.
         type: String
-        
+
   - name: link
     summary: Fired when user interacts with a URL in the text area. See [handleLinks](Titanium.UI.TextArea.handleLinks).
     description: |
-        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.TextArea.attributedString). 
+        The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.TextArea.attributedString).
         This event is fired even in handleLinks is set to false. Only valid on iOS7 and above.
     properties:
       - name: url
@@ -431,14 +429,14 @@ events:
     platforms: [iphone,ipad]
     osver: {ios: {min: "7.0"}}
     since: 3.2.0
-        
+
   - name: return
     summary: Fired when the return key is pressed on the keyboard.
     properties:
       - name: value
         summary: Value of this text area.
         type: String
-        
+
   - name: selected
     summary: Fired when text in this text area is selected.
     properties:
@@ -451,7 +449,7 @@ examples:
   - title: Basic Text Area with Customizations
     example: |
         This example creates a highly customized text area.
-        
+
             var win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
@@ -470,34 +468,34 @@ examples:
             });
             win.add(textArea);
             win.open();
-        
+
   - title: Text Area with Custom Keyboard Toolbar (iOS)
     example: |
-        On iOS, a configurable toolbar can be displayed above the virtual keyboard. 
+        On iOS, a configurable toolbar can be displayed above the virtual keyboard.
         Toolbars can be used with both text areas and text fields. See <Titanium.UI.iOS.Toolbar>
         for more information.
-        
+
         This code excerpt creates a text area with a toolbar:
-          
+
         Example using a custom keyboard toolbar:
-        
+
             var send = Ti.UI.createButton({
                 style : Ti.UI.iOS.SystemButtonStyle.DONE,
                 title : 'Send'
             });
-            
+
             var camera = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.CAMERA
             });
-            
+
             var cancel = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.CANCEL
             });
-            
+
             var flexSpace = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
-            
+
             var textarea = Ti.UI.createTextArea({
                 borderColor : '#000',
                 color : '#000',
@@ -525,17 +523,17 @@ examples:
 ---
 name: textAreaSelectedParams
 summary: |
-    Dictionary object of parameters for the <Titanium.UI.TextArea.selected> event and <Titanium.UI.TextArea.selection> property that describes 
+    Dictionary object of parameters for the <Titanium.UI.TextArea.selected> event and <Titanium.UI.TextArea.selection> property that describes
     position and length of the selected text.
 properties:
   - name: location
     summary: Starting position of selected text.
     type: Number
-    
+
   - name: length
     summary: Number of characters selected.
     type: Number
----    
+---
 name: TextAreaPadding
 summary: Dictionary object of parameters for the <Titanium.UI.TextArea.padding>  that describes the padding
 since: {android: "6.0.0", iphone: "6.1.0", ipad: "6.1.0"}
@@ -544,7 +542,7 @@ properties:
   - name: left
     type: Number
     summary: Left padding
-    
+
   - name: right
     type: Number
     summary: Right padding

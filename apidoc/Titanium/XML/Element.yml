@@ -2,15 +2,14 @@
 name: Titanium.XML.Element
 extends: Titanium.XML.Node
 summary: >
-    Represents an element in a DOM document, a <Titanium.XML.Node> 
+    Represents an element in a DOM document, a <Titanium.XML.Node>
     defined by a start-tag and end-tag (or an empty tag). Elements may have
     [attributes](Titanium.XML.Attr) associated with them.
-    
-    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-745549614) 
-    on Android and iOS with some non-standard extensions. Exposes the 
-    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-745549614) implementation on Mobile Web.
+
+    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-745549614)
+    on Android and iOS with some non-standard extensions.
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 methods:
   - name: getAttribute
     summary: Retrieves an attribute value by name, returning it as a string.
@@ -77,7 +76,7 @@ methods:
         Removes the specified attribute node. If the removed attribute
         has a default value, it is replaced immediately, with the same namespace
         and local name as the removed attribute, if applicable.
-        Throws an exception if the element is read-only, or the attribute is 
+        Throws an exception if the element is read-only, or the attribute is
         not an attribute of the element.
     parameters:
       - name: oldAttr
@@ -113,7 +112,7 @@ methods:
     summary: >
         Adds a new attribute. Any attribute with the same local name
         and namespace URI is present on the element is replaced, with its prefix
-        changed to that of the `qualifiedName` parameter. 
+        changed to that of the `qualifiedName` parameter.
         Throws an exception if the element is read-only, if the name contains
         an illegal character, or if the qualified name contains an error.
     parameters:
@@ -124,7 +123,7 @@ methods:
         summary: >
             The qualified name of the attribute. If it is malformed,
             has a prefix and namespaceURI is `null`, or if the prefix is `xml` or
-            `xmlns` but does not correspond to a property defined in the 
+            `xmlns` but does not correspond to a property defined in the
             [XML](http://www.w3.org/XML/1998/namespace) or
             [XMLNS](http://www.w3.org/2000/xmlns/) specifications, then it contains
             an error.
@@ -150,7 +149,7 @@ methods:
         type: String
   - name: getAttributeNodeNS
     summary: >
-        Retrieves an attribute value by local name and namespace URI, 
+        Retrieves an attribute value by local name and namespace URI,
         returning it as a <Titanium.XML.Attr> object.
     parameters:
       - name: namespaceURI
@@ -235,4 +234,4 @@ properties:
         [Text](Titanium.XML.Text) nodes only.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]

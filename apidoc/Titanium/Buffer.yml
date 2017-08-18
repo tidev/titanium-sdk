@@ -1,23 +1,23 @@
 ---
 name: Titanium.Buffer
-summary: Buffer is a mutable, resizable container for raw data. 
+summary: Buffer is a mutable, resizable container for raw data.
 description: |
     A `Buffer` works like a resizable array of byte values.
 
     Use the <Titanium.createBuffer> method to create a buffer.
 extends: Titanium.Proxy
 since: "1.7"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 
 properties:
   - name: length
     type: Number
-    summary: Length of the buffer in bytes. 
+    summary: Length of the buffer in bytes.
     description: |
-        When `length` is modified the buffer will be re-sized while preserving existing data where 
-        possible. If the new buffer length is smaller than the length of the existing data then the 
-        existing data will be truncated down to the size of the new buffer. 
-        
+        When `length` is modified the buffer will be re-sized while preserving existing data where
+        possible. If the new buffer length is smaller than the length of the existing data then the
+        existing data will be truncated down to the size of the new buffer.
+
         Resizing a buffer by setting its length should be used sparingly due to the associated overhead.
     default: 0 unless `value` is specified, in which case the length of the encoded data
         is used.
@@ -25,28 +25,28 @@ properties:
   - name: value
     type: [Number, String]
     availability: creation
-    summary: Data to be encoded. 
+    summary: Data to be encoded.
     description: |
-        If `value` is a Number, `type` must also be set. (This is simply a convenient way of 
+        If `value` is a Number, `type` must also be set. (This is simply a convenient way of
         calling <Titanium.Codec.encodeString> or <Titanium.Codec.encodeNumber>.)
 
   - name:  type
     type: String
     availability: creation
-    summary: The type of data encoding to use with `value`. 
+    summary: The type of data encoding to use with `value`.
     description: |
-        Required when `value` is a Number. For numbers, specify a `TYPE` constant 
+        Required when `value` is a Number. For numbers, specify a `TYPE` constant
         from <Titanium.Codec>, for example, <Titanium.Codec.TYPE_DOUBLE>.
-        
+
         When `value` is a String, specify a `CHARSET` constant from <Titanium.Codec>.
     default: For string values, defaults to <Titanium.Codec.CHARSET_UTF8>.
 
   - name: byteOrder
     type: Number
     availability: creation
-    summary: Byte order of this buffer. 
+    summary: Byte order of this buffer.
     description: |
-        Specify either <Titanium.Codec.BIG_ENDIAN> or <Titanium.Codec.LITTLE_ENDIAN>.   
+        Specify either <Titanium.Codec.BIG_ENDIAN> or <Titanium.Codec.LITTLE_ENDIAN>.
     default: OS native byte order.
 
 methods:
@@ -54,10 +54,10 @@ methods:
     returns:
         type: Number
         summary: The number of bytes appended.
-    summary: Appends `sourceBuffer` to the this buffer.  
+    summary: Appends `sourceBuffer` to the this buffer.
     description: |
         This buffer is grown dynamically to accommodate the additional data if need be.
-        
+
         If `sourceOffset` and `sourceLength` are specified, data from `sourceBuffer` is
         copied starting at position `sourceOffset`, and no more than `sourceLength` bytes
         are copied.
@@ -87,7 +87,7 @@ methods:
     returns:
         type: Number
         summary: The number of bytes inserted.
-    summary: Inserts data from `sourceBuffer` into this buffer at `offset`. 
+    summary: Inserts data from `sourceBuffer` into this buffer at `offset`.
     description: |
         Buffer is grown to accommodate the new data.
 
@@ -128,7 +128,7 @@ methods:
     description: |
         Does not expand this buffer if there is not enough room  to accomodate the data
         from `sourceBuffer`.
-        
+
         If `sourceOffset` and `sourceLength` are specified, bytes are copied from
         `sourceBuffer` starting at `sourceOffset`, and a maximum of `sourceLength` bytes
         are copied.
@@ -157,7 +157,7 @@ methods:
         type: Number
         optional: true
         default: Length of source buffer.
-  
+
   - name: clone
     returns:
         type: Titanium.Buffer
@@ -165,7 +165,7 @@ methods:
     description: |
         If called with no arguments, retuns a complete copy of the current buffer.
 
-        If `offset` and `length` are specified, creates a new buffer from the original 
+        If `offset` and `length` are specified, creates a new buffer from the original
         buffer contents starting at `offset` and ending at `offset`+`length`-1.
     parameters:
       - name: offset
@@ -187,7 +187,7 @@ methods:
     description: |
         Fills the buffer by setting byte values to `fillByte`.
 
-        If `offset` and `length` are specified, fills the buffer starting at 
+        If `offset` and `length` are specified, fills the buffer starting at
         `offset` and ending at `offset`+`length`-1.
 
         If `offset` and `length` are omitted, fills the entire buffer.
@@ -212,7 +212,7 @@ methods:
     summary: Clears this buffer's contents but does not change the size of the buffer.
 
   - name: release
-    summary: Releases the space allocated to the buffer, and sets its length to 0.  
+    summary: Releases the space allocated to the buffer, and sets its length to 0.
     description: |
         This is effectively the same as `buffer.length = 0`.
 

@@ -1,8 +1,8 @@
 ---
 name: Titanium.UI.OptionDialog
 summary: |
-    An option dialog is a modal view that includes a message and one or more option items positioned 
-    in the middle of the display on Android and at the bottom edge on iOS. On Android, buttons may 
+    An option dialog is a modal view that includes a message and one or more option items positioned
+    in the middle of the display on Android and at the bottom edge on iOS. On Android, buttons may
     be added below the options.
 description: |
     <table id="platformComparison">
@@ -10,20 +10,19 @@ description: |
         <td><img src="images/optiondialog/optiondialog_android.png" height="75" /></td>
         <td><img src="images/optiondialog/optiondialog_iphone.png" height="75" /></td>
         <td><img src="images/optiondialog/optiondialog_ipad.png" height="75" /></td>
-        <td><img src="images/optiondialog/optiondialog_mobileweb.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iPhone</th><td>iPad</td><th>Mobile Web</th></tr>
+      <tr><th>Android</th><th>iPhone</th><td>iPad</td></tr>
     </table>
 
     An option dialog is created using <Titanium.UI.createOptionDialog> or Alloy `<OptionDialog>`
     element. See Examples below for usage.
-    
+
     This dialog is presented differently on each platform, as described below.
-    
+
     #### Android
-    
-    On Android, the dialog is shown in the middle of the display (not touching the edges), 
-    with the option items represented in a picker. The previously-selected, or default, item can be 
+
+    On Android, the dialog is shown in the middle of the display (not touching the edges),
+    with the option items represented in a picker. The previously-selected, or default, item can be
     set on creation.
 
     You can assign a [View](Titanium.UI.View) to the <Titanium.UI.OptionDialog.androidView> property
@@ -33,31 +32,31 @@ description: |
 
     Buttons below the picker may be optionally defined using the `buttonNames` property.
     The `click` event returns a Boolean value to indicate whether either an option item or a button was clicked.
-    
+
     #### iOS
-    
-    The `destructive` property may be set for an item, to give a visual cue that selecting it 
+
+    The `destructive` property may be set for an item, to give a visual cue that selecting it
     results in an irreversible action.
-    
+
     On iOS 4, option dialogs are automatically cancelled when the application is paused/suspended.
-    
+
     ##### iPhone
-    
-    On iPhone, this dialog is shown at the bottom edge of the display, with the option items 
-    represented as vertical buttons. 
-    
+
+    On iPhone, this dialog is shown at the bottom edge of the display, with the option items
+    represented as vertical buttons.
+
     ##### iPad
-    
-    On iPad, this dialog is shown in the middle of the display, or as a popover-like dialog if 
+
+    On iPad, this dialog is shown in the middle of the display, or as a popover-like dialog if
     another view or control is specified via an argument passed to the `open()` method.
 
     Note that on iPad, the cancel button is not displayed -- users can cancel the dialog
     by clicking outside of the dialog.
-    
+
     #### Caveats
-    
-    Care should be taken not to define any properties that are not documented, as this may produce 
-    unexpected results. For example, setting a `message` property will prevent the picker of option 
+
+    Care should be taken not to define any properties that are not documented, as this may produce
+    unexpected results. For example, setting a `message` property will prevent the picker of option
     items from being displayed on Android.
 extends: Titanium.UI.View
 since: "0.8"
@@ -77,49 +76,49 @@ excludes:
 events:
   - name: click
     summary: |
-        Fired when an option of this dialog is clicked or, under certain circumstances, when this 
+        Fired when an option of this dialog is clicked or, under certain circumstances, when this
         dialog is dismissed.
     description: |
         On iOS as of Release 2.0, when the dialog is dismissed without using an option, for example, using
-        the [hide](Titanium.UI.OptionDialog.hide) method (iPhone, iPad) or a tap outside of the 
-        dialog (iPad), this event is fired as though the cancel option was selected. In these 
-        circumstances, the `index` property will be the cancel option index if defined or `-1` 
+        the [hide](Titanium.UI.OptionDialog.hide) method (iPhone, iPad) or a tap outside of the
+        dialog (iPad), this event is fired as though the cancel option was selected. In these
+        circumstances, the `index` property will be the cancel option index if defined or `-1`
         otherwise.
     properties:
       - name: index
         summary: |
-            Index of the option that was pressed. See description for result of the dialog being 
+            Index of the option that was pressed. See description for result of the dialog being
             dismissed in some other way.
         type: Number
-        
+
       - name: button
         summary: |
-            Indicates whether the index returned by the `index` property relates to a button rather 
+            Indicates whether the index returned by the `index` property relates to a button rather
             than an option item.
         type: Boolean
         platforms: [android]
-        
+
       - name: cancel
         summary: |
-            Boolean type on Android; Number on iOS and Mobile Web. 
-            
-            On Android, indicates whether the cancel button was clicked, in which 
-            case returns `true`. 
-            
-            On iOS and Mobile Web, the value of the [cancel](Titanium.UI.OptionDialog.cancel) 
-            property is returned, if defined, or `-1` otherwise. 
+            Boolean type on Android; Number on iOS.
+
+            On Android, indicates whether the cancel button was clicked, in which
+            case returns `true`.
+
+            On iOS, the value of the [cancel](Titanium.UI.OptionDialog.cancel)
+            property is returned, if defined, or `-1` otherwise.
         type: [Boolean, Number]
-        
+
       - name: destructive
         summary: Index of the destructive option if defined or `-1` otherwise.
         type: Number
-        platforms: [iphone, ipad, mobileweb]
+        platforms: [iphone, ipad]
 
 methods:
   - name: show
     summary: Shows this dialog.
     description: |
-        On iPad, this dialog is shown in the middle of the display or, when specified via the 
+        On iPad, this dialog is shown in the middle of the display or, when specified via the
         `params` argument, as a popover-like dialog attached to another view or control.
     parameters:
       - name: params
@@ -177,52 +176,52 @@ properties:
     summary: Index to define the cancel option.
     description: |
         On iOS, set to `-1` to disable the cancel option.
-        
-        On iPad, the `cancel` option must be set to either `-1` or the index of the last 
+
+        On iPad, the `cancel` option must be set to either `-1` or the index of the last
         option. For example, if there are 3 options and one of them is a cancel button,
-        the cancel button must be the last option (index 2).  If `cancel` is set to a 
-        different value, _the last entry in the [options](Titanium.UI.OptionDialog.options) 
+        the cancel button must be the last option (index 2).  If `cancel` is set to a
+        different value, _the last entry in the [options](Titanium.UI.OptionDialog.options)
         array **is not displayed**._
 
-        Note that the cancel button is never shown on iPad, since the user can cancel the 
-        dialog by clicking outside of the dialog. 
+        Note that the cancel button is never shown on iPad, since the user can cancel the
+        dialog by clicking outside of the dialog.
     type: Number
-    default: undefined (Android), -1 (iOS, Mobile Web)
+    default: undefined (Android), -1 (iOS)
 
 
   - name: destructive
     summary: Index to define the destructive option, indicated by a visual cue when rendered.
     type: Number
     default: -1
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     availability: creation
 
 
   - name: options
     summary: List of option names to display in the dialog.
     description: |
-        On Android you can assign a set of options to the `OptionDialog` with this property, or 
-        assign a custom view to the  <Titanium.UI.OptionDialog.androidView> property, but not both. 
+        On Android you can assign a set of options to the `OptionDialog` with this property, or
+        assign a custom view to the  <Titanium.UI.OptionDialog.androidView> property, but not both.
         If you do, the custom view will appear but not the options you defined.
     type: Array<String>
     availability: creation
-    
+
   - name: opaquebackground
     summary: Boolean value indicating if the option dialog should have an opaque background.
     description: |
         This property is useful to ensure that the option dialog will display contents properly
-        on the iPAD idiom without ghosting when scrolling. This property is only respected on the 
-        iPAD idiom on iOS7 and above. 
+        on the iPAD idiom without ghosting when scrolling. This property is only respected on the
+        iPAD idiom on iOS7 and above.
     type: Boolean
     default: false
     since: "3.2.0"
     platforms: [iphone, ipad]
 
   - name: persistent
-    summary: Boolean value indicating if the option dialog should only be cancelled by user 
+    summary: Boolean value indicating if the option dialog should only be cancelled by user
         gesture or by hide method.
     description: |
-        This property is useful to ensure that the option dialog will not be ignored 
+        This property is useful to ensure that the option dialog will not be ignored
         by the user when the application is paused/suspended.
     type: Boolean
     default: true
@@ -234,11 +233,11 @@ properties:
     platforms: [android]
     type: Number
     availability: creation
-    
+
   - name: title
     summary: Title of the dialog.
     type: String
-    
+
   - name: titleid
     summary: Key identifying a string in the locale file to use for the title text.
     type: String
@@ -246,8 +245,8 @@ properties:
 
 examples:
   - title: Dialog with 3 Options
-    example: |        
-        
+    example: |
+
         Ti.UI.setBackgroundColor('white');
         var win = Ti.UI.createWindow({
           title: 'Click window to test',
@@ -255,7 +254,7 @@ examples:
           exitOnClose: true,
           fullscreen: false
         });
-        
+
         var opts = {
           cancel: 2,
           options: ['Confirm', 'Help', 'Cancel'],
@@ -263,15 +262,15 @@ examples:
           destructive: 0,
           title: 'Delete File?'
         };
-        
+
         win.addEventListener('click', function(e){
           var dialog = Ti.UI.createOptionDialog(opts).show();
         });
         win.open();
-        
+
   - title: Dialog with 2 Options and 1 Button on Android and 3 Options on iOS
     example: |
-        
+
         Ti.UI.setBackgroundColor('white');
           var win = Ti.UI.createWindow({
           title: 'Click window to test',
@@ -279,20 +278,20 @@ examples:
           exitOnClose: true,
           fullscreen: false
         });
-        
+
         var opts = {
           title: 'Delete File?'
         };
-        
+
         var isAndroid = Ti.Platform.osname == 'android';
-        
+
         if(isAndroid){
           opts.options = ['Confirm', 'Cancel'];
           opts.buttonNames = ['Help'];
         } else {
           opts.options = ['Confirm', 'Help', 'Cancel'];
         }
-        
+
         win.addEventListener('click', function(e){
           var dialog = Ti.UI.createOptionDialog(opts).show();
         });
@@ -360,11 +359,11 @@ properties:
   - name: animated
     summary: Determines whether to animate the dialog as it is shown.
     type: Boolean
-    
+
   - name: view
     summary: View to which to attach the dialog.
     type: Titanium.UI.View
-    
+
   - name: rect
     summary: Positions the arrow of the option dialog relative to the attached view's dimensions.
     description: |

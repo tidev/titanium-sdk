@@ -1,23 +1,22 @@
 ---
 name: Titanium.XML.ProcessingInstruction
 extends: Titanium.Proxy
-summary: A way to keep processor-specific information in the text of the document. Implements the 
-    [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1004215813) 
-    on Android and iOS. Exposes the 
-    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1004215813) implementation on Mobile Web.
+summary: A way to keep processor-specific information in the text of the document. Implements the
+    [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1004215813)
+    on Android and iOS.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 properties:
   - name: data
     summary: >
-        Retrieve the content of this processing instruction. This from the first non white space character 
+        Retrieve the content of this processing instruction. This from the first non white space character
         after the target to the character immediatly preceding the ?>. When setting a processing instruction,
         a DOMException may be thrown on an invalid instruction.
     type: String
   - name: target
     summary: >
-        Retrieve the target of this processing instruction. XML defines this as being the first token following 
+        Retrieve the target of this processing instruction. XML defines this as being the first token following
         the markup that begins the processing instruction.
     type: String
     permission: read-only
