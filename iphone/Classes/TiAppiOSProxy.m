@@ -701,28 +701,24 @@
 	}
 }
 
--(void)didReceiveContinueActivityNotification:(NSNotification*)notif
+-(void)didReceiveContinueActivityNotification:(NSNotification*)note
 {
-    NSDictionary *notification = [notif userInfo];
-    [self fireEvent:@"continueactivity" withObject:notification];
+    [self fireEvent:@"continueactivity" withObject:[note userInfo]];
 }
 
 -(void)didReceiveLocalNotification:(NSNotification*)note
 {
-	NSDictionary *notification = [note object];
-	[self fireEvent:@"notification" withObject:notification];
+	[self fireEvent:@"notification" withObject:[note userInfo]];
 }
 
 -(void)didReceiveLocalNotificationAction:(NSNotification*)note
 {
-    NSDictionary *notification = [note object];
-    [self fireEvent:@"localnotificationaction" withObject:notification];
+    [self fireEvent:@"localnotificationaction" withObject:[note userInfo]];
 }
 
 -(void)didReceiveRemoteNotificationAction:(NSNotification*)note
 {
-    NSDictionary *notification = [note object];
-    [self fireEvent:@"remotenotificationaction" withObject:notification];
+    [self fireEvent:@"remotenotificationaction" withObject:[note userInfo]];
 }
 
 -(void)didReceiveBackgroundFetchNotification:(NSNotification*)note
@@ -764,10 +760,9 @@
     [self fireEvent:@"uploadprogress" withObject:[note userInfo]];
 }
 
--(void)didRegisterUserNotificationSettingsNotification:(NSNotification*)notificationSettings
+-(void)didRegisterUserNotificationSettingsNotification:(NSNotification*)note
 {
-    [self fireEvent:@"usernotificationsettings"
-         withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings*)[notificationSettings object]]];
+    [self fireEvent:@"usernotificationsettings" withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings*)[note userInfo]]];
 }
 
 #pragma mark Apple Watchkit notifications

@@ -23,6 +23,7 @@ public class TiC
 	public static final int PERMISSION_CODE_EXTERNAL_STORAGE = 103;
 	public static final int PERMISSION_CODE_LOCATION= 104;
 	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
+	public static final int PERMISSION_CODE_MICROPHONE = 106;
 
 
 	public static final String PERMISSION_CALENDAR = "calendar";
@@ -780,6 +781,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_AUDIO_STREAM_TYPE = "audioStreamType";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_AUDIO_TYPE = "audioType";
 
 	/**
 	 * @module.api

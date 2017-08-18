@@ -525,8 +525,6 @@ return value;\
     
 #define VAL_OR_NSNULL(foo)	(((foo) != nil)?((id)foo):[NSNull null])
 
-#define FunctionName(formatString, ...) NSLog((@"%s " formatString), __PRETTY_FUNCTION__, ##__VA_ARGS__);
-
 NSData * dataWithHexString (NSString * hexString);
 NSString * hexString (NSData * thedata);
 

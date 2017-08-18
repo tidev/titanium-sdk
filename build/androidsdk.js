@@ -1,18 +1,7 @@
 var os = require('os'),
 	fs = require('fs-extra'),
 	path = require('path'),
-	DEFAULT_API_LEVEL = 23,
-	ANDROID_API_LEVELS = {
-		3: 'android-1.5',
-		4: 'android-1.6',
-		5: 'android-2.0',
-		6: 'android-2.0.1',
-		7: 'android-2.1',
-		8: 'android-2.2',
-		9: 'android-2.3',
-		10: 'android-2.3.3',
-		11: 'android-3.0'
-	};
+	DEFAULT_API_LEVEL = 26;
 
 /**
  * Given a hinted at location of Android SDK, find one.

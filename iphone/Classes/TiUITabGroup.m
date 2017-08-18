@@ -432,25 +432,30 @@ DEFINE_EXCEPTIONS
 		controller.tabBar.tintColor = color.color;
 	}
 	else {
-		controller.tabBar.selectedImageTintColor = color.color; //deprecated for >= ios8
+		controller.tabBar.tintColor = color.color;
 	}
 }
 
 #pragma mark Public APIs
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
-   [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    [controller viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
--(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+- (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
-    [controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    [controller willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
 }
 
--(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+- (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
 {
-    [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    [controller systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+}
+
+- (void)preferredContentSizeDidChangeForChildContentContainer:(id <UIContentContainer>)container
+{
+    [controller preferredContentSizeDidChangeForChildContentContainer:container];
 }
 
 -(void)setTranslucent_:(id)value
