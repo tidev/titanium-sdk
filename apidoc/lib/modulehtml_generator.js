@@ -1,14 +1,17 @@
 /**
  * Script to export JSON to HTML-annotated JSON for EJS templates
  */
-var exporter = require('./html_generator.js');
+'use strict';
+
+const exporter = require('./html_generator.js');
 
 /**
  * Returns a JSON object formatted for HTML EJS templates
- * @param {Object} apis
+ * @param {Object} apis api tree
+ * @returns {object}
  */
 exports.exportData = function exportModuleHTML (apis) {
-	var rv = {
+	const rv = {
 			'proxy': [],
 			'event': [],
 			'method': [],
@@ -17,7 +20,7 @@ exports.exportData = function exportModuleHTML (apis) {
 		data = exporter.exportData(apis),
 		modules = apis.__modules;
 
-	for (var cls in data.proxy) {
+	for (const cls in data.proxy) {
 		if (~modules.indexOf(data.proxy[cls].name)) {
 			data.proxy[cls].isModule = true;
 			rv.proxy = rv.proxy.concat(data.proxy[cls]);

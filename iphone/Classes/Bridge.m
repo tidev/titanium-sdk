@@ -4,78 +4,72 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <Foundation/Foundation.h>
 #import "Bridge.h"
-#import "TiModule.h"
 #import "TiHost.h"
+#import "TiModule.h"
+#import <Foundation/Foundation.h>
 
 @implementation Bridge
 
--(id)initWithHost:(TiHost*)host_
+- (id)initWithHost:(TiHost *)host_
 {
-	if (self = [self init])
-	{
-		host = [host_ retain];
-	}
-	return self;
+  if (self = [self init]) {
+    host = [host_ retain];
+  }
+  return self;
 }
 
--(void) dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(host);
-	RELEASE_TO_NIL(url);
-	RELEASE_TO_NIL(callback);
-	RELEASE_TO_NIL(basename);
-	[super dealloc];
+  RELEASE_TO_NIL(host);
+  RELEASE_TO_NIL(url);
+  RELEASE_TO_NIL(callback);
+  RELEASE_TO_NIL(basename);
+  [super dealloc];
 }
 
-- (TiHost*)host
+- (TiHost *)host
 {
-	return host;
+  return host;
 }
 
-- (NSString*)basename
+- (NSString *)basename
 {
-	if (basename == nil)
-	{
-		// for app.js, url will always be nil
-		if (url == nil)
-		{
-			basename = [@"app" retain];
-		}
-		else
-		{
-			NSString *last = [[url path] lastPathComponent];
-			basename = [[last stringByReplacingOccurrencesOfString:@".js" withString:@""] retain];
-		}
-	}
-	return basename;
+  if (basename == nil) {
+    // for app.js, url will always be nil
+    if (url == nil) {
+      basename = [@"app" retain];
+    } else {
+      NSString *last = [[url path] lastPathComponent];
+      basename = [[last stringByReplacingOccurrencesOfString:@".js" withString:@""] retain];
+    }
+  }
+  return basename;
 }
 
--(void)shutdown:(NSCondition*)condition
+- (void)shutdown:(NSCondition *)condition
 {
 }
 
--(void)gc
+- (void)gc
 {
 }
 
--(void)booted
+- (void)booted
 {
-	if (callback!=nil)
-	{
-		[callback performSelector:@selector(booted:) withObject:self];
-		[callback release];
-		callback = nil;
-	}
-	[url release];
-	url=nil;
+  if (callback != nil) {
+    [callback performSelector:@selector(booted:) withObject:self];
+    [callback release];
+    callback = nil;
+  }
+  [url release];
+  url = nil;
 }
 
--(void)boot:(id)callback_ url:(NSURL*)url_ preload:(NSDictionary*)preload
+- (void)boot:(id)callback_ url:(NSURL *)url_ preload:(NSDictionary *)preload
 {
-	url = [url_ retain];
-	callback = [callback_ retain];
+  url = [url_ retain];
+  callback = [callback_ retain];
 }
 
 @end

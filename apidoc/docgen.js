@@ -1,29 +1,29 @@
 /**
- * Copyright (c) 2015 Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2017 Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  *
  * Script to preprocess the YAML docs in to a common JSON format,
  * then calls an generator script to format the API documentation.
  */
+'use strict';
 
 var common = require('./lib/common.js'),
-	colors = require('colors'),
 	nodeappc = require('node-appc'),
 	ejs = require('ejs'),
 	fs = require('fs'),
 	yaml = require('js-yaml'),
-	exec = require('child_process').exec,
+	exec = require('child_process').exec, // eslint-disable-line security/detect-child-process
 	os = require('os'),
 	pathMod = require('path'),
 	assert = common.assertObjectKey,
 	basePaths = [],
-	processFirst = ['Titanium.Proxy', 'Titanium.Module', 'Titanium.UI.View'],
-	skipList = ['Titanium.Namespace.Name'],
+	processFirst = [ 'Titanium.Proxy', 'Titanium.Module', 'Titanium.UI.View' ],
+	skipList = [ 'Titanium.Namespace.Name' ],
 	validFormats = [],
 	apidocPath = '.',
 	libPath = './lib/',
 	templatePath = './templates/',
-	formats = ['html'],
+	formats = [ 'html' ],
 	outputPath = '../dist/',
 	output = outputPath,
 	parseData = {},
@@ -35,10 +35,8 @@ var common = require('./lib/common.js'),
 	render = '',
 	fsArray = [],
 	tokens = [],
-	excludeExternal = false,
 	originalPaths = [],
 	modules = [],
-	exportStdout = false,
 	cssPath = '',
 	cssFile = '',
 	addOnDocs = [],
@@ -49,12 +47,11 @@ var common = require('./lib/common.js'),
 
 /**
  * Returns a list of inherited APIs.
- * @param api {Object} API object to extract inherited APIs
+ * @param {Object} api API object to extract inherited APIs
  * @returns {Object} Object containing all API members for the class
  */
 function getInheritedAPIs (api) {
-
-	var inheritedAPIs = {'events': [], 'methods': [], 'properties': []},
+	var inheritedAPIs = { 'events': [], 'methods': [], 'properties': [] },
 		removeAPIs = [],
 		copyAPIs = [],
 		matches = [],
@@ -73,20 +70,20 @@ function getInheritedAPIs (api) {
 
 		});
 
-		for (var key in inheritedAPIs) {
+		for (const key in inheritedAPIs) {
 			removeAPIs = [];
 			if (!(key in api) || !api[key]) {
 				continue;
 			}
 			copyAPIs = nodeappc.util.mixObj([], api[key]);
-			inheritedAPIs[key].forEach(function (inheritedAPI) {
+			inheritedAPIs[key].forEach(function (inheritedAPI) { // eslint-disable-line no-loop-func
 
 				// See if current API overwrites inherited API
 				matches = copyAPIs.filter(function (element) {
 					return (element.name === inheritedAPI.name);
 				});
 
-				matches.forEach(function (match) {
+				matches.forEach(function (match) { // eslint-disable-line no-loop-func
 					removeAPIs.push(match);
 					// If the APIs came from the same class, do nothing
 					if (match.__inherits === inheritedAPI.__inherits) {
@@ -95,7 +92,7 @@ function getInheritedAPIs (api) {
 
 					// If the APIs are from different classes, override inherited API with current API
 					index = inheritedAPIs[key].indexOf(inheritedAPI);
-					for (var property in match) {
+					for (const property in match) {
 						if (assert(match, property)) {
 							inheritedAPIs[key][index][property] = match[property];
 						}
@@ -104,7 +101,7 @@ function getInheritedAPIs (api) {
 				});
 			});
 
-			removeAPIs.forEach(function (element) {
+			removeAPIs.forEach(function (element) { // eslint-disable-line no-loop-func
 				copyAPIs.splice(copyAPIs.indexOf(element), 1);
 			});
 			for (x = 0; x < copyAPIs.length; x++) {
@@ -114,7 +111,7 @@ function getInheritedAPIs (api) {
 		}
 
 	} else {
-		for (var key2 in inheritedAPIs) {
+		for (const key2 in inheritedAPIs) {
 			if (!(key2 in api) || !api[key2]) {
 				continue;
 			}
@@ -129,20 +126,20 @@ function getInheritedAPIs (api) {
 
 /**
  * Returns a list of constants
- * @param api {Object} API to evaluate
+ * @param {Object} api API to evaluate
  * @returns {Array} List of constants the API supports
  */
 function processConstants (api) {
 	var rv = [];
 	if ('constants' in api) {
 		if (!Array.isArray(api.constants)) {
-			api.constants = [api.constants];
+			api.constants = [ api.constants ];
 		}
 		api.constants.forEach(function (constant) {
 			if (constant.charAt(constant.length - 1) === '*') {
-				var prop = constant.split('.').pop(),
-					cls = constant.substring(0, constant.lastIndexOf('.'));
+				let prop = constant.split('.').pop();
 				prop = prop.substring(0, prop.length - 1);
+				const cls = constant.substring(0, constant.lastIndexOf('.'));
 				if (cls in doc && 'properties' in doc[cls]) {
 					doc[cls].properties.forEach(function (property) {
 						if (property.name.indexOf(prop) === 0 && property.name.match(common.REGEXP_CONSTANTS)) {
@@ -160,10 +157,10 @@ function processConstants (api) {
 
 /**
  * Returns a list of platforms and since versions the API supports
- * @param api {Object} API to evaluate
- * @param versions {Object} Possible platforms and versions the API supports (usually from the class)
- * @param matchVersion {Boolean} For members, only match platforms from the versions param
- * @param addon {Boolean} Indicates if the class came from an add-on file
+ * @param {Object} api API to evaluate
+ * @param {Object} versions Possible platforms and versions the API supports (usually from the class)
+ * @param {Boolean} matchVersion For members, only match platforms from the versions param
+ * @param {Boolean} addon Indicates if the class came from an add-on file
  * @returns {Object} Object containing platforms and versions the API supports
  */
 function processVersions (api, versions, matchVersion, addon) {
@@ -178,8 +175,8 @@ function processVersions (api, versions, matchVersion, addon) {
 			}
 		}
 		for (platform in common.ADDON_VERSIONS) {
-			if (((matchVersion && ~Object.keys(versions).indexOf(platform)) || !matchVersion) &&
-				~api.platforms.indexOf(platform)) {
+			if (((matchVersion && ~Object.keys(versions).indexOf(platform)) || !matchVersion)
+				&& ~api.platforms.indexOf(platform)) {
 				defaultVersions[platform] = common.ADDON_VERSIONS[platform];
 			}
 		}
@@ -230,14 +227,15 @@ function processVersions (api, versions, matchVersion, addon) {
 
 /**
  * Processes APIs based on the given list of platforms and versions
- * @param apis {Array<Object>} List of APIs to evaluate
- * @param type {String} Type of API
- * @param defaultVersions {Object} List of platforms and versions the APIs support
- * @param addon {Boolean} Indicates if the class came from an add-on file
+ * @param {Array<Object>} apis List of APIs to evaluate
+ * @param {String} type Type of API
+ * @param {Object} defaultVersions List of platforms and versions the APIs support
+ * @param {Boolean} addon Indicates if the class came from an add-on file
  * @returns {Array<Object>} List of processed APIs
  */
 function processAPIMembers (apis, type, defaultVersions, addon) {
-	var rv = [], x = 0;
+	var rv = [],
+		x = 0;
 	apis.forEach(function (api) {
 		api.since = processVersions(api, defaultVersions, true, addon);
 		api.platforms = Object.keys(api.since);
@@ -270,7 +268,7 @@ function processAPIMembers (apis, type, defaultVersions, addon) {
 			}
 			if (assert(api, 'returns')) {
 				if (!Array.isArray(api.returns)) {
-					api.returns = [api.returns];
+					api.returns = [ api.returns ];
 				}
 				for (x = 0; x < api.returns.length; x++) {
 					api.returns[x].__subtype = 'return';
@@ -289,11 +287,11 @@ function processAPIMembers (apis, type, defaultVersions, addon) {
 
 /**
  * Hides APIs based on the excludes list
- * @param apis {Object} APIs to evaluate
- * @param type {String} Type of API, one of 'events', 'methods' or 'properties'
- * @returns {Array<Object>} Processed APIs
+ * @param {Object} apis APIs to evaluate
+ * @param {String} type Type of API, one of 'events', 'methods' or 'properties'
+ * @returns {object[]} Processed APIs
  */
-function hideAPIMembers (apis, type, className) {
+function hideAPIMembers(apis, type) {
 	var index;
 	if (assert(apis, 'excludes') && assert(apis.excludes, type) && assert(apis, type)) {
 		apis[type].forEach(function (api) {
@@ -301,7 +299,7 @@ function hideAPIMembers (apis, type, className) {
 			if (apis[type][index].__hide) {
 				return;
 			}
-			apis[type][index].__hide = (~apis.excludes[type].indexOf(api.name)) ? true : false;
+			apis[type][index].__hide = !!(~apis.excludes[type].indexOf(api.name));
 			if (apis[type][index].__hide) {
 				apis[type][apis[type].indexOf(api)].__inherits = apis.name;
 			}
@@ -312,12 +310,12 @@ function hideAPIMembers (apis, type, className) {
 
 /**
  * Generates accessors from the given list of properties
- * @param apis {Array<Object>} Array of property objects
- * @param className {String} Name of the class
+ * @param {Array<Object>} apis Array of property objects
+ * @param {String} className Name of the class
  * @returns {Array<Object>} Array of methods
  */
 function generateAccessors(apis, className) {
-	var rv = [];
+	const rv = [];
 	apis.forEach(function (api) {
 
 		if ('accessors' in api && api.accessors === false) {
@@ -332,7 +330,7 @@ function generateAccessors(apis, className) {
 				'deprecated' : api.deprecated || null,
 				'platforms': api.platforms,
 				'since': api.since,
-				'returns': {'type': api.type, '__subtype': 'return'},
+				'returns': { 'type': api.type, '__subtype': 'return' },
 				'__accessor': true,
 				'__hide' : api.__hide || false,
 				'__inherits': api.__inherits || null,
@@ -366,8 +364,8 @@ function generateAccessors(apis, className) {
 
 /**
  * Returns a subtype based on the parent class
- * @param api {Object} Class object
- * @returns {Object} Class's subtype
+ * @param {Object} api Class object
+ * @returns {string} Class's subtype
  */
 function getSubtype (api) {
 	switch (api.name) {
@@ -400,7 +398,8 @@ function getSubtype (api) {
 
 /**
  * Process API class
- * @param {Object} api
+ * @param {Object} api API object to build (and use as base)
+ * @return {Object} api
  */
 function processAPIs (api) {
 	var defaultVersions = nodeappc.util.mix({}, common.DEFAULT_VERSIONS),
@@ -413,7 +412,7 @@ function processAPIs (api) {
 
 	// Get inherited APIs
 	inheritedAPIs = getInheritedAPIs(api);
-	for (var key in inheritedAPIs) {
+	for (const key in inheritedAPIs) {
 		api[key] = inheritedAPIs[key];
 	}
 
@@ -421,10 +420,10 @@ function processAPIs (api) {
 
 	// Generate create method
 	api.__creatable = false;
-	if ((api.__subtype === 'view' || api.__subtype === 'proxy') &&
-		(assert(api, 'createable') || !('createable' in api))) {
+	if ((api.__subtype === 'view' || api.__subtype === 'proxy')
+		&& (assert(api, 'createable') || !('createable' in api))) {
 
-		var name = api.name,
+		const name = api.name,
 			prop = name.split('.').pop(),
 			cls = name.substring(0, name.lastIndexOf('.')),
 			methodName = 'create' + prop;
@@ -437,13 +436,13 @@ function processAPIs (api) {
 				});
 			}
 			if (matches.length === 0) {
-				var createMethod = {
+				const createMethod = {
 					'name': methodName,
 					'summary': 'Creates and returns an instance of <' + name + '>.\n',
 					'deprecated': api.deprecated || null,
 					'since': api.since,
 					'platforms': api.platforms,
-					'returns': {'type': name, '__subtype': 'return'},
+					'returns': { 'type': name, '__subtype': 'return' },
 					'parameters': [{
 						'name': 'parameters',
 						'summary': 'Properties to set on a new object, including any defined by <' + name + '> except those marked not-creation or read-only.\n',
@@ -458,12 +457,12 @@ function processAPIs (api) {
 				if ('methods' in doc[cls]) {
 					if (!doc[cls].methods) {
 						common.log(common.LOG_WARN, 'Empty \'methods\' listing for class: %s', cls);
-						doc[cls].methods = [createMethod];
+						doc[cls].methods = [ createMethod ];
 					} else {
 						doc[cls].methods.push(createMethod);
 					}
 				} else {
-					doc[cls].methods = [createMethod];
+					doc[cls].methods = [ createMethod ];
 				}
 			}
 		}
@@ -475,7 +474,7 @@ function processAPIs (api) {
 	}
 
 	if (assert(api, 'properties')) {
-		var accessors;
+		let accessors;
 		api = hideAPIMembers(api, 'properties');
 		api.properties = processAPIMembers(api.properties, 'properties', api.since, api.__addon);
 		if (api.__subtype !== 'pseudo' && (accessors = generateAccessors(api.properties, api.name))) {
@@ -523,36 +522,36 @@ function cliUsage () {
 
 /**
  * Merge values from add-on object to base object
+ * @param {object} baseObj base object
+ * @param {object} addObj add on object
+ * @return {object} merged object
  */
 function addOnMerge(baseObj, addObj) {
-	for (var key in addObj) {
-		var base = baseObj[key],
-			add = addObj[key],
-			since = {};
+	for (const key in addObj) {
+		const base = baseObj[key],
+			add = addObj[key];
 
 		if (Array.isArray(base)) {
 			// Array of objects
 			if (typeof base[0] === 'object') {
 
-				var tempArray = base;
-				add.forEach(function (api) {
+				const tempArray = base;
+				add.forEach(function (api) { // eslint-disable-line no-loop-func
 					if ('name' in base[0]) {
-						var match = base.filter(function (item) {
+						const match = base.filter(function (item) {
 							return api.name === item.name;
 						});
 						if (match.length > 0) {
 							// Replace item if we have a match
 							tempArray.splice(tempArray.indexOf(match[0]), 1);
 							tempArray.push(addOnMerge(match[0], api));
+						} else if (~[ 'properties', 'methods', 'events' ].indexOf(key)
+								&& !(api.name.indexOf('set') === 0 || api.name.indexOf('get') === 0 || api.name.indexOf('create') === 0)
+									&& api.summary) {
+							common.log(common.LOG_INFO, 'Adding new API to %s array: %s', key, api.name);
+							tempArray.push(api);
 						} else {
-							if (~['properties', 'methods', 'events'].indexOf(key) &&
-								!(api.name.indexOf('set') === 0 || api.name.indexOf('get') === 0 || api.name.indexOf('create') === 0) &&
-									api.summary) {
-								common.log(common.LOG_INFO, 'Adding new API to %s array: %s', key, api.name);
-								tempArray.push(api);
-							} else {
-								common.log(common.LOG_WARN, 'Could not locate object in %s array with name: %s', key, api.name);
-							}
+							common.log(common.LOG_WARN, 'Could not locate object in %s array with name: %s', key, api.name);
 						}
 					} else {
 						common.log(common.LOG_WARN, 'Element in %s array does not have a name key.', key);
@@ -560,18 +559,15 @@ function addOnMerge(baseObj, addObj) {
 				});
 				baseObj[key] = tempArray;
 			// Array of primitives
+			} else if (Array.isArray(add)) {
+				baseObj[key] = base.concat(add);
 			} else {
-				if (Array.isArray(add)) {
-					baseObj[key] = base.concat(add);
-				} else {
-					baseObj[key] = base.push(add);
-				}
+				baseObj[key] = base.push(add);
 			}
 		} else {
 			switch (typeof base) {
 				case 'object':
-					var k;
-					for (k in add) {
+					for (const k in add) {
 						if (!base[k]) {
 							base[k] = add[k];
 							delete add[k];
@@ -580,11 +576,11 @@ function addOnMerge(baseObj, addObj) {
 					baseObj[key] = addOnMerge(base, add);
 					break;
 				case 'string':
-					if (!~['name', 'since', '__file'].indexOf(key)) {
+					if (!~[ 'name', 'since', '__file' ].indexOf(key)) {
 						baseObj[key] += ' ' + add;
 					} else if (key === 'since') {
-						var platforms = baseObj.platforms || Object.keys(common.DEFAULT_VERSIONS);
-						since = {};
+						const platforms = baseObj.platforms || Object.keys(common.DEFAULT_VERSIONS);
+						const since = {};
 
 						platforms.forEach(function (p) {
 							since[p] = baseObj[key];
@@ -607,14 +603,14 @@ function addOnMerge(baseObj, addObj) {
 					}
 					break;
 				case 'undefined':
-					if (~['description'].indexOf(key)) {
+					if (~[ 'description' ].indexOf(key)) {
 						baseObj[key] = add;
 					} else if (key === 'exclude-platforms' && !assert(baseObj, 'platforms')) {
 						baseObj[key] = add;
 					} else if (key === 'platforms') {
 						baseObj[key] = Object.keys(common.DEFAULT_VERSIONS).concat(add);
 					} else if (key === 'since') {
-						since = {};
+						const since = {};
 						if (typeof add === 'object') {
 							Object.keys(add).forEach(function (k) {
 								since[k] = add[k];
@@ -641,6 +637,7 @@ function addOnMerge(baseObj, addObj) {
 
 /**
  * Create path if it does not exist
+ * @param {string} path directory path to make
  */
 function mkdirDashP(path) {
 	var p = path.replace(/\\/g, '/');
@@ -670,7 +667,7 @@ fsArray.forEach(function (file) {
 
 // Check command arguments
 if ((argc = process.argv.length) > 2) {
-	for (var x = 2; x < argc; x++) {
+	for (let x = 2; x < argc; x++) {
 		switch (process.argv[x]) {
 			case '--help' :
 				cliUsage();
@@ -710,7 +707,7 @@ if ((argc = process.argv.length) > 2) {
 				if (~process.argv[x].indexOf(',')) {
 					formats = process.argv[x].split(',');
 				} else {
-					formats = [process.argv[x]];
+					formats = [ process.argv[x] ];
 				}
 
 				formats.forEach(function (format) {
@@ -780,7 +777,7 @@ if ((argc = process.argv.length) > 2) {
 			case '-v' :
 			case '--warn-inherited':
 				common.log(common.LOG_WARN, 'This command-line flag or argument has been deprecated or has not been implemented: %s', process.argv[x]);
-				if (~['-v', '--version'].indexOf(process.argv[x])) {
+				if (~[ '-v', '--version' ].indexOf(process.argv[x])) {
 					x++;
 				}
 				break;
@@ -796,7 +793,7 @@ if ((argc = process.argv.length) > 2) {
 	}
 }
 
-if (~formats.indexOf('addon') && searchPlatform == null) {
+if (~formats.indexOf('addon') && !searchPlatform) {
 	common.log(common.LOG_ERROR, 'Specify a platform to extract with the -p option.');
 	process.exit(1);
 }
@@ -849,7 +846,7 @@ processFirst.forEach(function (cls) {
 	processedData[cls] = processAPIs(doc[cls]);
 });
 skipList = skipList.concat(processFirst);
-for (var key in doc) {
+for (const key in doc) {
 	if (~skipList.indexOf(key)) {
 		continue;
 	}
@@ -866,14 +863,14 @@ formats.forEach(function (format) {
 		if (processedData.__endVersion) {
 			if (nodeappc.version.gt(processedData.__startVersion, processedData.__endVersion)) {
 				common.log(common.LOG_ERROR, 'Skipping changes format.  Start version (%s) is greater than end version (%s).',
-						processedData.__startVersion, processedData.__endVersion);
+					processedData.__startVersion, processedData.__endVersion);
 				return;
 			}
 		}
 	}
 
 	// Export data
-	exporter = require('./lib/' + format + '_generator.js');
+	exporter = require('./lib/' + format + '_generator.js'); // eslint-disable-line security/detect-non-literal-require
 	if (format === 'modulehtml') {
 		processedData.__modules = modules;
 	}
@@ -895,7 +892,7 @@ formats.forEach(function (format) {
 				fs.mkdirSync(output);
 			}
 			templateStr = fs.readFileSync(templatePath + 'addon.ejs', 'utf8');
-			for (var cls in exportData) {
+			for (const cls in exportData) {
 				if (cls.indexOf('__') === 0) {
 					continue;
 				}
@@ -921,12 +918,12 @@ formats.forEach(function (format) {
 			}
 			output = pathMod.join(output, 'changes_' + exportData.startVersion.replace(/\./g, '_') + '.html');
 			templateStr = fs.readFileSync(pathMod.join(templatePath, 'changes.ejs'), 'utf8');
-			render = ejs.render(templateStr, {data: exportData, filename: 'changes.ejs', assert: common.assertObjectKey});
+			render = ejs.render(templateStr, { data: exportData, filename: 'changes.ejs', assert: common.assertObjectKey });
 			break;
 		case 'html' :
 		case 'modulehtml' :
 
-			var copyCommand;
+			let copyCommand;
 
 			output += '/apidoc/';
 			if (!fs.existsSync(output)) {
@@ -938,10 +935,10 @@ formats.forEach(function (format) {
 			}
 
 			if (os.type() === 'Windows_NT') {
-				copyCommand = 'xcopy ' + apidocPath + '/images' + ' ' + output;
+				copyCommand = 'xcopy ' + apidocPath + '/images ' + output;
 				copyCommand = copyCommand.replace(/\//g, '\\') + ' /s';
 			} else {
-				copyCommand = 'cp -r ' + apidocPath + '/images' + ' ' + output;
+				copyCommand = 'cp -r ' + apidocPath + '/images ' + output;
 			}
 
 			exec(copyCommand, function (error) {
@@ -950,13 +947,13 @@ formats.forEach(function (format) {
 				}
 			});
 
-			for (var type in exportData) {
+			for (const type in exportData) {
 				if (type.indexOf('__') === 0) {
 					continue;
 				}
 				templateStr = fs.readFileSync(templatePath + 'htmlejs/' + type + '.html', 'utf8');
-				exportData[type].forEach(function (member) {
-					render = ejs.render(templateStr, {data: member, filename: templatePath + 'htmlejs/' + type + '.html', assert: common.assertObjectKey, css: cssFile});
+				exportData[type].forEach(function (member) { // eslint-disable-line no-loop-func
+					render = ejs.render(templateStr, { data: member, filename: templatePath + 'htmlejs/' + type + '.html', assert: common.assertObjectKey, css: cssFile });
 					if (fs.writeFileSync(output + member.filename + '.html', render) <= 0) {
 						common.log(common.LOG_ERROR, 'Failed to write to file: %s', output + member.filename + '.html');
 					}
@@ -965,37 +962,37 @@ formats.forEach(function (format) {
 
 			if (format === 'modulehtml') {
 				templateStr = fs.readFileSync(templatePath + 'htmlejs/moduleindex.html', 'utf8');
-				render = ejs.render(templateStr, {filename: exportData.proxy[0].filename + '.html'});
+				render = ejs.render(templateStr, { filename: exportData.proxy[0].filename + '.html' });
 			} else {
 				templateStr = fs.readFileSync(templatePath + 'htmlejs/index.html', 'utf8');
-				render = ejs.render(templateStr, {data: exportData, assert: common.assertObjectKey, css: cssFile});
+				render = ejs.render(templateStr, { data: exportData, assert: common.assertObjectKey, css: cssFile });
 			}
 			output += 'index.html';
 			break;
 		case 'jsca' :
 			render = JSON.stringify(exportData, null, '    ');
-			output = output + 'api.jsca';
+			output += 'api.jsca';
 			break;
 		case 'json' :
 			render = JSON.stringify(exportData, null, '    ');
-			output = output + 'api.json';
+			output += 'api.json';
 			break;
 		case 'jsduck' :
 			templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
-			render = ejs.render(templateStr, {doc: exportData});
-			output = output + 'titanium.js';
+			render = ejs.render(templateStr, { doc: exportData });
+			output += 'titanium.js';
 			break;
 		case 'parity' :
 			templateStr = fs.readFileSync(templatePath + 'parity.ejs', 'utf8');
-			render = ejs.render(templateStr, {apis: exportData});
-			output = output + 'parity.html';
+			render = ejs.render(templateStr, { apis: exportData });
+			output += 'parity.html';
 			break;
 		case 'solr' :
 			render = JSON.stringify(exportData, null, '    ');
-			output = output + 'api_solr.json';
+			output += 'api_solr.json';
 	}
 
-	if (!~['addon'].indexOf(format)) {
+	if (!~[ 'addon' ].indexOf(format)) {
 		fs.writeFile(output, render, function (err) {
 			if (err) {
 				common.log(common.LOG_ERROR, 'Failed to write to file: %s with error: %s', output, err);

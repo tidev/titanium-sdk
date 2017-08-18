@@ -9,16 +9,14 @@
 #ifdef USE_TI_APPIOS
 
 @interface TiAppiOSLocalNotificationProxy : TiProxy {
-@private
-	UILocalNotification *_notification;
-
+  @private
+  UILocalNotification *_notification;
 }
 
-@property(nonatomic,retain) UILocalNotification *notification;
+@property (nonatomic, retain) UILocalNotification *notification;
 
--(void)cancel:(id)args;
+- (void)cancel:(id)args;
 
 @end
-
 
 #endif

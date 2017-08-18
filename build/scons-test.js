@@ -1,41 +1,35 @@
 #!/usr/bin/env node
+'use strict';
 
-var exec = require('child_process').exec,
+const exec = require('child_process').exec, // eslint-disable-line security/detect-child-process
 	os = require('os'),
 	path = require('path'),
 	async = require('async'),
 	program = require('commander'),
 	fs = require('fs-extra'),
 	version = require('../package.json').version,
-	platforms = [],
-	osName = os.platform(),
-	zipfile,
-	ALL_PLATFORMS = ['ios', 'android'],
+	ALL_PLATFORMS = [ 'ios', 'android' ],
 	MOCHA_TESTS_DIR = path.join(__dirname, '..', 'titanium-mobile-mocha-suite'),
 	DIST_DIR = path.join(__dirname, '..', 'dist'),
 	LOCAL_TESTS = path.join(__dirname, '..', 'tests');
 
 program.parse(process.argv);
 
-platforms = program.args;
+let platforms = program.args;
 
-if (!platforms.length) {
-	// assume all!
-	platforms = ['full'];
+// if no platforms, or set to 'full', use all platforms
+if (!platforms.length || (platforms.length === 1 && platforms[0] === 'full')) {
+	platforms = ALL_PLATFORMS;
 }
 
-// expand 'full' to every platform
-if (platforms.length === 1 && platforms[0] == 'full') {
-	platforms = ['ios', 'android'];
-}
-
-// FIXME Assume the zipfile is just uisng the base SDK version and not a version tag
+// FIXME Assume the zipfile is just using the base SDK version and not a version tag
+let osName = os.platform();
 if (osName === 'darwin') {
 	osName = 'osx';
 }
-zipfile = path.join(DIST_DIR, 'mobilesdk-' + version + '-' + osName + '.zip');
+const zipfile = path.join(DIST_DIR, 'mobilesdk-' + version + '-' + osName + '.zip');
 if (!fs.existsSync(zipfile)) {
-	console.error("Could not find zipped SDK in dist dir: " + zipfile +". Please run node scons.js cleanbuild first.");
+	console.error('Could not find zipped SDK in dist dir: ' + zipfile + '. Please run node scons.js cleanbuild first.');
 	process.exit(1);
 }
 
@@ -68,9 +62,9 @@ function runTests(platforms, next) {
 		},
 		function (cb) {
 			// Load up the main script
-			var tests = require(path.join(MOCHA_TESTS_DIR, 'scripts'));
+			const tests = require(path.join(MOCHA_TESTS_DIR, 'scripts')); // eslint-disable-line security/detect-non-literal-require
 			// Run the tests
-			tests.test(zipfile, platforms, function(err, results) {
+			tests.test(zipfile, platforms, function (err, results) {
 				if (err) {
 					return cb(err);
 				}

@@ -1,4 +1,5 @@
-var appc = require('node-appc'),
+'use strict';
+const appc = require('node-appc'),
 	__ = appc.i18n(__dirname).__,
 	fs = require('fs'),
 	path = require('path');
@@ -8,16 +9,16 @@ exports.name = 'android';
 exports.title = 'Android';
 
 exports.detect = function (types, config, next) {
-	var tisdk = path.basename((function scan(dir) {
-		var file = path.join(dir, 'manifest.json');
+	const tisdk = path.basename((function scan(dir) {
+		const file = path.join(dir, 'manifest.json');
 		if (fs.existsSync(file)) {
 			return dir;
 		}
 		dir = path.dirname(dir);
-		return dir != '/' && scan(dir);
+		return dir !== '/' && scan(dir);
 	}(__dirname)));
 
-	var mod = require('./detect');
+	const mod = require('./detect');
 
 	// detect android environment
 	mod.detect(config, null, function (result) {
@@ -43,59 +44,61 @@ exports.detect = function (types, config, next) {
 
 exports.render = function (logger, config, rpad, styleHeading, styleValue, styleBad) {
 	var data = this.data;
-	if (!data) return;
+	if (!data) {
+		return;
+	}
 
-	logger.log(styleHeading(__('Android SDK')) + '\n' +
-		'  ' + rpad(__('Android Executable')) + ' = ' + styleValue(data.sdk && data.sdk.executables.android || __('not found')) + '\n' +
-		'  ' + rpad(__('ADB Executable'))     + ' = ' + styleValue(data.sdk && data.sdk.executables.adb || __('not found')) + '\n' +
-		'  ' + rpad(__('SDK Path'))           + ' = ' + styleValue(data.sdk && data.sdk.path || __('not found')) + '\n'
+	logger.log(styleHeading(__('Android SDK')) + '\n'
+		+ '  ' + rpad(__('Android Executable')) + ' = ' + styleValue(data.sdk && data.sdk.executables.android || __('not found')) + '\n'
+		+ '  ' + rpad(__('ADB Executable'))     + ' = ' + styleValue(data.sdk && data.sdk.executables.adb || __('not found')) + '\n'
+		+ '  ' + rpad(__('SDK Path'))           + ' = ' + styleValue(data.sdk && data.sdk.path || __('not found')) + '\n'
 	);
 
-	logger.log(styleHeading(__('Android NDK')) + '\n' +
-		'  ' + rpad(__('NDK Path'))           + ' = ' + styleValue(data.ndk && data.ndk.path || __('not found')) + '\n' +
-		'  ' + rpad(__('NDK Version'))        + ' = ' + styleValue(data.ndk && data.ndk.version || __('not found')) + '\n'
+	logger.log(styleHeading(__('Android NDK')) + '\n'
+		+ +'  ' + rpad(__('NDK Path'))           + ' = ' + styleValue(data.ndk && data.ndk.path || __('not found')) + '\n'
+		+ '  ' + rpad(__('NDK Version'))        + ' = ' + styleValue(data.ndk && data.ndk.version || __('not found')) + '\n'
 	);
 
-	var androidPlatforms = '',
-		androidAddons = '',
-		apiLevelMap = {};
+	let androidPlatforms = '',
+		androidAddons = '';
+	const apiLevelMap = {};
 
 	if (data.targets && Object.keys(data.targets).length) {
 		Object.keys(data.targets).forEach(function (targetId) {
 			var target = data.targets[targetId],
-				supported = (target.supported == 'maybe'
+				supported = (target.supported === 'maybe'
 					? (' (' + __('not supported by Titanium SDK %s, but may work', data.tisdk) + ')').yellow
 					: target.supported
 						? ''
 						: styleBad(' **' + __('Not supported by Titanium SDK %s', data.tisdk) + '**'));
 
-			if (target.type == 'platform') {
-				var m = target.name.match(/Android\s+(\d(?:\.\d(?:\.\d)?)?)/);
+			if (target.type === 'platform') {
+				const m = target.name.match(/Android\s+(\d(?:\.\d(?:\.\d)?)?)/);
 				if (m) {
 					apiLevelMap[m[1]] = target['api-level'];
 				}
-				androidPlatforms += '  ' + (targetId + ') ' + target.id).cyan + '\n' +
-					'  ' + rpad('  ' + __('Name'))        + ' = ' + styleValue(target.name) + supported + '\n' +
-					'  ' + rpad('  ' + __('API Level'))   + ' = ' + styleValue(target['api-level']) + '\n' +
-					'  ' + rpad('  ' + __('Revision'))    + ' = ' + styleValue(target.revision) + '\n' +
-					'  ' + rpad('  ' + __('Skins'))       + ' = ' + styleValue(target.skins.join(', ')) + '\n' +
-					'  ' + rpad('  ' + __('ABIs'))        + ' = ' + styleValue(target.abis.join(', ')) + '\n' +
-					'  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(target.path) + '\n';
-			} else if (target.type == 'add-on') {
-				androidAddons += '  ' + (targetId + ') ' + target.id).cyan + '\n' +
-					'  ' + rpad('  ' + __('Name'))        + ' = ' + styleValue(target.name
-						+ ' (' + (target['based-on'] ? __('Android %s (API level %s)', target['based-on']['android-version'], target['based-on']['api-level']) : __('unknown')) + ')') + supported + '\n' +
-					'  ' + rpad('  ' + __('Vendor'))      + ' = ' + styleValue(target.vendor || __('n/a')) + '\n' +
-					'  ' + rpad('  ' + __('Revision'))    + ' = ' + styleValue(target.revision) + '\n' +
-					'  ' + rpad('  ' + __('Description')) + ' = ' + styleValue(target.description || __('n/a')) + '\n' +
-					'  ' + rpad('  ' + __('Skins'))       + ' = ' + styleValue(target.skins && target.skins.length ? target.skins.join(', ') : __('none')) + '\n' +
-					'  ' + rpad('  ' + __('ABIs'))        + ' = ' + styleValue(target.abis && target.abis.length ? target.abis.join(', ') : __('none')) + '\n' +
-					'  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(target.path) + '\n';
+				androidPlatforms += '  ' + (targetId + ') ' + target.id).cyan + '\n'
+					+ '  ' + rpad('  ' + __('Name'))        + ' = ' + styleValue(target.name) + supported + '\n'
+					+ '  ' + rpad('  ' + __('API Level'))   + ' = ' + styleValue(target['api-level']) + '\n'
+					+ '  ' + rpad('  ' + __('Revision'))    + ' = ' + styleValue(target.revision) + '\n'
+					+ '  ' + rpad('  ' + __('Skins'))       + ' = ' + styleValue(target.skins.join(', ')) + '\n'
+					+ '  ' + rpad('  ' + __('ABIs'))        + ' = ' + styleValue(target.abis.join(', ')) + '\n'
+					+ '  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(target.path) + '\n';
+			} else if (target.type === 'add-on') {
+				androidAddons += '  ' + (targetId + ') ' + target.id).cyan + '\n'
+					+ '  ' + rpad('  ' + __('Name'))        + ' = ' + styleValue(target.name
+						+ ' (' + (target['based-on'] ? __('Android %s (API level %s)', target['based-on']['android-version'], target['based-on']['api-level']) : __('unknown')) + ')') + supported + '\n'
+					+ '  ' + rpad('  ' + __('Vendor'))      + ' = ' + styleValue(target.vendor || __('n/a')) + '\n'
+					+ '  ' + rpad('  ' + __('Revision'))    + ' = ' + styleValue(target.revision) + '\n'
+					+ '  ' + rpad('  ' + __('Description')) + ' = ' + styleValue(target.description || __('n/a')) + '\n'
+					+ '  ' + rpad('  ' + __('Skins'))       + ' = ' + styleValue(target.skins && target.skins.length ? target.skins.join(', ') : __('none')) + '\n'
+					+ '  ' + rpad('  ' + __('ABIs'))        + ' = ' + styleValue(target.abis && target.abis.length ? target.abis.join(', ') : __('none')) + '\n'
+					+ '  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(target.path) + '\n';
 
 				if (target.libraries && Object.keys(target.libraries).length) {
-					Object.keys(target.libraries).map(function (lib, i) {
-						androidAddons += '  ' + (i == 0 ? rpad('  ' + __('Libraries'))   + ' = ' : rpad('') + '   ') +
-							styleValue(lib + ': ' + target.libraries[lib].description + ' (' + target.libraries[lib].jar + ')') + '\n';
+					Object.keys(target.libraries).forEach(function (lib, i) {
+						androidAddons += '  ' + (i === 0 ? rpad('  ' + __('Libraries'))   + ' = ' : rpad('') + '   ')
+							+ styleValue(lib + ': ' + target.libraries[lib].description + ' (' + target.libraries[lib].jar + ')') + '\n';
 					});
 					androidAddons += '\n';
 				} else {
@@ -110,21 +113,23 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 
 	logger.log(styleHeading(__('Android Emulators')));
 	if (data.emulators) {
-		var emus = data.emulators.filter(function (e) { return e.type == 'avd'; });
+		const emus = data.emulators.filter(function (e) {
+			return e.type === 'avd';
+		});
 		if (emus.length) {
 			logger.log(emus.map(function (emu) {
-				return '  ' + emu.name.cyan + '\n' +
-					'  ' + rpad('  ' + __('ID'))          + ' = ' + styleValue(emu.id) + '\n' +
-					'  ' + rpad('  ' + __('SDK Version')) + ' = ' + styleValue(emu.target || __('not installed')) + '\n' +
-					'  ' + rpad('  ' + __('ABI'))         + ' = ' + styleValue(emu.abi) + '\n' +
-					'  ' + rpad('  ' + __('Skin'))        + ' = ' + styleValue(emu.skin) + '\n' +
-					'  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(emu.path) + '\n' +
-					'  ' + rpad('  ' + __('SD Card'))     + ' = ' + styleValue(emu.sdcard || __('no sd card')) + '\n' +
-					(emu['based-on']
+				return '  ' + emu.name.cyan + '\n'
+					+ '  ' + rpad('  ' + __('ID'))          + ' = ' + styleValue(emu.id) + '\n'
+					+ '  ' + rpad('  ' + __('SDK Version')) + ' = ' + styleValue(emu.target || __('not installed')) + '\n'
+					+ '  ' + rpad('  ' + __('ABI'))         + ' = ' + styleValue(emu.abi) + '\n'
+					+ '  ' + rpad('  ' + __('Skin'))        + ' = ' + styleValue(emu.skin) + '\n'
+					+ '  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(emu.path) + '\n'
+					+ '  ' + rpad('  ' + __('SD Card'))     + ' = ' + styleValue(emu.sdcard || __('no sd card')) + '\n'
+					+ (emu['based-on']
 						? '  ' + rpad('  ' + __('Based On'))    + ' = ' + styleValue(__('Android %s (API level %s)', emu['based-on']['android-version'], emu['based-on']['api-level'])) + '\n'
 						: ''
-					) +
-					'  ' + rpad('  ' + __('Google APIs')) + ' = ' + styleValue(emu.googleApis ? __('yes') : __('no'));
+					)
+					+ '  ' + rpad('  ' + __('Google APIs')) + ' = ' + styleValue(emu.googleApis ? __('yes') : __('no'));
 			}).join('\n') + '\n');
 		} else {
 			logger.log('  ' + __('None').grey + '\n');
@@ -135,18 +140,20 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 
 	logger.log(styleHeading(__('Genymotion Emulators')));
 	if (data.emulators) {
-		var emus = data.emulators.filter(function (e) { return e.type == 'genymotion'; });
+		const emus = data.emulators.filter(function (e) {
+			return e.type === 'genymotion';
+		});
 		if (emus.length) {
 			logger.log(emus.map(function (emu) {
-				return '  ' + emu.name.cyan + '\n' +
-					'  ' + rpad('  ' + __('ID'))                  + ' = ' + styleValue(emu.id) + '\n' +
-					'  ' + rpad('  ' + __('SDK Version'))         + ' = ' + styleValue(emu.target + (apiLevelMap[emu.target] ? ' (android-' + apiLevelMap[emu.target] + ')' : '')) + '\n' +
-					'  ' + rpad('  ' + __('ABI'))                 + ' = ' + styleValue(emu.abi || __('unknown')) + '\n' +
-					'  ' + rpad('  ' + __('Genymotion Version'))  + ' = ' + styleValue(emu.genymotion || __('unknown')) + '\n' +
-					'  ' + rpad('  ' + __('Display'))             + ' = ' + styleValue(emu.display || __('unknown')) + '\n' +
-					'  ' + rpad('  ' + __('DPI'))                 + ' = ' + styleValue(emu.dpi || __('unknown')) + '\n' +
-					'  ' + rpad('  ' + __('OpenGL Acceleration')) + ' = ' + styleValue(emu.hardwareOpenGL ? __('yes') : __('no')) + '\n' +
-					'  ' + rpad('  ' + __('Google APIs'))         + ' = ' + styleValue(emu.googleApis === null ? __('unknown, emulator not running') : emu.googleApis ? __('yes') : __('no'));
+				return '  ' + emu.name.cyan + '\n'
+					+ +'  ' + rpad('  ' + __('ID'))                  + ' = ' + styleValue(emu.id) + '\n'
+					+ '  ' + rpad('  ' + __('SDK Version'))         + ' = ' + styleValue(emu.target + (apiLevelMap[emu.target] ? ' (android-' + apiLevelMap[emu.target] + ')' : '')) + '\n'
+					+ '  ' + rpad('  ' + __('ABI'))                 + ' = ' + styleValue(emu.abi || __('unknown')) + '\n'
+					+ '  ' + rpad('  ' + __('Genymotion Version'))  + ' = ' + styleValue(emu.genymotion || __('unknown')) + '\n'
+					+ '  ' + rpad('  ' + __('Display'))             + ' = ' + styleValue(emu.display || __('unknown')) + '\n'
+					+ '  ' + rpad('  ' + __('DPI'))                 + ' = ' + styleValue(emu.dpi || __('unknown')) + '\n'
+					+ '  ' + rpad('  ' + __('OpenGL Acceleration')) + ' = ' + styleValue(emu.hardwareOpenGL ? __('yes') : __('no')) + '\n'
+					+ '  ' + rpad('  ' + __('Google APIs'))         + ' = ' + styleValue(emu.googleApis === null ? __('unknown, emulator not running') : emu.googleApis ? __('yes') : __('no'));
 			}).join('\n') + '\n');
 		} else {
 			logger.log('  ' + __('None').grey + '\n');

@@ -6,24 +6,24 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TiProxy.h"
 #import "GDataXMLNode.h"
 #import "TiDOMNodeProxy.h"
+#import "TiProxy.h"
 
 @interface TiDOMElementProxy : TiDOMNodeProxy {
-@private
-	GDataXMLElement *element;
+  @private
+  GDataXMLElement *element;
 }
 
-@property(nonatomic,readonly) id tagName;
+@property (nonatomic, readonly) id tagName;
 
--(id)getAttributeNode:(id)args;
--(id)getAttributeNodeNS:(id)args;
--(id)setAttributeNode:(id)args;
--(id)setAttributeNodeNS:(id)args;
--(id)removeAttributeNode:(id)args;
+- (id)getAttributeNode:(id)args;
+- (id)getAttributeNodeNS:(id)args;
+- (id)setAttributeNode:(id)args;
+- (id)setAttributeNodeNS:(id)args;
+- (id)removeAttributeNode:(id)args;
 
--(void)setElement:(GDataXMLElement*)element;
+- (void)setElement:(GDataXMLElement *)element;
 
 @end
 

@@ -10,12 +10,12 @@
 
 @interface TiUIPickerProxy : TiViewProxy {
 
-@private
-	NSArray* selectOnLoad;
+  @private
+  NSArray *selectOnLoad;
 }
 
--(void)setSelectedRow:(id)args;
--(void)reloadColumn:(id)column;
+- (void)setSelectedRow:(id)args;
+- (void)reloadColumn:(id)column;
 
 @end
 

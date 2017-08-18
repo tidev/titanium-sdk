@@ -10,7 +10,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var appc = require('node-appc'),
+'use strict';
+
+const appc = require('node-appc'),
 	Creator = require('../creator'),
 	fs = require('fs'),
 	path = require('path'),
@@ -37,7 +39,7 @@ module.exports = AppCreator;
  * @param {Object} config - The CLI config
  * @param {Object} cli - The CLI instance
  */
-function AppCreator(logger, config, cli) {
+function AppCreator(logger, config, cli) { // eslint-disable-line no-unused-vars
 	Creator.apply(this, arguments);
 
 	this.title = __('Titanium App');
@@ -45,7 +47,7 @@ function AppCreator(logger, config, cli) {
 	this.type = 'app';
 
 	// build list of all valid platforms
-	var availablePlatforms = {},
+	const availablePlatforms = {},
 		validPlatforms = {};
 
 	ti.platforms.forEach(function (platform) {
@@ -61,7 +63,7 @@ function AppCreator(logger, config, cli) {
 	// add "all"
 	validPlatforms['all'] = 1;
 
-	this.availablePlatforms = ['all'].concat(Object.keys(availablePlatforms));
+	this.availablePlatforms = [ 'all' ].concat(Object.keys(availablePlatforms));
 	this.validPlatforms = validPlatforms;
 }
 
@@ -69,6 +71,7 @@ util.inherits(AppCreator, Creator);
 
 /**
  * Initializes the app creator.
+ * @return {object}
  */
 AppCreator.prototype.init = function init() {
 	return {
@@ -90,7 +93,7 @@ AppCreator.prototype.init = function init() {
 AppCreator.prototype.run = function run(callback) {
 	Creator.prototype.run.apply(this, arguments);
 
-	var argv = this.cli.argv,
+	const argv = this.cli.argv,
 		platforms = ti.scrubPlatforms(argv.platforms),
 		projectDir = appc.fs.resolvePath(argv['workspace-dir'], argv.name);
 
@@ -102,63 +105,63 @@ AppCreator.prototype.run = function run(callback) {
 			return callback(err);
 		}
 
-		var projectConfig = null,
-			tasks = [
-				function (next) {
-					// copy the template files, if exists
-					var dir = path.join(templateDir, 'template');
-					if (!fs.existsSync(dir)) {
-						next();
-					} else {
-						this.logger.info(__('Template directory: %s', templateDir.cyan));
-						this.copyDir(dir, projectDir, next);
-					}
-				},
-
-				function (next) {
-					// create the tiapp.xml
-					var params = {
-							id: argv.id,
-							name: argv.name,
-							url: argv.url || '',
-							version: '1.0',
-							guid: uuid.v4(),
-							'deployment-targets': {},
-							'sdk-version': this.sdk.name
-						},
-						tiappFile = path.join(projectDir, 'tiapp.xml');
-
-					if (platforms.original.indexOf('ios') != -1) {
-						platforms.original.indexOf('ipad') != -1 || platforms.original.push('ipad');
-						platforms.original.indexOf('iphone') != -1 || platforms.original.push('iphone');
-					}
-
-					ti.availablePlatformsNames.forEach(function (p) {
-						if (p != 'ios') {
-							params['deployment-targets'][p] = platforms.original.indexOf(p) !== -1;
-						}
-					});
-
-					this.cli.createHook('create.populateTiappXml', this, function (tiapp, params, done) {
-						// read and populate the tiapp.xml
-						this.logger.info(__('Writing tiapp.xml'));
-						projectConfig = appc.util.mix(tiapp, params);
-						projectConfig.save(tiappFile);
-						done();
-					}.bind(this))(fs.existsSync(tiappFile) ? new ti.tiappxml(tiappFile) : new ti.tiappxml(), params, next);
-				},
-
-				function (next) {
-					// make sure the Resources dir exists
-					var dir = path.join(projectDir, 'Resources');
-					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+		let projectConfig = null;
+		const tasks = [
+			function (next) {
+				// copy the template files, if exists
+				const dir = path.join(templateDir, 'template');
+				if (!fs.existsSync(dir)) {
 					next();
+				} else {
+					this.logger.info(__('Template directory: %s', templateDir.cyan));
+					this.copyDir(dir, projectDir, next);
 				}
-			];
+			},
+
+			function (next) {
+				// create the tiapp.xml
+				const params = {
+						id: argv.id,
+						name: argv.name,
+						url: argv.url || '',
+						version: '1.0',
+						guid: uuid.v4(),
+						'deployment-targets': {},
+						'sdk-version': this.sdk.name
+					},
+					tiappFile = path.join(projectDir, 'tiapp.xml');
+
+				if (platforms.original.indexOf('ios') !== -1) {
+					platforms.original.indexOf('ipad') !== -1 || platforms.original.push('ipad');
+					platforms.original.indexOf('iphone') !== -1 || platforms.original.push('iphone');
+				}
+
+				ti.availablePlatformsNames.forEach(function (p) {
+					if (p !== 'ios') {
+						params['deployment-targets'][p] = platforms.original.indexOf(p) !== -1;
+					}
+				});
+
+				this.cli.createHook('create.populateTiappXml', this, function (tiapp, params, done) {
+					// read and populate the tiapp.xml
+					this.logger.info(__('Writing tiapp.xml'));
+					projectConfig = appc.util.mix(tiapp, params);
+					projectConfig.save(tiappFile);
+					done();
+				}.bind(this))(fs.existsSync(tiappFile) ? new ti.tiappxml(tiappFile) : new ti.tiappxml(), params, next);
+			},
+
+			function (next) {
+				// make sure the Resources dir exists
+				const dir = path.join(projectDir, 'Resources');
+				fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+				next();
+			}
+		];
 
 		platforms.scrubbed.forEach(function (platform) {
 			// if we're using the built-in template, load the platform specific template hooks
-			var usingBuiltinTemplate = templateDir.indexOf(this.sdk.path) === 0,
+			const usingBuiltinTemplate = templateDir.indexOf(this.sdk.path) === 0,
 				platformTemplateDir = path.join(this.sdk.path, platform, 'templates', this.projectType, this.cli.argv.template);
 
 			if (usingBuiltinTemplate) {
@@ -174,7 +177,7 @@ AppCreator.prototype.run = function run(callback) {
 						return next(err);
 					}
 
-					var finalize = function () {
+					const finalize = function () {
 						this.cli.emit([
 							'create.post.' + this.projectType + '.platform.' + platform,
 							'create.post.platform.' + platform
@@ -186,16 +189,18 @@ AppCreator.prototype.run = function run(callback) {
 						return finalize();
 					}
 
-					var p = path.join(this.sdk.path, platform, 'cli', 'commands', '_create.js');
+					const p = path.join(this.sdk.path, platform, 'cli', 'commands', '_create.js');
 					if (fs.existsSync(p)) {
 						this.logger.info(__('Copying %s platform resources', platform.cyan));
-						require(p).run(this.logger, this.config, this.cli, projectConfig);
+						require(p).run(this.logger, this.config, this.cli, projectConfig); // eslint-disable-line security/detect-non-literal-require
 						return finalize();
 					}
 
 					// does this platform have new or old style implementations?
-					var templatePath = path.join(platformTemplateDir, 'template');
-					if (!fs.existsSync(templatePath)) return finalize();
+					const templatePath = path.join(platformTemplateDir, 'template');
+					if (!fs.existsSync(templatePath)) {
+						return finalize();
+					}
 					this.copyDir(templatePath, projectDir, finalize);
 				}.bind(this));
 			});
@@ -216,7 +221,7 @@ AppCreator.prototype.run = function run(callback) {
 				version:     projectConfig.version,
 				copyright:   projectConfig.copyright,
 				runtime:     '1.0.0',
-				date:        (new Date).toDateString()
+				date:        (new Date()).toDateString()
 			});
 			next();
 		});

@@ -11,71 +11,65 @@
 
 @implementation TiPlatformDisplayCaps
 
-
-
 // NOTE: device capabilities currently are hardcoded for iPad, while high/low
 // display density is now detected for iPhone / iPod Touch under iOS 4.
 
 - (id)density
 {
-    if ([TiUtils isRetinaHDDisplay]) {
-        return @"xhigh";
-    }
-	if ([TiUtils isRetinaDisplay]) {
-		return @"high";
-	}
-	return @"medium";
+  if ([TiUtils isRetinaHDDisplay]) {
+    return @"xhigh";
+  }
+  if ([TiUtils isRetinaDisplay]) {
+    return @"high";
+  }
+  return @"medium";
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.Platform.DisplayCaps";
+  return @"Ti.Platform.DisplayCaps";
 }
 
 - (id)dpi
 {
-	return [NSNumber numberWithInt:[TiUtils dpi]];
+  return [NSNumber numberWithInt:[TiUtils dpi]];
 }
 
 - (BOOL)isDevicePortrait
 {
-	UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
-	return  (orientation == UIDeviceOrientationPortrait || 
-			 orientation == UIDeviceOrientationPortraitUpsideDown || 
-			 orientation == UIDeviceOrientationUnknown);
+  UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+  return (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown || orientation == UIDeviceOrientationUnknown);
 }
 
--(BOOL)isUIPortrait
+- (BOOL)isUIPortrait
 {
-	UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-	return  UIInterfaceOrientationIsPortrait(orientation);
+  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  return UIInterfaceOrientationIsPortrait(orientation);
 }
 
-
-- (NSNumber*) platformWidth
+- (NSNumber *)platformWidth
 {
-    CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-    if ([TiUtils isIOS8OrGreater] || [self isUIPortrait]) {
-        return [NSNumber numberWithFloat:mainScreenBounds.size.width];
-    } else {
-        return [NSNumber numberWithFloat:mainScreenBounds.size.height];
-    }
+  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+  if ([TiUtils isIOS8OrGreater] || [self isUIPortrait]) {
+    return [NSNumber numberWithFloat:mainScreenBounds.size.width];
+  } else {
+    return [NSNumber numberWithFloat:mainScreenBounds.size.height];
+  }
 }
 
-- (NSNumber*) platformHeight
+- (NSNumber *)platformHeight
 {
-    CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-    if ([TiUtils isIOS8OrGreater] || [self isUIPortrait]) {
-        return [NSNumber numberWithFloat:mainScreenBounds.size.height];
-    } else {
-        return [NSNumber numberWithFloat:mainScreenBounds.size.width];
-    }
-
+  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+  if ([TiUtils isIOS8OrGreater] || [self isUIPortrait]) {
+    return [NSNumber numberWithFloat:mainScreenBounds.size.height];
+  } else {
+    return [NSNumber numberWithFloat:mainScreenBounds.size.width];
+  }
 }
 
-- (NSNumber*) logicalDensityFactor
+- (NSNumber *)logicalDensityFactor
 {
-	return [NSNumber numberWithFloat:[[UIScreen mainScreen] scale]];
+  return [NSNumber numberWithFloat:[[UIScreen mainScreen] scale]];
 }
 @end
 

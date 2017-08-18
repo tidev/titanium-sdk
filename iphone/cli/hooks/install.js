@@ -1,11 +1,13 @@
 /*
  * install.js: Titanium iOS CLI install hook
  *
- * Copyright (c) 2012-2016, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
-var appc = require('node-appc'),
+'use strict';
+
+const appc = require('node-appc'),
 	async = require('async'),
 	fs = require('fs'),
 	ioslib = require('ioslib'),
@@ -19,7 +21,9 @@ exports.init = function (logger, config, cli) {
 	cli.addHook('build.post.compile', {
 		priority: 8000,
 		post: function (builder, finished) {
-			if (cli.argv.target !== 'device') return finished();
+			if (cli.argv.target !== 'device') {
+				return finished();
+			}
 
 			if (cli.argv['build-only']) {
 				logger.info(__('Performed build only, skipping installing of the application'));
@@ -27,7 +31,7 @@ exports.init = function (logger, config, cli) {
 			}
 
 			ioslib.device.detect({ bypassCache: true }, function (err, results) {
-				var devices = {};
+				const devices = {};
 				if (!err) {
 					results.devices.forEach(function (device) {
 						if (device.udid !== 'itunes' && device.udid !== 'all' && (builder.deviceId === 'all' || device.udid === builder.deviceId)) {
@@ -41,9 +45,9 @@ exports.init = function (logger, config, cli) {
 				if (!builder.deviceId || builder.deviceId === 'itunes' || (builder.deviceId && !Object.keys(devices).length)) {
 					logger.info(__('Installing application into iTunes'));
 
-					var ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa');
+					let ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa');
 					fs.existsSync(ipa) || (ipa = builder.xcodeAppDir);
-					run('open', ['-b', 'com.apple.itunes', ipa], function (code, out, err) {
+					run('open', [ '-b', 'com.apple.itunes', ipa ], function (code) {
 						if (code) {
 							return finished(new appc.exception(__('Failed to launch iTunes')));
 						}
@@ -56,9 +60,9 @@ exports.init = function (logger, config, cli) {
 									//
 									// TODO: alert that the EULA needs to be accepted and if prompting is enabled,
 									//       then wait for them to accept it and then try again
-									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; })));
+									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
 								} else {
-									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; })));
+									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
 								}
 							} else {
 								finished();
@@ -69,17 +73,15 @@ exports.init = function (logger, config, cli) {
 					return;
 				}
 
-				var udids = Object.keys(devices),
+				const udids = Object.keys(devices),
 					levels = logger.getLevels(),
-					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i'),
-					startLog = false,
-					runningCount = 0,
-					disconnected = false,
-					installCount = 0,
+					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\u001b\\[\\d+m)?(.*)', 'i'), // eslint-disable-line security/detect-non-literal-regexp
 					handles = {};
+				let startLog = false,
+					runningCount = 0,
+					installCount = 0;
 
 				function quit(force, udid) {
-					running = false;
 					runningCount--;
 
 					if (udid && handles[udid]) {
@@ -94,7 +96,7 @@ exports.init = function (logger, config, cli) {
 
 					if (force || runningCount <= 0) {
 						if (startLog) {
-							var endLogTxt = __('End application log');
+							const endLogTxt = __('End application log');
 							logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
 						}
 						process.exit(0);
@@ -103,13 +105,12 @@ exports.init = function (logger, config, cli) {
 
 				// install the app for the specified device or "all" devices
 				async.eachSeries(udids, function (udid, next) {
-					var device = devices[udid],
-						lastLogger = 'debug',
-						running = false;
+					const device = devices[udid];
+					let lastLogger = 'debug';
 
 					logger.info(__('Installing app on device: %s', device.name.cyan));
 
-					var handle = handles[udid] = ioslib.device
+					const handle = handles[udid] = ioslib.device
 						.install(udid, builder.xcodeAppDir, {
 							appName: builder.tiapp.name,
 							logPort: builder.tiLogServerPort
@@ -128,16 +129,15 @@ exports.init = function (logger, config, cli) {
 							next();
 						})
 						.on('app-started', function () {
-							running = true;
 							runningCount++;
 						})
 						.on('log', function (msg) {
-							var skipLine = false;
+							let skipLine = false;
 
 							if (!handles[udid].logStarted) {
 								if (msg.indexOf('{') === 0) {
 									try {
-										var headers = JSON.parse(msg);
+										const headers = JSON.parse(msg);
 										if (headers.appId !== builder.tiapp.id) {
 											logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, builder.tiLogServerPort));
 											logger.error(__('Stop the running Titanium app, then rebuild this app'));
@@ -145,7 +145,6 @@ exports.init = function (logger, config, cli) {
 											logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml'));
 											handle.stop();
 
-											running = false;
 											if (--runningCount <= 0) {
 												logger.log();
 												process.exit(1);
@@ -160,7 +159,7 @@ exports.init = function (logger, config, cli) {
 							}
 
 							if (!startLog) {
-								var startLogTxt = __('Start application log');
+								const startLogTxt = __('Start application log');
 								logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 								startLog = true;
 							}
@@ -169,9 +168,9 @@ exports.init = function (logger, config, cli) {
 								return;
 							}
 
-							var m = msg.match(logLevelRE);
+							let m = msg.match(logLevelRE);
 							if (m) {
-								var line = m[0].trim();
+								let line = m[0].trim();
 								m = line.match(logLevelRE);
 								if (m) {
 									lastLogger = m[2].toLowerCase();
@@ -183,20 +182,17 @@ exports.init = function (logger, config, cli) {
 								} else {
 									logger[lastLogger](line);
 								}
-								lastLineWasOurs = true;
+							} else if (levels.indexOf(lastLogger) === -1) {
+								logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + msg);
 							} else {
-								if (levels.indexOf(lastLogger) === -1) {
-									logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + msg);
-								} else {
-									logger[lastLogger](msg);
-								}
+								logger[lastLogger](msg);
 							}
 						})
 						.on('app-quit', function () { quit(false, udid); })
 						.on('disconnect', function () { quit(false, udid); })
 						.on('error', function (err) {
 							err = err.message || err.toString();
-							var details;
+							let details;
 							if (err.indexOf('0xe8008017') !== -1) {
 								details = __('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device.');
 							} else if (err.indexOf('0xe8008019') !== -1) {
