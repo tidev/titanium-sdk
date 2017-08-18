@@ -2235,7 +2235,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_POSTAL_CODE = "postalCode";
+	public static final String PROPERTY_ZIPCODE = "zipcode";
 
 	/**
 	 * @module.api
