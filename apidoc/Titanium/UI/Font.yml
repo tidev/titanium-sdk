@@ -60,7 +60,7 @@ properties:
   - name: fontSize
     summary: Font size, in platform-dependent units.
     description: |
-        On iOS and Mobile Web, font sizes are always specified in typographical points
+        On iOS, font sizes are always specified in typographical points
         (not to be confused with the Apple "points" used for other measurements on iOS).
 
         On Android the default font sizing is in pixels, but the size can also
