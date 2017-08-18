@@ -62,8 +62,37 @@ properties:
     summary: Determine whether to enable the toolbar
     type: Boolean
 
-examples:
+methods:
+  - name: toggleLeft
+    summary: Toggle the visibility of the left view.
 
+  - name: openLeft
+    summary: Open the left view.
+
+  - name: closeLeft
+    summary: Close the left view.
+
+  - name: toggleRight
+    summary: Toggle the visibility of the right view.
+
+  - name: openRight
+    summary: Open the right view.
+
+  - name: closeRight
+    summary: Close the right view.
+
+  - name: interceptTouchEvent
+    summary: Disallow touch events on a specific view.
+    parameters:
+      - name: view
+        summary: View to intercept touch events.
+        type: Titanium.UI.View
+
+      - name: disallowIntercept
+        summary: Whether to disallow the interception of touch events.
+        type: Boolean
+
+examples:
   - title: Simple DrawerLayout
     example: |
             var win = Ti.UI.createWindow(),
