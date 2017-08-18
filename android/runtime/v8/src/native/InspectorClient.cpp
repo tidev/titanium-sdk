@@ -107,27 +107,34 @@ void InspectorClient::CallAndPauseOnStart(const v8::FunctionCallbackInfo<v8::Val
 	v8::Isolate* isolate = args.GetIsolate();
 	v8::HandleScope scope(isolate);
 
-	assert(args.Length() >= 1);
-	assert(args[0]->IsFunction());
+	assert(args.Length() >= 2);
+	assert(args[0]->IsString());
+	assert(args[1]->IsString());
 
-	// copy args
-	std::vector<v8::Local<v8::Value>> call_args;
-	for (int i = 2; i < args.Length(); i++) {
-		call_args.push_back(args[i]);
+	// Note that this differs from Node's implementation wher ethey expect the first arg to be a pre-compiled function
+	// And a variable number of additional arguments to pass to that function.
+	// They wrap the source with a function just like Module.wrap for standard code
+	// Then compile the function and pass it into this method to schedule a pause and then invoke it.
+	// Instead, we pass the app.js source and filename and compile it, schedule a pause and then run it.
+	// This does duplicate some existing logic in ScriptModule.cpp for Script.runInThisContext impl
+	v8::TryCatch tryCatch(isolate);
+	v8::Local<v8::String> source = args[0]->ToString();
+	v8::Local<v8::String> filename = args[1]->ToString();
+	v8::Local<v8::Script> script = v8::Script::Compile(source, filename);
+	if (script.IsEmpty()) {
+		// Hack because I can't get a proper stacktrace on SyntaxError
+		V8Util::fatalException(isolate, tryCatch); // try to throw SyntaxError exception
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
 	}
 
 	// Calls #BreakAtStart() on inspector client instance, which calls schedulePauseOnNextStatement
 	// This basically queues up a pause to happen as soon as we invoke app.js
 	JSDebugger::debugBreak();
 
-	// Now invoke the function wrapping app.js
-	v8::TryCatch tryCatch(isolate);
-	v8::Local<v8::Value> result;
-	v8::MaybeLocal<v8::Value> retval =
-			args[0].As<v8::Function>()->Call(isolate->GetCurrentContext(), args[1],
-																			 call_args.size(), call_args.data());
-	if (!retval.ToLocal(&result)) {
-		titanium::V8Util::fatalException(isolate, tryCatch);
+	v8::Local<v8::Value> result = script->Run();
+	if (result.IsEmpty()) {
+		args.GetReturnValue().Set(v8::Undefined(isolate));
 		return;
 	}
 	args.GetReturnValue().Set(result);
