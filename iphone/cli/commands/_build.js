@@ -43,8 +43,7 @@ const appc = require('node-appc'),
 	parallel = appc.async.parallel,
 	series = appc.async.series,
 	version = appc.version;
-
-const platformsRegExp = /^(android|ios|iphone|ipad|mobileweb|blackberry|windows|tizen)$/;
+const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + '$)'); // eslint-disable-line security/detect-non-literal-regexp
 
 function iOSBuilder() {
 	Builder.apply(this, arguments);
@@ -1758,7 +1757,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 					isDir = fs.statSync(path.join(dir, filename)).isDirectory();
 
 				// if we have a platform resource dir, then this will not be copied and we should be ok
-				if (platformsRegExp.test(lcaseFilename)) {
+				if (ti.allPlatformNames.indexOf(lcaseFilename) !== -1) {
 					return;
 				}
 

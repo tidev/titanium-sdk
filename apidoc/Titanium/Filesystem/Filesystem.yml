@@ -7,7 +7,7 @@ description: |
     as well as the other Filesystem submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
-examples: 
+examples:
   - title: Getting a directory for an application group (iOS)
     example: |
         This example writes a string to a text file in a shared directory
@@ -36,27 +36,27 @@ methods:
         arguments.
     description: |
         Note that `getFile` does not create a file if one does not exist at the specified
-        path. It returns a new `File` object referring to the specified file path. The 
-        application can create a file at that path by calling 
+        path. It returns a new `File` object referring to the specified file path. The
+        application can create a file at that path by calling
         [write](Titanium.Filesystem.File.write) or create a directory by calling
         [createDirectory](Titanium.Filesystem.File.createDirectory) on the `File` object.
-        
+
         This method takes a variable number of arguments, where each argument is treated
         as a path component. All of the arguments are joined together using the
         platform-specific path separator to make the final path.
-        
+
         If a relative path is passed, the full path should be interpreted relative
-        to the current file. For example, if the file `Resources/login/login.js` 
+        to the current file. For example, if the file `Resources/login/login.js`
         contains the following code:
-        
+
             var icon = Titanium.Filesystem.getFile('icon.png');
-        
-        The path is interpreted as `Resources/login/icon.png`. 
-        
+
+        The path is interpreted as `Resources/login/icon.png`.
+
         On iOS, all relative paths are currently interpreted as relative to the
         `Resources` directory, **not** to the current context. This is a known issue
         that will be addressed in a future release.
-        
+
         On iOS9, if app thinning is enabled, and the file of interest is an image file
         that was bundled with the app (not downloaded during runtime), this will not return
         the image file since it is already allocated inside the assets catalog. Please
@@ -66,7 +66,7 @@ methods:
         type: Titanium.Filesystem.File
     parameters:
       - name: path
-        summary: One or more path components. Path arguments are joined together using 
+        summary: One or more path components. Path arguments are joined together using
             the platform specific path separator to form the full path.
         type: String
 
@@ -74,25 +74,25 @@ methods:
     summary: Returns a `Blob` object representing the asset catalog image identified by the path
         arguments.
     description: |
-        This method is only applicable on images in assets catalogs for apps with app-thinning 
-        enabled on iOS. Since the bundled image has been reallocated into assets catalog, it is 
-        no longer accessible via the original file path. To obtain a `Blob` object representing 
+        This method is only applicable on images in assets catalogs for apps with app-thinning
+        enabled on iOS. Since the bundled image has been reallocated into assets catalog, it is
+        no longer accessible via the original file path. To obtain a `Blob` object representing
         this image, use the original file path as the parameter in this method instead of using it in
         [getFile](Titanium.Filesystem.getFile)
-        
-        Similar to [getFile](Titanium.Filesystem.getFile), this method takes a variable 
-        number of arguments, where each argument is treated as a path component. 
-        All of the arguments are joined together using the platform-specific path separator 
+
+        Similar to [getFile](Titanium.Filesystem.getFile), this method takes a variable
+        number of arguments, where each argument is treated as a path component.
+        All of the arguments are joined together using the platform-specific path separator
         to make the final path.
-        
+
         If a relative path is passed, the full path should be interpreted relative
-        to the current file. For example, if the file `Resources/login/login.js` 
+        to the current file. For example, if the file `Resources/login/login.js`
         contains the following code:
-        
+
             var icon = Titanium.Filesystem.getAsset('icon.png');
-        
-        The path is interpreted as `Resources/login/icon.png`. 
-        
+
+        The path is interpreted as `Resources/login/icon.png`.
+
         On iOS, all relative paths are currently interpreted as relative to the
         `Resources` directory, **not** to the current context. This is a known issue
         that will be addressed in a future release.
@@ -101,7 +101,7 @@ methods:
         type: Titanium.Blob
     parameters:
       - name: path
-        summary: One or more path components. Path arguments are joined together using 
+        summary: One or more path components. Path arguments are joined together using
             the platform specific path separator to form the full path.
         type: String
     platforms: [iphone, ipad]
@@ -115,7 +115,7 @@ methods:
         Returns `true` on Android if an external storage device, such as an SD card, is
         available for reading and writing.
 
-        Returns `false` on iOS and Mobile Web.
+        Returns `false` on iOS.
     returns:
         type: Boolean
 
@@ -150,11 +150,11 @@ methods:
             Access mode.
         constants: Titanium.Filesystem.MODE_*
         type: Number
-        
+
       - name: path
         summary: |
-            One or more path components. Path arguments are joined together using the 
-            platform-specific path separator to form the full path. 
+            One or more path components. Path arguments are joined together using the
+            platform-specific path separator to form the full path.
         type: String
     returns:
         type: Titanium.Filesystem.FileStream
@@ -162,9 +162,9 @@ methods:
   - name: directoryForSuite
     summary: Returns the path to the container directory associated with the specified security application group ID.
     description: |
-        This is a writable directory used on iOS. Groups of sandboxed apps that need to share files 
+        This is a writable directory used on iOS. Groups of sandboxed apps that need to share files
         and other information can request a container directory as part of their entitlements.
-        
+
         When called with a valid group identifier, this method returns the location of that directory as a string.
         Returns null if the group identifier is invalid; check the app's entitlements.
     parameters:
@@ -200,7 +200,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    since: "4.1.0"    
+    since: "4.1.0"
 
   - name: IOS_FILE_PROTECTION_COMPLETE
     summary: Constant used to set protection key to NSFileProtectionComplete in file attributes.
@@ -210,29 +210,29 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    since: "4.1.0"    
+    since: "4.1.0"
 
   - name: IOS_FILE_PROTECTION_COMPLETE_UNLESS_OPEN
     summary: Constant used to set protection key to NSFileProtectionCompleteUnlessOpen in file attributes.
     description: |
-        File is stored in an encrypted format on disk. Can be created while the device is locked, 
-        but once closed, cannot be opened again until the device is unlocked. If the file is opened when 
-        unlocked, you may continue to access the file normally, even if the user locks the device. 
+        File is stored in an encrypted format on disk. Can be created while the device is locked,
+        but once closed, cannot be opened again until the device is unlocked. If the file is opened when
+        unlocked, you may continue to access the file normally, even if the user locks the device.
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    since: "4.1.0"    
+    since: "4.1.0"
 
   - name: IOS_FILE_PROTECTION_COMPLETE_UNTIL_FIRST_USER_AUTHENTICATION
     summary: Constant used to set protection key to NSFileProtectionCompleteUntilFirstUserAuthentication in file attributes.
     description: |
         File is stored in an encrypted format on disk. Cannot be accessed until after the device has booted.
-        After the user unlocks the device for the first time, your app can access the file and continue to 
+        After the user unlocks the device for the first time, your app can access the file and continue to
         access it even if the user subsequently locks the device.
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    since: "4.1.0"    
+    since: "4.1.0"
 
   - name: applicationCacheDirectory
     summary: Path to the application's internal cache directory.
@@ -252,18 +252,18 @@ properties:
   - name: applicationDataDirectory
     summary: Path to the application's data directory.
     description: |
-        This is a writable directory that can be used to store applications-specific files. 
+        This is a writable directory that can be used to store applications-specific files.
 
         On iOS, this directory is specifically designated for user documents, and a
         separate directory,
         [applicationSupportDirectory](Titanium.Filesystem.applicationSupportDirectory) is
         used for other application data.
-        
+
         On iOS, files in this directory are backed up unless the
         [remoteBackup](Titanium.Filesystem.File.remoteBackup) flag is set to false.
 
-        On Android, files in this directory cannot be accessed by other applications, so 
-        it should not be used for files that must be used by another application 
+        On Android, files in this directory cannot be accessed by other applications, so
+        it should not be used for files that must be used by another application
         (for example, a video file that will be passed to the system's video player application).
         These files should be stored in the
         [externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory).
@@ -277,9 +277,9 @@ properties:
   - name: applicationSupportDirectory
     summary: Path to the application support directory.
     description: |
-        This is a writable directory used on iOS for application files that are *not* 
+        This is a writable directory used on iOS for application files that are *not*
         user documents--including settings files, caches, and so on.
-        
+
         On iOS, files in this directory are backed up unless the
         [remoteBackup](Titanium.Filesystem.File.remoteBackup) flag is set to false.
     type: String
@@ -290,20 +290,20 @@ properties:
     description: |
         This directory can be used for storing arbitrary data. It is read/write and files
         in this directory can be passed to other applications, such as video
-        players--which is not possible with the 
+        players--which is not possible with the
         [applicationDataDirectory](Titanium.Filesystem.applicationDataDirectory).
 
         This directory may not be subject to as many memory limitations as the
         `applicationDataDirectory`, which is stored in the device's internal storage.
         Note, however, that the user may remove or replace the removable storage device
-        without warning, so the application must be prepared to handle this case gracefully. 
-        
+        without warning, so the application must be prepared to handle this case gracefully.
+
         The application should check
         [isExternalStoragePresent](Titanium.Filesystem.isExternalStoragePresent) before
-        accessing this location. The application should also handle any exceptions generated 
-        if the storage device is unmounted during use, or if the files stored on external 
+        accessing this location. The application should also handle any exceptions generated
+        if the storage device is unmounted during use, or if the files stored on external
         storage are not available.
-        
+
     type: String
     permission: read-only
     platforms: [android]
@@ -316,14 +316,14 @@ properties:
     summary: Path to the application's resource directory.
     description: |
         This directory is read-only. If you need to modify any files in this directory,
-        they must first be copied to another directory, such as  
+        they must first be copied to another directory, such as
         [applicationDataDirectory](Titanium.Filesystem.applicationDataDirectory) or
-        [tempDirectory](Titanium.Filesystem.tempDirectory). 
-        
-        On iOS, 
-        writable files can also be placed in the 
+        [tempDirectory](Titanium.Filesystem.tempDirectory).
+
+        On iOS,
+        writable files can also be placed in the
         [applicationSupportDirectory](Titanium.Filesystem.applicationSupportDirectory).
-        On Android, writable files can also be placed in the 
+        On Android, writable files can also be placed in the
         [externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory).
 
         Note that when running on the simulator, the resources directory may be writable,
@@ -335,19 +335,19 @@ properties:
     description: |
         On Android, the raw resources directory can be used for resources that need to be
         accessed as individual files, not included in the Android resources bundle. For
-        example, sound files placed in the raw resources directory can be accessed by 
+        example, sound files placed in the raw resources directory can be accessed by
         notifications, which cannot access sound files from the resource
         directory.
 
-        To use raw resources, place files in the `platform/android/res/raw` folder, where 
+        To use raw resources, place files in the `platform/android/res/raw` folder, where
         `platform` is at the top level of the project, not inside the `Resources` folder. You
         will need to create the `platform` folder and subfolders.
 
         This directory is read-only. If you need to modify any files in this directory,
-        they must first be copied to another directory, such as  
+        they must first be copied to another directory, such as
         [applicationDataDirectory](Titanium.Filesystem.applicationDataDirectory) or
-        [tempDirectory](Titanium.Filesystem.tempDirectory). 
-        
+        [tempDirectory](Titanium.Filesystem.tempDirectory).
+
     platforms: [android]
     since: "3.0.2"
     type: String
@@ -358,15 +358,14 @@ properties:
     permission: read-only
 
   - name: tempDirectory
-    summary: Path for the application's temporary directory. 
+    summary: Path for the application's temporary directory.
     description: |
         This directory can be used for storing temporary files. Files in this directory
         may not persist when the application is shut down and restarted.
     type: String
     permission: read-only
-    
+
 ---
 name: RequestStorageAccessResult
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse
-    
