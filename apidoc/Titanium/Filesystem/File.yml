@@ -3,13 +3,13 @@ name: Titanium.Filesystem.File
 summary: Object representing a path to a file or directory in the device's persistent storage.
 description: |
     Use the <Titanium.Filesystem.getFile> method to get a handle to a `File` object,
-    which represents a given path.  There does not need to be an existing file or directory 
-    does not need to exist before `getFile` is called. If the file doesn't exist, and 
-    the file path identifies a file in a writable directory, writing to the file 
-    creates the file implicitly. 
+    which represents a given path.  There does not need to be an existing file or directory
+    does not need to exist before `getFile` is called. If the file doesn't exist, and
+    the file path identifies a file in a writable directory, writing to the file
+    creates the file implicitly.
 
     See <Titanium.Filesystem> for constants identifying commonly-used device directories.
-    
+
     Use the [exists](Titanium.Filesystem.File.exists) method to test whether the file exists.
 
     A file object can point to an ordinary file, a directory or a symbolic link.
@@ -20,24 +20,24 @@ description: |
     The `File` object doesn't provide methods for random access into the file.
     The `read` method reads the file's entire contents into a `Blob` object.
     The `write` method can either overwrite the entire file or append to an
-    existing file. 
+    existing file.
 
-    For random access to a file, such as accessing a small portion of a larger file, 
-    you can open a file as a [FileStream](Titanium.Filesystem.FileStream) object. Use the 
+    For random access to a file, such as accessing a small portion of a larger file,
+    you can open a file as a [FileStream](Titanium.Filesystem.FileStream) object. Use the
     [open](Titanium.Filesystem.File.open) method to get a `FileStream` for an
-    existing `File` object, or use the <Titanium.Filesystem.openStream> method 
+    existing `File` object, or use the <Titanium.Filesystem.openStream> method
     to get a `FileStream` directly without calling `getFile` first.
 
-    The <Titanium.Filesystem> module defines a number of properties and methods related to 
-    filesystem access, including properties that specify paths for application-specific 
+    The <Titanium.Filesystem> module defines a number of properties and methods related to
+    filesystem access, including properties that specify paths for application-specific
     directories, and methods for creating temporary files and directories.
 
-    On Android, files may be stored on external storage (that is, removable media such as 
+    On Android, files may be stored on external storage (that is, removable media such as
     SD Cards).
 
     Note that once created with `getFile`, the path associated with a file object is
-    immutable. If you move the underlying file using [move](Titanium.Filesystem.File.move) 
-    or [rename](Titanium.Filesystem.File.rename), you can no longer access it with the 
+    immutable. If you move the underlying file using [move](Titanium.Filesystem.File.move)
+    or [rename](Titanium.Filesystem.File.rename), you can no longer access it with the
     original `File` object. You must use `getFile` to get a handle to the new path.
 
     #### Resource Files
@@ -49,14 +49,14 @@ description: |
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
-examples: 
+examples:
   - title: Reading a File
     example: |
         Data files shipped with the application are stored in the resources directory.
 
         This example reads string data from a text file.
 
-            // resourcesDirectory is actually the default location, so the first 
+            // resourcesDirectory is actually the default location, so the first
             // argument could be omitted here.
             file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "textfile.txt");
             var blob = file.read();
@@ -66,15 +66,15 @@ examples:
             blob = null;
   - title: Creating a Subdirectory
     example: |
-        Files that the application writes to need to be stored outside of the 
+        Files that the application writes to need to be stored outside of the
         resources directory, since that directory is read-only.
 
         This example creates a subdirectory to store downloaded images.
         The example assumes that two variables are defined elsewhere in the code:
-        myImageID, a string containing some kind of ID for the downloaded image, 
+        myImageID, a string containing some kind of ID for the downloaded image,
         and myImageData, a `Blob` containing JPEG image data.
 
-            var imageDir = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,            
+            var imageDir = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,
                 'downloaded_images');
             if (! imageDir.exists()) {
                 imageDir.createDirectory();
@@ -99,23 +99,23 @@ methods:
         are appended to this file.
 
         Returns `true` if the operation succeeds.
-    parameters: 
+    parameters:
       - name: data
         summary: Data to append.
         type: [String,Titanium.Blob,Titanium.Filesystem.File]
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: copy
     summary: Copies the file identified by this file object to a new path.
     description: Returns `true` if the copy succeeds.
-    parameters: 
+    parameters:
       - name: destinationPath
         summary: Destination path to copy to.
         type: String
     returns:
         type: Boolean
-    platforms: [android, mobileweb]
+    platforms: [android]
   - name: createDirectory
     summary: Creates a directory at the path identified by this file object.
     description: |
@@ -128,13 +128,13 @@ methods:
         Note that if you write to a file that doesn't exist, the file is created automatically,
         so it is not necessary to call this method unless you want to explicitly create the file
         (for example, to create an empty file).
-        
-        Returns `true` if the file was created successfully. Returns `false` if the 
+
+        Returns `true` if the file was created successfully. Returns `false` if the
         file already exists, or if the file couldn't be created for some other reason.
     returns:
         type: Boolean
-    platforms: [iphone, ipad, android, mobileweb]
-    since: { iphone: "0.9.0", ipad: "0.9.0", mobileweb: "2.0.0", android: "6.1.0" }
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "6.1.0" }
 
   - name: createTimestamp
     summary: Returns the creation timestamp for the file identified by this file object.
@@ -152,7 +152,7 @@ methods:
         type: Boolean
     parameters:
       - name: recursive
-        summary: Pass `true` to recursively delete any directory contents. 
+        summary: Pass `true` to recursively delete any directory contents.
         type: Boolean
         optional: true
         default: false
@@ -174,7 +174,7 @@ methods:
     summary: |
         Returns a listing of the directory identified by this file object, or `null`
         if this object doesn't identify a directory.
-    returns: 
+    returns:
         type: Array<String>
   - name: getParent
     summary: Returns the path of the parent directory holding the file identified by this
@@ -182,7 +182,7 @@ methods:
     description: |
         On iOS, this method returns the path of the parent directory as a String.
 
-        Android supports a [parent](Titanium.Filesystem.File.parent) property, which 
+        Android supports a [parent](Titanium.Filesystem.File.parent) property, which
         is a `File` object representing the parent directory path. The `getParent` method
         on Android is a getter for the `parent` property, so it returns a `File` object
         rather than a String.
@@ -198,16 +198,16 @@ methods:
         type: String
         constants: Titanium.Filesystem.IOS_FILE_PROTECTION_*
     platforms: [iphone, ipad]
-    since: "4.1.0"    
+    since: "4.1.0"
 
   - name: isDirectory
-    summary: Returns `true` if this file object represents a directory. 
+    summary: Returns `true` if this file object represents a directory.
     returns:
         type: Boolean
     since: { iphone: "3.1.0", ipad: "3.1.0" }
   - name: isFile
     summary: Returns `true` if this file object represents an ordinary file.
-    returns: 
+    returns:
         type: Boolean
     since: { iphone: "3.1.0", ipad: "3.1.0" }
   - name: modificationTimestamp
@@ -220,7 +220,7 @@ methods:
   - name: move
     summary: Moves the file identified by this file object to another path.
     description: |
-        Note that this method moves the stored file, but doesn't update this 
+        Note that this method moves the stored file, but doesn't update this
         file object to point to the new path. To access the file after moving it,
         you must call [getFile](Titanium.Filesystem.getFile) using the destination
         path to obtain a new file handle.
@@ -232,16 +232,16 @@ methods:
         type: String
 
   - name: open
-    summary: Opens the file identified by this file object for random access. 
+    summary: Opens the file identified by this file object for random access.
     description: |
-        You can open the file for reading, writing, or appending by specifying one of the 
+        You can open the file for reading, writing, or appending by specifying one of the
         `MODE` constants from <Titanium.Filesystem>:
-        [MODE_READ](Titanium.Filesystem.MODE_READ), [MODE_WRITE](Titanium.Filesystem.MODE_WRITE), 
+        [MODE_READ](Titanium.Filesystem.MODE_READ), [MODE_WRITE](Titanium.Filesystem.MODE_WRITE),
         or [MODE_APPEND](Titanium.Filesystem.MODE_APPEND).
 
-        The `FileStream` object returned by this call can be used to read from, write to, or 
+        The `FileStream` object returned by this call can be used to read from, write to, or
         append to the file, depending on what mode the file is opened in.
-    parameters: 
+    parameters:
       - name: mode
         summary: |
             Mode to open the file in: `MODE_READ`, `MODE_WRITE`, or `MODE_APPEND`.
@@ -261,7 +261,7 @@ methods:
         Fails if the destination is in a different directory than the current file.
         Use [move](Titanium.Filesystem.File.move) to move a file to a different directory.
 
-        Note that this method renames the stored file, but doesn't update this 
+        Note that this method renames the stored file, but doesn't update this
         file object to point to the new path. To access the file after renaming it,
         you must call [getFile](Titanium.Filesystem.getFile) using the destination
         path to obtain a new file handle.
@@ -296,7 +296,7 @@ methods:
         constants: Titanium.Filesystem.IOS_FILE_PROTECTION_*
         type: String
     platforms: [iphone, ipad]
-    since: "4.1.0"  
+    since: "4.1.0"
 
   - name: spaceAvailable
     summary: Returns the amount of free space available on the device where the file
@@ -309,9 +309,9 @@ methods:
   - name: write
     summary: Writes the specified data to the file identified by this file object.
     description: |
-        If the `append` parameter is `false` or not specified, any existing data in 
-        the file is overwritten. 
-        
+        If the `append` parameter is `false` or not specified, any existing data in
+        the file is overwritten.
+
         If `append` is `true`, the specified data is appended to the end of the file.
     returns:
         type: Boolean
@@ -329,18 +329,18 @@ properties:
     summary: |
         `true` if the file is executable.
     description: |
-        On iOS, Mobile Web, this property exists but is always `false`.
+        On iOS, this property exists but is always `false`.
     type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     permission: read-only
 
   - name: hidden
     summary:
         Set to `true` if the file is hidden.
     description: |
-        On iOS, Mobile Web, this property exists but is always `false`.
+        On iOS, this property exists but is always `false`.
     type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: name
     summary: Name of the file.
@@ -350,7 +350,7 @@ properties:
   - name: nativePath
     summary: Native path associated with this file object, as a file URL.
     description: |
-        On iOS, use the [resolve](Titanium.Filesystem.File.resolve) 
+        On iOS, use the [resolve](Titanium.Filesystem.File.resolve)
         method to obtain a plain file path for use with native modules.
     type: String
     permission: read-only
@@ -358,17 +358,14 @@ properties:
     summary: A `File` object representing the parent directory of the file identified by this object.
     type: Titanium.Filesystem.File
     permission: read-only
-    platforms: [android, mobileweb]
+    platforms: [android]
 
   - name: readonly
     summary: |
         `true` if the file identified by this object is read-only.
-    description: |
-        On Mobile Web, this property exists but is always `true` for files in the resources directory
-        and `false` for application data and temporary files.
     type: Boolean
     permission: read-only
-    platforms: [android, mobileweb]
+    platforms: [android]
 
   - name: size
     summary: Size, in bytes, of the file identified by this object.
@@ -384,7 +381,7 @@ properties:
         multiple times will not cause problems. For files distributed with your
         app, this will need to be set on boot. This flag will only affect iOS
         versions 5.0.1 and later, but is safe to set on earlier versions.
-        
+
         Note that setting this property to `false` will also prevent the
         file identified by this object from being backed up to iTunes.
     default: true
@@ -394,8 +391,6 @@ properties:
   - name: symbolicLink
     summary: |
         `true` if the file identified by this object is a symbolic link.
-    description: |
-        On Mobile Web, this property exists but is always `false`.
     type: Boolean
     permission: read-only
 

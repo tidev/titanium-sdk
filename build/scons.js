@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+'use strict';
+
 const commander = require('commander'),
 	version = require('../package.json').version;
 

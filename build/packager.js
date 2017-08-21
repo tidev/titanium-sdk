@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path'),
 	os = require('os'),
 	exec = require('child_process').exec, // eslint-disable-line security/detect-child-process
@@ -85,8 +87,7 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 	this.packagers = {
 		'android': this.zipAndroid.bind(this),
 		'ios': this.zipIOS.bind(this),
-		'windows': this.zipWindows.bind(this),
-		'mobileweb': this.zipMobileWeb.bind(this)
+		'windows': this.zipWindows.bind(this)
 	};
 	// Location where we build up the zip file contents
 	this.zipDir = path.join(this.outputDir, 'ziptmp');
@@ -127,20 +128,6 @@ Packager.prototype.zipIOS = function (next) {
 	new IOS({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
 };
 
-/**
- * Zips up the Mobileweb SDK portion
- * @param  {Function} next callback function
- */
-Packager.prototype.zipMobileWeb = function (next) {
-	const MobileWeb = require('./mobileweb');
-	// FIXME Pass along the version/gitHash/options!
-	new MobileWeb({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
-};
-
-/**
- * Zips up the Windows SDK portion
- * @param  {Function} next callback function
- */
 Packager.prototype.zipWindows = function (next) {
 	const Windows = require('./windows');
 	// FIXME Pass along the version/gitHash/options!

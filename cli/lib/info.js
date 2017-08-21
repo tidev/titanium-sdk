@@ -5,8 +5,9 @@
  * See the LICENSE file for more information.
  */
 
-const
-	appc = require('node-appc'),
+'use strict';
+
+const appc = require('node-appc'),
 	fs = require('fs'),
 	path = require('path'),
 	genymotion = require('node-titanium-sdk/lib/emulators/genymotion'),

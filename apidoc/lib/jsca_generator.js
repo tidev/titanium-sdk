@@ -1,6 +1,8 @@
 /**
  * Script to export JSON to JSCA
  */
+'use strict';
+
 const common = require('./common.js');
 let doc = {};
 
