@@ -13,9 +13,9 @@
  * Enumeration to handle the feedback generator type in this proxy.
  */
 typedef NS_ENUM(NSInteger, TiUIiOSFeedbackGeneratorType) {
-    TiUIiOSFeedbackGeneratorTypeSelection = 0,
-    TiUIiOSFeedbackGeneratorTypeImpact = 1,
-    TiUIiOSFeedbackGeneratorTypeNotification = 2
+  TiUIiOSFeedbackGeneratorTypeSelection = 0,
+  TiUIiOSFeedbackGeneratorTypeImpact = 1,
+  TiUIiOSFeedbackGeneratorTypeNotification = 2
 };
 
 /**
@@ -25,8 +25,8 @@ typedef NS_ENUM(NSInteger, TiUIiOSFeedbackGeneratorType) {
  * haptic feedbacks.
  */
 @interface TiUIiOSFeedbackGeneratorProxy : TiProxy {
-    UIFeedbackGenerator *generator;
-    TiUIiOSFeedbackGeneratorType type;
+  UIFeedbackGenerator *generator;
+  TiUIiOSFeedbackGeneratorType type;
 }
 
 /**

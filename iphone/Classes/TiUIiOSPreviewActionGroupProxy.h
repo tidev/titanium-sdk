@@ -6,33 +6,33 @@
  */
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 
-#import "TiViewProxy.h"
 #import "TiUIiOSPreviewActionProxy.h"
+#import "TiViewProxy.h"
 
 @interface TiUIiOSPreviewActionGroupProxy : TiViewProxy {
-    UIPreviewActionGroup *actionGroup;
+  UIPreviewActionGroup *actionGroup;
 }
 
 /**
     The actions assigned to the preview action group.
  */
-@property(nonatomic, retain) NSMutableArray<UIPreviewAction*> *actions;
+@property (nonatomic, retain) NSMutableArray<UIPreviewAction *> *actions;
 
 /**
     The title of the preview action group.
  */
-@property(nonatomic, retain) NSString *title;
+@property (nonatomic, retain) NSString *title;
 
 /**
     The style of the preview action group.
  */
-@property(nonatomic, assign) UIPreviewActionStyle style;
+@property (nonatomic, assign) UIPreviewActionStyle style;
 
 /**
     Returns a configured preview action group.
     @return The configured UIPreviewActionGroup.
  */
--(UIPreviewActionGroup*)actionGroup;
+- (UIPreviewActionGroup *)actionGroup;
 
 @end
 #endif

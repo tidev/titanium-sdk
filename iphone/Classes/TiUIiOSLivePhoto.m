@@ -9,24 +9,24 @@
 
 @implementation TiUIiOSLivePhoto
 
--(NSString *)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.LivePhoto";
+  return @"Ti.UI.iOS.LivePhoto";
 }
 
--(instancetype)initWithLivePhoto:(PHLivePhoto*)livePhoto
+- (instancetype)initWithLivePhoto:(PHLivePhoto *)livePhoto
 {
-    if(self = [self init]) {
-        [self setLivePhoto:livePhoto];
-    }
-    
-    return self;
+  if (self = [self init]) {
+    [self setLivePhoto:livePhoto];
+  }
+
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-    RELEASE_TO_NIL(_livePhoto);
-    [super dealloc];
+  RELEASE_TO_NIL(_livePhoto);
+  [super dealloc];
 }
 
 @end

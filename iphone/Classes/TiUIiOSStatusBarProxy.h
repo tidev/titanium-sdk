@@ -8,19 +8,17 @@
 
 #import "TiProxy.h"
 
-
 @interface TiUIiOSStatusBarProxy : TiProxy {
-    
 }
 
-@property(nonatomic,readonly)	NSNumber *DEFAULT;
-@property(nonatomic,readonly)	NSNumber *GREY;
-@property(nonatomic,readonly)	NSNumber *GRAY;
-@property(nonatomic,readonly)	NSNumber *LIGHT_CONTENT;
+@property (nonatomic, readonly) NSNumber *DEFAULT;
+@property (nonatomic, readonly) NSNumber *GREY;
+@property (nonatomic, readonly) NSNumber *GRAY;
+@property (nonatomic, readonly) NSNumber *LIGHT_CONTENT;
 
-@property(nonatomic,readonly)	NSNumber *ANIMATION_STYLE_NONE;
-@property(nonatomic,readonly)	NSNumber *ANIMATION_STYLE_SLIDE;
-@property(nonatomic,readonly)	NSNumber *ANIMATION_STYLE_FADE;
+@property (nonatomic, readonly) NSNumber *ANIMATION_STYLE_NONE;
+@property (nonatomic, readonly) NSNumber *ANIMATION_STYLE_SLIDE;
+@property (nonatomic, readonly) NSNumber *ANIMATION_STYLE_FADE;
 
 @end
 
