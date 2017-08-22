@@ -121,6 +121,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		defaultValues.put(TiC.PROPERTY_VISIBLE, true);
 		defaultValues.put(TiC.PROPERTY_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_HIDDEN_BEHAVIOR, View.INVISIBLE);
+		defaultValues.put(TiC.PROPERTY_HORIZONTAL_WRAP, true);
 	}
 
 	@Override
