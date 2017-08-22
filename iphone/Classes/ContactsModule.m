@@ -351,25 +351,17 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	RELEASE_TO_NIL(selectedPersonCallback)
 	RELEASE_TO_NIL(selectedPropertyCallback)
 	RELEASE_TO_NIL(picker)
-	RELEASE_TO_NIL(contactPicker)
+    RELEASE_TO_NIL(contactPicker)
 	cancelCallback = [[args objectForKey:@"cancel"] retain];
 	selectedPersonCallback = [[args objectForKey:@"selectedPerson"] retain];
 	selectedPropertyCallback = [[args objectForKey:@"selectedProperty"] retain];
+    if ([TiUtils isIOS9OrGreater]) {
+        contactPicker = [[CNContactPickerViewController alloc] init];
+	[contactPicker setDelegate:self];	
+	if (selectedPropertyCallback == nil) {
+      	    contactPicker.predicateForSelectionOfProperty = [NSPredicate predicateWithValue:NO];
+	}
 
-	if ([TiUtils isIOS9OrGreater]) {
-        	contactPicker = [[CNContactPickerViewController alloc] init];
-		[contactPicker setDelegate:self];
-		
-		if (selectedPropertyCallback == nil) {
-			contactPicker.predicateForSelectionOfProperty = [NSPredicate predicateWithValue:NO];
-		}
-		
-		if (selectedPersonCallback == nil) {
-			contactPicker.predicateForSelectionOfContact = [NSPredicate predicateWithValue:NO];
-        	}
-        	
-		animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-        
         if (selectedPersonCallback == nil) {
             contactPicker.predicateForSelectionOfContact = [NSPredicate predicateWithValue:NO];
         }
@@ -398,6 +390,10 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
     
     if (selectedPropertyCallback == nil) {
         [picker setPredicateForSelectionOfProperty:[NSPredicate predicateWithValue:NO]];
+    }
+	
+    if (selectedPersonCallback == nil) {
+        [picker setPredicateForSelectionOfPerson:[NSPredicate predicateWithValue:NO]];
     }
         
 	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
