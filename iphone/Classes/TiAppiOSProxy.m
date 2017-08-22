@@ -686,7 +686,6 @@
   }
 }
 
-
 - (void)didReceiveContinueActivityNotification:(NSNotification *)note
 {
   [self fireEvent:@"continueactivity" withObject:[note userInfo]];
