@@ -99,6 +99,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
   [[TiApp app] stopNetwork];
   [self requestError:[response error]];
+
   [self autorelease];
 }
 

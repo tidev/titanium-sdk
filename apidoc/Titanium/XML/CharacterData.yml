@@ -2,37 +2,36 @@
 name: Titanium.XML.CharacterData
 extends: Titanium.XML.Node
 summary: An interface extending <Titanium.XML.Node> with a set of
-    attributes and methods for accessing character data in the DOM. 
-    
+    attributes and methods for accessing character data in the DOM.
+
     Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-FF21A306) on
-    Android and iOS. For reasons of compatibility with the javascript engine, text is represented by 
-    UTF-8 instead of UTF-16 on Android and iOS. Exposes the 
-    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-FF21A306) implementation on Mobile Web.
+    Android and iOS. For reasons of compatibility with the javascript engine, text is represented by
+    UTF-8 instead of UTF-16 on Android and iOS.
 since: "0.9"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 methods:
   - name: appendData
-    summary: Append the string to the end of the character data of the node. 
+    summary: Append the string to the end of the character data of the node.
         Upon success, data provides access to the concatenation of data and the
         string specified.
         Throws an exception if this node is readonly.
-    parameters: 
+    parameters:
       - name: arg
         summary: The string to append.
         type: String
   - name: deleteData
-    summary: Remove a range of characters from the node. Upon success, data 
+    summary: Remove a range of characters from the node. Upon success, data
         and length reflect the change.
-        Throws an exception if this node is readonly, if offset is negative, 
+        Throws an exception if this node is readonly, if offset is negative,
         offset is beyond the data's length, or if count is negative.
     parameters:
       - name: offset
         summary: The offset from which to start removing.
         type: Number
       - name: count
-        summary: The number of characters to delete. If the sum of offset 
-            and count exceeds length then all characters from offset to the end of 
+        summary: The number of characters to delete. If the sum of offset
+            and count exceeds length then all characters from offset to the end of
             the data are deleted.
         type: Number
   - name: insertData
@@ -46,7 +45,7 @@ methods:
         summary: The string to insert.
         type: String
   - name: replaceData
-    summary: Replace the characters starting at the specified offset with 
+    summary: Replace the characters starting at the specified offset with
         the specified string.
         Throws an exception if this node is readonly, if offset is negative, offset is beyond the data's length, or if count is negative.
     parameters:
@@ -55,7 +54,7 @@ methods:
         type: Number
       - name: count
         summary: The number of characters to replace. If the sum of offset
-            and count exceeds length, then all characters to the end of the data 
+            and count exceeds length, then all characters to the end of the data
             are replaced; (i.e., the effect is the same as a remove method call with the same range, followed by an append method invocation).
         type: Number
       - name: arg

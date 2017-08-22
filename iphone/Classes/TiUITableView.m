@@ -422,14 +422,12 @@
 
     if (TiDimensionIsDip(rowHeight)) {
       [_searchTableView setRowHeight:rowHeight.value];
-    } else if ([TiUtils isIOS8OrGreater]) {
+    } else {
       //TIMOB-17373 rowHeight on iOS8 is -1. Bug??
       [_searchTableView setRowHeight:44];
     }
 
-    if ([TiUtils isIOS8OrGreater]) {
       [_searchTableView setLayoutMargins:UIEdgeInsetsZero];
-    }
 
     if ([TiUtils isIOS9OrGreater]) {
       _searchTableView.cellLayoutMarginsFollowReadableWidth = NO;
@@ -2062,7 +2060,7 @@
   }
   [row initializeTableViewCell:cell];
 
-  if (tableview == ourTableView) {
+  if ([searchController isActive]) {
     [cell setLayoutMargins:UIEdgeInsetsZero];
   }
 

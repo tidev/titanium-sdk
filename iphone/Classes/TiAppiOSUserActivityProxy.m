@@ -69,6 +69,7 @@
   }
 
   DebugLog(@"[ERROR] activityType property is required on creation");
+
   return NO;
 }
 

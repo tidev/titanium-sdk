@@ -425,10 +425,9 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
     DebugLog(@"This method is removed for iOS9 and greater.");
     return nil;
   }
-
+  ENSURE_SINGLE_ARG(arg, NSObject)
   __block int idNum = [TiUtils intValue:arg];
   __block BOOL validId = NO;
-
   TiThreadPerformOnMainThread(^{
     ABAddressBookRef ourAddressBook = [self addressBook];
     if (ourAddressBook == NULL) {
@@ -441,11 +440,9 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
     }
   },
       YES);
-
   if (validId == YES) {
     return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
   }
-
   return NULL;
 }
 
@@ -484,13 +481,10 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
 //New in iOS9
 - (TiContactsPerson *)getPersonByIdentifier:(id)arg
 {
-  ENSURE_SINGLE_ARG(arg, NSString)
-
   if (![TiUtils isIOS9OrGreater]) {
     DebugLog(@"This method is only for iOS9 and greater.");
     return nil;
   }
-
   if (![NSThread isMainThread]) {
     __block id result;
     TiThreadPerformOnMainThread(^{
@@ -499,7 +493,7 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
         YES);
     return [result autorelease];
   }
-
+  ENSURE_SINGLE_ARG(arg, NSString)
   CNContactStore *ourContactStore = [self contactStore];
   if (ourContactStore == NULL) {
     return nil;
@@ -510,7 +504,6 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
   if (error) {
     return nil;
   }
-
   return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext]
                                                contactId:(CNMutableContact *)contact
                                                   module:self
@@ -617,7 +610,6 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
       result = [[self getAllPeople:unused] retain];
     },
         YES);
-
     return [result autorelease];
   }
 

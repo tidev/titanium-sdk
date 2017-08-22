@@ -1,14 +1,31 @@
 ---
 name: Titanium.UI.Toolbar
-deprecated:
-    since: "1.8.0"
-    notes: Use <Titanium.UI.iOS.Toolbar> instead.
-summary: An iOS toolbar, which can contain buttons and other controls.
+summary: A toolbar, which can contain buttons and certain other controls.
 description: |
-    The toolbar is created by the <Titanium.UI.createToolbar> method or **`<Toolbar>`** Alloy element.
+    A `Toolbar` is created by the <Titanium.UI.createToolbar> factory method or **`<Toolbar>`** Alloy element.
     
-    A toolbar can contain buttons, as well as certain other widgets, including text fields and 
+    A `Toolbar` can contain buttons, as well as certain other widgets, including text fields and 
     labels. 
+    
+    To provide spacing between items in the toolbar, on iOS you can use the special system button types, 
+    [FIXED_SPACE](Titanium.UI.iOS.SystemButton.FIXED_SPACE) and 
+    [FLEXIBLE_SPACE](Titanium.UI.iOS.SystemButton.FLEXIBLE_SPACE).
+    
+    Note that toolbars are positioned like other views (using the `top` and `bottom` properties, 
+    for example), but the [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/mobilehig/Bars.html#//apple_ref/doc/uid/TP40006556-CH12-SW4) 
+    have specific requirements for placing toolbars, specifically:
+
+    * On the iPhone and Android, a toolbar should be at the bottom of the window.
+    * On the iPad, a toolbar should appear at the top or bottom of a window.
+
+    Due to an iOS limitation, the buttons in the toolbar only support the `click` event.
+    The native object underlying a toolbar button does not generate standard view events,
+    such as `touchstart` and `touchend`.
+    
+    See also:
+
+    *  [Toolbar in the iOS Human Interface Guidelines.](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/mobilehig/Bars.html#//apple_ref/doc/uid/TP40006556-CH12-SW4)
+
 extends: Titanium.UI.View
 excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDisabledImage,         
             backgroundFocusedColor, backgroundFocusedImage,
@@ -16,8 +33,8 @@ excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDi
             backgroundSelectedColor, backgroundSelectedImage, layout,
             softKeyboardOnFocus ],
             events: [ longclick, twofingertap ] }
-since: "0.8"
-platforms: [iphone, ipad]
+since: "6.2.0"
+platforms: [iphone, ipad, android]
 
 properties:
   - name: barColor
@@ -32,20 +49,24 @@ properties:
 
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    platforms: [iphone, ipad]
     
   - name: items
     summary: An array of buttons (or other widgets) contained in the toolbar.
     type: Array<Titanium.UI.View>
-    
-  - name: borderTop
-    summary: If `true`, a border is drawn on the top of the toolbar.
+    platforms: [iphone, ipad]
+
+  - name: extendBackground
+    summary: If `true`, the background of the toolbar extends upwards.
+    description: |
+        This property allows the user to specify that the toolbar's background show through the status bar on iOS 7. This property is 
+        only intended to be used with toolbars hosted in windows with **no navigation controllers**. The toolbar must be placed at the
+        top of the screen just below the status bar for this property to work as expected. This **must** be specified at creation.
     type: Boolean
-    default: true
-    
-  - name: borderBottom
-    summary: If `true`, a border is drawn on the bottom of the toolbar.
-    type: Boolean
-    default: true
+    default: Undefined. Behaves as if set to false.
+    platforms: [iphone,ipad]
+    availability: creation
+    platforms: [iphone, ipad]
     
   - name: translucent
     summary: If `true`, a translucent background color is used for the toolbar.
@@ -54,4 +75,100 @@ properties:
         if [barColor](Titanium.UI.Toolbar.barColor) is set to a semi-transparent or 
         transparent color.
     type: Boolean
-    default: false
+    default: true
+    platforms: [iphone, ipad]
+
+examples: 
+  - title: Simple Toolbar (iOS)
+    example: |
+        The following code excerpt creates a simple toolbar, placed at the bottom of the window. 
+        
+            var win = Ti.UI.createWindow({
+                backgroundColor: 'white'
+            });
+        
+            var send = Ti.UI.createButton({
+                title: 'Send',
+                style: Ti.UI.iOS.SystemButtonStyle.DONE,
+            });
+            
+            var camera = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.CAMERA,
+            });
+            
+            var cancel = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.CANCEL
+            });
+            
+            var flexSpace = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
+            });
+            
+            var toolbar = Ti.UI.createToolbar({
+                items: [send, flexSpace, camera, flexSpace, cancel],
+                bottom: 0
+            });
+            
+            win.add(toolbar);
+            win.open();
+        
+        Note the use of the flexible space for positioning the toolbar buttons -- the 
+        `FLEXIBLE_SPACE` button doesn't appear as a button, but a variable space between the 
+        controls on either side of it. Available space in the toolbar is divided between all of the 
+        flexible space buttons in the toolbar. Without the flexible spaces in this example, 
+        the toolbar buttons would be grouped tightly together on the left side of the toolbar.
+
+  - title: Toolbar (iOS) with extended background
+    example: |
+        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar (**iOS 7 only**). 
+        
+            var win = Ti.UI.createWindow({
+                backgroundColor: 'white'
+            });
+        
+            var send = Ti.UI.createButton({
+                title: 'Send',
+                style: Ti.UI.iOS.SystemButtonStyle.DONE,
+            });
+            
+            var camera = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.CAMERA,
+            });
+            
+            var cancel = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.CANCEL
+            });
+            
+            flexSpace = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
+            });
+            
+            var toolbar = Ti.UI.iOS.createToolbar({
+                items: [send, flexSpace, camera, flexSpace, cancel],
+                top: 20,
+                extendBackground: true
+            }); 
+            
+            win.add(toolbar);
+            win.open();
+
+  - title: Alloy XML Markup
+    example: |
+        Simple Toolbar example as an Alloy view.
+
+            <Alloy>
+                <Window id="win">
+                    <Toolbar bottom="0">
+
+                        <!-- The Items tag sets the Toolbar.items property. -->
+                        <Items>
+                            <Button id="send" title="Send" />
+                            <FlexSpace platform="ios" />
+                            <Button id="camera" title="Camera" />
+                            <FlexSpace platform="ios" />
+                            <Button id="cancel" title="Cancel" />
+                        </Items>
+
+                    </Toolbar>
+                </Window>
+            </Alloy>

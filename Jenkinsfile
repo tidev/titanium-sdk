@@ -112,39 +112,52 @@ timestamps {
 				}
 			}
 
-			// Skip the Windows SDK portion if a PR, we don't need it
-			stage('Windows') {
-				if (!isPR) {
-					// This may be the very first build on this branch, so there's no windows build to grab yet
-					def isFirstBuildOnBranch = false
-					try {
-						sh 'curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/branches.json'
-						if (fileExists('branches.json')) {
-							def contents = readFile('branches.json')
-							if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
-								def branchesJSON = jsonParse(contents)
-								isFirstBuildOnBranch = !(branchesJSON['branches'].contains(env.BRANCH_NAME))
-							}
-						}
-					} catch (err) {
-						// ignore? Not able to grab the branches.json, what should we assume? In 99.9% of the cases, it's not a new build
-					}
-
-					// If there's no windows build for this branch yet, use master
-					def windowsBranch = targetBranch
-					if (isFirstBuildOnBranch) {
-						windowsBranch = 'master'
-						manager.addWarningBadge("Looks like the first build on branch ${env.BRANCH_NAME}. Using 'master' branch build of Windows SDK to bootstrap.")
-					}
-					step([$class: 'CopyArtifact',
-						projectName: "../titanium_mobile_windows/${windowsBranch}",
-						selector: [$class: 'StatusBuildSelector', stable: false],
-						filter: 'dist/windows/'])
-					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
-				} // !isPR
-			} // stage
-
 			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+
+				stage('Lint') {
+					// Enforce npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
+					sh 'npm install -g npm@5.2'
+
+					// Install dependencies
+					timeout(5) {
+						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
+						sh 'npm install'
+					}
+					sh 'npm test' // Run linting first
+				}
+
+				// Skip the Windows SDK portion if a PR, we don't need it
+				stage('Windows') {
+					if (!isPR) {
+						// This may be the very first build on this branch, so there's no windows build to grab yet
+						def isFirstBuildOnBranch = false
+						try {
+							sh 'curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/branches.json'
+							if (fileExists('branches.json')) {
+								def contents = readFile('branches.json')
+								if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+									def branchesJSON = jsonParse(contents)
+									isFirstBuildOnBranch = !(branchesJSON['branches'].contains(env.BRANCH_NAME))
+								}
+							}
+						} catch (err) {
+							// ignore? Not able to grab the branches.json, what should we assume? In 99.9% of the cases, it's not a new build
+						}
+
+						// If there's no windows build for this branch yet, use master
+						def windowsBranch = targetBranch
+						if (isFirstBuildOnBranch) {
+							windowsBranch = 'master'
+							manager.addWarningBadge("Looks like the first build on branch ${env.BRANCH_NAME}. Using 'master' branch build of Windows SDK to bootstrap.")
+						}
+						step([$class: 'CopyArtifact',
+							projectName: "../titanium_mobile_windows/${windowsBranch}",
+							selector: [$class: 'StatusBuildSelector', stable: false],
+							filter: 'dist/windows/'])
+						sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
+					} // !isPR
+				} // stage
+
 				stage('Build') {
 					// Normal build, pull out the version
 					def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
@@ -157,19 +170,6 @@ timestamps {
 					basename = "dist/mobilesdk-${vtag}"
 					echo "BASENAME:        ${basename}"
 
-					// Enforce npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
-					sh 'npm install -g npm@5.2'
-
-					// Install dev dependencies
-					timeout(5) {
-						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
-						sh 'npm install'
-					}
-					sh 'npm test' // Run linting first
-					// Then validate docs
-					dir('apidoc') {
-						sh 'node validate.js'
-					}
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
 					dir('build') {
 						timeout(15) {

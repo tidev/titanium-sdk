@@ -1636,6 +1636,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
       if (!UIInterfaceOrientationIsPortrait(orientation)) {
         screenSize = CGSizeMake(screenSize.height, screenSize.width);
       }
+
       float cameraAspectRatio = 4.0 / 3.0;
       float camViewHeight = screenSize.width * cameraAspectRatio;
       float scale = screenSize.height / camViewHeight;

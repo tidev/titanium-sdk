@@ -773,6 +773,13 @@ public abstract class TiUIView
 				layoutParams.optionWidth = null;
 			}
 			layoutNativeView();
+		} else if (key.equals(TiC.PROPERTY_LAYOUT)) {
+			String layout = TiConvert.toString(newValue);
+			if (nativeView instanceof TiCompositeLayout) {
+				resetPostAnimationValues();
+				((TiCompositeLayout)nativeView).setLayoutArrangement(layout);
+				layoutNativeView();
+			}
 		} else if (key.equals(TiC.PROPERTY_ZINDEX)) {
 			if (newValue != null) {
 				layoutParams.optionZIndex = TiConvert.toInt(newValue);
@@ -1091,7 +1098,8 @@ public abstract class TiUIView
 		}
 	}
 
-	// TODO dead code? @Override
+	// TODO dead code?
+	@Override
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
 	{
 		for (KrollPropertyChange change : changes) {
