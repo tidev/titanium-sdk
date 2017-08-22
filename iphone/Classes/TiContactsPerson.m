@@ -911,7 +911,7 @@ static NSDictionary *iOS9propertyKeys;
     }
   }
   // Alternate birthdays have to be done seperately as it uses NSDict for setting ABRecord instead of MultiValueRef
-  else if ([TiUtils isIOS8OrGreater] && [key isEqualToString:@"alternateBirthday"]) {
+  else if ([key isEqualToString:@"alternateBirthday"]) {
     ENSURE_TYPE(value, NSDictionary);
     CFErrorRef error;
     if (!ABRecordSetValue([self record], kABPersonAlternateBirthdayProperty, value, &error)) {

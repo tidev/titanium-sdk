@@ -268,9 +268,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [self configureHeaders];
     _defaultSeparatorInsets = [_tableView separatorInset];
 
-    if ([TiUtils isIOS8OrGreater]) {
-      [_tableView setLayoutMargins:UIEdgeInsetsZero];
-    }
+    [_tableView setLayoutMargins:UIEdgeInsetsZero];
 
     if ([TiUtils isIOS9OrGreater]) {
       _tableView.cellLayoutMarginsFollowReadableWidth = NO;
@@ -559,7 +557,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         [self.proxy fireEvent:@"noresults" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
       }
     }
-
   } else {
     RELEASE_TO_NIL(_searchResults);
   }
@@ -1103,7 +1100,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
                                                                                                                                                theSection, @"section",
                                                                                                                                            NUMINTEGER(realIndexPath.section), @"sectionIndex",
                                                                                                                                            NUMINTEGER(realIndexPath.row), @"itemIndex",
-                                                                                                                                           action.title, @"action",
+                                                                                                               action.title, @"action",
                                                                                                                                            nil];
                                                                            id propertiesValue = [theItem objectForKey:@"properties"];
                                                                            NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -1136,6 +1133,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       [returnArray addObject:theAction];
     }
   }
+                                                                           
   return returnArray;
 }
 
@@ -1377,7 +1375,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     }
 
     [tableView reloadData];
-
+      
     [theSection release];
     [theItem release];
 
@@ -1502,7 +1500,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       }
     }
 
-    if ([TiUtils isIOS8OrGreater] && (tableView == _tableView)) {
+    if (tableView == _tableView) {
       [cell setLayoutMargins:UIEdgeInsetsZero];
     }
 

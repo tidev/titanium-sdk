@@ -116,27 +116,18 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 + (BOOL)isRetinaFourInch
 {
   CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
-  if ([TiUtils isIOS8OrGreater]) {
-    return (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width == 568);
-  }
-  return (mainScreenBoundsSize.height == 568);
+  return (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width == 568);
 }
 
 + (BOOL)isRetinaiPhone6
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
-    return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
-  }
-  return NO;
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
 }
 
 + (BOOL)isRetinaHDDisplay
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    return ([UIScreen mainScreen].scale == 3.0);
-  }
-  return NO;
+  return ([UIScreen mainScreen].scale == 3.0);
 }
 
 + (BOOL)isRetinaDisplay
@@ -1305,7 +1296,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
     if ([value isEqualToString:@"landscape"]) {
       return (UIDeviceOrientation)UIInterfaceOrientationLandscapeRight;
     }
-
+      
     RETURN_IF_ORIENTATION_STRING(value, UIInterfaceOrientationPortrait)
     RETURN_IF_ORIENTATION_STRING(value, UIInterfaceOrientationPortraitUpsideDown)
     RETURN_IF_ORIENTATION_STRING(value, UIInterfaceOrientationLandscapeLeft)
