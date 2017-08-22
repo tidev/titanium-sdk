@@ -482,8 +482,6 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 //New in iOS9
 -(TiContactsPerson*)getPersonByIdentifier:(id)arg
 {
-	ENSURE_SINGLE_ARG(arg, NSString)
-
 	if (![TiUtils isIOS9OrGreater]) {
 		DebugLog(@"This method is only for iOS9 and greater.");
 		return nil;
@@ -494,6 +492,8 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		TiThreadPerformOnMainThread(^{result = [[self getPersonByIdentifier:arg] retain];}, YES);
 		return [result autorelease];
 	}
+	
+	ENSURE_SINGLE_ARG(arg, NSString)
 
 	CNContactStore *ourContactStore = [self contactStore];
 	if (ourContactStore == NULL) {
