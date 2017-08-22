@@ -418,13 +418,13 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 
 // OK to do outside main thread
 -(TiContactsPerson*)getPersonByID:(id)arg
-{
-	ENSURE_SINGLE_ARG(arg, NSObject)
-	
+{	
 	if ([TiUtils isIOS9OrGreater]) {
 		DebugLog(@"This method is removed for iOS9 and greater.");
 		return nil;
 	}
+	
+	ENSURE_SINGLE_ARG(arg, NSString)
 	
 	__block int idNum = [TiUtils intValue:arg];
 	__block BOOL validId = NO;	
