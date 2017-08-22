@@ -171,6 +171,11 @@
 @property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_DARK;
 #endif
 
+#ifdef __IPHONE_11_0
+@property(nonatomic,readonly) NSNumber* LARGE_TITLE_DISPLAY_MODE_AUTOMATIC;
+@property(nonatomic,readonly) NSNumber* LARGE_TITLE_DISPLAY_MODE_ALWAYS;
+@property(nonatomic,readonly) NSNumber* LARGE_TITLE_DISPLAY_MODE_NEVER;
+#endif
 
 /**
     Checks the force touch capibility of the current device.
