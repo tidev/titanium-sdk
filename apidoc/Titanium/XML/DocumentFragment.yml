@@ -4,11 +4,10 @@ extends: Titanium.XML.Node
 summary: |
     A lightweight document object used as a container for a group of nodes.
 description: |
-    When a `DocumentFragment` is inserted into a DOM tree, children of the `DocumentFragment` are 
-    added, not the `DocumentFragment` itself. 
+    When a `DocumentFragment` is inserted into a DOM tree, children of the `DocumentFragment` are
+    added, not the `DocumentFragment` itself.
 
     Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-B63ED1A3) on
-    Android and iOS with some non-standard extensions. Exposes the 
-    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-B63ED1A3) implementation on Mobile Web.
+    Android and iOS with some non-standard extensions.
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]

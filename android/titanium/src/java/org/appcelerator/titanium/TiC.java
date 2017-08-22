@@ -786,6 +786,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_AUDIO_TYPE = "audioType";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_AUDIO_FOCUS = "audioFocus";
 
 	/**
@@ -2297,6 +2302,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_RELATED_NAMES = "relatedNames";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_RELATIONSHIP = "relationship";
 
 	/**
 	 * @module.api

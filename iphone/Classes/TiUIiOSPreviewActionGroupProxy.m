@@ -10,45 +10,45 @@
 
 @implementation TiUIiOSPreviewActionGroupProxy
 
--(void)_initWithProperties:(NSDictionary *)properties
+- (void)_initWithProperties:(NSDictionary *)properties
 {
-    [self setTitle:[TiUtils stringValue:[properties valueForKey:@"title"]]];
-    [self setStyle:[TiUtils intValue:[properties valueForKey:@"style"] def:UIPreviewActionStyleDefault]];
-    [self setActions:[NSMutableArray array]];
-    
-    int index = 0;
-    
-    for (TiUIiOSPreviewActionProxy *action in [properties valueForKey:@"actions"]) {
-        [action rememberSelf];
-        [action setActionIndex:index];
-        
-        [[self actions] addObject:[action action]];
+  [self setTitle:[TiUtils stringValue:[properties valueForKey:@"title"]]];
+  [self setStyle:[TiUtils intValue:[properties valueForKey:@"style"] def:UIPreviewActionStyleDefault]];
+  [self setActions:[NSMutableArray array]];
 
-        index++;
-    }
-    
-    actionGroup = [[UIPreviewActionGroup actionGroupWithTitle:[self title] style:[self style] actions:[self actions]] retain];
-    
-    [super _initWithProperties:properties];
+  int index = 0;
+
+  for (TiUIiOSPreviewActionProxy *action in [properties valueForKey:@"actions"]) {
+    [action rememberSelf];
+    [action setActionIndex:index];
+
+    [[self actions] addObject:[action action]];
+
+    index++;
+  }
+
+  actionGroup = [[UIPreviewActionGroup actionGroupWithTitle:[self title] style:[self style] actions:[self actions]] retain];
+
+  [super _initWithProperties:properties];
 }
 
--(void)dealloc
+- (void)dealloc
 {
-    RELEASE_TO_NIL(_title);
-    RELEASE_TO_NIL(_actions);
-    RELEASE_TO_NIL(actionGroup);
-    
-    [super dealloc];
+  RELEASE_TO_NIL(_title);
+  RELEASE_TO_NIL(_actions);
+  RELEASE_TO_NIL(actionGroup);
+
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.PreviewActionGroup";
+  return @"Ti.UI.iOS.PreviewActionGroup";
 }
 
--(UIPreviewActionGroup*)actionGroup
+- (UIPreviewActionGroup *)actionGroup
 {
-    return actionGroup;
+  return actionGroup;
 }
 
 @end

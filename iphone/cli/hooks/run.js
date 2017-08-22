@@ -1,11 +1,13 @@
 /*
  * run.js: Titanium iOS CLI run hook
  *
- * Copyright (c) 2012-2016, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
-var appc = require('node-appc'),
+'use strict';
+
+const appc = require('node-appc'),
 	ioslib = require('ioslib'),
 	i18n = appc.i18n(__dirname),
 	__ = i18n.__,
@@ -17,7 +19,9 @@ exports.init = function (logger, config, cli) {
 	cli.addHook('build.post.compile', {
 		priority: 10000,
 		post: function (builder, finished) {
-			if (cli.argv.target != 'simulator') return finished();
+			if (cli.argv.target !== 'simulator') {
+				return finished();
+			}
 
 			if (cli.argv['build-only']) {
 				logger.info(__('Performed build only, skipping running of the application'));
@@ -26,19 +30,19 @@ exports.init = function (logger, config, cli) {
 
 			logger.info(__('Launching iOS Simulator'));
 
-			var simStarted = false,
-				startLogTxt = __('Start simulator log'),
+			let simStarted = false,
+				lastLogger = 'debug';
+			const startLogTxt = __('Start simulator log'),
 				endLogTxt = __('End simulator log'),
-				endLog = function () {
-					if (simStarted) {
-						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
-						simStarted = false;
-					}
-				},
-				lastLogger = 'debug',
 				levels = logger.getLevels(),
-				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
+				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\u001b\\[\\d+m)?(.*)', 'i'); // eslint-disable-line security/detect-non-literal-regexp
 
+			function endLog() {
+				if (simStarted) {
+					logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
+					simStarted = false;
+				}
+			}
 			ioslib.simulator
 				.launch(builder.simHandle, {
 					appPath:            builder.xcodeAppDir,
@@ -54,12 +58,12 @@ exports.init = function (logger, config, cli) {
 				})
 				.on('log-file', function (line) {
 					// Titanium app log messages
-					var skipLine = false;
+					let skipLine = false;
 
 					if (!simStarted) {
 						if (line.indexOf('{') === 0) {
 							try {
-								var headers = JSON.parse(line);
+								const headers = JSON.parse(line);
 								if (headers.appId !== builder.tiapp.id) {
 									logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, builder.tiLogServerPort));
 									logger.error(__('Stop the running Titanium app, then rebuild this app'));
@@ -81,12 +85,12 @@ exports.init = function (logger, config, cli) {
 						return;
 					}
 
-					var m = line.match(logLevelRE);
+					const m = line.match(logLevelRE);
 					if (m) {
 						lastLogger = m[2].toLowerCase();
 						line = m[4].trim();
 					}
-					if (levels.indexOf(lastLogger) == -1) {
+					if (levels.indexOf(lastLogger) === -1) {
 						logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
 					} else {
 						logger[lastLogger](line);
@@ -104,7 +108,7 @@ exports.init = function (logger, config, cli) {
 					// system log error messages
 					logger.error('[' + simHandle.appName + '] ' + msg);
 				})
-				.on('app-started', function (simHandle, watchSimHandle) {
+				.on('app-started', function () {
 					finished && finished();
 					finished = null;
 				})
@@ -117,7 +121,7 @@ exports.init = function (logger, config, cli) {
 							});
 							logger.error(__n('Note: this crash may or may not be related to running your app.', 'Note: these crashes may or may not be related to running your app.', code.crashFiles.length) + '\n');
 						} else {
-							logger.error(__('An error occurred running the iOS Simulator (ios-sim exit code %s)', code));
+							logger.error(__('An error occurred running the iOS Simulator (exit code %s)', code));
 						}
 					}
 					endLog();

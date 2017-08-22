@@ -4,9 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <Foundation/Foundation.h>
-#import "TiToJS.h"
 #import "KrollContext.h"
+#import "TiToJS.h"
+#import <Foundation/Foundation.h>
 
 @class KrollBridge;
 //
@@ -16,30 +16,30 @@
 // for function invocation (or just to pass the function object back as-is)
 //
 @interface KrollCallback : NSObject {
-@private
-	TiContextRef jsContext;
-	TiObjectRef thisObj;
-	TiObjectRef function;
-	KrollContext *context;
-	KrollBridge * bridge;
+  @private
+  TiContextRef jsContext;
+  TiObjectRef thisObj;
+  TiObjectRef function;
+  KrollContext *context;
+  KrollBridge *bridge;
 #ifdef TI_USE_KROLL_THREAD
-    NSLock* contextLock;
+  NSLock *contextLock;
 #endif
-	NSString *type;
+  NSString *type;
 }
 
-@property(nonatomic,readwrite,retain) NSString *type;
+@property (nonatomic, readwrite, retain) NSString *type;
 
--(id)initWithCallback:(TiValueRef)function_ thisObject:(TiObjectRef)thisObject_ context:(KrollContext*)context_;
--(void)callAsync:(NSArray*)args thisObject:(id)thisObject_;
--(id)call:(NSArray*)args thisObject:(id)thisObject_;
--(TiObjectRef)function;
--(KrollContext*)context;
-+(void)shutdownContext:(KrollContext*)context;
+- (id)initWithCallback:(TiValueRef)function_ thisObject:(TiObjectRef)thisObject_ context:(KrollContext *)context_;
+- (void)callAsync:(NSArray *)args thisObject:(id)thisObject_;
+- (id)call:(NSArray *)args thisObject:(id)thisObject_;
+- (TiObjectRef)function;
+- (KrollContext *)context;
++ (void)shutdownContext:(KrollContext *)context;
 
 @end
 
-// 
+//
 // KrollCallback has one fatal flaw: It can lead to retention loops. So when a
 // function is to be a property of a proxy, we store this on the JS object. But
 // if the proxy spans multiple contexts, we need to take a rain check on other
@@ -66,19 +66,18 @@
 
 @class KrollBridge;
 
-@interface KrollWrapper : NSObject
-{
-	TiObjectRef jsobject;
-	KrollBridge * bridge;
-	BOOL	protecting;
+@interface KrollWrapper : NSObject {
+  TiObjectRef jsobject;
+  KrollBridge *bridge;
+  BOOL protecting;
 }
 
-@property (nonatomic,readwrite,assign)	TiObjectRef jsobject;
-@property (nonatomic,readwrite,assign)	KrollBridge * bridge;
+@property (nonatomic, readwrite, assign) TiObjectRef jsobject;
+@property (nonatomic, readwrite, assign) KrollBridge *bridge;
 
--(void)protectJsobject;
--(void)unprotectJsobject;
+- (void)protectJsobject;
+- (void)unprotectJsobject;
 
 @end
 
-KrollWrapper * ConvertKrollCallbackToWrapper(KrollCallback *callback);
+KrollWrapper *ConvertKrollCallbackToWrapper(KrollCallback *callback);
