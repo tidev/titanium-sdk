@@ -256,16 +256,10 @@ static NSArray *popoverSequence;
   TiThreadPerformOnMainThread(^{
     [contentViewProxy windowWillClose];
     animated = [TiUtils boolValue:@"animated" properties:args def:NO];
-    if ([TiUtils isIOS8OrGreater]) {
-      [[self viewController] dismissViewControllerAnimated:animated
-                                                completion:^{
-                                                  [self cleanup];
-                                                }];
-
-    } else {
-      [[self popoverController] dismissPopoverAnimated:animated];
-      [self performSelector:@selector(popoverControllerDidDismissPopover:) withObject:popoverController afterDelay:(animated ? 0.5 : 0.1)];
-    }
+    [[self viewController] dismissViewControllerAnimated:animated
+                                              completion:^{
+                                                [self cleanup];
+                                              }];
   },
       NO);
 }
@@ -297,7 +291,8 @@ static NSArray *popoverSequence;
   [self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
   [contentViewProxy windowDidClose];
-  if ([contentViewProxy isKindOfClass:[TiWindowProxy class]] || [TiUtils isIOS8OrGreater]) {
+
+  if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
     UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
     if ([topWindowView isKindOfClass:[TiUIView class]]) {
       TiViewProxy *theProxy = (TiViewProxy *)[(TiUIView *)topWindowView proxy];
@@ -306,6 +301,7 @@ static NSArray *popoverSequence;
       }
     }
   }
+
   [self forgetSelf];
   RELEASE_TO_NIL(viewController);
   RELEASE_TO_NIL(popoverView);
@@ -320,10 +316,6 @@ static NSArray *popoverSequence;
 - (void)initAndShowPopOver
 {
   currentPopover = self;
-  if (![TiUtils isIOS8OrGreater]) {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-    [self updatePassThroughViews];
-  }
   [contentViewProxy setProxyObserver:self];
   if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
     UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
@@ -358,15 +350,6 @@ static NSArray *popoverSequence;
 {
 #ifndef TI_USE_AUTOLAYOUT
   CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-  if (![TiUtils isIOS8OrGreater]) {
-    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-
-    if (orientation == UIInterfaceOrientationLandscapeRight || orientation == UIInterfaceOrientationLandscapeLeft) {
-      CGSize tempSize = CGSizeMake(screenSize.height, screenSize.width);
-      screenSize = tempSize;
-    }
-  }
-
   if (poWidth.type != TiDimensionTypeUndefined) {
     [contentViewProxy layoutProperties]->width.type = poWidth.type;
     [contentViewProxy layoutProperties]->width.value = poWidth.value;
@@ -396,11 +379,7 @@ static NSArray *popoverSequence;
     [theViews addObject:[proxy view]];
   }
 
-  if ([TiUtils isIOS8OrGreater]) {
-    [[[self viewController] popoverPresentationController] setPassthroughViews:theViews];
-  } else {
-    [[self popoverController] setPassthroughViews:theViews];
-  }
+  [[[self viewController] popoverPresentationController] setPassthroughViews:theViews];
 }
 
 - (void)updateContentSize
@@ -420,52 +399,14 @@ static NSArray *popoverSequence;
   }
   [closingCondition unlock];
   [self updateContentSize];
-  if ([TiUtils isIOS8OrGreater]) {
-    UIViewController *theController = [self viewController];
-    [theController setModalPresentationStyle:UIModalPresentationPopover];
-    UIPopoverPresentationController *thePresentationController = [theController popoverPresentationController];
-    thePresentationController.permittedArrowDirections = directions;
-    thePresentationController.delegate = self;
-    [thePresentationController setBackgroundColor:[[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color]];
+  UIViewController *theController = [self viewController];
+  [theController setModalPresentationStyle:UIModalPresentationPopover];
+  UIPopoverPresentationController *thePresentationController = [theController popoverPresentationController];
+  thePresentationController.permittedArrowDirections = directions;
+  thePresentationController.delegate = self;
+  [thePresentationController setBackgroundColor:[[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color]];
 
-    [[TiApp app] showModalController:theController animated:animated];
-    return;
-  }
-
-  if ([popoverView isUsingBarButtonItem]) {
-    UIBarButtonItem *ourButtonItem = [popoverView barButtonItem];
-    @try {
-      /*
-             *	Because buttonItems may or many not have a view, there is no way for us
-             *	to know beforehand if the request is an invalid one.
-             */
-      [[self popoverController] presentPopoverFromBarButtonItem:ourButtonItem permittedArrowDirections:directions animated:animated];
-    }
-    @catch (NSException *exception) {
-      DebugLog(@"[WARN] Popover requested on view not attached to current window.");
-    }
-  } else {
-    UIView *view_ = [popoverView view];
-#ifdef USE_TI_UITABLEVIEW
-    if (view_ == nil && [popoverView isKindOfClass:[TiUITableViewRowProxy class]] && [popoverView viewAttached]) {
-      view_ = [[(TiUITableViewRowProxy *)popoverView callbackCell] contentView];
-    }
-#endif
-    if ([view_ window] == nil) {
-      // No window, so we can't display the popover...
-      DebugLog(@"[WARN] Unable to display popover; view is not attached to the current window");
-      return;
-    }
-
-    CGRect rect;
-    if (CGRectIsEmpty(popoverRect)) {
-      rect = [view_ bounds];
-    } else {
-      rect = popoverRect;
-    }
-
-    [[self popoverController] presentPopoverFromRect:rect inView:view_ permittedArrowDirections:directions animated:animated];
-  }
+  [[TiApp app] showModalController:theController animated:animated];
 }
 
 - (UIViewController *)viewController
@@ -563,10 +504,8 @@ static NSArray *popoverSequence;
 
 - (BOOL)popoverControllerShouldDismissPopover:(UIPopoverController *)thisPopoverController
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    if (thisPopoverController.contentViewController.presentedViewController != nil) {
-      return NO;
-    }
+  if (thisPopoverController.contentViewController.presentedViewController != nil) {
+    return NO;
   }
   [contentViewProxy windowWillClose];
   return YES;

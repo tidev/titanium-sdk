@@ -1,25 +1,24 @@
 ---
 name: Titanium.UI.ActivityIndicator
-summary: An activity indicator that lets the user know an action is taking place. 
+summary: An activity indicator that lets the user know an action is taking place.
 description:  |
     <table id="platformComparison">
       <tr>
         <td><img src="images/activityindicator/activityindicator_android.png" height="75" /></td>
         <td><img src="images/activityindicator/activityindicator_ios.png" height="75" /></td>
-        <td><img src="images/activityindicator/activityindicator_mobileweb.png" height="75" /></td>
         <td><img src="images/activityindicator/activityindicator_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
 
-    An activity indicator can be used to show the progress of an operation in the UI to let the 
-    user know that some action is taking place. An activity indicator consists of a spinning 
-    animation and an optional text message, and is used to indicate an ongoing activity of 
+    An activity indicator can be used to show the progress of an operation in the UI to let the
+    user know that some action is taking place. An activity indicator consists of a spinning
+    animation and an optional text message, and is used to indicate an ongoing activity of
     indeterminate length. To show progress, use <Titanium.UI.ProgressBar> instead.
 
     Use the <Titanium.UI.createActivityIndicator> method or **`<ActivityIndicator>`** Alloy element to
     create an `ActivityIndicator` object.
-    
+
     `ActivityIndicator` is a view and, like any view, must be added to a window or other top-level
     view before it can be shown. Unlike most views, `ActivityIndicator` is hidden by
     default and must be shown explicitly by calling its <Titanium.UI.ActivityIndicator.show> method.
@@ -53,12 +52,12 @@ methods:
     description: |
         Adding children to an `ActivityIndicator` is not supported on all platforms.
 
-        If you need to display views on top of this object, consider using 
-        another view as a container for both this object and the views you want 
+        If you need to display views on top of this object, consider using
+        another view as a container for both this object and the views you want
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
 
   - name: hide
     summary: Hides the activity indicator and stops the animation.
@@ -69,26 +68,26 @@ methods:
         Adding children to an `ActivityIndicator` is not supported on all platforms.
 
         See also: [add](Titanium.UI.ActivityIndicator.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
-    
+    platforms: [iphone, ipad]
+
   - name: show
     summary: Shows the activity indicator and starts the animation.
 properties:
   - name: bottom
     summary: Bottom position of the view.
     description: |
-        Determines the absolute position of the view relative to its parent.  
-        
+        Determines the absolute position of the view relative to its parent.
+
         Can be either a float value or a dimension string (for example `100` or `'50%'`.)
     type: [Number, String]
-    
+
   - name: color
     summary: |
         Color of the message text, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    
+
   - name: font
     summary: Font used for the message text.
     type: Font
@@ -103,34 +102,32 @@ properties:
   - name: left
     summary: Left position of the view.
     description: |
-        Determines the absolute position of the view relative to its parent.  
-        
+        Determines the absolute position of the view relative to its parent.
+
         Can be either a float value or a dimension string (for example `100` or `'50%'`.)
     type: [Number, String]
-    
+
   - name: message
     summary: Message text.
     type: String
-    
+
   - name: messageid
-    summary: Key identifying a string in the locale file to use for the message text. 
+    summary: Key identifying a string in the locale file to use for the message text.
     description: Only one of `message` or `messageid` should be specified.
     type: String
-    
+
   - name: right
     summary: Right position of the view.
     description: |
-        Determines the absolute position of the view relative to its parent.  
-        
+        Determines the absolute position of the view relative to its parent.
+
         Can be either a float value or a dimension string (for example `100` or `'50%'`.)
     type: [Number, String]
-    
+
   - name: style
     summary: The style for the activity indicator.
     description: |
         One of the activity indicator style constants.
-
-        On Mobile Web, setting the style automatically sets the indicator color and diameter.
 
         See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
         [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
@@ -143,8 +140,8 @@ properties:
     since: "2.1.0"
     type: String
     default: <pre>#fff</pre>
-    platforms: [mobileweb,iphone,ipad,android]
-    
+    platforms: [iphone,ipad,android]
+
   - name: indicatorDiameter
     summary: Diameter of the indicator.
     description: |
@@ -152,13 +149,13 @@ properties:
     since: "2.1.0"
     type: String
     default: 36
-    platforms: [mobileweb]
+    platforms: []
 
   - name: top
     summary: Top position of the view.
     description: |
-        Determines the absolute position of the view relative to its parent.  
-        
+        Determines the absolute position of the view relative to its parent.
+
         Can be either a float value or a dimension string (for example `100` or`'50%'`.)
     type: [Number, String]
 
@@ -168,13 +165,13 @@ properties:
         display the message and to position the view correctly.
     type: String
     constants: Titanium.UI.SIZE
-    
+
 examples:
   - title: Simple Activity Indicator
     example: |
-        Open a yellow window immediately after a blue window. Show an activity indicator while 
+        Open a yellow window immediately after a blue window. Show an activity indicator while
         some code executes and hide it on completion. Then close the yellow window.
-        
+
             Ti.UI.backgroundColor = 'white';
 
             var win1 = Ti.UI.createWindow({

@@ -5,7 +5,6 @@
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4",
-    "mobileweb": "2",
     "windows": "3"
   },
   "keywords": [
@@ -13,7 +12,6 @@
     "titanium",
     "mobile",
     "android",
-    "mobileweb",
     "iphone",
     "ipad",
     "ios"

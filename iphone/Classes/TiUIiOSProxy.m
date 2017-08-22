@@ -159,24 +159,15 @@
 #ifdef USE_TI_UILISTVIEW
 - (NSNumber *)ROW_ACTION_STYLE_DEFAULT
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    return NUMINTEGER(UITableViewRowActionStyleDefault);
-  }
-  return nil;
+  return NUMINTEGER(UITableViewRowActionStyleDefault);
 }
 - (NSNumber *)ROW_ACTION_STYLE_DESTRUCTIVE
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    return NUMINTEGER(UITableViewRowActionStyleDestructive);
-  }
-  return nil;
+  return NUMINTEGER(UITableViewRowActionStyleDestructive);
 }
 - (NSNumber *)ROW_ACTION_STYLE_NORMAL
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    return NUMINTEGER(UITableViewRowActionStyleNormal);
-  }
-  return nil;
+  return NUMINTEGER(UITableViewRowActionStyleNormal);
 }
 #endif
 
@@ -429,26 +420,17 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 #ifdef USE_TI_UIIOSBLURVIEW
 - (id)BLUR_EFFECT_STYLE_EXTRA_LIGHT
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    return NUMINTEGER(UIBlurEffectStyleExtraLight);
-  }
-  return [NSNull null];
+  return NUMINTEGER(UIBlurEffectStyleExtraLight);
 }
 
 - (id)BLUR_EFFECT_STYLE_LIGHT
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    return NUMINTEGER(UIBlurEffectStyleLight);
-  }
-  return [NSNull null];
+  return NUMINTEGER(UIBlurEffectStyleLight);
 }
 
 - (id)BLUR_EFFECT_STYLE_DARK
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    return NUMINTEGER(UIBlurEffectStyleDark);
-  }
-  return [NSNull null];
+  return NUMINTEGER(UIBlurEffectStyleDark);
 }
 
 - (id)BLUR_EFFECT_STYLE_REGULAR
