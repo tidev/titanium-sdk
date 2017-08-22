@@ -2305,6 +2305,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_RELATIONSHIP = "relationship";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_REPEAT = "repeat";
 
 	/**
