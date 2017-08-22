@@ -827,7 +827,7 @@
     DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
     return;
   }
-    
+
   if ([topVC isKindOfClass:[UIAlertController class]]) {
     if (((UIAlertController *)topVC).preferredStyle == UIAlertControllerStyleAlert) {
       trulyAnimated = NO;

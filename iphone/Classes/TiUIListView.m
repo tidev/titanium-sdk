@@ -1100,7 +1100,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
                                                                                                                                                theSection, @"section",
                                                                                                                                            NUMINTEGER(realIndexPath.section), @"sectionIndex",
                                                                                                                                            NUMINTEGER(realIndexPath.row), @"itemIndex",
-                                                                                                               action.title, @"action",
+                                                                                                                                           action.title, @"action",
                                                                                                                                            nil];
                                                                            id propertiesValue = [theItem objectForKey:@"properties"];
                                                                            NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -1133,7 +1133,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       [returnArray addObject:theAction];
     }
   }
-                                                                           
+
   return returnArray;
 }
 
@@ -1375,7 +1375,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     }
 
     [tableView reloadData];
-      
+
     [theSection release];
     [theItem release];
 

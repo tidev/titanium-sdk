@@ -719,7 +719,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
- // Copy downloaded file from location to tempFile (in NSTemporaryDirectory), because file in location will be removed after delegate completes
+  // Copy downloaded file from location to tempFile (in NSTemporaryDirectory), because file in location will be removed after delegate completes
   NSError *error;
   NSFileManager *fileManager = [NSFileManager defaultManager];
   NSString *destinationFilename = location.lastPathComponent;
@@ -1213,7 +1213,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 {
   RELEASE_TO_NIL(localNotification);
   localNotification = [[[self class] dictionaryWithLocalNotification:notification] retain];
-    
+
   [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotification completionHandler:nil];
 }
 

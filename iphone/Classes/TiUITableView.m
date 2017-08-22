@@ -427,7 +427,7 @@
       [_searchTableView setRowHeight:44];
     }
 
-      [_searchTableView setLayoutMargins:UIEdgeInsetsZero];
+    [_searchTableView setLayoutMargins:UIEdgeInsetsZero];
 
     if ([TiUtils isIOS9OrGreater]) {
       _searchTableView.cellLayoutMarginsFollowReadableWidth = NO;

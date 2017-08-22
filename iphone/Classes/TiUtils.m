@@ -1296,7 +1296,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
     if ([value isEqualToString:@"landscape"]) {
       return (UIDeviceOrientation)UIInterfaceOrientationLandscapeRight;
     }
-      
+
     RETURN_IF_ORIENTATION_STRING(value, UIInterfaceOrientationPortrait)
     RETURN_IF_ORIENTATION_STRING(value, UIInterfaceOrientationPortraitUpsideDown)
     RETURN_IF_ORIENTATION_STRING(value, UIInterfaceOrientationLandscapeLeft)
