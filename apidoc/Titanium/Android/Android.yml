@@ -204,6 +204,18 @@ methods:
         summary: Options for the Service.
         type: ServiceIntentOptions
 
+  - name: createDrawerLayout
+    summary: Creates a [DrawerLayout](Titanium.UI.Android.DrawerLayout).
+    returns:
+        type: Titanium.UI.Android.DrawerLayout
+    parameters:
+      - name: parameters
+        summary: |
+            Properties to set on the new object, including any defined by
+            <Titanium.UI.Android.DrawerLayout>, except those marked not-creation or read-only.
+        type: Dictionary<Titanium.UI.Android.DrawerLayout>
+        optional: true
+
   - name: hasPermission
     summary: Returns `true` if the app has permission access.
     parameters:
