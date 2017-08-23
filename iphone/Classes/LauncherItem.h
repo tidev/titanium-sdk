@@ -5,11 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-
 // A good bit of this code was derived from the Three20 project
 // and was customized to work inside Titanium
 //
-// All modifications by Appcelerator are licensed under 
+// All modifications by Appcelerator are licensed under
 // the Apache License, Version 2.0
 //
 //
@@ -34,28 +33,26 @@
 @class LauncherButton;
 
 @interface LauncherItem : NSObject {
-	NSString *title;
-	UIImage *image;
-	UIImage *selectedImage;
-	NSInteger badgeValue;
-	BOOL canDelete;
-	LauncherButton *button;
-	UIView *view;
-	id userData;
+  NSString *title;
+  UIImage *image;
+  UIImage *selectedImage;
+  NSInteger badgeValue;
+  BOOL canDelete;
+  LauncherButton *button;
+  UIView *view;
+  id userData;
 }
 
-@property(nonatomic,readwrite,retain) NSString *title;
-@property(nonatomic,readwrite,retain) UIImage *image;
-@property(nonatomic,readwrite,retain) UIImage *selectedImage;
-@property(nonatomic,readwrite,retain) UIView *view;
-@property(nonatomic,assign) LauncherButton *button;
+@property (nonatomic, readwrite, retain) NSString *title;
+@property (nonatomic, readwrite, retain) UIImage *image;
+@property (nonatomic, readwrite, retain) UIImage *selectedImage;
+@property (nonatomic, readwrite, retain) UIView *view;
+@property (nonatomic, assign) LauncherButton *button;
 
+@property (nonatomic, readwrite, assign) id userData;
 
-@property(nonatomic,readwrite,assign) id userData;
-
-
-@property(nonatomic) BOOL canDelete;
-@property(nonatomic) NSInteger badgeValue;
+@property (nonatomic) BOOL canDelete;
+@property (nonatomic) NSInteger badgeValue;
 
 @end
 

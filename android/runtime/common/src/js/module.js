@@ -166,7 +166,9 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 function extendModuleWithCommonJs(externalModule, id, thiss, context) {
 	if (kroll.isExternalCommonJsModule(id)) {
 		var jsModule = new Module(id + ".commonjs", thiss, context);
-		jsModule.load(id, kroll.getExternalCommonJsModule(id));
+		// Load under fake name, or the commonjs side of the native module gets cached in place of the native module!
+		// See TIMOB-24932
+		jsModule.load(id + ".commonjs", kroll.getExternalCommonJsModule(id));
 		if (jsModule.exports) {
 			if (kroll.DBG) {
 				kroll.log(TAG, "Extending native module '" + id + "' with the CommonJS module that was packaged with it.");
@@ -339,7 +341,6 @@ Module.prototype.loadCoreModule = function (id, context) {
 				// found it
 				// FIXME Re-use loadAsJavaScriptText?
 				var module = new Module(id, this, context);
-				Module.cache[id] = module;
 				module.load(id, externalCommonJsContents);
 				return module.exports;
 			}

@@ -11,21 +11,21 @@
 
 @implementation TiUIiPhoneListViewSeparatorStyleProxy
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iPhone.ListViewSeparatorStyle";
+  return @"Ti.UI.iPhone.ListViewSeparatorStyle";
 }
 
--(NSNumber*)SINGLE_LINE
+- (NSNumber *)SINGLE_LINE
 {
-    DEPRECATED_REPLACED(@"UI.iPhone.ListViewSeparatorStyle.SINGLE_LINE", @"5.2.0", @"UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE");
-    return [NSNumber numberWithInt:UITableViewCellSeparatorStyleSingleLine];
+  DEPRECATED_REPLACED(@"UI.iPhone.ListViewSeparatorStyle.SINGLE_LINE", @"5.2.0", @"UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE");
+  return [NSNumber numberWithInt:UITableViewCellSeparatorStyleSingleLine];
 }
 
--(NSNumber*)NONE
+- (NSNumber *)NONE
 {
-    DEPRECATED_REPLACED(@"UI.iPhone.ListViewSeparatorStyle.NONE", @"5.2.0", @"UI.TABLE_VIEW_SEPARATOR_STYLE_NONE");
-    return [NSNumber numberWithInt:UITableViewCellSeparatorStyleNone];
+  DEPRECATED_REPLACED(@"UI.iPhone.ListViewSeparatorStyle.NONE", @"5.2.0", @"UI.TABLE_VIEW_SEPARATOR_STYLE_NONE");
+  return [NSNumber numberWithInt:UITableViewCellSeparatorStyleNone];
 }
 
 @end

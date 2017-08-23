@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -37,6 +37,13 @@ public class AudioPlayerProxy extends KrollProxy
 	@Kroll.constant public static final int STATE_WAITING_FOR_DATA = TiSound.STATE_WAITING_FOR_DATA;
 	@Kroll.constant public static final int STATE_WAITING_FOR_QUEUE = TiSound.STATE_WAITING_FOR_QUEUE;
 
+	@Kroll.constant public static final int AUDIO_TYPE_MEDIA = TiSound.AUDIO_TYPE_MEDIA;
+	@Kroll.constant public static final int AUDIO_TYPE_ALARM = TiSound.AUDIO_TYPE_ALARM;
+	@Kroll.constant public static final int AUDIO_TYPE_SIGNALLING = TiSound.AUDIO_TYPE_SIGNALLING;
+	@Kroll.constant public static final int AUDIO_TYPE_RING = TiSound.AUDIO_TYPE_RING;
+	@Kroll.constant public static final int AUDIO_TYPE_VOICE = TiSound.AUDIO_TYPE_VOICE;
+	@Kroll.constant public static final int AUDIO_TYPE_NOTIFICATION = TiSound.AUDIO_TYPE_NOTIFICATION;
+
 	protected TiSound snd;
 	private boolean windowFocused;
 	private boolean resumeInOnWindowFocusChanged;
@@ -51,6 +58,7 @@ public class AudioPlayerProxy extends KrollProxy
 
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
 		defaultValues.put(TiC.PROPERTY_TIME,0);
+		defaultValues.put(TiC.PROPERTY_AUDIO_TYPE, AUDIO_TYPE_MEDIA);
 	}
 
 	@Override
@@ -104,6 +112,16 @@ public class AudioPlayerProxy extends KrollProxy
 			return s.getDuration();
 		}
 		return 0;
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public int getAudioType() {
+		return TiConvert.toInt(getProperty(TiC.PROPERTY_AUDIO_TYPE));
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setAudioType(int val) {
+		setProperty(TiC.PROPERTY_AUDIO_TYPE, val);
 	}
 
 	@Kroll.getProperty @Kroll.method
