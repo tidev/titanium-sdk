@@ -730,7 +730,7 @@ class FrameworkInspector {
 	 */
 	detectBinaryTypeAndArchitectures(binaryPathAndFilename) {
 		return new Promise((resolve, reject) => {
-			exec('file -b ' + binaryPathAndFilename, (error, stdout) => {
+			exec('file -b "' + binaryPathAndFilename + '"', (error, stdout) => {
 				if (error) {
 					return reject(error);
 				}
