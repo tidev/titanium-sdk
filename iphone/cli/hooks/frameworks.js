@@ -6,7 +6,9 @@
 const appc = require('node-appc');
 const exec = require('child_process').exec;
 const fs = require('fs');
+const IncrementalFileTask = require('appc-tasks').IncrementalFileTask;
 const path = require('path');
+const wrench = require('wrench');
 
 const frameworkPattern = /([^/]+)\.framework$/;
 
@@ -23,7 +25,7 @@ exports.init = function (logger, config, cli) {
 /**
  * Manages all available frameworks either from modules or the project itself
  *
- * Scans for available frameworks and analyses them to get the required info to
+ * Scans for available frameworks and inspects them to get the required info to
  * properly integrate them into the Xcode project.
  */
 class FrameworkManager {
@@ -40,7 +42,7 @@ class FrameworkManager {
 		this._config = config;
 		this._logger = logger;
 		this._builder = null;
-		this._frameworks = new Map();
+		this._frameworks = null;
 	}
 
 	/**
@@ -50,11 +52,9 @@ class FrameworkManager {
 		this._cli.on('build.pre.compile', {
 			priority: 1200,
 			post: (builder, callback) => {
+				this._logger.trace('Starting third-party framework detection');
 				this._builder = builder;
-				this.detectFrameworks().then(() => {
-					builder.frameworks = this._frameworks;
-					callback();
-				}).catch((err) => callback(err));
+				this.detectFrameworks().then(callback, callback);
 			}
 		});
 
@@ -69,52 +69,59 @@ class FrameworkManager {
 	 * @return {Promise}
 	 */
 	detectFrameworks() {
-		return Promise.all([
-			this.scanModuleFrameworks(),
-			this.scanProjectFrameworks()
-		]);
+		return this.findFrameworkPaths().then((frameworkPaths) => {
+			let incrementalDirectory = path.join(this._builder.projectDir, 'build', 'incremental');
+			let outputDirectory = path.join(this._builder.projectDir, 'build', 'inspectFrameworks');
+			let task = new InspectFrameworksTask({
+				name: 'ti:inspectFrameworks',
+				logger: this._logger,
+				incrementalDirectory: incrementalDirectory
+			});
+			task.outputDirectory = outputDirectory;
+			frameworkPaths.forEach(frameworkPath => {
+				task.addFrameworkPath(frameworkPath);
+			});
+			task.postTaskRun = () => {
+				this._frameworks = task.frameworks;
+
+				// Convert the internal ES6 map to an object to avoid ES6 in the builder
+				let frameworkObject = {};
+				this._frameworks.forEach(frameworkInfo => {
+					frameworkObject[frameworkInfo.name] = {
+						name: frameworkInfo.name,
+						path: frameworkInfo.name,
+						type: frameworkInfo.type,
+						architectures: Array.from(frameworkInfo.architectures)
+					};
+				});
+				this._builder.frameworks = frameworkObject;
+			};
+			return task.run();
+		});
 	}
 
-	/**
-	 * Scans the platform folder from all modules for included frameworks
-	 *
-	 * @return {Promise}
-	 */
-	scanModuleFrameworks() {
+	findFrameworkPaths() {
 		let scanPromises = [];
+		let foundFrameworkPaths = [];
+		let pathsToScan = [
+			path.join(this._builder.projectDir, 'platform', 'ios', 'Frameworks'),
+			path.join(this._builder.projectDir, 'platform', 'iphone', 'Frameworks')
+		];
 		for (let module of this._builder.modules) {
-			let moduleFrameworkPaths = [
-				path.join(module.modulePath, 'platform', 'ios', 'Frameworks'),
-				path.join(module.modulePath, 'platform', 'iphone', 'Frameworks')
-			];
-			for (let frameworksPath of moduleFrameworkPaths) {
-				let scanPromise = this.scanPathForFrameworks(frameworksPath);
-				scanPromises.push(scanPromise);
-			}
+			pathsToScan.push(path.join(module.modulePath, 'platform'));
+			pathsToScan.push(path.join(module.modulePath, 'Resources'));
 		}
 
-		return Promise.all(scanPromises);
-	}
-
-	/**
-	 * Scans the project's platform folder for available frameworks
-	 *
-	 * This is required for Hyperloop
-	 *
-	 * @return {Promise}
-	 */
-	scanProjectFrameworks() {
-		let scanPromises = [];
-		let projectFrameworkPaths = [
-			path.join(this._builder.projectDir, 'platform', 'ios', 'Frameworks'),
-			path.join(this._builder.projectDir, 'platform', 'iphone', 'Frameworks'),
-		];
-		for (let frameworksPath of projectFrameworkPaths) {
-			let scanPromise = this.scanPathForFrameworks(frameworksPath);
+		for (let pathToScan of pathsToScan) {
+			let scanPromise = this.scanPathForFrameworks(pathToScan).then((result) => {
+				if (result) {
+					foundFrameworkPaths = foundFrameworkPaths.concat(result);
+				}
+			});
 			scanPromises.push(scanPromise);
 		}
 
-		return Promise.all(scanPromises);
+		return Promise.all(scanPromises).then(() => foundFrameworkPaths);
 	}
 
 	/**
@@ -130,29 +137,22 @@ class FrameworkManager {
 		}
 
 		this._logger.trace(`Scanning ${frameworksPath.cyan} for frameworks`);
-		let infoPromises = [];
 		return new Promise((resolve, reject) => {
 			fs.readdir(frameworksPath, (err, files) => {
 				if (err) {
 					reject(err);
 				}
 
-				let frameworkAnalyzer = new FrameworkAnalyzer(this._logger);
+				let foundFrameworkPaths = [];
 				for (let filename of files) {
 					let possibleFrameworkPath = path.join(frameworksPath, filename);
 					if (frameworkPattern.test(possibleFrameworkPath)) {
-						let infoPromise = frameworkAnalyzer.analyze(possibleFrameworkPath).then((frameworkInfo) => {
-							if (this._frameworks.has(frameworkInfo.name)) {
-								let existingFrameworkInfo = this._frameworks.get(frameworkInfo.name);
-								return reject(new Error(`Duplicate framework ${frameworkInfo.name} detected (found at ${frameworkInfo.path.cyan} and ${existingFrameworkInfo.path.cyan}`));
-							}
-							this._frameworks.set(frameworkInfo.name, frameworkInfo);
-						}, reject);
-						infoPromises.push(infoPromise);
+						this._logger.trace(`  found ${path.relative(frameworksPath, possibleFrameworkPath)}`);
+						foundFrameworkPaths.push(possibleFrameworkPath);
 					}
 				}
 
-				Promise.all(infoPromises).then(resolve, reject);
+				resolve(foundFrameworkPaths);
 			});
 		});
 	}
@@ -171,7 +171,7 @@ class FrameworkManager {
 		let xcodeProject = hookData.args[0];
 		let frameworkIntegrator = new FrameworkIntegrator(xcodeProject, this._builder, this._logger);
 		for (let frameworkInfo of this._frameworks.values()) {
-			this._logger.trace(`Integrating ${frameworkInfo.type} framework "${frameworkInfo.name}" into Xcode project.`);
+			this._logger.trace(`Integrating ${frameworkInfo.type} framework ${frameworkInfo.name.green} into Xcode project.`);
 			frameworkIntegrator.integrateFramework(frameworkInfo);
 		}
 
@@ -223,6 +223,188 @@ class FrameworkManager {
 
 		return false;
 	}
+}
+
+/**
+ * Task that takes a set of paths and inspects the frameworks that are found
+ * there
+ */
+class InspectFrameworksTask extends IncrementalFileTask {
+
+	/**
+	 * Constructs a new frameworks insepcation task
+	 *
+	 * @param {Object} taskInfo Task info object
+	 */
+	constructor(taskInfo) {
+		super(taskInfo);
+
+		this._frameworkPaths = new Set();
+		this._frameworks = new Map();
+		this._outputDirectory = null;
+		this._metadataPathAndFilename = null;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	get incrementalOutputs() {
+		return [this._outputDirectory];
+	}
+
+	/**
+	 * Sets the output directory where this task will write the framework metadata
+	 *
+	 * @param {String} outputPath Full path to the output directory
+	 */
+	set outputDirectory(outputPath) {
+		this._outputDirectory = outputPath;
+		this.registerOutputPath(outputPath);
+		this._metadataPathAndFilename = path.join(this._outputDirectory, 'frameworks.json');
+	}
+
+	/**
+	 * Returns a list with metadata of all recognized frameworks
+	 *
+	 * @return {Map.<String, FrameworkInfo>} Map of framework paths and the associated metadata
+	 */
+	get frameworks() {
+		return this._frameworks;
+	}
+
+	/**
+	 * Adds a .framework folder so this task can inspect it to collect metadata
+	 * about the framework
+	 *
+	 * @param {String} frameworkPath Path to the .framework folder to inspect
+	 */
+	addFrameworkPath(frameworkPath) {
+		if (this._frameworkPaths.has(frameworkPath)) {
+			return;
+		}
+
+		this._frameworkPaths.add(frameworkPath);
+		this.addInputDirectory(frameworkPath);
+	}
+
+	/**
+	 * Does a full task run by inspecting all available framework paths
+	 *
+	 * @return {Promise}
+	 */
+	doFullTaskRun() {
+		this._frameworks = new Map();
+		return this.inspectFrameworks(this._frameworkPaths)
+			.then(this.writeFrameworkMetadata.bind(this));
+	}
+
+	/**
+	 * Does an incremental task run by only scanning changed framework folders
+	 * and removing deleted frameworks from the metadata object
+	 *
+	 * @param {Map.<String, String>} changedFiles Map of changed files and their status (created, changed or deleted)
+	 * @return {Promise}
+	 */
+	doIncrementalTaskRun(changedFiles) {
+		let loaded = this.loadFrameworkMetadata();
+		if (!loaded) {
+			return this.doFullTaskRun();
+		}
+
+		this._frameworks.forEach((frameworkInfo, frameworkPath) => {
+			if (!fs.existsSync(frameworkPath)) {
+				this._frameworks.delete(frameworkPath);
+			}
+		});
+
+		let changedFrameworks = new Set();
+		changedFiles.forEach((fileStatus, fileInfo) => {
+			let frameworkPath = fileInfo.path.substring(0, fileInfo.path.indexOf('.framework') + 10);
+			changedFrameworks.add(frameworkPath);
+		});
+
+		return this.inspectFrameworks(changedFrameworks)
+			.then(this.writeFrameworkMetadata.bind(this));
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	loadResultAndSkip() {
+		let loaded = this.loadFrameworkMetadata();
+		if (!loaded) {
+			return this.doFullTaskRun();
+		}
+
+		return Promise.resolve();
+	}
+
+	/**
+	 * Loads stored metadata from disk and recreates the {@link FrameworkInfo}
+	 * objects
+	 *
+	 * @return {Boolean} True if the metadata was sucessfully loaded, false if not
+	 */
+	loadFrameworkMetadata() {
+		try {
+			let metadata = JSON.parse(fs.readFileSync(this._metadataPathAndFilename));
+			Object.keys(metadata).forEach(frameworkPath => {
+				let frameworkMetadata = metadata[frameworkPath];
+				this._frameworks.set(frameworkMetadata.name, new FrameworkInfo(
+					frameworkMetadata.name,
+					frameworkMetadata.path,
+					frameworkMetadata.type,
+					new Set(frameworkMetadata.architectures)
+				));
+			});
+			return true;
+		} catch(e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Saves the internal matadata object to disk for reuse on subsequent builds
+	 */
+	writeFrameworkMetadata() {
+		let metadataObject = {};
+		this._frameworks.forEach(frameworkInfo => {
+			metadataObject[frameworkInfo.path] = {
+				name: frameworkInfo.name,
+				path: frameworkInfo.path,
+				type: frameworkInfo.type,
+				architectures: Array.from(frameworkInfo.architectures)
+			};
+		});
+		if (!fs.existsSync(this._outputDirectory)) {
+			wrench.mkdirSyncRecursive(this._outputDirectory);
+		}
+		fs.writeFileSync(this._metadataPathAndFilename, JSON.stringify(metadataObject));
+	}
+
+	/**
+	 * Inspects each framework for their type and supported architectures
+	 *
+	 * @param {Set.<String>} frameworkPaths List of framework paths to inspect
+	 * @return {Promise}
+	 */
+	inspectFrameworks(frameworkPaths) {
+		let metadataPromises = [];
+		let frameworkInspector = new FrameworkInspector(this._logger);
+		for (let frameworkPath of frameworkPaths) {
+			let metadataPromise = frameworkInspector.inspect(frameworkPath).then((frameworkInfo) => {
+				if (this._frameworks.has(frameworkInfo.name)) {
+					let existingFrameworkInfo = this._frameworks.get(frameworkInfo.name);
+					return new Error(`Duplicate framework ${frameworkInfo.name} detected (found at ${frameworkInfo.path.cyan} and ${existingFrameworkInfo.path.cyan}`);
+				}
+				this._frameworks.set(frameworkInfo.name, frameworkInfo);
+			});
+			metadataPromises.push(metadataPromise);
+		}
+
+		return Promise.all(metadataPromises);
+	}
+
 }
 
 /**
@@ -475,27 +657,27 @@ class FrameworkIntegrator {
 /**
  * Collects data about a framework that is required throughout the build
  */
-class FrameworkAnalyzer {
+class FrameworkInspector {
 
 	constructor(logger) {
 		this._logger = logger;
 	}
 
 	/**
-	 * Analyzes a framework under the given path and returns a new FrameworkInfo
+	 * Inspects the framework under the given path and returns a new {@link FrameworkInfo}
 	 * instance for it
 	 *
-	 * @param {string} frameworkPath Path to the framwork to analyze
+	 * @param {String} frameworkPath Path to the framwork to inspect
 	 * @return {Promise}
 	 */
-	analyze(frameworkPath) {
+	inspect(frameworkPath) {
 		let frameworkMatch = frameworkPath.match(frameworkPattern);
 		let frameworkName = frameworkMatch[1];
 		let binaryPathAndFilename = path.join(frameworkPath, frameworkName);
 		return this.detectBinaryTypeAndArchitectures(binaryPathAndFilename).then((result) => {
 			let frameworkInfo = new FrameworkInfo(frameworkName, frameworkPath, result.type, result.architectures);
 			let archs = Array.from(frameworkInfo.architectures.values()).join(', ');
-			this._logger.trace(`Found framework ${frameworkName.green} (type: ${result.type}, archs: ${archs}) at ${frameworkPath.cyan}`);
+			this._logger.debug(`Found framework ${frameworkName.green} (type: ${result.type}, archs: ${archs}) at ${frameworkPath.cyan}`);
 			return frameworkInfo;
 		});
 	}
