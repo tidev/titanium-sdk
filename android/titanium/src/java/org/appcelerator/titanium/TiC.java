@@ -154,6 +154,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_DRAGSTART = "dragstart";
+
 	/**
 	 * @module.api
 	 */
@@ -3016,6 +3017,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VOLUME = "volume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_WAKE_LOCK = "wakeLock";
 
 	/**
 	 * @module.api
