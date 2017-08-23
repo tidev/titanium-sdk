@@ -111,8 +111,8 @@ class FrameworkManager {
 		let scanPromises = [];
 		let foundFrameworkPaths = [];
 		let pathsToScan = [
-			path.join(this._builder.projectDir, 'platform', 'ios', 'Frameworks'),
-			path.join(this._builder.projectDir, 'platform', 'iphone', 'Frameworks')
+			path.join(this._builder.projectDir, 'platform', 'ios'),
+			path.join(this._builder.projectDir, 'platform', 'iphone')
 		];
 		for (let module of this._builder.modules) {
 			pathsToScan.push(path.join(module.modulePath, 'platform'));
@@ -120,7 +120,7 @@ class FrameworkManager {
 		}
 
 		for (let pathToScan of pathsToScan) {
-			let scanPromise = this.scanPathForFrameworks(pathToScan).then((result) => {
+			let scanPromise = this.scanPathForFrameworks(pathToScan).then(result => {
 				if (result) {
 					foundFrameworkPaths = foundFrameworkPaths.concat(result);
 				}
@@ -143,13 +143,13 @@ class FrameworkManager {
 			return Promise.resolve();
 		}
 
-		this._logger.trace(`Scanning ${frameworksPath.cyan} for frameworks`);
 		return new Promise((resolve, reject) => {
 			fs.readdir(frameworksPath, (err, files) => {
 				if (err) {
 					reject(err);
 				}
 
+				this._logger.trace(`Scanning ${frameworksPath.cyan} for frameworks`);
 				let foundFrameworkPaths = [];
 				for (let filename of files) {
 					let possibleFrameworkPath = path.join(frameworksPath, filename);
@@ -318,16 +318,22 @@ class InspectFrameworksTask extends IncrementalFileTask {
 			return this.doFullTaskRun();
 		}
 
-		this._frameworks.forEach((frameworkInfo, frameworkPath) => {
-			if (!fs.existsSync(frameworkPath)) {
-				this._frameworks.delete(frameworkPath);
+		this._frameworks.forEach(frameworkInfo => {
+			if (!fs.existsSync(frameworkInfo.path)) {
+				this.logger.trace(`Framework at ${frameworkInfo.path} deleted, removing metadata`);
+				this._frameworks.delete(frameworkInfo.name);
 			}
 		});
 
 		let changedFrameworks = new Set();
-		changedFiles.forEach((fileStatus, fileInfo) => {
-			let frameworkPath = fileInfo.path.substring(0, fileInfo.path.indexOf('.framework') + 10);
-			changedFrameworks.add(frameworkPath);
+		changedFiles.forEach((fileStatus, pathAndFilename) => {
+			if (fileStatus === 'created' || fileStatus === 'changed') {
+				let frameworkPath = pathAndFilename.substring(0, pathAndFilename.indexOf('.framework') + 10);
+				if (!changedFrameworks.has(frameworkPath)) {
+					this.logger.trace(`Framework at ${frameworkPath} changed, regenerating metadata`);
+					changedFrameworks.add(frameworkPath);
+				}
+			}
 		});
 
 		return this.inspectFrameworks(changedFrameworks)
