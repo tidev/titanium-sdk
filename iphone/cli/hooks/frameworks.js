@@ -72,6 +72,10 @@ class FrameworkManager {
 	 */
 	detectFrameworks() {
 		return this.findFrameworkPaths().then((frameworkPaths) => {
+			if (frameworkPaths.length === 0) {
+				return Promise.resolve();
+			}
+
 			let incrementalDirectory = path.join(this._builder.projectDir, 'build', 'incremental');
 			let outputDirectory = path.join(this._builder.projectDir, 'build', 'inspectFrameworks');
 			let task = new InspectFrameworksTask({
