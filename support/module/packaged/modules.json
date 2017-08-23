@@ -3,14 +3,14 @@
 		"https://github.com/appcelerator-modules/ti.urlsession/releases/download/v2.1.0/com.appcelerator.urlSession-iphone-2.1.0.zip",
 		"https://github.com/appcelerator-modules/ti.facebook/releases/download/ios-5.4.0/facebook-iphone-5.4.0.zip",
 		"https://github.com/appcelerator-modules/ti.coremotion/releases/download/v2.0.1/ti.coremotion-iphone-2.0.1.zip",
-		"https://github.com/appcelerator-modules/ti.map/releases/download/ios-2.10.0/ti.map-iphone-2.10.0.zip",
+		"https://github.com/appcelerator-modules/ti.map/releases/download/ios-2.12.0/ti.map-iphone-2.12.0.zip",
 		"https://github.com/appcelerator-modules/ti.safaridialog/releases/download/iOS-1.1.1/ti.safaridialog-iphone-1.1.1.zip",
 		"https://github.com/appcelerator-modules/ti.touchid/releases/download/ios-2.1.2/ti.touchid-iphone-2.1.2.zip"
 	],
 	"android": [
 		"https://github.com/appcelerator-modules/ti.facebook/releases/download/android-6.2.0/facebook-android-6.2.0.zip",
 		"https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-4.0.3.zip",
-		"https://github.com/appcelerator-modules/ti.map/releases/download/android-3.1.1/ti.map-android-3.1.1.zip",
+		"https://github.com/appcelerator-modules/ti.map/releases/download/android-3.3.0/ti.map-android-3.3.0.zip",
 		"https://github.com/appcelerator-modules/ti.touchid/releases/download/android-2.1.0/ti.touchid-android-2.1.0.zip"
 	],
 	"commonjs": [

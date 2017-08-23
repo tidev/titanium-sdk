@@ -1,7 +1,7 @@
 #!/usr/bin/env node
+'use strict';
 
-var exec = require('child_process').exec,
-	os = require('os'),
+const os = require('os'),
 	path = require('path'),
 	async = require('async'),
 	program = require('commander'),
@@ -11,17 +11,13 @@ var exec = require('child_process').exec,
 	git = require('./git'),
 	Packager = require('./packager'),
 	appc = require('node-appc'),
-	platforms = [],
-	oses = [],
 	// TODO Move common constants somewhere?
 	ROOT_DIR = path.join(__dirname, '..'),
 	DIST_DIR = path.join(ROOT_DIR, 'dist'),
-	ALL_OSES = ['win32', 'linux', 'osx'],
-	ALL_PLATFORMS = ['ios', 'android', 'mobileweb', 'windows'],
 	OS_TO_PLATFORMS = {
-		'win32': ['android', 'mobileweb', 'windows'],
-		'osx': ['android', 'ios', 'mobileweb'],
-		'linux': ['android', 'mobileweb']
+		'win32': [ 'android', 'windows' ],
+		'osx': [ 'android', 'ios' ],
+		'linux': [ 'android' ]
 	};
 
 program
@@ -33,20 +29,19 @@ program
 	.parse(process.argv);
 
 // We're building for the host OS
-var thisOS = os.platform();
-if ('darwin' === thisOS) {
+let thisOS = os.platform();
+if (thisOS === 'darwin') {
 	thisOS = 'osx';
 }
-oses.push(thisOS);
+const oses = [ thisOS ];
 
-platforms = program.args;
+let platforms = program.args;
 if (!platforms.length) {
 	platforms = OS_TO_PLATFORMS[thisOS];
 }
 
 function install(versionTag, next) {
-	var zipfile,
-		dest,
+	let dest,
 		osName = os.platform();
 
 	if (osName === 'win32') {
@@ -63,13 +58,13 @@ function install(versionTag, next) {
 		dest = path.join(process.env.HOME, '.titanium');
 	}
 
-	zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
+	const zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
 	console.log('Installing %s...', zipfile);
 
 	appc.zip.unzip(zipfile, dest, {}, next);
 }
 
-var versionTag = program.versionTag || program.sdkVersion;
+const versionTag = program.versionTag || program.sdkVersion;
 
 async.series([
 	function (next) {
@@ -87,7 +82,7 @@ async.series([
 	}
 
 	async.each(platforms, function (item, next) {
-		var Platform = require('./' + item);
+		const Platform = require('./' + item); // eslint-disable-line security/detect-non-literal-require
 		new Platform(program).clean(next);
 	}, function (err) {
 		if (err) {
@@ -96,7 +91,7 @@ async.series([
 		}
 
 		async.eachSeries(platforms, function (item, next) {
-			var Platform = require('./' + item);
+			const Platform = require('./' + item); // eslint-disable-line security/detect-non-literal-require
 			new Platform(program).build(next);
 		}, function (err) {
 			if (err) {
@@ -115,9 +110,9 @@ async.series([
 				async.eachSeries(oses, function (targetOS, next) {
 					// Match our master platform list against OS_TO_PLATFORMS[item] listing.
 					// Only package the platform if its in both arrays
-					var filteredPlatforms = [];
-					for (var i = 0; i < platforms.length; i++) {
-						if (OS_TO_PLATFORMS[targetOS].indexOf(platforms[i]) != -1) {
+					const filteredPlatforms = [];
+					for (let i = 0; i < platforms.length; i++) {
+						if (OS_TO_PLATFORMS[targetOS].indexOf(platforms[i]) !== -1) {
 							filteredPlatforms.push(platforms[i]);
 						}
 					}

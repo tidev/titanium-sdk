@@ -12,14 +12,14 @@
 
 @implementation TiUIiPhoneTableViewCellSelectionStyleProxy
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iPhone.TableViewCellSelectionStyle";
+  return @"Ti.UI.iPhone.TableViewCellSelectionStyle";
 }
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(NONE,UITableViewCellSelectionStyleNone,    @"UI.iPhone.TableViewCellSelectionStyle.NONE",@"5.4.0",@"UI.iOS.TableViewCellSelectionStyle.NONE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLUE,UITableViewCellSelectionStyleBlue,    @"UI.iPhone.TableViewCellSelectionStyle.BLUE",@"5.4.0",@"UI.iOS.TableViewCellSelectionStyle.BLUE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(GRAY,UITableViewCellSelectionStyleGray,    @"UI.iPhone.TableViewCellSelectionStyle.GRAY",@"5.4.0",@"UI.iOS.TableViewCellSelectionStyle.GRAY");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(NONE, UITableViewCellSelectionStyleNone, @"UI.iPhone.TableViewCellSelectionStyle.NONE", @"5.4.0", @"UI.iOS.TableViewCellSelectionStyle.NONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLUE, UITableViewCellSelectionStyleBlue, @"UI.iPhone.TableViewCellSelectionStyle.BLUE", @"5.4.0", @"UI.iOS.TableViewCellSelectionStyle.BLUE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(GRAY, UITableViewCellSelectionStyleGray, @"UI.iPhone.TableViewCellSelectionStyle.GRAY", @"5.4.0", @"UI.iOS.TableViewCellSelectionStyle.GRAY");
 
 @end
 

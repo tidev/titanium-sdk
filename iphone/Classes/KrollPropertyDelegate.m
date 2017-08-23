@@ -7,33 +7,31 @@
 
 #import "KrollPropertyDelegate.h"
 
-
 @implementation KrollPropertyDelegate
 
--(id)initWithTarget:(id)target_ selector:(SEL)selector_
+- (id)initWithTarget:(id)target_ selector:(SEL)selector_
 {
-	if (self = [super init])
-	{
-		target = [target_ retain];
-		selector = selector_;
-	}
-	return self;
+  if (self = [super init]) {
+    target = [target_ retain];
+    selector = selector_;
+  }
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	[target release];
-	[super dealloc];
+  [target release];
+  [super dealloc];
 }
 
--(id)target
+- (id)target
 {
-	return target;
+  return target;
 }
 
--(SEL)selector
+- (SEL)selector
 {
-	return selector;
+  return selector;
 }
 
 @end
