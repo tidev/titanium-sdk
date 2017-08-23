@@ -357,11 +357,11 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	selectedPropertyCallback = [[args objectForKey:@"selectedProperty"] retain];
     if ([TiUtils isIOS9OrGreater]) {
         contactPicker = [[CNContactPickerViewController alloc] init];
-        [contactPicker setDelegate:self];
-        if (selectedPropertyCallback == nil) {
-            contactPicker.predicateForSelectionOfProperty = [NSPredicate predicateWithValue:NO];
-        }
-        
+	[contactPicker setDelegate:self];	
+	if (selectedPropertyCallback == nil) {
+      	    contactPicker.predicateForSelectionOfProperty = [NSPredicate predicateWithValue:NO];
+	}
+
         if (selectedPersonCallback == nil) {
             contactPicker.predicateForSelectionOfContact = [NSPredicate predicateWithValue:NO];
         }
@@ -391,11 +391,11 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
     if (selectedPropertyCallback == nil) {
         [picker setPredicateForSelectionOfProperty:[NSPredicate predicateWithValue:NO]];
     }
-    
+	
     if (selectedPersonCallback == nil) {
         [picker setPredicateForSelectionOfPerson:[NSPredicate predicateWithValue:NO]];
     }
-    
+        
 	animated = [TiUtils boolValue:@"animated" properties:args def:YES];
 	
 	NSArray* fields = [args objectForKey:@"fields"];
@@ -418,14 +418,17 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 
 // OK to do outside main thread
 -(TiContactsPerson*)getPersonByID:(id)arg
-{
+{	
 	if ([TiUtils isIOS9OrGreater]) {
 		DebugLog(@"This method is removed for iOS9 and greater.");
 		return nil;
 	}
-	ENSURE_SINGLE_ARG(arg, NSObject)
+	
+	ENSURE_SINGLE_ARG(arg, NSString)
+	
 	__block int idNum = [TiUtils intValue:arg];
 	__block BOOL validId = NO;	
+	
 	TiThreadPerformOnMainThread(^{
 		ABAddressBookRef ourAddressBook = [self addressBook];
 		if (ourAddressBook == NULL) {
@@ -433,27 +436,30 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		}
 		ABRecordRef record = NULL;
 		record = ABAddressBookGetPersonWithRecordID(ourAddressBook, idNum);
-		if (record != NULL)
-		{
+		if (record != NULL) {
 			validId = YES;
 		}
-    }, YES);
-	if (validId == YES)
-	{
+	}, YES);
+	
+	if (validId == YES) {
 		return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
 	}
+	
 	return NULL;
 }
 
 -(TiContactsGroup*)getGroupByID:(id)arg
 {
+	ENSURE_SINGLE_ARG(arg, NSObject)
+
 	if ([TiUtils isIOS9OrGreater]) {
 		DebugLog(@"This method is removed for iOS9 and greater.");
 		return nil;
 	}
-	ENSURE_SINGLE_ARG(arg, NSObject)
+
 	__block int idNum = [TiUtils intValue:arg];
 	__block BOOL validId = NO;	
+	
 	TiThreadPerformOnMainThread(^{
 		ABAddressBookRef ourAddressBook = [self addressBook];
 		if (ourAddressBook == NULL) {
@@ -461,17 +467,16 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		}
 		ABRecordRef record = NULL;
 		record = ABAddressBookGetGroupWithRecordID(ourAddressBook, idNum);
-		if (record != NULL) 
-		{
+		if (record != NULL) {
 			validId = YES;
 		}
-    }, YES);
-	if (validId == YES)
-	{	
+    	}, YES);
+	
+	if (validId == YES) {	
 		return [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
 	}
-	return NULL;
 	
+	return NULL;
 }
 
 //New in iOS9
@@ -481,12 +486,15 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		DebugLog(@"This method is only for iOS9 and greater.");
 		return nil;
 	}
+	
 	if (![NSThread isMainThread]) {
 		__block id result;
 		TiThreadPerformOnMainThread(^{result = [[self getPersonByIdentifier:arg] retain];}, YES);
 		return [result autorelease];
 	}
+	
 	ENSURE_SINGLE_ARG(arg, NSString)
+
 	CNContactStore *ourContactStore = [self contactStore];
 	if (ourContactStore == NULL) {
 		return nil;
@@ -497,13 +505,14 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 	if (error) {
 		return nil;
 	}
+	
 	return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext]
                                                  contactId:(CNMutableContact *)contact
                                                     module:self
                                                   observer:self] autorelease];
 }
 
-//New in iOS9
+// New in iOS9
 -(TiContactsGroup*)getGroupByIdentifier:(id)arg
 {
 	if (![TiUtils isIOS9OrGreater]) {
@@ -592,11 +601,12 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 
 -(NSArray*)getAllPeople:(id)unused
 {
-	if (![NSThread isMainThread]) {
-		__block id result = nil;
-		TiThreadPerformOnMainThread(^{result = [[self getAllPeople:unused] retain];}, YES);
-		return [result autorelease];
-	}
+    if (![NSThread isMainThread]) {
+        __block id result = nil;
+	TiThreadPerformOnMainThread(^{result = [[self getAllPeople:unused] retain];}, YES);
+	
+	return [result autorelease];
+    }
 
     if ([TiUtils isIOS9OrGreater]) {
         CNContactStore *ourContactStore = [self contactStore];
@@ -612,13 +622,14 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
             TiContactsPerson* person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:(CNMutableContact*)contact module:self observer:self] autorelease];
             [peopleRefs addObject:person];
         }];
-		RELEASE_TO_NIL(fetchRequest)
-        if (success) {
+	
+	RELEASE_TO_NIL(fetchRequest)
+        
+	if (success) {
             NSArray *people = [NSArray arrayWithArray:peopleRefs];
             RELEASE_TO_NIL(peopleRefs)
             return people;
-        }
-        else {
+        } else {
             DebugLog(@"%@", [TiUtils messageFromError:error]);
             RELEASE_TO_NIL(peopleRefs)
             return nil;
@@ -642,9 +653,8 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
         [people addObject:person];
     }	
     CFRelease(peopleRefs);
-    return people;
-    
 
+    return people;
 }
 
 -(NSArray*)getAllGroups:(id)unused
