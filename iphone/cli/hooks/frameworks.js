@@ -3,6 +3,8 @@
  * project folder and then configures them in the Xcode project
  */
 
+'use strict';
+
 const appc = require('node-appc');
 const exec = require('child_process').exec;
 const fs = require('fs');
@@ -100,6 +102,11 @@ class FrameworkManager {
 		});
 	}
 
+	/**
+	 * Finds any .framework directories inside the project and its modules
+	 *
+	 * @return {Array} Array of available third-party framework directory paths
+	 */
 	findFrameworkPaths() {
 		let scanPromises = [];
 		let foundFrameworkPaths = [];
@@ -192,8 +199,8 @@ class FrameworkManager {
 	 * @return {Boolean} True if device and simulator archs were found, false otherwise
 	 */
 	hasFrameworksWithFatBinary() {
-		let deviceArchitectures = new Set(['armv7', 'arm64']);
-		let simulatorArchitectures = new Set(['i386', 'x86_64']);
+		let deviceArchitectures = new Set([ 'armv7', 'arm64' ]);
+		let simulatorArchitectures = new Set([ 'i386', 'x86_64' ]);
 		let hasDeviceArchitectures = false;
 		let hasSimulatorArchitectures = false;
 
@@ -249,7 +256,7 @@ class InspectFrameworksTask extends IncrementalFileTask {
 	 * @inheritdoc
 	 */
 	get incrementalOutputs() {
-		return [this._outputDirectory];
+		return [ this._outputDirectory ];
 	}
 
 	/**
@@ -358,7 +365,7 @@ class InspectFrameworksTask extends IncrementalFileTask {
 				));
 			});
 			return true;
-		} catch(e) {
+		} catch (e) {
 			return false;
 		}
 	}
@@ -428,11 +435,17 @@ class FrameworkIntegrator {
 		this._xobjs = xcodeProject.hash.project.objects;
 		this._projectUuid = xcodeProject.hash.project.rootObject;
 		this._pbxProject = this._xobjs.PBXProject[this._projectUuid];
-		this._mainTargetUuid = this._pbxProject.targets.filter((target) => { return target.comment.replace(/^"/, '').replace(/"$/, '') === this._builder.tiapp.name; })[0].value;
+		this._mainTargetUuid = this._pbxProject.targets.filter((target) => {
+			return target.comment.replace(/^"/, '').replace(/"$/, '') === this._builder.tiapp.name;
+		})[0].value;
 		this._mainTarget = this._xobjs.PBXNativeTarget[this._mainTargetUuid];
 		this._mainGroupChildren = this._xobjs.PBXGroup[this._pbxProject.mainGroup].children;
-		this._frameworksGroup = this._xobjs.PBXGroup[this._mainGroupChildren.filter(function (child) { return child.comment === 'Frameworks'; })[0].value];
-		this._frameworksBuildPhase = this._xobjs.PBXFrameworksBuildPhase[this._mainTarget.buildPhases.filter((phase) => { return this._xobjs.PBXFrameworksBuildPhase[phase.value]; })[0].value];
+		this._frameworksGroup = this._xobjs.PBXGroup[this._mainGroupChildren.filter((child) => {
+			return child.comment === 'Frameworks';
+		})[0].value];
+		this._frameworksBuildPhase = this._xobjs.PBXFrameworksBuildPhase[this._mainTarget.buildPhases.filter((phase) => {
+			return this._xobjs.PBXFrameworksBuildPhase[phase.value];
+		})[0].value];
 
 		this._frameworkSearchPaths = new Map();
 		this._runpathSearchPaths = new Map();
@@ -443,7 +456,7 @@ class FrameworkIntegrator {
 				this._runpathSearchPaths.set(buildConf.value, new Set());
 			}
 
-			var buildSettings = this._xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+			let buildSettings = this._xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
 			if (Array.isArray(buildSettings.FRAMEWORK_SEARCH_PATHS)) {
 				let frameworkSearchPaths = this._frameworkSearchPaths.get(buildConf.value);
 				for (let frameworkSearchPath of buildSettings.FRAMEWORK_SEARCH_PATHS) {
@@ -470,7 +483,7 @@ class FrameworkIntegrator {
 	 * Integrates a frameworks into the Xcode project by adding the required
 	 * build phases and adjusting the framework search path
 	 *
-	 * @param {FrameworkInfo} frameworkInfo
+	 * @param {FrameworkInfo} frameworkInfo Framework metadata
 	 */
 	integrateFramework(frameworkInfo) {
 		let fileRefUuid = this.addFrameworkFileReference(frameworkInfo);
@@ -484,7 +497,7 @@ class FrameworkIntegrator {
 	/**
 	 * Add the framework as a new file reference to the Xcode project
 	 *
-	 * @param {frameworkInfo} frameworkInfo
+	 * @param {frameworkInfo} frameworkInfo Framework metadata
 	 * @return {string} Uuid of the created file reference
 	 */
 	addFrameworkFileReference(frameworkInfo) {
@@ -509,7 +522,7 @@ class FrameworkIntegrator {
 	/**
 	 * Adds the framework to the project's link frameworks build phase
 	 *
-	 * @param {frameworkInfo} frameworkInfo
+	 * @param {frameworkInfo} frameworkInfo Framework metadata
 	 * @param {string} fileRefUuid Uuid of the frameworks file reference inside the Xcode project
 	 */
 	addLinkFrameworkBuildPhase(frameworkInfo, fileRefUuid) {
@@ -530,21 +543,21 @@ class FrameworkIntegrator {
 	/**
 	 * Adds the frameworks to the project's embedd frameworks build phase
 	 *
-	 * @param {frameworkInfo} frameworkInfo
+	 * @param {frameworkInfo} frameworkInfo Framework metadata
 	 * @param {string} fileRefUuid Uuid of the frameworks file reference inside the Xcode project
 	 */
 	addEmbeddFrameworkBuildPhase(frameworkInfo, fileRefUuid) {
 		let frameworkPackageName = frameworkInfo.name + '.framework';
-		var embeddedBuildFileUuid = this._builder.generateXcodeUuid();
+		let embeddedBuildFileUuid = this._builder.generateXcodeUuid();
 		this._xobjs.PBXBuildFile[embeddedBuildFileUuid] = {
 			isa: 'PBXBuildFile',
 			fileRef: fileRefUuid,
 			fileRef_comment: frameworkPackageName,
-			settings: {ATTRIBUTES: ['CodeSignOnCopy']}
+			settings: { ATTRIBUTES: [ 'CodeSignOnCopy' ]  }
 		};
 		this._xobjs.PBXBuildFile[embeddedBuildFileUuid + '_comment'] = frameworkPackageName + ' in Embed Frameworks';
 
-		var embedFrameworksBuildPhase = null;
+		let embedFrameworksBuildPhase = null;
 		for (let phase of this._mainTarget.buildPhases) {
 			if (phase.comment === 'Embed Frameworks') {
 				embedFrameworksBuildPhase = this._xobjs.PBXCopyFilesBuildPhase[phase.value];
@@ -552,7 +565,7 @@ class FrameworkIntegrator {
 			}
 		}
 		if (embedFrameworksBuildPhase === null) {
-			var embedFrameworksBuildPhaseUuid = this._builder.generateXcodeUuid();
+			let embedFrameworksBuildPhaseUuid = this._builder.generateXcodeUuid();
 			embedFrameworksBuildPhase = {
 				isa: 'PBXCopyFilesBuildPhase',
 				buildActionMask: 2147483647,
@@ -576,7 +589,7 @@ class FrameworkIntegrator {
 	/**
 	 * Adds the given paths to the framework search paths build setting
 	 *
-	 * @param {Set<string>} frameworkSearchPaths
+	 * @param {String} frameworkSearchPath Path to add to the framework search paths
 	 */
 	addFrameworkSearchPath(frameworkSearchPath) {
 		let buildConfigurations = this._xobjs.XCConfigurationList[this._mainTarget.buildConfigurationList].buildConfigurations;
@@ -587,12 +600,16 @@ class FrameworkIntegrator {
 			}
 
 			let buildSettings = this._xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-			buildSettings.FRAMEWORK_SEARCH_PATHS = buildSettings.FRAMEWORK_SEARCH_PATHS || ['"$(inherited)"'];
+			buildSettings.FRAMEWORK_SEARCH_PATHS = buildSettings.FRAMEWORK_SEARCH_PATHS || [ '"$(inherited)"' ];
 			buildSettings.FRAMEWORK_SEARCH_PATHS.push('"\\"' + frameworkSearchPath + '\\""');
 			frameworkSearchPaths.add(frameworkSearchPath);
 		}
 	}
 
+	/**
+	 * Adjusts the LD_RUNPATH_SEARCH_PATHS build setting and adds the path for
+	 * embedded frameworks.
+	 */
 	adjustRunpathSearchPath() {
 		let dynamicFrameworksRunpath = '@executable_path/Frameworks';
 		let buildConfigurations = this._xobjs.XCConfigurationList[this._mainTarget.buildConfigurationList].buildConfigurations;
@@ -603,17 +620,24 @@ class FrameworkIntegrator {
 			}
 
 			let buildSettings = this._xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-			buildSettings.LD_RUNPATH_SEARCH_PATHS = buildSettings.LD_RUNPATH_SEARCH_PATHS || ['"$(inherited)"'];
+			buildSettings.LD_RUNPATH_SEARCH_PATHS = buildSettings.LD_RUNPATH_SEARCH_PATHS || [ '"$(inherited)"' ];
 			buildSettings.LD_RUNPATH_SEARCH_PATHS.push('"\\"' + dynamicFrameworksRunpath + '\\""');
 			runpathSearchPaths.add(dynamicFrameworksRunpath);
 		}
 	}
 
+	/**
+	 * Integrates a script to strip unused architectures from any used frameworks
+	 *
+	 * This is required for proper app store submission. We either use our bundled
+	 * one from the platform template folder, or a user provided script with the
+	 * name strip-frameworks.sh which can be placed under platform/ios.
+	 */
 	integrateStripFrameworksScript() {
 		let stripFrameworksScriptPath = null;
 		const scriptFilename = 'strip-frameworks.sh';
 
-		['ios', 'iphone'].some((platformName) => {
+		[ 'ios', 'iphone' ].some((platformName) => {
 			let scriptPath = path.join(this._builder.projectDir, 'platform', platformName, scriptFilename);
 			if (fs.existsSync(scriptPath)) {
 				stripFrameworksScriptPath = scriptPath;
@@ -634,9 +658,9 @@ class FrameworkIntegrator {
 			this._builder.unmarkBuildDirFile(stripFrameworksScriptPath);
 		}
 
-		var scriptPhaseUuid = this._builder.generateXcodeUuid();
-		var shellPath = '/bin/sh';
-		var shellScript = 'bash "' + stripFrameworksScriptPath + '"';
+		let scriptPhaseUuid = this._builder.generateXcodeUuid();
+		let shellPath = '/bin/sh';
+		let shellScript = 'bash "' + stripFrameworksScriptPath + '"';
 
 		this._xobjs.PBXShellScriptBuildPhase = this._xobjs.PBXShellScriptBuildPhase || {};
 		this._xobjs.PBXShellScriptBuildPhase[scriptPhaseUuid] = {
@@ -655,10 +679,19 @@ class FrameworkIntegrator {
 }
 
 /**
- * Collects data about a framework that is required throughout the build
+ * Inspects a framework and collects data about it that is required to integrate
+ * it with the Xcode project.
+ *
+ * The framework metadata that is collected here will also be added to the
+ * builder at the end of this hook so it can then be used by other hooks.
  */
 class FrameworkInspector {
 
+	/**
+	 * Constructs a new framework inspector
+	 *
+	 * @param {Object} logger Appc logger instance
+	 */
 	constructor(logger) {
 		this._logger = logger;
 	}
@@ -686,12 +719,12 @@ class FrameworkInspector {
 	 * Detects the framwork's binary type (static or dynamic) and the included
 	 * architectures.
 	 *
-	 * @param {string} binaryPathAndFilename Path to a framwork's binary
+	 * @param {String} binaryPathAndFilename Path to a framwork's binary
 	 * @return {Promise}
 	 */
 	detectBinaryTypeAndArchitectures(binaryPathAndFilename) {
 		return new Promise((resolve, reject) => {
-			exec('file -b ' + binaryPathAndFilename, function(error, stdout) {
+			exec('file -b ' + binaryPathAndFilename, (error, stdout) => {
 				if (error) {
 					return reject(error);
 				}
@@ -730,9 +763,9 @@ class FrameworkInfo {
 	/**
 	 * Constructs a new framework info container
 	 *
-	 * @param {string} name Framework name
-	 * @param {string} path Path to the framework
-	 * @param {string} type Framwork's binary type (static or dynamic)
+	 * @param {String} name Framework name
+	 * @param {String} path Path to the framework
+	 * @param {String} type Framwork's binary type (static or dynamic)
 	 * @param {Set} architectures Set of supported architectures
 	 */
 	constructor(name, path, type, architectures) {
@@ -760,7 +793,7 @@ class FrameworkInfo {
 	/**
 	 * Gets the framework name
 	 *
-	 * @return {string}
+	 * @return {String}
 	 */
 	get name() {
 		return this._name;
@@ -769,7 +802,7 @@ class FrameworkInfo {
 	/**
 	 * Gets the full path to the framework folder
 	 *
-	 * @return {string}
+	 * @return {String}
 	 */
 	get path() {
 		return this._path;
@@ -778,7 +811,7 @@ class FrameworkInfo {
 	/**
 	 * Gets the Mach-O type of the framework's binary
 	 *
-	 * @return {string}
+	 * @return {String}
 	 */
 	get type() {
 		return this._type;
