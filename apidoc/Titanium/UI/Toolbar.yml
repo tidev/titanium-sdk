@@ -326,28 +326,30 @@ examples:
                 </Window>
             </Alloy>
 
-  - title: Alloy XML Markup - Toolbar used as an Actionbar
+  - title: Alloy XML Markup
     example: |
-    <Alloy>
-        <Window title="My Test App" backgroundColor="gray" customToolbar="toolbar">
-            <Toolbar
-                     id="toolbar"
-                     title="MyMenu"
-                     subtitle="Subtitle"
-                     width="Ti.UI.FILL"
-                     top=0
-                     barColor="#639851"
-                     displayHomeAsUp="true"
-                     homeButtonEnabled="true"
-                     overflowIcon="logo.png">
-                 <Items>
-                    <Button id="ok" title="OK"/>
-                    <Button id="cancel" title="Cancel"/>
-                </Items>
-            </Toolbar>
-            <Menu>
-                <MenuItem id="item1" title="Settings" showAsAction="Ti.Android.SHOW_AS_ACTION_NEVER"/>
-                <MenuItem id="item2" title="Search" showAsAction="Ti.Android.SHOW_AS_ACTION_NEVER"/>
-            </Menu> 
-        </Window>
-    </Alloy>
+        Example how to set up Toolbar as an ActionBar
+
+        <Alloy>
+            <Window title="My Test App" backgroundColor="gray" customToolbar="toolbar">
+                <Toolbar
+                         id="toolbar"
+                         title="MyMenu"
+                         subtitle="Subtitle"
+                         width="Ti.UI.FILL"
+                         top=0
+                         barColor="#639851"
+                         displayHomeAsUp="true"
+                         homeButtonEnabled="true"
+                         overflowIcon="logo.png">
+                     <Items>
+                        <Button id="ok" title="OK"/>
+                        <Button id="cancel" title="Cancel"/>
+                    </Items>
+                </Toolbar>
+                <Menu>
+                    <MenuItem id="item1" title="Settings" showAsAction="Ti.Android.SHOW_AS_ACTION_NEVER"/>
+                    <MenuItem id="item2" title="Search" showAsAction="Ti.Android.SHOW_AS_ACTION_NEVER"/>
+                </Menu> 
+            </Window>
+        </Alloy>
