@@ -15,6 +15,15 @@ import ti.modules.titanium.ui.widget.TiToolbar;
 		TiC.PROPERTY_EXTEND_BACKGROUND,
 		TiC.PROPERTY_ITEMS,
 		TiC.PROPERTY_TRANSLUCENT,
+		TiC.PROPERTY_LOGO,
+		TiC.PROPERTY_OVERFLOW_ICON,
+		TiC.PROPERTY_NAVIGATION_ICON,
+		TiC.PROPERTY_TITLE,
+		TiC.PROPERTY_TITLE_TEXT_COLOR,
+		TiC.PROPERTY_SUBTITLE,
+		TiC.PROPERTY_SUBTITLE_TEXT_COLOR,
+		TiC.PROPERTY_CONTENT_INSET_END_WITH_ACTIONS,
+		TiC.PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION
 })
 public class ToolbarProxy extends TiToolbarProxy {
 
@@ -51,12 +60,6 @@ public class ToolbarProxy extends TiToolbarProxy {
 	}
 
 	@Kroll.method
-	public int getContentInsetEndWithActions() {
-		//Gets the end content inset to use when action buttons are present.
-		return ((Toolbar) getTiToolbarView().getNativeView()).getContentInsetEndWithActions();
-	}
-
-	@Kroll.method
 	public int getContentInsetLeft() {
 		//Gets the left content inset for this toolbar.
 		return ((Toolbar) getTiToolbarView().getNativeView()).getContentInsetLeft();
@@ -72,12 +75,6 @@ public class ToolbarProxy extends TiToolbarProxy {
 	public int getContentInsetStart() {
 		//Gets the starting content inset for this toolbar.
 		return ((Toolbar) getTiToolbarView().getNativeView()).getContentInsetStart();
-	}
-
-	@Kroll.method
-	public int getContentInsetStartWithNavigation() {
-		//Gets the start content inset to use when a navigation button is present.
-		return ((Toolbar) getTiToolbarView().getNativeView()).getContentInsetStartWithNavigation();
 	}
 
 	@Kroll.method
@@ -105,31 +102,6 @@ public class ToolbarProxy extends TiToolbarProxy {
 	}
 
 	@Kroll.method
-	public Object getLogo() {
-		return getTiToolbarView().getLogo();
-	}
-
-	@Kroll.method
-	public Object getNavigationIcon() {
-		return getTiToolbarView().getNavigationIcon();
-	}
-
-	@Kroll.method
-	public Object getOverflowIcon() {
-		return getTiToolbarView().getOverflowMenuIcon();
-	}
-
-	@Kroll.method
-	public String getSubtitle() {
-		return ((Toolbar) getTiToolbarView().getNativeView()).getSubtitle().toString();
-	}
-
-	@Kroll.method
-	public String getTitle() {
-		return ((Toolbar) getTiToolbarView().getNativeView()).getTitle().toString();
-	}
-
-	@Kroll.method
 	public boolean hasExpandedActionView() {
 		return ((Toolbar) getTiToolbarView().getNativeView()).hasExpandedActionView();
 	}
@@ -142,53 +114,6 @@ public class ToolbarProxy extends TiToolbarProxy {
 	@Kroll.method
 	public boolean isOverflowMenuShowing() {
 		return ((Toolbar) getTiToolbarView().getNativeView()).isOverflowMenuShowing();
-	}
-
-	@Kroll.method
-	public void setLogo(Object object) {
-		getTiToolbarView().setLogo(object);
-	}
-
-	@Kroll.method
-	public void setNavigationIcon(String value) {
-		getTiToolbarView().setNavigationIcon(value);
-	}
-
-	@Kroll.method
-	public void setOverflowIcon(String value) {
-		getTiToolbarView().setOverflowMenuIcon(value);
-	}
-
-	@Kroll.method
-	public void setSubtitle(String value) {
-		getTiToolbarView().setSubtitle(value);
-	}
-
-	@Kroll.method
-	public void setSubtitleTextColor(String value) {
-		getTiToolbarView().setSubtitleTextColor(value);
-	}
-
-	@Kroll.method
-	public void setTitle(String value) {
-		getTiToolbarView().setTitle(value);
-	}
-
-	@Kroll.method
-	public void setTitleTextColor(String value) {
-		getTiToolbarView().setTitleTextColor(value);
-	}
-
-	//Sets the start content inset to use when action buttons are present.
-	@Kroll.method
-	public void setContentInsetEndWithActions(int value) {
-		getTiToolbarView().setContentInsetEndWithActions(value);
-	}
-
-	//Sets the start content inset to use when a navigation button is present.
-	@Kroll.method
-	public void setContentInsetStartWithNavigation(int value) {
-		getTiToolbarView().setContentInsetStartWithNavigation(value);
 	}
 
 	//Sets the content insets for this toolbar.

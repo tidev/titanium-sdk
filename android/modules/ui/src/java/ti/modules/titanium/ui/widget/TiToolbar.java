@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
@@ -62,7 +63,6 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	public TiToolbar(TiViewProxy proxy) {
 		super(proxy);
 		toolbar = new Toolbar(proxy.getActivity());
-		toolbar.setContentInsetsAbsolute(0, 0);
 		setNativeView(toolbar);
 	}
 
@@ -107,30 +107,27 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 * Sets up the Toolbar to extend behind the Status Bar.
 	 * This is useful when the Toolbar instance is set as a support bar in an activity
 	 * and it positioned at the very top of it.
-	 * @param value Boolean value to set. True makes the Toolbar's background extend. False - default behaviour.
 	 */
-	public void setToolbarExtendBackground(boolean value) {
+	public void setToolbarExtendBackground() {
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_BACKGROUND_EXTENDED), value);
+			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_BACKGROUND_EXTENDED));
 		} else {
-			handleBackgroundExtended(value);
+			handleBackgroundExtended();
 		}
 	}
 
 	/**
 	 * Handler for extending the background.
-	 * @param value Boolean value to set. True makes the Toolbar's background extend. False - default behaviour.
 	 */
-	private void handleBackgroundExtended(boolean value) {
-		if (value) {
-			Window window = TiApplication.getAppCurrentActivity().getWindow();
-			//Calculate Status bar's height
-			int statusBarHeight = calculateStatusBarHeight();
-			//Add padding to extend the toolbar's background
-			toolbar.setPadding(toolbar.getPaddingLeft(), statusBarHeight + toolbar.getPaddingTop(), toolbar.getPaddingRight(), toolbar.getPaddingBottom());
-			//Set flags for the current window that allow drawing behind status bar
-			window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-		}
+	private void handleBackgroundExtended() {
+		Window window = TiApplication.getAppCurrentActivity().getWindow();
+		//Calculate Status bar's height
+		int statusBarHeight = calculateStatusBarHeight();
+		//Add padding to extend the toolbar's background
+		toolbar.setPadding(toolbar.getPaddingLeft(),statusBarHeight + toolbar.getPaddingTop(), toolbar.getPaddingRight(),toolbar.getPaddingBottom());
+		//Set flags for the current window that allow drawing behind status bar
+		window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+
 	}
 
 	/**
@@ -331,7 +328,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 * Sets the Toolbar title
 	 * @param value String to be used as title.
 	 */
-	public void setTitle(String value) {
+	private void setTitle(String value) {
 		if (!TiApplication.isUIThread()) {
 			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_TITLE), value);
 		} else {
@@ -351,7 +348,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 * Sets title's text color
 	 * @param value Color in any format supported by Titanium.
 	 */
-	public void setTitleTextColor(String value) {
+	private void setTitleTextColor(String value) {
 		if (!TiApplication.isUIThread()) {
 			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_TITLE_TEXT_COLOR), value);
 		} else {
@@ -371,7 +368,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 * Sets subtitle.
 	 * @param value String to be used as title.
 	 */
-	public void setSubtitle(String value) {
+	private void setSubtitle(String value) {
 		if (!TiApplication.isUIThread()) {
 			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_SUBTITLE), value);
 		} else {
@@ -391,7 +388,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 * Sets subtitle's text color
 	 * @param value Color in any format supported by Titanium.
 	 */
-	public void setSubtitleTextColor(String value) {
+	private void setSubtitleTextColor(String value) {
 		if (!TiApplication.isUIThread()) {
 			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(TOOLBAR_SET_SUBTITLE_TEXT_COLOR), value);
 		} else {
@@ -496,7 +493,9 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 			setToolbarColor(d.getString(TiC.PROPERTY_BAR_COLOR));
 		}
 		if (d.containsKey(TiC.PROPERTY_EXTEND_BACKGROUND)) {
-			setToolbarExtendBackground(d.getBoolean(TiC.PROPERTY_EXTEND_BACKGROUND));
+			if (d.getBoolean(TiC.PROPERTY_EXTEND_BACKGROUND)) {
+				setToolbarExtendBackground();
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_ITEMS)) {
 			setViewProxiesArray(((Object[]) d.get(TiC.PROPERTY_ITEMS)));
@@ -505,7 +504,84 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 			setTranslucent(d.getBoolean(TiC.PROPERTY_TRANSLUCENT));
 		}
 		//endregion
+		//region Android only properties
+		if (d.containsKey(TiC.PROPERTY_LOGO)) {
+			setLogo(d.get(TiC.PROPERTY_LOGO));
+		}
+		if (d.containsKey(TiC.PROPERTY_NAVIGATION_ICON)) {
+			setNavigationIcon(d.get(TiC.PROPERTY_NAVIGATION_ICON));
+		}
+		if (d.containsKey(TiC.PROPERTY_OVERFLOW_ICON)) {
+			setOverflowMenuIcon(d.get(TiC.PROPERTY_OVERFLOW_ICON));
+		}
+		if (d.containsKey(TiC.PROPERTY_TITLE)) {
+			setTitle(d.getString(TiC.PROPERTY_TITLE));
+		}
+		if (d.containsKey(TiC.PROPERTY_TITLE_TEXT_COLOR)) {
+			setTitleTextColor(d.getString(TiC.PROPERTY_TITLE_TEXT_COLOR));
+		}
+		if (d.containsKey(TiC.PROPERTY_SUBTITLE)) {
+			setSubtitle(d.getString(TiC.PROPERTY_SUBTITLE));
+		}
+		if (d.containsKey(TiC.PROPERTY_SUBTITLE_TEXT_COLOR)) {
+			setSubtitleTextColor(d.getString(TiC.PROPERTY_SUBTITLE_TEXT_COLOR));
+		}
+		if (d.containsKey(TiC.PROPERTY_SUBTITLE_TEXT_COLOR)) {
+			setSubtitleTextColor(d.getString(TiC.PROPERTY_SUBTITLE_TEXT_COLOR));
+		}
+		if (d.containsKey(TiC.PROPERTY_CONTENT_INSET_END_WITH_ACTIONS)) {
+			if (toolbar != null) {
+				setContentInsetEndWithActions(d.getInt(TiC.PROPERTY_CONTENT_INSET_END_WITH_ACTIONS));
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION)) {
+			if (toolbar != null) {
+				setContentInsetStartWithNavigation(d.getInt(TiC.PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION));
+			}
+		}
+		//end region
 		super.processProperties(d);
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
+		super.propertyChanged(key, oldValue, newValue, proxy);
+		if (key.equals(TiC.PROPERTY_BAR_COLOR)) {
+			setToolbarColor(((String) newValue));
+		}
+		if (key.equals(TiC.PROPERTY_TRANSLUCENT)) {
+			setTranslucent(((Boolean) newValue));
+		}
+		if (key.equals(TiC.PROPERTY_ITEMS)) {
+			setItems(((TiViewProxy[]) newValue));
+		}
+		if (key.equals(TiC.PROPERTY_LOGO)) {
+			setLogo(newValue);
+		}
+		if (key.equals(TiC.PROPERTY_NAVIGATION_ICON)) {
+			setNavigationIcon(newValue);
+		}
+		if (key.equals(TiC.PROPERTY_OVERFLOW_ICON)) {
+			setOverflowMenuIcon(newValue);
+		}
+		if (key.equals(TiC.PROPERTY_TITLE)) {
+			setTitle((String)newValue);
+		}
+		if (key.equals(TiC.PROPERTY_TITLE_TEXT_COLOR)) {
+			setTitleTextColor((String) newValue);
+		}
+		if (key.equals(TiC.PROPERTY_SUBTITLE)) {
+			setSubtitle((String) newValue);
+		}
+		if (key.equals(TiC.PROPERTY_SUBTITLE_TEXT_COLOR)) {
+			setSubtitleTextColor((String) newValue);
+		}
+		if (key.equals(TiC.PROPERTY_CONTENT_INSET_END_WITH_ACTIONS)) {
+			setContentInsetEndWithActions((Integer)newValue);
+		}
+		if (key.equals(TiC.PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION)) {
+			setContentInsetStartWithNavigation((Integer)newValue);
+		}
 	}
 
 	@Override
@@ -523,7 +599,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 				return true;
 			case TOOLBAR_SET_BACKGROUND_EXTENDED:
 				AsyncResult resultBackgroundExtended = (AsyncResult) msg.obj;
-				handleBackgroundExtended((Boolean) resultBackgroundExtended.getArg());
+				handleBackgroundExtended();
 				resultBackgroundExtended.setResult(null);
 				return true;
 			case TOOLBAR_SHOW_OVERFLOW_MENU:

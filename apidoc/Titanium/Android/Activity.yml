@@ -200,7 +200,8 @@ methods:
         If you want to set it up before that [supportToolbar](Titanium.Android.Activity.supportToolbar) must be used.
     parameters:
       - name: toolbar
-        type: Titanium.UI.Android.Toolbar  
+        summary: Instance of a toolbar to be used as an ActionBar
+        type: Titanium.UI.Toolbar  
     since: 6.2.0
 
   - name: startActivity
@@ -450,7 +451,7 @@ properties:
     description: |
          This property is used to set a toolbar as an ActionBar prior to the actual activity creation.
          After the activity is created that must be done through the [setSupportActionBar()](Titanium.Android.Activity.setSupportActionBar) method.
-    type: Titanium.UI.Android.Toolbar
+    type: Titanium.UI.Toolbar
     since: 6.2.0
     
 examples:

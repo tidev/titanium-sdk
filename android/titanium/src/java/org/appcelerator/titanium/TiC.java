@@ -1137,6 +1137,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CONTENT_INSET_END_WITH_ACTIONS = "contentInsetEndWithActions";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION = "contentInsetStartWithNavigation";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
 
 	/**
@@ -1856,6 +1866,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LOGO = "logo";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LONGITUDE = "longitude";
 
 	/**
@@ -2016,6 +2031,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NATIVE_SPINNER = "nativeSpinner";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NAVIGATION_ICON = "navigationIcon";
 
 	/**
 	 * @module.api
@@ -2181,6 +2201,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OVER_SCROLL_MODE = "overScrollMode";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OVERFLOW_ICON = "overflowIcon";
 
 	/**
 	 * @module.api
@@ -2682,6 +2707,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SUBTITLE_TEXT_COLOR = "subtitleTextColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SUBTITLEID = "subtitleid";
 
 	/**
@@ -2818,6 +2848,10 @@ public class TiC
 	 */
 	public static final String PROPERTY_TITLE_PROMPTID = "titlepromptid";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TITLE_TEXT_COLOR = "titleTextColor";
 	/**
 	 * @module.api
 	 */
