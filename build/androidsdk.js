@@ -65,13 +65,20 @@ AndroidSDK.prototype.getPlatformDir = function () {
 	if (fs.existsSync(possible)) {
 		return possible;
 	}
+	console.error('Android build is set to use API Level %d, but was unable to find expected SDK component at %s', this.apiLevel, possible);
+	console.error('Please install platforms;android-%d or Specify a different api level to build against with the -a option', this.apiLevel);
+	process.exit(1);
 };
 
 AndroidSDK.prototype.getGoogleApisDir = function () {
+	// FIXME This no longer lives as a separate addon like this.
+	// Do we really need this? I think we don't anymore since Ti.map got broken out to it's own native module!
+	// Also, if we do want to reference maps.jar, it's now inside extras/google/m2repository/com/google/android/gms/play-services-maps/11.0.4/play-services-maps-11.0.4.aar
 	const possible = path.join(this.dir, 'add-ons', 'addon-google_apis-google-' + this.apiLevel);
 	if (fs.existsSync(possible)) {
 		return possible;
 	}
+	// console.warn('Android build is set to use API Level %d, but was unable to find expected Google APIs SDK component at %s', this.apiLevel, possible);
 };
 
 module.exports = AndroidSDK;

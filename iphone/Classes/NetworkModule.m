@@ -218,16 +218,6 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 
 - (NSNumber *)remoteNotificationsEnabled
 {
-  // enableRemoteNotificationTypes deprecated in iOS 8.0
-  if (![TiUtils isIOS8OrGreater]) {
-    __block UIRemoteNotificationType types;
-    TiThreadPerformOnMainThread(^{
-      types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
-    },
-        YES);
-    return NUMBOOL(types != UIRemoteNotificationTypeNone);
-  }
-
   __block BOOL enabled;
   TiThreadPerformOnMainThread(^{
     enabled = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
@@ -240,37 +230,18 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 {
   __block NSUInteger types;
   NSMutableArray *result = [NSMutableArray array];
-  if ([TiUtils isIOS8OrGreater]) {
-    TiThreadPerformOnMainThread(^{
-      types = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
-    },
-        YES);
-    if ((types & UIUserNotificationTypeBadge) != 0) {
-      [result addObject:NUMINT(1)];
-    }
-    if ((types & UIUserNotificationTypeAlert) != 0) {
-      [result addObject:NUMINT(2)];
-    }
-    if ((types & UIUserNotificationTypeSound) != 0) {
-      [result addObject:NUMINT(3)];
-    }
-  } else {
-    TiThreadPerformOnMainThread(^{
-      types = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
-    },
-        YES);
-    if ((types & UIRemoteNotificationTypeBadge) != 0) {
-      [result addObject:NUMINT(1)];
-    }
-    if ((types & UIRemoteNotificationTypeAlert) != 0) {
-      [result addObject:NUMINT(2)];
-    }
-    if ((types & UIRemoteNotificationTypeSound) != 0) {
-      [result addObject:NUMINT(3)];
-    }
-    if ((types & UIRemoteNotificationTypeNewsstandContentAvailability) != 0) {
-      [result addObject:NUMINT(4)];
-    }
+  TiThreadPerformOnMainThread(^{
+    types = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
+  },
+      YES);
+  if ((types & UIUserNotificationTypeBadge) != 0) {
+    [result addObject:NUMINT(1)];
+  }
+  if ((types & UIUserNotificationTypeAlert) != 0) {
+    [result addObject:NUMINT(2)];
+  }
+  if ((types & UIUserNotificationTypeSound) != 0) {
+    [result addObject:NUMINT(3)];
   }
   return result;
 }
@@ -294,46 +265,10 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 
   //for iOS8 or greater only
   //Note adviced to register user notification settings in Ti.App.iOS first before register for remote notifications
-  if ([TiUtils isIOS8OrGreater]) {
-    [app registerForRemoteNotifications];
+  [app registerForRemoteNotifications];
 
-    if ([args objectForKey:@"types"] != nil) {
-      NSLog(@"[WARN] Passing `types` to registerForPushNotifications is not supported on iOS 8 and greater. Use registerUserNotificationSettings to register notification types.");
-    }
-  } else {
-    UIRemoteNotificationType ourNotifications = [app enabledRemoteNotificationTypes];
-
-    NSArray *typesRequested;
-    ENSURE_ARG_OR_NIL_FOR_KEY(typesRequested, args, @"types", NSArray);
-    if (typesRequested != nil) {
-      for (id thisTypeRequested in typesRequested) {
-        NSInteger value = [TiUtils intValue:thisTypeRequested];
-        switch (value) {
-        case 1: // NOTIFICATION_TYPE_BADGE
-        {
-          ourNotifications |= UIRemoteNotificationTypeBadge;
-          break;
-        }
-        case 2: // NOTIFICATION_TYPE_ALERT
-        {
-          ourNotifications |= UIRemoteNotificationTypeAlert;
-          break;
-        }
-        case 3: // NOTIFICATION_TYPE_SOUND
-        {
-          ourNotifications |= UIRemoteNotificationTypeSound;
-          break;
-        }
-        case 4: // NOTIFICATION_TYPE_NEWSSTAND
-        {
-          ourNotifications |= UIRemoteNotificationTypeNewsstandContentAvailability;
-          break;
-        }
-        }
-      }
-    }
-
-    [app registerForRemoteNotificationTypes:ourNotifications];
+  if ([args objectForKey:@"types"] != nil) {
+    NSLog(@"[WARN] Passing `types` to registerForPushNotifications is not supported on iOS 8 and greater. Use registerUserNotificationSettings to register notification types.");
   }
   // check to see upon registration if we were started with a push
   // notification and if so, go ahead and trigger our callback
