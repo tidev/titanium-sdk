@@ -1,9 +1,7 @@
 package ti.modules.titanium.media;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
@@ -171,8 +169,7 @@ public class TiThumbnailRetriever implements Handler.Callback{
 					} else {
 						mUri = TiUIHelper.getRedirectUri(mUri);
 						if (Build.VERSION.SDK_INT >= 14){
-							FileInputStream inputStream = new FileInputStream(mUri.getPath());
-							mMediaMetadataRetriever.setDataSource(inputStream.getFD());
+							mMediaMetadataRetriever.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri);
 						} else{
 							mMediaMetadataRetriever.setDataSource(mUri.toString());
 						}
