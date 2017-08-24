@@ -4,6 +4,8 @@
  * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
+'use strict';
+
 const path = require('path'),
 	ti = require('node-titanium-sdk'),
 	appc = require('node-appc'),

@@ -2,6 +2,7 @@
 * Copyright (c) 2015-2017 Appcelerator, Inc. All Rights Reserved.
 * Licensed under the terms of the Apache Public License.
 */
+'use strict';
 
 if (!String.prototype.contains) {
 	/**
@@ -141,7 +142,7 @@ exports.exportData = function exportHTML(apis) {
 	}
 
 	const coverage = {};
-	[ 'iphone', 'ipad', 'android', 'windowsphone', 'blackberry', 'mobileweb' ].forEach(function (platform) {
+	[ 'iphone', 'ipad', 'android', 'windowsphone' ].forEach(function (platform) {
 		if (platform in rv.coverage) {
 			coverage[platform] = rv.coverage[platform];
 			delete rv.coverage[platform];

@@ -5,7 +5,6 @@ summary: |
     Represents the contents of an XML comment.
 description: |
     Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1728279322) on
-    Android and iOS with some non-standard extensions. Exposes the 
-    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-1728279322) implementation on Mobile Web.
+    Android and iOS with some non-standard extensions.
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]

@@ -8,10 +8,9 @@ description: |
       <tr>
         <td><img src="images/alertdialog/alertdialog_android.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_ios.png" height="75" /></td>
-        <td><img src="images/alertdialog/alertdialog_mobileweb.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
 
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
@@ -90,9 +89,9 @@ events:
     properties:
       - name: cancel
         summary: |
-            Boolean type on Android and Mobile Web; Number on iOS.
+            Boolean type on Android; Number on iOS.
 
-            On Android and Mobile Web, indicates whether the cancel button was clicked, in which
+            On Android, indicates whether the cancel button was clicked, in which
             case returns `true`.
 
             On iOS, the value of the [cancel](Titanium.UI.AlertDialog.cancel) property is
@@ -189,16 +188,16 @@ properties:
             </Alloy>
 
     type: Array<String>
-    default: No buttons (Android), Single "OK" button (iOS, Mobile Web)
+    default: No buttons (Android), Single "OK" button (iOS)
     availability: creation
 
   - name: cancel
     summary: Index to define the cancel button.
 
     description: |
-        On iOS and Mobile Web, set to `-1` to disable the cancel option.
+        On iOS, set to `-1` to disable the cancel option.
     type: Number
-    default: undefined (Android), -1 (iOS, Mobile Web)
+    default: undefined (Android), -1 (iOS)
 
   - name: canceledOnTouchOutside
     summary: |
@@ -327,7 +326,7 @@ properties:
   - name: messageid
     summary: Key identifying a string in the locale file to use for the message text.
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: ok
     summary: Text for the `OK` button.
@@ -341,7 +340,7 @@ properties:
     description: |
         If `buttonNames` is defined, this property is ignored.
     type: String
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
 
   - name: passwordPlaceholder
     summary: Placeholder of the password text field inside the dialog.
@@ -484,7 +483,7 @@ properties:
   - name: titleid
     summary: Key identifying a string in the locale file to use for the title text.
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: value
     summary: Value of the text field inside the dialog.

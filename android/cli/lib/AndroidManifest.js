@@ -4,6 +4,8 @@
  * Please see the LICENSE file for information about licensing.
  */
 
+'use strict';
+
 const appc = require('node-appc'),
 	DOMParser = require('xmldom').DOMParser,
 	fs = require('fs'),

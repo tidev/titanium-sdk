@@ -6,6 +6,8 @@
  *
  * Dependencies: colors ~0.6.2 and node-appc ~0.2.14
  */
+'use strict';
+
 const fs = require('fs'),
 	nodeappc = require('node-appc'),
 	colors = require('colors'), // eslint-disable-line no-unused-vars
@@ -492,8 +494,8 @@ function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 				const array = parent[type];
 				if (array) {
 					// find matching name in array
-					for (let i = 0; array.length; i++) {
-						if (array[i].name === currentKey) { // eslint-disable-line max-depth
+					for (let i = 0; i < array.length; i++) {
+						if (array[i] && array[i].name === currentKey) { // eslint-disable-line max-depth
 							parent = array[i];
 							break;
 						}

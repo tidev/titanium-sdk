@@ -1,7 +1,9 @@
 #!/usr/bin/env node
+'use strict';
+
 const async = require('async'),
 	program = require('commander'),
-	ALL_PLATFORMS = [ 'ios', 'android', 'mobileweb', 'windows' ];
+	ALL_PLATFORMS = [ 'ios', 'android', 'windows' ];
 
 program.parse(process.argv);
 

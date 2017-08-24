@@ -168,19 +168,17 @@ typedef void (^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError
     return nil;
   }
   EKCalendar *calendar_ = NULL;
-  if ([TiUtils isIOS8OrGreater]) {
-    //Instead of getting calendar by identifier, have to get all and check for match
-    //not optimal but best way to fix non existing shared calendar error
-    NSArray *allCalendars = [ourStore calendarsForEntityType:EKEntityTypeEvent];
-    for (EKCalendar *cal in allCalendars) {
-      if ([cal.calendarIdentifier isEqualToString:arg]) {
-        calendar_ = cal;
-        break;
-      }
+
+  //Instead of getting calendar by identifier, have to get all and check for match
+  //not optimal but best way to fix non existing shared calendar error
+  NSArray *allCalendars = [ourStore calendarsForEntityType:EKEntityTypeEvent];
+  for (EKCalendar *cal in allCalendars) {
+    if ([cal.calendarIdentifier isEqualToString:arg]) {
+      calendar_ = cal;
+      break;
     }
-  } else {
-    calendar_ = [ourStore calendarWithIdentifier:arg];
   }
+
   if (calendar_ == NULL) {
     return NULL;
   }

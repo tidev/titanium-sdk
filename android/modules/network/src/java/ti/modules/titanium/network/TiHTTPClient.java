@@ -447,7 +447,7 @@ public class TiHTTPClient
 
 	public void setReadyState(int readyState)
 	{
-		Log.d(TAG, "Setting ready state to " + readyState);
+		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
 		KrollDict data = new KrollDict();
 		data.put("readyState", Integer.valueOf(readyState));

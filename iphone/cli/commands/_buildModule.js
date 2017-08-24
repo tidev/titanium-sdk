@@ -11,6 +11,8 @@
 * Please see the LICENSE included with this distribution for details.
 */
 
+'use strict';
+
 const appc = require('node-appc'),
 	AdmZip = require('adm-zip'),
 	archiver = require('archiver'),
@@ -604,7 +606,8 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
 			this.dirWalker(this.platformDir, function (file) {
-				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file)) });
+				var stat = fs.statSync(file);
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file)), mode: stat.mode });
 			}.bind(this));
 		}
 

@@ -5,6 +5,8 @@
  * See the LICENSE file for more information.
  */
 
+'use strict';
+
 const ADB = require('node-titanium-sdk/lib/adb'),
 	appc = require('node-appc'),
 	async = require('async'),

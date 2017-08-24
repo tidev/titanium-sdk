@@ -4,6 +4,8 @@
  *
  * Common Library for Doctools
  */
+'use strict';
+
 const yaml = require('js-yaml'),
 	fs = require('fs'),
 	colors = require('colors'), // eslint-disable-line no-unused-vars
@@ -17,13 +19,12 @@ const yaml = require('js-yaml'),
 
 let logLevel = LOG_INFO;
 
-exports.VALID_PLATFORMS = [ 'android', 'blackberry', 'iphone', 'ipad', 'mobileweb', 'windowsphone' ];
-exports.VALID_OSES = [ 'android', 'blackberry', 'ios', 'mobileweb', 'windowsphone' ];
+exports.VALID_PLATFORMS = [ 'android', 'blackberry', 'iphone', 'ipad', 'windowsphone' ];
+exports.VALID_OSES = [ 'android', 'blackberry', 'ios', 'windowsphone' ];
 exports.DEFAULT_VERSIONS = {
 	'android' : '0.8',
 	'iphone' : '0.8',
-	'ipad' : '0.8',
-	'mobileweb' : '1.8'
+	'ipad' : '0.8'
 };
 exports.ADDON_VERSIONS = {
 	'blackberry' : '3.1.2',
@@ -36,7 +37,6 @@ exports.PRETTY_PLATFORM = {
 	'ios': 'iOS',
 	'iphone': 'iPhone',
 	'ipad': 'iPad',
-	'mobileweb': 'Mobile Web',
 	'tizen': 'Tizen',
 	'windowsphone' : 'Windows Phone'
 };

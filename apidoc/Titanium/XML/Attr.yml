@@ -4,10 +4,9 @@ extends: Titanium.XML.Node
 summary: Represents an attribute of an [Element](Titanium.XML.Element).
 description: |
     Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-637646024) on
-    Android and iOS. Exposes the 
-    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-637646024) implementation on Mobile Web.
+    Android and iOS.
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 properties:
   - name: name
     type: String
