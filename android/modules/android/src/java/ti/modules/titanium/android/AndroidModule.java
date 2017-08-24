@@ -33,6 +33,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
@@ -273,6 +274,14 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int NAVIGATION_MODE_LIST = ActionBar.NAVIGATION_MODE_LIST;
 	@Kroll.constant public static final int NAVIGATION_MODE_STANDARD = ActionBar.NAVIGATION_MODE_STANDARD;
 	@Kroll.constant public static final int NAVIGATION_MODE_TABS = ActionBar.NAVIGATION_MODE_TABS;
+
+	@Kroll.constant public static final int IMPORTANCE_DEFAULT = NotificationManagerCompat.IMPORTANCE_DEFAULT;
+	@Kroll.constant public static final int IMPORTANCE_HIGH = NotificationManagerCompat.IMPORTANCE_HIGH;
+	@Kroll.constant public static final int IMPORTANCE_LOW = NotificationManagerCompat.IMPORTANCE_LOW;
+	@Kroll.constant public static final int IMPORTANCE_MAX = NotificationManagerCompat.IMPORTANCE_MAX;
+	@Kroll.constant public static final int IMPORTANCE_MIN = NotificationManagerCompat.IMPORTANCE_MIN;
+	@Kroll.constant public static final int IMPORTANCE_NONE = NotificationManagerCompat.IMPORTANCE_NONE;
+	@Kroll.constant public static final int IMPORTANCE_UNSPECIFIED = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
 
 	protected RProxy r;
 	private static final int REQUEST_CODE = 99;

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,9 +11,12 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 
 import ti.modules.titanium.android.AndroidModule;
+
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.os.Build;
 
 @Kroll.module(parentModule=AndroidModule.class)
 public class NotificationManagerModule extends KrollModule
@@ -53,6 +56,19 @@ public class NotificationManagerModule extends KrollModule
 	private NotificationManager getManager()
 	{
 		return (NotificationManager) TiApplication.getInstance().getSystemService(Activity.NOTIFICATION_SERVICE);
+	}
+
+	@TargetApi(26)
+	@Kroll.method
+	public NotificationChannelProxy createNotificationChannel(Object[] args)
+	{
+		NotificationChannelProxy notificationChannelProxy = null;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			notificationChannelProxy = new NotificationChannelProxy();
+			notificationChannelProxy.handleCreationArgs(this, args);
+			getManager().createNotificationChannel(notificationChannelProxy.getNotificationChannel());
+		}
+		return notificationChannelProxy;
 	}
 
 	@Kroll.method

@@ -1022,6 +1022,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BYPASS_DND = "bypassDnd";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CACHE_MODE = "cacheMode";
 
 	/**
@@ -1073,6 +1078,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CHARSET = "charset";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHANNEL_ID = "channelId";
 
 	/**
 	 * @module.api
@@ -1247,6 +1257,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DESCRIPTION = "description";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DEFAULT_IMAGE = "defaultImage";
 
 	/**
@@ -1362,7 +1377,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ENABLE_LIGHTS = "enableLights";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ENABLE_RETURN_KEY = "enableReturnKey";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ENABLE_VIBRATION = "enableVibrations";
 
 	/**
 	 * @module.api
@@ -1681,6 +1706,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_IMPORTANCE = "importance";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_INDICATOR_COLOR = "indicatorColor";
 
 	/**
@@ -1786,6 +1816,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LIGHT_COLOR = "lightColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
 
 	/**
@@ -1847,6 +1882,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LOCATION = "location";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOCKSCREEN_VISIBILITY = "lockscreenVisibility";
 
 	/**
 	 * @module.api
@@ -2548,6 +2588,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SHOW_AS_ACTION = "showAsAction";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHOW_BADGE = "showBadge";
 
 	/**
 	 * @module.api

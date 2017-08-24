@@ -75,6 +75,9 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_AUDIO_STREAM_TYPE)) {
 			setAudioStreamType(TiConvert.toInt(d, TiC.PROPERTY_AUDIO_STREAM_TYPE));
 		}
+		if (d.containsKey(TiC.PROPERTY_CHANNEL_ID)) {
+			setChannelId(d.getString(TiC.PROPERTY_CHANNEL_ID));
+		}
 		if (d.containsKey(TiC.PROPERTY_CONTENT_VIEW)) {
 			setContentView((RemoteViewsProxy) d.get(TiC.PROPERTY_CONTENT_VIEW));
 		}
@@ -358,6 +361,13 @@ public class NotificationProxy extends KrollProxy
 		notificationBuilder.setContentIntent(contentIntent.getPendingIntent())
 		.setContentText(contentText)
 		.setContentTitle(contentTitle);
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setChannelId(String channelId)
+	{
+		notificationBuilder.setChannelId(channelId);
+		setProperty(TiC.PROPERTY_CHANNEL_ID, channelId);
 	}
 	
 	@Kroll.method
