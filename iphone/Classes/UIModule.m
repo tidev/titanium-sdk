@@ -38,6 +38,9 @@
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
+#ifdef USE_TI_UITOOLBAR
+#import "TiUIToolbarProxy.h"
+#endif
 
 #import "TiApp.h"
 #import "ImageLoader.h"
@@ -244,7 +247,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE,UITableViewCellAccessoryDisclosu
 }
 #endif
 
-
 #ifdef USE_TI_UIANIMATION
 -(id)createAnimation:(id)args
 {
@@ -260,6 +262,13 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE,UITableViewCellAccessoryDisclosu
 		}
 	}
 	return [[[TiAnimation alloc] _initWithPageContext:[self executionContext]] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UITOOLBAR
+- (id)createToolbar:(id)args
+{
+    return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.Toolbar"] autorelease];
 }
 #endif
 
