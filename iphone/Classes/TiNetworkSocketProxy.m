@@ -5,28 +5,27 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiNetworkSocketProxy.h"
-#import "TiNetworkSocketTCPProxy.h"
 #import "TiBase.h"
+#import "TiNetworkSocketTCPProxy.h"
 
 #ifdef USE_TI_NETWORKSOCKET
 @implementation TiNetworkSocketProxy
 
--(id)createTCP:(id)args
+- (id)createTCP:(id)args
 {
-    return [[[TiNetworkSocketTCPProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+  return [[[TiNetworkSocketTCPProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.Network.Socket";
+  return @"Ti.Network.Socket";
 }
 
-
-MAKE_SYSTEM_PROP(INITIALIZED,SOCKET_INITIALIZED);
-MAKE_SYSTEM_PROP(CONNECTED,SOCKET_CONNECTED);
-MAKE_SYSTEM_PROP(LISTENING,SOCKET_LISTENING);
-MAKE_SYSTEM_PROP(CLOSED,SOCKET_CLOSED);
-MAKE_SYSTEM_PROP(ERROR,SOCKET_ERROR);
+MAKE_SYSTEM_PROP(INITIALIZED, SOCKET_INITIALIZED);
+MAKE_SYSTEM_PROP(CONNECTED, SOCKET_CONNECTED);
+MAKE_SYSTEM_PROP(LISTENING, SOCKET_LISTENING);
+MAKE_SYSTEM_PROP(CLOSED, SOCKET_CLOSED);
+MAKE_SYSTEM_PROP(ERROR, SOCKET_ERROR);
 
 @end
 #endif

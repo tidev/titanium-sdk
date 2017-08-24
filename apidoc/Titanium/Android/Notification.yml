@@ -92,6 +92,33 @@ examples:
             // Send the notification.
             Titanium.Android.NotificationManager.notify(1, notification);
 
+  - title: Bundled Notifications Example
+    example: |
+        The following example shows how to create bundled notifications.
+
+            var id = 100,
+                groupKey = 'group_key';
+
+            for (var i = 3; i > 0; i--) {
+                Ti.Android.NotificationManager.notify(id++,
+                    Ti.Android.createNotification({
+                        icon: Ti.Android.R.drawable.ic_dialog_info,
+                        contentTitle: 'NOTIFICATION #' + i,
+                        contentText : 'Lorem ipsum dolor sit amet, facer eruditi omittantur cu pri, nibh nonumy putant eam eu.'
+                        groupKey: groupKey
+                    })
+                );
+            }
+            Ti.Android.NotificationManager.notify(id++,
+                Ti.Android.createNotification({
+                    icon: Ti.Android.R.drawable.ic_dialog_info,
+                    contentTitle: 'NOTIFICATIONS',
+                    contentText : 'You have 3 notifications.',
+                    groupKey: groupKey,
+                    groupSummary: true
+                })
+            );
+
 extends: Titanium.Proxy
 since: "1.5"
 platforms: [android]
@@ -126,6 +153,24 @@ methods:
       - name: indeterminate
         summary: Allows to enable the indeterminate mode.
         type: Boolean
+
+  - name: addAction
+    summary: Add an action button to the notification
+    description: |
+        Up to three actions buttons can be added, additional buttons will be ignored.
+    since: "6.2.0"
+    parameters:
+      - name: icon
+        summary: Icon of the action button as URL or resource ID
+        type: [Number, String]
+
+      - name: title
+        summary: Title of the action button 
+        type: String
+
+      - name: intent
+        summary: Intent of the action button
+        type: Titanium.Android.PendingIntent
 
 properties:
 
@@ -196,6 +241,18 @@ properties:
         Titanium.Android.FLAG_NO_CLEAR, Titanium.Android.FLAG_ONGOING_EVENT,
         Titanium.Android.FLAG_ONLY_ALERT_ONCE, Titanium.Android.FLAG_SHOW_LIGHTS ]
     default: <Titanium.Android.FLAG_AUTO_CANCEL>
+
+  - name: groupKey
+    summary: The group key that the notification will belong to.
+    type: String
+    since: "6.2.0"
+    osver: {android: {min: "5.1"}}
+
+  - name: groupSummary
+    summary: Specifies if this is a group summary notification.
+    type: Boolean
+    since: "6.2.0"
+    osver: {android: {min: "5.1"}}
 
   - name: icon
     summary:
@@ -366,9 +423,41 @@ properties:
     since: "3.6.0"
     osver: {android: {min: "5.0"}}
 
+  - name: wakeLock
+    summary: |
+        Will wake up the device for the given time (in milliseconds) when the notification is shown.
+        The application needs to also set the `android.permission.WAKE_LOCK` permission
+        in the Android manifest section of the `tiapp.xml` file.
+        
+        <ti:app>
+            <android>
+                <manifest>
+                    <uses-permission android:name="android.permission.WAKE_LOCK" />
+                </manifest>
+            </android>
+        </ti:app>
+    type: wakeLockOptions
+    default: 0
+    since: "6.2.0"
+    
   - name: when
     summary: The timestamp for the notification (defaults to the current time).
     description: |
         If the timestamp is set to 0, no time is displayed in the notification
         window for this notification.
-    type: [Date,Number]
+    type: [Date, Number]
+
+---
+name: wakeLockOptions
+summary: Parameter for wakeLock
+since: 6.2.0
+properties:
+  - name: time
+    summary: Minimum time the device will be switched on (plus device switch-off time)
+    type: Number
+    default: 3000
+  - name: flags
+    summary: Wake lock level and flag. See [PowerManager.newWakeLock in the Android API Reference](https://developer.android.com/reference/android/os/PowerManager.html#newWakeLock(int,%20java.lang.String))
+    type: Number
+    constants: [Titanium.Android.WAKE_LOCK_*]
+    default: Titanium.Android.WAKE_LOCK_FULL | Titanium.Android.WAKE_LOCK_ACQUIRE_CAUSES_WAKEUP | Titanium.Android.WAKE_LOCK_ON_AFTER_RELEASE

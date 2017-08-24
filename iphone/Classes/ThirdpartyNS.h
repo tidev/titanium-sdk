@@ -9,13 +9,13 @@
 #define Titanium_ThirdpartyNS_h
 
 #ifndef __TI_NAMESPACE_PREFIX_
-#define __TI_NAMESPACE_PREFIX_	TI
+#define __TI_NAMESPACE_PREFIX_ TI
 #endif
 
 #ifndef __TI_NS_SYMBOL
 // Must have multiple levels of macros so that __TI_NAMESPACE_PREFIX_ is
 // properly replaced by the time the namespace prefix is concatenated.
-#define __TI_NS_REWRITE(ns, symbol) ns ## _ ## symbol
+#define __TI_NS_REWRITE(ns, symbol) ns##_##symbol
 #define __TI_NS_BRIDGE(ns, symbol) __TI_NS_REWRITE(ns, symbol)
 #define __TI_NS_SYMBOL(symbol) __TI_NS_BRIDGE(__TI_NAMESPACE_PREFIX_, symbol)
 #endif
@@ -163,7 +163,6 @@
 #define AudioStreamer __TI_NS_SYMBOL(AudioStreamer)
 #endif
 
-
 // SCListener
 #ifndef SCListener
 #define SCListener __TI_NS_SYMBOL(SCListener)
@@ -183,14 +182,6 @@
 #ifndef Base64DecodeData
 // libtiverify dependency
 // Base64DecodeData is now TI_Base64DecodeData
-#endif
-
-// SBJSON
-#ifndef SBJSONErrorDomain
-#define SBJSONErrorDomain __TI_NS_SYMBOL(SBJSONErrorDomain)
-#endif
-#ifndef SBJSON
-#define SBJSON __TI_NS_SYMBOL(SBJSON)
 #endif
 
 // PlausibleDatabase

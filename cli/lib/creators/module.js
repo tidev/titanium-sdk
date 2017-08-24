@@ -3,15 +3,16 @@
  * Logic for creating new Titanium modules.
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-var appc = require('node-appc'),
-	async = require('async'),
+'use strict';
+
+const appc = require('node-appc'),
 	Creator = require('../creator'),
 	fs = require('fs'),
 	path = require('path'),
@@ -38,7 +39,7 @@ module.exports = ModuleCreator;
  * @param {Object} config - The CLI config
  * @param {Object} cli - The CLI instance
  */
-function ModuleCreator(logger, config, cli) {
+function ModuleCreator(logger, config, cli) { // eslint-disable-line no-unused-vars
 	Creator.apply(this, arguments);
 
 	this.title = __('Titanium Module');
@@ -46,7 +47,7 @@ function ModuleCreator(logger, config, cli) {
 	this.type = 'module';
 
 	// build list of all valid platforms
-	var availablePlatforms = {},
+	const availablePlatforms = {},
 		validPlatforms = {};
 
 	ti.platforms.forEach(function (platform) {
@@ -62,7 +63,7 @@ function ModuleCreator(logger, config, cli) {
 	// add "all"
 	validPlatforms['all'] = 1;
 
-	this.availablePlatforms = ['all'].concat(Object.keys(availablePlatforms));
+	this.availablePlatforms = [ 'all' ].concat(Object.keys(availablePlatforms));
 	this.validPlatforms = validPlatforms;
 }
 
@@ -70,6 +71,7 @@ util.inherits(ModuleCreator, Creator);
 
 /**
  * Initializes the module creator.
+ * @return {object}
  */
 ModuleCreator.prototype.init = function init() {
 	return {
@@ -90,7 +92,7 @@ ModuleCreator.prototype.init = function init() {
 ModuleCreator.prototype.run = function run(callback) {
 	Creator.prototype.run.apply(this, arguments);
 
-	var platforms = ti.scrubPlatforms(this.cli.argv.platforms),
+	const platforms = ti.scrubPlatforms(this.cli.argv.platforms),
 		projectName = this.cli.argv.name,
 		projectDir = this.projectDir = appc.fs.resolvePath(this.cli.argv['workspace-dir'], projectName),
 		id = this.cli.argv.id;
@@ -103,13 +105,13 @@ ModuleCreator.prototype.run = function run(callback) {
 			return callback(err);
 		}
 
-		var variables = {
+		const variables = {
 				author: this.config.get('user.name', 'Your Name'),
 				publisher: this.config.get('app.publisher', 'Your Company'),
 				guid: uuid.v4(),
 				tisdkVersion: this.sdk.name,
 				tisdkPath: this.sdk.path,
-				year: (new Date).getFullYear(),
+				year: (new Date()).getFullYear(),
 
 				// My Module
 				moduleName: projectName,
@@ -134,11 +136,10 @@ ModuleCreator.prototype.run = function run(callback) {
 				mainEncryptedAssetReturn: 'return nil;',
 				allEncryptedAssetsReturn: 'return nil;'
 			},
-			projectConfig = null,
 			tasks = [
 				function (next) {
 					// copy the template files, if exists
-					var dir = path.join(templateDir, 'template');
+					const dir = path.join(templateDir, 'template');
 					if (!fs.existsSync(dir)) {
 						next();
 					} else {
@@ -150,13 +151,12 @@ ModuleCreator.prototype.run = function run(callback) {
 
 		platforms.scrubbed.forEach(function (platform) {
 			// if we're using the built-in template, load the platform specific template hooks
-			var usingBuiltinTemplate = templateDir.indexOf(this.sdk.path) === 0,
+			const usingBuiltinTemplate = templateDir.indexOf(this.sdk.path) === 0,
 				platformTemplateDir = path.join(this.sdk.path, platform, 'templates', this.projectType, this.cli.argv.template);
 
 			if (usingBuiltinTemplate) {
 				this.cli.scanHooks(path.join(platformTemplateDir, 'hooks'));
 			}
-
 
 			tasks.push(function (next) {
 				this.cli.emit([
@@ -202,7 +202,7 @@ ModuleCreator.prototype.run = function run(callback) {
 				copyright: 'copyright: Copyright (c) ' + variables.year + ' by ' + variables.publisher,
 				minsdk: this.sdk.name,
 				platforms: platforms.original.join(', '),
-				date: (new Date).toDateString()
+				date: (new Date()).toDateString()
 			});
 			next();
 		});

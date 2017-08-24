@@ -9,11 +9,10 @@
 #import "TiProxy.h"
 
 @interface TiUIiPhoneListViewSeparatorStyleProxy : TiProxy {
-
 }
 
-@property(nonatomic,readonly) NSNumber *NONE;
-@property(nonatomic,readonly) NSNumber *SINGLE_LINE;
+@property (nonatomic, readonly) NSNumber *NONE;
+@property (nonatomic, readonly) NSNumber *SINGLE_LINE;
 
 @end
 

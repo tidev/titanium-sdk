@@ -4,18 +4,17 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "APSHTTPClient.h"
+#import "TiDimension.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "TiDimension.h"
-#import "APSHTTPClient.h"
 
 typedef enum {
-	TiImageScalingDefault,
-	TiImageScalingThumbnail,
-	TiImageScalingNonProportional,
-	TiImageScalingStretch,
-}	TiImageScalingStyle;
-
+  TiImageScalingDefault,
+  TiImageScalingThumbnail,
+  TiImageScalingNonProportional,
+  TiImageScalingStretch,
+} TiImageScalingStyle;
 
 @class ImageLoaderRequest;
 
@@ -30,14 +29,14 @@ typedef enum {
  @param request The load request.
  @param image The loaded image.
  */
--(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(UIImage*)image;
+- (void)imageLoadSuccess:(ImageLoaderRequest *)request image:(UIImage *)image;
 
 /**
  Tells the delegate that the image load request failed.
  @param request The load request.
  @param error The error.
  */
--(void)imageLoadFailed:(ImageLoaderRequest*)request error:(NSError*)error;
+- (void)imageLoadFailed:(ImageLoaderRequest *)request error:(NSError *)error;
 
 @optional
 
@@ -45,7 +44,7 @@ typedef enum {
  Tells the delegate that the image load request has been cancelled.
  @param request The load request.
  */
--(void)imageLoadCancelled:(ImageLoaderRequest*)request;
+- (void)imageLoadCancelled:(ImageLoaderRequest *)request;
 
 @end
 
@@ -53,58 +52,58 @@ typedef enum {
  Image loader request class.
  */
 @interface ImageLoaderRequest : NSObject {
-@private
-	APSHTTPRequest *request;
-	NSObject<ImageLoaderDelegate>* delegate;
-	NSDictionary* userInfo;
-	NSURL *url;
-	CGSize imageSize;
-	BOOL completed;
-	BOOL cancelled;
+  @private
+  APSHTTPRequest *request;
+  NSObject<ImageLoaderDelegate> *delegate;
+  NSDictionary *userInfo;
+  NSURL *url;
+  CGSize imageSize;
+  BOOL completed;
+  BOOL cancelled;
 }
 
-@property(nonatomic,readwrite,retain) APSHTTPRequest* request;
+@property (nonatomic, readwrite, retain) APSHTTPRequest *request;
 
 /**
  Whether or not the request has completed.
  @return _YES_ if the request has completed, _NO_ otherwise.
  */
-@property(nonatomic,readwrite,assign) BOOL completed;
+@property (nonatomic, readwrite, assign) BOOL completed;
 
 /**
  Returns loaded image size.
  @return The loaded image size 
  */
-@property(nonatomic,readwrite,assign) CGSize imageSize;
+@property (nonatomic, readwrite, assign) CGSize imageSize;
 
 /**
  Returns the request delegate.
  @return The request delegate.
  */
-@property(nonatomic,readonly) NSObject<ImageLoaderDelegate>* delegate;
+@property (nonatomic, readonly) NSObject<ImageLoaderDelegate> *delegate;
 
 /**
  Cancels the request.
  */
--(void)cancel;
+- (void)cancel;
 
 /**
  Whether or not the image load request was cancelled.
  @return _YES_ if request was cancelled, _NO_ otherwise.
  */
-@property(nonatomic,readonly) BOOL cancelled;
+@property (nonatomic, readonly) BOOL cancelled;
 
 /**
  Returns request additional properties.
  @return The dictionary of properties.
  */
-@property(nonatomic,readonly) NSDictionary *userInfo;
+@property (nonatomic, readonly) NSDictionary *userInfo;
 
 /**
  Returns the request URL.
  @return The image URL.
  */
-@property(nonatomic,readonly) NSURL *url;
+@property (nonatomic, readonly) NSURL *url;
 
 @end
 
@@ -115,19 +114,19 @@ typedef enum {
  The class is singleton and not supposed to be subclassed.
  The instance should not be instantiated directly, but lazily created with <sharedLoader>.
  */
-@interface ImageLoader : NSObject<NSCacheDelegate, APSHTTPRequestDelegate> {
-@private
-	NSCache *cache;
-	NSOperationQueue* queue;
-	NSMutableArray* timeout;
-	NSRecursiveLock* lock;
+@interface ImageLoader : NSObject <NSCacheDelegate, APSHTTPRequestDelegate> {
+  @private
+  NSCache *cache;
+  NSOperationQueue *queue;
+  NSMutableArray *timeout;
+  NSRecursiveLock *lock;
 }
 
 /**
  Returns the shared instance of image loader.
  @return The shared instance.
  */
-+(ImageLoader*)sharedLoader;
++ (ImageLoader *)sharedLoader;
 
 /**
  Tells the loader to load remote image from URL.
@@ -135,7 +134,7 @@ typedef enum {
  @return The loaded image.
  @see loadImage:delegate:userInfo:
 */
--(UIImage *)loadRemote:(NSURL*)url;
+- (UIImage *)loadRemote:(NSURL *)url;
 
 /**
  Tells the loader to return previously loaded image with URL.
@@ -143,7 +142,7 @@ typedef enum {
  @return The loaded image or _nil_ if the image is not available from the cache.
  @see loadRemote:
  */
--(UIImage *)loadImmediateImage:(NSURL *)url;
+- (UIImage *)loadImmediateImage:(NSURL *)url;
 
 /**
  Tells the loader to return previously loaded image with URL and size.
@@ -152,7 +151,7 @@ typedef enum {
  @return The loaded image or _nil_ if the image is not available from the cache.
  @see loadRemote:
  */
--(UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize;
+- (UIImage *)loadImmediateImage:(NSURL *)url withSize:(CGSize)imageSize;
 
 /**
  Tells the loader to return previously loaded stretchable image with URL.
@@ -160,7 +159,7 @@ typedef enum {
  @return The loaded image or _nil_ if the image is not available from the cache.
  @see loadRemote:
  */
--(UIImage *)loadImmediateStretchableImage:(NSURL *)url;
+- (UIImage *)loadImmediateStretchableImage:(NSURL *)url;
 
 /**
  Tells the loader to return previously loaded stretchable image with URL and specified cap values.
@@ -170,14 +169,14 @@ typedef enum {
  @return The loaded image or _nil_ if the image is not available from cache.
  @see loadRemote:
  */
--(UIImage *)loadImmediateStretchableImage:(NSURL *)url withLeftCap:(TiDimension)left topCap:(TiDimension)top;
+- (UIImage *)loadImmediateStretchableImage:(NSURL *)url withLeftCap:(TiDimension)left topCap:(TiDimension)top;
 
 /**
  Returns the full image size.
  @param url The image URL
  @return The image size.
  */
--(CGSize)fullImageSize:(NSURL *)url;
+- (CGSize)fullImageSize:(NSURL *)url;
 
 /**
  Tells the loader to load image from URL with delegate.
@@ -187,23 +186,23 @@ typedef enum {
  @return The image load request.
  @see loadRemote:
  */
--(ImageLoaderRequest*)loadImage:(NSURL*)url 
-					   delegate:(NSObject<ImageLoaderDelegate>*)delegate 
-					   userInfo:(NSDictionary*)userInfo;
+- (ImageLoaderRequest *)loadImage:(NSURL *)url
+                         delegate:(NSObject<ImageLoaderDelegate> *)delegate
+                         userInfo:(NSDictionary *)userInfo;
 
 /*
  Tells the image loader to suspend its activities.
  */
--(void)suspend;
+- (void)suspend;
 
 /*
  Tells the image loader to resume its activities.
  */
--(void)resume;
+- (void)resume;
 
 /**
  Tells the image loader to cancel all activities.
  */
--(void)cancel;
+- (void)cancel;
 
 @end

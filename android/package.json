@@ -13,15 +13,16 @@
 	"maintainers": [
 		"Chris Barber <cbarber@appcelerator.com>"
 	],
-	"minSDKVersion": "14",
+	"minSDKVersion": "16",
+	"compileSDKVersion": "26",
 	"vendorDependencies": {
-		"android sdk": ">=23 <=25.x",
-		"android build tools": ">=23 <=25.x",
-		"android platform tools": ">=17 <=25.x",
+		"android sdk": "25.x",
+		"android build tools": "26.x",
+		"android platform tools": "26.x",
 		"android tools": "<=26.x",
-		"android ndk": ">=r8e <=r9",
+		"android ndk": ">=r11c <=r15c",
 		"node": ">=4.0 <=7.x",
-		"java": "<=1.8.x"
+		"java": ">=1.8.x"
 	},
 	"repository": {
 		"type": "git",
