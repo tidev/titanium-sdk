@@ -1,11 +1,10 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "6.2.0",
+  "version": "7.0.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4",
-    "mobileweb": "2",
     "windows": "3"
   },
   "keywords": [
@@ -13,7 +12,6 @@
     "titanium",
     "mobile",
     "android",
-    "mobileweb",
     "iphone",
     "ipad",
     "ios"
@@ -35,30 +33,31 @@
     "fields": "0.1.24",
     "glob": "7.1.1",
     "humanize": "0.0.9",
-    "ioslib": "^1.4.7",
+    "ioslib": "1.5.0",
     "lodash.defaultsdeep": "4.6.0",
     "markdown": "0.5.0",
     "moment": "2.18.1",
     "node-appc": "0.2.43",
-    "node-titanium-sdk": "^0.3.2",
+    "node-titanium-sdk": "0.4.3",
     "node-uuid": "1.4.8",
     "pngjs": "3.0.1",
     "request": "2.81.0",
     "sprintf": "0.1.5",
     "temp": "0.8.3",
-    "windowslib": "0.4.29",
+    "windowslib": "0.5.3",
     "wrench": "1.5.9",
     "xcode": "0.9.2",
     "xmldom": "0.1.22"
   },
   "devDependencies": {
+    "clang-format": "*",
     "commander": "*",
     "fs-extra": "~0.30.0",
     "grunt": "^1.0.1",
+    "grunt-appc-js": "^2.0.1",
+    "grunt-clang-format": "^1.0.0",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
-    "grunt-clang-format": "*",
-    "grunt-appc-js": "*",
     "grunt-mocha-test": "^0.13.2",
     "js-yaml": "~3.2.2",
     "mocha": "*",
@@ -74,10 +73,10 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": "4.x || 6.x"
+    "node": "4.x || 6.x || 8.x"
   },
   "engines": {
-    "node": ">=4.0"
+    "node": ">=4"
   },
   "license": "Apache-2.0"
 }

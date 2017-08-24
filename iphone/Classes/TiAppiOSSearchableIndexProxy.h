@@ -9,7 +9,6 @@
 #import <CoreSpotlight/CoreSpotlight.h>
 
 @interface TiAppiOSSearchableIndexProxy : TiProxy {
-
 }
 @end
 #endif

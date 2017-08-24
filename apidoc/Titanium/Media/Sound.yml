@@ -224,6 +224,48 @@ properties:
     permission: read-only
     since: "3.2.0"
     platforms: [android]
+    
+  - name: AUDIO_TYPE_ALARM
+    summary: Used to identify the volume of audio streams for alarms.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: AUDIO_TYPE_SIGNALLING
+    summary: Used to identify the volume of audio streams for DTMF tones or beeps.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: AUDIO_TYPE_MEDIA
+    summary: Used to identify the volume of audio streams for media playback.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: AUDIO_TYPE_NOTIFICATION
+    summary: Used to identify the volume of audio streams for notifications.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: AUDIO_TYPE_RING
+    summary: Used to identify the volume of audio streams for the phone ring.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: AUDIO_TYPE_VOICE
+    summary: Used to identify the volume of audio streams for voice calls.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
 
   - name: allowBackground
     summary: Determines whether the audio should continue playing even when its activity is paused.
@@ -233,6 +275,14 @@ properties:
     default: false
     availability: creation
     accessors: false
+
+  - name: audioType
+    summary: Changes the audio-stream-type.
+    type: Number
+    constants: Titanium.Media.Sound.AUDIO_TYPE_*
+    default: <Titanium.Media.AudioPlayer.AUDIO_TYPE_MEDIA>
+    platforms: [android]
+    since: "6.2.0"
 
   - name: duration
     summary: Duration of the audio resource.
@@ -246,13 +296,11 @@ properties:
     type: Number
     permission: read-only
 
-
   - name: looping
     summary: Determines whether the audio should loop upon completion.
     type: Boolean
     default: false
     accessors: false
-
 
   - name: paused
     summary: Indicates if the audio is paused.
@@ -278,7 +326,6 @@ properties:
         
         On iOS, prior to Release 3.0, playback time is reported in seconds.
     type: Number
-
 
   - name: url
     summary: URL identifying the audio resource.

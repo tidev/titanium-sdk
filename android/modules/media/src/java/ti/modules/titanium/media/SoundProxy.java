@@ -36,6 +36,13 @@ public class SoundProxy extends KrollProxy
 	@Kroll.constant public static final int STATE_WAITING_FOR_DATA = TiSound.STATE_WAITING_FOR_DATA;
 	@Kroll.constant public static final int STATE_WAITING_FOR_QUEUE = TiSound.STATE_WAITING_FOR_QUEUE;
 
+	@Kroll.constant public static final int AUDIO_TYPE_MEDIA = TiSound.AUDIO_TYPE_MEDIA;
+	@Kroll.constant public static final int AUDIO_TYPE_ALARM = TiSound.AUDIO_TYPE_ALARM;
+	@Kroll.constant public static final int AUDIO_TYPE_SIGNALLING = TiSound.AUDIO_TYPE_SIGNALLING;
+	@Kroll.constant public static final int AUDIO_TYPE_RING = TiSound.AUDIO_TYPE_RING;
+	@Kroll.constant public static final int AUDIO_TYPE_VOICE = TiSound.AUDIO_TYPE_VOICE;
+	@Kroll.constant public static final int AUDIO_TYPE_NOTIFICATION = TiSound.AUDIO_TYPE_NOTIFICATION;
+
 	protected TiSound snd;
 	private boolean windowFocused;
 	private boolean resumeInOnWindowFocusChanged;
@@ -50,6 +57,7 @@ public class SoundProxy extends KrollProxy
 
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
 		defaultValues.put(TiC.PROPERTY_TIME, 0d);
+		defaultValues.put(TiC.PROPERTY_AUDIO_TYPE, AUDIO_TYPE_MEDIA);
 	}
 
 	@Override
@@ -105,6 +113,16 @@ public class SoundProxy extends KrollProxy
 		if (path != null) {
 			setProperty(TiC.PROPERTY_URL, path);
 		}
+	}
+
+	@Kroll.method @Kroll.getProperty
+	public int getAudioType() {
+		return TiConvert.toInt(getProperty(TiC.PROPERTY_AUDIO_TYPE));
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setAudioType(int val) {
+		setProperty(TiC.PROPERTY_AUDIO_TYPE, val);
 	}
 
 	@Kroll.method @Kroll.getProperty

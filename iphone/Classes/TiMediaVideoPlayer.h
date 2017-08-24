@@ -10,18 +10,17 @@
 #import <MediaPlayer/MediaPlayer.h>
 
 @interface TiMediaVideoPlayer : TiUIView {
-@private
-	MPMoviePlayerController *controller;
-	UIActivityIndicatorView *spinner;
-	
-	BOOL loaded;
+  @private
+  MPMoviePlayerController *controller;
+  UIActivityIndicatorView *spinner;
+
+  BOOL loaded;
 }
 
--(id)initWithPlayer:(MPMoviePlayerController*)controller proxy:(TiProxy*)proxy loaded:(BOOL)loaded_;
--(void)setMovie:(MPMoviePlayerController*)controller;
--(void)movieLoaded;
+- (id)initWithPlayer:(MPMoviePlayerController *)controller proxy:(TiProxy *)proxy loaded:(BOOL)loaded_;
+- (void)setMovie:(MPMoviePlayerController *)controller;
+- (void)movieLoaded;
 
 @end
-
 
 #endif

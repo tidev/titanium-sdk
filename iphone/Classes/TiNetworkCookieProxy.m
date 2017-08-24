@@ -23,142 +23,141 @@
 
 @implementation TiNetworkCookieProxy
 
--(void)dealloc
+- (void)dealloc
 {
-    RELEASE_TO_NIL(_cookieDict);
-    [super dealloc];
+  RELEASE_TO_NIL(_cookieDict);
+  [super dealloc];
 }
--(id)initWithCookie:(NSHTTPCookie*)cookie andPageContext:(id<TiEvaluator>)context
+- (id)initWithCookie:(NSHTTPCookie *)cookie andPageContext:(id<TiEvaluator>)context
 {
-    if(self = [super _initWithPageContext:context])
-    {
-        [self setIsHTTPOnly:[cookie isHTTPOnly]];
-        _cookieDict = [[NSMutableDictionary dictionaryWithDictionary:[cookie properties]] retain];
-    }
-    return self;
+  if (self = [super _initWithPageContext:context]) {
+    [self setIsHTTPOnly:[cookie isHTTPOnly]];
+    _cookieDict = [[NSMutableDictionary dictionaryWithDictionary:[cookie properties]] retain];
+  }
+  return self;
 }
--(NSMutableDictionary *)cookieDict
+- (NSMutableDictionary *)cookieDict
 {
-    if(_cookieDict == nil) {
-        _cookieDict = [[NSMutableDictionary alloc] init];
-    }
-    return _cookieDict;
+  if (_cookieDict == nil) {
+    _cookieDict = [[NSMutableDictionary alloc] init];
+  }
+  return _cookieDict;
 }
--(void)setCookieValue:(id)value forKey:(NSString*)key
+- (void)setCookieValue:(id)value forKey:(NSString *)key
 {
-    if(value == nil || [value isEqual:[NSNull null]]) {
-        [[self cookieDict] removeObjectForKey:key];
-    } else {
-        [[self cookieDict] setObject:value forKey:key];
-    }
+  if (value == nil || [value isEqual:[NSNull null]]) {
+    [[self cookieDict] removeObjectForKey:key];
+  } else {
+    [[self cookieDict] setObject:value forKey:key];
+  }
 }
 
--(id)cookieValue:(NSString*)val
+- (id)cookieValue:(NSString *)val
 {
-    return [[self cookieDict] valueForKey:val];
+  return [[self cookieDict] valueForKey:val];
 }
--(NSHTTPCookie*)newCookie
+- (NSHTTPCookie *)newCookie
 {
-    return [[NSHTTPCookie cookieWithProperties: [self cookieDict]] retain];
+  return [[NSHTTPCookie cookieWithProperties:[self cookieDict]] retain];
 }
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.Network.Cookie";
+  return @"Ti.Network.Cookie";
 }
--(NSNumber*)isValid:(id)args
+- (NSNumber *)isValid:(id)args
 {
-    return NUMBOOL([[self newCookie] autorelease]!= nil);
+  return NUMBOOL([[self newCookie] autorelease] != nil);
 }
--(NSString*)name
+- (NSString *)name
 {
-    return [self cookieValue: NSHTTPCookieName];
+  return [self cookieValue:NSHTTPCookieName];
 }
 - (void)setName:(id)args
 {
-    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieName];
+  [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieName];
 }
-- (NSString*)comment
+- (NSString *)comment
 {
-    return [self cookieValue: NSHTTPCookieComment];
+  return [self cookieValue:NSHTTPCookieComment];
 }
 - (void)setComment:(id)args
 {
-    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieComment];
+  [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieComment];
 }
-- (NSString*)domain
+- (NSString *)domain
 {
-    return [self cookieValue: NSHTTPCookieDomain];
+  return [self cookieValue:NSHTTPCookieDomain];
 }
 - (void)setDomain:(id)args
 {
-    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieDomain];
+  [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieDomain];
 }
-- (NSDate*)expiryDate
+- (NSDate *)expiryDate
 {
-    return [self cookieValue: NSHTTPCookieExpires];
+  return [self cookieValue:NSHTTPCookieExpires];
 }
 - (void)setExpiryDate:(id)args
 {
-    NSDate *date;
-    if([args isKindOfClass:[NSDate class]]) {
-        date = (NSDate*)args;
-    } else {
-        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-        [dateFormat setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"];
-        date = [dateFormat dateFromString:[TiUtils stringValue:args]];
-		RELEASE_TO_NIL(dateFormat);
-    }
-    [self setCookieValue:date forKey:NSHTTPCookieExpires];
+  NSDate *date;
+  if ([args isKindOfClass:[NSDate class]]) {
+    date = (NSDate *)args;
+  } else {
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"];
+    date = [dateFormat dateFromString:[TiUtils stringValue:args]];
+    RELEASE_TO_NIL(dateFormat);
+  }
+  [self setCookieValue:date forKey:NSHTTPCookieExpires];
 }
-- (NSString*)path
+- (NSString *)path
 {
-    return [self cookieValue: NSHTTPCookiePath];
+  return [self cookieValue:NSHTTPCookiePath];
 }
 - (void)setPath:(id)args
 {
-    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookiePath];
+  [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookiePath];
 }
-- (NSString*)value
+- (NSString *)value
 {
-    return [self cookieValue: NSHTTPCookieValue];
+  return [self cookieValue:NSHTTPCookieValue];
 }
 - (void)setValue:(id)args
 {
-    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieValue];
+  [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieValue];
 }
-- (NSNumber*)httponly
+- (NSNumber *)httponly
 {
-    return NUMBOOL([self isHTTPOnly]);
+  return NUMBOOL([self isHTTPOnly]);
 }
--(void)setHttponly:(id)args
+- (void)setHttponly:(id)args
 {
-    // not used
+  // not used
 }
-- (NSNumber*)secure
+- (NSNumber *)secure
 {
-    return NUMBOOL([self cookieValue: NSHTTPCookieSecure] != nil);
+  return NUMBOOL([self cookieValue:NSHTTPCookieSecure] != nil);
 }
 - (void)setSecure:(id)args
 {
-    BOOL v = [TiUtils boolValue:args def:NO];
-    NSString* val = v ? @"TRUE" : nil;
-    [self setCookieValue:val forKey:NSHTTPCookieSecure];
+  BOOL v = [TiUtils boolValue:args def:NO];
+  NSString *val = v ? @"TRUE" : nil;
+  [self setCookieValue:val forKey:NSHTTPCookieSecure];
 }
-- (NSString*)version
+- (NSString *)version
 {
-    return [self cookieValue: NSHTTPCookieVersion];
+  return [self cookieValue:NSHTTPCookieVersion];
 }
 - (void)setVersion:(id)args
 {
-    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieVersion];
+  [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieVersion];
 }
-- (NSString*)originalUrl
+- (NSString *)originalUrl
 {
-    return [self cookieValue: NSHTTPCookieOriginURL];
+  return [self cookieValue:NSHTTPCookieOriginURL];
 }
 - (void)setOriginalUrl:(id)args
 {
-    [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieOriginURL];
+  [self setCookieValue:[TiUtils stringValue:args] forKey:NSHTTPCookieOriginURL];
 }
 
 @end

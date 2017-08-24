@@ -13,7 +13,7 @@ def vtag = ''
 def isPR = false
 
 // Variables we can change
-def nodeVersion = '4.7.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
@@ -68,6 +68,13 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 	}
 }
 
+@NonCPS
+def isMajorVersionLessThan(version, minValue) {
+	def versionMatcher = version =~ /(\d+)\.(\d+)\.(\d+)/
+	def majorVersion = versionMatcher[0][1].toInteger()
+	return majorVersion < minValue
+}
+
 // Wrap in timestamper
 timestamps {
 	def targetBranch
@@ -105,40 +112,64 @@ timestamps {
 				}
 			}
 
-			// Skip the Windows SDK portion if a PR, we don't need it
-			stage('Windows') {
-				if (!isPR) {
-					step([$class: 'CopyArtifact',
-						projectName: "../titanium_mobile_windows/${targetBranch}",
-						selector: [$class: 'StatusBuildSelector', stable: false],
-						filter: 'dist/windows/'])
-					sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
-				} // !isPR
-			} // stage
+			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 
-			stage('Build') {
-				// Normal build, pull out the version
-				def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
-				echo "VERSION:         ${version}"
-				// Create a timestamp
-				def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
-				echo "TIMESTAMP:       ${timestamp}"
-				vtag = "${version}.v${timestamp}"
-				echo "VTAG:            ${vtag}"
-				basename = "dist/mobilesdk-${vtag}"
-				echo "BASENAME:        ${basename}"
+				stage('Lint') {
+					// Enforce npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
+					sh 'npm install -g npm@5.2'
 
-				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-					// Install dev dependencies
+					// Install dependencies
 					timeout(5) {
-						// We already check in our production dependencies, so only install devDependencies
-						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
+						sh 'npm install'
 					}
 					sh 'npm test' // Run linting first
-					// Then validate docs
-					dir('apidoc') {
-						sh 'node validate.js'
-					}
+				}
+
+				// Skip the Windows SDK portion if a PR, we don't need it
+				stage('Windows') {
+					if (!isPR) {
+						// This may be the very first build on this branch, so there's no windows build to grab yet
+						def isFirstBuildOnBranch = false
+						try {
+							sh 'curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/branches.json'
+							if (fileExists('branches.json')) {
+								def contents = readFile('branches.json')
+								if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+									def branchesJSON = jsonParse(contents)
+									isFirstBuildOnBranch = !(branchesJSON['branches'].contains(env.BRANCH_NAME))
+								}
+							}
+						} catch (err) {
+							// ignore? Not able to grab the branches.json, what should we assume? In 99.9% of the cases, it's not a new build
+						}
+
+						// If there's no windows build for this branch yet, use master
+						def windowsBranch = targetBranch
+						if (isFirstBuildOnBranch) {
+							windowsBranch = 'master'
+							manager.addWarningBadge("Looks like the first build on branch ${env.BRANCH_NAME}. Using 'master' branch build of Windows SDK to bootstrap.")
+						}
+						step([$class: 'CopyArtifact',
+							projectName: "../titanium_mobile_windows/${windowsBranch}",
+							selector: [$class: 'StatusBuildSelector', stable: false],
+							filter: 'dist/windows/'])
+						sh 'rm -rf windows; mv dist/windows/ windows/; rm -rf dist'
+					} // !isPR
+				} // stage
+
+				stage('Build') {
+					// Normal build, pull out the version
+					def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
+					echo "VERSION:         ${version}"
+					// Create a timestamp
+					def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
+					echo "TIMESTAMP:       ${timestamp}"
+					vtag = "${version}.v${timestamp}"
+					echo "VTAG:            ${vtag}"
+					basename = "dist/mobilesdk-${vtag}"
+					echo "BASENAME:        ${basename}"
+
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
 					dir('build') {
 						timeout(15) {
@@ -156,11 +187,38 @@ timestamps {
 							}
 						} // ansiColor
 					} // dir
-				} // nodeJs
-				archiveArtifacts artifacts: "${basename}-*.zip"
-				stash includes: 'dist/parity.html', name: 'parity'
-				stash includes: 'tests/', name: 'override-tests'
-			} // end 'Build' stage
+					archiveArtifacts artifacts: "${basename}-*.zip"
+					stash includes: 'dist/parity.html', name: 'parity'
+					stash includes: 'tests/', name: 'override-tests'
+				} // end 'Build' stage
+
+				stage('Security') {
+					// Clean up and install only production dependencies
+					sh 'npm prune --production'
+
+					// Scan for NSP and RetireJS warnings
+					def scanFiles = []
+					sh 'npm install -g nsp'
+					def nspExitCode = sh(returnStatus: true, script: 'nsp check --output json 2> nsp.json')
+					if (nspExitCode != 0) {
+						scanFiles << [path: 'nsp.json']
+					}
+
+					sh 'npm install -g retire'
+					def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
+
+					if (retireExitCode != 0) {
+						scanFiles << [path: 'retire.json']
+					}
+
+					if (!scanFiles.isEmpty()) {
+						step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
+					}
+
+					// re-install dev dependencies for testing later...
+					sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+				} // end 'Security' stage
+			} // nodeJs
 		} // end node for checkout/build
 
 		// Run unit tests in parallel for android/iOS
@@ -193,6 +251,7 @@ timestamps {
 							indexJson = jsonParse(contents)
 						}
 					}
+					// FIXME Add branch to branches.json file as well if the <branch>/index.json didn't exist!
 
 					// unarchive zips
 					unarchive mapping: ['dist/': '.']

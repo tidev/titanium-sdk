@@ -5,20 +5,25 @@
  * access build properties.
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-var appc = require('node-appc'),
+'use strict';
+
+const appc = require('node-appc'),
 	async = require('async'),
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
+	http = require('http'),
 	i18n = appc.i18n(__dirname),
 	path = require('path'),
+	request = require('request'),
+	temp = require('temp'),
 	ti = require('node-titanium-sdk'),
 	wrench = require('wrench'),
 	__ = i18n.__,
@@ -78,29 +83,34 @@ Creator.prototype.run = function run() {
  * @param {String} destDir - The directory to copy the files to
  * @param {Function} callback - A function to call after all of the files have been copied
  * @param {Object} variables - An object to resolve filename substitutions and .ejs templates
+ * @return {undefined}
  */
 Creator.prototype.copyDir = function copyDir(srcDir, destDir, callback, variables) {
-	if (!fs.existsSync(srcDir)) return callback();
+	if (!fs.existsSync(srcDir)) {
+		return callback();
+	}
 
 	variables || (variables = {});
 
 	fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
 
-	var _t = this,
+	const _t = this,
 		ejsRegExp = /\.ejs$/,
 		nameRegExp = /\{\{(\w+?)\}\}/g,
-		ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')),
-		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles'));
+		ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')), // eslint-disable-line security/detect-non-literal-regexp
+		ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')); // eslint-disable-line security/detect-non-literal-regexp
 
 	async.eachSeries(fs.readdirSync(srcDir), function (filename, next) {
-		var src = path.join(srcDir, filename);
+		const src = path.join(srcDir, filename);
 
-		if (!fs.existsSync(src)) return next();
+		if (!fs.existsSync(src)) {
+			return next();
+		}
 
-		var destName = filename.replace(nameRegExp, function (match, name) {
-				return variables[name] || variables[name.substring(0, 1).toLowerCase() + name.substring(1)] || match;
-			}),
-			dest = path.join(destDir, destName);
+		const destName = filename.replace(nameRegExp, function (match, name) {
+			return variables[name] || variables[name.substring(0, 1).toLowerCase() + name.substring(1)] || match;
+		});
+		let dest = path.join(destDir, destName);
 
 		if (fs.statSync(src).isDirectory() && !ignoreDirs.test(filename)) {
 			_t.copyDir(src, dest, next, variables);
@@ -116,7 +126,7 @@ Creator.prototype.copyDir = function copyDir(srcDir, destDir, callback, variable
 				fs.writeFileSync(dest, fs.readFileSync(src));
 			}
 
-			fs.chmodSync(dest, fs.statSync(src).mode & 0777);
+			fs.chmodSync(dest, fs.statSync(src).mode & 0o777);
 			next();
 
 		} else {
@@ -134,7 +144,7 @@ Creator.prototype.copyDir = function copyDir(srcDir, destDir, callback, variable
  * @returns {Object}
  */
 Creator.prototype.configOptionId = function configOptionId(order) {
-	var cli = this.cli,
+	const cli = this.cli,
 		config = this.config,
 		logger = this.logger,
 		idPrefix = config.get('app.idprefix');
@@ -151,12 +161,12 @@ Creator.prototype.configOptionId = function configOptionId(order) {
 			logger.error(__('The App ID must consist of letters, numbers, dashes, and underscores.'));
 			logger.error(__('Note: Android does not allow dashes and iOS does not allow underscores.'));
 			logger.error(__('The first character must be a letter or underscore.'));
-			logger.error(__("Usually the App ID is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			logger.error(__('Usually the App ID is your company\'s reversed Internet domain name. (i.e. com.example.myapp)') + '\n');
 			return callback(true);
 		}
 
-		if (cli.argv.type != 'app' || cli.argv.platforms.indexOf('android') != -1) {
-			if (value.indexOf('-') != -1) {
+		if (cli.argv.type !== 'app' || cli.argv.platforms.indexOf('android') !== -1) {
+			if (value.indexOf('-') !== -1) {
 				logger.error(__('Invalid App ID "%s"', value));
 				logger.error(__('Dashes are not allowed in the App ID when targeting %s.', 'Android'.cyan) + '\n');
 				return callback(true);
@@ -175,9 +185,9 @@ Creator.prototype.configOptionId = function configOptionId(order) {
 			}
 		} else {
 			// android is not in the list of platforms
-			var counter = 0;
+			let counter = 0;
 
-			if (value.indexOf('-') != -1) {
+			if (value.indexOf('-') !== -1) {
 				logger.warn(__('The specified App ID is not compatible with the Android platform.'));
 				logger.warn(__('Android does not allow dashes in the App ID.'));
 				counter++;
@@ -198,8 +208,8 @@ Creator.prototype.configOptionId = function configOptionId(order) {
 			counter && logger.warn(__('If you wish to add Android support, you will need to fix the <id> in the tiapp.xml.') + '\n');
 		}
 
-		if (value.indexOf('_') != -1) {
-			if (cli.argv.type != 'app' && (cli.argv.platforms.indexOf('ios') != -1 || cli.argv.platforms.indexOf('iphone') != -1 || cli.argv.platforms.indexOf('ipad') != -1)) {
+		if (value.indexOf('_') !== -1) {
+			if (cli.argv.type !== 'app' && (cli.argv.platforms.indexOf('ios') !== -1 || cli.argv.platforms.indexOf('iphone') !== -1 || cli.argv.platforms.indexOf('ipad') !== -1)) {
 				logger.error(__('Invalid App ID "%s"', value));
 				logger.error(__('Underscores are not allowed in the App ID when targeting %s.', 'iOS'.cyan) + '\n');
 				return callback(true);
@@ -214,13 +224,13 @@ Creator.prototype.configOptionId = function configOptionId(order) {
 	}
 
 	return {
-		desc: __("the App ID in the format 'com.companyname.appname'"),
+		desc: __('the App ID in the format \'com.companyname.appname\''),
 		order: order,
 		prompt: function (callback) {
-			var defaultValue = undefined,
-				name = cli.argv.name.replace(/[^a-zA-Z0-9]/g, '');
+			let defaultValue;
+			const name = cli.argv.name.replace(/[^a-zA-Z0-9]/g, '');
 			if (idPrefix) {
-				defaultValue = idPrefix.replace(/\.$/, '') + '.' + (/^[a-zA-Z]/.test(name) || (cli.argv.type == 'app' && cli.argv.platforms.indexOf('android') == -1) ? '' : 'my') + name;
+				defaultValue = idPrefix.replace(/\.$/, '') + '.' + (/^[a-zA-Z]/.test(name) || (cli.argv.type === 'app' && cli.argv.platforms.indexOf('android') === -1) ? '' : 'my') + name;
 			}
 
 			callback(fields.text({
@@ -242,7 +252,7 @@ Creator.prototype.configOptionId = function configOptionId(order) {
  * @returns {Object}
  */
 Creator.prototype.configOptionName = function configOptionName(order) {
-	var cli = this.cli,
+	const cli = this.cli,
 		config = this.config,
 		logger = this.logger;
 
@@ -252,7 +262,7 @@ Creator.prototype.configOptionName = function configOptionName(order) {
 			return callback(true);
 		}
 
-		if ((cli.argv.type != 'app' || cli.argv.platforms.indexOf('android') != -1) && value.indexOf('&') != -1) {
+		if ((cli.argv.type !== 'app' || cli.argv.platforms.indexOf('android') !== -1) && value.indexOf('&') !== -1) {
 			if (config.get('android.allowAppNameAmpersands', false)) {
 				logger.warn(__('The project name contains an ampersand (&) which will most likely cause problems.'));
 				logger.warn(__('It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.'));
@@ -293,21 +303,20 @@ Creator.prototype.configOptionName = function configOptionName(order) {
  * @returns {Object}
  */
 Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) {
-	var cli = this.cli,
+	const cli = this.cli,
 		logger = this.logger,
 		availablePlatforms = this.availablePlatforms,
 		validPlatforms = this.validPlatforms;
 
 	function validate(value, callback) {
-		var goodValues = {},
-			badValues = {};
-
 		// just in case they set -p or --platforms without a value
 		if (value === true || value === '') {
 			logger.error(__('Invalid platforms value "%s"', value) + '\n');
 			return callback(true);
 		}
 
+		let goodValues = {};
+		const badValues = {};
 		value.trim().toLowerCase().split(',').forEach(function (s) {
 			if (s = s.trim()) {
 				if (validPlatforms[s]) {
@@ -318,7 +327,7 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
 			}
 		}, this);
 
-		var badLen = Object.keys(badValues).length;
+		const badLen = Object.keys(badValues).length;
 		if (badLen) {
 			logger.error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', badLen, Object.keys(badValues).join(', ')) + '\n');
 			return callback(true);
@@ -333,14 +342,10 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
 		if (goodValues.all) {
 			goodValues = {};
 			availablePlatforms.forEach(function (p) {
-				if (p != 'all') {
+				if (p !== 'all') {
 					goodValues[p] = 1;
 				}
 			});
-		}
-
-		if (goodValues.mobileweb) {
-			logger.warn(__('MobileWeb platform has been deprecated in 5.4.0 and will be removed in 7.0.0.'));
 		}
 
 		callback(null, Object.keys(goodValues).join(','));
@@ -369,6 +374,7 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
  * Defines the --template option.
  *
  * @param {Integer} order - The order to apply to this option.
+ * @param {string} defaultValue the default value to use
  *
  * @returns {Object}
  */
@@ -389,7 +395,7 @@ Creator.prototype.configOptionTemplate = function configOptionTemplate(order, de
  * @returns {Object}
  */
 Creator.prototype.configOptionUrl = function configOptionUrl(order) {
-	var cli = this.cli,
+	const cli = this.cli,
 		config = this.config,
 		logger = this.logger;
 
@@ -411,7 +417,7 @@ Creator.prototype.configOptionUrl = function configOptionUrl(order) {
 				return callback(true);
 			}
 
-			Array.isArray(value) ? callback(null, value[value.length-1]) : callback(null, value);
+			Array.isArray(value) ? callback(null, value[value.length - 1]) : callback(null, value);
 		}
 	};
 };
@@ -424,10 +430,10 @@ Creator.prototype.configOptionUrl = function configOptionUrl(order) {
  * @returns {Object}
  */
 Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(order) {
-	var cli = this.cli,
+	const cli = this.cli,
 		config = this.config,
-		logger = this.logger,
-		workspaceDir = config.app.workspace ? appc.fs.resolvePath(config.app.workspace) : null;
+		logger = this.logger;
+	let workspaceDir = config.app.workspace ? appc.fs.resolvePath(config.app.workspace) : null;
 
 	workspaceDir && !fs.existsSync(workspaceDir) && (workspaceDir = null);
 
@@ -440,9 +446,9 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
 		dir = appc.fs.resolvePath(dir);
 
 		// check if the directory is writable
-		var prev = null,
+		let prev = null,
 			curr = dir;
-		while (curr != prev) {
+		while (curr != prev) { // eslint-disable-line eqeqeq
 			if (fs.existsSync(curr)) {
 				if (appc.fs.isDirWritable(curr)) {
 					break;
@@ -458,7 +464,7 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
 
 		// check if the project already exists
 		if (cli.argv.name && !cli.argv.force && dir) {
-			var projectDir = path.join(dir, cli.argv.name);
+			const projectDir = path.join(dir, cli.argv.name);
 			if (fs.existsSync(projectDir)) {
 				logger.error(__('Project already exists: %s', projectDir));
 				logger.error(__('Either change the project name, workspace directory, or re-run this command with the --force flag.') + '\n');
@@ -478,8 +484,8 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
 			callback(fields.file({
 				complete: true,
 				default: workspaceDir || '.',
-				ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
-				ignoreFiles: new RegExp(config.get('cli.ignoreFiles')),
+				ignoreDirs: new RegExp(config.get('cli.ignoreDirs')), // eslint-disable-line security/detect-non-literal-regexp
+				ignoreFiles: new RegExp(config.get('cli.ignoreFiles')), // eslint-disable-line security/detect-non-literal-regexp
 				promptLabel: __('Directory to place project'),
 				showHidden: true,
 				validate: validate
@@ -493,25 +499,24 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
 /**
  * Defines the --workspace-dir option.
  *
- * @param {Integer} order - The order to apply to this option.
+ * @param {Function} next - Callback function
  *
  * @returns {Object}
  */
 Creator.prototype.processTemplate = function processTemplate(next) {
 	// try to resolve the template dir
-	var template = this.cli.argv.template = this.cli.argv.template || 'default',
+	const template = this.cli.argv.template = this.cli.argv.template || 'default',
 		builtinTemplateDir = appc.fs.resolvePath(this.sdk.path, 'templates', this.cli.argv.type, template),
 		searchPaths = [],
-		additionalPaths = this.config.get('paths.templates'),
-		dir;
+		additionalPaths = this.config.get('paths.templates');
 
 	// first check if the specified template is a built-in template name
 	if (fs.existsSync(builtinTemplateDir)) {
-		this.cli.scanHooks(path.join(builtinTemplateDir, 'hooks'))
+		this.cli.scanHooks(path.join(builtinTemplateDir, 'hooks'));
 		return next(null, builtinTemplateDir);
 	}
 
-	if (/^https?\:\/\/.+/.test(template)) {
+	if (/^https?:\/\/.+/.test(template)) {
 		return this.downloadFile(template, next);
 	}
 
@@ -521,17 +526,18 @@ Creator.prototype.processTemplate = function processTemplate(next) {
 
 	// could be the name of a template in one of the template paths
 	this.cli.env.os.sdkPaths.forEach(function (dir) {
-		if (fs.existsSync(dir = appc.fs.resolvePath(dir, 'templates')) && searchPaths.indexOf(dir) == -1) {
+		if (fs.existsSync(dir = appc.fs.resolvePath(dir, 'templates')) && searchPaths.indexOf(dir) === -1) {
 			searchPaths.push(dir);
 		}
 	});
 
 	(Array.isArray(additionalPaths) ? additionalPaths : [ additionalPaths ]).forEach(function (p) {
-		if (p && fs.existsSync(p = appc.fs.resolvePath(p)) && searchPaths.indexOf(p) == -1) {
+		if (p && fs.existsSync(p = appc.fs.resolvePath(p)) && searchPaths.indexOf(p) === -1) {
 			searchPaths.push(p);
 		}
 	});
 
+	let dir;
 	while (dir = searchPaths.shift()) {
 		if (fs.existsSync(dir = path.join(dir, template))) {
 			return next(null, dir);
@@ -553,14 +559,14 @@ Creator.prototype.processTemplate = function processTemplate(next) {
  * @param {Function} callback - The function to call after the file has been downloaded and unzipped
  */
 Creator.prototype.downloadFile = function downloadFile(url, callback) {
-	var tempName = temp.path({ suffix: '.zip' }),
+	const tempName = temp.path({ suffix: '.zip' }),
 		tempDir = path.dirname(tempName);
 
 	fs.existsSync(tempDir) || wrench.mkdirSyncRecursive(tempDir);
 
 	this.logger.info(__('Downloading %s', url.cyan));
 
-	var tempStream = fs.createWriteStream(tempName),
+	const tempStream = fs.createWriteStream(tempName),
 		req = request({
 			url: url,
 			proxy: this.config.get('cli.httpProxyServer'),
@@ -569,7 +575,7 @@ Creator.prototype.downloadFile = function downloadFile(url, callback) {
 
 	req.pipe(tempStream);
 
-	req.on('error', function (err) {
+	req.on('error', function () {
 		fs.existsSync(tempName) && fs.unlinkSync(tempName);
 		this.logger.log();
 		this.logger.error(__('Failed to download template: %s', url) + '\n');
@@ -600,9 +606,10 @@ Creator.prototype.downloadFile = function downloadFile(url, callback) {
  * @param {Function} callback - The function to call after the file has been unzipped
  */
 Creator.prototype.unzipFile = function unzipFile(zipFile, callback) {
-	var dir = temp.mkdirSync({ prefix: 'titanium-' });
+	const dir = temp.mkdirSync({ prefix: 'titanium-' });
 	fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 	this.logger.info(__('Extracting %s', zipFile.cyan));
+	const logger = this.logger;
 
 	this.cli.on('create.finalize', function () {
 		// clean up the temp dir
@@ -612,7 +619,7 @@ Creator.prototype.unzipFile = function unzipFile(zipFile, callback) {
 		}
 	});
 
-	appc.zip.unzip(zipFile, dir, null, function() {
+	appc.zip.unzip(zipFile, dir, null, function () {
 		callback(null, dir);
 	});
 };

@@ -376,7 +376,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			}
 		}
 
-		properties.putAll(dict);
+		for (String key : dict.keySet()) {
+			setProperty(key, dict.get(key));
+		}
 		handleDefaultValues();
 		handleLocaleProperties();
 

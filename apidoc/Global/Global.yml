@@ -2,84 +2,84 @@
 name: Global
 summary: The APIs that reside in the global scope, which may be called without a namespace prefix.
 description: |
-    Titanium provides a number of global built-in objects, detailed below. 
-    
+    Titanium provides a number of global built-in objects, detailed below.
+
     #### JSON
-    
+
     Titanium provides a built-in [JSON](Global.JSON) object two functions, `parse` and `stringify`.
 
     #### String Utilities
 
     Titanium includes several extra utility functions for formatting text, attached to the
     global [String](Global.String) object.
-    
+
     #### console
-    
+
     Titanium provides [console](Global.console) support familiar to many javascript developers
     for logging at the toplevel, in addition to the <Titanium.API> logging facilities.
-    
+
     #### Timers
-    
+
     Titanium has built-in support for one-off and repeating timers:
-    
+
     *    Use [setTimeout](Global.setTimeout) to start a one-off timer.
 
     *    Use [setInterval](Global.setInterval) to start a repeating timer.
-    
+
     #### Alert
-    
-    Titanium has a built-in convenience function [alert](Global.alert) which can be used as an alias 
+
+    Titanium has a built-in convenience function [alert](Global.alert) which can be used as an alias
     for the [AlertDialog](Titanium.UI.AlertDialog) module.
-    
+
     #### Locale
-    
+
     The `L` macro can also be used as an alias for the <Titanium.Locale.getString> method.
 
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 
 methods:
   - name: alert
     summary: Displays a pop-up alert dialog with the passed in `message`.
     description: |
-        This function is a shortcut for creating and displaying an 
-        [alert dialog](Titanium.UI.AlertDialog). For example, the following two statements produce 
+        This function is a shortcut for creating and displaying an
+        [alert dialog](Titanium.UI.AlertDialog). For example, the following two statements produce
         the same result.
-        
+
             alert('Danger, Will Robinson!');
-        
+
             Ti.UI.createAlertDialog({ message: 'Danger, Will Robinson!' }).show();
-        
-        Note that unlike a web browser-based version of `alert`, the method is asynchronous. However, 
+
+        Note that unlike a web browser-based version of `alert`, the method is asynchronous. However,
         only one alert dialog will be visible and modal at a time.
-        
+
         Be aware that this method may be removed in the future.
     parameters:
       - name: message
         summary: Alert message.
         type: String
 
-        
+
   - name: clearInterval
     summary: Cancels an interval timer.
     parameters:
       - name: timerId
         summary: Unique timer identifier returned by [setInterval](Global.setInterval).
         type: Number
-        
+
   - name: clearTimeout
     summary: Cancels a one-time timer.
     parameters:
       - name: timerId
         summary: Unique timer identifier returned by [setTimeout](Global.setTimeout).
         type: Number
-        
+
   - name: decodeURIComponent
     summary: |
-        Replaces each escape sequence in the specified string, created using the `encodedURI` 
-        method, with the character that it represents. 
-    description: | 
-        For more information, see the MDN website for 
-        [encodeURIComponent](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURIComponent) 
+        Replaces each escape sequence in the specified string, created using the `encodedURI`
+        method, with the character that it represents.
+    description: |
+        For more information, see the MDN website for
+        [encodeURIComponent](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURIComponent)
         and [decodeURIComponent](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/decodeURIComponent).
     returns:
         summary: Decoded string.
@@ -91,11 +91,11 @@ methods:
 
   - name: encodeURIComponent
     summary: |
-        Replaces each special character in the specified string with the equivalent URI escape 
+        Replaces each special character in the specified string with the equivalent URI escape
         sequence. Useful for encoding URIs.
     description: |
-        For more information, see the MDN website for 
-        [encodeURIComponent](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURIComponent) 
+        For more information, see the MDN website for
+        [encodeURIComponent](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/encodeURIComponent)
         and [decodeURIComponent](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/decodeURIComponent).
     returns:
         summary: Encoded string.
@@ -114,18 +114,18 @@ methods:
       - name: key
         summary: Key used to lookup the localized string.
         type: String
-        
+
       - name: hint
         summary: Text to return if `key` is not found.
         type: String
         optional: true
-        
+
   - name: require
     summary: Loads either a native Titanium module or a CommonJS module.
     description: |
-        The `require` function takes a module identifier as its argument and returns an object with 
+        The `require` function takes a module identifier as its argument and returns an object with
         references to the module's exported symbols.
-        
+
         #### Native Titanium Module
 
         To load a native Titanium module:
@@ -138,30 +138,30 @@ methods:
         [Using a Module](http://docs.appcelerator.com/platform/latest/#!/guide/Using_a_Module).
 
         #### CommonJS Module
-        
+
         To load a local CommonJS module, place the CommonJS module in the `Resources` directory of
         your project. Pass the `require` method the path to the file without the `Resources`
         directory, platform-specific directory and the `.js` extension.
 
-        Note that the appropriate *platform-specific* `Resources` subdirectory is merged into the 
+        Note that the appropriate *platform-specific* `Resources` subdirectory is merged into the
         main `Resources` directory at build time. For example, suppose the following files exist.
-        
+
         * `Resources/app.js`
         * `Resources/ui/MainWindow.js`
         * `Resources/iphone/ui/TaskWindow.js`
         * `Resources/android/ui/TaskWindow.js`
-        
-        The appropriate `TaskWindow.js` file is moved into the `Resources/ui` directory of the 
-        built application. To include both the MainWindow module and the platform-specific 
+
+        The appropriate `TaskWindow.js` file is moved into the `Resources/ui` directory of the
+        built application. To include both the MainWindow module and the platform-specific
         TaskWindow module from any JavaScript file in the project:
 
              // load main window module from ui subdirectory
              var mainWindow = require('ui/MainWindow');
-            
+
              // load platform-specific task window module
-             var taskWindow = require('ui/TaskWindow'); 
-        
-        For more information, see the Official CommonJS website about 
+             var taskWindow = require('ui/TaskWindow');
+
+        For more information, see the Official CommonJS website about
         [CommonJS Modules/1.1 Specification](http://wiki.commonjs.org/wiki/Modules/1.1).
 
         #### Alloy
@@ -179,13 +179,13 @@ methods:
             require('myModule/module');
 
         #### Android
-        
+
         Additionally, on Android, an absolute path to a module may be specified using a path
         separator (`/`) at the beginning of the path.
-            
+
         For example, a module file `Resources/myModule/module.js` may be required by
         `Resources/example/example.js` using either of the following:
-            
+
             require('../myModule/module')
             require ('/myModule/module')
 
@@ -201,29 +201,29 @@ methods:
       - title: Require a Native Module
         example: |
             To load a native module with the ID `com.mycompany.module`:
-            
+
                 var module = require('com.mycompany.module');
       - title: Require a JavaScript Module
         example: |
             `myModule.js`:
-            
+
                 exports.message = "hello world";
-            
+
             `app.js`:
-            
+
                 var myModule = require('myModule');
                 alert(myModule.message);
-        
+
   - name: setInterval
     summary: Executes a function repeatedly with a fixed time delay between each call to that function.
     description: |
-        Note that although the interval is not guaranteed to be exact, the interval between calls 
+        Note that although the interval is not guaranteed to be exact, the interval between calls
         will be no less than the specified delay.
-        
-        Returns a unique timer identifier that can be passed to [clearInterval](Global.clearInterval) 
+
+        Returns a unique timer identifier that can be passed to [clearInterval](Global.clearInterval)
         to cancel this timer.
-        
-        For more information, see the MDN website for 
+
+        For more information, see the MDN website for
         [setInterval](https://developer.mozilla.org/en/DOM/window.setInterval).
     returns:
         summary: Unique timer identifier.
@@ -232,14 +232,14 @@ methods:
       - name: function
         summary: Function to call.
         type: Callback
-        
+
       - name: delay
         summary: Time in milliseconds to wait between calls to function.
         type: Number
     examples:
       - title: Update a label once every second, and stop at 10 seconds
         example: |
-            
+
                 var count = 0;
                 var timer = setInterval(function(){
                     count++;
@@ -248,17 +248,17 @@ methods:
                         clearInterval(timer);
                     }
                 }, 1000);
-        
+
   - name: setTimeout
     summary: Executes code or a function after a delay.
     description: |
         Note that although the timeout is not guaranteed to be exact, the delay before the
         function is invoked will be no less than the specified delay.
 
-        Returns a unique timer identifier that can be passed to [clearTimeout](Global.clearTimeout) 
+        Returns a unique timer identifier that can be passed to [clearTimeout](Global.clearTimeout)
         to cancel this timer.
-        
-        For more information, see the MDN website for 
+
+        For more information, see the MDN website for
         [setTimeout](https://developer.mozilla.org/en/DOM/window.setTimeout).
     returns:
         summary: Unique timer identifier.
@@ -267,14 +267,14 @@ methods:
       - name: function
         summary: Code or function to call.
         type: Callback
-        
+
       - name: delay
         summary: Time in milliseconds to wait before the function is called.
         type: Number
     examples:
       - title: Execute a function in 500 milliseconds
         example: |
-            
+
                 setTimeout(function(){
                     Ti.API.debug('Called using setTimeout');
                 }, 500);

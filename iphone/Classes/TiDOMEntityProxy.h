@@ -8,11 +8,10 @@
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 #import "TiDOMNodeProxy.h"
 
-@interface TiDOMEntityProxy : TiDOMNodeProxy{
-    
+@interface TiDOMEntityProxy : TiDOMNodeProxy {
 }
-@property(nonatomic,readonly) id notationName;
-@property(nonatomic,readonly) id publicId;
-@property(nonatomic,readonly) id systemId;
+@property (nonatomic, readonly) id notationName;
+@property (nonatomic, readonly) id publicId;
+@property (nonatomic, readonly) id systemId;
 @end
 #endif
