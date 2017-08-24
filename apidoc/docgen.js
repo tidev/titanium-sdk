@@ -977,6 +977,10 @@ formats.forEach(function (format) {
 			render = JSON.stringify(exportData, null, '    ');
 			output += 'api.json';
 			break;
+		case 'gcexterns' :
+			render = exportData;
+			output = output + 'titanium.externs.js';
+			break;
 		case 'jsduck' :
 			templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
 			render = ejs.render(templateStr, { doc: exportData });
