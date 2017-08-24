@@ -44,7 +44,7 @@ class FrameworkManager {
 		this._config = config;
 		this._logger = logger;
 		this._builder = null;
-		this._frameworks = null;
+		this._frameworks = new Map();
 	}
 
 	/**
@@ -326,6 +326,14 @@ class InspectFrameworksTask extends IncrementalFileTask {
 			if (!fs.existsSync(frameworkInfo.path)) {
 				this.logger.trace(`Framework at ${frameworkInfo.path} deleted, removing metadata`);
 				this._frameworks.delete(frameworkInfo.name);
+				return;
+			}
+
+			// Remove any frameworks from deactivated modules
+			if (!this._frameworkPaths.has(frameworkInfo.path)) {
+				this.logger.trace(`Framework at ${frameworkInfo.path} no longer in search path, removing metadata`);
+				this._frameworks.delete(frameworkInfo.name);
+				return;
 			}
 		});
 
@@ -658,14 +666,8 @@ class FrameworkIntegrator {
 		});
 
 		if (stripFrameworksScriptPath === null) {
-			let templateSourcePath = path.join(this._builder.templatesDir, scriptFilename);
-			stripFrameworksScriptPath = path.join(this._builder.buildDir, scriptFilename);
-			if (!fs.existsSync(stripFrameworksScriptPath)) {
-				appc.fs.copyFileSync(templateSourcePath, stripFrameworksScriptPath);
-			}
+			stripFrameworksScriptPath = path.join(this._builder.templatesDir, scriptFilename);
 			this._logger.trace('Using bundled script at ' + stripFrameworksScriptPath.cyan);
-
-			this._builder.unmarkBuildDirFile(stripFrameworksScriptPath);
 		}
 
 		let scriptPhaseUuid = this._builder.generateXcodeUuid();
