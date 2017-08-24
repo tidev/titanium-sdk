@@ -979,7 +979,7 @@ formats.forEach(function (format) {
 			break;
 		case 'gcexterns' :
 			render = exportData;
-			output = output + 'titanium.externs.js';
+			output += 'titanium.externs.js';
 			break;
 		case 'jsduck' :
 			templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
