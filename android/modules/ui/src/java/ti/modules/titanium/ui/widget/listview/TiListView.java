@@ -293,12 +293,12 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
 				section.populateViews(data, itemContent, template, sectionItemIndex, sectionIndex, content);
 				//Manually add drawable for ripple touch feedback
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 					try {
 						TypedValue typedValue = new TypedValue();
 						context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, typedValue, true);
 						itemContent.setClickable(true);
-						itemContent.setBackground(context.getResources().getDrawable(typedValue.resourceId, context.getTheme()));
+						itemContent.setForeground(context.getResources().getDrawable(typedValue.resourceId, context.getTheme()));
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}
@@ -311,12 +311,12 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				itemContent.setLayoutParams(params);
 				section.generateCellContent(sectionIndex, data, template, itemContent, sectionItemIndex, content);
 				//Manually add drawable for ripple touch feedback
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 					try {
 						TypedValue typedValue = new TypedValue();
 						context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, typedValue, true);
 						itemContent.setClickable(true);
-						itemContent.setBackground(context.getResources().getDrawable(typedValue.resourceId, context.getTheme()));
+						itemContent.setForeground(context.getResources().getDrawable(typedValue.resourceId, context.getTheme()));
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}
