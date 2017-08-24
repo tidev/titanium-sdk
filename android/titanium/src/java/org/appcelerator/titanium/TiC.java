@@ -154,6 +154,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_DRAGSTART = "dragstart";
+
 	/**
 	 * @module.api
 	 */
@@ -502,6 +503,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_SINGLE_TAP = "singletap";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SLIDE = "slide";
 
 	/**
 	 * @module.api
@@ -1177,6 +1183,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CONTENT_INSET_END_WITH_ACTIONS = "contentInsetEndWithActions";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION = "contentInsetStartWithNavigation";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
 
 	/**
@@ -1208,6 +1224,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PADDING_TOP = "paddingTop";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CENTER_VIEW = "centerView";
 
 	/**
 	 * @module.api
@@ -1342,6 +1363,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DRAG_MARGIN = "dragMargin";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DRAWER_INDICATOR_ENABLED = "drawerIndicatorEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DRAWER_LOCK_MODE = "drawerLockMode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DURATION = "duration";
 
 	/**
@@ -1403,6 +1439,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_EXPIRY_DATE = "expiryDate";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_EXTEND_BACKGROUND = "extendBackground";
 
 	/**
 	 * @module.api
@@ -1861,6 +1902,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LEFT_WIDTH = "leftWidth";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LENGTH = "length";
 
 	/**
@@ -1872,6 +1918,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LOCATION = "location";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOGO = "logo";
 
 	/**
 	 * @module.api
@@ -2040,6 +2091,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_NAVIGATION_ICON = "navigationIcon";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_NICKNAME = "nickname";
 
 	/**
@@ -2201,6 +2257,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OVER_SCROLL_MODE = "overScrollMode";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OVERFLOW_ICON = "overflowIcon";
 
 	/**
 	 * @module.api
@@ -2403,6 +2464,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_RIGHT_VIEW = "rightView";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_RIGHT_WIDTH = "rightWidth";
 
 	/**
 	 * @module.api
@@ -2702,6 +2768,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SUBTITLE_TEXT_COLOR = "subtitleTextColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SUBTITLEID = "subtitleid";
 
 	/**
@@ -2713,6 +2784,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SUMMARY_TEXT = "summaryText";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SUPPORT_TOOLBAR = "supportToolbar";
 
 	/**
 	 * @module.api
@@ -2836,6 +2912,10 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TITLE_TEXT_COLOR = "titleTextColor";
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TO = "to";
 
 	/**
@@ -2847,6 +2927,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TOOLBAR_ENABLED = "toolbarEnabled";
 
 	/**
 	 * @module.api
@@ -2872,6 +2957,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TRANSLATION_Z = "translationZ";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLUCENT = "translucent";
 
 	/**
 	 * @module.api
@@ -2977,6 +3067,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VOLUME = "volume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_WAKE_LOCK = "wakeLock";
 
 	/**
 	 * @module.api

@@ -41,6 +41,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.view.MenuItem;
+import android.os.PowerManager;
 
 @SuppressWarnings("deprecation")
 @Kroll.module
@@ -278,6 +279,13 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int TILE_STATE_UNAVAILABLE = Tile.STATE_UNAVAILABLE;
 	@Kroll.constant public static final int TILE_STATE_INACTIVE = Tile.STATE_INACTIVE;
 	@Kroll.constant public static final int TILE_STATE_ACTIVE = Tile.STATE_ACTIVE;
+
+	@Kroll.constant public static final int WAKE_LOCK_PARTIAL = PowerManager.PARTIAL_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_FULL = PowerManager.FULL_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_SCREEN_DIM = PowerManager.SCREEN_DIM_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_SCREEN_BRIGHT = PowerManager.SCREEN_BRIGHT_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_ACQUIRE_CAUSES_WAKEUP = PowerManager.ACQUIRE_CAUSES_WAKEUP;
+	@Kroll.constant public static final int WAKE_LOCK_ON_AFTER_RELEASE = PowerManager.ON_AFTER_RELEASE;
 
 	protected RProxy r;
 	private static final int REQUEST_CODE = 99;
