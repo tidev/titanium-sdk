@@ -38,7 +38,7 @@ methods:
 
   - name: setIcon
     summary: Changes the Tile's icon.
-        parameters: 
+    parameters: 
         summary: Source of the icon image
         type: [String, Titanium.Blob, Titanium.Filesystem.File]
     default: Application's icon
@@ -107,8 +107,8 @@ methods:
     parameters:
       summary: JavaScript code to be evaluated
       type: String
-events:
 
+events:
   - name: startlistening
     summary: |
         Tile is listening for events.
