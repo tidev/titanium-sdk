@@ -38,11 +38,12 @@ methods:
 
   - name: setIcon
     summary: Changes the Tile's icon.
+    description: |
+      If no image is passed as Tile icon it will use the Application's one.
     parameters: 
       - name: icon
         summary: Source of the icon image
         type: [String, Titanium.Blob, Titanium.Filesystem.File]
-    default: Application's icon
 
   - name: setState
     summary: Sets the state of the Tile.
@@ -58,19 +59,22 @@ methods:
 
   - name: setLabel
     summary: Changes the Tile's label.
+    description: |
+      If no label is set the Tile uses the Application name.
     parameters: 
       - name: label
         summary: String to be used
         type: String
-    default: Application's name
 
   - name: getIcon
     summary: Returns the Tile's current icon.
-    type: [String, Titanium.Blob, Titanium.Filesystem.File]
+    returns:
+        type: [String, Titanium.Blob, Titanium.Filesystem.File]
 
   - name: getState
     summary: Returns the Tile's current state
-    type: Number
+    returns:
+      type: Number
     constants: Titanium.Android.TILE_STATE_*
 
   - name: getLabel
@@ -83,23 +87,19 @@ methods:
 
     name: isSecure
     summary: Returns 'true' if the device is in secure state, 'false' otherwise.
-    type: Boolean
+    returns:
+      type: Boolean
 
   - name: showDialog
     summary: Opens an Alert dialog.
     description: |
-      Creates and shows a default Alert dialog with the provided options. Currently supports the following:
-      - title - String to be used as title for the dialog.
-      - message - String to be used as a message for the dialog.
-      - buttonNames - Array of String instances. They will be shown as buttons' titles. They are limited up
-        to three buttons and with a predefined order - positive, neutral, negative. See events.
-      - options - List of String instances. They will be shown as a single choice list.
+      Creates and shows a default Alert dialog with the provided options dictionary.
 
       Note: Alert dialog only supports one of the following: message/options. If you pass both - only `message` will
       be shown.
     parameters:
       - name: options
-        type: KrollDictionary
+        type: showParams
         summary: Dictionary containing the options for the dialog.
 
   - name: startActivityAndCollapse
@@ -192,6 +192,28 @@ examples:
                     </services>
                 </android>
             </ti:app>
+---
+name: showParams
+summary: Dictionary of options for the <Titanium.Android.QuickSettingsService.showDialog> method.
 
+properties:
+  - name: title
+    summary: String to be used as title for the dialog.
+    type: String
 
+  - name: message
+    summary: String to be used as a message for the dialog.
+    type: String
 
+  - name: buttonNames
+    summary: Array of String instances.
+    description: |
+        They will be shown as buttons' titles. They are limited up
+        to three buttons and with a predefined order - positive, neutral, negative. See events.
+    type: Array<String>
+
+  - name: options
+    summary: Array of String instances.
+    description: |
+      They will be shown as a single choice list.
+    type: Array<String>
