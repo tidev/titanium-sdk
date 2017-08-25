@@ -1,9 +1,13 @@
 ---
 name: Titanium.UI.RefreshControl
-summary: The RefreshControl is a representation of the native [UIRefreshControl](https://developer.apple.com/library/ios/documentation/uikit/reference/UIRefreshControl_class/Reference/Reference.html).
+summary: |
+    The RefreshControl is a representation of the native iOS 
+    [UIRefreshControl](https://developer.apple.com/library/ios/documentation/uikit/reference/UIRefreshControl_class/Reference/Reference.html) 
+    and Android [SwipeRefreshLayout](https://developer.android.com/reference/android/support/v4/widget/SwipeRefreshLayout.html).
 description: |
 
-    You use a `RefreshControl` with a <Titanium.UI.TableView>, <Titanium.UI.ListView> or <Titanium.UI.ScrollView> object.
+    You use a `RefreshControl` with a <Titanium.UI.TableView> and <Titanium.UI.ListView>. 
+    On iOS, a `RefreshControl` can also be used with a <Titanium.UI.ScrollView> object. 
     It provides an alternate method to implement **pull to refresh** functionality provided by 
     <Titanium.UI.TableView.headerPullView> and <Titanium.UI.ListView.pullView> properties.
     
@@ -11,8 +15,8 @@ description: |
 
 
 extends: Titanium.Proxy
-since: "3.2.0"
-platforms: [iphone, ipad]
+since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
+platforms: [android, iphone, ipad]
 methods:
   - name: beginRefreshing
     summary: Tells the control that a refresh operation was started programmatically.
@@ -31,19 +35,27 @@ methods:
 properties:
   - name: title
     summary: The attributed title of the control. 
+    description: |
+        Title text is only supported on iOS. Android will ignore this property. 
     type: Titanium.UI.AttributedString
+    platforms: [iphone, ipad]
+    since: { iphone: "3.2.0", ipad: "3.2.0" }
 
   - name: tintColor
     summary: The tint color for the refresh control, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
+    platforms: [android, iphone, ipad]
+    since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
 events:
   - name: refreshstart
     summary: | 
         Fired in response to a user initiated an action to refresh the contents of the 
         table view, list view or scroll view.
+    platforms: [android, iphone, ipad]
+    since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
     properties:
       - name: bubbles
         summary: This is false. This event does not bubble
@@ -52,7 +64,8 @@ events:
     summary: | 
         Fired in response to a user finished action to refresh the contents of the 
         table view, list view or scroll view.
-    since: "6.0.0"
+    platforms: [android, iphone, ipad]
+    since: { android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0" }
     properties:
       - name: bubbles
         summary: This is false. This event does not bubble
