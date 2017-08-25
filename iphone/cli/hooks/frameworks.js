@@ -5,7 +5,6 @@
 
 'use strict';
 
-const appc = require('node-appc');
 const exec = require('child_process').exec;
 const fs = require('fs');
 const IncrementalFileTask = require('appc-tasks').IncrementalFileTask;
@@ -124,15 +123,17 @@ class FrameworkManager {
 		}
 
 		for (let pathToScan of pathsToScan) {
-			let scanPromise = this.scanPathForFrameworks(pathToScan).then(result => {
-				if (result) {
-					foundFrameworkPaths = foundFrameworkPaths.concat(result);
-				}
-			});
+			let scanPromise = this.scanPathForFrameworks(pathToScan);
 			scanPromises.push(scanPromise);
 		}
 
-		return Promise.all(scanPromises).then(() => foundFrameworkPaths);
+		return Promise.all(scanPromises).then((results) => {
+			for (let result of results) {
+				if (result) {
+					foundFrameworkPaths = foundFrameworkPaths.concat(result);
+				}
+			}
+		}).then(() => foundFrameworkPaths);
 	}
 
 	/**
