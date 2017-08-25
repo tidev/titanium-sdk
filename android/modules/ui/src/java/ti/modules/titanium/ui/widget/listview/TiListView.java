@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2017 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,17 +30,20 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.android.SearchViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
+import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
+import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -55,7 +58,6 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.util.AttributeSet;
 
 public class TiListView extends TiUIView implements OnSearchChangeListener {
 
@@ -103,22 +105,22 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	public static final int CUSTOM_TEMPLATE_ITEM_TYPE = 3;
 
 	public class ListViewScrollEvent extends ListView {
-	    public ListViewScrollEvent(Context context) {
-	        super(context);
-	    }
+		public ListViewScrollEvent(Context context) {
+			super(context);
+		}
 
-	    public ListViewScrollEvent(Context context, AttributeSet attrs) {
-	        super(context,attrs);
-	    }
+		public ListViewScrollEvent(Context context, AttributeSet attrs) {
+			super(context,attrs);
+		}
 
-	    public ListViewScrollEvent(Context context, AttributeSet attrs, int defStyle) {
-	        super(context, attrs, defStyle);
-	    }
+		public ListViewScrollEvent(Context context, AttributeSet attrs, int defStyle) {
+			super(context, attrs, defStyle);
+		}
 
-	    //we need this protected method for scroll detection
-	    public int getVerticalScrollOffset() {
-	        return computeVerticalScrollOffset();
-	    }
+		//we need this protected method for scroll detection
+		public int getVerticalScrollOffset() {
+			return computeVerticalScrollOffset();
+		}
 		
 		@Override
 		public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -131,7 +133,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		}
 	}
 
-	class ListViewWrapper extends FrameLayout {
+	private class ListViewWrapper extends TiSwipeRefreshLayout {
 		private boolean viewFocused = false;
 		private boolean selectionSet = false;
 		public ListViewWrapper(Context context) {
@@ -324,6 +326,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		
 		//initializing listView and adapter
 		ListViewWrapper wrapper = new ListViewWrapper(activity);
+		wrapper.setSwipeRefreshEnabled(false);
 		wrapper.setFocusable(false);
 		wrapper.setFocusableInTouchMode(false);
 		listView = new ListViewScrollEvent(activity);
@@ -417,8 +420,8 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 						fProxy.fireEvent(TiC.EVENT_SCROLLING, eventArgs, false);
 						newScrollUp = scrollUp;
 					}
-			        mInitialScroll = scrolledOffset;
-			    }
+					mInitialScroll = scrolledOffset;
+				}
 			}
 		});
 		
@@ -527,7 +530,14 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				processTemplates(new KrollDict((HashMap) templates));
 			}
 		} 
-		
+
+		if (d.containsKey(TiC.PROPERTY_REFRESH_CONTROL)) {
+			Object object = d.get(TiC.PROPERTY_REFRESH_CONTROL);
+			if (object instanceof RefreshControlProxy) {
+				((RefreshControlProxy)object).assignTo(this.wrapper);
+			}
+		}
+
 		if (d.containsKey(TiC.PROPERTY_SEARCH_TEXT)) {
 			this.searchText = TiConvert.toString(d, TiC.PROPERTY_SEARCH_TEXT);
 		}
@@ -738,6 +748,14 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			setFooterTitle(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_SECTIONS) && newValue instanceof Object[] ) {
 			processSectionsAndNotify((Object[])newValue);
+		} else if (key.equals(TiC.PROPERTY_REFRESH_CONTROL)) {
+			if (newValue == null) {
+				RefreshControlProxy.unassignFrom(this.wrapper);
+			} else if (newValue instanceof RefreshControlProxy) {
+				((RefreshControlProxy)newValue).assignTo(this.wrapper);
+			} else {
+				Log.e(TAG, "Invalid value assigned to property '" + key + "'. Must be of type 'RefreshControl'.");
+			}
 		} else if (key.equals(TiC.PROPERTY_SEARCH_TEXT)) {
 			this.searchText = TiConvert.toString(newValue);
 			if (this.searchText != null) {
@@ -1021,7 +1039,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		
 		templatesByBinding.clear();
 		sections.clear();
-		
+
+		// If a refresh control is currently assigned, then detach it.
+		RefreshControlProxy.unassignFrom(this.wrapper);
+
 		if (wrapper != null) {
 			wrapper = null;
 		}

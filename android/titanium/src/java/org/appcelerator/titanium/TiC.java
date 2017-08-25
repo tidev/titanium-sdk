@@ -461,6 +461,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_REFRESH_END = "refreshend";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_REFRESH_START = "refreshstart";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_REGION_CHANGED = "regionchanged";
 
 	/**
@@ -2276,6 +2286,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_REFERRED_BY = "referredBy";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_REFRESH_CONTROL = "refreshControl";
 
 	/**
 	 * @module.api

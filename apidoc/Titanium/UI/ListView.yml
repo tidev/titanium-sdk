@@ -842,8 +842,8 @@ properties:
     description: |
         An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples.
     type: Titanium.UI.RefreshControl
-    platforms: [iphone, ipad]
-    since: 3.2.0
+    platforms: [android, iphone, ipad]
+    since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
   - name: searchView
     summary: Search field to use for the list view.

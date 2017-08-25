@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
+import ti.modules.titanium.ui.RefreshControlProxy;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -30,12 +31,16 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
 
+
 public class TiUIScrollView extends TiUIView
 {
 	public static final int TYPE_VERTICAL = 0;
 	public static final int TYPE_HORIZONTAL = 1;
 
 	private static final String TAG = "TiUIScrollView";
+	private static final String REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE =
+			"SrollView does not support a RefreshControl on Android.";
+
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
@@ -55,18 +60,18 @@ public class TiUIScrollView extends TiUIView
 		{
 			super(context, arrangement, proxy);
 			gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-			    @Override
-			    public void onLongPress(MotionEvent e) {
-			        if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
-			            fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
-			        }
-			    }
+				@Override
+				public void onLongPress(MotionEvent e) {
+					if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+						fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
+					}
+				}
 			});
 			setOnTouchListener(new OnTouchListener() {
-			    @Override
-			    public boolean onTouch(View v, MotionEvent event) {
-			        return gestureDetector.onTouchEvent(event);
-			    }
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					return gestureDetector.onTouchEvent(event);
+				}
 			});
 		}
 
@@ -470,11 +475,11 @@ public class TiUIScrollView extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
+
 		if (key.equals(TiC.PROPERTY_CONTENT_OFFSET)) {
 			setContentOffset(newValue);
 			scrollTo(offsetX, offsetY, false);
-		}
-		if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
+		} else if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
 			View view = getNativeView();
 			boolean canCancelEvents = TiConvert.toBoolean(newValue);
 			if (view instanceof TiHorizontalScrollView) {
@@ -482,15 +487,16 @@ public class TiUIScrollView extends TiUIView
 			} else if (view instanceof TiVerticalScrollView) {
 				((TiVerticalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 			}
-		}
-		if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
+		} else if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
 			setScrollingEnabled(newValue);
-		}
-		if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
-			if (Build.VERSION.SDK_INT >= 9) {
-				getNativeView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+		} else if (TiC.PROPERTY_REFRESH_CONTROL.equals(key)) {
+			if (newValue instanceof RefreshControlProxy) {
+				Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
 			}
+		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
+			getNativeView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 		}
+
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 
@@ -499,6 +505,10 @@ public class TiUIScrollView extends TiUIView
 	{
 		boolean showHorizontalScrollBar = false;
 		boolean showVerticalScrollBar = false;
+
+		if (d.get(TiC.PROPERTY_REFRESH_CONTROL) instanceof RefreshControlProxy) {
+			Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
+		}
 
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			setScrollingEnabled(d.get(TiC.PROPERTY_SCROLLING_ENABLED));
@@ -590,7 +600,7 @@ public class TiUIScrollView extends TiUIView
 		boolean autoContentWidth = (scrollViewLayout.getContentProperty(TiC.PROPERTY_CONTENT_WIDTH) == TiScrollViewLayout.AUTO);
 		boolean wrap = !autoContentWidth;
 		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP) && wrap) {
-			wrap = TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP, true);			
+			wrap = TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP, true);
 		}
 		scrollViewLayout.setEnableHorizontalWrap(wrap);
 		

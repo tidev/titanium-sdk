@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
@@ -139,7 +140,14 @@ public class TiUITableView extends TiUIView
 		} else {
 			list.setHeaderDividersEnabled(false);
 		}
-	
+
+		if (d.containsKey(TiC.PROPERTY_REFRESH_CONTROL)) {
+			Object object = d.get(TiC.PROPERTY_REFRESH_CONTROL);
+			if (object instanceof RefreshControlProxy) {
+				((RefreshControlProxy)object).assignTo(this.tableView);
+			}
+		}
+
 		if (d.containsKey(TiC.PROPERTY_SEARCH)) {
 			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
 			TiUIView search = searchView.getOrCreateView();
@@ -249,6 +257,9 @@ public class TiUITableView extends TiUIView
 			searchView.release();
 		}
 
+		// If a refresh control is currently assigned, then detach it.
+		RefreshControlProxy.unassignFrom(this.tableView);
+
 		if (tableView != null) {
 			tableView.release();
 			tableView  = null;
@@ -256,7 +267,7 @@ public class TiUITableView extends TiUIView
 		if (proxy != null && proxy.getActivity() != null) {
 			((TiBaseActivity)proxy.getActivity()).removeOnLifecycleEventListener(this);
 		}
-		nativeView  = null;
+		nativeView = null;
 		super.release();
 	}
 
@@ -304,6 +315,14 @@ public class TiUITableView extends TiUIView
 			tableView.setFilterAnchored(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {
 			tableView.setFilterCaseInsensitive(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_REFRESH_CONTROL)) {
+			if (newValue == null) {
+				RefreshControlProxy.unassignFrom(this.tableView);
+			} else if (newValue instanceof RefreshControlProxy) {
+				((RefreshControlProxy)newValue).assignTo(this.tableView);
+			} else {
+				Log.e(TAG, "Invalid value assigned to property '" + key + "'. Must be of type 'RefreshControl'.");
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
