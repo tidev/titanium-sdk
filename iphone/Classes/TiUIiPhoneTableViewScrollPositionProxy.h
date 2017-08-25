@@ -10,14 +10,13 @@
 
 @interface TiUIiPhoneTableViewScrollPositionProxy : TiProxy {
 
-@private
-
+  @private
 }
 
-@property(nonatomic,readonly) NSNumber *NONE;
-@property(nonatomic,readonly) NSNumber *TOP;
-@property(nonatomic,readonly) NSNumber *MIDDLE;
-@property(nonatomic,readonly) NSNumber *BOTTOM;
+@property (nonatomic, readonly) NSNumber *NONE;
+@property (nonatomic, readonly) NSNumber *TOP;
+@property (nonatomic, readonly) NSNumber *MIDDLE;
+@property (nonatomic, readonly) NSNumber *BOTTOM;
 
 @end
 

@@ -8,17 +8,15 @@
 
 #ifdef USE_TI_UIIOSADVIEW
 
-
 @interface TiUIiOSAdViewProxy : TiUIViewProxy {
-
 }
 
 // Need these for sanity checking and constants, so they
 // must be class-available rather than instance-available
-+(NSString*)portraitSize;
-+(NSString*)landscapeSize;
++ (NSString *)portraitSize;
++ (NSString *)landscapeSize;
 #pragma mark internal
--(void)fireLoad:(id)unused;
+- (void)fireLoad:(id)unused;
 @end
 
 #endif

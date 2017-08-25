@@ -12,27 +12,27 @@
 
 @implementation TiAppiOSNotificationCategoryProxy
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(_notificationCategory);
-	[super dealloc];
+  RELEASE_TO_NIL(_notificationCategory);
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-	return @"Ti.App.iOS.NotificationCategory";
+  return @"Ti.App.iOS.NotificationCategory";
 }
--(UIUserNotificationCategory*)notificationCategory
+- (UIUserNotificationCategory *)notificationCategory
 {
-	if (_notificationCategory == nil) {
-		_notificationCategory = [[UIUserNotificationCategory alloc] init];
-	}
-	return _notificationCategory;
+  if (_notificationCategory == nil) {
+    _notificationCategory = [[UIUserNotificationCategory alloc] init];
+  }
+  return _notificationCategory;
 }
 
--(NSString*)identifier
+- (NSString *)identifier
 {
-	return [[self notificationCategory] identifier];
+  return [[self notificationCategory] identifier];
 }
 
 @end

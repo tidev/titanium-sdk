@@ -9,12 +9,11 @@
 #import "TiProxy.h"
 
 @interface TiUIActivityIndicatorStyleProxy : TiProxy {
-
 }
 
-@property(nonatomic,readonly) NSNumber *PLAIN;
-@property(nonatomic,readonly) NSNumber *BIG;
-@property(nonatomic,readonly) NSNumber *DARK;
+@property (nonatomic, readonly) NSNumber *PLAIN;
+@property (nonatomic, readonly) NSNumber *BIG;
+@property (nonatomic, readonly) NSNumber *DARK;
 
 @end
 
