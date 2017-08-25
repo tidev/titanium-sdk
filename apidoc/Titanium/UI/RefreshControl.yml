@@ -1,9 +1,13 @@
 ---
 name: Titanium.UI.RefreshControl
-summary: The RefreshControl is a representation of the native [UIRefreshControl](https://developer.apple.com/library/ios/documentation/uikit/reference/UIRefreshControl_class/Reference/Reference.html).
+summary: |
+    The RefreshControl is a representation of the native iOS 
+    [UIRefreshControl](https://developer.apple.com/library/ios/documentation/uikit/reference/UIRefreshControl_class/Reference/Reference.html) 
+    and Android [SwipeRefreshLayout](https://developer.android.com/reference/android/support/v4/widget/SwipeRefreshLayout.html).
 description: |
 
-    You use a `RefreshControl` with a <Titanium.UI.TableView>, <Titanium.UI.ListView> or <Titanium.UI.ScrollView> object.
+    You use a `RefreshControl` with a <Titanium.UI.TableView> and <Titanium.UI.ListView>. 
+    On iOS, a `RefreshControl` can also be used with a <Titanium.UI.ScrollView> object. 
     It provides an alternate method to implement **pull to refresh** functionality provided by 
     <Titanium.UI.TableView.headerPullView> and <Titanium.UI.ListView.pullView> properties.
     
