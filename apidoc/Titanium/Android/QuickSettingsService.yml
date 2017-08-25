@@ -72,23 +72,25 @@ methods:
         type: [String, Titanium.Blob, Titanium.Filesystem.File]
 
   - name: getState
-    summary: Returns the Tile's current state
+    summary: Returns the Tile's current state.
     returns:
-      type: Number
-    constants: Titanium.Android.TILE_STATE_*
+        type: Number
+        constants: Titanium.Android.TILE_STATE_*
 
   - name: getLabel
     summary: Returns the Tile's current label
-    type: String
+    returns:
+        type: String
 
     name: isLocked
     summary: Returns 'true' if the device is currently locked, 'false' otherwise.
-    type: Boolean
+    returns:
+        type: Boolean
 
     name: isSecure
     summary: Returns 'true' if the device is in secure state, 'false' otherwise.
     returns:
-      type: Boolean
+        type: Boolean
 
   - name: showDialog
     summary: Opens an Alert dialog.
