@@ -55,7 +55,7 @@
 
 /*
  This Protocol will be implemented by objects that want to
- monitor views not in the normal view heirarchy. 
+ monitor views not in the normal view hierarchy.
 */
 @protocol TiProxyObserver
 @optional
@@ -291,7 +291,7 @@ enum
  Whether or not the view proxy can have non Ti-Views which have to be pushed to the bottom when adding children.
  **This method is only meant for legacy classes. New classes must implement the proper wrapperView code**
  Subclasses may override.
- @return _NO_ if the view proxy can have non Ti-Views in its view heirarchy
+ @return _NO_ if the view proxy can have non Ti-Views in its view hierarchy
  */
 -(BOOL)optimizeSubviewInsertion;
 
@@ -330,7 +330,7 @@ enum
 /**
  Returns parent view for child proxy.
  
- The method is used in cases when proxies heirarchy is different from views hierarchy.
+ The method is used in cases when proxies hierarchy is different from views hierarchy.
  Subclasses may override.
  @param child The child view proxy for which return the parent view.
  @return The parent view

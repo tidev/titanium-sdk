@@ -469,8 +469,8 @@ function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 				var array = parent[type];
 				if (array) {
 					// find matching name in array
-					for (var i = 0; array.length; i++) {
-						if (array[i].name === currentKey) {
+					for (var i = 0; i < array.length; i++) {
+						if (array[i] && array[i].name === currentKey) {
 							parent = array[i];
 							break;
 						}

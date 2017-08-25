@@ -405,8 +405,11 @@ methods:
         for more information.
     returns:
         type: Boolean
-    platforms: [iphone, ipad]
-    since: "6.1.0"
+    platforms: [android, iphone, ipad]
+    since:
+        android: "6.2.0" 
+        iphone: "6.1.0"
+        ipad: "6.1.0"
 
   - name: requestAudioPermissions
     summary: Request the user's permission for audio recording.
@@ -442,8 +445,11 @@ methods:
         own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
         will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
-    platforms: [iphone, ipad]
-    since: 6.1.0
+    platforms: [android, iphone, ipad]
+    since:
+        android: "6.2.0" 
+        iphone: "6.1.0"
+        ipad: "6.1.0"
     parameters:
       - name: callback
         summary: Callback function to execute when the users responds to the authorization alert.
@@ -1330,12 +1336,14 @@ properties:
     summary: Constant for disabling repeat on video playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
+    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0", mobileweb: "1.8"}
   - name: VIDEO_REPEAT_MODE_ONE
     summary: Constant for repeating one video (i.e., the one video will repeat constantly) during playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
+    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0", mobileweb: "1.8"}
   - name: VIDEO_SCALING_ASPECT_FILL
     summary: Scale video to fill the screen, clipping edges if necessary.
     description: |
@@ -1502,7 +1510,9 @@ properties:
     summary: |
         `true` if the device has a recording input device available.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since:
+        android: "6.2.0"
     permission: read-only
   - name: currentRoute
     summary: |

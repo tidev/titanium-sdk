@@ -36,6 +36,7 @@ var AdmZip = require('adm-zip'),
 function AndroidModuleBuilder() {
 	Builder.apply(this, arguments);
 
+	this.compileSdkVersion = this.packageJson.compileSDKVersion; // this should always be >= maxSupportedApiLevel
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
@@ -72,6 +73,14 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 					targetSDKMap[t.id.replace('android-', '')] = t;
 				}
 			}, this);
+
+			// check the Android SDK we require to build exists
+			this.androidCompileSDK = targetSDKMap[this.compileSdkVersion];
+			if (!this.androidCompileSDK) {
+				logger.error(__('Unable to find Android SDK API %s', this.compileSdkVersion));
+				logger.error(__('Android SDK API %s is required to build Android modules', this.compileSdkVersion) + '\n');
+				process.exit(1);
+			}
 
 			// if no target sdk, then default to most recent supported/installed
 			if (!this.targetSDK) {
@@ -191,6 +200,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			cli.emit('build.module.pre.compile', this, next);
 		},
 
+		'replaceBundledSupportLibraries',
 		'processResources',
 		'compileAidlFiles',
 		'compileModuleJavaSrc',
@@ -254,7 +264,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.metaData = [];
 	this.documentation = [];
 	this.classPaths = {};
-	this.classPaths[this.androidTargetSDK.androidJar] = 1;
+	this.classPaths[this.androidCompileSDK.androidJar] = 1;
 	this.manifestFile = path.join(this.projectDir, 'manifest');
 
 	['lib', 'modules', ''].forEach(function (folder) {
@@ -268,7 +278,6 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 		}, this);
 	}, this);
 
-	this.dependencyJsonFile = path.join(this.platformPath, 'dependency.json');
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
 	this.moduleIdSubDir = this.manifest.moduleid.split('.').join(path.sep);
 
@@ -355,6 +364,27 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo() {
 };
 
 /**
+ * Replaces any .jar file in the Class Path that comes bundled with our SDK
+ * with a user provided one if available.
+ *
+ * We need to do this in this in an extra step because by the time our bundled
+ * Support Libraries will be added, we haven't parsed any other Android
+ * Libraries yet.
+ *
+ * @param {Function} next Callback function
+ */
+AndroidModuleBuilder.prototype.replaceBundledSupportLibraries = function replaceBundledSupportLibraries(next) {
+	Object.keys(this.classPaths).forEach(function(libraryPathAndFilename) {
+		if (this.isExternalAndroidLibraryAvailable(libraryPathAndFilename)) {
+			this.logger.debug('Excluding library ' + libraryPathAndFilename.cyan);
+			delete this.classPaths[libraryPathAndFilename];
+		}
+	}, this);
+
+	next();
+};
+
+/**
  * Processes resources for this module.
  *
  * This step will generate R classes for this module, our core modules and any
@@ -421,8 +451,13 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 						var resArchivePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.res.zip'));
 						var respackagePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.respackage'));
 						if (fs.existsSync(resArchivePathAndFilename) && fs.existsSync(respackagePathAndFilename)) {
-							extraPackages.push(fs.readFileSync(respackagePathAndFilename).toString().split('\n').shift().trim());
-							resArchives.push(resArchivePathAndFilename);
+							var packageName = fs.readFileSync(respackagePathAndFilename).toString().split(/\r?\n/).shift().trim();
+							if (!this.hasAndroidLibrary(packageName)) {
+								extraPackages.push(packageName);
+								resArchives.push(resArchivePathAndFilename);
+							} else {
+								this.logger.info(__('Excluding core module resources of %s (%s) because Android Library with same package name is available.', file, packageName));
+							}
 						}
 					}, this);
 
@@ -541,7 +576,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 			var aaptOptions = [
 				'package',
 				'-f',
-				'-I', this.androidTargetSDK.androidJar,
+				'-I', this.androidCompileSDK.androidJar,
 				'-M', path.join(this.buildIntermediatesDir, 'manifests/aapt/AndroidManifest.xml'),
 				'-S', mergedResPath,
 				'-m',
@@ -615,8 +650,8 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next) {
 	this.logger.log(__('Generating java files from the .aidl files'));
 
-	if (!this.androidTargetSDK.aidl) {
-		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTargetSDK['api-level']));
+	if (!this.androidCompileSDK.aidl) {
+		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidCompileSDK['api-level']));
 		return next();
 	}
 
@@ -652,7 +687,7 @@ AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next
 
 			aidlHook(
 				this.androidInfo.sdk.executables.aidl,
-				['-p' + this.androidTargetSDK.aidl, '-I' + this.javaSrcDir, file],
+				['-p' + this.androidCompileSDK.aidl, '-I' + this.javaSrcDir, file],
 				{},
 				callback
 			);
@@ -1121,7 +1156,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 	this.logger.info(__('Generating v8 bindings'));
 
-	var dependsMap =  JSON.parse(fs.readFileSync(this.dependencyJsonFile));
+	var dependsMap = this.dependencyMap;
 	Array.prototype.push.apply(this.metaData,dependsMap.required);
 
 	Object.keys(dependsMap.dependencies).forEach(function (key) {
@@ -1606,7 +1641,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 			moduleJarArchive.on('error', cb);
 			moduleJarArchive.pipe(moduleJarStream);
 
-			var excludeRegex = /.*\/R\.class$|.*\/R\$(.*)\.class$/i;
+			var excludeRegex = new RegExp('.*\\' + path.sep + 'R\\.class$|.*\\' + path.sep + 'R\\$(.*)\\.class$', 'i');
 
 			var assetsParentDir = path.join(this.assetsDir, '..');
 			this.dirWalker(this.assetsDir, function (file) {

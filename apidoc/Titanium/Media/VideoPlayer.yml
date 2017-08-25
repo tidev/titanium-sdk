@@ -710,10 +710,11 @@ properties:
 
   - name: repeatMode
     summary: Determines how the movie player repeats when reaching the end of playback. 
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad, mobileweb]
     type: Number
     constants: Titanium.Media.VIDEO_REPEAT_MODE_*
     default: Titanium.Media.VIDEO_REPEAT_MODE_NONE
+    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0", mobileweb: "1.8"}
 
   - name: scalingMode
     summary: Determines how the content scales to fit the view.
