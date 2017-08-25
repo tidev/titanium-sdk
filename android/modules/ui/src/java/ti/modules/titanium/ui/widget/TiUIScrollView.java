@@ -39,7 +39,7 @@ public class TiUIScrollView extends TiUIView
 
 	private static final String TAG = "TiUIScrollView";
 	private static final String REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE =
-			"SrollView does not support a RefreshControl on Android.";
+			"Ti.UI.ScrollView does not support a RefreshControl on Android, yet.";
 
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
