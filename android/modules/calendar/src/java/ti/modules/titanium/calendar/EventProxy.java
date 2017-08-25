@@ -9,6 +9,7 @@ package ti.modules.titanium.calendar;
 import java.util.ArrayList;
 import java.util.Date;
 
+import android.provider.CalendarContract;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -237,10 +238,66 @@ public class EventProxy extends KrollProxy {
 	public static ArrayList<EventProxy> queryEventsBetweenDates(long date1, long date2, CalendarProxy calendar)
 	{
 		if (Build.VERSION.SDK_INT >= 11) {
-			return queryEventsBetweenDates(date1, date2, null, null);
+			return queryEventsBetweenDates(date1, date2, "calendar_id=" + calendar.getId(), null);
 		} else {
 			return queryEventsBetweenDates(date1, date2, "Calendars._id=" + calendar.getId(), null);
 		}
+	}
+
+	private Object setValueFromCursorForColumn(Cursor cursor, String columnName, Object defaultValue) {
+		int columnIndex = cursor.getColumnIndex(columnName);
+		if (columnIndex < 0) {
+			//there is no such column
+			Log.w(TAG, "No column with name '" + columnName + "' found. Setting a default value.");
+		} else {
+			try {
+				if (defaultValue instanceof String) {
+					return cursor.getString(columnIndex);
+				} else if (defaultValue instanceof Integer) {
+					return cursor.getInt(columnIndex);
+				}
+			} catch (Exception e) {
+				Log.w(TAG, "Value of column '" + columnName + "' type does not match required type. Setting a default value.");
+				e.printStackTrace();
+			}
+		}
+		return defaultValue;
+	}
+
+	private AttendeeProxy[] getAttendeeProxies() {
+		AttendeeProxy[] result;
+		final String[] attendeeProjection = new String[]{
+				CalendarContract.Attendees._ID,
+				CalendarContract.Attendees.EVENT_ID,
+				CalendarContract.Attendees.ATTENDEE_NAME,
+				CalendarContract.Attendees.ATTENDEE_EMAIL,
+				CalendarContract.Attendees.ATTENDEE_TYPE,
+				CalendarContract.Attendees.ATTENDEE_RELATIONSHIP,
+				CalendarContract.Attendees.ATTENDEE_STATUS
+		};
+		final String query = "(" + CalendarContract.Attendees.EVENT_ID + " = ?)";
+		final String[] args = new String[]{id};
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		final Cursor cursor = contentResolver.query(CalendarContract.Attendees.CONTENT_URI, attendeeProjection, query, args, null);
+		int index = 0;
+		if (cursor != null) {
+			result = new AttendeeProxy[cursor.getCount()];
+			while (cursor.moveToNext()) {
+				//safely create parameters for Attendee
+				String attendeeEmail = setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_EMAIL, "").toString();
+				String attendeeName = setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_NAME, "").toString();
+				int attendeeType = (Integer) setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_TYPE, CalendarModule.ATTENDEE_STATUS_NONE);
+				int attendeeStatus = (Integer) setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_STATUS, CalendarModule.ATTENDEE_STATUS_NONE);
+				int attendeeRelationship = (Integer) setValueFromCursorForColumn(cursor, CalendarContract.Attendees.ATTENDEE_RELATIONSHIP, CalendarModule.RELATIONSHIP_NONE);
+				//create a proxy instance
+				AttendeeProxy proxyForRow = new AttendeeProxy(attendeeEmail, attendeeName, attendeeType, attendeeStatus, attendeeRelationship);
+				//add the proxy to the result array
+				result[index++] = proxyForRow;
+			}
+		} else {
+			result = new AttendeeProxy[0];
+		}
+		return result;
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -316,6 +373,11 @@ public class EventProxy extends KrollProxy {
 	public boolean getAllDay()
 	{
 		return allDay;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public AttendeeProxy[] getAttendees() {
+		return getAttendeeProxies();
 	}
 
 	@Kroll.getProperty @Kroll.method

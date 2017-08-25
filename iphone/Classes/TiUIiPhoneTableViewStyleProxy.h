@@ -11,8 +11,8 @@
 @interface TiUIiPhoneTableViewStyleProxy : TiProxy {
 }
 
-@property(nonatomic,readonly) NSNumber *PLAIN;
-@property(nonatomic,readonly) NSNumber *GROUPED;
+@property (nonatomic, readonly) NSNumber *PLAIN;
+@property (nonatomic, readonly) NSNumber *GROUPED;
 
 @end
 

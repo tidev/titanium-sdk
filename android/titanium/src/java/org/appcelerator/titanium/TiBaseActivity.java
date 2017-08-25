@@ -12,8 +12,6 @@ import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import android.content.Context;
-import android.os.PowerManager;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
@@ -31,6 +29,7 @@ import org.appcelerator.titanium.TiLifecycle.OnPrepareOptionsMenuEvent;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
+import org.appcelerator.titanium.proxy.TiToolbarProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -45,8 +44,8 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
@@ -59,6 +58,9 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.PowerManager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -609,9 +611,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// lost (TiActivityWindows.dispose()). In this case, we have to restart the app.
 		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
 			Log.w(TAG, "Runtime has been disposed or app has been killed. Finishing.");
-			super.onCreate(savedInstanceState);
-			tiApp.scheduleRestart(250);
-			finish();
+			activityOnCreate(savedInstanceState);
+			TiApplication.terminateActivityStack();
+			if (Build.VERSION.SDK_INT < 23) {
+				finish();
+				tiApp.scheduleRestart(300);
+				return;
+			}
+			KrollRuntime.incrementActivityRefCount();
+			finishAndRemoveTask();
 			return;
 		}
 
@@ -739,6 +747,13 @@ public abstract class TiBaseActivity extends AppCompatActivity
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
 			}
+		}
+		setCustomActionBar();
+	}
+
+	private void setCustomActionBar() {
+		if (activityProxy.hasProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)) {
+			this.setSupportActionBar(((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)).getToolbarInstance()));
 		}
 	}
 
@@ -1176,22 +1191,19 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// TODO stub
 	}
 
-	private void dispatchCallback(String name, KrollDict data) {
+	private void dispatchCallback(final String name, KrollDict data) {
 		if (data == null) {
 			data = new KrollDict();
 		}
-
 		data.put("source", activityProxy);
 
-		// TIMOB-19903
-		if (TiApplication.getInstance().runOnMainThread()) {
-			// We must call this synchornously to ensure it happens before we release the Activity reference on the V8/Native side!
-			activityProxy.callPropertySync(name, new Object[] { data });
-		} else {
-			// This hopefully finishes before we release the reference on the native side?! I have seen it crash because it didn't before though...
-			// Not sure it's safe to keep this behavior...
-			activityProxy.callPropertyAsync(name, new Object[] { data });
-		}
+		final KrollDict d = data;
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				activityProxy.callPropertySync(name, new Object[] { d });
+			}
+		});
 	}
 
 	private void releaseDialogs(boolean finish)
@@ -1579,8 +1591,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (window != null) {
 			window.closeFromActivity(isFinishing);
 			window.releaseViews();
-			window.removeAllChildren();
-			window.release();
+			window.releaseKroll();
 			window = null;
 		}
 

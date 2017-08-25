@@ -88,7 +88,7 @@ public class NetworkModule extends KrollModule {
 			type = -1;
 			reason = "";
 		}
-	};
+	}
 
 	private NetInfo lastNetInfo;
 

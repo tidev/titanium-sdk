@@ -92,6 +92,9 @@ public class ListViewProxy extends TiViewProxy {
 				addPreloadSections((Object[]) obj, -1, true);
 			}
 		}
+		if (options.containsKey(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE)) {
+			setProperty(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, options.get(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE));
+		}
 	}
 	
 	public void clearPreloadSections() {

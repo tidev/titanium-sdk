@@ -9,37 +9,34 @@
 
 @implementation TiUIWindow
 
-- (void) dealloc
+- (void)dealloc
 {
-	[super dealloc];
+  [super dealloc];
 }
 
 #ifdef TI_USE_AUTOLAYOUT
--(void)initializeTiLayoutView
+- (void)initializeTiLayoutView
 {
-    [super initializeTiLayoutView];
-    [self setDefaultHeight:TiDimensionAutoFill];
-    [self setDefaultWidth:TiDimensionAutoFill];
+  [super initializeTiLayoutView];
+  [self setDefaultHeight:TiDimensionAutoFill];
+  [self setDefaultWidth:TiDimensionAutoFill];
 }
 #endif
 
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    [super frameSizeChanged:frame bounds:bounds];
-    
-    //Need the delay so that we get the right navbar bounds
-    TiProxy* windowProxy = [self proxy];
-    if ([windowProxy respondsToSelector:@selector(willChangeSize)]) {
-        [(id)windowProxy willChangeSize];
-    }
-    if ([windowProxy respondsToSelector:@selector(updateNavBar)]) {
-        [windowProxy performSelector:@selector(updateNavBar) 
-                           withObject:nil 
-                           afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] ];
-    }
+  [super frameSizeChanged:frame bounds:bounds];
+
+  //Need the delay so that we get the right navbar bounds
+  TiProxy *windowProxy = [self proxy];
+  if ([windowProxy respondsToSelector:@selector(willChangeSize)]) {
+    [(id)windowProxy willChangeSize];
+  }
+  if ([windowProxy respondsToSelector:@selector(updateNavBar)]) {
+    [windowProxy performSelector:@selector(updateNavBar)
+                      withObject:nil
+                      afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+  }
 }
 
-
 @end
-

@@ -50,10 +50,10 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			setPadding(0, 0, 0, 0);
 			setMinimumHeight((int) TiUIHelper.getRawDIPSize(18, context));
 			setVerticalFadingEdgeEnabled(false);
-			TiUIHelper.styleText(textView, "", "10dp", "normal"); // TODO font
-			textView.setBackgroundColor(Color.DKGRAY);
-			textView.setTextColor(Color.LTGRAY);
-			TiUIHelper.setTextViewDIPPadding(textView, 4, 2);
+			TiUIHelper.styleText(textView, "", "14sp", "normal"); // TODO font
+			textView.setBackgroundColor(Color.rgb(169, 169, 169));
+			textView.setTextColor(Color.WHITE);
+			TiUIHelper.setTextViewDIPPadding(textView, 5, 0);
 		}
 
 		public void setRowData(Item item)

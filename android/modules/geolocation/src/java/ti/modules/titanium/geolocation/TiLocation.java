@@ -106,14 +106,7 @@ public class TiLocation implements Handler.Callback
 			}
 		}
 
-		// don't count the passive provider
-		for(String name : providerNames) {
-			if (name.equals(LocationManager.NETWORK_PROVIDER) || name.equals(LocationManager.GPS_PROVIDER)) {
-				return true;
-			}
-		}
-
-		return false;
+		return providerNames.size() != 0 && getLastKnownLocation() != null;
 	}
 
 	public Location getLastKnownLocation()

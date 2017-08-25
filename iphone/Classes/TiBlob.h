@@ -7,60 +7,59 @@
 #import "TiProxy.h"
 
 typedef enum {
-	TiBlobTypeImage = 0,
-	TiBlobTypeFile = 1,
-	TiBlobTypeData = 2
+  TiBlobTypeImage = 0,
+  TiBlobTypeFile = 1,
+  TiBlobTypeData = 2
 } TiBlobType;
 
 /**
  Blob object class.
  */
 @interface TiBlob : TiProxy {
-@private
-	TiBlobType type;
-	NSString *mimetype;
-	NSData *data;
-	UIImage *image;
-	NSString *path;
-	BOOL imageLoadAttempted;
+  @private
+  TiBlobType type;
+  NSString *mimetype;
+  NSData *data;
+  UIImage *image;
+  NSString *path;
+  BOOL imageLoadAttempted;
 }
 
 /**
  Returns width if the blob object is an image, _0_ otherwise.
  */
-@property(nonatomic,readonly) NSInteger width;
+@property (nonatomic, readonly) NSInteger width;
 
 /**
  Returns height if the blob object is an image, _0_ otherwise.
  */
-@property(nonatomic,readonly) NSInteger height;
-
+@property (nonatomic, readonly) NSInteger height;
 
 /**
  Return a textual representation of the blob.
  
  The method converts data into a textual representation. Appropriate only for types TiBlobTypeFile and TiBlobTypeData.
  */
-@property(nonatomic,readonly) NSString* text;
+@property (nonatomic, readonly) NSString *text;
 
 /**
  Returns the data length.
  */
-@property(nonatomic,readonly) NSNumber* length;
+@property (nonatomic, readonly) NSNumber *length;
 
 /**
  Return the data size.
  
  For file, data returns the size in bytes, for image, returns the width x height.
  */
-@property(nonatomic,readonly) NSInteger size;
+@property (nonatomic, readonly) NSInteger size;
 
 /**
  Initialize the proxy context and the blob with an image.
  @param context The proxy context
  @param image The image
  */
--(id)_initWithPageContext:(id<TiEvaluator>)context andImage:(UIImage*)image_;
+- (id)_initWithPageContext:(id<TiEvaluator>)context andImage:(UIImage *)image_;
 
 /**
  Initialize the proxy context and the blob with data.
@@ -68,88 +67,88 @@ typedef enum {
  @param data_ The raw data.
  @param mimetype_ The data mime type.
  */
--(id)_initWithPageContext:(id<TiEvaluator>)context andData:(NSData*)data_ mimetype:(NSString*)mimetype_;
+- (id)_initWithPageContext:(id<TiEvaluator>)context andData:(NSData *)data_ mimetype:(NSString *)mimetype_;
 
 /**
  Initialize the proxy context and the blob with contents of a file.
  @param context The proxy context
  @param path The path to the file.
  */
--(id)_initWithPageContext:(id<TiEvaluator>)context andFile:(NSString*)path_;
+- (id)_initWithPageContext:(id<TiEvaluator>)context andFile:(NSString *)path_;
 
 /**
  Initialize the blob with an image.
  @param image The image
  */
--(id)initWithImage:(UIImage*)image;
+- (id)initWithImage:(UIImage *)image;
 
 /**
  Initialize the blob with data.
  @param data_ The raw data.
  @param mimetype_ The data mime type.
  */
--(id)initWithData:(NSData*)data_ mimetype:(NSString*)mimetype_;
+- (id)initWithData:(NSData *)data_ mimetype:(NSString *)mimetype_;
 
 /**
  Initialize the blob with contents of a file.
  @param path The path to the file.
  */
--(id)initWithFile:(NSString*)path;
+- (id)initWithFile:(NSString *)path;
 
 /**
  Initialises blob with data.
  @param data Th data to set.
  */
--(void)setData:(NSData*)data;
+- (void)setData:(NSData *)data;
 
 /**
  Initializes blob with image.
  @param image The image to set.
  */
--(void)setImage:(UIImage*)image;
+- (void)setImage:(UIImage *)image;
 
 /**
  Sets the blob type.
  @param mime The mime type string.
  @param type The blob type.
  */
--(void)setMimeType:(NSString*)mime type:(TiBlobType)type;
+- (void)setMimeType:(NSString *)mime type:(TiBlobType)type;
 
 /**
  Returns the blob type.
  @return The blob type.
  */
--(TiBlobType)type;
+- (TiBlobType)type;
 
 /**
  Returns the blob mime type.
  @return The mime type string.
  */
--(NSString*)mimeType;
+- (NSString *)mimeType;
 
 /**
  Returns the blob raw data.
  @return The raw data.
  */
--(NSData*)data;
+- (NSData *)data;
 
 /**
  Returns the blob image.
  @return The image or _nil_ if the blob data cannot represent an image.
  */
--(UIImage*)image;
+- (UIImage *)image;
 
 /**
  Returns the blob file path.
  @return The file path.
  */
--(NSString*)path;
+- (NSString *)path;
 
 /**
  Returns the blob native path (Android compatibility).
  @return The blob native path.
  */
--(id)nativePath;
+- (id)nativePath;
 
 /**
  Tells the blob to write its data to a file.
@@ -157,9 +156,8 @@ typedef enum {
  @param error The error result if failed.
  @return _YES_ if the write operation succeeded, _NO_ otherwise.
  */
--(BOOL)writeTo:(NSString*)path error:(NSError**)error;
+- (BOOL)writeTo:(NSString *)path error:(NSError **)error;
 
 #pragma mark Image specific blob manipulations
-
 
 @end

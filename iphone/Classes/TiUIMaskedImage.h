@@ -10,11 +10,11 @@
 #import <QuartzCore/QuartzCore.h>
 
 @interface TiUIMaskedImage : TiUIView {
-@private
-	NSURL * imageURL;
-	NSURL * maskURL;
-	UIColor * tint;
-	CGBlendMode mode;	
+  @private
+  NSURL *imageURL;
+  NSURL *maskURL;
+  UIColor *tint;
+  CGBlendMode mode;
 }
 
 @end

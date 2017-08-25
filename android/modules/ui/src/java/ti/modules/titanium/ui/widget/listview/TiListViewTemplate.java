@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.appcelerator.kroll.KrollDict;
@@ -222,26 +223,35 @@ public class TiListViewTemplate {
 		return rootItem;
 	}
 
+	/**
+	 * 
+	 * @param data dictionary holding properties for template
+	 * @param update if true update entry else copy non-null values into data parameter
+	 */
 	public void updateOrMergeWithDefaultProperties(KrollDict data, boolean update) {
 		for (String binding: data.keySet()) {
 			DataItem dataItem = dataItems.get(binding);
 			if (dataItem == null) continue;
 
 			KrollDict defaultProps = dataItem.getDefaultProperties();
-			KrollDict props = new KrollDict((HashMap)data.get(binding));
+			KrollDict newProps = new KrollDict((HashMap) data.get(binding));
 			if (defaultProps != null) {
 				if (update) {
 					//update default properties
-					Set<String> existingKeys = defaultProps.keySet();
-					for (String key:  props.keySet()) {
-						if (!existingKeys.contains(key)) {
+					Set<String> defaultPropsKeys = defaultProps.keySet();
+					for (String key:  newProps.keySet()) {
+						if (!defaultPropsKeys.contains(key)) {
 							defaultProps.put(key, null);
 						}
 					}
 				} else {
 					//merge default properties with new properties and update data
-					HashMap<String, Object> newData = ((HashMap<String, Object>)defaultProps.clone());
-					newData.putAll(props);
+					HashMap<String, Object> newData = ((HashMap<String, Object>) defaultProps.clone());
+					for (Map.Entry<String, Object> entry : newProps.entrySet()) {
+						if (entry.getValue() != null) {
+							newData.put(entry.getKey(), entry.getValue());
+						}
+					}
 					data.put(binding, newData);
 				}
 			}
