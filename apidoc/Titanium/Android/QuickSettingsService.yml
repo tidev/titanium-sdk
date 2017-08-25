@@ -119,47 +119,43 @@ methods:
         type: String
 
 events:
-
   - name: startlistening
-    summary: |
-        Tile is listening for events.
-    description: |
-        Dispatched whenever the user has opened the quick setting menu and the Tile is added in there.
+  summary: Tile is listening for events.
+  description: |
+      Dispatched whenever the user has opened the quick setting menu and the Tile is added in there.
 
   - name: stoplistening
-    summary: |
-        Tile has stopped listening for events.
-    description: |
+  summary: Tile has stopped listening for events.
+  description: |
          Dispatched whenever the user has collapsed the quick setting menu and the Tile is not visible.
 
   - name: tileadded
-    summary: The Tile has been added in the quick menu
-    description: |
-        Dispacthed wheneved the user has moved the Tile for this service in the quick settings menu.
+  summary: The Tile has been added in the quick menu
+  description: |
+      Dispacthed wheneved the user has moved the Tile for this service in the quick settings menu.
 
   - name: tileremoved
-    summary: The Tile has been removed from the quick menu
-    description: |
-        Dispacthed wheneved the user has removed the Tile for this service from the quick settings menu.
+  summary: The Tile has been removed from the quick menu
+  description: |
+      Dispacthed wheneved the user has removed the Tile for this service from the quick settings menu.
 
   - name: tiledialogoptionselected
-    summary: An item from the signle choice menu has been selected
-    properties:
-      - name: itemIndex
-        summary: |
-            Index of the selected item from the single choice menu in the dialog.
+  summary: An item from the signle choice menu has been selected
+  properties:
+    - name: itemIndex
+      summary: Index of the selected item from the single choice menu in the dialog.
 
   - name: tiledialogcancelled
-    summary: Dispatched when the alert dialog has been cancelled.
+  summary: Dispatched when the alert dialog has been cancelled.
 
   - name: tiledialogpositive
-    summary: Dispacthed when the positive (index 0) button has been clicked.
+  summary: Dispacthed when the positive (index 0) button has been clicked.
 
   - name: tiledialogneutral
-    summary: Dispacthed when the neutral (index 1) button has been clicked.
+  summary: Dispacthed when the neutral (index 1) button has been clicked.
 
   - name: tiledialognegative
-    summary: Dispacthed when the negative (index 2) button has been clicked.
+  summary: Dispacthed when the negative (index 2) button has been clicked.
 
 examples:
   - title: Update Tile Example
