@@ -12,7 +12,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiColorHelper;
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
@@ -210,7 +209,7 @@ public class RefreshControlProxy extends KrollProxy
 	}
 
 	/**
-	 * Assigns the given Android "SwipeRefreshLayout" to be controlled by this "RefreshControl" proxy.
+	 * Assigns the given Android "TiSwipeRefreshLayout" to be controlled by this "RefreshControl" proxy.
 	 * Once assigned, this object's JavaScript APIs can control the view's progress indicator.
 	 * <p>
 	 * The caller must call RefreshControlProxy.unassignFrom() to detach the given view from
@@ -220,7 +219,7 @@ public class RefreshControlProxy extends KrollProxy
 	 * unassigned from it before being assigned to this refresh control.
 	 * <p>
 	 * If this refresh control is currently assigned to another view, then it will be automatically
-	 * unassign from the previous view before being assigned the given view.
+	 * unassigned from the previous view before being assigned the given view.
 	 * @param view
 	 * The view to be assigned to this refresh control.
 	 * <p>
