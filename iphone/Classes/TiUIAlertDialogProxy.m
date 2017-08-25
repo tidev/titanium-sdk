@@ -131,7 +131,6 @@ static BOOL alertShowing = NO;
                                                            message:[TiUtils stringValue:[self valueForKey:@"message"]]
                                                     preferredStyle:UIAlertControllerStyleAlert] retain];
     int curIndex = 0;
-
     id tintColor = [self valueForKey:@"tintColor"];
 
     if (tintColor != nil) {
@@ -194,6 +193,7 @@ static BOOL alertShowing = NO;
         textField.secureTextEntry = YES;
       }];
     }
+
     [self retain];
     [[TiApp app] showModalController:alertController animated:YES];
   }

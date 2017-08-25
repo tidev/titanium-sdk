@@ -749,23 +749,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
 
   UIGraphicsEndImageContext();
 
-  if (![TiUtils isIOS8OrGreater]) {
-    UIInterfaceOrientation windowOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-    switch (windowOrientation) {
-    case UIInterfaceOrientationPortraitUpsideDown:
-      image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationDown];
-      break;
-    case UIInterfaceOrientationLandscapeLeft:
-      image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationRight];
-      break;
-    case UIInterfaceOrientationLandscapeRight:
-      image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationLeft];
-      break;
-    default:
-      break;
-    }
-  }
-
   TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
   NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"media"];
   [self _fireEventToListener:@"screenshot" withObject:event listener:arg thisObject:nil];
@@ -1028,9 +1011,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
 #ifdef USE_TI_MEDIAREQUESTPHOTOGALLERYPERMISSIONS
 - (void)requestPhotoGalleryPermissions:(id)arg
 {
-  if (![TiUtils isIOS8OrGreater]) {
-    return;
-  }
   ENSURE_SINGLE_ARG(arg, KrollCallback);
   KrollCallback *callback = arg;
 
@@ -1058,12 +1038,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. Please add the key and re-run the application.");
   }
 
-  if ([TiUtils isIOS8OrGreater]) {
-    return NUMBOOL([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized);
-  }
-
-  // iOS < 8
-  return NUMBOOL([ALAssetsLibrary authorizationStatus] == ALAuthorizationStatusAuthorized);
+  return NUMBOOL([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized);
 }
 #endif
 
@@ -1474,9 +1449,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
     arrowDirection = [TiUtils intValue:@"arrowDirection" properties:args def:UIPopoverArrowDirectionAny];
 
     TiThreadPerformOnMainThread(^{
-      if (![TiUtils isIOS8OrGreater]) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePopover:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-      }
       [self updatePopoverNow:picker_];
     },
         YES);
@@ -1492,53 +1464,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
 
 - (void)updatePopoverNow:(UIViewController *)picker_
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    UIViewController *theController = picker_;
-    [theController setModalPresentationStyle:UIModalPresentationPopover];
-    UIPopoverPresentationController *thePresenter = [theController popoverPresentationController];
-    [thePresenter setPermittedArrowDirections:arrowDirection];
-    [thePresenter setDelegate:self];
-    [[TiApp app] showModalController:theController animated:animatedPicker];
-    return;
-  }
-
-  if (popover == nil) {
-    popover = [[UIPopoverController alloc] initWithContentViewController:picker_];
-    [(UIPopoverController *)popover setDelegate:self];
-  }
-
-  if ((self.popoverView != nil) && ([self.popoverView isUsingBarButtonItem])) {
-    UIBarButtonItem *ourButtonItem = [popoverView barButtonItem];
-    @try {
-      /*
-             *	Because buttonItems may or many not have a view, there is no way for us
-             *	to know beforehand if the request is an invalid one.
-             */
-      [popover presentPopoverFromBarButtonItem:ourButtonItem permittedArrowDirections:arrowDirection animated:animatedPicker];
-    }
-    @catch (NSException *exception) {
-      DebugLog(@"[WARN] Popover requested on view not attached to current window.");
-    }
-    return;
-  }
-
-  UIView *theView = nil;
-  CGRect popoverRect = CGRectZero;
-  if (self.popoverView != nil) {
-    theView = [self.popoverView view];
-    popoverRect = [theView bounds];
-  } else {
-    theView = [[[[TiApp app] controller] topPresentedController] view];
-    popoverRect = [theView bounds];
-    if (popoverRect.size.height > 50) {
-      popoverRect.size.height = 50;
-    }
-  }
-
-  if ([theView window] == nil) {
-    DebugLog(@"[WARN] Unable to display picker; view is not attached to the current window");
-  }
-  [popover presentPopoverFromRect:popoverRect inView:theView permittedArrowDirections:arrowDirection animated:animatedPicker];
+  UIViewController *theController = picker_;
+  [theController setModalPresentationStyle:UIModalPresentationPopover];
+  UIPopoverPresentationController *thePresenter = [theController popoverPresentationController];
+  [thePresenter setPermittedArrowDirections:arrowDirection];
+  [thePresenter setDelegate:self];
+  [[TiApp app] showModalController:theController animated:animatedPicker];
 }
 #endif
 
@@ -1701,11 +1632,9 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
     } else if (cameraView != nil && customPicker) {
       //No transforms in popover
       CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-      if ([TiUtils isIOS8OrGreater]) {
-        UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-        if (!UIInterfaceOrientationIsPortrait(orientation)) {
-          screenSize = CGSizeMake(screenSize.height, screenSize.width);
-        }
+      UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+      if (!UIInterfaceOrientationIsPortrait(orientation)) {
+        screenSize = CGSizeMake(screenSize.height, screenSize.width);
       }
 
       float cameraAspectRatio = 4.0 / 3.0;

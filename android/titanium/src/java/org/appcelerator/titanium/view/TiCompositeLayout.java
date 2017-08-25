@@ -71,8 +71,6 @@ public class TiCompositeLayout extends ViewGroup
     private int horiztonalLayoutPreviousRight = 0;
 
     private WeakReference<TiViewProxy> proxy;
-    private static final int HAS_SIZE_FILL_CONFLICT = 1;
-    private static final int NO_SIZE_FILL_CONFLICT = 2;
 
     // We need these two constructors for backwards compatibility with modules
 
@@ -300,7 +298,7 @@ public class TiCompositeLayout extends ViewGroup
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != View.GONE) {
-                constrainChild(child, w, wMode, h, hMode, wRemain);
+                constrainChild(child, w, wMode, h, hMode, wRemain, h - maxHeight);
             }
 
             int childWidth = child.getMeasuredWidth();
@@ -312,18 +310,27 @@ public class TiCompositeLayout extends ViewGroup
 
             if (isHorizontalArrangement()) {
                 if (enableHorizontalWrap) {
-
-                    if ((horizontalRowWidth + childWidth) > w) {
-                        horizontalRowWidth = childWidth;
-                        maxHeight += horizontalRowHeight;
-                        horizontalRowHeight = childHeight;
-                        wRemain = w;
-                    } else {
+                    wRemain -= childWidth;
+                    if (wRemain > 0) {
+                        // Row has room for this view and can fit more.
                         horizontalRowWidth += childWidth;
+                    } else if ((wRemain < 0) && (horizontalRowWidth > 0)) {
+                        // View needs to be wrapped to the next row.
+                        maxHeight += horizontalRowHeight;
+                        horizontalRowWidth = childWidth;
+                        horizontalRowHeight = childHeight;
+                        wRemain = (w - childWidth);
+                    } else {
+                        // The row is completely full or it has been exceeded by one view.
+                        horizontalRowWidth += childWidth;
+                        maxHeight += Math.max(horizontalRowHeight, childHeight);
                         maxWidth = Math.max(maxWidth, horizontalRowWidth);
-                        wRemain -= childWidth;
+                        horizontalRowWidth = 0;
+                        horizontalRowHeight = 0;
+                        childHeight = 0;
+                        wRemain = w;
                     }
-
+                    maxWidth = Math.max(maxWidth, horizontalRowWidth);
                 } else {
                     // For horizontal layout without wrap, just keep on adding
                     // the widths since it doesn't wrap
@@ -365,106 +372,108 @@ public class TiCompositeLayout extends ViewGroup
         setMeasuredDimension(measuredWidth, measuredHeight);
     }
 
-    protected void constrainChild(View child, int width, int wMode, int height, int hMode, int remainWidth)
+    protected void constrainChild(
+        View child, int width, int wMode, int height, int hMode, int remainWidth, int remainHeight)
     {
-        boolean hasFixedHeightParent = false;
-        boolean hasFixedWidthParent = false;
+        // Floor arguments to valid values.
+        if (remainWidth < 0) {
+            remainWidth = 0;
+        }
+        if (remainHeight < 0) {
+            remainHeight = 0;
+        }
+        if (width < remainWidth) {
+            width = remainWidth;
+        }
+        if (height < remainHeight) {
+            height = remainHeight;
+        }
+
+        // Fetch the child view's layout settings.
         LayoutParams p = (LayoutParams) child.getLayoutParams();
 
-        int sizeFillConflicts[] = {
-                NOT_SET, NOT_SET
-        };
-        boolean checkedForConflict = false;
-
-        // If autoFillsWidth is false, and optionWidth is null, then we use size
-        // behavior.
+        // Determine the width that should be applied to the child view.
+        // Note: If "optionWidth" and "autoFillsWidth" are null, then default to auto-size behavior.
         int childDimension = LayoutParams.WRAP_CONTENT;
+        int widthPadding = getViewWidthPadding(child, width);
         if (p.optionWidth != null) {
-            if (p.optionWidth.isUnitPercent() && width > 0) {
+            // Fetch the view's configured width.
+            if (p.optionWidth.isUnitPercent()) {
                 childDimension = getAsPercentageValue(p.optionWidth.getValue(), width);
             } else {
                 childDimension = p.optionWidth.getAsPixels(this);
             }
-        } else {
-            if (p.autoFillsWidth) {
-                childDimension = LayoutParams.MATCH_PARENT;
-            } else {
-                // Look for sizeFill conflicts
-                hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent,
-                        hasFixedHeightParent);
-                checkedForConflict = true;
-                if (sizeFillConflicts[0] == HAS_SIZE_FILL_CONFLICT) {
-                    childDimension = LayoutParams.MATCH_PARENT;
+            if (childDimension < 0) {
+                childDimension = 0;
+            }
+
+            // Do not allow the child to exceed the parent's width for wrapping horizontal layouts.
+            // This matches iOS' behavior.
+            if ((childDimension > 0) && isHorizontalArrangement() && this.enableHorizontalWrap) {
+                if ((childDimension + widthPadding) > width) {
+                    childDimension = Math.max(width - widthPadding, 0);
                 }
             }
+        } else if (p.autoFillsWidth) {
+            // Use the remaining width of the parent view to fill it.
+            // Note: Do not use Android's MATCH_PARENT or FILL_PARENT constant here, because if the
+            //       parent view is WRAP_CONTENT (ie: Ti.UI.SIZE), then the child will use min size
+            //       instead of filling parent's remaing space like iOS/Windows. (See: TIMOB-25173)
+            childDimension = Math.max(remainWidth - widthPadding, 0);
+        } else if (!p.sizeOrFillWidthEnabled) {
+            // Attempt to calculate a width based on left/center/right properties, if provided.
+            childDimension = calculateWidthFromPins(p, 0, remainWidth, remainWidth, childDimension);
         }
+        int widthSpec = ViewGroup.getChildMeasureSpec(
+                MeasureSpec.makeMeasureSpec(width, wMode), widthPadding, childDimension);
 
-        int widthPadding;
-        int widthSpec;
-        
-        if (p.autoFillsWidth) {
-            widthPadding = getViewWidthPadding(child, remainWidth);
-            widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(remainWidth, wMode),
-                widthPadding,
-                childDimension);
-        } else {
-            widthPadding = getViewWidthPadding(child, width);
-            widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode),
-                widthPadding,
-                childDimension);
-        }
-        // If autoFillsHeight is false, and optionHeight is null, then we use
-        // size behavior.
+        // Determine the height that should be applied to the child view.
+        // Note: If "optionHeight" and "autoFillsHeight" are null, then default to auto-size behavior.
         childDimension = LayoutParams.WRAP_CONTENT;
+        int heightPadding = getViewHeightPadding(child, height);
         if (p.optionHeight != null) {
-            if (p.optionHeight.isUnitPercent() && height > 0) {
+            // Fetch the view's configured height.
+            if (p.optionHeight.isUnitPercent()) {
                 childDimension = getAsPercentageValue(p.optionHeight.getValue(), height);
             } else {
                 childDimension = p.optionHeight.getAsPixels(this);
             }
-        } else {
-            // If we already checked for conflicts before, we don't need to
-            // again
-            if (p.autoFillsHeight
-                    || (checkedForConflict && sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT)) {
-                childDimension = LayoutParams.MATCH_PARENT;
-            } else if (!checkedForConflict) {
-                hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent,
-                        hasFixedHeightParent);
-                if (sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT) {
-                    childDimension = LayoutParams.MATCH_PARENT;
-                }
+            if (childDimension < 0) {
+                childDimension = 0;
             }
+        } else if (p.autoFillsHeight) {
+            // Use the remaining height of the parent view to fill it.
+            childDimension = Math.max(remainHeight - heightPadding, 0);
+        } else if (!p.sizeOrFillHeightEnabled) {
+            // Attempt to calculate a height based on top/center/bottom properties, if provided.
+            childDimension = calculateHeightFromPins(
+                    p, height - remainHeight, height, remainHeight, childDimension);
         }
+        int heightSpec = ViewGroup.getChildMeasureSpec(
+                MeasureSpec.makeMeasureSpec(height, hMode), heightPadding, childDimension);
 
-        int heightPadding = getViewHeightPadding(child, height);
-        int heightSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(height, hMode),
-                heightPadding,
-                childDimension);
-
+        // Apply the above calculated width and height to the child view.
         child.measure(widthSpec, heightSpec);
-        // Useful for debugging.
-        // int childWidth = child.getMeasuredWidth();
-        // int childHeight = child.getMeasuredHeight();
     }
 
-    // Try to calculate width from pins, if we couldn't calculate from pins or
-    // we don't need to, then return the
-    // measured width
-    private int calculateWidthFromPins(LayoutParams params, int parentLeft, int parentRight,
-            int parentWidth,
-            int measuredWidth)
+    // Try to calculate width from "left", "center", or "right" pins.
+    // If we can't calculate from pins or we don't need to, then return the measured width.
+    private int calculateWidthFromPins(
+        LayoutParams params, int parentLeft, int parentRight, int parentWidth, int measuredWidth)
     {
         int width = measuredWidth;
 
-        if (params.optionWidth != null || params.sizeOrFillWidthEnabled) {
+        // Layout's "width" property takes priority over left/center/right pin properties.
+        // Note: Ignore the auto-fill and auto-size settings here. Pins takes priority over them.
+        if (params.optionWidth != null) {
             return width;
         }
 
+        // Attempt to calculate width from the pin properties.
+        // Note: We need at least 2 pins to do this. Otherwise, use given "measuredWidth" argument.
         TiDimension left = params.optionLeft;
         TiDimension centerX = params.optionCenterX;
         TiDimension right = params.optionRight;
-
         if (left != null) {
             if (centerX != null) {
                 width = (centerX.getAsPixels(this) - left.getAsPixels(this) - parentLeft) * 2;
@@ -477,24 +486,24 @@ public class TiCompositeLayout extends ViewGroup
         return width;
     }
 
-    // Try to calculate height from pins, if we couldn't calculate from pins or
-    // we don't need to, then return the
-    // measured height
-    private int calculateHeightFromPins(LayoutParams params, int parentTop, int parentBottom,
-            int parentHeight,
-            int measuredHeight)
+    // Try to calculate width from "top", "center", or "bottom" pins.
+    // If we can't calculate from pins or we don't need to, then return the measured height.
+    private int calculateHeightFromPins(
+        LayoutParams params, int parentTop, int parentBottom, int parentHeight, int measuredHeight)
     {
         int height = measuredHeight;
 
-        // Return if we don't need undefined behavior
-        if (params.optionHeight != null || params.sizeOrFillHeightEnabled) {
+        // Layout's "height" property takes priority over top/center/bottom pin properties.
+        // Note: Ignore the auto-fill and auto-size settings here. Pins takes priority over them.
+        if (params.optionHeight != null) {
             return height;
         }
 
+        // Attempt to calculate height from the pin properties.
+        // Note: We need at least 2 pins to do this. Otherwise, use given "measuredHeight" argument.
         TiDimension top = params.optionTop;
         TiDimension centerY = params.optionCenterY;
         TiDimension bottom = params.optionBottom;
-
         if (top != null) {
             if (centerY != null) {
                 height = (centerY.getAsPixels(this) - parentTop - top.getAsPixels(this)) * 2;
@@ -504,7 +513,6 @@ public class TiCompositeLayout extends ViewGroup
         } else if (centerY != null && bottom != null) {
             height = (parentBottom - bottom.getAsPixels(this) - centerY.getAsPixels(this)) * 2;
         }
-
         return height;
     }
 
@@ -789,75 +797,6 @@ public class TiCompositeLayout extends ViewGroup
             horizontalLayoutLineHeight = rowHeight;
         }
         horizontalLayoutLastIndexBeforeWrap = i;
-    }
-
-    // Determine whether we have a conflict where a parent has size behavior,
-    // and child has fill behavior.
-    private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration,
-            boolean hasFixedWidthParent, boolean hasFixedHeightParent)
-    {
-        if (parent instanceof TiCompositeLayout) {
-            TiCompositeLayout currentLayout = (TiCompositeLayout) parent;
-            LayoutParams currentParams = (LayoutParams) currentLayout.getLayoutParams();
-
-            // During the first iteration, the parent view needs to have size
-            // behavior.
-            if (firstIteration
-                    && (currentParams.autoFillsWidth || currentParams.optionWidth != null)) {
-                conflicts[0] = NO_SIZE_FILL_CONFLICT;
-            }
-            if (firstIteration
-                    && (currentParams.autoFillsHeight || currentParams.optionHeight != null)) {
-                conflicts[1] = NO_SIZE_FILL_CONFLICT;
-            }
-
-            // We don't check for sizeOrFillHeightEnabled. The calculations
-            // during the measure phase (which includes
-            // this method) will be adjusted to undefined behavior accordingly
-            // during the layout phase.
-            // sizeOrFillHeightEnabled is used during the layout phase to
-            // determine whether we want to use the fill/size
-            // measurements that we got from the measure phase.
-            if (currentParams.autoFillsWidth && currentParams.optionWidth == null
-                    && conflicts[0] == NOT_SET && !hasFixedWidthParent) {
-                conflicts[0] = HAS_SIZE_FILL_CONFLICT;
-            }
-            if (currentParams.autoFillsHeight && currentParams.optionHeight == null
-                    && conflicts[1] == NOT_SET && !hasFixedHeightParent) {
-                conflicts[1] = HAS_SIZE_FILL_CONFLICT;
-            }
-
-            // Stop traversing if we've determined whether there is a conflict
-            // for both width and height
-            if (conflicts[0] != NOT_SET && conflicts[1] != NOT_SET) {
-                return true;
-            }
-
-            if (currentParams.optionWidth != null && !currentParams.optionWidth.isUnitAuto())
-                hasFixedWidthParent = true;
-
-            if (currentParams.optionHeight != null && !currentParams.optionHeight.isUnitAuto())
-                hasFixedHeightParent = true;
-
-            // If the child has size behavior, continue traversing through
-            // children and see if any of them have fill
-            // behavior
-            for (int i = 0; i < currentLayout.getChildCount(); ++i) {
-                if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false,
-                        hasFixedWidthParent, hasFixedHeightParent)) {
-                    return true;
-                }
-            }
-        }
-
-        // Default to false if we couldn't find conflicts
-        if (firstIteration && conflicts[0] == NOT_SET) {
-            conflicts[0] = NO_SIZE_FILL_CONFLICT;
-        }
-        if (firstIteration && conflicts[1] == NOT_SET) {
-            conflicts[1] = NO_SIZE_FILL_CONFLICT;
-        }
-        return false;
     }
 
     protected int getWidthMeasureSpec(View child) {
