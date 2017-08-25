@@ -1902,7 +1902,6 @@ public abstract class TiUIView
 				view.setOnClickListener(null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
 			}
 			view.setClickable(false);
-			view.setOnClickListener(null);
 			view.setOnLongClickListener(null);
 			view.setLongClickable(false);
 		} else if ( ! (view instanceof AdapterView) ) {
