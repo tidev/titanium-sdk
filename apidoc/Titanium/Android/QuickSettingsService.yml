@@ -55,7 +55,7 @@ methods:
 
   - name: setLabel
     summary: Changes the Tile's label.
-        parameters: 
+    parameters: 
         summary: String to be used
         type: String
     default: Application's name
