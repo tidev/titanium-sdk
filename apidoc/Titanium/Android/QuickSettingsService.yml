@@ -39,7 +39,7 @@ methods:
   - name: setIcon
     summary: Changes the Tile's icon.
     parameters: 
-        summary: Source of the icon image
+      - summary: Source of the icon image
         type: [String, Titanium.Blob, Titanium.Filesystem.File]
     default: Application's icon
 
@@ -50,13 +50,13 @@ methods:
       [TILE_STATE_INACTIVE](Titanium.Android.TILE_STATE_INACTIVE),
       [TILE_STATE_ACTIVE](Titanium.Android.TILE_STATE_ACTIVE)
     parameters:
-          summary: State to be set.
-          type: [Titanium.Android..TILE_STATE_*]
+      - summary: State to be set.
+        type: [Titanium.Android.TILE_STATE_*]
 
   - name: setLabel
     summary: Changes the Tile's label.
     parameters: 
-        summary: String to be used
+      - summary: String to be used
         type: String
     default: Application's name
 
@@ -93,22 +93,23 @@ methods:
       Note: Alert dialog only supports one of the following: message/options. If you pass both - only `message` will
       be shown.
     parameters:
-      type: KrollDictionary
-      summary: Dictionary containing the options for the dialog.
+      - type: KrollDictionary
+        summary: Dictionary containing the options for the dialog.
 
   - name: startActivityAndCollapse
     summary: Colapses the quick settings menu and starts an activity for the passed Intent
     parameters:
-      summary: Intent to be fired
-      type: Titanium.Android.Intent
+      - summary: Intent to be fired
+        type: Titanium.Android.Intent
 
   - name: unlockAndRun
     summary: Prompts the user to unlock the device and runs the JS code
     parameters:
-      summary: JavaScript code to be evaluated
-      type: String
+      - summary: JavaScript code to be evaluated
+        type: String
 
 events:
+
   - name: startlistening
     summary: |
         Tile is listening for events.
