@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -94,6 +94,7 @@ jmethodID JNIUtil::referenceTableGetReferenceMethod = NULL;
 jint JNIUtil::krollRuntimeDontIntercept = -1;
 jmethodID JNIUtil::krollInvocationInitMethod = NULL;
 jmethodID JNIUtil::krollExceptionInitMethod = NULL;
+jfieldID JNIUtil::krollObjectProxySupportField = NULL;
 jmethodID JNIUtil::krollObjectSetHasListenersForEventTypeMethod = NULL;
 jmethodID JNIUtil::krollObjectOnEventFiredMethod = NULL;
 jmethodID JNIUtil::krollProxyCreateProxyMethod = NULL;
@@ -243,19 +244,46 @@ jstring JNIUtil::getClassName(jclass javaClass)
 void JNIUtil::logClassName(const char *format, jclass javaClass, bool errorLevel)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (!env) return;
+	if (!env) {
+		return;
+	}
 
-	jstring jClassName = (jstring) env->CallObjectMethod(javaClass, classGetNameMethod);
+	jstring jClassName = JNIUtil::getClassName(javaClass);
+	if (!jClassName) {
+		return;
+	}
+
 	const char* chars = env->GetStringUTFChars(jClassName, NULL);
+
+	if (!chars) {
+		env->DeleteLocalRef(jClassName);
+		return;
+	}
 
 	if (errorLevel) {
 		LOGE(TAG, format, chars);
 	} else {
 		LOGD(TAG, format, chars);
 	}
-
 	env->ReleaseStringUTFChars(jClassName, chars);
 	env->DeleteLocalRef(jClassName);
+}
+
+bool JNIUtil::removePointer(jobject javaObject)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (!env) {
+		return false;
+	}
+	if (env->IsInstanceOf(javaObject, JNIUtil::krollProxyClass)) {
+		jobject krollObject = env->GetObjectField(javaObject, JNIUtil::krollProxyKrollObjectField);
+		if (krollObject) {
+			env->SetLongField(krollObject, JNIUtil::v8ObjectPtrField, 0);
+			env->DeleteLocalRef(krollObject);
+			return true;
+		}
+	}
+	return false;
 }
 
 void JNIUtil::initCache()
@@ -335,17 +363,18 @@ void JNIUtil::initCache()
 	krollDictPutMethod = getMethodID(krollDictClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
 			false);
 
-	referenceTableCreateReferenceMethod = getMethodID(referenceTableClass, "createReference", "(Ljava/lang/Object;)I", true);
-	referenceTableDestroyReferenceMethod = getMethodID(referenceTableClass, "destroyReference", "(I)V", true);
-	referenceTableMakeWeakReferenceMethod = getMethodID(referenceTableClass, "makeWeakReference", "(I)V", true);
-	referenceTableClearWeakReferenceMethod = getMethodID(referenceTableClass, "clearWeakReference", "(I)Ljava/lang/Object;", true);
-	referenceTableGetReferenceMethod = getMethodID(referenceTableClass, "getReference", "(I)Ljava/lang/Object;", true);
+	referenceTableCreateReferenceMethod = getMethodID(referenceTableClass, "createReference", "(Ljava/lang/Object;)J", true);
+	referenceTableDestroyReferenceMethod = getMethodID(referenceTableClass, "destroyReference", "(J)V", true);
+	referenceTableMakeWeakReferenceMethod = getMethodID(referenceTableClass, "makeWeakReference", "(J)V", true);
+	referenceTableClearWeakReferenceMethod = getMethodID(referenceTableClass, "clearWeakReference", "(J)Ljava/lang/Object;", true);
+	referenceTableGetReferenceMethod = getMethodID(referenceTableClass, "getReference", "(J)Ljava/lang/Object;", true);
 
 	jfieldID dontInterceptField = env->GetStaticFieldID(krollRuntimeClass, "DONT_INTERCEPT", "I");
 	krollRuntimeDontIntercept = env->GetStaticIntField(krollRuntimeClass, dontInterceptField);
 
 	krollInvocationInitMethod = getMethodID(krollInvocationClass, "<init>", "(Ljava/lang/String;)V", false);
 	krollExceptionInitMethod = getMethodID(krollExceptionClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
+	krollObjectProxySupportField = getFieldID(krollObjectClass, "proxySupport", "Lorg/appcelerator/kroll/KrollProxySupport;");
 	krollObjectSetHasListenersForEventTypeMethod = getMethodID(krollObjectClass, "setHasListenersForEventType",
 		"(Ljava/lang/String;Z)V");
 	krollObjectOnEventFiredMethod = getMethodID(krollObjectClass, "onEventFired", "(Ljava/lang/String;Ljava/lang/Object;)V");

@@ -32,13 +32,11 @@ import android.webkit.WebView;
 	TiC.PROPERTY_DATA,
 	TiC.PROPERTY_ON_CREATE_WINDOW,
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
-	TiC.PROPERTY_REQUEST_HEADERS,
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR,
 	TiC.PROPERTY_OVER_SCROLL_MODE,
 	TiC.PROPERTY_CACHE_MODE,
-	TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
-	TiC.PROPERTY_HTML
+	TiC.PROPERTY_LIGHT_TOUCH_ENABLED
 })
 public class WebViewProxy extends ViewProxy
 	implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
@@ -76,6 +74,7 @@ public class WebViewProxy extends ViewProxy
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
 		defaultValues.put(TiC.PROPERTY_BORDER_RADIUS, 0);
+		defaultValues.put(TiC.PROPERTY_DISABLE_CONTEXT_MENU, false);
 	}
 
 	@Override
@@ -351,7 +350,10 @@ public class WebViewProxy extends ViewProxy
 	@Kroll.method @Kroll.getProperty
 	public boolean getDisableContextMenu()
 	{
-		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU));
+		if (hasPropertyAndNotNull(TiC.PROPERTY_DISABLE_CONTEXT_MENU)) {
+			return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU));
+		}
+		return false;
 	}
 
 	@Kroll.method @Kroll.setProperty

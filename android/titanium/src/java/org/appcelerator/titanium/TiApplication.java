@@ -6,26 +6,25 @@
  */
 package org.appcelerator.titanium;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
+import android.os.Looper;
+import android.support.multidex.MultiDex;
+import android.util.DisplayMetrics;
+import android.view.accessibility.AccessibilityManager;
+import com.appcelerator.aps.APSAnalytics;
+import com.appcelerator.aps.APSAnalytics.DeployType;
 import org.appcelerator.kroll.KrollApplication;
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
@@ -43,23 +42,22 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import ti.modules.titanium.TitaniumModule;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Build;
-import android.os.Looper;
-import android.support.multidex.MultiDex;
-import android.util.DisplayMetrics;
-import android.view.accessibility.AccessibilityManager;
 
-import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalytics.DeployType;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The main application entry point for all Titanium applications and services.
@@ -114,7 +112,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
-	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
+	protected static TiWeakList<TiBaseActivity> activityStack = new TiWeakList<TiBaseActivity>();
 
 	public static interface ActivityTransitionListener
 	{
@@ -174,9 +172,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return null;
 	}
 
-	public static void addToActivityStack(Activity activity)
+	public static void addToActivityStack(TiBaseActivity activity)
 	{
-		activityStack.add(new WeakReference<Activity>(activity));
+		activityStack.add(new WeakReference<TiBaseActivity>(activity));
 	}
 
 	public static void removeFromActivityStack(Activity activity)
@@ -192,7 +190,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			return;
 		}
 
-		WeakReference<Activity> activityRef;
+		WeakReference<TiBaseActivity> activityRef;
 		Activity currentActivity;
 
 		for (int i = activityStack.size() - 1; i >= 0; i--) {
@@ -216,7 +214,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		if (activityStack == null || activityStack.size() == 0) {
 			return false;
 		}
-		for (WeakReference<Activity> activityRef : activityStack) {
+		for (WeakReference<TiBaseActivity> activityRef : activityStack) {
 			if (activityRef != null && activityRef.get() instanceof TiLaunchActivity) {
 				return true;
 			}
@@ -244,7 +242,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 * @return the current activity
 	 * @module.api
 	 */
-	public static Activity getAppCurrentActivity()
+	public static TiBaseActivity getAppCurrentActivity()
 	{
 		TiApplication tiApp = getInstance();
 		if (tiApp == null) {
@@ -274,12 +272,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 * @return the current activity if exists. Otherwise, the thread will wait for a valid activity to be visible.
 	 * @module.api
 	 */
-	public Activity getCurrentActivity()
+	public TiBaseActivity getCurrentActivity()
 	{
 		int activityStackSize;
 
 		while ((activityStackSize = activityStack.size()) > 0) {
-			Activity activity = (activityStack.get(activityStackSize - 1)).get();
+			TiBaseActivity activity = (activityStack.get(activityStackSize - 1)).get();
 
 			// Skip and remove any activities which are dead or in the process of finishing.
 			if (activity == null || activity.isFinishing()) {

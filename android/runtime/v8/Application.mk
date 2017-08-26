@@ -16,7 +16,6 @@ else
 	APP_ABI := armeabi-v7a
 endif
 
-
 TARGET_DEVICE := device
 APP_OPTIM := release
 TI_DEBUG := 1

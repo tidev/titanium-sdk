@@ -11,13 +11,7 @@ LOCAL_CFLAGS := -g "-I$(TI_MOBILE_SDK)/android/native/include"
 # https://jira.appcelerator.org/browse/TIMOB-15263
 LOCAL_DISABLE_FORMAT_STRING_CHECKS=true
 
-# Several places in generated code we set some jvalues to NULL and
-# since NDK r8b we'd get warnings about each one.
-LOCAL_CFLAGS += -Wno-conversion-null
-
-# cf https://groups.google.com/forum/?fromgroups=#!topic/android-ndk/Q8ajOD37LR0
-LOCAL_CFLAGS += -Wno-psabi
-
+LOCAL_CFLAGS += -Wno-conversion-null -Wno-format-security -Wno-format -Wno-tautological-compare -Wno-unused-result -Wno-deprecated-register
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT) "-L$(TI_MOBILE_SDK)/android/native/libs/$(TARGET_ARCH_ABI)" -lkroll-v8
 
 GEN_DIR := $(realpath .)

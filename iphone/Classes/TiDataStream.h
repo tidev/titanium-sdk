@@ -5,16 +5,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <Foundation/Foundation.h>
 #import "TiStreamProxy.h"
+#import <Foundation/Foundation.h>
 
 // Generic stream for data; designed to encapsulate blobs and buffers.
-@interface TiDataStream : TiStreamProxy<TiStreamInternal> {
-    NSData* data;
-    TiStreamMode mode;
-    NSUInteger position;
+@interface TiDataStream : TiStreamProxy <TiStreamInternal> {
+  NSData *data;
+  TiStreamMode mode;
+  NSUInteger position;
 }
 @property (nonatomic) TiStreamMode mode;
-@property (nonatomic,readwrite,retain) NSData* data;
+@property (nonatomic, readwrite, retain) NSData *data;
 
 @end
