@@ -11,38 +11,38 @@
 
 @implementation TiUISwitchProxy
 
--(void)_initWithProperties:(NSDictionary *)properties
+- (void)_initWithProperties:(NSDictionary *)properties
 {
-    [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
-    [super _initWithProperties:properties];
+  [self initializeProperty:@"enabled" defaultValue:NUMBOOL(YES)];
+  [super _initWithProperties:properties];
 }
 
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
+- (UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-	return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth);
+  return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.Switch";
+  return @"Ti.UI.Switch";
 }
 
--(NSNumber*)value
+- (NSNumber *)value
 {
-    return [(TiUISwitch*)[self view] value];
+  return [(TiUISwitch *)[self view] value];
 }
 
 USE_VIEW_FOR_VERIFY_HEIGHT
 USE_VIEW_FOR_VERIFY_WIDTH
 
 #ifndef TI_USE_AUTOLAYOUT
--(TiDimension)defaultAutoWidthBehavior:(id)unused
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 #endif
 

@@ -159,6 +159,16 @@ public class CookieProxy extends KrollProxy
 		return TiConvert.toString(getProperty(TiC.PROPERTY_NAME));
 	}
 
+	@Kroll.method
+	public boolean isValid()
+	{
+		String name = TiConvert.toString(getProperty(TiC.PROPERTY_NAME));
+		String value = TiConvert.toString(getProperty(TiC.PROPERTY_VALUE));
+		String path = TiConvert.toString(getProperty(TiC.PROPERTY_PATH));
+		String domain = TiConvert.toString(getProperty(TiC.PROPERTY_DOMAIN));
+		return (name != null && value != null && path != null && domain != null);
+	}
+
 	@Override
 	public String getApiName()
 	{

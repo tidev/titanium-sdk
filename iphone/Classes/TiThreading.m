@@ -5,8 +5,4 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-
 #import "TiThreading.h"
-
-
-

@@ -6,18 +6,17 @@
  */
 #import "TiViewProxy.h"
 
-@interface TiUIAlertDialogProxy : TiViewProxy<UIAlertViewDelegate> {
-@private
-    UIAlertView *alert;
-    UIAlertController* alertController;
-    BOOL persistentFlag;
-    int cancelIndex;
-    int destructiveIndex;
-    int preferredIndex;
-    int style;
+@interface TiUIAlertDialogProxy : TiViewProxy {
+  @private
+  UIAlertController *alertController;
+  BOOL persistentFlag;
+  int cancelIndex;
+  int destructiveIndex;
+  int preferredIndex;
+  int style;
 }
 
--(void)show:(id)args;
--(void)hide:(id)args;
+- (void)show:(id)args;
+- (void)hide:(id)args;
 
 @end

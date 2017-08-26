@@ -138,12 +138,28 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 	<@Proxy.listConstants ; isFirst, name, constant>
 
 	<#if (constant.value)??>
-		<#if constant.type = "java.lang.String">
-		DEFINE_STRING_CONSTANT(isolate, prototypeTemplate, "${name}", "${constant.value}");
-		<#elseif constant.type = "int" || constant.type = "long" || constant.type = "short">
-		DEFINE_INT_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+		<#if isModule>
+			<#if constant.type = "java.lang.String">
+			DEFINE_STRING_CONSTANT(isolate, prototypeTemplate, "${name}", "${constant.value}");
+			<#elseif constant.type = "int" || constant.type = "long" || constant.type = "short">
+			DEFINE_INT_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			<#else>
+			DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			</#if>
 		<#else>
-		DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			<#if constant.type = "java.lang.String">
+			DEFINE_STRING_CONSTANT(isolate, t, "${name}", "${constant.value}");
+			// TODO: deprecate in 7.0.0
+			DEFINE_STRING_CONSTANT(isolate, prototypeTemplate, "${name}", "${constant.value}");
+			<#elseif constant.type = "int" || constant.type = "long" || constant.type = "short">
+			DEFINE_INT_CONSTANT(isolate, t, "${name}", ${constant.value?c});
+			// TODO: deprecate in 7.0.0
+			DEFINE_INT_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			<#else>
+			DEFINE_NUMBER_CONSTANT(isolate, t, "${name}", ${constant.value?c});
+			// TODO: deprecate in 7.0.0
+			DEFINE_NUMBER_CONSTANT(isolate, prototypeTemplate, "${name}", ${constant.value?c});
+			</#if>
 		</#if>
 	<#else>
 		<#if constant.type = "java.lang.String">
