@@ -49,6 +49,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
@@ -60,6 +61,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
@@ -97,7 +99,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnCreateOptionsMenuEvent>  onCreateOptionsMenuListeners = new TiWeakList<OnCreateOptionsMenuEvent>();
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 	private APSAnalytics analytics = APSAnalytics.getInstance();
-
+	private boolean sustainModeOn = false;
 
 	public static class PermissionContextData {
 		private final Integer requestCode;
@@ -1752,5 +1754,21 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			return true;
 		}
 		return false;
+	}
+
+	public boolean hasSustainMode()
+	{
+		PowerManager manager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		return manager.isSustainedPerformanceModeSupported();
+	}
+
+	public void setSustainModeOn(boolean sustainModeOn)
+	{
+		if (!hasSustainMode()) {
+			Log.w(TAG, "sustainedPerformanceMode is not supported on this device");
+		} else if (this.sustainModeOn != sustainModeOn) {
+			getWindow().setSustainedPerformanceMode(sustainModeOn);
+			this.sustainModeOn = sustainModeOn;
+		}
 	}
 }

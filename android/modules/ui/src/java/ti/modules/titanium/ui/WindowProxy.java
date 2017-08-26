@@ -57,7 +57,8 @@ import android.view.WindowManager;
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_MODAL,
 	TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
-	TiC.PROPERTY_FLAG_SECURE
+	TiC.PROPERTY_FLAG_SECURE,
+	TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE
 })
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -77,6 +78,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, PixelFormat.UNKNOWN);
+		defaultValues.put(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, false);
 	}
 
 	@Override
@@ -163,6 +165,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	        } else {
 	            topActivity.startActivity(intent);
 	        }
+	    }
+
+	    if (options.containsKey(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE)) {
+	        setSustainedPerformanceMode((Boolean) options.get(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE));
 	    }
 	}
 
@@ -384,6 +390,17 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 		super.onPropertyChanged(name, value);
 	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setSustainedPerformanceMode(boolean mode) {
+		setProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, mode);
+		windowActivity.get().setSustainModeOn(mode);
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public boolean getSustainedPerformanceMode() {
+		return (Boolean) getProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE);
+}
 
 	@Override
 	@Kroll.setProperty(retain=false) @Kroll.method

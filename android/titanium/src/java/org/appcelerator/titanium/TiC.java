@@ -2739,10 +2739,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_SUMMARY_TEXT = "summaryText";
 
-	/**
+   /**
 	 * @module.api
 	 */
 	public static final String PROPERTY_SUPPORT_TOOLBAR = "supportToolbar";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SUSTAINED_PERFORMANCE_MODE = "sustainedPerformanceMode";
 
 	/**
 	 * @module.api
