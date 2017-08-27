@@ -24,6 +24,7 @@ import ti.modules.titanium.ui.AttributedStringProxy;
 import ti.modules.titanium.ui.UIModule;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -47,7 +48,6 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -137,7 +137,8 @@ public class TiUIText extends TiUIView
 		}
 
 		textInputLayout = new TextInputLayout(proxy.getActivity());
-		textInputLayout.addView(tv, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+		textInputLayout.addView(tv, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+
 		setNativeView(textInputLayout);
 	}
 
@@ -162,19 +163,19 @@ public class TiUIText extends TiUIView
 			tv.setText("");
 		}
 
+		if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			tv.setBackgroundColor(Color.TRANSPARENT);
+		}
+
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
 		}
 
-		if (d.containsKey(TiC.PROPERTY_HINT_TEXT)) {
-			String hintText = d.getString(TiC.PROPERTY_HINT_TEXT);
+		if (d.containsKey(TiC.PROPERTY_HINT_TEXT) || d.containsKey(TiC.PROPERTY_HINT_TYPE)) {
+			String hintText = TiConvert.toString(d.get(TiC.PROPERTY_HINT_TEXT), "");
 			if (hintText != null) {
 				int type = TiConvert.toInt(d.get(TiC.PROPERTY_HINT_TYPE), UIModule.HINT_TYPE_STATIC);
-				if (type == UIModule.HINT_TYPE_STATIC) {
-					tv.setHint(hintText);
-				} else if (type == UIModule.HINT_TYPE_ANIMATED) {
-					textInputLayout.setHint(hintText);
-				}
+				setHintText(type, hintText);
 			}
 		}
 
@@ -248,10 +249,10 @@ public class TiUIText extends TiUIView
 
 	private void setTextPadding(HashMap<String, Object> d)
 	{
-		int paddingLeft = tv.getPaddingLeft();
-		int paddingRight = tv.getPaddingRight();
-		int paddingTop = tv.getPaddingTop();
-		int paddingBottom = tv.getPaddingBottom();
+		int paddingLeft = textInputLayout.getPaddingLeft();
+		int paddingRight = textInputLayout.getPaddingRight();
+		int paddingTop = textInputLayout.getPaddingTop();
+		int paddingBottom = textInputLayout.getPaddingBottom();
 		
 		if (d.containsKey(TiC.PROPERTY_LEFT)) {
 			paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
@@ -269,7 +270,7 @@ public class TiUIText extends TiUIView
 			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
 		}
 
-		tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		textInputLayout.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 	}
 
 	@Override
@@ -295,22 +296,24 @@ public class TiUIText extends TiUIView
 				tv.setText(truncateText);
 				tv.setSelection(cursor);
 			}
+		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			tv.setBackgroundColor(Color.TRANSPARENT);
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
-			tv.setHint(TiConvert.toString(newValue));
+			int type = proxy.getProperties().getInt(TiC.PROPERTY_HINT_TYPE);
+			setHintText(type, TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT_COLOR)) {
 			tv.setHintTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TYPE)) {
-			String hintText = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_HINT_TEXT));
-			if (hintText != null) {
-				int type = TiConvert.toInt(newValue);
-				if (type == UIModule.HINT_TYPE_STATIC) {
-					textInputLayout.setHint("");
-					tv.setHint(hintText);
-				} else if (type == UIModule.HINT_TYPE_ANIMATED) {
-					tv.setHint("");
-					textInputLayout.setHint(hintText);
+			Object attributedHintText = proxy.getProperty(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT);
+			if (attributedHintText instanceof AttributedStringProxy) {
+				setAttributedStringHint((AttributedStringProxy) attributedHintText);
+			} else {
+				String hintText = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_HINT_TEXT));
+				if (hintText != null) {
+					int type = TiConvert.toInt(newValue);
+					setHintText(type, hintText);
 				}
 			}
 		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
@@ -422,13 +425,13 @@ public class TiUIText extends TiUIView
 	public void focus()
 	{
 		super.focus();
-		if (nativeView != null) {
+		if (tv != null) {
 			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE) 
 					&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
-				TiUIHelper.showSoftKeyboard(nativeView, false);
+				TiUIHelper.showSoftKeyboard(tv, false);
 			}
 			else {
-				TiUIHelper.requestSoftInputChange(proxy, nativeView);
+				TiUIHelper.requestSoftInputChange(proxy, tv);
 			}
 		}
 	}
@@ -439,11 +442,11 @@ public class TiUIText extends TiUIView
 		if (hasFocus) {
 			Boolean clearOnEdit = (Boolean) proxy.getProperty(TiC.PROPERTY_CLEAR_ON_EDIT);
 			if (clearOnEdit != null && clearOnEdit) {
-				((EditText) nativeView).setText("");
+				tv.setText("");
 			}
 			Rect r = new Rect();
-			nativeView.getFocusedRect(r);
-			nativeView.requestRectangleOnScreen(r);
+			tv.getFocusedRect(r);
+			tv.requestRectangleOnScreen(r);
 
 		}
 		super.onFocusChange(v, hasFocus);
@@ -805,7 +808,20 @@ public class TiUIText extends TiUIView
 	public void setAttributedStringHint(AttributedStringProxy attrString) {
 		Spannable spannableText = AttributedStringProxy.toSpannable(attrString, TiApplication.getAppCurrentActivity());
 		if (spannableText != null) {
-			tv.setHint(spannableText);
+			int type = getProxy().getProperties().getInt(TiC.PROPERTY_HINT_TYPE);
+			setHintText(type, spannableText);
+		}
+	}
+
+	public void setHintText(int type, CharSequence hintText) {
+		if (type == UIModule.HINT_TYPE_STATIC) {
+			textInputLayout.setHint("");
+			textInputLayout.setHintEnabled(false);
+			tv.setHint(hintText);
+		} else if (type == UIModule.HINT_TYPE_ANIMATED) {
+			tv.setHint("");
+			textInputLayout.setHint(hintText);
+			textInputLayout.setHintEnabled(true);
 		}
 	}
 }

@@ -82,6 +82,53 @@ properties:
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
     platforms: [iphone, ipad]
 
+  - name: attributedHintText
+    summary: Hint text attributed string.
+    description: |
+        The attributed hint text by the text area. If set, avoid setting common attributes
+        in text area, such as `hintText`, `color` and `font`, as unexpected behaviors may result.
+
+        This has no effect when used with `hintType` Ti.UI.HINT_TYPE_ANIMATED.
+
+        Prior to Release 3.6.0, assign this property an object from the
+        <Titanium.UI.iOS.AttributedString> class.
+
+        Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedHintText>`
+        element inside a `<TextField>` element and set the text property as node text:
+
+            <Alloy>
+              <Window>
+                  <TextField>
+                    <AttributedHintText>
+                        Alloy is great!
+                    </AttributedHintText>
+                  </TextField>
+              </Window>
+            </Alloy>
+
+        Then set attributes in the TSS file:
+
+            "AttributedString" : {
+              attributes: [
+                {
+                  type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+                  value: 'red',
+                  range: [0, 5]
+                },
+                {
+                  type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+                  value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+                  range: [9, 5]
+                }
+              ]
+            }
+    type: Titanium.UI.AttributedString
+    platforms: [android, iphone, ipad]
+    since:
+        android: 3.6.0
+        iphone: 3.2.0
+        ipad: 3.2.0
+
   - name: attributedString
     summary: TextArea attributed string.
     description: |
@@ -247,8 +294,21 @@ properties:
             </android>
 
         Another way to change the hint text color is to use this property and specify a color.
+
+        This has no effect when used with `hintType` Ti.UI.HINT_TYPE_ANIMATED. Instead a theme must be
+        used that defines the `android:textColorHint` attribute.
     type: String
     default: Default Android theme's hint text color.
+
+  - name: hintType
+    summary: Hint type to display on the text field.
+    platforms: [android]
+    since: {android: "6.2.0"}
+    description: |
+        Setting this to <Titanium.UI.HINT_TYPE_ANIMATED> will use the animated TextInputLayout on Android.
+    type: Number
+    constants: [Titanium.UI.HINT_TYPE_*]
+    default: <Titanium.UI.HINT_TYPE_STATIC>
 
   - name: handleLinks
     summary: Specifies if the text area should allow user interaction with the given URL in the given range of text.
@@ -346,7 +406,10 @@ properties:
     platforms: [iphone, ipad]
 
   - name: textAlign
-    summary: Text alignment within this text area.
+    summary: |
+        Text alignment within this text area.
+
+        This has no effect on `hintText` when `hintType` is Ti.UI.HINT_TYPE_ANIMATED.
     type: [String, Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
