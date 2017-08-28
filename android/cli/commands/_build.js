@@ -59,6 +59,7 @@ function AndroidBuilder() {
 
 	this.dexAgent = false;
 
+	this.compileSdkVersion = this.packageJson.compileSDKVersion; // this should always be >= maxSupportedApiLevel
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
@@ -1016,6 +1017,14 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			targetSDKMap[t.id.replace('android-', '')] = t;
 		}
 	}, this);
+
+	// check the Android SDK we require to build exists
+	this.androidCompileSDK = targetSDKMap[this.compileSdkVersion];
+	if (!this.androidCompileSDK) {
+		logger.error(__('Unable to find Android SDK API %s', this.compileSdkVersion));
+		logger.error(__('Android SDK API %s is required to build Android apps', this.compileSdkVersion) + '\n');
+		process.exit(1);
+	}
 
 	try {
 		var tiappAndroidManifest = this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && (new AndroidManifest).parse(cli.tiapp.android.manifest);
@@ -3212,8 +3221,8 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 	if (!this.forceRebuild) return next();
 
-	if (!this.androidTargetSDK.aidl) {
-		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTargetSDK['api-level']));
+	if (!this.androidCompileSDK.aidl) {
+		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidCompileSDK['api-level']));
 		return next();
 	}
 
@@ -3249,7 +3258,7 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 
 			aidlHook(
 				this.androidInfo.sdk.executables.aidl,
-				['-p' + this.androidTargetSDK.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file],
+				['-p' + this.androidCompileSDK.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file],
 				{},
 				callback
 			);
@@ -3717,7 +3726,7 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-M', this.androidManifestFile,
 			'-A', this.buildBinAssetsDir,
 			'-S', this.buildResDir,
-			'-I', this.androidTargetSDK.androidJar,
+			'-I', this.androidCompileSDK.androidJar,
 			'-F', this.ap_File,
 			'--output-text-symbols', bundlesPath,
 			'--no-version-vectors'
@@ -3806,7 +3815,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 		moduleJars = this.moduleJars = {},
 		jarNames = {};
 
-	classpath[this.androidTargetSDK.androidJar] = 1;
+	classpath[this.androidCompileSDK.androidJar] = 1;
 	Object.keys(this.jarLibraries).map(function (jarFile) {
 		classpath[jarFile] = 1;
 	});

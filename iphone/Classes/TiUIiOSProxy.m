@@ -38,7 +38,7 @@
 #endif
 
 #ifdef USE_TI_UIIOSTOOLBAR
-#import "TiUIiOSToolbarProxy.h"
+#import "TiUIToolbarProxy.h"
 #endif
 
 #ifdef USE_TI_UIIOSTABBEDBAR
@@ -160,24 +160,15 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UILISTVIEW
 -(NSNumber*) ROW_ACTION_STYLE_DEFAULT
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINTEGER(UITableViewRowActionStyleDefault);
-    }
-    return nil;
+    return NUMINTEGER(UITableViewRowActionStyleDefault);
 }
 -(NSNumber*) ROW_ACTION_STYLE_DESTRUCTIVE
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINTEGER(UITableViewRowActionStyleDestructive);
-    }
-    return nil;
+    return NUMINTEGER(UITableViewRowActionStyleDestructive);
 }
 -(NSNumber*) ROW_ACTION_STYLE_NORMAL
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINTEGER(UITableViewRowActionStyleNormal);
-    }
-    return nil;
+    return NUMINTEGER(UITableViewRowActionStyleNormal);
 }
 #endif
 
@@ -432,26 +423,17 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 #ifdef USE_TI_UIIOSBLURVIEW
 - (id)BLUR_EFFECT_STYLE_EXTRA_LIGHT
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINTEGER(UIBlurEffectStyleExtraLight);
-    }
-    return [NSNull null];
+    return NUMINTEGER(UIBlurEffectStyleExtraLight);
 }
 
 - (id)BLUR_EFFECT_STYLE_LIGHT
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINTEGER(UIBlurEffectStyleLight);
-    }
-    return [NSNull null];
+    return NUMINTEGER(UIBlurEffectStyleLight);
 }
 
 - (id)BLUR_EFFECT_STYLE_DARK
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return NUMINTEGER(UIBlurEffectStyleDark);
-    }
-    return [NSNull null];
+    return NUMINTEGER(UIBlurEffectStyleDark);
 }
 
 - (id)BLUR_EFFECT_STYLE_REGULAR
@@ -525,7 +507,8 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSTOOLBAR
 -(id)createToolbar:(id)args
 {
-	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+    DEPRECATED_REPLACED(@"UI.iOS.Toolbar", @"6.2.0", @"UI.Toolbar (parity with Android)")
+    return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.iOS.Toolbar"] autorelease];
 }
 #endif
 
