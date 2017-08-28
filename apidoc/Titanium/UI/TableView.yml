@@ -1313,8 +1313,8 @@ properties:
     description: |
         An alternate to the headerPullView property. See <Titanium.UI.RefreshControl> for usage and examples.
     type: Titanium.UI.RefreshControl
-    platforms: [iphone, ipad]
-    since: 3.2.0
+    platforms: [android, iphone, ipad]
+    since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
   - name: hideSearchOnSelection
     summary: Determines whether the search field should hide on completion.
