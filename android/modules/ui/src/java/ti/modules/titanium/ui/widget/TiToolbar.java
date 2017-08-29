@@ -63,6 +63,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	public TiToolbar(TiViewProxy proxy) {
 		super(proxy);
 		toolbar = new Toolbar(proxy.getActivity());
+		toolbar.setContentInsetsAbsolute(0,0);
 		setNativeView(toolbar);
 	}
 
