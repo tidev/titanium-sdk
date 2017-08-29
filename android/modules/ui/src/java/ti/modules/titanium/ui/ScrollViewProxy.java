@@ -30,7 +30,8 @@ import java.util.HashMap;
 	TiC.PROPERTY_SCROLL_TYPE,
 	TiC.PROPERTY_CONTENT_OFFSET,
 	TiC.PROPERTY_CAN_CANCEL_EVENTS,
-	TiC.PROPERTY_OVER_SCROLL_MODE
+	TiC.PROPERTY_OVER_SCROLL_MODE,
+	TiC.PROPERTY_REFRESH_CONTROL
 })
 public class ScrollViewProxy extends TiViewProxy
 	implements Handler.Callback
