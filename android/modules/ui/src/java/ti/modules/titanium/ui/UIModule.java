@@ -82,6 +82,20 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int AUTOLINK_URLS = Linkify.WEB_URLS;
 	@Kroll.constant public static final int AUTOLINK_NONE = 16;
 
+	@Kroll.constant public static final String AUTOFILL_TYPE_USERNAME = View.AUTOFILL_HINT_USERNAME;
+	@Kroll.constant public static final String AUTOFILL_TYPE_PASSWORD = View.AUTOFILL_HINT_PASSWORD;
+	@Kroll.constant public static final String AUTOFILL_TYPE_EMAIL = View.AUTOFILL_HINT_EMAIL_ADDRESS;
+	@Kroll.constant public static final String AUTOFILL_TYPE_NAME = View.AUTOFILL_HINT_NAME;
+	@Kroll.constant public static final String AUTOFILL_TYPE_PHONE = View.AUTOFILL_HINT_PHONE;
+	@Kroll.constant public static final String AUTOFILL_TYPE_ADDRESS = View.AUTOFILL_HINT_POSTAL_ADDRESS;
+	@Kroll.constant public static final String AUTOFILL_TYPE_POSTAL_CODE = View.AUTOFILL_HINT_POSTAL_CODE;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_NUMBER = View.AUTOFILL_HINT_CREDIT_CARD_NUMBER;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_SECURITY_CODE = View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_EXPIRATION_DATE = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_EXPIRATION_DAY = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_EXPIRATION_MONTH = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_EXPIRATION_YEAR = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR;
+
 	@Kroll.constant public static final int INPUT_BORDERSTYLE_NONE = 0;
 	@Kroll.constant public static final int INPUT_BORDERSTYLE_ROUNDED = 1;
 	@Kroll.constant public static final int INPUT_BORDERSTYLE_BEZEL = 2;
