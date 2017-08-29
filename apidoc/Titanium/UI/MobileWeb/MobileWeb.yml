@@ -1,8 +1,0 @@
----
-name: Titanium.UI.MobileWeb
-summary: |
-    The UI capabilities specific to Mobile Web. All events, methods and properties in this namespace 
-    will only work on this platform.
-extends: Titanium.Module
-since: "1.8"
-platforms: [mobileweb]

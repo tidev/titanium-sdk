@@ -7,137 +7,128 @@
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 
 #import "TiMediaVideoPlayer.h"
-#import "TiViewProxy.h"
 #import "TiUtils.h"
+#import "TiViewProxy.h"
 #import "Webcolor.h"
-
 
 @implementation TiMediaVideoPlayer
 
 #ifdef TI_USE_AUTOLAYOUT
--(void)initializeTiLayoutView
+- (void)initializeTiLayoutView
 {
-    [super initializeTiLayoutView];
-    [self setDefaultHeight:TiDimensionAutoFill];
-    [self setDefaultWidth:TiDimensionAutoFill];
+  [super initializeTiLayoutView];
+  [self setDefaultHeight:TiDimensionAutoFill];
+  [self setDefaultWidth:TiDimensionAutoFill];
 }
 #endif
 
--(id)initWithPlayer:(MPMoviePlayerController*)controller_ proxy:(TiProxy*)proxy_ loaded:(BOOL)loaded_
+- (id)initWithPlayer:(MPMoviePlayerController *)controller_ proxy:(TiProxy *)proxy_ loaded:(BOOL)loaded_
 {
-	if (self = [super init])
-	{
-        loaded = loaded_;
-		[self setProxy:proxy_];
-		[self setMovie:controller_];
-	}
-	return self;
+  if (self = [super init]) {
+    loaded = loaded_;
+    [self setProxy:proxy_];
+    [self setMovie:controller_];
+  }
+  return self;
 }
 
--(void)animationCompleted:(id)note
+- (void)animationCompleted:(id)note
 {
-	if (spinner!=nil)
-	{
-		[spinner stopAnimating];
-		[spinner removeFromSuperview];
-		RELEASE_TO_NIL(spinner);
-	}
-}
-
--(void)movieLoaded
-{
-	if (spinner!=nil)
-	{
-		[UIView beginAnimations:@"movieAnimation" context:NULL];
-		[UIView setAnimationDelegate:self];
-		[UIView setAnimationDidStopSelector:@selector(animationCompleted:)];
-		[UIView setAnimationDuration:0.7];
-		[spinner setAlpha:0];
-		[UIView commitAnimations];
-	}
-	
-	loaded = YES;
-}
-
--(void)setMovie:(MPMoviePlayerController*)controller_
-{
-	if (controller_ == controller) {
-        // don't add the movie more than once if the same
-        return;
-    }
-	[[controller view] removeFromSuperview];
+  if (spinner != nil) {
+    [spinner stopAnimating];
     [spinner removeFromSuperview];
     RELEASE_TO_NIL(spinner);
-    RELEASE_TO_NIL(controller);
+  }
+}
 
-    if (controller_ == nil) {
-        return;
+- (void)movieLoaded
+{
+  if (spinner != nil) {
+    [UIView beginAnimations:@"movieAnimation" context:NULL];
+    [UIView setAnimationDelegate:self];
+    [UIView setAnimationDidStopSelector:@selector(animationCompleted:)];
+    [UIView setAnimationDuration:0.7];
+    [spinner setAlpha:0];
+    [UIView commitAnimations];
+  }
+
+  loaded = YES;
+}
+
+- (void)setMovie:(MPMoviePlayerController *)controller_
+{
+  if (controller_ == controller) {
+    // don't add the movie more than once if the same
+    return;
+  }
+  [[controller view] removeFromSuperview];
+  [spinner removeFromSuperview];
+  RELEASE_TO_NIL(spinner);
+  RELEASE_TO_NIL(controller);
+
+  if (controller_ == nil) {
+    return;
+  }
+  controller = [controller_ retain];
+
+  [TiUtils setView:[controller view] positionRect:self.bounds];
+  [self addSubview:[controller view]];
+  [self sendSubviewToBack:[controller view]];
+
+  TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
+  UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
+  if (bgcolor != nil) {
+    // check to see if the background is a dark color and if so, we want to
+    // show the white indicator instead
+    if ([Webcolor isDarkColor:[bgcolor _color]]) {
+      style = UIActivityIndicatorViewStyleWhite;
     }
-    controller = [controller_ retain];
-	
-	[TiUtils setView:[controller view] positionRect:self.bounds];
-	[self addSubview:[controller view]];
-	[self sendSubviewToBack:[controller view]];
-	
-	TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
-	UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
-	if (bgcolor!=nil)
-	{
-		// check to see if the background is a dark color and if so, we want to 
-		// show the white indicator instead
-		if ([Webcolor isDarkColor:[bgcolor _color]])
-		{
-			style = UIActivityIndicatorViewStyleWhite;
-		} 
-	}
+  }
 
-	// show a spinner while the movie is loading so that the user
-	// will know something is happening...
+  // show a spinner while the movie is loading so that the user
+  // will know something is happening...
 
-	if (!loaded) {
-		if (spinner == nil)
-		{
-			spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
-			spinner.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-			[spinner sizeToFit];
-			[spinner setHidesWhenStopped:NO];
-			
-			[spinner startAnimating];
-			spinner.center = [[controller view] center];
-			[[controller view] addSubview:spinner];
-		}
-		else if ([spinner activityIndicatorViewStyle] != style)
-		{
-			[spinner setActivityIndicatorViewStyle:style];
-			[spinner sizeToFit];
-		}
-	}
+  if (!loaded) {
+    if (spinner == nil) {
+      spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
+      spinner.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+      [spinner sizeToFit];
+      [spinner setHidesWhenStopped:NO];
+
+      [spinner startAnimating];
+      spinner.center = [[controller view] center];
+      [[controller view] addSubview:spinner];
+    } else if ([spinner activityIndicatorViewStyle] != style) {
+      [spinner setActivityIndicatorViewStyle:style];
+      [spinner sizeToFit];
+    }
+  }
 }
 
--(BOOL)touchedContentViewWithEvent:(UIEvent *)event
+- (BOOL)touchedContentViewWithEvent:(UIEvent *)event
 {
-    // The view hierarchy of the movie player controller's view is subject to change,
-    // and traversing it is dangerous. If we received a touch which isn't on a TiUIView,
-    // assume it falls into the movie player view hiearchy; this matches previous
-    // behavior as well.
-    
-    UITouch* touch = [[event allTouches] anyObject];
-    return (![[touch view] isKindOfClass:[TiUIView class]]);
+  // The view hierarchy of the movie player controller's view is subject to change,
+  // and traversing it is dangerous. If we received a touch which isn't on a TiUIView,
+  // assume it falls into the movie player view hiearchy; this matches previous
+  // behavior as well.
+
+  UITouch *touch = [[event allTouches] anyObject];
+  return (![[touch view] isKindOfClass:[TiUIView class]]);
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	[[controller view] removeFromSuperview];
-	RELEASE_TO_NIL(controller);
-	RELEASE_TO_NIL(spinner);
-	[super dealloc];
+  [[controller view] removeFromSuperview];
+  RELEASE_TO_NIL(controller);
+  RELEASE_TO_NIL(spinner);
+  [super dealloc];
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	self.frame = CGRectIntegral(self.frame);
-	[TiUtils setView:[controller view] positionRect:bounds];
-    [super frameSizeChanged:frame bounds:bounds];
+  self.frame = CGRectIntegral(self.frame);
+  [TiUtils setView:[controller view] positionRect:bounds];
+  [super frameSizeChanged:frame bounds:bounds];
 }
 
 @end

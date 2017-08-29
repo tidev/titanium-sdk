@@ -31,6 +31,7 @@ import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Bundle;
 import android.util.Pair;
@@ -376,7 +377,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			}
 		}
 
-		properties.putAll(dict);
+		for (String key : dict.keySet()) {
+			setProperty(key, dict.get(key));
+		}
 		handleDefaultValues();
 		handleLocaleProperties();
 
@@ -401,6 +404,52 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 
 		return runtimeHandler;
+	}
+
+	/**
+	 * Invokes the given runnable on the main UI thread.
+	 * <p>
+	 * If this method was called on the main UI thread, then the given runnable is invoked immediately.
+	 * Otherwise, the runnable is posted to the main UI thread via the main "Handler".
+	 * <p>
+	 * This method is the equivalent to the Android Activity.runOnUiThread() method.
+	 * @param runnable The runnable to be invoked. Can be null, in which case this method will no-op.
+	 */
+	public void runOnMainThread(Runnable runnable)
+	{
+		runWithHandler(runnable, getMainHandler());
+	}
+
+	/**
+	 * Invokes the given runnable on the JavaScript runtime thread.
+	 * <p>
+	 * If this method was called on the runtime thread, then the given runnable is invoked immediately.
+	 * Otherwise, the runnable is posted to the runtime thread via a "Handler".
+	 * @param runnable The runnable to be invoked. Can be null, in which case this method will no-op.
+	 */
+	public void runOnRuntimeThread(Runnable runnable)
+	{
+		runWithHandler(runnable, getRuntimeHandler());
+	}
+
+	/**
+	 * Invokes the given runnable on the thread the given handler is attached to.
+	 * <p>
+	 * If this method was called on the handler's thread, then the runnable is invoked immediately.
+	 * Otherwise, handler.post() is called with the given runnable to be invoked on its thread.
+	 * @param runnable The runnable to be invoked. Can be null, in which case this method will no-op.
+	 * @param handler The handler to be used. Can be null, which case this method will no-op.
+	 */
+	private void runWithHandler(Runnable runnable, Handler handler)
+	{
+		if ((runnable != null) && (handler != null)) {
+			Looper looper = handler.getLooper();
+			if ((looper != null) && (looper.getThread().getId() == Thread.currentThread().getId())) {
+				runnable.run();
+			} else {
+				handler.post(runnable);
+			}
+		}
 	}
 
 	public void setKrollObject(KrollObject object)

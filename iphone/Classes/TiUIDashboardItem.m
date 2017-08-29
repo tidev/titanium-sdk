@@ -7,25 +7,24 @@
 #ifdef USE_TI_UIDASHBOARDVIEW
 
 #import "TiUIDashboardItem.h"
+#import "LauncherButton.h"
+#import "LauncherItem.h"
 #import "TiUIDashboardItemProxy.h"
+#import "TiUIView.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
-#import "TiUIView.h"
-#import "LauncherItem.h"
-#import "LauncherButton.h"
 
 @implementation TiUIDashboardItem
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	TiViewProxy *p = (TiViewProxy*)self.proxy;
-	[super frameSizeChanged:frame bounds:bounds];
-	
-    NSArray* children = [p children];
-	for (TiViewProxy *proxy in children)
-	{
-		[(TiUIView*)[proxy view] frameSizeChanged:self.frame bounds:self.bounds];
-	}
+  TiViewProxy *p = (TiViewProxy *)self.proxy;
+  [super frameSizeChanged:frame bounds:bounds];
+
+  NSArray *children = [p children];
+  for (TiViewProxy *proxy in children) {
+    [(TiUIView *)[proxy view] frameSizeChanged:self.frame bounds:self.bounds];
+  }
 }
 
 @end

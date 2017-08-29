@@ -14,6 +14,7 @@ import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import android.support.v7.widget.Toolbar;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
@@ -31,6 +32,7 @@ import org.appcelerator.titanium.TiLifecycle.OnPrepareOptionsMenuEvent;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
+import org.appcelerator.titanium.proxy.TiToolbarProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -745,6 +747,13 @@ public abstract class TiBaseActivity extends AppCompatActivity
 				}
 			}
 		}
+		setCustomActionBar();
+	}
+
+	private void setCustomActionBar() {
+		if (activityProxy.hasProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)) {
+			this.setSupportActionBar(((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)).getToolbarInstance()));
+		}
 	}
 
 	public int getOriginalOrientationMode()
@@ -1181,22 +1190,19 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// TODO stub
 	}
 
-	private void dispatchCallback(String name, KrollDict data) {
+	private void dispatchCallback(final String name, KrollDict data) {
 		if (data == null) {
 			data = new KrollDict();
 		}
-
 		data.put("source", activityProxy);
 
-		// TIMOB-19903
-		if (TiApplication.getInstance().runOnMainThread()) {
-			// We must call this synchornously to ensure it happens before we release the Activity reference on the V8/Native side!
-			activityProxy.callPropertySync(name, new Object[] { data });
-		} else {
-			// This hopefully finishes before we release the reference on the native side?! I have seen it crash because it didn't before though...
-			// Not sure it's safe to keep this behavior...
-			activityProxy.callPropertyAsync(name, new Object[] { data });
-		}
+		final KrollDict d = data;
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				activityProxy.callPropertySync(name, new Object[] { d });
+			}
+		});
 	}
 
 	private void releaseDialogs(boolean finish)
