@@ -193,6 +193,16 @@ properties:
         default value is undefined, but all behave as if the value is `true`.
     type: Boolean
 
+  - name: autofillType
+    summary: Sets the autofill type for the text field.
+    description: |
+        This sets the hint or content type to aid the autofill feature of iOS and Android to function.
+    type: String
+    constants: Titanium.UI.AUTOFILL_TYPE_*
+    default: undefined
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    platforms: [iphone, ipad, android]
 
   - name: autoLink
     summary: Automatically convert text to clickable links.

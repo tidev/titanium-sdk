@@ -145,6 +145,17 @@ properties:
     type: Boolean
     platforms: [android, iphone, ipad]
 
+  - name: autofillType
+    summary: Sets the autofill type for the text area.
+    description: |
+        This sets the hint or content type to aid the autofill feature of iOS and Android to function.
+    type: String
+    constants: Titanium.UI.AUTOFILL_TYPE_*
+    default: undefined
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    platforms: [iphone, ipad, android]
+
   - name: autoLink
     summary: Automatically convert text to clickable links.
     description: |
@@ -350,7 +361,6 @@ properties:
     type: [String, Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
-
 
   - name: value
     summary: Value of this text area, which may be set programmatically and modified by the user.

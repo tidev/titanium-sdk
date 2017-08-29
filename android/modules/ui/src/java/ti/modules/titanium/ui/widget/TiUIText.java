@@ -146,6 +146,10 @@ public class TiUIText extends TiUIView
 	{
 		super.processProperties(d);
 
+		if (d.containsKey(TiC.PROPERTY_AUTOFILL_TYPE) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			tv.setAutofillHints(d.getString(TiC.PROPERTY_AUTOFILL_TYPE));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
@@ -278,7 +282,9 @@ public class TiUIText extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
-		if (key.equals(TiC.PROPERTY_ENABLED)) {
+		if (key.equals(TiC.PROPERTY_AUTOFILL_TYPE) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			tv.setAutofillHints(TiConvert.toString(newValue));
+		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			tv.setText(TiConvert.toString(newValue));

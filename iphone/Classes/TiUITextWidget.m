@@ -156,6 +156,17 @@
   [[self textWidgetView] setAutocorrectionType:[TiUtils boolValue:value] ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo];
 }
 
+-(void)setAutofillType_:(id)value
+{
+    ENSURE_TYPE_OR_NIL(value, NSString);
+    if (![TiUtils isIOS10OrGreater]) {
+        NSLog(@"Setting an autofillHint is only available on iOS 10 and later");
+        return;
+    }
+    
+    [[self textWidgetView] setTextContentType:[TiUtils stringValue:value]];
+}
+
 #pragma mark Responder methods
 //These used to be blur/focus, but that's moved to the proxy only.
 //The reason for that is so checking the toolbar can use UIResponder methods.

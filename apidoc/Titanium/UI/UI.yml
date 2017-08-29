@@ -860,6 +860,246 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
 
+  - name: AUTOFILL_TYPE_USERNAME
+    summary: Specifies the expectation of an account or login name.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_PASSWORD
+    summary: Specifies the expectation of a password.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_NAME
+    summary: Specifies the expectation of a name.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_NAME_PREFIX
+    summary: Specifies the expectation of a prefix or title, such as 'Dr.'
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_GIVEN_NAME
+    summary: Specifies the expectation of a given name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_MIDDLE_NAME
+    summary: Specifies the expectation of a middle name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_FAMILY_NAME
+    summary: Specifies the expectation of a family name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+- name: AUTOFILL_TYPE_NAME_SUFFIX
+    summary: Specifies the expectation of a suffix, such as 'Jr.'
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_NICKNAME
+    summary: Specifies the expectation of a nickname.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_JOB_TITLE
+    summary: Specifies the expectation of a job title.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ORGANIZATION_NAME
+    summary: Specifies the expectation of an organization name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+- name: AUTOFILL_TYPE_LOCATION
+    summary: Specifies the expectation of a location, such as a point of interest, an address, or another way to identify a location.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ADDRESS
+    summary: Specifies the expectation of an address.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ADDRESS_LINE1
+    summary: Specifies the expectation of the first line of a street address.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ADDRESS_LINE2
+    summary: Specifies the expectation of the second line of a street address.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ADDRESS_CITY
+    summary: Specifies the expectation of a city name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+- name: AUTOFILL_TYPE_ADDRESS_STATE
+    summary: Specifies the expectation of a state name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ADDRESS_CITY_STATE
+    summary: Specifies the expectation of a city name combined with a state name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_SUBLOCALITY
+    summary: Specifies the expectation of a sublocality.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_COUNTRY_NAME
+    summary: Specifies the expectation of a country name.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_POSTAL_CODE
+    summary: Specifies the expectation of a postal code.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_PHONE
+    summary: Specifies the expectation of a telephone number.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_EMAIL
+    summary: Specifies the expectation of an email address.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_URL
+    summary: Specifies the expectation of a URL.
+    type: String
+    platforms: [iphone, ipad]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_NUMBER
+    summary: Specifies the expectation of a card number.
+    type: String
+    platforms: [iphone, ipad, android]
+    since: "6.3.0"
+    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_SECURITY_CODE
+    summary: Specifies the expectation of a card security code.
+    type: String
+    platforms: [android]
+    since: "6.3.0"
+    osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_EXPIRATION_DATE
+    summary: Specifies the expectation of a card expiration date.
+    type: String
+    platforms: [android]
+    since: "6.3.0"
+    osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_EXPIRATION_DAY
+    summary: Specifies the expectation of a card expectation day.
+    type: String
+    platforms: [android]
+    since: "6.3.0"
+    osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_EXPIRATION_MONTH
+    summary: Specifies the expectation of a card expectation month.
+    type: String
+    platforms: [android]
+    since: "6.3.0"
+    osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_CARD_EXPIRATION_YEAR
+    summary: Specifies the expectation of a card expectation year.
+    type: String
+    platforms: [android]
+    since: "6.3.0"
+    osver: {android: {min: "8.0"}}
+    permission: read-only
+
   - name: AUTOLINK_MAP_ADDRESSES
     summary: Converts strings formatted as addresses into clickable links.
     description: |
