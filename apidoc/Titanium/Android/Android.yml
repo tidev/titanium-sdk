@@ -1998,6 +1998,65 @@ properties:
     since: "3.6.0"
     osver: {android: {min: "5.0"}}
 
+  - name: WAKE_LOCK_PARTIAL
+    summary: Ensures that the CPU is running; the screen and keyboard backlight will be allowed to go off.
+    description: |
+        Use with the <Titanium.Android.Notification.wakeLock> property.
+
+        See also: [PowerManager.PARTIAL_WAKE_LOCK in the Android API Reference](https://developer.android.com/reference/android/os/PowerManager.html#PARTIAL_WAKE_LOCK).
+    type: Number
+    permission: read-only
+    since: "6.2.0"
+
+  - name: WAKE_LOCK_FULL
+    summary: Ensures that the screen and keyboard backlight are on at full brightness.
+    description: |
+        Use with the <Titanium.Android.Notification.wakeLock> property.
+
+        See also: [PowerManager.FULL_WAKE_LOCK in the Android API Reference](https://developer.android.com/reference/android/os/PowerManager.html#FULL_WAKE_LOCK).
+    type: Number
+    permission: read-only
+    since: "6.2.0"
+
+  - name: WAKE_LOCK_SCREEN_DIM
+    summary: Ensures that the screen is on (but may be dimmed); the keyboard backlight will be allowed to go off.
+    description: |
+        Use with the <Titanium.Android.Notification.wakeLock> property.
+
+        See also: [PowerManager.SCREEN_DIM_WAKE_LOCK in the Android API Reference](https://developer.android.com/reference/android/os/PowerManager.html#SCREEN_DIM_WAKE_LOCK).
+    type: Number
+    permission: read-only
+    since: "6.2.0"
+
+  - name: WAKE_LOCK_SCREEN_BRIGHT
+    summary: Ensures that the screen is on at full brightness; the keyboard backlight will be allowed to go off.
+    description: |
+        Use with the <Titanium.Android.Notification.wakeLock> property.
+
+        See also: [PowerManager.SCREEN_BRIGHT_WAKE_LOCK in the Android API Reference](https://developer.android.com/reference/android/os/PowerManager.html#SCREEN_BRIGHT_WAKE_LOCK).
+    type: Number
+    permission: read-only
+    since: "6.2.0"
+
+  - name: WAKE_LOCK_ACQUIRE_CAUSES_WAKEUP
+    summary: Turn the screen on when the wake lock is acquired.
+    description: |
+        Use with the <Titanium.Android.Notification.wakeLock> property.
+
+        See also: [PowerManager.ACQUIRE_CAUSES_WAKEUP in the Android API Reference](https://developer.android.com/reference/android/os/PowerManager.html#ACQUIRE_CAUSES_WAKEUP).
+    type: Number
+    permission: read-only
+    since: "6.2.0"
+
+  - name: WAKE_LOCK_ON_AFTER_RELEASE
+    summary: When this wake lock is released, poke the user activity timer so the screen stays on for a little longer.
+    description: |
+        Use with the <Titanium.Android.Notification.wakeLock> property.
+
+        See also: [PowerManager.ON_AFTER_RELEASE in the Android API Reference](https://developer.android.com/reference/android/os/PowerManager.html#ON_AFTER_RELEASE).
+    type: Number
+    permission: read-only
+    since: "6.2.0"
 
 # Constants that should probably be removed
 

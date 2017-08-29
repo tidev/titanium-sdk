@@ -3879,8 +3879,9 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 				});
 				return true;
 			}
-		});
-	});
+			return false;
+		}, this);
+	}, this);
 
 	if (this.enableLaunchScreenStoryboard) {
 		plist.UILaunchStoryboardName = 'LaunchScreen';
