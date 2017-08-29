@@ -181,12 +181,15 @@ exports.init = function (logger, config, cli) {
 		}
 
 		// make sure the output directory is good to go
-		if (fs.existsSync(outputDir)) {
-			logger.info(__('Deleting dist directory: %s', outputDir.cyan));
-			wrench.rmdirSyncRecursive(outputDir);
+		if (!fs.existsSync(outputDir)) {
+			wrench.mkdirSyncRecursive(outputDir);
 		}
-		wrench.mkdirSyncRecursive(outputDir);
+
 		const ipaFile = path.join(outputDir, builder.tiapp.name + '.ipa');
+		if (fs.existsSync(ipaFile)) {
+			logger.debug(__('Deleting old .ipa file'));
+			fs.unlinkSync(ipaFile);
+		}
 
 		const exportsOptionsPlistFile = path.join(builder.buildDir, 'export_options.plist');
 		const exportsOptions = new appc.plist();
