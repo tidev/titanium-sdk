@@ -52,33 +52,24 @@
 
 -(id)isSupported:(id)unused
 {
-    if ([TiUtils isIOS8OrGreater] == YES) {
-        return NUMBOOL(_supported);
-    } else {
-        return NUMBOOL(NO);
-    }
+    return NUMBOOL(_supported);
 }
 
 -(BOOL) determineMinRequirements:(NSDictionary *)props
 {
     _isValid = NO;
-    if([TiUtils isIOS8OrGreater]){
-        if([props objectForKey:@"activityType"]){
-            if(![self activityTypeValid:[TiUtils stringValue:@"activityType" properties:props]]){
-                DebugLog(@"[ERROR] activityType provided is not defined in your projects tiapp.xml file");
-                return NO;
-            }else{
-                _isValid = YES;
-                return YES;
-            }
-        }else{
-            DebugLog(@"[ERROR] activityType property is required on creation");
+    if ([props objectForKey:@"activityType"]) {
+        if (![self activityTypeValid:[TiUtils stringValue:@"activityType" properties:props]]) {
+            DebugLog(@"[ERROR] activityType provided is not defined in your projects tiapp.xml file");
             return NO;
+        } else {
+            _isValid = YES;
+            return YES;
         }
+    } else {
+        DebugLog(@"[ERROR] activityType property is required on creation");
+        return NO;
     }
-    
-    NSLog(@"[ERROR] %@ requires iOS8 or greater", [self apiName]);
-    return NO;
 }
 
 -(void) buildInitialActivity:(NSDictionary *)props
