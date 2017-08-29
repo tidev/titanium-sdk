@@ -4097,7 +4097,8 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		soRegExp = /\.so$/,
 		trailingSlashRegExp = /\/$/,
 		nativeLibs = {},
-		origConsoleError = console.error;
+		origConsoleError = console.error,
+		entryNames = [];
 
 	// since the archiver library didn't set max listeners, we squelch all error output
 	console.error = function () {};
@@ -4130,7 +4131,13 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 					&& !classRegExp.test(entry.name)
 					&& !trailingSlashRegExp.test(entry.entryName)
 				) {
-					var store = this.uncompressedTypes.indexOf(entry.entryName.split('.').pop()) != -1;
+					// do not add duplicate entries
+					if (entryNames.indexOf(entry.entryName) > -1) {
+						this.logger.warn(__('Removing duplicate entry %s', entry.entryName.cyan));
+						return;
+					}
+
+					var store = this.uncompressedTypes.indexOf(entry.entryName.split('.').pop()) !== -1;
 
 					this.logger.debug(store
 						? __('Adding %s', entry.entryName.cyan)
@@ -4140,6 +4147,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 						name: entry.entryName,
 						store: store
 					});
+					entryNames.push(entry.entryName);
 				}
 			}, this);
 		}, this);
