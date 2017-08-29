@@ -4,9 +4,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.AsyncResult;
@@ -74,7 +77,11 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	public void setItems(TiViewProxy[] proxies) {
 		if (proxies != null) {
 			for (int i = 0; i < proxies.length; i++) {
-				toolbar.addView(convertLayoutParamsForView(proxies[i].getOrCreateView()));
+				View tempView = convertLayoutParamsForView(proxies[i].getOrCreateView());
+				Toolbar.LayoutParams lp = new Toolbar.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				lp.gravity = Gravity.CENTER;
+				tempView.setLayoutParams(lp);
+				toolbar.addView(tempView);
 			}
 		}
 	}
