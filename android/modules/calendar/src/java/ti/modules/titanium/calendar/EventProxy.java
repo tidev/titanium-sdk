@@ -28,7 +28,9 @@ import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Instances;
 
 // Columns and value constants taken from android.provider.Calendar in the android source base
-@Kroll.proxy(parentModule=CalendarModule.class)
+@Kroll.proxy(parentModule=CalendarModule.class, propertyAccessors = {
+		TiC.PROPERTY_RECURRENCE_RULES
+})
 public class EventProxy extends KrollProxy {
 	public static final String TAG = "EventProxy";
 
@@ -47,7 +49,7 @@ public class EventProxy extends KrollProxy {
 	protected int status, visibility;
 	protected KrollDict extendedProperties = new KrollDict();
 
-	protected String recurrenceRule, recurrenceDate, recurrenceExceptionRule, recurrenceExceptionDate;
+	protected String recurrenceDate, recurrenceExceptionRule, recurrenceExceptionDate;
 	protected Date lastDate;
 
 	public EventProxy()
@@ -96,7 +98,8 @@ public class EventProxy extends KrollProxy {
 		}
 
 		Cursor eventCursor = contentResolver.query(builder.build(), new String[] { "event_id", "title", "description",
-			"eventLocation", "begin", "end", "allDay", "hasAlarm", "eventStatus", visibility }, query, queryArgs,
+			"eventLocation", "begin", "end", "allDay", "hasAlarm", "eventStatus", visibility, Events.RRULE,
+						Events.CALENDAR_ID  }, query, queryArgs,
 			"startDay ASC, startMinute ASC");
 
 		if (eventCursor == null) {
@@ -117,13 +120,23 @@ public class EventProxy extends KrollProxy {
 			event.hasAlarm = !eventCursor.getString(7).equals("0");
 			event.status = eventCursor.getInt(8);
 			event.visibility = eventCursor.getInt(9);
-
+			event.setRecurrenceRules(eventCursor.getString(10), eventCursor.getInt(11));
 			events.add(event);
 		}
 
 		eventCursor.close();
 
 		return events;
+	}
+
+	@Kroll.method
+	public void save() {
+		// Currently only saving added recurrenceRules.
+		String ruleToSave = ((RecurrenceRuleProxy) ((Object[]) getProperty(TiC.PROPERTY_RECURRENCE_RULES))[0]).generateRRULEString();
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(Events.RRULE, ruleToSave);
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		contentResolver.update(Events.CONTENT_URI, contentValues, Events._ID+"=?", new String[]{id});
 	}
 
 	public static ArrayList<EventProxy> queryEvents(Uri uri, String query, String[] queryArgs, String orderBy)
@@ -319,6 +332,10 @@ public class EventProxy extends KrollProxy {
 		return ReminderProxy.createReminder(this, minutes, method);
 	}
 
+	@Kroll.method RecurrenceRuleProxy createRecurrenceRule(KrollDict data) {
+		return new RecurrenceRuleProxy(data);
+	}
+
 	@Kroll.method @Kroll.getProperty
 	public AlertProxy[] getAlerts()
 	{
@@ -404,10 +421,16 @@ public class EventProxy extends KrollProxy {
 		return visibility;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getRecurrenceRule()
+	public void setRecurrenceRules(String rrule, int calendarID)
 	{
-		return recurrenceRule;
+		RecurrenceRuleProxy[] result;
+		if (rrule != null) {
+			result = new RecurrenceRuleProxy[1];
+			result[0] = new RecurrenceRuleProxy(rrule, calendarID, begin);;
+		} else {
+			result = new RecurrenceRuleProxy[]{};
+		}
+		setProperty(TiC.PROPERTY_RECURRENCE_RULES, result);
 	}
 
 	@Kroll.getProperty @Kroll.method
