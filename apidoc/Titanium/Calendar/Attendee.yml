@@ -49,7 +49,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
-    - name: relationship
+  - name: relationship
     summary: The relationship of the attendee to the user.
     type: Number
     constants: Titanium.Calendar.RELATIONSHIP_*
