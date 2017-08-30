@@ -492,8 +492,8 @@ properties:
     summary: Attendee status is unknown.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: "6.0.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_STATUS_PENDING
     summary: Attendee status is pending.
@@ -506,22 +506,36 @@ properties:
     summary: Attendee status is accepted.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: "6.0.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_STATUS_DECLINED
     summary: Attendee status is declined.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: "6.0.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_STATUS_TENTATIVE
     summary: Attendee status is tentative.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: "6.0.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+
+  - name: ATTENDEE_STATUS_INVITED
+    summary: Attendee status is invited.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "6.2.0"}
+
+  - name: ATTENDEE_STATUS_NONE
+    summary: There is no Attendee status.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "6.2.0"}
 
   - name: ATTENDEE_STATUS_DELEGATED
     summary: Attendee status is delegated.
@@ -536,6 +550,48 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "6.0.0"
+
+  - name: RELATIONSHIP_ATTENDEE
+    summary: Relationship is attendee.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: RELATIONSHIP_NONE
+    summary: There is no relationship.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: RELATIONSHIP_ORGANIZER
+    summary: Attendee is organizer.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: RELATIONSHIP_PERFORMER
+    summary: Attendee is performer.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: RELATIONSHIP_SPEAKER
+    summary: Attendee is speaker.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
+
+  - name: RELATIONSHIP_UNKNOWN
+    summary: Relationship is unknown.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "6.2.0"
 
   - name: ATTENDEE_ROLE_UNKNOWN
     summary: Attendee role is unknown.
@@ -576,8 +632,8 @@ properties:
     summary: Attendee type is unknown.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: "6.0.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_TYPE_PERSON
     summary: Attendee type is person.
@@ -597,8 +653,22 @@ properties:
     summary: Attendee type is resource.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: "6.0.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+
+  - name: ATTENDEE_TYPE_NONE
+    summary: There is not attendee type.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "6.2.0"}
+
+  - name: ATTENDEE_TYPE_REQUIRED
+    summary: Attendee type is required.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "6.2.0"}
 
   - name: ATTENDEE_TYPE_GROUP
     summary: Attendee type is group.
