@@ -4885,7 +4885,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					'-60@3x':       { height: 60,   width: 60,   scale: 3, idioms: [ 'iphone' ], required: true },
 					'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
 					'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
-					'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ], minXcodeVer: '7.2' }
+					'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ], minXcodeVer: '7.2' },
+					'-Marketing':   { height: 1024, width: 1024, scale: 1, idioms: [ 'ios-marketing' ], required: true, minXcodeVer: '9.0' }
 				},
 				deviceFamily = this.deviceFamily,
 				flattenIcons = [],
