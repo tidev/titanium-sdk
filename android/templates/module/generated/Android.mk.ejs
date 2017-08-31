@@ -21,9 +21,9 @@ ABS_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
 BOOTSTRAP_CPP := $(wildcard $(LOCAL_PATH)/../*Bootstrap.cpp)
 
 GPERF := gperf
-ifeq ($(OS), Windows_NT)
-GPERF := $(TI_MOBILE_SDK)\build\win32\gperf
-endif
+# ifeq ($(OS), Windows_NT)
+# GPERF := $(TI_MOBILE_SDK)\build\win32\gperf
+# endif
 
 LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES)) \
 	$(patsubst $(LOCAL_PATH)/%,%,$(BOOTSTRAP_CPP))
