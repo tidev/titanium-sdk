@@ -73,7 +73,7 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
 	} else {
 		// Resource sets under a qualifier all need to be merged into a single values
 		// file so we adjust the destination path here if necessary
-		var valueResourcesPattern = new RegExp('(values(?:-[^' + path.sep + ']+)?)' + path.sep + '[^' + path.sep + ']+$', 'i');
+		var valueResourcesPattern = new RegExp('(values(?:-[^\\' + path.sep + ']+)?)\\' + path.sep + '[^\\' + path.sep + ']+$', 'i');
 		var match = dest.match(valueResourcesPattern);
 		if (match !== null) {
 			var resourceQualifier = match[1];
