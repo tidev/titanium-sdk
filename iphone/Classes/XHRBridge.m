@@ -59,7 +59,7 @@ static XHRBridge *xhrBridge = nil;
 	NSString *module = [parts objectAtIndex:1];
 	NSString *method = [parts objectAtIndex:2];
 	NSString *prearg = [url query];
-	NSString *arguments = prearg==nil ? @"" : [prearg stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	NSString *arguments = prearg==nil ? @"" : [prearg stringByRemovingPercentEncoding];
 
 	// Decode Ascii unicode-characters
 	NSString *decodevalue = [[NSString alloc] initWithData:[arguments dataUsingEncoding:NSUTF8StringEncoding]
