@@ -75,6 +75,7 @@ properties:
     platforms: [iphone, ipad, android]
     availability: creation
     platforms: [iphone, ipad, android]
+    accessors: false
     
   - name: translucent
     summary: If `true`, a translucent background color is used for the toolbar.
