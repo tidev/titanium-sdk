@@ -1,12 +1,12 @@
 ---
 name: Titanium.UI.Android.DrawerLayout
-summary: A panel that displays the app’s main navigation options on the left edge of the screen.
+summary: A panel that displays the app's main navigation options on the left edge of the screen.
 description: |
-    DrawerLayout acts as a top-level container for window content that allows for interactive "drawer" 
+    DrawerLayout acts as a top-level container for window content that allows for interactive "drawer"
     views to be pulled out from one or both vertical edges of the window.
 
-    As per the Android Design guide, any drawers positioned to the left/start should always contain 
-    content for navigating around the application, whereas any drawers positioned to the right/end 
+    As per the Android Design guide, any drawers positioned to the left/start should always contain
+    content for navigating around the application, whereas any drawers positioned to the right/end
     should always contain actions to take on the current content.
 
     For design guidelines, see
@@ -99,13 +99,13 @@ examples:
   - title: Simple DrawerLayout
     example: |
         The following code shows a simple drawer-layout usage.
-        
+
             var win = Ti.UI.createWindow();
-            
+
             var leftView = Ti.UI.createView({ backgroundColor:'red' });
             var centerView = Ti.UI.createView({ backgroundColor:'yellow' });
             var rightView = Ti.UI.createView({ backgroundColor:'orange' });
-            
+
             var drawer = Ti.UI.Android.createDrawerLayout({
                 leftView: leftView,
                 centerView: centerView,
