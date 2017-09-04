@@ -75,6 +75,7 @@ properties:
     platforms: [iphone, ipad, android]
     availability: creation
     platforms: [iphone, ipad, android]
+    accessors: false
     
   - name: translucent
     summary: If `true`, a translucent background color is used for the toolbar.
@@ -265,8 +266,6 @@ examples:
             win.add(toolbar);
             win.open();
         
-        
-
   - title: Toolbar (iOS) with extended background
     example: |
         The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar (**iOS 7 only**). 
@@ -292,7 +291,7 @@ examples:
                 systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
-            var toolbar = Ti.UI.iOS.createToolbar({
+            var toolbar = Ti.UI.createToolbar({
                 items: [send, flexSpace, camera, flexSpace, cancel],
                 top: 20,
                 extendBackground: true
@@ -307,12 +306,12 @@ examples:
         flexible space buttons in the toolbar. Without the flexible spaces in this example, 
         the toolbar buttons would be grouped tightly together on the left side of the toolbar.
 
-  - title: Alloy XML Markup
+  - title: Alloy Example (simple Toolbar)
     example: |
         Simple Toolbar example as an Alloy view.
 
             <Alloy>
-                <Window id="win">
+                <Window>
                     <Toolbar bottom="0">
 
                         <!-- The Items tag sets the Toolbar.items property. -->
@@ -326,30 +325,33 @@ examples:
                 </Window>
             </Alloy>
 
-  - title: Alloy XML Markup
+  - title: Alloy Example (Toolbar as ActionBar)
     example: |
         Example how to set up Toolbar as an ActionBar
 
-        <Alloy>
-            <Window title="My Test App" backgroundColor="gray" customToolbar="toolbar">
-                <Toolbar
-                         id="toolbar"
-                         title="MyMenu"
-                         subtitle="Subtitle"
-                         width="Ti.UI.FILL"
-                         top=0
-                         barColor="#639851"
-                         displayHomeAsUp="true"
-                         homeButtonEnabled="true"
-                         overflowIcon="logo.png">
-                     <Items>
-                        <Button id="ok" title="OK"/>
-                        <Button id="cancel" title="Cancel"/>
-                    </Items>
-                </Toolbar>
-                <Menu>
-                    <MenuItem id="item1" title="Settings" showAsAction="Ti.Android.SHOW_AS_ACTION_NEVER"/>
-                    <MenuItem id="item2" title="Search" showAsAction="Ti.Android.SHOW_AS_ACTION_NEVER"/>
-                </Menu> 
-            </Window>
-        </Alloy>
+            <Alloy>
+                <Window title="My Test App" backgroundColor="gray" customToolbar="toolbar">
+                    <Toolbar
+                        title="MyMenu"
+                        subtitle="Subtitle"
+                        width="Ti.UI.FILL"
+                        top="0"
+                        barColor="#639851"
+                        displayHomeAsUp="true"
+                        homeButtonEnabled="true"
+                        overflowIcon="logo.png">
+
+                        <!-- The Items tag sets the Toolbar.items property. -->
+                        <Items>
+                            <Button id="ok" title="OK"/>
+                            <Button id="cancel" title="Cancel"/>
+                        </Items>
+                    </Toolbar>
+                    
+                    <!-- The MenuItem's to be mapped to the toolbar -->
+                    <Menu>
+                        <MenuItem id="item1" title="Settings" showAsAction="Ti.Android.SHOW_AS_ACTION_NEVER"/>
+                        <MenuItem id="item2" title="Search" showAsAction="Ti.Android.SHOW_AS_ACTION_NEVER"/>
+                    </Menu> 
+                </Window>
+            </Alloy>
