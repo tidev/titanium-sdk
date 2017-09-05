@@ -205,7 +205,8 @@ public class TiTableView extends TiSwipeRefreshLayout
 				if (Build.VERSION.SDK_INT > 23) {
 					ArrayList<Item> models = viewModel.getViewModel();
 					if (models != null && models.contains(v.getRowData())) {
-						return v;
+						v = null;
+						sameView = true;
 					}
 				}
 
