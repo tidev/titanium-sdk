@@ -768,12 +768,10 @@ class FrameworkInspector {
 				}
 
 				let type;
-				if (stdout.indexOf('current ar archive') !== -1) {
-					type = FRAMEWORK_TYPE_STATIC;
-				} else if (stdout.indexOf('dynamically linked shared library') !== -1) {
+				if (stdout.indexOf('dynamically linked shared library') !== -1) {
 					type = FRAMEWORK_TYPE_DYNAMIC;
 				} else {
-					return reject(new Error('Unknown framework type:\n' + stdout));
+					type = FRAMEWORK_TYPE_STATIC;
 				}
 
 				resolve({
