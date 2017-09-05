@@ -286,6 +286,7 @@ public class TiCompositeLayout extends ViewGroup
         int wRemain = w;
         int wMode = MeasureSpec.getMode(widthMeasureSpec);
         int h = Math.max(hFromSpec, hSuggested);
+        int hRemain = h;
         int hMode = MeasureSpec.getMode(heightMeasureSpec);
 
         int maxWidth = 0;
@@ -298,7 +299,7 @@ public class TiCompositeLayout extends ViewGroup
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != View.GONE) {
-                constrainChild(child, w, wMode, h, hMode, wRemain, h - maxHeight);
+                constrainChild(child, w, wMode, h, hMode, wRemain, hRemain);
             }
 
             int childWidth = child.getMeasuredWidth();
@@ -336,6 +337,7 @@ public class TiCompositeLayout extends ViewGroup
                     // the widths since it doesn't wrap
                     maxWidth += childWidth;
                 }
+                hRemain = h - maxHeight;
                 horizontalRowHeight = Math.max(horizontalRowHeight, childHeight);
 
             } else {
