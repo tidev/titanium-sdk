@@ -18,7 +18,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 
 
 /**
