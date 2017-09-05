@@ -23,7 +23,6 @@ import ti.modules.titanium.ui.RefreshControlProxy;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
