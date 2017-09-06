@@ -1,14 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2012-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2012-2017 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.view;
-
-import java.util.Arrays;
-
-import org.appcelerator.kroll.common.Log;
 
 import com.nineoldandroids.view.ViewHelper;
 
@@ -18,7 +14,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
-import android.graphics.Path.FillType;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -34,118 +29,80 @@ import android.graphics.Outline;
  */
 public class TiBorderWrapperView extends FrameLayout
 {
-	public static final int SOLID = 0;
 	private static final String TAG = "TiBorderWrapperView";
 
 	private int color = Color.TRANSPARENT;
-	private int bgColor = Color.TRANSPARENT;
+	private int backgroundColor = Color.TRANSPARENT;
 	private float radius = 0;
 	private float borderWidth = 0;
 	private int alpha = -1;
-	private RectF outerRect, innerRect;
-	private Path innerPath;
-	private Path borderPath;
 	private Paint paint;
-	private View child;
-	private Rect bounds = new Rect();
+	private Rect bounds;
+	private ViewOutlineProvider viewOutlineProvider;
 
 	public TiBorderWrapperView(Context context)
 	{
 		super(context);
-		outerRect = new RectF();
-		innerRect = new RectF();
-		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		setWillNotDraw(false);
+
+		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		bounds = new Rect();
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
-		updateBorderPath();
-		drawBorder(canvas);
-		if (radius > 0) {
-			// This still happens sometimes when hw accelerated so, catch and warn
-			try {
-				// If the view's background color is not transparent, we draw the background first
-				if (bgColor != Color.TRANSPARENT) {
-					paint.setColor(bgColor);
-					canvas.drawPath(innerPath, paint);
-				}
-				// Then we clip it to ensure anti-aliasing.
-				canvas.clipPath(innerPath);
-				
-				// Then we clear the clipped region so when the view draws, alpha doesn't stack if bgColor
-				// has an alpha that is less than 1. We then reset the color and alpha.
-				if (bgColor != Color.TRANSPARENT) {
-					canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-					setAlphaAndColor();
-				}
-			} catch (Exception e) {
-				Log.w(TAG, "clipPath failed on canvas: " + e.getMessage(), Log.DEBUG_MODE);
+		getDrawingRect(bounds);
+
+		int maxPadding = (int) Math.min(bounds.right / 2, bounds.bottom / 2);
+		int padding = (int) Math.min(borderWidth, maxPadding);
+		RectF innerRect = new RectF(bounds.left + padding, bounds.top + padding, bounds.right - padding, bounds.bottom - padding);
+		RectF outerRect = new RectF(bounds);
+
+		paint.setColor(color);
+		if (alpha > -1) {
+			paint.setAlpha(alpha);
+		}
+
+		Path outerPath = new Path();
+		if (radius > 0f) {
+			float innerRadius = radius - padding;
+			if (innerRadius > 0f) {
+				outerPath.addRoundRect(innerRect, innerRadius, innerRadius, Direction.CW);
+			} else {
+				outerPath.addRect(innerRect, Direction.CW);
+			}
+			Path innerPath = new Path(outerPath);
+
+			// draw border
+			outerPath.addRoundRect(outerRect, radius, radius, Direction.CW);
+			canvas.drawPath(outerPath, paint);
+
+			// TIMOB-16909: hack to fix anti-aliasing
+			if (backgroundColor != Color.TRANSPARENT) {
+				paint.setColor(backgroundColor);
+				canvas.drawPath(innerPath, paint);
+			}
+			canvas.clipPath(innerPath);
+			if (backgroundColor != Color.TRANSPARENT) {
+				canvas.drawColor(0, PorterDuff.Mode.CLEAR);
 			}
 		} else {
+			outerPath.addRect(outerRect, Direction.CW);
+			outerPath.addRect(innerRect, Direction.CW);
+			canvas.drawPath(outerPath, paint);
 			canvas.clipRect(innerRect);
 		}
-	}
 
-	private void updateBorderPath()
-	{
-		getDrawingRect(bounds);
-		outerRect.set(bounds);
-
-		int padding = 0;
-		int maxPadding = 0;
-		// cap padding to current bounds
-		maxPadding = (int) Math.min(outerRect.right / 2, outerRect.bottom / 2);
-		padding = (int) Math.min(borderWidth, maxPadding);
-		innerRect.set(bounds.left + padding, bounds.top + padding, bounds.right - padding, bounds.bottom - padding);
-
-		if (radius > 0) {
-			float outerRadii[] = new float[8];
-			Arrays.fill(outerRadii, radius);
-			borderPath = new Path();
-			borderPath.addRoundRect(outerRect, outerRadii, Direction.CW); 
-			borderPath.setFillType(FillType.EVEN_ODD);
-			innerPath = new Path();
-			innerPath.setFillType(FillType.EVEN_ODD);
-			if (radius - padding > 0) {
-				float innerRadii[] = new float[8];
-				Arrays.fill(innerRadii, radius - padding);
-				innerPath.addRoundRect(innerRect, innerRadii, Direction.CW);
-				borderPath.addRoundRect(innerRect, innerRadii, Direction.CCW);
-			} else {
-				innerPath.addRect(innerRect, Direction.CW);
-				borderPath.addRect(innerRect, Direction.CCW);
-			}
-		} else {
-			borderPath = new Path();
-			borderPath.addRect(outerRect, Direction.CW);
-			borderPath.addRect(innerRect, Direction.CCW);
-			borderPath.setFillType(FillType.EVEN_ODD);
-		}
-		// set the outline for the view in order to use elevation
-		if (Build.VERSION.SDK_INT >= 21) {
-			ViewOutlineProvider viewOutlineProvider = new ViewOutlineProvider() {
+		// TIMOB-20076: set the outline for the view in order to use elevation
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && viewOutlineProvider == null) {
+			viewOutlineProvider = new ViewOutlineProvider() {
 				@Override
-				public void getOutline(View view, Outline outline) {				            
+				public void getOutline(View view, Outline outline) {
 					outline.setRoundRect(bounds, radius);
 				}
 			};
 			setOutlineProvider(viewOutlineProvider);
-		}
-	}
-
-	private void drawBorder(Canvas canvas)
-	{
-		setAlphaAndColor();
-		canvas.drawPath(borderPath, paint);
-	}
-
-	private void setAlphaAndColor()
-	{
-		paint.setColor(color);
-		if (alpha > -1) {
-			paint.setAlpha(alpha);
 		}
 	}
 
@@ -156,7 +113,7 @@ public class TiBorderWrapperView extends FrameLayout
 	
 	public void setBgColor(int color)
 	{
-		this.bgColor = color;
+		this.backgroundColor = color;
 	}
 
 	public void setRadius(float radius)
@@ -174,25 +131,13 @@ public class TiBorderWrapperView extends FrameLayout
 	{
 		if (Build.VERSION.SDK_INT < 11) {
 			/*
-			 * This is an ugly hack. ViewHelper.setAlpha does not work on border when 
-			 * alpha < 1. So we are going to manage alpha animation for ourselves and our
+			 * TIMOB-17287: This is an ugly hack. ViewHelper.setAlpha does not work on border
+			 * when alpha < 1. So we are going to manage alpha animation for ourselves and our
 			 * child view manually. This needs to be researched and factored out.
-			 * 
-			 * TIMOB-17287
 			 */
 			this.alpha = alpha;
-			float falpha = alpha/255.0f;
-			if (child == null) {
-				try {
-					child = getChildAt(0);
-				} catch (Throwable t) {
-					//Ignore this error.
-					child = null;
-				}
-			}
-			if (child != null) {
-				//Set alpha of child view
-				ViewHelper.setAlpha(child, falpha);
+			if (getChildCount() > 0) {
+				ViewHelper.setAlpha(getChildAt(0), alpha / 255.0f);
 			}
 			return true;
 		}
