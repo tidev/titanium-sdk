@@ -4,8 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+/* eslint-env mocha */
+/* global Ti */
+/* eslint no-unused-expressions: "off" */
+'use strict';
+var should = require('./utilities/assertions');
 
 describe('Titanium.UI.AlertDialog', function () {
 	it('apiName', function () {
@@ -28,7 +31,7 @@ describe('Titanium.UI.AlertDialog', function () {
 	});
 
 	// FIXME titleid doesn't seem to set title on iOS?
-	(utilities.isIOS() ? it.skip : it)('titleid', function () {
+	it.iosBroken('titleid', function () {
 		var bar = Ti.UI.createAlertDialog({
 			titleid: 'this_is_my_key'
 		});
@@ -58,20 +61,20 @@ describe('Titanium.UI.AlertDialog', function () {
 
 	// FIXME Get working on iOS - defaults to undefined, should be ['OK']
 	// FIXME Get working on Android - defaults to undefined, should be ['OK']
-	((utilities.isIOS() || utilities.isAndroid()) ? it.skip : it)('buttonNames', function () {
+	it.androidAndIosBroken('buttonNames', function () {
 		var bar = Ti.UI.createAlertDialog({});
 		should(bar.buttonNames).be.an.Array; // undefined on iOS and Android
 		should(bar.getButtonNames).be.a.Function;
 		should(bar.buttonNames).be.empty;
 		should(bar.getButtonNames()).be.empty;
-		bar.buttonNames = ['this','other'];
+		bar.buttonNames = [ 'this', 'other' ];
 		should(bar.buttonNames.length).eql(2);
 		should(bar.getButtonNames().length).eql(2);
 	});
 
 	// FIXME Get working on iOS - defaults to undefined, should be -1
 	// FIXME Get working on Android - defaults to undefined, should be -1
-	((utilities.isIOS() || utilities.isAndroid()) ? it.skip : it)('cancel', function (finish) {
+	it.androidAndIosBroken('cancel', function () {
 		var bar = Ti.UI.createAlertDialog({});
 		should(bar.cancel).be.a.Number; // undefined on iOS and Android
 		should(bar.getCancel).be.a.Function;
@@ -79,26 +82,25 @@ describe('Titanium.UI.AlertDialog', function () {
 		should(bar.cancel).eql(1);
 		should(bar.getCancel()).eql(1);
 	});
-	
-	// Skip on other platforms, since it's an iOS-only property
-	(utilities.isIOS() ? it : it.skip)('tintColor', function () {
+
+	it.ios('tintColor', function () {
 		var bar = Ti.UI.createAlertDialog({
 			tintColor: 'red'
 		});
-		
+
 		// Check getter
 		should(bar.tintColor).be.a.String;
 		should(bar.getTintColor).be.a.Function;
 		should(bar.tintColor).eql('red');
 		should(bar.getTintColor()).eql('red');
-		
+
 		// Set new value
 		bar.tintColor = '#f00';
-		
+
 		// Check getter again
 		should(bar.tintColor).eql('#f00');
 		should(bar.getTintColor()).eql('#f00');
-		
+
 		// Check setter
 		should(bar.setTintColor).be.a.Function;
 		bar.setTintColor('#0f0');

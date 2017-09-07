@@ -1,16 +1,20 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* eslint-env mocha */
+/* global Ti, Titanium */
+/* eslint no-unused-expressions: "off" */
+'use strict';
 var should = require('./utilities/assertions'),
 	utilities = require('./utilities/utilities'),
 	didFocus = false;
 
 describe('Titanium.UI.TextField', function () {
 
-	beforeEach(function() {
+	beforeEach(function () {
 		didFocus = false;
 	});
 
@@ -36,7 +40,7 @@ describe('Titanium.UI.TextField', function () {
 	});
 
 	// Skip on Windows Phone since not available, yet
-	(!(utilities.isIOS() || utilities.isAndroid()) ? it.skip : it)('padding', function () {
+	it.windowsMissing('padding', function () {
 		var textfield = Ti.UI.createTextField({
 			value: 'this is some text',
 			padding: {
@@ -69,6 +73,7 @@ describe('Titanium.UI.TextField', function () {
 			value: 'this is some text',
 			textAlign: Titanium.UI.TEXT_ALIGNMENT_CENTER
 		});
+		// FIXME Parity issue!
 		if (utilities.isAndroid()) {
 			should(textfield.textAlign).be.a.String;
 		} else {
@@ -87,6 +92,7 @@ describe('Titanium.UI.TextField', function () {
 			value: 'this is some text',
 			verticalAlign: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM
 		});
+		// FIXME Parity issue!
 		if (utilities.isAndroid()) {
 			should(textfield.verticalAlign).be.a.String;
 		} else {
@@ -101,7 +107,7 @@ describe('Titanium.UI.TextField', function () {
 	});
 
 	// FIXME Defaults to undefined on Android. Docs say default is false
-	(utilities.isAndroid() ? it.skip : it)('passwordMask', function () {
+	it.androidBroken('passwordMask', function () {
 		var text = 'this is some text',
 			textfield = Ti.UI.createTextField({
 				value: text
@@ -154,7 +160,7 @@ describe('Titanium.UI.TextField', function () {
 		should(textfield.getHintTextColor()).eql('blue');
 	});
 
-	(utilities.isIOS() ? it.skip : it)('hintType', function () {
+	it.iosBroken('hintType', function () {
 		var textfield = Ti.UI.createTextField({
 			hintText: 'Enter E-Mail ...',
 			hintType: Ti.UI.HINT_TYPE_ANIMATED
@@ -167,15 +173,16 @@ describe('Titanium.UI.TextField', function () {
 		should(textfield.getHintType()).eql(Ti.UI.HINT_TYPE_STATIC);
 	});
 
-	it.skip('width', function (finish) {
+	// FIXME win.width is undefined on Android and iOS here. Test needs to be rewritten
+	it.androidAndIosBroken('width', function (finish) {
 		this.timeout(5000);
 		var textfield = Ti.UI.createTextField({
-			value: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec ullamcorper massa, eget tempor sapien. Phasellus nisi metus, tempus a magna nec, ultricies rutrum lacus. Aliquam sit amet augue suscipit, dignissim tellus eu, consectetur elit. Praesent ligula velit, blandit vel urna sit amet, suscipit euismod nunc.',
-			width: Ti.UI.SIZE
-		});
-		var win = Ti.UI.createWindow({
-			backgroundColor: '#ddd'
-		});
+				value: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec ullamcorper massa, eget tempor sapien. Phasellus nisi metus, tempus a magna nec, ultricies rutrum lacus. Aliquam sit amet augue suscipit, dignissim tellus eu, consectetur elit. Praesent ligula velit, blandit vel urna sit amet, suscipit euismod nunc.',
+				width: Ti.UI.SIZE
+			}),
+			win = Ti.UI.createWindow({
+				backgroundColor: '#ddd'
+			});
 		win.add(textfield);
 		win.addEventListener('focus', function () {
 			var error;
@@ -187,7 +194,7 @@ describe('Titanium.UI.TextField', function () {
 				error = err;
 			}
 
-			setTimeout(function() {
+			setTimeout(function () {
 				win.close();
 				finish(error);
 			}, 3000);
@@ -196,7 +203,7 @@ describe('Titanium.UI.TextField', function () {
 	});
 
 	// FIXME Intermittently failing on Android on build machine, I think due to test timeout
-	(utilities.isAndroid() ? it.skip : it)('height', function (finish) {
+	it.androidBroken('height', function (finish) {
 		this.timeout(5000);
 		var textfield = Ti.UI.createTextField({
 				value: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec ullamcorper massa, eget tempor sapien. Phasellus nisi metus, tempus a magna nec, ultricies rutrum lacus. Aliquam sit amet augue suscipit, dignissim tellus eu, consectetur elit. Praesent ligula velit, blandit vel urna sit amet, suscipit euismod nunc.',
@@ -218,7 +225,9 @@ describe('Titanium.UI.TextField', function () {
 		win.addEventListener('focus', function () {
 			var error;
 
-			if (didFocus) return;
+			if (didFocus) {
+				return;
+			}
 			didFocus = true;
 
 			try {
@@ -228,7 +237,7 @@ describe('Titanium.UI.TextField', function () {
 				error = err;
 			}
 
-			setTimeout(function() {
+			setTimeout(function () {
 				win.close();
 				finish(error);
 			}, 3000);
