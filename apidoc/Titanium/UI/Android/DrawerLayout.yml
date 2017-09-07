@@ -16,37 +16,64 @@ since: "6.2.0"
 platforms: [android]
 
 properties:
+  - name: LOCK_MODE_LOCKED_CLOSED
+    summary: |
+        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the drawer is locked closed.
+    type: Number
+    permission: read-only
+
+  - name: LOCK_MODE_LOCKED_OPEN
+    summary: |
+        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the drawer is locked opened.
+    type: Number
+    permission: read-only
+
+  - name: LOCK_MODE_UNDEFINED
+    summary: |
+        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the drawer is reset to default lock state.
+    type: Number
+    permission: read-only
+
+  - name: LOCK_MODE_UNLOCKED
+    summary: |
+        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the drawer is unlocked.
+    type: Number
+    permission: read-only
 
   - name: isLeftOpen
     summary: Determine whether the left drawer is open
     type: Boolean
+    default: false
 
   - name: isRightOpen
     summary: Determine whether the right drawer is open
     type: Boolean
+    default: false
 
   - name: isLeftVisible
     summary: Determine whether the left drawer is visible
     type: Boolean
+    default: false
 
   - name: isRightVisible
     summary: Determine whether the right drawer is visible
     type: Boolean
+    default: false
 
   - name: leftWidth
-    summary: Get or set the width of the left draw
+    summary: Get or set the width of the left drawer
     type: Number
 
   - name: rightWidth
-    summary: Get or set the width of the right draw
+    summary: Get or set the width of the right drawer
     type: Number
 
   - name: leftView
-    summary: Get or set the view of the left draw
+    summary: Get or set the view of the left drawer
     type: Titanium.UI.View
 
   - name: rightView
-    summary: Get or set the view of the right draw
+    summary: Get or set the view of the right drawer
     type: Titanium.UI.View
 
   - name: centerView
@@ -56,14 +83,18 @@ properties:
   - name: drawerIndicatorEnabled
     summary: Determine the drawer indicator status
     type: Boolean
+    default: true
 
   - name: drawerLockMode
     summary: Get or set the drawerLockMode
     type: Number
+    constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
+    default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
 
   - name: toolbarEnabled
     summary: Determine whether to enable the toolbar
     type: Boolean
+    default: true
 
 methods:
   - name: toggleLeft
