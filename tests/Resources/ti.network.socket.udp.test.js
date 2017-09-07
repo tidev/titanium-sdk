@@ -10,8 +10,22 @@
 'use strict';
 var should = require('./utilities/assertions');
 
-// TODO Skip on other platforms that are broken?
-describe('Titanium.Network.Socket.UDP', function () {
+describe.windows('Titanium.Network.Socket', function () {
+
+	it('#createUDP()', function () {
+		var socket = Ti.Network.Socket.createUDP({
+			started: function () {
+				setTimeout(function () {
+					socket.stop();
+				}, 1000);
+			}
+		});
+		should(socket).have.readOnlyProperty('apiName').which.is.a.String;
+		should(socket.apiName).be.eql('Ti.Network.Socket.UDP');
+	});
+});
+
+describe.windows('Titanium.Network.Socket.UDP', function () {
 	this.timeout(6e4);
 
 	it('#start(Integer)', function (finish) {
@@ -25,7 +39,7 @@ describe('Titanium.Network.Socket.UDP', function () {
 				}, 1000);
 			},
 			error: function (e) {
-				should(true).not.be.true;
+				finish(e);
 			}
 		});
 		should(socket.start).not.be.null;
@@ -42,7 +56,7 @@ describe('Titanium.Network.Socket.UDP', function () {
 					socket.sendString(e.port, e.address, 'Hello, World!');
 				}, 1000);
 			},
-			data: function(e) {
+			data: function (e) {
 				should(e.address).not.be.null;
 				should(e.port).not.be.null;
 				should(e.stringData).not.be.null;
@@ -67,7 +81,7 @@ describe('Titanium.Network.Socket.UDP', function () {
 				should(e.address).not.be.null;
 				should(e.port).not.be.null;
 				setTimeout(function () {
-					socket.sendBytes(e.port, e.address, [73, 116, 32, 119, 111, 114, 107, 115, 33]);
+					socket.sendBytes(e.port, e.address, [ 73, 116, 32, 119, 111, 114, 107, 115, 33 ]);
 				}, 1000);
 			},
 			data: function (e) {
