@@ -83,11 +83,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 {
 	private static final String TAG = "TiBaseActivity";
 
-	private final String customToolbarExceptionMessage = "Trying to use Toolbar as ActionBar without disabling the default ActionBar in the used theme.\n" +
-																"Set 'windowActionBar' to false in your theme in order to do that. The following bundled themes:\n" +
-																"[Theme.Titanium, Theme.AppCompat.Translucent.NoTitleBar, Theme.AppCompat.NoTitleBar] are with\n" +
-																"disabled default ActionBar. You could use one of them.";
-
 	private static OrientationChangedListener orientationChangedListener = null;
 	private OrientationEventListener orientationListener;
 
@@ -760,7 +755,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			try {
 				this.setSupportActionBar(((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)).getToolbarInstance()));
 			} catch (RuntimeException e) {
-				Log.e(TAG, customToolbarExceptionMessage);
+				Log.e(TAG, "Attempting to use Toolbar as ActionBar without disabling the default ActionBar in the current theme.\n" +
+						"You must set 'windowActionBar' to false in your current theme. Or use one of the following themes:\n" +
+						" - Theme.Titanium\n - Theme.AppCompat.Translucent.NoTitleBar\n - Theme.AppCompat.NoTitleBar\n" +
+						"Which have ActionBar disabled by default.");
 				TiApplication.terminateActivityStack();
 				finish();
 			}
