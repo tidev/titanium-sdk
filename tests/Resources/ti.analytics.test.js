@@ -52,11 +52,12 @@ describe('Titanium.Analytics', function () {
 	it('#featureEvent() validate limitations', function () {
 		var payloads = require('./analytics/featureEventPayload.json'),
 			tests = {
-				"largeInvalid": -1,
-				"complexInvalid": -1,
-				"complexValid": 0,
-				"maxKeysInvalid": -1
-			};
+				'largeInvalid': -1,
+				'complexInvalid': -1,
+				'complexValid': 0,
+				'maxKeysInvalid': -1
+			},
+			t;
 		for (t in tests) {
 			should(Ti.Analytics.featureEvent(tests[t], payloads[t])).be.eql(tests[t]);
 		}
