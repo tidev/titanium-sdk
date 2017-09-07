@@ -4,92 +4,113 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+/* eslint-env mocha */
+/* global Titanium */
+/* eslint no-unused-expressions: "off" */
+'use strict';
 
-describe('Titanium.UI.Android.DrawerLayout', function () {
+var should = require('./utilities/assertions');
 
-	(utilities.isAndroid() ? it : it.skip)('isLeftOpen', function () {
+describe.android('Titanium.UI.Android', function () {
+	it('#createDrawerLayout', function () {
+		var drawerLayout;
 		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
-		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
+		drawerLayout = Titanium.UI.Android.createDrawerLayout();
 		should(drawerLayout).be.a.Object;
+	});
+});
+
+describe.android('Titanium.UI.Android.DrawerLayout', function () {
+	// constants
+	it('LOCK_MODE_LOCKED_CLOSED', function () {
+		should(Titanium.UI.Android.DrawerLayout).have.constant('LOCK_MODE_LOCKED_CLOSED').which.is.a.Number;
+	});
+	it('LOCK_MODE_LOCKED_OPEN', function () {
+		should(Titanium.UI.Android.DrawerLayout).have.constant('LOCK_MODE_LOCKED_OPEN').which.is.a.Number;
+	});
+	it('LOCK_MODE_UNLOCKED', function () {
+		should(Titanium.UI.Android.DrawerLayout).have.constant('LOCK_MODE_UNLOCKED').which.is.a.Number;
+	});
+	it('LOCK_MODE_UNDEFINED', function () {
+		should(Titanium.UI.Android.DrawerLayout).have.constant('LOCK_MODE_UNDEFINED').which.is.a.Number;
+	});
+
+	// properties
+	it('isLeftOpen', function () {
+		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
 		should(drawerLayout.isLeftOpen).be.a.Boolean;
+		should(drawerLayout.isLeftOpen).be.false; // default value
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('isRightOpen', function () {
-		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
+	it('isRightOpen', function () {
 		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
-		should(drawerLayout).be.a.Object;
 		should(drawerLayout.isRightOpen).be.a.Boolean;
+		should(drawerLayout.isRightOpen).be.false; // default value
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('isLeftVisible', function () {
-		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
+	it('isLeftVisible', function () {
 		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
-		should(drawerLayout).be.a.Object;
 		should(drawerLayout.isLeftVisible).be.a.Boolean;
+		should(drawerLayout.isLeftVisible).be.false; // default value
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('isRightVisible', function () {
-		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
+	it('isRightVisible', function () {
 		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
-		should(drawerLayout).be.a.Object;
 		should(drawerLayout.isRightVisible).be.a.Boolean;
+		should(drawerLayout.isRightVisible).be.false; // default value
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('leftWidth', function () {
-		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
+	it('leftWidth', function () {
 		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
-		should(drawerLayout).be.a.Object;
-		should(drawerLayout.leftWidth).be.a.Number;
+		// should(drawerLayout.leftWidth).be.a.Number;
+		// FIXME Default value is undefined, can't verify it's supposed to be a number unless we've opened the left drawer
+		should(drawerLayout.leftWidth).be.undefined;
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('rightWidth', function () {
-		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
+	it('rightWidth', function () {
 		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
-		should(drawerLayout).be.a.Object;
-		should(drawerLayout.rightWidth).be.a.Number;
+		// should(drawerLayout.rightWidth).be.a.Number;
+		// FIXME Default value is undefined, can't verify it's supposed to be a number unless we've opened the right drawer
+		should(drawerLayout.rightWidth).be.undefined;
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('leftView', function () {
-		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
+	it('leftView', function () {
 		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
-		should(drawerLayout).be.a.Object;
-		should(drawerLayout.leftView).be.a.Object;
+		// should(drawerLayout.leftView).be.a.Object;
+		// FIXME Default value is undefined, can't verify it's supposed to be an object unless we've set a value
+		should(drawerLayout.leftView).be.undefined;
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('rightView', function () {
-		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
+	it('rightView', function () {
 		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
-		should(drawerLayout).be.a.Object;
-		should(drawerLayout.rightView).be.a.Object;
+		// should(drawerLayout.rightView).be.a.Object;
+		// FIXME Default value is undefined, can't verify it's supposed to be an object unless we've set a value
+		should(drawerLayout.rightView).be.undefined;
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('centerView', function () {
-		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
+	it('centerView', function () {
 		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
-		should(drawerLayout).be.a.Object;
-		should(drawerLayout.centerView).be.a.Object;
+		// should(drawerLayout.centerView).be.a.Object;
+		// FIXME Default value is undefined, can't verify it's supposed to be an object unless we've set a value
+		should(drawerLayout.centerView).be.undefined;
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('drawerIndicatorEnabled', function () {
-		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
+	it('drawerIndicatorEnabled', function () {
 		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
-		should(drawerLayout).be.a.Object;
 		should(drawerLayout.drawerIndicatorEnabled).be.a.Boolean;
+		should(drawerLayout.drawerIndicatorEnabled).be.true; // default value
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('drawerLockMode', function () {
-		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
+	it('drawerLockMode', function () {
 		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
-		should(drawerLayout).be.a.Object;
 		should(drawerLayout.drawerLockMode).be.a.Number;
+		should(drawerLayout.drawerLockMode).eql(Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED); // default value
+		// TODO Add tests that we enforce lock mode must be one of the constants defined!
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('toolbarEnabled', function () {
-		should(Titanium.UI.Android.createDrawerLayout).be.a.Function;
+	it('toolbarEnabled', function () {
 		var drawerLayout = Titanium.UI.Android.createDrawerLayout();
-		should(drawerLayout).be.a.Object;
 		should(drawerLayout.toolbarEnabled).be.a.Boolean;
+		should(drawerLayout.toolbarEnabled).be.true; // default value
 	});
 });
