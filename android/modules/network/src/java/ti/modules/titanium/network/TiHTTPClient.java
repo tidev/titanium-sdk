@@ -1279,10 +1279,6 @@ public class TiHTTPClient
 				connected = false;
 				setResponseText(result);
 
-				if (getStatus() >= 400) {
-					throw new IOException(getStatus() + " : " + getStatusText());
-				}
-
 				if (!aborted) {
 					setReadyState(READY_STATE_DONE);
 				}
