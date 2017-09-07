@@ -239,7 +239,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyyMMdd");
 		if (date != null) {
 			try {
-				endDictionary.put(until, sDateFormat.parse(date.substring(0,8)));
+				endDictionary.put(until, sDateFormat.parse(date.substring(0, 8)));
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
@@ -253,7 +253,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 	}
 
 	private void calculateInterval() {
-		String interval = matchExpression(".*(INTERVAL=[0-9]*).*",9);
+		String interval = matchExpression(".*(INTERVAL=[0-9]*).*", 9);
 		if (interval != null) {
 			this.interval = Integer.valueOf(interval);
 		}
