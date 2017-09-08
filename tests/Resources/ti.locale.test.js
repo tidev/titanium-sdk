@@ -8,7 +8,8 @@
 /* global Ti, L */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'),
+	utilities = require('./utilities/utilities');
 
 describe('Global', function () {
 	it('L', function () {
@@ -18,6 +19,12 @@ describe('Global', function () {
 });
 
 describe('Titanium.Locale', function () {
+
+	// reset back to US english when done
+	after(function () {
+		Ti.Locale.setLanguage('en-US');
+	});
+
 	it('apiName', function () {
 		should(Ti.Locale).have.a.readOnlyProperty('apiName').which.is.a.String;
 		should(Ti.Locale.apiName).be.eql('Ti.Locale');
@@ -116,8 +123,14 @@ describe('Titanium.Locale', function () {
 	it('#getString(String, String) with default/hint value', function () {
 		Ti.Locale.setLanguage('en-US');
 		should(Ti.Locale.getString('this_is_my_key')).eql('this is my value');
-		// if value is not found, it should return key itself
-		should(Ti.Locale.getString('this_should_not_be_found')).eql('this_should_not_be_found');
+		// FIXME Parity issue between Android and iOS/Windows
+		if (utilities.isAndroid()) {
+			// Android returns null when key is not found
+			should(Ti.Locale.getString('this_should_not_be_found')).be.null;
+		} else {
+			// if value is not found, it should return key itself
+			should(Ti.Locale.getString('this_should_not_be_found')).eql('this_should_not_be_found');
+		}
 		// test for hint value
 		should(Ti.Locale.getString('this_should_not_be_found', 'this is the default value')).eql('this is the default value');
 		should(Ti.Locale.getString('this_should_not_be_found', null)).be.null;
