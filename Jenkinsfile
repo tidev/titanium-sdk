@@ -2,8 +2,8 @@
 library 'pipeline-library'
 currentBuild.result = 'SUCCESS'
 
-// Keep logs/reports/etc of last 5 builds, only keep build artifacts of last 3 builds
-properties([buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '3'))])
+// Keep logs/reports/etc of last 15 builds, only keep build artifacts of last 3 builds
+properties([buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '3'))])
 
 // Variables which we assign and share between nodes
 // Don't modify these yourself
@@ -115,8 +115,8 @@ timestamps {
 			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 
 				stage('Lint') {
-					// Enforce npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
-					sh 'npm install -g npm@5.2'
+					// NPM 5.2.0 had a bug taht broke pruning to production, but latest npm 5.4.1 works well
+					sh 'npm install -g npm@5.4.1'
 
 					// Install dependencies
 					timeout(5) {

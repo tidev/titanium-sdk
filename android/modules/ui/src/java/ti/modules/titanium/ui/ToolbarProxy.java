@@ -138,4 +138,9 @@ public class ToolbarProxy extends TiToolbarProxy {
 	}
 	//endregion
 
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.Toolbar";
+	}
 }
