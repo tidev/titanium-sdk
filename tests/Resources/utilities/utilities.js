@@ -104,6 +104,9 @@ filters = {
 			return 'skip';
 		}
 		return true;
+	},
+	allBroken: function () {
+		return 'skip';
 	}
 };
 // Alias broken tests on a given platform to "missing" filter for that platform.
