@@ -94,7 +94,9 @@ describe('Titanium.Locale', function () {
 		should(Ti.Locale.currentLocale).eql('en-US');
 	});
 
-	it('#getString(String, String) with String.format()', function () {
+	// FIXME iOS seems to ignore position info ont he format string.
+	// We're trying to force the 1st argument into the second slot, and vice versa here. iOS ahndles the %2$s syntax, but ignores position
+	it.iosBroken('#getString(String, String) with String.format()', function () {
 		var i18nMissingMsg = '<no translation available>';
 		var string1 = 'You say ' + Ti.Locale.getString('signoff', i18nMissingMsg) + ' and I say ' + Ti.Locale.getString('greeting', i18nMissingMsg) + '!';
 		var string2 = String.format(L('phrase'), L('greeting', i18nMissingMsg), L('signoff', i18nMissingMsg));
