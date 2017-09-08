@@ -115,7 +115,7 @@ describe('Titanium.Locale', function () {
 
 	it('#getString(String, String) with default/hint value', function () {
 		Ti.Locale.setLanguage('en-US');
-		should(Ti.Locale.getString('this is my key')).eql('this is my value');
+		should(Ti.Locale.getString('this_is_my_key')).eql('this is my value');
 		// if value is not found, it should return key itself
 		should(Ti.Locale.getString('this_should_not_be_found')).eql('this_should_not_be_found');
 		// test for hint value
@@ -126,10 +126,10 @@ describe('Titanium.Locale', function () {
 
 	it('#getString(String) with different languages', function () {
 		Ti.Locale.setLanguage('en-US');
-		should(Ti.Locale.getString('this is my key')).eql('this is my value');
+		should(Ti.Locale.getString('this_is_my_key')).eql('this is my value');
 		Ti.Locale.setLanguage('en-GB');
-		should(Ti.Locale.getString('this is my key')).eql('this is my en-GB value');
+		should(Ti.Locale.getString('this_is_my_key')).eql('this is my en-GB value');
 		Ti.Locale.setLanguage('ja');
-		should(Ti.Locale.getString('this is my key')).eql('これは私の値です');
+		should(Ti.Locale.getString('this_is_my_key')).eql('これは私の値です');
 	});
 });
