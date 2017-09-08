@@ -99,7 +99,7 @@ class FrameworkManager {
 					this._frameworks.forEach(frameworkInfo => {
 						frameworkObject[frameworkInfo.name] = {
 							name: frameworkInfo.name,
-							path: frameworkInfo.name,
+							path: frameworkInfo.path,
 							type: frameworkInfo.type,
 							architectures: Array.from(frameworkInfo.architectures)
 						};
