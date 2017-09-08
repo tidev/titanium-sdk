@@ -17,13 +17,6 @@ describe('Titanium.Media', function () {
 });
 
 describe('Titanium.Media.Sound', function () {
-	var STATE_CONSTANTS = [
-			'STATE_BUFFERING', 'STATE_INITIALIZED', 'STATE_PAUSED', 'STATE_PLAYING',
-			'STATE_STARTING', 'STATE_STOPPED', 'STATE_STOPPING',
-			'STATE_WAITING_FOR_DATA', 'STATE_WAITING_FOR_QUEUE'
-		],
-		i;
-
 	it('apiName', function () {
 		var sound = Ti.Media.createSound();
 		should(sound).have.a.readOnlyProperty('apiName').which.is.a.String;
@@ -34,12 +27,42 @@ describe('Titanium.Media.Sound', function () {
 	});
 
 	// constants
-	for (i = 0; i < STATE_CONSTANTS.length; i++) {
-		// FIXME These constants are on instances of iOS proxies, not on module itself
-		it.iosBroken(STATE_CONSTANTS[i], function () { // eslint-disable-line no-loop-func
-			should(Ti.Media.Sound).have.constant(STATE_CONSTANTS[i]).which.is.a.Number;
-		});
-	}
+	// Trying to loop over an array of constants makes the tests mysteriously fail
+	it('STATE_BUFFERING', function () {
+		should(Ti.Media.Sound).have.constant('STATE_BUFFERING').which.is.a.Number;
+	});
+
+	it('STATE_INITIALIZED', function () {
+		should(Ti.Media.Sound).have.constant('STATE_INITIALIZED').which.is.a.Number;
+	});
+
+	it('STATE_PAUSED', function () {
+		should(Ti.Media.Sound).have.constant('STATE_PAUSED').which.is.a.Number;
+	});
+
+	it('STATE_PLAYING', function () {
+		should(Ti.Media.Sound).have.constant('STATE_PLAYING').which.is.a.Number;
+	});
+
+	it('STATE_STARTING', function () {
+		should(Ti.Media.Sound).have.constant('STATE_STARTING').which.is.a.Number;
+	});
+
+	it('STATE_STOPPED', function () {
+		should(Ti.Media.Sound).have.constant('STATE_STOPPED').which.is.a.Number;
+	});
+
+	it('STATE_STOPPING', function () {
+		should(Ti.Media.Sound).have.constant('STATE_STOPPING').which.is.a.Number;
+	});
+
+	it('STATE_WAITING_FOR_DATA', function () {
+		should(Ti.Media.Sound).have.constant('STATE_WAITING_FOR_DATA').which.is.a.Number;
+	});
+
+	it('STATE_WAITING_FOR_QUEUE', function () {
+		should(Ti.Media.Sound).have.constant('STATE_WAITING_FOR_QUEUE').which.is.a.Number;
+	});
 
 	// TODO Add tests for non-constant properties
 	// TODO Add tests for methods
