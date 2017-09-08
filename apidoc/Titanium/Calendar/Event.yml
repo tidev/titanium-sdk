@@ -86,7 +86,8 @@ methods:
         type: Number
         constants: Titanium.Calendar.SPAN_*
         default: <Titanium.Calendar.SPAN_THISEVENT>
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.0.0", iphone: "3.1.0", ipad: "3.1.0"}
 
   - name: remove
     summary: Removes an event from the event store.
@@ -249,9 +250,13 @@ properties:
     
   - name: recurrenceRules
     summary: The recurrence rules for the calendar item. (Available in iOS 5.1 and above.)
+    description: |
+        On Android only the first element of the recurrenceRules is take into account 
+        due to the way it handles conditions for recurrence rules.
     type: Array<Titanium.Calendar.RecurrenceRule>
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.0.0", iphone: "3.1.0", ipad: "3.1.0"}
 
   - name: visibility
     summary: Visibility of this event.

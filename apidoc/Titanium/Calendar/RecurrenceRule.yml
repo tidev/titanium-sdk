@@ -2,10 +2,15 @@
 name: Titanium.Calendar.RecurrenceRule
 summary: An object that is used to describe the recurrence pattern for a recurring event.
 description: |
-    
+    On Android there is no option to have multiple recurrence rules set for the same event.
+    Android always uses only the first element in the array passed to [recurrenceRules](Titanium.Calendar.Event.recurrenceRules).
+
+    In case of having [daysOfTheWeek](Titanium.Calendar.RecurrenceRule.daysOfTheWeek) and [daysOfTheMonth](Titanium.Calendar.RecurrenceRule.daysOfTheWeek)
+    for an event with a recurrence rule of type [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY) only 
+    [daysOfTheWeek] will be used.
 extends: Titanium.Proxy
-platforms: [iphone, ipad]
-since: "3.1.0"
+platforms: [android, iphone, ipad]
+since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
 properties:
@@ -33,6 +38,9 @@ properties:
   - name: daysOfTheWeek
     summary: |
         The days of the week that the event occurs, as an Dictionay of `daysOfWeek` and `Week`. 
+    description: |
+        On Android daysOfTheWeek is not valid for recurrence rules of type
+        [RECURRENCEFREQUENCY_YEARLY](Titanium.Calendar.RECURRENCEFREQUENCY_YEARLY).
     type: daysOfTheWeekDictionary
     permission: read-only
 
@@ -78,6 +86,7 @@ properties:
         on the second weekday and last weekday of every year. 
     type: Array<Number>
     permission: read-only
+    platforms: [iphone, ipad]
 
   - name: end
     summary: End of a recurrence rule.
