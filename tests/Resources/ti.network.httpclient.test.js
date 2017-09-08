@@ -229,14 +229,14 @@ describe('Titanium.Network.HTTPClient', function () {
 		var xhr = Ti.Network.createHTTPClient(),
 			cookie_string;
 		function second_cookie_fn() {
-			var second_cookie_string = this.getResponseHeader('Set-Cookie').split.skip(';')[0];
+			var second_cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
 			// New Cookie should be different.
 			should(cookie_string).not.be.eql(second_cookie_string);
 			finish();
 		}
 		xhr.setTimeout(3e4);
 		xhr.onload = function () {
-			cookie_string = this.getResponseHeader('Set-Cookie').split.skip(';')[0];
+			cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
 			xhr.clearCookies('https://my.appcelerator.com');
 			xhr.onload = second_cookie_fn;
 			xhr.open('GET', 'https://my.appcelerator.com/auth/login');
@@ -256,14 +256,14 @@ describe('Titanium.Network.HTTPClient', function () {
 		function second_cookie_fn() {
 			var second_cookie_string;
 			Ti.API.info('Second Load');
-			second_cookie_string = this.getResponseHeader('Set-Cookie').split.skip(';')[0];
+			second_cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
 			// Cookie should be the same
 			should(cookie_string).eql(second_cookie_string);
 			finish();
 		}
 		xhr.setTimeout(3e4);
 		xhr.onload = function () {
-			cookie_string = this.getResponseHeader('Set-Cookie').split.skip(';')[0];
+			cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
 			xhr.clearCookies('http://www.microsoft.com');
 			xhr.onload = second_cookie_fn;
 			xhr.open('GET', 'https://my.appcelerator.com/auth/login');
