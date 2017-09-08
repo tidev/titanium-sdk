@@ -3,5 +3,5 @@
   <string name="this_is_my_key">this is my value</string>
   <string name="greeting">hello</string>
   <string name="signoff">goodbye</string>
-  <string name="phrase">You say %s and I say %s!</string>
+  <string name="phrase">You say %2$s and I say %1$s!</string>
 </resources>
