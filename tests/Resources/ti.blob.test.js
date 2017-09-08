@@ -60,6 +60,7 @@ describe('Titanium.Blob', function () {
 	it.iosMissing('append', function () {
 		var blob = Ti.Filesystem.getFile('app.js').read();
 		should(blob.append).be.a.Function;
+		// TODO Test actually appending data to it
 	});
 
 	it('nativePath', function () {
@@ -100,13 +101,11 @@ describe('Titanium.Blob', function () {
 		// TODO Test that it's read-only
 	});
 
-	// Parity issue, add to Android API
-	// it.androidMissing('size in pixels', function () {
-	// FIXME Missing API on Android, iOS returns 150 (so not sure if it's returning width or height). Docs says it should be "total number of pixels in the image"
-	it('size in pixels', function () {
+	// FIXME Missing API on Android, parity issue
+	it.androidMissing('size in pixels', function () {
 		var blob = Ti.Filesystem.getFile('Logo.png').read();
-		should(blob.width).be.a.Number;
-		should(blob.width).be.eql(22500);
+		should(blob.size).be.a.Number;
+		should(blob.size).be.eql(22500);
 		// TODO Test that it's read-only
 	});
 
