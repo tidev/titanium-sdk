@@ -115,8 +115,8 @@ timestamps {
 			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 
 				stage('Lint') {
-					// Enforce npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
-					sh 'npm install -g npm@5.2'
+					// NPM 5.2.0 had a bug taht broke pruning to production, but latest npm 5.4.1 works well
+					sh 'npm install -g npm@5.4.1'
 
 					// Install dependencies
 					timeout(5) {
