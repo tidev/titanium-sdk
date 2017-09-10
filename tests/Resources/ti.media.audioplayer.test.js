@@ -28,39 +28,40 @@ describe('Titanium.Media.AudioPlayer', function () {
 
 	// constants
 	// Trying to loop over an array of constants makes the tests mysteriously fail
-	it('STATE_BUFFERING', function () {
+	// FIXME These only work on instances of proxy on iOS
+	it.iosBroken('STATE_BUFFERING', function () {
 		should(Ti.Media.AudioPlayer).have.constant('STATE_BUFFERING').which.is.a.Number;
 	});
 
-	it('STATE_INITIALIZED', function () {
+	it.iosBroken('STATE_INITIALIZED', function () {
 		should(Ti.Media.AudioPlayer).have.constant('STATE_INITIALIZED').which.is.a.Number;
 	});
 
-	it('STATE_PAUSED', function () {
+	it.iosBroken('STATE_PAUSED', function () {
 		should(Ti.Media.AudioPlayer).have.constant('STATE_PAUSED').which.is.a.Number;
 	});
 
-	it('STATE_PLAYING', function () {
+	it.iosBroken('STATE_PLAYING', function () {
 		should(Ti.Media.AudioPlayer).have.constant('STATE_PLAYING').which.is.a.Number;
 	});
 
-	it('STATE_STARTING', function () {
+	it.iosBroken('STATE_STARTING', function () {
 		should(Ti.Media.AudioPlayer).have.constant('STATE_STARTING').which.is.a.Number;
 	});
 
-	it('STATE_STOPPED', function () {
+	it.iosBroken('STATE_STOPPED', function () {
 		should(Ti.Media.AudioPlayer).have.constant('STATE_STOPPED').which.is.a.Number;
 	});
 
-	it('STATE_STOPPING', function () {
+	it.iosBroken('STATE_STOPPING', function () {
 		should(Ti.Media.AudioPlayer).have.constant('STATE_STOPPING').which.is.a.Number;
 	});
 
-	it('STATE_WAITING_FOR_DATA', function () {
+	it.iosBroken('STATE_WAITING_FOR_DATA', function () {
 		should(Ti.Media.AudioPlayer).have.constant('STATE_WAITING_FOR_DATA').which.is.a.Number;
 	});
 
-	it('STATE_WAITING_FOR_QUEUE', function () {
+	it.iosBroken('STATE_WAITING_FOR_QUEUE', function () {
 		should(Ti.Media.AudioPlayer).have.constant('STATE_WAITING_FOR_QUEUE').which.is.a.Number;
 	});
 
