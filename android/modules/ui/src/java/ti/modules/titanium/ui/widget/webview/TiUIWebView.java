@@ -62,6 +62,7 @@ public class TiUIWebView extends TiUIView
 	private boolean bindingCodeInjected = false;
 	private boolean isLocalHTML = false;
 	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
+	private float zoomLevel = TiApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics().density;
 
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
@@ -462,7 +463,9 @@ public class TiUIWebView extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ZOOM_LEVEL)) {
-			getWebView().zoomBy(TiConvert.toFloat(d,TiC.PROPERTY_ZOOM_LEVEL));
+			if (Build.VERSION.SDK_INT >= 21) {
+				zoomBy(getWebView(), TiConvert.toFloat(d,TiC.PROPERTY_ZOOM_LEVEL));
+			}
 		}
 	}
 
@@ -496,7 +499,9 @@ public class TiUIWebView extends TiUIView
 		} else if (TiC.PROPERTY_DISABLE_CONTEXT_MENU.equals(key)) {
 			disableContextMenu = TiConvert.toBoolean(newValue);
 		} else if (TiC.PROPERTY_ZOOM_LEVEL.equals(key)) {
-			getWebView().zoomBy(TiConvert.toFloat(newValue));
+			if (Build.VERSION.SDK_INT >= 21) {
+				zoomBy(getWebView(), TiConvert.toFloat(newValue, 1.0f));
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -508,6 +513,33 @@ public class TiUIWebView extends TiUIView
 		if (isBgRelated && nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
 			nativeView.setBackgroundColor(Color.TRANSPARENT);
 		}
+	}
+
+	private void zoomBy(WebView webView, float scale)
+	{
+		if (webView != null) {
+			if (scale < 0.0f) {
+				scale = 0.0f;
+			} else if (scale >= 100.0f) {
+				scale = 100.0f;
+			}
+			webView.zoomBy(scale);
+		}
+	}
+
+	public void zoomBy(float scale)
+	{
+		zoomBy(getWebView(), scale);
+	}
+
+	public float getZoomLevel()
+	{
+		return zoomLevel;
+	}
+
+	public void setZoomLevel(float value)
+	{
+		zoomLevel = value;
 	}
 
 	private boolean mightBeHtml(String url)

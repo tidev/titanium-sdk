@@ -763,7 +763,7 @@ properties:
     type: Number
     default: undefined. Behaves as no zoom applied.
     platforms: [android, iphone, ipad]
-    since: "6.2.0"
+    since: "7.0.0"
 
 examples:
   - title: Basic Web View to External URL 
