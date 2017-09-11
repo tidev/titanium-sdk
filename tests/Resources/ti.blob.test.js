@@ -34,7 +34,8 @@ describe('Titanium.Blob', function () {
 			label.toImage(function (blob) {
 				should(blob).be.an.Object;
 				// should(blob).be.an.instanceof(Ti.Blob); // Crashes Windows, throws uncaught error on iOS & Android
-				should(blob.getText()).equal(null);
+				// should(blob.getText()).equal(null); // 'blob.getText is not a function' on iOS
+				should(blob.text).equal(null);
 				Ti.API.info(blob.width);
 				should(blob.width).be.a.Number;
 				should(blob.width).be.above(0);
