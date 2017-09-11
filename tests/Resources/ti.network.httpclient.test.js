@@ -239,8 +239,14 @@ describe('Titanium.Network.HTTPClient', function () {
 			cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
 			xhr.clearCookies('https://my.appcelerator.com');
 			xhr.onload = second_cookie_fn;
-			xhr.open('GET', 'https://my.appcelerator.com/auth/login');
-			xhr.send();
+			// Have to do this on delay for Android, or else the open and send get cancelled due to:
+			// [WARN]  TiHTTPClient: (main) [2547,14552] open cancelled, a request is already pending for response.
+			// [WARN]  TiHTTPClient: (main) [1,14553] send cancelled, a request is already pending for response.
+			// FIXME We should file a bug to handle this better! Can't we "queue" up the open/send calls to occur as soon as this callback finishes?
+			setTimeout(function () {
+				xhr.open('GET', 'https://my.appcelerator.com/auth/login');
+				xhr.send();
+			}, 500);
 		};
 		xhr.onerror = function (e) {
 			should(e).should.be.type('undefined');

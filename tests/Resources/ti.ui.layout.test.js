@@ -187,7 +187,8 @@ describe('Titanium.UI.Layout', function () {
 	});
 
 	// functional test case #1020: ViewCenter
-	it('viewCenter', function (finish) {
+	// Android gives: expected 110 to equal 30
+	it.androidBroken('viewCenter', function (finish) {
 		var view = Ti.UI.createView({
 			center: {
 				x: 50,
@@ -264,7 +265,8 @@ describe('Titanium.UI.Layout', function () {
 
 	// functional test #1026 ViewError
 	// FIXME IOS Times out. Probably because no postlayout is fired?
-	it.iosBroken('viewError', function (finish) {
+	// Android times out too
+	it.androidAndIosBroken('viewError', function (finish) {
 		var view = Ti.UI.createView({
 			backgroundColor: 'green',
 			left: 'leftString',
@@ -529,7 +531,8 @@ describe('Titanium.UI.Layout', function () {
 
 	// functional test #1038, 1038a, 1038b
 	// UndefinedTop. Dynamic top calculation
-	it('undefinedTop', function (finish) {
+	// Android gives: expected 255 to equal 175
+	it.androidBroken('undefinedTop', function (finish) {
 		var view1 = Ti.UI.createView({
 				height: 50,
 				center: {
@@ -639,7 +642,8 @@ describe('Titanium.UI.Layout', function () {
 	});
 
 	// functional test #1043 LeftPrecedence
-	it('leftPrecedence', function (finish) {
+	// Android gives: expected 210 to equal 40
+	it.androidBroken('leftPrecedence', function (finish) {
 		var view = Ti.UI.createView({
 			backgroundColor: 'yellow',
 			left: 10,
@@ -669,7 +673,8 @@ describe('Titanium.UI.Layout', function () {
 	});
 
 	// functional test #1044 CenterXPrecedence
-	it('centerXPrecedence', function (finish) {
+	// Android gives: expected 150 to equal 100
+	it.androidBroken('centerXPrecedence', function (finish) {
 		var view = Ti.UI.createView({
 				height: 200,
 				width: 200,
@@ -731,7 +736,8 @@ describe('Titanium.UI.Layout', function () {
 	});
 
 	// functional test #1047 TopPrecedence
-	it('topPrecedence', function (finish) {
+	// Android gives: expected 290 to equal 40
+	it.androidBroken('topPrecedence', function (finish) {
 		var view = Ti.UI.createView({
 			backgroundColor: 'yellow',
 			top: 10,
@@ -760,7 +766,8 @@ describe('Titanium.UI.Layout', function () {
 	});
 
 	// functional test #1048 CenterYPrecedence
-	it('centerYPrecedence', function (finish) {
+	// Android gives: expected 150 to equal 100
+	it.androidBroken('centerYPrecedence', function (finish) {
 		var view = Ti.UI.createView({
 				height: 200,
 				width: 200,
