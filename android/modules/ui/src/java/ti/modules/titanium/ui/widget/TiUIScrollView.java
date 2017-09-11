@@ -23,13 +23,13 @@ import ti.modules.titanium.ui.RefreshControlProxy;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
-import android.support.v4.widget.NestedScrollView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
 
 
 public class TiUIScrollView extends TiUIView
@@ -181,7 +181,7 @@ public class TiUIScrollView extends TiUIView
 	}
 	
 	// same code, different super-classes
-	private class TiVerticalScrollView extends NestedScrollView
+	private class TiVerticalScrollView extends ScrollView
 	{
 		private TiScrollViewLayout layout;
 
@@ -225,7 +225,7 @@ public class TiUIScrollView extends TiUIView
 				return false;
 			}
 		}
-
+		
 		@Override
 		public boolean onInterceptTouchEvent(MotionEvent event) {
 			if (mScrollingEnabled) {
@@ -234,27 +234,7 @@ public class TiUIScrollView extends TiUIView
 
 			return false;
 		}
-
-		/**
-		 * Called when a NestedScrollingChild view within the ListView wants to scroll the ListView.
-		 * <p>
-		 * This can happen with a NestedScrollView or a scrollable TiUIEditText where scrolling
-		 * past the top/bottom of the child view should cause the ListView to scroll.
-		 * @param target The NestedScrollingChild view that wants to scroll this view.
-		 * @param dxConsumed Horizontal scroll distance in pixels already consumed by the child.
-		 * @param dyConsumed Vertical scroll distance in pixels already consumed by the child.
-		 * @param dxUnconsumed Horizontal distance in pixels that this view is being requested to scroll by.
-		 * @param dyUnconsumed Vertical distance in pixels that this view is being requested to scroll by.
-		 */
-		@Override
-		public void onNestedScroll(
-			View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
-		{
-			if (mScrollingEnabled) {
-				super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
-			}
-		}
-
+		
 		@Override
 		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
