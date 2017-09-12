@@ -203,7 +203,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 				// TIMOB-24560: prevent duplicate TableViewRowProxyItem on Android N
 				if (Build.VERSION.SDK_INT > 23) {
 					ArrayList<Item> models = viewModel.getViewModel();
-					if (models != null && models.contains(v.getRowData())) {
+					if (models != null && v instanceof TiTableViewRowProxyItem && models.contains(v.getRowData())) {
 						v = null;
 						sameView = true;
 					}
