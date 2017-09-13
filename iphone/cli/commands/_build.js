@@ -3812,7 +3812,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		'minimum-system-version': '11.0',
 		'name': 'Default',
 		'subtype': '2436h',
-		'scale': ['3x'],
+		'scale': [ '3x' ],
 		'size': '{375, 812}'
 	},
 	{
@@ -3820,7 +3820,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		'minimum-system-version': '11.0',
 		'name': 'Default-Landscape',
 		'subtype': '2436h',
-		'scale': ['3x'],
+		'scale': [ '3x' ],
 		'size': '{812, 375}'
 	},
 	{
