@@ -39,6 +39,7 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SET_SUBTITLE = MSG_FIRST_ID + 109;
 	private static final int MSG_SET_DISPLAY_SHOW_HOME = MSG_FIRST_ID + 110;
 	private static final int MSG_SET_DISPLAY_SHOW_TITLE = MSG_FIRST_ID + 111;
+	private static final int MSG_SET_CUSTOM_VIEW = MSG_FIRST_ID + 112;
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 	private static final String HOME_BUTTON_ENABLED = "homeButtonEnabled";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
@@ -234,6 +235,17 @@ public class ActionBarProxy extends KrollProxy
 		
 	}
 
+	@Kroll.method
+	public void setCustomView(TiViewProxy view) {
+		actionBar.setDisplayShowCustomEnabled(true);
+		if (TiApplication.isUIThread()) {
+			handleSetCustomView(view);
+		} else {
+			Message message = getMainHandler().obtainMessage(MSG_SET_CUSTOM_VIEW, view);
+			message.sendToTarget();
+		}
+	}
+
 	private void handleSetIcon(String url)
 	{
 		if (actionBar == null) {
@@ -343,6 +355,10 @@ public class ActionBarProxy extends KrollProxy
 		return tfh.loadDrawable(imageUrl.resolve(), false);
 	}
 
+	private void handleSetCustomView(TiViewProxy view) {
+		actionBar.setCustomView(view.getOrCreateView().getNativeView());
+	}
+
 	@Override
 	public boolean handleMessage(Message msg)
 	{
@@ -391,6 +407,9 @@ public class ActionBarProxy extends KrollProxy
 				return true;
 			case MSG_SET_HOME_BUTTON_ENABLED:
 				handlesetHomeButtonEnabled(msg.getData().getBoolean(HOME_BUTTON_ENABLED));
+				return true;
+			case MSG_SET_CUSTOM_VIEW:
+				handleSetCustomView(((TiViewProxy) msg.obj));
 				return true;
 		}
 		return super.handleMessage(msg);
