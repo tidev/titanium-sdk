@@ -32,7 +32,7 @@ platforms: [android]
 since: "7.0"
 methods:
   - name: updateTile
-    summary: Applies current tile's properties
+    summary: Applies current tile's properties.
     description: |
         Updates the Tile's with it's current label, icon and state.
 
@@ -63,7 +63,7 @@ methods:
       If no label is set the Tile uses the Application name.
     parameters: 
       - name: label
-        summary: String to be used
+        summary: String to be used.
         type: String
 
   - name: getIcon
@@ -78,7 +78,7 @@ methods:
         constants: Titanium.Android.TILE_STATE_*
 
   - name: getLabel
-    summary: Returns the Tile's current label
+    summary: Returns the Tile's current label.
     returns:
         type: String
 
@@ -97,25 +97,25 @@ methods:
     description: |
       Creates and shows a default Alert dialog with the provided options dictionary.
 
-      Note: Alert dialog only supports one of the following: message/options. If you pass both - only `message` will
-      be shown.
+      Note: Alert dialog only supports one of the following: message/options.
+      If you pass both - only `message` will be shown.
     parameters:
       - name: options
         type: showParams
         summary: Dictionary containing the options for the dialog.
 
   - name: startActivityAndCollapse
-    summary: Colapses the quick settings menu and starts an activity for the passed Intent
+    summary: Colapses the quick settings menu and starts an activity for the passed Intent.
     parameters:
       - name: intent
-        summary: Intent to be fired
+        summary: Intent to be fired.
         type: Titanium.Android.Intent
 
   - name: unlockAndRun
-    summary: Prompts the user to unlock the device and runs the JS code
+    summary: Prompts the user to unlock the device and runs the JS code.
     parameters:
       - name: jsCode
-        summary: JavaScript code to be evaluated
+        summary: JavaScript code to be evaluated.
         type: String
 
 events:
@@ -178,7 +178,7 @@ examples:
                 service.setLabel('Active');
                 service.setIcon('active.png');
               }
-            service.updateTile();
+              service.updateTile();
             }
 
         Register the service in tiapp.xml:
