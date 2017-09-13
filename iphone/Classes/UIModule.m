@@ -38,9 +38,6 @@
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
-#ifdef USE_TI_UITOOLBAR
-#import "TiUIToolbarProxy.h"
-#endif
 
 #import "ImageLoader.h"
 #import "TiApp.h"
@@ -119,10 +116,10 @@ MAKE_SYSTEM_PROP(RETURNKEY_EMERGENCY_CALL, UIReturnKeyEmergencyCall);
 - (NSNumber *)RETURNKEY_CONTINUE
 {
   if ([TiUtils isIOS9OrGreater] == YES) {
-    return [NSNumber numberWithInt:UIReturnKeyContinue];
+    return NUMINT(UIReturnKeyContinue);
   }
 
-  return UIReturnKeyDefault;
+  return NUMINT(UIReturnKeyDefault);
 }
 
 MAKE_SYSTEM_PROP(KEYBOARD_TYPE_DEFAULT, UIKeyboardTypeDefault);
@@ -258,13 +255,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
     }
   }
   return [[[TiAnimation alloc] _initWithPageContext:[self executionContext]] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UITOOLBAR
-- (id)createToolbar:(id)args
-{
-  return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.Toolbar"] autorelease];
 }
 #endif
 
@@ -623,9 +613,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 - (NSString *)CLIPBOARD_OPTION_LOCAL_ONLY
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return UIPasteboardOptionLocalOnly;
-#endif
   } else {
     return @"";
   }
@@ -633,9 +621,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 - (NSString *)CLIPBOARD_OPTION_EXPIRATION_DATE
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return UIPasteboardOptionExpirationDate;
-#endif
   } else {
     return @"";
   }

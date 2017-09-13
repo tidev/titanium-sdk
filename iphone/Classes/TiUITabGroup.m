@@ -199,8 +199,7 @@ DEFINE_EXCEPTIONS
     if (editTitle != nil) {
       editButton.title = editTitle;
     } else {
-      // TODO: Need to get the localized value here
-      editButton.title = @"Edit";
+      editButton.title = NSLocalizedString(@"Edit", nil);
     }
   }
 }
@@ -383,13 +382,11 @@ DEFINE_EXCEPTIONS
   [[controller tabBar] setTintColor:[[TiUtils colorValue:value] color]];
 }
 
-#if IS_XCODE_8
 - (void)setUnselectedItemTintColor_:(id)value
 {
   ENSURE_TYPE_OR_NIL(value, NSString);
   [[controller tabBar] setUnselectedItemTintColor:[[TiUtils colorValue:value] color]];
 }
-#endif
 
 - (void)setTabsTranslucent_:(id)value
 {
@@ -417,7 +414,11 @@ DEFINE_EXCEPTIONS
 {
   TiColor *color = [TiUtils colorValue:value];
   //A nil tintColor is fine, too.
-  controller.tabBar.tintColor = color.color;
+  if ([TiUtils isIOS8OrGreater]) {
+    controller.tabBar.tintColor = color.color;
+  } else {
+    controller.tabBar.tintColor = color.color;
+  }
 }
 
 #pragma mark Public APIs

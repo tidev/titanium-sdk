@@ -16,7 +16,7 @@
 		"Chris Barber <cbarber@appcelerator.com>"
 	],
 	"minIosVersion": "8.0",
-	"minWatchosVersion": "1.0",
+	"minWatchosVersion": "2.0",
 	"vendorDependencies": {
 		"xcode": ">=6.0 <=9.x",
 		"ios sdk": ">=8.0 <=11.x",

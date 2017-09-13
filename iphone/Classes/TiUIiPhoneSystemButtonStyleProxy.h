@@ -12,9 +12,7 @@
 }
 
 @property (nonatomic, readonly) NSNumber *DONE;
-@property (nonatomic, readonly) NSNumber *BORDERED;
 @property (nonatomic, readonly) NSNumber *PLAIN;
-@property (nonatomic, readonly) NSNumber *BAR; //TODO: review this
 
 @end
 

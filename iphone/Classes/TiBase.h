@@ -72,10 +72,10 @@ extern "C" {
   }
 
 // create a mutable array that doesn't retain internal references to objects
-NSMutableArray *TiCreateNonRetainingArray();
+NSMutableArray *TiCreateNonRetainingArray(void);
 
 // create a mutable dictionary that doesn't retain internal references to objects
-NSMutableDictionary *TiCreateNonRetainingDictionary();
+NSMutableDictionary *TiCreateNonRetainingDictionary(void);
 
 CGPoint midpointBetweenPoints(CGPoint a, CGPoint b);
 void TiLogMessage(NSString *str, ...);
@@ -520,6 +520,8 @@ enum {
 #endif
 
 #define VAL_OR_NSNULL(foo) (((foo) != nil) ? ((id)foo) : [NSNull null])
+
+#define FunctionName(formatString, ...) NSLog((@"%s " formatString), __PRETTY_FUNCTION__, ##__VA_ARGS__);
 
 NSData *dataWithHexString(NSString *hexString);
 NSString *hexString(NSData *thedata);

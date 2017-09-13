@@ -11,6 +11,7 @@
 #import "Mimetypes.h"
 #import "NSData+Additions.h"
 #import "TiApp.h"
+#import "TiAppiOSBackgroundServiceProxy.h"
 #import "TiBase.h"
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
@@ -41,7 +42,7 @@ extern BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER;
 
 NSString *TITANIUM_VERSION;
 
-extern void UIColorFlushCache();
+extern void UIColorFlushCache(void);
 
 #define SHUTDOWN_TIMEOUT_IN_SEC 3
 #define TIV @"TiVerify"
@@ -49,7 +50,7 @@ extern void UIColorFlushCache();
 
 BOOL applicationInMemoryPanic = NO;
 
-TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 
 @interface TiApp ()
 - (void)checkBackgroundServices;
@@ -101,15 +102,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 + (TiContextGroupRef)contextGroup
 {
   return [sharedApp contextGroup];
-}
-
-- (NSMutableDictionary *)queuedBootEvents
-{
-  if (queuedBootEvents == nil) {
-    queuedBootEvents = [[[NSMutableDictionary alloc] init] retain];
-  }
-
-  return queuedBootEvents;
 }
 
 - (void)startNetwork
@@ -280,6 +272,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 {
   [[[NSClassFromString(TIV) alloc] init] autorelease];
 }
+
 - (void)booted:(id)bridge
 {
   if ([bridge isKindOfClass:[KrollBridge class]]) {
@@ -288,17 +281,13 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     appBooted = YES;
 
     if (launchedShortcutItem != nil) {
-      [self handleShortcutItem:launchedShortcutItem queueToBootIfNotLaunched:YES];
+      [self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
       RELEASE_TO_NIL(launchedShortcutItem);
     }
 
-    if (queuedBootEvents != nil) {
-      for (NSString *notificationName in queuedBootEvents) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:[queuedBootEvents objectForKey:notificationName]];
-      }
-      RELEASE_TO_NIL(queuedBootEvents);
+    if (localNotification != nil) {
+      [[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
     }
-
     TiThreadPerformOnMainThread(^{
       [self validator];
     },
@@ -332,6 +321,24 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                             (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
                                               resultingOrientation:&imageOrientation
                                                              idiom:&imageIdiom];
+    if ([TiUtils isIPad] && ![TiUtils isIOS8OrGreater]) {
+      CGAffineTransform transform;
+      switch ([[UIApplication sharedApplication] statusBarOrientation]) {
+      case UIInterfaceOrientationPortraitUpsideDown:
+        transform = CGAffineTransformMakeRotation(M_PI);
+        break;
+      case UIInterfaceOrientationLandscapeLeft:
+        transform = CGAffineTransformMakeRotation(-M_PI_2);
+        break;
+      case UIInterfaceOrientationLandscapeRight:
+        transform = CGAffineTransformMakeRotation(M_PI_2);
+        break;
+      default:
+        transform = CGAffineTransformIdentity;
+        break;
+      }
+      [splashScreenImage setTransform:transform];
+    }
     [splashScreenImage setImage:defaultImage];
     [splashScreenImage setFrame:[[UIScreen mainScreen] bounds]];
   }
@@ -457,6 +464,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
+
   //Only for simulator builds
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"fetch"]) {
@@ -471,8 +479,10 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
     [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease] forKey:key];
 
-    [self tryToPostBackgroundModeNotification:[NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil]
-                         withNotificationName:kTiBackgroundFetchNotification];
+    // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
+    // the bridge completes processing of app.js (adding the event into notification center).
+
+    [self postNotificationwithKey:[NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil] withNotificationName:kTiBackgroundFetchNotification];
 
     // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
     NSTimer *flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO];
@@ -486,7 +496,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification object:self userInfo:notificationSettings];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification object:notificationSettings userInfo:nil];
 }
 
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
@@ -498,7 +508,8 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     [localNotification setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
   }
 
-  [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
+  completionHandler();
 }
 
 // iOS 9+
@@ -564,27 +575,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #pragma mark Helper Methods
 
-- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)())completionHandler
+- (void)postNotificationwithKey:(NSMutableDictionary *)userInfo withNotificationName:(NSString *)notificationName
 {
-  typedef void (^NotificationBlock)();
 
-  NotificationBlock myNotificationBlock = ^void() {
-    [[NSNotificationCenter defaultCenter] postNotificationName:_notificationName object:self userInfo:_notification];
-
-    if (completionHandler != nil) {
-      completionHandler();
-    }
-  };
-
-  if (appBooted) {
-    myNotificationBlock();
-  } else {
-    [[self queuedBootEvents] setObject:_notification forKey:_notificationName];
-  }
-}
-
-- (void)tryToPostBackgroundModeNotification:(NSMutableDictionary *)userInfo withNotificationName:(NSString *)notificationName
-{
   //Check to see if the app booted and we still have the completionhandler in the system
   NSString *key = [userInfo objectForKey:@"handlerId"];
   BOOL shouldContinue = NO;
@@ -601,13 +594,17 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:userInfo];
   } else {
-    [[self queuedBootEvents] setObject:userInfo forKey:notificationName];
+    //Try again in 2 sec. TODO: should we reduce this value ?
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      [self postNotificationwithKey:userInfo withNotificationName:notificationName];
+    });
   }
 }
 
 //Clear out  the pendingCompletionHandlerQueue
 - (void)flushCompletionHandlerQueue
 {
+  //FunctionName();
   if (pendingCompletionHandlers != nil) {
     for (id key in pendingCompletionHandlers) {
       [self completionHandler:key withResult:2]; //UIBackgroundFetchResultFailed
@@ -619,6 +616,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 // This method gets called when the wall clock runs out and the completionhandler is still there.
 - (void)fireCompletionHandler:(NSTimer *)timer
 {
+  //FunctionName();
   id key = timer.userInfo;
   if ([pendingCompletionHandlers objectForKey:key]) {
     [self completionHandler:key withResult:UIBackgroundFetchResultFailed];
@@ -626,9 +624,10 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 }
 
-// Gets called when user ends finishes with backgrounding stuff. By default this would always be called with UIBackgroundFetchResultNoData.
+// gets called when user ends finishes with backgrounding stuff. By default this would always be called with UIBackgroundFetchResultNoData.
 - (void)completionHandler:(id)key withResult:(int)result
 {
+  //FunctionName();
   if ([pendingCompletionHandlers objectForKey:key]) {
     void (^completionHandler)(UIBackgroundFetchResult);
     completionHandler = [pendingCompletionHandlers objectForKey:key];
@@ -656,10 +655,11 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 #pragma mark Remote Notifications iOS 7
 
 #ifdef USE_TI_SILENTPUSH
-// Delegate callback for Silent Remote Notification.
+//Delegate callback for Silent Remote Notification.
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
 {
-  // Forward the callback
+  //FunctionName();
+  //Forward the callback
   if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
     [self application:application didReceiveRemoteNotification:userInfo];
   }
@@ -679,11 +679,12 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
     [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease] forKey:key];
 
+    // Handling the case, where the app is not running and backgroundfetch launches the app into background. In this case, the delegate gets called
+    // the bridge completes processing of app.js (adding the event into notification center).
+
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil];
     [dict addEntriesFromDictionary:userInfo];
-
-    [self tryToPostBackgroundModeNotification:dict
-                         withNotificationName:kTiSilentPushNotification];
+    [self postNotificationwithKey:dict withNotificationName:kTiSilentPushNotification];
 
     // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
     NSTimer *flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO];
@@ -699,6 +700,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 //Delegate callback for Background Transfer completes.
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
 {
+  //FunctionName();
   // Generate unique key with timestamp.
   id key = [NSString stringWithFormat:@"Session-%f", [[NSDate date] timeIntervalSince1970]];
 
@@ -710,7 +712,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [backgroundTransferCompletionHandlers setObject:[[completionHandler copy] autorelease] forKey:key];
   NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionId",
                                                    key, @"handlerId", nil];
-  [self tryToPostBackgroundModeNotification:dict withNotificationName:kTiBackgroundTransfer];
+  [self postNotificationwithKey:dict withNotificationName:kTiBackgroundTransfer];
 }
 
 #pragma mark Background Transfer Service Delegates.
@@ -719,7 +721,8 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
-  // Copy downloaded file from location to tempFile (in NSTemporaryDirectory), because file in location will be removed after delegate completes
+  //FunctionName();
+  //copy downloaded file from location to tempFile (in NSTemporaryDirectory), because file in location will be removed after delegate completes
   NSError *error;
   NSFileManager *fileManager = [NSFileManager defaultManager];
   NSString *destinationFilename = location.lastPathComponent;
@@ -780,6 +783,8 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
+  //FunctionName();
+
   NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                        [NSNumber numberWithUnsignedInteger:task.taskIdentifier], @"taskIdentifier",
                                                    nil];
@@ -955,6 +960,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
+  //FunctionName();
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
 
   if (backgroundServices == nil) {
@@ -987,6 +993,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
+  //FunctionName(); Uncomment to see function name printed when it is called.
   [self flushCompletionHandlerQueue];
   [sessionId release];
   sessionId = [[TiUtils createUUID] retain];
@@ -1039,7 +1046,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
   } else {
-    [[self queuedBootEvents] setObject:dict forKey:kTiContinueActivity];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
+    });
   }
 
   return YES;
@@ -1191,17 +1200,17 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     runningServices = [[NSMutableArray alloc] initWithCapacity:[backgroundServices count]];
   }
 
-  for (TiProxy *proxy in backgroundServices) {
+  for (TiAppiOSBackgroundServiceProxy *proxy in backgroundServices) {
     [runningServices addObject:proxy];
-    [proxy performSelector:@selector(beginBackground)];
+    [proxy beginBackground];
   }
   [self checkBackgroundServices];
 }
 
 - (void)endBackgrounding
 {
-  for (TiProxy *proxy in backgroundServices) {
-    [proxy performSelector:@selector(endBackground)];
+  for (TiAppiOSBackgroundServiceProxy *proxy in backgroundServices) {
+    [proxy endBackground];
     [runningServices removeObject:proxy];
   }
 
@@ -1213,12 +1222,13 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 {
   RELEASE_TO_NIL(localNotification);
   localNotification = [[[self class] dictionaryWithLocalNotification:notification] retain];
-
-  [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotification completionHandler:nil];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 }
 
-- (BOOL)handleShortcutItem:(UIApplicationShortcutItem *)shortcutItem queueToBootIfNotLaunched:(BOOL)bootWait
+- (BOOL)handleShortcutItem:(UIApplicationShortcutItem *)shortcutItem
+    waitForBootIfNotLaunched:(BOOL)bootWait
 {
+
   if (shortcutItem.type == nil) {
     NSLog(@"[ERROR] The shortcut type property is required");
     return NO;
@@ -1247,8 +1257,14 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut
                                                         object:self
                                                       userInfo:dict];
-  } else if (bootWait) {
-    [[self queuedBootEvents] setObject:dict forKey:kTiApplicationShortcut];
+  } else {
+    if (bootWait) {
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut
+                                                            object:self
+                                                          userInfo:dict];
+      });
+    }
   }
 
   return YES;
@@ -1277,14 +1293,17 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     event[@"category"] = category;
   }
 
-  [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteNotificationAction object:event userInfo:nil];
+  [event autorelease];
+  completionHandler();
 }
 
 - (void)application:(UIApplication *)application
     performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
                completionHandler:(void (^)(BOOL succeeded))completionHandler
 {
-  BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem queueToBootIfNotLaunched:NO];
+
+  BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem waitForBootIfNotLaunched:NO];
   completionHandler(handledShortCutItem);
 }
 
@@ -1344,9 +1363,12 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [event setObject:NOTNIL([notification soundName]) forKey:@"sound"];
   [event setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
   [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
-  [event setObject:NOTNIL([notification category]) forKey:@"category"];
-  [event setObject:NOTNIL(identifier) forKey:@"identifier"];
   [event setObject:NUMBOOL([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) forKey:@"inBackground"];
+  //include category for ios8
+  if ([TiUtils isIOS8OrGreater]) {
+    [event setObject:NOTNIL([notification category]) forKey:@"category"];
+    [event setObject:NOTNIL(identifier) forKey:@"identifier"];
+  }
 
   return event;
 }

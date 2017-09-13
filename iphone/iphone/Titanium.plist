@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.appcelerator.titanium</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -41,6 +41,20 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Can we access your music library?</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Can we use your calendar?</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Can we use your camera?</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Can we use to your contacts?</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Can we use your location</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Can we use your microphone?</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Can we save to your photo library?</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>comic_zine_ot.otf</string>
@@ -60,19 +74,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSContactsUsageDescription</key>
-	<string>Can we use to your contacts?</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Can we use your camera?</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>Can we use your calendar?</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Can we save to your photo library?</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Can we use your microphone?</string>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>Can we access your music library?</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Can we use your location</string>
 </dict>
 </plist>

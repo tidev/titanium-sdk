@@ -38,7 +38,7 @@
 #endif
 
 #ifdef USE_TI_UIIOSTOOLBAR
-#import "TiUIToolbarProxy.h"
+#import "TiUIiOSToolbarProxy.h"
 #endif
 
 #ifdef USE_TI_UIIOSTABBEDBAR
@@ -98,10 +98,8 @@
 #import "TiUIiOSStepperProxy.h"
 #endif
 
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 #import "TiUIiOSFeedbackGeneratorProxy.h"
-#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -159,15 +157,24 @@
 #ifdef USE_TI_UILISTVIEW
 - (NSNumber *)ROW_ACTION_STYLE_DEFAULT
 {
-  return NUMINTEGER(UITableViewRowActionStyleDefault);
+  if ([TiUtils isIOS8OrGreater]) {
+    return NUMINTEGER(UITableViewRowActionStyleDefault);
+  }
+  return nil;
 }
 - (NSNumber *)ROW_ACTION_STYLE_DESTRUCTIVE
 {
-  return NUMINTEGER(UITableViewRowActionStyleDestructive);
+  if ([TiUtils isIOS8OrGreater]) {
+    return NUMINTEGER(UITableViewRowActionStyleDestructive);
+  }
+  return nil;
 }
 - (NSNumber *)ROW_ACTION_STYLE_NORMAL
 {
-  return NUMINTEGER(UITableViewRowActionStyleNormal);
+  if ([TiUtils isIOS8OrGreater]) {
+    return NUMINTEGER(UITableViewRowActionStyleNormal);
+  }
+  return nil;
 }
 #endif
 
@@ -420,36 +427,43 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 #ifdef USE_TI_UIIOSBLURVIEW
 - (id)BLUR_EFFECT_STYLE_EXTRA_LIGHT
 {
-  return NUMINTEGER(UIBlurEffectStyleExtraLight);
+  if ([TiUtils isIOS8OrGreater]) {
+    return NUMINTEGER(UIBlurEffectStyleExtraLight);
+  }
+  return [NSNull null];
 }
 
 - (id)BLUR_EFFECT_STYLE_LIGHT
 {
-  return NUMINTEGER(UIBlurEffectStyleLight);
+  if ([TiUtils isIOS8OrGreater]) {
+    return NUMINTEGER(UIBlurEffectStyleLight);
+  }
+  return [NSNull null];
 }
 
 - (id)BLUR_EFFECT_STYLE_DARK
 {
-  return NUMINTEGER(UIBlurEffectStyleDark);
+  if ([TiUtils isIOS8OrGreater]) {
+    return NUMINTEGER(UIBlurEffectStyleDark);
+  }
+  return [NSNull null];
 }
 
 - (id)BLUR_EFFECT_STYLE_REGULAR
 {
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     return NUMINTEGER(UIBlurEffectStyleRegular);
   }
-#endif
+
   return [NSNull null];
 }
 
 - (id)BLUR_EFFECT_STYLE_PROMINENT
 {
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     return NUMINTEGER(UIBlurEffectStyleProminent);
   }
-#endif
+
   return [NSNull null];
 }
 #endif
@@ -486,9 +500,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 
 - (id)createAdView:(id)args
 {
-#if IS_XCODE_8
   DebugLog(@"[WARN] iAd is deprecated in iOS 10 and will be removed in future versions of iOS. Please consider to replace it with a different service.");
-#endif
 
   return [[[TiUIiOSAdViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
@@ -504,8 +516,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSTOOLBAR
 - (id)createToolbar:(id)args
 {
-  DEPRECATED_REPLACED(@"UI.iOS.Toolbar", @"6.2.0", @"UI.Toolbar (parity with Android)")
-  return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.iOS.Toolbar"] autorelease];
+  return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
@@ -798,7 +809,6 @@ MAKE_SYSTEM_PROP(MODAL_PRESENTATION_PAGESHEET, UIModalPresentationPageSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FORMSHEET, UIModalPresentationFormSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT, UIModalPresentationCurrentContext);
 
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 
 - (id)createFeedbackGenerator:(id)args
@@ -817,7 +827,6 @@ MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR, UINotificationFeedb
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT, UIImpactFeedbackStyleLight);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM, UIImpactFeedbackStyleMedium);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY, UIImpactFeedbackStyleHeavy);
-#endif
 #endif
 
 @end

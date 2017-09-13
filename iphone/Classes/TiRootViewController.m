@@ -178,18 +178,22 @@
 
   UIView *theHost = nil;
 
-  hostView = [[UIView alloc] initWithFrame:[rootView bounds]];
-  hostView.backgroundColor = [UIColor clearColor];
+  if ([TiUtils isIOS8OrGreater]) {
+    hostView = [[UIView alloc] initWithFrame:[rootView bounds]];
+    hostView.backgroundColor = [UIColor clearColor];
 
 #ifdef LAUNCHSCREEN_STORYBOARD
-  storyboardView = [[UIView alloc] initWithFrame:[rootView bounds]];
-  [storyboardView addSubview:[[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view]];
-  [hostView addSubview:storyboardView];
+    storyboardView = [[UIView alloc] initWithFrame:[rootView bounds]];
+    [storyboardView addSubview:[[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view]];
+    [hostView addSubview:storyboardView];
 #endif
 
-  hostView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-  [rootView addSubview:hostView];
-  theHost = hostView;
+    hostView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    [rootView addSubview:hostView];
+    theHost = hostView;
+  } else {
+    theHost = rootView;
+  }
 
   if (defaultImageView != nil) {
     [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
@@ -746,11 +750,15 @@
   }
 
   DebugLog(@"[INFO] UI SHUTDOWN COMPLETE. TRYING TO RESUME RESTART");
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+  // Supressing selector-warning, since the "_resumeRestart:" method is generated dynamically
   if ([arg respondsToSelector:@selector(_resumeRestart:)]) {
     [arg performSelector:@selector(_resumeRestart:) withObject:nil];
   } else {
     DebugLog(@"[WARN] Could not resume. No selector _resumeRestart: found for arg");
   }
+#pragma clang diagnostic pop
 }
 #endif
 
@@ -763,7 +771,11 @@
 - (UIView *)hostingView
 {
   if ([self canHostWindows] && [self isViewLoaded]) {
-    return hostView;
+    if ([TiUtils isIOS8OrGreater]) {
+      return hostView;
+    } else {
+      return self.view;
+    }
   } else {
     return nil;
   }
@@ -827,17 +839,17 @@
     DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
     return;
   }
-
-  if ([topVC isKindOfClass:[UIAlertController class]]) {
-    if (((UIAlertController *)topVC).preferredStyle == UIAlertControllerStyleAlert) {
-      trulyAnimated = NO;
-      if (![theController isKindOfClass:[TiErrorController class]]) {
-        DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
-        return;
+  if ([TiUtils isIOS8OrGreater]) {
+    if ([topVC isKindOfClass:[UIAlertController class]]) {
+      if (((UIAlertController *)topVC).preferredStyle == UIAlertControllerStyleAlert) {
+        trulyAnimated = NO;
+        if (![theController isKindOfClass:[TiErrorController class]]) {
+          DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
+          return;
+        }
       }
     }
   }
-
   if (topVC == self) {
     [[containedWindows lastObject] resignFocus];
   } else if ([topVC respondsToSelector:@selector(proxy)]) {
@@ -859,9 +871,11 @@
   BOOL trulyAnimated = animated;
   UIViewController *presenter = [theController presentingViewController];
 
-  if ([presenter isKindOfClass:[UIAlertController class]]) {
-    if (((UIAlertController *)presenter).preferredStyle == UIAlertControllerStyleAlert) {
-      trulyAnimated = NO;
+  if ([TiUtils isIOS8OrGreater]) {
+    if ([presenter isKindOfClass:[UIAlertController class]]) {
+      if (((UIAlertController *)presenter).preferredStyle == UIAlertControllerStyleAlert) {
+        trulyAnimated = NO;
+      }
     }
   }
   [presenter dismissViewControllerAnimated:trulyAnimated
@@ -876,7 +890,7 @@
                                       if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
                                         [(id<TiWindowProtocol>)theProxy gainFocus];
                                       }
-                                    } else {
+                                    } else if ([TiUtils isIOS8OrGreater]) {
                                       //This code block will only execute when errorController is presented on top of an alert
                                       if ([presenter isKindOfClass:[UIAlertController class]] && (((UIAlertController *)presenter).preferredStyle == UIAlertControllerStyleAlert)) {
                                         UIViewController *alertPresenter = [presenter presentingViewController];
@@ -935,7 +949,7 @@
   UIViewController *presentedViewController = nil;
   while (topmostController != nil) {
     presentedViewController = [topmostController presentedViewController];
-    if ((presentedViewController != nil) && checkPopover) {
+    if ((presentedViewController != nil) && checkPopover && [TiUtils isIOS8OrGreater]) {
       if (presentedViewController.modalPresentationStyle == UIModalPresentationPopover) {
         presentedViewController = nil;
       } else if ([presentedViewController isKindOfClass:[UIAlertController class]]) {
@@ -1064,7 +1078,7 @@
 
 - (void)viewDidLayoutSubviews
 {
-  if (curTransformAngle == 0 && forceLayout) {
+  if ([TiUtils isIOS8OrGreater] && curTransformAngle == 0 && forceLayout) {
     [[self hostingView] setFrame:self.view.bounds];
   }
 #ifdef DEVELOPER
@@ -1114,22 +1128,26 @@
 
 - (void)incrementActiveAlertControllerCount
 {
-  ++activeAlertControllerCount;
+  if ([TiUtils isIOS8OrGreater]) {
+    ++activeAlertControllerCount;
+  }
 }
 - (void)decrementActiveAlertControllerCount
 {
-  --activeAlertControllerCount;
-  if (activeAlertControllerCount == 0) {
-    UIViewController *topVC = [self topPresentedController];
-    if (topVC == self) {
-      [self didCloseWindow:nil];
-    } else {
-      [self dismissKeyboard];
+  if ([TiUtils isIOS8OrGreater]) {
+    --activeAlertControllerCount;
+    if (activeAlertControllerCount == 0) {
+      UIViewController *topVC = [self topPresentedController];
+      if (topVC == self) {
+        [self didCloseWindow:nil];
+      } else {
+        [self dismissKeyboard];
 
-      if ([topVC respondsToSelector:@selector(proxy)]) {
-        id theProxy = [(id)topVC proxy];
-        if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-          [(id<TiWindowProtocol>)theProxy gainFocus];
+        if ([topVC respondsToSelector:@selector(proxy)]) {
+          id theProxy = [(id)topVC proxy];
+          if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+            [(id<TiWindowProtocol>)theProxy gainFocus];
+          }
         }
       }
     }
@@ -1142,7 +1160,7 @@
     return 0;
   }
 
-  if (activeAlertControllerCount > 0) {
+  if ([TiUtils isIOS8OrGreater] && activeAlertControllerCount > 0) {
     return [self supportedInterfaceOrientations];
   }
 
@@ -1461,9 +1479,12 @@
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
       [thisWindow viewDidAppear:animated];
     }
-    forcingRotation = NO;
-    [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-
+    if (forcingRotation || [TiUtils isIOS8OrGreater]) {
+      forcingRotation = NO;
+      [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+    } else {
+      [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
+    }
     [[containedWindows lastObject] gainFocus];
   }
   [super viewDidAppear:animated];
@@ -1518,7 +1539,7 @@
   BOOL oldStatus = statusBarIsHidden;
   if ([containedWindows count] > 0) {
     statusBarIsHidden = [[containedWindows lastObject] hidesStatusBar];
-    if (curTransformAngle != 0) {
+    if ([TiUtils isIOS8OrGreater] && curTransformAngle != 0) {
       statusBarIsHidden = YES;
     }
   } else {

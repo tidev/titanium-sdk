@@ -97,6 +97,7 @@
 - (UITableView *)tableView;
 - (void)setScrollsToTop_:(id)value;
 - (void)setContentOffset_:(id)args withObject:(id)obj;
+- (void)setContentInsets_:(id)value withObject:(id)props;
 
 #pragma Private
 - (void)selectRow:(id)args;

@@ -135,22 +135,18 @@
 
 - (NSNumber *)hasContentPending
 {
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater] && [WCSession isSupported]) {
     return NUMBOOL([[self watchSession] hasContentPending]);
   }
-#endif
 
   return NUMBOOL(NO);
 }
 
 - (NSNumber *)remainingComplicationUserInfoTransfers
 {
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater] && [WCSession isSupported]) {
     return NUMUINTEGER([[self watchSession] remainingComplicationUserInfoTransfers]);
   }
-#endif
 
   return NUMBOOL(0);
 }
@@ -487,12 +483,10 @@
     [dict setObject:[self activationState] forKey:@"activationState"];
   }
 
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     [dict setObject:[self hasContentPending] forKey:@"hasContentPending"];
     [dict setObject:[self remainingComplicationUserInfoTransfers] forKey:@"remainingComplicationUserInfoTransfers"];
   }
-#endif
 
   return dict;
 }

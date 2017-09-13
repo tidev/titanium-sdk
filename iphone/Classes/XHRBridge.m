@@ -7,6 +7,7 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import "XHRBridge.h"
+#import "APIModule.h"
 #import "Mimetypes.h"
 #import "TiBase.h"
 #import "TiHost.h"
@@ -58,19 +59,10 @@ static XHRBridge *xhrBridge = nil;
   NSString *module = [parts objectAtIndex:1];
   NSString *method = [parts objectAtIndex:2];
   NSString *prearg = [url query];
-  NSString *arguments = prearg == nil ? @"" : [prearg stringByRemovingPercentEncoding];
+  NSString *arguments = prearg == nil ? @"" : [prearg stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 
-  // Decode Ascii unicode-characters
-  NSString *decodevalue = [[NSString alloc] initWithData:[arguments dataUsingEncoding:NSUTF8StringEncoding]
-                                                encoding:NSNonLossyASCIIStringEncoding];
-
-  // Replace < and > characters with quotes
-  NSString *jsonString = [[decodevalue stringByReplacingOccurrencesOfString:@"<" withString:@"\""]
-      stringByReplacingOccurrencesOfString:@">"
-                                withString:@"\""];
-
-  // Parse the JSON-string to a dictionary
-  NSDictionary *event = [TiUtils jsonParse:jsonString];
+  NSError *error = nil;
+  NSDictionary *event = [TiUtils jsonParse:arguments error:&error];
 
   id<TiEvaluator> context = [[xhrBridge host] contextForToken:pageToken];
   TiModule *tiModule = (TiModule *)[[xhrBridge host] moduleNamed:module context:context];
@@ -90,7 +82,12 @@ static XHRBridge *xhrBridge = nil;
   } else if ([method isEqualToString:@"log"]) {
     NSString *level = [event objectForKey:@"level"];
     NSString *message = [event objectForKey:@"message"];
-    [tiModule performSelector:@selector(log:) withObject:[NSArray arrayWithObjects:level, message, nil]];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+    [tiModule performSelector:@selector(log:)
+                   withObject:[NSArray arrayWithObjects:level, message, nil]];
+#pragma clang diagnostic pop
   } else {
     executed = NO;
   }

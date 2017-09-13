@@ -78,7 +78,7 @@ properties:
   - name: CANCEL
     summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Cancel** button. 
     description: |
-        This button is displayed as a bordered button with localized text.
+        This button is displayed as a button with localized text.
 
         The resulting button can only be used in navigation bars and toolbars.
     type: Number
@@ -108,7 +108,7 @@ properties:
   - name: DONE
     summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Done** button. 
     description: |
-        This button is displayed as a bordered button with localized text.
+        This button is displayed as a button with localized text.
 
         The resulting button can only be used in navigation bars and toolbars.
     type: Number
@@ -117,7 +117,7 @@ properties:
   - name: EDIT
     summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Edit** button. 
     description: |
-        This button is displayed as a bordered button with localized text.
+        This button is displayed as a button with localized text.
 
         The resulting button can only be used in navigation bars and toolbars.
     type: Number
@@ -208,7 +208,7 @@ properties:
   - name: SAVE
     summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify a **Save** button. 
     description: |
-        This button is displayed as a bordered button with localized text.
+        This button is displayed as a button with localized text.
 
         The resulting button can only be used in navigation bars and toolbars.
     type: Number

@@ -6,7 +6,7 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TIDOMCharacterDataProxy.h"
+#import "TiDOMCharacterDataProxy.h"
 
 @interface TiDOMCommentProxy : TiDOMCharacterDataProxy
 

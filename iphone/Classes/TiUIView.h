@@ -13,6 +13,7 @@
 #endif
 //By declaring a scrollView protocol, TiUITextWidget can access
 @class TiUIView;
+@class TiRect;
 
 /**
  The protocol for scrolling.
@@ -164,6 +165,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  */
 - (void)animate:(TiAnimation *)newAnimation;
 
+- (void)fillBoundsToRect:(TiRect *)rect;
+
 #pragma mark Framework
 
 /**
@@ -258,6 +261,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 - (void)setVisible_:(id)visible;
 
 - (void)setBackgroundImage_:(id)value;
+
+- (void)setColor_:(id)color;
 
 - (UIView *)gradientWrapperView;
 - (void)checkBounds;

@@ -52,7 +52,7 @@
   }
 
 #define TI_PUBLIC_METHOD_END_ARGS(methodName, returnType) \
-  if (![@"void" isEqualToString:@"" #returnType]) {       \
+  if (![@"void" isEqualToString:@"" #returnType]) {      \
     return [self methodName##_CONTINUE:args];             \
   }                                                       \
   }                                                       \

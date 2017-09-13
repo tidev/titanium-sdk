@@ -16,7 +16,13 @@
 }
 
 - (LauncherView *)launcher;
+
 - (void)setViewData_:(NSArray *)data;
+
+- (void)startEditing;
+
+- (void)stopEditing;
+
 @end
 
 #endif

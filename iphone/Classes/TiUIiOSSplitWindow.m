@@ -68,7 +68,7 @@
     }
 
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-    if (UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation])) {
+    if ([TiUtils isIOS8OrGreater] && UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation])) {
       screenSize = CGSizeMake(screenSize.height, screenSize.width);
     }
 
@@ -199,7 +199,7 @@
   UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
   if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
     if (animate) {
-      void (^animation)() = ^{
+      void (^animation)(void) = ^{
         [self layoutSubviewsForOrientation:curOrientation];
       };
       [UIView animateWithDuration:0.2 animations:animation];
@@ -221,7 +221,7 @@
   UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
   if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
     if (animate) {
-      void (^animation)() = ^{
+      void (^animation)(void) = ^{
         [self layoutSubviewsForOrientation:curOrientation];
       };
       [UIView animateWithDuration:0.2 animations:animation];

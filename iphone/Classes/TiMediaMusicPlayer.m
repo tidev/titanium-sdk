@@ -88,7 +88,7 @@
                  subreason:nil
                   location:CODELOCATION];
 
-      return items;
+      return @[];
     }
 
     [items addObject:[query.items firstObject]];
