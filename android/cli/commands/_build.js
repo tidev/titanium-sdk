@@ -3385,14 +3385,15 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 	next();
 };
 
-function serviceParser(serviceNode, result) {
+function serviceParser(serviceNode) {
 	// add service attributes
+	const resultService = {};
 	appc.xml.forEachAttr(serviceNode, function (attr) {
-		result[attr.localName] = attr.value;
+		resultService[attr.localName] = attr.value;
 	});
 	appc.xml.forEachElement(serviceNode, function (node) {
-		if (!result[node.tagName]) {
-			result[node.tagName] = [];
+		if (!resultService[node.tagName]) {
+			resultService[node.tagName] = [];
 		}
 		// create intent-filter instance
 		const intentFilter = {};
@@ -3403,8 +3404,9 @@ function serviceParser(serviceNode, result) {
 			intentFilter['action'].push(appc.xml.getAttr(intentFilterAaction, 'android:name'));
 		});
 		// add intent filter object to array
-		result[node.tagName].push(intentFilter);
+		resultService[node.tagName].push(intentFilter);
 	});
+	return resultService;
 }
 
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {
@@ -3626,10 +3628,10 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	tiappServices && Object.keys(tiappServices).forEach(function (filename) {
 		const service = tiappServices[filename];
 		if (service.url) {
-			const s = {};
+			let s = {};
 			if (service.type === 'quicksettings') {
 				const serviceName = this.appid + '.' + service.classname;
-				const icon = '@drawable/' + (service.label || this.tiapp).icon.replace(/((\.9)?\.(png|jpg))$/, '');
+				const icon = '@drawable/' + (service.icon || this.tiapp.icon).replace(/((\.9)?\.(png|jpg))$/, '');
 				const label = service.label || this.tiapp.name;
 				const serviceXML = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'QuickService.xml')).toString(), {
 					serviceName: serviceName,
@@ -3637,7 +3639,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 					label: label
 				});
 				const doc = new DOMParser().parseFromString(serviceXML, 'text/xml');
-				serviceParser(doc.firstChild, s);
+				s = serviceParser(doc.firstChild);
 			} else {
 				s.name = this.appid + '.' + service.classname;
 				Object.keys(service).forEach(function (key) {
