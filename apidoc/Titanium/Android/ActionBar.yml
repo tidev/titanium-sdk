@@ -137,7 +137,19 @@ methods:
         See also:
         [hide](http://developer.android.com/reference/android/app/ActionBar.html#hide())
         in the Android API Reference.
-  
+
+  - name: setCustomView
+    summary: Sets a view to be used for a custom navigation mode.
+    parameters:
+      - name: view
+        summary: View to be used.
+        type: Titanium.UI.View
+    description: |
+        Inserts a custom view for navigation in the space
+        between the application's home button and menu actions.
+        The cusom view is trimmed to fit the space available.
+    since: "7.0.0"
+
   - name: setDisplayShowHomeEnabled
     summary: Shows or hides the action bar home icon
     parameters:
