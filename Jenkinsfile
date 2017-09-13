@@ -140,9 +140,9 @@ timestamps {
 						try {
 							sh 'curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/branches.json'
 							if (fileExists('branches.json')) {
-								def contents = readFile('branches.json')
-								if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
-									def branchesJSON = jsonParse(contents)
+								def branchesJSONContents = readFile('branches.json')
+								if (!branchesJSONContents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+									def branchesJSON = jsonParse(branchesJSONContents)
 									isFirstBuildOnBranch = !(branchesJSON['branches'].contains(env.BRANCH_NAME))
 								}
 							}
@@ -272,12 +272,12 @@ timestamps {
 							try {
 								sh 'curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/branches.json'
 								if (fileExists('branches.json')) {
-									def contents = readFile('branches.json')
-									if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
-										def branchesJSON = jsonParse(contents)
+									def branchesJSONContents = readFile('branches.json')
+									if (!branchesJSONContents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+										def branchesJSON = jsonParse(branchesJSONContents)
 										if (!(branchesJSON['branches'].contains(env.BRANCH_NAME))) {
 											// Update the branches.json on S3
-											echo "updating mobile/branches.json to include new branch..."
+											echo 'updating mobile/branches.json to include new branch...'
 											branchesJSON['branches'] << env.BRANCH_NAME
 											writeFile file: 'branches.json', text: new groovy.json.JsonBuilder(branchesJSON).toPrettyString()
 											step([
