@@ -7,10 +7,9 @@ description: |
       <tr>
         <td><img src="images/button/button_android.png" height="50" /></td>
         <td><img src="images/button/button_ios.png" height="50" /></td>
-        <td><img src="images/button/button_mobileweb.png" height="50" /></td>
         <td><img src="images/button/button_wp.png" height="50" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
 
     A button displays its  selected state while it is being pressed. The focused state is
@@ -23,15 +22,6 @@ description: |
 
     Use the <Titanium.UI.createButton> method or a **`<Button>`** Alloy element to create a button 
     (see [Examples](#!/api/Titanium.UI.Button-examples)) .
-
-    #### Android and Mobile Web Platform Notes
-
-    Android and Mobile Web use default button images for the normal, focused, selected and disabled
-    states. If you use a custom button image, you should specify versions for the focused
-    and selected states (and the disabled state, if the button is ever disabled).
-
-    Android and Mobile Web also support setting the background color for each of the states. These are not
-    supported on iOS.
 
     #### iOS Platform Notes
 
@@ -87,7 +77,7 @@ description: |
     * Similarly, for an assigned background gradient to show through, the `backgroundColor` may need to be
     set to 'transparent'.
 
-    Unlike Android and Mobile Web, iOS doesn't supply any default background images for buttons--
+    Unlike Android, iOS doesn't supply any default background images for buttons--
     system button styles serve this purpose. 
 
     The `systemButton` property lets you create a predefined system-defined button, 
@@ -144,12 +134,12 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.Button.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
 
 properties:
   - name: backgroundImage
@@ -171,7 +161,7 @@ properties:
         Also sets the background image for the other button states (normal, focused, selected), 
         unless they've been specified explicitly, except for iOS, which requires a backgroundImage.
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: backgroundFocusedImage
     summary: |
@@ -181,16 +171,16 @@ properties:
         Focusable must be true for normal views. Sets the background image for the focused 
         state only. For iOS, since there is not a trackball, this does nothing.
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     
   - name: backgroundSelectedColor
     summary: Selected background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.         
     type: String
-    platforms: [iphone, ipad, android, mobileweb]
+    platforms: [iphone, ipad, android]
     default: Background color of this view.
-    since: {iphone: "6.1.0", ipad: "6.1.0", android: 0.9.0, mobileweb: 1.8.0}
+    since: {iphone: "6.1.0", ipad: "6.1.0", android: 0.9.0}
     
   - name: backgroundSelectedImage
     summary: |
@@ -200,7 +190,7 @@ properties:
         On Android, Focusable must be true in order to be selected. Sets the background image for the selected 
         state only.
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: color
     summary: Default button text color, as a color name or hex triplet.
@@ -219,7 +209,7 @@ properties:
     summary: Set to `true` to enable the button, `false` to disable the button.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad , mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: font
     summary: Font to use for the button text.
@@ -240,7 +230,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [iphone,ipad,mobileweb]
+    platforms: [iphone,ipad]
 
   - name: shadowColor
     summary: Shadow color of the [title](Titanium.UI.Button.title), as a color name or hex triplet.
@@ -248,7 +238,7 @@ properties:
         Use in conjunction with [shadowOffset](Titanium.UI.Button.shadowOffset) and [shadowRadius](Titanium.UI.Button.shadowRadius).
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: String
-    platforms: [android, mobileweb]
+    platforms: [android]
     since: "3.2.0"
 
   - name: shadowOffset
@@ -256,7 +246,7 @@ properties:
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Button.shadowColor) and [shadowRadius](Titanium.UI.Button.shadowRadius).
     type: Dictionary
-    platforms: [android, mobileweb]
+    platforms: [android]
     since: "3.2.0"
 
   - name: shadowRadius
@@ -264,7 +254,7 @@ properties:
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Button.shadowColor) and [shadowOffset](Titanium.UI.Button.shadowOffset).
     type: Number
-    platforms: [android, mobileweb]
+    platforms: [android]
     since: "3.2.0"
 
   - name: style
@@ -325,7 +315,7 @@ properties:
     type: [Number,String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
-    platforms: [android, mobileweb]
+    platforms: [android]
 
 examples:
   - title: Simple Button Example
