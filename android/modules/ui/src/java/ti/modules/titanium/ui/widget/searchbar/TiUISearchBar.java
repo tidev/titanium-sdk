@@ -16,6 +16,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.graphics.drawable.Drawable;
+import android.support.design.widget.TextInputLayout;
 import android.text.TextUtils.TruncateAt;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -45,8 +46,16 @@ public class TiUISearchBar extends TiUIText
 	{
 		super(proxy, true);
 
-		tv = (EditText) getNativeView();
-		tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
+		View nativeView = getNativeView();
+		if (nativeView instanceof EditText) {
+			this.tv = (EditText)nativeView;
+		} else if (nativeView instanceof TextInputLayout) {
+			this.tv = ((TextInputLayout)nativeView).getEditText();
+		} else {
+			throw new IllegalStateException();
+		}
+
+		this.tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 		promptText = new TextView(proxy.getActivity());
 		promptText.setEllipsize(TruncateAt.END);
 		promptText.setSingleLine(true);
@@ -64,6 +73,7 @@ public class TiUISearchBar extends TiUIText
 		cancelBtn.setMinimumHeight((int) (20 * scale));
 		cancelBtn.setOnClickListener(new OnClickListener()
 		{
+			@Override
 			public void onClick(View view)
 			{
 				tv.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
@@ -96,7 +106,7 @@ public class TiUISearchBar extends TiUIText
 		params.addRule(RelativeLayout.CENTER_VERTICAL);
 		params.addRule(RelativeLayout.LEFT_OF, 101);
 //		params.setMargins(4, 4, 4, 4);
-		layout.addView(tv, params);
+		layout.addView(getNativeView(), params);
 
 		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);

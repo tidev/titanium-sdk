@@ -11,19 +11,18 @@
 
 @implementation TiUIiOSStatusBarProxy
 
-MAKE_SYSTEM_PROP(DEFAULT,UIStatusBarStyleDefault);
-MAKE_SYSTEM_PROP(GRAY,UIStatusBarStyleDefault);
-MAKE_SYSTEM_PROP(GREY,UIStatusBarStyleDefault);
-MAKE_SYSTEM_PROP(LIGHT_CONTENT,UIStatusBarStyleLightContent);
+MAKE_SYSTEM_PROP(DEFAULT, UIStatusBarStyleDefault);
+MAKE_SYSTEM_PROP(GRAY, UIStatusBarStyleDefault);
+MAKE_SYSTEM_PROP(GREY, UIStatusBarStyleDefault);
+MAKE_SYSTEM_PROP(LIGHT_CONTENT, UIStatusBarStyleLightContent);
 
+MAKE_SYSTEM_PROP(ANIMATION_STYLE_NONE, UIStatusBarAnimationNone);
+MAKE_SYSTEM_PROP(ANIMATION_STYLE_SLIDE, UIStatusBarAnimationSlide);
+MAKE_SYSTEM_PROP(ANIMATION_STYLE_FADE, UIStatusBarAnimationFade);
 
-MAKE_SYSTEM_PROP(ANIMATION_STYLE_NONE,UIStatusBarAnimationNone);
-MAKE_SYSTEM_PROP(ANIMATION_STYLE_SLIDE,UIStatusBarAnimationSlide);
-MAKE_SYSTEM_PROP(ANIMATION_STYLE_FADE,UIStatusBarAnimationFade);
-
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.StatusBar";
+  return @"Ti.UI.iOS.StatusBar";
 }
 
 @end

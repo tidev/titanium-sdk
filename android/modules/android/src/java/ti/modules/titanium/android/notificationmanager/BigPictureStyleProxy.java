@@ -16,7 +16,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
 import ti.modules.titanium.android.AndroidModule;
-import ti.modules.titanium.filesystem.FileProxy;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat.BigPictureStyle;
@@ -59,17 +58,6 @@ public class BigPictureStyleProxy extends StyleProxy {
 		}
 	}
 
-	private TiDrawableReference makeImageSource(Object object)
-	{
-		if (object instanceof FileProxy) {
-			return TiDrawableReference.fromFile(this.getActivity(), ((FileProxy) object).getBaseFile());
-		} else if (object instanceof String) {
-			return TiDrawableReference.fromUrl(this, (String) object);
-		} else {
-			return TiDrawableReference.fromObject(this.getActivity(), object);
-		}
-	}
-
 	@Kroll.method @Kroll.setProperty
 	public void setBigLargeIcon(Object icon)
 	{
@@ -93,7 +81,7 @@ public class BigPictureStyleProxy extends StyleProxy {
 	@Kroll.method @Kroll.setProperty
 	public void setBigPicture(Object picture)
 	{
-		TiDrawableReference source = makeImageSource(picture);
+		TiDrawableReference source = TiDrawableReference.fromObject(this.getActivity(), picture);
 
 		// Check for decodeRetries
 		if (hasProperty(TiC.PROPERTY_DECODE_RETRIES)) {

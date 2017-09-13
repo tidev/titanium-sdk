@@ -24,6 +24,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
@@ -238,6 +239,8 @@ public class TiDrawableReference
 			return fromBlob(activity, TiConvert.toBlob(object));
 		} else if (object instanceof Number) {
 			return fromResourceId(activity, ((Number)object).intValue());
+		} else if  (object instanceof TiFileProxy) {
+			return fromFile(activity, ((TiFileProxy)object).getBaseFile());
 		} else {
 			Log.w(TAG, "Unknown image resource type: " + object.getClass().getSimpleName()
 				+ ". Returning null drawable reference");
