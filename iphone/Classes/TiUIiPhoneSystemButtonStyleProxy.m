@@ -13,11 +13,11 @@
 
 - (NSString *)apiName
 {
-    return @"Ti.UI.iPhone.SystemButtonStyle";
+  return @"Ti.UI.iPhone.SystemButtonStyle";
 }
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DONE,UIBarButtonItemStyleDone,@"UI.iPhone.SystemButtonStyle.DONE",@"5.4.0",@"UI.iOS.SystemButtonStyle.DONE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN,UIBarButtonItemStylePlain,@"UI.iPhone.SystemButtonStyle.PLAIN",@"5.4.0",@"UI.iOS.SystemButtonStyle.PLAIN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DONE, UIBarButtonItemStyleDone, @"UI.iPhone.SystemButtonStyle.DONE", @"5.4.0", @"UI.iOS.SystemButtonStyle.DONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN, UIBarButtonItemStylePlain, @"UI.iPhone.SystemButtonStyle.PLAIN", @"5.4.0", @"UI.iOS.SystemButtonStyle.PLAIN");
 
 @end
 

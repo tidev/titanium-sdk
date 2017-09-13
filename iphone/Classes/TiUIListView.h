@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_UILISTVIEW
 
-#import "TiUIView.h"
 #import "TiUIListViewProxy.h"
+#import "TiUIView.h"
 
 @interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UITableViewDataSourcePrefetching, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchResultsUpdating, UISearchControllerDelegate, TiScrolling, TiProxyObserver, TiUIListViewDelegateView>
 
@@ -23,7 +23,7 @@
 - (void)updateIndicesForVisibleRows;
 - (void)cleanup:(id)unused;
 
-+ (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
++ (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary *)properties;
 
 @end
 
