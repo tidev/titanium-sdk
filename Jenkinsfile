@@ -284,7 +284,7 @@ timestamps {
 												$class: 'S3BucketPublisher',
 												consoleLogLevel: 'INFO',
 												entries: [[
-													bucket: 'builds.appcelerator.com/mobile/branches.json',
+													bucket: 'builds.appcelerator.com/mobile',
 													gzipFiles: false,
 													selectedRegion: 'us-east-1',
 													sourceFile: 'branches.json',
