@@ -494,8 +494,8 @@ function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 				const array = parent[type];
 				if (array) {
 					// find matching name in array
-					for (let i = 0; array.length; i++) {
-						if (array[i].name === currentKey) { // eslint-disable-line max-depth
+					for (let i = 0; i < array.length; i++) {
+						if (array[i] && array[i].name === currentKey) { // eslint-disable-line max-depth
 							parent = array[i];
 							break;
 						}

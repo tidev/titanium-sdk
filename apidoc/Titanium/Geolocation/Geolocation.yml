@@ -9,16 +9,16 @@ description: |
     *   Geocoding and reverse geocoding. Converting geographic  coordinates into
         addresses, and converting addresses into geographic  coordinates.
 
-    Using location services can have a significant impact on a device's battery life, 
+    Using location services can have a significant impact on a device's battery life,
     so it's important to use them in the most efficient manner possible. Power consumption
-    is strongly influenced by the accuracy and frequency of location updates required by 
-    your application. 
-    
+    is strongly influenced by the accuracy and frequency of location updates required by
+    your application.
+
     The location services systems of the underlying platforms are very different, so there
     are significant implementation differences between the platforms.
 
     The basic methods of requesting location information and receiving location updates
-    are essentially the same on all platforms. However, the method of configuring the 
+    are essentially the same on all platforms. However, the method of configuring the
     accuracy and frequency of location updates is different for each platform.
 
     #### Getting Location Information
@@ -39,12 +39,12 @@ description: |
     In iOS, the accuracy (and power consumption) of location services is primarily
     determined by the [accuracy](Titanium.Geolocation.accuracy) setting. This can be set
     to one of the following values:
-    
+
     *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
     *   [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH)
-    *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS) 
-    *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS) 
-    *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER) 
+    *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS)
+    *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS)
+    *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER)
     *   [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW)
     *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
         accuracy and power consumption).
@@ -81,72 +81,58 @@ description: |
         </ti:app>
 
     #### Configurating Location Updates on Android
-    
+
     Prior to Titanium Mobile 2.0, Titanium attempted to follow the iOS model on Android,
     but this didn't fit the native Android model well. In Release 2.0, three different
     location service modes are supported on Android: *simple*, *manual*, and *legacy*.
 
-    *   *Simple mode* provides a compromise mode that provides adaquate support for 
+    *   *Simple mode* provides a compromise mode that provides adaquate support for
         undemanding location applications without requiring developers to
         write a lot of Android-specific code. To use simple mode:
 
-        1.   Leave the <Titanium.Geolocation.Android.manualMode> flag set to `false` (the 
+        1.   Leave the <Titanium.Geolocation.Android.manualMode> flag set to `false` (the
              default value).
-        
-        2.   Set the [accuracy](Titanium.Geolocation.accuracy) property to 
-             either [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) or 
+
+        2.   Set the [accuracy](Titanium.Geolocation.accuracy) property to
+             either [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) or
              [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW).
 
     *   *Manual mode* gives developers low-level control of location updates, including
         enabling individual location providers and filtering updates, for the best
-        combination of accuracy and battery life. 
+        combination of accuracy and battery life.
 
         Manual mode is used when the <Titanium.Geolocation.Android.manualMode> flag is set
         to `true`. In manual mode, the `accuracy` property is not used, and all
         configuration is done through the <Titanium.Geolocation.Android> module.
 
-    *   *Legacy mode* is the mode that existed prior to 2.0. Legacy mode is 
-        used when the `manualMode` flag is `false` and the `accuracy` property is 
+    *   *Legacy mode* is the mode that existed prior to 2.0. Legacy mode is
+        used when the `manualMode` flag is `false` and the `accuracy` property is
         set to one of the iOS `ACCURACY` constants:
 
         *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
-        *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS) 
-        *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS) 
-        *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER) 
+        *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS)
+        *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS)
+        *   [ACCURACY_KILOMETER](Titanium.Geolocation.ACCURACY_KILOMETER)
         *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
-            accuracy and power consumption). 
-            
-        This mode is deprecated and should not be used for new development. 
+            accuracy and power consumption).
 
-        In this mode, the specified `accuracy` value determines the 
+        This mode is deprecated and should not be used for new development.
+
+        In this mode, the specified `accuracy` value determines the
         *minimum distance between location updates*. If `accuracy` is set to
         `ACCURACY_BEST`, no distance filter is used on updates.
-        
+
         In legacy mode, only a single location provider (GPS, network, or passive) is
-        enabled at a time. You can specify a the location provider using the 
+        enabled at a time. You can specify a the location provider using the
         [preferredProvider](Titanium.Geolocation.preferredProvider) property.
-        
+
         You can also specifying a desired update frequency using the
         [frequency](Titanium.Geolocation.frequency) property. The `preferredProvider`
         and `frequency` properties are not used in any other mode.
 
-    #### Configuring Location Updates on Mobile Web
-
-    Location services on Mobile Web operate similarly to the *simple mode* operations on
-    Android. Setting [accuracy](Titanium.Geolocation.accuracy) property to 
-    [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH) yeilds the best available location
-    updates, with the hightest power consumption.
-    Using [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) provides lower-quality location
-    updates with lower power consumption.
-
-    In addition to the accuracy setting, there are several Mobile Web-specific settings.
-    See <Titanium.Geolocation.MobileWeb> for details.
-
     #### Using the Compass
 
     Both iOS and Android support a receiving heading updates from a hardware compass, if available.
-    On Mobile Web, heading updates are supported if the browser supports this feature.
-    Currently, this support is only available on Mobile Safari.
 
     Check the [hasCompass](Titanium.Geolocation.hasCompass) property to see if the current
     device supports a compass.
@@ -185,7 +171,7 @@ description: |
     The module provides two methods, [forwardGeocoder](Titanium.Geolocation.forwardGeocoder) and [reverseGeocoder](Titanium.Geolocation.reverseGeocoder)
     to convert between geographic coordinates and addresses. These methods map to MapQuest Open Nominatim Search Service.
 
-    While this API has the advantage that it has no daily usage limits, please note that the data backing this API is crowd sourced and might not return 
+    While this API has the advantage that it has no daily usage limits, please note that the data backing this API is crowd sourced and might not return
     proper values for valid addresses and geographic coordinates.
 
     If geocoding services are essential component of the application, developers are encouraged to use commercial geocoding providers.
@@ -200,9 +186,9 @@ methods:
         summary: address to resolve.
         type: String
       - name: callback
-        summary: Function to invoke on success or failure. 
+        summary: Function to invoke on success or failure.
         type: Callback<ForwardGeocodeResponse>
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: getCurrentHeading
     summary: Retrieves the current compass heading.
@@ -210,48 +196,48 @@ methods:
       - name: callback
         summary: Function to invoke on success or failure of obtaining the current heading.
         type: Callback<HeadingResponse>
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: getCurrentPosition
-    summary: Retrieves the last known location from the device. 
+    summary: Retrieves the last known location from the device.
     description: |
         On Android, the radios are not turned on to update the location, and a cached
         location is used.
-        
-        On iOS the radios **may** be used if the location is too "old". 
+
+        On iOS the radios **may** be used if the location is too "old".
     parameters:
       - name: callback
-        summary: Function to invoke on success or failure of obtaining the current location. 
+        summary: Function to invoke on success or failure of obtaining the current location.
         type: Callback<LocationResults>
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: hasLocationPermissions
     summary: Returns `true` if the app has location access.
     parameters:
       - name: authorizationType
         summary: |
-            Types of geolocation's authorizations. This is an iOS 8 and above only parameter and is ignored on 
+            Types of geolocation's authorizations. This is an iOS 8 and above only parameter and is ignored on
             Android and iOS 7.
         constants: [Titanium.Geolocation.AUTHORIZATION_ALWAYS,Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE]
-        type: Number 
+        type: Number
     returns:
-        type: Boolean 
+        type: Boolean
     platforms: [iphone, ipad, android]
     since: "5.1.0"
-  
+
   - name: requestLocationPermissions
     summary: Requests for location access.
     description: |
         On Android, the request view will show if the permission is not accepted by the user, and the user did
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
-        the user has to manually enable the permission in device settings. If the user asks for permissions or 
-        tries to get unauthorized location information, then the app should call the request method to show 
-        the permission settings. This method requests `Manifest.permission.ACCESS_FINE_LOCATION` on Android. 
+        the user has to manually enable the permission in device settings. If the user asks for permissions or
+        tries to get unauthorized location information, then the app should call the request method to show
+        the permission settings. This method requests `Manifest.permission.ACCESS_FINE_LOCATION` on Android.
         If you require other permissions, you can also use <Titanium.Android.requestPermissions>.
 
         In iOS 8, Apple introduced the Info.plist keys `NSLocationWhenInUseUsageDescription` and `NSLocationAlwaysUsageDescription`
         that are used to display an own description while requesting location permissions. In addition to this method, you need to
-        include one of these keys (based on how your location updates should behave) or the application will crash if your app does not. 
+        include one of these keys (based on how your location updates should behave) or the application will crash if your app does not.
         Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) for more information.
     parameters:
       - name: authorizationType
@@ -281,14 +267,14 @@ methods:
         type: Number
 
       - name: callback
-        summary: Function to invoke on success or failure. 
+        summary: Function to invoke on success or failure.
         type: Callback<ReverseGeocodeResponse>
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
 events:
 
   - name: calibration
-    summary: Fired when the device detects interface and requires calibration. 
+    summary: Fired when the device detects interface and requires calibration.
     description: |
         When this event is fired, the OS calibration UI is being displayed to the end user.
     platforms: [iphone, ipad]
@@ -322,7 +308,7 @@ events:
       - name: code
         summary: if `success` is false, the error code if available.
         type: Number
-        
+
       - name: success
         summary: Indicates if location data was successfully retrieved.
         type: Boolean
@@ -343,9 +329,9 @@ events:
   - name: locationupdatepaused
     summary: Fired when location updates are paused by the OS. Available in iOS 6.0 and later.
     description: |
-        This event is fired when [pauseLocationUpdateAutomatically](Titanium.Geolocation.pauseLocationUpdateAutomatically) 
-        is set to `true` and if the OS detects that the device's location is not changing, 
-        causing it to pause the delivery of updates in order to shut down the appropriate 
+        This event is fired when [pauseLocationUpdateAutomatically](Titanium.Geolocation.pauseLocationUpdateAutomatically)
+        is set to `true` and if the OS detects that the device's location is not changing,
+        causing it to pause the delivery of updates in order to shut down the appropriate
         hardware and save power.
     platforms: [iphone, ipad]
     since: "3.1.0"
@@ -353,8 +339,8 @@ events:
   - name: locationupdateresumed
     summary: Fired when location manager is resumed by the OS. Available in iOS 6.0 and later.
     description: |
-        When location updates are paused and need to be resumed (perhaps because the user 
-        is moving again), this event is fired to let the app know that it is about to 
+        When location updates are paused and need to be resumed (perhaps because the user
+        is moving again), this event is fired to let the app know that it is about to
         begin the delivery of those updates again.
     platforms: [iphone, ipad]
     since: "3.1.0"
@@ -362,7 +348,7 @@ events:
   - name: authorization
     summary: Fired when changes are made to the authorization status for location services. Available in iOS 8.0 and later.
     description: |
-        This event is fired whenever the application's ability to use location services changes. 
+        This event is fired whenever the application's ability to use location services changes.
         Changes can occur because the user allowed or denied the use of location services for the app or the system as a whole.
     properties:
       - name: authorizationStatus
@@ -384,7 +370,7 @@ properties:
         battery usage.
 
         Using this value on Android enables *legacy mode* operation, which is not
-        recommended. 
+        recommended.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -395,7 +381,7 @@ properties:
         updates accurate to the nearest 100 meters.
     description: |
         Using this value on Android enables *legacy mode* operation, which is not
-        recommended. 
+        recommended.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -406,7 +392,7 @@ properties:
         updates accurate to the nearest kilometer.
     description: |
         Using this value on Android enables *legacy mode* operation, which is not
-        recommended. 
+        recommended.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -417,7 +403,7 @@ properties:
         updates accurate to the nearest 10 meters.
     description: |
         Using this value on Android enables *legacy mode* operation, which is not
-        recommended. 
+        recommended.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -428,7 +414,7 @@ properties:
         updates accurate to the nearest three kilometers.
     description: |
         Using this value on Android enables *legacy mode* operation, which is not
-        recommended. 
+        recommended.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -441,16 +427,16 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     since: "2.0.0"
-    
+
   - name: ACCURACY_BEST_FOR_NAVIGATION
     summary: |
-        Use with [accuracy](Titanium.Geolocation.accuracy) to request highest possible 
+        Use with [accuracy](Titanium.Geolocation.accuracy) to request highest possible
         accuracy and combine it with additional sensor data.
     description: |
-        Using this value is intended for use in navigation applications that require 
-        precise position information at all times and are intended to be used only while 
+        Using this value is intended for use in navigation applications that require
+        precise position information at all times and are intended to be used only while
         the device is plugged in.
     type: Number
     permission: read-only
@@ -466,12 +452,12 @@ properties:
         Using this value on Android enables *simple mode* operation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     since: "2.0.0"
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
-        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value
         indicating that the application is authorized to use location services.
     type: Number
     permission: read-only
@@ -479,7 +465,7 @@ properties:
 
   - name: AUTHORIZATION_DENIED
     summary: |
-        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value
         indicating that the application is not authorized to use location services, *or*
         location services are disabled.
     type: Number
@@ -488,7 +474,7 @@ properties:
 
   - name: AUTHORIZATION_RESTRICTED
     summary: |
-        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value
         indicating that the application is not authorized to use location servies *and*
         the user cannot change this application's status.
     type: Number
@@ -497,7 +483,7 @@ properties:
 
   - name: AUTHORIZATION_UNKNOWN
     summary: |
-        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value
         indicating that the authorization state is unknown.
     description: |
         This value is always returned if the device is running an iOS release prior to 4.2.
@@ -507,7 +493,7 @@ properties:
 
   - name: AUTHORIZATION_ALWAYS
     summary: |
-        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value
         indicating that the application is authorized to start location services at any time. This authorization
         includes the use of all location services, including monitoring regions and significant location changes.
     type: Number
@@ -518,7 +504,7 @@ properties:
 
   - name: AUTHORIZATION_WHEN_IN_USE
     summary: |
-        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value 
+        A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value
         indicating that the application is authorized to start most location services only while running in the foreground.
     type: Number
     permission: read-only
@@ -579,7 +565,7 @@ properties:
 
   - name: ERROR_TIMEOUT
     summary: Error indicating a timeout.
-    platforms: [mobileweb]
+    platforms: []
     type: Number
     permission: read-only
 
@@ -587,12 +573,12 @@ properties:
     summary: |
         Specifies the GPS location provider.
     description: |
-        Used with [preferredProvider](Titanium.Geolocation.preferredProvider), 
+        Used with [preferredProvider](Titanium.Geolocation.preferredProvider),
         [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
         [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
 
-        In general, the GPS provider has the highest power consumption and the 
-        highest accuracy, but this may vary. In some circumstances, the network 
+        In general, the GPS provider has the highest power consumption and the
+        highest accuracy, but this may vary. In some circumstances, the network
         provider may be more reliable.
     type: String
     permission: read-only
@@ -602,7 +588,7 @@ properties:
     summary: |
         Specifies the network location provider.
     description: |
-        Used with [preferredProvider](Titanium.Geolocation.preferredProvider), 
+        Used with [preferredProvider](Titanium.Geolocation.preferredProvider),
         [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
         [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
 
@@ -617,7 +603,7 @@ properties:
     summary: |
         Specifies the passive location provider.
     description: |
-        Used with [preferredProvider](Titanium.Geolocation.preferredProvider), 
+        Used with [preferredProvider](Titanium.Geolocation.preferredProvider),
         [LocationProvider.name](Titanium.Geolocation.Android.LocationProvider),
         [LocationRule.provider](Titanium.Geolocation.Android.LocationRule).
 
@@ -635,12 +621,12 @@ properties:
     permission: read-only
     platforms: [iphone,ipad]
     since: "3.1.0"
-    
+
   - name: ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION
     summary: The location data is used for tracking location changes to the automobile specifically during vehicular navigation.
     description: |
-        Used with [activityType](Titanium.Geolocation.activityType). This activity might 
-        cause location updates to be paused only when the vehicle does not move for an 
+        Used with [activityType](Titanium.Geolocation.activityType). This activity might
+        cause location updates to be paused only when the vehicle does not move for an
         extended period of time. Available in iOS 6.0 and later.
     type: String
     permission: read-only
@@ -650,8 +636,8 @@ properties:
   - name: ACTIVITYTYPE_FITNESS
     summary: The location data is used for tracking any pedestrian-related activity.
     description: |
-        Used with [activityType](Titanium.Geolocation.activityType). This activity might 
-        cause location updates to be paused only when the user does not move a significant 
+        Used with [activityType](Titanium.Geolocation.activityType). This activity might
+        cause location updates to be paused only when the user does not move a significant
         distance over a period of time.Available in iOS 6.0 and later.
     type: String
     permission: read-only
@@ -660,13 +646,13 @@ properties:
 
   - name: ACTIVITYTYPE_OTHER_NAVIGATION
     summary: |
-        The location data is used for tracking movements of other types of vehicular 
+        The location data is used for tracking movements of other types of vehicular
         navigation that are not automobile related.
     description: |
-        Used with [activityType](Titanium.Geolocation.activityType). You would use this 
-        to track navigation by boat, train, or plane. Do not use this type for pedestrian 
-        navigation tracking. This activity might cause location updates to be paused only 
-        when the vehicle does not move a significant distance over a period of time. 
+        Used with [activityType](Titanium.Geolocation.activityType). You would use this
+        to track navigation by boat, train, or plane. Do not use this type for pedestrian
+        navigation tracking. This activity might cause location updates to be paused only
+        when the vehicle does not move a significant distance over a period of time.
         Available in iOS 6.0 and later.
     type: String
     permission: read-only
@@ -684,26 +670,26 @@ properties:
         *   [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW) for lower-quality location
             updates with lower power consumption.
 
-        For finer-grained control on iOS, specify one of `ACCURACY_BEST`, 
+        For finer-grained control on iOS, specify one of `ACCURACY_BEST`,
         `ACCURACY_NEAREST_TEN_METERS`, `ACCURACY_HUNDRED_METERS`, `ACCURACY_KILOMETER`, or
-        `ACCURACY_THREE_KILOMETERS`. 
+        `ACCURACY_THREE_KILOMETERS`.
 
-        For finer-grained control on Android, use *manual mode*, instead of specifing an accuracy. 
-        This mode requires more active management on the part of the application, but it 
+        For finer-grained control on Android, use *manual mode*, instead of specifing an accuracy.
+        This mode requires more active management on the part of the application, but it
         is recommended to maximize accuracy and battery life.
         See <Titanium.Geolocation.Android> for details on using manual mode.
 
-        Note that for backwards compatibility, Android supports using the iOS accuracy constants. 
+        Note that for backwards compatibility, Android supports using the iOS accuracy constants.
         This usage is deprecated. Applications using one of the iOS constants should
         migrate to using `ACCURACY_HIGH`, `ACCURACY_LOW`, or Android manual mode.
     type: Number
     constants: Titanium.Geolocation.ACCURACY_*
 
-    
+
   - name: distanceFilter
-    summary: The minimum change of position (in meters) before a 'location' event is fired. 
+    summary: The minimum change of position (in meters) before a 'location' event is fired.
     description: |
-        If set to 0, distance filtering is disabled, meaning that location events are 
+        If set to 0, distance filtering is disabled, meaning that location events are
         generated continuously.
     type: Number
     default: 0
@@ -723,8 +709,8 @@ properties:
 
         Note that the frequency value is used as a guideline: there are no guarantees
         that the device will provide updates at the specified frequency.
-        
-        A lower frequency value generally increases power consumption. 
+
+        A lower frequency value generally increases power consumption.
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
 
@@ -733,11 +719,10 @@ properties:
     summary: Indicates whether the current device supports a compass.
     type: Boolean
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
-    since: { mobileweb: "2.1.0" }
+    platforms: [android, iphone, ipad]
 
   - name: headingFilter
-    summary: Minimum heading change (in degrees) before a `heading` event is fired. 
+    summary: Minimum heading change (in degrees) before a `heading` event is fired.
     description: |
         Set to a value greater than zero to reduce the number of heading events generated.
     type: Number
@@ -747,8 +732,8 @@ properties:
   - name: locationServicesAuthorization
     summary: Returns an authorization constant indicating if the application has access to location services.
     description: |
-         Always returns `AUTHORIZATION_UNKNOWN` on pre-4.2 devices. 
-         
+         Always returns `AUTHORIZATION_UNKNOWN` on pre-4.2 devices.
+
          If `locationServicesAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
          attempt to re-authorize: this will lead to issues.
     type: Number
@@ -782,7 +767,7 @@ properties:
         Setting a preferred provider enables legacy location mode on Android.
         Note that only a single provider can be active at one time in legacy mode.
 
-        The preferred provider affects power consumption. In general, `PROVIDER_GPS` 
+        The preferred provider affects power consumption. In general, `PROVIDER_GPS`
         requires the most power, and `PROVIDER_PASSIVE` requires the least.
 
         If `undefined`, the preferred provider is auto-detected.
@@ -796,7 +781,7 @@ properties:
         Text to display in the permission dialog when requesting location
         services.
     description: |
-        This property informs the end user why location services are being requested by 
+        This property informs the end user why location services are being requested by
         the application. This property is **required** starting in iOS 4.0.
         deprecated for >= iOS6, include the `NSLocationUsageDescription` key with your
         description in tiapp.xml instead.
@@ -808,23 +793,23 @@ properties:
     summary: Determines whether the compass calibration UI is shown if needed.
     description: |
         Set to `false` to disable display of the compass calibration UI. This may result
-        in invalid heading data. 
+        in invalid heading data.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
 
   - name: trackSignificantLocationChange
     summary: |
-        Indicates if the location changes should be updated only when a significant change 
+        Indicates if the location changes should be updated only when a significant change
         in location occurs.
     description: |
-        The trackSignificantLocationChange service offers a low-power location service for 
+        The trackSignificantLocationChange service offers a low-power location service for
         devices with cellular radios.This service is available only in iOS 4.0 and later.
-        This service offers a significant power savings and provides accuracy that is good 
-        enough for most applications. It uses the device's cellular radio to determine the 
-        user's location  and report changes in that location, allowing the system to manage 
-        power usage much more aggressively than it could otherwise. This service is also 
-        capable of waking up an application that is currently suspended or not running in 
+        This service offers a significant power savings and provides accuracy that is good
+        enough for most applications. It uses the device's cellular radio to determine the
+        user's location  and report changes in that location, allowing the system to manage
+        power usage much more aggressively than it could otherwise. This service is also
+        capable of waking up an application that is currently suspended or not running in
         order to deliver new location data.
     type: Boolean
     default: false
@@ -835,7 +820,7 @@ properties:
     summary: |
         Determines if the app can do background location updates.
     description: |
-        When `UIBackgroundModes` include `location` in tiapp.xml, this property is 
+        When `UIBackgroundModes` include `location` in tiapp.xml, this property is
         set to `true` by default. Available in iOS 9.0 and later.
     type: Boolean
     default: true
@@ -847,13 +832,13 @@ properties:
     summary: |
         The type of user activity to be associated with the location updates. Available in iOS 6.0 and later.
     description: |
-        The information in this property is used as a cue to determine when location 
-        updates may be automatically paused. Pausing updates gives the system the 
-        opportunity to save power in situations where the user's location is not likely 
-        to be changing. For example, if the activity type is 
-        [ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION](Titanium.Geolocation.ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION) 
-        and no location changes have occurred recently, the radios might be powered down 
-        until movement is detected again. 
+        The information in this property is used as a cue to determine when location
+        updates may be automatically paused. Pausing updates gives the system the
+        opportunity to save power in situations where the user's location is not likely
+        to be changing. For example, if the activity type is
+        [ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION](Titanium.Geolocation.ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION)
+        and no location changes have occurred recently, the radios might be powered down
+        until movement is detected again.
     type: Number
     constants: Titanium.Geolocation.ACTIVITYTYPE_*
     default: <Titanium.Geolocation.ACTIVITYTYPE_OTHER>
@@ -863,12 +848,12 @@ properties:
   - name: pauseLocationUpdateAutomatically
     summary: Indicates whether the location updates may be paused. Available in iOS 6.0 and later.
     description: |
-        Allowing the location updates to be paused can improve battery life on the 
-        target device without sacrificing location data. When this property is set to YES, 
-        the location updates are paused (and powers down the appropriate hardware) at 
-        times when the location data is unlikely to change. For example, if the user stops 
-        for food while using a navigation app, the location manager might pause updates for 
-        a period of time. You can help the determination of when to pause location updates 
+        Allowing the location updates to be paused can improve battery life on the
+        target device without sacrificing location data. When this property is set to YES,
+        the location updates are paused (and powers down the appropriate hardware) at
+        times when the location data is unlikely to change. For example, if the user stops
+        for food while using a navigation app, the location manager might pause updates for
+        a period of time. You can help the determination of when to pause location updates
         by assigning a value to the [activityType](Titanium.Geolocation.activityType) property.
     type: Boolean
     default: false
@@ -928,16 +913,16 @@ properties:
 
   - name: heading
     summary: |
-        Compass heading, in degrees. May be unknown if device is not moving. On 
+        Compass heading, in degrees. May be unknown if device is not moving. On
         iOS, a negative value indicates that the heading data is not valid.
     type: Number
 
   - name: speed
     summary: |
-        Current speed in meters/second. On iOS, a negative value indicates that the 
-        heading data is not valid or the accuracy is configured incorrectly. 
-        Note: Due to the Apple Geolocation API, set the <Titanium.Geolocation.accuracy> 
-        property to <Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION> in order to properly 
+        Current speed in meters/second. On iOS, a negative value indicates that the
+        heading data is not valid or the accuracy is configured incorrectly.
+        Note: Due to the Apple Geolocation API, set the <Titanium.Geolocation.accuracy>
+        property to <Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION> in order to properly
         measure speed changes and prevent the app from returning negative values.
     type: Number
 
@@ -962,38 +947,38 @@ properties:
   - name: level
     summary: The logical floor of the building.
     description: |
-        Level values represent logical levels above or below ground level and are not 
+        Level values represent logical levels above or below ground level and are not
         intended to correspond to any numbering scheme in use by the building itself.
-        The ground floor of a building is always represented by the value 0. Floors 
-        above the ground floor are represented by positive integers, so a value of 1 
-        represents the floor above ground level, a value of 2 represents two floors 
-        above ground level, and so on. Floors below the ground floor are represented 
-        by corresponding negative integers, with a value of -1 representing the floor 
+        The ground floor of a building is always represented by the value 0. Floors
+        above the ground floor are represented by positive integers, so a value of 1
+        represents the floor above ground level, a value of 2 represents two floors
+        above ground level, and so on. Floors below the ground floor are represented
+        by corresponding negative integers, with a value of -1 representing the floor
         immediately below ground level and so on.
     type: Number
 
 ---
 name: ForwardGeocodeResponse
 summary: |
-    Simple object returned in the callback from the 
+    Simple object returned in the callback from the
     [forwardGeocoder](Titanium.Geolocation.forwardGeocoder) method.
 
     Note that Android includes a number of extra fields.
 extends: ErrorResponse
-properties: 
+properties:
 
   - name: success
     summary: Indicates if the operation succeeded.
     description: Returns `true` if request succeeded, `false` otherwise.
     type: Boolean
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: error
     summary: Error message, if any returned.
     description: Will be undefined if `success` is `true`.
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
-    
+    platforms: [android, iphone, ipad]
+
   - name: code
     summary: Error code. Returns 0 if `success` is `true`.
     description: |
@@ -1001,8 +986,8 @@ properties:
         was generated by the operating system, that system's error value is used.
         Otherwise, this value will be -1.
     type: Number
-    since: { android: "3.1.0", iphone: "3.1.0", ipad: "3.1.0", mobileweb: "3.1.1" }
-    platforms: [android, iphone, ipad, mobileweb]
+    since: { android: "3.1.0", iphone: "3.1.0", ipad: "3.1.0" }
+    platforms: [android, iphone, ipad]
 
   - name: accuracy
     summary: Estimated accuracy of the geocoding, in meters.
@@ -1012,14 +997,12 @@ properties:
   - name: longitude
     summary: Longitude of the geocoded address.
     type: String
-    since: { mobileweb: "3.1.1" }
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: latitude
     summary: Latitude of the geocoded address.
     type: String
-    since: { mobileweb: "3.1.1" }
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: street
     summary: Street name, without street address.
@@ -1047,7 +1030,7 @@ properties:
     platforms: [android]
 
   - name: postalCode
-    summary: Postal code. 
+    summary: Postal code.
     type: String
     platforms: [android]
 
@@ -1057,7 +1040,7 @@ properties:
     platforms: [android]
 
   - name: countryCode
-    summary: Country code. 
+    summary: Country code.
     type: String
     platforms: [android]
 
@@ -1094,7 +1077,7 @@ properties:
     description: Will be undefined if `success` is `true`.
     type: String
     platforms: [iphone, ipad]
-    
+
   - name: code
     summary: Error code.
     description: |
@@ -1116,16 +1099,13 @@ properties:
   - name: accuracy
     summary: Accuracy of the compass heading, in platform-specific units.
     description: |
-        On iOS, accuracy is returned as a maximum deviation in degrees, 
-        the smaller the value, the more accurate the heading is. For example, 
-        a value of 10 means the heading is plus or minus 10 degrees from the 
-        actual value. A negative value indicates the compass heading is invalid; 
+        On iOS, accuracy is returned as a maximum deviation in degrees,
+        the smaller the value, the more accurate the heading is. For example,
+        a value of 10 means the heading is plus or minus 10 degrees from the
+        actual value. A negative value indicates the compass heading is invalid;
         for example, if there is magnetic interference, or if the compass is not calibrated.
-        
-        On Mobile Web, compass is currently supported only on iOS, and returns 
-        the same value as iOS native.
-        
-        On Android, the value is set to either 1 (low accuracy), 2 (medium accuracy) 
+
+        On Android, the value is set to either 1 (low accuracy), 2 (medium accuracy)
         or 3 (high accuracy). No specific definition of these accuracy values is supplied.
     type: Number
 
@@ -1170,9 +1150,9 @@ properties:
 name: LocationProviderDict
 summary: Simple object describing a location provider.
 description: |
-    The `accuracy` and `power` values correspond to constants defined in the 
+    The `accuracy` and `power` values correspond to constants defined in the
     Android API. See
-    [android.location.Criteria](http://developer.android.com/reference/android/location/Criteria.html) 
+    [android.location.Criteria](http://developer.android.com/reference/android/location/Criteria.html)
     in the Android API Reference.
 
     These values are generalizations. In general, a provider with coarse accuracy will
@@ -1198,7 +1178,7 @@ properties:
 ---
 name: ReverseGeocodeResponse
 summary: |
-    Simple object returned in the callback from the 
+    Simple object returned in the callback from the
     [reverseGeocoder](Titanium.Geolocation.reverseGeocoder) method.
 extends: ErrorResponse
 properties:
@@ -1212,7 +1192,7 @@ properties:
     description: Will be undefined if `success` is `true`.
     type: String
     since: "3.1.0"
-    
+
   - name: code
     summary: Error code. Returns 0 if `success` is `true`.
     description: |
@@ -1225,7 +1205,7 @@ properties:
 ---
 name: GeocodedAddress
 summary: |
-    Simple object representing a place, returned in the callback from the 
+    Simple object representing a place, returned in the callback from the
     [reverseGeocoder](Titanium.Geolocation.reverseGeocoder) method.
 
 properties:

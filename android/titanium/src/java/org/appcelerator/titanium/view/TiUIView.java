@@ -89,6 +89,7 @@ public abstract class TiUIView
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 	private static final boolean LOWER_THAN_JELLYBEAN = (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2);
+	private static final boolean LOWER_THAN_MARSHMALLOW = (Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
 
 	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String TAG = "TiUIView";
@@ -1409,7 +1410,8 @@ public abstract class TiUIView
 					if (radiusDim != null) {
 						radius = (float) radiusDim.getPixels(getNativeView());
 					}
-					if (radius > 0f && HONEYCOMB_OR_GREATER && LOWER_THAN_JELLYBEAN) {
+					if (radius > 0f && HONEYCOMB_OR_GREATER &&
+							(LOWER_THAN_JELLYBEAN || (d.containsKey(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW))) {
 						disableHWAcceleration();
 					}
 					borderView.setRadius(radius);
@@ -1455,7 +1457,8 @@ public abstract class TiUIView
 			if (radiusDim != null) {
 				radius = (float) radiusDim.getPixels(getNativeView());
 			}
-			if (radius > 0f && HONEYCOMB_OR_GREATER && LOWER_THAN_JELLYBEAN) {
+			if (radius > 0f && HONEYCOMB_OR_GREATER &&
+					(LOWER_THAN_JELLYBEAN || (proxy.hasProperty(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW))) {
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
@@ -1902,7 +1905,6 @@ public abstract class TiUIView
 				view.setOnClickListener(null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
 			}
 			view.setClickable(false);
-			view.setOnClickListener(null);
 			view.setOnLongClickListener(null);
 			view.setLongClickable(false);
 		} else if ( ! (view instanceof AdapterView) ) {
