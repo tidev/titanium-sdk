@@ -818,7 +818,7 @@
     }, [NSThread isMainThread]);
 }
 
-#ifdef __IPHONE_11
+#if IS_XCODE_9
 - (void)setLargeTitleEnabled:(id)value
 {
     ENSURE_UI_THREAD(setLargeTitleEnabled, value);
