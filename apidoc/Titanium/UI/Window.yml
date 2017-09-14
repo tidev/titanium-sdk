@@ -512,7 +512,7 @@ properties:
         the large out-of-line title view appears, see <Titanium.UI.Window.largeTitleDisplayMode>.
     default: false
     type: String
-    since: "6.2.0"
+    since: "6.3.0"
     platforms: [iphone, ipad]
     osver: {ios: {min: "11.0"}}
 
@@ -528,7 +528,7 @@ properties:
     type: Number
     constants: [Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_*]
     default: Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
-    since: "6.2.0"
+    since: "6.3.0"
     platforms: [iphone, ipad]
     osver: {ios: {min: "11.0"}}
 
