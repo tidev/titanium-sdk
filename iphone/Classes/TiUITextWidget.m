@@ -158,13 +158,14 @@
 
 -(void)setAutofillType_:(id)value
 {
-    ENSURE_TYPE_OR_NIL(value, NSString);
-    if (![TiUtils isIOS10OrGreater]) {
-        NSLog(@"Setting an autofillHint is only available on iOS 10 and later");
-        return;
-    }
-    
-    [[self textWidgetView] setTextContentType:[TiUtils stringValue:value]];
+  ENSURE_TYPE_OR_NIL(value, NSString);
+ 
+  if (![TiUtils isIOS10OrGreater]) {
+    NSLog(@"[ERROR] The 'autofillHint' property is only available on iOS 10 and later.");
+    return;
+  }
+
+  [[self textWidgetView] setTextContentType:[TiUtils stringValue:value]];
 }
 
 #pragma mark Responder methods
