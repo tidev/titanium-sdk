@@ -318,10 +318,21 @@
     image = nil;
     if ([TiUtils isRetinaHDDisplay]) {
         if (UIDeviceOrientationIsPortrait(orientation)) {
+            // Portrait: Try iPhone 6 Plus
             image = [UIImage imageNamed:@"LaunchImage-800-Portrait-736h@3x"];
-        }
-        else if (UIDeviceOrientationIsLandscape(orientation)) {
+      
+            // Portrait: Try iPhone X
+            if (!image) {
+                image = [UIImage imageNamed:@"LaunchImage-1100-Portrait-2436h@3x"];
+            }
+        } else if (UIDeviceOrientationIsLandscape(orientation)) {
+            // Landscape: Try iPhone 6 Plus
             image = [UIImage imageNamed:@"LaunchImage-800-Landscape-736h@3x"];
+
+            // Landscape: Try iPhone X
+            if (!image) {
+                image = [UIImage imageNamed:@"LaunchImage-1100-Landscape-2436h@3x"];
+            }
         }
         if (image!=nil) {
             *imageOrientation = orientation;
