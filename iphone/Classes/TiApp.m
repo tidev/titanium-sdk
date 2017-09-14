@@ -486,7 +486,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification object:self userInfo:notificationSettings];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification
+                                                      object:self
+                                                    userInfo:@{ @"userNotificationSettings": notificationSettings }];
 }
 
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler

@@ -201,6 +201,15 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 #endif
 }
 
++ (BOOL)isIOS11OrGreater
+{
+#if IS_XCODE_9
+  return [TiUtils isIOSVersionOrGreater:@"11.0"];
+#else
+  return NO;
+#endif
+}
+
 + (BOOL)isIOSVersionOrGreater:(NSString *)version
 {
   return [[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] != NSOrderedAscending;
