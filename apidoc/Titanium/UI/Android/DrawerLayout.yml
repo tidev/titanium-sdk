@@ -131,6 +131,7 @@ examples:
     example: |
         The following code shows a simple drawer-layout usage.
 
+
             var win = Ti.UI.createWindow();
 
             var leftView = Ti.UI.createView({ backgroundColor:'red' });
