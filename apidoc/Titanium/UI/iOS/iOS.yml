@@ -54,7 +54,7 @@ properties:
         then it will show the large title if the navigation bar has the property
         <Titanium.UI.Window.largeTitleEnabled> set to `true`.
     type: Number
-    since: "6.2.0"
+    since: "6.3.0"
     osver: {ios: {min: "11.0"}}
     permission: read-only 
 
@@ -62,7 +62,7 @@ properties:
     summary: Always use a larger title when this item is top most.
     description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
     type: Number
-    since: "6.2.0"
+    since: "6.3.0"
     osver: {ios: {min: "11.0"}}
     permission: read-only
     
@@ -70,7 +70,7 @@ properties:
     summary:  Never use a larger title when this item is top most.
     description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
     type: Number
-    since: "6.2.0"
+    since: "6.3.0"
     osver: {ios: {min: "11.0"}}
     permission: read-only
 
