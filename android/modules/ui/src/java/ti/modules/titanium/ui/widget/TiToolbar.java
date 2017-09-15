@@ -234,7 +234,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	private void handleSetLogo(Object object) {
 		logo = object;
-		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy.getActivity(), object);
+		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
 		((Toolbar) getNativeView()).setLogo(tiDrawableReference.getDrawable());
 	}
 
@@ -264,7 +264,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	private void handleSetNavigationIcon(Object object) {
 		navigationIcon = object;
-		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy.getActivity(), object);
+		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
 		((Toolbar) getNativeView()).setNavigationIcon(tiDrawableReference.getDrawable());
 	}
 
@@ -294,7 +294,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	private void handleSetOverflowMenuIcon(Object object) {
 		overflowMenuIcon = object;
-		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy.getActivity(), object);
+		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
 		((Toolbar) getNativeView()).setOverflowIcon(tiDrawableReference.getDrawable());
 	}
 
