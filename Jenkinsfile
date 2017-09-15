@@ -130,6 +130,10 @@ timestamps {
 						sh 'npm install'
 					}
 					sh 'npm test' // Run linting first
+					// Then validate docs
+					dir('apidoc') {
+						sh 'node validate.js'
+					}
 				}
 
 				// Skip the Windows SDK portion if a PR, we don't need it
@@ -176,19 +180,6 @@ timestamps {
 					basename = "dist/mobilesdk-${vtag}"
 					echo "BASENAME:        ${basename}"
 
-					// Enforce npm 5.2.0 right now, since 5.3.0 has a bug in pruning to production: https://github.com/npm/npm/issues/17781
-					sh 'npm install -g npm@5.2'
-
-					// Install dev dependencies
-					timeout(5) {
-						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
-						sh 'npm install'
-					}
-					sh 'npm test' // Run linting first
-					// Then validate docs
-					dir('apidoc') {
-						sh 'node validate.js'
-					}
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
 					dir('build') {
 						timeout(15) {
