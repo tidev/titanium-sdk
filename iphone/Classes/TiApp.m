@@ -699,7 +699,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 #pragma mark Background Transfer Service iOS 7
 
 //Delegate callback for Background Transfer completes.
-- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
 {
   // Generate unique key with timestamp.
   id key = [NSString stringWithFormat:@"Session-%f", [[NSDate date] timeIntervalSince1970]];
