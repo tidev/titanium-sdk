@@ -604,6 +604,12 @@ typedef enum {
 + (BOOL)isIOS10OrGreater;
 
 /**
+ Whether or not the current OS version is equal to or greater than 11.0.
+ @return _YES_ if the current OS version is equal to or greater than 11.0, _NO_ otherwise.
+ */
++ (BOOL)isIOS11OrGreater;
+
+/**
  Whether or not the current OS version is equal to or greater than the specified version.
  @param version The version to compare.
  @return _YES_ if the current OS version is equal to or greater than the specified version, _NO_ otherwise.
