@@ -335,17 +335,13 @@
     // iPhone 6 Plus
     if ([TiUtils isRetinaiPhone6Plus]) {
         if (UIDeviceOrientationIsPortrait(orientation)) {
-            // Portrait: Try iPhone 6 Plus
             image = [UIImage imageNamed:@"LaunchImage-800-Portrait-736h@3x"];
         } else if (UIDeviceOrientationIsLandscape(orientation)) {
-            // Landscape: Try iPhone 6 Plus
             image = [UIImage imageNamed:@"LaunchImage-800-Landscape-736h@3x"];
         }
-        if ([TiUtils isRetinaiPhone6]) {
-            image = [UIImage imageNamed:@"LaunchImage-800-667h"];
-            if (image!=nil) {
-                return image;
-            }
+        if (image != nil) {
+            *imageOrientation = orientation;
+            return image;
         }
     }
 
