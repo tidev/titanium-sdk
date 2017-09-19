@@ -188,6 +188,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_FRAME_METRICS = "framemetrics";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_SELECTED = "selected";
 
 	/**

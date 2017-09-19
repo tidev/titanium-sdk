@@ -33,12 +33,15 @@ import android.app.ActivityOptions;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.Display;
+import android.view.FrameMetrics;
 import android.view.View;
+import android.view.Window;
 
 @Kroll.proxy(propertyAccessors={
 	TiC.PROPERTY_EXIT_ON_CLOSE,
@@ -70,6 +73,15 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected PostOpenListener postOpenListener;
 	protected boolean windowActivityCreated = false;
 	protected List< Pair<View, String> > sharedElementPairs;
+
+	private Window.OnFrameMetricsAvailableListener frameMetricsAvailableListener = new Window.OnFrameMetricsAvailableListener() {
+		@Override
+		public void onFrameMetricsAvailable(Window window, FrameMetrics frameMetrics, int i) {
+			KrollDict frameMetricsDic = new KrollDict();
+			frameMetricsDic.put("framemetrics", new FrameMetricsProxy(frameMetrics));
+			fireEvent(TiC.EVENT_FRAME_METRICS, frameMetricsDic);
+		}
+	};
 
 	public static interface PostOpenListener
 	{
@@ -177,6 +189,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (TiApplication.isUIThread()) {
 			handleClose(options);
 			return;
+		}
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			getWindowActivity().getWindow().removeOnFrameMetricsAvailableListener(frameMetricsAvailableListener);
 		}
 
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE), options);
@@ -469,6 +485,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 		// to force the view to be drawn due to TIMOB-7685
 		if (nativeView != null) {
 			nativeView.postInvalidate();
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			getActivityProxy().getActivity().getWindow().addOnFrameMetricsAvailableListener(frameMetricsAvailableListener, new Handler());
 		}
 	}
 
