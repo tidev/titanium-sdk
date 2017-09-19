@@ -130,7 +130,9 @@ timestamps {
 						sh 'npm install'
 					}
 					sh 'npm test' // Run linting first
-					sh 'npx danger'
+					withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}"]) {
+						sh 'npx danger'
+					}
 				}
 
 				// Skip the Windows SDK portion if a PR, we don't need it
