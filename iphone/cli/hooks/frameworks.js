@@ -5,7 +5,7 @@
 
 'use strict';
 
-const exec = require('child_process').exec;
+const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
 const fs = require('fs');
 const IncrementalFileTask = require('appc-tasks').IncrementalFileTask;
 const path = require('path');
