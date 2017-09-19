@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget.webview;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -96,6 +97,20 @@ public class TiWebViewClient extends WebViewClientClassicExt
 		if (proxy == null) {
 			return;
 		}
+		if (proxy.hasProperty(TiC.PROPERTY_ON_LINK)) {
+			Object onLink = proxy.getProperty(TiC.PROPERTY_ON_LINK);
+			if (onLink instanceof KrollFunction) {
+				KrollFunction onLinkFunction = (KrollFunction) onLink;
+				KrollDict args = new KrollDict();
+				args.put(TiC.EVENT_PROPERTY_URL, url);
+				Object result = onLinkFunction.call(proxy.getKrollObject(), args);
+				if (result == null || (result instanceof Boolean && ((Boolean) result) == false)) {
+					webView.stopLoading();
+					return;
+				}
+			}
+		}
+
 		KrollDict data = new KrollDict();
 		data.put("url", url);
 		proxy.fireEvent("beforeload", data);
