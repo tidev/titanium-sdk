@@ -188,14 +188,14 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_LARGE_ICON, icon);
 	}
     
-    @Kroll.method @Kroll.setProperty
-    public void setColor(String color)
-    {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
-            notificationBuilder.setColor(TiColorHelper.parseColor(color));
-        }
-        setProperty(TiC.PROPERTY_COLOR, color);
-    }
+	@Kroll.method @Kroll.setProperty
+	public void setColor(String color)
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+			notificationBuilder.setColor(TiColorHelper.parseColor(color));
+		}
+		setProperty(TiC.PROPERTY_COLOR, color);
+	}
     
 	@Kroll.method @Kroll.setProperty
 	public void setVisibility(int visibility)
