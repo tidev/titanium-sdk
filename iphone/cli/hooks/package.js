@@ -228,7 +228,7 @@ exports.init = function (logger, config, cli) {
 		const entitlementsFile = path.join(builder.buildDir, builder.tiapp.name + '.entitlements');
 		if (fs.existsSync(entitlementsFile)) {
 			const plist = new appc.plist(entitlementsFile);
-			if (Object.keys(plist).some(function (key) { return key === 'com.apple.developer.icloud-container-identifiers'; })) {
+			if (Object.keys(plist).indexOf('com.apple.developer.icloud-container-identifiers') !== -1) {
 				exportsOptions.iCloudContainerEnvironment = 'Production';
 			}
 		}
