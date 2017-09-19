@@ -166,6 +166,7 @@ class FrameworkManager {
 	 *
 	 * @param {Object} hookData - Data from the Xcode project hook
 	 * @param {Function} callback - Callback function
+	 * @return {undefined}
 	 * @access private
 	 */
 	addFrameworksToXcodeProject(hookData, callback) {
@@ -425,7 +426,15 @@ class InspectFrameworksTask extends IncrementalFileTask {
 			let metadataPromise = frameworkInspector.inspect(frameworkPath).then(frameworkInfo => {
 				if (this._frameworks.has(frameworkInfo.name)) {
 					let existingFrameworkInfo = this._frameworks.get(frameworkInfo.name);
-					return new Error(`Duplicate framework ${frameworkInfo.name} detected (found at ${frameworkInfo.path.cyan} and ${existingFrameworkInfo.path.cyan}`);
+
+					this.logger.error(`Duplicate framework ${frameworkInfo.name} detected at these paths:`);
+					this.logger.error('');
+					this.logger.error(`  ${existingFrameworkInfo.path}`);
+					this.logger.error(`  ${frameworkInfo.path}`);
+					this.logger.error('');
+					this.logger.error('Please resolve this conflict by choosing one of the above frameworks that you want to keep and remove the other before continuing.');
+
+					throw new Error(`Duplicate framework ${frameworkInfo.name} detected.`);
 				}
 				this._frameworks.set(frameworkInfo.name, frameworkInfo);
 			});
