@@ -1,6 +1,5 @@
 #!groovy
 library 'pipeline-library'
-currentBuild.result = 'SUCCESS'
 
 // Keep logs/reports/etc of last 15 builds, only keep build artifacts of last 3 builds
 properties([buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '3'))])
