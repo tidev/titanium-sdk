@@ -225,6 +225,19 @@ events:
             the previous tab.
         type: Titanium.UI.Tab
 
+  - name: framemetrics
+    summary: Fired when the subsytem renders a frame.
+    description: |
+        For every rendered frame returns a [FrameMetrics](Titanium.FrameMetrics) containing
+        information for it's lifecycle.
+    properties:
+          - name: framemetrics
+            summary: |
+                FrameMetrics for the frame.
+            type: Titanium.FrameMetrics
+    since: "7.0.0"
+    platforms: [android]
+
 methods:
   - name: addTab
     summary: Adds a tab to the tab group.

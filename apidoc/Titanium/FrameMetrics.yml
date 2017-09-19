@@ -1,0 +1,121 @@
+---
+name: Titanium.FrameMetrics
+summary: Proxy containing performance information about rendered frames.
+description: |
+    On Android N and above FrameMetrics provides access to performance information
+    in a rendered frame lifecycle. 
+
+    Various milestones can be accessed through the proxy's constants.
+
+    More information at:
+    [FrameMetrics API for Android N](https://developer.android.com/about/versions/nougat/android-7.0.html#framemetrics_api)
+since: "7.0.0"
+platforms: [android]
+
+properties:
+  - name: ANIMATION_DURATION
+    summary: Identifier for animation callback duration.
+    description: |
+        Represents the number of nanoseconds elapsed issuing animation callbacks.
+    type: Number
+    permission: read-only
+
+  - name: COMMAND_ISSUE_DURATION
+    summary: Identifier for command issue duration.
+    description: |
+        Represents the number of nanoseconds elapsed issuing draw commands to the GPU.
+    type: Number
+    permission: read-only
+
+  - name: DRAW_DURATION
+    summary: Identifier for draw duration.
+    description: |
+        Represents the number of nanoseconds elapsed computing DisplayLists for
+        transformations applied to the view hierarchy.
+    type: Number
+    permission: read-only
+
+  - name: FIRST_DRAW_FRAME
+    summary: Boolean value determining whether this frame was the first to draw in a new Window layout.
+    description: |
+        [getMetric](Titanium.FrameMetrics.getMetric) will return 0 for false, 1 for true.
+
+        First draw frames are expected to be slow and should usually be exempt from display jank
+        calculations as they do not cause skips in animations and are usually hidden by window
+        animations or other tricks.
+    type: Number
+    permission: read-only
+
+  - name: INPUT_HANDLING_DURATION
+    summary: Identifier for input handling duration.
+    description: |
+        Represents the number of nanoseconds elapsed issuing input handling callbacks.
+    type: Number
+    permission: read-only
+
+  - name: INTENDED_VSYNC_TIMESTAMP
+    summary: Identifier for the timestamp of the intended vsync for this frame.
+    description: |
+        The intended start point for the frame. If this value is different from VSYNC_TIMESTAMP,
+        there was work occurring on the UI thread that prevented it from responding to the vsync
+        signal on time.
+    type: Number
+    permission: read-only
+
+  - name: LAYOUT_MEASURE_DURATION
+    summary: Identifier for layout/measure duration.
+    description: |
+        Represents the number of nanoseconds elapsed measuring and laying out the invalidated
+        pieces of the view hierarchy.
+    type: Number
+    permission: read-only
+
+  - name: SWAP_BUFFERS_DURATION
+    summary: Identifier for swap buffers duration.
+    description: |
+        Represents the number of nanoseconds elapsed issuing the frame buffer for this frame to
+        the display subsystem.
+    type: Number
+    permission: read-only
+
+  - name: SYNC_DURATION
+    summary: Identifier for sync duration.
+    description: |
+        Represents the number of nanoseconds elapsed synchronizing the computed display lists
+        with the render thread.
+    type: Number
+    permission: read-only
+
+  - name: TOTAL_DURATION
+    summary: Identifier for total frame duration.
+    description: |
+        Represents the total time in nanoseconds this frame took to render and be issued to the
+        display subsystem. Equal to the sum of the values of all other time-valued metric identifiers.
+    type: Number
+    permission: read-only
+
+  - name: UNKNOWN_DELAY_DURATION
+    summary: Identifier for unknown delay.
+    description: |
+        Represents the number of nanoseconds elapsed waiting for the UI thread to become responsive and
+        process the frame. This should be 0 most of the time.
+    type: Number
+    permission: read-only
+
+  - name: VSYNC_TIMESTAMP
+    summary: Identifier for the timestamp of the actual vsync for this frame.
+    description: |
+        The time value that was used in all the vsync listeners and drawing for the frame.
+    type: Number
+    permission: read-only
+
+methods:
+  - name: getMetric
+    summary: Returns the value for the passed identifier.
+    parameters:
+      - name: identifier
+        summary: Identifier to get a metric for.
+        type: Number
+        constants: Titanium.FrameMetrics.*
+    returns:
+      type: Number
