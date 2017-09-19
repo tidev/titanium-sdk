@@ -130,6 +130,7 @@ timestamps {
 						sh 'npm install'
 					}
 					sh 'npm test' // Run linting first
+					sh 'npx danger'
 				}
 
 				// Skip the Windows SDK portion if a PR, we don't need it
@@ -164,80 +165,79 @@ timestamps {
 					} // !isPR
 				} // stage
 
-				stage('Build') {
-					// Normal build, pull out the version
-					def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
-					echo "VERSION:         ${version}"
-					// Create a timestamp
-					def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
-					echo "TIMESTAMP:       ${timestamp}"
-					vtag = "${version}.v${timestamp}"
-					echo "VTAG:            ${vtag}"
-					basename = "dist/mobilesdk-${vtag}"
-					echo "BASENAME:        ${basename}"
+				// stage('Build') {
+				// 	// Normal build, pull out the version
+				// 	def version = sh(returnStdout: true, script: 'sed -n \'s/^ *"version": *"//p\' package.json | tr -d \'"\' | tr -d \',\'').trim()
+				// 	echo "VERSION:         ${version}"
+				// 	// Create a timestamp
+				// 	def timestamp = sh(returnStdout: true, script: 'date +\'%Y%m%d%H%M%S\'').trim()
+				// 	echo "TIMESTAMP:       ${timestamp}"
+				// 	vtag = "${version}.v${timestamp}"
+				// 	echo "VTAG:            ${vtag}"
+				// 	basename = "dist/mobilesdk-${vtag}"
+				// 	echo "BASENAME:        ${basename}"
+				//
+				// 	// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
+				// 	dir('build') {
+				// 		timeout(15) {
+				// 			sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
+				// 		} // timeout
+				// 		ansiColor('xterm') {
+				// 			if (isPR) {
+				// 				// For PR builds, just package android and iOS for osx
+				// 				sh "node scons.js package android ios --version-tag ${vtag}"
+				// 			} else {
+				// 				// For non-PR builds, do all platforms for all OSes
+				// 				timeout(15) {
+				// 					sh "node scons.js package --version-tag ${vtag} --all"
+				// 				} // timeout
+				// 			}
+				// 		} // ansiColor
+				// 	} // dir
+				// 	archiveArtifacts artifacts: "${basename}-*.zip"
+				// 	stash includes: 'dist/parity.html', name: 'parity'
+				// 	stash includes: 'tests/', name: 'override-tests'
+				// } // end 'Build' stage
 
-					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
-					dir('build') {
-						timeout(15) {
-							sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
-						} // timeout
-						ansiColor('xterm') {
-							if (isPR) {
-								// For PR builds, just package android and iOS for osx
-								sh "node scons.js package android ios --version-tag ${vtag}"
-							} else {
-								// For non-PR builds, do all platforms for all OSes
-								timeout(15) {
-									sh "node scons.js package --version-tag ${vtag} --all"
-								} // timeout
-							}
-						} // ansiColor
-					} // dir
-					archiveArtifacts artifacts: "${basename}-*.zip"
-					stash includes: 'dist/parity.html', name: 'parity'
-					stash includes: 'tests/', name: 'override-tests'
-				} // end 'Build' stage
-
-				stage('Security') {
-					// Clean up and install only production dependencies
-					sh 'npm prune --production'
-
-					// Scan for NSP and RetireJS warnings
-					def scanFiles = []
-					sh 'npm install -g nsp'
-					def nspExitCode = sh(returnStatus: true, script: 'nsp check --output json 2> nsp.json')
-					if (nspExitCode != 0) {
-						scanFiles << [path: 'nsp.json']
-					}
-
-					sh 'npm install -g retire'
-					def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
-
-					if (retireExitCode != 0) {
-						scanFiles << [path: 'retire.json']
-					}
-
-					if (!scanFiles.isEmpty()) {
-						step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
-					}
-
-					// re-install dev dependencies for testing later...
-					sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
-				} // end 'Security' stage
+				// stage('Security') {
+				// 	// Clean up and install only production dependencies
+				// 	sh 'npm prune --production'
+				//
+				// 	// Scan for NSP and RetireJS warnings
+				// 	def scanFiles = []
+				// 	sh 'npm install -g nsp'
+				// 	def nspExitCode = sh(returnStatus: true, script: 'nsp check --output json 2> nsp.json')
+				// 	if (nspExitCode != 0) {
+				// 		scanFiles << [path: 'nsp.json']
+				// 	}
+				//
+				// 	sh 'npm install -g retire'
+				// 	def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
+				//
+				// 	if (retireExitCode != 0) {
+				// 		scanFiles << [path: 'retire.json']
+				// 	}
+				//
+				// 	if (!scanFiles.isEmpty()) {
+				// 		step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
+				// 	}
+				//
+				// 	// re-install dev dependencies for testing later...
+				// 	sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+				// } // end 'Security' stage
 			} // nodeJs
 		} // end node for checkout/build
 
 		// Run unit tests in parallel for android/iOS
-		stage('Test') {
-			parallel(
-				'android unit tests': unitTests('android', nodeVersion, targetBranch),
-				'iOS unit tests': unitTests('ios', nodeVersion, targetBranch),
-				failFast: true
-			)
-		}
+		// stage('Test') {
+		// 	parallel(
+		// 		'android unit tests': unitTests('android', nodeVersion, targetBranch),
+		// 		'iOS unit tests': unitTests('ios', nodeVersion, targetBranch),
+		// 		failFast: true
+		// 	)
+		// }
 
 		stage('Deploy') {
-			sh 'npx danger'
 			// Push to S3 if on 'master' or "mainline" branch like 6_2_X, 7_0_X...
 			if (isMainlineBranch) {
 				// Now allocate a node for uploading artifacts to s3 and in Jenkins
