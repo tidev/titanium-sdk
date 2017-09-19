@@ -747,7 +747,8 @@
 
 - (void)didRegisterUserNotificationSettingsNotification:(NSNotification *)note
 {
-  [self fireEvent:@"usernotificationsettings" withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings *)[note userInfo]]];
+  [self fireEvent:@"usernotificationsettings"
+       withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings *)[[note userInfo] valueForKey:@"userNotificationSettings"]]];
 }
 
 #pragma mark Apple Watchkit notifications

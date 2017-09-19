@@ -17,8 +17,9 @@
 }
 
 MAKE_SYSTEM_PROP(DONE, UIBarButtonItemStyleDone);
-MAKE_SYSTEM_PROP(BORDERED, UIBarButtonItemStyleBordered);
+MAKE_SYSTEM_PROP(BORDERED, UIBarButtonItemStylePlain);
 MAKE_SYSTEM_PROP(PLAIN, UIBarButtonItemStylePlain);
+
 @end
 
 #endif
