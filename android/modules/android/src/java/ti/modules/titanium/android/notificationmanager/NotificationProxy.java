@@ -191,7 +191,9 @@ public class NotificationProxy extends KrollProxy
     @Kroll.method @Kroll.setProperty
     public void setColor(String color)
     {
-        notificationBuilder.setColor(TiColorHelper.parseColor(color));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+            notificationBuilder.setColor(TiColorHelper.parseColor(color));
+        }
         setProperty(TiC.PROPERTY_COLOR, color);
     }
 
