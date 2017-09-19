@@ -1,6 +1,5 @@
 #!groovy
 library 'pipeline-library'
-currentBuild.result = 'SUCCESS'
 
 // Variables which we assign and share between nodes
 // Don't modify these yourself
