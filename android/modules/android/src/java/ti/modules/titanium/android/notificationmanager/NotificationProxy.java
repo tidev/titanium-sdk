@@ -16,6 +16,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiColorHelper;
 
 import ti.modules.titanium.android.AndroidModule;
 import ti.modules.titanium.android.PendingIntentProxy;
@@ -71,6 +72,9 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_LARGE_ICON)) {
 			setLargeIcon(d.get(TiC.PROPERTY_LARGE_ICON));
 		}
+        if (d.containsKey(TiC.PROPERTY_COLOR)) {
+            setColor(TiConvert.toString(d, TiC.PROPERTY_COLOR));
+        }
 		if (d.containsKey(TiC.PROPERTY_TICKER_TEXT)) {
 			setTickerText(TiConvert.toString(d, TiC.PROPERTY_TICKER_TEXT));
 		}
@@ -183,6 +187,13 @@ public class NotificationProxy extends KrollProxy
 		}
 		setProperty(TiC.PROPERTY_LARGE_ICON, icon);
 	}
+    
+    @Kroll.method @Kroll.setProperty
+    public void setColor(String color)
+    {
+        notificationBuilder.setColor(TiColorHelper.parseColor(color));
+        setProperty(TiC.PROPERTY_COLOR, color);
+    }
 
 	@Kroll.method @Kroll.setProperty
 	public void setVisibility(int visibility)
