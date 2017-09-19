@@ -237,6 +237,7 @@ timestamps {
 		}
 
 		stage('Deploy') {
+			sh 'npx danger'
 			// Push to S3 if on 'master' or "mainline" branch like 6_2_X, 7_0_X...
 			if (isMainlineBranch) {
 				// Now allocate a node for uploading artifacts to s3 and in Jenkins
