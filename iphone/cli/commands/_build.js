@@ -3108,6 +3108,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 		const bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
 		delete bs['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
+
+		bs.PRODUCT_BUNDLE_IDENTIFIER = '"' + this.tiapp.id + '"';
+
 		if (this.provisioningProfile) {
 			bs.DEVELOPMENT_TEAM = this.provisioningProfile.appPrefix;
 			bs.PROVISIONING_PROFILE = '"' + this.provisioningProfile.uuid + '"';
