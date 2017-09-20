@@ -131,7 +131,10 @@ timestamps {
 						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
 						sh 'npm install'
 					}
-					stash includes: 'node_modules/,package.json,package-lock.json', name: 'node_modules'
+					// Stash files for danger.js later
+					if (isPR) {
+						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js', name: 'danger'
+					}
 					sh 'npm test' // Run linting first // TODO Record the eslint output somewhere for danger to use later?
 				}
 
@@ -389,7 +392,7 @@ timestamps {
 			stage('Danger') {
 				node('osx || linux') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						unstash 'node_modules' // this gives us package.json, package-lock.json, node_modules/
+						unstash 'danger' // this gives us dangerfile.js, package.json, package-lock.json, node_modules/
 						unstash 'test-report-ios' // junit.ios.report.xml
 						unstash 'test-report-android' // junit.android.report.xml
 						sh "npm install -g npm@${npmVersion}"
