@@ -2432,7 +2432,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_ON_LINK = "onLink";
+	public static final String PROPERTY_ON_LINK = "onlink";
 
 	/**
 	 * @module.api
