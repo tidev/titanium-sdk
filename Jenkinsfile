@@ -31,7 +31,14 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 				// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
 				dir('titanium-mobile-mocha-suite') {
 					// TODO Do a shallow clone, using same credentials as from scm object
-					git changelog: false, poll: false, credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
+					try {
+						git changelog: false, poll: false, credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
+					} catch (e) {
+						def msg = "Failed to clone the titanium-mobile-mocha-suite test suite from branch ${testSuiteBranch}. Are you certain that the test suite repo has that branch created?"
+						echo msg
+						manager.addWarningBadge(msg)
+						throw e
+					}
 				}
 				// copy over any overridden unit tests into this workspace
 				unstash 'override-tests'
