@@ -14,6 +14,7 @@ def isMainlineBranch = true
 
 // Variables we can change
 def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def npmVersion = '5.4.1' // We can change this without any changes to Jenkins.
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
@@ -121,20 +122,14 @@ timestamps {
 
 				stage('Lint') {
 					// NPM 5.2.0 had a bug that broke pruning to production, but latest npm 5.4.1 works well
-					sh 'npm install -g npm@5.4.1'
+					sh "npm install -g npm@${npmVersion}"
 
 					// Install dependencies
 					timeout(5) {
 						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
 						sh 'npm install'
 					}
-					sh 'npm test' // Run linting first
-					// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
-					// We use Github branch source plugin implicitly through pipeline job
-					// See https://github.com/danger/danger-js/issues/379
-					withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}"]) {
-						sh 'npx danger'
-					}
+					sh 'npm test' // Run linting first // TODO Record the eslint output somewhere for danger to use later?
 				}
 
 				// Skip the Windows SDK portion if a PR, we don't need it
@@ -373,7 +368,7 @@ timestamps {
 				} // node
 			} // isMainlineBranch
 		} // stage
-	}
+	} // try
 	catch (err) {
 		// TODO Use try/catch at lower level (like around tests) so we can give more detailed failures?
 		currentBuild.result = 'FAILURE'
@@ -384,5 +379,24 @@ timestamps {
 			to: 'eng-platform@appcelerator.com'
 
 		throw err
+	}
+	finally {
+		// If we're building a PR, always try and run Danger.JS at the end so we can provide useful comments/info to the PR author
+		if (isPR) {
+			stage('Danger') {
+				node('osx || linux') {
+					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+						sh "npm install -g npm@${npmVersion}"
+						sh 'npm install'
+						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
+						// We use Github branch source plugin implicitly through pipeline job
+						// See https://github.com/danger/danger-js/issues/379
+						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}"]) {
+							sh 'npx danger'
+						} // withEnv
+					} // nodejs
+				} // node
+			} // Danger stage
+		} // isPR
 	}
 }
