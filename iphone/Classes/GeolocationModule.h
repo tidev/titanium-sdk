@@ -4,12 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "APSHTTPClient.h"
-#import "TiModule.h"
 
 #ifdef USE_TI_GEOLOCATION
 
+#import "APSHTTPClient.h"
+#import "TiModule.h"
 #import <CoreLocation/CoreLocation.h>
+
+NSString *const kTiGeolocationUsageDescriptionWhenInUse = @"NSLocationWhenInUseUsageDescription";
+NSString *const kTiGeolocationUsageDescriptionAlways = @"NSLocationAlwaysUsageDescription";
+NSString *const kTiGeolocationUsageDescriptionAlwaysAndWhenInUse = @"NSLocationAlwaysAndWhenInUseUsageDescription";
 
 @interface GeolocationModule : TiModule <CLLocationManagerDelegate> {
   CLLocationManager *locationManager;
