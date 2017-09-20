@@ -62,6 +62,8 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 							}
 						}
 					}
+					// save the junit reports as artifacts explicitly so danger.js can use them later
+					stash includes: 'junit.*.xml', name: "test-report-${os}"
 					junit 'junit.*.xml'
 				}
 			} // timeout
@@ -129,6 +131,7 @@ timestamps {
 						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
 						sh 'npm install'
 					}
+					stash includes: 'node_modules/,package.json,package-lock.json', name: 'node_modules'
 					sh 'npm test' // Run linting first // TODO Record the eslint output somewhere for danger to use later?
 				}
 
@@ -386,8 +389,10 @@ timestamps {
 			stage('Danger') {
 				node('osx || linux') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+						unstash 'node_modules' // this gives us package.json, package-lock.json, node_modules/
+						unstash 'test-report-ios' // junit.ios.report.xml
+						unstash 'test-report-android' // junit.android.report.xml
 						sh "npm install -g npm@${npmVersion}"
-						sh 'npm install'
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
 						// See https://github.com/danger/danger-js/issues/379
