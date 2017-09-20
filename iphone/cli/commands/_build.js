@@ -207,6 +207,34 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 };
 
 /**
+ * Retreieves the certificate information by name.
+ *
+ * @param {String} name - The cert name.
+ * @param {String} [type] - The type of cert to scan (developer or distribution).
+ * @returns {Object|null}
+ * @access private
+ */
+iOSBuilder.prototype.getCert = function getCert(name, type) {
+	if (name && this.iosInfo) {
+		for (const keychain of Object.keys(this.iosInfo.certs.keychains)) {
+			const scopes = this.iosInfo.certs.keychains[keychain];
+			const types = type ? [ type ] : Object.keys(scopes);
+			for (const scope of types) {
+				if (scopes[scope]) {
+					for (const cert of scopes[scope]) {
+						if (cert.name === name) {
+							return cert;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return null;
+};
+
+/**
  * Determines the valid list of devices or simulators. This is used for prompting
  * and validation.
  *
@@ -984,10 +1012,11 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 		hint: 'uuid',
 		order: order,
 		prompt: function (callback) {
-			const provisioningProfiles = {},
-				appId = cli.tiapp.id;
-			let maxAppId = 0,
-				pp;
+			const provisioningProfiles = {};
+			const appId = cli.tiapp.id;
+			const target = cli.argv.target;
+			let maxAppId = 0;
+			let pp;
 
 			function prep(a, cert) {
 				return a.filter(function (p) {
@@ -1009,27 +1038,24 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				});
 			}
 
-			if (cli.argv.target === 'device') {
-				// get the developer cert details
-				let cert = null;
-				Object.keys(iosInfo.certs.keychains).some(function (keychain) {
-					return (iosInfo.certs.keychains[keychain].developer || []).some(function (d) {
-						if (d.name === cli.argv['developer-name']) {
-							cert = d;
-							return true;
-						}
-					});
-				});
+			let cert;
+			if (target === 'device') {
+				cert = _t.getCert(cli.argv['developer-name'], 'developer');
+			} else {
+				cert = _t.getCert(cli.argv['distribution-name'], 'distribution');
+			}
+			const certRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 
+			if (target === 'device') {
 				if (iosInfo.provisioning.development.length) {
-					pp = prep(iosInfo.provisioning.development, cert.pem.replace(/^-----BEGIN CERTIFICATE-----\n|\n-----END CERTIFICATE-----.*$/g, ''));
+					pp = prep(iosInfo.provisioning.development, cert.pem.replace(certRegExp, ''));
 					if (pp.length) {
 						provisioningProfiles[__('Available Development UUIDs:')] = pp;
 					} else {
 						if (cert) {
-							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s" and the "%s" certificate', appId, cert.name) + '\n');
+							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s" and the "%s" certificate.', appId, cert.name) + '\n');
 						} else {
-							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s"', appId) + '\n');
+							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s".', appId) + '\n');
 						}
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 							'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
@@ -1042,9 +1068,9 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					process.exit(1);
 				}
 
-			} else if (cli.argv.target === 'dist-appstore') {
+			} else if (target === 'dist-appstore') {
 				if (iosInfo.provisioning.distribution.length) {
-					pp = prep(iosInfo.provisioning.distribution);
+					pp = prep(iosInfo.provisioning.distribution, cert.pem.replace(certRegExp, ''));
 					if (pp.length) {
 						provisioningProfiles[__('Available App Store Distribution UUIDs:')] = pp;
 					} else {
@@ -1060,9 +1086,9 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					process.exit(1);
 				}
 
-			} else if (cli.argv.target === 'dist-adhoc') {
+			} else if (target === 'dist-adhoc') {
 				if (iosInfo.provisioning.adhoc.length || iosInfo.provisioning.enterprise.length) {
-					pp = prep(iosInfo.provisioning.adhoc);
+					pp = prep(iosInfo.provisioning.adhoc, cert.pem.replace(certRegExp, ''));
 					let valid = pp.length;
 					if (pp.length) {
 						provisioningProfiles[__('Available Ad Hoc UUIDs:')] = pp;
@@ -1115,7 +1141,9 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 			}));
 		},
 		validate: function (value, callback) {
-			if (cli.argv.target === 'simulator') {
+			const target = cli.argv.target;
+
+			if (target === 'simulator') {
 				return callback(null, value);
 			}
 
@@ -1130,8 +1158,21 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				if (p.expired) {
 					return callback(new Error(__('Specified provisioning profile UUID "%s" is expired', value)));
 				}
+
+				let cert;
+				if (target === 'device') {
+					cert = _t.getCert(cli.argv['developer-name'], 'developer');
+				} else {
+					cert = _t.getCert(cli.argv['distribution-name'], 'distribution');
+				}
+
+				if (cert && p.certs.indexOf(cert.pem.replace(/^-----BEGIN CERTIFICATE-----\n|\n-----END CERTIFICATE-----.*$/g, '')) === -1) {
+					return callback(new Error(__('Specified provisioning profile UUID "%s" does not include the "%s" certificate', value, cert.name)));
+				}
+
 				return callback(null, p.uuid);
 			}
+
 			callback(true);
 		}
 	};
@@ -3127,6 +3168,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 		const bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
 		delete bs['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
+
+		bs.PRODUCT_BUNDLE_IDENTIFIER = '"' + this.tiapp.id + '"';
+
 		if (this.provisioningProfile) {
 			bs.DEVELOPMENT_TEAM = this.provisioningProfile.appPrefix;
 			bs.PROVISIONING_PROFILE = '"' + this.provisioningProfile.uuid + '"';
