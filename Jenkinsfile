@@ -10,7 +10,9 @@ def gitCommit = ''
 def basename = ''
 def vtag = ''
 def isPR = false
-def isMainlineBranch = true
+def MAINLINE_BRANCH_REGEXP = /master|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
+def isMainlineBranch = true // used to determine if we should publish to S3 (and include branch in main listing)
+def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json
 
 // Variables we can change
 def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
@@ -115,7 +117,7 @@ timestamps {
 				// FIXME: Workaround for missing env.GIT_COMMIT: http://stackoverflow.com/questions/36304208/jenkins-workflow-checkout-accessing-branch-name-and-git-commit
 				gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
 				isPR = env.BRANCH_NAME.startsWith('PR-')
-				isMainlineBranch = (env.BRANCH_NAME ==~ /master|\d_\d_X/)
+				isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 				// target branch of windows SDK to use and test suite to test with
 				if (isPR) {
 					targetBranch = env.CHANGE_TARGET
@@ -149,7 +151,6 @@ timestamps {
 				stage('Windows') {
 					if (!isPR) {
 						// This may be the very first build on this branch, so there's no windows build to grab yet
-						def isFirstBuildOnBranch = false
 						try {
 							sh 'curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/branches.json'
 							if (fileExists('branches.json')) {
@@ -378,6 +379,12 @@ timestamps {
 						profileName: 'builds.appcelerator.com',
 						pluginFailureResultConstraint: 'FAILURE',
 						userMetadata: []])
+
+						// Trigger titanium_mobile_windows if this is the first build on a "mainline" branch
+						if (isFirstBuildOnBranch) {
+							// Trigger build of titanium_mobile_windows in our pipeline multibranch group!
+							build job: "../titanium_mobile_windows/${env.BRANCH_NAME}", wait: false
+						}
 				} // node
 			} // isMainlineBranch
 		} // stage
