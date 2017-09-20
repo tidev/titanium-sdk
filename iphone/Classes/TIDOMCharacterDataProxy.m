@@ -6,7 +6,7 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TiDOMCharacterDataProxy.h"
+#import "TIDOMCharacterDataProxy.h"
 #import "TiUtils.h"
 #include <limits.h>
 #include <string.h>
