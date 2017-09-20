@@ -15,7 +15,6 @@
   CLLocationManager *locationManager;
   CLLocationManager *tempManager; // Our 'fakey' manager for handling certain <=3.2 requests
   CLLocationManager *locationPermissionManager; // used for just permissions requests
-  CLLocationManager *iOS7PermissionManager; // specific to iOS7 to maintain parity with iOS8 permissions behavior.
 
   CLLocationAccuracy accuracy;
   CLLocationDistance distance;
@@ -29,6 +28,8 @@
   BOOL trackSignificantLocationChange;
   BOOL allowsBackgroundLocationUpdates;
   KrollCallback *authorizationCallback;
+  
+  CLAuthorizationStatus initialAuthorizationType;
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
   CLActivityType activityType;
