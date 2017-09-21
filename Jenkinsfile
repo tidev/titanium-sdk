@@ -305,6 +305,7 @@ timestamps {
 					}
 
 					// unarchive zips
+					sh 'rm -rf dist/'
 					unarchive mapping: ['dist/': '.']
 					// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
 					def oses = ['osx', 'linux', 'win32']
@@ -380,11 +381,13 @@ timestamps {
 						pluginFailureResultConstraint: 'FAILURE',
 						userMetadata: []])
 
-						// Trigger titanium_mobile_windows if this is the first build on a "mainline" branch
-						if (isFirstBuildOnBranch) {
-							// Trigger build of titanium_mobile_windows in our pipeline multibranch group!
-							build job: "../titanium_mobile_windows/${env.BRANCH_NAME}", wait: false
-						}
+					// Trigger titanium_mobile_windows if this is the first build on a "mainline" branch
+					if (isFirstBuildOnBranch) {
+						// Trigger build of titanium_mobile_windows in our pipeline multibranch group!
+						build job: "../titanium_mobile_windows/${env.BRANCH_NAME}", wait: false
+					}
+					// Now wipe the workspace. otherwise the unstashed artifacts will stick around on the node (master)
+					deleteDir()
 				} // node
 			} // isMainlineBranch
 		} // stage
