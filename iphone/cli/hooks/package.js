@@ -224,6 +224,15 @@ exports.init = function (logger, config, cli) {
 		exportsOptions.provisioningProfiles = {};
 		exportsOptions.provisioningProfiles[builder.tiapp.id] = pp.uuid;
 
+		// check if the app is using CloudKit
+		const entitlementsFile = path.join(builder.buildDir, builder.tiapp.name + '.entitlements');
+		if (fs.existsSync(entitlementsFile)) {
+			const plist = new appc.plist(entitlementsFile);
+			if (Object.keys(plist).indexOf('com.apple.developer.icloud-container-identifiers') !== -1) {
+				exportsOptions.iCloudContainerEnvironment = 'Production';
+			}
+		}
+
 		fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
 
 		// construct the command

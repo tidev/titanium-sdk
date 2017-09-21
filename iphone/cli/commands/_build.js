@@ -3108,6 +3108,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 		const bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
 		delete bs['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
+
+		bs.PRODUCT_BUNDLE_IDENTIFIER = '"' + this.tiapp.id + '"';
+
 		if (this.provisioningProfile) {
 			bs.DEVELOPMENT_TEAM = this.provisioningProfile.appPrefix;
 			bs.PROVISIONING_PROFILE = '"' + this.provisioningProfile.uuid + '"';
@@ -4944,10 +4947,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 			// remove all unnecessary icons from the lookup
 			Object.keys(lookup).forEach(function (key) {
-				if (deviceFamily === 'iphone' && lookup[key].idioms.indexOf('iphone') === -1) {
+				if (deviceFamily === 'iphone' && lookup[key].idioms.indexOf('iphone') === -1 && lookup[key].idioms.indexOf('ios-marketing') === -1) {
 					// remove ipad only
 					delete lookup[key];
-				} else if (deviceFamily === 'ipad' && lookup[key].idioms.indexOf('ipad') === -1) {
+				} else if (deviceFamily === 'ipad' && lookup[key].idioms.indexOf('ipad') === -1 && lookup[key].idioms.indexOf('ios-marketing') === -1) {
 					// remove iphone only
 					delete lookup[key];
 				} else if (lookup[key].minXcodeVer && appc.version.lt(this.xcodeEnv.version, lookup[key].minXcodeVer)) {
