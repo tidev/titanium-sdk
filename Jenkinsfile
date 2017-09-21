@@ -178,6 +178,7 @@ timestamps {
 					}
 
 					// unarchive zips
+					sh 'rm -rf dist/'
 					unarchive mapping: ['dist/': '.']
 					// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
 					def oses = ['osx', 'linux', 'win32']
@@ -252,6 +253,9 @@ timestamps {
 						profileName: 'builds.appcelerator.com',
 						pluginFailureResultConstraint: 'FAILURE',
 						userMetadata: []])
+
+					// Now wipe the workspace. otherwise the unstashed artifacts will stick around on the node (master)
+					deleteDir()
 				} // node
 			} // !isPR
 		} // stage
