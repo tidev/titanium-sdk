@@ -44,6 +44,7 @@ const appc = require('node-appc'),
 	series = appc.async.series,
 	version = appc.version;
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + '$)'); // eslint-disable-line security/detect-non-literal-regexp
+const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 
 function iOSBuilder() {
 	Builder.apply(this, arguments);
@@ -204,6 +205,35 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 			process.exit(1);
 		}
 	}
+};
+
+/**
+ * Retrieves the certificate information by name.
+ *
+ * @param {String} name - The cert name.
+ * @param {String} [type] - The type of cert to scan (developer or distribution).
+ * @returns {Object|null}
+ * @access private
+ */
+iOSBuilder.prototype.findCertificate = function findCertificate(name, type) {
+	/* eslint-disable max-depth */
+	if (name && this.iosInfo) {
+		for (const keychain of Object.keys(this.iosInfo.certs.keychains)) {
+			const scopes = this.iosInfo.certs.keychains[keychain];
+			const types = type ? [ type ] : Object.keys(scopes);
+			for (const scope of types) {
+				if (scopes[scope]) {
+					for (const cert of scopes[scope]) {
+						if (cert.name === name) {
+							return cert;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return null;
 };
 
 /**
@@ -984,14 +1014,15 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 		hint: 'uuid',
 		order: order,
 		prompt: function (callback) {
-			const provisioningProfiles = {},
-				appId = cli.tiapp.id;
-			let maxAppId = 0,
-				pp;
+			const provisioningProfiles = {};
+			const appId = cli.tiapp.id;
+			const target = cli.argv.target;
+			let maxAppId = 0;
+			let pp;
 
-			function prep(a) {
+			function prep(a, cert) {
 				return a.filter(function (p) {
-					if (!p.expired && !p.managed) {
+					if (!p.expired && !p.managed && (!cert || p.certs.indexOf(cert) !== -1)) {
 						const re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*')); // eslint-disable-line security/detect-non-literal-regexp
 						if (re.test(appId)) {
 							let label = p.name;
@@ -1009,13 +1040,24 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				});
 			}
 
-			if (cli.argv.target === 'device') {
+			let cert;
+			if (target === 'device') {
+				cert = _t.findCertificate(cli.argv['developer-name'], 'developer');
+			} else {
+				cert = _t.findCertificate(cli.argv['distribution-name'], 'distribution');
+			}
+
+			if (target === 'device') {
 				if (iosInfo.provisioning.development.length) {
-					pp = prep(iosInfo.provisioning.development);
+					pp = prep(iosInfo.provisioning.development, cert.pem.replace(pemCertRegExp, ''));
 					if (pp.length) {
 						provisioningProfiles[__('Available Development UUIDs:')] = pp;
 					} else {
-						logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s"', appId) + '\n');
+						if (cert) {
+							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s" and the "%s" certificate.', appId, cert.name) + '\n');
+						} else {
+							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s".', appId) + '\n');
+						}
 						logger.log(__('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.',
 							'http://appcelerator.com/ios-dev-certs'.cyan) + '\n');
 						process.exit(1);
@@ -1027,9 +1069,9 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					process.exit(1);
 				}
 
-			} else if (cli.argv.target === 'dist-appstore') {
+			} else if (target === 'dist-appstore') {
 				if (iosInfo.provisioning.distribution.length) {
-					pp = prep(iosInfo.provisioning.distribution);
+					pp = prep(iosInfo.provisioning.distribution, cert.pem.replace(pemCertRegExp, ''));
 					if (pp.length) {
 						provisioningProfiles[__('Available App Store Distribution UUIDs:')] = pp;
 					} else {
@@ -1045,9 +1087,9 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					process.exit(1);
 				}
 
-			} else if (cli.argv.target === 'dist-adhoc') {
+			} else if (target === 'dist-adhoc') {
 				if (iosInfo.provisioning.adhoc.length || iosInfo.provisioning.enterprise.length) {
-					pp = prep(iosInfo.provisioning.adhoc);
+					pp = prep(iosInfo.provisioning.adhoc, cert.pem.replace(pemCertRegExp, ''));
 					let valid = pp.length;
 					if (pp.length) {
 						provisioningProfiles[__('Available Ad Hoc UUIDs:')] = pp;
@@ -1100,9 +1142,12 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 			}));
 		},
 		validate: function (value, callback) {
-			if (cli.argv.target === 'simulator') {
+			const target = cli.argv.target;
+
+			if (target === 'simulator') {
 				return callback(null, value);
 			}
+
 			if (value) {
 				const p = _t.provisioningProfileLookup[value.toLowerCase()];
 				if (!p) {
@@ -1114,8 +1159,21 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				if (p.expired) {
 					return callback(new Error(__('Specified provisioning profile UUID "%s" is expired', value)));
 				}
+
+				let cert;
+				if (target === 'device') {
+					cert = _t.findCertificate(cli.argv['developer-name'], 'developer');
+				} else {
+					cert = _t.findCertificate(cli.argv['distribution-name'], 'distribution');
+				}
+
+				if (cert && p.certs.indexOf(cert.pem.replace(pemCertRegExp, '')) === -1) {
+					return callback(new Error(__('Specified provisioning profile UUID "%s" does not include the "%s" certificate', value, cert.name)));
+				}
+
 				return callback(null, p.uuid);
 			}
+
 			callback(true);
 		}
 	};
@@ -3077,6 +3135,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			showEnvVarsInLog: 0
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
+	} else if (this.target === 'device') {
+		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Developer: ' + this.certDeveloperName + '"';
+		buildSettings.CODE_SIGN_STYLE = 'Manual';
 	}
 
 	// inject the team id and app groups
