@@ -125,9 +125,21 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
   return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
 }
 
++ (BOOL)isRetinaiPhone6Plus
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 736 || mainScreenBoundsSize.width == 736);
+}
+
++ (BOOL)isRetinaiPhoneX
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 812 || mainScreenBoundsSize.width == 812);
+}
+
 + (BOOL)isRetinaHDDisplay
 {
-  return ([UIScreen mainScreen].scale == 3.0);
+  return [UIScreen mainScreen].scale == 3.0;
 }
 
 + (BOOL)isRetinaDisplay
@@ -784,7 +796,14 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
     }
-    // second try plain @3x
+    
+    // second try -2436h@3x iPhone X specific
+    testpath = [NSString stringWithFormat:@"%@-2436h@3x.%@", partial, ext];
+    if ([fm fileExistsAtPath:testpath]) {
+      return [NSURL fileURLWithPath:testpath];
+    }
+    
+    // third try plain @3x
     testpath = [NSString stringWithFormat:@"%@@3x.%@", partial, ext];
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
