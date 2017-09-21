@@ -58,6 +58,8 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Can we use your microphone?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Can we read your photo library?</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Can we save to your photo library?</string>
 	<key>UIAppFonts</key>
 	<array>
