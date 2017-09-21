@@ -320,7 +320,8 @@ properties:
         See Android Reference for the [color](https://developer.android.com/reference/android/app/Notification.html#color) property.
     type: String
     since: "7.0.0"
-
+    osver: {android: {min: "5.0"}}
+    
   - name: ledARGB
     summary: The color for the LED to blink.
     type: Number
