@@ -796,13 +796,13 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
     }
-    
+
     // second try -2436h@3x iPhone X specific
     testpath = [NSString stringWithFormat:@"%@-2436h@3x.%@", partial, ext];
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
     }
-    
+
     // third try plain @3x
     testpath = [NSString stringWithFormat:@"%@@3x.%@", partial, ext];
     if ([fm fileExistsAtPath:testpath]) {

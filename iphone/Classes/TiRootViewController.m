@@ -315,7 +315,7 @@
   *imageIdiom = UIUserInterfaceIdiomPhone;
   // Default
   image = nil;
-  
+
   // iPhone X
   if ([TiUtils isRetinaiPhoneX]) {
     if (UIDeviceOrientationIsPortrait(orientation)) {
@@ -330,7 +330,7 @@
       return image;
     }
   }
-  
+
   // iPhone 6 Plus
   if ([TiUtils isRetinaiPhone6Plus]) {
     if (UIDeviceOrientationIsPortrait(orientation)) {
@@ -351,7 +351,7 @@
       return image;
     }
   }
-  
+
   // iPhone 5
   if ([TiUtils isRetinaFourInch]) {
     image = [UIImage imageNamed:@"LaunchImage-700-568h@2x"];
