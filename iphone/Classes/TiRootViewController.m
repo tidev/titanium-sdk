@@ -316,31 +316,52 @@
     *imageIdiom = UIUserInterfaceIdiomPhone;
     // Default
     image = nil;
-    if ([TiUtils isRetinaHDDisplay]) {
+  
+    // iPhone X
+    if ([TiUtils isRetinaiPhoneX]) {
+      if (UIDeviceOrientationIsPortrait(orientation)) {
+        // Portrait
+        image = [UIImage imageNamed:@"LaunchImage-1100-Portrait-2436h@3x"];
+      } else if (UIDeviceOrientationIsLandscape(orientation)) {
+        // Landscape
+        image = [UIImage imageNamed:@"LaunchImage-1100-2436h@3x"];
+      }
+      if (image != nil) {
+        *imageOrientation = orientation;
+        return image;
+      }
+    }
+  
+    // iPhone 6 Plus
+    if ([TiUtils isRetinaiPhone6Plus]) {
         if (UIDeviceOrientationIsPortrait(orientation)) {
             image = [UIImage imageNamed:@"LaunchImage-800-Portrait-736h@3x"];
-        }
-        else if (UIDeviceOrientationIsLandscape(orientation)) {
+        } else if (UIDeviceOrientationIsLandscape(orientation)) {
             image = [UIImage imageNamed:@"LaunchImage-800-Landscape-736h@3x"];
         }
-        if (image!=nil) {
+        if (image != nil) {
             *imageOrientation = orientation;
             return image;
         }
     }
+
+    // iPhone 6
     if ([TiUtils isRetinaiPhone6]) {
         image = [UIImage imageNamed:@"LaunchImage-800-667h"];
-        if (image!=nil) {
+        if (image != nil) {
             return image;
         }
     }
+  
+    // iPhone 5
     if ([TiUtils isRetinaFourInch]) {
         image = [UIImage imageNamed:@"LaunchImage-700-568h@2x"];
-        if (image!=nil) {
+        if (image != nil) {
             return image;
         }
     }
 
+    // iPhone 4
     return [UIImage imageNamed:@"LaunchImage-700@2x"];
 }
 
