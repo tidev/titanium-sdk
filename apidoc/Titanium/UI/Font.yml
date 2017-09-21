@@ -60,7 +60,7 @@ properties:
   - name: fontSize
     summary: Font size, in platform-dependent units.
     description: |
-        On iOS and Mobile Web, font sizes are always specified in typographical points
+        On iOS, font sizes are always specified in typographical points
         (not to be confused with the Apple "points" used for other measurements on iOS).
 
         On Android the default font sizing is in pixels, but the size can also
@@ -78,8 +78,13 @@ properties:
     type: [ Number, String ]
     default: 15px
   - name: fontWeight
-    summary: Font weight. Valid values are "bold" or "normal".
-    description: The "semibold" weight is recognized on iOS only.
+    summary: |
+        Font weight. Valid values are "bold", "semibold", "normal", "thin", 
+        "light" and "ultralight".
+    description: |
+        The "semibold", "thin", "light" and "ultralight" weights are recognized 
+        on iOS only. "thin", "light" and "ultralight" are only available on iOS 8.2
+        and later.
     type: String
     default: normal
   - name: fontStyle

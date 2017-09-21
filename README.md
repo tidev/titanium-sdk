@@ -26,7 +26,7 @@ see the LICENSE file for specific details.
     * [Commercial Support, Licensing](#commercial-support-licensing)
 5. [Contributing](#contributing)
 6. [Building Locally](#building-locally)
-    * [Unit tests](#unit-tests)
+    * [Unit Tests](#unit-tests)
 7. [Legal Stuff](#legal-stuff)
 
 ## Features

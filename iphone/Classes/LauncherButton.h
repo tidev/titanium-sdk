@@ -5,11 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-
 // A good bit of this code was derived from the Three20 project
 // and was customized to work inside Titanium
 //
-// All modifications by Appcelerator are licensed under 
+// All modifications by Appcelerator are licensed under
 // the Apache License, Version 2.0
 //
 //
@@ -34,21 +33,19 @@
 @class LauncherItem;
 
 @interface LauncherButton : UIButton {
-	BOOL dragging;
-	BOOL editing;
-	LauncherItem *item;
-	UIButton *button;
-	UIButton *closeButton;
-	UIButton *badge;
+  BOOL dragging;
+  BOOL editing;
+  LauncherItem *item;
+  UIButton *button;
+  UIButton *closeButton;
+  UIButton *badge;
 }
 
-@property(nonatomic,readwrite,retain) LauncherItem *item;
-@property(nonatomic,readonly) UIButton *closeButton;
+@property (nonatomic, readwrite, retain) LauncherItem *item;
+@property (nonatomic, readonly) UIButton *closeButton;
 
-@property(nonatomic) BOOL dragging;
-@property(nonatomic) BOOL editing;
+@property (nonatomic) BOOL dragging;
+@property (nonatomic) BOOL editing;
 @end
-
-
 
 #endif
