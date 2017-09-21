@@ -44,6 +44,7 @@ const appc = require('node-appc'),
 	series = appc.async.series,
 	version = appc.version;
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + '$)'); // eslint-disable-line security/detect-non-literal-regexp
+const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 
 function iOSBuilder() {
 	Builder.apply(this, arguments);
@@ -207,14 +208,15 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 };
 
 /**
- * Retreieves the certificate information by name.
+ * Retrieves the certificate information by name.
  *
  * @param {String} name - The cert name.
  * @param {String} [type] - The type of cert to scan (developer or distribution).
  * @returns {Object|null}
  * @access private
  */
-iOSBuilder.prototype.getCert = function getCert(name, type) {
+iOSBuilder.prototype.findCertificate = function findCertificate(name, type) {
+	/* eslint-disable max-depth */
 	if (name && this.iosInfo) {
 		for (const keychain of Object.keys(this.iosInfo.certs.keychains)) {
 			const scopes = this.iosInfo.certs.keychains[keychain];
@@ -1040,15 +1042,14 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 			let cert;
 			if (target === 'device') {
-				cert = _t.getCert(cli.argv['developer-name'], 'developer');
+				cert = _t.findCertificate(cli.argv['developer-name'], 'developer');
 			} else {
-				cert = _t.getCert(cli.argv['distribution-name'], 'distribution');
+				cert = _t.findCertificate(cli.argv['distribution-name'], 'distribution');
 			}
-			const certRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 
 			if (target === 'device') {
 				if (iosInfo.provisioning.development.length) {
-					pp = prep(iosInfo.provisioning.development, cert.pem.replace(certRegExp, ''));
+					pp = prep(iosInfo.provisioning.development, cert.pem.replace(pemCertRegExp, ''));
 					if (pp.length) {
 						provisioningProfiles[__('Available Development UUIDs:')] = pp;
 					} else {
@@ -1070,7 +1071,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 			} else if (target === 'dist-appstore') {
 				if (iosInfo.provisioning.distribution.length) {
-					pp = prep(iosInfo.provisioning.distribution, cert.pem.replace(certRegExp, ''));
+					pp = prep(iosInfo.provisioning.distribution, cert.pem.replace(pemCertRegExp, ''));
 					if (pp.length) {
 						provisioningProfiles[__('Available App Store Distribution UUIDs:')] = pp;
 					} else {
@@ -1088,7 +1089,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 			} else if (target === 'dist-adhoc') {
 				if (iosInfo.provisioning.adhoc.length || iosInfo.provisioning.enterprise.length) {
-					pp = prep(iosInfo.provisioning.adhoc, cert.pem.replace(certRegExp, ''));
+					pp = prep(iosInfo.provisioning.adhoc, cert.pem.replace(pemCertRegExp, ''));
 					let valid = pp.length;
 					if (pp.length) {
 						provisioningProfiles[__('Available Ad Hoc UUIDs:')] = pp;
@@ -1161,12 +1162,12 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 				let cert;
 				if (target === 'device') {
-					cert = _t.getCert(cli.argv['developer-name'], 'developer');
+					cert = _t.findCertificate(cli.argv['developer-name'], 'developer');
 				} else {
-					cert = _t.getCert(cli.argv['distribution-name'], 'distribution');
+					cert = _t.findCertificate(cli.argv['distribution-name'], 'distribution');
 				}
 
-				if (cert && p.certs.indexOf(cert.pem.replace(/^-----BEGIN CERTIFICATE-----\n|\n-----END CERTIFICATE-----.*$/g, '')) === -1) {
+				if (cert && p.certs.indexOf(cert.pem.replace(pemCertRegExp, '')) === -1) {
 					return callback(new Error(__('Specified provisioning profile UUID "%s" does not include the "%s" certificate', value, cert.name)));
 				}
 
