@@ -1,5 +1,8 @@
-/* global danger, warn, message */
+/* global danger, fail, warn, markdown, message */
 'use strict';
+const fs = require('fs-extra'),
+	path = require('path'),
+	DOMParser = require('xmldom').DOMParser;
 
 // To spit out the raw data we can use:
 // markdown(JSON.stringify(danger));
@@ -46,9 +49,75 @@ if (hasAppChanges && !hasTestChanges) {
 	warn(':microscope: There are library changes, but no changes to the unit tests. That\'s OK as long as you\'re refactoring existing code');
 }
 
-// TODO Give details on failed tests if we can? Right now we don't run at the
-// right stage to be able to report that. We can move danger to around the Depoy stage
-// and then we can look at the junit report files... Basically a rewrite of https://github.com/orta/danger-junit for JS...
+function gatherFailedTestcases(reportPath) {
+	if (!fs.existsSync(reportPath)) {
+		return [];
+	}
+	const contents = fs.readFileSync(reportPath);
+	const doc = new DOMParser().parseFromString(contents.toString(), 'text/xml');
+	const suite_root = doc.documentElement.firstChild.tagName === 'testsuites' ? doc.documentElement.firstChild : doc.documentElement;
+	const suites = Array.from(suite_root.getElementsByTagName('testsuite'));
+
+	// We need to get the 'testcase' elements that have an 'error' or 'failure' child node
+	const failed_suites = suites.filter(function (suite) {
+		const hasFailures = suite.hasAttribute('failures') && parseInt(suite.getAttribute('failures')) !== 0;
+		const hasErrors = suite.hasAttribute('errors') && parseInt(suite.getAttribute('errors')) !== 0;
+		return hasFailures || hasErrors;
+	});
+	// Gather all the testcase nodes from each failed suite properly.
+	let failed_suites_all_tests = [];
+	failed_suites.forEach(function (suite) {
+		failed_suites_all_tests = failed_suites_all_tests.concat(Array.from(suite.getElementsByTagName('testcase')));
+	});
+	return failed_suites_all_tests.filter(function (test) {
+		return test.hasChildNodes() && (test.getElementsByTagName('failure').length > 0 || test.getElementsByTagName('error').length > 0);
+	});
+}
+
+// Give details on failed mocha suite tests
+const failedAndroidTests = gatherFailedTestcases(path.join(__dirname, 'junit.android.xml'));
+const failedIOSTests = gatherFailedTestcases(path.join(__dirname, 'junit.ios.xml'));
+const failures_and_errors = [...failedAndroidTests, ...failedIOSTests];
+if (failures_and_errors.length !== 0) {
+	fail('Tests have failed, see below for more information.');
+	let message = '### Tests: \n\n';
+	const keys = Array.from(failures_and_errors[0].attributes).map(function (attr) {
+		return attr.nodeName;
+	});
+	const attributes = keys.map(function (key) {
+		return key.substr(0,1).toUpperCase() + key.substr(1).toLowerCase();
+	});
+	attributes.push('Error');
+
+	// TODO Include stderr/stdout, or full test stack too?
+	// Create the headers
+	message += '| ' + attributes.join(' | ') + ' |\n';
+	message += '| ' + attributes.map(function () {
+		return '---';
+	}).join(' | ') + ' |\n';
+
+	// Map out the keys to the tests
+	failures_and_errors.forEach(function (test) {
+		const row_values = keys.map(function (key) {
+			return test.getAttribute(key);
+		});
+		// push error/failure message too
+		const errors = test.getElementsByTagName('error');
+		if (errors.length !== 0) {
+			row_values.push(errors.item(0).getAttribute('message'));
+		} else {
+			const failures = test.getElementsByTagName('failure');
+			if (failures.length !== 0) {
+				row_values.push(errors.item(0).getAttribute('message'));
+			} else {
+				row_values.push(''); // This shouldn't ever happen
+			}
+		}
+		message += '| ' + row_values.join(' | ') + ' |\n';
+	});
+
+	markdown(message);
+}
 
 // TODO Pass along any warnings/errors from eslint in a readable way? Right now we don't have any way to get at the output of the eslint step of npm test
 // May need to edit Jenkinsfile to do a try/catch to spit out the npm test output to some file this dangerfile can consume?
