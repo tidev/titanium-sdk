@@ -242,6 +242,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _tableView.delegate = self;
     _tableView.dataSource = self;
+    
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater]) {
+      _tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#endif
 
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
@@ -2093,6 +2099,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       [_searchWrapper refreshView:nil];
     }
   }
+
   _searchTableView.tableHeaderView = nil;
 
   [searchViewProxy ensureSearchBarHierarchy];
@@ -2140,6 +2147,15 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
   viewController.definesPresentationContext = YES;
 
+  if ([TiUtils isIOS11OrGreater]) {
+#if IS_XCODE_9
+    viewController.navigationItem.searchController = controller;
+    UIView *view = controller.searchBar.superview;
+    view.frame = CGRectMake(view.frame.origin.x, self.frame.origin.y, view.frame.size.width, view.frame.size.height);
+    controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
+    resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y + view.frame.size.height + 44.0, self.frame.size.width, self.frame.size.height);
+#endif
+  } else {
   [viewController presentViewController:controller
                                animated:NO
                              completion:^{
@@ -2148,6 +2164,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
                                controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
                                resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
                              }];
+  }
 
   id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
   ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
