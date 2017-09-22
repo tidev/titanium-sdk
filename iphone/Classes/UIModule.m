@@ -115,15 +115,7 @@ MAKE_SYSTEM_PROP(RETURNKEY_SEND, UIReturnKeySend);
 MAKE_SYSTEM_PROP(RETURNKEY_YAHOO, UIReturnKeyYahoo);
 MAKE_SYSTEM_PROP(RETURNKEY_DONE, UIReturnKeyDone);
 MAKE_SYSTEM_PROP(RETURNKEY_EMERGENCY_CALL, UIReturnKeyEmergencyCall);
-
-- (NSNumber *)RETURNKEY_CONTINUE
-{
-  if ([TiUtils isIOS9OrGreater] == YES) {
-    return [NSNumber numberWithInt:UIReturnKeyContinue];
-  }
-
-  return UIReturnKeyDefault;
-}
+MAKE_SYSTEM_PROP(RETURNKEY_CONTINUE, UIReturnKeyContinue);
 
 MAKE_SYSTEM_PROP(KEYBOARD_TYPE_DEFAULT, UIKeyboardTypeDefault);
 MAKE_SYSTEM_PROP(KEYBOARD_TYPE_URL, UIKeyboardTypeURL);

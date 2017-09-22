@@ -1,6 +1,5 @@
 #!groovy
 library 'pipeline-library'
-currentBuild.result = 'SUCCESS'
 
 // Keep logs/reports/etc of last 15 builds, only keep build artifacts of last 3 builds
 properties([buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '3'))])
@@ -11,9 +10,13 @@ def gitCommit = ''
 def basename = ''
 def vtag = ''
 def isPR = false
+def MAINLINE_BRANCH_REGEXP = /master|\d_\d_(X|\d)/ // a branch is considered mainline if 'master' or like: 6_2_X, 7_0_X, 6_2_1
+def isMainlineBranch = true // used to determine if we should publish to S3 (and include branch in main listing)
+def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json
 
 // Variables we can change
 def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def npmVersion = '5.4.1' // We can change this without any changes to Jenkins.
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
@@ -30,7 +33,14 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 				// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
 				dir('titanium-mobile-mocha-suite') {
 					// TODO Do a shallow clone, using same credentials as from scm object
-					git changelog: false, poll: false, credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
+					try {
+						git changelog: false, poll: false, credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
+					} catch (e) {
+						def msg = "Failed to clone the titanium-mobile-mocha-suite test suite from branch ${testSuiteBranch}. Are you certain that the test suite repo has that branch created?"
+						echo msg
+						manager.addWarningBadge(msg)
+						throw e
+					}
 				}
 				// copy over any overridden unit tests into this workspace
 				unstash 'override-tests'
@@ -61,6 +71,8 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 							}
 						}
 					}
+					// save the junit reports as artifacts explicitly so danger.js can use them later
+					stash includes: 'junit.*.xml', name: "test-report-${os}"
 					junit 'junit.*.xml'
 				}
 			} // timeout
@@ -105,9 +117,14 @@ timestamps {
 				// FIXME: Workaround for missing env.GIT_COMMIT: http://stackoverflow.com/questions/36304208/jenkins-workflow-checkout-accessing-branch-name-and-git-commit
 				gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
 				isPR = env.BRANCH_NAME.startsWith('PR-')
+				isMainlineBranch = (env.BRANCH_NAME ==~ MAINLINE_BRANCH_REGEXP)
 				// target branch of windows SDK to use and test suite to test with
-				targetBranch = isPR ? env.CHANGE_TARGET : env.BRANCH_NAME
-				if (!targetBranch) {
+				if (isPR) {
+					targetBranch = env.CHANGE_TARGET
+				} else if (isMainlineBranch) { // if it's a mainline branch, use the same branch for titanium_mobile_windows
+					targetBranch = env.BRANCH_NAME
+				}
+				if (!targetBranch) { // if all else fails, use master as SDK branch to test with
 					targetBranch = 'master'
 				}
 			}
@@ -115,28 +132,31 @@ timestamps {
 			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 
 				stage('Lint') {
-					// NPM 5.2.0 had a bug taht broke pruning to production, but latest npm 5.4.1 works well
-					sh 'npm install -g npm@5.4.1'
+					// NPM 5.2.0 had a bug that broke pruning to production, but latest npm 5.4.1 works well
+					sh "npm install -g npm@${npmVersion}"
 
 					// Install dependencies
 					timeout(5) {
 						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
 						sh 'npm install'
 					}
-					sh 'npm test' // Run linting first
+					// Stash files for danger.js later
+					if (isPR) {
+						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js', name: 'danger'
+					}
+					sh 'npm test' // Run linting first // TODO Record the eslint output somewhere for danger to use later?
 				}
 
 				// Skip the Windows SDK portion if a PR, we don't need it
 				stage('Windows') {
 					if (!isPR) {
 						// This may be the very first build on this branch, so there's no windows build to grab yet
-						def isFirstBuildOnBranch = false
 						try {
 							sh 'curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/branches.json'
 							if (fileExists('branches.json')) {
-								def contents = readFile('branches.json')
-								if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
-									def branchesJSON = jsonParse(contents)
+								def branchesJSONContents = readFile('branches.json')
+								if (!branchesJSONContents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+									def branchesJSON = jsonParse(branchesJSONContents)
 									isFirstBuildOnBranch = !(branchesJSON['branches'].contains(env.BRANCH_NAME))
 								}
 							}
@@ -231,9 +251,8 @@ timestamps {
 		}
 
 		stage('Deploy') {
-			// Push to S3 if not PR
-			// FIXME on oddball PRs on branches of original repo, we shouldn't do this
-			if (!isPR) {
+			// Push to S3 if on 'master' or "mainline" branch like 6_2_X, 7_0_X...
+			if (isMainlineBranch) {
 				// Now allocate a node for uploading artifacts to s3 and in Jenkins
 				node('(osx || linux) && !axway-internal && curl') {
 					def indexJson = []
@@ -249,11 +268,44 @@ timestamps {
 						def contents = readFile('index.json')
 						if (!contents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
 							indexJson = jsonParse(contents)
+						} else {
+							// we get access denied if it doesn't exist! Let's treat that as us needing to add branch to branches.json listing
+							try {
+								sh 'curl -O http://builds.appcelerator.com.s3.amazonaws.com/mobile/branches.json'
+								if (fileExists('branches.json')) {
+									def branchesJSONContents = readFile('branches.json')
+									if (!branchesJSONContents.startsWith('<?xml')) { // May be an 'Access denied' xml file/response
+										def branchesJSON = jsonParse(branchesJSONContents)
+										if (!(branchesJSON['branches'].contains(env.BRANCH_NAME))) {
+											// Update the branches.json on S3
+											echo 'updating mobile/branches.json to include new branch...'
+											branchesJSON['branches'] << env.BRANCH_NAME
+											writeFile file: 'branches.json', text: new groovy.json.JsonBuilder(branchesJSON).toPrettyString()
+											step([
+												$class: 'S3BucketPublisher',
+												consoleLogLevel: 'INFO',
+												entries: [[
+													bucket: 'builds.appcelerator.com/mobile',
+													gzipFiles: false,
+													selectedRegion: 'us-east-1',
+													sourceFile: 'branches.json',
+													uploadFromSlave: true,
+													userMetadata: []
+												]],
+												profileName: 'builds.appcelerator.com',
+												pluginFailureResultConstraint: 'FAILURE',
+												userMetadata: []])
+										}
+									}
+								}
+							} catch (err) {
+								// ignore? Not able to grab the branches.json, what should we assume? In 99.9% of the cases, it's not a new build
+							}
 						}
 					}
-					// FIXME Add branch to branches.json file as well if the <branch>/index.json didn't exist!
 
 					// unarchive zips
+					sh 'rm -rf dist/'
 					unarchive mapping: ['dist/': '.']
 					// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
 					def oses = ['osx', 'linux', 'win32']
@@ -328,10 +380,18 @@ timestamps {
 						profileName: 'builds.appcelerator.com',
 						pluginFailureResultConstraint: 'FAILURE',
 						userMetadata: []])
+
+					// Trigger titanium_mobile_windows if this is the first build on a "mainline" branch
+					if (isFirstBuildOnBranch) {
+						// Trigger build of titanium_mobile_windows in our pipeline multibranch group!
+						build job: "../titanium_mobile_windows/${env.BRANCH_NAME}", wait: false
+					}
+					// Now wipe the workspace. otherwise the unstashed artifacts will stick around on the node (master)
+					deleteDir()
 				} // node
-			} // !isPR
+			} // isMainlineBranch
 		} // stage
-	}
+	} // try
 	catch (err) {
 		// TODO Use try/catch at lower level (like around tests) so we can give more detailed failures?
 		currentBuild.result = 'FAILURE'
@@ -342,5 +402,26 @@ timestamps {
 			to: 'eng-platform@appcelerator.com'
 
 		throw err
+	}
+	finally {
+		// If we're building a PR, always try and run Danger.JS at the end so we can provide useful comments/info to the PR author
+		if (isPR) {
+			stage('Danger') {
+				node('osx || linux') {
+					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+						unstash 'danger' // this gives us dangerfile.js, package.json, package-lock.json, node_modules/
+						unstash 'test-report-ios' // junit.ios.report.xml
+						unstash 'test-report-android' // junit.android.report.xml
+						sh "npm install -g npm@${npmVersion}"
+						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
+						// We use Github branch source plugin implicitly through pipeline job
+						// See https://github.com/danger/danger-js/issues/379
+						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}"]) {
+							sh 'npx danger'
+						} // withEnv
+					} // nodejs
+				} // node
+			} // Danger stage
+		} // isPR
 	}
 }
