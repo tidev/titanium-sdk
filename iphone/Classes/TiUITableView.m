@@ -420,7 +420,6 @@
     _searchTableView.dataSource = self;
     _searchTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
-
     if (TiDimensionIsDip(rowHeight)) {
       [_searchTableView setRowHeight:rowHeight.value];
     } else {
