@@ -1730,6 +1730,10 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		this.target = cli.argv.target;
 		this.deployType = !/^dist-/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 		this.buildType = cli.argv['build-type'] || '';
+		this.provisioningProfileUUID = cli.argv['pp-uuid'];
+		if (this.provisioningProfileUUID) {
+			this.provisioningProfile = this.findProvisioningProfile(this.target, this.provisioningProfileUUID);
+		}
 
 		// add the ios specific default icon to the list of icons
 		this.defaultIcons.unshift(path.join(this.projectDir, 'DefaultIcon-ios.png'));
@@ -1991,6 +1995,36 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 					next();
 				}.bind(this));
+			},
+
+			function validateTeamId() {
+				this.teamId = this.tiapp.ios['team-id'];
+				if (!this.teamId) {
+					if (this.provisioningProfile.team.length === 1) {
+						// only one team, so choose this over the appPrefix
+						this.teamId = this.provisioningProfile.team[0];
+					} else {
+						// we have multiple teams and we don't know which one to pick, so prefer the appPrefix
+						this.teamId = this.provisioningProfile.appPrefix;
+
+						// if the appPrefix is not in the list of teams, then we need to fail and force the user
+						// to manually specify their team id
+						if (this.provisioningProfile.team.length && this.provisioningProfile.team.indexOf(this.teamId) === -1) {
+							logger.log(__('Available teams:'));
+							this.provisioningProfile.team.forEach(function (id) {
+								logger.log('  ' + id.cyan);
+							});
+							logger.log();
+							logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+							logger.log('    <ios>'.grey);
+							logger.log('        <team-id>TEAM ID</team-id>'.magenta);
+							logger.log('    </ios>'.grey);
+							logger.log('</ti:app>'.grey);
+							logger.log();
+							process.exit(1);
+						}
+					}
+				}
 			},
 
 			function toSymlinkOrNotToSymlink() {
@@ -2308,8 +2342,8 @@ iOSBuilder.prototype.initialize = function initialize() {
 		}).join('|'));
 	this.currentBuildManifest.modulesNativeHash  = this.modulesNativeHash;
 	this.currentBuildManifest.gitHash            = ti.manifest.githash;
-	this.currentBuildManifest.ppUuid             = this.provisioningProfileUUID = argv['pp-uuid'];
-	this.currentBuildManifest.outputDir          = this.cli.argv['output-dir'],
+	this.currentBuildManifest.ppUuid             = this.provisioningProfileUUID;
+	this.currentBuildManifest.outputDir          = this.cli.argv['output-dir'];
 	this.currentBuildManifest.forceCopy          = this.forceCopy               = !!argv['force-copy'];
 	this.currentBuildManifest.forceCopyAll       = this.forceCopyAll            = !!argv['force-copy-all'];
 	this.currentBuildManifest.name               = this.tiapp.name,
@@ -2376,10 +2410,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 
 	if (this.enableLaunchScreenStoryboard && (fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard')))) {
 		this.defaultLaunchScreenStoryboard = false;
-	}
-
-	if (this.provisioningProfileUUID) {
-		this.provisioningProfile = this.findProvisioningProfile(this.target, this.provisioningProfileUUID);
 	}
 
 	var defaultColor = this.defaultLaunchScreenStoryboard ? 'ffffff' : null,
@@ -2544,6 +2574,7 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 	} else if (/^dist-appstore|dist\-adhoc$/.test(this.target)) {
 		this.logger.info(__('iOS Distribution Certificate: %s', cyan(this.certDistributionName)));
 	}
+	this.logger.info(__('Team ID: %s', this.teamId ? cyan(this.teamId) : 'n/a'.grey));
 
 	// validate the min-ios-ver from the tiapp.xml
 	this.logger.info(__('Minimum iOS version: %s', cyan(version.format(this.minIosVer, 2, 3))));
@@ -3123,7 +3154,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		var targetAttr = attr.TargetAttributes || (attr.TargetAttributes = {});
 		var mainTargetAttr = targetAttr[mainTargetUuid] || (targetAttr[mainTargetUuid] = {});
 
-		mainTargetAttr.DevelopmentTeam = this.provisioningProfile.appPrefix;
+		mainTargetAttr.DevelopmentTeam = this.teamId;
 
 		// turn on any capabilities
 		Object.keys(caps).forEach(function (cap) {
@@ -3150,7 +3181,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		bs.PRODUCT_BUNDLE_IDENTIFIER = '"' + this.tiapp.id + '"';
 
 		if (this.provisioningProfile) {
-			bs.DEVELOPMENT_TEAM = this.provisioningProfile.appPrefix;
+			bs.DEVELOPMENT_TEAM = this.teamId;
 			bs.PROVISIONING_PROFILE = '"' + this.provisioningProfile.uuid + '"';
 			bs.PROVISIONING_PROFILE_SPECIFIER = '"' + this.provisioningProfile.name + '"';
 		}
@@ -3310,7 +3341,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 				if (this.provisioningProfile) {
 					var ta = pbxProject.attributes.TargetAttributes[targetUuid] || (pbxProject.attributes.TargetAttributes[targetUuid] = {});
-					ta.DevelopmentTeam = this.provisioningProfile.appPrefix;
+					ta.DevelopmentTeam = this.teamId;
 
 					Object.keys(caps).forEach(function (cap) {
 						ta.SystemCapabilities || (ta.SystemCapabilities = {});
@@ -3497,7 +3528,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
 						var pp = this.findProvisioningProfile(this.target, target.ppUUIDs[this.target]);
 						extBuildSettings.PROVISIONING_PROFILE = '"' + pp.uuid + '"';
-						extBuildSettings.DEVELOPMENT_TEAM = pp.appPrefix;
+
+						// NOTE: if there isn't an explicit <team-id> in the tiapp.xml and there is no
+						// teams or more than 1 team in the provisioning profile, then we use the appPrefix
+						// which should be the team id, but can differ and since we don't check it, this
+						// next line of code could be problematic
+						extBuildSettings.DEVELOPMENT_TEAM = this.teamId || (pp.team.length === 1 ? pp.team[0] : pp.appPrefix);
+
 						extBuildSettings.PROVISIONING_PROFILE_SPECIFIER = '"' + pp.name + '"';
 						extBuildSettings.DEPLOYMENT_POSTPROCESSING = 'YES';
 						if (this.keychain) {
