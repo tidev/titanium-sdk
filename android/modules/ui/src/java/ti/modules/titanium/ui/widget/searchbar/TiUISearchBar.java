@@ -17,7 +17,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.widget.NestedScrollView;
 import android.text.TextUtils.TruncateAt;
 import android.view.Gravity;
 import android.view.KeyEvent;

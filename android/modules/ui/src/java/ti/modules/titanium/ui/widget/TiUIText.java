@@ -298,6 +298,7 @@ public class TiUIText extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			tv.setBackgroundColor(Color.TRANSPARENT);
+			super.propertyChanged(key, oldValue, newValue, proxy);
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			tv.setTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {

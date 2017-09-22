@@ -332,7 +332,7 @@ properties:
   - name: hintType
     summary: Hint type to display on the text field.
     platforms: [android]
-    since: {android: "6.2.0"}
+    since: {android: "7.0.0"}
     description: |
         Setting this to <Titanium.UI.HINT_TYPE_ANIMATED> will use the animated TextInputLayout on Android.
     type: Number
