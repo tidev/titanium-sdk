@@ -244,6 +244,12 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         _tableView.delegate = self;
         _tableView.dataSource = self;
+
+#if IS_XCODE_9
+        if ([TiUtils isIOS11OrGreater]) {
+            _tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
+#endif
         
 #if IS_XCODE_8
         if ([TiUtils isIOS10OrGreater]) {

@@ -476,6 +476,11 @@
 		tableview.dataSource = self;
 		tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
 		
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater]) {
+        tableview.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#endif
 		
 		if (TiDimensionIsDip(rowHeight)) {
 			[tableview setRowHeight:rowHeight.value];
