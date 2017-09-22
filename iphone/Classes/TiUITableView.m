@@ -420,12 +420,7 @@
     _searchTableView.dataSource = self;
     _searchTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
-#if IS_XCODE_9
-    if ([TiUtils isIOS11OrGreater]) {
-      tableview.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-    }
-#endif
-    
+
     if (TiDimensionIsDip(rowHeight)) {
       [_searchTableView setRowHeight:rowHeight.value];
     } else {
@@ -458,6 +453,12 @@
     tableview.dataSource = self;
     tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater]) {
+        tableview.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#endif
+    
     if (TiDimensionIsDip(rowHeight)) {
       [tableview setRowHeight:rowHeight.value];
     } else {
