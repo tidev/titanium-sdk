@@ -30,7 +30,7 @@ examples:
             Ti.Android.NotificationManager.notify(100, notification);
 
 extends: Titanium.Proxy
-since: "6.2.0"
+since: "7.0.0"
 osver: {android: {min: "8.0"}}
 platforms: [android]
 
@@ -40,7 +40,7 @@ properties:
     type: Boolean
 
   - name: description
-    summary: user visible description of this channel.
+    summary: User visible description of this channel.
     type: String
 
   - name: enableLights
@@ -58,8 +58,8 @@ properties:
   - name: importance
     summary: The audio stream type to use when playing the sound.
     description: Specify one of the `IMPORTANCE` constants from <Titanium.Android>.
-    constants: [Titanium.Android.IMPORTANCE_*]
     type: Number
+    constants: [Titanium.Android.IMPORTANCE_*]
 
   - name: id
     summary: The channel id specified for the notification channel.
@@ -72,6 +72,7 @@ properties:
   - name: lockscreenVisibility
     summary: Whether or not notifications posted to this channel are shown on the lockscreen in full or redacted form.
     type: Number
+    constants: [Titanium.Android.VISIBILITY_*]
 
   - name: showBadge
     summary: Whether notifications posted to this channel can appear as application icon badges in a Launcher.
@@ -79,4 +80,5 @@ properties:
 
   - name: vibratePattern
     summary: The vibration pattern for notifications posted to this channel.
+    description: Specify the pattern in milliseconds as an array. (e.g [100, 100, 100, 400, 400, 100, 100, 100])
     type: Array<Number>
