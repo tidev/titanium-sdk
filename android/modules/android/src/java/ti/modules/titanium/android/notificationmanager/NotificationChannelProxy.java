@@ -77,7 +77,7 @@ public class NotificationChannelProxy extends KrollProxy
 				setShowBadge(d.getBoolean(TiC.PROPERTY_SHOW_BADGE));
 			}
 			if (d.containsKey(TiC.PROPERTY_VIBRATE_PATTERN)) {
-				setVibrationPattern((long[]) d.get(TiC.PROPERTY_VIBRATE_PATTERN));
+				setVibrationPattern(d.get(TiC.PROPERTY_VIBRATE_PATTERN));
 			}
 		} else {
 			Log.e(TAG, "could not create notification channel");
@@ -161,10 +161,22 @@ public class NotificationChannelProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.setProperty
-	public void setVibrationPattern(long[] vibrationPattern)
+	public void setVibrationPattern(Object patternObj)
 	{
-		channel.setVibrationPattern(vibrationPattern);
-		setProperty(TiC.PROPERTY_VIBRATE_PATTERN, vibrationPattern);
+		if (patternObj instanceof Object[]) {
+			Object[] patternArray = (Object[]) patternObj;
+			long[] pattern = new long[patternArray.length];
+
+			for (int i = 0; i < patternArray.length; i++) {
+				if (!(patternArray[i] instanceof Integer)) {
+					Log.e(TAG, "invalid vibratePattern array element");
+					return;
+				}
+				pattern[i] = ((Integer) patternArray[i]).intValue();
+			}
+			channel.setVibrationPattern(pattern);
+			setProperty(TiC.PROPERTY_VIBRATE_PATTERN, patternArray);
+		}
 	}
 
 	public NotificationChannel getNotificationChannel()
