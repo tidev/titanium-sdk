@@ -10,6 +10,7 @@
 const appc = require('node-appc'),
 	async = require('async'),
 	fs = require('fs'),
+	wrench = require('wrench'),
 	ioslib = require('ioslib'),
 	path = require('path'),
 	run = appc.subprocess.run,
@@ -40,35 +41,47 @@ exports.init = function (logger, config, cli) {
 					});
 				}
 
-				// if we don't have a deviceId, or it's "itunes", or it's "all", but not devices are connected,
-				// then install to iTunes
-				if (!builder.deviceId || builder.deviceId === 'itunes' || (builder.deviceId && !Object.keys(devices).length)) {
-					logger.info(__('Installing application into iTunes'));
+				// if we don't have a deviceId, or it's "Export .ipa", or it's "all", but not devices are connected,
+				// then export .ipa file
+				if (!builder.deviceId || builder.deviceId === 'export-ipa' || (builder.deviceId && !Object.keys(devices).length)) {
+					logger.info(__('Exporting application as ' + (builder.tiapp.name + '.ipa').cyan));
 
-					let ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa');
-					fs.existsSync(ipa) || (ipa = builder.xcodeAppDir);
-					run('open', [ '-b', 'com.apple.itunes', ipa ], function (code) {
-						if (code) {
-							return finished(new appc.exception(__('Failed to launch iTunes')));
-						}
-
-						logger.info(__('Initiating iTunes sync'));
-						run('osascript', path.join(builder.platformPath, 'itunes_sync.scpt'), function (code, out, err) {
-							if (code) {
-								if (err.indexOf('(-1708)') !== -1) {
-									// err == "itunes_sync.scpt: execution error: iTunes got an error: every source doesn’t understand the count message. (-1708)"
-									//
-									// TODO: alert that the EULA needs to be accepted and if prompting is enabled,
-									//       then wait for them to accept it and then try again
-									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
-								} else {
-									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
-								}
-							} else {
-								finished();
-							}
-						});
+					// Prepare related files & directories
+					const appFile = builder.tiapp.name + '.app';
+					const appPath = path.join(path.dirname(builder.xcodeAppDir), appFile);
+					const ipaPath = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa');
+					const payloadDir = path.join(path.dirname(builder.xcodeAppDir), 'Payload') 
+					
+					// Create "Payload/" directory
+					fs.mkdirSync(payloadDir);
+					
+					// Copy the <AppName>.app file to Payload/<AppName>.app
+					fs.rename(appPath, path.join(payloadDir, appFile));
+					
+					// Zip the directory to create an <AppName>.ipa
+					var output = fs.createWriteStream(ipaPath);
+					var archive = archiver('zip', {
+					    zlib: { level: 9 }
 					});
+
+					output.on('close', function () {
+						fs.existsSync(payloadDir) && wrench.rmdirSyncRecursive(payloadDir);
+						logger.info(__('Successfully exported application to: ' + ipaPath.cyan));
+					});
+
+					archive.on('warning', function (err) {
+					  if (err.code !== 'ENOENT') {
+							new appc.exception(__('Failed to export .ipa file: ' + err));
+					  }
+					});
+
+					archive.on('error', function (err) {
+						new appc.exception(__('Failed to export .ipa file: ' + err));
+					});
+
+					archive.pipe(output);
+					archive.directory(payloadDir, payloadDir);
+					archive.finalize();
 
 					return;
 				}
