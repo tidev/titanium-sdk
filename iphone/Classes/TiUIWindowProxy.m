@@ -246,6 +246,9 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
+  [self performSelector:@selector(processForSafeArea)
+                    withObject:nil
+             afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
   [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
   [self willChangeSize];
 }
@@ -937,6 +940,49 @@
     [barImageView removeFromSuperview];
   }
 }
+
+- (void)processForSafeArea
+{
+  if (self.shouldExtendSafeArea) {
+    return;
+  }
+#if IS_XCODE_9
+  float left = 0.0;
+  float right = 0.0;
+  float top = 0.0;
+  float bottom = 0.0;
+  if ([TiUtils isIOS11OrGreater]) {
+    UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
+    UIView *rootView = [topContainerController hostingView];
+    if (self.tabGroup) {
+      UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+      if (!UIInterfaceOrientationIsPortrait(orientation)) {
+        left = rootView.safeAreaInsets.left;
+        right = rootView.safeAreaInsets.right;
+      }
+    } else if (self.tab) {
+      UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+      if (!UIInterfaceOrientationIsPortrait(orientation)) {
+        left = rootView.safeAreaInsets.left;
+        right = rootView.safeAreaInsets.right;
+        bottom = rootView.safeAreaInsets.bottom;
+      } else {
+        bottom = rootView.safeAreaInsets.bottom;
+      }
+    } else {
+      left = rootView.safeAreaInsets.left;
+      right = rootView.safeAreaInsets.right;
+      bottom = rootView.safeAreaInsets.bottom;
+      top = rootView.safeAreaInsets.top;
+    }
+    [self.safeAreaViewProxy setTop:[NSNumber numberWithFloat:top]];
+    [self.safeAreaViewProxy setBottom:[NSNumber numberWithFloat:bottom]];
+    [self.safeAreaViewProxy setLeft:[NSNumber numberWithFloat:left]];
+    [self.safeAreaViewProxy setRight:[NSNumber numberWithFloat:right]];
+  }
+#endif
+}
+
 @end
 
 #endif

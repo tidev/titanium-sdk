@@ -27,6 +27,8 @@
 - (void)refreshBackButton;
 - (void)updateNavBar;
 - (void)boot:(BOOL)timeout args:(id)args;
+@property (nonatomic, assign) TiViewProxy *safeAreaViewProxy;
+@property (nonatomic) BOOL shouldExtendSafeArea;
 
 @end
 

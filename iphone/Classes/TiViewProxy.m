@@ -20,6 +20,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
+#import "TiUIWindowProxy.h"
+#import "TiUIViewProxy.h"
 
 #define IGNORE_IF_NOT_OPENED                      \
   if (!windowOpened || [self viewAttached] == NO) \
@@ -167,10 +169,25 @@ static NSArray *touchEventsArray;
 
 - (void)add:(id)arg
 {
+  TiUIWindowProxy *windowProxy = nil;
+  if ([self isKindOfClass:[TiUIWindowProxy class]]) {
+    //Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
+     windowProxy = (TiUIWindowProxy *)self;
+     windowProxy.shouldExtendSafeArea = [TiUtils boolValue:[self valueForUndefinedKey:@"extendSafeArea"]
+                                             def:NO];
+    if (!windowProxy.safeAreaViewProxy && !windowProxy.shouldExtendSafeArea) {
+      windowProxy.safeAreaViewProxy = [[TiUIViewProxy alloc] _initWithPageContext:[self pageContext] args:nil];
+      [self add:windowProxy.safeAreaViewProxy];
+    }
+  }
   // allow either an array of arrays or an array of single proxy
   if ([arg isKindOfClass:[NSArray class]]) {
     for (id a in arg) {
-      [self add:a];
+      if (windowProxy.safeAreaViewProxy) {
+        [windowProxy.safeAreaViewProxy add:a];
+      } else {
+        [self add:a];
+      }
     }
     return;
   }
