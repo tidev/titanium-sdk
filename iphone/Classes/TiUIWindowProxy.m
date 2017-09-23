@@ -968,17 +968,17 @@ else{\
     [[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
     //Need to clear title for titleAttributes to apply correctly on iOS6.
     [[controller navigationItem] setTitle:nil];
-    SETPROP(@"titleAttributes", setTitleAttributes);
-    SETPROP(@"title", setTitle);
-    SETPROP(@"titlePrompt", setTitlePrompt);
+    SETPROP(@"titleAttributes",setTitleAttributes);
+    SETPROP(@"title",setTitle);
+    SETPROP(@"titlePrompt",setTitlePrompt);
     SETPROP(@"largeTitleEnabled", setLargeTitleEnabled);
     SETPROP(@"largeTitleDisplayMode", setLargeTitleDisplayMode);
     [self updateTitleView];
-    SETPROP(@"barColor", setBarColor);
-    SETPROP(@"navTintColor", setNavTintColor);
-    SETPROP(@"translucent", setTranslucent);
-    SETPROP(@"tabBarHidden", setTabBarHidden);
-    SETPROPOBJ(@"toolbar", setToolbar);
+    SETPROP(@"barColor",setBarColor);
+    SETPROP(@"navTintColor",setNavTintColor);
+    SETPROP(@"translucent",setTranslucent);
+    SETPROP(@"tabBarHidden",setTabBarHidden);
+    SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
     [self updateNavButtons];
     [self refreshBackButton];
