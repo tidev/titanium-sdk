@@ -386,7 +386,6 @@
 #if IS_XCODE_9
         if ([TiUtils isIOS11OrGreater] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
             [[[controller navigationController] navigationBar] setLargeTitleTextAttributes:theAttributes];
-            return;
         }
 #endif
         [[[controller navigationController] navigationBar] setTitleTextAttributes:theAttributes];
