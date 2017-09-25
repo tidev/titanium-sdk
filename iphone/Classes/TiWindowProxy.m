@@ -426,7 +426,9 @@
     }
     UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     [[self view] setAccessibilityElementsHidden:NO];
+#if IS_XCODE_9
     [self processForSafeArea];
+#endif
   }
   TiThreadPerformOnMainThread(^{
     [self forceNavBarFrame];
@@ -858,9 +860,10 @@
 }
 #endif
 
+#if IS_XCODE_9
 - (void)processForSafeArea
 {
   // Overridden in subclass
 }
-
+#endif
 @end
