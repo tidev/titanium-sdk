@@ -75,7 +75,7 @@ public class TiBorderWrapperView extends FrameLayout
 			Path innerPath = new Path(outerPath);
 
 			// draw border
-			outerPath.addRoundRect(outerRect, radius, radius, Direction.CW);
+			outerPath.addRoundRect(outerRect, radius, radius, Direction.CCW);
 			canvas.drawPath(outerPath, paint);
 
 			// TIMOB-16909: hack to fix anti-aliasing
@@ -89,7 +89,7 @@ public class TiBorderWrapperView extends FrameLayout
 			}
 		} else {
 			outerPath.addRect(outerRect, Direction.CW);
-			outerPath.addRect(innerRect, Direction.CW);
+			outerPath.addRect(innerRect, Direction.CCW);
 			canvas.drawPath(outerPath, paint);
 			canvas.clipRect(innerRect);
 		}
