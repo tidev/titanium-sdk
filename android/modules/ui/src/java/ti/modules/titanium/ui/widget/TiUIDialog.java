@@ -355,18 +355,24 @@ public class TiUIDialog extends TiUIView
 		int cancelIndex = (proxy.hasProperty(TiC.PROPERTY_CANCEL)) ?
 			TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
 		KrollDict data = new KrollDict();
-		if ((id & BUTTON_MASK) != 0) {
-			data.put(TiC.PROPERTY_BUTTON, true);
-			id &= ~BUTTON_MASK;
-		} else {
-			data.put(TiC.PROPERTY_BUTTON, false);
-			// If an option was selected and the user accepted it, update the proxy.
-			if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
-				proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id);
+		if (id == cancelIndex){//TIOMOB-18500 Android: event.cancel not set properly for optionsDialog
+			data.put(TiC.EVENT_PROPERTY_INDEX, id);
+			data.put(TiC.PROPERTY_CANCEL, id == cancelIndex);
+			fireEvent(TiC.EVENT_CANCEL, data);
+		}else {
+			if ((id & BUTTON_MASK) != 0) {
+				data.put(TiC.PROPERTY_BUTTON, true);
+				id &= ~BUTTON_MASK;
+			} else {
+				data.put(TiC.PROPERTY_BUTTON, false);
+				// If an option was selected and the user accepted it, update the proxy.
+				if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
+					proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id);
+				}
 			}
+			data.put(TiC.EVENT_PROPERTY_INDEX, id);
+			data.put(TiC.PROPERTY_CANCEL, id == cancelIndex);
+			fireEvent(TiC.EVENT_CLICK, data);
 		}
-		data.put(TiC.EVENT_PROPERTY_INDEX, id);
-		data.put(TiC.PROPERTY_CANCEL, id == cancelIndex);
-		fireEvent(TiC.EVENT_CLICK, data);
 	}
 }
