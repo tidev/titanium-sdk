@@ -441,15 +441,17 @@ properties:
 
   - name: extendSafeArea
     summary: |
-        It specifies whether the content (subviews) of window  will render inside safe area or not. Valid on iOS 11 and greater.
+       Specifies whether the content (subviews) of the window  will render inside safe-area or not. 
+       Valid on iOS 11.
     description:  |
-        When the value is true, it allows the contents (subviews) of window will not respect safe area. Content (subviews) 
-        of windows will get render considering whole screen is available for rendering. When the value is false, the 
-        contents (subviews) of window will be rendered in safe area. Though background color , backgroundImage etc. of window 
-        will not be affected.
+        When the value is `true`, it allows the contents (subviews) of window will not respect safe-area. Content (subviews) 
+        of windows will get render considering whole screen is available for rendering. When the value is `false`, the 
+        contents (subviews) of the window will be rendered inside the safe-area.
 
-        The default behavior assumes that this is false. It must be specified while creating window.
-    platforms: [iphone,ipad]
+        The default behavior assumes that this is `false`. It must be specified while creating a window and cannot be set afterwards.
+        
+        Read more about the iPhone X and the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
+    platforms: [iphone, ipad]
     type: Boolean
     default: false
     since: 6.3.0
