@@ -21,8 +21,8 @@
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
 #if IS_XCODE_9
-#import "TiUIWindowProxy.h"
 #import "TiUIViewProxy.h"
+#import "TiUIWindowProxy.h"
 #endif
 
 #define IGNORE_IF_NOT_OPENED                      \
@@ -175,9 +175,8 @@ static NSArray *touchEventsArray;
   TiUIWindowProxy *windowProxy = nil;
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
     //Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
-     windowProxy = (TiUIWindowProxy *)self;
-     windowProxy.shouldExtendSafeArea = [TiUtils boolValue:[self valueForUndefinedKey:@"extendSafeArea"]
-                                             def:NO];
+    windowProxy = (TiUIWindowProxy *)self;
+    windowProxy.shouldExtendSafeArea = [TiUtils boolValue:[self valueForUndefinedKey:@"extendSafeArea"] def:NO];
     if (!windowProxy.safeAreaViewProxy && !windowProxy.shouldExtendSafeArea) {
       windowProxy.safeAreaViewProxy = [[[TiUIViewProxy alloc] _initWithPageContext:[self pageContext] args:nil] autorelease];
       [self add:windowProxy.safeAreaViewProxy];
@@ -194,10 +193,10 @@ static NSArray *touchEventsArray;
       } else {
 #endif
         [self add:a];
-      }
 #if IS_XCODE_9
-    }
+      }
 #endif
+    }
     return;
   }
 

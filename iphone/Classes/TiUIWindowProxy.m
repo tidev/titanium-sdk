@@ -251,10 +251,11 @@
 {
 #if IS_XCODE_9
   [self performSelector:@selector(processForSafeArea)
-                    withObject:nil
+             withObject:nil
              afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
 #endif
-  [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+  [super viewWillTransitionToSize:size
+        withTransitionCoordinator:coordinator];
   [self willChangeSize];
 }
 
