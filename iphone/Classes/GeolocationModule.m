@@ -281,9 +281,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
     if ([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedAlways &&
         [CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedWhenInUse) {
-      if ([TiUtils isIOS11OrGreater]) {
-        NSLog(@"[WARN] Trying to use location services without requesting location permissions.");
-        NSLog(@"[WARN] Apps targeting iOS 11 and later have the option to pass the \"%@\" key to the tiapp.xml <plist> section, allowing them to incrementally upgrade the location permissions from \"When in Use\" to \"Always\". This is only possible by when using the Ti.Geolocation.requestLocationPermissions method, which should be called before using any Ti.Geolocation related API. Please verify location permissions before and call this method afterwards. Falling back to the old behavior ...", kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
+      NSLog(@"[WARN] Trying to use location services without requesting location permissions. Use either:\n\n"
+            "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_ALWAYS, function(e) {\n"
+            "\t// Handle authorization via e.success\n"
+            "})\n\n"
+            "or\n\n"
+            "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_WHEN_IN_USE, function(e) {\n"
+            "\t// Handle authorization via e.success\n"
+            "})\n");
+      if ([TiUtils isIOS11OrGreater] && ![[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlwaysAndWhenInUse]) {
+        NSLog(@"[WARN] Apps targeting iOS 11 and later have the option to pass the \"%@\" key to the tiapp.xml <plist> section, allowing them to incrementally upgrade the location permissions from \"When in Use\" to \"Always\". This is only possible when using the Ti.Geolocation.requestLocationPermissions method, which should be called before using any Ti.Geolocation related API. Please verify location permissions before and call this method afterwards. Falling back to the old behavior ...", kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
       }
 
       if ([[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways]) {
@@ -796,10 +803,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
   CLAuthorizationStatus requested = [TiUtils intValue:value];
   CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
-  BOOL permissionsGranted = (currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) || (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse);
+  BOOL permissionsGranted = currentPermissionLevel == requested;
 
   // For iOS < 11, already granted permissions will return with success immediately
-  if (![TiUtils isIOS11OrGreater] && permissionsGranted) {
+  if (permissionsGranted) {
     [self executeAndReleaseCallbackWithCode:0 andMessage:nil];
     return;
   } else if (currentPermissionLevel == kCLAuthorizationStatusDenied) {
@@ -827,16 +834,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   if (requested == kCLAuthorizationStatusAuthorizedAlways) {
     // If iOS 11, the user can only have "NSLocationAlwaysAndWhenInUseUsageDescription" to manage the location-upgrade process
     if ([[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways] || ([TiUtils isIOS11OrGreater] && [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlwaysAndWhenInUse])) {
-      // If iOS 11, the user is allowed to upgrade from a current level "When in Use" to "Always"
-      // if not iOS 11, the user is not able to upgrade and will receive an error
-      if (![TiUtils isIOS11OrGreater] && currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse) {
-        errorMessage = @"Cannot change already granted permission from AUTHORIZATION_WHEN_IN_USE to AUTHORIZATION_ALWAYS";
-      } else {
-        TiThreadPerformOnMainThread(^{
-          [[self locationPermissionManager] requestAlwaysAuthorization];
-        },
-            NO);
-      }
+      TiThreadPerformOnMainThread(^{
+        [[self locationPermissionManager] requestAlwaysAuthorization];
+      },
+          NO);
     } else if ([TiUtils isIOS11OrGreater]) {
       errorMessage = [NSString stringWithFormat:@"The %@ or %@ key must be defined in your tiapp.xml in order to request this permission.",
                                kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse];
