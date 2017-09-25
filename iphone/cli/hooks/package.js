@@ -205,7 +205,7 @@ exports.init = function (logger, config, cli) {
 				exportsOptions.method = 'enterprise';
 			}
 
-			if (builder.teamId || pp.team || pp.appPrefix) {
+			if (builder.teamId || (pp && (pp.team || pp.appPrefix))) {
 				// NOTE: if there isn't an explicit <team-id> in the tiapp.xml and there is no
 				// teams or more than 1 team in the provisioning profile, then we use the appPrefix
 				// which should be the team id, but can differ and since we don't check it, this

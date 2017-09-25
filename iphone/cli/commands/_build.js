@@ -2029,7 +2029,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 			function validateTeamId() {
 				this.teamId = this.tiapp.ios['team-id'];
-				if (!this.teamId) {
+				if (!this.teamId && this.provisioningProfile) {
 					if (this.provisioningProfile.team.length === 1) {
 						// only one team, so choose this over the appPrefix
 						this.teamId = this.provisioningProfile.team[0];
