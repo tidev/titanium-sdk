@@ -38,7 +38,7 @@ description: |
     The `destructive` property may be set for an item, to give a visual cue that selecting it
     results in an irreversible action.
 
-    On iOS 4, option dialogs are automatically cancelled when the application is paused/suspended.
+    Since iOS 4, option dialogs are automatically cancelled when the application is paused/suspended.
 
     ##### iPhone
 
@@ -188,14 +188,12 @@ properties:
     type: Number
     default: undefined (Android), -1 (iOS)
 
-
   - name: destructive
     summary: Index to define the destructive option, indicated by a visual cue when rendered.
     type: Number
     default: -1
     platforms: [iphone, ipad]
     availability: creation
-
 
   - name: options
     summary: List of option names to display in the dialog.
@@ -242,7 +240,6 @@ properties:
     summary: Key identifying a string in the locale file to use for the title text.
     type: String
 
-
 examples:
   - title: Dialog with 3 Options
     example: |
@@ -250,9 +247,7 @@ examples:
         Ti.UI.setBackgroundColor('white');
         var win = Ti.UI.createWindow({
           title: 'Click window to test',
-          backgroundColor: 'white',
-          exitOnClose: true,
-          fullscreen: false
+          backgroundColor: 'white'
         });
 
         var opts = {
@@ -273,18 +268,16 @@ examples:
 
         var win = Ti.UI.createWindow({
           title: 'Click window to test OptionDialog',
-          backgroundColor: 'white',
-          exitOnClose: true,
-          fullscreen: false
+          backgroundColor: 'white'
         });
 
         var opts = {
           title: 'Delete File?'
         };
 
-        var isAndroid = Ti.Platform.osname == 'android';
+        var isAndroid = Ti.Platform.osname === 'android';
 
-        if(isAndroid){
+        if (isAndroid) {
           opts.options = ['Confirm', 'Cancel'];
           opts.buttonNames = ['Help'];
         } else {
@@ -292,28 +285,29 @@ examples:
         }
 
         var dialog;
-        win.addEventListener('click',function(){
+        win.addEventListener('click', function() {
           dialog = Ti.UI.createOptionDialog(opts);
-          dialog.show();
+          
           dialog.addEventListener('click', onSelectDialog);
-          dialog.addEventListener('cancel', function(event){
-            alert("Dialog canceled " + " event.cancel = " + event.cancel+ " event.index = " +event.index);
-            })
+          dialog.addEventListener('cancel', function(e) {
+            alert('Dialog canceled! e.cancel = ' + e.cancel + ', e.index = ' + e.index);
+          })
+
+           dialog.show();
         });
 
-        function onSelectDialog(event){
-          if(isAndroid){
-
-            if(event.button === false && event.index === 0) {
-              alert("Confirm option selected event.index= " + event.index);
+        function onSelectDialog(e) {
+          if (isAndroid) {
+            if (e.button === false && e.index === 0) {
+              alert('Confirm option selected! e.index = ' + e.index);
             }
 
-            if(event.button === false && event.index === 1) {
-              alert("Cancel option selected event.index= " + event.index);
+            if (e.button === false && eventeindex === 1) {
+              alert('Cancel option selected! e.index = ' + e.index);
             }
 
-            if(event.button === true && event.index === 0) {
-              alert("Help Button clicked event.index= " + event.index);
+            if (e.button === true && e.index === 0) {
+              alert('Help Button clicked! e.index = ' + e.index);
             }
           }
         }
