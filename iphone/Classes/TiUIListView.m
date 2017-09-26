@@ -243,6 +243,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _tableView.delegate = self;
     _tableView.dataSource = self;
 
+    // Fixes incorrect heights in iOS 11 as we calculate them internally already
+    _tableView.estimatedRowHeight = 0;
+    _tableView.estimatedSectionFooterHeight = 0;
+    _tableView.estimatedSectionHeaderHeight = 0;
+
 #if IS_XCODE_9
     if ([TiUtils isIOS11OrGreater]) {
       _tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;

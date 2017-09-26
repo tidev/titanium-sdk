@@ -452,6 +452,11 @@
     tableview.dataSource = self;
     tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
+    // Fixes incorrect heights in iOS 11 as we calculate them internally already
+    tableview.estimatedRowHeight = 0;
+    tableview.estimatedSectionFooterHeight = 0;
+    tableview.estimatedSectionHeaderHeight = 0;
+
 #if IS_XCODE_9
     if ([TiUtils isIOS11OrGreater]) {
       tableview.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
