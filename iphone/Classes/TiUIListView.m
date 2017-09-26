@@ -249,7 +249,13 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
         _tableView.estimatedRowHeight = 0;
         _tableView.estimatedSectionFooterHeight = 0;
         _tableView.estimatedSectionHeaderHeight = 0;
-        
+
+#if IS_XCODE_9
+        if ([TiUtils isIOS11OrGreater]) {
+            _tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
+#endif
+
 #if IS_XCODE_8
         if ([TiUtils isIOS10OrGreater]) {
             _tableView.prefetchDataSource = self;
