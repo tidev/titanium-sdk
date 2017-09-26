@@ -271,9 +271,8 @@ examples:
   - title: Dialog with 2 Options and 1 Button on Android and 3 Options on iOS
     example: |
 
-        Ti.UI.setBackgroundColor('white');
-          var win = Ti.UI.createWindow({
-          title: 'Click window to test',
+        var win = Ti.UI.createWindow({
+          title: 'Click window to test OptionDialog',
           backgroundColor: 'white',
           exitOnClose: true,
           fullscreen: false
@@ -292,9 +291,33 @@ examples:
           opts.options = ['Confirm', 'Help', 'Cancel'];
         }
 
-        win.addEventListener('click', function(e){
-          var dialog = Ti.UI.createOptionDialog(opts).show();
+        var dialog;
+        win.addEventListener('click',function(){
+          dialog = Ti.UI.createOptionDialog(opts);
+          dialog.show();
+          dialog.addEventListener('click', onSelectDialog);
+          dialog.addEventListener('cancel', function(event){
+            alert("Dialog canceled " + " event.cancel = " + event.cancel+ " event.index = " +event.index);
+            })
         });
+
+        function onSelectDialog(event){
+          if(isAndroid){
+
+            if(event.button === false && event.index === 0) {
+              alert("Confirm option selected event.index= " + event.index);
+            }
+
+            if(event.button === false && event.index === 1) {
+              alert("Cancel option selected event.index= " + event.index);
+            }
+
+            if(event.button === true && event.index === 0) {
+              alert("Help Button clicked event.index= " + event.index);
+            }
+          }
+        }
+
         win.open();
 
   - title: Alloy XML Markup
