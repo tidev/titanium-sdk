@@ -355,11 +355,9 @@ public class TiUIDialog extends TiUIView
 		int cancelIndex = (proxy.hasProperty(TiC.PROPERTY_CANCEL)) ?
 			TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
 		KrollDict data = new KrollDict();
-		if (id == cancelIndex){//TIOMOB-18500 Android: event.cancel not set properly for optionsDialog
-			data.put(TiC.EVENT_PROPERTY_INDEX, id);
-			data.put(TiC.PROPERTY_CANCEL, id == cancelIndex);
-			fireEvent(TiC.EVENT_CANCEL, data);
-		}else {
+		//TIMOB-18500 Android: event.cancel not set properly for optionsDialog
+		boolean isCancel = id == cancelIndex;
+		if (!isCancel){
 			if ((id & BUTTON_MASK) != 0) {
 				data.put(TiC.PROPERTY_BUTTON, true);
 				id &= ~BUTTON_MASK;
@@ -370,8 +368,12 @@ public class TiUIDialog extends TiUIView
 					proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id);
 				}
 			}
-			data.put(TiC.EVENT_PROPERTY_INDEX, id);
-			data.put(TiC.PROPERTY_CANCEL, id == cancelIndex);
+		}
+		data.put(TiC.EVENT_PROPERTY_INDEX, id);
+		data.put(TiC.PROPERTY_CANCEL, isCancel);
+		if(isCancel){
+			fireEvent(TiC.EVENT_CANCEL, data);
+		}else {
 			fireEvent(TiC.EVENT_CLICK, data);
 		}
 	}
