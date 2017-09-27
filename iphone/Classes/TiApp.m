@@ -332,24 +332,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                             (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
                                               resultingOrientation:&imageOrientation
                                                              idiom:&imageIdiom];
-    if ([TiUtils isIPad] && ![TiUtils isIOS8OrGreater]) {
-      CGAffineTransform transform;
-      switch ([[UIApplication sharedApplication] statusBarOrientation]) {
-      case UIInterfaceOrientationPortraitUpsideDown:
-        transform = CGAffineTransformMakeRotation(M_PI);
-        break;
-      case UIInterfaceOrientationLandscapeLeft:
-        transform = CGAffineTransformMakeRotation(-M_PI_2);
-        break;
-      case UIInterfaceOrientationLandscapeRight:
-        transform = CGAffineTransformMakeRotation(M_PI_2);
-        break;
-      default:
-        transform = CGAffineTransformIdentity;
-        break;
-      }
-      [splashScreenImage setTransform:transform];
-    }
     [splashScreenImage setImage:defaultImage];
     [splashScreenImage setFrame:[[UIScreen mainScreen] bounds]];
   }
@@ -475,7 +457,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-
   //Only for simulator builds
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"fetch"]) {
@@ -505,7 +486,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification object:self userInfo:notificationSettings];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification
+                                                      object:self
+                                                    userInfo:@{ @"userNotificationSettings" : notificationSettings }];
 }
 
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
@@ -658,7 +641,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 }
 
-// Called to mark the end of background transfer while in the background.
+//Called to mark the end of background transfer while in the background.
 - (void)completionHandlerForBackgroundTransfer:(id)key
 {
   if ([backgroundTransferCompletionHandlers objectForKey:key] != nil) {
@@ -683,7 +666,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     [self application:application didReceiveRemoteNotification:userInfo];
   }
 
-  // This only here for Simulator builds.
+  //This only here for Simulator builds.
 
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"remote-notification"]) {
@@ -716,7 +699,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 #pragma mark Background Transfer Service iOS 7
 
 //Delegate callback for Background Transfer completes.
-- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
 {
   // Generate unique key with timestamp.
   id key = [NSString stringWithFormat:@"Session-%f", [[NSDate date] timeIntervalSince1970]];
@@ -1303,7 +1286,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
                completionHandler:(void (^)(BOOL succeeded))completionHandler
 {
-
   BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem queueToBootIfNotLaunched:NO];
   completionHandler(handledShortCutItem);
 }
@@ -1364,12 +1346,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [event setObject:NOTNIL([notification soundName]) forKey:@"sound"];
   [event setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
   [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
+  [event setObject:NOTNIL([notification category]) forKey:@"category"];
+  [event setObject:NOTNIL(identifier) forKey:@"identifier"];
   [event setObject:NUMBOOL([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) forKey:@"inBackground"];
-  //include category for ios8
-  if ([TiUtils isIOS8OrGreater]) {
-    [event setObject:NOTNIL([notification category]) forKey:@"category"];
-    [event setObject:NOTNIL(identifier) forKey:@"identifier"];
-  }
 
   return event;
 }

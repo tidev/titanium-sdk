@@ -419,6 +419,8 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
 // OK to do outside main thread
 - (TiContactsPerson *)getPersonByID:(id)arg
 {
+  ENSURE_SINGLE_ARG(arg, NSObject)
+
   if ([TiUtils isIOS9OrGreater]) {
     DebugLog(@"This method is removed for iOS9 and greater.");
     return nil;
@@ -446,13 +448,16 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
 
 - (TiContactsGroup *)getGroupByID:(id)arg
 {
+  ENSURE_SINGLE_ARG(arg, NSObject)
+
   if ([TiUtils isIOS9OrGreater]) {
     DebugLog(@"This method is removed for iOS9 and greater.");
     return nil;
   }
-  ENSURE_SINGLE_ARG(arg, NSObject)
+
   __block int idNum = [TiUtils intValue:arg];
   __block BOOL validId = NO;
+
   TiThreadPerformOnMainThread(^{
     ABAddressBookRef ourAddressBook = [self addressBook];
     if (ourAddressBook == NULL) {
@@ -465,9 +470,11 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
     }
   },
       YES);
+
   if (validId == YES) {
     return [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] recordId:idNum module:self] autorelease];
   }
+
   return NULL;
 }
 
@@ -503,7 +510,7 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
                                                 observer:self] autorelease];
 }
 
-//New in iOS9
+// New in iOS9
 - (TiContactsGroup *)getGroupByIdentifier:(id)arg
 {
   if (![TiUtils isIOS9OrGreater]) {
@@ -622,7 +629,9 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
                                                              TiContactsPerson *person = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext] contactId:(CNMutableContact *)contact module:self observer:self] autorelease];
                                                              [peopleRefs addObject:person];
                                                            }];
+
     RELEASE_TO_NIL(fetchRequest)
+
     if (success) {
       NSArray *people = [NSArray arrayWithArray:peopleRefs];
       RELEASE_TO_NIL(peopleRefs)
@@ -651,6 +660,7 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
     [people addObject:person];
   }
   CFRelease(peopleRefs);
+
   return people;
 }
 

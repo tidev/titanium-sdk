@@ -1,4 +1,6 @@
-var path = require('path'),
+'use strict';
+
+const path = require('path'),
 	async = require('async'),
 	fs = require('fs-extra'),
 	ant = require('./ant'),
@@ -20,12 +22,13 @@ function readProperties(filepath) {
 }
 
 /**
- * @param {Object} options
+ * @param {Object} options options object
  * @param {String} options.androidSdk path to the Android SDK to build with
  * @param {String} options.androidNdk path to the Andorid NDK to build with
  * @param {String|Number} options.apiLevel APILevel to build against
  * @param {String} options.sdkVersion version of Titanium SDK
  * @param {String} options.gitHash SHA of Titanium SDK HEAD
+ * @constructor
  */
 function Android(options) {
 	this.androidSDK = options.androidSdk;
@@ -36,7 +39,7 @@ function Android(options) {
 }
 
 Android.prototype.clean = function (next) {
-	ant.build(path.join(__dirname, '..', 'android', 'build.xml'), ['clean'], {}, next);
+	ant.build(path.join(__dirname, '..', 'android', 'build.xml'), [ 'clean' ], {}, next);
 };
 
 Android.prototype.build = function (next) {
@@ -51,13 +54,13 @@ Android.prototype.build = function (next) {
 			'kroll.v8.build.x86': 1,
 			'android.ndk': this.androidNDK
 		};
-	ant.build(path.join(__dirname, '..', 'android', 'build.xml'), ['full.build'], properties, next);
-}
+	ant.build(path.join(__dirname, '..', 'android', 'build.xml'), [ 'full.build' ], properties, next);
+};
 
 Android.prototype.package = function (packager, next) {
 	console.log('Zipping Android platform...');
-	// FIXME This is a hot mess. Why can't we place artifacts in their proper location already like mobileweb or Windows?
-	var DIST_ANDROID = path.join(packager.outputDir, 'android'),
+	// FIXME This is a hot mess. Why can't we place artifacts in their proper location already like Windows?
+	const DIST_ANDROID = path.join(packager.outputDir, 'android'),
 		ANDROID_ROOT = path.join(packager.srcDir, 'android'),
 		ANDROID_DEST = path.join(packager.zipSDKDir, 'android'),
 		MODULE_ANDROID = path.join(packager.zipSDKDir, 'module', 'android'),
@@ -67,15 +70,15 @@ Android.prototype.package = function (packager, next) {
 	async.series([
 		// Copy dist/android/*.jar, dist/android/modules.json
 		function (cb) {
-			copyFiles(DIST_ANDROID, ANDROID_DEST, ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'modules.json'], cb);
+			copyFiles(DIST_ANDROID, ANDROID_DEST, [ 'titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'modules.json' ], cb);
 		},
 		// Copy android/dependency.json, android/cli/, and android/templates/
 		function (cb) {
-			copyFiles(ANDROID_ROOT, ANDROID_DEST, ['cli', 'templates', 'dependency.json'], cb);
+			copyFiles(ANDROID_ROOT, ANDROID_DEST, [ 'cli', 'templates', 'dependency.json' ], cb);
 		},
 		// copy android/package.json, but replace __VERSION__ with our version!
 		function (cb) {
-			copyAndModifyFile(ANDROID_ROOT, ANDROID_DEST, 'package.json', {'__VERSION__': this.sdkVersion}, cb);
+			copyAndModifyFile(ANDROID_ROOT, ANDROID_DEST, 'package.json', { '__VERSION__': this.sdkVersion }, cb);
 		}.bind(this),
 		// include headers for v8 3rd party module building
 		function (cb) {
@@ -86,13 +89,13 @@ Android.prototype.package = function (packager, next) {
 			globCopy('**/*.h', path.join(ANDROID_ROOT, 'runtime', 'v8', 'generated'), path.join(ANDROID_DEST, 'native', 'include'), cb);
 		},
 		function (cb) {
-			var v8Props = readProperties(path.join(ANDROID_ROOT, 'build', 'libv8.properties')),
+			const v8Props = readProperties(path.join(ANDROID_ROOT, 'build', 'libv8.properties')),
 				src = path.join(DIST_ANDROID, 'libv8', v8Props['libv8.version'], v8Props['libv8.mode'], 'include');
 			globCopy('**/*.h', src, path.join(ANDROID_DEST, 'native', 'include'), cb);
 		},
 		// add js2c.py for js -> C embedding
 		function (cb) {
-			copyFiles(path.join(ANDROID_ROOT, 'runtime', 'v8', 'tools'), MODULE_ANDROID, ['js2c.py', 'jsmin.py'], cb);
+			copyFiles(path.join(ANDROID_ROOT, 'runtime', 'v8', 'tools'), MODULE_ANDROID, [ 'js2c.py', 'jsmin.py' ], cb);
 		},
 		// include all native shared libraries TODO Adjust to only copy *.so files, filter doesn't work well for that
 		function (cb) {
@@ -112,14 +115,14 @@ Android.prototype.package = function (packager, next) {
 		function (cb) {
 			fs.copy(path.join(ANDROID_ROOT, 'titanium', 'lib'), ANDROID_DEST, { filter: function (src) {
 				// Don't copy commons-logging-1.1.1.jar
-				return src.indexOf('commons-logging-1.1.1') == -1;
-			}}, cb);
+				return src.indexOf('commons-logging-1.1.1') === -1;
+			} }, cb);
 		},
 		// Copy android/modules/*/lib/*.jar
 		function (cb) {
-			var moduleDirs = fs.readdirSync(path.join(ANDROID_ROOT, 'modules'));
+			const moduleDirs = fs.readdirSync(path.join(ANDROID_ROOT, 'modules'));
 			async.each(moduleDirs, function (dir, callback) {
-				var moduleLibDir = path.join(ANDROID_ROOT, 'modules', dir, 'lib');
+				const moduleLibDir = path.join(ANDROID_ROOT, 'modules', dir, 'lib');
 				if (fs.existsSync(moduleLibDir)) {
 					globCopy('*.jar', moduleLibDir, ANDROID_DEST, callback);
 				} else {
@@ -129,8 +132,8 @@ Android.prototype.package = function (packager, next) {
 		},
 		// Copy over module resources
 		function (cb) {
-			var filterRegExp = new RegExp('\\' + path.sep  + 'android(\\' + path.sep + 'titanium\-(.+)?\.(jar|res\.zip|respackage))?$');
-			fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: filterRegExp}, cb);
+			const filterRegExp = new RegExp('\\' + path.sep  + 'android(\\' + path.sep + 'titanium-(.+)?.(jar|res.zip|respackage))?$'); // eslint-disable-line security/detect-non-literal-regexp
+			fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: filterRegExp }, cb);
 		}
 	], next);
 };

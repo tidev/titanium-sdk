@@ -422,14 +422,12 @@
 
     if (TiDimensionIsDip(rowHeight)) {
       [_searchTableView setRowHeight:rowHeight.value];
-    } else if ([TiUtils isIOS8OrGreater]) {
+    } else {
       //TIMOB-17373 rowHeight on iOS8 is -1. Bug??
       [_searchTableView setRowHeight:44];
     }
 
-    if ([TiUtils isIOS8OrGreater]) {
-      [_searchTableView setLayoutMargins:UIEdgeInsetsZero];
-    }
+    [_searchTableView setLayoutMargins:UIEdgeInsetsZero];
 
     if ([TiUtils isIOS9OrGreater]) {
       _searchTableView.cellLayoutMarginsFollowReadableWidth = NO;
@@ -454,9 +452,20 @@
     tableview.dataSource = self;
     tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
+    // Fixes incorrect heights in iOS 11 as we calculate them internally already
+    tableview.estimatedRowHeight = 0;
+    tableview.estimatedSectionFooterHeight = 0;
+    tableview.estimatedSectionHeaderHeight = 0;
+
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater]) {
+      tableview.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#endif
+
     if (TiDimensionIsDip(rowHeight)) {
       [tableview setRowHeight:rowHeight.value];
-    } else if ([TiUtils isIOS8OrGreater]) {
+    } else {
       //TIMOB-17373 rowHeight on iOS8 is -1. Bug??
       [tableview setRowHeight:44];
     }
@@ -475,9 +484,7 @@
 
     defaultSeparatorInsets = [tableview separatorInset];
 
-    if ([TiUtils isIOS8OrGreater]) {
-      [tableview setLayoutMargins:UIEdgeInsetsZero];
-    }
+    [tableview setLayoutMargins:UIEdgeInsetsZero];
 
     if ([TiUtils isIOS9OrGreater]) {
       tableview.cellLayoutMarginsFollowReadableWidth = NO;
@@ -2064,7 +2071,7 @@
   }
   [row initializeTableViewCell:cell];
 
-  if ([TiUtils isIOS8OrGreater] && ([searchController isActive])) {
+  if ([searchController isActive]) {
     [cell setLayoutMargins:UIEdgeInsetsZero];
   }
 

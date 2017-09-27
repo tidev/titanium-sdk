@@ -68,7 +68,7 @@
     }
 
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-    if ([TiUtils isIOS8OrGreater] && UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation])) {
+    if (UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation])) {
       screenSize = CGSizeMake(screenSize.height, screenSize.width);
     }
 
