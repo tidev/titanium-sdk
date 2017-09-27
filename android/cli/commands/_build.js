@@ -1796,6 +1796,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.keystore = argv.keystore;
 	this.keystoreStorePassword = argv['store-password'];
 	this.keystoreKeyPassword = argv['key-password'];
+	this.sigalg = argv['sigalg'];
 	if (!this.keystore) {
 		this.keystore = path.join(this.platformPath, 'dev_keystore');
 		this.keystoreStorePassword = 'tirocks';
@@ -4313,7 +4314,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 };
 
 AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
-	const sigalg = this.keystoreAlias.sigalg || 'MD5withRSA',
+	const sigalg = this.sigalg || this.keystoreAlias.sigalg || 'MD5withRSA',
 		signerArgs = [
 			'-sigalg', sigalg,
 			'-digestalg', 'SHA1',
