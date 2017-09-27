@@ -2148,10 +2148,14 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [viewController presentViewController:controller
                                animated:NO
                              completion:^{
+                               CGFloat topMargin = self.frame.origin.y;
+                               if ([TiUtils isIOS11OrGreater]) {
+                                 topMargin += self.safeAreaInsets.top;
+                               }
                                UIView *view = controller.searchBar.superview;
-                               view.frame = CGRectMake(view.frame.origin.x, self.frame.origin.y, view.frame.size.width, view.frame.size.height);
+                               view.frame = CGRectMake(view.frame.origin.x, topMargin, view.frame.size.width, view.frame.size.height);
                                controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-                               resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
+                               resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, topMargin + view.frame.size.height, self.frame.size.width, self.frame.size.height - topMargin - view.frame.size.height);
                              }];
 
   id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
