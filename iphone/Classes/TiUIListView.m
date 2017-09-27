@@ -2171,9 +2171,11 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
                                animated:NO
                              completion:^{
                                CGFloat topMargin = self.frame.origin.y;
+#if IS_XCODE_9
                                if ([TiUtils isIOS11OrGreater]) {
                                  topMargin += self.safeAreaInsets.top;
                                }
+#endif
                                UIView *view = controller.searchBar.superview;
                                view.frame = CGRectMake(view.frame.origin.x, topMargin, view.frame.size.width, view.frame.size.height);
                                controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
