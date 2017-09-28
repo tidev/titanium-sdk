@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "adm-zip": "0.4.7",
-    "appc-aar-tools": "1.1.3",
+    "appc-aar-tools": "1.1.4",
     "appc-tasks": "^1.0.1",
     "archiver": "1.3.0",
     "async": "2.3.0",
