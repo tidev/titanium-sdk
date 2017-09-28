@@ -153,8 +153,11 @@
 
 -(void)dealloc
 {
-    RELEASE_TO_NIL(barImageView);
-    [super dealloc];
+#if IS_XCODE_9
+  RELEASE_TO_NIL(self.safeAreaViewProxy);
+#endif
+  RELEASE_TO_NIL(barImageView);
+  [super dealloc];
 }
 
 -(void)boot:(BOOL)timeout args:args
@@ -256,9 +259,11 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
+#if IS_XCODE_9
   [self performSelector:@selector(processForSafeArea)
                     withObject:nil
              afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+#endif
   [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
   [self willChangeSize];
 }
@@ -981,47 +986,46 @@ else{\
     }
 }
 
+#if IS_XCODE_9
 - (void)processForSafeArea
 {
-  if (self.shouldExtendSafeArea) {
+  if (self.shouldExtendSafeArea || ![TiUtils isIOS11OrGreater]) {
     return;
   }
-#if IS_XCODE_9
   float left = 0.0;
   float right = 0.0;
   float top = 0.0;
   float bottom = 0.0;
-  if ([TiUtils isIOS11OrGreater]) {
-    UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
-    UIView *rootView = [topContainerController hostingView];
-    if (self.tabGroup) {
-      UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-      if (!UIInterfaceOrientationIsPortrait(orientation)) {
-        left = rootView.safeAreaInsets.left;
-        right = rootView.safeAreaInsets.right;
-      }
-    } else if (self.tab) {
-      UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-      if (!UIInterfaceOrientationIsPortrait(orientation)) {
-        left = rootView.safeAreaInsets.left;
-        right = rootView.safeAreaInsets.right;
-        bottom = rootView.safeAreaInsets.bottom;
-      } else {
-        bottom = rootView.safeAreaInsets.bottom;
-      }
-    } else {
-      left = rootView.safeAreaInsets.left;
-      right = rootView.safeAreaInsets.right;
-      bottom = rootView.safeAreaInsets.bottom;
-      top = rootView.safeAreaInsets.top;
+  UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
+  UIEdgeInsets safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
+  if (self.tabGroup) {
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    if (!UIInterfaceOrientationIsPortrait(orientation)) {
+      left = safeAreaInset.left;
+      right = safeAreaInset.right;
     }
-    [self.safeAreaViewProxy setTop:[NSNumber numberWithFloat:top]];
-    [self.safeAreaViewProxy setBottom:[NSNumber numberWithFloat:bottom]];
-    [self.safeAreaViewProxy setLeft:[NSNumber numberWithFloat:left]];
-    [self.safeAreaViewProxy setRight:[NSNumber numberWithFloat:right]];
+  } else if (self.tab) {
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    if (!UIInterfaceOrientationIsPortrait(orientation)) {
+      left = safeAreaInset.left;
+      right = safeAreaInset.right;
+      bottom = safeAreaInset.bottom;
+    } else {
+      bottom = safeAreaInset.bottom;
+    }
+  } else {
+    left = safeAreaInset.left;
+    right = safeAreaInset.right;
+    bottom = safeAreaInset.bottom;
+    top = safeAreaInset.top;
   }
-#endif
+  TiViewProxy *safeAreaProxy = [self safeAreaViewProxy];
+  [safeAreaProxy setTop:NUMFLOAT(top)];
+  [safeAreaProxy setBottom:NUMFLOAT(bottom)];
+  [safeAreaProxy setLeft:NUMFLOAT(left)];
+  [safeAreaProxy setRight:NUMFLOAT(right)];
 }
+#endif
 
 @end
 
