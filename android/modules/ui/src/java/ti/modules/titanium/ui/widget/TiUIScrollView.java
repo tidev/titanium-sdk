@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
+import ti.modules.titanium.ui.RefreshControlProxy;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -30,15 +31,22 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
 
+
 public class TiUIScrollView extends TiUIView
 {
 	public static final int TYPE_VERTICAL = 0;
 	public static final int TYPE_HORIZONTAL = 1;
 
 	private static final String TAG = "TiUIScrollView";
+	private static final String REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE =
+			"Ti.UI.ScrollView does not support a RefreshControl on Android, yet.";
+
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
+	private boolean isScrolling = false;
+	private boolean isTouching = false;
+
 	
 	public class TiScrollViewLayout extends TiCompositeLayout
 	{
@@ -52,18 +60,18 @@ public class TiUIScrollView extends TiUIView
 		{
 			super(context, arrangement, proxy);
 			gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-			    @Override
-			    public void onLongPress(MotionEvent e) {
-			        if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
-			            fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
-			        }
-			    }
+				@Override
+				public void onLongPress(MotionEvent e) {
+					if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+						fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
+					}
+				}
 			});
 			setOnTouchListener(new OnTouchListener() {
-			    @Override
-			    public boolean onTouch(View v, MotionEvent event) {
-			        return gestureDetector.onTouchEvent(event);
-			    }
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					return gestureDetector.onTouchEvent(event);
+				}
 			});
 		}
 
@@ -199,6 +207,16 @@ public class TiUIScrollView extends TiUIView
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
+			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching) {
+				isTouching = true;
+			}
+			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling) {
+				isScrolling = false;
+				isTouching = false;
+				KrollDict data = new KrollDict();
+				data.put("decelerate", true);
+				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+			}
 			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
 			//Link: http://code.google.com/p/android/issues/detail?id=18990
 			try {
@@ -248,7 +266,11 @@ public class TiUIScrollView extends TiUIView
 		protected void onScrollChanged(int l, int t, int oldl, int oldt)
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
-
+			if (!isScrolling && isTouching) {
+				isScrolling = true;
+				KrollDict data = new KrollDict();			
+				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
+			}
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, l);
 			data.put(TiC.EVENT_PROPERTY_Y, t);
@@ -315,6 +337,16 @@ public class TiUIScrollView extends TiUIView
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
+			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching) {
+				isTouching = true;
+			}
+			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling) {
+				isScrolling = false;
+				isTouching = false;
+				KrollDict data = new KrollDict();
+				data.put("decelerate", true);
+				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+			}
 			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
 			//Link: http://code.google.com/p/android/issues/detail?id=18990
 			try {
@@ -364,8 +396,12 @@ public class TiUIScrollView extends TiUIView
 		protected void onScrollChanged(int l, int t, int oldl, int oldt)
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
-
 			KrollDict data = new KrollDict();
+			if (!isScrolling && isTouching) {
+				isScrolling = true;
+				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
+			}
+			data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, l);
 			data.put(TiC.EVENT_PROPERTY_Y, t);
 			setContentOffset(l, t);
@@ -439,11 +475,11 @@ public class TiUIScrollView extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
+
 		if (key.equals(TiC.PROPERTY_CONTENT_OFFSET)) {
 			setContentOffset(newValue);
-			scrollTo(offsetX, offsetY);
-		}
-		if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
+			scrollTo(offsetX, offsetY, false);
+		} else if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
 			View view = getNativeView();
 			boolean canCancelEvents = TiConvert.toBoolean(newValue);
 			if (view instanceof TiHorizontalScrollView) {
@@ -451,15 +487,16 @@ public class TiUIScrollView extends TiUIView
 			} else if (view instanceof TiVerticalScrollView) {
 				((TiVerticalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 			}
-		}
-		if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
+		} else if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
 			setScrollingEnabled(newValue);
-		}
-		if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
-			if (Build.VERSION.SDK_INT >= 9) {
-				getNativeView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+		} else if (TiC.PROPERTY_REFRESH_CONTROL.equals(key)) {
+			if (newValue instanceof RefreshControlProxy) {
+				Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
 			}
+		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
+			getNativeView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 		}
+
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 
@@ -468,6 +505,10 @@ public class TiUIScrollView extends TiUIView
 	{
 		boolean showHorizontalScrollBar = false;
 		boolean showVerticalScrollBar = false;
+
+		if (d.get(TiC.PROPERTY_REFRESH_CONTROL) instanceof RefreshControlProxy) {
+			Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
+		}
 
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			setScrollingEnabled(d.get(TiC.PROPERTY_SCROLLING_ENABLED));
@@ -559,7 +600,7 @@ public class TiUIScrollView extends TiUIView
 		boolean autoContentWidth = (scrollViewLayout.getContentProperty(TiC.PROPERTY_CONTENT_WIDTH) == TiScrollViewLayout.AUTO);
 		boolean wrap = !autoContentWidth;
 		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP) && wrap) {
-			wrap = TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP, true);			
+			wrap = TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP, true);
 		}
 		scrollViewLayout.setEnableHorizontalWrap(wrap);
 		
@@ -582,9 +623,10 @@ public class TiUIScrollView extends TiUIView
 		View nativeView = getNativeView();
 		if (nativeView instanceof TiVerticalScrollView) {
 			return ((TiVerticalScrollView) nativeView).layout;
-		} else {
+		} else if (nativeView instanceof TiHorizontalScrollView) {
 			return ((TiHorizontalScrollView) nativeView).layout;
 		}
+		return null;
 	}
 	
 	@Override
@@ -615,10 +657,21 @@ public class TiUIScrollView extends TiUIView
 		return mScrollingEnabled;
 	}
 
-	public void scrollTo(int x, int y)
+	public void scrollTo(int x, int y, boolean smoothScroll)
 	{
-		getNativeView().scrollTo(x, y);
-		getNativeView().computeScroll();
+		final View view = getNativeView();
+		if (smoothScroll) {
+			if (view instanceof TiHorizontalScrollView) {
+				TiHorizontalScrollView scrollView = (TiHorizontalScrollView) view;
+				scrollView.smoothScrollTo(x, y);
+			} else if (view instanceof TiVerticalScrollView) {
+				TiVerticalScrollView scrollView = (TiVerticalScrollView) view;
+				scrollView.smoothScrollTo(x, y);
+			}
+		} else {
+			view.scrollTo(TiConvert.toTiDimension(x, -1).getAsPixels(view), TiConvert.toTiDimension(y, -1).getAsPixels(view));
+		}
+		view.computeScroll();
 	}
 
 	public void scrollToBottom()

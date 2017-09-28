@@ -23,7 +23,7 @@ properties:
     summary: Curl downwards during a transition animation.
     description: |
         Used with the <Titanium.UI.Animation.transition> property.        
-   type: Number
+    type: Number
     permission: read-only
     
   - name: CURL_UP

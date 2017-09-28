@@ -55,13 +55,21 @@ description: |
 
       * <Titanium.UI.ActivityIndicator>
       * <Titanium.UI.Button>
+      * <Titanium.UI.ButtonBar>
       * <Titanium.UI.ImageView>
       * <Titanium.UI.Label>
+      * <Titanium.UI.MaskedImage>
       * <Titanium.UI.ProgressBar>
+      * <Titanium.UI.Picker>
+      * <Titanium.UI.ScrollableView>
       * <Titanium.UI.Slider>
       * <Titanium.UI.Switch>
       * <Titanium.UI.TextArea>
       * <Titanium.UI.TextField>
+      * <Titanium.UI.iOS.BlurView>
+      * <Titanium.UI.iOS.LivePhotoView>
+      * <Titanium.UI.iOS.Stepper>
+      * <Titanium.UI.iOS.TabbedBar>
 
     For example, suppose you have a list data item defined as `{foo:{text: 'foobar'}}` and an item
     template defined as `{childTemplates: [{type: 'Ti.UI.Label', bindId: 'foo'}]}`.  The `foo`
@@ -334,8 +342,8 @@ examples:
 
             var data = [];
             for (var i = 0; i < tasks.length; i++) {
-                data.push(
-                    { properties: {
+                data.push({ 
+                    properties: {
                         itemId: tasks[i].id,
                         title: tasks[i].name,
                         image: tasks[i].icon,
@@ -348,13 +356,12 @@ examples:
             var section = Ti.UI.createListSection();
             section.setItems(data);
             listView.sections = [section];
-            listView.addEventListener('itemclick', function(e){
+            listView.addEventListener('itemclick', function(e) {
                 var item = section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
                     item.properties.color = 'red';
-                }
-                else {
+                } else {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
                     item.properties.color = 'black';
                 }
@@ -385,13 +392,12 @@ examples:
         index.js
 
             <!-- controllers/index.js -->
-            $.listView.addEventListener('itemclick', function(e){
+            $.listView.addEventListener('itemclick', function(e) {
                 var item = $.section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
                     item.properties.color = 'red';
-                }
-                else {
+                } else {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
                     item.properties.color = 'black';
                 }
@@ -491,13 +497,12 @@ examples:
 
             // Modified version of the `itemclick` event listener
             // Changes the item template rather than the list item's color property
-            function toggleCheck (e) {
+            function toggleCheck(e) {
                 var item = section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
                     item.template = 'check';
-                }
-                else {
+                } else {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_NONE;
                     item.template = 'uncheck';
                 }
@@ -549,13 +554,22 @@ properties:
 
           * <Titanium.UI.ActivityIndicator>
           * <Titanium.UI.Button>
+          * <Titanium.UI.ButtonBar>
           * <Titanium.UI.ImageView>
           * <Titanium.UI.Label>
+          * <Titanium.UI.MaskedImage>
           * <Titanium.UI.ProgressBar>
+          * <Titanium.UI.Picker>
+          * <Titanium.UI.ScrollableView>
           * <Titanium.UI.Slider>
           * <Titanium.UI.Switch>
           * <Titanium.UI.TextArea>
           * <Titanium.UI.TextField>
+          * <Titanium.UI.iOS.BlurView>
+          * <Titanium.UI.iOS.LivePhotoView>
+          * <Titanium.UI.iOS.Stepper>
+          * <Titanium.UI.iOS.TabbedBar>
+          
     type: String
     optional: false
 

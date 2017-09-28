@@ -37,7 +37,7 @@ exports.init = function (logger, config, cli, appc) {
 				packageJson = require(packageJsonFile),
 				minAndroidAPILevel = parseInt(appc.version.parseMin(packageJson.vendorDependencies['android sdk']));
 
-			var android = require('titanium-sdk/lib/android');
+			var android = require('node-titanium-sdk/lib/android');
 			logger.debug(__('Detecting Android environment...'));
 			android.detect(this.config, null, function (results) {
 				// find all targets that satisify the minimum supported Android SDK, prefer versions with Google APIs

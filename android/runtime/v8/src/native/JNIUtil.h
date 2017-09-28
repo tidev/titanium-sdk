@@ -23,11 +23,39 @@ public:
 	static JNIEnv* getJNIEnv();
 	static void terminateVM();
 	static void initCache();
+
+	/**
+	 * Looks up a Java class using java/lang/Class JNI naming style
+	 * NOTE THAT THIS WILL RETURN A GLOBALLY REFERENCED CLASS!!!
+	 * CALLERS SHOULD CALL JNIEnv->DeleteGlobalRef() to clean up once they've consumed the class!
+	 * @param  className [description]
+	 * @return           [description]
+	 */
 	static jclass findClass(const char *className);
+
 	static jmethodID getMethodID(jclass javaClass, const char *methodName, const char *signature, bool isStatic = false);
 	static jfieldID getFieldID(jclass javaClass, const char *fieldName, const char *signature);
+
+	/**
+	 * Gets the Java class name as a jstring in the java.lang.Class style
+	 * @param  javaClass [description]
+	 * @return           [description]
+	 */
 	static jstring getClassName(jclass javaClass);
+
+	/**
+	 * Logs the Java class name in java.lang.Class style
+	 * @param format     [description]
+	 * @param javaClass  [description]
+	 * @param errorLevel [description]
+	 */
 	static void logClassName(const char *format, jclass javaClass, bool errorLevel = false);
+
+	/**
+	 * If the object is an V8Object, set the internal pointer to 0 to indicate the C++ proxy is deleted
+	 * @param obj [description]
+	 */
+	static bool removePointer(jobject obj);
 
 	static jobjectArray newObjectArray(int length, jobject initial = NULL);
 	static void throwException(jclass clazz, const char *message);
@@ -118,6 +146,7 @@ public:
 	static jint krollRuntimeDontIntercept;
 	static jmethodID krollInvocationInitMethod;
 	static jmethodID krollExceptionInitMethod;
+	static jfieldID krollObjectProxySupportField;
 	static jmethodID krollObjectSetHasListenersForEventTypeMethod;
 	static jmethodID krollObjectOnEventFiredMethod;
 	static jmethodID krollProxyCreateProxyMethod;

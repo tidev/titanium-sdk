@@ -35,12 +35,21 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	titanium::JNIScope jniScope(env);
 
 	// construct this from pointer
+	if (thisPointer == 0) {
+		LOGE(TAG, "!!!Received a bad pointer to the Proxy for 'this' in V8Function.nativeInvoke. Proxy may have been destroyed already. Returning undefined.");
+		return JNIUtil::undefinedObject;
+	}
 	titanium::Proxy* proxy = (titanium::Proxy*) thisPointer;
 	Local<Object> thisObject = proxy->handle(V8Runtime::v8_isolate);
 
 	// construct function from "pointer" - we used to use pointers to Persistent to re-construct Functions
 	// But that was a _BAD_ idea because V8 moves handles around as GC runs, resulting in the stored memory address being invalid
 	// So now we basically use a global map with an incrementing key to store the functions, where the "pointer" is the indx the function is stored under in the map.
+	auto it = TypeConverter::functions.find(functionPointer);
+	if (it == TypeConverter::functions.end()) {
+		LOGE(TAG, "!!!Received a bad 'pointer' to the V8Function, unable to find an entry for it. Returning undefined.");
+		return JNIUtil::undefinedObject;
+	}
 	Persistent<Function, CopyablePersistentTraits<Function>> persistentJSFunction = TypeConverter::functions.at(functionPointer);
 	Local<Function> jsFunction = persistentJSFunction.Get(V8Runtime::v8_isolate);
 
@@ -61,10 +70,9 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	if (tryCatch.HasCaught()) {
 		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
-
-		return NULL;
+		return JNIUtil::undefinedObject;
 	} else if (object.IsEmpty()) {
-		return NULL;
+		return JNIUtil::undefinedObject;
 	}
 
 	bool isNew;

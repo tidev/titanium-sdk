@@ -33,8 +33,11 @@ import android.os.Message;
 	TiC.PROPERTY_ELLIPSIZE,
 	TiC.PROPERTY_ENABLE_RETURN_KEY,
 	TiC.PROPERTY_FONT,
+	TiC.PROPERTY_FULLSCREEN,
 	TiC.PROPERTY_HINT_TEXT,
+	TiC.PROPERTY_HINT_TEXT_ID,
 	TiC.PROPERTY_HINT_TEXT_COLOR,
+	TiC.PROPERTY_HINT_TYPE,
 	TiC.PROPERTY_INPUT_TYPE,
 	TiC.PROPERTY_KEYBOARD_TYPE,
 	TiC.PROPERTY_MAX_LENGTH,
@@ -56,6 +59,8 @@ public class TextFieldProxy extends TiViewProxy
 		super();
 		defaultValues.put(TiC.PROPERTY_VALUE, "");
 		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
+		defaultValues.put(TiC.PROPERTY_FULLSCREEN, true);
+		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
 	}
 
 	@Override
@@ -68,6 +73,13 @@ public class TextFieldProxy extends TiViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUIText(this, true);
+	}
+	
+	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put(TiC.PROPERTY_HINT_TEXT, TiC.PROPERTY_HINT_TEXT_ID);
+		return table;
 	}
 
 	@Kroll.method

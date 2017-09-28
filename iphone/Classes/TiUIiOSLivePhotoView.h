@@ -10,14 +10,14 @@
 #import "TiUIiOSLivePhoto.h"
 #import <PhotosUI/PhotosUI.h>
 
-@interface TiUIiOSLivePhotoView : TiUIView<PHLivePhotoViewDelegate> {
-    TiDimension width;
-    TiDimension height;
-    CGFloat autoHeight;
-    CGFloat autoWidth;
+@interface TiUIiOSLivePhotoView : TiUIView <PHLivePhotoViewDelegate> {
+  TiDimension width;
+  TiDimension height;
+  CGFloat autoHeight;
+  CGFloat autoWidth;
 }
 
-@property(nonatomic,retain) PHLivePhotoView *livePhotoView;
+@property (nonatomic, retain) PHLivePhotoView *livePhotoView;
 
 @end
 #endif

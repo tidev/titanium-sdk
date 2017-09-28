@@ -5,37 +5,37 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
-#import "TiViewProxy.h"
-#import "TiWindowProxy.h"
 #import "TiApp.h"
 #import "TiPreviewingDelegate.h"
+#import "TiViewProxy.h"
+#import "TiWindowProxy.h"
 
 @interface TiUIiOSPreviewContextProxy : TiViewProxy
 
 /**
     The proxy to be displayed on peek.
  */
-@property(nonatomic, retain) TiViewProxy *preview;
+@property (nonatomic, retain) TiViewProxy *preview;
 
 /**
     The source view which triggered the peek.
  */
-@property(nonatomic, retain) TiViewProxy *sourceView;
+@property (nonatomic, retain) TiViewProxy *sourceView;
 
 /**
     The preview actions.
  */
-@property(nonatomic, retain) NSMutableArray *actions;
+@property (nonatomic, retain) NSMutableArray *actions;
 
 /**
     The height of the preview.
  */
-@property(nonatomic, assign) int contentHeight;
+@property (nonatomic, assign) int contentHeight;
 
 /**
     Connectes the collected preview data to the iOS delegates.
  */
--(void)connectToDelegate;
+- (void)connectToDelegate;
 
 @end
 #endif

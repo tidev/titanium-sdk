@@ -14,8 +14,10 @@ import java.io.OutputStream;
 
 import org.appcelerator.titanium.TiApplication;
 
+import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
 public class TitaniumBlob extends TiBaseFile
@@ -50,6 +52,21 @@ public class TitaniumBlob extends TiBaseFile
 				c = TiApplication.getInstance().getContentResolver().query(
 					android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
 					projection, MediaStore.Images.Media._ID + " = ? ", new String[]{id}, null);
+
+				if (c.moveToNext()) {
+					name = c.getString(0);
+					path = c.getString(1);
+				}
+			} finally {
+				if (c != null) {
+					c.close();
+				}
+			}
+		}  else if (url.startsWith("content://com.android.providers.downloads.documents")) {
+			try {
+				String id = DocumentsContract.getDocumentId(Uri.parse(url));
+				Uri uri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+				c = TiApplication.getInstance().getContentResolver().query(uri, projection, null, null, null);
 
 				if (c.moveToNext()) {
 					name = c.getString(0);
@@ -119,5 +136,9 @@ public class TitaniumBlob extends TiBaseFile
 	@Override
 	public File getNativeFile() {
 		return new File(path);
+	}
+
+	public String getNativePath() {
+		return path;
 	}
 }
