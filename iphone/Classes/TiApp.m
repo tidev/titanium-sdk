@@ -780,56 +780,56 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLUploadProgress object:self userInfo:dict];
 }
 
--(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-    if(!uploadTaskResponses){
-        uploadTaskResponses = [[NSMutableDictionary alloc] init];
-    }
-    //This dictionary will mutate if delegate is called
-    NSMutableDictionary *responseObj =  [uploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
-    if (!responseObj) {
-        NSMutableData * responseData = [NSMutableData dataWithData:data];
-        NSInteger statusCode = [(NSHTTPURLResponse *)[dataTask response] statusCode];
-        responseObj = [NSMutableDictionary dictionaryWithObjectsAndKeys: @(statusCode), @"statusCode",responseData, @"responseData", nil];
-        [uploadTaskResponses setValue:responseObj forKey:(NSString*)@(dataTask.taskIdentifier)];
-    } else {
-        [[responseObj objectForKey:@"responseData"] appendData:data];
-    }
+  if (!uploadTaskResponses) {
+    uploadTaskResponses = [[NSMutableDictionary alloc] init];
+  }
+  //This dictionary will mutate if delegate is called
+  NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
+  if (!responseObj) {
+    NSMutableData *responseData = [NSMutableData dataWithData:data];
+    NSInteger statusCode = [(NSHTTPURLResponse *)[dataTask response] statusCode];
+    responseObj = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(statusCode), @"statusCode", responseData, @"responseData", nil];
+    [uploadTaskResponses setValue:responseObj forKey:(NSString *)@(dataTask.taskIdentifier)];
+  } else {
+    [[responseObj objectForKey:@"responseData"] appendData:data];
+  }
 }
 
--(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                 [NSNumber numberWithUnsignedInteger:task.taskIdentifier], @"taskIdentifier",
-                                 nil];
-    
-    if (session.configuration.identifier) {
-        [dict setObject:session.configuration.identifier forKey:@"sessionIdentifier"];
+  NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                                       [NSNumber numberWithUnsignedInteger:task.taskIdentifier], @"taskIdentifier",
+                                                   nil];
+
+  if (session.configuration.identifier) {
+    [dict setObject:session.configuration.identifier forKey:@"sessionIdentifier"];
+  }
+
+  if (error) {
+    NSDictionary *errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
+                                            NUMINTEGER([error code]), @"errorCode",
+                                            [error localizedDescription], @"message",
+                                            nil];
+    [dict addEntriesFromDictionary:errorinfo];
+  } else {
+    NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(task.taskIdentifier)];
+    if (responseObj) {
+      //we only send responseText as this is the responsesData dictionary only gets filled with data from uploads
+      NSString *responseText = [[NSString alloc] initWithData:[responseObj objectForKey:@"responseData"] encoding:NSUTF8StringEncoding];
+      NSInteger statusCode = [[responseObj valueForKey:@"statusCode"] integerValue];
+      [uploadTaskResponses removeObjectForKey:@(task.taskIdentifier)];
+      NSDictionary *success = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
+                                                   NUMINT(0), @"errorCode",
+                                                   responseText, @"responseText",
+                                                   NUMINTEGER(statusCode), @"statusCode",
+                                                   nil];
+      [dict addEntriesFromDictionary:success];
+      ;
     }
-    
-    if (error) {
-        NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                     NUMINTEGER([error code]), @"errorCode",
-                                     [error localizedDescription], @"message",
-                                     nil];
-        [dict addEntriesFromDictionary:errorinfo];
-    } else {
-        NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(task.taskIdentifier)];
-        if (responseObj) {
-            //we only send responseText as this is the responsesData dictionary only gets filled with data from uploads
-            NSString *responseText = [[NSString alloc] initWithData:[responseObj objectForKey:@"responseData"] encoding:NSUTF8StringEncoding];
-            NSInteger  statusCode = [[responseObj valueForKey:@"statusCode"] integerValue];
-            [uploadTaskResponses removeObjectForKey:@(task.taskIdentifier)];
-            NSDictionary * success = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
-                                      NUMINT(0), @"errorCode",
-                                      responseText,@"responseText",
-                                      NUMINTEGER(statusCode),@"statusCode",
-                                      nil];
-            [dict addEntriesFromDictionary:success];;
-        }
-    }
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
-    
+  }
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
 }
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask
