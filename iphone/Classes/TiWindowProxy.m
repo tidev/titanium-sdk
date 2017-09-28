@@ -9,6 +9,8 @@
 #import "TiUIWindow.h"
 #import "TiApp.h"
 #import "TiErrorController.h"
+#import "TiUIWindow.h"
+#import "TiUIWindowProxy.h"
 
 @interface TiWindowProxy(Private)
 -(void)openOnUIThread:(id)args;
@@ -423,11 +425,12 @@
         }
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
         [[self view] setAccessibilityElementsHidden:NO];
+        [self processForSafeArea];
     }
     TiThreadPerformOnMainThread(^{
         [self forceNavBarFrame];
     }, NO);
-
+  
 }
 
 -(void)resignFocus
@@ -867,5 +870,10 @@
     [self rememberProxy:transitionProxy];
 }
 #endif
+
+- (void)processForSafeArea
+{
+  // Overridden in subclass
+}
 
 @end
