@@ -188,6 +188,17 @@ public class TiUIScrollView extends TiUIView
 		public TiVerticalScrollView(Context context, LayoutArrangement arrangement)
 		{
 			super(context);
+
+			// TIMOB-25359: allow window to re-size when keyboard is shown
+			if (context instanceof TiBaseActivity) {
+				Window window = ((TiBaseActivity) context).getWindow();
+				int softInputMode = window.getAttributes().softInputMode;
+
+				if ((softInputMode & WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN) == 0) {
+					window.setSoftInputMode(softInputMode | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+				}
+			}
+
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 
 			layout = new TiScrollViewLayout(context, arrangement);
