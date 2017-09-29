@@ -302,6 +302,13 @@ static NSArray *touchEventsArray;
 
 - (void)replaceAt:(id)args
 {
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    if (windowProxy.safeAreaViewProxy) {
+      [windowProxy.safeAreaViewProxy replaceAt:args];
+      return;
+    }
+  }
   ENSURE_SINGLE_ARG(args, NSDictionary);
   NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
   NSArray *childrenArray = [self children];
@@ -315,6 +322,13 @@ static NSArray *touchEventsArray;
 
 - (void)remove:(id)arg
 {
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    if (windowProxy.safeAreaViewProxy) {
+      [windowProxy.safeAreaViewProxy remove:arg];
+      return;
+    }
+  }
   ENSURE_UI_THREAD_1_ARG(arg);
 
 #ifdef HYPERLOOP
@@ -376,6 +390,13 @@ static NSArray *touchEventsArray;
 
 - (void)removeAllChildren:(id)arg
 {
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    if (windowProxy.safeAreaViewProxy) {
+      [windowProxy.safeAreaViewProxy removeAllChildren:arg];
+      return;
+    }
+  }
   ENSURE_UI_THREAD_1_ARG(arg);
   pthread_rwlock_wrlock(&childrenLock);
   NSMutableArray *childrenCopy = [children mutableCopy];
