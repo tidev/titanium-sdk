@@ -1,9 +1,9 @@
 {
 	"ios": [
 		"https://github.com/appcelerator-modules/ti.urlsession/releases/download/v2.1.0/com.appcelerator.urlSession-iphone-2.1.0.zip",
-		"https://github.com/appcelerator-modules/ti.facebook/releases/download/ios-5.4.0/facebook-iphone-5.4.0.zip",
+		"https://github.com/appcelerator-modules/ti.facebook/releases/download/ios-5.6.0/facebook-iphone-5.6.0.zip",
 		"https://github.com/appcelerator-modules/ti.coremotion/releases/download/v2.0.1/ti.coremotion-iphone-2.0.1.zip",
-		"https://github.com/appcelerator-modules/ti.map/releases/download/ios-2.12.1/ti.map-iphone-2.12.1.zip",
+		"https://github.com/appcelerator-modules/ti.map/releases/download/ios-2.13.0/ti.map-iphone-2.13.0.zip",
 		"https://github.com/appcelerator-modules/ti.safaridialog/releases/download/iOS-1.1.1/ti.safaridialog-iphone-1.1.1.zip",
 		"https://github.com/appcelerator-modules/ti.touchid/releases/download/ios-2.1.2/ti.touchid-iphone-2.1.2.zip"
 	],
