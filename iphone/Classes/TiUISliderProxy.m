@@ -55,6 +55,7 @@ USE_VIEW_FOR_VERIFY_HEIGHT
 
 - (void)setValue:(id)args
 {
+    ENSURE_UI_THREAD(setValue, args);
     [(TiUISlider *)[self view] _setValue:args];
 }
 
