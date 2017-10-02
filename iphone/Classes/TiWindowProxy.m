@@ -9,7 +9,6 @@
 #import "TiUIWindow.h"
 #import "TiApp.h"
 #import "TiErrorController.h"
-#import "TiUIWindow.h"
 #import "TiUIWindowProxy.h"
 
 @interface TiWindowProxy(Private)
