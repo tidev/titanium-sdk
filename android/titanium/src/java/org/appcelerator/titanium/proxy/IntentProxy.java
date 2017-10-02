@@ -17,6 +17,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -191,12 +192,14 @@ public class IntentProxy extends KrollProxy
 		if (type != null) {
 			Log.d(TAG, "Setting type: " + type, Log.DEBUG_MODE);
 			if (data != null) {
-				intent.setDataAndType(Uri.parse(data), type);
+				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				intent.setDataAndType(TiFileProvider.createUriFrom(data), type);
 			} else {
 				intent.setType(type);
 			}
 		} else if (data != null) {
-			intent.setData(Uri.parse(data));
+			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			intent.setData(TiFileProvider.createUriFrom(data));
 		}
 	}
 
