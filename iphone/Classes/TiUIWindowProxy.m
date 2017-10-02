@@ -981,10 +981,23 @@
     top = safeAreaInset.top;
   }
   TiViewProxy *safeAreaProxy = [self safeAreaViewProxy];
-  [safeAreaProxy setTop:NUMFLOAT(top)];
-  [safeAreaProxy setBottom:NUMFLOAT(bottom)];
-  [safeAreaProxy setLeft:NUMFLOAT(left)];
-  [safeAreaProxy setRight:NUMFLOAT(right)];
+  float oldTop = [[safeAreaProxy valueForKey:@"top"] floatValue];
+  float oldLeft = [[safeAreaProxy valueForKey:@"left"] floatValue];
+  float oldRight = [[safeAreaProxy valueForKey:@"right"] floatValue];
+  float oldBottom = [[safeAreaProxy valueForKey:@"bottom"] floatValue];
+  
+  if (oldTop != top) {
+    [safeAreaProxy setTop:NUMFLOAT(top)];
+  }
+  if (oldBottom != bottom) {
+    [safeAreaProxy setBottom:NUMFLOAT(bottom)];
+  }
+  if (oldLeft != left) {
+    [safeAreaProxy setLeft:NUMFLOAT(left)];
+  }
+  if (oldRight != right) {
+    [safeAreaProxy setRight:NUMFLOAT(right)];
+  }
 }
 #endif
 
