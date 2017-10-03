@@ -885,7 +885,8 @@ public abstract class TiUIView
 
 					// TIMOB-24898: disable HW acceleration to allow transparency
 					// when the backgroundColor alpha channel has been set
-					if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
+					byte bgAlpha = bgColor != null ? (byte)(bgColor >> 24) : (byte)0xFF;
+					if (bgAlpha != 0xFF) {
 						disableHWAcceleration();
 					}
 				}
@@ -1442,7 +1443,8 @@ public abstract class TiUIView
 
 			// TIMOB-24898: disable HW acceleration to allow transparency
 			// when the backgroundColor alpha channel has been set
-			if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
+			byte bgAlpha = bgColor != null ? (byte)(bgColor >> 24) : (byte)0xFF;
+			if (bgAlpha != 0xFF) {
 				disableHWAcceleration();
 			}
 		}
@@ -1980,7 +1982,7 @@ public abstract class TiUIView
 
 	protected void disableHWAcceleration()
 	{
-		if (borderView == null) {
+		if (borderView == null || !borderView.isHardwareAccelerated()) {
 			return;
 		}
 		Log.d(TAG, "Disabling hardware acceleration for instance of " + borderView.getClass().getSimpleName(),
