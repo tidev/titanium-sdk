@@ -108,7 +108,7 @@ if (failures_and_errors.length !== 0) {
 		} else {
 			const failures = test.getElementsByTagName('failure');
 			if (failures.length !== 0) {
-				row_values.push(errors.item(0).getAttribute('message'));
+				row_values.push(failures.item(0).getAttribute('message'));
 			} else {
 				row_values.push(''); // This shouldn't ever happen
 			}
