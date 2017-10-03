@@ -218,11 +218,9 @@ timestamps {
 
 					// Scan for NSP and RetireJS warnings
 					def scanFiles = []
+					// Can't upload NSP as our threadfix server now chokes on it. We shoudl be doing dependency check instead?
 					sh 'npm install -g nsp'
-					def nspExitCode = sh(returnStatus: true, script: 'nsp check --output json 2> nsp.json')
-					if (nspExitCode != 0) {
-						scanFiles << [path: 'nsp.json']
-					}
+					sh 'nsp check --output summary --warn-only'
 
 					sh 'npm install -g retire'
 					def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
