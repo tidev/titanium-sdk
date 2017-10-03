@@ -1534,10 +1534,7 @@
   UIView *searchView = [searchField view];
 
   if (tableHeaderView == nil) {
-    CGFloat wrapperHeight = TI_NAVBAR_HEIGHT;
-    if ([TiUtils isIOS11OrGreater]) {
-      wrapperHeight = 56.0;
-    }
+    CGFloat wrapperHeight = [TiUtils isIOS11OrGreater] ? 56.0 : 44.0;
     CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, wrapperHeight);
     tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
     [tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
