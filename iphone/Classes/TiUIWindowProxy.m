@@ -154,7 +154,7 @@
 -(void)dealloc
 {
 #if IS_XCODE_9
-  RELEASE_TO_NIL(self.safeAreaViewProxy);
+  self.safeAreaViewProxy = nil;
 #endif
   RELEASE_TO_NIL(barImageView);
   [super dealloc];
