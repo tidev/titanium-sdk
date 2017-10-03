@@ -24,11 +24,13 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
+	babel = require('babel-core'),
 	Builder = require('../lib/base-builder.js'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
+	env = require('babel-preset-env'),
 	fields = require('fields'),
 	fs = require('fs'),
 	i18n = require('node-titanium-sdk/lib/i18n'),
@@ -2699,27 +2701,46 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				try {
 					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
 						// parse the AST
-						const r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+						const originalContents = fs.readFileSync(from).toString();
+						const r = jsanalyze.analyzeJs(originalContents, { minify: this.minifyJS, filename: from });
 
 						// we want to sort by the "to" filename so that we correctly handle file overwriting
 						this.tiSymbols[to] = r.symbols;
 
-						const dir = path.dirname(to);
-						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+						// Now transpile too!
+						this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
+							const dir = path.dirname(to);
+							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-						if (this.minifyJS) {
-							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+							// TODO Based on target platform os version and sdk version we may need to transpile via babel
+							// So I guess here we know that we're doing android, so only need to worry about mapping v8 versions
+							// Do no options if SDK < 6? Then it'll compile everything to es5 (Technically it was v8 3.9)
+							// For SDK 6+, it's 51
+							// For SDK 6.2+, it's 57
+							// For SDK 7+, it'll likely be 60
+							const result = babel.transform(r.contents, {
+								filename: from,
+								presets: [
+									[ env, {
+										'targets': {
+											'chrome': 57, // This maps to v8 version for Android (i.e. v8 5.2)
+											// 'ios': '10.3' // this should be the min ios version we support when using jscore-framework
+											// otherwise I think we'd do no options so we'd compile down everything to es5 entirely for tijscore
+										}
+									}]
+								]
+							});
+							const newContents = result.code;
 
-							this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
-								fs.writeFile(to, r.contents, cb2);
-							})(r, from, to, cb);
-						} else if (symlinkFiles) {
-							copyFile.call(this, from, to, cb);
-						} else {
-							// we've already read in the file, so just write the original contents
-							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-							fs.writeFile(to, r.contents, cb);
-						}
+							// If we're able to symlink and the contents didn't change, great let's just symlink
+							if (symlinkFiles && newContents === originalContents) {
+								copyFile.call(this, from, to, cb2);
+							} else {
+								// code changed or we can't symlink. Either way, write the file to dest
+								this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+								fs.writeFile(to, newContents, cb2);
+							}
+						})(r, from, to, cb);
 					})(from, to, done);
 				} catch (ex) {
 					ex.message.split('\n').forEach(this.logger.error);
