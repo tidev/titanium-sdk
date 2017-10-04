@@ -436,8 +436,13 @@
         _searchTableView.delegate = self;
         _searchTableView.dataSource = self;
         _searchTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-        
-        
+      
+#if IS_XCODE_9
+        if ([TiUtils isIOS11OrGreater]) {
+            _searchTableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
+#endif
+      
         if (TiDimensionIsDip(rowHeight))
         {
             [_searchTableView setRowHeight:rowHeight.value];
@@ -2843,16 +2848,10 @@ return result;	\
     viewController.definesPresentationContext = YES;
     
     [viewController presentViewController:controller animated:NO completion:^{
-      CGFloat topMargin = self.frame.origin.y;
-#if IS_XCODE_9
-      if ([TiUtils isIOS11OrGreater]) {
-        topMargin += self.safeAreaInsets.top;
-      }
-#endif
       UIView *view = controller.searchBar.superview;
-      view.frame = CGRectMake(view.frame.origin.x, topMargin, view.frame.size.width, view.frame.size.height);
+      view.frame = CGRectMake(view.frame.origin.x, self.frame.origin.y, view.frame.size.width, view.frame.size.height);
       controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-      resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, topMargin + view.frame.size.height, self.frame.size.width, self.frame.size.height - topMargin - view.frame.size.height);
+      resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
     }];
 }
 
