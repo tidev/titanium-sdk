@@ -177,8 +177,8 @@ static NSArray *touchEventsArray;
     //Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
     windowProxy = (TiUIWindowProxy *)self;
     windowProxy.shouldExtendSafeArea = [TiUtils boolValue:[self valueForUndefinedKey:@"extendSafeArea"] def:NO];
-    if (!windowProxy.safeAreaViewProxy && !windowProxy.shouldExtendSafeArea) {
-      windowProxy.safeAreaViewProxy = [[[TiUIViewProxy alloc] _initWithPageContext:[self pageContext] args:nil] autorelease];
+    if (windowProxy.safeAreaViewProxy && !safeAreaProxyAdded) {
+      safeAreaProxyAdded = YES;
       [self add:windowProxy.safeAreaViewProxy];
     }
   }
@@ -317,7 +317,7 @@ static NSArray *touchEventsArray;
     }
   }
 #endif
-  
+
   ENSURE_SINGLE_ARG(args, NSDictionary);
   NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
   NSArray *childrenArray = [self children];
@@ -340,7 +340,7 @@ static NSArray *touchEventsArray;
     }
   }
 #endif
-  
+
   ENSURE_UI_THREAD_1_ARG(arg);
 
 #ifdef HYPERLOOP
@@ -411,7 +411,7 @@ static NSArray *touchEventsArray;
     }
   }
 #endif
-  
+
   ENSURE_UI_THREAD_1_ARG(arg);
   pthread_rwlock_wrlock(&childrenLock);
   NSMutableArray *childrenCopy = [children mutableCopy];
@@ -1488,6 +1488,17 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   allowLayoutUpdate = YES;
   [self processTempProperties:nil];
   allowLayoutUpdate = NO;
+
+#if IS_XCODE_9
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    //Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    windowProxy.shouldExtendSafeArea = [TiUtils boolValue:[self valueForUndefinedKey:@"extendSafeArea"] def:NO];
+    if (!windowProxy.safeAreaViewProxy && !windowProxy.shouldExtendSafeArea) {
+      windowProxy.safeAreaViewProxy = [[[TiUIViewProxy alloc] _initWithPageContext:[self pageContext] args:@[ properties ]] autorelease];
+    }
+  }
+#endif
 }
 
 - (void)dealloc

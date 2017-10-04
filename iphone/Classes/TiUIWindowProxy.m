@@ -146,7 +146,7 @@
 - (void)dealloc
 {
 #if IS_XCODE_9
-  RELEASE_TO_NIL(self.safeAreaViewProxy);
+  self.safeAreaViewProxy = nil;
 #endif
   RELEASE_TO_NIL(barImageView);
   [super dealloc];
@@ -985,7 +985,7 @@
   float oldLeft = [[safeAreaProxy valueForKey:@"left"] floatValue];
   float oldRight = [[safeAreaProxy valueForKey:@"right"] floatValue];
   float oldBottom = [[safeAreaProxy valueForKey:@"bottom"] floatValue];
-  
+
   if (oldTop != top) {
     [safeAreaProxy setTop:NUMFLOAT(top)];
   }

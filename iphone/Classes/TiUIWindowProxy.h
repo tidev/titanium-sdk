@@ -29,7 +29,7 @@
 - (void)boot:(BOOL)timeout args:(id)args;
 
 #if IS_XCODE_9
-@property (nonatomic, strong) TiViewProxy *safeAreaViewProxy;
+@property (nonatomic, assign) TiViewProxy *safeAreaViewProxy;
 @property (nonatomic) BOOL shouldExtendSafeArea;
 #endif
 @end
