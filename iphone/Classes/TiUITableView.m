@@ -2848,10 +2848,10 @@ return result;	\
     viewController.definesPresentationContext = YES;
     
     [viewController presentViewController:controller animated:NO completion:^{
-      UIView *view = controller.searchBar.superview;
-      view.frame = CGRectMake(view.frame.origin.x, self.frame.origin.y, view.frame.size.width, view.frame.size.height);
-      controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-      resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
+        UIView *view = controller.searchBar.superview;
+        view.frame = CGRectMake(view.frame.origin.x, self.frame.origin.y, view.frame.size.width, view.frame.size.height);
+        controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
+        resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
     }];
 }
 
