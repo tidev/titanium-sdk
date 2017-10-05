@@ -2134,69 +2134,69 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
 
 - (void)presentSearchController:(UISearchController *)controller
 {
-  TiColor *resultsBackgroundColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsBackgroundColor"]];
-  TiColor *resultsSeparatorColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsSeparatorColor"]];
-  id resultsSeparatorInsets = [[self proxy] valueForKey:@"resultsSeparatorInsets"];
-  id resultsSeparatorStyle = [[self proxy] valueForKey:@"resultsSeparatorStyle"];
-
-  ENSURE_TYPE_OR_NIL(resultsSeparatorInsets, NSDictionary);
-  ENSURE_TYPE_OR_NIL(resultsSeparatorStyle, NSNumber);
-
-  if (resultsBackgroundColor) {
-    // TIMOB-23281: Hack to support transparent backgrounds (not officially supported)
-    UIColor *color = [resultsBackgroundColor _color] == [UIColor clearColor] ? [UIColor colorWithWhite:1.0 alpha:0.0001] : [resultsBackgroundColor _color];
-    [resultViewController.tableView setBackgroundColor:color];
-  }
-
-  if (resultsSeparatorColor) {
-    [resultViewController.tableView setSeparatorColor:[resultsSeparatorColor _color]];
-  }
-
-  if (resultsSeparatorInsets) {
-    [resultViewController.tableView setSeparatorInset:[TiUtils contentInsets:resultsSeparatorInsets]];
-  }
-
-  if (resultsSeparatorStyle) {
-    [resultViewController.tableView setSeparatorStyle:[TiUtils intValue:resultsSeparatorStyle def:UITableViewCellSeparatorStyleSingleLine]];
-  }
-
-  // Presenting search controller on window holding controller
-  id proxy = [(TiViewProxy *)self.proxy parent];
-  while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
-    proxy = [proxy parent];
-  }
-  UIViewController *viewController = nil;
-  if ([proxy isKindOfClass:[TiWindowProxy class]]) {
-    viewController = [proxy windowHoldingController];
-  } else {
-    viewController = [[TiApp app] controller];
-  }
-  viewController.definesPresentationContext = YES;
-
-  [viewController presentViewController:controller
-                               animated:NO
-                             completion:^{
-                               CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:viewController.view];
-
-                               UIView *view = controller.searchBar.superview;
-                               view.frame = CGRectMake(view.frame.origin.x, convertedOrigin.y, view.frame.size.width, view.frame.size.height);
-                               controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-                               resultViewController.tableView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
-                             }];
-
-  id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
-  ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
-
-  if (!searchButtonTitle) {
-    return;
-  }
-
-  // TODO: Use [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]];
-  // as soon as we remove iOS < 9 support
-  id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
-  [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
-  [[resultViewController tableView] setEditing:NO];
-  [_tableView setEditing:NO];
+    TiColor *resultsBackgroundColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsBackgroundColor"]];
+    TiColor *resultsSeparatorColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsSeparatorColor"]];
+    id resultsSeparatorInsets = [[self proxy] valueForKey:@"resultsSeparatorInsets"];
+    id resultsSeparatorStyle = [[self proxy] valueForKey:@"resultsSeparatorStyle"];
+    
+    ENSURE_TYPE_OR_NIL(resultsSeparatorInsets, NSDictionary);
+    ENSURE_TYPE_OR_NIL(resultsSeparatorStyle, NSNumber);
+    
+    if (resultsBackgroundColor) {
+        // TIMOB-23281: Hack to support transparent backgrounds (not officially supported)
+        UIColor *color = [resultsBackgroundColor _color] == [UIColor clearColor] ? [UIColor colorWithWhite:1.0 alpha:0.0001] : [resultsBackgroundColor _color];
+        [resultViewController.tableView setBackgroundColor:color];
+    }
+    
+    if (resultsSeparatorColor) {
+        [resultViewController.tableView setSeparatorColor:[resultsSeparatorColor _color]];
+    }
+    
+    if (resultsSeparatorInsets) {
+        [resultViewController.tableView setSeparatorInset:[TiUtils contentInsets:resultsSeparatorInsets]];
+    }
+    
+    if (resultsSeparatorStyle) {
+        [resultViewController.tableView setSeparatorStyle:[TiUtils intValue:resultsSeparatorStyle def:UITableViewCellSeparatorStyleSingleLine]];
+    }
+    
+    // Presenting search controller on window holding controller
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+        proxy = [proxy parent];
+    }
+    UIViewController *viewController = nil;
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+        viewController = [proxy windowHoldingController];
+    } else {
+        viewController = [[TiApp app] controller];
+    }
+    viewController.definesPresentationContext = YES;
+    
+    [viewController presentViewController:controller
+                                 animated:NO
+                               completion:^{
+                                   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:viewController.view];
+                                   
+                                   UIView *view = controller.searchBar.superview;
+                                   view.frame = CGRectMake(view.frame.origin.x, convertedOrigin.y, view.frame.size.width, view.frame.size.height);
+                                   controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
+                                   resultViewController.tableView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
+                               }];
+    
+    id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
+    ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
+    
+    if (!searchButtonTitle) {
+        return;
+    }
+    
+    // TODO: Use [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]];
+    // as soon as we remove iOS < 9 support
+    id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
+    [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
+    [[resultViewController tableView] setEditing:NO];
+    [_tableView setEditing:NO];
 }
 
 #pragma mark - UISearchResultsUpdating
