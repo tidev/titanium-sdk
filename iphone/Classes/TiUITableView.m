@@ -1644,8 +1644,8 @@
 
 	if (tableHeaderView == nil)
 	{
-    CGFloat wrapperHeight = [TiUtils isIOS11OrGreater] ? 56.0 : 44.0;
-    CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, wrapperHeight);
+        CGFloat wrapperHeight = [TiUtils isIOS11OrGreater] ? TI_SEARCHBAR_HEIGHT : TI_NAVBAR_HEIGHT;
+        CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, wrapperHeight);
 		tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
 		[tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
 		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
