@@ -988,6 +988,12 @@ else{\
 }
 
 #if IS_XCODE_9
+
+- (TiViewProxy *)safeAreaView
+{
+    return self.safeAreaViewProxy;
+}
+
 - (void)processForSafeArea
 {
   if (self.shouldExtendSafeArea || ![TiUtils isIOS11OrGreater]) {
