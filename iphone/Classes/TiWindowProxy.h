@@ -41,4 +41,8 @@
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 - (TiUIiOSTransitionAnimationProxy *)transitionAnimation;
 #endif
+
+#if IS_XCODE_9
+- (void)processForSafeArea;
+#endif
 @end

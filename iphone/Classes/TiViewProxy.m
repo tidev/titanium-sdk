@@ -1514,6 +1514,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       }
       
       windowProxy.safeAreaViewProxy = [[[TiUIViewProxy alloc] _initWithPageContext:[self pageContext] args:@[safeAreaProperties]] autorelease];
+      [windowProxy processForSafeArea];
     }
   }
 }
