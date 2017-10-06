@@ -1502,18 +1502,18 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     windowProxy.shouldExtendSafeArea = [TiUtils boolValue:[self valueForUndefinedKey:@"extendSafeArea"] def:NO];
     if (!windowProxy.safeAreaViewProxy && !windowProxy.shouldExtendSafeArea) {
       NSMutableDictionary *safeAreaProperties = [NSMutableDictionary dictionary];
-      
+
       id layout = [self valueForUndefinedKey:@"layout"];
       if (layout) {
         safeAreaProperties[@"layout"] = layout;
       }
-      
+
       id horizontalWrap = [self valueForUndefinedKey:@"horizontalWrap"];
       if (horizontalWrap) {
         safeAreaProperties[@"horizontalWrap"] = horizontalWrap;
       }
-      
-      windowProxy.safeAreaViewProxy = [[[TiUIViewProxy alloc] _initWithPageContext:[self pageContext] args:@[safeAreaProperties]] autorelease];
+
+      windowProxy.safeAreaViewProxy = [[[TiUIViewProxy alloc] _initWithPageContext:[self pageContext] args:@[ safeAreaProperties ]] autorelease];
       [windowProxy processForSafeArea];
     }
   }
