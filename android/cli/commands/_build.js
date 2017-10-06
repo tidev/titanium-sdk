@@ -880,6 +880,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						values: _t.targets
 					},
 					'sigalg': {
+                      	default: 'MD5withRSA',
 						desc: __('the type of a digital signature algorithm. only used when overriding keystore signing algorithm'),
 						hint: __('signing'),
 						order: 170,
