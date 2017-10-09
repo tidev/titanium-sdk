@@ -100,7 +100,7 @@ public class AnalyticsModule extends KrollModule
 	                analytics.sendAppFeatureEvent(event, jsonData);
 	                return SUCCESS;
 	            } else {
-	                Log.e(TAG, "Feature event "+ event +" not conforming to recommended usage.");
+	                Log.e(TAG, "Feature event " + event + " not conforming to recommended usage.");
 	                return JSON_VALIDATION_FAILED;
 	            }
 	        } else if (data != null) {
@@ -110,7 +110,7 @@ public class AnalyticsModule extends KrollModule
 	                    analytics.sendAppFeatureEvent(event, jsonData);
 	                    return SUCCESS;
 	                } else {
-	                    Log.e(TAG, "Feature event "+ event +" not conforming to recommended usage.");
+	                    Log.e(TAG, "Feature event " + event + " not conforming to recommended usage.");
 	                    return JSON_VALIDATION_FAILED;
 	                }
 	            } catch (JSONException e) {
@@ -130,18 +130,18 @@ public class AnalyticsModule extends KrollModule
 	public static int validateJSON(JSONObject jsonObject, int level) {
 
 	    if (level > MAX_LEVELS) {
-	        Log.w(TAG, "Feature event cannot have more than "+ MAX_LEVELS + " nested JSONs");
+	        Log.w(TAG, "Feature event cannot have more than " + MAX_LEVELS + " nested JSONs");
 	        return JSON_VALIDATION_FAILED;
 	    }
 	    if (jsonObject == null) {
 	        return JSON_VALIDATION_FAILED;
 	    }
 	    if ((level == 0) & (jsonObject.toString().getBytes().length > MAX_SERLENGTH)) {
-	        Log.w(TAG, "Feature event cannot exceed more than "+ MAX_SERLENGTH + " total serialized bytes");
+	        Log.w(TAG, "Feature event cannot exceed more than " + MAX_SERLENGTH + " total serialized bytes");
 	        return JSON_VALIDATION_FAILED;
 	    }
 	    if (jsonObject.length() > MAX_KEYS) {
-	        Log.w(TAG, "Feature event maxium keys should not exceed "+ MAX_KEYS);
+	        Log.w(TAG, "Feature event maximum keys should not exceed " + MAX_KEYS);
 	        return JSON_VALIDATION_FAILED;
 	    }
 
@@ -150,7 +150,7 @@ public class AnalyticsModule extends KrollModule
 	    while(keys.hasNext()) {
 	        String key = (String)keys.next();
 	        if (key.length() > MAX_KEYLENGTH) {
-	            Log.w(TAG, "Feature event key "+key+" length should not exceed "+MAX_KEYLENGTH+" characters");
+	            Log.w(TAG, "Feature event key " + key + " length should not exceed " + MAX_KEYLENGTH + " characters");
 	            return JSON_VALIDATION_FAILED;
 	        }
 	        try {
