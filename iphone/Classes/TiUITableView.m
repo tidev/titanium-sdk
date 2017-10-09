@@ -312,6 +312,11 @@
 
 - (void)dealloc
 {
+  if ([searchController isActive]) {
+    searchController.view.hidden = YES;
+    [searchController setActive:NO];
+  }
+
   if (searchField != nil) {
     [searchField setDelegate:nil];
     RELEASE_TO_NIL(searchField);
