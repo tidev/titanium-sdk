@@ -1418,7 +1418,7 @@ public abstract class TiUIView
 					}
 					borderView.setRadius(radius);
 				}
-				
+
 				if (bgColor != null) {
 					borderView.setBgColor(bgColor);
 					borderView.setColor(bgColor);
@@ -1427,14 +1427,18 @@ public abstract class TiUIView
 					borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
 				}
 
+				//Have a default border width of 1
+				Object borderWidth = "1";
 				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-					TiDimension width = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
-					if (width != null) {
-						if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
-							disableHWAcceleration();
-						}
-						borderView.setBorderWidth((float) width.getPixels(borderView));
+					borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
+				}
+
+				TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
+				if (width != null) {
+					if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
+						disableHWAcceleration();
 					}
+					borderView.setBorderWidth((float) width.getPixels(borderView));
 				}
 
 				nativeView.invalidate();

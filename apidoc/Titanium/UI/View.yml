@@ -1223,7 +1223,7 @@ properties:
   - name: borderWidth
     summary: Border width of the view.
     type: Number
-    default: 0
+    default: 1
 
 
   - name: bottom
