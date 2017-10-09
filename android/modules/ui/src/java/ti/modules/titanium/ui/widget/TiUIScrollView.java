@@ -38,23 +38,23 @@ public class TiUIScrollView extends TiUIView
 	public static final int TYPE_HORIZONTAL = 1;
 
 	private static final String TAG = "TiUIScrollView";
-	private static final String REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE =
-			"Ti.UI.ScrollView does not support a RefreshControl on Android, yet.";
 
+	private View scrollView;
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
 	private boolean isScrolling = false;
 	private boolean isTouching = false;
 
-	
+
 	public class TiScrollViewLayout extends TiCompositeLayout
 	{
 		private static final int AUTO = Integer.MAX_VALUE;
-		private int parentWidth = 0;
-		private int parentHeight = 0;
+		private int parentContentWidth = 0;
+		private int parentContentHeight = 0;
 		private boolean canCancelEvents = true;
 		private GestureDetector gestureDetector;
+		private boolean wasOnMeasureCalled;
 		
 		public TiScrollViewLayout(Context context, LayoutArrangement arrangement)
 		{
@@ -75,19 +75,74 @@ public class TiUIScrollView extends TiUIView
 			});
 		}
 
-		public void setParentWidth(int width)
+		/**
+		 * Sets the width of this view's parent, excluding its left/right padding.
+		 * @param width The parent view's width, excluding padding.
+		 */
+		public void setParentContentWidth(int width)
 		{
-			parentWidth = width;
+			if (width < 0) {
+				width = 0;
+			}
+			this.parentContentWidth = width;
 		}
 
-		public void setParentHeight(int height)
+		/**
+		 * Gets the value set via the setParentContentWidth() method.
+		 * Note that this value is not assignd automatically. The owner must assign it.
+		 * @return Returns the parent view's width, excluding its left/right padding.
+		 */
+		public int getParentContentWidth()
 		{
-			parentHeight = height;
+			return this.parentContentWidth;
+		}
+
+		/**
+		 * Sets the height of this view's parent, excluding its top/bottom padding.
+		 * @param width The parent view's height, excluding padding.
+		 */
+		public void setParentContentHeight(int height)
+		{
+			if (height < 0) {
+				height = 0;
+			}
+			this.parentContentHeight = height;
+		}
+
+		/**
+		 * Gets the value set via the setParentContentHeight() method.
+		 * Note that this value is not assignd automatically. The owner must assign it.
+		 * @return Returns the parent view's height, excluding its top/bottom padding.
+		 */
+		public int getParentContentHeight()
+		{
+			return this.parentContentHeight;
 		}
 
 		public void setCanCancelEvents(boolean value)
 		{
 			canCancelEvents = value;
+		}
+
+		/**
+		 * Determines if this view's onMeasure() has been called.
+		 * @return Returns true if this view's onMeasure() has been called. Returns false if not.
+		 */
+		public boolean wasOnMeasureCalled()
+		{
+			return this.wasOnMeasureCalled;
+		}
+
+		/**
+		 * Sets the flag to be returned by this object's wasOnMeasureCalled() method.
+		 * <p>
+		 * Intended to be set "false" by the parent view to determine if this view's onMeasure()
+		 * method got called afterwards.
+		 * @param value The value to be returned by the wasOnMeasureCalled() method.
+		 */
+		public void setOnMeasureCalled(boolean value)
+		{
+			this.wasOnMeasureCalled = value;
 		}
 
 		@Override
@@ -106,8 +161,14 @@ public class TiUIScrollView extends TiUIView
 		{
 			Object value = getProxy().getProperty(property);
 			if (value != null) {
-				if (value.equals(TiC.SIZE_AUTO)) {
+				if (value.equals(TiC.SIZE_AUTO) || value.equals(TiC.LAYOUT_SIZE)) {
 					return AUTO;
+				} else if (value.equals(TiC.LAYOUT_FILL)) {
+					if (TiC.PROPERTY_CONTENT_HEIGHT.equals(property)) {
+						return this.parentContentHeight;
+					} else if (TiC.PROPERTY_CONTENT_WIDTH.equals(property)) {
+						return this.parentContentWidth;
+					}
 				} else if (value instanceof Number) {
 					return ((Number) value).intValue();
 				} else {
@@ -153,10 +214,10 @@ public class TiUIScrollView extends TiUIView
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
 			if (contentWidth == AUTO) {
 				contentWidth = maxWidth; // measuredWidth;
-			}		
+			}
 
 			// Returns the content's width when it's greater than the scrollview's width
-			if (contentWidth > parentWidth) {
+			if (contentWidth >= this.parentContentWidth) {
 				return contentWidth;
 			} else {
 				return resolveSize(maxWidth, widthSpec);
@@ -172,12 +233,50 @@ public class TiUIScrollView extends TiUIView
 			}
 
 			// Returns the content's height when it's greater than the scrollview's height
-			if (contentHeight > parentHeight) {
+			if (contentHeight >= this.parentContentHeight) {
 				return contentHeight;
 			} else {
 				return resolveSize(maxHeight, heightSpec);
 			}
-		} 
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			// Flag that the onMeasure() method has been called.
+			this.wasOnMeasureCalled = true;
+
+			// Apply the "contentWidth" and "contentHeight" sizes to the child instead, if provided.
+			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
+			if ((contentWidth != AUTO) && (contentWidth >= this.parentContentWidth)) {
+				widthMeasureSpec = MeasureSpec.makeMeasureSpec(contentWidth, MeasureSpec.EXACTLY);
+			}
+			int contentHeight = getContentProperty(TiC.PROPERTY_CONTENT_HEIGHT);
+			if ((contentHeight != AUTO) && (contentHeight >= this.parentContentHeight)) {
+				heightMeasureSpec = MeasureSpec.makeMeasureSpec(contentHeight, MeasureSpec.EXACTLY);
+			}
+
+			// If contentWidth/contentHeight is set to AUTO, then child views set to TI.UI.FILL
+			// must use the ScrollView's container size instead of filling remaining content area.
+			// Note: This matches iOS' behavior.
+			if (contentWidth == AUTO) {
+				setChildFillWidth(this.parentContentWidth);
+			} else {
+				setChildFillWidthToParent();
+			}
+			if (contentHeight == AUTO) {
+				setChildFillHeight(this.parentContentHeight);
+			} else {
+				setChildFillHeightToParent();
+			}
+
+			// Child views using "percent" width/height and top/left/bottom/right/center settings
+			// must be relative to the ScrollView container, not the scrollable content area.
+			setChildRelativeSizingTo(this.parentContentWidth, this.parentContentHeight);
+
+			// Request the composite layout to measure/resize itself. (Must be done after the above.)
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		}
 	}
 	
 	// same code, different super-classes
@@ -255,22 +354,6 @@ public class TiUIScrollView extends TiUIView
 			}
 		}
 
-		@Override
-		public void addView(View child, android.view.ViewGroup.LayoutParams params)
-		{
-			layout.addView(child, params);
-		}
-
-		@Override
-		public void addView(View child, int index, android.view.ViewGroup.LayoutParams params)
-		{
-			if (index < 0) {
-				super.addView(child, index, params);
-				return;
-			}
-			layout.addView(child, index, params);
-		}
-
 		public void onDraw(Canvas canvas)
 		{
 			super.onDraw(canvas);
@@ -301,30 +384,31 @@ public class TiUIScrollView extends TiUIView
 		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
-			layout.setParentHeight(MeasureSpec.getSize(heightMeasureSpec));
-			layout.setParentWidth(MeasureSpec.getSize(widthMeasureSpec));
+			// Reset flag used to detect if child view's onMeasure() got called.
+			layout.setOnMeasureCalled(false);
+
+			// Store this view's new size, minus the padding.
+			// Must be assigned before calling onMeasure() below.
+			layout.setParentContentWidth(
+					MeasureSpec.getSize(widthMeasureSpec) - (getPaddingLeft() + getPaddingRight()));
+			layout.setParentContentHeight(
+					MeasureSpec.getSize(heightMeasureSpec) - (getPaddingTop() + getPaddingBottom()));
+
+			// Update the size of this view and its children.
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-			// This is essentially doing the same logic as if you did setFillViewPort(true). In native Android, they
-			// don't measure the child again if measured height of content view < scrollViewheight. But we want to do
-			// this in all cases since we allow the content view height to be greater than the scroll view. We force
-			// this to allow fill behavior: TIMOB-8243.
-			if (getChildCount() > 0) {
+			// Google's scroll view won't call child's measure() method if content height is less than
+			// the scroll view's height. If it wasn't called, then do so now. (See: TIMOB-8243)
+			if (!layout.wasOnMeasureCalled() && (getChildCount() > 0)) {
 				final View child = getChildAt(0);
 				int height = getMeasuredHeight();
 				final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
-
-				int childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec, getPaddingLeft() + getPaddingRight(),
-					lp.width);
+				int childWidthMeasureSpec = getChildMeasureSpec(
+						widthMeasureSpec, getPaddingLeft() + getPaddingRight(), lp.width);
 				height -= getPaddingTop();
 				height -= getPaddingBottom();
-
-				// If we measure the child height to be greater than the parent height, use it in subsequent
-				// calculations to make sure the children are measured correctly the second time around.
-				height = Math.max(child.getMeasuredHeight(), height);
 				int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
 				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-
 			}
 		}
 	}
@@ -344,7 +428,6 @@ public class TiUIScrollView extends TiUIView
 				ViewGroup.LayoutParams.MATCH_PARENT);
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
-
 		}
 
 		public TiScrollViewLayout getLayout()
@@ -385,22 +468,6 @@ public class TiUIScrollView extends TiUIView
 			return false;
 		}
 
-		@Override
-		public void addView(View child, android.view.ViewGroup.LayoutParams params)
-		{
-			layout.addView(child, params);
-		}
-
-		@Override
-		public void addView(View child, int index, android.view.ViewGroup.LayoutParams params)
-		{
-			if (index < 0) {
-				super.addView(child, index, params);
-				return;
-			}
-			layout.addView(child, index, params);
-		}
-
 		public void onDraw(Canvas canvas)
 		{
 			super.onDraw(canvas);
@@ -431,32 +498,32 @@ public class TiUIScrollView extends TiUIView
 		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
-			layout.setParentHeight(MeasureSpec.getSize(heightMeasureSpec));
-			layout.setParentWidth(MeasureSpec.getSize(widthMeasureSpec));
+			// Reset flag used to detect if child view's onMeasure() got called.
+			layout.setOnMeasureCalled(false);
+
+			// Store this view's new size, minus the padding.
+			// Must be assigned before calling onMeasure() below.
+			layout.setParentContentWidth(
+					MeasureSpec.getSize(widthMeasureSpec) - (getPaddingLeft() + getPaddingRight()));
+			layout.setParentContentHeight(
+					MeasureSpec.getSize(heightMeasureSpec) - (getPaddingTop() + getPaddingBottom()));
+
+			// Update the size of this view and its children.
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-			// This is essentially doing the same logic as if you did setFillViewPort(true). In native Android, they
-			// don't measure the child again if measured width of content view < scroll view width. But we want to do
-			// this in all cases since we allow the content view width to be greater than the scroll view. We force this
-			// to allow fill behavior: TIMOB-8243.
-			if (getChildCount() > 0) {
+			// Google's scroll view won't call child's measure() method if content height is less than
+			// the scroll view's height. If it wasn't called, then do so now. (See: TIMOB-8243)
+			if (!layout.wasOnMeasureCalled() && (getChildCount() > 0)) {
 				final View child = getChildAt(0);
 				int width = getMeasuredWidth();
 				final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
-
-				int childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec, getPaddingTop() + getPaddingBottom(),
-					lp.height);
+				int childHeightMeasureSpec = getChildMeasureSpec(
+						heightMeasureSpec, getPaddingTop() + getPaddingBottom(), lp.height);
 				width -= getPaddingLeft();
 				width -= getPaddingRight();
-
-				// If we measure the child width to be greater than the parent width, use it in subsequent
-				// calculations to make sure the children are measured correctly the second time around.
-				width = Math.max(child.getMeasuredWidth(), width);
 				int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
-
 				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
 			}
-
 		}
 	}
 
@@ -466,6 +533,22 @@ public class TiUIScrollView extends TiUIView
 		super(proxy);
 		getLayoutParams().autoFillsHeight = true;
 		getLayoutParams().autoFillsWidth = true;
+	}
+
+	@Override
+	public void release()
+	{
+		// If a refresh control is currently assigned, then detach it.
+		View nativeView = getNativeView();
+		if (nativeView instanceof TiSwipeRefreshLayout) {
+			RefreshControlProxy.unassignFrom((TiSwipeRefreshLayout)nativeView);
+		}
+
+		// Release scroll view reference.
+		this.scrollView = null;
+
+		// Release this object's resources.
+		super.release();
 	}
 
 	public void setContentOffset(int x, int y)
@@ -500,7 +583,7 @@ public class TiUIScrollView extends TiUIView
 			setContentOffset(newValue);
 			scrollTo(offsetX, offsetY, false);
 		} else if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
-			View view = getNativeView();
+			View view = this.scrollView;
 			boolean canCancelEvents = TiConvert.toBoolean(newValue);
 			if (view instanceof TiHorizontalScrollView) {
 				((TiHorizontalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
@@ -510,11 +593,22 @@ public class TiUIScrollView extends TiUIView
 		} else if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
 			setScrollingEnabled(newValue);
 		} else if (TiC.PROPERTY_REFRESH_CONTROL.equals(key)) {
-			if (newValue instanceof RefreshControlProxy) {
-				Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
+			View nativeView = getNativeView();
+			if (newValue == null) {
+				if (nativeView instanceof TiSwipeRefreshLayout) {
+					RefreshControlProxy.unassignFrom((TiSwipeRefreshLayout)nativeView);
+				}
+			} else if (newValue instanceof RefreshControlProxy) {
+				if (nativeView instanceof TiSwipeRefreshLayout) {
+					((RefreshControlProxy)newValue).assignTo((TiSwipeRefreshLayout)nativeView);
+				}
+			} else {
+				Log.e(TAG, "Invalid value assigned to property '" + key + "'. Must be of type 'RefreshControl'.");
 			}
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
-			getNativeView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			if (this.scrollView != null) {
+				this.scrollView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
 		}
 
 		super.propertyChanged(key, oldValue, newValue, proxy);
@@ -525,10 +619,6 @@ public class TiUIScrollView extends TiUIView
 	{
 		boolean showHorizontalScrollBar = false;
 		boolean showVerticalScrollBar = false;
-
-		if (d.get(TiC.PROPERTY_REFRESH_CONTROL) instanceof RefreshControlProxy) {
-			Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
-		}
 
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			setScrollingEnabled(d.get(TiC.PROPERTY_SCROLLING_ENABLED));
@@ -591,7 +681,6 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		// we create the view here since we now know the potential widget type
-		View view = null;
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 		TiScrollViewLayout scrollViewLayout;
 		if (d.containsKey(TiC.PROPERTY_LAYOUT) && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_VERTICAL)) {
@@ -603,14 +692,14 @@ public class TiUIScrollView extends TiUIView
 		switch (type) {
 			case TYPE_HORIZONTAL:
 				Log.d(TAG, "creating horizontal scroll view", Log.DEBUG_MODE);
-				view = new TiHorizontalScrollView(getProxy().getActivity(), arrangement);
-				scrollViewLayout = ((TiHorizontalScrollView) view).getLayout();
+				this.scrollView = new TiHorizontalScrollView(getProxy().getActivity(), arrangement);
+				scrollViewLayout = ((TiHorizontalScrollView) this.scrollView).getLayout();
 				break;
 			case TYPE_VERTICAL:
 			default:
 				Log.d(TAG, "creating vertical scroll view", Log.DEBUG_MODE);
-				view = new TiVerticalScrollView(getProxy().getActivity(), arrangement);
-				scrollViewLayout = ((TiVerticalScrollView) view).getLayout();
+				this.scrollView = new TiVerticalScrollView(getProxy().getActivity(), arrangement);
+				scrollViewLayout = ((TiVerticalScrollView) this.scrollView).getLayout();
 		}
 
 		if (d.containsKey(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
@@ -626,21 +715,31 @@ public class TiUIScrollView extends TiUIView
 		
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
 			if (Build.VERSION.SDK_INT >= 9) {
-				view.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+				this.scrollView.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 			}
 		}
 
-		setNativeView(view);
+		// Set up the swipe refresh layout container which wraps the scroll view.
+		TiSwipeRefreshLayout swipeRefreshLayout = new TiSwipeRefreshLayout(getProxy().getActivity());
+		swipeRefreshLayout.setSwipeRefreshEnabled(false);
+		swipeRefreshLayout.addView(this.scrollView);
+		if (d.containsKey(TiC.PROPERTY_REFRESH_CONTROL)) {
+			Object object = d.get(TiC.PROPERTY_REFRESH_CONTROL);
+			if (object instanceof RefreshControlProxy) {
+				((RefreshControlProxy)object).assignTo(swipeRefreshLayout);
+			}
+		}
+		setNativeView(swipeRefreshLayout);
 
-		nativeView.setHorizontalScrollBarEnabled(showHorizontalScrollBar);
-		nativeView.setVerticalScrollBarEnabled(showVerticalScrollBar);
+		this.scrollView.setHorizontalScrollBarEnabled(showHorizontalScrollBar);
+		this.scrollView.setVerticalScrollBarEnabled(showVerticalScrollBar);
 
 		super.processProperties(d);
 	}
 
 	public TiScrollViewLayout getLayout()
 	{
-		View nativeView = getNativeView();
+		View nativeView = this.scrollView;
 		if (nativeView instanceof TiVerticalScrollView) {
 			return ((TiVerticalScrollView) nativeView).layout;
 		} else if (nativeView instanceof TiHorizontalScrollView) {
@@ -679,7 +778,7 @@ public class TiUIScrollView extends TiUIView
 
 	public void scrollTo(int x, int y, boolean smoothScroll)
 	{
-		final View view = getNativeView();
+		final View view = this.scrollView;
 		if (smoothScroll) {
 			if (view instanceof TiHorizontalScrollView) {
 				TiHorizontalScrollView scrollView = (TiHorizontalScrollView) view;
@@ -696,52 +795,56 @@ public class TiUIScrollView extends TiUIView
 
 	public void scrollToBottom()
 	{
-		View view = getNativeView();
+		View view = this.scrollView;
 		if (view instanceof TiHorizontalScrollView) {
-			TiHorizontalScrollView scrollView = (TiHorizontalScrollView) view;
-			scrollView.fullScroll(View.FOCUS_RIGHT);
+			((TiHorizontalScrollView)this.scrollView).fullScroll(View.FOCUS_RIGHT);
 		} else if (view instanceof TiVerticalScrollView) {
-			TiVerticalScrollView scrollView = (TiVerticalScrollView) view;
-			scrollView.fullScroll(View.FOCUS_DOWN);
+			((TiVerticalScrollView)this.scrollView).fullScroll(View.FOCUS_DOWN);
 		}
 	}
 
 	@Override
 	public void add(TiUIView child)
 	{
-		super.add(child);
+		View nativeView = this.nativeView;
+		try {
+			this.nativeView = getLayout();
+			super.add(child);
+		} finally {
+			this.nativeView = nativeView;
+		}
+	}
 
-		if (getNativeView() != null) {
-			getLayout().requestLayout();
-			if (child.getNativeView() != null) {
-				child.getNativeView().requestLayout();
-			}
+	@Override
+	public void insertAt(TiUIView child, int position)
+	{
+		View nativeView = this.nativeView;
+		try {
+			this.nativeView = getLayout();
+			super.insertAt(child, position);
+		} finally {
+			this.nativeView = nativeView;
 		}
 	}
 
 	@Override
 	public void remove(TiUIView child)
 	{
-		if (child != null) {
-			View cv = child.getOuterView();
-			if (cv != null) {
-				View nv = getLayout();
-				if (nv instanceof ViewGroup) {
-					((ViewGroup) nv).removeView(cv);
-					children.remove(child);
-					child.setParent(null);
-				}
-			}
+		View nativeView = this.nativeView;
+		try {
+			this.nativeView = getLayout();
+			super.add(child);
+		} finally {
+			this.nativeView = nativeView;
 		}
 	}
-	
+
 	@Override
 	public void resort()
 	{
 		View v = getLayout();
-		if ( v instanceof TiCompositeLayout) {
+		if (v instanceof TiCompositeLayout) {
 			((TiCompositeLayout) v).resort();
 		}
- 	}
-
+	}
 }
