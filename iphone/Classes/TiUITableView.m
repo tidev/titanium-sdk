@@ -425,7 +425,7 @@
       _searchTableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     }
 #endif
-    
+
     if (TiDimensionIsDip(rowHeight)) {
       [_searchTableView setRowHeight:rowHeight.value];
     } else {
