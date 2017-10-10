@@ -244,6 +244,10 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
 
+#if IS_XCODE_9
+  [window processForSafeArea];
+#endif
+
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];
