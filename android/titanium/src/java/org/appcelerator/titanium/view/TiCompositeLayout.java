@@ -298,7 +298,8 @@ public class TiCompositeLayout extends ViewGroup
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != View.GONE) {
-                constrainChild(child, w, wMode, h, hMode, wRemain, h - maxHeight);
+                int hRemain = isDefaultArrangement() ? h : (h - maxHeight);
+                constrainChild(child, w, wMode, h, hMode, wRemain, hRemain);
             }
 
             int childWidth = child.getMeasuredWidth();
@@ -463,9 +464,9 @@ public class TiCompositeLayout extends ViewGroup
     {
         int width = measuredWidth;
 
-        // Layout's "width" property takes priority over left/center/right pin properties.
-        // Note: Ignore the auto-fill and auto-size settings here. Pins takes priority over them.
-        if (params.optionWidth != null) {
+        // We only calculate width based on pins if Titanium's JavaScript "width" property is null.
+        // If JavaScript "width" property is set, then "left" and "right" properties are used as padding.
+        if ((params.optionWidth != null) || params.autoFillsWidth || params.sizeOrFillWidthEnabled) {
             return width;
         }
 
@@ -486,16 +487,16 @@ public class TiCompositeLayout extends ViewGroup
         return width;
     }
 
-    // Try to calculate width from "top", "center", or "bottom" pins.
+    // Try to calculate height from "top", "center", or "bottom" pins.
     // If we can't calculate from pins or we don't need to, then return the measured height.
     private int calculateHeightFromPins(
         LayoutParams params, int parentTop, int parentBottom, int parentHeight, int measuredHeight)
     {
         int height = measuredHeight;
 
-        // Layout's "height" property takes priority over top/center/bottom pin properties.
-        // Note: Ignore the auto-fill and auto-size settings here. Pins takes priority over them.
-        if (params.optionHeight != null) {
+        // We only calculate height based on pins if Titanium's JavaScript "height" property is null.
+        // If JavaScript "height" property is set, then "top" and "bottom" properties are used as padding.
+        if ((params.optionHeight != null) || params.autoFillsHeight || params.sizeOrFillHeightEnabled) {
             return height;
         }
 

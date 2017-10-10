@@ -15,20 +15,26 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.RefreshControlProxy;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
+import android.support.v4.widget.NestedScrollView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
-import android.widget.ScrollView;
+
 
 public class TiUIScrollView extends TiUIView
 {
@@ -36,6 +42,9 @@ public class TiUIScrollView extends TiUIView
 	public static final int TYPE_HORIZONTAL = 1;
 
 	private static final String TAG = "TiUIScrollView";
+	private static final String REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE =
+			"Ti.UI.ScrollView does not support a RefreshControl on Android, yet.";
+
 	private int offsetX = 0, offsetY = 0;
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
@@ -55,18 +64,18 @@ public class TiUIScrollView extends TiUIView
 		{
 			super(context, arrangement, proxy);
 			gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-			    @Override
-			    public void onLongPress(MotionEvent e) {
-			        if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
-			            fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
-			        }
-			    }
+				@Override
+				public void onLongPress(MotionEvent e) {
+					if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
+						fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
+					}
+				}
 			});
 			setOnTouchListener(new OnTouchListener() {
-			    @Override
-			    public boolean onTouch(View v, MotionEvent event) {
-			        return gestureDetector.onTouchEvent(event);
-			    }
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					return gestureDetector.onTouchEvent(event);
+				}
 			});
 		}
 
@@ -176,13 +185,24 @@ public class TiUIScrollView extends TiUIView
 	}
 	
 	// same code, different super-classes
-	private class TiVerticalScrollView extends ScrollView
+	private class TiVerticalScrollView extends NestedScrollView
 	{
 		private TiScrollViewLayout layout;
 
 		public TiVerticalScrollView(Context context, LayoutArrangement arrangement)
 		{
 			super(context);
+
+			// TIMOB-25359: allow window to re-size when keyboard is shown
+			if (context instanceof TiBaseActivity) {
+				Window window = ((TiBaseActivity) context).getWindow();
+				int softInputMode = window.getAttributes().softInputMode;
+
+				if ((softInputMode & WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN) == 0) {
+					window.setSoftInputMode(softInputMode | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+				}
+			}
+
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 
 			layout = new TiScrollViewLayout(context, arrangement);
@@ -220,7 +240,7 @@ public class TiUIScrollView extends TiUIView
 				return false;
 			}
 		}
-		
+
 		@Override
 		public boolean onInterceptTouchEvent(MotionEvent event) {
 			if (mScrollingEnabled) {
@@ -229,7 +249,27 @@ public class TiUIScrollView extends TiUIView
 
 			return false;
 		}
-		
+
+		/**
+		 * Called when a NestedScrollingChild view within the ListView wants to scroll the ListView.
+		 * <p>
+		 * This can happen with a NestedScrollView or a scrollable TiUIEditText where scrolling
+		 * past the top/bottom of the child view should cause the ListView to scroll.
+		 * @param target The NestedScrollingChild view that wants to scroll this view.
+		 * @param dxConsumed Horizontal scroll distance in pixels already consumed by the child.
+		 * @param dyConsumed Vertical scroll distance in pixels already consumed by the child.
+		 * @param dxUnconsumed Horizontal distance in pixels that this view is being requested to scroll by.
+		 * @param dyUnconsumed Vertical distance in pixels that this view is being requested to scroll by.
+		 */
+		@Override
+		public void onNestedScroll(
+			View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
+		{
+			if (mScrollingEnabled) {
+				super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+			}
+		}
+
 		@Override
 		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
@@ -470,11 +510,11 @@ public class TiUIScrollView extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
+
 		if (key.equals(TiC.PROPERTY_CONTENT_OFFSET)) {
 			setContentOffset(newValue);
 			scrollTo(offsetX, offsetY, false);
-		}
-		if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
+		} else if (key.equals(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
 			View view = getNativeView();
 			boolean canCancelEvents = TiConvert.toBoolean(newValue);
 			if (view instanceof TiHorizontalScrollView) {
@@ -482,15 +522,16 @@ public class TiUIScrollView extends TiUIView
 			} else if (view instanceof TiVerticalScrollView) {
 				((TiVerticalScrollView) view).getLayout().setCanCancelEvents(canCancelEvents);
 			}
-		}
-		if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
+		} else if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
 			setScrollingEnabled(newValue);
-		}
-		if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
-			if (Build.VERSION.SDK_INT >= 9) {
-				getNativeView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+		} else if (TiC.PROPERTY_REFRESH_CONTROL.equals(key)) {
+			if (newValue instanceof RefreshControlProxy) {
+				Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
 			}
+		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
+			getNativeView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 		}
+
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 
@@ -499,6 +540,10 @@ public class TiUIScrollView extends TiUIView
 	{
 		boolean showHorizontalScrollBar = false;
 		boolean showVerticalScrollBar = false;
+
+		if (d.get(TiC.PROPERTY_REFRESH_CONTROL) instanceof RefreshControlProxy) {
+			Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
+		}
 
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			setScrollingEnabled(d.get(TiC.PROPERTY_SCROLLING_ENABLED));
@@ -590,7 +635,7 @@ public class TiUIScrollView extends TiUIView
 		boolean autoContentWidth = (scrollViewLayout.getContentProperty(TiC.PROPERTY_CONTENT_WIDTH) == TiScrollViewLayout.AUTO);
 		boolean wrap = !autoContentWidth;
 		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP) && wrap) {
-			wrap = TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP, true);			
+			wrap = TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP, true);
 		}
 		scrollViewLayout.setEnableHorizontalWrap(wrap);
 		

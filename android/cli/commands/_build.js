@@ -878,6 +878,12 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						order: 120,
 						required: true,
 						values: _t.targets
+					},
+					'sigalg': {
+						desc: __('the type of a digital signature algorithm. only used when overriding keystore signing algorithm'),
+						hint: __('signing'),
+						order: 170,
+						values: [ 'MD5withRSA', 'SHA1withRSA', 'SHA256withRSA' ]
 					}
 				}
 			};
@@ -1796,6 +1802,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.keystore = argv.keystore;
 	this.keystoreStorePassword = argv['store-password'];
 	this.keystoreKeyPassword = argv['key-password'];
+	this.sigalg = argv['sigalg'];
 	if (!this.keystore) {
 		this.keystore = path.join(this.platformPath, 'dev_keystore');
 		this.keystoreStorePassword = 'tirocks';
@@ -4116,7 +4123,8 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		soRegExp = /\.so$/,
 		trailingSlashRegExp = /\/$/,
 		nativeLibs = {},
-		origConsoleError = console.error;
+		origConsoleError = console.error,
+		entryNames = [];
 
 	// since the archiver library didn't set max listeners, we squelch all error output
 	console.error = function () {};
@@ -4149,6 +4157,12 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 					&& !classRegExp.test(entry.name)
 					&& !trailingSlashRegExp.test(entry.entryName)
 				) {
+					// do not add duplicate entries
+					if (entryNames.indexOf(entry.entryName) > -1) {
+						this.logger.warn(__('Removing duplicate entry %s', entry.entryName.cyan));
+						return;
+					}
+
 					const store = this.uncompressedTypes.indexOf(entry.entryName.split('.').pop()) !== -1;
 
 					this.logger.debug(store
@@ -4159,6 +4173,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 						name: entry.entryName,
 						store: store
 					});
+					entryNames.push(entry.entryName);
 				}
 			}, this);
 		}, this);
@@ -4305,7 +4320,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 };
 
 AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
-	const sigalg = this.keystoreAlias.sigalg || 'MD5withRSA',
+	const sigalg = this.sigalg || this.keystoreAlias.sigalg || 'MD5withRSA',
 		signerArgs = [
 			'-sigalg', sigalg,
 			'-digestalg', 'SHA1',

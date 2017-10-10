@@ -181,12 +181,15 @@ exports.init = function (logger, config, cli) {
 		}
 
 		// make sure the output directory is good to go
-		if (fs.existsSync(outputDir)) {
-			logger.info(__('Deleting dist directory: %s', outputDir.cyan));
-			wrench.rmdirSyncRecursive(outputDir);
+		if (!fs.existsSync(outputDir)) {
+			wrench.mkdirSyncRecursive(outputDir);
 		}
-		wrench.mkdirSyncRecursive(outputDir);
+
 		const ipaFile = path.join(outputDir, builder.tiapp.name + '.ipa');
+		if (fs.existsSync(ipaFile)) {
+			logger.debug(__('Deleting old .ipa file'));
+			fs.unlinkSync(ipaFile);
+		}
 
 		const exportsOptionsPlistFile = path.join(builder.buildDir, 'export_options.plist');
 		const exportsOptions = new appc.plist();
@@ -202,8 +205,12 @@ exports.init = function (logger, config, cli) {
 				exportsOptions.method = 'enterprise';
 			}
 
-			if (pp.appPrefix) {
-				exportsOptions.teamId = pp.appPrefix;
+			if (builder.teamId || (pp && (pp.team || pp.appPrefix))) {
+				// NOTE: if there isn't an explicit <team-id> in the tiapp.xml and there is no
+				// teams or more than 1 team in the provisioning profile, then we use the appPrefix
+				// which should be the team id, but can differ and since we don't check it, this
+				// next line of code could be problematic
+				exportsOptions.teamId = builder.teamId || (pp.team.length === 1 ? pp.team[0] : pp.appPrefix);
 			}
 		}
 
@@ -220,6 +227,15 @@ exports.init = function (logger, config, cli) {
 
 		exportsOptions.provisioningProfiles = {};
 		exportsOptions.provisioningProfiles[builder.tiapp.id] = pp.uuid;
+
+		// check if the app is using CloudKit
+		const entitlementsFile = path.join(builder.buildDir, builder.tiapp.name + '.entitlements');
+		if (fs.existsSync(entitlementsFile)) {
+			const plist = new appc.plist(entitlementsFile);
+			if (Object.keys(plist).indexOf('com.apple.developer.icloud-container-identifiers') !== -1) {
+				exportsOptions.iCloudContainerEnvironment = 'Production';
+			}
+		}
 
 		fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
 

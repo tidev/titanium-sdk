@@ -10,7 +10,6 @@ package ti.modules.titanium.ui.widget.listview;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 

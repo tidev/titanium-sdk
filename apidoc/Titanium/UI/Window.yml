@@ -784,6 +784,9 @@ properties:
     type: Boolean
     since: 3.6.0
     availability: creation
+    deprecated:
+        since: 6.2.0
+        notes: Deprecated in AppCompat theme. The same behaviour can be achived by using Toolbar.
 
   - name: statusBarStyle
     summary: The status bar style associated with this window.
