@@ -206,7 +206,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       _searchTableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     }
 #endif
-    
+
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
       _searchTableView.prefetchDataSource = self;
