@@ -90,6 +90,9 @@ methods:
 
         Media can be passed as either a `Blob` object or a `File` object. If the `media` argument
         is not one of these types, an error is generated.
+        
+        In iOS 11 and later, you also need to specify the Info.plist key `NSPhotoLibraryAddUsageDescription` if you are
+        intending to write to the photo-gallery. It will be ignored on iOS < 11.
 
         Note that when passing a file (or a blob created from a file), the file name must
         have the appropriate extension for the data--for example, `image.jpg` or `video1.mov` work,
@@ -97,7 +100,6 @@ methods:
         files may be imported by saving them with the `.mov` extension.
 
         On Android this method *only supports saving images* to the device gallery prior to Titanium SDK 6.1.0.
-
     platforms: [iphone, ipad, android]
     parameters:
       - name: media
@@ -286,6 +288,9 @@ methods:
         photo gallery and the application will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information. If the user has, the callback will return the earlier decision. To change the permission the
         user needs to change it in the device settings.
+        
+        In iOS 11 and later, you also need to specify the Info.plist key `NSPhotoLibraryAddUsageDescription` if you are
+        intending to write to the photo-gallery. It will be ignored on iOS < 11.
 
         This API is available in iOS 8 and later. Earlier versions of iOS, as well as apps that do not include this method,
         will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
