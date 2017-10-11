@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -240,19 +241,19 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 				if (isPrivateData(fileProxy)) {
 					File file = privateFileToTemp(fileProxy);
 					if (file != null) {
-						return Uri.fromFile(file);
+						return TiFileProvider.createUriFrom(file);
 					} else {
 						return null;
 					}
 				} else {
 					File nativeFile = fileProxy.getBaseFile().getNativeFile();
-					return Uri.fromFile(nativeFile);
+					return TiFileProvider.createUriFrom(nativeFile);
 				}
 			}
 		} else if (attachment instanceof TiBlob) {
 			File file = blobToFile((TiBlob)attachment);
 			if (file != null) {
-				return Uri.fromFile(file);
+				return TiFileProvider.createUriFrom(file);
 			}
 		}
 		return null;
