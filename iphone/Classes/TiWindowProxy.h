@@ -36,6 +36,11 @@
 
 @property (nonatomic, readwrite, assign) TiViewProxy<TiTab> *tab;
 @property (nonatomic, readonly) TiProxy* tabGroup;
+#if IS_XCODE_9
+@property (nonatomic) BOOL isMasterWindow;
+@property (nonatomic) BOOL isDetailWindow;
+- (void)processForSafeArea;
+#endif
 
 - (UIViewController *)windowHoldingController;
 
@@ -43,7 +48,4 @@
 -(TiUIiOSTransitionAnimationProxy*) transitionAnimation;
 #endif
 
-#if IS_XCODE_9
-- (void)processForSafeArea;
-#endif
 @end
