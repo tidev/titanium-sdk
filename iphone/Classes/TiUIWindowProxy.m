@@ -956,6 +956,7 @@
 
 - (void)processForSafeArea
 {
+  // TO DO : Refactor this method
   if (self.shouldExtendSafeArea || ![TiUtils isIOS11OrGreater]) {
     return;
   }
@@ -966,23 +967,47 @@
   UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
   UIEdgeInsets safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
   if (self.tabGroup) {
+    TiWindowProxy *windowProxy = nil;
+    if ([self.tabGroup isKindOfClass:[TiWindowProxy class]]) {
+      windowProxy = (TiWindowProxy *)self.tabGroup;
+    }
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     if (!UIInterfaceOrientationIsPortrait(orientation)) {
-      left = safeAreaInset.left;
-      right = safeAreaInset.right;
+      if (windowProxy.isMasterWindow) {
+        left = safeAreaInset.left;
+      } else if (windowProxy.isDetailWindow) {
+        right = safeAreaInset.right;
+      } else {
+        left = safeAreaInset.left;
+        right = safeAreaInset.right;
+      }
     }
   } else if (self.tab) {
+    TiWindowProxy *windowProxy = nil;
+    if ([self.tab isKindOfClass:[TiWindowProxy class]]) {
+      windowProxy = (TiWindowProxy *)self.tab;
+    }
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     if (!UIInterfaceOrientationIsPortrait(orientation)) {
+      if (windowProxy.isMasterWindow) {
+        left = safeAreaInset.left;
+      } else if (windowProxy.isDetailWindow) {
+        right = safeAreaInset.right;
+      } else {
+        left = safeAreaInset.left;
+        right = safeAreaInset.right;
+      }
+    }
+    bottom = safeAreaInset.bottom;
+  } else {
+    if (self.isMasterWindow) {
+      left = safeAreaInset.left;
+    } else if (self.isDetailWindow) {
+      right = safeAreaInset.right;
+    } else {
       left = safeAreaInset.left;
       right = safeAreaInset.right;
-      bottom = safeAreaInset.bottom;
-    } else {
-      bottom = safeAreaInset.bottom;
     }
-  } else {
-    left = safeAreaInset.left;
-    right = safeAreaInset.right;
     bottom = safeAreaInset.bottom;
     top = safeAreaInset.top;
   }
