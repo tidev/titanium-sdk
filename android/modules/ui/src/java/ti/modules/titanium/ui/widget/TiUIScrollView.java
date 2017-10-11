@@ -58,7 +58,7 @@ public class TiUIScrollView extends TiUIView
 		private int parentContentHeight = 0;
 		private boolean canCancelEvents = true;
 		private GestureDetector gestureDetector;
-		private boolean wasOnMeasureCalled;
+		private boolean wasMeasured;
 		
 		public TiScrollViewLayout(Context context, LayoutArrangement arrangement)
 		{
@@ -132,21 +132,21 @@ public class TiUIScrollView extends TiUIView
 		 * Determines if this view's onMeasure() has been called.
 		 * @return Returns true if this view's onMeasure() has been called. Returns false if not.
 		 */
-		public boolean wasOnMeasureCalled()
+		public boolean wasMeasured()
 		{
-			return this.wasOnMeasureCalled;
+			return this.wasMeasured;
 		}
 
 		/**
-		 * Sets the flag to be returned by this object's wasOnMeasureCalled() method.
+		 * Sets the flag to be returned by this object's wasMeasured() method.
 		 * <p>
 		 * Intended to be set "false" by the parent view to determine if this view's onMeasure()
 		 * method got called afterwards.
-		 * @param value The value to be returned by the wasOnMeasureCalled() method.
+		 * @param value The value to be returned by the wasMeasured() method.
 		 */
-		public void setOnMeasureCalled(boolean value)
+		public void setWasMeasured(boolean value)
 		{
-			this.wasOnMeasureCalled = value;
+			this.wasMeasured = value;
 		}
 
 		@Override
@@ -248,7 +248,7 @@ public class TiUIScrollView extends TiUIView
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
 			// Flag that the onMeasure() method has been called.
-			this.wasOnMeasureCalled = true;
+			this.wasMeasured = true;
 
 			// Apply the "contentWidth" and "contentHeight" sizes to the child instead, if provided.
 			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
@@ -400,7 +400,7 @@ public class TiUIScrollView extends TiUIView
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
 			// Reset flag used to detect if child view's onMeasure() got called.
-			layout.setOnMeasureCalled(false);
+			layout.setWasMeasured(false);
 
 			// Store this view's new size, minus the padding.
 			// Must be assigned before calling onMeasure() below.
@@ -414,7 +414,7 @@ public class TiUIScrollView extends TiUIView
 
 			// Google's scroll view won't call child's measure() method if content height is less than
 			// the scroll view's height. If it wasn't called, then do so now. (See: TIMOB-8243)
-			if (!layout.wasOnMeasureCalled() && (getChildCount() > 0)) {
+			if (!layout.wasMeasured() && (getChildCount() > 0)) {
 				final View child = getChildAt(0);
 				int height = getMeasuredHeight();
 				final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -514,7 +514,7 @@ public class TiUIScrollView extends TiUIView
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
 			// Reset flag used to detect if child view's onMeasure() got called.
-			layout.setOnMeasureCalled(false);
+			layout.setWasMeasured(false);
 
 			// Store this view's new size, minus the padding.
 			// Must be assigned before calling onMeasure() below.
@@ -528,7 +528,7 @@ public class TiUIScrollView extends TiUIView
 
 			// Google's scroll view won't call child's measure() method if content height is less than
 			// the scroll view's height. If it wasn't called, then do so now. (See: TIMOB-8243)
-			if (!layout.wasOnMeasureCalled() && (getChildCount() > 0)) {
+			if (!layout.wasMeasured() && (getChildCount() > 0)) {
 				final View child = getChildAt(0);
 				int width = getMeasuredWidth();
 				final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -609,16 +609,16 @@ public class TiUIScrollView extends TiUIView
 			setScrollingEnabled(newValue);
 		} else if (TiC.PROPERTY_REFRESH_CONTROL.equals(key)) {
 			View nativeView = getNativeView();
-			if (newValue == null) {
-				if (nativeView instanceof TiSwipeRefreshLayout) {
+			if (nativeView instanceof TiSwipeRefreshLayout) {
+				if (newValue == null) {
 					RefreshControlProxy.unassignFrom((TiSwipeRefreshLayout)nativeView);
-				}
-			} else if (newValue instanceof RefreshControlProxy) {
-				if (nativeView instanceof TiSwipeRefreshLayout) {
+				} else if (newValue instanceof RefreshControlProxy) {
 					((RefreshControlProxy)newValue).assignTo((TiSwipeRefreshLayout)nativeView);
+				} else {
+					Log.e(TAG, "Invalid value assigned to property '" + key + "'. Must be of type 'RefreshControl'.");
 				}
 			} else {
-				Log.e(TAG, "Invalid value assigned to property '" + key + "'. Must be of type 'RefreshControl'.");
+				Log.e(TAG, "ScrollView failed to obtain reference to 'TiSwipeRefreshLayout' object.");
 			}
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
 			if (this.scrollView != null) {
