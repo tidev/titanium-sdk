@@ -100,6 +100,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)dealloc
 {
+  if ([searchController isActive]) {
+    searchController.view.hidden = YES;
+    [searchController setActive:NO];
+  }
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
 
@@ -120,6 +124,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [_footerViewProxy setProxyObserver:nil];
   [_pullViewProxy setProxyObserver:nil];
   [searchController setDelegate:nil];
+  [searchController setSearchResultsUpdater:nil];
   RELEASE_TO_NIL(_searchString);
   RELEASE_TO_NIL(_searchResults);
   RELEASE_TO_NIL(_pullViewWrapper);
