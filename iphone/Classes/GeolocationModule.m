@@ -282,13 +282,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     if ([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedAlways &&
         [CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedWhenInUse) {
       NSLog(@"[WARN] Trying to use location services without requesting location permissions. Use either:\n\n"
-            "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_ALWAYS, function(e) {\n"
-            "\t// Handle authorization via e.success\n"
-            "})\n\n"
-            "or\n\n"
-            "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_WHEN_IN_USE, function(e) {\n"
-            "\t// Handle authorization via e.success\n"
-            "})\n");
+             "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_ALWAYS, function(e) {\n"
+             "\t// Handle authorization via e.success\n"
+             "})\n\n"
+             "or\n\n"
+             "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_WHEN_IN_USE, function(e) {\n"
+             "\t// Handle authorization via e.success\n"
+             "})\n");
       if ([TiUtils isIOS11OrGreater] && ![[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlwaysAndWhenInUse]) {
         NSLog(@"[WARN] Apps targeting iOS 11 and later have the option to pass the \"%@\" key to the tiapp.xml <plist> section, allowing them to incrementally upgrade the location permissions from \"When in Use\" to \"Always\". This is only possible when using the Ti.Geolocation.requestLocationPermissions method, which should be called before using any Ti.Geolocation related API. Please verify location permissions before and call this method afterwards. Falling back to the old behavior ...", kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
       }
