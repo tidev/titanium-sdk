@@ -124,6 +124,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [_footerViewProxy setProxyObserver:nil];
   [_pullViewProxy setProxyObserver:nil];
   [searchController setDelegate:nil];
+  [searchController setSearchResultsUpdater:nil];
   RELEASE_TO_NIL(_searchString);
   RELEASE_TO_NIL(_searchResults);
   RELEASE_TO_NIL(_pullViewWrapper);
