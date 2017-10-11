@@ -504,6 +504,34 @@ properties:
     osver: {ios: {min: "8.0"}}
     availability: creation
 
+  - name: largeTitleEnabled
+    summary: A Boolean value indicating whether the title should be displayed in a large format.
+    description: |
+        When set to `true`, the navigation bar will use a larger out-of-line 
+        title view when requested by the current navigation item. To specify when 
+        the large out-of-line title view appears, see <Titanium.UI.Window.largeTitleDisplayMode>.
+    default: false
+    type: String
+    since: "6.3.0"
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
+
+  - name: largeTitleDisplayMode
+    summary: The mode to use when displaying the title of the navigation bar.
+    description: |
+        Automatically use the large out-of-line title based on the state of the 
+        previous item in the navigation bar. An item with 
+        `largeTitleDisplayMode = Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC` 
+        will show or hide the large title based on the request of the previous 
+        navigation item. If the first item pushed is set to Automatic, then it 
+        will show the large title if the navigation bar has `largeTitleEnabled = true`.
+    type: Number
+    constants: [Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_*]
+    default: Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
+    since: "6.3.0"
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "11.0"}}
+
   - name: left
     summary: Window's left position, in platform-specific units.
     description: |
