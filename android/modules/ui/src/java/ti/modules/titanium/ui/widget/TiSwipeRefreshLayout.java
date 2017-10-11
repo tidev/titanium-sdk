@@ -70,9 +70,9 @@ public class TiSwipeRefreshLayout extends SwipeRefreshLayout
 	 * Called when this view's measure() method gets called. Typically called by the parent view.
 	 * Updates this view's width and height based on the given width and height constraints.
 	 * <p>
-     * Given arguments' size and mode can be extracted via the Android "View.MeasureSpec" class.
-     * @param widthMeasureSpec Provides the parent's width constraints and size mode.
-     * @param heightMeasureSpec Provides the parent's height constraints and size mode.
+	 * Given arguments' size and mode can be extracted via the Android "View.MeasureSpec" class.
+	 * @param widthMeasureSpec Provides the parent's width constraints and size mode.
+	 * @param heightMeasureSpec Provides the parent's height constraints and size mode.
 	 */
 	@Override
 	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
