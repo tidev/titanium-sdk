@@ -216,15 +216,13 @@ timestamps {
 					// Clean up and install only production dependencies
 					sh 'npm prune --production'
 
-					// Scan for NSP and RetireJS warnings
-					def scanFiles = []
-					// Can't upload NSP as our threadfix server now chokes on it. We shoudl be doing dependency check instead?
-					sh 'npm install -g nsp'
-					sh 'nsp check --output summary --warn-only'
+					// Scan for Dependency Check and RetireJS warnings
+					def scanFiles = [[path: 'dependency-check-report.xml']]
+					dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: false, includeHtmlReports: false, includeJsonReports: false, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
+					dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
 
 					sh 'npm install -g retire'
 					def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
-
 					if (retireExitCode != 0) {
 						scanFiles << [path: 'retire.json']
 					}
