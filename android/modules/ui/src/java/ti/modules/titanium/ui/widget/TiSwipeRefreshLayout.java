@@ -108,8 +108,13 @@ public class TiSwipeRefreshLayout extends SwipeRefreshLayout
 			// Make sure we're not below the suggested min height assigned to this view.
 			minHeight = Math.max(minHeight, getSuggestedMinimumHeight());
 
-			// Update this view's given height spec to match the tallest child view.
-			if (minHeight < MeasureSpec.getSize(heightMeasureSpec)) {
+			// Update this view's given height spec to match the tallest child view, but only if:
+			// - Height mode is UNSPECIFIED. (View can be any height it wants.)
+			// - Height mode is AT_MOST and the min height is less than given height.
+			if ((heightMode == MeasureSpec.UNSPECIFIED) ||
+			    (minHeight < MeasureSpec.getSize(heightMeasureSpec)))
+			{
+				heightMode = MeasureSpec.AT_MOST;
 				heightMeasureSpec = MeasureSpec.makeMeasureSpec(minHeight, heightMode);
 			}
 		}
