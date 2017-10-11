@@ -176,11 +176,10 @@ static NSArray* touchEventsArray;
 #if IS_XCODE_9
   TiUIWindowProxy *windowProxy = nil;
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
-    //Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
     windowProxy = (TiUIWindowProxy *)self;
-    if (windowProxy.safeAreaViewProxy && !safeAreaProxyAdded) {
-      safeAreaProxyAdded = YES;
-      [self add:windowProxy.safeAreaViewProxy];
+    if (arg == windowProxy.safeAreaViewProxy) {
+      // If adding the safeAreaViewProxy, it need to be add on window.
+      windowProxy = nil;
     }
   }
 #endif
@@ -1570,6 +1569,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 - (void)createSafeAreaViewProxyForWindowProperties:(NSDictionary *)properties
 {
     if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+      /*
+       Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
+       */
         TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
         windowProxy.shouldExtendSafeArea = [TiUtils boolValue:[self valueForUndefinedKey:@"extendSafeArea"] def:NO];
         if (!windowProxy.safeAreaViewProxy && !windowProxy.shouldExtendSafeArea) {
@@ -1587,6 +1589,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
             
             windowProxy.safeAreaViewProxy = [[[TiUIViewProxy alloc] _initWithPageContext:[self pageContext] args:@[safeAreaProperties]] autorelease];
             [windowProxy processForSafeArea];
+            [self add:windowProxy.safeAreaViewProxy];
         }
     }
 }
