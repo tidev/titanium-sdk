@@ -8,11 +8,11 @@
 
 #import "XHRBridge.h"
 #import "Mimetypes.h"
+#import "SBJSON.h"
 #import "TiBase.h"
 #import "TiHost.h"
 #import "TiModule.h"
 #import "TiProxy.h"
-#import "SBJSON.h"
 
 static XHRBridge *xhrBridge = nil;
 
