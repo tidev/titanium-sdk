@@ -178,38 +178,31 @@ public class GestureModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public boolean isPortrait()
 	{
-		// Deprecated in 6.1.0 in parity-favor of Ti.Gesture.portrait
-		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+		return TiOrientationHelper.isPortrait;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public boolean isLandscape()
 	{
-		// Deprecated in 6.1.0 in parity-favor of Ti.Gesture.landscape
-		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		return !TiOrientationHelper.isPortrait;
 	}
 		
 	@Kroll.getProperty @Kroll.method
 	public boolean getPortrait()
 	{
-		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+		return TiOrientationHelper.isPortrait;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public boolean getLandscape()
 	{
-		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		return !TiOrientationHelper.isPortrait;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getOrientation()
 	{
-	    DisplayMetrics dm = new DisplayMetrics();
-	    Display display = TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay();
-	    display.getMetrics(dm);
-	    int width = dm.widthPixels;
-	    int height = dm.heightPixels;
-	    return TiOrientationHelper.convertRotationToTiOrientationMode(display.getRotation(), width, height);
+		return  TiOrientationHelper.orientation;
 	}
 
 	@Override
