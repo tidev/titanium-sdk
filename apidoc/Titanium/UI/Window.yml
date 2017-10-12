@@ -442,7 +442,7 @@ properties:
   - name: extendSafeArea
     summary: |
        Specifies whether the content (subviews) of the window  will render inside the safe-area or not. 
-       Only unused in iOS 11 and later.
+       Only used in iOS 11 and later.
     description:  |
         If the value is `true`, the content (subviews) of the window will not respect the safe-area, meaning that the content 
         will fill the whole screen available for rendering. If the value is `false`, the content of the
