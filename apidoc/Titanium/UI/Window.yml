@@ -441,20 +441,19 @@ properties:
 
   - name: extendSafeArea
     summary: |
-       Specifies whether the content (subviews) of the window  will render inside safe-area or not. 
-       Valid on iOS 11.
+       Specifies whether the content (subviews) of the window  will render inside the safe-area or not. 
+       Only unused in iOS 11 and later.
     description:  |
-        When the value is `true`, it allows the contents (subviews) of window will not respect safe-area. Content (subviews) 
-        of windows will get render considering whole screen is available for rendering. When the value is `false`, the 
-        contents (subviews) of the window will be rendered inside the safe-area.
-
-        The default behavior assumes that this is `true`. It must be specified while creating a window and cannot be set afterwards.
+        If the value is `true`, the content (subviews) of the window will not respect the safe-area, meaning that the content 
+        will fill the whole screen available for rendering. If the value is `false`, the content of the
+        window will be rendered inside the safe-area (including then status-bar, iPhone X home-indicator & iPhone X notch).
         
-        Read more about the iPhone X and the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
+        Read more about the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
 
-        Note :  In Titanium SDK 7.0.0 and later, this property will be false by default to automatically adjust the layout. 
-        Please note that status-bar which height (20px) of the window is outside safe-area, so any view added on window with 
-        this property true will start rendering below to status-bar.
+        Note: The default value is `true`, so content will extend the safe-are for backward compatibility. In Titanium SDK 7.0.0 
+        and later, this property will be `false` by default to automatically adjust the layout. This will be a breaking 
+        change for windows without a navigation-bar, as the status-bar is part of the safe-area, so subviews that are positioned 
+        relatively to the status-bar do not need to include the height of the status-bar (20px) in the margins anymore.
     platforms: [iphone, ipad]
     type: Boolean
     default: true
