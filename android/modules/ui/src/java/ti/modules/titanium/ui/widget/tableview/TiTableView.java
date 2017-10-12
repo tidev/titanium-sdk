@@ -657,11 +657,10 @@ public class TiTableView extends TiSwipeRefreshLayout
 		// Layout is finished, re-enable focus events.
 		if (focusListener != null) {
 			focusedView.setOnFocusChangeListener(focusListener);
-			// The following code was removed for TIMOB-7618 Android: Text field loses focus when changing orientation. Couldn't verify necessary
-//			// If the configuration changed, we manually fire the blur event
-//			if (changed) {
-//				focusListener.onFocusChange(focusedView, false);
-//			}
+			// If the configuration changed, we manually fire the blur event
+			if (changed) {
+				focusListener.onFocusChange(focusedView, false);
+			}
 		}
 	}
 }
