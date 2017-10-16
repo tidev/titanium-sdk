@@ -111,7 +111,7 @@ public class TiDatabaseProxy extends KrollProxy
 					// PRAGMA do. If there are no results, just return null.
 					// Thanks to brion for working through the logic, based off of commit
 					// https://github.com/brion/titanium_mobile/commit/8d3251fca69e10df6a96a2a9ae513159494d17c3
-					if (c.getColumnCount() > 0) {
+					if (c.getCount() > 0) {
 						rs = new TiResultSetProxy(c);
 						if (rs.isValidRow()) {
 							rs.next(); // Position on first row if we have data.
