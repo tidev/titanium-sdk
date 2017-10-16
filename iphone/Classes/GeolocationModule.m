@@ -319,10 +319,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
       
       if ([[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways]) {
         [locationManager requestAlwaysAuthorization];
-      } else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse]) {
+      } else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse] ||
+                 [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlwaysAndWhenInUse]) {
         [locationManager requestWhenInUseAuthorization];
       } else {
-        NSLog(@"[ERROR] The keys %@ or %@ are not defined in your tiapp.xml. Starting with iOS8 this is required.", kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionWhenInUse);
+        NSLog(@"[ERROR] The keys %@ or %@ / %@ are not defined in your tiapp.xml. Starting with iOS 8 this is required.", kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
       }
     }
 
@@ -863,7 +864,8 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     NSString *errorMessage = nil;
     
     if(requested == kCLAuthorizationStatusAuthorizedWhenInUse) {
-        if ([[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse]) {
+        if ([[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse] ||
+            [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlwaysAndWhenInUse]) {
             if ((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) ||
                (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
                 errorMessage = @"Cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE";
@@ -873,7 +875,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
                 }, NO);
             }
         } else {
-            errorMessage = [NSString stringWithFormat:@"The %@ key must be defined in your tiapp.xml in order to request this permission", kTiGeolocationUsageDescriptionWhenInUse];
+            errorMessage = [NSString stringWithFormat:@"The %@ key (or %@ on iOS 11+) must be defined in your tiapp.xml in order to request this permission", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse];
         }
     }
     if (requested == kCLAuthorizationStatusAuthorizedAlways) {
@@ -1018,7 +1020,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     ENSURE_UI_THREAD(setPurpose,reason);
     RELEASE_TO_NIL(purpose);
     purpose = [reason retain];
-    DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. Include the %@ or %@ key in your Info.plist instead", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways);
+    DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. Include the %@ or %@ / %@ key in your Info.plist instead", kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
 
 	if (locationManager!=nil)
 	{
