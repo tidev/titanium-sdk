@@ -156,10 +156,10 @@
   [[self textWidgetView] setAutocorrectionType:[TiUtils boolValue:value] ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo];
 }
 
--(void)setAutofillType_:(id)value
+- (void)setAutofillType_:(id)value
 {
   ENSURE_TYPE_OR_NIL(value, NSString);
- 
+
   if (![TiUtils isIOS10OrGreater]) {
     NSLog(@"[ERROR] The 'autofillHint' property is only available on iOS 10 and later.");
     return;

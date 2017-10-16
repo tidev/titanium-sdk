@@ -916,7 +916,7 @@ properties:
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
-- name: AUTOFILL_TYPE_NAME_SUFFIX
+  - name: AUTOFILL_TYPE_NAME_SUFFIX
     summary: Specifies the expectation of a suffix, such as 'Jr.'
     type: String
     platforms: [iphone, ipad]
@@ -948,7 +948,7 @@ properties:
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
-- name: AUTOFILL_TYPE_LOCATION
+  - name: AUTOFILL_TYPE_LOCATION
     summary: Specifies the expectation of a location, such as a point of interest, an address, or another way to identify a location.
     type: String
     platforms: [iphone, ipad]
@@ -988,7 +988,7 @@ properties:
     osver: {ios: {min: "10.0"}}
     permission: read-only
 
-- name: AUTOFILL_TYPE_ADDRESS_STATE
+  - name: AUTOFILL_TYPE_ADDRESS_STATE
     summary: Specifies the expectation of a state name.
     type: String
     platforms: [iphone, ipad]
