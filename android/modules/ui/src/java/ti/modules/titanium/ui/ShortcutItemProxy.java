@@ -27,9 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 
 @Kroll.proxy(creatableInModule=UIModule.class)
-public class ShortcutProxy extends KrollProxy
+public class ShortcutItemProxy extends KrollProxy
 {
-	private static final String TAG = "ShortcutProxy";
+	private static final String TAG = "ShortcutItemProxy";
 
 	private Context context = null;
 	private static ShortcutManager shortcutManager = null;
@@ -38,7 +38,7 @@ public class ShortcutProxy extends KrollProxy
 	private ShortcutInfo shortcut;
 	private ShortcutInfo.Builder shortcutBuilder;
 
-	public ShortcutProxy()
+	public ShortcutItemProxy()
 	{
 		super();
 
@@ -55,8 +55,10 @@ public class ShortcutProxy extends KrollProxy
 			return;
 		}
 
+		String id = null;
 		if (dict.containsKey(TiC.PROPERTY_ID)) {
-			shortcutBuilder = new ShortcutInfo.Builder(context, dict.getString(TiC.PROPERTY_ID));
+			id = dict.getString(TiC.PROPERTY_ID);
+			shortcutBuilder = new ShortcutInfo.Builder(context, id);
 		} else {
 			Log.e(TAG, "id is required to create a shortcut!");
 			return;
@@ -166,6 +168,6 @@ public class ShortcutProxy extends KrollProxy
 	@Override
 	public String getApiName()
 	{
-		return "Ti.UI.Shortcut";
+		return "Ti.UI.ShortcutItem";
 	}
 }

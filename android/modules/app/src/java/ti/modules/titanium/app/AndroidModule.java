@@ -31,7 +31,7 @@ public class AndroidModule extends KrollModule
 
 	public AndroidModule()
 	{
-		super("app.android");
+		super();
 	}
 
 	@Kroll.getProperty(name = "R")

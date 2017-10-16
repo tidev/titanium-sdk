@@ -14,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
@@ -1335,11 +1336,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		Intent intent = getIntent();
 		String shortcutId = intent.hasExtra(TiC.EVENT_PROPERTY_SHORTCUT) ? intent.getStringExtra(TiC.EVENT_PROPERTY_SHORTCUT) : null;
 		if (shortcutId != null) {
-			KrollModule appAndroidModule = TiApplication.getInstance().getModuleByName("app.android");
-			if (appAndroidModule != null) {
+			KrollModule appModule = TiApplication.getInstance().getModuleByName("App");
+			if (appModule != null) {
 				KrollDict data = new KrollDict();
 				data.put(TiC.PROPERTY_ID, shortcutId);
-				appAndroidModule.fireEvent(TiC.EVENT_SHORTCUT_ITEM_CLICK, data);
+				appModule.fireEvent(TiC.EVENT_SHORTCUT_ITEM_CLICK, data);
 			}
 		}
 
