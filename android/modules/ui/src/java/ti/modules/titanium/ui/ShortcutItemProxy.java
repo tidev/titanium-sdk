@@ -12,7 +12,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.content.Context;
