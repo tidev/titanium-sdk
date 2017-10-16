@@ -67,12 +67,18 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>Can we use your calendar?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Can we read your photo library?</string>
+ 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Can we save to your photo library?</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Can we use your microphone?</string>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>Can we access your music library?</string>
 	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Can we always use your location?</string>
+ 	<key>NSLocationWhenInUseUsageDescription</key>
+  	<string>Can we use your location when in use?</string>
+ 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Can we use your location</string>
 </dict>
 </plist>
