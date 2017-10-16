@@ -80,11 +80,11 @@ description: |
         </ti:app>
     
     For iOS 11 and later, also add the [`NSLocationAlwaysAndWhenInUseUsageDescription`](https://developer.apple.com/documentation/corelocation/choosing_the_authorization_level_for_location_services/request_always_authorization)
-    when planning torequest the "Always" permission. Using the above key, you are also able to upgrade your permissions from
+    when planning to request the "Always" permission. Using the above key, you are also able to upgrade your permissions from
     "When in Use" to "Always", which is the recommended way for managing location permissions in iOS 11 and later.
     Please also remember to request your desired location-permissions before using any geolocation-related API in 
     order to receive the best usability and permission-control during the app-lifecycle using <Titanium.Geolocation.hasLocationPermissions>
-    and <Ti.Geolocation.requestLocationPermissions>. 
+    and <Ti.Geolocation.requestLocationPermissions>.
 
     #### Configurating Location Updates on Android
 
