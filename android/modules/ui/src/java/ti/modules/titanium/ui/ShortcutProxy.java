@@ -16,6 +16,7 @@ import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Icon;
@@ -60,20 +61,19 @@ public class ShortcutProxy extends KrollProxy
 			Log.e(TAG, "id is required to create a shortcut!");
 			return;
 		}
-		if (dict.containsKey(TiC.PROPERTY_INTENT)) {
-			Object intentObj = dict.get(TiC.PROPERTY_INTENT);
-			if (intentObj instanceof IntentProxy) {
-				IntentProxy intentProxy = (IntentProxy) dict.get(TiC.PROPERTY_INTENT);
-				shortcutBuilder.setIntent(intentProxy.getIntent());
-			} else {
-				Log.w(TAG, "intent invalid, expecting Ti.Android.Intent!");
-			}
-		}
+		
+		// create shortcut intent
+		Intent intent = new Intent(TiApplication.getAppRootOrCurrentActivity().getIntent());
+		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.setAction(Intent.ACTION_VIEW);
+		intent.putExtra("shortcut", id);
+		shortcutBuilder.setIntent(intent);
+
 		if (dict.containsKey(TiC.PROPERTY_TITLE)) {
 			shortcutBuilder.setShortLabel(dict.getString(TiC.PROPERTY_TITLE));
 		}
-		if (dict.containsKey(TiC.PROPERTY_TEXT)) {
-			shortcutBuilder.setLongLabel(dict.getString(TiC.PROPERTY_TITLE));
+		if (dict.containsKey(TiC.PROPERTY_SUBTITLE)) {
+			shortcutBuilder.setLongLabel(dict.getString(TiC.PROPERTY_SUBTITLE));
 		}
 		if (dict.containsKey(TiC.PROPERTY_ICON)) {
 			Object icon = dict.get(TiC.PROPERTY_ICON);
@@ -90,12 +90,22 @@ public class ShortcutProxy extends KrollProxy
 
 		shortcut = shortcutBuilder.build();
 
-		// remove any pre-existing shortcuts with the same id
-		for (ShortcutInfo shortcut : shortcutManager.getDynamicShortcuts()) {
+		// obtain and update any pre-existing shortcuts
+		for (ShortcutInfo shortcut : this.shortcuts) {
 			if (shortcut.getId().equals(this.shortcut.getId())) {
-				shortcutManager.removeDynamicShortcuts(Arrays.asList(shortcut.getId()));
-				shortcuts.remove(shortcut);
+				this.shortcuts.remove(shortcut);
 				break;
+			}
+		}
+		for (ShortcutInfo shortcut : this.shortcutManager.getDynamicShortcuts()) {
+			if (shortcut.getId().equals(this.shortcut.getId())) {
+				this.shortcutManager.removeDynamicShortcuts(Arrays.asList(shortcut.getId()));
+				this.shortcuts.remove(shortcut);
+				if (shortcut.isEnabled()) {
+					this.show();
+				}
+			} else {
+				this.shortcuts.add(shortcut);
 			}
 		}
 

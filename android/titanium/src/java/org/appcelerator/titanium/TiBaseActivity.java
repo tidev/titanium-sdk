@@ -241,6 +241,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 	}
 
+	public void resetTotalWindowStack()
+	{
+		totalWindowStack = 0;
+	}
+
 	/**
 	 * Returns the window at the top of the stack.
 	 * @return the top window or null if the stack is empty.
@@ -1325,6 +1330,18 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
+
+		// handle shortcut intents
+		Intent intent = getIntent();
+		String shortcutId = intent.hasExtra(TiC.EVENT_PROPERTY_SHORTCUT) ? intent.getStringExtra(TiC.EVENT_PROPERTY_SHORTCUT) : null;
+		if (shortcutId != null) {
+			KrollModule appAndroidModule = TiApplication.getInstance().getModuleByName("app.android");
+			if (appAndroidModule != null) {
+				KrollDict data = new KrollDict();
+				data.put(TiC.PROPERTY_ID, shortcutId);
+				appAndroidModule.fireEvent(TiC.EVENT_SHORTCUT_ITEM_CLICK, data);
+			}
+		}
 
 		if (activityProxy != null) {
 			activityProxy.fireEvent(TiC.EVENT_RESUME, null);

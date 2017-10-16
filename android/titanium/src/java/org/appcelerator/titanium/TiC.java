@@ -466,6 +466,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_SHORTCUT = "shortcut";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_SOURCE = "source";
 
 	/**
@@ -566,6 +571,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_SCROLLSTART = "scrollstart";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_SHORTCUT_ITEM_CLICK = "shortcutitemclick";
 
 	/**
 	 * @module.api
