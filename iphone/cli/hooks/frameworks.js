@@ -481,12 +481,10 @@ class FrameworkIntegrator {
 		})[0].value];
 
 		this._frameworkSearchPaths = new Map();
-		this._runpathSearchPaths = new Map();
 		let buildConfigurations = this._xobjs.XCConfigurationList[this._mainTarget.buildConfigurationList].buildConfigurations;
 		for (let buildConf of buildConfigurations) {
 			if (!this._frameworkSearchPaths.has(buildConf.value)) {
 				this._frameworkSearchPaths.set(buildConf.value, new Set());
-				this._runpathSearchPaths.set(buildConf.value, new Set());
 			}
 
 			let buildSettings = this._xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
@@ -496,16 +494,6 @@ class FrameworkIntegrator {
 					let cleanFrameworkSearchPath = frameworkSearchPath.replace('"', '');
 					if (!frameworkSearchPaths.has(cleanFrameworkSearchPath)) {
 						frameworkSearchPaths.add(cleanFrameworkSearchPath);
-					}
-				}
-			}
-
-			if (Array.isArray(buildSettings.LD_RUNPATH_SEARCH_PATHS)) {
-				let runpathSearchPaths = this._runpathSearchPaths.get(buildConf.value);
-				for (let runpathSearchPath of buildSettings.LD_RUNPATH_SEARCH_PATHS) {
-					let cleanRunpathSearchPath = runpathSearchPath.replace(/"/g, '');
-					if (!runpathSearchPaths.has(cleanRunpathSearchPath)) {
-						runpathSearchPaths.add(cleanRunpathSearchPath);
 					}
 				}
 			}
@@ -651,18 +639,18 @@ class FrameworkIntegrator {
 	 * @access public
 	 */
 	adjustRunpathSearchPath() {
-		let dynamicFrameworksRunpath = '@executable_path/Frameworks';
+		const dynamicFrameworksSearchPath = '@executable_path/Frameworks';
 		let buildConfigurations = this._xobjs.XCConfigurationList[this._mainTarget.buildConfigurationList].buildConfigurations;
 		for (let buildConf of buildConfigurations) {
-			let runpathSearchPaths = this._runpathSearchPaths.get(buildConf.value);
-			if (runpathSearchPaths.has(dynamicFrameworksRunpath)) {
-				continue;
-			}
-
 			let buildSettings = this._xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-			buildSettings.LD_RUNPATH_SEARCH_PATHS = buildSettings.LD_RUNPATH_SEARCH_PATHS || [ '"$(inherited)"' ];
-			buildSettings.LD_RUNPATH_SEARCH_PATHS.push('"\\"' + dynamicFrameworksRunpath + '\\""');
-			runpathSearchPaths.add(dynamicFrameworksRunpath);
+			let searchPaths = (buildSettings.LD_RUNPATH_SEARCH_PATHS || '').replace(/^"/, '').replace(/"$/, '');
+			if (searchPaths.indexOf('$(inherited)') === -1) {
+				searchPaths += ' $(inherited)';
+			}
+			if (searchPaths.indexOf(dynamicFrameworksSearchPath) === -1) {
+				searchPaths += ` ${dynamicFrameworksSearchPath}`;
+			}
+			buildSettings.LD_RUNPATH_SEARCH_PATHS = '"' + searchPaths.trim() + '"';
 		}
 	}
 
