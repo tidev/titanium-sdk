@@ -1,5 +1,6 @@
 package ti.modules.titanium.ui.widget;
 
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -236,6 +237,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 		logo = object;
 		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
 		((Toolbar) getNativeView()).setLogo(tiDrawableReference.getDrawable());
+		checkResourceLoading(TiC.PROPERTY_LOGO, tiDrawableReference, ((Toolbar) getNativeView()).getLogo());
 	}
 
 	/**
@@ -266,6 +268,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 		navigationIcon = object;
 		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
 		((Toolbar) getNativeView()).setNavigationIcon(tiDrawableReference.getDrawable());
+		checkResourceLoading(TiC.PROPERTY_NAVIGATION_ICON, tiDrawableReference, ((Toolbar) getNativeView()).getNavigationIcon());
 	}
 
 	/**
@@ -296,6 +299,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 		overflowMenuIcon = object;
 		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
 		((Toolbar) getNativeView()).setOverflowIcon(tiDrawableReference.getDrawable());
+		checkResourceLoading(TiC.PROPERTY_OVERFLOW_ICON, tiDrawableReference, ((Toolbar) getNativeView()).getOverflowIcon());
 	}
 
 	/**
@@ -484,6 +488,13 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 
 	private void handleSetContentInsetsRelative(Integer values[]) {
 		toolbar.setContentInsetsAbsolute(values[0], values[1]);
+	}
+
+	private void checkResourceLoading(String target, TiDrawableReference source, Drawable result) {
+		KrollDict dict = new KrollDict();
+		dict.put(TiC.PROPERTY_TARGET, target);
+		dict.put(TiC.PROPERTY_LOADED, source.compareBitmapWith(result));
+		fireEvent(TiC.EVENT_RESOURCE_LOADED, dict);
 	}
 
 	@Override
