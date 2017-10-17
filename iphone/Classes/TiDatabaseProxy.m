@@ -194,7 +194,7 @@
 
   PLSqliteResultSet *result = (PLSqliteResultSet *)[statement executeQuery];
 
-  if ([[result fieldNames] count] == 0) {
+  if ([result fullCount] == 0) {
     [result next]; // we need to do this to make sure lastInsertRowId and rowsAffected work
     [result close];
     return [NSNull null];
