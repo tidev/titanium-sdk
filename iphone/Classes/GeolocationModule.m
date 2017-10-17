@@ -47,7 +47,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 - (void)start:(NSDictionary *)params
 {
   // https://api.appcelerator.net/p/v1/geo
-  NSString *kGeolocationURL = stringWithHexString(@"68747470733a2f2f6170692e61707063656c657261746f722e6e65742f702f76312f67656f");
+  NSString *kGeolocationURL = stringWithHexString(@"68747470733a2f2f6170692e61707063656c657261746f722e636f6d2f702f76312f67656f");
 
   NSMutableString *url = [[[NSMutableString alloc] init] autorelease];
   [url appendString:kGeolocationURL];
