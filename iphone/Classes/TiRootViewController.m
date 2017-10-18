@@ -323,7 +323,7 @@
       image = [UIImage imageNamed:@"LaunchImage-1100-Portrait-2436h@3x"];
     } else if (UIDeviceOrientationIsLandscape(orientation)) {
       // Landscape
-      image = [UIImage imageNamed:@"LaunchImage-1100-Landscaope-2436h@3x"];
+      image = [UIImage imageNamed:@"LaunchImage-1100-Landscape-2436h@3x"];
     }
     if (image != nil) {
       *imageOrientation = orientation;
