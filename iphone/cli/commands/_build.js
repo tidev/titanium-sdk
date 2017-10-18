@@ -3948,7 +3948,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	[{
 		'orientation': 'Portrait',
 		'minimum-system-version': '11.0',
-		'name': 'Default',
+		'name': 'Default-Portrait',
 		'subtype': '2436h',
 		'scale': [ '3x' ],
 		'size': '{375, 812}'
