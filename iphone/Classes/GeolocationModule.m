@@ -99,7 +99,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
   [[TiApp app] stopNetwork];
   [self requestError:[response error]];
-
   [self autorelease];
 }
 
@@ -187,7 +186,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   [self shutdownLocationManager];
   RELEASE_TO_NIL(tempManager);
   RELEASE_TO_NIL(locationPermissionManager);
-  RELEASE_TO_NIL(iOS7PermissionManager);
   RELEASE_TO_NIL(singleHeading);
   RELEASE_TO_NIL(singleLocation);
   RELEASE_TO_NIL(purpose);
@@ -280,12 +278,32 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     }
     locationManager.headingFilter = heading;
 
-    if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
-      [locationManager requestAlwaysAuthorization];
-    } else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
-      [locationManager requestWhenInUseAuthorization];
-    } else {
-      NSLog(@"[ERROR] The keys NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription are not defined in your tiapp.xml. Starting with iOS8 this is required.");
+    if ([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedAlways &&
+        [CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedWhenInUse) {
+      NSLog(@"[WARN] Trying to use location services without requesting location permissions. Use either:\n\n"
+             "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_ALWAYS, function(e) {\n"
+             "\t// Handle authorization via e.success\n"
+             "})\n\n"
+             "or\n\n"
+             "Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_WHEN_IN_USE, function(e) {\n"
+             "\t// Handle authorization via e.success\n"
+             "})\nPicking the hightest permission by default.");
+      if ([TiUtils isIOS11OrGreater] && ![[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse]) {
+        NSLog(@"[WARN] Apps targeting iOS 11 and later always have to include the \"%@\" key in the tiapp.xml <plist> section in order to use any geolocation-services. This is a constraint Apple introduced to improve user-privacy by suggesting developers to incrementally upgrade the location permissions from \"When in Use\" to \"Always\" only if necessary. You can specify the new iOS 11+ plist-key \"%@\" which is used while upgrading from \"When in Use\" to \"Always\". Use the the Ti.Geolocation.requestLocationPermissions method, which should be called before using any Ti.Geolocation related API. Please verify location permissions and call this method again.", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
+      }
+
+      if ([GeolocationModule hasAlwaysPermissionKeys]) {
+        [locationManager requestAlwaysAuthorization];
+      } else if ([GeolocationModule hasWhenInUsePermissionKeys]) {
+        [locationManager requestWhenInUseAuthorization];
+      } else {
+        if ([TiUtils isIOS11OrGreater]) {
+          NSLog(@"[ERROR] If you are only using geolocation-services *when in use*, you only need to specify the %@ key in your tiapp.xml", kTiGeolocationUsageDescriptionWhenInUse);
+          NSLog(@"[ERROR] If you are *always*  using geolocation-servcies, you need to specify the following three keys in your tiapp.xml:\n  * %@\n  * %@\n  * %@", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
+        } else {
+          NSLog(@"[ERROR] The keys %@ or %@ are not defined in your tiapp.xml. Starting with iOS 8 this is required.", kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionWhenInUse);
+        }
+      }
     }
 
     //This is set to NO by default for > iOS9.
@@ -715,7 +733,7 @@ MAKE_SYSTEM_PROP(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigat
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_2
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);
-MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorizedAlways);
+MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorized);
 MAKE_SYSTEM_PROP(AUTHORIZATION_DENIED, kCLAuthorizationStatusDenied);
 MAKE_SYSTEM_PROP(AUTHORIZATION_RESTRICTED, kCLAuthorizationStatusRestricted);
 #else
@@ -775,30 +793,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   [self requestLocationPermissions:@[ value, [NSNull null] ]];
 }
 
-- (void)requestLocationPermissioniOS7:(id)args
-{
-  // Store the authorization callback for later usage
-  if ([args count] == 2) {
-    RELEASE_TO_NIL(authorizationCallback);
-    ENSURE_TYPE([args objectAtIndex:1], KrollCallback);
-    authorizationCallback = [[args objectAtIndex:1] retain];
-  }
-
-  if (!iOS7PermissionManager) {
-    iOS7PermissionManager = [CLLocationManager new];
-    iOS7PermissionManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
-    iOS7PermissionManager.delegate = self;
-  }
-
-  if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
-    // iOS7 shows permission alert only when location update is requested. Here we trick iOS7 to show
-    // permission alert so that our API is in parity with iOS8+ behavior.
-    [iOS7PermissionManager startUpdatingLocation];
-  } else {
-    [self locationManager:iOS7PermissionManager didChangeAuthorizationStatus:[CLLocationManager authorizationStatus]];
-  }
-}
-
 - (void)requestLocationPermissions:(id)args
 {
   id value = [args objectAtIndex:0];
@@ -813,8 +807,9 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
   CLAuthorizationStatus requested = [TiUtils intValue:value];
   CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
-  BOOL permissionsGranted = (currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) || (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse);
+  BOOL permissionsGranted = currentPermissionLevel == requested;
 
+  // For iOS < 11, already granted permissions will return with success immediately
   if (permissionsGranted) {
     [self executeAndReleaseCallbackWithCode:0 andMessage:nil];
     return;
@@ -827,9 +822,9 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   NSString *errorMessage = nil;
 
   if (requested == kCLAuthorizationStatusAuthorizedWhenInUse) {
-    if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
-      if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) {
-        errorMessage = @"Cannot change already granted permission from AUTHORIZATION_ALWAYS to AUTHORIZATION_WHEN_IN_USE";
+    if ([GeolocationModule hasWhenInUsePermissionKeys]) {
+      if ((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) || (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
+        errorMessage = @"Cannot change already granted permission from AUTHORIZATION_ALWAYS to the lower permission-level AUTHORIZATION_WHEN_IN_USE";
       } else {
         TiThreadPerformOnMainThread(^{
           [[self locationPermissionManager] requestWhenInUseAuthorization];
@@ -837,21 +832,26 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
             NO);
       }
     } else {
-      errorMessage = @"The NSLocationWhenInUseUsageDescription key must be defined in your tiapp.xml in order to request this permission";
+      errorMessage = [[NSString alloc] initWithFormat:@"The %@ key must be defined in your tiapp.xml in order to request this permission",
+                                       kTiGeolocationUsageDescriptionWhenInUse];
     }
   }
   if (requested == kCLAuthorizationStatusAuthorizedAlways) {
-    if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"]) {
-      if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse) {
-        errorMessage = @"Cannot change already granted permission from AUTHORIZATION_WHEN_IN_USE to AUTHORIZATION_ALWAYS";
-      } else {
-        TiThreadPerformOnMainThread(^{
-          [[self locationPermissionManager] requestAlwaysAuthorization];
-        },
-            NO);
-      }
+    if ([GeolocationModule hasAlwaysPermissionKeys]) {
+      TiThreadPerformOnMainThread(^{
+        [[self locationPermissionManager] requestAlwaysAuthorization];
+      },
+          NO);
+    } else if ([TiUtils isIOS11OrGreater]) {
+      errorMessage = [[NSString alloc] initWithFormat:
+                                           @"The %@, %@ and %@ key must be defined in your tiapp.xml in order to request this permission.",
+                                       kTiGeolocationUsageDescriptionAlwaysAndWhenInUse,
+                                       kTiGeolocationUsageDescriptionAlways,
+                                       kTiGeolocationUsageDescriptionAlwaysAndWhenInUse];
     } else {
-      errorMessage = @"The NSLocationAlwaysUsageDescription key must be defined in your tiapp.xml in order to request this permission.";
+      errorMessage = [[NSString alloc] initWithFormat:
+                                           @"The %@ key must be defined in your tiapp.xml in order to request this permission.",
+                                       kTiGeolocationUsageDescriptionAlways];
     }
   }
 
@@ -864,6 +864,21 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 #pragma mark Internal
 
++ (BOOL)hasAlwaysPermissionKeys
+{
+  if (![TiUtils isIOS11OrGreater]) {
+    return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways];
+  }
+
+  return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse] &&
+      [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways] &&
+      [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlwaysAndWhenInUse];
+}
+
++ (BOOL)hasWhenInUsePermissionKeys
+{
+  return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse];
+}
 - (void)executeAndReleaseCallbackWithCode:(NSInteger)code andMessage:(NSString *)message
 {
   if (authorizationCallback == nil) {
@@ -875,7 +890,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   [authorizationCallback call:invocationArray thisObject:self];
 
   [invocationArray release];
-  RELEASE_TO_NIL(message);
   RELEASE_TO_NIL(authorizationCallback);
 }
 
@@ -975,7 +989,12 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   ENSURE_UI_THREAD(setPurpose, reason);
   RELEASE_TO_NIL(purpose);
   purpose = [reason retain];
-  DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. On iOS6 and above include the NSLocationUsageDescription key in your Info.plist");
+
+  if ([TiUtils isIOS11OrGreater]) {
+    DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. Include the %@ or %@ and (!) %@ (iOS 11+) key in your Info.plist instead", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
+  } else {
+    DebugLog(@"[WARN] The Ti.Geolocation.purpose property is deprecated. Include the %@ or %@ key in your Info.plist instead", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways);
+  }
 
   if (locationManager != nil) {
     if ([locationManager respondsToSelector:@selector(setPurpose:)]) {
@@ -1025,10 +1044,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                                           NUMINT([CLLocationManager authorizationStatus]), @"authorizationStatus", nil];
 
-  if ([manager isEqual:iOS7PermissionManager] && (status != kCLAuthorizationStatusNotDetermined)) {
-    [manager stopUpdatingLocation];
-  }
-
   // Still using this event for changes being made outside the app (e.g. disable all location services on the device).
   if ([self _hasListeners:@"authorization"]) {
     [self fireEvent:@"authorization" withObject:event];
@@ -1066,11 +1081,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
-  if ([manager isEqual:iOS7PermissionManager]) {
-    // Used only to simulate permission alert. So ignore this update.
-    return;
-  }
-
   NSDictionary *todict = [self locationDictionary:[locations lastObject]];
 
   //Must use dictionary because of singleshot.
