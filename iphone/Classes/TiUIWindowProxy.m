@@ -809,7 +809,7 @@
 - (void)setLargeTitleEnabled:(id)value
 {
   ENSURE_UI_THREAD(setLargeTitleEnabled, value);
-  ENSURE_TYPE(value, NSNumber);
+  ENSURE_TYPE_OR_NIL(value, NSNumber);
 
   [self replaceValue:value forKey:@"largeTitleEnabled" notification:NO];
 
@@ -821,7 +821,7 @@
 - (void)setLargeTitleDisplayMode:(id)value
 {
   ENSURE_UI_THREAD(setLargeTitleDisplayMode, value);
-  ENSURE_TYPE(value, NSNumber);
+  ENSURE_TYPE_OR_NIL(value, NSNumber);
 
   [self replaceValue:value forKey:@"largeTitleDisplayMode" notification:NO];
 
