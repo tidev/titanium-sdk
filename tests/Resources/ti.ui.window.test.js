@@ -450,7 +450,7 @@ describe('Titanium.UI.Window', function () {
 		should(win.custom).be.eql(1234);
 	});
 	
-	it.iosOnly('largeTitleEnabled', function () {
+	it('largeTitleEnabled', function () {
 		win = Ti.UI.createWindow({
 			title: 'this is some text',
 			largeTitleEnabled: true
@@ -472,7 +472,7 @@ describe('Titanium.UI.Window', function () {
 		should(win.getLargeTitleEnabled()).eql(true);
 	});
 	
-	it.iosOnly('largeTitleDisplayMode', function () {
+	it('largeTitleDisplayMode', function () {
 		win = Ti.UI.createWindow({
 			title: 'this is some text',
 			largeTitleDisplayMode: Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_ALWAYS 
@@ -487,7 +487,7 @@ describe('Titanium.UI.Window', function () {
 		should(win.setLargeTitleDisplayMode).be.a.Function;
 		
 		should(win.largeTitleDisplayMode).eql(Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_ALWAYS);
-		should(win.setLargeTitleDisplayMode()).eql(Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_ALWAYS);
+		should(win.getLargeTitleDisplayMode()).eql(Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_ALWAYS);
 		
 		win.largeTitleDisplayMode = Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC;
 		should(win.largeTitleDisplayMode).eql(Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC);
