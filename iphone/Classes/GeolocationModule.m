@@ -851,9 +851,9 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
         authorizationCallback = [[args objectAtIndex:1] retain];
     }
     
-    CLAuthorizationStatus requested = [TiUtils intValue: value];
+    requestedAuthorizationStatus = [TiUtils intValue: value];
     CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
-    BOOL permissionsGranted = currentPermissionLevel == requested;
+    BOOL permissionsGranted = currentPermissionLevel == requestedAuthorizationStatus;
 
     // For iOS < 11, already granted permissions will return with success immediately
     if (permissionsGranted) {
@@ -867,7 +867,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     
     NSString *errorMessage = nil;
     
-    if(requested == kCLAuthorizationStatusAuthorizedWhenInUse) {
+    if(requestedAuthorizationStatus == kCLAuthorizationStatusAuthorizedWhenInUse) {
         if ([GeolocationModule hasWhenInUsePermissionKeys]) {
             if ((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) ||
                (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
@@ -882,7 +882,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
                             kTiGeolocationUsageDescriptionWhenInUse];
         }
     }
-    if (requested == kCLAuthorizationStatusAuthorizedAlways) {
+    if (requestedAuthorizationStatus == kCLAuthorizationStatusAuthorizedAlways) {
         if ([GeolocationModule hasAlwaysPermissionKeys]) {
             TiThreadPerformOnMainThread(^{
                 [[self locationPermissionManager] requestAlwaysAuthorization];
@@ -929,11 +929,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     if(authorizationCallback == nil) {
         return;
     }
-    
+
     NSMutableDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:message];
     NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
     [authorizationCallback call:invocationArray thisObject:self];
-    
     [invocationArray release];
     RELEASE_TO_NIL(authorizationCallback);
 }
@@ -1102,10 +1101,11 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     if ([self _hasListeners:@"authorization"]) {
         [self fireEvent:@"authorization" withObject:event];
     }
-    
+  
+    BOOL requestedStatusMatchesActualStatus = status == requestedAuthorizationStatus;
+  
     // The new callback for android parity used inside Ti.Geolocation.requestLocationPermissions()
     if (authorizationCallback != nil && status != kCLAuthorizationStatusNotDetermined) {
-        
         int code = 0;
         NSString* errorStr = nil;
         
@@ -1116,6 +1116,15 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
             default:
                 code = 1;
                 errorStr = @"The user denied access to use location services.";
+        }
+      
+        // This is very important for iOS 11+ because even if the user did an incremental authorization before
+        // (by selecting "when in use", he/she will still get a dialog that includes the "when in use" option.
+        // In case that one is still selected then, the developer should know about that selection and the following
+        // statement allows that.
+        if (!requestedStatusMatchesActualStatus) {
+          code = 1;
+          errorStr = @"The requested permissions do not match the selected permission (the user likely declined AUTHORIZATION_ALWAYS permissions) in iOS 11+";
         }
         
         TiThreadPerformOnMainThread(^{
