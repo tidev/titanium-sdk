@@ -320,8 +320,8 @@ properties:
         An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples.
     type: Titanium.UI.RefreshControl
     osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]
-    since: 6.0.0
+    platforms: [android, iphone, ipad]
+    since: { android: "6.3.0", iphone: "6.0.0", ipad: "6.0.0" }
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
