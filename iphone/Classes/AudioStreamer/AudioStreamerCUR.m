@@ -12,7 +12,7 @@
 //  appreciated but not required.
 //
 
-#ifdef USE_TI_MEDIA
+#if defined(USE_TI_MEDIA) && defined(USE_TI_MEDIAAUDIOPLAYER)
 
 #import "AudioStreamerCUR.h"
 #ifdef TARGET_OS_IPHONE			

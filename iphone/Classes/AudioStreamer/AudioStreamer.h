@@ -22,7 +22,7 @@
 // namespaces is a recurring problem, and we can thank Objective-C for it.
 // - SPT
 
-#ifdef USE_TI_MEDIA
+#if defined(USE_TI_MEDIA) && defined(USE_TI_MEDIAAUDIOPLAYER)
 
 #define LOG_QUEUED_BUFFERS 0
 
