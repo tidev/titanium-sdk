@@ -90,7 +90,7 @@ describe('Titanium.UI.ScrollView', function () {
 		var bar = Ti.UI.createScrollView({
 			refreshControl: refreshControl
 		});
-		should(scrollView.refreshControl).be.eql(refreshControl);
+		should(bar.refreshControl).be.eql(refreshControl);
 	});
 
 	// Intentionally skip on Android, not supported
