@@ -145,4 +145,21 @@ describe('Titanium.UI.ScrollView', function () {
 		var bar = Ti.UI.createScrollView({});
 		should(bar.scrollToBottom).be.a.Function;
 	});
+
+	it('add-insert-remove', function() {
+		var scrollView = Ti.UI.createScrollView({ layout: "vertical" });
+		var view1 = Ti.UI.createView();
+		var view2 = Ti.UI.createView();
+		scrollView.add(view1);
+		should(scrollView.children.length).be.eql(1);
+		scrollView.insertAt({ position: 0, view: view2 });
+		should(scrollView.children.length).be.eql(2);
+		should(scrollView.children[0]).be.eql(view2);
+		should(scrollView.children[1]).be.eql(view1);
+		scrollView.remove(view1);
+		should(scrollView.children.length).be.eql(1);
+		should(scrollView.children[0]).be.eql(view2);
+		scrollView.removeAllChildren();
+		should(scrollView.children.length).be.eql(0);
+	});
 });
