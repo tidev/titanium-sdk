@@ -24,20 +24,23 @@ public class TiFileProvider extends ContentProvider {
 		return true;
 	}
 
-	public static Uri createUriFrom(File file) {
+	public static Uri createUriFrom(String filePath) {
 		final TiApplication tiApp = TiApplication.getInstance();
 		if (tiApp == null) {
 			return null;
 		}
-
 		try {
-			String path = getUriPrefix() + file.getAbsolutePath();
+			String path = getUriPrefix() + filePath.replaceAll("^file://(/android_asset)?", "");
 			return Uri.parse(path);
 		} catch (Exception e) {
 			// ignore exception
 		}
 
 		return null;
+	}
+
+	public static Uri createUriFrom(File file) {
+		return createUriFrom(file.getAbsolutePath());
 	}
 
 	@Override
