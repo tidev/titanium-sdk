@@ -1,5 +1,6 @@
 package ti.modules.titanium.ui.widget;
 
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,6 +20,9 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class TiToolbar extends TiUIView implements Handler.Callback{
 	//region private primitive fields
@@ -56,6 +60,8 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	private final int TOOLBAR_SET_CONTENT_INSETS_RELATIVE = 10018;
 	//endregion
 
+	private Map<String, TiDrawableReference> drawableMap = new HashMap<String, TiDrawableReference>();
+
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
 	 * @param proxy the associated proxy.
@@ -63,7 +69,24 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	public TiToolbar(TiViewProxy proxy) {
 		super(proxy);
-		toolbar = new Toolbar(proxy.getActivity());
+		toolbar = new Toolbar(proxy.getActivity()) {
+
+			// Check the resource loading once the view is drawn
+			@Override
+			protected void onDraw(Canvas canvas) {
+				super.onDraw(canvas);
+				if (drawableMap.containsKey(TiC.PROPERTY_LOGO)) {
+					checkResourceLoading(TiC.PROPERTY_LOGO, drawableMap.get(TiC.PROPERTY_LOGO), this.getLogo());
+				}
+				if (drawableMap.containsKey(TiC.PROPERTY_OVERFLOW_ICON)) {
+					checkResourceLoading(TiC.PROPERTY_OVERFLOW_ICON, drawableMap.get(TiC.PROPERTY_OVERFLOW_ICON), this.getOverflowIcon());
+				}
+				if (drawableMap.containsKey(TiC.PROPERTY_NAVIGATION_ICON)) {
+					checkResourceLoading(TiC.PROPERTY_NAVIGATION_ICON, drawableMap.get(TiC.PROPERTY_NAVIGATION_ICON), this.getNavigationIcon());
+				}
+			}
+
+		};
 		setNativeView(toolbar);
 	}
 
@@ -237,7 +260,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 		logo = object;
 		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
 		((Toolbar) getNativeView()).setLogo(tiDrawableReference.getDrawable());
-		checkResourceLoading(TiC.PROPERTY_LOGO, tiDrawableReference, ((Toolbar) getNativeView()).getLogo());
+		drawableMap.put(TiC.PROPERTY_LOGO, tiDrawableReference);
 	}
 
 	/**
@@ -268,7 +291,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 		navigationIcon = object;
 		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
 		((Toolbar) getNativeView()).setNavigationIcon(tiDrawableReference.getDrawable());
-		checkResourceLoading(TiC.PROPERTY_NAVIGATION_ICON, tiDrawableReference, ((Toolbar) getNativeView()).getNavigationIcon());
+		drawableMap.put(TiC.PROPERTY_NAVIGATION_ICON, tiDrawableReference);
 	}
 
 	/**
@@ -299,7 +322,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 		overflowMenuIcon = object;
 		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
 		((Toolbar) getNativeView()).setOverflowIcon(tiDrawableReference.getDrawable());
-		checkResourceLoading(TiC.PROPERTY_OVERFLOW_ICON, tiDrawableReference, ((Toolbar) getNativeView()).getOverflowIcon());
+		drawableMap.put(TiC.PROPERTY_OVERFLOW_ICON, tiDrawableReference);
 	}
 
 	/**
