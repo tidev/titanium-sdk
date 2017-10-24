@@ -22,11 +22,12 @@ import android.graphics.Rect;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.view.Gravity;
 import android.widget.SeekBar;
 
 public class TiUISlider extends TiUIView
-	implements SeekBar.OnSeekBarChangeListener
+		implements SeekBar.OnSeekBarChangeListener
 {
 	private static final String TAG = "TiUISlider";
 
@@ -38,7 +39,7 @@ public class TiUISlider extends TiUIView
 	private int maxRange;
 	private int scaleFactor;
 	private ClipDrawable rightClipDrawable;
-	
+
 	private SoftReference<Drawable> thumbDrawable;
 
 	public TiUISlider(final TiViewProxy proxy)
@@ -51,7 +52,7 @@ public class TiUISlider extends TiUIView
 		this.min = 0;
 		this.max = 1;
 		this.pos = 0;
-		
+
 		SeekBar seekBar = new SeekBar(proxy.getActivity())
 		{
 			@Override
@@ -71,7 +72,7 @@ public class TiUISlider extends TiUIView
 		super.processProperties(d);
 
 		SeekBar seekBar = (SeekBar) getNativeView();
-		
+
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			pos = TiConvert.toFloat(d, TiC.PROPERTY_VALUE, 0);
 		}
@@ -95,7 +96,9 @@ public class TiUISlider extends TiUIView
 			updateThumb(seekBar, d);
 		}
 		if (d.containsKey(TiC.PROPERTY_SPLIT_TRACK)) {
-			seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
+			}
 		}
 		if (d.containsKey("leftTrackImage") || d.containsKey("rightTrackImage")) {
 			updateTrackingImages(seekBar, d);
@@ -104,7 +107,7 @@ public class TiUISlider extends TiUIView
 		updateControl();
 		updateRightDrawable();
 	}
-	
+
 	private void updateRightDrawable()
 	{
 		if(rightClipDrawable != null) {
@@ -119,12 +122,12 @@ public class TiUISlider extends TiUIView
 		minRange = Math.max(minRange, min);
 		minRange = Math.min(minRange, max);
 		proxy.setProperty("minRange", minRange);
-		
+
 		maxRange = Math.min(maxRange, max);
 		maxRange = Math.max(maxRange, minRange);
 		proxy.setProperty("maxRange", maxRange);
 	}
-	
+
 	private void updateControl() {
 		offset = -min;
 		scaleFactor = 100;
@@ -141,7 +144,7 @@ public class TiUISlider extends TiUIView
 		seekBar.setProgress(curPos);
 	}
 
-	private void updateThumb(SeekBar seekBar, KrollDict d) 
+	private void updateThumb(SeekBar seekBar, KrollDict d)
 	{
 		TiFileHelper tfh = null;
 		String thumbImage = TiConvert.toString(d, "thumbImage");
@@ -151,7 +154,7 @@ public class TiUISlider extends TiUIView
 			}
 			String url = proxy.resolveUrl(null, thumbImage);
 			Drawable thumb = tfh.loadDrawable(url, false);
-		 	if (thumb != null) {
+			if (thumb != null) {
 				thumbDrawable = new SoftReference<Drawable>(thumb);
 				seekBar.setThumb(thumb);
 			} else {
@@ -161,16 +164,16 @@ public class TiUISlider extends TiUIView
 			seekBar.setThumb(null);
 		}
 	}
-	
-	private void updateTrackingImages(SeekBar seekBar, KrollDict d) 
+
+	private void updateTrackingImages(SeekBar seekBar, KrollDict d)
 	{
 		String leftImage =  TiConvert.toString(d, "leftTrackImage");
 		String rightImage = TiConvert.toString(d, "rightTrackImage");
-		
+
 		Drawable leftDrawable = null;
 		Drawable rightDrawable = null;
 		TiFileHelper tfh = new TiFileHelper(seekBar.getContext());
-		
+
 		if(leftImage != null) {
 			String leftUrl = proxy.resolveUrl(null, leftImage);
 			if(leftUrl != null) {
@@ -180,7 +183,7 @@ public class TiUISlider extends TiUIView
 				}
 			}
 		}
-		
+
 		if(rightImage != null) {
 			String rightUrl = proxy.resolveUrl(null, rightImage);
 			if(rightUrl != null) {
@@ -190,7 +193,7 @@ public class TiUISlider extends TiUIView
 				}
 			}
 		}
-		
+
 		if(leftDrawable != null || rightDrawable != null) {
 			LayerDrawable ld = null;
 			if(rightDrawable == null) {
@@ -213,7 +216,7 @@ public class TiUISlider extends TiUIView
 			Log.w(TAG, "Custom tracking images could not be loaded.");
 		}
 	}
-	
+
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
@@ -269,7 +272,9 @@ public class TiUISlider extends TiUIView
 			//seekBar.invalidate();
 			Log.i(TAG, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
 		} else if (key.equals(TiC.PROPERTY_SPLIT_TRACK)) {
-			seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
+			}
 		} else if (key.equals("leftTrackImage") || key.equals("rightTrackImage")) {
 			//updateTrackingImages(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
@@ -281,11 +286,11 @@ public class TiUISlider extends TiUIView
 
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 		pos = seekBar.getProgress()*1.0f/scaleFactor;
-		
+
 		// Range check
 		int actualMinRange = minRange + offset;
 		int actualMaxRange = maxRange + offset;
-		
+
 		if (pos < actualMinRange) {
 			seekBar.setProgress(actualMinRange*scaleFactor);
 			pos = minRange;
@@ -293,9 +298,9 @@ public class TiUISlider extends TiUIView
 			seekBar.setProgress(actualMaxRange*scaleFactor);
 			pos = maxRange;
 		}
-		
+
 		updateRightDrawable();
-		
+
 		Drawable thumb = (thumbDrawable != null) ? thumbDrawable.get() : null;
 		KrollDict offset = new KrollDict();
 		offset.put(TiC.EVENT_PROPERTY_X, 0);
@@ -315,9 +320,9 @@ public class TiUISlider extends TiUIView
 		KrollDict data = new KrollDict();
 		float scaledValue = scaledValue();
 		Log.d(TAG,
-			"Progress " + seekBar.getProgress() + " ScaleFactor " + scaleFactor + " Calculated Position " + pos
-				+ " ScaledValue " + scaledValue + " Min " + min + " Max" + max + " MinRange" + minRange + " MaxRange"
-				+ maxRange, Log.DEBUG_MODE);
+				"Progress " + seekBar.getProgress() + " ScaleFactor " + scaleFactor + " Calculated Position " + pos
+						+ " ScaledValue " + scaledValue + " Min " + min + " Max" + max + " MinRange" + minRange + " MaxRange"
+						+ maxRange, Log.DEBUG_MODE);
 		data.put(TiC.PROPERTY_VALUE, scaledValue);
 		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
 		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
