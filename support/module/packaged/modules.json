@@ -12,6 +12,7 @@
 		"https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-4.0.3.zip",
 		"https://github.com/appcelerator-modules/ti.map/releases/download/android-3.3.0/ti.map-android-3.3.0.zip",
 		"https://github.com/appcelerator-modules/ti.touchid/releases/download/android-2.2.0/ti.touchid-android-2.2.0.zip"
+		"https://github.com/appcelerator-modules/ti.playservices/releases/download/android-11.0.40/ti.playservices-android-11.0.40.zip"
 	],
 	"commonjs": [
 		"https://github.com/appcelerator-modules/ti.cloud/releases/download/3.2.11/ti.cloud-commonjs-3.2.11.zip"
