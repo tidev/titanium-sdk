@@ -1,15 +1,14 @@
 ---
 name: Titanium.UI.TextField
-summary: A single line text field. 
+summary: A single line text field.
 description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/textfield/textfield_android.png" height="25" /></td>
         <td><img src="images/textfield/textfield_ios.png" height="25" /></td>
-        <td><img src="images/textfield/textfield_mobileweb.png" height="25" /></td>
         <td><img src="images/textfield/textfield_wp.png" height="25" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
 
     Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
@@ -24,8 +23,8 @@ methods:
     description: |
         Adding children to a `TextField` is not supported on all platforms.
 
-        If you need to display views on top of this object, consider using 
-        another view as a container for both this object and the views you want 
+        If you need to display views on top of this object, consider using
+        another view as a container for both this object and the views you want
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
@@ -33,7 +32,7 @@ methods:
 
   - name: blur
     summary: Forces the field to lose focus.
-    
+
   - name: focus
     summary: Forces the field to gain focus.
 
@@ -48,7 +47,7 @@ methods:
     description: |
         See also: [add](Titanium.UI.TextField.add), <Titanium.UI.View.add>.
     platforms: [iphone, ipad]
-    
+
   - name: setSelection
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad]
@@ -62,12 +61,12 @@ methods:
         summary: End index for selection, not inclusive. Value ranges from 0 to the text's length.
         type: Number
     description: |
-         Selects the text in range (start, end). If start equals end, no text will be selected, 
-         and the cursor will move to the start position. End is not inclusive, meaning setSelection(0,0) 
+         Selects the text in range (start, end). If start equals end, no text will be selected,
+         and the cursor will move to the start position. End is not inclusive, meaning setSelection(0,0)
          will not select the first character, but will move the cursor to the position before the first character.
-         
+
          On iOS, soft keyboard would show when text is selected.
-         
+
 properties:
   - name: appearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
@@ -87,10 +86,10 @@ properties:
     platforms: [iphone, ipad]
 
   - name: attributedString
-    summary: TextField attributed string. 
+    summary: TextField attributed string.
     description: |
-        The underlying attributed string drawn by the textField. If set, avoid setting common attributes 
-        in TextField, such as `value`, `color` and `font`, as unexpected behaviors may result. 
+        The underlying attributed string drawn by the textField. If set, avoid setting common attributes
+        in TextField, such as `value`, `color` and `font`, as unexpected behaviors may result.
 
         Prior to Release 3.6.0, assign this property an object from the
         <Titanium.UI.iOS.AttributedString> class.
@@ -132,10 +131,10 @@ properties:
         ipad: 3.2.0
 
   - name: attributedHintText
-    summary: Hint text attributed string. 
+    summary: Hint text attributed string.
     description: |
-        The attributed hint text by the textField. If set, avoid setting common attributes 
-        in textField, such as `hintText`, `color` and `font`, as unexpected behaviors may result. 
+        The attributed hint text by the textField. If set, avoid setting common attributes
+        in textField, such as `hintText`, `color` and `font`, as unexpected behaviors may result.
 
         Prior to Release 3.6.0, assign this property an object from the
         <Titanium.UI.iOS.AttributedString> class.
@@ -177,11 +176,11 @@ properties:
         ipad: 3.2.0
 
   - name: autocapitalization
-    summary: Determines how text is capitalized during typing. 
+    summary: Determines how text is capitalized during typing.
     type: Number
     constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
     default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
-    
+
   - name: autocorrect
     summary: |
         Determines whether to automatically correct text entered into this text field.
@@ -190,83 +189,83 @@ properties:
 
         If this property is not explicitly defined, it behaves as though it were set to `true`.
 
-        On iOS and Mobile Web, the returned default value is `false`, and on Android, the returned
+        On iOS, the returned default value is `false`, and on Android, the returned
         default value is undefined, but all behave as if the value is `true`.
     type: Boolean
-    
+
 
   - name: autoLink
-    summary: Automatically convert text to clickable links. 
-    description: |     
+    summary: Automatically convert text to clickable links.
+    description: |
         Multiple autolink values can be combined with a bitwise OR. For example:
-            
+
             textField.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
 
         Prior to Release 3.0, this field used platform-specific constants. These are now
         deprecated in favor of the `AUTOLINK` constants listed above.
-        
+
         The Android-specific `LINKIFY` legacy constants are defined in <Titanium.UI.Android>.
     type: Number
     constants: Titanium.UI.AUTOLINK_*
     default: undefined
     since: 3.0.0
     platforms: [android]
-    
+
   - name: borderStyle
-    summary: Border style for the field. 
+    summary: Border style for the field.
     type: Number
     constants: Titanium.UI.INPUT_BORDERSTYLE_*
     default: <Titanium.UI.INPUT_BORDERSTYLE_NONE>
-    platforms: [iphone, ipad, mobileweb]
-    
+    platforms: [iphone, ipad]
+
   - name: clearButtonMode
     summary: Determines when the clear button is displayed.
     type: Number
     constants: Titanium.UI.INPUT_BUTTONMODE_*
     default: Titanium.UI.INPUT_BUTTONMODE_NEVER
     platforms: [iphone, ipad]
-    
+
   - name: clearOnEdit
     summary: Determines whether the value of this text field should be cleared when it is focused.
     type: Boolean
     default: false
-    
-    
+
+
   - name: color
     summary: Color of the text in this text field, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    
+
   - name: editable
-    summary: Determines whether this field can be edited. 
+    summary: Determines whether this field can be edited.
     type: Boolean
     default: true
-    
+
   - name: ellipsize
     summary: Determines whether an ellipsis (`...`) should be used to indicate truncated text.
     type: Boolean
     default: false
     platforms: [android]
-    
+
   - name: enableReturnKey
     summary: |
-        Determines whether the return key is enabled automatically when there is text in this text 
+        Determines whether the return key is enabled automatically when there is text in this text
         field.
     description: |
         If `true`, the return key is **disabled** when this text field is empty, and
         automatically enabled as soon as the user types any text in the field.
-        
+
         On Android, if `true`, `return` event will not fire. Clicking on the return key will do nothing, but
         the key itself won't be **disabled**.
-        
+
     type: Boolean
     default: false
-    
+
   - name: font
     summary: Font to use for text.
     type: Font
-    
+
   - name: fullscreen
     summary: |
         Leave some space above the keyboard in landscape mode or not.
@@ -277,17 +276,17 @@ properties:
     default: true
     platforms: [android]
     since: {android: "6.1.0"}
-    
+
   - name: hintText
     summary: Hint text to display when the field is empty.
     description: |
         Hint text is hidden when the user enters text into this text field.
-        
-        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
-        line. 
-        
-        Use unicode characters, such as those included in (but not limited to) the 
-        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
+
+        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new
+        line.
+
+        Use unicode characters, such as those included in (but not limited to) the
+        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols)
         section of wikipedia, to insert special characters and symbols.
     type: String
     default: No hint text.
@@ -338,7 +337,7 @@ properties:
   - name: inputType
     summary: Input type to accept in the text field. Also influences the Keyboard type to display.
     description: |
-        When asking for a specific kind of user input, such as a phone number or email 
+        When asking for a specific kind of user input, such as a phone number or email
         address, you should always specify the input type that is accepted. This overrides
         any changes to the keyboard done by the property <Titanium.UI.TextField.keyboardType>.
     type: Array<Number>
@@ -349,7 +348,7 @@ properties:
 
   - name: keyboardToolbar
     summary: |
-        Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the 
+        Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the
         keyboard is displayed.
     description: |
         As of Release 2.0, because iOS disallows a view (including toolbar buttons) to be in two places at
@@ -357,11 +356,11 @@ properties:
         can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
         toolbar buttons.
 
-        In Alloy, you can use a `<KeyboardToolbar>` element inside a `<TextField>` element to create 
+        In Alloy, you can use a `<KeyboardToolbar>` element inside a `<TextField>` element to create
         a `KeyboardToolbar`.
 
             <Alloy>
-                <TextField id="textfield" platform="ios" hintText="Tap here...">    
+                <TextField id="textfield" platform="ios" hintText="Tap here...">
                     <!-- even nested proxy properties -->
                     <KeyboardToolbar >
                         <Toolbar >
@@ -376,29 +375,29 @@ properties:
             </Alloy>
     type: [Array<Titanium.UI.View>, Titanium.UI.iOS.Toolbar]
     platforms: [iphone, ipad]
-    
+
   - name: keyboardToolbarColor
     summary: |
         Color of the keyboard toolbar if keyboardToolbar is an array, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     platforms: [iphone, ipad]
-    
+
   - name: keyboardToolbarHeight
     summary: Height of the keyboard toolbar if keyboardToolbar is an array.
     type: Number
     platforms: [iphone, ipad]
-    
+
   - name: keyboardType
     summary: Keyboard type to display when this text field is focused.
     description: |
-        When asking for a specific kind of user input, such as a phone number or email 
+        When asking for a specific kind of user input, such as a phone number or email
         address, you should always specify the appropriate keyboard type.
     type: Number
     constants: Titanium.UI.KEYBOARD_TYPE_*
     default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
-    
+
   - name: leftButton
     summary: Left button view to display in the `TextField`.
     description: |
@@ -421,31 +420,31 @@ properties:
                     </RightButton>
                   </TextField>
                 </Window>
-            </Alloy>        
+            </Alloy>
     type: Object
     platforms: [iphone, ipad]
-    
+
   - name: leftButtonMode
-    summary: Determines when to display the left button view. 
+    summary: Determines when to display the left button view.
     type: Number
     constants: Titanium.UI.INPUT_BUTTONMODE_*
     default: <Titanium.UI.INPUT_BUTTONMODE_NEVER>
     platforms: [iphone, ipad]
-    
+
   - name: leftButtonPadding
     summary: Padding between the left button and the edge of the field.
     type: Number
     platforms: [iphone, ipad]
-    
+
   - name: minimumFontSize
     summary: |
-        Minimum size of the font when the font is sized based on the contents.  Enables font 
+        Minimum size of the font when the font is sized based on the contents.  Enables font
         scaling to fit.
     type: Number
     platforms: [iphone, ipad]
-    
+
   - name: padding
-    summary: Sets the padding of this text field. 
+    summary: Sets the padding of this text field.
     type: TextFieldPadding
     platforms: [android, iphone, ipad]
     since: 6.0.0
@@ -457,7 +456,7 @@ properties:
     deprecated:
         since: 6.1.0
         notes: Use <Titanium.UI.TextField.padding> for parity instead.
-    
+
   - name: paddingRight
     summary: Right padding of this text field.
     type: Number
@@ -465,33 +464,24 @@ properties:
     deprecated:
         since: 6.1.0
         notes: Use <Titanium.UI.TextField.padding> for parity instead.
-            
+
   - name: passwordMask
     summary: Obscure the input text from the user.
     description: |
         Set to `true` to hide entered characters.
-        
-        On Mobile Web, if you set a `keyboardType` and enable the `passwordMask`, the `passwordMask` 
-        will always take precedence and the default keyboard will be used.
-        
+
         Note: on iOS, `passwordMask` *must* be specified when this text field is created.
     type: Boolean
     default: false
-    
+
   - name: returnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
-    description: |
-        Mobile Web on iOS devices only supports `RETURNKEY_DEFAULT`,
-        `RETURNKEY_GO`, `RETURNKEY_GOOGLE`, `RETURNKEY_SEARCH`, and `RETURNKEY_YAHOO`. Note that
-        `RETURNKEY_GOOGLE`, `RETURNKEY_SEARCH`, and `RETURNKEY_YAHOO` all display the word "Search".
-        
-        Mobile Web on Android devices will only display "Go" regardless of this property's value.
     type: Number
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DEFAULT>
-    
+
   - name: rightButton
-    summary: Right button view. 
+    summary: Right button view.
     description: |
         Set the `width` and `height` properties of the button or else it does not display in the
         text field.
@@ -514,32 +504,32 @@ properties:
             </Alloy>
     type: Object
     platforms: [iphone, ipad]
-    
+
   - name: rightButtonMode
-    summary: Determines when to display the right button view. 
+    summary: Determines when to display the right button view.
     type: Number
     constants: Titanium.UI.INPUT_BUTTONMODE_*
     default: Titanium.UI.INPUT_BUTTONMODE_NEVER
     platforms: [iphone, ipad]
-    
+
   - name: rightButtonPadding
     summary: Padding between the right button and the edge of the field.
     type: Number
     platforms: [iphone, ipad]
-    
+
   - name: suppressReturn
     summary: Determines whether the return key should be suppressed during entry.
     type: Boolean
-    platforms: [iphone, ipad, mobileweb]
-    
+    platforms: [iphone, ipad]
+
   - name: selection
     summary: Returns the currently selected text of the text field.
     description: |
-        This property is useful to track the current cursor position of the text field. On iOS this property 
+        This property is useful to track the current cursor position of the text field. On iOS this property
         can only be used when the text field has focus. Accessing this property when text field does not have
         focus will return an undefined value.
 
-        This method will return null on android and undefined on iOS if the view has not yet been attached 
+        This method will return null on android and undefined on iOS if the view has not yet been attached
         to the window.
     type: textFieldSelectedParams
     permission: read-only
@@ -559,35 +549,35 @@ properties:
     type: [String, Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>
-    
-    
+
+
   - name: value
     summary: Value of this text field, which may be set programmatically and modified by the user.
     description: |
-        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new 
-        line. 
-        
-        Use unicode characters, such as those included in (but not limited to) the 
-        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols) 
+        Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new
+        line.
+
+        Use unicode characters, such as those included in (but not limited to) the
+        [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols)
         section of wikipedia, to insert special characters and symbols.
     type: String
-    
+
   - name: verticalAlign
     summary: Vertical alignment within this text field.
     type: [Number, String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER>
     platforms: [iphone, ipad, android]
-    
+
   - name: maxLength
-    summary: Maximum length of text field input. 
-    description: Any attempt to input text beyond this length (including pasting a string 
-        larger than `maxLength`) will not edit the field's contents. A value of -1 
+    summary: Maximum length of text field input.
+    description: Any attempt to input text beyond this length (including pasting a string
+        larger than `maxLength`) will not edit the field's contents. A value of -1
         indicates unlimited length.
     default: -1
     type: Number
     since: {android: "3.0.0"}
-    platforms: [android, iphone, mobileweb]
+    platforms: [android, iphone]
 
 events:
   - name: blur
@@ -596,21 +586,21 @@ events:
       - name: value
         summary: Value of the field.
         type: String
-        
+
   - name: change
     summary: Fired when the field value changes.
     properties:
       - name: value
         summary: New value of the field.
         type: String
-        
+
   - name: focus
     summary: Fired when the field gains focus.
     properties:
       - name: value
         summary: Value of the field.
         type: String
-        
+
   - name: return
     summary: Fired when the return key is pressed on the keyboard.
     properties:
@@ -626,25 +616,25 @@ examples:
             var win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
-            
+
             var textField = Ti.UI.createTextField({
               borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
               color: '#336699',
               top: 10, left: 10,
               width: 250, height: 60
             });
-            
+
             win.add(textField);
             win.open();
-        
+
   - title: Custom Keyboard Toolbar (iOS)
     example: |
-        On iOS, a configurable toolbar can be displayed above the virtual keyboard. 
+        On iOS, a configurable toolbar can be displayed above the virtual keyboard.
         Toolbars can be used with both text areas and text fields. See <Titanium.UI.iOS.Toolbar>
         for more information.
-        
+
         This code excerpt creates a text field with a toolbar:
-        
+
             var win = Ti.UI.createWindow({
                 backgroundColor: 'white'
             });
@@ -653,19 +643,19 @@ examples:
                 title : 'Send',
                 style : Ti.UI.iOS.SystemButtonStyle.DONE,
             });
-            
+
             var camera = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.CAMERA,
             });
-            
+
             var cancel = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.CANCEL
             });
-            
+
             var flexSpace = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
-            
+
             var textfield = Ti.UI.createTextField({
                 borderStyle : Ti.UI.INPUT_BORDERSTYLE_BEZEL,
                 hintText : 'Focus to see keyboard with toolbar',
@@ -730,17 +720,17 @@ examples:
 ---
 name: textFieldSelectedParams
 summary: |
-    Dictionary object of parameters for the <Titanium.UI.TextField.selection> property that describes 
+    Dictionary object of parameters for the <Titanium.UI.TextField.selection> property that describes
     position and length of the selected text.
 properties:
   - name: location
     summary: Starting position of selected text.
     type: Number
-    
+
   - name: length
     summary: Number of characters selected.
     type: Number
----    
+---
 name: TextFieldPadding
 summary: Dictionary object of parameters for the <Titanium.UI.TextField.padding>  that describes the padding
 since: "6.0.0"
@@ -749,15 +739,15 @@ properties:
   - name: left
     type: Number
     summary: Left padding
-    
+
   - name: right
     type: Number
     summary: Right padding
-    
+
   - name: top
     type: Number
     summary: Top padding (Android only, since 6.1.0)
-    
+
   - name: bottom
     type: Number
     summary: Bottom padding (Android only, since 6.1.0)

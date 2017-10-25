@@ -287,12 +287,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   NSDictionary *userInfo = [notification userInfo];
   NSNumber *duration = [userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  if (![TiUtils isIOS8OrGreater]) {
-    // window for keyboard
-    UIWindow *keyboardWindow = [[[UIApplication sharedApplication] windows] lastObject];
-
-    keyboardEndFrame = [keyboardWindow convertRect:keyboardEndFrame fromWindow:nil];
-  }
 
   NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                                           [TiUtils rectToDictionary:keyboardEndFrame], @"keyboardFrame",

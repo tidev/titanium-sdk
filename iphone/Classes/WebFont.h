@@ -15,9 +15,13 @@
   CGFloat size;
   BOOL isSemiboldWeight;
   BOOL isBoldWeight;
+  BOOL isThinWeight;
+  BOOL isLightWeight;
+  BOOL isUltraLightWeight;
   BOOL isNormalWeight;
   BOOL isItalicStyle;
   BOOL isNormalStyle;
+
   UIFont *font;
 
   NSString *textStyle;
@@ -49,6 +53,21 @@
  Whether or not the font weight is normal.
  */
 @property (nonatomic) BOOL isNormalWeight;
+
+/**
+ Whether or not the font weight is thin.
+ */
+@property (nonatomic) BOOL isThinWeight;
+
+/**
+ Whether or not the font weight is light.
+ */
+@property (nonatomic) BOOL isLightWeight;
+
+/**
+ Whether or not the font weight is ultra light.
+ */
+@property (nonatomic) BOOL isUltraLightWeight;
 
 /**
  Whether or not the font style is italic.
@@ -86,7 +105,7 @@
 
 /**
  Indicates if the style specified by the string is a valid value for textStyle
- @param theStyle The String to check 
+ @param theStyle The String to check
  @return _YES_ is it is a valid value for textStyle, _NO_ otherwise
  */
 - (BOOL)isValidTextStyle:(NSString *)theStyle;

@@ -89,6 +89,7 @@ public abstract class TiUIView
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 	private static final boolean LOWER_THAN_JELLYBEAN = (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2);
+	private static final boolean LOWER_THAN_MARSHMALLOW = (Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
 
 	private static final int LAYER_TYPE_SOFTWARE = 1;
 	private static final String TAG = "TiUIView";
@@ -444,8 +445,10 @@ public abstract class TiUIView
 	private boolean hasBorder(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
-			|| d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
-			|| d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH);
+			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
+				&& TiConvert.toTiDimension(d.getString(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH).getValue() > 0f)
+			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
+				&& TiConvert.toTiDimension(d.getString(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_WIDTH).getValue() > 0f);
 	}
 
 	private boolean hasColorState(KrollDict d)
@@ -773,6 +776,13 @@ public abstract class TiUIView
 				layoutParams.optionWidth = null;
 			}
 			layoutNativeView();
+		} else if (key.equals(TiC.PROPERTY_LAYOUT)) {
+			String layout = TiConvert.toString(newValue);
+			if (nativeView instanceof TiCompositeLayout) {
+				resetPostAnimationValues();
+				((TiCompositeLayout)nativeView).setLayoutArrangement(layout);
+				layoutNativeView();
+			}
 		} else if (key.equals(TiC.PROPERTY_ZINDEX)) {
 			if (newValue != null) {
 				layoutParams.optionZIndex = TiConvert.toInt(newValue);
@@ -876,7 +886,8 @@ public abstract class TiUIView
 
 					// TIMOB-24898: disable HW acceleration to allow transparency
 					// when the backgroundColor alpha channel has been set
-					if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
+					byte bgAlpha = bgColor != null ? (byte)(bgColor >> 24) : (byte)0xFF;
+					if (bgAlpha != 0xFF) {
 						disableHWAcceleration();
 					}
 				}
@@ -1091,7 +1102,8 @@ public abstract class TiUIView
 		}
 	}
 
-	// TODO dead code? @Override
+	// TODO dead code?
+	@Override
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
 	{
 		for (KrollPropertyChange change : changes) {
@@ -1401,7 +1413,8 @@ public abstract class TiUIView
 					if (radiusDim != null) {
 						radius = (float) radiusDim.getPixels(getNativeView());
 					}
-					if (radius > 0f && HONEYCOMB_OR_GREATER && LOWER_THAN_JELLYBEAN) {
+					if (radius > 0f && HONEYCOMB_OR_GREATER &&
+							(LOWER_THAN_JELLYBEAN || (d.containsKey(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW))) {
 						disableHWAcceleration();
 					}
 					borderView.setRadius(radius);
@@ -1418,6 +1431,9 @@ public abstract class TiUIView
 				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
 					TiDimension width = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
 					if (width != null) {
+						if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
+							disableHWAcceleration();
+						}
 						borderView.setBorderWidth((float) width.getPixels(borderView));
 					}
 				}
@@ -1428,7 +1444,8 @@ public abstract class TiUIView
 
 			// TIMOB-24898: disable HW acceleration to allow transparency
 			// when the backgroundColor alpha channel has been set
-			if (bgColor != null && (byte)(bgColor >> 24) < 0xFF) {
+			byte bgAlpha = bgColor != null ? (byte)(bgColor >> 24) : (byte)0xFF;
+			if (bgAlpha != 0xFF) {
 				disableHWAcceleration();
 			}
 		}
@@ -1447,7 +1464,8 @@ public abstract class TiUIView
 			if (radiusDim != null) {
 				radius = (float) radiusDim.getPixels(getNativeView());
 			}
-			if (radius > 0f && HONEYCOMB_OR_GREATER && LOWER_THAN_JELLYBEAN) {
+			if (radius > 0f && HONEYCOMB_OR_GREATER &&
+					(LOWER_THAN_JELLYBEAN || (proxy.hasProperty(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW))) {
 				disableHWAcceleration();
 			}
 			borderView.setRadius(radius);
@@ -1894,7 +1912,6 @@ public abstract class TiUIView
 				view.setOnClickListener(null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
 			}
 			view.setClickable(false);
-			view.setOnClickListener(null);
 			view.setOnLongClickListener(null);
 			view.setLongClickable(false);
 		} else if ( ! (view instanceof AdapterView) ) {
@@ -1966,7 +1983,7 @@ public abstract class TiUIView
 
 	protected void disableHWAcceleration()
 	{
-		if (borderView == null) {
+		if (borderView == null || (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN && !borderView.isHardwareAccelerated())) {
 			return;
 		}
 		Log.d(TAG, "Disabling hardware acceleration for instance of " + borderView.getClass().getSimpleName(),
