@@ -215,7 +215,7 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
  * @returns {Array}
  * @access private
  */
-iOSBuilder.prototype.findCertificate = function findCertificate(name, type) {
+iOSBuilder.prototype.findCertificates = function findCertificates(name, type) {
 	const certs = [];
 	/* eslint-disable max-depth */
 	if (name && this.iosInfo) {
@@ -1049,9 +1049,9 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 			let certs;
 			if (target === 'device') {
-				certs = _t.findCertificate(cli.argv['developer-name'], 'developer');
+				certs = _t.findCertificates(cli.argv['developer-name'], 'developer');
 			} else {
-				certs = _t.findCertificate(cli.argv['distribution-name'], 'distribution');
+				certs = _t.findCertificates(cli.argv['distribution-name'], 'distribution');
 			}
 
 			const pems = certs.map(function (c) {
@@ -1173,16 +1173,16 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 				let certs;
 				if (target === 'device') {
-					certs = _t.findCertificate(cli.argv['developer-name'], 'developer');
+					certs = _t.findCertificates(cli.argv['developer-name'], 'developer');
 				} else {
-					certs = _t.findCertificate(cli.argv['distribution-name'], 'distribution');
+					certs = _t.findCertificates(cli.argv['distribution-name'], 'distribution');
 				}
 
 				const pems = certs.map(function (c) {
 					return c.pem.replace(pemCertRegExp, '');
 				})
 
-				if (certs.length > 0 && intersection(p.certs, pems).length < 0) {
+				if (certs.length > 0 && intersection(p.certs, pems).length === 0) {
 					return callback(new Error(__('Specified provisioning profile UUID "%s" does not include the "%s" certificate', value, certs[0].name)));
 				}
 
@@ -3183,6 +3183,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
 	} else if (this.target === 'device') {
 		// sign the application using a signing identity that contains the phrase "iPhone Developer"
+		// as long as there's a valid development signing identity (identity certificate and private key)
+		// build and deployment should succeed.
 		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Developer"';
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
 	}
