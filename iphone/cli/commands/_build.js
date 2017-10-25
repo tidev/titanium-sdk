@@ -194,14 +194,15 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 };
 
 /**
- * Retrieves the certificate information by name.
+ * Retrieves the list of certificate information by name.
  *
  * @param {String} name - The cert name.
  * @param {String} [type] - The type of cert to scan (developer or distribution).
- * @returns {Object|null}
+ * @returns {Array}
  * @access private
  */
 iOSBuilder.prototype.findCertificate = function findCertificate(name, type) {
+	const certs = [];
 	/* eslint-disable max-depth */
 	if (name && this.iosInfo) {
 		for (const keychain of Object.keys(this.iosInfo.certs.keychains)) {
@@ -211,7 +212,7 @@ iOSBuilder.prototype.findCertificate = function findCertificate(name, type) {
 				if (scopes[scope]) {
 					for (const cert of scopes[scope]) {
 						if (cert.name === name) {
-							return cert;
+							certs.push(cert);
 						}
 					}
 				}
@@ -219,7 +220,7 @@ iOSBuilder.prototype.findCertificate = function findCertificate(name, type) {
 		}
 	}
 
-	return null;
+	return certs;
 };
 
 /**
@@ -991,6 +992,12 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 		iosInfo = this.iosInfo,
 		logger = this.logger;
 
+	function intersection (a, b) {
+		return a.filter(function (p) {
+			return (b.indexOf(p) !== -1);
+		});
+	}
+
 	return {
 		abbr: 'P',
 		desc: __('the provisioning profile uuid; required when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
@@ -1003,9 +1010,9 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 			let maxAppId = 0;
 			let pp;
 
-			function prep(a, cert) {
+			function prep(a, certs) {
 				return a.filter(function (p) {
-					if (!p.expired && !p.managed && (!cert || p.certs.indexOf(cert) !== -1)) {
+					if (!p.expired && !p.managed && (!certs || intersection(p.certs, certs).length > 0)) {
 						const re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*')); // eslint-disable-line security/detect-non-literal-regexp
 						if (re.test(appId)) {
 							var label = p.name;
@@ -1022,21 +1029,25 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				});
 			}
 
-			let cert;
+			let certs;
 			if (target === 'device') {
-				cert = _t.findCertificate(cli.argv['developer-name'], 'developer');
+				certs = _t.findCertificate(cli.argv['developer-name'], 'developer');
 			} else {
-				cert = _t.findCertificate(cli.argv['distribution-name'], 'distribution');
+				certs = _t.findCertificate(cli.argv['distribution-name'], 'distribution');
 			}
+
+			const pems = certs.map(function (c) {
+				return c.pem.replace(pemCertRegExp, '');
+			})
 
 			if (target === 'device') {
 				if (iosInfo.provisioning.development.length) {
-					pp = prep(iosInfo.provisioning.development, cert.pem.replace(pemCertRegExp, ''));
+					pp = prep(iosInfo.provisioning.development, pems);
 					if (pp.length) {
 						provisioningProfiles[__('Available Development UUIDs:')] = pp;
 					} else {
-						if (cert) {
-							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s" and the "%s" certificate.', appId, cert.name) + '\n');
+						if (certs.length > 0) {
+							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s" and the "%s" certificate.', appId, certs[0].name) + '\n');
 						} else {
 							logger.error(__('Unable to find any non-expired development provisioning profiles that match the app id "%s".', appId) + '\n');
 						}
@@ -1053,7 +1064,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 			} else if (target === 'dist-appstore') {
 				if (iosInfo.provisioning.distribution.length) {
-					pp = prep(iosInfo.provisioning.distribution, cert.pem.replace(pemCertRegExp, ''));
+					pp = prep(iosInfo.provisioning.distribution, pems);
 					if (pp.length) {
 						provisioningProfiles[__('Available App Store Distribution UUIDs:')] = pp;
 					} else {
@@ -1071,7 +1082,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 			} else if (target === 'dist-adhoc') {
 				if (iosInfo.provisioning.adhoc.length || iosInfo.provisioning.enterprise.length) {
-					pp = prep(iosInfo.provisioning.adhoc, cert.pem.replace(pemCertRegExp, ''));
+					pp = prep(iosInfo.provisioning.adhoc, pems);
 					let valid = pp.length;
 					if (pp.length) {
 						provisioningProfiles[__('Available Ad Hoc UUIDs:')] = pp;
@@ -1142,15 +1153,19 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					return callback(new Error(__('Specified provisioning profile UUID "%s" is expired', value)));
 				}
 
-				let cert;
+				let certs;
 				if (target === 'device') {
-					cert = _t.findCertificate(cli.argv['developer-name'], 'developer');
+					certs = _t.findCertificate(cli.argv['developer-name'], 'developer');
 				} else {
-					cert = _t.findCertificate(cli.argv['distribution-name'], 'distribution');
+					certs = _t.findCertificate(cli.argv['distribution-name'], 'distribution');
 				}
 
-				if (cert && p.certs.indexOf(cert.pem.replace(pemCertRegExp, '')) === -1) {
-					return callback(new Error(__('Specified provisioning profile UUID "%s" does not include the "%s" certificate', value, cert.name)));
+				const pems = certs.map(function (c) {
+					return c.pem.replace(pemCertRegExp, '');
+				})
+
+				if (certs.length > 0 && intersection(p.certs, pems).length < 0) {
+					return callback(new Error(__('Specified provisioning profile UUID "%s" does not include the "%s" certificate', value, certs[0].name)));
 				}
 
 				return callback(null, p.uuid);
@@ -3146,7 +3161,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
 	} else if (this.target === 'device') {
-		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Developer: ' + this.certDeveloperName + '"';
+		// sign the application using a signing identity that contains the phrase "iPhone Developer"
+		buildSettings.CODE_SIGN_IDENTITY = '"iPhone Developer"';
 		buildSettings.CODE_SIGN_STYLE = 'Manual';
 	}
 
