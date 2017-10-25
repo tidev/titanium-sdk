@@ -103,6 +103,8 @@ describe('Titanium.UI.ScrollView', function () {
 	it('scrollingEnabled', function () {
 		var bar = Ti.UI.createScrollView({});
 		should(bar.scrollingEnabled).be.a.Boolean;
+		bar.scrollingEnabled = false;
+		should(bar.scrollingEnabled).be.eql(false);
 	});
 
 	// Android-only property
