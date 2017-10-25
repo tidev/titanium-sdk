@@ -1222,8 +1222,11 @@ properties:
 
   - name: borderWidth
     summary: Border width of the view.
+    description: |
+        If [borderColor](Ti.UI.View.borderColor) is set without [borderWidth](Ti.UI.View.borderWidth), this value
+        will be changed to 1 of the unit declared as 'ti.ui.defaultunit' in tiapp.xml descriptor.
     type: Number
-    default: 1
+    default: 0
 
 
   - name: bottom
