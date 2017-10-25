@@ -1621,6 +1621,44 @@ process.exit(1);
 			this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
 			this.modulesBindingsHash = this.hash(bindingsHashes.length ? bindingsHashes.sort().join(',') : '');
 
+			// check for any missing module dependencies
+			let unresolvedDependencies = [];
+			for (let module of this.nativeLibModules) {
+				const timoduleXmlFile = path.join(module.modulePath, 'timodule.xml'),
+					  timodule = fs.existsSync(timoduleXmlFile) ? new tiappxml(timoduleXmlFile) : undefined;
+
+				if (timodule && Array.isArray(timodule.modules)) {
+					for (let dependency of timodule.modules) {
+						if (!dependency.platform || /^android$/.test(dependency.platform)) {
+
+							let missing = true;
+							for (let module of this.nativeLibModules) {
+								if (module.id === dependency.id) {
+									missing = false;
+									break;
+								}
+							}
+							if (missing) {
+								dependency.depended = module;
+								unresolvedDependencies.push(dependency);
+							}
+						}
+					}
+				}
+			}
+			if (unresolvedDependencies.length) {
+				let msg = 'could not find required module dependencies:';
+		 		for (let dependency of unresolvedDependencies) {
+		 			msg += __('\n  id: %s  version: %s  platform: %s  required by %s',
+		 				dependency.id,
+		 				dependency.version ? dependency.version : 'latest',
+		 				dependency.platform ? dependency.platform : 'all',
+		 				dependency.depended.id);
+		 		}
+		 		logger.error(msg);
+		 		process.exit(1);
+			}
+
 			// check if we have any conflicting jars
 			const possibleConflicts = Object.keys(jarHashes).filter(function (jar) { return jarHashes[jar].length > 1; }); // eslint-disable-line max-statements-per-line
 			if (possibleConflicts.length) {
