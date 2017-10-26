@@ -123,6 +123,36 @@ public class TiUIScrollView extends TiUIView
 			return this.parentContentHeight;
 		}
 
+		@Override
+		public void setMinimumWidth(int value)
+		{
+			// Make sure given minimum is valid.
+			if (value < 0) {
+				value = 0;
+			}
+
+			// Update the minimum value, but only if it is changing.
+			// Note: This is an optimization. Avoids unnecessary requestLayout() calls in UI tree.
+			if (value != getMinimumWidth()) {
+				super.setMinimumWidth(value);
+			}
+		}
+
+		@Override
+		public void setMinimumHeight(int value)
+		{
+			// Make sure given minimum is valid.
+			if (value < 0) {
+				value = 0;
+			}
+
+			// Update the minimum value, but only if it is changing.
+			// Note: This is an optimization. Avoids unnecessary requestLayout() calls in UI tree.
+			if (value != getMinimumHeight()) {
+				super.setMinimumHeight(value);
+			}
+		}
+
 		public void setCanCancelEvents(boolean value)
 		{
 			canCancelEvents = value;
@@ -409,6 +439,14 @@ public class TiUIScrollView extends TiUIView
 			layout.setParentContentHeight(
 					MeasureSpec.getSize(heightMeasureSpec) - (getPaddingTop() + getPaddingBottom()));
 
+			// If the scroll view container has a fixed size (ie: not using AT_MOST/WRAP_CONTENT),
+			// then set up the scrollable content area to be at least the size of the container.
+			// Note: Allows views to be docked to bottom or right side when using a "composite" layout.
+			boolean hasFixedSize = (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY);
+			layout.setMinimumWidth(hasFixedSize ? layout.getParentContentWidth() : 0);
+			hasFixedSize = (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY);
+			layout.setMinimumHeight(hasFixedSize ? layout.getParentContentHeight() : 0);
+
 			// Update the size of this view and its children.
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
@@ -522,6 +560,14 @@ public class TiUIScrollView extends TiUIView
 					MeasureSpec.getSize(widthMeasureSpec) - (getPaddingLeft() + getPaddingRight()));
 			layout.setParentContentHeight(
 					MeasureSpec.getSize(heightMeasureSpec) - (getPaddingTop() + getPaddingBottom()));
+
+			// If the scroll view container has a fixed size (ie: not using AT_MOST/WRAP_CONTENT),
+			// then set up the scrollable content area to be at least the size of the container.
+			// Note: Allows views to be docked to bottom or right side when using a "composite" layout.
+			boolean hasFixedSize = (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY);
+			layout.setMinimumWidth(hasFixedSize ? layout.getParentContentWidth() : 0);
+			hasFixedSize = (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY);
+			layout.setMinimumHeight(hasFixedSize ? layout.getParentContentHeight() : 0);
 
 			// Update the size of this view and its children.
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -735,7 +781,44 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		// Set up the swipe refresh layout container which wraps the scroll view.
-		TiSwipeRefreshLayout swipeRefreshLayout = new TiSwipeRefreshLayout(getProxy().getActivity());
+		TiSwipeRefreshLayout swipeRefreshLayout = new TiSwipeRefreshLayout(getProxy().getActivity())
+		{
+			@Override
+			public void setClickable(boolean value)
+			{
+				View view = getLayout();
+				if (view != null) {
+					view.setClickable(value);
+				}
+			}
+
+			@Override
+			public void setLongClickable(boolean value)
+			{
+				View view = getLayout();
+				if (view != null) {
+					view.setLongClickable(value);
+				}
+			}
+
+			@Override
+			public void setOnClickListener(View.OnClickListener listener)
+			{
+				View view = getLayout();
+				if (view != null) {
+					view.setOnClickListener(listener);
+				}
+			}
+
+			@Override
+			public void setOnLongClickListener(View.OnLongClickListener listener)
+			{
+				View view = getLayout();
+				if (view != null) {
+					view.setOnLongClickListener(listener);
+				}
+			}
+		};
 		swipeRefreshLayout.setSwipeRefreshEnabled(false);
 		swipeRefreshLayout.addView(this.scrollView);
 		if (d.containsKey(TiC.PROPERTY_REFRESH_CONTROL)) {
@@ -763,20 +846,6 @@ public class TiUIScrollView extends TiUIView
 		return null;
 	}
 	
-	@Override
-	protected void setOnClickListener(View view)
-	{
-		View targetView = view;
-		// Get the layout and attach the listeners to it
-		if (view instanceof TiVerticalScrollView) {
-			targetView = ((TiVerticalScrollView) nativeView).layout;
-		}
-		if (view instanceof TiHorizontalScrollView) {
-			targetView = ((TiHorizontalScrollView) nativeView).layout;
-		}
-		super.setOnClickListener(targetView);
-	}
-
 	public void setScrollingEnabled(Object value)
 	{
 		try {
@@ -848,7 +917,7 @@ public class TiUIScrollView extends TiUIView
 		View nativeView = this.nativeView;
 		try {
 			this.nativeView = getLayout();
-			super.add(child);
+			super.remove(child);
 		} finally {
 			this.nativeView = nativeView;
 		}
@@ -860,6 +929,22 @@ public class TiUIScrollView extends TiUIView
 		View v = getLayout();
 		if (v instanceof TiCompositeLayout) {
 			((TiCompositeLayout) v).resort();
+		}
+	}
+
+	@Override
+	public void registerForTouch()
+	{
+		if (this.scrollView != null) {
+			registerForTouch(this.scrollView);
+		}
+	}
+
+	@Override
+	public void registerForKeyPress()
+	{
+		if (this.scrollView != null) {
+			registerForKeyPress(this.scrollView);
 		}
 	}
 }
