@@ -426,28 +426,29 @@
 
 - (void)selectItem:(id)args
 {
-    ENSURE_ARG_COUNT(args, 2);
-    
-    if (view != nil) {
-        NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
-        NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
-        
-        if ([_sections count] <= sectionIndex) {
-            DebugLog(@"[WARN] ListView: Select section index is out of range");
-            return;
-        }
-        TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
-        if (section.itemCount <= itemIndex) {
-            DebugLog(@"[WARN] ListView: Select item index is out of range");
-            return;
-        }
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
-        
-        TiThreadPerformOnMainThread(^{
-            [self.listView.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
-            [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
-        }, [NSThread isMainThread]);
+  ENSURE_ARG_COUNT(args, 2);
+
+  if (view != nil) {
+    NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
+    NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
+
+    if ([_sections count] <= sectionIndex) {
+      DebugLog(@"[WARN] ListView: Select section index is out of range");
+      return;
     }
+    TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+    if (section.itemCount <= itemIndex) {
+      DebugLog(@"[WARN] ListView: Select item index is out of range");
+      return;
+    }
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
+
+    TiThreadPerformOnMainThread(^{
+      [self.listView.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
+      [self.listView.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+    },
+        [NSThread isMainThread]);
+  }
 }
 
 - (void)deselectItem:(id)args
@@ -509,31 +510,32 @@
 
 - (NSMutableArray *)selectedItems
 {
-    NSMutableArray *result = [[NSMutableArray alloc] init];
-    NSArray *selectedRows = [[self.listView tableView] indexPathsForSelectedRows];
+  NSMutableArray *result = [[NSMutableArray alloc] init];
+  NSArray *selectedRows = [[self.listView tableView] indexPathsForSelectedRows];
 
-    if (selectedRows != nil) {
-        TiThreadPerformOnMainThread(^{
-            for (NSIndexPath* indexPath in [self.listView.tableView indexPathsForSelectedRows]) {
-                NSIndexPath *realIndexPath = [self.listView pathForSearchPath:indexPath];
-                TiUIListSectionProxy *section = [self sectionForIndex:realIndexPath.section];
-                NSDictionary *item = [section itemAtIndex:realIndexPath.row];
-                NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                    section, @"section",
-                                                    NUMINTEGER(realIndexPath.section), @"sectionIndex",
-                                                    NUMINTEGER(realIndexPath.row), @"itemIndex",
-                                                    nil];
-                id propertiesValue = [item objectForKey:@"properties"];
-                NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-                id itemId = [properties objectForKey:@"itemId"];
-                if (itemId != nil) {
-                    [eventObject setObject:itemId forKey:@"itemId"];
-                }
-                [result addObject:eventObject];
-            }
-        }, YES);
-    }
-    return result;
+  if (selectedRows != nil) {
+    TiThreadPerformOnMainThread(^{
+      for (NSIndexPath *indexPath in [self.listView.tableView indexPathsForSelectedRows]) {
+        NSIndexPath *realIndexPath = [self.listView pathForSearchPath:indexPath];
+        TiUIListSectionProxy *section = [self sectionForIndex:realIndexPath.section];
+        NSDictionary *item = [section itemAtIndex:realIndexPath.row];
+        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                            section, @"section",
+                                                                        NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                        NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                        nil];
+        id propertiesValue = [item objectForKey:@"properties"];
+        NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+        id itemId = [properties objectForKey:@"itemId"];
+        if (itemId != nil) {
+          [eventObject setObject:itemId forKey:@"itemId"];
+        }
+        [result addObject:eventObject];
+      }
+    },
+        YES);
+  }
+  return result;
 }
 
 #pragma mark - Marker Support
