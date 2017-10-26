@@ -964,7 +964,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [_searchWrapper add:searchViewProxy];
     NSString *curPlaceHolder = [[searchViewProxy searchBar] placeholder];
     if (curPlaceHolder == nil) {
-      [[searchViewProxy searchBar] setPlaceholder:@"Search"];
+      [[searchViewProxy searchBar] setPlaceholder:NSLocalizedString(@"Search", @"Search")];
     }
     self.searchString = [[searchViewProxy searchBar] text];
     [self initSearchController:self];
