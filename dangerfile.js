@@ -46,7 +46,8 @@ const testChanges = modified.filter(function (p) {
 });
 const hasTestChanges = testChanges.length > 0;
 if (hasAppChanges && !hasTestChanges) {
-	warn(':microscope: There are library changes, but no changes to the unit tests. That\'s OK as long as you\'re refactoring existing code');
+	const link = danger.github.utils.fileLinks([ 'README.md#unit-tests' ]);
+	fail(':microscope: There are library changes, but no changes to the unit tests. That\'s OK as long as you\'re refactoring existing code, but will require an admin to merge this PR. Please see ' + link + ' for docs on unit testing.');
 }
 
 function gatherFailedTestcases(reportPath) {
@@ -77,7 +78,7 @@ function gatherFailedTestcases(reportPath) {
 // Give details on failed mocha suite tests
 const failedAndroidTests = gatherFailedTestcases(path.join(__dirname, 'junit.android.xml'));
 const failedIOSTests = gatherFailedTestcases(path.join(__dirname, 'junit.ios.xml'));
-const failures_and_errors = [...failedAndroidTests, ...failedIOSTests];
+const failures_and_errors = [ ...failedAndroidTests, ...failedIOSTests ];
 if (failures_and_errors.length !== 0) {
 	fail('Tests have failed, see below for more information.');
 	let message = '### Tests: \n\n';
@@ -85,7 +86,7 @@ if (failures_and_errors.length !== 0) {
 		return attr.nodeName;
 	});
 	const attributes = keys.map(function (key) {
-		return key.substr(0,1).toUpperCase() + key.substr(1).toLowerCase();
+		return key.substr(0, 1).toUpperCase() + key.substr(1).toLowerCase();
 	});
 	attributes.push('Error');
 
