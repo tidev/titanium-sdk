@@ -22,6 +22,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.view.Gravity;
 import android.widget.SeekBar;
 
@@ -95,7 +96,9 @@ public class TiUISlider extends TiUIView
 			updateThumb(seekBar, d);
 		}
 		if (d.containsKey(TiC.PROPERTY_SPLIT_TRACK)) {
-			seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				seekBar.setSplitTrack(TiConvert.toBoolean(d.get(TiC.PROPERTY_SPLIT_TRACK)));
+			}
 		}
 		if (d.containsKey("leftTrackImage") || d.containsKey("rightTrackImage")) {
 			updateTrackingImages(seekBar, d);
@@ -269,7 +272,9 @@ public class TiUISlider extends TiUIView
 			//seekBar.invalidate();
 			Log.i(TAG, "Dynamically changing thumbImage is not yet supported. Native control doesn't draw");
 		} else if (key.equals(TiC.PROPERTY_SPLIT_TRACK)) {
-			seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
+			}
 		} else if (key.equals("leftTrackImage") || key.equals("rightTrackImage")) {
 			//updateTrackingImages(seekBar, proxy.getDynamicProperties());
 			//seekBar.invalidate();
