@@ -40,14 +40,14 @@
   }
 
 //TODO: Now that we have TiThreadPerform, we should optimize this out.
-#define ENSURE_UI_THREAD_WITH_OBJ(x, y, z)                                         \
-  if (![NSThread isMainThread]) {                                                  \
+#define ENSURE_UI_THREAD_WITH_OBJ(x, y, z)                                          \
+  if (![NSThread isMainThread]) {                                                   \
     id o = [NSArray arrayWithObjects:@"" #x, NULL_IF_NIL(y), NULL_IF_NIL(z), nil]; \
-    TiThreadPerformOnMainThread(^{                                                 \
-      [self _dispatchWithObjectOnUIThread:o];                                      \
-    },                                                                             \
-        NO);                                                                       \
-    return;                                                                        \
+    TiThreadPerformOnMainThread(^{                                                  \
+      [self _dispatchWithObjectOnUIThread:o];                                       \
+    },                                                                              \
+        NO);                                                                        \
+    return;                                                                         \
   }
 
 #define BEGIN_UI_THREAD_PROTECTED_VALUE(method, type) \
