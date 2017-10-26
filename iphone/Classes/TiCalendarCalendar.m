@@ -135,8 +135,10 @@
 - (TiCalendarEvent *)getEventById:(id)arg
 {
   ENSURE_SINGLE_ARG(arg, NSString);
+
   __block NSString *eventId = [TiUtils stringValue:arg];
   __block id result = NULL;
+
   TiThreadPerformOnMainThread(^{
     EKEventStore *ourStore = [self ourStore];
     if (ourStore == nil) {
@@ -160,6 +162,7 @@
 - (NSArray *)getEventsBetweenDates:(id)args
 {
   ENSURE_ARG_COUNT(args, 2);
+
   NSDate *start = nil;
   NSDate *end = nil;
 
@@ -182,9 +185,8 @@
   NSDateComponents *comps = [[NSDateComponents alloc] init];
   NSTimeInterval secondsPerDay = 24 * 60 * 60;
 
-  int month = [TiUtils intValue:[arg objectAtIndex:1]];
-  // We should do +1 for parity with Android, but for retrocomp until 7.0.0 keep this
-  // month += 1;
+  // For parity with Android, breaking change in 7.0.0
+  NSInteger month = [TiUtils intValue:[arg objectAtIndex:1]] + 1;
 
   [comps setDay:[TiUtils intValue:[arg objectAtIndex:2]]];
   [comps setMonth:month];
@@ -193,7 +195,7 @@
   [comps setMinute:0];
   [comps setSecond:0];
 
-  NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
 
   NSDate *date1, *date2;
   date1 = [cal dateFromComponents:comps];
@@ -210,10 +212,8 @@
 {
   ENSURE_ARG_COUNT(args, 2);
 
-  // We do this for parity with Javascript and Android
-  int month = [TiUtils intValue:[args objectAtIndex:1]];
-  // We should do +1 for parity with Android, but for retrocomp until 7.0.0 keep this
-  // month += 1;
+  // For parity with Android, breaking change in 7.0.0
+  NSInteger month = [TiUtils intValue:[args objectAtIndex:1]] + 1;
 
   NSDateComponents *comps = [[NSDateComponents alloc] init];
 
@@ -224,14 +224,14 @@
   [comps setMinute:0];
   [comps setSecond:0];
 
-  NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
 
   NSDate *date1, *date2;
   date1 = [cal dateFromComponents:comps];
 
   NSTimeInterval secondsPerDay = 24 * 60 * 60;
-  NSRange days = [cal rangeOfUnit:NSDayCalendarUnit
-                           inUnit:NSMonthCalendarUnit
+  NSRange days = [cal rangeOfUnit:NSCalendarUnitDay
+                           inUnit:NSCalendarUnitMonth
                           forDate:date1];
 
   date2 = [date1 dateByAddingTimeInterval:(secondsPerDay * days.length)];
@@ -257,7 +257,7 @@
   [comps setMinute:0];
   [comps setSecond:0];
 
-  NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
 
   NSDate *date1, *date2;
   date1 = [cal dateFromComponents:comps];
