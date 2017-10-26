@@ -189,17 +189,20 @@ public class IntentProxy extends KrollProxy
 		// setType and setData are inexplicably intertwined
 		// calling setType by itself clears the type and vice-versa
 		// if you have both you _must_ call setDataAndType
-		if (type != null) {
-			Log.d(TAG, "Setting type: " + type, Log.DEBUG_MODE);
-			if (data != null) {
+		if (data != null) {
+			Uri dataUri = null;
+			if (data.startsWith("file://")) {
 				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-				intent.setDataAndType(TiFileProvider.createUriFrom(data), type);
+				dataUri = TiFileProvider.createUriFrom(data);
 			} else {
-				intent.setType(type);
+				dataUri = Uri.parse(data);
 			}
-		} else if (data != null) {
-			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-			intent.setData(TiFileProvider.createUriFrom(data));
+			if (type != null) {
+				Log.d(TAG, "setting type: " + type, Log.DEBUG_MODE);
+				intent.setDataAndType(dataUri, type);
+			} else {
+				intent.setData(dataUri);
+			}
 		}
 	}
 
@@ -263,7 +266,15 @@ public class IntentProxy extends KrollProxy
 	    } 
 	    
 	    if (value instanceof String) {
-	        intent.putExtra(key, Uri.parse((String) value));
+	    	String extraString = (String) value;
+	    	Uri extraUri = null;
+			if (extraString.startsWith("file://")) {
+				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				extraUri = TiFileProvider.createUriFrom(extraString);
+			} else {
+				extraUri = Uri.parse(extraString);
+			}
+	        intent.putExtra(key, extraUri);
 	    } else if (value instanceof Object[]) {
 	        try {
 	            Object[] objVal = (Object[]) value;
