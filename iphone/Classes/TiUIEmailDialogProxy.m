@@ -62,11 +62,11 @@
 - (void)open:(id)args
 {
 #if TARGET_IPHONE_SIMULATOR
-    DebugLog(@"[INFO] iOS Simulator does not support sending emails. Use a device instead.");
-    NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
-    [self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"iOS Simulator does not support sending emails. Use a device instead."];
+  DebugLog(@"[INFO] iOS Simulator does not support sending emails. Use a device instead.");
+  NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
+  [self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"iOS Simulator does not support sending emails. Use a device instead."];
 #else
-    
+
   [self rememberSelf];
   NSDictionary *properties = nil;
   ENSURE_ARG_OR_NIL_AT_INDEX(properties, args, 0, NSDictionary);
