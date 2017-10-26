@@ -257,7 +257,7 @@
     } else {
       badge.frame = CGRectMake(0, 0, 36, 29);
     }
-    [badge setTitle:title forState:UIControlStateNormal];
+    [badge setTitle:NSLocalizedString(title, title) forState:UIControlStateNormal];
     if (dragging == NO && editing == NO) {
       [badge setHidden:NO];
     }
