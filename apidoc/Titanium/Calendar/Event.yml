@@ -60,24 +60,15 @@ methods:
         Creates an recurrence pattern for a recurring event.
         All of the properties for the recurrence rule must be set during creation. 
         The recurrence rule properties cannot be modified.
+        
+        Since Titanium SDK 7.0.0, this method also accepts a `RRULE` string (RFC 2445).
     returns:
         type: Titanium.Calendar.RecurrenceRule
     parameters:
       - name: data
-        summary: Properties for the recurrence rule.
-        type: Dictionary<Titanium.Calendar.RecurrenceRule>
+        summary: Properties for the recurrence rule (dictionary) or RFC 2445 recurrence-rule (String).
+        type: [Dictionary<Titanium.Calendar.RecurrenceRule>, String]
     platforms: [iphone, ipad]
-
-  - name: createRecurrenceRuleFromString
-    summary: Creates a recurrence rule from a `RRULE` string representation (RFC 2445).
-    returns:
-        type: Titanium.Calendar.RecurrenceRule
-    parameters:
-      - name: recurrenceRule
-        summary: RFC 2445 String
-        type: String
-    platforms: [iphone, ipad]
-    since: "7.0.0"
 
   - name: save
     summary: Saves changes to an event permanently.

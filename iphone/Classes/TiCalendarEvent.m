@@ -243,8 +243,19 @@
 
 - (TiCalendarRecurrenceRule *)createRecurrenceRule:(id)arg
 {
-  ENSURE_ARRAY(arg);
-  NSDictionary *args = [arg objectAtIndex:0];
+  id args = [arg objectAtIndex:0];
+
+  if (![args isKindOfClass:[NSDictionary class]] && ![args isKindOfClass:[NSString class]]) {
+    NSLog(@"[ERROR] Cannot create a new recurrence-rule with arguments of type %@.");
+    NSLog(@"[ERROR] Please either provide a dictionary of arguments or a String identifier", NSStringFromClass([args class]));
+    return nil;
+  }
+  
+  // New in 7.0.0: Handle a String argument as well
+  if ([args isKindOfClass:[NSString class]]) {
+    return [self _createRecurrenceRuleFromString:args];
+  }
+  
   EKRecurrenceFrequency frequency = EKRecurrenceFrequencyDaily;
   NSInteger interval = 0;
   NSMutableArray *daysOfTheWeek = [[[NSMutableArray alloc] init] autorelease],
@@ -389,164 +400,6 @@
   }
 }
 
-- (TiCalendarRecurrenceRule *)createRecurrenceRuleFromString:(id)arg
-{
-  ENSURE_SINGLE_ARG(arg, NSString);
-  NSString *rfc2445String = arg;
-
-  // The following code is copied from: https://github.com/jochenschoellig/RRULE-to-EKRecurrenceRule
-  // Thanks to @jochenschoellig
-
-  // If the date formatter isn't already set up, create it and cache it for reuse.
-  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  NSLocale *enUSPOSIXLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
-
-  [dateFormatter setLocale:enUSPOSIXLocale];
-  [dateFormatter setDateFormat:@"yyyyMMdd'T'HHmmss'Z'"];
-  [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-
-  // Begin parsing
-  NSArray *components = [rfc2445String.uppercaseString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@";="]];
-
-  EKRecurrenceFrequency frequency = EKRecurrenceFrequencyDaily;
-  NSInteger interval = 1;
-  NSMutableArray *daysOfTheWeek = nil;
-  NSMutableArray *daysOfTheMonth = nil;
-  NSMutableArray *monthsOfTheYear = nil;
-  NSMutableArray *daysOfTheYear = nil;
-  NSMutableArray *weeksOfTheYear = nil;
-  NSMutableArray *setPositions = nil;
-  EKRecurrenceEnd *recurrenceEnd = nil;
-
-  for (int i = 0; i < components.count; i++) {
-    NSString *component = [components objectAtIndex:i];
-
-    // Frequency
-    if ([component isEqualToString:@"FREQ"]) {
-      NSString *frequencyString = [components objectAtIndex:++i];
-
-      if ([frequencyString isEqualToString:@"DAILY"])
-        frequency = EKRecurrenceFrequencyDaily;
-      else if ([frequencyString isEqualToString:@"WEEKLY"])
-        frequency = EKRecurrenceFrequencyWeekly;
-      else if ([frequencyString isEqualToString:@"MONTHLY"])
-        frequency = EKRecurrenceFrequencyMonthly;
-      else if ([frequencyString isEqualToString:@"YEARLY"])
-        frequency = EKRecurrenceFrequencyYearly;
-    }
-
-    // Interval
-    if ([component isEqualToString:@"INTERVAL"]) {
-      interval = [[components objectAtIndex:++i] intValue];
-    }
-
-    // Days of the week
-    if ([component isEqualToString:@"BYDAY"]) {
-      daysOfTheWeek = [NSMutableArray array];
-      NSArray *dayStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
-      for (NSString *dayString in dayStrings) {
-        int dayOfWeek = 0;
-        int weekNumber = 0;
-
-        // Parse the day of the week
-        if ([dayString rangeOfString:@"SU"].location != NSNotFound)
-          dayOfWeek = EKSunday;
-        else if ([dayString rangeOfString:@"MO"].location != NSNotFound)
-          dayOfWeek = EKMonday;
-        else if ([dayString rangeOfString:@"TU"].location != NSNotFound)
-          dayOfWeek = EKTuesday;
-        else if ([dayString rangeOfString:@"WE"].location != NSNotFound)
-          dayOfWeek = EKWednesday;
-        else if ([dayString rangeOfString:@"TH"].location != NSNotFound)
-          dayOfWeek = EKThursday;
-        else if ([dayString rangeOfString:@"FR"].location != NSNotFound)
-          dayOfWeek = EKFriday;
-        else if ([dayString rangeOfString:@"SA"].location != NSNotFound)
-          dayOfWeek = EKSaturday;
-
-        // Parse the week number
-        weekNumber = [[dayString substringToIndex:dayString.length - 2] intValue];
-
-        [daysOfTheWeek addObject:[EKRecurrenceDayOfWeek dayOfWeek:dayOfWeek weekNumber:weekNumber]];
-      }
-    }
-
-    // Days of the month
-    if ([component isEqualToString:@"BYMONTHDAY"]) {
-      daysOfTheMonth = [NSMutableArray array];
-      NSArray *dayStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
-      for (NSString *dayString in dayStrings) {
-        [daysOfTheMonth addObject:[NSNumber numberWithInt:dayString.intValue]];
-      }
-    }
-
-    // Months of the year
-    if ([component isEqualToString:@"BYMONTH"]) {
-      monthsOfTheYear = [NSMutableArray array];
-      NSArray *monthStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
-      for (NSString *monthString in monthStrings) {
-        [monthsOfTheYear addObject:[NSNumber numberWithInt:monthString.intValue]];
-      }
-    }
-
-    // Weeks of the year
-    if ([component isEqualToString:@"BYWEEKNO"]) {
-      weeksOfTheYear = [NSMutableArray array];
-      NSArray *weekStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
-      for (NSString *weekString in weekStrings) {
-        [weeksOfTheYear addObject:[NSNumber numberWithInt:weekString.intValue]];
-      }
-    }
-
-    // Days of the year
-    if ([component isEqualToString:@"BYYEARDAY"]) {
-      daysOfTheYear = [NSMutableArray array];
-      NSArray *dayStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
-      for (NSString *dayString in dayStrings) {
-        [daysOfTheYear addObject:[NSNumber numberWithInt:dayString.intValue]];
-      }
-    }
-
-    // Set positions
-    if ([component isEqualToString:@"BYSETPOS"]) {
-      setPositions = [NSMutableArray array];
-      NSArray *positionStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
-      for (NSString *potitionString in positionStrings) {
-        [setPositions addObject:[NSNumber numberWithInt:potitionString.intValue]];
-      }
-    }
-
-    // RecurrenceEnd
-    if ([component isEqualToString:@"COUNT"]) {
-      NSUInteger occurenceCount = [[components objectAtIndex:++i] intValue];
-      recurrenceEnd = [EKRecurrenceEnd recurrenceEndWithOccurrenceCount:occurenceCount];
-
-    } else if ([component isEqualToString:@"UNTIL"]) {
-      NSDate *endDate = [dateFormatter dateFromString:[components objectAtIndex:++i]];
-      recurrenceEnd = [EKRecurrenceEnd recurrenceEndWithEndDate:endDate];
-    }
-  }
-
-  EKRecurrenceRule *rule = [[EKRecurrenceRule alloc] initRecurrenceWithFrequency:frequency
-                                                                        interval:interval
-                                                                   daysOfTheWeek:daysOfTheWeek
-                                                                  daysOfTheMonth:daysOfTheMonth
-                                                                 monthsOfTheYear:monthsOfTheYear
-                                                                  weeksOfTheYear:weeksOfTheYear
-                                                                   daysOfTheYear:daysOfTheYear
-                                                                    setPositions:setPositions
-                                                                             end:recurrenceEnd];
-  if (rule == nil) {
-    [self throwException:@"Error while trying to create recurrence rule from RRULE string."
-               subreason:nil
-                location:CODELOCATION];
-    return nil;
-  }
-
-  TiCalendarRecurrenceRule *recurrenceRule = [[[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:rule] autorelease];
-  return recurrenceRule;
-}
-
 - (void)addRecurrenceRule:(id)arg
 {
   TiCalendarRecurrenceRule *ruleProxy = nil;
@@ -677,6 +530,165 @@
   }
 
   return result;
+}
+
+#pragma mark Internal
+
+
+- (TiCalendarRecurrenceRule *)_createRecurrenceRuleFromString:(NSString *)rfc2445String
+{
+  // The following code is copied from: https://github.com/jochenschoellig/RRULE-to-EKRecurrenceRule
+  // Thanks to @jochenschoellig
+  
+  // If the date formatter isn't already set up, create it and cache it for reuse.
+  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+  NSLocale *enUSPOSIXLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+  
+  [dateFormatter setLocale:enUSPOSIXLocale];
+  [dateFormatter setDateFormat:@"yyyyMMdd'T'HHmmss'Z'"];
+  [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+  
+  // Begin parsing
+  NSArray *components = [rfc2445String.uppercaseString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@";="]];
+  
+  EKRecurrenceFrequency frequency = EKRecurrenceFrequencyDaily;
+  NSInteger interval = 1;
+  NSMutableArray *daysOfTheWeek = nil;
+  NSMutableArray *daysOfTheMonth = nil;
+  NSMutableArray *monthsOfTheYear = nil;
+  NSMutableArray *daysOfTheYear = nil;
+  NSMutableArray *weeksOfTheYear = nil;
+  NSMutableArray *setPositions = nil;
+  EKRecurrenceEnd *recurrenceEnd = nil;
+  
+  for (int i = 0; i < components.count; i++) {
+    NSString *component = [components objectAtIndex:i];
+    
+    // Frequency
+    if ([component isEqualToString:@"FREQ"]) {
+      NSString *frequencyString = [components objectAtIndex:++i];
+      
+      if ([frequencyString isEqualToString:@"DAILY"]) {
+        frequency = EKRecurrenceFrequencyDaily;
+      } else if ([frequencyString isEqualToString:@"WEEKLY"]) {
+        frequency = EKRecurrenceFrequencyWeekly;
+      } else if ([frequencyString isEqualToString:@"MONTHLY"]) {
+        frequency = EKRecurrenceFrequencyMonthly;
+      } else if ([frequencyString isEqualToString:@"YEARLY"]) {
+        frequency = EKRecurrenceFrequencyYearly;
+      }
+    }
+    
+    // Interval
+    if ([component isEqualToString:@"INTERVAL"]) {
+      interval = [[components objectAtIndex:++i] intValue];
+    }
+    
+    // Days of the week
+    if ([component isEqualToString:@"BYDAY"]) {
+      daysOfTheWeek = [NSMutableArray array];
+      NSArray *dayStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
+      for (NSString *dayString in dayStrings) {
+        NSInteger dayOfWeek = 0;
+        NSInteger weekNumber = 0;
+        
+        // Parse the day of the week
+        if ([dayString rangeOfString:@"SU"].location != NSNotFound) {
+          dayOfWeek = EKSunday;
+        } else if ([dayString rangeOfString:@"MO"].location != NSNotFound) {
+          dayOfWeek = EKMonday;
+        } else if ([dayString rangeOfString:@"TU"].location != NSNotFound) {
+          dayOfWeek = EKTuesday;
+        } else if ([dayString rangeOfString:@"WE"].location != NSNotFound) {
+          dayOfWeek = EKWednesday;
+        } else if ([dayString rangeOfString:@"TH"].location != NSNotFound) {
+          dayOfWeek = EKThursday;
+        } else if ([dayString rangeOfString:@"FR"].location != NSNotFound) {
+          dayOfWeek = EKFriday;
+        } else if ([dayString rangeOfString:@"SA"].location != NSNotFound) {
+          dayOfWeek = EKSaturday;
+        }
+
+        // Parse the week number
+        weekNumber = [[dayString substringToIndex:dayString.length - 2] intValue];
+        
+        [daysOfTheWeek addObject:[EKRecurrenceDayOfWeek dayOfWeek:dayOfWeek weekNumber:weekNumber]];
+      }
+    }
+    
+    // Days of the month
+    if ([component isEqualToString:@"BYMONTHDAY"]) {
+      daysOfTheMonth = [NSMutableArray array];
+      NSArray *dayStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
+      for (NSString *dayString in dayStrings) {
+        [daysOfTheMonth addObject:[NSNumber numberWithInt:dayString.intValue]];
+      }
+    }
+    
+    // Months of the year
+    if ([component isEqualToString:@"BYMONTH"]) {
+      monthsOfTheYear = [NSMutableArray array];
+      NSArray *monthStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
+      for (NSString *monthString in monthStrings) {
+        [monthsOfTheYear addObject:[NSNumber numberWithInt:monthString.intValue]];
+      }
+    }
+    
+    // Weeks of the year
+    if ([component isEqualToString:@"BYWEEKNO"]) {
+      weeksOfTheYear = [NSMutableArray array];
+      NSArray *weekStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
+      for (NSString *weekString in weekStrings) {
+        [weeksOfTheYear addObject:[NSNumber numberWithInt:weekString.intValue]];
+      }
+    }
+    
+    // Days of the year
+    if ([component isEqualToString:@"BYYEARDAY"]) {
+      daysOfTheYear = [NSMutableArray array];
+      NSArray *dayStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
+      for (NSString *dayString in dayStrings) {
+        [daysOfTheYear addObject:[NSNumber numberWithInt:dayString.intValue]];
+      }
+    }
+    
+    // Set positions
+    if ([component isEqualToString:@"BYSETPOS"]) {
+      setPositions = [NSMutableArray array];
+      NSArray *positionStrings = [[components objectAtIndex:++i] componentsSeparatedByString:@","];
+      for (NSString *potitionString in positionStrings) {
+        [setPositions addObject:[NSNumber numberWithInt:potitionString.intValue]];
+      }
+    }
+    
+    // RecurrenceEnd
+    if ([component isEqualToString:@"COUNT"]) {
+      NSUInteger occurenceCount = [[components objectAtIndex:++i] intValue];
+      recurrenceEnd = [EKRecurrenceEnd recurrenceEndWithOccurrenceCount:occurenceCount];
+    } else if ([component isEqualToString:@"UNTIL"]) {
+      NSDate *endDate = [dateFormatter dateFromString:[components objectAtIndex:++i]];
+      recurrenceEnd = [EKRecurrenceEnd recurrenceEndWithEndDate:endDate];
+    }
+  }
+  
+  EKRecurrenceRule *rule = [[EKRecurrenceRule alloc] initRecurrenceWithFrequency:frequency
+                                                                        interval:interval
+                                                                   daysOfTheWeek:daysOfTheWeek
+                                                                  daysOfTheMonth:daysOfTheMonth
+                                                                 monthsOfTheYear:monthsOfTheYear
+                                                                  weeksOfTheYear:weeksOfTheYear
+                                                                   daysOfTheYear:daysOfTheYear
+                                                                    setPositions:setPositions
+                                                                             end:recurrenceEnd];
+  if (rule == nil) {
+    [self throwException:@"Error while trying to create recurrence rule from RRULE string."
+               subreason:nil
+                location:CODELOCATION];
+    return nil;
+  }
+  
+  TiCalendarRecurrenceRule *recurrenceRule = [[[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:rule] autorelease];
+  return recurrenceRule;
 }
 
 @end
