@@ -486,7 +486,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification object:self userInfo:notificationSettings];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification
+                                                      object:self
+                                                    userInfo:@{ @"userNotificationSettings" : notificationSettings }];
 }
 
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
@@ -697,7 +699,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 #pragma mark Background Transfer Service iOS 7
 
 //Delegate callback for Background Transfer completes.
-- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
+- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
 {
   // Generate unique key with timestamp.
   id key = [NSString stringWithFormat:@"Session-%f", [[NSDate date] timeIntervalSince1970]];

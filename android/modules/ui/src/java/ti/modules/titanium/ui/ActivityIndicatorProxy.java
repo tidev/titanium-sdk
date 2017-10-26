@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -30,7 +29,7 @@ import android.os.Message;
 })
 public class ActivityIndicatorProxy extends TiViewProxy
 {
-	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
+	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SHOW = MSG_FIRST_ID + 100;
 
 	boolean visible = false;

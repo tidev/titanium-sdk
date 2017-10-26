@@ -5,7 +5,7 @@
 
 'use strict';
 
-const exec = require('child_process').exec;
+const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
 const fs = require('fs');
 const IncrementalFileTask = require('appc-tasks').IncrementalFileTask;
 const path = require('path');
@@ -99,7 +99,7 @@ class FrameworkManager {
 					this._frameworks.forEach(frameworkInfo => {
 						frameworkObject[frameworkInfo.name] = {
 							name: frameworkInfo.name,
-							path: frameworkInfo.name,
+							path: frameworkInfo.path,
 							type: frameworkInfo.type,
 							architectures: Array.from(frameworkInfo.architectures)
 						};
@@ -166,6 +166,7 @@ class FrameworkManager {
 	 *
 	 * @param {Object} hookData - Data from the Xcode project hook
 	 * @param {Function} callback - Callback function
+	 * @return {undefined}
 	 * @access private
 	 */
 	addFrameworksToXcodeProject(hookData, callback) {
@@ -425,7 +426,15 @@ class InspectFrameworksTask extends IncrementalFileTask {
 			let metadataPromise = frameworkInspector.inspect(frameworkPath).then(frameworkInfo => {
 				if (this._frameworks.has(frameworkInfo.name)) {
 					let existingFrameworkInfo = this._frameworks.get(frameworkInfo.name);
-					return new Error(`Duplicate framework ${frameworkInfo.name} detected (found at ${frameworkInfo.path.cyan} and ${existingFrameworkInfo.path.cyan}`);
+
+					this.logger.error(`Duplicate framework ${frameworkInfo.name} detected at these paths:`);
+					this.logger.error('');
+					this.logger.error(`  ${existingFrameworkInfo.path}`);
+					this.logger.error(`  ${frameworkInfo.path}`);
+					this.logger.error('');
+					this.logger.error('Please resolve this conflict by choosing one of the above frameworks that you want to keep and remove the other before continuing.');
+
+					throw new Error(`Duplicate framework ${frameworkInfo.name} detected.`);
 				}
 				this._frameworks.set(frameworkInfo.name, frameworkInfo);
 			});
@@ -472,12 +481,10 @@ class FrameworkIntegrator {
 		})[0].value];
 
 		this._frameworkSearchPaths = new Map();
-		this._runpathSearchPaths = new Map();
 		let buildConfigurations = this._xobjs.XCConfigurationList[this._mainTarget.buildConfigurationList].buildConfigurations;
 		for (let buildConf of buildConfigurations) {
 			if (!this._frameworkSearchPaths.has(buildConf.value)) {
 				this._frameworkSearchPaths.set(buildConf.value, new Set());
-				this._runpathSearchPaths.set(buildConf.value, new Set());
 			}
 
 			let buildSettings = this._xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
@@ -487,16 +494,6 @@ class FrameworkIntegrator {
 					let cleanFrameworkSearchPath = frameworkSearchPath.replace('"', '');
 					if (!frameworkSearchPaths.has(cleanFrameworkSearchPath)) {
 						frameworkSearchPaths.add(cleanFrameworkSearchPath);
-					}
-				}
-			}
-
-			if (Array.isArray(buildSettings.LD_RUNPATH_SEARCH_PATHS)) {
-				let runpathSearchPaths = this._runpathSearchPaths.get(buildConf.value);
-				for (let runpathSearchPath of buildSettings.LD_RUNPATH_SEARCH_PATHS) {
-					let cleanRunpathSearchPath = runpathSearchPath.replace(/"/g, '');
-					if (!runpathSearchPaths.has(cleanRunpathSearchPath)) {
-						runpathSearchPaths.add(cleanRunpathSearchPath);
 					}
 				}
 			}
@@ -642,18 +639,18 @@ class FrameworkIntegrator {
 	 * @access public
 	 */
 	adjustRunpathSearchPath() {
-		let dynamicFrameworksRunpath = '@executable_path/Frameworks';
+		const dynamicFrameworksSearchPath = '@executable_path/Frameworks';
 		let buildConfigurations = this._xobjs.XCConfigurationList[this._mainTarget.buildConfigurationList].buildConfigurations;
 		for (let buildConf of buildConfigurations) {
-			let runpathSearchPaths = this._runpathSearchPaths.get(buildConf.value);
-			if (runpathSearchPaths.has(dynamicFrameworksRunpath)) {
-				continue;
-			}
-
 			let buildSettings = this._xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-			buildSettings.LD_RUNPATH_SEARCH_PATHS = buildSettings.LD_RUNPATH_SEARCH_PATHS || [ '"$(inherited)"' ];
-			buildSettings.LD_RUNPATH_SEARCH_PATHS.push('"\\"' + dynamicFrameworksRunpath + '\\""');
-			runpathSearchPaths.add(dynamicFrameworksRunpath);
+			let searchPaths = (buildSettings.LD_RUNPATH_SEARCH_PATHS || '').replace(/^"/, '').replace(/"$/, '');
+			if (searchPaths.indexOf('$(inherited)') === -1) {
+				searchPaths += ' $(inherited)';
+			}
+			if (searchPaths.indexOf(dynamicFrameworksSearchPath) === -1) {
+				searchPaths += ` ${dynamicFrameworksSearchPath}`;
+			}
+			buildSettings.LD_RUNPATH_SEARCH_PATHS = '"' + searchPaths.trim() + '"';
 		}
 	}
 
@@ -768,12 +765,10 @@ class FrameworkInspector {
 				}
 
 				let type;
-				if (stdout.indexOf('current ar archive') !== -1) {
-					type = FRAMEWORK_TYPE_STATIC;
-				} else if (stdout.indexOf('dynamically linked shared library') !== -1) {
+				if (stdout.indexOf('dynamically linked shared library') !== -1) {
 					type = FRAMEWORK_TYPE_DYNAMIC;
 				} else {
-					return reject(new Error('Unknown framework type:\n' + stdout));
+					type = FRAMEWORK_TYPE_STATIC;
 				}
 
 				resolve({
