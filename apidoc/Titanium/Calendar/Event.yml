@@ -69,15 +69,15 @@ methods:
     platforms: [iphone, ipad]
 
   - name: createRecurrenceRuleFromString
-    summary: Creates a recurrence rule from a RRULE string representation (RFC 2445).
+    summary: Creates a recurrence rule from a `RRULE` string representation (RFC 2445).
     returns:
-        type: Titanium.Calendar.RecurrenceRUle
+        type: Titanium.Calendar.RecurrenceRule
     parameters:
-      - name: rrule
+      - name: recurrenceRule
         summary: RFC 2445 String
         type: String
     platforms: [iphone, ipad]
-    since: "6.2.0"
+    since: "7.0.0"
 
   - name: save
     summary: Saves changes to an event permanently.
@@ -162,6 +162,7 @@ properties:
     summary: Get the calendar ID of this event.
     type: String
     platforms: [android]
+    since: "7.0.0"
 
   - name: begin
     summary: Start date/time of this event.
@@ -183,6 +184,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [android]
+    since: "7.0.0"
 
   - name: end
     summary: End date/time of this event.
@@ -268,7 +270,7 @@ properties:
     summary: RRULE (RFC 2445) string.
     type: String
     platforms: [android]
-    since: "6.2.0"
+    since: "7.0.0"
 
   - name: visibility
     summary: Visibility of this event.

@@ -16,9 +16,10 @@ methods:
         summary: Properties of the calendar
         type: Dictionary<Titanium.Calendar.Calendar>
     platforms: [android, iphone, ipad]
+    since: "7.0.0"
 
   - name: deleteCalendarById
-    summary: Delete a calendar by its ID
+    summary: Delete a calendar by its ID.
     returns:
         type: Boolean
     parameters: 
@@ -26,6 +27,7 @@ methods:
         summary: ID of the calendar
         type: String
     platforms: [android, iphone, ipad]
+    since: "7.0.0"
 
   - name: createEvent
     summary: Creates an event in this calendar.
