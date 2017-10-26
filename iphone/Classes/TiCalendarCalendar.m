@@ -181,12 +181,13 @@
 - (NSArray *)getEventsInDate:(id)arg
 {
   ENSURE_ARG_COUNT(arg, 3);
+  
+  DEPRECATED_REPLACED(@"Calendar.getEventsInDate(date)", @"7.0.0", @"Calendar.getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
 
   NSDateComponents *comps = [[NSDateComponents alloc] init];
   NSTimeInterval secondsPerDay = 24 * 60 * 60;
 
-  // For parity with Android, breaking change in 7.0.0
-  NSInteger month = [TiUtils intValue:[arg objectAtIndex:1]] + 1;
+  NSInteger month = [TiUtils intValue:[arg objectAtIndex:1]];
 
   [comps setDay:[TiUtils intValue:[arg objectAtIndex:2]]];
   [comps setMonth:month];
@@ -212,8 +213,9 @@
 {
   ENSURE_ARG_COUNT(args, 2);
 
-  // For parity with Android, breaking change in 7.0.0
-  NSInteger month = [TiUtils intValue:[args objectAtIndex:1]] + 1;
+  DEPRECATED_REPLACED(@"Calendar.getEventsInMonth(year, month)", @"7.0.0", @"Calendar.getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
+
+  NSInteger month = [TiUtils intValue:[args objectAtIndex:1]];
 
   NSDateComponents *comps = [[NSDateComponents alloc] init];
 

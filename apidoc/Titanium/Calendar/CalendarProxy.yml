@@ -65,6 +65,9 @@ methods:
         
   - name: getEventsInDate
     summary: Gets events that occur on a specified date.
+    deprecated:
+        since: "7.0.0"
+        notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead to avaoid platform-differences of the month-index.
     returns:
         type: Array<Titanium.Calendar.Event>
     parameters:
@@ -83,6 +86,9 @@ methods:
         
   - name: getEventsInMonth
     summary: Gets events that occur during a specified month.
+    deprecated:
+        since: "7.0.0"
+        notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead to avaoid platform-differences of the month-index.
     returns:
         type: Array<Titanium.Calendar.Event>
     parameters:

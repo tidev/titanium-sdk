@@ -52,14 +52,13 @@
   if ([key isEqualToString:@"calendarId"]) {
     return currRule.calendarIdentifier;
   } else if ([key isEqualToString:@"end"]) {
-    EKRecurrenceEnd *end = currRule.recurrenceEnd;
-    NSDictionary *recurrenceEnd = nil;
-    if (end.occurrenceCount > 0) {
-      recurrenceEnd = [NSDictionary dictionaryWithObjectsAndKeys:NUMUINTEGER(end.occurrenceCount), @"occurrenceCount", nil];
-    } else if (end.endDate != nil) {
-      recurrenceEnd = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils UTCDateForDate:end.endDate], @"endDate", nil];
+    EKRecurrenceEnd *recurrenceEnd = currRule.recurrenceEnd;
+    NSMutableDictionary *recurrenceEndDictionary = [NSMutableDictionary dictionaryWithObject:@(recurrenceEnd.occurrenceCount)
+                                                                                      forKey:@"occurrenceCount"];
+    if ([recurrenceEnd endDate] != nil) {
+      [recurrenceEndDictionary setObject:[TiUtils UTCDateForDate:[recurrenceEnd endDate]] forKey:@"endDate"];
     }
-    return recurrenceEnd;
+    return recurrenceEndDictionary;
   } else if ([key isEqualToString:@"frequency"]) {
     return NUMINT(currRule.frequency);
   } else if ([key isEqualToString:@"interval"]) {
@@ -67,12 +66,13 @@
   } else if ([key isEqualToString:@"firstDayOfTheWeek"]) {
     return NUMINTEGER(currRule.firstDayOfTheWeek);
   } else if ([key isEqualToString:@"daysOfTheWeek"]) {
-    NSArray *value = currRule.daysOfTheWeek;
-    NSMutableArray *result = [NSMutableArray arrayWithCapacity:[value count]];
-    for (EKRecurrenceDayOfWeek *dayofWeek in value) {
-      NSDictionary *props = [NSDictionary dictionaryWithObjectsAndKeys:NUMINTEGER(dayofWeek.dayOfTheWeek), @"dayOfWeek",
-                                          NUMINTEGER(dayofWeek.weekNumber), @"week", nil];
-      [result addObject:props];
+    NSArray *daysOfTheWeek = currRule.daysOfTheWeek;
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:[daysOfTheWeek count]];
+    for (EKRecurrenceDayOfWeek *dayofWeek in daysOfTheWeek) {
+      [result addObject:@{
+        @"week" : @(dayofWeek.weekNumber),
+        @"dayofWeek" : @(dayofWeek.dayOfTheWeek)
+      }];
     }
     return result;
   } else if ([key isEqualToString:@"daysOfTheMonth"]) {
