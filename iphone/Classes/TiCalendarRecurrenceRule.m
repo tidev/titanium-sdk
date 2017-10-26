@@ -45,62 +45,49 @@
 
 - (id)valueForUndefinedKey:(NSString *)key
 {
-    EKRecurrenceRule * currRule = [self ruleForRecurrence];
-    if (currRule == NULL) {
-        return NULL;
+  EKRecurrenceRule *currRule = [self ruleForRecurrence];
+  if (currRule == NULL) {
+    return NULL;
+  }
+  if ([key isEqualToString:@"calendarId"]) {
+    return currRule.calendarIdentifier;
+  } else if ([key isEqualToString:@"end"]) {
+    EKRecurrenceEnd *end = currRule.recurrenceEnd;
+    NSDictionary *recurrenceEnd = nil;
+    if (end.occurrenceCount > 0) {
+      recurrenceEnd = [NSDictionary dictionaryWithObjectsAndKeys:NUMUINTEGER(end.occurrenceCount), @"occurrenceCount", nil];
+    } else if (end.endDate != nil) {
+      recurrenceEnd = [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils UTCDateForDate:end.endDate], @"endDate", nil];
     }
-    if ([key isEqualToString:@"calendarId"]) {
-        return currRule.calendarIdentifier;
+    return recurrenceEnd;
+  } else if ([key isEqualToString:@"frequency"]) {
+    return NUMINT(currRule.frequency);
+  } else if ([key isEqualToString:@"interval"]) {
+    return NUMINTEGER(currRule.interval);
+  } else if ([key isEqualToString:@"firstDayOfTheWeek"]) {
+    return NUMINTEGER(currRule.firstDayOfTheWeek);
+  } else if ([key isEqualToString:@"daysOfTheWeek"]) {
+    NSArray *value = currRule.daysOfTheWeek;
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:[value count]];
+    for (EKRecurrenceDayOfWeek *dayofWeek in value) {
+      NSDictionary *props = [NSDictionary dictionaryWithObjectsAndKeys:NUMINTEGER(dayofWeek.dayOfTheWeek), @"dayOfWeek",
+                                          NUMINTEGER(dayofWeek.weekNumber), @"week", nil];
+      [result addObject:props];
     }
-    else if ([key isEqualToString:@"end"]) {
-        EKRecurrenceEnd *end = currRule.recurrenceEnd;
-        NSDictionary *recurrenceEnd = nil;
-        if (end.occurrenceCount > 0) {
-            recurrenceEnd = [NSDictionary dictionaryWithObjectsAndKeys: NUMUINTEGER(end.occurrenceCount), @"occurrenceCount", nil];
-        } else if (end.endDate != nil) {
-            recurrenceEnd = [NSDictionary dictionaryWithObjectsAndKeys: [TiUtils UTCDateForDate:end.endDate], @"endDate", nil];
-        }
-        return recurrenceEnd;
-    }
-    else if ([key isEqualToString:@"frequency"]) {
-        return NUMINT(currRule.frequency);
-    }
-    else if ([key isEqualToString:@"interval"]) {
-        return NUMINTEGER(currRule.interval);
-    }
-    else if ([key isEqualToString:@"firstDayOfTheWeek"]) {
-        return NUMINTEGER(currRule.firstDayOfTheWeek);
-    }
-    else if ([key isEqualToString:@"daysOfTheWeek"]) {
-        NSArray* value = currRule.daysOfTheWeek;
-        NSMutableArray * result = [NSMutableArray arrayWithCapacity:[value count]];
-        for (EKRecurrenceDayOfWeek* dayofWeek in value) {
-            NSDictionary* props = [NSDictionary dictionaryWithObjectsAndKeys:NUMINTEGER(dayofWeek.dayOfTheWeek),@"dayOfWeek",
-                                                                             NUMINTEGER(dayofWeek.weekNumber),@"week", nil];
-            [result addObject:props];
-        }
-        return result;
-    }
-    else if ([key isEqualToString:@"daysOfTheMonth"]) {
-        return [NSArray arrayWithArray:currRule.daysOfTheMonth];
-    }
-    else if ([key isEqualToString:@"daysOfTheYear"]) {
-        return [NSArray arrayWithArray:currRule.daysOfTheYear];
-    }
-    else if ([key isEqualToString:@"weeksOfTheYear"]) {
-        return [NSArray arrayWithArray:currRule.weeksOfTheYear];
-    }
-    else if ([key isEqualToString:@"monthsOfTheYear"]) {
-        return [NSArray arrayWithArray:currRule.monthsOfTheYear];
-    }
-    else if ([key isEqualToString:@"setPositions"]) {
-        return [NSArray arrayWithArray:currRule.setPositions];
-    }
-    else {
-        return [super valueForUndefinedKey:key];
-    }
-    
-    
+    return result;
+  } else if ([key isEqualToString:@"daysOfTheMonth"]) {
+    return [NSArray arrayWithArray:currRule.daysOfTheMonth];
+  } else if ([key isEqualToString:@"daysOfTheYear"]) {
+    return [NSArray arrayWithArray:currRule.daysOfTheYear];
+  } else if ([key isEqualToString:@"weeksOfTheYear"]) {
+    return [NSArray arrayWithArray:currRule.weeksOfTheYear];
+  } else if ([key isEqualToString:@"monthsOfTheYear"]) {
+    return [NSArray arrayWithArray:currRule.monthsOfTheYear];
+  } else if ([key isEqualToString:@"setPositions"]) {
+    return [NSArray arrayWithArray:currRule.setPositions];
+  } else {
+    return [super valueForUndefinedKey:key];
+  }
 }
 
 @end

@@ -308,87 +308,87 @@ typedef void (^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError
   return [NSNumber numberWithInteger:result];
 }
 
--(NSString*) createCalendar:(id)args
+- (NSString *)createCalendar:(id)args
 {
-    ENSURE_SINGLE_ARG(args, NSDictionary);
-    
-    NSString* name = nil;
-    ENSURE_ARG_FOR_KEY(name, args, @"name", NSString);
+  ENSURE_SINGLE_ARG(args, NSDictionary);
 
-    EKEventStore* ourStore = [self store];
-    
-    if (ourStore == nil) {
-        DebugLog(@"Could not instantiate an event of the event store.");
-        return nil;
-    }
+  NSString *name = nil;
+  ENSURE_ARG_FOR_KEY(name, args, @"name", NSString);
 
-    EKCalendar *calendar = [EKCalendar calendarForEntityType:EKEntityTypeEvent eventStore:ourStore];
+  EKEventStore *ourStore = [self store];
 
-    EKSource *theSource = nil;
+  if (ourStore == nil) {
+    DebugLog(@"Could not instantiate an event of the event store.");
+    return nil;
+  }
 
-    // First of all, search for and iCloud account
-    for (EKSource *source in ourStore.sources) {
-        if (source.sourceType == EKSourceTypeCalDAV && [source.title isEqualToString:@"iCloud"]) {
-            theSource = source;
-            break;
-        }
-    }
-    
-    // If iCloud is off, create new calendar in Locale because we can't write other calendars (like Gmail or Yahoo!)
-    for (EKSource *source in ourStore.sources) {
-        if (source.sourceType == EKSourceTypeLocal) {
-            theSource = source;
-            break;
-        }
-    }
-    
-    // Otherwise, just rely on default calendar (but it will crash, we are sure about this)
-    if (theSource == nil) {
-        theSource = [[ourStore defaultCalendarForNewEvents] source];
-    }
+  EKCalendar *calendar = [EKCalendar calendarForEntityType:EKEntityTypeEvent eventStore:ourStore];
 
-    if (theSource == nil) {
-        NSLog(@"Error creating calendar: No available source");
-        return;
-    }
-    
-    calendar.source = theSource;
-    calendar.title = name;
+  EKSource *theSource = nil;
 
-    NSError* error = nil;
-    BOOL result;
-    
-    // But we are smart and we try-catch all the things to avoid an application fatal crash
-    @try {
-        result = [ourStore saveCalendar:calendar commit:YES error:&error];
-    } @catch (NSException *exception) {
-        NSLog(@"Error creating calendar: %@.", exception.reason);
+  // First of all, search for and iCloud account
+  for (EKSource *source in ourStore.sources) {
+    if (source.sourceType == EKSourceTypeCalDAV && [source.title isEqualToString:@"iCloud"]) {
+      theSource = source;
+      break;
     }
-    
-    if (result == false) {
-        NSLog(@"Error creating calendar: %@.", error);
+  }
+
+  // If iCloud is off, create new calendar in Locale because we can't write other calendars (like Gmail or Yahoo!)
+  for (EKSource *source in ourStore.sources) {
+    if (source.sourceType == EKSourceTypeLocal) {
+      theSource = source;
+      break;
     }
-    
-    return calendar.calendarIdentifier;
+  }
+
+  // Otherwise, just rely on default calendar (but it will crash, we are sure about this)
+  if (theSource == nil) {
+    theSource = [[ourStore defaultCalendarForNewEvents] source];
+  }
+
+  if (theSource == nil) {
+    NSLog(@"Error creating calendar: No available source");
+    return;
+  }
+
+  calendar.source = theSource;
+  calendar.title = name;
+
+  NSError *error = nil;
+  BOOL result;
+
+  // But we are smart and we try-catch all the things to avoid an application fatal crash
+  @try {
+    result = [ourStore saveCalendar:calendar commit:YES error:&error];
+  } @catch (NSException *exception) {
+    NSLog(@"Error creating calendar: %@.", exception.reason);
+  }
+
+  if (result == false) {
+    NSLog(@"Error creating calendar: %@.", error);
+  }
+
+  return calendar.calendarIdentifier;
 }
 
--(BOOL) deleteCalendarById:(id)arg
+- (BOOL)deleteCalendarById:(id)arg
 {
-    ENSURE_SINGLE_ARG(arg, NSString);
+  ENSURE_SINGLE_ARG(arg, NSString);
 
-    EKEventStore* ourStore = [self store];
-    EKCalendar *calendar = [ourStore calendarWithIdentifier:arg];
+  EKEventStore *ourStore = [self store];
+  EKCalendar *calendar = [ourStore calendarWithIdentifier:arg];
 
-    if (calendar) {
-        NSError *error = nil;
-        BOOL result = [ourStore removeCalendar:calendar commit:YES error:&error];
-        if (result) {
-            return YES;
-        } else {
-            NSLog(@"Deleting calendar failed: %@.", error);
-            return NO;
-        }
+  if (calendar) {
+    NSError *error = nil;
+    BOOL result = [ourStore removeCalendar:calendar commit:YES error:&error];
+    if (result) {
+      return YES;
+    } else {
+      NSLog(@"Deleting calendar failed: %@.", error);
+      return NO;
     }
+  }
 }
 
 #pragma mark - Properties
