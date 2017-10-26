@@ -70,6 +70,30 @@ public class TiCompositeLayout extends ViewGroup
     private int horizontalLayoutLastIndexBeforeWrap = 0;
     private int horiztonalLayoutPreviousRight = 0;
 
+    /**
+     * Custom pixel width to be used by child views when calculating percentage based lengths/positions.
+     * Set to a negative value if child should be relative to the parent view.
+     */
+    private int childRelativeSizingWidth = -1;
+
+    /**
+     * Custom pixel height to be used by child views when calculating percentage based lengths/positions.
+     * Set to a negative value if child should be relative to the parent view.
+     */
+    private int childRelativeSizingHeight = -1;
+
+    /**
+     * Custom pixel width to be used by child views using the Ti.UI.FILL setting.
+     * Set to a negative value if child should fill the parent's remaining width instead.
+     */
+    private int childFillWidth = -1;
+
+    /**
+     * Custom pixel height to be used by child views using the Ti.UI.FILL setting.
+     * Set to a negative value if child should fill the parent's remaining height instead.
+     */
+    private int childFillHeight = -1;
+
     private WeakReference<TiViewProxy> proxy;
 
     // We need these two constructors for backwards compatibility with modules
@@ -193,6 +217,139 @@ public class TiCompositeLayout extends ViewGroup
         return view.getClass().getSimpleName() + "@" + Integer.toHexString(view.hashCode());
     }
 
+    /**
+     * Sets a custom width/height for child views to calculate their percentage based
+     * width/height and top/bottom/left/right/center properties against.
+     * <p>
+     * Once this method is called, child views will no longer be percent sized/positioned
+     * based on this layout's size.
+     * <p>
+     * Example Usage: Scroll views call this method so that child views are percent sized/positioned
+     * based on the ScrollView container size instead of the scrollable content area's size.
+     * @param width The custom width to be used. Can be zero.
+     * @param height The custom height to be used. Can be zero.
+     */
+    public void setChildRelativeSizingTo(int width, int height)
+    {
+        this.childRelativeSizingWidth = Math.max(width, 0);
+        this.childRelativeSizingHeight = Math.max(height, 0);
+    }
+
+    /**
+     * Configures this layout to size and position child views that use a percentage based
+     * width/height and top/bottom/left/right/center properties reatlive to this parent
+     * layout's width and height.
+     * <p>
+     * This is the default setting.
+     * <p>
+     * Calling this method clears the setChildRelativeSizingTo() settings.
+     */
+    public void setChildRelativeSizingToParent()
+    {
+        this.childRelativeSizingWidth = -1;
+        this.childRelativeSizingHeight = -1;
+    }
+
+    /**
+     * Gets the custom width that was given to the last call to the setChildRelativeSizingTo() method.
+     * This is the width that a child view's percent based size/position properties are relative to.
+     * @return
+     * Returns the custom assigned relative width.
+     * <p>
+     * Returns -1 (the default) if percentage based calculations are based on this layout's width.
+     */
+    public int getChildRelativeSizingWidth()
+    {
+        return this.childRelativeSizingWidth;
+    }
+
+    /**
+     * Gets the custom height that was given to the last call to the setChildRelativeSizingTo() method.
+     * This is the height that a child view's percent based size/position properties are relative to.
+     * @return
+     * Returns the custom assigned relative height.
+     * <p>
+     * Returns -1 (the default) if percentage based calculations are based on this layout's height.
+     */
+    public int getChildRelativeSizingHeight()
+    {
+        return this.childRelativeSizingHeight;
+    }
+
+    /**
+     * Configures this layout to have child views whose "width" property is set to Ti.UI.FILL
+     * to fill the parent's remaining width.
+     * <p>
+     * If the setChildFillWidth() method was called before, then its setting is cleared.
+     * <p>
+     * This is the default setting.
+     */
+    public void setChildFillWidthToParent()
+    {
+        this.childFillWidth = -1;
+    }
+
+    /**
+     * Sets a custom width to be used by child views whose "width" property is set to Ti.UI.FILL.
+     * This prevents child views from using this layout's remaining width, which is the normal behavior.
+     * <p>
+     * Example Usage: Scroll views set this to their container width when "contentWidth" is auto.
+     * @param value The custom fill width to be used. Can be zero.
+     */
+    public void setChildFillWidth(int value)
+    {
+        this.childFillWidth = Math.max(value, 0);
+    }
+
+    /**
+     * Gets the custom fill width given to the setChildFillWidth() method.
+     * @return
+     * Returns the custom fill width to be applied to child views using Ti.UI.FILL.
+     * <p>
+     * Returns -1 (the default) indicating that child views will fill this layout's remaining width.
+     */
+    public int getChildFillWidth()
+    {
+        return this.childFillWidth;
+    }
+
+    /**
+     * Configures this layout to have child views whose "height" property is set to Ti.UI.FILL
+     * to fill the parent's remaining height.
+     * <p>
+     * If the setChildFillHeight() method was called before, then its setting is cleared.
+     * <p>
+     * This is the default setting.
+     */
+    public void setChildFillHeightToParent()
+    {
+        this.childFillHeight = -1;
+    }
+
+    /**
+     * Sets a custom height to be used by child views whose "height" property is set to Ti.UI.FILL.
+     * This prevents child views from using this layout's remaining height, which is the normal behavior.
+     * <p>
+     * Example Usage: Scroll views set this to their container height when "contentHeight" is auto.
+     * @param value The custom fill height to be used. Can be zero.
+     */
+    public void setChildFillHeight(int value)
+    {
+        this.childFillHeight = Math.max(value, 0);
+    }
+
+    /**
+     * Gets the custom fill height given to the setChildFillHeight() method.
+     * @return
+     * Returns the custom fill height to be applied to child views using Ti.UI.FILL.
+     * <p>
+     * Returns -1 (the default) indicating that child views will fill this layout's remaining height.
+     */
+    public int getChildFillHeight()
+    {
+        return this.childFillHeight;
+    }
+
     public void resort()
     {
         setNeedsSort(true);
@@ -234,18 +391,27 @@ public class TiCompositeLayout extends ViewGroup
 
     protected int getViewWidthPadding(View child, int parentWidth)
     {
+        // Determine what size a percentage based coordinate will be relative to.
+        // Normally defaults to the parent's width unless a custom value was provided.
+        // Ex: ScrollViews are relative to the container instead of the scrollable content area.
+        int relativeWidth = parentWidth;
+        if (this.childRelativeSizingWidth >= 0) {
+            relativeWidth = this.childRelativeSizingWidth;
+        }
+
+        // Calculate the given view's left/right padding size in pixels.
         LayoutParams p = (LayoutParams) child.getLayoutParams();
         int padding = 0;
         if (p.optionLeft != null) {
             if (p.optionLeft.isUnitPercent()) {
-                padding += getAsPercentageValue(p.optionLeft.getValue(), parentWidth);
+                padding += getAsPercentageValue(p.optionLeft.getValue(), relativeWidth);
             } else {
                 padding += p.optionLeft.getAsPixels(this);
             }
         }
         if (p.optionRight != null) {
             if (p.optionRight.isUnitPercent()) {
-                padding += getAsPercentageValue(p.optionRight.getValue(), parentWidth);
+                padding += getAsPercentageValue(p.optionRight.getValue(), relativeWidth);
             } else {
                 padding += p.optionRight.getAsPixels(this);
             }
@@ -255,18 +421,27 @@ public class TiCompositeLayout extends ViewGroup
 
     protected int getViewHeightPadding(View child, int parentHeight)
     {
+        // Determine what size a percentage based coordinate will be relative to.
+        // Normally defaults to the parent's height unless a custom value was provided.
+        // Ex: ScrollViews are relative to the container instead of the scrollable content area.
+        int relativeHeight = parentHeight;
+        if (this.childRelativeSizingHeight >= 0) {
+            relativeHeight = this.childRelativeSizingHeight;
+        }
+
+        // Calculate the given view's top/bottom padding size in pixels.
         LayoutParams p = (LayoutParams) child.getLayoutParams();
         int padding = 0;
         if (p.optionTop != null) {
             if (p.optionTop.isUnitPercent()) {
-                padding += getAsPercentageValue(p.optionTop.getValue(), parentHeight);
+                padding += getAsPercentageValue(p.optionTop.getValue(), relativeHeight);
             } else {
                 padding += p.optionTop.getAsPixels(this);
             }
         }
         if (p.optionBottom != null) {
             if (p.optionBottom.isUnitPercent()) {
-                padding += getAsPercentageValue(p.optionBottom.getValue(), parentHeight);
+                padding += getAsPercentageValue(p.optionBottom.getValue(), relativeHeight);
             } else {
                 padding += p.optionBottom.getAsPixels(this);
             }
@@ -296,12 +471,22 @@ public class TiCompositeLayout extends ViewGroup
         int horizontalRowHeight = 0;
 
         for (int i = 0; i < childCount; i++) {
+            // Apply a width and height to the next child view owned by this layout.
             View child = getChildAt(i);
             if (child.getVisibility() != View.GONE) {
+                // Calculate remaining height to fill. (Only applicable to horizontal/vertical layouts.)
                 int hRemain = isDefaultArrangement() ? h : (h - maxHeight);
-                constrainChild(child, w, wMode, h, hMode, wRemain, hRemain);
+
+                // If a custom fill size was provided, then use it instead of the remaining size.
+                // Note: ScrollViews set this to size of container unless "contentWidth" is set.
+                int wRemainForChild = (this.childFillWidth >= 0) ? this.childFillWidth : wRemain;
+                int hRemainForChild = (this.childFillHeight >= 0) ? this.childFillHeight : hRemain;
+
+                // Constrain the child view to this view's bounds.
+                constrainChild(child, w, wMode, h, hMode, wRemainForChild, hRemainForChild);
             }
 
+            // Fetch the child view's new measurements, minus the padding.
             int childWidth = child.getMeasuredWidth();
             int childHeight = child.getMeasuredHeight();
             if (child.getVisibility() != View.GONE) {
@@ -399,8 +584,13 @@ public class TiCompositeLayout extends ViewGroup
         int widthPadding = getViewWidthPadding(child, width);
         if (p.optionWidth != null) {
             // Fetch the view's configured width.
+            wMode = MeasureSpec.EXACTLY;
             if (p.optionWidth.isUnitPercent()) {
-                childDimension = getAsPercentageValue(p.optionWidth.getValue(), width);
+                int relativeWidth = width;
+                if (this.childRelativeSizingWidth >= 0) {
+                    relativeWidth = this.childRelativeSizingWidth;
+                }
+                childDimension = getAsPercentageValue(p.optionWidth.getValue(), relativeWidth);
             } else {
                 childDimension = p.optionWidth.getAsPixels(this);
             }
@@ -419,7 +609,8 @@ public class TiCompositeLayout extends ViewGroup
             // Use the remaining width of the parent view to fill it.
             // Note: Do not use Android's MATCH_PARENT or FILL_PARENT constant here, because if the
             //       parent view is WRAP_CONTENT (ie: Ti.UI.SIZE), then the child will use min size
-            //       instead of filling parent's remaing space like iOS/Windows. (See: TIMOB-25173)
+            //       instead of filling parent's remaining space like iOS/Windows. (See: TIMOB-25173)
+            wMode = MeasureSpec.EXACTLY;
             childDimension = Math.max(remainWidth - widthPadding, 0);
         } else if (!p.sizeOrFillWidthEnabled) {
             // Attempt to calculate a width based on left/center/right properties, if provided.
@@ -434,8 +625,13 @@ public class TiCompositeLayout extends ViewGroup
         int heightPadding = getViewHeightPadding(child, height);
         if (p.optionHeight != null) {
             // Fetch the view's configured height.
+            hMode = MeasureSpec.EXACTLY;
             if (p.optionHeight.isUnitPercent()) {
-                childDimension = getAsPercentageValue(p.optionHeight.getValue(), height);
+                int relativeHeight = height;
+                if (this.childRelativeSizingHeight >= 0) {
+                    relativeHeight = this.childRelativeSizingHeight;
+                }
+                childDimension = getAsPercentageValue(p.optionHeight.getValue(), relativeHeight);
             } else {
                 childDimension = p.optionHeight.getAsPixels(this);
             }
@@ -444,6 +640,7 @@ public class TiCompositeLayout extends ViewGroup
             }
         } else if (p.autoFillsHeight) {
             // Use the remaining height of the parent view to fill it.
+            hMode = MeasureSpec.EXACTLY;
             childDimension = Math.max(remainHeight - heightPadding, 0);
         } else if (!p.sizeOrFillHeightEnabled) {
             // Attempt to calculate a height based on top/center/bottom properties, if provided.
@@ -468,6 +665,14 @@ public class TiCompositeLayout extends ViewGroup
         // If JavaScript "width" property is set, then "left" and "right" properties are used as padding.
         if ((params.optionWidth != null) || params.autoFillsWidth || params.sizeOrFillWidthEnabled) {
             return width;
+        }
+
+        // If set up to use a custom fill size, then use it instead of the given parent size.
+        // Note: ScrollViews set this to size of container unless "contentWidth" is set.
+        if (this.childFillWidth >= 0) {
+            parentWidth = this.childFillWidth;
+            parentLeft = 0;
+            parentRight = parentWidth;
         }
 
         // Attempt to calculate width from the pin properties.
@@ -498,6 +703,14 @@ public class TiCompositeLayout extends ViewGroup
         // If JavaScript "height" property is set, then "top" and "bottom" properties are used as padding.
         if ((params.optionHeight != null) || params.autoFillsHeight || params.sizeOrFillHeightEnabled) {
             return height;
+        }
+
+        // If set up to use a custom fill size, then use it instead of the given parent size.
+        // Note: ScrollViews set this to size of container unless "contentWidth" is set.
+        if (this.childFillHeight >= 0) {
+            parentHeight = this.childFillHeight;
+            parentTop = 0;
+            parentBottom = parentHeight;
         }
 
         // Attempt to calculate height from the pin properties.
