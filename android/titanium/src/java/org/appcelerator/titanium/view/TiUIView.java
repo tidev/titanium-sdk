@@ -1431,6 +1431,9 @@ public abstract class TiUIView
 				Object borderWidth = "1";
 				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
 					borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
+				} else {
+					// Add the default width of 1 to the proxy as well
+					proxy.setProperty(TiC.PROPERTY_BORDER_WIDTH, borderWidth);
 				}
 
 				TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
