@@ -6,44 +6,44 @@
  */
 #ifdef USE_TI_UITAB
 
-#import "TiViewProxy.h"
 #import "TiTab.h"
+#import "TiViewProxy.h"
 #import "TiWindowProxy.h"
 
 @class TiUITabGroupProxy;
 
-@interface TiUITabProxy : TiViewProxy<TiTab,UINavigationControllerDelegate,UIGestureRecognizerDelegate,TiOrientationController> {
-@private
-	UINavigationController *controller;
-	TiWindowProxy *rootWindow;
-    TiWindowProxy *current;
-	//This is an assign only property. TabGroup retains instances of tab.
-	TiUITabGroupProxy *tabGroup;
-    
-	NSMutableArray* controllerStack;
-	
-	BOOL systemTab;
-	BOOL transitionIsAnimating;
-	BOOL transitionWithGesture;
-	BOOL hasFocus;
-	BOOL iconOriginal;
-	BOOL activeIconOriginal;
-	
-	id<TiOrientationController> parentOrientationController;
+@interface TiUITabProxy : TiViewProxy <TiTab, UINavigationControllerDelegate, UIGestureRecognizerDelegate, TiOrientationController> {
+  @private
+  UINavigationController *controller;
+  TiWindowProxy *rootWindow;
+  TiWindowProxy *current;
+  //This is an assign only property. TabGroup retains instances of tab.
+  TiUITabGroupProxy *tabGroup;
+
+  NSMutableArray *controllerStack;
+
+  BOOL systemTab;
+  BOOL transitionIsAnimating;
+  BOOL transitionWithGesture;
+  BOOL hasFocus;
+  BOOL iconOriginal;
+  BOOL activeIconOriginal;
+
+  id<TiOrientationController> parentOrientationController;
 }
 
--(void)setTabGroup:(TiUITabGroupProxy*)proxy;
--(void)removeFromTabGroup;
--(void)closeWindowProxy:(TiWindowProxy *)window animated:(BOOL)animated;
+- (void)setTabGroup:(TiUITabGroupProxy *)proxy;
+- (void)removeFromTabGroup;
+- (void)closeWindowProxy:(TiWindowProxy *)window animated:(BOOL)animated;
 
 #pragma mark Public APIs
 
--(TiProxy*)tabGroup;
--(void)setTitle:(id)title;
--(void)setIcon:(id)title;
--(void)setBadge:(id)title;
--(void)setActive:(id)value;
--(void)setIconInsets:(id)args;
+- (TiProxy *)tabGroup;
+- (void)setTitle:(id)title;
+- (void)setIcon:(id)title;
+- (void)setBadge:(id)title;
+- (void)setActive:(id)value;
+- (void)setIconInsets:(id)args;
 
 - (void)handleWillBlur;
 - (void)handleDidBlur:(NSDictionary *)event;

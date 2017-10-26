@@ -12,22 +12,20 @@
 
 @synthesize value, properties;
 
-
--(id)initWithValue:(id)value_ properties:(NSDictionary*)properties_
+- (id)initWithValue:(id)value_ properties:(NSDictionary *)properties_
 {
-	if (self = [super init])
-	{
-		value = [value_ retain];
-		properties = [properties_ retain];
-	}
-	return self;
+  if (self = [super init]) {
+    value = [value_ retain];
+    properties = [properties_ retain];
+  }
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(value);
-	RELEASE_TO_NIL(properties);
-	[super dealloc];
+  RELEASE_TO_NIL(value);
+  RELEASE_TO_NIL(properties);
+  [super dealloc];
 }
 
 @end

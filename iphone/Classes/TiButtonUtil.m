@@ -7,47 +7,39 @@
 #import "TiButtonUtil.h"
 #import "TiBase.h"
 
-
 @implementation TiButtonUtil
 
-+(UIView*)systemButtonWithType:(int)type
++ (UIView *)systemButtonWithType:(int)type
 {
-	switch (type)
-	{
-		case UITitaniumNativeItemInfoLight:
-		{
-			return [UIButton buttonWithType:UIButtonTypeInfoLight];
-		}
-		case UITitaniumNativeItemInfoDark:
-		{
-			return [UIButton buttonWithType:UIButtonTypeInfoDark];
-		}
-		case UITitaniumNativeItemDisclosure:
-		{
-			return [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
-		}
-		case UITitaniumNativeItemContactAdd:
-		{
-			return [UIButton buttonWithType:UIButtonTypeContactAdd];
-		}
-		case UITitaniumNativeItemSpinner:
-		{
-			UIActivityIndicatorView *button = [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite] autorelease];
-			[button startAnimating];
-			return button;
-		}
-	}
-	return nil;
+  switch (type) {
+  case UITitaniumNativeItemInfoLight: {
+    return [UIButton buttonWithType:UIButtonTypeInfoLight];
+  }
+  case UITitaniumNativeItemInfoDark: {
+    return [UIButton buttonWithType:UIButtonTypeInfoDark];
+  }
+  case UITitaniumNativeItemDisclosure: {
+    return [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+  }
+  case UITitaniumNativeItemContactAdd: {
+    return [UIButton buttonWithType:UIButtonTypeContactAdd];
+  }
+  case UITitaniumNativeItemSpinner: {
+    UIActivityIndicatorView *button = [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite] autorelease];
+    [button startAnimating];
+    return button;
+  }
+  }
+  return nil;
 }
 
-+(UIView*)buttonWithType:(int)type
++ (UIView *)buttonWithType:(int)type
 {
-	UIView *button = [TiButtonUtil systemButtonWithType:type];
-	if (button==nil)
-	{
-		button = [UIButton buttonWithType:type];
-	}
-	return button;
+  UIView *button = [TiButtonUtil systemButtonWithType:type];
+  if (button == nil) {
+    button = [UIButton buttonWithType:type];
+  }
+  return button;
 }
 
 @end

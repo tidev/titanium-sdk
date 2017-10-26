@@ -8,22 +8,18 @@
 
 #import "TiProxy.h"
 
-
 @interface TiUIiPhoneRowAnimationStyleProxy : TiProxy {
-
 }
 
-@property(nonatomic,readonly) NSNumber *NONE;
-@property(nonatomic,readonly) NSNumber *LEFT;
-@property(nonatomic,readonly) NSNumber *RIGHT;
-@property(nonatomic,readonly) NSNumber *TOP;
-@property(nonatomic,readonly) NSNumber *BOTTOM;
-@property(nonatomic,readonly) NSNumber *FADE;
+@property (nonatomic, readonly) NSNumber *NONE;
+@property (nonatomic, readonly) NSNumber *LEFT;
+@property (nonatomic, readonly) NSNumber *RIGHT;
+@property (nonatomic, readonly) NSNumber *TOP;
+@property (nonatomic, readonly) NSNumber *BOTTOM;
+@property (nonatomic, readonly) NSNumber *FADE;
 
-@property(nonatomic,readonly) NSNumber *UP;		// used in KS before 0.9
-@property(nonatomic,readonly) NSNumber *DOWN;	// used in KS before 0.9
-
-
+@property (nonatomic, readonly) NSNumber *UP; // used in KS before 0.9
+@property (nonatomic, readonly) NSNumber *DOWN; // used in KS before 0.9
 
 @end
 

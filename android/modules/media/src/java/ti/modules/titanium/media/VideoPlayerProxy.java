@@ -35,7 +35,7 @@ import android.os.Messenger;
 
 @Kroll.proxy(creatableInModule = MediaModule.class, propertyAccessors = {
 	"url", "initialPlaybackTime", "duration", "contentURL", "autoplay", "endPlaybackTime", "playableDuration",
-	TiC.PROPERTY_VOLUME
+	TiC.PROPERTY_VOLUME, TiC.PROPERTY_REPEAT_MODE
 })
 public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifecycleEvent
 {
@@ -56,6 +56,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	private static final int MSG_RELEASE = MSG_FIRST_ID + 109; // Call view.release() (more drastic)
 	private static final int MSG_HIDE_MEDIA_CONTROLLER = MSG_FIRST_ID + 110;
 	private static final int MSG_SET_VIEW_FROM_ACTIVITY = MSG_FIRST_ID + 111;
+	private static final int MSG_REPEAT_CHANGE = MSG_FIRST_ID + 112;
 
 	// Keeping these out of TiC because I believe we'll stop supporting them
 	// in favor of the documented property, which is "mediaControlStyle".
@@ -71,6 +72,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	protected int scalingMode = MediaModule.VIDEO_SCALING_ASPECT_FIT;
 	private int loadState = MediaModule.VIDEO_LOAD_STATE_UNKNOWN;
 	private int playbackState = MediaModule.VIDEO_PLAYBACK_STATE_STOPPED;
+	private int repeatMode = MediaModule.VIDEO_REPEAT_MODE_NONE;
 
 	// Used only if TiVideoActivity is used (fullscreen == true)
 	private Handler videoActivityHandler;
@@ -318,6 +320,26 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		return playbackState;
 	}
 
+	@Kroll.method @Kroll.getProperty
+	public int getRepeatMode()
+	{
+		return repeatMode;
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setRepeatMode(int mode)
+	{
+		boolean alert = (mode != repeatMode);
+		repeatMode = mode;
+		if (alert && view != null) {
+			if (TiApplication.isUIThread()) {
+				getVideoView().setRepeatMode(mode);
+			} else {
+				getMainHandler().sendEmptyMessage(MSG_REPEAT_CHANGE);
+			}
+		}
+	}
+
 	@Override
 	public void hide(@Kroll.argument(optional=true) KrollDict options)
 	{
@@ -389,6 +411,12 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 				setVideoViewFromActivity((TiCompositeLayout) msg.obj);
 				handled = true;
 				break;
+			case MSG_REPEAT_CHANGE:
+				if (vv != null) {
+					vv.setRepeatMode(repeatMode);
+				}
+				handled = true;
+				break;				
 		}
 
 		if (!handled) {
@@ -718,13 +746,18 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void requestThumbnailImagesAtTimes(Object[] times, Object option, KrollFunction callback)
 	{
 		if (hasProperty(TiC.PROPERTY_URL)) {
-			String url = TiConvert.toString(getProperty(TiC.PROPERTY_URL));
-			String path = url.contains(":") ? new TitaniumBlob(url).getNativePath() : resolveUrl(null, url);
-			Uri uri = Uri.parse(path);
-
 			cancelAllThumbnailImageRequests();
 			mTiThumbnailRetriever = new TiThumbnailRetriever();
-			mTiThumbnailRetriever.setUri(uri);
+			String url = TiConvert.toString(getProperty(TiC.PROPERTY_URL));
+			if (url.startsWith("file://")) {
+				mTiThumbnailRetriever.setUri(Uri.parse(this.resolveUrl(null, TiConvert.toString(this.getProperty(TiC.PROPERTY_URL)))));
+			} else {
+				String path = url.contains(":") ? new TitaniumBlob(url).getNativePath() : resolveUrl(null, url);
+				Uri uri = Uri.parse(path);
+				mTiThumbnailRetriever.setUri(uri);
+			}
+
+
 			mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option), createThumbnailResponseHandler(callback));
 		}
 	}

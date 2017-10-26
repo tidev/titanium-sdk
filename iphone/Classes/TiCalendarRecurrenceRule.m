@@ -7,44 +7,43 @@
 
 #ifdef USE_TI_CALENDAR
 
+#import "TiBlob.h"
 #import "TiCalendarCalendar.h"
 #import "TiUtils.h"
-#import "TiBlob.h"
 
 #import "TiCalendarRecurrenceRule.h"
-
 
 @implementation TiCalendarRecurrenceRule
 
 #pragma mark - Internals
 
--(id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule*)rule_
+- (id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule *)rule_
 {
-    if (self= [super _initWithPageContext:context]) {
-       rule = [rule_ retain];
-    }
-    return self;
+  if (self = [super _initWithPageContext:context]) {
+    rule = [rule_ retain];
+  }
+  return self;
 }
 
--(void)_destroy
+- (void)_destroy
 {
-    RELEASE_TO_NIL(rule);
-    [super _destroy];
+  RELEASE_TO_NIL(rule);
+  [super _destroy];
 }
 
--(EKRecurrenceRule*)ruleForRecurrence
+- (EKRecurrenceRule *)ruleForRecurrence
 {
-    return rule;
+  return rule;
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.Calendar.RecurrenceRule";
+  return @"Ti.Calendar.RecurrenceRule";
 }
 
 #pragma mark - Public API's
 
--(id)valueForUndefinedKey:(NSString *)key
+- (id)valueForUndefinedKey:(NSString *)key
 {
     EKRecurrenceRule * currRule = [self ruleForRecurrence];
     if (currRule == NULL) {

@@ -7,9 +7,8 @@
 #import "TiModule.h"
 
 @interface APIModule : TiModule {
-
 }
 
--(void)logMessage:(NSArray*)messages severity:(NSString*)severity; // Used by TiConsole
+- (void)logMessage:(NSArray *)messages severity:(NSString *)severity; // Used by TiConsole
 
 @end
