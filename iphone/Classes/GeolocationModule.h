@@ -31,8 +31,9 @@ NSString *const kTiGeolocationUsageDescriptionAlwaysAndWhenInUse = @"NSLocationA
 	BOOL trackingLocation;
 	BOOL trackSignificantLocationChange;
 	BOOL allowsBackgroundLocationUpdates;
-    KrollCallback *authorizationCallback;
-    
+	KrollCallback *authorizationCallback;
+	CLAuthorizationStatus requestedAuthorizationStatus;
+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
 	CLActivityType activityType;
 	BOOL pauseLocationUpdateAutomatically;
