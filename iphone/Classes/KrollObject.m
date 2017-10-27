@@ -14,6 +14,7 @@
 #import "KrollBridge.h"
 #import "TiBindingTiValue.h"
 #import "TiExceptionHandler.h"
+#import "SBJSON.h"
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
@@ -72,7 +73,7 @@ NSDictionary* TiValueToDict(KrollContext *context, TiValueRef value)
 //
 NSString* TiValueToJSON(KrollContext *context, TiValueRef value)
 {
-	return [TiUtils jsonStringify:TiValueToId(context,value)];
+	return [SBJSON stringify:TiValueToId(context,value)];
 }
 
 //
