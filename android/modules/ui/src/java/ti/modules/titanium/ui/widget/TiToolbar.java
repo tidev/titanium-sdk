@@ -123,10 +123,8 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	private void handleBackgroundExtended() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			Window window = TiApplication.getAppCurrentActivity().getWindow();
-			//Calculate Status bar's height
-			int statusBarHeight = calculateStatusBarHeight();
-			//Add padding to extend the toolbar's background
-			toolbar.setPadding(toolbar.getPaddingLeft(),statusBarHeight + toolbar.getPaddingTop(), toolbar.getPaddingRight(),toolbar.getPaddingBottom());
+			//Compensate for status bar's height
+			toolbar.setFitsSystemWindows(true);
 			//Set flags for the current window that allow drawing behind status bar
 			window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 			window.setStatusBarColor(Color.TRANSPARENT);
