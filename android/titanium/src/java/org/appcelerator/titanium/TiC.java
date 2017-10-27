@@ -482,11 +482,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_RESOURCE_LOADED = "resourceLoaded";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_RESTART = "restart";
 
 	/**

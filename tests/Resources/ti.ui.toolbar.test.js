@@ -7,6 +7,7 @@
 /* eslint-env mocha */
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
+
 'use strict';
 var should = require('./utilities/assertions'),
 	utilities = require('./utilities/utilities');
@@ -48,7 +49,7 @@ describe('Titanium.UI.Toolbar', function() {
 		should(toolbar.barColor).eql('#ABC');
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('contentInsetEndWithActions', function() {
+	it.android('contentInsetEndWithActions', function() {
 		var toolbar = Ti.UI.createToolbar({contentInsetEndWithActions: 20, top: 0, width: Ti.UI.FILL});
 		window.activity.supportToolbar = toolbar;
 		window.add(toolbar);
@@ -65,7 +66,7 @@ describe('Titanium.UI.Toolbar', function() {
 		window.open();
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('contentInsetStartWithNavigation', function() {
+	it.android('contentInsetStartWithNavigation', function() {
 		var toolbar = Ti.UI.createToolbar({contentInsetStartWithNavigation: 20, top: 0, width: Ti.UI.FILL});
 		window.activity.supportToolbar = toolbar;
 		window.add(toolbar);
@@ -86,61 +87,56 @@ describe('Titanium.UI.Toolbar', function() {
 		window.open();
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('logo', function(finish) {
-		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, logo: Ti.Filesystem.resourcesDirectory + 'Logo.png', barColor: 'blue'});
-		window.activity.supportToolbar = toolbar;
-		window.add(toolbar);
-		toolbar.addEventListener('resourceLoaded', function(e) {
-			should(e.target).eql('logo');
-			should(e.loaded).eql(true);
+	it.android('logo', function(finish) {
+		var listener = function(e) {
+			should(e.logo).eql(true);
 			finish();
-		});
-		window.open();
-	});
-
-	(utilities.isAndroid() ? it : it.skip)('logo pixel density specific', function(finish) {
-		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, logo: '/images/dip.png', barColor: 'blue'});
-		window.activity.supportToolbar = toolbar;
-		window.add(toolbar);
-		toolbar.addEventListener('resourceLoaded', function(e) {
-			should(e.target).eql('logo');
-			should(e.loaded).eql(true);
-			finish();
-		});
-		window.open();
-	});
-
-	(utilities.isAndroid() ? it : it.skip)('navigationIcon', function(finish) {
-		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, navigationIcon: Ti.Filesystem.resourcesDirectory + 'Logo.png', barColor: 'blue'});
-		toolbar.addEventListener('resourceLoaded', function(e) {
-			should(e.target).eql('navigationIcon');
-			should(e.loaded).eql(true);
-			finish();
-		});
+		};
+		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, logo: Ti.Filesystem.resourcesDirectory + 'Logo.png', barColor: 'red', resourceLoadedListener:listener});
 		window.activity.supportToolbar = toolbar;
 		window.add(toolbar);
 		window.open();
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('navigationIcon pixel density specific', function(finish) {
-		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, barColor: 'blue', navigationIcon: '/images/dip.png'});
-		toolbar.addEventListener('resourceLoaded', function(e) {
-			should(e.target).eql('navigationIcon');
-			should(e.loaded).eql(true);
+	it.android('logo pixel density specific', function(finish) {
+		var listener = function(e) {
+			should(e.logo).eql(true);
 			finish();
-		});
+		};
+		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, logo: '/images/dip.png', barColor: 'red', resourceLoadedListener:listener});
 		window.activity.supportToolbar = toolbar;
 		window.add(toolbar);
 		window.open();
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('overflowIcon', function(finish) {
-		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, overflowIcon: Ti.Filesystem.resourcesDirectory + 'Logo.png', barColor: 'blue'});
-		toolbar.addEventListener('resourceLoaded', function(e) {
-			should(e.target).eql('overflowIcon');
-			should(e.loaded).eql(true);
+	it.android('navigationIcon', function(finish) {
+		var listener = function(e) {
+			should(e.navigationIcon).eql(true);
 			finish();
-		});
+		};
+		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, displayHomeAsUp: true, navigationIcon: Ti.Filesystem.resourcesDirectory + 'Logo.png', barColor: 'red', resourceLoadedListener:listener});
+		window.activity.supportToolbar = toolbar;
+		window.add(toolbar);
+		window.open();
+	});
+
+	it.android('navigationIcon pixel density specific', function(finish) {
+		var listener = function(e) {
+			should(e.navigationIcon).eql(true);
+			finish();
+		};
+		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, displayHomeAsUp: true, navigationIcon: '/images/dip.png', barColor: 'red', resourceLoadedListener:listener});
+		window.activity.supportToolbar = toolbar;
+		window.add(toolbar);
+		window.open();
+	});
+
+	it.android('overflowIcon', function(finish) {
+		var listener = function(e) {
+			should(e.overflowIcon).eql(true);
+			finish();
+		};
+		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, overflowIcon: Ti.Filesystem.resourcesDirectory + 'Logo.png', barColor: 'red', resourceLoadedListener:listener});
 		window.activity.supportToolbar = toolbar;
 		window.add(toolbar);
 		window.activity.onCreateOptionsMenu = function(e) {
@@ -153,13 +149,12 @@ describe('Titanium.UI.Toolbar', function() {
 		window.open();
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('overflowIcon pixel density specific', function(finish) {
-		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, overflowIcon: '/images/dip.png', barColor: 'blue'});
-		toolbar.addEventListener('resourceLoaded', function(e) {
-			should(e.target).eql('overflowIcon');
-			should(e.loaded).eql(true);
+	it.android('overflowIcon pixel density specific', function(finish) {
+		var listener = function(e) {
+			should(e.overflowIcon).eql(true);
 			finish();
-		});
+		};
+		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, overflowIcon: '/images/dip.png', barColor: 'red', resourceLoadedListener:listener});
 		window.activity.supportToolbar = toolbar;
 		window.add(toolbar);
 		window.activity.onCreateOptionsMenu = function(e) {
@@ -172,7 +167,7 @@ describe('Titanium.UI.Toolbar', function() {
 		window.open();
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('title', function() {
+	it.android('title', function() {
 		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, title: 'Title', barColor: 'blue'});
 		window.add(toolbar);
 		window.addEventListener("open", function() {
@@ -181,7 +176,7 @@ describe('Titanium.UI.Toolbar', function() {
 		window.open();
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('subtitle', function() {
+	it.android('subtitle', function() {
 		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, subtitle: 'Subtitle', barColor: 'blue'});
 		window.add(toolbar);
 		window.addEventListener("open", function() {
@@ -190,7 +185,7 @@ describe('Titanium.UI.Toolbar', function() {
 		window.open();
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('titleTextColor', function() {
+	it.android('titleTextColor', function() {
 		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, title: 'Title', titleTextColor: 'red', barColor: 'blue'});
 		window.add(toolbar);
 		window.addEventListener("open", function() {
@@ -199,7 +194,7 @@ describe('Titanium.UI.Toolbar', function() {
 		window.open();
 	});
 
-	(utilities.isAndroid() ? it : it.skip)('subtitleTextColor', function() {
+	it.android('subtitleTextColor', function() {
 		var toolbar = Ti.UI.createToolbar({top: 0, width: Ti.UI.FILL, subtitle: 'Subtitle', subtitleTextColor: 'green', barColor: 'blue'});
 		window.add(toolbar);
 		window.addEventListener("open", function() {

@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -61,13 +62,13 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	//endregion
 
 	private Map<String, TiDrawableReference> drawableMap = new HashMap<String, TiDrawableReference>();
-
+	private KrollFunction resourceLoadedListener = null;
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
 	 * @param proxy the associated proxy.
 	 * @module.api
 	 */
-	public TiToolbar(TiViewProxy proxy) {
+	public TiToolbar(final TiViewProxy proxy) {
 		super(proxy);
 		toolbar = new Toolbar(proxy.getActivity()) {
 
@@ -75,14 +76,13 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 			@Override
 			protected void onDraw(Canvas canvas) {
 				super.onDraw(canvas);
-				if (drawableMap.containsKey(TiC.PROPERTY_LOGO)) {
-					checkResourceLoading(TiC.PROPERTY_LOGO, drawableMap.get(TiC.PROPERTY_LOGO), this.getLogo());
-				}
-				if (drawableMap.containsKey(TiC.PROPERTY_OVERFLOW_ICON)) {
-					checkResourceLoading(TiC.PROPERTY_OVERFLOW_ICON, drawableMap.get(TiC.PROPERTY_OVERFLOW_ICON), this.getOverflowIcon());
-				}
-				if (drawableMap.containsKey(TiC.PROPERTY_NAVIGATION_ICON)) {
-					checkResourceLoading(TiC.PROPERTY_NAVIGATION_ICON, drawableMap.get(TiC.PROPERTY_NAVIGATION_ICON), this.getNavigationIcon());
+				//if we have attached listener send the dictionary
+				if (resourceLoadedListener != null) {
+					KrollDict callbackParam = new KrollDict();
+					callbackParam.put(TiC.PROPERTY_LOGO, checkResourceLoading(drawableMap.get(TiC.PROPERTY_LOGO), this.getLogo()));
+					callbackParam.put(TiC.PROPERTY_OVERFLOW_ICON, checkResourceLoading(drawableMap.get(TiC.PROPERTY_OVERFLOW_ICON), this.getOverflowIcon()));
+					callbackParam.put(TiC.PROPERTY_NAVIGATION_ICON, checkResourceLoading(drawableMap.get(TiC.PROPERTY_NAVIGATION_ICON), this.getNavigationIcon()));
+					resourceLoadedListener.callAsync(proxy.getKrollObject(), callbackParam);
 				}
 			}
 
@@ -513,15 +513,16 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 		toolbar.setContentInsetsAbsolute(values[0], values[1]);
 	}
 
-	private void checkResourceLoading(String target, TiDrawableReference source, Drawable result) {
-		KrollDict dict = new KrollDict();
-		dict.put(TiC.PROPERTY_TARGET, target);
-		dict.put(TiC.PROPERTY_LOADED, source.compareBitmapWith(result));
-		fireEvent(TiC.EVENT_RESOURCE_LOADED, dict);
+	private boolean checkResourceLoading(TiDrawableReference source, Drawable result) {
+		return (source != null && result != null && source.compareBitmapWith(result));
 	}
 
 	@Override
 	public void processProperties(KrollDict d) {
+		//process internal properties
+		if (d.containsKey("resourceLoadedListener")) {
+			resourceLoadedListener = ((KrollFunction) d.get("resourceLoadedListener"));
+		}
 		//region process common properties
 		if (d.containsKey(TiC.PROPERTY_BAR_COLOR)) {
 			setToolbarColor(d.getString(TiC.PROPERTY_BAR_COLOR));
