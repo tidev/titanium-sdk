@@ -17,6 +17,7 @@
 #import <UIKit/UILocalNotification.h>
 #import <unistd.h>
 #import "TiLayoutQueue.h"
+#import "SBJSON.h"
 
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_ID;
@@ -214,8 +215,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 			// since this is cross context, we need to force into a JSON so the data can serialize
 			// we first force to string json, then we convert the string JSON back to a dictionary to
 			// eliminate any native things like functions, native objects, etc.
-			NSString *json_ = [TiUtils jsonStringify:eventObject];
-			id jsonObject = [TiUtils jsonParse:json_ error:nil];
+			SBJSON *json = [[SBJSON alloc] init];
+			NSString *json_ = [SBJSON stringify:eventObject];
+			id jsonObject = [json fragmentWithString:json_ error:nil];
+			[json release];
 
 			for (ListenerEntry *entry in array)
 			{
