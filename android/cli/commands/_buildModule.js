@@ -58,6 +58,14 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 
 		this.manifest = this.cli.manifest;
 
+		const sdkModuleAPIVersion = this.cli.sdk && this.cli.sdk.manifest && this.cli.sdk.manifest.moduleAPIVersion && this.cli.sdk.manifest.moduleAPIVersion['android'];
+		if (this.manifest.apiversion && sdkModuleAPIVersion && this.manifest.apiversion !== sdkModuleAPIVersion) {
+			logger.error(__('The module manifest apiversion is currently set to %s', this.manifest.apiversion));
+			logger.error(__('Titanium SDK %s Android module apiversion is at %s', this.titaniumSdkVersion, sdkModuleAPIVersion));
+			logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion.'));
+			process.exit(1);
+		}
+
 		// detect android environment
 		androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
 			this.androidInfo = androidInfo;
