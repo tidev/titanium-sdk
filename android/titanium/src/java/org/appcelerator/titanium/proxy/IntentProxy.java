@@ -205,6 +205,8 @@ public class IntentProxy extends KrollProxy
 			} else {
 				intent.setData(dataUri);
 			}
+		} else {
+			intent.setType(type);
 		}
 	}
 
