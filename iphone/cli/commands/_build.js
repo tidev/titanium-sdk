@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * iOS build command.
@@ -205,12 +204,12 @@ iOSBuilder.prototype.findCertificates = function findCertificates(name, type) {
 	const certs = [];
 	/* eslint-disable max-depth */
 	if (name && this.iosInfo) {
-		for (const keychain of Object.keys(this.iosInfo.certs.keychains)) {
-			const scopes = this.iosInfo.certs.keychains[keychain];
-			const types = type ? [ type ] : Object.keys(scopes);
-			for (const scope of types) {
+		for (var keychain of Object.keys(this.iosInfo.certs.keychains)) {
+			var scopes = this.iosInfo.certs.keychains[keychain];
+			var types = type ? [ type ] : Object.keys(scopes);
+			for (var scope of types) {
 				if (scopes[scope]) {
-					for (const cert of scopes[scope]) {
+					for (var cert of scopes[scope]) {
 						if (cert.name === name) {
 							certs.push(cert);
 						}
@@ -1004,11 +1003,11 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 		hint: 'uuid',
 		order: order,
 		prompt: function (callback) {
-			const provisioningProfiles = {};
-			const appId = cli.tiapp.id;
-			const target = cli.argv.target;
-			let maxAppId = 0;
-			let pp;
+			var provisioningProfiles = {};
+			var appId = cli.tiapp.id;
+			var target = cli.argv.target;
+			var maxAppId = 0;
+			var pp;
 
 			function prep(a, certs) {
 				return a.filter(function (p) {
@@ -1135,7 +1134,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 			}));
 		},
 		validate: function (value, callback) {
-			const target = cli.argv.target;
+			var target = cli.argv.target;
 
 			if (target === 'simulator') {
 				return callback(null, value);
