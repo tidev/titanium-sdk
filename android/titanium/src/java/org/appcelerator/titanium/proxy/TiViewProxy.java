@@ -991,7 +991,9 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			blob  = TiBlob.blobFromImage(Bitmap.createBitmap(1, 1, Config.ARGB_8888));
 			Runnable renderRunnable = new Runnable() {
 				public void run() {
-					callback.callAsync(getKrollObject(), new Object[] {handleToImage()});
+					KrollDict callbackResult = new KrollDict();
+					callbackResult.put("blob", handleToImage());
+					callback.callAsync(getKrollObject(), callbackResult);
 				}
 			};
 
