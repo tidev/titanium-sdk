@@ -55,7 +55,10 @@ public class ActionBarProxy extends KrollProxy
 	{
 		super();
 		actionBar = activity.getSupportActionBar();
-		actionBar.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+		// Guard against calls to ActionBar made before inflating the ActionBarView
+		if (actionBar != null) {
+			actionBar.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+		}
 	}
 
 	@Kroll.method @Kroll.setProperty
