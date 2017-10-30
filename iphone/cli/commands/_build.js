@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * iOS build command.
@@ -204,12 +203,12 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 iOSBuilder.prototype.findCertificate = function findCertificate(name, type) {
 	/* eslint-disable max-depth */
 	if (name && this.iosInfo) {
-		for (const keychain of Object.keys(this.iosInfo.certs.keychains)) {
-			const scopes = this.iosInfo.certs.keychains[keychain];
-			const types = type ? [ type ] : Object.keys(scopes);
-			for (const scope of types) {
+		for (var keychain of Object.keys(this.iosInfo.certs.keychains)) {
+			var scopes = this.iosInfo.certs.keychains[keychain];
+			var types = type ? [ type ] : Object.keys(scopes);
+			for (var scope of types) {
 				if (scopes[scope]) {
-					for (const cert of scopes[scope]) {
+					for (var cert of scopes[scope]) {
 						if (cert.name === name) {
 							return cert;
 						}
@@ -997,16 +996,16 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 		hint: 'uuid',
 		order: order,
 		prompt: function (callback) {
-			const provisioningProfiles = {};
-			const appId = cli.tiapp.id;
-			const target = cli.argv.target;
-			let maxAppId = 0;
-			let pp;
+			var provisioningProfiles = {};
+			var appId = cli.tiapp.id;
+			var target = cli.argv.target;
+			var maxAppId = 0;
+			var pp;
 
 			function prep(a, cert) {
 				return a.filter(function (p) {
 					if (!p.expired && !p.managed && (!cert || p.certs.indexOf(cert) !== -1)) {
-						const re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*')); // eslint-disable-line security/detect-non-literal-regexp
+						var re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*')); // eslint-disable-line security/detect-non-literal-regexp
 						if (re.test(appId)) {
 							var label = p.name;
 							if (label.indexOf(p.appId) === -1) {
@@ -1022,7 +1021,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				});
 			}
 
-			let cert;
+			var cert;
 			if (target === 'device') {
 				cert = _t.findCertificate(cli.argv['developer-name'], 'developer');
 			} else {
@@ -1072,7 +1071,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 			} else if (target === 'dist-adhoc') {
 				if (iosInfo.provisioning.adhoc.length || iosInfo.provisioning.enterprise.length) {
 					pp = prep(iosInfo.provisioning.adhoc, cert.pem.replace(pemCertRegExp, ''));
-					let valid = pp.length;
+					var valid = pp.length;
 					if (pp.length) {
 						provisioningProfiles[__('Available Ad Hoc UUIDs:')] = pp;
 					}
@@ -1124,7 +1123,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 			}));
 		},
 		validate: function (value, callback) {
-			const target = cli.argv.target;
+			var target = cli.argv.target;
 
 			if (target === 'simulator') {
 				return callback(null, value);
@@ -1142,7 +1141,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					return callback(new Error(__('Specified provisioning profile UUID "%s" is expired', value)));
 				}
 
-				let cert;
+				var cert;
 				if (target === 'device') {
 					cert = _t.findCertificate(cli.argv['developer-name'], 'developer');
 				} else {
