@@ -216,17 +216,13 @@ timestamps {
 					// Clean up and install only production dependencies
 					sh 'npm prune --production'
 
-					// Scan for NSP and RetireJS warnings
-					def scanFiles = []
-					sh 'npm install -g nsp'
-					def nspExitCode = sh(returnStatus: true, script: 'nsp check --output json 2> nsp.json')
-					if (nspExitCode != 0) {
-						scanFiles << [path: 'nsp.json']
-					}
+					// Scan for Dependency Check and RetireJS warnings
+					def scanFiles = [[path: 'dependency-check-report.xml']]
+					dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: false, includeHtmlReports: false, includeJsonReports: false, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
+					dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
 
 					sh 'npm install -g retire'
 					def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
-
 					if (retireExitCode != 0) {
 						scanFiles << [path: 'retire.json']
 					}
@@ -305,6 +301,7 @@ timestamps {
 					}
 
 					// unarchive zips
+					sh 'rm -rf dist/'
 					unarchive mapping: ['dist/': '.']
 					// Have to use Java-style loop for now: https://issues.jenkins-ci.org/browse/JENKINS-26481
 					def oses = ['osx', 'linux', 'win32']
@@ -380,11 +377,13 @@ timestamps {
 						pluginFailureResultConstraint: 'FAILURE',
 						userMetadata: []])
 
-						// Trigger titanium_mobile_windows if this is the first build on a "mainline" branch
-						if (isFirstBuildOnBranch) {
-							// Trigger build of titanium_mobile_windows in our pipeline multibranch group!
-							build job: "../titanium_mobile_windows/${env.BRANCH_NAME}", wait: false
-						}
+					// Trigger titanium_mobile_windows if this is the first build on a "mainline" branch
+					if (isFirstBuildOnBranch) {
+						// Trigger build of titanium_mobile_windows in our pipeline multibranch group!
+						build job: "../titanium_mobile_windows/${env.BRANCH_NAME}", wait: false
+					}
+					// Now wipe the workspace. otherwise the unstashed artifacts will stick around on the node (master)
+					deleteDir()
 				} // node
 			} // isMainlineBranch
 		} // stage
