@@ -58,6 +58,8 @@ public class ActionBarProxy extends KrollProxy
 		// Guard against calls to ActionBar made before inflating the ActionBarView
 		if (actionBar != null) {
 			actionBar.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+		} else {
+			Log.w(TAG, "Trying to get a reference to ActionBar before it's container was inflated.");
 		}
 	}
 
