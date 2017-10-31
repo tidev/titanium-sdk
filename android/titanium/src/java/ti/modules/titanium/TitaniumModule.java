@@ -274,11 +274,21 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel("String.formatTime")
-	public String stringFormatTime(Date time)
+	public String stringFormatTime(Object time)
 	{
 		int style = DateFormat.SHORT;
 
-		return (DateFormat.getTimeInstance(style)).format(time);
+		if (time != null && time instanceof Date) {
+			try {
+				return (DateFormat.getTimeInstance(style)).format(time);
+			} catch (Exception ex) {
+				Log.e(TAG, "Error occurred while formatting time", ex);
+				return null;
+			}
+		}else {
+			Log.e(TAG, "Error occurred while formatting time please provide a Date()");
+			return null;
+		}
 	}
 
 	@Kroll.method @Kroll.topLevel("String.formatCurrency")
