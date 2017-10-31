@@ -3959,7 +3959,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		'name': 'Default-Landscape',
 		'subtype': '2436h',
 		'scale': [ '3x' ],
-		'size': '{812, 375}'
+		'size': '{375, 812}'
 	},
 	{
 		'orientation': 'Portrait',
