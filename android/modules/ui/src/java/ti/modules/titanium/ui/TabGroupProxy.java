@@ -157,9 +157,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.method
 	public void addTab(TabProxy tab)
 	{
+		if (tab == null) {
+			return;
+		}
+
 		if (TiApplication.isUIThread()) {
 			handleAddTab(tab);
-
 			return;
 		}
 
@@ -168,6 +171,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	private void handleAddTab(TabProxy tab)
 	{
+		if (tab == null) {
+			return;
+		}
+
 		// Set the tab's parent to this tab group.
 		// This allows for certain events to bubble up.
 		tab.setTabGroup(this);
@@ -393,7 +400,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Load any tabs added before the tab group opened.
 		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
 		for (TabProxy tab : tabs) {
-			tg.addTab(tab);
+			if (tab != null) {
+				tg.addTab(tab);
+			}
 		}
 
 		TabProxy activeTab = handleGetActiveTab();

@@ -59,7 +59,7 @@ import android.view.ViewAnimationUtils;
 	"borderColor", "borderRadius", "borderWidth",
 
 	// layout / dimension (size/width/height have custom accessors)
-	"left", "top", "right", "bottom", "layout", "zIndex",
+	"left", "top", "right", "bottom", "layout", "zIndex", TiC.PROPERTY_CENTER,
 
 	// accessibility
 	TiC.PROPERTY_ACCESSIBILITY_HINT, TiC.PROPERTY_ACCESSIBILITY_LABEL, TiC.PROPERTY_ACCESSIBILITY_VALUE,
@@ -116,10 +116,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		pendingAnimationLock = new Object();
 
 		defaultValues.put(TiC.PROPERTY_TOUCH_ENABLED, true);
+		defaultValues.put(TiC.PROPERTY_SOUND_EFFECTS_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_BACKGROUND_REPEAT, false);
 		defaultValues.put(TiC.PROPERTY_VISIBLE, true);
 		defaultValues.put(TiC.PROPERTY_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_HIDDEN_BEHAVIOR, View.INVISIBLE);
+		defaultValues.put(TiC.PROPERTY_HORIZONTAL_WRAP, true);
 	}
 
 	@Override
@@ -295,10 +297,11 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
 
 						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
-						View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
-
-						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+						View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
+						if (decorView != null) {
+							d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+						}
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -316,18 +319,22 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (view != null) {
 					View v = view.getOuterView();
 					if (v != null) {
+						int position[] = new int[2];
+						v.getLocationInWindow(position);
+
 						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
 						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
-						TiDimension nativeLeft = new TiDimension(v.getLeft(), TiDimension.TYPE_LEFT);
-						TiDimension nativeTop = new TiDimension(v.getTop(), TiDimension.TYPE_TOP);
+						TiDimension nativeLeft = new TiDimension(position[0], TiDimension.TYPE_LEFT);
+						TiDimension nativeTop = new TiDimension(position[1], TiDimension.TYPE_TOP);
 
 						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
-						View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
-
-						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
-						d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
-						d.put(TiC.PROPERTY_Y, nativeTop.getAsDefault(decorView));
+						View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
+						if (decorView != null) {
+							d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_Y, nativeTop.getAsDefault(decorView));
+						}
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -737,7 +744,32 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 		}
 	}
+	
+	/**
+	* Returns the view by the given ID.
+	* @module.api
+	*/
+	@Kroll.method
+	public TiViewProxy getViewById(String id)
+	{
+		if (children != null) {
+			for (TiViewProxy child : children) {
+				if (child.children != null && child.children.size() > 0) {
+					TiViewProxy parentChild = child.getViewById(id);
+					if (parentChild != null) {
+						return parentChild;
+					}
+				}
 
+				if (child.hasProperty(TiC.PROPERTY_ID) && child.getProperty(TiC.PROPERTY_ID).equals(id)) {
+					return child;
+				}
+			}
+		}
+
+		return null;
+	}
+	
 	public void handleRemove(TiViewProxy child)
 	{
 		if (children != null) {

@@ -842,8 +842,8 @@ properties:
     description: |
         An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples.
     type: Titanium.UI.RefreshControl
-    platforms: [iphone, ipad]
-    since: 3.2.0
+    platforms: [android, iphone, ipad]
+    since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
   - name: searchView
     summary: Search field to use for the list view.
@@ -1056,7 +1056,18 @@ properties:
     type: Dictionary
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad] 
+
+  - name: dimBackgroundForSearch
+    summary: A Boolean indicating whether the underlying content is dimmed during a search.
+    description: |
+          If you do not want to show the dimmed background when clicking on the search bar, 
+          set this property `false` during creation. 
+    type: Boolean
+    default: true 
+    since: 6.2.0
     platforms: [iphone, ipad]
+    availability: creation
 
   - name: resultsBackgroundColor
     summary: The background color of the search results (iOS-only).
@@ -1083,7 +1094,7 @@ properties:
     since: 6.1.0
     platforms: [iphone, ipad]
     availability: creation
-
+    
   - name: resultsSeparatorStyle
     summary: The separator style of the search results (iOS-only).
     type: Number
@@ -1104,7 +1115,7 @@ properties:
     since: 6.1.0
     platforms: [iphone, ipad]
     availability: creation
-    
+ 
 methods:
   - name: scrollToItem
     summary: Scrolls to a specific item.
@@ -1503,7 +1514,7 @@ examples:
             tableHeader.add(border);
 
             var imageArrow = Ti.UI.createImageView({
-                image:'https://github.com/appcelerator/titanium_mobile/raw/master/demos/KitchenSink/Resources/images/whiteArrow.png',
+                image:'arrow.png',
                 left:20, bottom:10,
                 width:23, height:60
             });
@@ -1656,7 +1667,7 @@ examples:
                 </Window>
             </Alloy>
 
-  - title: Alloy example of `<PullView>` element
+  - title: Alloy example of <PullView> element
     example: |
         The example below demonstrates how to use a `<PullView>` Alloy element.
 

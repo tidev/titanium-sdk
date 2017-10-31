@@ -96,7 +96,7 @@ methods:
         but `video1.tmp` does not. Currently, the `.mp4` extension is not supported, but MP4
         files may be imported by saving them with the `.mov` extension.
 
-        On Android this method *only supports saving images* to the device gallery.
+        On Android this method *only supports saving images* to the device gallery prior to Titanium SDK 6.1.0.
 
     platforms: [iphone, ipad, android]
     parameters:
@@ -328,7 +328,7 @@ methods:
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
-        On Android and Mobile Web, a `pattern` argument can be provided to specify a
+        On Android, a `pattern` argument can be provided to specify a
         vibration pattern.
 
         The `pattern` is an array of Number values.  Each number in the array is
@@ -340,14 +340,12 @@ methods:
 
         Would cause the vibration to start immediately (delay = 0), and perform three
         long vibrations (500 ms) separated by short pauses (100ms).
-
-        On Mobile Web, calling `vibrate` without a `pattern` will stop the vibration.
     parameters:
       - name: pattern
         summary: Array of values identifying a vibrate pattern (only used on Android).
         optional: true
         type: Array<Number>
-    platforms: [iphone, ipad, android, mobileweb]
+    platforms: [iphone, ipad, android]
 
   - name: requestAuthorization
     summary: Request the user's permission for audio recording.
@@ -364,7 +362,7 @@ methods:
     platforms: [iphone, ipad]
     deprecated:
         since: "5.1.0"
-        notes: Use <Titanium.Media.requestAudioPermissions> instead.
+        notes: Use <Titanium.Media.requestAudioRecorderPermissions> instead.
     since: 3.1.3
     parameters:
       - name: callback
@@ -386,7 +384,30 @@ methods:
     returns:
         type: Boolean
     platforms: [iphone, ipad]
+    deprecated:
+        since: "6.1.0"
+        notes: Use <Titanium.Media.hasAudioRecorderPermissions> instead.
     since: "6.0.0"
+
+  - name: hasAudioRecorderPermissions
+    summary: Returns `true` if the app has audio permissions.
+    description: |
+        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        grants or denies permission, the system remembers the choice for future use in the same app.
+        If permission is not granted, or if the user has not yet responded to the permission prompt,
+        any audio recording sessions record only silence.
+
+        In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
+        own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        for more information.
+    returns:
+        type: Boolean
+    platforms: [android, iphone, ipad]
+    since:
+        android: "6.2.0"
+        iphone: "6.1.0"
+        ipad: "6.1.0"
 
   - name: requestAudioPermissions
     summary: Request the user's permission for audio recording.
@@ -401,7 +422,32 @@ methods:
         will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
     platforms: [iphone, ipad]
+    deprecated:
+        since: "6.1.0"
+        notes: Use <Titanium.Media.requestAudioRecorderPermissions> instead.
     since: 5.1.0
+    parameters:
+      - name: callback
+        summary: Callback function to execute when the users responds to the authorization alert.
+        type: Callback<MediaAuthorizationResponse>
+
+  - name: requestAudioRecorderPermissions
+    summary: Request the user's permission for audio recording.
+    description: |
+        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        grants or denies permission, the system remembers the choice for future use in the same app.
+        If permission is not granted, or if the user has not yet responded to the permission prompt,
+        any audio recording sessions record only silence.
+
+        In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
+        own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        for more information.
+    platforms: [android, iphone, ipad]
+    since:
+        android: "6.2.0"
+        iphone: "6.1.0"
+        ipad: "6.1.0"
     parameters:
       - name: callback
         summary: Callback function to execute when the users responds to the authorization alert.
@@ -1223,22 +1269,22 @@ properties:
     summary: Current media is playable.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_LOAD_STATE_PLAYTHROUGH_OK
     summary: Playback will be automatically started in this state when `autoplay` is true.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_LOAD_STATE_STALLED
     summary: Playback will be automatically paused in this state, if started.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_LOAD_STATE_UNKNOWN
     summary: Current load state is not known.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_MEDIA_TYPE_AUDIO
     summary: A audio type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
     type: Number
@@ -1263,12 +1309,12 @@ properties:
     summary: Video playback is paused.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_PLAYBACK_STATE_PLAYING
     summary: Video is being played.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD
     summary: Video playback is rewinding.
     type: Number
@@ -1283,17 +1329,19 @@ properties:
     summary: Video playback is stopped.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_REPEAT_MODE_NONE
     summary: Constant for disabling repeat on video playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
   - name: VIDEO_REPEAT_MODE_ONE
     summary: Constant for repeating one video (i.e., the one video will repeat constantly) during playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
   - name: VIDEO_SCALING_ASPECT_FILL
     summary: Scale video to fill the screen, clipping edges if necessary.
     description: |
@@ -1460,7 +1508,9 @@ properties:
     summary: |
         `true` if the device has a recording input device available.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since:
+        android: "6.2.0"
     permission: read-only
   - name: currentRoute
     summary: |
@@ -1612,9 +1662,54 @@ properties:
     summary: The composer to filter on. Value should be a String.
     type: [MediaQueryInfoType, String]
   - name: isCompilation
-    summary: Filter by whether or not the item is a compilation.
-        Value should be a Boolean.
+    summary: |
+        Filter by whether or not the item is a compilation.
+        The value should be a Boolean.
     type: [MediaQueryInfoType, Boolean]
+  - name: playCount
+    summary: The play count to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: persistentID
+    summary: The persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: albumPersistentID
+    summary: The album persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: albumArtistPersistentID
+    summary: The album artist persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: genrePersistentID
+    summary: The genre persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: composerPersistentID
+    summary: The composer persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
+  - name: isCloudItem
+    summary: |
+        Filter by whether or not the item is a cloud item.
+        Value should be a Boolean.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Boolean]
+  - name: hasProtectedAsset
+    summary: |
+        Filter by whether or not the item is a protected asset.
+        Value should be a Boolean.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Boolean]
+  - name: podcastTitle
+    summary: The podcast title to filter on. Value should be a String.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, String]
+  - name: podcastPersistentID
+    summary: The podcast persistent ID to filter on. Value should be a Number.
+    description: Available in Titanium SDK 6.1.0 and later.
+    type: [MediaQueryInfoType, Number]
 
 # Pseudo-type for query arguments
 ---
@@ -1720,8 +1815,8 @@ properties:
     summary: Transformation matrix to apply to the camera or photogallery view.
     description: |
         Can be used to size and position the camera or photogallery view behind an overlay view.
-        Note that there is currently a [known issue](http://openradar.appspot.com/28232651) caused by Apple in iOS 10 that breaks the native
-        transformation on iOS 10 devices. Please follow [TIMOB-23910](https://jira.appcelerator.org/browse/TIMOB-23910) for more information.
+        iOS 10 note: There was a [known iOS 10 issue](http://openradar.appspot.com/28232651) caused by Apple
+        that breaks the native camera transformation. Apple fixed this issue in the iOS 10.2 release.
     type: Titanium.UI.2DMatrix
     default: identity matrix
     platforms: [iphone, ipad]

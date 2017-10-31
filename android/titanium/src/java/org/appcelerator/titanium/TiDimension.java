@@ -312,7 +312,8 @@ public class TiDimension
 	protected static DisplayMetrics getDisplayMetrics(View parent)
 	{
 		if (metrics == null) {
-			WindowManager windowManager = (WindowManager) parent.getContext().getSystemService(Context.WINDOW_SERVICE);
+			Context context = (parent != null) ? parent.getContext() : TiApplication.getInstance();
+			WindowManager windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
 			Display display = windowManager.getDefaultDisplay();
 			metrics = new DisplayMetrics();
 			display.getMetrics(metrics);

@@ -422,8 +422,12 @@ properties:
     
   - name: deployType
     summary: |
-        Build type that reflects how the application was packaged; either `test`, `development` or 
-        `production`.
+        Build type that reflects how the application was packaged.
+        
+        Returns one of the following values:
+        * `development` (Simulator)
+        * `test` (Device)
+        * `production` (App Store / Adhoc)
     type: String
     permission: read-only
 

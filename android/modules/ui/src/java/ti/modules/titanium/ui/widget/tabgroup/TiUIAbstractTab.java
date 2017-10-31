@@ -38,7 +38,7 @@ public abstract class TiUIAbstractTab extends TiUIView {
 	 */
 	public View getContentView() {
 		TiWindowProxy windowProxy = getWindowProxy();
-		if (windowProxy == null) {
+		if (windowProxy == null || proxy == null) {
 			// If no window is provided use an empty view.
 			View emptyContent = new View(TiApplication.getInstance().getApplicationContext());
 			emptyContent.setBackgroundColor(Color.BLACK);

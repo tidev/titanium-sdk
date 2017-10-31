@@ -11,6 +11,7 @@ import java.util.List;
 
 import android.content.pm.PackageManager;
 import android.os.Build;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
@@ -19,6 +20,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
@@ -38,6 +40,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.view.MenuItem;
+import android.os.PowerManager;
 
 @SuppressWarnings("deprecation")
 @Kroll.module
@@ -272,6 +275,13 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int NAVIGATION_MODE_STANDARD = ActionBar.NAVIGATION_MODE_STANDARD;
 	@Kroll.constant public static final int NAVIGATION_MODE_TABS = ActionBar.NAVIGATION_MODE_TABS;
 
+	@Kroll.constant public static final int WAKE_LOCK_PARTIAL = PowerManager.PARTIAL_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_FULL = PowerManager.FULL_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_SCREEN_DIM = PowerManager.SCREEN_DIM_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_SCREEN_BRIGHT = PowerManager.SCREEN_BRIGHT_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_ACQUIRE_CAUSES_WAKEUP = PowerManager.ACQUIRE_CAUSES_WAKEUP;
+	@Kroll.constant public static final int WAKE_LOCK_ON_AFTER_RELEASE = PowerManager.ON_AFTER_RELEASE;
+
 	protected RProxy r;
 	private static final int REQUEST_CODE = 99;
 
@@ -324,6 +334,17 @@ public class AndroidModule extends KrollModule
 		return r;
 	}
 
+	@Kroll.method @Kroll.getProperty
+	public ActivityProxy getCurrentActivity() {
+		TiBaseActivity resultBaseActivity = (TiBaseActivity) TiApplication.getAppCurrentActivity();
+		if (resultBaseActivity != null) {
+			return resultBaseActivity.getActivityProxy();
+		} else {
+			Log.w(TAG, "Application instance no longer available. Unable to get current activity.");
+			return null;
+		}
+	}
+
 	@Kroll.method
 	public void startService(IntentProxy intentProxy)
 	{
@@ -347,39 +368,60 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public boolean hasPermission(String permission) {
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
+	public boolean hasPermission(Object permissionObject) {
+		if (Build.VERSION.SDK_INT >= 23) {
+			ArrayList<String> permissions = new ArrayList<String>();
+			if (permissionObject instanceof String) {
+				permissions.add((String) permissionObject);
+			} else if (permissionObject instanceof Object[]) {
+				for (Object permission : (Object[]) permissionObject) {
+					if (permission instanceof String) {
+						permissions.add((String) permission);
+					}
+				}
+			}
+			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+			for (String permission : permissions) {
+				if (currentActivity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+					return false;
+				}
+			}
 		}
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
-			return true;
-		}
-		return false;
+		return true;
 	}
 
 	@Kroll.method
-	public void requestPermissions(String[] permissions, @Kroll.argument(optional=true)KrollFunction permissionCallback) {
-		if (Build.VERSION.SDK_INT < 23) {
-			return;
-		}
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-		ArrayList<String> filteredPermissions = new ArrayList<String>();
-		//filter out granted permissions
-		for (int i = 0; i < permissions.length; ++i) {
-			String perm = permissions[i];
-			if (currentActivity.checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED) {
-				continue;
+	public void requestPermissions(Object permissionObject, @Kroll.argument(optional=true)KrollFunction permissionCallback) {
+		if (Build.VERSION.SDK_INT >= 23) {
+			ArrayList<String> permissions = new ArrayList<String>();
+			if (permissionObject instanceof String) {
+				permissions.add((String) permissionObject);
+			} else if (permissionObject instanceof Object[]) {
+				for (Object permission : (Object[]) permissionObject) {
+					if (permission instanceof String) {
+						permissions.add((String) permission);
+					}
+				}
 			}
-			filteredPermissions.add(perm);
+			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+			ArrayList<String> filteredPermissions = new ArrayList<String>();
+			for (String permission : permissions) {
+				if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+					continue;
+				}
+				filteredPermissions.add(permission);
+			}
+			if (filteredPermissions.size() > 0) {
+				TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback, getKrollObject());
+				currentActivity.requestPermissions(filteredPermissions.toArray(new String[filteredPermissions.size()]), REQUEST_CODE);
+				return;
+			}
 		}
-
-		if (filteredPermissions.size() == 0) {
-			Log.w(TAG, "Permission(s) already granted");
-			return;
+		KrollDict response = new KrollDict();
+		response.putCodeAndMessage(0, null);
+		if (permissionCallback != null) {
+			permissionCallback.callAsync(getKrollObject(), response);
 		}
-		TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback, getKrollObject());
-		currentActivity.requestPermissions(filteredPermissions.toArray(new String[filteredPermissions.size()]), REQUEST_CODE);
 	}
 
 	@Kroll.method

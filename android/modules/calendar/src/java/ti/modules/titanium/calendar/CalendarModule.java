@@ -9,6 +9,7 @@ package ti.modules.titanium.calendar;
 
 import java.util.ArrayList;
 
+import android.provider.CalendarContract;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -40,6 +41,32 @@ public class CalendarModule extends KrollModule
 	@Kroll.constant public static final int STATE_DISMISSED = AlertProxy.STATE_DISMISSED;
 	@Kroll.constant public static final int STATE_FIRED = AlertProxy.STATE_FIRED;
 	@Kroll.constant public static final int STATE_SCHEDULED = AlertProxy.STATE_SCHEDULED;
+
+	//region attendee relationships
+	@Kroll.constant public static final int RELATIONSHIP_ATTENDEE = CalendarContract.Attendees.RELATIONSHIP_ATTENDEE;
+	@Kroll.constant public static final int RELATIONSHIP_NONE = CalendarContract.Attendees.RELATIONSHIP_NONE;
+	@Kroll.constant public static final int RELATIONSHIP_ORGANIZER = CalendarContract.Attendees.RELATIONSHIP_ORGANIZER;
+	@Kroll.constant public static final int RELATIONSHIP_PERFORMER = CalendarContract.Attendees.RELATIONSHIP_PERFORMER;
+	@Kroll.constant public static final int RELATIONSHIP_SPEAKER = CalendarContract.Attendees.RELATIONSHIP_SPEAKER;
+	@Kroll.constant public static final int RELATIONSHIP_UNKNOWN = 11001;
+	//endregion
+
+	//region attendee status
+	@Kroll.constant public static final int ATTENDEE_STATUS_ACCEPTED = CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED;
+	@Kroll.constant public static final int ATTENDEE_STATUS_DECLINED = CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED;
+	@Kroll.constant public static final int ATTENDEE_STATUS_INVITED = CalendarContract.Attendees.ATTENDEE_STATUS_INVITED;
+	@Kroll.constant public static final int ATTENDEE_STATUS_NONE = CalendarContract.Attendees.ATTENDEE_STATUS_NONE;
+	@Kroll.constant public static final int ATTENDEE_STATUS_TENTATIVE = CalendarContract.Attendees.ATTENDEE_STATUS_TENTATIVE;
+	@Kroll.constant public static final int ATTENDEE_STATUS_UNKNOWN = 11001;
+	//endregion
+
+	//region attendee type
+	@Kroll.constant public static final int ATTENDEE_TYPE_NONE = CalendarContract.Attendees.TYPE_NONE;
+	@Kroll.constant public static final int ATTENDEE_TYPE_OPTIONAL = CalendarContract.Attendees.TYPE_OPTIONAL;
+	@Kroll.constant public static final int ATTENDEE_TYPE_RESOURCE = CalendarContract.Attendees.TYPE_RESOURCE;
+	@Kroll.constant public static final int ATTENDEE_TYPE_REQUIRED = CalendarContract.Attendees.TYPE_REQUIRED;
+	@Kroll.constant public static final int ATTENDEE_TYPE_UNKNOWN = 11001;
+	//endregion
 
 	public static final String EVENT_LOCATION = "eventLocation";
 

@@ -43,11 +43,15 @@ methods:
   - name: setQueue
     summary: Sets the media queue.
     description: |
-        Sets the media queue to a single media item or a list of items.
+        Sets the media queue to a single media item or a list of items. 
+        
+        Starting in Titanium 6.1.0 you can also pass a String that identifies 
+        the Media item. This string has to be the <Titanium.Media.Item.persistentID> 
+        property that identifies a media item uniquely.
     parameters:
       - name: queue
         summary: One or more media items.
-        type: [Titanium.Media.Item, Array<Titanium.Media.Item>, PlayerQueue]
+        type: [Titanium.Media.Item, Array<Titanium.Media.Item>, String]
 
   - name: skipToBeginning
     summary: Skips to the beginning of the currently playing media item.
@@ -167,11 +171,3 @@ properties:
         with Apple's simulator.
     type: Number
     osver: {ios: {"max": "7.0"}}
-
----
-name: PlayerQueue
-summary: A simple object for specifying a queue of media items.
-properties:
-  - name: items
-    summary: An array of media items.
-    type: Array<Titanium.Media.Item>

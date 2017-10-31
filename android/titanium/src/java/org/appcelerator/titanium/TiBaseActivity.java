@@ -14,6 +14,7 @@ import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import android.support.v7.widget.Toolbar;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
@@ -31,6 +32,7 @@ import org.appcelerator.titanium.TiLifecycle.OnPrepareOptionsMenuEvent;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
+import org.appcelerator.titanium.proxy.TiToolbarProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
@@ -140,6 +142,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	//Storing the activity's dialogs and their persistence
 	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
+	private static int totalWindowStack = 0;
 
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
@@ -208,6 +211,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			windowStack.peek().onWindowFocusChange(false);
 		}
 		windowStack.add(proxy);
+		totalWindowStack++;
 		if (!isEmpty) {
 			proxy.onWindowFocusChange(true);
 		}
@@ -219,6 +223,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		boolean isTopWindow = ( (!windowStack.isEmpty()) && (windowStack.peek() == proxy) ) ? true : false;
 		windowStack.remove(proxy);
+		totalWindowStack--;
 
 		//Fire focus only if activity is not paused and the removed window was topWindow
 		if (!windowStack.empty() && isResumed && isTopWindow) {
@@ -605,9 +610,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// lost (TiActivityWindows.dispose()). In this case, we have to restart the app.
 		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
 			Log.w(TAG, "Runtime has been disposed or app has been killed. Finishing.");
-			super.onCreate(savedInstanceState);
-			tiApp.scheduleRestart(250);
-			finish();
+			activityOnCreate(savedInstanceState);
+			TiApplication.terminateActivityStack();
+			if (Build.VERSION.SDK_INT < 23) {
+				finish();
+				tiApp.scheduleRestart(300);
+				return;
+			}
+			KrollRuntime.incrementActivityRefCount();
+			finishAndRemoveTask();
 			return;
 		}
 
@@ -736,6 +747,13 @@ public abstract class TiBaseActivity extends AppCompatActivity
 				}
 			}
 		}
+		setCustomActionBar();
+	}
+
+	private void setCustomActionBar() {
+		if (activityProxy.hasProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)) {
+			this.setSupportActionBar(((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)).getToolbarInstance()));
+		}
 	}
 
 	public int getOriginalOrientationMode()
@@ -850,23 +868,39 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (topWindow != null && topWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 			topWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null);
 		}
-		
 		// Override default Android behavior for "back" press
 		// if the top window has a callback to handle the event.
 		if (topWindow != null && topWindow.hasProperty(TiC.PROPERTY_ON_BACK)) {
 			KrollFunction onBackCallback = (KrollFunction) topWindow.getProperty(TiC.PROPERTY_ON_BACK);
 			onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
-			
-		} else {
-			// there are no parent activities to return to
-			// override back press to background the activity
-			// note: 2 since there should always be TiLaunchActivity and TiActivity
-			if (TiApplication.activityStack.size() <= 2) {
-				if (topWindow != null && !TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), true)) {
+		}
+		if (topWindow == null || (topWindow != null && !topWindow.hasProperty(TiC.PROPERTY_ON_BACK) && !topWindow.hasListeners(TiC.EVENT_ANDROID_BACK))) {
+			// check Ti.UI.Window.exitOnClose and either
+			// exit the application or send to background
+			if (topWindow != null) {
+				boolean exitOnClose = TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false);
+
+				// root window should exitOnClose by default
+				if (totalWindowStack <= 1 && !topWindow.hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+					exitOnClose = true;
+				}
+				if (exitOnClose) {
+					Log.d(TAG, "onBackPressed: exit");
+					if (Build.VERSION.SDK_INT >= 16) {
+						finishAffinity();
+					} else {
+						TiApplication.terminateActivityStack();
+					}
+					return;
+
+				// root window has exitOnClose set as false, send to background
+				} else if (totalWindowStack <= 1) {
+					Log.d(TAG, "onBackPressed: suspend to background");
 					this.moveTaskToBack(true);
 					return;
 				}
- 			}
+				removeWindowFromStack(topWindow);
+			}
 
 			// If event is not handled by custom callback allow default behavior.
 			super.onBackPressed();
@@ -1156,22 +1190,19 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// TODO stub
 	}
 
-	private void dispatchCallback(String name, KrollDict data) {
+	private void dispatchCallback(final String name, KrollDict data) {
 		if (data == null) {
 			data = new KrollDict();
 		}
-
 		data.put("source", activityProxy);
 
-		// TIMOB-19903
-		if (TiApplication.getInstance().runOnMainThread()) {
-			// We must call this synchornously to ensure it happens before we release the Activity reference on the V8/Native side!
-			activityProxy.callPropertySync(name, new Object[] { data });
-		} else {
-			// This hopefully finishes before we release the reference on the native side?! I have seen it crash because it didn't before though...
-			// Not sure it's safe to keep this behavior...
-			activityProxy.callPropertyAsync(name, new Object[] { data });
-		}
+		final KrollDict d = data;
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				activityProxy.callPropertySync(name, new Object[] { d });
+			}
+		});
 	}
 
 	private void releaseDialogs(boolean finish)
@@ -1498,21 +1529,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_DESTROY, null);
-			activityProxy.release();
-			activityProxy = null;
 		}
-		if (view != null) {
-			view.releaseViews();
-			view.release();
-			view = null;
-		}
-		if (window != null) {
-			window.releaseViews();
-			window.removeAllChildren();
-			window.release();
-			window = null;
-		}
-		layout = null;
 
 		inForeground = false;
 		TiApplication tiApp = getTiApp();
@@ -1566,11 +1583,14 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		//LW windows
 		if (window == null && view != null) {
 			view.releaseViews();
+			view.release();
 			view = null;
 		}
 
 		if (window != null) {
 			window.closeFromActivity(isFinishing);
+			window.releaseViews();
+			window.releaseKroll();
 			window = null;
 		}
 

@@ -149,8 +149,8 @@ public class TiUIHelper
 	{ 
 		if (autoLink != null) {
 			//Default to Ti.UI.AUTOLINK_NONE
-			boolean success = Linkify.addLinks(tv, TiConvert.toInt(autoLink, 16));
-			if (!success && tv.getText() instanceof Spanned) {
+			boolean success = Linkify.addLinks(tv, TiConvert.toInt(autoLink, 0) & Linkify.ALL);
+			if (success && tv.getText() instanceof Spanned) {
 				tv.setMovementMethod(LinkMovementMethod.getInstance());
 			}
 		}
@@ -415,7 +415,7 @@ public class TiUIHelper
 		try {
 			String[] fontFiles = mgr.list(customFontPath);
 			for (String f : fontFiles) {
-				if (f.toLowerCase() == fontFamily.toLowerCase() || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
+				if (f.toLowerCase().equals(fontFamily.toLowerCase()) || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
 					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
 					synchronized(mCustomTypeFaces) {
 						mCustomTypeFaces.put(fontFamily, tf);
@@ -573,6 +573,16 @@ public class TiUIHelper
 
 	public static Drawable buildBackgroundDrawable(String color, String image, boolean tileImage, Drawable gradientDrawable)
 	{
+		Drawable imageDrawable = null;
+		if (image != null) {
+			TiFileHelper tfh = TiFileHelper.getInstance();
+			imageDrawable = tfh.loadDrawable(image, false, true, false);
+		}
+		return buildBackgroundDrawable(color, imageDrawable, tileImage, gradientDrawable);
+	}
+
+	public static Drawable buildBackgroundDrawable(String color, Drawable imageDrawable, boolean tileImage, Drawable gradientDrawable)
+	{
 		// Create an array of the layers that will compose this background.
 		// Note that the order in which the layers is important to get the
 		// correct rendering behavior.
@@ -587,23 +597,17 @@ public class TiUIHelper
 			layers.add(gradientDrawable);
 		}
 
-		Drawable imageDrawable = null;
-		if (image != null) {
-			TiFileHelper tfh = TiFileHelper.getInstance();
-			imageDrawable = tfh.loadDrawable(image, false, true, false);
-
-			if (tileImage) {
-				if (imageDrawable instanceof BitmapDrawable) {
-					BitmapDrawable tiledBackground = (BitmapDrawable) imageDrawable;
-					tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
-					tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
-					imageDrawable = tiledBackground;
-				}
+		if (tileImage) {
+			if (imageDrawable instanceof BitmapDrawable) {
+				BitmapDrawable tiledBackground = (BitmapDrawable) imageDrawable;
+				tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
+				tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
+				imageDrawable = tiledBackground;
 			}
+		}
 
-			if (imageDrawable != null) {
-				layers.add(imageDrawable);
-			}
+		if (imageDrawable != null) {
+			layers.add(imageDrawable);
 		}
 
 		return new LayerDrawable(layers.toArray(new Drawable[layers.size()]));
@@ -642,29 +646,81 @@ public class TiUIHelper
 		String focusedColor,
 		Drawable gradientDrawable)
 	{
-		StateListDrawable sld = new StateListDrawable();
+		// Anonymous class used by this method to load image drawables.
+		// Supports drawable caching to prevent the same image file from being decoded twice.
+		class ImageDrawableLoader {
+			/** Hash table used to cache loaded drawables by their image file paths. */
+			private HashMap<String, Drawable> imagePathDrawableMap;
 
-		Drawable bgSelectedDrawable = buildBackgroundDrawable(selectedColor, selectedImage, tileImage, gradientDrawable);
+			/** Creates a new image drawable loader. */
+			public ImageDrawableLoader() {
+				this.imagePathDrawableMap = new HashMap<String, Drawable>(4);
+			}
+
+			/**
+			 * Loads the given image and returns it's decode bitmap wrapped in a drawable.
+			 * @param filePath Path or URL to the image file to be loaded. Can be null.
+			 * @return Returns a drawble object used to draw the give image file.
+			 *         <p>
+			 *         Returns null if failed to load the image or if given a null argument.
+			 */
+			Drawable load(String filePath) {
+				// Validate image file path.
+				if ((filePath == null) || (filePath.length() <= 0)) {
+					return null;
+				}
+
+				// Check if the given image has already been loaded before.
+				Drawable drawable = this.imagePathDrawableMap.get(filePath);
+				if (drawable == null) {
+					// Image has not been loaded before. Load it as a drawable now.
+					TiFileHelper fileHelper = TiFileHelper.getInstance();
+					drawable = fileHelper.loadDrawable(filePath, false, true, false);
+					if (drawable != null) {
+						// Image was successfully loaded. Add it to the cache.
+						this.imagePathDrawableMap.put(filePath, drawable);
+					}
+				}
+				else {
+					// Given image was loaded before. Create a new drawable using the last cached version.
+					// Note: The new drawable will share the cached drawable's bitmap, which avoids decoding the
+					//       same image twice. This is a huge performance and memory optimization.
+					Resources resources = TiApplication.getInstance().getResources();
+					drawable = drawable.getConstantState().newDrawable(resources).mutate();
+				}
+				return drawable;
+			}
+		}
+
+		// Load the given images to drawables using the anonymous class above.
+		// Note: This is an optimization. Image loader can share the same bitmap between multiple drawables.
+		ImageDrawableLoader imageDrawableLoader = new ImageDrawableLoader();
+		Drawable mainImageDrawable = imageDrawableLoader.load(image);
+		Drawable selectedImageDrawable = imageDrawableLoader.load(selectedImage);
+		Drawable disabledImageDrawable = imageDrawableLoader.load(disabledImage);
+		Drawable focusedImageDrawable = imageDrawableLoader.load(focusedImage);
+
+		// Create the layered drawable objects for the the UI object's different states.
+		StateListDrawable sld = new StateListDrawable();
+		Drawable bgSelectedDrawable = buildBackgroundDrawable(selectedColor, selectedImageDrawable, tileImage, gradientDrawable);
 		if (bgSelectedDrawable != null) {
 			sld.addState(BACKGROUND_SELECTED_STATE, bgSelectedDrawable);
 		}
-
-		Drawable bgFocusedDrawable = buildBackgroundDrawable(focusedColor, focusedImage, tileImage, gradientDrawable);
+		Drawable bgFocusedDrawable = buildBackgroundDrawable(focusedColor, focusedImageDrawable, tileImage, gradientDrawable);
 		if (bgFocusedDrawable != null) {
 			sld.addState(BACKGROUND_FOCUSED_STATE, bgFocusedDrawable);
 		}
-
-		Drawable bgDisabledDrawable = buildBackgroundDrawable(disabledColor, disabledImage, tileImage, gradientDrawable);
+		Drawable bgDisabledDrawable = buildBackgroundDrawable(disabledColor, disabledImageDrawable, tileImage, gradientDrawable);
 		if (bgDisabledDrawable != null) {
 			sld.addState(BACKGROUND_DISABLED_STATE, bgDisabledDrawable);
 		}
-
-		Drawable bgDrawable = buildBackgroundDrawable(color, image, tileImage, gradientDrawable);
+		Drawable bgDrawable = buildBackgroundDrawable(color, mainImageDrawable, tileImage, gradientDrawable);
 		if (bgDrawable != null) {
 			sld.addState(BACKGROUND_DEFAULT_STATE_1, bgDrawable);
 			sld.addState(BACKGROUND_DEFAULT_STATE_2, bgDrawable);
 		}
 
+		// Return the requested multi-state drawable.
 		return sld;
 	}
 
@@ -743,25 +799,7 @@ public class TiUIHelper
 				view.layout(0, 0, width, height);
 			}
 
-			// opacity should support transparency by default
-			Config bitmapConfig = Config.ARGB_8888;
-
-			Drawable viewBackground = view.getBackground();
-			if (viewBackground != null) {
-				/*
-				 * If the background is opaque then we should be able to safely use a space saving format that
-				 * does not support the alpha channel. Basically, if a view has a background color set then the
-				 * the pixel format will be opaque. If a background image supports an alpha channel, the pixel
-				 * format will report transparency (even if the image doesn't actually look transparent). In
-				 * short, most of the time the Config.ARGB_8888 format will be used when viewToImage is used
-				 * but in the cases where the background is opaque, the lower memory approach will be used.
-				 */
-				if (viewBackground.getOpacity() == PixelFormat.OPAQUE) {
-					bitmapConfig = Config.RGB_565;
-				}
-			}
-
-			Bitmap bitmap = Bitmap.createBitmap(width, height, bitmapConfig);
+			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
 			Canvas canvas = new Canvas(bitmap);
 			view.draw(canvas);
 
@@ -1023,6 +1061,10 @@ public class TiUIHelper
 
 	public static void requestSoftInputChange(KrollProxy proxy, View view) 
 	{
+		if (proxy == null) {
+			return;
+		}
+		
 		int focusState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
 		
 		if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {

@@ -70,9 +70,31 @@ public class TiCompositeLayout extends ViewGroup
     private int horizontalLayoutLastIndexBeforeWrap = 0;
     private int horiztonalLayoutPreviousRight = 0;
 
+    /**
+     * Custom pixel width to be used by child views when calculating percentage based lengths/positions.
+     * Set to a negative value if child should be relative to the parent view.
+     */
+    private int childRelativeSizingWidth = -1;
+
+    /**
+     * Custom pixel height to be used by child views when calculating percentage based lengths/positions.
+     * Set to a negative value if child should be relative to the parent view.
+     */
+    private int childRelativeSizingHeight = -1;
+
+    /**
+     * Custom pixel width to be used by child views using the Ti.UI.FILL setting.
+     * Set to a negative value if child should fill the parent's remaining width instead.
+     */
+    private int childFillWidth = -1;
+
+    /**
+     * Custom pixel height to be used by child views using the Ti.UI.FILL setting.
+     * Set to a negative value if child should fill the parent's remaining height instead.
+     */
+    private int childFillHeight = -1;
+
     private WeakReference<TiViewProxy> proxy;
-    private static final int HAS_SIZE_FILL_CONFLICT = 1;
-    private static final int NO_SIZE_FILL_CONFLICT = 2;
 
     // We need these two constructors for backwards compatibility with modules
 
@@ -195,6 +217,139 @@ public class TiCompositeLayout extends ViewGroup
         return view.getClass().getSimpleName() + "@" + Integer.toHexString(view.hashCode());
     }
 
+    /**
+     * Sets a custom width/height for child views to calculate their percentage based
+     * width/height and top/bottom/left/right/center properties against.
+     * <p>
+     * Once this method is called, child views will no longer be percent sized/positioned
+     * based on this layout's size.
+     * <p>
+     * Example Usage: Scroll views call this method so that child views are percent sized/positioned
+     * based on the ScrollView container size instead of the scrollable content area's size.
+     * @param width The custom width to be used. Can be zero.
+     * @param height The custom height to be used. Can be zero.
+     */
+    public void setChildRelativeSizingTo(int width, int height)
+    {
+        this.childRelativeSizingWidth = Math.max(width, 0);
+        this.childRelativeSizingHeight = Math.max(height, 0);
+    }
+
+    /**
+     * Configures this layout to size and position child views that use a percentage based
+     * width/height and top/bottom/left/right/center properties reatlive to this parent
+     * layout's width and height.
+     * <p>
+     * This is the default setting.
+     * <p>
+     * Calling this method clears the setChildRelativeSizingTo() settings.
+     */
+    public void setChildRelativeSizingToParent()
+    {
+        this.childRelativeSizingWidth = -1;
+        this.childRelativeSizingHeight = -1;
+    }
+
+    /**
+     * Gets the custom width that was given to the last call to the setChildRelativeSizingTo() method.
+     * This is the width that a child view's percent based size/position properties are relative to.
+     * @return
+     * Returns the custom assigned relative width.
+     * <p>
+     * Returns -1 (the default) if percentage based calculations are based on this layout's width.
+     */
+    public int getChildRelativeSizingWidth()
+    {
+        return this.childRelativeSizingWidth;
+    }
+
+    /**
+     * Gets the custom height that was given to the last call to the setChildRelativeSizingTo() method.
+     * This is the height that a child view's percent based size/position properties are relative to.
+     * @return
+     * Returns the custom assigned relative height.
+     * <p>
+     * Returns -1 (the default) if percentage based calculations are based on this layout's height.
+     */
+    public int getChildRelativeSizingHeight()
+    {
+        return this.childRelativeSizingHeight;
+    }
+
+    /**
+     * Configures this layout to have child views whose "width" property is set to Ti.UI.FILL
+     * to fill the parent's remaining width.
+     * <p>
+     * If the setChildFillWidth() method was called before, then its setting is cleared.
+     * <p>
+     * This is the default setting.
+     */
+    public void setChildFillWidthToParent()
+    {
+        this.childFillWidth = -1;
+    }
+
+    /**
+     * Sets a custom width to be used by child views whose "width" property is set to Ti.UI.FILL.
+     * This prevents child views from using this layout's remaining width, which is the normal behavior.
+     * <p>
+     * Example Usage: Scroll views set this to their container width when "contentWidth" is auto.
+     * @param value The custom fill width to be used. Can be zero.
+     */
+    public void setChildFillWidth(int value)
+    {
+        this.childFillWidth = Math.max(value, 0);
+    }
+
+    /**
+     * Gets the custom fill width given to the setChildFillWidth() method.
+     * @return
+     * Returns the custom fill width to be applied to child views using Ti.UI.FILL.
+     * <p>
+     * Returns -1 (the default) indicating that child views will fill this layout's remaining width.
+     */
+    public int getChildFillWidth()
+    {
+        return this.childFillWidth;
+    }
+
+    /**
+     * Configures this layout to have child views whose "height" property is set to Ti.UI.FILL
+     * to fill the parent's remaining height.
+     * <p>
+     * If the setChildFillHeight() method was called before, then its setting is cleared.
+     * <p>
+     * This is the default setting.
+     */
+    public void setChildFillHeightToParent()
+    {
+        this.childFillHeight = -1;
+    }
+
+    /**
+     * Sets a custom height to be used by child views whose "height" property is set to Ti.UI.FILL.
+     * This prevents child views from using this layout's remaining height, which is the normal behavior.
+     * <p>
+     * Example Usage: Scroll views set this to their container height when "contentHeight" is auto.
+     * @param value The custom fill height to be used. Can be zero.
+     */
+    public void setChildFillHeight(int value)
+    {
+        this.childFillHeight = Math.max(value, 0);
+    }
+
+    /**
+     * Gets the custom fill height given to the setChildFillHeight() method.
+     * @return
+     * Returns the custom fill height to be applied to child views using Ti.UI.FILL.
+     * <p>
+     * Returns -1 (the default) indicating that child views will fill this layout's remaining height.
+     */
+    public int getChildFillHeight()
+    {
+        return this.childFillHeight;
+    }
+
     public void resort()
     {
         setNeedsSort(true);
@@ -231,23 +386,32 @@ public class TiCompositeLayout extends ViewGroup
 
     private static int getAsPercentageValue(double percentage, int value)
     {
-        return (int) Math.round((percentage / 100.0) * value);
+        return (int) Math.floor((percentage / 100.0) * value);
     }
 
     protected int getViewWidthPadding(View child, int parentWidth)
     {
+        // Determine what size a percentage based coordinate will be relative to.
+        // Normally defaults to the parent's width unless a custom value was provided.
+        // Ex: ScrollViews are relative to the container instead of the scrollable content area.
+        int relativeWidth = parentWidth;
+        if (this.childRelativeSizingWidth >= 0) {
+            relativeWidth = this.childRelativeSizingWidth;
+        }
+
+        // Calculate the given view's left/right padding size in pixels.
         LayoutParams p = (LayoutParams) child.getLayoutParams();
         int padding = 0;
         if (p.optionLeft != null) {
             if (p.optionLeft.isUnitPercent()) {
-                padding += getAsPercentageValue(p.optionLeft.getValue(), parentWidth);
+                padding += getAsPercentageValue(p.optionLeft.getValue(), relativeWidth);
             } else {
                 padding += p.optionLeft.getAsPixels(this);
             }
         }
         if (p.optionRight != null) {
             if (p.optionRight.isUnitPercent()) {
-                padding += getAsPercentageValue(p.optionRight.getValue(), parentWidth);
+                padding += getAsPercentageValue(p.optionRight.getValue(), relativeWidth);
             } else {
                 padding += p.optionRight.getAsPixels(this);
             }
@@ -257,18 +421,27 @@ public class TiCompositeLayout extends ViewGroup
 
     protected int getViewHeightPadding(View child, int parentHeight)
     {
+        // Determine what size a percentage based coordinate will be relative to.
+        // Normally defaults to the parent's height unless a custom value was provided.
+        // Ex: ScrollViews are relative to the container instead of the scrollable content area.
+        int relativeHeight = parentHeight;
+        if (this.childRelativeSizingHeight >= 0) {
+            relativeHeight = this.childRelativeSizingHeight;
+        }
+
+        // Calculate the given view's top/bottom padding size in pixels.
         LayoutParams p = (LayoutParams) child.getLayoutParams();
         int padding = 0;
         if (p.optionTop != null) {
             if (p.optionTop.isUnitPercent()) {
-                padding += getAsPercentageValue(p.optionTop.getValue(), parentHeight);
+                padding += getAsPercentageValue(p.optionTop.getValue(), relativeHeight);
             } else {
                 padding += p.optionTop.getAsPixels(this);
             }
         }
         if (p.optionBottom != null) {
             if (p.optionBottom.isUnitPercent()) {
-                padding += getAsPercentageValue(p.optionBottom.getValue(), parentHeight);
+                padding += getAsPercentageValue(p.optionBottom.getValue(), relativeHeight);
             } else {
                 padding += p.optionBottom.getAsPixels(this);
             }
@@ -285,6 +458,7 @@ public class TiCompositeLayout extends ViewGroup
         int wSuggested = getSuggestedMinimumWidth();
         int hSuggested = getSuggestedMinimumHeight();
         int w = Math.max(wFromSpec, wSuggested);
+        int wRemain = w;
         int wMode = MeasureSpec.getMode(widthMeasureSpec);
         int h = Math.max(hFromSpec, hSuggested);
         int hMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -297,11 +471,22 @@ public class TiCompositeLayout extends ViewGroup
         int horizontalRowHeight = 0;
 
         for (int i = 0; i < childCount; i++) {
+            // Apply a width and height to the next child view owned by this layout.
             View child = getChildAt(i);
             if (child.getVisibility() != View.GONE) {
-                constrainChild(child, w, wMode, h, hMode);
+                // Calculate remaining height to fill. (Only applicable to horizontal/vertical layouts.)
+                int hRemain = isDefaultArrangement() ? h : (h - maxHeight);
+
+                // If a custom fill size was provided, then use it instead of the remaining size.
+                // Note: ScrollViews set this to size of container unless "contentWidth" is set.
+                int wRemainForChild = (this.childFillWidth >= 0) ? this.childFillWidth : wRemain;
+                int hRemainForChild = (this.childFillHeight >= 0) ? this.childFillHeight : hRemain;
+
+                // Constrain the child view to this view's bounds.
+                constrainChild(child, w, wMode, h, hMode, wRemainForChild, hRemainForChild);
             }
 
+            // Fetch the child view's new measurements, minus the padding.
             int childWidth = child.getMeasuredWidth();
             int childHeight = child.getMeasuredHeight();
             if (child.getVisibility() != View.GONE) {
@@ -311,17 +496,27 @@ public class TiCompositeLayout extends ViewGroup
 
             if (isHorizontalArrangement()) {
                 if (enableHorizontalWrap) {
-
-                    if ((horizontalRowWidth + childWidth) > w) {
-                        horizontalRowWidth = childWidth;
-                        maxHeight += horizontalRowHeight;
-                        horizontalRowHeight = childHeight;
-
-                    } else {
+                    wRemain -= childWidth;
+                    if (wRemain > 0) {
+                        // Row has room for this view and can fit more.
                         horizontalRowWidth += childWidth;
+                    } else if ((wRemain < 0) && (horizontalRowWidth > 0)) {
+                        // View needs to be wrapped to the next row.
+                        maxHeight += horizontalRowHeight;
+                        horizontalRowWidth = childWidth;
+                        horizontalRowHeight = childHeight;
+                        wRemain = (w - childWidth);
+                    } else {
+                        // The row is completely full or it has been exceeded by one view.
+                        horizontalRowWidth += childWidth;
+                        maxHeight += Math.max(horizontalRowHeight, childHeight);
                         maxWidth = Math.max(maxWidth, horizontalRowWidth);
+                        horizontalRowWidth = 0;
+                        horizontalRowHeight = 0;
+                        childHeight = 0;
+                        wRemain = w;
                     }
-
+                    maxWidth = Math.max(maxWidth, horizontalRowWidth);
                 } else {
                     // For horizontal layout without wrap, just keep on adding
                     // the widths since it doesn't wrap
@@ -363,96 +558,128 @@ public class TiCompositeLayout extends ViewGroup
         setMeasuredDimension(measuredWidth, measuredHeight);
     }
 
-    protected void constrainChild(View child, int width, int wMode, int height, int hMode)
+    protected void constrainChild(
+        View child, int width, int wMode, int height, int hMode, int remainWidth, int remainHeight)
     {
-        boolean hasFixedHeightParent = false;
-        boolean hasFixedWidthParent = false;
+        // Floor arguments to valid values.
+        if (remainWidth < 0) {
+            remainWidth = 0;
+        }
+        if (remainHeight < 0) {
+            remainHeight = 0;
+        }
+        if (width < remainWidth) {
+            width = remainWidth;
+        }
+        if (height < remainHeight) {
+            height = remainHeight;
+        }
+
+        // Fetch the child view's layout settings.
         LayoutParams p = (LayoutParams) child.getLayoutParams();
 
-        int sizeFillConflicts[] = {
-                NOT_SET, NOT_SET
-        };
-        boolean checkedForConflict = false;
-
-        // If autoFillsWidth is false, and optionWidth is null, then we use size
-        // behavior.
+        // Determine the width that should be applied to the child view.
+        // Note: If "optionWidth" and "autoFillsWidth" are null, then default to auto-size behavior.
         int childDimension = LayoutParams.WRAP_CONTENT;
+        int widthPadding = getViewWidthPadding(child, width);
         if (p.optionWidth != null) {
-            if (p.optionWidth.isUnitPercent() && width > 0) {
-                childDimension = getAsPercentageValue(p.optionWidth.getValue(), width);
+            // Fetch the view's configured width.
+            wMode = MeasureSpec.EXACTLY;
+            if (p.optionWidth.isUnitPercent()) {
+                int relativeWidth = width;
+                if (this.childRelativeSizingWidth >= 0) {
+                    relativeWidth = this.childRelativeSizingWidth;
+                }
+                childDimension = getAsPercentageValue(p.optionWidth.getValue(), relativeWidth);
             } else {
                 childDimension = p.optionWidth.getAsPixels(this);
             }
-        } else {
-            if (p.autoFillsWidth) {
-                childDimension = LayoutParams.MATCH_PARENT;
-            } else {
-                // Look for sizeFill conflicts
-                hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent,
-                        hasFixedHeightParent);
-                checkedForConflict = true;
-                if (sizeFillConflicts[0] == HAS_SIZE_FILL_CONFLICT) {
-                    childDimension = LayoutParams.MATCH_PARENT;
+            if (childDimension < 0) {
+                childDimension = 0;
+            }
+
+            // Do not allow the child to exceed the parent's width for wrapping horizontal layouts.
+            // This matches iOS' behavior.
+            if ((childDimension > 0) && isHorizontalArrangement() && this.enableHorizontalWrap) {
+                if ((childDimension + widthPadding) > width) {
+                    childDimension = Math.max(width - widthPadding, 0);
                 }
             }
+        } else if (p.autoFillsWidth) {
+            // Use the remaining width of the parent view to fill it.
+            // Note: Do not use Android's MATCH_PARENT or FILL_PARENT constant here, because if the
+            //       parent view is WRAP_CONTENT (ie: Ti.UI.SIZE), then the child will use min size
+            //       instead of filling parent's remaining space like iOS/Windows. (See: TIMOB-25173)
+            wMode = MeasureSpec.EXACTLY;
+            childDimension = Math.max(remainWidth - widthPadding, 0);
+        } else if (!p.sizeOrFillWidthEnabled) {
+            // Attempt to calculate a width based on left/center/right properties, if provided.
+            childDimension = calculateWidthFromPins(p, 0, remainWidth, remainWidth, childDimension);
         }
+        int widthSpec = ViewGroup.getChildMeasureSpec(
+                MeasureSpec.makeMeasureSpec(width, wMode), widthPadding, childDimension);
 
-        int widthPadding = getViewWidthPadding(child, width);
-        int widthSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(width, wMode),
-                widthPadding,
-                childDimension);
-        // If autoFillsHeight is false, and optionHeight is null, then we use
-        // size behavior.
+        // Determine the height that should be applied to the child view.
+        // Note: If "optionHeight" and "autoFillsHeight" are null, then default to auto-size behavior.
         childDimension = LayoutParams.WRAP_CONTENT;
+        int heightPadding = getViewHeightPadding(child, height);
         if (p.optionHeight != null) {
-            if (p.optionHeight.isUnitPercent() && height > 0) {
-                childDimension = getAsPercentageValue(p.optionHeight.getValue(), height);
+            // Fetch the view's configured height.
+            hMode = MeasureSpec.EXACTLY;
+            if (p.optionHeight.isUnitPercent()) {
+                int relativeHeight = height;
+                if (this.childRelativeSizingHeight >= 0) {
+                    relativeHeight = this.childRelativeSizingHeight;
+                }
+                childDimension = getAsPercentageValue(p.optionHeight.getValue(), relativeHeight);
             } else {
                 childDimension = p.optionHeight.getAsPixels(this);
             }
-        } else {
-            // If we already checked for conflicts before, we don't need to
-            // again
-            if (p.autoFillsHeight
-                    || (checkedForConflict && sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT)) {
-                childDimension = LayoutParams.MATCH_PARENT;
-            } else if (!checkedForConflict) {
-                hasSizeFillConflict(child, sizeFillConflicts, true, hasFixedWidthParent,
-                        hasFixedHeightParent);
-                if (sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT) {
-                    childDimension = LayoutParams.MATCH_PARENT;
-                }
+            if (childDimension < 0) {
+                childDimension = 0;
             }
+        } else if (p.autoFillsHeight) {
+            // Use the remaining height of the parent view to fill it.
+            hMode = MeasureSpec.EXACTLY;
+            childDimension = Math.max(remainHeight - heightPadding, 0);
+        } else if (!p.sizeOrFillHeightEnabled) {
+            // Attempt to calculate a height based on top/center/bottom properties, if provided.
+            childDimension = calculateHeightFromPins(
+                    p, height - remainHeight, height, remainHeight, childDimension);
         }
+        int heightSpec = ViewGroup.getChildMeasureSpec(
+                MeasureSpec.makeMeasureSpec(height, hMode), heightPadding, childDimension);
 
-        int heightPadding = getViewHeightPadding(child, height);
-        int heightSpec = ViewGroup.getChildMeasureSpec(MeasureSpec.makeMeasureSpec(height, hMode),
-                heightPadding,
-                childDimension);
-
+        // Apply the above calculated width and height to the child view.
         child.measure(widthSpec, heightSpec);
-        // Useful for debugging.
-        // int childWidth = child.getMeasuredWidth();
-        // int childHeight = child.getMeasuredHeight();
     }
 
-    // Try to calculate width from pins, if we couldn't calculate from pins or
-    // we don't need to, then return the
-    // measured width
-    private int calculateWidthFromPins(LayoutParams params, int parentLeft, int parentRight,
-            int parentWidth,
-            int measuredWidth)
+    // Try to calculate width from "left", "center", or "right" pins.
+    // If we can't calculate from pins or we don't need to, then return the measured width.
+    private int calculateWidthFromPins(
+        LayoutParams params, int parentLeft, int parentRight, int parentWidth, int measuredWidth)
     {
         int width = measuredWidth;
 
-        if (params.optionWidth != null || params.sizeOrFillWidthEnabled) {
+        // We only calculate width based on pins if Titanium's JavaScript "width" property is null.
+        // If JavaScript "width" property is set, then "left" and "right" properties are used as padding.
+        if ((params.optionWidth != null) || params.autoFillsWidth || params.sizeOrFillWidthEnabled) {
             return width;
         }
 
+        // If set up to use a custom fill size, then use it instead of the given parent size.
+        // Note: ScrollViews set this to size of container unless "contentWidth" is set.
+        if (this.childFillWidth >= 0) {
+            parentWidth = this.childFillWidth;
+            parentLeft = 0;
+            parentRight = parentWidth;
+        }
+
+        // Attempt to calculate width from the pin properties.
+        // Note: We need at least 2 pins to do this. Otherwise, use given "measuredWidth" argument.
         TiDimension left = params.optionLeft;
         TiDimension centerX = params.optionCenterX;
         TiDimension right = params.optionRight;
-
         if (left != null) {
             if (centerX != null) {
                 width = (centerX.getAsPixels(this) - left.getAsPixels(this) - parentLeft) * 2;
@@ -465,24 +692,32 @@ public class TiCompositeLayout extends ViewGroup
         return width;
     }
 
-    // Try to calculate height from pins, if we couldn't calculate from pins or
-    // we don't need to, then return the
-    // measured height
-    private int calculateHeightFromPins(LayoutParams params, int parentTop, int parentBottom,
-            int parentHeight,
-            int measuredHeight)
+    // Try to calculate height from "top", "center", or "bottom" pins.
+    // If we can't calculate from pins or we don't need to, then return the measured height.
+    private int calculateHeightFromPins(
+        LayoutParams params, int parentTop, int parentBottom, int parentHeight, int measuredHeight)
     {
         int height = measuredHeight;
 
-        // Return if we don't need undefined behavior
-        if (params.optionHeight != null || params.sizeOrFillHeightEnabled) {
+        // We only calculate height based on pins if Titanium's JavaScript "height" property is null.
+        // If JavaScript "height" property is set, then "top" and "bottom" properties are used as padding.
+        if ((params.optionHeight != null) || params.autoFillsHeight || params.sizeOrFillHeightEnabled) {
             return height;
         }
 
+        // If set up to use a custom fill size, then use it instead of the given parent size.
+        // Note: ScrollViews set this to size of container unless "contentWidth" is set.
+        if (this.childFillHeight >= 0) {
+            parentHeight = this.childFillHeight;
+            parentTop = 0;
+            parentBottom = parentHeight;
+        }
+
+        // Attempt to calculate height from the pin properties.
+        // Note: We need at least 2 pins to do this. Otherwise, use given "measuredHeight" argument.
         TiDimension top = params.optionTop;
         TiDimension centerY = params.optionCenterY;
         TiDimension bottom = params.optionBottom;
-
         if (top != null) {
             if (centerY != null) {
                 height = (centerY.getAsPixels(this) - parentTop - top.getAsPixels(this)) * 2;
@@ -492,7 +727,6 @@ public class TiCompositeLayout extends ViewGroup
         } else if (centerY != null && bottom != null) {
             height = (parentBottom - bottom.getAsPixels(this) - centerY.getAsPixels(this)) * 2;
         }
-
         return height;
     }
 
@@ -634,9 +868,10 @@ public class TiCompositeLayout extends ViewGroup
             }
         }
 
-        TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
-        TiUIHelper.firePostLayoutEvent(viewProxy);
-
+        if (changed) {
+            TiViewProxy viewProxy = (proxy == null ? null : proxy.get());
+            TiUIHelper.firePostLayoutEvent(viewProxy);
+        }
     }
 
     // option0 is left/top, option1 is right/bottom
@@ -650,10 +885,10 @@ public class TiCompositeLayout extends ViewGroup
             int leftOrTopPixels = leftOrTop.getAsPixels(parent);
             pos[0] = layoutPosition0 + leftOrTopPixels;
             pos[1] = layoutPosition0 + leftOrTopPixels + measuredSize;
-        } else if (optionCenter != null && optionCenter.getValue() != 0.0) {
-            // Don't calculate position based on center dimension if it's 0.0
+        } else if (optionCenter != null) {
             int halfSize = measuredSize / 2;
-            pos[0] = layoutPosition0 + optionCenter.getAsPixels(parent) - halfSize;
+            int centerPixels = optionCenter.getAsPixels(parent);
+            pos[0] = layoutPosition0 + centerPixels - halfSize;
             pos[1] = pos[0] + measuredSize;
         } else if (rightOrBottom != null) {
             // peg right/bottom
@@ -700,14 +935,9 @@ public class TiCompositeLayout extends ViewGroup
         }
         horiztonalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
 
-        int right;
         // If it's fill width with horizontal wrap, just take up remaining
         // space.
-        if (enableHorizontalWrap && params.autoFillsWidth && params.sizeOrFillWidthEnabled) {
-            right = measuredWidth;
-        } else {
-            right = left + measuredWidth;
-        }
+        int right = left + measuredWidth;
 
         if (enableHorizontalWrap
                 && ((right + horiztonalLayoutPreviousRight) > layoutRight || left >= layoutRight)) {
@@ -722,7 +952,7 @@ public class TiCompositeLayout extends ViewGroup
             // the width of the screen
             right = Math.min(right, layoutRight);
         }
-
+        
         hpos[0] = left;
         hpos[1] = right;
         horizontalLayoutCurrentLeft = right;
@@ -781,75 +1011,6 @@ public class TiCompositeLayout extends ViewGroup
             horizontalLayoutLineHeight = rowHeight;
         }
         horizontalLayoutLastIndexBeforeWrap = i;
-    }
-
-    // Determine whether we have a conflict where a parent has size behavior,
-    // and child has fill behavior.
-    private boolean hasSizeFillConflict(View parent, int[] conflicts, boolean firstIteration,
-            boolean hasFixedWidthParent, boolean hasFixedHeightParent)
-    {
-        if (parent instanceof TiCompositeLayout) {
-            TiCompositeLayout currentLayout = (TiCompositeLayout) parent;
-            LayoutParams currentParams = (LayoutParams) currentLayout.getLayoutParams();
-
-            // During the first iteration, the parent view needs to have size
-            // behavior.
-            if (firstIteration
-                    && (currentParams.autoFillsWidth || currentParams.optionWidth != null)) {
-                conflicts[0] = NO_SIZE_FILL_CONFLICT;
-            }
-            if (firstIteration
-                    && (currentParams.autoFillsHeight || currentParams.optionHeight != null)) {
-                conflicts[1] = NO_SIZE_FILL_CONFLICT;
-            }
-
-            // We don't check for sizeOrFillHeightEnabled. The calculations
-            // during the measure phase (which includes
-            // this method) will be adjusted to undefined behavior accordingly
-            // during the layout phase.
-            // sizeOrFillHeightEnabled is used during the layout phase to
-            // determine whether we want to use the fill/size
-            // measurements that we got from the measure phase.
-            if (currentParams.autoFillsWidth && currentParams.optionWidth == null
-                    && conflicts[0] == NOT_SET && !hasFixedWidthParent) {
-                conflicts[0] = HAS_SIZE_FILL_CONFLICT;
-            }
-            if (currentParams.autoFillsHeight && currentParams.optionHeight == null
-                    && conflicts[1] == NOT_SET && !hasFixedHeightParent) {
-                conflicts[1] = HAS_SIZE_FILL_CONFLICT;
-            }
-
-            // Stop traversing if we've determined whether there is a conflict
-            // for both width and height
-            if (conflicts[0] != NOT_SET && conflicts[1] != NOT_SET) {
-                return true;
-            }
-
-            if (currentParams.optionWidth != null && !currentParams.optionWidth.isUnitAuto())
-                hasFixedWidthParent = true;
-
-            if (currentParams.optionHeight != null && !currentParams.optionHeight.isUnitAuto())
-                hasFixedHeightParent = true;
-
-            // If the child has size behavior, continue traversing through
-            // children and see if any of them have fill
-            // behavior
-            for (int i = 0; i < currentLayout.getChildCount(); ++i) {
-                if (hasSizeFillConflict(currentLayout.getChildAt(i), conflicts, false,
-                        hasFixedWidthParent, hasFixedHeightParent)) {
-                    return true;
-                }
-            }
-        }
-
-        // Default to false if we couldn't find conflicts
-        if (firstIteration && conflicts[0] == NOT_SET) {
-            conflicts[0] = NO_SIZE_FILL_CONFLICT;
-        }
-        if (firstIteration && conflicts[1] == NOT_SET) {
-            conflicts[1] = NO_SIZE_FILL_CONFLICT;
-        }
-        return false;
     }
 
     protected int getWidthMeasureSpec(View child) {

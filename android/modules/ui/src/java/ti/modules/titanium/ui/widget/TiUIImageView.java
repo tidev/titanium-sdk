@@ -669,10 +669,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		imageSources = new ArrayList<TiDrawableReference>();
 		if (object instanceof Object[]) {
 			for (Object o : (Object[]) object) {
-				imageSources.add(makeImageSource(o));
+				imageSources.add(TiDrawableReference.fromObject(getProxy(), o));
 			}
 		} else {
-			imageSources.add(makeImageSource(object));
+			imageSources.add(TiDrawableReference.fromObject(getProxy(), object));
 		}
 	}
 
@@ -682,17 +682,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		imageSources.add(source);
 	}
 
-	private TiDrawableReference makeImageSource(Object object)
-	{
-		if (object instanceof FileProxy) {
-			return TiDrawableReference.fromFile(proxy.getActivity(), ((FileProxy) object).getBaseFile());
-		} else if (object instanceof String) {
-			return TiDrawableReference.fromUrl(proxy, (String) object);
-		} else {
-			return TiDrawableReference.fromObject(proxy.getActivity(), object);
-		}
-	}
-
 	private void setDefaultImageSource(Object object)
 	{
 		if (object instanceof FileProxy) {
@@ -700,7 +689,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		} else if (object instanceof String) {
 			defaultImageSource = TiDrawableReference.fromUrl(proxy, (String) object);
 		} else {
-			defaultImageSource = TiDrawableReference.fromObject(proxy.getActivity(), object);
+			defaultImageSource = TiDrawableReference.fromObject(proxy, object);
 		}
 	}
 	
@@ -820,7 +809,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			// processProperties is also called from TableView, we need check if we changed before re-creating the
 			// bitmap
 			boolean changeImage = true;
-			TiDrawableReference source = makeImageSource(d.get(TiC.PROPERTY_IMAGE));
+			TiDrawableReference source = TiDrawableReference.fromObject(getProxy(), d.get(TiC.PROPERTY_IMAGE));
 			if (imageSources != null && imageSources.size() == 1) {
 				if (imageSources.get(0).equals(source)) {
 					changeImage = false;
@@ -872,7 +861,15 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
-				setImageSource(newValue);
+				TiDrawableReference source = TiDrawableReference.fromObject(getProxy(), newValue);
+				Object autoRotate = proxy.getProperty(TiC.PROPERTY_AUTOROTATE);
+				if (autoRotate != null && TiConvert.toBoolean(autoRotate)) {
+					view.setOrientation(source.getOrientation());
+				}
+				if (proxy.hasProperty(TiC.PROPERTY_DECODE_RETRIES)) {
+					source.setDecodeRetries(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_DECODE_RETRIES), TiDrawableReference.DEFAULT_DECODE_RETRIES));
+				}
+				setImageSource(source);
 				firedLoad = false;
 				setImageInternal();
 			}
@@ -982,15 +979,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	@Override
 	public void release()
 	{
-		super.release();
-		if (loader != null) {
-			synchronized (loader) {
-				loader.notify();
-			}
-			loader = null;
-		}
-		animating.set(false);
-		isStopping.set(true);
+		handleStop();
 		synchronized(releasedLock) {
 			if (imageSources != null) {
 				for (TiDrawableReference imageref : imageSources) {
@@ -1001,11 +990,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				imageSources = null;
 			}
 		}
-		
 		if (timer != null) {
 			timer.cancel();
 			timer = null;
 		}
 		defaultImageSource = null;
+
+		super.release();
 	}
 }
