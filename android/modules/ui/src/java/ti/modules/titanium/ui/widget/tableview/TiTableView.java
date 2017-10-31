@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.widget.listview.TiNestedListView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
@@ -203,8 +204,9 @@ public class TiTableView extends TiSwipeRefreshLayout
 				// TIMOB-24560: prevent duplicate TableViewRowProxyItem on Android N
 				if (Build.VERSION.SDK_INT > 23) {
 					ArrayList<Item> models = viewModel.getViewModel();
-					if (models != null && models.contains(v.getRowData())) {
-						return v;
+					if (models != null && v instanceof TiTableViewRowProxyItem && models.contains(v.getRowData())) {
+						v = null;
+						sameView = true;
 					}
 				}
 
@@ -302,7 +304,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 		rowTypes.put(TableViewProxy.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
 
 		this.viewModel = new TableViewModel(proxy);
-		this.listView = new ListView(getContext());
+		this.listView = TiNestedListView.createUsing(getContext());
 		listView.setId(TI_TABLE_VIEW_ID);
 
 		listView.setFocusable(true);

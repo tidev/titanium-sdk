@@ -327,7 +327,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
  Sets or replaces the property on the proxy object.
  @param value The new value.
  @param key The property key.
- @param notify The flag to send value chnage notification to model delegate.
+ @param notify The flag to send value change notification to model delegate.
  */
 - (void)replaceValue:(id)value forKey:(NSString *)key notification:(BOOL)notify;
 

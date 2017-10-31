@@ -336,7 +336,7 @@ public class AndroidModule extends KrollModule
 
 	@Kroll.method @Kroll.getProperty
 	public ActivityProxy getCurrentActivity() {
-		TiBaseActivity resultBaseActivity = TiApplication.getAppCurrentActivity();
+		TiBaseActivity resultBaseActivity = (TiBaseActivity) TiApplication.getAppCurrentActivity();
 		if (resultBaseActivity != null) {
 			return resultBaseActivity.getActivityProxy();
 		} else {

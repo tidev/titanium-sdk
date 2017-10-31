@@ -14,7 +14,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="appcompat" />
+    <orderEntry type="module" module-name="appcompat" scope="RUNTIME" />
     <orderEntry type="library" exported="" name="android-support-design" level="project" />
   </component>
 </module>
