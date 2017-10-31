@@ -858,7 +858,7 @@ methods:
         summary: |
             Function to be invoked upon completion. If non-null, this method will be performed
             asynchronously. If null, it will be performed immediately.
-        type: Callback<Titanium.Blob>
+        type: Callback<ToImageCallback>
         optional: true
 
       - name: honorScaleFactor
@@ -1872,3 +1872,11 @@ properties:
     type: Boolean
     default: false
     osver: {android: {min: 5.0}}
+
+---
+name: ToImageCallback
+summary: Dictionary with the Ti.Blob result of toImage() call.
+properties:
+  - name: blob
+    summary: Result of the toImage() call.
+    type: Titanium.Blob
