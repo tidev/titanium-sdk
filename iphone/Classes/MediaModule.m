@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -387,19 +387,20 @@ MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_FAILED, AVPlayerStatusFailed);
 
 - (void)setDefaultAudioSessionMode:(NSNumber *)mode
 {
-  DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
+  DEPRECATED_REPLACED(@"Media.VideoPlayer.defaultAudioSessionMode", @"7.0.0", @"Media.VideoPlayer.audioSessionCategory");
   [self setAudioSessionMode:mode];
 }
 
 - (NSNumber *)defaultAudioSessionMode
 {
-  DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
+  DEPRECATED_REPLACED(@"Media.VideoPlayer.defaultAudioSessionMode", @"7.0.0", @"Media.VideoPlayer.audioSessionCategory");
   return [self audioSessionMode];
 }
 
 - (void)setAudioSessionMode:(NSNumber *)mode
 {
-  DebugLog(@"[WARN] Deprecated; use 'audioSessionCategory'");
+  DEPRECATED_REPLACED(@"Media.VideoPlayer.audioSessionMode", @"7.0.0", @"Media.VideoPlayer.audioSessionCategory");
+
   switch ([mode unsignedIntegerValue]) {
   case kAudioSessionCategory_AmbientSound:
     [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_AMBIENT]];
@@ -424,8 +425,10 @@ MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_FAILED, AVPlayerStatusFailed);
 
 - (NSNumber *)audioSessionMode
 {
-  DebugLog(@"[WARN] Deprecated; use 'audioSessionCategory'");
+  DEPRECATED_REPLACED(@"Media.VideoPlayer.audioSessionMode", @"7.0.0", @"Media.VideoPlayer.audioSessionCategory");
+
   NSString *category = [self audioSessionCategory];
+
   if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_AMBIENT]]) {
     return [self AUDIO_SESSION_MODE_AMBIENT];
   } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]]) {
