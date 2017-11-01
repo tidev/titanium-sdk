@@ -79,10 +79,22 @@ describe('Titanium.Filesystem.File', function () {
 	// Check if parent exists and returns File
 	it('parent', function () {
 		var file = Ti.Filesystem.getFile('app.js');
+
 		should(file).have.a.readOnlyProperty('parent');
 		should(file.parent).not.be.undefined;
-		should(file.getParent()).not.be.undefined;
-		should(file.getParent()).be.a.Function;
+		should(file.getParent).not.be.undefined;
+		should(file.getParent.be.a.Function;
+		
+		// In 7.0.0, all platforms return a Ti.Filesystem.File instance
+		should(file.parent).be.a.Object;
+		
+		// Check the (deprecated) iOS getter as well. Remove this once 8.0.0 is reached
+		if (utilities.isIOS()) {
+			should(file.getParent()).be.a.String;
+		}
+		
+		// TODO: We may want to check for "null" results as well, but not sure how
+		// all platforms handle this (null vs. throw).
 	});
 
 	// Check if size exists and returns number
