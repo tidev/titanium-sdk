@@ -59,7 +59,7 @@ public class ActionBarProxy extends KrollProxy
 		if (actionBar != null) {
 			actionBar.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
 		} else {
-			Log.w(TAG, "Trying to get a reference to ActionBar before it's container was inflated.");
+			Log.w(TAG, "Trying to get a reference to ActionBar before its container was inflated.");
 		}
 	}
 
