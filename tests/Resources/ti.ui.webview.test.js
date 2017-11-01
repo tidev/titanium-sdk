@@ -324,19 +324,19 @@ describe('Titanium.UI.WebView', function () {
 	it('userAgent', function (finish) {
 		win = Ti.UI.createWindow({backgroundColor: 'gray'}),
 		var webView = Ti.UI.createWebView({
-		        url: 'http://whatsmyuseragent.org',
-		        userAgent: 'TEST AGENT'
-		    });
+				url: 'http://whatsmyuseragent.org',
+				userAgent: 'TEST AGENT'
+			});
 
 		webView.addEventListener('load', function(e) {
-		    var exp = /user-agent.+\s+.+\>(.*)\</g.exec(e.source.html),
-		        userAgent = exp && exp.length > 1 ? exp[1] : undefined;
+			var exp = /user-agent.+\s+.+\>(.*)\</g.exec(e.source.html),
+				userAgent = exp && exp.length > 1 ? exp[1] : undefined;
 
-		    if (userAgent && userAgent === webView.userAgent) {
-		        finish();
-		    } else {
-		        finish(new Error('invalid userAgent'));
-		    }
+			if (userAgent && userAgent === webView.userAgent) {
+				finish();
+			} else {
+				finish(new Error('invalid userAgent'));
+			}
 		});
 
 		win.add(webView);
