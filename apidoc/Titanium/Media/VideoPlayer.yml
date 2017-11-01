@@ -159,7 +159,7 @@ methods:
     deprecated:
         platforms: [iphone, ipad]
         since: '7.0.0'
-        notes: In ios this is not supported now. There is no replacement for same.
+        notes: This method has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: '7.0.0'
     summary: Cancels all pending asynchronous thumbnail requests.
     description: |
@@ -612,7 +612,7 @@ properties:
     deprecated:
         platforms: [iphone, ipad]
         since: '7.0.0'
-        notes: In ios this property is no longer supported. There is no replacement for same.
+        notes: This method has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: '7.0.0'
     summary: |
         Determines if the movie is presented in the entire screen (obscuring all other application content).
@@ -641,7 +641,7 @@ properties:
     deprecated:
         platforms: [iphone, ipad]
         since: "7.0.0"
-        notes: In ios use <Titanium.Media.VideoPlayer.moviePlayerStatus> instead.
+        notes: On iOS, use <Titanium.Media.VideoPlayer.moviePlayerStatus> instead.
     summary: Returns the network load state of the movie player.
     type: Number
     permission: read-only
@@ -656,7 +656,7 @@ properties:
     deprecated:
         platforms: [iphone, ipad]
         since: "7.0.0"
-        notes: In ios use <Titanium.Media.VideoPlayer.scalingMode> instead.
+        notes: On iOS, use <Titanium.Media.VideoPlayer.scalingMode> instead.
     summary: The style of the playback controls.
     description: |
         Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and
@@ -770,7 +770,7 @@ properties:
     deprecated:
         platforms: [iphone, ipad]
         since: '7.0.0'
-        notes: In ios this property is no longer supported.
+        notes: This method has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: '7.0.0'
     summary: Determines how the movie player repeats when reaching the end of playback. 
     platforms: [android, iphone, ipad]
@@ -802,7 +802,7 @@ properties:
   - name: sourceType
     deprecated:
         since: '7.0.0'
-        notes: This property is no longer supported.
+        notes: This method has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: '7.0.0'
     summary: The playback type of the movie. 
     description: |
