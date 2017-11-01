@@ -3380,8 +3380,16 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 			flags += '.Fullscreen';
 		}
 
+		let theme = flags;
+		if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
+			if (theme.startsWith('@style/') && theme !== '@style/Theme.Titanium.Translucent') {
+				theme = this.tiappAndroidManifest.application.theme.replace('@style/', '');
+			}
+		}
+
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
-			flags: flags
+			flags: flags,
+			theme: theme
 		}));
 	}
 
