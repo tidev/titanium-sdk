@@ -16,5 +16,8 @@
 	],
 	"commonjs": [
 		"https://github.com/appcelerator-modules/ti.cloud/releases/download/3.2.11/ti.cloud-commonjs-3.2.11.zip"
+	],
+	"hyperloop": [
+		"https://appcelerator-modules.s3.amazonaws.com/hyperloop-2.2.2.zip"
 	]
 }
