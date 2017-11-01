@@ -45,7 +45,7 @@ var appc = require('node-appc'),
 	series = appc.async.series,
 	version = appc.version;
 var platformsRegExp = /^(android|ios|iphone|ipad|mobileweb|blackberry|windows|tizen)$/;
-const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
+var pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 
 function iOSBuilder() {
 	Builder.apply(this, arguments);
@@ -201,7 +201,7 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
  * @access private
  */
 iOSBuilder.prototype.findCertificates = function findCertificates(name, type) {
-	const certs = [];
+	var certs = [];
 	/* eslint-disable max-depth */
 	if (name && this.iosInfo) {
 		for (var keychain of Object.keys(this.iosInfo.certs.keychains)) {
@@ -1012,7 +1012,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 			function prep(a, certs) {
 				return a.filter(function (p) {
 					if (!p.expired && !p.managed && (!certs || intersection(p.certs, certs).length > 0)) {
-						const re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*')); // eslint-disable-line security/detect-non-literal-regexp
+						var re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*')); // eslint-disable-line security/detect-non-literal-regexp
 						if (re.test(appId)) {
 							var label = p.name;
 							if (label.indexOf(p.appId) === -1) {
@@ -1028,14 +1028,14 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				});
 			}
 
-			let certs;
+			var certs;
 			if (target === 'device') {
 				certs = _t.findCertificates(cli.argv['developer-name'], 'developer');
 			} else {
 				certs = _t.findCertificates(cli.argv['distribution-name'], 'distribution');
 			}
 
-			const pems = certs.map(function (c) {
+			var pems = certs.map(function (c) {
 				return c.pem.replace(pemCertRegExp, '');
 			})
 
@@ -1082,7 +1082,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 			} else if (target === 'dist-adhoc') {
 				if (iosInfo.provisioning.adhoc.length || iosInfo.provisioning.enterprise.length) {
 					pp = prep(iosInfo.provisioning.adhoc, pems);
-					let valid = pp.length;
+					var valid = pp.length;
 					if (pp.length) {
 						provisioningProfiles[__('Available Ad Hoc UUIDs:')] = pp;
 					}
@@ -1152,14 +1152,14 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 					return callback(new Error(__('Specified provisioning profile UUID "%s" is expired', value)));
 				}
 
-				let certs;
+				var certs;
 				if (target === 'device') {
 					certs = _t.findCertificates(cli.argv['developer-name'], 'developer');
 				} else {
 					certs = _t.findCertificates(cli.argv['distribution-name'], 'distribution');
 				}
 
-				const pems = certs.map(function (c) {
+				var pems = certs.map(function (c) {
 					return c.pem.replace(pemCertRegExp, '');
 				})
 
