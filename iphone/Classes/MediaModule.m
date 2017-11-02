@@ -423,27 +423,6 @@ MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_FAILED, AVPlayerStatusFailed);
   }
 }
 
-- (NSNumber *)audioSessionMode
-{
-  DEPRECATED_REPLACED(@"Media.VideoPlayer.audioSessionMode", @"7.0.0", @"Media.VideoPlayer.audioSessionCategory");
-
-  NSString *category = [self audioSessionCategory];
-
-  if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_AMBIENT]]) {
-    return [self AUDIO_SESSION_MODE_AMBIENT];
-  } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]]) {
-    return [self AUDIO_SESSION_MODE_SOLO_AMBIENT];
-  } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAYBACK]]) {
-    return [self AUDIO_SESSION_MODE_PLAYBACK];
-  } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_RECORD]]) {
-    return [self AUDIO_SESSION_MODE_RECORD];
-  } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]]) {
-    return [self AUDIO_SESSION_MODE_PLAY_AND_RECORD];
-  } else {
-    return NUMINT(-1);
-  }
-}
-
 #if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined(USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 - (void)setAudioSessionCategory:(NSString *)mode
 {
