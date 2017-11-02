@@ -102,7 +102,10 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 
 	public Item getRowData()
 	{
-		return rowView.getRowData();
+		if (rowView != null) {
+			return rowView.getRowData();
+		}
+		return null;
 	}
 
 	@Override
