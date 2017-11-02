@@ -127,6 +127,25 @@ public abstract class TiNestedListView extends ListView implements NestedScrolli
 		return super.onTouchEvent(event);
 	}
 
+	/**
+	 * Called when the parent is requesting this view to determine its size.
+	 * @param widthMeasureSpec Horizontal size imposed by the parent.
+	 * @param heightMeasureSpec Vertical size imposed by the parent.
+	 */
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+	{
+		// Google's ListView will not measure the rows if given an UNSPECIFIED height mode, which can
+		// happen if put into a ScrollView. This prevents WRAP_CONTENT from working (will have 0 height).
+		// Work-around: Use a height spec set to at-most the maximum view size allowed.
+		if (View.MeasureSpec.getMode(heightMeasureSpec) == View.MeasureSpec.UNSPECIFIED) {
+			final int MAX_VIEW_SIZE = 1073741823;   // Max is documented in "View.MeasureSpec" class.
+			heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(
+					MAX_VIEW_SIZE, View.MeasureSpec.AT_MOST);
+		}
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+	}
+
 
 	/** Creates a new list view. */
 	public static TiNestedListView createUsing(Context context)
