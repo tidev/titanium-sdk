@@ -3382,8 +3382,9 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 
 		let theme = flags;
 		if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
-			if (theme.startsWith('@style/') && theme !== '@style/Theme.Titanium.Translucent') {
-				theme = this.tiappAndroidManifest.application.theme.replace('@style/', '');
+			let appTheme = this.tiappAndroidManifest.application.theme;
+			if (appTheme.startsWith('@style/') && appTheme !== '@style/Theme.Titanium.Translucent') {
+				theme = appTheme.replace('@style/', '');
 			}
 		}
 
