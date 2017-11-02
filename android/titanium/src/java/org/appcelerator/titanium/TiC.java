@@ -2749,6 +2749,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SUMMARY_TEXT = "summaryText";
+	
+	/**
+	 @module.api
+	 */
+	public static final String PROPERTY_SUSTAINED_PERFORMANCE_MODE = "sustainedPerformanceMode";
 
 	/**
 	 * @module.api
