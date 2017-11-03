@@ -24,6 +24,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
@@ -215,6 +216,35 @@ public class TiDrawableReference
 			return fromObject(activity, null);
 		}
 	}
+
+	/**
+	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
+	 * <p>
+	 * Uses the given proxy to resolve relative paths to an image file, if applicable.
+	 * @param proxy Used to acquire an activty and resolve relative paths if given object is a string path.
+	 * @param object Reference to the image to be loaded such as a file, path, blob, etc.
+	 * @return Returns an instance of TiDrawableReference wrapping the given object.
+	 * @module.api
+	 */
+	public static TiDrawableReference fromObject(KrollProxy proxy, Object object)
+	{
+		// Attempt to fetch an activity from the given proxy.
+		Activity activity = null;
+		if (proxy != null) {
+			activity = proxy.getActivity();
+		}
+
+		// If given object is a string:
+		// - Resolve its relative path, if applicable.
+		// - Convert the string to a URL.
+		if ((proxy != null) && (object instanceof String)) {
+			object = proxy.resolveUrl(null, (String)object);
+		}
+
+		// Create a drawable reference from the given object.
+		return TiDrawableReference.fromObject(activity, object);
+	}
+
 	/**
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
 	 * @param activity the referenced activity.
@@ -238,6 +268,8 @@ public class TiDrawableReference
 			return fromBlob(activity, TiConvert.toBlob(object));
 		} else if (object instanceof Number) {
 			return fromResourceId(activity, ((Number)object).intValue());
+		} else if  (object instanceof TiFileProxy) {
+			return fromFile(activity, ((TiFileProxy)object).getBaseFile());
 		} else {
 			Log.w(TAG, "Unknown image resource type: " + object.getClass().getSimpleName()
 				+ ". Returning null drawable reference");
