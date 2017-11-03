@@ -8,10 +8,10 @@
 		"https://github.com/appcelerator-modules/ti.touchid/releases/download/ios-2.1.2/ti.touchid-iphone-2.1.2.zip"
 	],
 	"android": [
-		"https://github.com/appcelerator-modules/ti.facebook/releases/download/android-6.2.0/facebook-android-6.2.0.zip",
+		"https://github.com/appcelerator-modules/ti.facebook/releases/download/android-7.0.0/facebook-android-7.0.0.zip",
 		"https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-4.0.4.zip",
-		"https://github.com/appcelerator-modules/ti.map/releases/download/android-3.3.1/ti.map-android-3.3.1.zip",
-		"https://github.com/appcelerator-modules/ti.touchid/releases/download/android-2.2.0/ti.touchid-android-2.2.0.zip"
+		"https://github.com/appcelerator-modules/ti.map/releases/download/android-4.0.0/ti.map-android-4.0.0.zip",
+		"https://github.com/appcelerator-modules/ti.touchid/releases/download/android-3.0.0/ti.touchid-android-3.0.0.zip"
 	],
 	"commonjs": [
 		"https://github.com/appcelerator-modules/ti.cloud/releases/download/3.2.11/ti.cloud-commonjs-3.2.11.zip"
