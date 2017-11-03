@@ -478,7 +478,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSADVIEW
 - (id)createAdView:(id)args
 {
-  DebugLog(@"[ERROR] iAd is deprecated in iOS 10 and Titanium SDK 5.5.0. It was removed as part of Titanium SDK 7.0.0.");
+  DebugLog(@"[ERROR] iAd has been deprecated in iOS 10 and SDK 5.5.0. It was removed as part of the SDK 7.0.0.");
 }
 #endif
 
