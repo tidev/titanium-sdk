@@ -1,45 +1,44 @@
 ---
 name: Titanium.UI.AlertDialog
 summary: |
-    An alert dialog is a modal view that includes an optional title, a message and buttons, 
+    An alert dialog is a modal view that includes an optional title, a message and buttons,
     positioned in the middle of the display.
 description: |
     <table id="platformComparison">
       <tr>
         <td><img src="images/alertdialog/alertdialog_android.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_ios.png" height="75" /></td>
-        <td><img src="images/alertdialog/alertdialog_mobileweb.png" height="75" /></td>
         <td><img src="images/alertdialog/alertdialog_wp.png" height="75" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th><th>Mobile Web</th><th>Windows Phone</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows Phone</th></tr>
     </table>
-    
+
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
-    
-    Although this dialog always appears in the middle of the display (not touching the edges), 
-    other aspects of its aesthetics and the way the user interacts with it are different for each 
+
+    Although this dialog always appears in the middle of the display (not touching the edges),
+    other aspects of its aesthetics and the way the user interacts with it are different for each
     platform, as described below.
 
     #### Android
-    
-    On Android, the default alert dialog displays text information, via a title and message, without 
-    any buttons. As the user can use the system hardware `back` button to dismiss it, a button is 
+
+    On Android, the default alert dialog displays text information, via a title and message, without
+    any buttons. As the user can use the system hardware `back` button to dismiss it, a button is
     optional.
-    
-    Buttons are shown if the `buttonNames` property is defined, and are rendered horizontally below 
+
+    Buttons are shown if the `buttonNames` property is defined, and are rendered horizontally below
     the message.
 
-    To create a custom layout, a view may be added and, in turn, a hierarchy of views added to that 
+    To create a custom layout, a view may be added and, in turn, a hierarchy of views added to that
     child view.
-    
+
     #### iOS
-    
-    On iOS, the default alert dialog displays text information, via a title and message, with 
+
+    On iOS, the default alert dialog displays text information, via a title and message, with
     a single button to allow it to be dismissed.
-    
-    Buttons are defined using the `buttonNames` property and are rendered vertically below 
+
+    Buttons are defined using the `buttonNames` property and are rendered vertically below
     the message. Alert dialogs are automatically cancelled when the application is
-    paused/suspended. This behavior can avoided by setting `persistent` property on alert dialog 
+    paused/suspended. This behavior can avoided by setting `persistent` property on alert dialog
     to be `true`.
 
     The `style` property can be used to allow the user to enter plain text,
@@ -52,20 +51,20 @@ description: |
     When using the alert dialog style <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>, you can
     specify the `loginPlaceholder`, `loginKeyboardType` and `loginReturnKeyType` properties for the login field,
     as well as the `passwordPlaceholder`, `passwordKeyboardType` and `passwordReturnKeyType` properties for the password field.
-    
+
     #### Global Alias
-    
-    A global method `alert()` is aliased to this object, and can be invoked with a single message. 
+
+    A global method `alert()` is aliased to this object, and can be invoked with a single message.
     For example
-    
+
         alert('this is a message');
-    
+
     This will generate an alert with a title of "Alert" and an "OK" button.
-    
+
     #### Caveats
-    
+
     Multiple alerts should not be shown at once.
-    
+
     The `title` and `ok` properties cannot be changed while the alert dialog is being displayed. On
     Android only, you can change the `message` property while the alert dialog is being displayed.
 extends: Titanium.UI.View
@@ -90,34 +89,34 @@ events:
     properties:
       - name: cancel
         summary: |
-            Boolean type on Android and Mobile Web; Number on iOS. 
-            
-            On Android and Mobile Web, indicates whether the cancel button was clicked, in which 
-            case returns `true`. 
-            
-            On iOS, the value of the [cancel](Titanium.UI.AlertDialog.cancel) property is 
+            Boolean type on Android; Number on iOS.
+
+            On Android, indicates whether the cancel button was clicked, in which
+            case returns `true`.
+
+            On iOS, the value of the [cancel](Titanium.UI.AlertDialog.cancel) property is
             returned, if defined, or `-1` otherwise. Also note that the cancel button may not be
             used on the iPad, because iOS will internally decide whether or not to show it in
             the current context (e.g. in a popover).
-            
-            See the `Three-button Alert Dialog` example for a cross-platform workaround for this 
+
+            See the `Three-button Alert Dialog` example for a cross-platform workaround for this
             parity issue.
         type: [Boolean, Number]
-        
+
       - name: index
         summary: Index of the button that was clicked.
         type: Number
 
       - name: login
         summary: |
-            Value of login field if dialog `style` property is defined as 
+            Value of login field if dialog `style` property is defined as
             <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
         type: String
         platforms: [iphone, ipad]
 
       - name: password
         summary: |
-            Value of password field if dialog `style` property is defined as 
+            Value of password field if dialog `style` property is defined as
             <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
         type: String
         platforms: [iphone, ipad]
@@ -125,20 +124,10 @@ events:
       - name: text
         summary: |
             Value of text field if dialog `style` property is defined as
-            <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or 
+            <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
             <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
         type: String
         platforms: [iphone, ipad]
-                
-      - name: tintColor
-        summary: The tint-color of the dialog.
-        description: |
-            This property is a direct correspondant of the `tintColor` property of 
-            UIView on iOS. For a dialog, it will tint the color of it's buttons.
-        type: [String]
-        since: "6.2.0"
-        osver: {ios: {min: "8.0"}}
-        platforms: [iphone,ipad]
 
 methods:
   - name: show
@@ -174,15 +163,15 @@ properties:
     platforms: [android]
     accessors: false
     availability: creation
-    
+
   - name: buttonNames
     summary: Name of each button to create.
 
     description: |
-        On iOS, a button will automatically be created if none are explicitly defined, because 
-        without it users would be unable to dismiss the dialog. Conversely, a dialog with no 
+        On iOS, a button will automatically be created if none are explicitly defined, because
+        without it users would be unable to dismiss the dialog. Conversely, a dialog with no
         buttons may be created on Android, as the hardware `back` button may be used instead.
-        
+
         A maximum of 3 buttons is supported on Android.
 
         Alloy applications can specify this property with a `<ButtonNames>` element containing
@@ -199,16 +188,16 @@ properties:
             </Alloy>
 
     type: Array<String>
-    default: No buttons (Android), Single "OK" button (iOS, Mobile Web)
+    default: No buttons (Android), Single "OK" button (iOS)
     availability: creation
 
   - name: cancel
     summary: Index to define the cancel button.
 
     description: |
-        On iOS and Mobile Web, set to `-1` to disable the cancel option.
+        On iOS, set to `-1` to disable the cancel option.
     type: Number
-    default: undefined (Android), -1 (iOS, Mobile Web)
+    default: undefined (Android), -1 (iOS)
 
   - name: canceledOnTouchOutside
     summary: |
@@ -228,20 +217,24 @@ properties:
     since: 3.5.0
     osver: {ios: {min: "8.0"}}
 
-  - name: preferred
-    summary: Index to define the preferred button.
-    platforms: [iphone, ipad]
+  - name: hintText
+    summary: Hint text of the text field inside the dialog.
     description: |
-        When you specify a preferred action, the alert dialog highlights the text of that 
-        action to give it emphasis. (If the alert also contains a cancel button, the preferred 
-        action receives the highlighting instead of the cancel button.) If the iOS device is 
-        connected to a physical keyboard, pressing the Return key triggers the preferred action.
+        Note that this property is only available if dialog `style` property is defined as
+        <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
+        <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
+    type: String
+    since: "5.4.0"
+    platforms: [iphone, ipad]
 
-        Note that this property is only available on iOS 9 or above.
-    type: Number
-    default: -1
-    since: 6.0.0
-    osver: {ios: {min: "9.0"}}
+  - name: hinttextid
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [hintText](Titanium.UI.AlertDialog.hintText) property.
+    description: Only one of `hintText` or `hinttextid` should be specified.
+    type: String
+    since: "6.2.0"
+    platforms: [iphone, ipad]
 
   - name: keyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -314,7 +307,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: "6.1.0"
-    platforms: [iphone, ipad]    
+    platforms: [iphone, ipad]
 
   - name: loginKeyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -333,7 +326,7 @@ properties:
   - name: messageid
     summary: Key identifying a string in the locale file to use for the message text.
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
 
   - name: ok
     summary: Text for the `OK` button.
@@ -347,7 +340,7 @@ properties:
     description: |
         If `buttonNames` is defined, this property is ignored.
     type: String
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
 
   - name: passwordPlaceholder
     summary: Placeholder of the password text field inside the dialog.
@@ -396,7 +389,7 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
     type: String
     since: "6.1.0"
-    platforms: [iphone, ipad]    
+    platforms: [iphone, ipad]
 
   - name: passwordKeyboardType
     summary: Keyboard type to display when this text field inside the dialog is focused.
@@ -421,25 +414,6 @@ properties:
     since: 5.1.0
     platforms: [iphone, ipad]
 
-  - name: hintText
-    summary: Hint text of the text field inside the dialog.
-    description: |
-        Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
-        <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
-    type: String
-    since: "5.4.0"
-    platforms: [iphone, ipad]
-
-  - name: hinttextid
-    summary: |
-        Key identifying a string from the locale file to use for the
-        [hintText](Titanium.UI.AlertDialog.hintText) property.
-    description: Only one of `hintText` or `hinttextid` should be specified.
-    type: String
-    since: "6.2.0"
-    platforms: [iphone, ipad]
-
   - name: persistent
     summary: Boolean value indicating if the alert dialog should only be cancelled by user gesture or by hide method.
     description: |
@@ -449,7 +423,22 @@ properties:
     default: false on iOS, true on Android
     since: "3.0.0"
     platforms: [android, iphone, ipad]
-   
+
+  - name: preferred
+    summary: Index to define the preferred button.
+    platforms: [iphone, ipad]
+    description: |
+        When you specify a preferred action, the alert dialog highlights the text of that
+        action to give it emphasis. (If the alert also contains a cancel button, the preferred
+        action receives the highlighting instead of the cancel button.) If the iOS device is
+        connected to a physical keyboard, pressing the Return key triggers the preferred action.
+
+        Note that this property is only available on iOS 9 or above.
+    type: Number
+    default: -1
+    since: 6.0.0
+    osver: {ios: {min: "9.0"}}
+
   - name: returnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
     description: |
@@ -476,16 +465,26 @@ properties:
     since: 3.0.0
     platforms: [iphone, ipad]
 
+  - name: tintColor
+    summary: The tint-color of the dialog.
+    description: |
+        This property is a direct correspondant of the `tintColor` property of
+        UIView on iOS. For a dialog, it will tint the color of it's buttons.
+    type: [String]
+    since: "6.2.0"
+    osver: {ios: {min: "8.0"}}
+    platforms: [iphone, ipad]
+
   - name: title
     summary: Title of the dialog.
     description: If not set, a dialog with no title bar will be created.
     type: String
 
   - name: titleid
-    summary: Key identifying a string in the locale file to use for the title text. 
+    summary: Key identifying a string in the locale file to use for the title text.
     type: String
-    platforms: [android, iphone, ipad, mobileweb]
-    
+    platforms: [android, iphone, ipad]
+
   - name: value
     summary: Value of the text field inside the dialog.
     description: |
@@ -494,15 +493,15 @@ properties:
         <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     type: String
     since: "6.1.0"
-    platforms: [iphone, ipad]    
+    platforms: [iphone, ipad]
 
 examples:
   - title: Single-button Alert Dialog (using alias)
     example: |
         Create a single-button alert dialog using the global `alert()` alias.
-        
+
             Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({  
+            var win = Ti.UI.createWindow({
               title: 'Click window to test',
               backgroundColor: 'white',
               exitOnClose: true,
@@ -516,11 +515,11 @@ examples:
 
   - title: Single-button Alert Dialog (standard)
     example: |
-        Create a single-button alert dialog, without explicitly defining it using the `buttonNames` 
+        Create a single-button alert dialog, without explicitly defining it using the `buttonNames`
         property, which is invoked when the app window is clicked.
-        
+
             Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({  
+            var win = Ti.UI.createWindow({
               title: 'Click window to test',
               backgroundColor: 'white',
             exitOnClose: true,
@@ -536,14 +535,14 @@ examples:
               dialog.show();
             });
             win.open();
-        
+
   - title: Three-button Alert Dialog
     example: |
-        Create a three-button alert dialog, which is invoked when the app window is clicked. 
+        Create a three-button alert dialog, which is invoked when the app window is clicked.
         Output a message to the log when the cancel button is clicked.
-        
+
             Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({  
+            var win = Ti.UI.createWindow({
               title: 'Click window to test',
               backgroundColor: 'white',
               exitOnClose: true,

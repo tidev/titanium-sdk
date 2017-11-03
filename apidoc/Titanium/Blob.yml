@@ -2,36 +2,36 @@
 name: Titanium.Blob
 summary: A container for binary data.
 description: |
-    A `Blob` represents a chunk of binary information, often obtained through 
-    an [HTTPClient](Titanium.Network.HTTPClient) or by reading a [File](Titanium.Filesystem.File). 
+    A `Blob` represents a chunk of binary information, often obtained through
+    an [HTTPClient](Titanium.Network.HTTPClient) or by reading a [File](Titanium.Filesystem.File).
 
-    Blobs are often used to store text or image data. 
+    Blobs are often used to store text or image data.
     The `Blob` object includes a number of properties and methods specific to image blobs.
 
-    Android and Mobile Web support an [append](Titanium.Blob.append) method, but
-    otherwise blobs are immutable. 
+    Android supports an [append](Titanium.Blob.append) method, but
+    otherwise blobs are immutable.
 
-    The <Titanium.Utils> module provides several utility methods for working with 
+    The <Titanium.Utils> module provides several utility methods for working with
     blobs, including methods for converting between blobs and Base64-encoded strings,
     and methods for generating SHA-1 and SHA-256 hashes and MD5 digests from blob data.
-    
+
     The [Buffer](Titanium.Buffer) object can also contain binary data, and is
     more easily mutable. Extracting blob data to a buffer is somewhat roundabout:
 
         var blobStream = Ti.Stream.createStream({ source: myBlob, mode: Ti.Stream.MODE_READ });
         var newBuffer = Ti.createBuffer({ length: myBlob.length });
         var bytes = blobStream.read(newBuffer);
-               
+
     Creating a blob from a buffer is much easier:
-        
+
         var newBlob = myBuffer.toBlob();
-        
-    In both cases, the conversion involves copying the data from one object to another, so 
+
+    In both cases, the conversion involves copying the data from one object to another, so
     you should be conscious of the amount of the data being copied.
 
 extends: Titanium.Proxy
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 createable: false
 properties:
 
@@ -49,7 +49,7 @@ properties:
 
   - name: text
     type: String
-    summary: UTF-8 string representation of the data in this blob. 
+    summary: UTF-8 string representation of the data in this blob.
     description: |
         If this blob represents pure binary data, the value will be `null`.
     permission: read-only
@@ -61,23 +61,17 @@ properties:
 
   - name: height
     type: Number
-    summary: If this blob represents an image, this is the height of the image in pixels. 
+    summary: If this blob represents an image, this is the height of the image in pixels.
     description: |
         If this blob doesn't represent an image, `height` is 0.
 
-        On Mobile Web, the `height` is not available until the image loads. It is advised
-        to set a timeout to wait for the image to load before accessing the `height`.
-        
     permission: read-only
 
   - name: width
     type: Number
-    summary: If this blob represents an image, this is the width of the image in pixels. 
+    summary: If this blob represents an image, this is the width of the image in pixels.
     description: |
         If this blob doesn't represent an image, `height` is 0.
-
-        On Mobile Web, the `width` is not available until the image loads. It is advised to set a timeout
-        to wait for the image to load before accessing the `width`.
     permission: read-only
 
   - name: nativePath
@@ -86,7 +80,7 @@ properties:
         If this blob represents a [File](Titanium.Filesystem.File), this is the file URL
         that represents it.
     description: |
-        If this blob doesn't represent a file, the value of `nativePath` is `null`. 
+        If this blob doesn't represent a file, the value of `nativePath` is `null`.
     permission: read-only
 
   - name: size
@@ -96,11 +90,7 @@ properties:
     description: |
         If this blob represents an image, this is the total number of pixels in the image.
         Otherwise it returns the number of bytes in the binary data.
-
-        On Mobile Web, always returns the number of bytes of the blob. Note that internally,
-        binary data is stored base64 encoded and `size` represents the number of bytes before 
-        base64 encoding.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     permission: read-only
 
 methods:
@@ -109,12 +99,10 @@ methods:
     returns:
         type: String
     summary: Returns a string representation of this blob.
-    description: |
-        On Mobile Web, if the blob is binary, `toString` returns a base64 encoded data URI.
 
   - name: append
     summary: Appends the data from another blob to this blob.
-    platforms: [android, mobileweb]
+    platforms: [android]
     parameters:
       - name: blob
         type: Titanium.Blob

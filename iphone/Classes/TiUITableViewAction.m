@@ -6,41 +6,39 @@
  */
 #ifdef USE_TI_UITABLEVIEW
 
-#import "TiBase.h"
 #import "TiUITableViewAction.h"
+#import "TiBase.h"
 #import "TiUtils.h"
 
 @implementation TiUITableViewAction
 
 @synthesize animation, obj, type;
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(obj);
-	[super dealloc];
+  RELEASE_TO_NIL(obj);
+  [super dealloc];
 }
 
-+(UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties
++ (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary *)properties
 {
-	BOOL found;
-	UITableViewRowAnimation animationStyle = [TiUtils intValue:@"animationStyle" properties:properties def:UITableViewRowAnimationNone exists:&found];
-	if (found)
-	{
-		return animationStyle;
-	}
-	BOOL animate = [TiUtils boolValue:@"animated" properties:properties def:NO];
-	return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
+  BOOL found;
+  UITableViewRowAnimation animationStyle = [TiUtils intValue:@"animationStyle" properties:properties def:UITableViewRowAnimationNone exists:&found];
+  if (found) {
+    return animationStyle;
+  }
+  BOOL animate = [TiUtils boolValue:@"animated" properties:properties def:NO];
+  return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
 }
 
--(id)initWithObject:(id)obj_ animation:(NSDictionary*)animation_ type:(TiUITableViewActionType)type_
+- (id)initWithObject:(id)obj_ animation:(NSDictionary *)animation_ type:(TiUITableViewActionType)type_
 {
-	if (self = [self init])
-	{
-		animation = [TiUITableViewAction animationStyleForProperties:animation_];
-		type = type_;
-		obj = [obj_ retain];
-	}
-	return self;
+  if (self = [self init]) {
+    animation = [TiUITableViewAction animationStyleForProperties:animation_];
+    type = type_;
+    obj = [obj_ retain];
+  }
+  return self;
 }
 
 @end

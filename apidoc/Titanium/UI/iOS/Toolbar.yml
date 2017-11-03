@@ -18,15 +18,15 @@ description: |
     * On iPhone, a toolbar should be at the bottom of the window.
     * On the iPad, a toolbar should appear at the top or bottom of a window.
 
-    You can specify that a border be drawn on the top or bottom of the toolbar, using the
-    [borderTop](Titanium.UI.iOS.Toolbar.borderTop) and
-    [borderBottom](Titanium.UI.iOS.Toolbar.borderBottom) properties. The standard
-    `borderColor`, `borderWidth`, and `borderRadius` properties are also supported but using 
-    them adds a border on all four sides of the control, which may be undesirable.
-
     Due to an iOS limitation, the buttons in the toolbar only support the `click` event.
     The native object underlying a toolbar button does not generate standard view events,
     such as `touchstart` and `touchend`.
+    
+    **Note**:
+    This API has been deprecated in Titanium SDK 6.2.0 in favor of the cross-platform
+    UI component <Titanium.UI.Toolbar> that can also be used on Android. The API itself
+    did not change, so it is a drop-in replacement for existing usages. This deprecated
+    API will be removed in Titanium SDK 8.0.0 and later.
 
     See also:
 
@@ -40,6 +40,9 @@ excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDi
             softKeyboardOnFocus ],
             events: [ longclick, twofingertap ] }
 since: "0.8"
+deprecated:
+    since: "6.2.0"
+    notes: Use the cross-platform <Titanium.UI.Toolbar> instead.
 platforms: [iphone, ipad]
 
 properties:
@@ -59,16 +62,6 @@ properties:
   - name: items
     summary: An array of buttons (or other widgets) contained in the toolbar.
     type: Array<Titanium.UI.View>
-    
-  - name: borderTop
-    summary: If `true`, a border is drawn on the top of the toolbar. This property is ignored on iOS 7 and above.
-    type: Boolean
-    default: true
-    
-  - name: borderBottom
-    summary: If `true`, a border is drawn on the bottom of the toolbar. This property is ignored on iOS 7 and above.
-    type: Boolean
-    default: true
     
   - name: extendBackground
     summary: If `true`, the background of the toolbar extends upwards.
@@ -97,30 +90,34 @@ examples:
     example: |
         The following code excerpt creates a simple toolbar, placed at the bottom of the window. 
         
-            var send = Titanium.UI.createButton({
+            var win = Ti.UI.createWindow({
+                backgroundColor: 'white'
+            });
+        
+            var send = Ti.UI.createButton({
                 title: 'Send',
-                style: Titanium.UI.iOS.SystemButtonStyle.DONE,
+                style: Ti.UI.iOS.SystemButtonStyle.DONE,
             });
             
-            var camera = Titanium.UI.createButton({
-                systemButton: Titanium.UI.iOS.SystemButton.CAMERA,
+            var camera = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.CAMERA,
             });
             
-            var cancel = Titanium.UI.createButton({
-                systemButton: Titanium.UI.iOS.SystemButton.CANCEL
+            var cancel = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.CANCEL
             });
             
-            var flexSpace = Titanium.UI.createButton({
-                systemButton:Titanium.UI.iOS.SystemButton.FLEXIBLE_SPACE
+            var flexSpace = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
             var toolbar = Titanium.UI.iOS.createToolbar({
-                items:[send, flexSpace, camera, flexSpace, cancel],
-                bottom:0,
-                borderTop:true,
-                borderBottom:false
-            }); 
+                items: [send, flexSpace, camera, flexSpace, cancel],
+                bottom: 0
+            });
+            
             win.add(toolbar);
+            win.open();
         
         Note the use of the flexible space for positioning the toolbar buttons -- the 
         `FLEXIBLE_SPACE` button doesn't appear as a button, but a variable space between the 
@@ -132,29 +129,33 @@ examples:
     example: |
         The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar (**iOS 7 only**). 
         
-            var send = Titanium.UI.createButton({
+            var win = Ti.UI.createWindow({
+                backgroundColor: 'white'
+            });
+        
+            var send = Ti.UI.createButton({
                 title: 'Send',
-                style: Titanium.UI.iOS.SystemButtonStyle.DONE,
+                style: Ti.UI.iOS.SystemButtonStyle.DONE,
             });
             
-            var camera = Titanium.UI.createButton({
-                systemButton: Titanium.UI.iOS.SystemButton.CAMERA,
+            var camera = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.CAMERA,
             });
             
-            var cancel = Titanium.UI.createButton({
-                systemButton: Titanium.UI.iOS.SystemButton.CANCEL
+            var cancel = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.CANCEL
             });
             
-            flexSpace = Titanium.UI.createButton({
-                systemButton:Titanium.UI.iOS.SystemButton.FLEXIBLE_SPACE
+            flexSpace = Ti.UI.createButton({
+                systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
-            var toolbar = Titanium.UI.iOS.createToolbar({
-                items:[send, flexSpace, camera, flexSpace, cancel],
-                top:20,
-                extendBackground:true
+            var toolbar = Ti.UI.iOS.createToolbar({
+                items: [send, flexSpace, camera, flexSpace, cancel],
+                top: 20,
+                extendBackground: true
             }); 
-            var win = Ti.UI.createWindow({backgroundColor:'red'});
+            
             win.add(toolbar);
             win.open();
 
@@ -164,7 +165,7 @@ examples:
 
             <Alloy>
                 <Window id="win">
-                    <Toolbar platform="ios" bottom="0" borderTop="true" borderBottom="false">
+                    <Toolbar platform="ios" bottom="0">
 
                         <!-- The Items tag sets the Toolbar.items property. -->
                         <Items>
@@ -175,7 +176,7 @@ examples:
                             <Button id="cancel" systemButton="CANCEL" />
                         </Items>
 
-                        <!-- Place additional views for the Toolbar here. -->
+                        <!-- Place additional views for the Toolbar here -->
 
                     </Toolbar>
                 </Window>

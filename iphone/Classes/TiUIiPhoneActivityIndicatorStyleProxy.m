@@ -11,9 +11,9 @@
 
 @implementation TiUIiPhoneActivityIndicatorStyleProxy
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iPhone.ActivityIndicatorStyle";
+  return @"Ti.UI.iPhone.ActivityIndicatorStyle";
 }
 
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN, UIActivityIndicatorViewStyleWhite, @"UI.iPhone.ActivityIndicatorStyle.PLAIN", @"5.1.0", @"UI.ActivityIndicatorStyle.PLAIN");

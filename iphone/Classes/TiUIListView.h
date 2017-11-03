@@ -6,12 +6,12 @@
  */
 #ifdef USE_TI_UILISTVIEW
 
-#import "TiUIView.h"
 #import "TiUIListViewProxy.h"
+#import "TiUIView.h"
 
 #if IS_XCODE_8
 // Add support for iOS 10 table-view prefetching
-@interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UITableViewDataSourcePrefetching, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate,UISearchResultsUpdating, UISearchControllerDelegate, TiScrolling, TiProxyObserver, TiUIListViewDelegateView>
+@interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UITableViewDataSourcePrefetching, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchResultsUpdating, UISearchControllerDelegate, TiScrolling, TiProxyObserver, TiUIListViewDelegateView>
 #else
 @interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchResultsUpdating, UISearchControllerDelegate, TiScrolling, TiProxyObserver, TiUIListViewDelegateView>
 #endif
@@ -27,7 +27,7 @@
 - (void)deselectAll:(BOOL)animated;
 - (void)updateIndicesForVisibleRows;
 
-+ (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
++ (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary *)properties;
 
 @end
 

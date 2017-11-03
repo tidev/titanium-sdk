@@ -5,18 +5,18 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if defined(USE_TI_UIIPHONETABLEVIEWSTYLE) || defined(USE_TI_UIIPHONELISTVIEWSTYLE)
-#import "TiBase.h"
 #import "TiUIiPhoneTableViewStyleProxy.h"
+#import "TiBase.h"
 
 @implementation TiUIiPhoneTableViewStyleProxy
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iPhone.TableViewStyle";
+  return @"Ti.UI.iPhone.TableViewStyle";
 }
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN,UITableViewStylePlain,@"UI.iPhone.TableViewStyle.PLAIN",@"5.4.0",@"UI.iOS.TableViewStyle.PLAIN");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(GROUPED,UITableViewStyleGrouped,@"UI.iPhone.TableViewStyle.GROUPED",@"5.4.0",@"UI.iOS.TableViewStyle.GROUPED");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN, UITableViewStylePlain, @"UI.iPhone.TableViewStyle.PLAIN", @"5.4.0", @"UI.iOS.TableViewStyle.PLAIN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(GROUPED, UITableViewStyleGrouped, @"UI.iPhone.TableViewStyle.GROUPED", @"5.4.0", @"UI.iOS.TableViewStyle.GROUPED");
 
 @end
 

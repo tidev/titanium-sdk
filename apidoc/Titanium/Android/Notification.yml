@@ -154,6 +154,24 @@ methods:
         summary: Allows to enable the indeterminate mode.
         type: Boolean
 
+  - name: addAction
+    summary: Add an action button to the notification
+    description: |
+        Up to three actions buttons can be added, additional buttons will be ignored.
+    since: "6.2.0"
+    parameters:
+      - name: icon
+        summary: Icon of the action button as URL or resource ID
+        type: [Number, String]
+
+      - name: title
+        summary: Title of the action button 
+        type: String
+
+      - name: intent
+        summary: Intent of the action button
+        type: Titanium.Android.PendingIntent
+
 properties:
 
   - name: audioStreamType
@@ -405,9 +423,41 @@ properties:
     since: "3.6.0"
     osver: {android: {min: "5.0"}}
 
+  - name: wakeLock
+    summary: |
+        Will wake up the device for the given time (in milliseconds) when the notification is shown.
+        The application needs to also set the `android.permission.WAKE_LOCK` permission
+        in the Android manifest section of the `tiapp.xml` file.
+        
+        <ti:app>
+            <android>
+                <manifest>
+                    <uses-permission android:name="android.permission.WAKE_LOCK" />
+                </manifest>
+            </android>
+        </ti:app>
+    type: wakeLockOptions
+    default: 0
+    since: "6.2.0"
+    
   - name: when
     summary: The timestamp for the notification (defaults to the current time).
     description: |
         If the timestamp is set to 0, no time is displayed in the notification
         window for this notification.
-    type: [Date,Number]
+    type: [Date, Number]
+
+---
+name: wakeLockOptions
+summary: Parameter for wakeLock
+since: 6.2.0
+properties:
+  - name: time
+    summary: Minimum time the device will be switched on (plus device switch-off time)
+    type: Number
+    default: 3000
+  - name: flags
+    summary: Wake lock level and flag. See [PowerManager.newWakeLock in the Android API Reference](https://developer.android.com/reference/android/os/PowerManager.html#newWakeLock(int,%20java.lang.String))
+    type: Number
+    constants: [Titanium.Android.WAKE_LOCK_*]
+    default: Titanium.Android.WAKE_LOCK_FULL | Titanium.Android.WAKE_LOCK_ACQUIRE_CAUSES_WAKEUP | Titanium.Android.WAKE_LOCK_ON_AFTER_RELEASE

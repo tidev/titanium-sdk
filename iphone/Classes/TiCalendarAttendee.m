@@ -11,64 +11,64 @@
 
 #pragma mark - Internals
 
-- (id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant*)participant_
+- (id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant *)participant_
 {
-	if (self = [super _initWithPageContext:context]) {
-		participant = [participant_ retain];
-	}
-	return self;
+  if (self = [super _initWithPageContext:context]) {
+    participant = [participant_ retain];
+  }
+  return self;
 }
 
 - (void)dealloc
 {
-	RELEASE_TO_NIL(participant);
-	[super dealloc];
+  RELEASE_TO_NIL(participant);
+  [super dealloc];
 }
 
-- (EKParticipant*)participant
+- (EKParticipant *)participant
 {
-	return participant;
+  return participant;
 }
 
-- (NSString*)apiName
+- (NSString *)apiName
 {
-	return @"Ti.Calendar.Attendee";
+  return @"Ti.Calendar.Attendee";
 }
 
 #pragma mark - Public API's
 
-- (NSString*)name
+- (NSString *)name
 {
-    return [[self participant] name];
+  return [[self participant] name];
 }
 
-- (NSString*)email
+- (NSString *)email
 {
-    if ([[self participant] isCurrentUser]) {
-        return @"";
-    }
-    
-    return [[[self participant] URL] resourceSpecifier];
+  if ([[self participant] isCurrentUser]) {
+    return @"";
+  }
+
+  return [[[self participant] URL] resourceSpecifier];
 }
 
-- (NSNumber*)role
+- (NSNumber *)role
 {
-    return NUMUINT([[self participant] participantRole]);
+  return NUMUINT([[self participant] participantRole]);
 }
 
-- (NSNumber*)type
+- (NSNumber *)type
 {
-    return NUMUINT([[self participant] participantType]);
+  return NUMUINT([[self participant] participantType]);
 }
 
-- (NSNumber*)status
+- (NSNumber *)status
 {
-    return NUMUINT([[self participant] participantStatus]);
+  return NUMUINT([[self participant] participantStatus]);
 }
 
-- (NSNumber*)isOrganizer
+- (NSNumber *)isOrganizer
 {
-    return NUMBOOL([[self participant] isCurrentUser]);
+  return NUMBOOL([[self participant] isCurrentUser]);
 }
 
 @end
