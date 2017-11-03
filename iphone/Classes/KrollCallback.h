@@ -77,6 +77,7 @@
 
 - (void)protectJsobject;
 - (void)unprotectJsobject;
+- (void)replaceValue:(id)value forKey:(NSString *)key notification:(BOOL)notify;
 
 @end
 

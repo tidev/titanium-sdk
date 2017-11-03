@@ -13,7 +13,11 @@ const exec = require('child_process').exec, // eslint-disable-line security/dete
 	DIST_DIR = path.join(__dirname, '..', 'dist'),
 	LOCAL_TESTS = path.join(__dirname, '..', 'tests');
 
-program.parse(process.argv);
+program
+	.option('-C, --device-id [id]', 'Titanium device id to run the unit tests on. Only valid when there is a target provided')
+	.option('-T, --target [target]', 'Titanium platform target to run the unit tests on. Only valid when there is a single platform provided')
+	.option('-s, --skip-sdk-install', 'Skip the SDK installation step')
+	.parse(process.argv);
 
 let platforms = program.args;
 
@@ -27,8 +31,10 @@ let osName = os.platform();
 if (osName === 'darwin') {
 	osName = 'osx';
 }
+
 const zipfile = path.join(DIST_DIR, 'mobilesdk-' + version + '-' + osName + '.zip');
-if (!fs.existsSync(zipfile)) {
+// Only enforce zipfile exists if we're going to install it
+if (!program.skipSdkInstall && !fs.existsSync(zipfile)) {
 	console.error('Could not find zipped SDK in dist dir: ' + zipfile + '. Please run node scons.js cleanbuild first.');
 	process.exit(1);
 }
@@ -64,7 +70,7 @@ function runTests(platforms, next) {
 			// Load up the main script
 			const tests = require(path.join(MOCHA_TESTS_DIR, 'scripts')); // eslint-disable-line security/detect-non-literal-require
 			// Run the tests
-			tests.test(zipfile, platforms, function (err, results) {
+			tests.test(zipfile, platforms, program.target, program.deviceId, program.skipSdkInstall, undefined, function (err, results) {
 				if (err) {
 					return cb(err);
 				}
