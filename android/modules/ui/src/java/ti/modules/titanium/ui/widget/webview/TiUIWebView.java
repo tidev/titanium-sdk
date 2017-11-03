@@ -63,6 +63,7 @@ public class TiUIWebView extends TiUIView
 	private boolean isLocalHTML = false;
 	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
 	private float zoomLevel = TiApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics().density;
+	private float initScale = zoomLevel;
 
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
@@ -523,7 +524,12 @@ public class TiUIWebView extends TiUIView
 			} else if (scale >= 100.0f) {
 				scale = 100.0f;
 			}
-			webView.zoomBy(scale);
+			
+			float targetVal = (initScale * scale)  / zoomLevel;
+			Log.i("ZOOM", "target zoom: " + (initScale * scale));
+			Log.i("ZOOM", "zoom level: " + (zoomLevel));
+			Log.i("ZOOM", "zoom by: " + targetVal);
+			webView.zoomBy(targetVal);
 		}
 	}
 
@@ -957,6 +963,7 @@ public class TiUIWebView extends TiUIView
 	public void setBindingCodeInjected(boolean injected)
 	{
 		bindingCodeInjected = injected;
+		initScale = getZoomLevel();
 	}
 
 	public boolean interceptOnBackPressed()
