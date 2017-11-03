@@ -21,17 +21,19 @@ import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
-import android.content.res.Configuration;
+import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.DisplayMetrics;
-import android.view.Display;
+
+import static org.appcelerator.titanium.util.TiOrientationHelper.ORIENTATION_LANDSCAPE;
+import static org.appcelerator.titanium.util.TiOrientationHelper.ORIENTATION_LANDSCAPE_REVERSE;
+import static org.appcelerator.titanium.util.TiOrientationHelper.ORIENTATION_PORTRAIT;
+import static org.appcelerator.titanium.util.TiOrientationHelper.ORIENTATION_PORTRAIT_REVERSE;
 
 @Kroll.module @ContextSpecific
-public class GestureModule extends KrollModule
-	implements SensorEventListener
+public class GestureModule extends KrollModule implements SensorEventListener
 {
 	private static final String TAG = "GestureModule";
 	private static final String EVENT_ORIENTATION_CHANGE = "orientationchange";
@@ -150,7 +152,7 @@ public class GestureModule extends KrollModule
 			lastEventInShake = currentEventInShake;
 
 			Log.d(TAG, "ACC-Shake : threshold: " + threshold + " force: " + force + " delta : " + force + " x: " + x
-				+ " y: " + y + " z: " + z, Log.DEBUG_MODE);
+					+ " y: " + y + " z: " + z, Log.DEBUG_MODE);
 		} else {
 			if (shakeInitialized && inShake) {
 				if (difftime > postShakePeriod) {
@@ -163,7 +165,7 @@ public class GestureModule extends KrollModule
 						data.put("y", y);
 						data.put("z", z);
 						fireEvent(EVENT_SHAKE, data);
-						
+
 						Log.d(TAG, "Firing shake event (x:" + x + " y:" + y + " z:" + z + ")", Log.DEBUG_MODE);
 					}
 				}
@@ -174,42 +176,47 @@ public class GestureModule extends KrollModule
 			shakeInitialized = true;
 		}
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public boolean isPortrait()
 	{
-		// Deprecated in 6.1.0 in parity-favor of Ti.Gesture.portrait
-		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+//		// Deprecated in 6.1.0 in parity-favor of Ti.Gesture.portrait
+		Activity activity = TiApplication.getAppRootOrCurrentActivity();
+		int orientation = TiOrientationHelper.getWindowTiOrientationModeFrom(activity);
+		return (orientation == ORIENTATION_PORTRAIT) || (orientation == ORIENTATION_PORTRAIT_REVERSE);
+
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public boolean isLandscape()
 	{
 		// Deprecated in 6.1.0 in parity-favor of Ti.Gesture.landscape
-		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		Activity activity = TiApplication.getAppRootOrCurrentActivity();
+		int orientation = TiOrientationHelper.getWindowTiOrientationModeFrom(activity);
+		return (orientation == ORIENTATION_LANDSCAPE) || (orientation == ORIENTATION_LANDSCAPE_REVERSE);
 	}
-		
+
 	@Kroll.getProperty @Kroll.method
 	public boolean getPortrait()
 	{
-		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+		Activity activity = TiApplication.getAppRootOrCurrentActivity();
+		int orientation = TiOrientationHelper.getWindowTiOrientationModeFrom(activity);
+		return (orientation == ORIENTATION_PORTRAIT) || (orientation == ORIENTATION_PORTRAIT_REVERSE);
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public boolean getLandscape()
 	{
-		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		Activity activity = TiApplication.getAppRootOrCurrentActivity();
+		int orientation = TiOrientationHelper.getWindowTiOrientationModeFrom(activity);
+		return (orientation == ORIENTATION_LANDSCAPE) || (orientation == ORIENTATION_LANDSCAPE_REVERSE);
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public int getOrientation()
 	{
-	    DisplayMetrics dm = new DisplayMetrics();
-	    Display display = TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay();
-	    display.getMetrics(dm);
-	    int width = dm.widthPixels;
-	    int height = dm.heightPixels;
-	    return TiOrientationHelper.convertRotationToTiOrientationMode(display.getRotation(), width, height);
+		Activity activity = TiApplication.getAppRootOrCurrentActivity();
+		return TiOrientationHelper.getWindowTiOrientationModeFrom(activity);
 	}
 
 	@Override
