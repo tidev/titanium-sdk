@@ -10,6 +10,7 @@
 #include <v8.h>
 #include <libplatform/libplatform.h>
 #include <v8-debug.h>
+#include <v8-profiler.h>
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
@@ -46,6 +47,54 @@ Isolate* V8Runtime::v8_isolate = nullptr;
 bool V8Runtime::debuggerEnabled = false;
 bool V8Runtime::DBG = false;
 bool V8Runtime::initialized = false;
+static const int kMaxPath = 4096;
+
+class FileOutputStream : public OutputStream {
+ public:
+	FileOutputStream(FILE* s) : stream(s) {}
+
+ virtual int GetChunkSize() {
+	return 65536;
+ }
+
+ virtual void EndOfStream() {}
+
+ virtual WriteResult WriteAsciiChunk(char* data, int size) {
+	const size_t length = static_cast<size_t>(size);
+	size_t offset = 0;
+
+	while (offset < length && !feof(stream) && !ferror(stream))
+		offset += fwrite(data + offset, 1, length - offset, stream);
+		return offset == length ? kContinue : kAbort;
+ }
+
+ private:
+	FILE* stream;
+};
+
+static void WriteSnapshot(const FunctionCallbackInfo<Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+	HandleScope scope(isolate);
+
+	if (args.Length() == 0 || !(args[0]->IsString())) {
+		JSException::Error(isolate, "Invalid arguments to WriteSnapshot, expected String");
+		return;
+	}
+	char filename[kMaxPath];
+	String::Utf8Value filename_string(args[0]);
+	snprintf(filename, sizeof(filename), "%s", *filename_string);
+	FILE* fp = fopen(filename, "w");
+	if (fp == NULL) {
+	    args.GetReturnValue().Set(false);
+	    return;
+	}
+	const HeapSnapshot* const snap = isolate->GetHeapProfiler()->TakeHeapSnapshot();
+	FileOutputStream stream(fp);
+	snap->Serialize(&stream, HeapSnapshot::kJSON);
+	fclose(fp);
+	const_cast<HeapSnapshot*>(snap)->Delete();
+	args.GetReturnValue().Set(true);
+}
 
 class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
  public:
@@ -128,6 +177,7 @@ void V8Runtime::bootstrap(Local<Context> context)
 	KrollBindings::initFunctions(global, context);
 
 	SetMethod(isolate, global, "log", krollLog);
+	SetMethod(isolate, global, "writeSnapshot", WriteSnapshot);
 	// Move this into the EventEmitter::initTemplate call?
 	Local<FunctionTemplate> eect = Local<FunctionTemplate>::New(isolate, EventEmitter::constructorTemplate);
 	global->Set(NEW_SYMBOL(isolate, "EventEmitter"), eect->GetFunction());
