@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,17 +8,16 @@ var NativeModule = require('native_module'),
 	assets = kroll.binding('assets'),
 	path = require('path'),
 	Script = kroll.binding('evals').Script,
-	runInThisContext = require('vm').runInThisContext,
 	bootstrap = require('bootstrap'),
 	invoker = require('invoker');
 
-var TAG = "Module";
+var TAG = 'Module';
 
 /**
  * [Module description]
- * @param {String} id      [description]
- * @param {Module} parent  [description]
- * @param {Object} context [description]
+ * @param {String} id      module id
+ * @param {Module} parent  parent module
+ * @param {Object} context context object
  */
 function Module(id, parent, context) {
 	this.id = id;
@@ -40,15 +39,15 @@ Module.wrap = NativeModule.wrap;
 
 /**
  * [runModule description]
- * @param  {String} source            [description]
- * @param  {String} filename          [description]
- * @param  {[type]} activityOrService [description]
- * @return {Module}                   [description]
+ * @param  {String} source            JS Source code
+ * @param  {String} filename          Filename of the module
+ * @param  {object} activityOrService [description]
+ * @return {Module}                   The loaded Module
  */
 Module.runModule = function (source, filename, activityOrService) {
 	var id = filename;
 	if (!Module.main) {
-		id = ".";
+		id = '.';
 	}
 
 	var module,
@@ -72,10 +71,9 @@ Module.runModule = function (source, filename, activityOrService) {
 		Module.main = module;
 	}
 	filename = filename.replace('Resources/', '/'); // normalize back to absolute paths (which really are relative to Resources under the hood)
-	module.load(filename, source)
+	module.load(filename, source);
 	return module;
-}
-
+};
 
 /**
  * Attempts to load the module. If no file is found
@@ -91,7 +89,7 @@ Module.runModule = function (source, filename, activityOrService) {
  */
 Module.prototype.load = function (filename, source) {
 	if (this.loaded) {
-		throw new Error("Module already loaded.");
+		throw new Error('Module already loaded.');
 	}
 
 	this.filename = filename;
@@ -107,8 +105,7 @@ Module.prototype.load = function (filename, source) {
 	this._runScript(source, this.filename);
 
 	this.loaded = true;
-}
-
+};
 
 /**
  * Generates a context-specific module wrapper, and wraps
@@ -118,7 +115,7 @@ Module.prototype.load = function (filename, source) {
  * @param  {[type]} sourceUrl      [description]
  * @return {[type]}                [description]
  */
-Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
+Module.prototype.createModuleWrapper = function (externalModule, sourceUrl) {
 
 	// The module wrapper forwards on using the original as a prototype
 	function ModuleWrapper() {}
@@ -141,37 +138,37 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 		}));
 	}
 
-	wrapper.addEventListener = function() {
+	wrapper.addEventListener = function () {
 		externalModule.addEventListener.apply(externalModule, arguments);
-	}
+	};
 
-	wrapper.removeEventListener = function() {
+	wrapper.removeEventListener = function () {
 		externalModule.removeEventListener.apply(externalModule, arguments);
-	}
+	};
 
-	wrapper.fireEvent = function() {
+	wrapper.fireEvent = function () {
 		externalModule.fireEvent.apply(externalModule, arguments);
-	}
+	};
 
 	return wrapper;
-}
+};
 
 /**
- * [extendModuleWithCommonJs description]
- * @param  {Object} externalModule [description]
- * @param  {String} id             [description]
- * @param  {[type]} thiss          [description]
- * @param  {Object} context        [description]
+ * Takes a CommonJS module and uses it to extend an existing external/native module. The exports are added to the external module.
+ * @param  {Object} externalModule The external/native module we're extending
+ * @param  {String} id             module id
+ * @param  {Object} thiss          The object to use for `this`
+ * @param  {Object} context        context object
  */
 function extendModuleWithCommonJs(externalModule, id, thiss, context) {
 	if (kroll.isExternalCommonJsModule(id)) {
-		var jsModule = new Module(id + ".commonjs", thiss, context);
+		var jsModule = new Module(id + '.commonjs', thiss, context);
 		// Load under fake name, or the commonjs side of the native module gets cached in place of the native module!
 		// See TIMOB-24932
-		jsModule.load(id + ".commonjs", kroll.getExternalCommonJsModule(id));
+		jsModule.load(id + '.commonjs', kroll.getExternalCommonJsModule(id));
 		if (jsModule.exports) {
 			if (kroll.DBG) {
-				kroll.log(TAG, "Extending native module '" + id + "' with the CommonJS module that was packaged with it.");
+				kroll.log(TAG, 'Extending native module \'' + id + '\' with the CommonJS module that was packaged with it.');
 			}
 			kroll.extend(externalModule, jsModule.exports);
 		}
@@ -181,12 +178,12 @@ function extendModuleWithCommonJs(externalModule, id, thiss, context) {
 /**
  * Loads a native / external (3rd party) module
  * @param  {String} id              module id
- * @param  {[type]} externalBinding [description]
- * @param  {Object} context         [description]
+ * @param  {object} externalBinding external binding object
+ * @param  {Object} context         context object
  * @return {Object}                 The exported module
  */
-Module.prototype.loadExternalModule = function(id, externalBinding, context) {
-	var sourceUrl = (context === undefined) ? "app://app.js" : context.sourceUrl,
+Module.prototype.loadExternalModule = function (id, externalBinding, context) {
+	var sourceUrl = (context === undefined) ? 'app://app.js' : context.sourceUrl,
 		externalModule,
 		returnObj;
 
@@ -198,7 +195,7 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 
 		// Load the native module's bootstrap JS
 		var module = new Module(id, this, context);
-		module.load(id + "/bootstrap.js", source);
+		module.load(id + '/bootstrap.js', source);
 
 		// Bootstrap and load the module using the native bindings
 		var result = module.exports.bootstrap(externalBinding);
@@ -225,9 +222,9 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 	}
 
 	if (kroll.DBG) {
-		kroll.log(TAG, "Unable to load external module: " + id);
+		kroll.log(TAG, 'Unable to load external module: ' + id);
 	}
-}
+};
 
 // See https://nodejs.org/api/modules.html#modules_all_together
 
@@ -238,7 +235,7 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
  * of the child module.
  *
  * @param  {String} request  The path to the requested module
- * @param  {Object} context  [description]
+ * @param  {Object} context  context object
  * @return {Object}          The loaded module
  */
 Module.prototype.require = function (request, context) {
@@ -268,7 +265,7 @@ Module.prototype.require = function (request, context) {
 		}
 	} else {
 		// Look for CommonJS module
-		if (request.indexOf('/') == -1) {
+		if (request.indexOf('/') === -1) {
 			// For CommonJS we need to look for module.id/module.id.js first...
 			// TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
 			loaded = this.loadAsFile('/' + request + '/' + request + '.js', context);
@@ -293,7 +290,8 @@ Module.prototype.require = function (request, context) {
 
 		// We'd like to warn users about legacy style require syntax so they can update, but the new syntax is not backwards compatible.
 		// So for now, let's just be quite about it. In future versions of the SDK (7.0?) we should warn (once 5.x is end of life so backwards compat is not necessary)
-		//kroll.log(TAG, "require called with un-prefixed module id: " + request + ", should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /" + request);
+		// kroll.log(TAG, "require called with un-prefixed module id: " + request
+		// + ", should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /" + request);
 
 		loaded = this.loadAsFileOrDirectory(path.normalize('/' + request), context);
 		if (loaded) {
@@ -302,8 +300,8 @@ Module.prototype.require = function (request, context) {
 	}
 
 	// 4. THROW "not found"
-	throw new Error("Requested module not found: " + request); // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
-}
+	throw new Error('Requested module not found: ' + request); // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
+};
 
 /**
  * Loads the core module if it exists. If not, returns null.
@@ -348,13 +346,13 @@ Module.prototype.loadCoreModule = function (id, context) {
 	}
 
 	return null; // failed to load
-}
+};
 
 /**
  * Attempts to load a node module by id from the starting path
  * @param  {String} moduleId       The path of the module to load.
  * @param  {String} startDir       The starting directory
- * @param  {Object} context        [description]
+ * @param  {Object} context        context object
  * @return {Object}                The module's exports, if loaded. null if not.
  */
 Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
@@ -366,8 +364,7 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
 	// 1. let DIRS=NODE_MODULES_PATHS(START)
 	dirs = this.nodeModulesPaths(startDir);
 	// 2. for each DIR in DIRS:
-	for (i = 0; i < dirs.length; i++)
-	{
+	for (i = 0; i < dirs.length; i++) {
 		dir = dirs[i];
 		// a. LOAD_AS_FILE(DIR/X)
 		// b. LOAD_AS_DIRECTORY(DIR/X)
@@ -377,7 +374,7 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
 		}
 	}
 	return null;
-}
+};
 
 /**
  * Determine the set of paths to search for node_modules
@@ -392,7 +389,7 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 	// and also returning an array with duplicate entries
 	// e.g. ["/node_modules", "/node_modules"]
 	if (startDir === '/') {
-		return ['/node_modules'];
+		return [ '/node_modules' ];
 	}
 	// 1. let PARTS = path split(START)
 	var parts = startDir.split('/'),
@@ -406,7 +403,7 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 	while (i >= 0) {
 		// a. if PARTS[I] = "node_modules" CONTINUE
 		if (parts[i] === 'node_modules' || parts[i] === '') {
-  			i = i - 1;
+			i -= 1;
 			continue;
 		}
 		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
@@ -414,17 +411,17 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 		// c. DIRS = DIRS + DIR
 		dirs.push(dir);
 		// d. let I = I - 1
-		i = i - 1;
+		i -= 1;
 	}
 	// Always add /node_modules to the search path
 	dirs.push('/node_modules');
 	return dirs;
-}
+};
 
 /**
  * Attempts to load a given path as a file or directory.
  * @param  {String} normalizedPath The path of the module to load.
- * @param  {Object} context        [description]
+ * @param  {Object} context        context object
  * @return {Object}                The module's exports, if loaded. null if not.
  */
 Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
@@ -440,12 +437,12 @@ Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
 	}
 
 	return null;
-}
+};
 
 /**
  * Loads a given file as a Javascript file, returning the module.exports.
  * @param  {String} filename File we're attempting to load
- * @param  {Object} context
+ * @param  {Object} context context object
  * @return {Object}          module.exports of the file.
  */
 Module.prototype.loadJavascriptText = function (filename, context) {
@@ -460,13 +457,13 @@ Module.prototype.loadJavascriptText = function (filename, context) {
 	module.load(filename);
 
 	return module.exports;
-}
+};
 
 /**
  * Loads a JSON file by reading it's contents, doing a JSON.parse and returning the parsed object.
  *
  * @param  {String} filename File we're attempting to load
- * @param  {Object} context
+ * @param  {Object} context context object
  * @return {Object}          The parsed JSON object from the file
  */
 Module.prototype.loadJavascriptObject = function (filename, context) {
@@ -490,13 +487,13 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 	module.loaded = true;
 
 	return module.exports;
-}
+};
 
 /**
  * Attempts to load a file by it's full filename according to NodeJS rules.
  *
  * @param  {String} id The filename
- * @param  {Object} context
+ * @param  {Object} context context object
  * @return {Object}    String for Javascript text, Object for JSON file, null if not found.
  */
 Module.prototype.loadAsFile = function (id, context) {
@@ -521,13 +518,13 @@ Module.prototype.loadAsFile = function (id, context) {
 	}
 	// failed to load anything!
 	return null;
-}
+};
 
 /**
  * Attempts to load a directory according to NodeJS rules.
  *
  * @param  {String} id The directory name
- * @param  {Object} context
+ * @param  {Object} context context object
  * @return {Object}    String for Javascript text, Object for JSON file, null if not found.
  */
 Module.prototype.loadAsDirectory = function (id, context) {
@@ -556,7 +553,7 @@ Module.prototype.loadAsDirectory = function (id, context) {
 	}
 
 	return null;
-}
+};
 
 /**
  * Setup a sandbox and run the module's script inside it.
@@ -567,7 +564,7 @@ Module.prototype.loadAsDirectory = function (id, context) {
  */
 Module.prototype._runScript = function (source, filename) {
 	var self = this,
-		url = "app://" + filename;
+		url = 'app://' + filename;
 
 	function require(path, context) {
 		return self.require(path, context);
@@ -577,11 +574,26 @@ Module.prototype._runScript = function (source, filename) {
 	// This "first time" run is really only for app.js, AFAICT, and needs
 	// an activity. If app was restarted for Service only, we don't want
 	// to go this route. So added currentActivity check. (bill)
-	if (self.id == '.' && self.context.currentActivity) {
+	if (self.id === '.' && self.context.currentActivity) {
 		global.require = require;
 		Titanium.Android.currentActivity = self.context.currentActivity;
 
-		return runInThisContext(source, filename, true);
+		// check if we have an inspector binding...
+		var inspector = kroll.binding('inspector');
+		if (inspector) {
+			// If debugger is enabled, load app.js and pause right before we execute it
+			var inspectorWrapper = inspector.callAndPauseOnStart;
+			if (inspectorWrapper) {
+				// FIXME Why can't we do normal Module.wrap(source) here?
+				// I get "Uncaught TypeError: Cannot read property 'createTabGroup' of undefined" for "Ti.UI.createTabGroup();"
+				// Not sure why app.js is special case and can't be run under normal self-invoking wrapping function that gets passed in global/kroll/Ti/etc
+				// Instead, let's use a slightly modified version of callAndPauseOnStart:
+				// It will compile the source as-is, schedule a pause and then run the source.
+				return inspectorWrapper(source, filename);
+			}
+		}
+		// run app.js "normally" (i.e. not under debugger/inspector)
+		return Script.runInThisContext(source, filename, true);
 	}
 
 	// Create context-bound modules.
@@ -599,7 +611,7 @@ Module.prototype._runScript = function (source, filename) {
 
 	var f = Script.runInThisContext(source, filename, true);
 	return f(this.exports, require, this, filename, path.dirname(filename), ti, ti, global, kroll);
-}
+};
 
 /**
  * The loaded index.json file from the app. Used to store the encrypted JS assets'
@@ -620,4 +632,4 @@ Module.prototype.filenameExists = function (filename) {
 	}
 
 	return filename in fileIndex;
-}
+};
