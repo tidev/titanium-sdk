@@ -52,20 +52,7 @@ public class DecorViewProxy extends TiViewProxy
 	@Kroll.method
 	public int getOrientation()
 	{
-		Activity activity = getActivity();
-
-		if (activity != null)
-		{
-		    DisplayMetrics dm = new DisplayMetrics();
-		    Display display = activity.getWindowManager().getDefaultDisplay();
-		    display.getMetrics(dm);
-		    int width = dm.widthPixels;
-		    int height = dm.heightPixels;
-		    return TiOrientationHelper.convertRotationToTiOrientationMode(display.getRotation(), width, height);
-		}
-
-		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);
-		return TiOrientationHelper.ORIENTATION_UNKNOWN;
+		return TiOrientationHelper.getScreenTiOrientationMode();
 	}
 
 	@Kroll.method
