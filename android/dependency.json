@@ -39,7 +39,7 @@
 	},
 	"runtimes":
 	{
-		"v8":["kroll-v8.jar"],
+		"v8":["kroll-v8.jar", "java_websocket.jar"],
 		"defaultRuntime":"v8"
 	},
 	"modulepackage":
