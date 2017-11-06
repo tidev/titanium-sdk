@@ -193,7 +193,7 @@ timestamps {
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
 					dir('build') {
 						timeout(15) {
-							sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
+							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R12B} --android-sdk ${env.ANDROID_SDK}"
 						} // timeout
 						ansiColor('xterm') {
 							if (isPR) {
@@ -227,7 +227,8 @@ timestamps {
 						scanFiles << [path: 'retire.json']
 					}
 
-					if (!scanFiles.isEmpty()) {
+					// Don't publish to threadfix except for master builds
+					if ('master'.equals(env.BRANCH_NAME) && !scanFiles.isEmpty()) {
 						step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
 					}
 
