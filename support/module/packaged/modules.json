@@ -11,7 +11,8 @@
 		"https://github.com/appcelerator-modules/ti.facebook/releases/download/android-7.0.0/facebook-android-7.0.0.zip",
 		"https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-4.0.4.zip",
 		"https://github.com/appcelerator-modules/ti.map/releases/download/android-4.0.0/ti.map-android-4.0.0.zip",
-		"https://github.com/appcelerator-modules/ti.touchid/releases/download/android-3.0.0/ti.touchid-android-3.0.0.zip"
+		"https://github.com/appcelerator-modules/ti.touchid/releases/download/android-3.0.0/ti.touchid-android-3.0.0.zip",
+		"https://github.com/appcelerator-modules/ti.playservices/releases/download/android-11.0.40/ti.playservices-android-11.0.40.zip"
 	],
 	"commonjs": [
 		"https://github.com/appcelerator-modules/ti.cloud/releases/download/3.2.11/ti.cloud-commonjs-3.2.11.zip"
