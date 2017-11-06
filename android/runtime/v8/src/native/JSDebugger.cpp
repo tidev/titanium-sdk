@@ -1,14 +1,16 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2016-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#include <assert.h>
-#include <sstream>
+#include <cassert>
 #include "JSDebugger.h"
-#include "JNIUtil.h"
-#include "TypeConverter.h"
+#include "JNIUtil.h" // JNIUtil::getJNIEnv()
+#include "TypeConverter.h" // TypeConverter::javaStringToJsString
+#include "InspectorClient.h" // new InspectorClient
+#include "V8Runtime.h" // V8Runtime::platform and V8Runtime::v8_isolate
+#include "V8Util.h" // titanium::TwoByteValue
 
 #include "org_appcelerator_kroll_runtime_v8_JSDebugger.h"
 
@@ -20,10 +22,8 @@ JSDebugger::JSDebugger()
 {
 }
 
-void JSDebugger::init(JNIEnv *env, v8::Isolate *isolate, jobject jsDebugger)
+void JSDebugger::init(JNIEnv *env, jobject jsDebugger, v8::Local<v8::Context> context)
 {
-	isolate__ = isolate;
-
 	debugger__ = env->NewGlobalRef(jsDebugger);
 
 	debuggerClass__ = env->FindClass("org/appcelerator/kroll/runtime/v8/JSDebugger");
@@ -31,23 +31,43 @@ void JSDebugger::init(JNIEnv *env, v8::Isolate *isolate, jobject jsDebugger)
 
 	handleMessage__ = env->GetMethodID(debuggerClass__, "handleMessage", "(Ljava/lang/String;)V");
 	assert(handleMessage__ != nullptr);
+
+	waitForMessage__ = env->GetMethodID(debuggerClass__, "waitForMessage", "()Ljava/lang/String;");
+	assert(waitForMessage__ != nullptr);
+
+	if (debugger__ != nullptr) {
+		client__ = new InspectorClient(context, V8Runtime::platform);
+	}
 }
 
 void JSDebugger::enable()
 {
-	v8::Debug::SetMessageHandler(isolate__, MessageHandler);
+	if (debugger__ == nullptr || enabled__) {
+		return;
+	}
+	client__->connect();
 	enabled__ = true;
 }
 
 void JSDebugger::disable()
 {
+	if (debugger__ == nullptr || !enabled__) {
+		return;
+	}
 	enabled__ = false;
-	v8::Debug::SetMessageHandler(isolate__, nullptr);
+	client__->disconnect();
+	client__ = nullptr;
 }
 
 void JSDebugger::debugBreak()
 {
-	v8::Debug::DebugBreak(isolate__);
+	if (!enabled__) {
+		return;
+	}
+
+	Isolate::Scope isolate_scope(V8Runtime::v8_isolate);
+	v8::HandleScope handleScope(V8Runtime::v8_isolate);
+	client__->BreakAtStart();
 }
 
 bool JSDebugger::isDebuggerActive()
@@ -55,45 +75,65 @@ bool JSDebugger::isDebuggerActive()
 	return isActive__;
 }
 
-void JSDebugger::processDebugMessages()
+void JSDebugger::sendCommand(JNIEnv *env, jstring command)
 {
-	v8::Debug::ProcessDebugMessages(isolate__);
-}
+	if (!enabled__) {
+		return;
+	}
 
-void JSDebugger::sendCommand(JNIEnv *env, jbyteArray command, jint length)
-{
-	auto buf = new jbyte[length];
-	env->GetByteArrayRegion(command, 0, length, buf);
+	v8::Isolate::Scope isolate_scope(V8Runtime::v8_isolate);
+	v8::HandleScope handleScope(V8Runtime::v8_isolate);
+	v8::Context::Scope context_scope(V8Runtime::v8_isolate->GetCurrentContext());
 
-	int len = length / sizeof(uint16_t);
-	v8::Debug::SendCommand(isolate__, reinterpret_cast<uint16_t*>(buf), len, nullptr);
-
-	delete[] buf;
+	v8::Local<v8::Value> stringValue = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, command);
+	v8::Local<v8::String> message = stringValue.As<v8::String>();
+	titanium::TwoByteValue buffer(message);
+	v8_inspector::StringView message_view(*buffer, buffer.length());
+	client__->sendMessage(message_view);
 
 	isActive__ = true;
 }
 
-void JSDebugger::MessageHandler(const v8::Debug::Message& message)
+v8::Local<v8::String> JSDebugger::WaitForMessage()
 {
-	if (debugger__ == nullptr)
-	{
+	v8::Isolate::Scope isolate_scope(V8Runtime::v8_isolate);
+	v8::EscapableHandleScope handleScope(V8Runtime::v8_isolate);
+	v8::Context::Scope context_scope(V8Runtime::v8_isolate->GetCurrentContext());
+
+	if (!enabled__) {
+		return v8::String::Empty(V8Runtime::v8_isolate);
+	}
+
+	JNIEnv *env = JNIUtil::getJNIEnv();
+	ASSERT(env != NULL);
+
+	jstring msg = (jstring) env->CallObjectMethod(debugger__, waitForMessage__, 0);
+	v8::Local<v8::Value> stringValue = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, msg);
+	env->DeleteLocalRef(msg);
+
+	return handleScope.Escape(stringValue.As<v8::String>());
+}
+
+void JSDebugger::receive(v8::Local<v8::String> message)
+{
+	if (!enabled__) {
 		return;
 	}
 
 	JNIEnv *env = JNIUtil::getJNIEnv();
 	ASSERT(env != NULL);
 
-	auto json = message.GetJSON();
-	jstring s = TypeConverter::jsStringToJavaString(env, json);
+	jstring s = TypeConverter::jsStringToJavaString(env, message);
 	env->CallVoidMethod(debugger__, handleMessage__, s);
 	env->DeleteLocalRef(s);
 }
 
 bool JSDebugger::enabled__ = false;
-v8::Isolate* JSDebugger::isolate__ = nullptr;
 jobject JSDebugger::debugger__ = nullptr;
 jclass JSDebugger::debuggerClass__ = nullptr;
 jmethodID JSDebugger::handleMessage__ = nullptr;
+jmethodID JSDebugger::waitForMessage__ = nullptr;
+InspectorClient* JSDebugger::client__ = nullptr;
 bool JSDebugger::isActive__ = false;
 
 } // namespace titanium
@@ -103,17 +143,6 @@ extern "C" {
 #endif
 
 using namespace titanium;
-
-/*
- * Class:     org_appcelerator_kroll_runtime_v8_JSDebugger
- * Method:    nativeProcessDebugMessages
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_JSDebugger_nativeProcessDebugMessages(JNIEnv *env, jobject self)
-{
-	JSDebugger::processDebugMessages();
-	// TODO Wrap in try/catch and throw up to Java?
-}
 
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_JSDebugger
@@ -162,11 +191,11 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_JSDebugger_nat
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_JSDebugger
  * Method:    nativeSendCommand
- * Signature: ([BI)V
+ * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_JSDebugger_nativeSendCommand(JNIEnv *env, jobject self, jbyteArray command, jint length)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_JSDebugger_nativeSendCommand(JNIEnv *env, jobject self, jstring command)
 {
-	JSDebugger::sendCommand(env, command, length);
+	JSDebugger::sendCommand(env, command);
 	// TODO Wrap in try/catch and throw up to Java?
 }
 
