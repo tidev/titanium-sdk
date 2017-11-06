@@ -61,8 +61,10 @@
   UIPopoverArrowDirection arrowDirection;
 }
 
+#if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
 + (NSDictionary *)itemProperties;
 + (NSDictionary *)filterableItemProperties;
+#endif
 
 @property (nonatomic, readwrite, retain) id popoverView;
 @property (nonatomic, readonly) NSNumber *volume;
