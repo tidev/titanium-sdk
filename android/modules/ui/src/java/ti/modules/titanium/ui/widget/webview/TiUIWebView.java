@@ -929,6 +929,10 @@ public class TiUIWebView extends TiUIView
 	@Override
 	protected void disableHWAcceleration()
 	{
-		Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
+			super.disableHWAcceleration();
+		} else {
+			Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
+		}
 	}
 }

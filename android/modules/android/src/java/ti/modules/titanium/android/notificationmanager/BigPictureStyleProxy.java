@@ -81,7 +81,7 @@ public class BigPictureStyleProxy extends StyleProxy {
 	@Kroll.method @Kroll.setProperty
 	public void setBigPicture(Object picture)
 	{
-		TiDrawableReference source = TiDrawableReference.fromObject(this.getActivity(), picture);
+		TiDrawableReference source = TiDrawableReference.fromObject(this, picture);
 
 		// Check for decodeRetries
 		if (hasProperty(TiC.PROPERTY_DECODE_RETRIES)) {
