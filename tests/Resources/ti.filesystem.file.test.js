@@ -83,7 +83,7 @@ describe('Titanium.Filesystem.File', function () {
 		should(file).have.a.readOnlyProperty('parent');
 		should(file.parent).not.be.undefined;
 		should(file.getParent).not.be.undefined;
-		should(file.getParent.be.a.Function;
+		should(file.getParent).be.a.Function;
 		
 		// In 7.0.0, all platforms return a Ti.Filesystem.File instance
 		should(file.parent).be.a.Object;
