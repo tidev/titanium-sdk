@@ -227,7 +227,8 @@ timestamps {
 						scanFiles << [path: 'retire.json']
 					}
 
-					if (!scanFiles.isEmpty()) {
+					// Don't publish to threadfix except for master builds
+					if ('master'.equals(env.BRANCH_NAME) && !scanFiles.isEmpty()) {
 						step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
 					}
 
