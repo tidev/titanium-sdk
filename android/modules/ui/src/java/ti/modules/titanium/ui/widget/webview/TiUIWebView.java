@@ -61,6 +61,7 @@ public class TiUIWebView extends TiUIView
 	private TiWebChromeClient chromeClient;
 	private boolean bindingCodeInjected = false;
 	private boolean isLocalHTML = false;
+	private boolean disableContextMenu = false;
 	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
 
 	private static Enum<?> enumPluginStateOff;
@@ -74,7 +75,10 @@ public class TiUIWebView extends TiUIView
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
 
-	private boolean disableContextMenu = false;
+	// TIMOB-25462: minor 'hack' to prevent 'beforeload' and 'load' being
+	// called when the user-agent has been changed, this is a chromium bug
+	// https://bugs.chromium.org/p/chromium/issues/detail?id=315891
+	public boolean hasSetUserAgent = false;
 
 	private static enum reloadTypes
 	{
@@ -834,6 +838,7 @@ public class TiUIWebView extends TiUIView
 	{
 		WebView currWebView = getWebView();
 		if (currWebView != null) {
+			hasSetUserAgent = true;
 			currWebView.getSettings().setUserAgentString(userAgentString);
 		}
 	}
