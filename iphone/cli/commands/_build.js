@@ -1056,7 +1056,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 			const pems = certs.map(function (c) {
 				return c.pem.replace(pemCertRegExp, '');
-			})
+			});
 
 			if (target === 'device') {
 				if (iosInfo.provisioning.development.length) {
@@ -1180,7 +1180,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 				const pems = certs.map(function (c) {
 					return c.pem.replace(pemCertRegExp, '');
-				})
+				});
 
 				if (certs.length > 0 && intersection(p.certs, pems).length === 0) {
 					return callback(new Error(__('Specified provisioning profile UUID "%s" does not include the "%s" certificate', value, certs[0].name)));
