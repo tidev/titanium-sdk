@@ -255,7 +255,7 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel("String.formatDate")
-	public String stringFormatDate(Date date, @Kroll.argument(optional=true) String format)
+	public String stringFormatDate(Object date, @Kroll.argument(optional=true) String format)
 	{
 		int style = DateFormat.SHORT;
 
@@ -269,8 +269,12 @@ public class TitaniumModule extends KrollModule
 				style = DateFormat.FULL;
 			}
 		}
-
-		return (DateFormat.getDateInstance(style)).format(date);
+		if (date instanceof Date) {
+			return (DateFormat.getDateInstance(style)).format(date);
+		}else {
+			Log.e(TAG, "The string.formatDate() function was given an invalid argument. Must be of type 'Date'.");
+			return null;
+		}
 	}
 
 	@Kroll.method @Kroll.topLevel("String.formatTime")
