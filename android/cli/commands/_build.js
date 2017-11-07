@@ -1625,7 +1625,7 @@ process.exit(1);
 			let unresolvedDependencies = [];
 			for (let module of this.nativeLibModules) {
 				const timoduleXmlFile = path.join(module.modulePath, 'timodule.xml'),
-					  timodule = fs.existsSync(timoduleXmlFile) ? new tiappxml(timoduleXmlFile) : undefined;
+					timodule = fs.existsSync(timoduleXmlFile) ? new tiappxml(timoduleXmlFile) : undefined;
 
 				if (timodule && Array.isArray(timodule.modules)) {
 					for (let dependency of timodule.modules) {
@@ -1645,8 +1645,8 @@ process.exit(1);
 								this.cli.tiapp.modules.push({
 									id: dependency.id,
 									version: dependency.version,
-									platform: ['android'],
-									deployType: [this.deployType]
+									platform: [ 'android' ],
+									deployType: [ this.deployType ]
 								});
 
 								unresolvedDependencies.push(dependency);
@@ -1669,8 +1669,8 @@ process.exit(1);
 		 		process.exit(1);
 		 		*/
 
-		 		// re-validate modules
-		 		return this.validateTiModules('android', this.deployType, validateTiModulesCallback.bind(this));
+				// re-validate modules
+				return this.validateTiModules('android', this.deployType, validateTiModulesCallback.bind(this));
 			}
 
 			// check if we have any conflicting jars
