@@ -73,7 +73,7 @@ function AndroidBuilder() {
 
 	this.targets = [ 'emulator', 'device', 'dist-playstore' ];
 
-	this.validABIs = [ 'armeabi-v7a', 'x86' ];
+	this.validABIs = [ 'arm64-v8a', 'armeabi-v7a', 'x86' ];
 
 	this.uncompressedTypes = [
 		'jpg', 'jpeg', 'png', 'gif',
