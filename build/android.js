@@ -70,7 +70,7 @@ Android.prototype.package = function (packager, next) {
 	async.series([
 		// Copy dist/android/*.jar, dist/android/modules.json
 		function (cb) {
-			copyFiles(DIST_ANDROID, ANDROID_DEST, [ 'titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'modules.json' ], cb);
+			copyFiles(DIST_ANDROID, ANDROID_DEST, [ 'titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'java_websocket.jar', 'modules.json' ], cb);
 		},
 		// Copy android/dependency.json, android/cli/, and android/templates/
 		function (cb) {
