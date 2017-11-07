@@ -1490,7 +1490,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	return function (callback) {
-		this.validateTiModules('android', this.deployType, function (err, modules) {
+		this.validateTiModules('android', this.deployType, function validateTiModulesCallback(err, modules) {
 			this.modules = modules.found;
 
 			this.commonJsModules = [];
@@ -1640,6 +1640,15 @@ process.exit(1);
 							}
 							if (missing) {
 								dependency.depended = module;
+
+								// attempt to include missing dependency
+								this.cli.tiapp.modules.push({
+									id: dependency.id,
+									version: dependency.version,
+									platform: ['android'],
+									deployType: [this.deployType]
+								});
+
 								unresolvedDependencies.push(dependency);
 							}
 						}
@@ -1647,6 +1656,7 @@ process.exit(1);
 				}
 			}
 			if (unresolvedDependencies.length) {
+				/*
 				let msg = 'could not find required module dependencies:';
 		 		for (let dependency of unresolvedDependencies) {
 		 			msg += __('\n  id: %s  version: %s  platform: %s  required by %s',
@@ -1657,6 +1667,10 @@ process.exit(1);
 		 		}
 		 		logger.error(msg);
 		 		process.exit(1);
+		 		*/
+
+		 		// re-validate modules
+		 		return this.validateTiModules('android', this.deployType, validateTiModulesCallback.bind(this));
 			}
 
 			// check if we have any conflicting jars
