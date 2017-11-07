@@ -278,7 +278,7 @@ public class TitaniumModule extends KrollModule
 	{
 		int style = DateFormat.SHORT;
 
-		if (time != null && time instanceof Date) {
+		if (time instanceof Date) {
 			try {
 				return (DateFormat.getTimeInstance(style)).format(time);
 			} catch (Exception ex) {
@@ -286,7 +286,7 @@ public class TitaniumModule extends KrollModule
 				return null;
 			}
 		}else {
-			Log.e(TAG, "Error occurred while formatting time please provide a Date()");
+			Log.e(TAG, "The string.formatTime() function was given an invalid argument. Must be of type 'Date'.");
 			return null;
 		}
 	}
