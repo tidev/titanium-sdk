@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -271,7 +271,7 @@ public class TitaniumModule extends KrollModule
 		}
 		if (date instanceof Date) {
 			return (DateFormat.getDateInstance(style)).format(date);
-		}else {
+		} else {
 			Log.e(TAG, "The string.formatDate() function was given an invalid argument. Must be of type 'Date'.");
 			return null;
 		}
@@ -289,7 +289,7 @@ public class TitaniumModule extends KrollModule
 				Log.e(TAG, "Error occurred while formatting time", ex);
 				return null;
 			}
-		}else {
+		} else {
 			Log.e(TAG, "The string.formatTime() function was given an invalid argument. Must be of type 'Date'.");
 			return null;
 		}
