@@ -531,7 +531,7 @@ NSArray *moviePlayerKeys = nil;
         CMTimeGetSeconds([[movie player] currentTime]));
     return nil;
   }
-  
+
   CFRelease(cgIm);
 
   return image;
