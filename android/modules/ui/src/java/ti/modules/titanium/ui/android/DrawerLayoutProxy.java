@@ -31,7 +31,7 @@ public class DrawerLayoutProxy extends TiViewProxy
 	@Kroll.constant public static final int LOCK_MODE_UNLOCKED = DrawerLayout.LOCK_MODE_UNLOCKED;
 	@Kroll.constant public static final int LOCK_MODE_UNDEFINED = DrawerLayout.LOCK_MODE_UNDEFINED;
 
-	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
+	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 
 	private static final int MSG_OPEN_LEFT = MSG_FIRST_ID + 300;
 	private static final int MSG_CLOSE_LEFT = MSG_FIRST_ID + 301;
