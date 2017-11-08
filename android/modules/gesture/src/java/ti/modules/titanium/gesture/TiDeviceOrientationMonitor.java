@@ -157,9 +157,9 @@ public final class TiDeviceOrientationMonitor
 
 		// If above is not available, then attempt to use accelerometer and magnetic sensors.
 		if (!this.isUsingSensorManager) {
-			boolean wasSensor1Started = startSensor(Sensor.TYPE_ACCELEROMETER);
-			boolean wasSensor2Started = startSensor(Sensor.TYPE_MAGNETIC_FIELD);
-			this.isUsingSensorManager = wasSensor1Started && wasSensor2Started;
+			boolean wasAccelerationSensorStarted = startSensor(Sensor.TYPE_ACCELEROMETER);
+			boolean wasMagneticSensorStarted = startSensor(Sensor.TYPE_MAGNETIC_FIELD);
+			this.isUsingSensorManager = wasAccelerationSensorStarted && wasMagneticSensorStarted;
 			if (!this.isUsingSensorManager) {
 				if (this.sensorManager != null) {
 					this.sensorManager.unregisterListener(this.sensorEventHandler);
