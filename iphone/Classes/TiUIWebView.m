@@ -144,6 +144,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     webview.backgroundColor = [UIColor whiteColor];
     webview.contentMode = UIViewContentModeRedraw;
     webview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater]) {
+      webview.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#endif
+
     [self addSubview:webview];
 
     BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
