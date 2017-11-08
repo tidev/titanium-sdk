@@ -441,7 +441,7 @@ NSArray *moviePlayerKeys = nil;
 
       // Handle both setting this value on running videos and on creation
       if ([[movie player] status] == AVPlayerStatusReadyToPlay) {
-        [[movie player] seekToTime:CMTimeMake(ourTime, 1)];
+        [[movie player] seekToTime:CMTimeMake(ourTime, 1) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
       } else {
         // Set the time in the "load" event
       }
