@@ -1,24 +1,30 @@
 /* global danger, fail, warn, markdown, message */
 'use strict';
-const fs = require('fs-extra'),
-	path = require('path'),
-	DOMParser = require('xmldom').DOMParser;
+// requires
+const fs = require('fs-extra');
+const path = require('path');
+const DOMParser = require('xmldom').DOMParser;
+// constants
+const JIRARegexp = /https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/;
+const github = danger.github;
+// Array to gather up the labels we want to auto-apply to the PR
+const labels = [];
 
 // To spit out the raw data we can use:
-// markdown(JSON.stringify(danger));
+// markdown(JSON.stringify(github));
 
 // Check if the user deleted more code than added, give a thumbs-up if so
-if (danger.github.pr.deletions > danger.github.pr.additions) {
+if (github.pr.deletions > github.pr.additions) {
 	message(':thumbsup: Hey!, You deleted more code than you added. That\'s awesome!');
 }
 
 // TODO Check for PRs above a certain threshold of changes and warn?
 
 // Check that we have a JIRA Link in the body
-const body = danger.github.pr.body;
-const JIRARegexp = /https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/;
+const body = github.pr.body;
 const hasJIRALink = body.match(JIRARegexp);
 if (!hasJIRALink) {
+	labels.push('needs jira');
 	warn('There is no linked JIRA ticket in the PR body. Please include the URL of the relevant JIRA ticket. If you need to, you may file a ticket on ' + danger.utils.href('https://jira.appcelerator.org/secure/CreateIssue!default.jspa', 'JIRA'));
 }
 
@@ -26,9 +32,7 @@ if (!hasJIRALink) {
 const hasPackageChanges = danger.git.modified_files.indexOf('package.json') !== -1;
 const hasLockfileChanges = danger.git.modified_files.indexOf('package-lock.json') !== -1;
 if (hasPackageChanges && !hasLockfileChanges) {
-	const message = ':lock: Changes were made to package.json, but not to package-lock.json';
-	const idea = 'Perhaps you need to run `npm install`?';
-	warn(message + ' - <i>' + idea + '</i>');
+	warn(':lock: Changes were made to package.json, but not to package-lock.json - <i>Perhaps you need to run `npm install`?</i>');
 }
 
 // Check that if we modify the Android or iOS SDK, we also update the tests
@@ -39,15 +43,51 @@ const modifiedAndroidFiles = modified.filter(function (p) {
 const modifiedIOSFiles = modified.filter(function (p) {
 	return p.startsWith('iphone/Classes/') && (p.endsWith('.h') || p.endsWith('.m'));
 });
-const hasAppChanges = (modifiedAndroidFiles.length + modifiedIOSFiles.length) > 0;
 
+// Auto-assign android/ios labels
+if (modifiedAndroidFiles.length > 0) {
+	labels.push('android');
+}
+if (modifiedIOSFiles.length > 0) {
+	labels.push('ios');
+}
+// Check if apidoc was modified and apply 'docs' label?
+const modifiedApiDocs = modified.filter(function (p) {
+	return p.startsWith('apidoc/');
+});
+if (modifiedApiDocs.length > 0) {
+	labels.push('docs');
+}
+
+// Check PR author to see if it's community, etc
+if (github.pr.author_association === 'FIRST_TIMER') {
+	labels.push('community');
+	labels.push('needs cla');
+	// Thank them profusely! This is their first ever github commit!
+	message(`:rocket: Wow, ${github.pr.user.login}, your first contribution to GitHub and it's to help us make Titanium better! You rock! :guitar:`);
+} else if (github.pr.author_association === 'FIRST_TIME_CONTRIBUTOR') {
+	labels.push('community');
+	labels.push('needs cla');
+	// Thank them, this is their first contribution to this repo!
+	message(`:confetti_ball: Welcome to the Titanium SDK community, ${github.pr.user.login}! Thank you so much for your PR, you're helping us make Titanium better. :gift:`);
+} else if (github.pr.author_association === 'CONTRIBUTOR') {
+	labels.push('community');
+	// Be nice, this is a community member who has landed PRs before!
+	message(`:tada: Another contribution from our awesome community member, ${github.pr.user.login}! Thanks again for helping us make Titanium SDK better. :thumbsup:`);
+}
+// Now apply our labels
+github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: labels });
+
+// Check if any tests were changed/added
+const hasAppChanges = (modifiedAndroidFiles.length + modifiedIOSFiles.length) > 0;
 const testChanges = modified.filter(function (p) {
 	return p.startsWith('tests/') && p.endsWith('.js');
 });
 const hasTestChanges = testChanges.length > 0;
 if (hasAppChanges && !hasTestChanges) {
-	const link = danger.github.utils.fileLinks([ 'README.md#unit-tests' ]);
-	fail(':microscope: There are library changes, but no changes to the unit tests. That\'s OK as long as you\'re refactoring existing code, but will require an admin to merge this PR. Please see ' + link + ' for docs on unit testing.');
+	const link = github.utils.fileLinks([ 'README.md#unit-tests' ]);
+	// TODO: Apply 'needs tests' label?
+	fail(`:microscope: There are library changes, but no changes to the unit tests. That's OK as long as you're refactoring existing code, but will require an admin to merge this PR. Please see ${link} for docs on unit testing.`); // eslint-disable-line max-len
 }
 
 function gatherFailedTestcases(reportPath) {
@@ -119,7 +159,6 @@ if (failures_and_errors.length !== 0) {
 
 	markdown(message);
 }
-
 // TODO Pass along any warnings/errors from eslint in a readable way? Right now we don't have any way to get at the output of the eslint step of npm test
 // May need to edit Jenkinsfile to do a try/catch to spit out the npm test output to some file this dangerfile can consume?
 // Or port https://github.com/leonhartX/danger-eslint/blob/master/lib/eslint/plugin.rb to JS - have it run on any edited/added JS files?
