@@ -526,9 +526,6 @@ public class TiUIWebView extends TiUIView
 			}
 			
 			float targetVal = (initScale * scale)  / zoomLevel;
-			Log.i("ZOOM", "target zoom: " + (initScale * scale));
-			Log.i("ZOOM", "zoom level: " + (zoomLevel));
-			Log.i("ZOOM", "zoom by: " + targetVal);
 			webView.zoomBy(targetVal);
 		}
 	}
