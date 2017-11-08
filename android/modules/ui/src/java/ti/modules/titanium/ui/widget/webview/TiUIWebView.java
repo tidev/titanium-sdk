@@ -464,9 +464,7 @@ public class TiUIWebView extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ZOOM_LEVEL)) {
-			if (Build.VERSION.SDK_INT >= 21) {
-				zoomBy(getWebView(), TiConvert.toFloat(d,TiC.PROPERTY_ZOOM_LEVEL));
-			}
+			zoomBy(getWebView(), TiConvert.toFloat(d,TiC.PROPERTY_ZOOM_LEVEL));
 		}
 	}
 
@@ -500,9 +498,7 @@ public class TiUIWebView extends TiUIView
 		} else if (TiC.PROPERTY_DISABLE_CONTEXT_MENU.equals(key)) {
 			disableContextMenu = TiConvert.toBoolean(newValue);
 		} else if (TiC.PROPERTY_ZOOM_LEVEL.equals(key)) {
-			if (Build.VERSION.SDK_INT >= 21) {
-				zoomBy(getWebView(), TiConvert.toFloat(newValue, 1.0f));
-			}
+			zoomBy(getWebView(), TiConvert.toFloat(newValue, 1.0f));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -518,9 +514,9 @@ public class TiUIWebView extends TiUIView
 
 	private void zoomBy(WebView webView, float scale)
 	{
-		if (webView != null) {
-			if (scale < 0.0f) {
-				scale = 0.0f;
+		if (Build.VERSION.SDK_INT >= 21 && webView != null) {
+			if (scale <= 0.0f) {
+				scale = 0.01f;
 			} else if (scale >= 100.0f) {
 				scale = 100.0f;
 			}
