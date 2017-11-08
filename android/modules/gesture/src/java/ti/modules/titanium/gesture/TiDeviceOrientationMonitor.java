@@ -20,7 +20,7 @@ import android.view.OrientationEventListener;
 import android.view.Surface;
 import java.util.List;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.util.TiOrientationHelper;
+import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.TiApplication;
 
 
@@ -227,7 +227,7 @@ public final class TiDeviceOrientationMonitor
 	private boolean isRotationLockEnabled()
 	{
 		boolean isLockEnabled = false;
-		if (this.isSystemRotationLockIgnored == false) {
+		if (!this.isSystemRotationLockIgnored) {
 			try {
 				ContentResolver contentResolver = this.context.getContentResolver();
 				if (contentResolver != null) {
@@ -263,7 +263,7 @@ public final class TiDeviceOrientationMonitor
 		}
 
 		// Do not continue if this monitor has not been started or has been stopped.
-		if (isRunning() == false) {
+		if (!isRunning()) {
 			return;
 		}
 
@@ -390,7 +390,7 @@ public final class TiDeviceOrientationMonitor
 			}
 
 			// Do not continue if the device rotation matrix has not been udpated above.
-			if (wasRotationMatrixUpdated == false) {
+			if (!wasRotationMatrixUpdated) {
 				return;
 			}
 
@@ -430,7 +430,7 @@ public final class TiDeviceOrientationMonitor
 			this.lastReadOrientation = orientation;
 
 			// Update the device monitor's orientation, but only if rotation lock is disabled.
-			if (this.monitor.isRotationLockEnabled() == false) {
+			if (!this.monitor.isRotationLockEnabled()) {
 				this.monitor.updateTo(orientation);
 			}
 		}
@@ -611,13 +611,12 @@ public final class TiDeviceOrientationMonitor
 		private void updateLastReadOrientation()
 		{
 			// Do not continue if the screen handler has been disabled.
-			if (this.isEnabled == false) {
+			if (!this.isEnabled) {
 				return;
 			}
 
 			// Fetch and store the current screen orientation.
-			this.lastReadOrientation = TiDeviceOrientation.fromTiIntegerId(
-					TiOrientationHelper.getScreenTiOrientationMode());
+			this.lastReadOrientation = TiDeviceOrientation.fromDefaultDisplay();
 
 			// Update device monitor's orientation.
 			// Use screen orientation if rotation lock is enabled. Otherwise use device orientation.

@@ -9,7 +9,7 @@ package org.appcelerator.titanium.proxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.util.TiOrientationHelper;
+import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.view.TiUIDecorView;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -52,7 +52,7 @@ public class DecorViewProxy extends TiViewProxy
 	@Kroll.method
 	public int getOrientation()
 	{
-		return TiOrientationHelper.getScreenTiOrientationMode();
+		return TiDeviceOrientation.fromDefaultDisplay().toTiIntegerId();
 	}
 
 	@Kroll.method
@@ -72,21 +72,28 @@ public class DecorViewProxy extends TiViewProxy
 			// look through orientation modes and determine what has been set
 			for (int i = 0; i < orientationModes.length; i++)
 			{
-				if (orientationModes [i] == TiOrientationHelper.ORIENTATION_PORTRAIT)
-				{
-					hasPortrait = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_PORTRAIT_REVERSE)
-				{
-					hasPortraitReverse = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_LANDSCAPE)
-				{
-					hasLandscape = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_LANDSCAPE_REVERSE)
-				{
-					hasLandscapeReverse = true;
+				int integerId = orientationModes[i];
+				TiDeviceOrientation orientation = TiDeviceOrientation.fromTiIntegerId(integerId);
+				if (orientation != null) {
+					switch (orientation) {
+						case PORTRAIT_UPRIGHT:
+							hasPortrait = true;
+							break;
+						case PORTRAIT_UPSIDE_DOWN:
+							hasPortraitReverse = true;
+							break;
+						case LANDSCAPE_RIGHT:
+							hasLandscape = true;
+							break;
+						case LANDSCAPE_LEFT:
+							hasLandscapeReverse = true;
+							break;
+						default:
+							Log.w(TAG, "'orientationMode' cannot be set to: " + orientation.toTiConstantName());
+							break;
+					}
+				} else {
+					Log.w(TAG, "'orientationMode' was given unknown value: " + integerId);
 				}
 			}
 

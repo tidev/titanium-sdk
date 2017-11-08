@@ -22,7 +22,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiOrientationHelper;
+import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -314,21 +314,28 @@ public abstract class TiWindowProxy extends TiViewProxy
 			// look through orientation modes and determine what has been set
 			for (int i = 0; i < orientationModes.length; i++)
 			{
-				if (orientationModes [i] == TiOrientationHelper.ORIENTATION_PORTRAIT)
-				{
-					hasPortrait = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_PORTRAIT_REVERSE)
-				{
-					hasPortraitReverse = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_LANDSCAPE)
-				{
-					hasLandscape = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_LANDSCAPE_REVERSE)
-				{
-					hasLandscapeReverse = true;
+				int integerId = orientationModes[i];
+				TiDeviceOrientation orientation = TiDeviceOrientation.fromTiIntegerId(integerId);
+				if (orientation != null) {
+					switch (orientation) {
+						case PORTRAIT_UPRIGHT:
+							hasPortrait = true;
+							break;
+						case PORTRAIT_UPSIDE_DOWN:
+							hasPortraitReverse = true;
+							break;
+						case LANDSCAPE_RIGHT:
+							hasLandscape = true;
+							break;
+						case LANDSCAPE_LEFT:
+							hasLandscapeReverse = true;
+							break;
+						default:
+							Log.w(TAG, "'orientationMode' cannot be set to: " + orientation.toTiConstantName());
+							break;
+					}
+				} else {
+					Log.w(TAG, "'orientationMode' was given unknown value: " + integerId);
 				}
 			}
 
@@ -475,7 +482,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method @Kroll.getProperty
 	public int getOrientation()
 	{
-		return TiOrientationHelper.getScreenTiOrientationMode();
+		return TiDeviceOrientation.fromDefaultDisplay().toTiIntegerId();
 	}
 
 	@Override

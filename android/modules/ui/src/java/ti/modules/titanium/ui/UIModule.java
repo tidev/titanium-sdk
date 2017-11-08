@@ -17,7 +17,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
-import org.appcelerator.titanium.util.TiOrientationHelper;
+import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
@@ -113,13 +113,13 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final String TEXT_VERTICAL_ALIGNMENT_CENTER = "middle";
 	@Kroll.constant public static final String TEXT_VERTICAL_ALIGNMENT_TOP = "top";
 
-	@Kroll.constant public static final int PORTRAIT = TiUIHelper.PORTRAIT;
-	@Kroll.constant public static final int UPSIDE_PORTRAIT = TiUIHelper.UPSIDE_PORTRAIT;
-	@Kroll.constant public static final int LANDSCAPE_LEFT = TiUIHelper.LANDSCAPE_LEFT;
-	@Kroll.constant public static final int LANDSCAPE_RIGHT = TiUIHelper.LANDSCAPE_RIGHT;
-	@Kroll.constant public static final int FACE_UP = TiUIHelper.FACE_UP;
-	@Kroll.constant public static final int FACE_DOWN = TiUIHelper.FACE_DOWN;
-	@Kroll.constant public static final int UNKNOWN = TiUIHelper.UNKNOWN;
+	@Kroll.constant public static final int PORTRAIT = TiDeviceOrientation.TiIntegerId.PORTRAIT_UPRIGHT;
+	@Kroll.constant public static final int UPSIDE_PORTRAIT = TiDeviceOrientation.TiIntegerId.PORTRAIT_UPSIDE_DOWN;
+	@Kroll.constant public static final int LANDSCAPE_LEFT = TiDeviceOrientation.TiIntegerId.LANDSCAPE_LEFT;
+	@Kroll.constant public static final int LANDSCAPE_RIGHT = TiDeviceOrientation.TiIntegerId.LANDSCAPE_RIGHT;
+	@Kroll.constant public static final int FACE_UP = TiDeviceOrientation.TiIntegerId.FACE_UP;
+	@Kroll.constant public static final int FACE_DOWN = TiDeviceOrientation.TiIntegerId.FACE_DOWN;
+	@Kroll.constant public static final int UNKNOWN = TiDeviceOrientation.TiIntegerId.UNKNOWN;
 
 	@Kroll.constant public static final int PICKER_TYPE_PLAIN = -1;
 	@Kroll.constant public static final int PICKER_TYPE_TIME = 0;
