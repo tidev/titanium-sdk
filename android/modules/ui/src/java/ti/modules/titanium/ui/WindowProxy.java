@@ -22,7 +22,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -64,7 +63,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private static final String TAG = "WindowProxy";
 	private static final String PROPERTY_POST_WINDOW_CREATED = "postWindowCreated";
 
-	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
+	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_WIDTH_HEIGHT = MSG_FIRST_ID + 102;
