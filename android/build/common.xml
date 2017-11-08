@@ -382,7 +382,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<generate.bindings dest="${kroll.v8.project.dir}/generated"/>
 	</target>
 
-	<target name="build.kroll.v8.so" depends="generate.kroll.v8.bindings">
+	<target name="build.kroll.v8.so" depends="generate.kroll.v8.bindings,copy.kroll.v8.jars">
 		<condition property="ndk.build.args" value="" else="-j8">
 			<os family="windows"/>
 		</condition>
@@ -414,7 +414,13 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<jar destfile="${kroll.common.dest}" basedir="${kroll.common.classes.dir}"/>
 	</target>
 
-	<target name="build.kroll.v8.jar" depends="build.kroll.common.jar">
+	<target name="copy.kroll.v8.jars">
+		<copy todir="${dist.dir}">
+			<fileset dir="${kroll.v8.project.dir}/lib" includes="**/*.jar"/>
+		</copy>
+	</target>
+
+	<target name="build.kroll.v8.jar" depends="build.kroll.common.jar,copy.kroll.v8.jars">
 		<property name="kroll.v8.classes.dir" location="${dist.classes.dir}/kroll-v8"/>
 		<mkdir dir="${kroll.v8.classes.dir}"/>
 		<javac srcdir="${kroll.v8.project.dir}/src/java" destdir="${kroll.v8.classes.dir}" debug="true"
@@ -422,6 +428,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<classpath refid="android"/>
 			<classpath>
 				<fileset file="${dist.dir}/kroll-common.jar"/>
+				<fileset file="${dist.dir}/java_websocket.jar"/>
 			</classpath>
 		</javac>
 

@@ -890,7 +890,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		let apiName = namespace.split('.'),
 			varName,
 			decl;
-		if (apiName === '') {
+		if (apiName[0] === '') {
 			varName = 'module';
 			namespace = moduleName;
 			apiName = moduleName;
