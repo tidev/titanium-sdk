@@ -910,8 +910,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// get the javac params
 	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '1024M');
-	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
-	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
+	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
+	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
