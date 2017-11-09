@@ -442,18 +442,18 @@ properties:
   - name: extendSafeArea
     summary: |
        Specifies whether the content (subviews) of the window  will render inside the safe-area or not. 
-       Only used in iOS 11 and later.
+       Only used in iOS 11.0 and later.
     description:  |
         If the value is `true`, the content (subviews) of the window will not respect the safe-area, meaning that the content 
         will fill the whole screen available for rendering. If the value is `false`, the content of the
-        window will be rendered inside the safe-area (including then status-bar, iPhone X home-indicator & iPhone X notch).
+        window will be rendered inside the safe-area.
         
         Read more about the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
 
-        Note: The default value is `true`, so content will extend the safe-are for backward compatibility. In Titanium SDK 7.0.0 
-        and later, this property will be `false` by default to automatically adjust the layout. This will be a breaking 
-        change for windows without a navigation-bar, as the status-bar is part of the safe-area, so subviews that are positioned 
-        relatively to the status-bar do not need to include the height of the status-bar (20px) in the margins anymore.
+        Note: The default value is `true`, so content will extend the safe-area for backward compatibility. 
+        Please note that status-bar, which have height (20pt), is outside safe-area. So any view added on window with 
+        this property 'true', will start rendering below to status-bar. In other words, subviews that are positioned 
+        relatively to the status-bar do not need to include the height of the status-bar (20pt) in the margins anymore.
     platforms: [iphone, ipad]
     type: Boolean
     default: true
