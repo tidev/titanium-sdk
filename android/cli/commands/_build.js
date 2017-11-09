@@ -60,6 +60,7 @@ function AndroidBuilder() {
 
 	this.dexAgent = false;
 
+	this.compileSdkVersion = this.packageJson.compileSDKVersion; // this should always be >= maxSupportedApiLevel
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
@@ -72,7 +73,7 @@ function AndroidBuilder() {
 
 	this.targets = [ 'emulator', 'device', 'dist-playstore' ];
 
-	this.validABIs = [ 'armeabi-v7a', 'x86' ];
+	this.validABIs = [ 'arm64-v8a', 'armeabi-v7a', 'x86' ];
 
 	this.uncompressedTypes = [
 		'jpg', 'jpeg', 'png', 'gif',
@@ -877,6 +878,12 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						order: 120,
 						required: true,
 						values: _t.targets
+					},
+					'sigalg': {
+						desc: __('the type of a digital signature algorithm. only used when overriding keystore signing algorithm'),
+						hint: __('signing'),
+						order: 170,
+						values: [ 'MD5withRSA', 'SHA1withRSA', 'SHA256withRSA' ]
 					}
 				}
 			};
@@ -903,8 +910,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// get the javac params
 	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '1024M');
-	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
-	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
+	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
+	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
@@ -1033,6 +1040,14 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			targetSDKMap[t.id.replace('android-', '')] = t;
 		}
 	}, this);
+
+	// check the Android SDK we require to build exists
+	this.androidCompileSDK = targetSDKMap[this.compileSdkVersion];
+	if (!this.androidCompileSDK) {
+		logger.error(__('Unable to find Android SDK API %s', this.compileSdkVersion));
+		logger.error(__('Android SDK API %s is required to build Android apps', this.compileSdkVersion) + '\n');
+		process.exit(1);
+	}
 
 	let tiappAndroidManifest;
 	try {
@@ -1475,7 +1490,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	return function (callback) {
-		this.validateTiModules('android', this.deployType, function (err, modules) {
+		this.validateTiModules('android', this.deployType, function validateTiModulesCallback(err, modules) {
 			this.modules = modules.found;
 
 			this.commonJsModules = [];
@@ -1605,6 +1620,58 @@ process.exit(1);
 			this.modulesManifestHash = this.hash(manifestHashes.length ? manifestHashes.sort().join(',') : '');
 			this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
 			this.modulesBindingsHash = this.hash(bindingsHashes.length ? bindingsHashes.sort().join(',') : '');
+
+			// check for any missing module dependencies
+			let unresolvedDependencies = [];
+			for (let module of this.nativeLibModules) {
+				const timoduleXmlFile = path.join(module.modulePath, 'timodule.xml'),
+					timodule = fs.existsSync(timoduleXmlFile) ? new tiappxml(timoduleXmlFile) : undefined;
+
+				if (timodule && Array.isArray(timodule.modules)) {
+					for (let dependency of timodule.modules) {
+						if (!dependency.platform || /^android$/.test(dependency.platform)) {
+
+							let missing = true;
+							for (let module of this.nativeLibModules) {
+								if (module.id === dependency.id) {
+									missing = false;
+									break;
+								}
+							}
+							if (missing) {
+								dependency.depended = module;
+
+								// attempt to include missing dependency
+								this.cli.tiapp.modules.push({
+									id: dependency.id,
+									version: dependency.version,
+									platform: [ 'android' ],
+									deployType: [ this.deployType ]
+								});
+
+								unresolvedDependencies.push(dependency);
+							}
+						}
+					}
+				}
+			}
+			if (unresolvedDependencies.length) {
+				/*
+				let msg = 'could not find required module dependencies:';
+		 		for (let dependency of unresolvedDependencies) {
+		 			msg += __('\n  id: %s  version: %s  platform: %s  required by %s',
+		 				dependency.id,
+		 				dependency.version ? dependency.version : 'latest',
+		 				dependency.platform ? dependency.platform : 'all',
+		 				dependency.depended.id);
+		 		}
+		 		logger.error(msg);
+		 		process.exit(1);
+		 		*/
+
+				// re-validate modules
+				return this.validateTiModules('android', this.deployType, validateTiModulesCallback.bind(this));
+			}
 
 			// check if we have any conflicting jars
 			const possibleConflicts = Object.keys(jarHashes).filter(function (jar) { return jarHashes[jar].length > 1; }); // eslint-disable-line max-statements-per-line
@@ -1787,6 +1854,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.keystore = argv.keystore;
 	this.keystoreStorePassword = argv['store-password'];
 	this.keystoreKeyPassword = argv['key-password'];
+	this.sigalg = argv['sigalg'];
 	if (!this.keystore) {
 		this.keystore = path.join(this.platformPath, 'dev_keystore');
 		this.keystoreStorePassword = 'tirocks';
@@ -2487,7 +2555,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			copyDir.call(this, {
 				src: src,
 				dest: this.buildBinAssetsResourcesDir,
-				ignoreRootDirs: ti.availablePlatformsNames
+				ignoreRootDirs: ti.allPlatformNames
 			}, cb);
 		},
 
@@ -3219,8 +3287,8 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 		return next();
 	}
 
-	if (!this.androidTargetSDK.aidl) {
-		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTargetSDK['api-level']));
+	if (!this.androidCompileSDK.aidl) {
+		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidCompileSDK['api-level']));
 		return next();
 	}
 
@@ -3256,7 +3324,7 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 
 			aidlHook(
 				this.androidInfo.sdk.executables.aidl,
-				[ '-p' + this.androidTargetSDK.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file ],
+				[ '-p' + this.androidCompileSDK.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file ],
 				{},
 				callback
 			);
@@ -3726,7 +3794,7 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-M', this.androidManifestFile,
 			'-A', this.buildBinAssetsDir,
 			'-S', this.buildResDir,
-			'-I', this.androidTargetSDK.androidJar,
+			'-I', this.androidCompileSDK.androidJar,
 			'-F', this.ap_File,
 			'--output-text-symbols', bundlesPath,
 			'--no-version-vectors'
@@ -3815,7 +3883,7 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
 		moduleJars = this.moduleJars = {},
 		jarNames = {};
 
-	classpath[this.androidTargetSDK.androidJar] = 1;
+	classpath[this.androidCompileSDK.androidJar] = 1;
 	Object.keys(this.jarLibraries).forEach(function (jarFile) {
 		classpath[jarFile] = 1;
 	});
@@ -4107,7 +4175,8 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		soRegExp = /\.so$/,
 		trailingSlashRegExp = /\/$/,
 		nativeLibs = {},
-		origConsoleError = console.error;
+		origConsoleError = console.error,
+		entryNames = [];
 
 	// since the archiver library didn't set max listeners, we squelch all error output
 	console.error = function () {};
@@ -4140,6 +4209,12 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 					&& !classRegExp.test(entry.name)
 					&& !trailingSlashRegExp.test(entry.entryName)
 				) {
+					// do not add duplicate entries
+					if (entryNames.indexOf(entry.entryName) > -1) {
+						this.logger.warn(__('Removing duplicate entry %s', entry.entryName.cyan));
+						return;
+					}
+
 					const store = this.uncompressedTypes.indexOf(entry.entryName.split('.').pop()) !== -1;
 
 					this.logger.debug(store
@@ -4150,6 +4225,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 						name: entry.entryName,
 						store: store
 					});
+					entryNames.push(entry.entryName);
 				}
 			}, this);
 		}, this);
@@ -4296,7 +4372,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 };
 
 AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
-	const sigalg = this.keystoreAlias.sigalg || 'MD5withRSA',
+	const sigalg = this.sigalg || this.keystoreAlias.sigalg || 'MD5withRSA',
 		signerArgs = [
 			'-sigalg', sigalg,
 			'-digestalg', 'SHA1',

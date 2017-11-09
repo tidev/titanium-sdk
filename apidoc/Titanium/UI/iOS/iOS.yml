@@ -43,6 +43,37 @@ methods:
     osver: {ios: {min: "9.1"}}
     
 properties:
+  - name: LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
+    summary: |
+        Automatically use the large out-of-line title based on the state of the p
+        revious item in the navigation bar.
+    description: |
+        Use with <Titanium.UI.Window.largeTitleDisplayMode>. An item with this 
+        constant will show or hide the large title based on the request of the 
+        previous navigation item. If the first item pushed is set to Automatic, 
+        then it will show the large title if the navigation bar has the property
+        <Titanium.UI.Window.largeTitleEnabled> set to `true`.
+    type: Number
+    since: "6.3.0"
+    osver: {ios: {min: "11.0"}}
+    permission: read-only 
+
+  - name: LARGE_TITLE_DISPLAY_MODE_ALWAYS
+    summary: Always use a larger title when this item is top most.
+    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
+    type: Number
+    since: "6.3.0"
+    osver: {ios: {min: "11.0"}}
+    permission: read-only
+    
+  - name: LARGE_TITLE_DISPLAY_MODE_NEVER
+    summary:  Never use a larger title when this item is top most.
+    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
+    type: Number
+    since: "6.3.0"
+    osver: {ios: {min: "11.0"}}
+    permission: read-only
+
   - name: LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
     summary: |
         Include treatments so this image can be shown directly over the content 

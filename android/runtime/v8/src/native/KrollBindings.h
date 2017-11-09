@@ -49,11 +49,66 @@ public:
 
 	static v8::Local<v8::String> getMainSource(v8::Isolate* isolate);
 
+	/**
+	 * Helper method to instantiate a native binding instance and stick it in our cache.
+	 *
+	 * @param isolate Current V8 Isolate
+	 * @param binding The native binding entry we looked up. May be empty, in
+	 *                which case we'll skip all the work and return an empty
+	 *                object reference.
+	 * @param key The "name" of the binding to use as the key in our cache.
+	 * @param cache The binding cache.
+	 */
+	static v8::Local<v8::Object> instantiateBinding(v8::Isolate* isolate, bindings::BindEntry* binding, v8::Local<v8::String> key, v8::Local<v8::Object> cache);
+
+	/**
+	 * The JS callback. Used when we call kroll.binding('name') in JS code.
+	 *
+	 * @param args Function arguments
+	 */
 	static void getBinding(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+	/**
+	 * Retrieve and instance a native binding by name/id.
+	 *
+	 * @param isolate Current V8 Isolate
+	 * @param binding The name/id of the native binding.
+	 * @return The instantiated binding as a JS object. Empty reference if unable to lookup binding.
+	 */
 	static v8::Local<v8::Object> getBinding(v8::Isolate* isolate, v8::Local<v8::String> binding);
 
+	/**
+	 * The JS callback. Used when we call kroll.externalBinding('name') in JS code.
+	 * This looks up 'external' bindings specifically (i.e. it won't look at the natives/titanium proxies)
+	 *
+	 * @param args Function arguments
+	 */
 	static void getExternalBinding(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+	/**
+	 * Grabs the external binding by name. Binding must have been added via
+	 * #addExternalBinding(char*, bindings::BindEntry)
+	 *
+	 * @param  name   Name/id of the external binding
+	 * @param  length Length of the character array/name
+	 * @return        The native binding registered. NULL if none found.
+	 */
+	static bindings::BindEntry* getExternalBinding(const char *name, unsigned int length);
+
+	/**
+	 * Used by native modules to register a binding by name/id.
+	 *
+	 * @param name    Name/id of the binding.
+	 * @param binding The entry used to instantiate/dispose of the binding.
+	 */
 	static void addExternalBinding(const char *name, bindings::BindEntry *binding);
+
+	/**
+	 * Used by native modules to register a function that can look up native
+	 * bindings. This can effectively register multiple bindings at once.
+	 *
+	 * @param lookup The LookupFunction used to retrieve bindings.
+	 */
 	static void addExternalLookup(LookupFunction lookup);
 
 	static void addExternalCommonJsModule(const char *name, jobject sourceProvider, jmethodID sourceRetrievalMethod);
