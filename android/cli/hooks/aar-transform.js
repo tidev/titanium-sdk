@@ -114,12 +114,12 @@ function scanProjectAndStartTransform(builder, logger, callback) {
  * @param {Function} callback Function to call once the transform is complete
  */
 function scanModuleAndStartTransform(builder, logger, callback) {
-	const moduleAndroidLibraries = [];
+	const moduleAndroidLibraries = builder.moduleAndroidLibraries || [];
 	fs.readdirSync(builder.projLibDir).forEach(function (file) {
 		if (/\.aar/.test(file)) {
 			moduleAndroidLibraries.push({
 				aarPathAndFilename: path.join(builder.projLibDir, file),
-				originType: LIBRARY_ORIGIN_PORJECT
+				originType: LIBRARY_ORIGIN_MODULE
 			});
 		}
 	});
@@ -194,7 +194,7 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 					return done(null, hash);
 				}
 
-				logger.trace('Skipping ' + aarPathAndFilename.cyan + ' because it is a duplicate of ' + libraryHashMap[hash].aarPathAndFilename.cyan);
+				logger.trace('Skipping ' + aarPathAndFilename.cyan + ' because it is a duplicate of ' + libraryHashMap[hash].packageName.cyan);
 				done(new SkipLibraryError());
 			},
 
@@ -264,7 +264,7 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 				function formatDupeInfo(dupeLibraryInfo) {
 					var infoString = dupeLibraryInfo.task.aarPathAndFilename + ' (hash: ' + dupeLibraryInfo.sha256;
 					if (dupeLibraryInfo.task.originType === LIBRARY_ORIGIN_MODULE) {
-						infoString += ', origin: Module ' + dupeLibraryInfo.task.moduleInfo.id;
+						infoString += ', origin: Module';
 					} else if (dupeLibraryInfo.task.originType === LIBRARY_ORIGIN_PORJECT) {
 						infoString += ', origin: Project';
 					}
