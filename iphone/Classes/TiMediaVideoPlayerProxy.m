@@ -205,6 +205,7 @@ NSArray *moviePlayerKeys = nil;
 - (void)setBackgroundView:(id)proxy
 {
   DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.backgroundView", @"7.0.0", @"7.0.0", @"Media.VideoPlayer.overlayView");
+  [self setOverlayView:proxy];
 }
 
 - (NSNumber *)playing
@@ -258,12 +259,12 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)setMediaControlStyle:(NSNumber *)value
 {
-  DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle", @"4.1.0", @"7.0.0", @"Media.VideoPlayer.scalingMode");
+  DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle", @"4.1.0", @"7.0.0", @"Media.VideoPlayer.showsControls");
 }
 
 - (NSNumber *)mediaControlStyle
 {
-  DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle", @"4.1.0", @"7.0.0", @"Media.VideoPlayer.scalingMode");
+  DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle", @"4.1.0", @"7.0.0", @"Media.VideoPlayer.showsControls");
   return NUMINT(0);
 }
 

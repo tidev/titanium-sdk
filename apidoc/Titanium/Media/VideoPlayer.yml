@@ -157,7 +157,6 @@ methods:
 
   - name: cancelAllThumbnailImageRequests
     deprecated:
-        platforms: [iphone, ipad]
         since: '7.0.0'
         notes: This method has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: '7.0.0'
@@ -610,7 +609,6 @@ properties:
 
   - name: fullscreen
     deprecated:
-        platforms: [iphone, ipad]
         since: '7.0.0'
         notes: This method has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: '7.0.0'
@@ -639,7 +637,6 @@ properties:
 
   - name: loadState
     deprecated:
-        platforms: [iphone, ipad]
         since: "7.0.0"
         notes: On iOS, use <Titanium.Media.VideoPlayer.moviePlayerStatus> instead.
     summary: Returns the network load state of the movie player.
@@ -654,9 +651,8 @@ properties:
 
   - name: mediaControlStyle
     deprecated:
-        platforms: [iphone, ipad]
         since: "7.0.0"
-        notes: On iOS, use <Titanium.Media.VideoPlayer.scalingMode> instead.
+        notes: On iOS, use <Titanium.Media.VideoPlayer.showsControls> instead.
     summary: The style of the playback controls.
     description: |
         Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and
@@ -768,7 +764,6 @@ properties:
 
   - name: repeatMode
     deprecated:
-        platforms: [iphone, ipad]
         since: '7.0.0'
         notes: This method has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: '7.0.0'
