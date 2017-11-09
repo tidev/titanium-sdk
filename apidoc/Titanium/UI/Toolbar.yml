@@ -149,6 +149,7 @@ properties:
     type: loadedDrawablesDictionary
     platforms: [android]
     since: 7.0.0
+    availability: creation
 
 methods:
   - name: collapseActionViews
