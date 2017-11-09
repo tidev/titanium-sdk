@@ -54,6 +54,7 @@ public class TiBorderWrapperView extends FrameLayout
 	{
 		getDrawingRect(bounds);
 
+
 		int maxPadding = (int) Math.min(bounds.right / 2, bounds.bottom / 2);
 		int padding = (int) Math.min(borderWidth, maxPadding);
 		RectF innerRect = new RectF(bounds.left + padding, bounds.top + padding, bounds.right - padding, bounds.bottom - padding);
@@ -66,6 +67,7 @@ public class TiBorderWrapperView extends FrameLayout
 
 		Path outerPath = new Path();
 		if (radius > 0f) {
+			//region create paths
 			float innerRadius = radius - padding;
 			if (innerRadius > 0f) {
 				outerPath.addRoundRect(innerRect, innerRadius, innerRadius, Direction.CW);
@@ -73,20 +75,31 @@ public class TiBorderWrapperView extends FrameLayout
 				outerPath.addRect(innerRect, Direction.CW);
 			}
 			Path innerPath = new Path(outerPath);
+			//endregion
 
-			// draw border
+			//region draw border
 			outerPath.addRoundRect(outerRect, radius, radius, Direction.CCW);
 			canvas.drawPath(outerPath, paint);
+			//endregion
 
+			//region draw inner path with background color
 			// TIMOB-16909: hack to fix anti-aliasing
 			if (backgroundColor != Color.TRANSPARENT) {
 				paint.setColor(backgroundColor);
 				canvas.drawPath(innerPath, paint);
 			}
+			//endregion
+
+			//region clip inner path
 			canvas.clipPath(innerPath);
+			//endregion
+
+			//region fill canvas with transparency
 			if (backgroundColor != Color.TRANSPARENT) {
-				canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+				canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 			}
+			//endregion
+
 		} else {
 			outerPath.addRect(outerRect, Direction.CW);
 			outerPath.addRect(innerRect, Direction.CCW);
