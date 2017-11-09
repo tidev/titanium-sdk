@@ -1678,7 +1678,11 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 		function generateModuleJar(cb) {
 			const moduleJarStream = fs.createWriteStream(this.moduleJarFile);
 			const moduleJarArchive = archiver('zip', {
-				store: true
+				options: {
+					zlib: {
+						level: 9
+					}
+				}
 			});
 			moduleJarStream.on('close', cb);
 			moduleJarArchive.on('error', cb);
