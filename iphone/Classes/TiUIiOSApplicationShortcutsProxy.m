@@ -209,8 +209,8 @@
     return [UIApplicationShortcutIcon iconWithTemplateImageName:[self urlInAssetCatalog:value]];
   }
 
-  NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: Invalid icon provided, defaulting to Ti.UI.iOS.SHORTCUT_ICON_TYPE_COMPOSE.");
-  return UIApplicationShortcutIconTypeCompose;
+  NSLog(@"[ERROR] Ti.UI.iOS.ApplicationShortcuts: Invalid icon provided, defaulting to use no icon.");
+  return nil;
 }
 
 - (NSString *)urlInAssetCatalog:(NSString *)url

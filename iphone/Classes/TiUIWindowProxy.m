@@ -372,6 +372,11 @@
   }
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+      [[[controller navigationController] navigationBar] setLargeTitleTextAttributes:theAttributes];
+    }
+#endif
     [[[controller navigationController] navigationBar] setTitleTextAttributes:theAttributes];
   }
 }
@@ -736,8 +741,7 @@
 #ifndef TI_USE_AUTOLAYOUT
       barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
 #endif
-      [TiUtils setView:oldView
-          positionRect:[TiUtils centerRect:barBounds inRect:barFrame]];
+      [oldView setBounds:barBounds];
       [oldView setAutoresizingMask:UIViewAutoresizingNone];
 
       //layout the titleControl children
@@ -799,6 +803,32 @@
   },
       [NSThread isMainThread]);
 }
+
+#if IS_XCODE_9
+- (void)setLargeTitleEnabled:(id)value
+{
+  ENSURE_UI_THREAD(setLargeTitleEnabled, value);
+  ENSURE_TYPE(value, NSNumber);
+
+  [self replaceValue:value forKey:@"largeTitleEnabled" notification:NO];
+
+  if (@available(iOS 11.0, *) && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+    [[[controller navigationController] navigationBar] setPrefersLargeTitles:[TiUtils boolValue:value def:NO]];
+  }
+}
+
+- (void)setLargeTitleDisplayMode:(id)value
+{
+  ENSURE_UI_THREAD(setLargeTitleDisplayMode, value);
+  ENSURE_TYPE(value, NSNumber);
+
+  [self replaceValue:value forKey:@"largeTitleDisplayMode" notification:NO];
+
+  if (@available(iOS 11.0, *) && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+    [[controller navigationItem] setLargeTitleDisplayMode:[TiUtils intValue:value def:UINavigationItemLargeTitleDisplayModeAutomatic]];
+  }
+}
+#endif
 
 - (void)setTitlePrompt:(NSString *)title_
 {
@@ -905,6 +935,8 @@
   SETPROP(@"titleAttributes", setTitleAttributes);
   SETPROP(@"title", setTitle);
   SETPROP(@"titlePrompt", setTitlePrompt);
+  SETPROP(@"largeTitleEnabled", setLargeTitleEnabled);
+  SETPROP(@"largeTitleDisplayMode", setLargeTitleDisplayMode);
   [self updateTitleView];
   SETPROP(@"barColor", setBarColor);
   SETPROP(@"navTintColor", setNavTintColor);
