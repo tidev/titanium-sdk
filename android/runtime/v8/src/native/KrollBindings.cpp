@@ -123,17 +123,30 @@ void KrollBindings::getExternalBinding(const FunctionCallbackInfo<Value>& args)
 	}
 
 	titanium::Utf8Value bindingValue(binding);
-	std::string key(*bindingValue);
-
-	struct bindings::BindEntry *externalBinding = externalBindings[key];
-
-	if (externalBinding) {
-		Local<Object> exports = Object::New(isolate);
-		Local<Context> context = isolate->GetCurrentContext();
-		externalBinding->bind(exports, context);
-		cache->Set(binding, exports);
+	int length = bindingValue.length();
+	struct bindings::BindEntry *externalBinding = KrollBindings::getExternalBinding(*bindingValue, length);
+	Local<Object> exports = KrollBindings::instantiateBinding(isolate, externalBinding, binding, cache);
+	if (!exports.IsEmpty()) {
 		args.GetReturnValue().Set(exports);
 	}
+}
+
+Local<Object> KrollBindings::instantiateBinding(Isolate* isolate, bindings::BindEntry* binding, Local<String> key, Local<Object> cache) {
+	if (binding) {
+		Local<Object> exports = Object::New(isolate);
+		Local<Context> context = isolate->GetCurrentContext();
+		binding->bind(exports, context);
+		cache->Set(key, exports);
+		return exports;
+	}
+
+	return Local<Object>();
+}
+
+bindings::BindEntry* KrollBindings::getExternalBinding(const char *name, unsigned int length)
+{
+	std::string key(name);
+	return externalBindings[key];
 }
 
 void KrollBindings::addExternalBinding(const char *name, struct bindings::BindEntry *binding)
@@ -162,37 +175,38 @@ Local<Object> KrollBindings::getBinding(v8::Isolate* isolate, Local<String> bind
 
 	titanium::Utf8Value bindingValue(binding);
 	int length = bindingValue.length();
-	// TODO Combine all this duplicated code here...
-	struct bindings::BindEntry *native = bindings::native::lookupBindingInit(*bindingValue, length);
-	if (native) {
-		Local<Object> exports = Object::New(isolate);
-		native->bind(exports, isolate->GetCurrentContext());
-		cache->Set(binding, exports);
 
+	Local<Object> exports;
+	// Try natives
+	exports = KrollBindings::instantiateBinding(isolate, bindings::native::lookupBindingInit(*bindingValue, length), binding, cache);
+	if (!exports.IsEmpty()) {
 		return exports;
 	}
 
-	struct bindings::BindEntry* generated = bindings::generated::lookupGeneratedInit(*bindingValue, length);
-	if (generated) {
-		Local<Object> exports = Object::New(isolate);
-		generated->bind(exports, isolate->GetCurrentContext());
-		cache->Set(binding, exports);
-
+	// Try generated proxies (Titanium APIs)
+	exports = KrollBindings::instantiateBinding(isolate, bindings::generated::lookupGeneratedInit(*bindingValue, length), binding, cache);
+	if (!exports.IsEmpty()) {
 		return exports;
 	}
 
+	// try native modules by lookup function
+	// This uses an array of functions we call to aks for a given binding
+	// Not sure why we have this *and* the external bindings in a map from name -> binding
 	for (int i = 0; i < KrollBindings::externalLookups.size(); i++) {
 		titanium::LookupFunction lookupFunction = KrollBindings::externalLookups[i];
 
 		struct bindings::BindEntry* external = (*lookupFunction)(*bindingValue, length);
 		if (external) {
-			Local<Object> exports = Object::New(isolate);
-			external->bind(exports, isolate->GetCurrentContext());
-			cache->Set(binding, exports);
+			exports = KrollBindings::instantiateBinding(isolate, external, binding, cache);
 			externalLookupBindings[*bindingValue] = external;
-
 			return exports;
 		}
+	}
+
+	// Try native modules by binding string
+	exports = KrollBindings::instantiateBinding(isolate, KrollBindings::getExternalBinding(*bindingValue, length), binding, cache);
+	if (!exports.IsEmpty()) {
+		return exports;
 	}
 
 	return Local<Object>();

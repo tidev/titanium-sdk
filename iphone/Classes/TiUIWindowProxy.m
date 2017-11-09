@@ -741,8 +741,7 @@
 #ifndef TI_USE_AUTOLAYOUT
       barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
 #endif
-      [TiUtils setView:oldView
-          positionRect:[TiUtils centerRect:barBounds inRect:barFrame]];
+      [oldView setBounds:barBounds];
       [oldView setAutoresizingMask:UIViewAutoresizingNone];
 
       //layout the titleControl children
