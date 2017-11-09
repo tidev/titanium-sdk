@@ -73,7 +73,6 @@ public class WebViewProxy extends ViewProxy
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
-		defaultValues.put(TiC.PROPERTY_BORDER_RADIUS, 0);
 		defaultValues.put(TiC.PROPERTY_DISABLE_CONTEXT_MENU, false);
 	}
 

@@ -1,32 +1,41 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 'use strict';
-
-var win = Ti.UI.createWindow({
-		backgroundColor: 'yellow'
-	}),
+var utilities,
+	win,
 	$results = [],
 	failed = false;
-win.open();
 
 require('./ti-mocha');
+// I *think* we need to load mocha first before utilities...
+utilities = require('./utilities/utilities');
+win = Ti.UI.createWindow({
+	backgroundColor: 'yellow'
+});
+win.open();
 
 // ============================================================================
 // Add the tests here using "require"
 // ES6 syntax/compatability tests
 require('./es6.arrows.test');
 require('./es6.default.args.test');
-require('./es6.rest.args.test');
+// The JSCore used in Windows doesnt support rest args yet,
+// avoid requiring it until it does otherwise it will crash
+if (!utilities.isWindows()) {
+	require('./es6.rest.args.test');
+}
 require('./es6.spread.args.test');
 require('./es6.string.interpolation.test');
 // Titanium APIs
 require('./ti.accelerometer.test');
+require('./ti.analytics.test');
 require('./ti.api.test');
 require('./ti.app.test');
+require('./ti.app.ios.searchquery.test');
 require('./ti.app.properties.test');
 require('./ti.app.windows.backgroundservice.test');
 require('./ti.blob.test');
@@ -48,7 +57,10 @@ require('./ti.map.test');
 require('./ti.media.audioplayer.test');
 require('./ti.media.sound.test');
 require('./ti.network.test');
+require('./ti.network.cookie.test');
 require('./ti.network.httpclient.test');
+require('./ti.network.socket.tcp.test');
+require('./ti.network.socket.udp.test');
 require('./ti.platform.test');
 require('./ti.platform.displaycaps.test');
 require('./ti.require.test');
@@ -74,6 +86,7 @@ require('./ti.ui.progressbar.test');
 require('./ti.ui.scrollableview.test');
 require('./ti.ui.scrollview.test');
 require('./ti.ui.searchbar.test');
+require('./ti.ui.slider.test');
 require('./ti.ui.switch.test');
 require('./ti.ui.tab.test');
 require('./ti.ui.tableview.test');
@@ -116,15 +129,37 @@ function $Reporter(runner) {
 
 	runner.on('test end', function (test) {
 		var tdiff = new Date().getTime() - started,
+			err = test.err,
 			result = {
 				state: test.state || 'skipped',
 				duration: tdiff,
 				suite: title,
 				title: test.title,
-				error: test.err // TODO Include the message property on Windows!
+				error: err,
+				message: ''
 			},
-			stringified = JSON.stringify(result);
+			message,
+			stack,
+			index,
+			msg,
+			stringified;
 
+		if (err) {
+			message = err.message || '';
+			stack = err.stack || message;
+			index = stack.indexOf(message) + message.length;
+			msg = stack.slice(0, index);
+			// uncaught
+			if (err.uncaught) {
+				msg = 'Uncaught ' + msg;
+			}
+			result.message = msg;
+			// indent stack trace without msg
+			stack = stack.slice(index ? index + 1 : index).replace(/^/gm, '  ');
+			result.stack = stack;
+		}
+
+		stringified = JSON.stringify(result);
 		stringified = stringified.replace(/\\n/g, '\\n')
 			.replace(/\\'/g, '\\\'')
 			.replace(/\\"/g, '\\"')
@@ -145,8 +180,18 @@ mocha.setup({
 	quiet: true
 });
 
+if (utilities.isWindows()) {
+	if (Ti.App.Windows.requestExtendedExecution) {
+		Ti.App.Windows.requestExtendedExecution();
+	}
+}
 // dump the output, which will get interpreted above in the logging code
 mocha.run(function () {
 	win.backgroundColor = failed ? 'red' : 'green';
 	Ti.API.info('!TEST_RESULTS_STOP!');
+	if (utilities.isWindows()) {
+		if (Ti.App.Windows.closeExtendedExecution) {
+			Ti.App.Windows.closeExtendedExecution();
+		}
+	}
 });
