@@ -1124,7 +1124,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				const initFunction = '::' + className + '::bindProxy';
 				const disposeFunction = '::' + className + '::dispose';
 
-				initTable.unshift('{' + ['\"' + proxy + '\"', initFunction, disposeFunction].join(', ').toString() + '}');
+				initTable.unshift('{' + [ '"' + proxy + '"', initFunction, disposeFunction ].join(', ').toString() + '}');
 
 			}, this);
 
