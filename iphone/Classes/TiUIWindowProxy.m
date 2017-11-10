@@ -813,9 +813,9 @@
       [NSThread isMainThread]);
 }
 
-#if IS_XCODE_9
 - (void)setLargeTitleEnabled:(id)value
 {
+#if IS_XCODE_9
   ENSURE_UI_THREAD(setLargeTitleEnabled, value);
   ENSURE_TYPE(value, NSNumber);
 
@@ -824,10 +824,12 @@
   if (@available(iOS 11.0, *) && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [[[controller navigationController] navigationBar] setPrefersLargeTitles:[TiUtils boolValue:value def:NO]];
   }
+#endif
 }
 
 - (void)setLargeTitleDisplayMode:(id)value
 {
+#if IS_XCODE_9
   ENSURE_UI_THREAD(setLargeTitleDisplayMode, value);
   ENSURE_TYPE(value, NSNumber);
 
@@ -836,8 +838,8 @@
   if (@available(iOS 11.0, *) && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [[controller navigationItem] setLargeTitleDisplayMode:[TiUtils intValue:value def:UINavigationItemLargeTitleDisplayModeAutomatic]];
   }
-}
 #endif
+}
 
 - (void)setTitlePrompt:(NSString *)title_
 {
