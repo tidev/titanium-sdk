@@ -193,7 +193,7 @@ timestamps {
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
 					dir('build') {
 						timeout(15) {
-							sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
+							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R12B} --android-sdk ${env.ANDROID_SDK}"
 						} // timeout
 						ansiColor('xterm') {
 							if (isPR) {
@@ -216,22 +216,19 @@ timestamps {
 					// Clean up and install only production dependencies
 					sh 'npm prune --production'
 
-					// Scan for NSP and RetireJS warnings
-					def scanFiles = []
-					sh 'npm install -g nsp'
-					def nspExitCode = sh(returnStatus: true, script: 'nsp check --output json 2> nsp.json')
-					if (nspExitCode != 0) {
-						scanFiles << [path: 'nsp.json']
-					}
+					// Scan for Dependency Check and RetireJS warnings
+					def scanFiles = [[path: 'dependency-check-report.xml']]
+					dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: false, includeHtmlReports: false, includeJsonReports: false, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
+					dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
 
 					sh 'npm install -g retire'
 					def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
-
 					if (retireExitCode != 0) {
 						scanFiles << [path: 'retire.json']
 					}
 
-					if (!scanFiles.isEmpty()) {
+					// Don't publish to threadfix except for master builds
+					if ('master'.equals(env.BRANCH_NAME) && !scanFiles.isEmpty()) {
 						step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
 					}
 
