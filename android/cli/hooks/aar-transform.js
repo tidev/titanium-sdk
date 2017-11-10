@@ -115,7 +115,7 @@ function scanProjectAndStartTransform(builder, logger, callback) {
  */
 function scanModuleAndStartTransform(builder, logger, callback) {
 	const moduleAndroidLibraries = builder.moduleAndroidLibraries || [];
-	fs.readdirSync(builder.projLibDir).forEach(function (file) {
+	fs.existsSync(builder.projLibDir) && fs.readdirSync(builder.projLibDir).forEach(function (file) {
 		if (/\.aar/.test(file)) {
 			moduleAndroidLibraries.push({
 				aarPathAndFilename: path.join(builder.projLibDir, file),
