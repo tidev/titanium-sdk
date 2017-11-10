@@ -705,17 +705,17 @@ properties:
     platforms: [iphone, ipad]
 
   - name: allowsSelectionDuringEditing
-    summary: Determines whether this list view rows can be selected while editing the table.
+    summary: Determines whether this list view items can be selected while editing the table.
     type: Boolean
     default: false
     since: "5.4.0"
     platforms: [iphone, ipad]
 
   - name: allowsMultipleSelectionDuringEditing
-    summary: Determines whether multiple rows of this list view can be selected at the same time while editing the table.
+    summary: Determines whether multiple items of this list view can be selected at the same time while editing the table.
     type: Boolean
-    default: true
-    since: "6.2.0"
+    default: false
+    since: "7.0.0"
     platforms: [iphone, ipad]
 
   - name: lazyLoadingEnabled
@@ -962,7 +962,7 @@ properties:
     default: true
 
   - name: separatorColor
-    summary: Separator line color between rows, as a color name or hex triplet.
+    summary: Separator line color between items, as a color name or hex triplet.
     description: |
         To make the line invisible, set this property to `transparent`, or the same value as the 
         [backgroundColor](Titanium.UI.ListView.backgroundColor) property. 
@@ -1123,8 +1123,8 @@ properties:
     platforms: [iphone, ipad]
     availability: creation
     
-  - name: selectedRows
-    summary: Returns the selected list view rows. 
+  - name: selectedItems
+    summary: Returns the selected list view items. 
     type: Array<ListItemEventType>
     since: "7.0.0"
     platforms: [iphone, ipad]
