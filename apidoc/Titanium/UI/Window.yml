@@ -441,19 +441,18 @@ properties:
 
   - name: extendSafeArea
     summary: |
-       Specifies whether the content (subviews) of the window  will render inside the safe-area or not. 
-       Only used in iOS 11.0 and later.
+        Specifies whether the content (subviews) of the window  will render inside the safe-area or not. 
+        Only used in iOS 11.0 and later.
     description:  |
-        If the value is `true`, the content (subviews) of the window will not respect the safe-area, meaning that the content 
-        will fill the whole screen available for rendering. If the value is `false`, the content of the
-        window will be rendered inside the safe-area.
-        
-        Read more about the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
+        If set `true` (the default), then the content of the window will be extended to fill the whole screen and 
+        under the system's UI elements (such as the top status-bar) and physical obstructions (such as the iPhone X 
+        rounded corners and top sensor housing). In this case, it is the app developer's responsibility to position 
+        views so that they're unobstructed.
 
-        Note: The default value is `true`, so content will extend the safe-area for backward compatibility. 
-        Please note that status-bar, which have height (20pt), is outside safe-area. So any view added on window with 
-        this property 'true', will start rendering below to status-bar. In other words, subviews that are positioned 
-        relatively to the status-bar do not need to include the height of the status-bar (20pt) in the margins anymore.
+        If set `false`, then the window's content will be laid out within the safe-area and its child views will be 
+        unobstructed. For example, you will not need to position a view below the top status-bar.
+
+        Read more about the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
     platforms: [iphone, ipad]
     type: Boolean
     default: true
