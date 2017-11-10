@@ -10,17 +10,6 @@ const path = require('path'),
 	copyAndModifyFile = utils.copyAndModifyFile,
 	globCopy = utils.globCopy;
 
-function readProperties(filepath) {
-	var contents = fs.readFileSync(filepath).toString().replace(/\r\n/g, '\n'),
-		regexp = /^([^=]+)\s*=\s*(.+)$/gm,
-		matches,
-		result = {};
-	while ((matches = regexp.exec(contents))) {
-		result[matches[1]] = matches[2];
-	}
-	return result;
-}
-
 /**
  * @param {Object} options options object
  * @param {String} options.androidSdk path to the Android SDK to build with
