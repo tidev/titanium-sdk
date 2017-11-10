@@ -129,15 +129,21 @@ properties:
     description: |
         On Android, this may be the UDID (unique device ID). For iOS, this
         is a unique identifier for this install of the application.
-
+        
         Previously on iOS this may have been a UDID, but access to
         this has been restricted by Apple. For more information, see
         [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
         documentation.
+        
+        To use a UUID across different applications of the same vendor,
+        use <Titanium.Platform.indentifierForVendor> instead. 
+
+        To use a UUID for tracking / advertising purposes, 
+        use <Titanium.Platform.identifierForAdvertising> instead.
     platforms: [android, iphone, ipad]
     type: String
     permission: read-only
-    
+
   - name: identifierForVendor
     summary: An alphanumeric string that uniquely identifies a device to the app’s vendor.
     description: |
@@ -164,10 +170,8 @@ properties:
         for example, after the device has been restarted but before the user has 
         unlocked the device.
     platforms: [iphone, ipad]
-    type: String
-    permission: read-only
     since: "7.0.0"
-    
+ 
   - name: isAdvertisingTrackingEnabled
     summary: A Boolean value that indicates whether the user has limited ad tracking.
     description: |

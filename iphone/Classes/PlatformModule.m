@@ -214,6 +214,23 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   return [TiUtils appIdentifier];
 }
 
+- (NSString *)identifierForVendor
+{
+  return [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+}
+
+#if defined(USE_TI_PLATFORMIDENTIFIERFORADVERTISING) || defined(USE_TI_PLATFORMGETIDENTIFIERFORADVERTISING)
+- (NSNumber *)isAdvertisingTrackingEnabled
+{
+  return NUMBOOL([[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled]);
+}
+
+- (NSString *)identifierForAdvertising
+{
+  return [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+}
+#endif
+
 - (id)id
 {
   return [TiUtils appIdentifier];
