@@ -520,43 +520,43 @@ DEFINE_EXCEPTIONS
 
 - (id)loadRemote:(NSURL *)url
 {
-    return [self loadRemote:url withRequestHeaders:nil];
+  return [self loadRemote:url withRequestHeaders:nil];
 }
 
-- (UIImage *)loadRemote:(NSURL *)url withRequestHeaders:(NSDictionary * _Nullable)requestHeaders
-{    
-    UIImage *image = [[self entryForKey:url] imageForSize:CGSizeZero];
-    
-    if (image != nil) {
-        return image;
-    }
-    
-    APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
-    [req setUrl:url];
-    [req setMethod:@"GET"];
-    
-    [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
+- (UIImage *)loadRemote:(NSURL *)url withRequestHeaders:(NSDictionary *_Nullable)requestHeaders
+{
+  UIImage *image = [[self entryForKey:url] imageForSize:CGSizeZero];
 
-    if (requestHeaders != nil) {
-        for (NSString *key in requestHeaders) {
-            [req addRequestHeader:key value:[requestHeaders valueForKey:key]];
-        }
+  if (image != nil) {
+    return image;
+  }
+
+  APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
+  [req setUrl:url];
+  [req setMethod:@"GET"];
+
+  [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
+
+  if (requestHeaders != nil) {
+    for (NSString *key in requestHeaders) {
+      [req addRequestHeader:key value:[requestHeaders valueForKey:key]];
     }
-    
-    [req setSynchronous:YES];
-    [[TiApp app] startNetwork];
-    [req send];
-    [[TiApp app] stopNetwork];
-    
-    if (req != nil && [[req response] error] == nil) {
-        NSData *data = [[req response] responseData];
-        UIImage *resultImage = [UIImage imageWithData:data];
-        ImageCacheEntry *result = [self setImage:resultImage forKey:url hires:NO];
-        [result setData:data];
-        return [result imageForSize:CGSizeZero];
-    }
-    
-    return nil;
+  }
+
+  [req setSynchronous:YES];
+  [[TiApp app] startNetwork];
+  [req send];
+  [[TiApp app] stopNetwork];
+
+  if (req != nil && [[req response] error] == nil) {
+    NSData *data = [[req response] responseData];
+    UIImage *resultImage = [UIImage imageWithData:data];
+    ImageCacheEntry *result = [self setImage:resultImage forKey:url hires:NO];
+    [result setData:data];
+    return [result imageForSize:CGSizeZero];
+  }
+
+  return nil;
 }
 
 - (UIImage *)loadImmediateImage:(NSURL *)url
@@ -600,44 +600,45 @@ DEFINE_EXCEPTIONS
 
 - (void)doImageLoader:(ImageLoaderRequest *)request
 {
-	NSURL *url = [request url];
-	
-	UIImage *image = [[self entryForKey:url] imageForSize:[request imageSize]];
-	if (image!=nil)
-	{
-		TiThreadPerformOnMainThread(^{[self notifyRequest:request imageCompleted:image];}, NO);
-		return;
-	}
-	
-	// we don't have it local or in the cache so we need to fetch it remotely
-	if (queue == nil)
-	{
-		queue = [[NSOperationQueue alloc] init];
-		[queue setMaxConcurrentOperationCount:4];
-	}
-	
-	NSDictionary *dict = [NSDictionary dictionaryWithObject:request forKey:@"request"];
-	NSDictionary *requestHeaders = [[request userInfo] objectForKey:@"requestHeaders"];
-	APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
-    
-	[req setDelegate:self];
-	[req setUrl:url];
-	[req setUserInfo:dict];
-	[req setMethod:@"GET"];
-	[req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
-    
-	if (requestHeaders) {
-		for (NSString *key in requestHeaders) {
-			[req addRequestHeader:key value:[requestHeaders valueForKey:key]];
-		}
-	}
+  NSURL *url = [request url];
 
-	[req setTimeout:20];
-	[req setTheQueue:queue];
-	[req send];
-	[request setRequest:req];
-	
-	[[TiApp app] startNetwork];
+  UIImage *image = [[self entryForKey:url] imageForSize:[request imageSize]];
+  if (image != nil) {
+    TiThreadPerformOnMainThread(^{
+      [self notifyRequest:request imageCompleted:image];
+    },
+        NO);
+    return;
+  }
+
+  // we don't have it local or in the cache so we need to fetch it remotely
+  if (queue == nil) {
+    queue = [[NSOperationQueue alloc] init];
+    [queue setMaxConcurrentOperationCount:4];
+  }
+
+  NSDictionary *dict = [NSDictionary dictionaryWithObject:request forKey:@"request"];
+  NSDictionary *requestHeaders = [[request userInfo] objectForKey:@"requestHeaders"];
+  APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
+
+  [req setDelegate:self];
+  [req setUrl:url];
+  [req setUserInfo:dict];
+  [req setMethod:@"GET"];
+  [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
+
+  if (requestHeaders) {
+    for (NSString *key in requestHeaders) {
+      [req addRequestHeader:key value:[requestHeaders valueForKey:key]];
+    }
+  }
+
+  [req setTimeout:20];
+  [req setTheQueue:queue];
+  [req send];
+  [request setRequest:req];
+
+  [[TiApp app] startNetwork];
 }
 
 - (ImageLoaderRequest *)loadImage:(NSURL *)url delegate:(NSObject<ImageLoaderDelegate> *)delegate userInfo:(NSDictionary *)userInfo

@@ -1924,34 +1924,33 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (UIImage *)loadBackgroundImage:(id)image forProxy:(TiProxy *)proxy
 {
-    UIImage* resultImage = nil;
-    if ([image isKindOfClass:[UIImage class]]) {
-        resultImage = image;
-    } else if ([image isKindOfClass:[NSString class]]) {
-        if ([image isEqualToString:@""]) {
-            return nil;
-        }
-        
-        NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
-        resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
-        if (resultImage == nil)
-        {
-            resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL withRequestHeaders:[proxy valueForKey:@"requestHeaders"]];
-        }
-        if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
-            // special case where we're asking for Default.png and it's in Bundle not path
-            resultImage = [UIImage imageNamed:image];
-        }
-        if((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp)) {
-            resultImage = [UIImageResize resizedImage:[resultImage size] 
-                                 interpolationQuality:kCGInterpolationNone 
-                                                image:resultImage 
-                                                hires:NO];
-        }
-    } else if ([image isKindOfClass:[TiBlob class]]) {
-        resultImage = [(TiBlob*)image image];
+  UIImage *resultImage = nil;
+  if ([image isKindOfClass:[UIImage class]]) {
+    resultImage = image;
+  } else if ([image isKindOfClass:[NSString class]]) {
+    if ([image isEqualToString:@""]) {
+      return nil;
     }
-    return resultImage;
+
+    NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
+    resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
+    if (resultImage == nil) {
+      resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL withRequestHeaders:[proxy valueForKey:@"requestHeaders"]];
+    }
+    if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
+      // special case where we're asking for Default.png and it's in Bundle not path
+      resultImage = [UIImage imageNamed:image];
+    }
+    if ((resultImage != nil) && ([resultImage imageOrientation] != UIImageOrientationUp)) {
+      resultImage = [UIImageResize resizedImage:[resultImage size]
+                           interpolationQuality:kCGInterpolationNone
+                                          image:resultImage
+                                          hires:NO];
+    }
+  } else if ([image isKindOfClass:[TiBlob class]]) {
+    resultImage = [(TiBlob *)image image];
+  }
+  return resultImage;
 }
 
 + (NSString *)messageFromError:(NSError *)error

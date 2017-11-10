@@ -195,7 +195,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
   NSNumber *hires = [self valueForKey:@"hires"];
   NSArray *requestHeaders = [self valueForKey:@"requestHeaders"];
-    
+
   if (hires) {
     [info setObject:hires forKey:@"hires"];
   }
