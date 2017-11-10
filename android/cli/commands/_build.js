@@ -2717,15 +2717,19 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							// Do no options if SDK < 6? Then it'll compile everything to es5 (Technically it was v8 3.9)
 							// For SDK 6+, it's 51
 							// For SDK 6.2+, it's 57
-							// For SDK 7+, it'll likely be 60
+							// For SDK 7+, it'll likely be 62
+							// FIXME: We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
+							const v8Version = this.packageJson.v8.version;
+							const stringVersionRegexp = /(\d+)\.(\d+)\.\d+\.\d+/;
+							const found = v8Version.match(stringVersionRegexp);
+							const chromeVersion = parseInt(found[0] + found[1]); // concat the first two numbers as string, then turn to int
+							this.logger.info(__('CHROME VERSION!!!!!!! %s', from.cyan, to.cyan));
 							const result = babel.transform(r.contents, {
 								filename: from,
 								presets: [
 									[ env, {
 										'targets': {
-											'chrome': 57, // This maps to v8 version for Android (i.e. v8 5.2)
-											// 'ios': '10.3' // this should be the min ios version we support when using jscore-framework
-											// otherwise I think we'd do no options so we'd compile down everything to es5 entirely for tijscore
+											'chrome': chromeVersion,
 										}
 									}]
 								]
