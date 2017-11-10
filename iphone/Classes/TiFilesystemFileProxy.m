@@ -406,9 +406,15 @@ FILENOOP(setHidden
   return [path pathExtension];
 }
 
-- (id)getParent:(id)args
+- (NSString *)getParent:(id)args
 {
+  DEPRECATED_REPLACED(@"Filesystem.File.getParent()", @"7.0.0", @"Filesystem.File.parent");
   return [path stringByDeletingLastPathComponent];
+}
+
+- (TiFilesystemFileProxy *)parent
+{
+  return [[[TiFilesystemFileProxy alloc] initWithFile:[path stringByDeletingLastPathComponent]] autorelease];
 }
 
 - (id)name

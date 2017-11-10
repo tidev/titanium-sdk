@@ -8,10 +8,6 @@
 
 #ifdef USE_TI_UIIOS
 
-#ifdef USE_TI_UIIOSADVIEW
-#import "TiUIiOSAdViewProxy.h"
-#endif
-
 #ifdef USE_TI_UIIOSALERTDIALOGSTYLE
 #import "TIUIiOSAlertDialogStyleProxy.h"
 #endif
@@ -157,13 +153,6 @@
 @property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_CROSS_DISSOLVE;
 
 @property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_PARTIAL_CURL;
-
-#ifdef USE_TI_UIIOSADVIEW
-- (id)createAdView:(id)args;
-
-@property (nonatomic, readonly) NSString *AD_SIZE_PORTRAIT;
-@property (nonatomic, readonly) NSString *AD_SIZE_LANDSCAPE;
-#endif
 
 #ifdef USE_TI_UIIOSBLURVIEW
 @property (nonatomic, readonly) NSNumber *BLUR_EFFECT_STYLE_EXTRA_LIGHT;
