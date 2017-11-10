@@ -11,12 +11,12 @@
 // invoked. it provides a clean separation between Kroll and an implementation
 //
 @interface KrollPropertyDelegate : NSObject {
-@private
-	id target;
-	SEL selector;
+  @private
+  id target;
+  SEL selector;
 }
--(id)initWithTarget:(id)target selector:(SEL)selector;
--(id)target;
--(SEL)selector;
+- (id)initWithTarget:(id)target selector:(SEL)selector;
+- (id)target;
+- (SEL)selector;
 
 @end

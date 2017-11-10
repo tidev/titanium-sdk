@@ -10,16 +10,14 @@
 
 #import "KrollBridge.h"
 
-
 @interface TiAppiOSBackgroundServiceProxy : TiProxy {
 
-@private
-	KrollBridge *bridge;
+  @private
+  KrollBridge *bridge;
 }
 
--(void)beginBackground;
--(void)endBackground;
-
+- (void)beginBackground;
+- (void)endBackground;
 
 @end
 

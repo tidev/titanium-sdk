@@ -3,24 +3,22 @@ name: Titanium.XML.Document
 summary: The DOM Document returned from <Titanium.XML.parseString>.
 description: |
     Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#i-Document) on
-    Android and iOS. Exposes the 
-    [DOM Level 3 API](http://www.w3.org/TR/DOM-Level-3-Core/core.html#i-Document) implementation on 
-    Mobile Web.
-    
+    Android and iOS.
+
     As of version 3.1, Android does not truly support DTDs.  A document with a DTD can be
     parsed, however it is not validated, its default attributes are not be automatically
     added into the DOM tree, and so on.
-    
+
     This has been reported as [Android Issue #7395](http://code.google.com/p/android/issues/detail?id=7395).
 extends: Titanium.XML.Node
 createable: false
 since: "0.9"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 properties:
 
   - name: doctype
     summary: An interface to the list of entities that are defined for the
-        document, such as via a Document Type Definition (DTD). 
+        document, such as via a Document Type Definition (DTD).
     description: |
         See note about Android and DTDs.
     type: Titanium.XML.DocumentType
@@ -213,11 +211,11 @@ methods:
         without altering or removing the source node from the original document.
     description: |
         This method creates a new copy of the source node, ready to be inserted into
-        this document.  The returned node has an [ownerDocument](Titanium.XML.Node.ownerDocument) 
-        property that points to this document, but its [parentNode](Titanium.XML.Node.parentNode) 
+        this document.  The returned node has an [ownerDocument](Titanium.XML.Node.ownerDocument)
+        property that points to this document, but its [parentNode](Titanium.XML.Node.parentNode)
         property is `null`, since it has not been inserted into the current document.
 
-        For more on node ownership, see [ownerDocument issues](http://www.w3.org/DOM/faq.html#ownerdoc) 
+        For more on node ownership, see [ownerDocument issues](http://www.w3.org/DOM/faq.html#ownerdoc)
         in the W3C DOM FAQ.
 
     returns:

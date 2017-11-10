@@ -20,86 +20,83 @@
 
 #pragma mark Method forwarding
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.SearchBar";
+  return @"Ti.UI.SearchBar";
 }
 
--(void)blur:(id)args
+- (void)blur:(id)args
 {
-	[self makeViewPerformSelector:@selector(blur:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+  [self makeViewPerformSelector:@selector(blur:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
--(void)focus:(id)args
+- (void)focus:(id)args
 {
-	[self makeViewPerformSelector:@selector(focus:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+  [self makeViewPerformSelector:@selector(focus:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 - (void)windowWillClose
 {
-    if([self viewInitialized])
-    {
-        [self makeViewPerformSelector:@selector(blur:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+  if ([self viewInitialized]) {
+    [self makeViewPerformSelector:@selector(blur:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+  }
+  [super windowWillClose];
+}
+
+- (void)setShowCancel:(id)value withObject:(id)object
+{
+  BOOL boolValue = [TiUtils boolValue:value];
+  BOOL animated = [TiUtils boolValue:@"animated" properties:object def:NO];
+  //TODO: Value checking and exception generation, if necessary.
+
+  [self replaceValue:value forKey:@"showCancel" notification:NO];
+  showsCancelButton = boolValue;
+
+  //ViewAttached gives a false negative when not attached to a window.
+  TiThreadPerformOnMainThread(^{
+    UISearchBar *search = [self searchBar];
+    [search setShowsCancelButton:showsCancelButton animated:animated];
+    [search sizeToFit];
+  },
+      NO);
+}
+
+- (void)setDelegate:(id<UISearchBarDelegate>)delegate
+{
+  [self makeViewPerformSelector:@selector(setDelegate:) withObject:delegate createIfNeeded:(delegate != nil) waitUntilDone:YES];
+}
+
+- (UISearchBar *)searchBar
+{
+  return [(TiUISearchBar *)[self view] searchBar];
+}
+
+- (void)setSearchBar:(UISearchBar *)searchBar
+{
+  // In UISearchController searchbar is readonly. We have to replace that search bar with existing search bar of proxy.
+  [(TiUISearchBar *)[self view] setSearchBar:searchBar];
+}
+
+- (void)ensureSearchBarHierarchy
+{
+  WARN_IF_BACKGROUND_THREAD;
+  if ([self viewAttached]) {
+    UISearchBar *searchBar = [self searchBar];
+    if ([searchBar superview] != view) {
+      [view addSubview:searchBar];
+      [searchBar setFrame:[view bounds]];
     }
-    [super windowWillClose];
+  }
 }
 
--(void)setShowCancel:(id)value withObject:(id)object
+- (NSMutableDictionary *)langConversionTable
 {
-	BOOL boolValue = [TiUtils boolValue:value];
-	BOOL animated = [TiUtils boolValue:@"animated" properties:object def:NO];
-	//TODO: Value checking and exception generation, if necessary.
-
-	[self replaceValue:value forKey:@"showCancel" notification:NO];
-	showsCancelButton = boolValue;
-
-	//ViewAttached gives a false negative when not attached to a window.
-	TiThreadPerformOnMainThread(^{
-		UISearchBar *search = [self searchBar];
-		[search setShowsCancelButton:showsCancelButton animated:animated];
-		[search sizeToFit];
-	}, NO);
+  return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"prompt", @"promptid", @"hintText", @"hinttextid", nil];
 }
 
-
--(void)setDelegate:(id<UISearchBarDelegate>)delegate
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    [self makeViewPerformSelector:@selector(setDelegate:) withObject:delegate createIfNeeded:(delegate!=nil) waitUntilDone:YES];
-}
-
--(UISearchBar*)searchBar
-{
-	return [(TiUISearchBar*)[self view] searchBar];
-}
-
--(void)setSearchBar:(UISearchBar *)searchBar
-{
-    // In UISearchController searchbar is readonly. We have to replace that search bar with existing search bar of proxy.
-    [(TiUISearchBar*)[self view] setSearchBar:searchBar];
-}
-
--(void)ensureSearchBarHierarchy
-{
-    WARN_IF_BACKGROUND_THREAD;
-    if ([self viewAttached]) {
-        UISearchBar* searchBar = [self searchBar];
-        if ([searchBar superview] != view) {
-            [view addSubview:searchBar];
-            [searchBar setFrame:[view bounds]];
-        }
-    }
-    
-}
-
-
--(NSMutableDictionary*)langConversionTable
-{
-    return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"prompt",@"promptid",@"hintText",@"hinttextid",nil];
-}
-
--(TiDimension)defaultAutoHeightBehavior:(id)unused
-{
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 
 USE_VIEW_FOR_CONTENT_HEIGHT

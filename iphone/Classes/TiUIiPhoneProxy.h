@@ -9,131 +9,131 @@
 #import "TiProxy.h"
 
 @interface TiUIiPhoneProxy : TiProxy {
-@private
+  @private
 #ifdef USE_TI_UIIPHONEANIMATIONSTYLE
-	TiProxy *animationStyle;
+  TiProxy *animationStyle;
 #endif
 #ifdef USE_TI_UIIPHONESTATUSBAR
-	TiProxy *statusBar;
+  TiProxy *statusBar;
 #endif
-#ifdef USE_TI_UIIPHONEROWANIMATIONSTYLE	
-	TiProxy *rowAnimationStyle;
+#ifdef USE_TI_UIIPHONEROWANIMATIONSTYLE
+  TiProxy *rowAnimationStyle;
 #endif
-#ifdef USE_TI_UIIPHONESYSTEMBUTTONSTYLE	
-	TiProxy *systemButtonStyle;
+#ifdef USE_TI_UIIPHONESYSTEMBUTTONSTYLE
+  TiProxy *systemButtonStyle;
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMBUTTON
-	TiProxy *systemButton;
+  TiProxy *systemButton;
 #endif
 #ifdef USE_TI_UIIPHONEPROGRESSBARSTYLE
-	TiProxy *progressBarStyle;
+  TiProxy *progressBarStyle;
 #endif
 #ifdef USE_TI_UIIPHONEACTIVITYINDICATORSTYLE
-	TiProxy *activityIndicatorStyle;
+  TiProxy *activityIndicatorStyle;
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMICON
-	TiProxy *systemIcon;
+  TiProxy *systemIcon;
 #endif
 #ifdef USE_TI_UIIPHONESCROLLINDICATORSTYLE
-	TiProxy *scrollIndicatorStyle;
+  TiProxy *scrollIndicatorStyle;
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSTYLE
-	TiProxy *tableViewStyle;
+  TiProxy *tableViewStyle;
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSEPARATORSTYLE
-	TiProxy *tableViewSeparatorStyle;
+  TiProxy *tableViewSeparatorStyle;
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSCROLLPOSITION
-	TiProxy *tableViewScrollPosition;
+  TiProxy *tableViewScrollPosition;
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
-	TiProxy *tableViewCellSelectionStyle;
+  TiProxy *tableViewCellSelectionStyle;
 #endif
 #ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
-	TiProxy *alertDialogStyle;
+  TiProxy *alertDialogStyle;
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSTYLE
-	TiProxy *listViewStyle;
+  TiProxy *listViewStyle;
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
-	TiProxy *listViewScrollPosition;
+  TiProxy *listViewScrollPosition;
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
-	TiProxy *listViewCellSelectionStyle;
+  TiProxy *listViewCellSelectionStyle;
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
-	TiProxy *listViewSeparatorStyle;
+  TiProxy *listViewSeparatorStyle;
 #endif
 }
 
 #ifdef USE_TI_UIIPHONEANIMATIONSTYLE
-	@property(nonatomic,readonly) TiProxy* AnimationStyle;
+@property (nonatomic, readonly) TiProxy *AnimationStyle;
 #endif
 #ifdef USE_TI_UIIPHONESTATUSBAR
-	@property(nonatomic,readonly) TiProxy* StatusBar;
+@property (nonatomic, readonly) TiProxy *StatusBar;
 #endif
 #ifdef USE_TI_UIIPHONEROWANIMATIONSTYLE
-@property(nonatomic,readonly) TiProxy* RowAnimationStyle;
+@property (nonatomic, readonly) TiProxy *RowAnimationStyle;
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMBUTTONSTYLE
-@property(nonatomic,readonly) TiProxy* SystemButtonStyle;
+@property (nonatomic, readonly) TiProxy *SystemButtonStyle;
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMBUTTON
-@property(nonatomic,readonly) TiProxy* SystemButton;
+@property (nonatomic, readonly) TiProxy *SystemButton;
 #endif
 #ifdef USE_TI_UIIPHONEPROGRESSBARSTYLE
-@property(nonatomic,readonly) TiProxy* ProgressBarStyle;
+@property (nonatomic, readonly) TiProxy *ProgressBarStyle;
 #endif
 #ifdef USE_TI_UIIPHONEACTIVITYINDICATORSTYLE
-@property(nonatomic,readonly) TiProxy* ActivityIndicatorStyle;
+@property (nonatomic, readonly) TiProxy *ActivityIndicatorStyle;
 #endif
 #ifdef USE_TI_UIIPHONESYSTEMICON
-@property(nonatomic,readonly) TiProxy* SystemIcon;
+@property (nonatomic, readonly) TiProxy *SystemIcon;
 #endif
 #ifdef USE_TI_UIIPHONESCROLLINDICATORSTYLE
-@property(nonatomic,readonly) TiProxy* ScrollIndicatorStyle;
+@property (nonatomic, readonly) TiProxy *ScrollIndicatorStyle;
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSTYLE
-@property(nonatomic,readonly) TiProxy* TableViewStyle;
+@property (nonatomic, readonly) TiProxy *TableViewStyle;
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSEPARATORSTYLE
-@property(nonatomic,readonly) TiProxy* TableViewSeparatorStyle;
+@property (nonatomic, readonly) TiProxy *TableViewSeparatorStyle;
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWSCROLLPOSITION
-@property(nonatomic,readonly) TiProxy* TableViewScrollPosition;
+@property (nonatomic, readonly) TiProxy *TableViewScrollPosition;
 #endif
 #ifdef USE_TI_UIIPHONETABLEVIEWCELLSELECTIONSTYLE
-@property(nonatomic,readonly) TiProxy* TableViewCellSelectionStyle;
+@property (nonatomic, readonly) TiProxy *TableViewCellSelectionStyle;
 #endif
 #ifdef USE_TI_UIIPHONEALERTDIALOGSTYLE
-@property(nonatomic, readonly) TiProxy *AlertDialogStyle;
+@property (nonatomic, readonly) TiProxy *AlertDialogStyle;
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSTYLE
-@property(nonatomic,readonly) TiProxy* ListViewStyle;
+@property (nonatomic, readonly) TiProxy *ListViewStyle;
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSCROLLPOSITION
-@property(nonatomic,readonly) TiProxy* ListViewScrollPosition;
+@property (nonatomic, readonly) TiProxy *ListViewScrollPosition;
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWCELLSELECTIONSTYLE
-@property(nonatomic,readonly) TiProxy* ListViewCellSelectionStyle;
+@property (nonatomic, readonly) TiProxy *ListViewCellSelectionStyle;
 #endif
 #ifdef USE_TI_UIIPHONELISTVIEWSEPARATORSTYLE
-@property(nonatomic,readonly) TiProxy* ListViewSeparatorStyle;
+@property (nonatomic, readonly) TiProxy *ListViewSeparatorStyle;
 #endif
 
-@property(nonatomic,readwrite,assign)	NSNumber *appBadge;
-@property(nonatomic,readwrite,assign)	NSNumber *appSupportsShakeToEdit;
+@property (nonatomic, readwrite, assign) NSNumber *appBadge;
+@property (nonatomic, readwrite, assign) NSNumber *appSupportsShakeToEdit;
 
-@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_COVER_VERTICAL;
-@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL;
-@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_CROSS_DISSOLVE;
+@property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_COVER_VERTICAL;
+@property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL;
+@property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_CROSS_DISSOLVE;
 
-@property(nonatomic,readonly) NSNumber *MODAL_TRANSITION_STYLE_PARTIAL_CURL;
+@property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_PARTIAL_CURL;
 
-@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_FULLSCREEN;
-@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
-@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
-@property(nonatomic,readonly) NSNumber *MODAL_PRESENTATION_CURRENT_CONTEXT;
+@property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FULLSCREEN;
+@property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
+@property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
+@property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_CURRENT_CONTEXT;
 
 @end
 

@@ -5,77 +5,95 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-
 #import <UIKit/UIKit.h>
 
 /**
  The class representing a font.
  */
 @interface WebFont : NSObject {
-	NSString* family;
-	CGFloat size;
-    BOOL isSemiboldWeight;
-	BOOL isBoldWeight;
-	BOOL isNormalWeight;
-    BOOL isItalicStyle;
-    BOOL isNormalStyle;
-	UIFont *font;
-    
-    NSString* textStyle;
+  NSString *family;
+  CGFloat size;
+  BOOL isSemiboldWeight;
+  BOOL isBoldWeight;
+  BOOL isThinWeight;
+  BOOL isLightWeight;
+  BOOL isUltraLightWeight;
+  BOOL isNormalWeight;
+  BOOL isItalicStyle;
+  BOOL isNormalStyle;
+
+  UIFont *font;
+
+  NSString *textStyle;
 }
 
 /**
  Provides access to the font family which is the official font name.
  @see http://developer.appcelerator.com/apidoc/mobile/latest/Font-object.html
  */
-@property(nonatomic,retain) NSString *family;
+@property (nonatomic, retain) NSString *family;
 
 /**
  Provides access to the font size.
  */
-@property(nonatomic) CGFloat size;
+@property (nonatomic) CGFloat size;
 
 /**
  Whether or not the font size is not set.
  @return _YES_ if the font size is not set, _NO_ otherwise.
  */
-@property(nonatomic,readonly) BOOL isSizeNotSet;
+@property (nonatomic, readonly) BOOL isSizeNotSet;
 
 /**
  Whether or not the font weight is bold.
  */
-@property(nonatomic) BOOL isBoldWeight;
+@property (nonatomic) BOOL isBoldWeight;
 
 /**
  Whether or not the font weight is normal.
  */
-@property(nonatomic) BOOL isNormalWeight;
+@property (nonatomic) BOOL isNormalWeight;
+
+/**
+ Whether or not the font weight is thin.
+ */
+@property (nonatomic) BOOL isThinWeight;
+
+/**
+ Whether or not the font weight is light.
+ */
+@property (nonatomic) BOOL isLightWeight;
+
+/**
+ Whether or not the font weight is ultra light.
+ */
+@property (nonatomic) BOOL isUltraLightWeight;
 
 /**
  Whether or not the font style is italic.
  */
-@property(nonatomic) BOOL isItalicStyle;
+@property (nonatomic) BOOL isItalicStyle;
 
 /**
  Whether or not the font style is normal.
  */
-@property(nonatomic) BOOL isNormalStyle;
+@property (nonatomic) BOOL isNormalStyle;
 
 /**
  Whether or not the font weight is semibold.
  */
-@property(nonatomic) BOOL isSemiboldWeight;
+@property (nonatomic) BOOL isSemiboldWeight;
 
 /**
  Provides access to the Text Style.
  */
-@property(nonatomic, readonly) NSString *textStyle;
+@property (nonatomic, readonly) NSString *textStyle;
 
 /**
  Returns underlying font object.
  @return The font
  */
--(UIFont*)font;
+- (UIFont *)font;
 
 /**
  Tells the font to update its parameters from dictionary.
@@ -83,33 +101,32 @@
  @param inheritedFont The font to inherit parameters from.
  @return _YES_ if the update operation succeeded, _NO_ otherwise.
  */
--(BOOL)updateWithDict:(NSDictionary *)fontDict inherits:(WebFont *)inheritedFont;
+- (BOOL)updateWithDict:(NSDictionary *)fontDict inherits:(WebFont *)inheritedFont;
 
 /**
  Indicates if the style specified by the string is a valid value for textStyle
- @param theStyle The String to check 
+ @param theStyle The String to check
  @return _YES_ is it is a valid value for textStyle, _NO_ otherwise
  */
--(BOOL)isValidTextStyle:(NSString*)theStyle;
+- (BOOL)isValidTextStyle:(NSString *)theStyle;
 
 /**
  Returns the default text font.
  @return The default font.
  */
-+(WebFont *)defaultFont;
++ (WebFont *)defaultFont;
 
 /**
  Returns the default bold font.
  @return The default bold font.
  */
-+(WebFont *)defaultBoldFont;
++ (WebFont *)defaultBoldFont;
 
 /**
  Returns the font by name.
  @param name The web font name.
  @return The web font.
  */
-+(WebFont *)fontWithName:(NSString*)name;
++ (WebFont *)fontWithName:(NSString *)name;
 
 @end
-

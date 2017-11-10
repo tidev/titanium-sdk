@@ -1,0 +1,167 @@
+---
+name: Titanium.UI.Android.DrawerLayout
+summary: A panel that displays the app's main navigation options on the left edge of the screen.
+description: |
+    DrawerLayout acts as a top-level container for window content that allows for interactive "drawer"
+    views to be pulled out from one or both vertical edges of the window.
+
+    As per the Android Design guide, any drawers positioned to the left/start should always contain
+    content for navigating around the application, whereas any drawers positioned to the right/end
+    should always contain actions to take on the current content.
+
+    For design guidelines, see
+    [Google Design Guidelines: DrawerLayout](https://developer.android.com/training/implementing-navigation/nav-drawer.html)
+extends: Titanium.UI.View
+since: "6.2.0"
+platforms: [android]
+
+properties:
+  - name: LOCK_MODE_LOCKED_CLOSED
+    summary: |
+        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the drawer is locked closed.
+    type: Number
+    permission: read-only
+
+  - name: LOCK_MODE_LOCKED_OPEN
+    summary: |
+        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the drawer is locked opened.
+    type: Number
+    permission: read-only
+
+  - name: LOCK_MODE_UNDEFINED
+    summary: |
+        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the drawer is reset to default lock state.
+    type: Number
+    permission: read-only
+
+  - name: LOCK_MODE_UNLOCKED
+    summary: |
+        Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the drawer is unlocked.
+    type: Number
+    permission: read-only
+
+  - name: isLeftOpen
+    summary: Determine whether the left drawer is open
+    type: Boolean
+    default: false
+
+  - name: isRightOpen
+    summary: Determine whether the right drawer is open
+    type: Boolean
+    default: false
+
+  - name: isLeftVisible
+    summary: Determine whether the left drawer is visible
+    type: Boolean
+    default: false
+
+  - name: isRightVisible
+    summary: Determine whether the right drawer is visible
+    type: Boolean
+    default: false
+
+  - name: leftWidth
+    summary: Get or set the width of the left drawer
+    type: Number
+
+  - name: rightWidth
+    summary: Get or set the width of the right drawer
+    type: Number
+
+  - name: leftView
+    summary: Get or set the view of the left drawer
+    type: Titanium.UI.View
+
+  - name: rightView
+    summary: Get or set the view of the right drawer
+    type: Titanium.UI.View
+
+  - name: centerView
+    summary: Get or set the center view
+    type: Titanium.UI.View
+
+  - name: drawerIndicatorEnabled
+    summary: Determine the drawer indicator status
+    type: Boolean
+    default: true
+
+  - name: drawerLockMode
+    summary: Get or set the drawerLockMode
+    type: Number
+    constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
+    default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
+
+  - name: toolbarEnabled
+    summary: Determine whether to enable the toolbar
+    type: Boolean
+    default: true
+
+methods:
+  - name: toggleLeft
+    summary: Toggle the visibility of the left view.
+
+  - name: openLeft
+    summary: Open the left view.
+
+  - name: closeLeft
+    summary: Close the left view.
+
+  - name: toggleRight
+    summary: Toggle the visibility of the right view.
+
+  - name: openRight
+    summary: Open the right view.
+
+  - name: closeRight
+    summary: Close the right view.
+
+  - name: interceptTouchEvent
+    summary: Disallow touch events on a specific view.
+    parameters:
+      - name: view
+        summary: View to intercept touch events.
+        type: Titanium.UI.View
+
+      - name: disallowIntercept
+        summary: Whether to disallow the interception of touch events.
+        type: Boolean
+
+examples:
+  - title: Simple DrawerLayout
+    example: |
+        The following code shows a simple drawer-layout usage.
+
+
+            var win = Ti.UI.createWindow();
+
+            var leftView = Ti.UI.createView({ backgroundColor:'red' });
+            var centerView = Ti.UI.createView({ backgroundColor:'yellow' });
+            var rightView = Ti.UI.createView({ backgroundColor:'orange' });
+
+            var drawer = Ti.UI.Android.createDrawerLayout({
+                leftView: leftView,
+                centerView: centerView,
+                rightView: rightView
+            });
+            var btn = Ti.UI.createButton({ title: 'RIGHT' });
+
+            btn.addEventListener('click', function() {
+                drawer.toggleRight();
+            });
+
+            centerView.add(btn);
+
+            win.addEventListener('open', function(){
+                var activity = win.getActivity(),
+                    actionBar = activity.getActionBar();
+
+                if (actionBar) {
+                    actionBar.displayHomeAsUp = true;
+                    actionBar.onHomeIconItemSelected = function() {
+                        drawer.toggleLeft();
+                    };
+                }
+            });
+
+            win.add(drawer);
+            win.open();

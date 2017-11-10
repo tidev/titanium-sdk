@@ -328,7 +328,7 @@ methods:
   - name: vibrate
     summary: Makes the device vibrate.
     description: |
-        On Android and Mobile Web, a `pattern` argument can be provided to specify a
+        On Android, a `pattern` argument can be provided to specify a
         vibration pattern.
 
         The `pattern` is an array of Number values.  Each number in the array is
@@ -340,14 +340,12 @@ methods:
 
         Would cause the vibration to start immediately (delay = 0), and perform three
         long vibrations (500 ms) separated by short pauses (100ms).
-
-        On Mobile Web, calling `vibrate` without a `pattern` will stop the vibration.
     parameters:
       - name: pattern
         summary: Array of values identifying a vibrate pattern (only used on Android).
         optional: true
         type: Array<Number>
-    platforms: [iphone, ipad, android, mobileweb]
+    platforms: [iphone, ipad, android]
 
   - name: requestAuthorization
     summary: Request the user's permission for audio recording.
@@ -407,7 +405,7 @@ methods:
         type: Boolean
     platforms: [android, iphone, ipad]
     since:
-        android: "6.2.0" 
+        android: "6.2.0"
         iphone: "6.1.0"
         ipad: "6.1.0"
 
@@ -447,7 +445,7 @@ methods:
         for more information.
     platforms: [android, iphone, ipad]
     since:
-        android: "6.2.0" 
+        android: "6.2.0"
         iphone: "6.1.0"
         ipad: "6.1.0"
     parameters:
@@ -1271,22 +1269,22 @@ properties:
     summary: Current media is playable.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_LOAD_STATE_PLAYTHROUGH_OK
     summary: Playback will be automatically started in this state when `autoplay` is true.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_LOAD_STATE_STALLED
     summary: Playback will be automatically paused in this state, if started.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_LOAD_STATE_UNKNOWN
     summary: Current load state is not known.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_MEDIA_TYPE_AUDIO
     summary: A audio type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
     type: Number
@@ -1311,12 +1309,12 @@ properties:
     summary: Video playback is paused.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_PLAYBACK_STATE_PLAYING
     summary: Video is being played.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD
     summary: Video playback is rewinding.
     type: Number
@@ -1331,17 +1329,19 @@ properties:
     summary: Video playback is stopped.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
   - name: VIDEO_REPEAT_MODE_NONE
     summary: Constant for disabling repeat on video playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
   - name: VIDEO_REPEAT_MODE_ONE
     summary: Constant for repeating one video (i.e., the one video will repeat constantly) during playback.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
   - name: VIDEO_SCALING_ASPECT_FILL
     summary: Scale video to fill the screen, clipping edges if necessary.
     description: |
@@ -1663,7 +1663,7 @@ properties:
     type: [MediaQueryInfoType, String]
   - name: isCompilation
     summary: |
-        Filter by whether or not the item is a compilation. 
+        Filter by whether or not the item is a compilation.
         The value should be a Boolean.
     type: [MediaQueryInfoType, Boolean]
   - name: playCount
@@ -1691,14 +1691,14 @@ properties:
     description: Available in Titanium SDK 6.1.0 and later.
     type: [MediaQueryInfoType, Number]
   - name: isCloudItem
-    summary: | 
-        Filter by whether or not the item is a cloud item. 
+    summary: |
+        Filter by whether or not the item is a cloud item.
         Value should be a Boolean.
     description: Available in Titanium SDK 6.1.0 and later.
     type: [MediaQueryInfoType, Boolean]
   - name: hasProtectedAsset
-    summary: | 
-        Filter by whether or not the item is a protected asset. 
+    summary: |
+        Filter by whether or not the item is a protected asset.
         Value should be a Boolean.
     description: Available in Titanium SDK 6.1.0 and later.
     type: [MediaQueryInfoType, Boolean]
@@ -1815,7 +1815,7 @@ properties:
     summary: Transformation matrix to apply to the camera or photogallery view.
     description: |
         Can be used to size and position the camera or photogallery view behind an overlay view.
-        iOS 10 note: There was a [known iOS 10 issue](http://openradar.appspot.com/28232651) caused by Apple 
+        iOS 10 note: There was a [known iOS 10 issue](http://openradar.appspot.com/28232651) caused by Apple
         that breaks the native camera transformation. Apple fixed this issue in the iOS 10.2 release.
     type: Titanium.UI.2DMatrix
     default: identity matrix
