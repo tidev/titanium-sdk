@@ -6,38 +6,36 @@
  */
 #import "ListenerEntry.h"
 
-
 @implementation ListenerEntry
 
 @synthesize type;
 
--(id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ proxy:(TiProxy*)proxy_
+- (id)initWithListener:(id)listener_ context:(id<TiEvaluator>)context_ proxy:(TiProxy *)proxy_
 {
-	if (self = [super init])
-	{
-		NSAssert(context_,@"context was nil");
-		listener = [listener_ retain];
-		context = context_;	// since the context is held by proxy, we don't need to hold
-		proxy = proxy_;	// this object is already held by proxy so don't hold twice
-	}
-	return self;
+  if (self = [super init]) {
+    NSAssert(context_, @"context was nil");
+    listener = [listener_ retain];
+    context = context_; // since the context is held by proxy, we don't need to hold
+    proxy = proxy_; // this object is already held by proxy so don't hold twice
+  }
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(listener);
-	RELEASE_TO_NIL(type);
-	[super dealloc];
+  RELEASE_TO_NIL(listener);
+  RELEASE_TO_NIL(type);
+  [super dealloc];
 }
 
--(id<TiEvaluator>)context
+- (id<TiEvaluator>)context
 {
-	return context;
+  return context;
 }
 
--(id)listener
+- (id)listener
 {
-	return listener;
+  return listener;
 }
 
 @end

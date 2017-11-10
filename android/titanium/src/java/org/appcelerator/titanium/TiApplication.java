@@ -112,7 +112,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
-	protected static TiWeakList<TiBaseActivity> activityStack = new TiWeakList<TiBaseActivity>();
+	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
 
 	public static interface ActivityTransitionListener
 	{
@@ -172,9 +172,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return null;
 	}
 
-	public static void addToActivityStack(TiBaseActivity activity)
+	public static void addToActivityStack(Activity activity)
 	{
-		activityStack.add(new WeakReference<TiBaseActivity>(activity));
+		activityStack.add(new WeakReference<Activity>(activity));
 	}
 
 	public static void removeFromActivityStack(Activity activity)
@@ -190,7 +190,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			return;
 		}
 
-		WeakReference<TiBaseActivity> activityRef;
+		WeakReference<Activity> activityRef;
 		Activity currentActivity;
 
 		for (int i = activityStack.size() - 1; i >= 0; i--) {
@@ -214,7 +214,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		if (activityStack == null || activityStack.size() == 0) {
 			return false;
 		}
-		for (WeakReference<TiBaseActivity> activityRef : activityStack) {
+		for (WeakReference<Activity> activityRef : activityStack) {
 			if (activityRef != null && activityRef.get() instanceof TiLaunchActivity) {
 				return true;
 			}
@@ -242,7 +242,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 * @return the current activity
 	 * @module.api
 	 */
-	public static TiBaseActivity getAppCurrentActivity()
+	public static Activity getAppCurrentActivity()
 	{
 		TiApplication tiApp = getInstance();
 		if (tiApp == null) {
@@ -272,12 +272,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 * @return the current activity if exists. Otherwise, the thread will wait for a valid activity to be visible.
 	 * @module.api
 	 */
-	public TiBaseActivity getCurrentActivity()
+	public Activity getCurrentActivity()
 	{
 		int activityStackSize;
 
 		while ((activityStackSize = activityStack.size()) > 0) {
-			TiBaseActivity activity = (activityStack.get(activityStackSize - 1)).get();
+			Activity activity = (activityStack.get(activityStackSize - 1)).get();
 
 			// Skip and remove any activities which are dead or in the process of finishing.
 			if (activity == null || activity.isFinishing()) {
@@ -318,24 +318,22 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	protected void loadBuildProperties()
 	{
-		buildVersion = "1.0";
-		buildTimestamp = "N/A";
-		buildHash = "N/A";
-		InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
-		if (versionStream != null) {
-			Properties properties = new Properties();
-			try {
-				properties.load(versionStream);
-				if (properties.containsKey("build.version")) {
-					buildVersion = properties.getProperty("build.version");
-				}
-				if (properties.containsKey("build.timestamp")) {
-					buildTimestamp = properties.getProperty("build.timestamp");
-				}
-				if (properties.containsKey("build.githash")) {
-					buildHash = properties.getProperty("build.githash");
-				}
-			} catch (IOException e) {}
+		// Initialize build property member variables.
+		this.buildVersion = "1.0";
+		this.buildTimestamp = "N/A";
+		this.buildHash = "N/A";
+
+		// Attempt to read the "build.properties" file.
+		final String FILE_NAME = "org/appcelerator/titanium/build.properties";
+		try (InputStream stream = getClass().getClassLoader().getResourceAsStream(FILE_NAME)) {
+			if (stream != null) {
+				Properties properties = new Properties();
+				properties.load(stream);
+				this.buildVersion = properties.getProperty("build.version", this.buildVersion);
+				this.buildTimestamp = properties.getProperty("build.timestamp", this.buildTimestamp);
+				this.buildHash = properties.getProperty("build.githash", this.buildHash);
+			}
+		} catch (Exception e) {
 		}
 	}
 

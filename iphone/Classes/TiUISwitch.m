@@ -12,162 +12,157 @@
 @implementation TiUISwitch
 
 #ifdef TI_USE_AUTOLAYOUT
--(void)initializeTiLayoutView
+- (void)initializeTiLayoutView
 {
-    [super initializeTiLayoutView];
-    [self setDefaultHeight:TiDimensionAutoSize];
-    [self setDefaultWidth:TiDimensionAutoSize];
+  [super initializeTiLayoutView];
+  [self setDefaultHeight:TiDimensionAutoSize];
+  [self setDefaultWidth:TiDimensionAutoSize];
 }
 #endif
 
--(void)dealloc
+- (void)dealloc
 {
-	[switchView removeTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
-	RELEASE_TO_NIL(switchView);
-	[super dealloc];
+  [switchView removeTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
+  RELEASE_TO_NIL(switchView);
+  [super dealloc];
 }
 
--(UISwitch*)switchView
+- (UISwitch *)switchView
 {
-	if (switchView==nil)
-	{
-		animated = YES;
-		firstInit = YES;
-		switchView = [[UISwitch alloc] init];
-		[switchView addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
-		[self addSubview:switchView];
-	}
-	return switchView;
+  if (switchView == nil) {
+    animated = YES;
+    firstInit = YES;
+    switchView = [[UISwitch alloc] init];
+    [switchView addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
+    [self addSubview:switchView];
+  }
+  return switchView;
 }
 
 - (id)accessibilityElement
 {
-	return [self switchView];
+  return [self switchView];
 }
 
--(BOOL)hasTouchableListener
+- (BOOL)hasTouchableListener
 {
-	// since this guy only works with touch events, we always want them
-	// just always return YES no matter what listeners we have registered
-	return YES;
+  // since this guy only works with touch events, we always want them
+  // just always return YES no matter what listeners we have registered
+  return YES;
 }
 
 #pragma mark View controller stuff
 
--(void)setTintColor_:(id)color
+- (void)setTintColor_:(id)color
 {
-    [[self proxy] replaceValue:color forKey:@"tintColor" notification:NO];
-    TiColor *ticolor = [TiUtils colorValue:color];
-    if (ticolor != nil) {
-        [[self switchView] setTintColor:[ticolor color]];
-    }
+  [[self proxy] replaceValue:color forKey:@"tintColor" notification:NO];
+  TiColor *ticolor = [TiUtils colorValue:color];
+  if (ticolor != nil) {
+    [[self switchView] setTintColor:[ticolor color]];
+  }
 }
 
--(void)setOnTintColor_:(id)color
+- (void)setOnTintColor_:(id)color
 {
-    [[self proxy] replaceValue:color forKey:@"onTintColor" notification:NO];
-    TiColor *ticolor = [TiUtils colorValue:color];
-    if (ticolor != nil) {
-        [[self switchView] setOnTintColor:[ticolor color]];
-    }
+  [[self proxy] replaceValue:color forKey:@"onTintColor" notification:NO];
+  TiColor *ticolor = [TiUtils colorValue:color];
+  if (ticolor != nil) {
+    [[self switchView] setOnTintColor:[ticolor color]];
+  }
 }
 
--(void)setThumbTintColor_:(id)color
+- (void)setThumbTintColor_:(id)color
 {
-    [[self proxy] replaceValue:color forKey:@"thumbTintColor" notification:NO];
-    TiColor *ticolor = [TiUtils colorValue:color];
-    if (ticolor != nil) {
-        [[self switchView] setThumbTintColor:[ticolor color]];
-    }
+  [[self proxy] replaceValue:color forKey:@"thumbTintColor" notification:NO];
+  TiColor *ticolor = [TiUtils colorValue:color];
+  if (ticolor != nil) {
+    [[self switchView] setThumbTintColor:[ticolor color]];
+  }
 }
 
-
--(void)setEnabled_:(id)value
+- (void)setEnabled_:(id)value
 {
-	[[self switchView] setEnabled:[TiUtils boolValue:value]];
+  [[self switchView] setEnabled:[TiUtils boolValue:value]];
 }
 
--(void)setAnimated_:(id)value
+- (void)setAnimated_:(id)value
 {
-	ENSURE_SINGLE_ARG(value, NSNumber)
-	animated = [TiUtils boolValue:value];
+  ENSURE_SINGLE_ARG(value, NSNumber)
+  animated = [TiUtils boolValue:value];
 }
 
--(void)setValue_:(id)value
+- (void)setValue_:(id)value
 {
-	// need to check if we're in a reproxy when this is set
-	// so we don't artifically trigger a change event or 
-	// animate the change -- this happens on the tableview
-	// reproxy as we scroll
-	BOOL reproxying = [self.proxy inReproxy];
-	BOOL newValue = [TiUtils boolValue:value];
-	BOOL newAnimated;
-	if (firstInit || reproxying) {
-		newAnimated = NO;
-		firstInit = NO;
-	}
-	else {
-		newAnimated = animated;
-	}
-	UISwitch * ourSwitch = [self switchView];
-    if ([ourSwitch isOn] == newValue) {
-        return;
-    }
-	[ourSwitch setOn:newValue animated:newAnimated];
+  // need to check if we're in a reproxy when this is set
+  // so we don't artifically trigger a change event or
+  // animate the change -- this happens on the tableview
+  // reproxy as we scroll
+  BOOL reproxying = [self.proxy inReproxy];
+  BOOL newValue = [TiUtils boolValue:value];
+  BOOL newAnimated;
+  if (firstInit || reproxying) {
+    newAnimated = NO;
+    firstInit = NO;
+  } else {
+    newAnimated = animated;
+  }
+  UISwitch *ourSwitch = [self switchView];
+  if ([ourSwitch isOn] == newValue) {
+    return;
+  }
+  [ourSwitch setOn:newValue animated:newAnimated];
 
-	// Don't rely on switchChanged: - isOn can report erroneous values immediately after the value is changed!  
-	// This only seems to happen in 4.2+ - could be an Apple bug.
-	if ((reproxying == NO) && configurationSet && [self.proxy _hasListeners:@"change"])
-	{
-		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"]];
-	}
+  // Don't rely on switchChanged: - isOn can report erroneous values immediately after the value is changed!
+  // This only seems to happen in 4.2+ - could be an Apple bug.
+  if ((reproxying == NO) && configurationSet && [self.proxy _hasListeners:@"change"]) {
+    [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"]];
+  }
 }
 
--(NSNumber*)value
+- (NSNumber *)value
 {
-	return NUMBOOL([[self switchView] isOn]);
+  return NUMBOOL([[self switchView] isOn]);
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[super frameSizeChanged:frame bounds:bounds];
-	[self setCenter:[self center]];
+  [super frameSizeChanged:frame bounds:bounds];
+  [self setCenter:[self center]];
 }
 
--(void)setCenter:(CGPoint)center
+- (void)setCenter:(CGPoint)center
 {
-	CGSize ourSize = [self bounds].size;
-	CGPoint ourAnchor = [[self layer] anchorPoint];
-	CGFloat originx = center.x - (ourSize.width * ourAnchor.x);
-	CGFloat originy = center.y - (ourSize.height * ourAnchor.y);
-	
-	center.x -= originx - floorf(originx);
-	center.y -= originy	- floorf(originy);
-	
-	[super setCenter:center];
+  CGSize ourSize = [self bounds].size;
+  CGPoint ourAnchor = [[self layer] anchorPoint];
+  CGFloat originx = center.x - (ourSize.width * ourAnchor.x);
+  CGFloat originy = center.y - (ourSize.height * ourAnchor.y);
+
+  center.x -= originx - floorf(originx);
+  center.y -= originy - floorf(originy);
+
+  [super setCenter:center];
 }
 
 - (IBAction)switchChanged:(id)sender
 {
-	NSNumber * newValue = [NSNumber numberWithBool:[(UISwitch *)sender isOn]];
-	id current = [self.proxy valueForUndefinedKey:@"value"];
-    [self.proxy replaceValue:newValue forKey:@"value" notification:NO];
-	
-	//No need to setValue, because it's already been set.
-	if ([self.proxy _hasListeners:@"change"] && (current != newValue) && ![current isEqual:newValue])
-	{
-		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
-	}
+  NSNumber *newValue = [NSNumber numberWithBool:[(UISwitch *)sender isOn]];
+  id current = [self.proxy valueForUndefinedKey:@"value"];
+  [self.proxy replaceValue:newValue forKey:@"value" notification:NO];
+
+  //No need to setValue, because it's already been set.
+  if ([self.proxy _hasListeners:@"change"] && (current != newValue) && ![current isEqual:newValue]) {
+    [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+  }
 }
 
--(CGFloat)verifyWidth:(CGFloat)suggestedWidth
+- (CGFloat)verifyWidth:(CGFloat)suggestedWidth
 {
-	return [[self switchView] sizeThatFits:CGSizeZero].width;
+  return [[self switchView] sizeThatFits:CGSizeZero].width;
 }
 
--(CGFloat)verifyHeight:(CGFloat)suggestedHeight
+- (CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {
-	return [[self switchView] sizeThatFits:CGSizeZero].height;
+  return [[self switchView] sizeThatFits:CGSizeZero].height;
 }
 
 USE_PROXY_FOR_VERIFY_AUTORESIZING

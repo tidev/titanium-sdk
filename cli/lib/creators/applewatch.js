@@ -3,7 +3,7 @@
  * Logic for creating new Apple Watch™ apps.
  *
  * @copyright
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2017 by Appcelerator, Inc. All Rights Reserved.
  *
  * Apple, iPhone, and iPad are registered trademarks of Apple Inc. Apple Watch
  * is a trademark of Apple Inc.
@@ -13,7 +13,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var appc = require('node-appc'),
+'use strict';
+
+const appc = require('node-appc'),
 	Creator = require('../creator'),
 	DOMParser = require('xmldom').DOMParser,
 	fields = require('fields'),
@@ -43,7 +45,7 @@ module.exports = AppleWatchCreator;
  * @param {Object} config - The CLI config
  * @param {Object} cli - The CLI instance
  */
-function AppleWatchCreator(logger, config, cli) {
+function AppleWatchCreator(logger, config, cli) { // eslint-disable-line no-unused-vars
 	Creator.apply(this, arguments);
 
 	this.title = __('Apple Watch™ App');
@@ -55,6 +57,7 @@ util.inherits(AppleWatchCreator, Creator);
 
 /**
  * Initializes the Apple Watch™ app creator.
+ * @return {object}
  */
 AppleWatchCreator.prototype.init = function init() {
 	if (process.platform !== 'darwin') {
@@ -78,8 +81,7 @@ AppleWatchCreator.prototype.init = function init() {
  * @returns {Object}
  */
 AppleWatchCreator.prototype.configOptionProjectDir = function configOptionProjectDir(order) {
-	var cli = this.cli,
-		config = this.config,
+	var config = this.config,
 		logger = this.logger;
 
 	function validate(projectDir, callback) {
@@ -113,7 +115,7 @@ AppleWatchCreator.prototype.configOptionProjectDir = function configOptionProjec
 			if (projectDir === '') {
 				// no option value was specified
 				// set project dir to current directory
-				projectDir = conf.options['project-dir'].default;
+				projectDir = config.options['project-dir'].default;
 			}
 
 			projectDir = appc.fs.resolvePath(projectDir);
@@ -145,7 +147,7 @@ AppleWatchCreator.prototype.configOptionProjectDir = function configOptionProjec
 				promptLabel: __('Where is the __project directory__?'),
 				complete: true,
 				showHidden: true,
-				ignoreDirs: new RegExp(config.get('cli.ignoreDirs')),
+				ignoreDirs: new RegExp(config.get('cli.ignoreDirs')), // eslint-disable-line security/detect-non-literal-regexp
 				ignoreFiles: /.*/,
 				validate: validate
 			}));
@@ -173,7 +175,7 @@ AppleWatchCreator.prototype.configOptionAppName = function configOptionAppName(o
 			return callback(true);
 		}
 
-		var dest = path.join(cli.argv['project-dir'], 'extensions', name);
+		const dest = path.join(cli.argv['project-dir'], 'extensions', name);
 		if (!cli.argv.force && fs.existsSync(dest)) {
 			logger.error(__('Watch app already exists: %s', dest));
 			return callback(true);
@@ -182,22 +184,20 @@ AppleWatchCreator.prototype.configOptionAppName = function configOptionAppName(o
 		callback(null, name);
 	}
 
-	var conf = {
+	return {
 		abbr: 'n',
 		desc: __('the name of the watch app'),
 		order: order,
 		prompt: function (callback) {
 			callback(fields.text({
 				promptLabel: __('Watch app name'),
-				default: conf.default,
+				default: config.default,
 				validate: validate
 			}));
 		},
 		required: true,
 		validate: validate
 	};
-
-	return conf;
 };
 
 /**
@@ -214,7 +214,7 @@ AppleWatchCreator.prototype.run = function run(callback) {
 			return callback(err);
 		}
 
-		var projectDir = this.cli.argv['project-dir'],
+		const projectDir = this.cli.argv['project-dir'],
 			extName = this.cli.argv.name,
 			dest = path.join(projectDir, 'extensions', extName),
 			watchkitExtName = extName + ' WatchKit Extension',
@@ -229,7 +229,7 @@ AppleWatchCreator.prototype.run = function run(callback) {
 			// add the extension to the tiapp.xml
 			var tiappFile = path.join(projectDir, 'tiapp.xml'),
 				projectPath = 'extensions/' + extName + '/' + extName + '.xcodeproj',
-				dom = (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(tiappFile).toString(), 'text/xml')),
+				dom = (new DOMParser({ errorHandler: function () {} }).parseFromString(fs.readFileSync(tiappFile).toString(), 'text/xml')),
 				doc = dom.documentElement,
 				useSpaces,
 				iosNode,
@@ -239,7 +239,7 @@ AppleWatchCreator.prototype.run = function run(callback) {
 				child;
 
 			function whitespace(indent) {
-				return dom.createTextNode('\r\n' + new Array(indent+1).join(useSpaces ? '  ' : '\t'));
+				return dom.createTextNode('\r\n' + new Array(indent + 1).join(useSpaces ? '  ' : '\t'));
 			}
 
 			// check if we should use spaces or tabs
@@ -272,7 +272,7 @@ AppleWatchCreator.prototype.run = function run(callback) {
 			if (!teamIdNode) {
 				teamIdNode = dom.createElement('team-id');
 				teamIdNode.appendChild(dom.createTextNode(''));
-				var first = iosNode.firstChild;
+				const first = iosNode.firstChild;
 				if (first) {
 					iosNode.insertBefore(whitespace(2), first);
 					iosNode.insertBefore(teamIdNode, first);
@@ -350,7 +350,7 @@ AppleWatchCreator.prototype.run = function run(callback) {
 			watchkitAppId: watchkitAppId,
 			author: this.tiapp.publisher || '',
 			date: moment().format('l'),
-			copyright: this.tiapp.copyright ? (this.tiapp.copyright + (/\.$/.test(this.tiapp.copyright) ? '' : '.')) : ('Copyright © ' + (new Date).getFullYear() + '.')
+			copyright: this.tiapp.copyright ? (this.tiapp.copyright + (/\.$/.test(this.tiapp.copyright) ? '' : '.')) : ('Copyright © ' + (new Date()).getFullYear() + '.')
 		});
 	}.bind(this));
 };

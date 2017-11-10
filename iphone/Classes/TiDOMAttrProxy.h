@@ -6,24 +6,24 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TiDOMNodeProxy.h"
 #import "GDataXMLNode.h"
+#import "TiDOMNodeProxy.h"
 
 @interface TiDOMAttrProxy : TiDOMNodeProxy {
-@private
-	NSString *name;
-	NSString *value;
-    BOOL isSpecified;
-	GDataXMLElement *owner;
+  @private
+  NSString *name;
+  NSString *value;
+  BOOL isSpecified;
+  GDataXMLElement *owner;
 }
 
-@property(nonatomic,readonly) id name;
-@property(nonatomic,copy,readwrite) id value;
-@property(nonatomic,readonly) id ownerElement;
-@property(nonatomic,readonly) id specified;
+@property (nonatomic, readonly) id name;
+@property (nonatomic, copy, readwrite) id value;
+@property (nonatomic, readonly) id ownerElement;
+@property (nonatomic, readonly) id specified;
 
--(void)setAttribute:(NSString*)name value:(NSString*)value owner:(GDataXMLElement*)owner;
--(void)setIsSpecified:(BOOL)isSpecified_;
+- (void)setAttribute:(NSString *)name value:(NSString *)value owner:(GDataXMLElement *)owner;
+- (void)setIsSpecified:(BOOL)isSpecified_;
 
 @end
 

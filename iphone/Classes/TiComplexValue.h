@@ -13,8 +13,8 @@
  container like this.
  */
 @interface TiComplexValue : NSObject {
-	id value;
-	NSDictionary *properties;
+  id value;
+  NSDictionary *properties;
 }
 
 /**
@@ -22,16 +22,16 @@
  @param value The value to set.
  @param properties The additional properties.
  */
--(id)initWithValue:(id)value properties:(NSDictionary*)properties;
+- (id)initWithValue:(id)value properties:(NSDictionary *)properties;
 
 /**
  Returns the underlying value.
  */
-@property(nonatomic,readonly) id value;
+@property (nonatomic, readonly) id value;
 
 /**
  Returns the associated properties dictionary.
  */
-@property(nonatomic,readonly) NSDictionary *properties;
+@property (nonatomic, readonly) NSDictionary *properties;
 
 @end
