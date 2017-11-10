@@ -193,7 +193,7 @@ timestamps {
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions!
 					dir('build') {
 						timeout(15) {
-							sh 'node scons.js build --android-ndk /opt/android-ndk-r11c --android-sdk /opt/android-sdk'
+							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R12B} --android-sdk ${env.ANDROID_SDK}"
 						} // timeout
 						ansiColor('xterm') {
 							if (isPR) {
@@ -212,28 +212,31 @@ timestamps {
 					stash includes: 'tests/', name: 'override-tests'
 				} // end 'Build' stage
 
-				stage('Security') {
-					// Clean up and install only production dependencies
-					sh 'npm prune --production'
+				if (isMainlineBranch) {
+					stage('Security') {
+						// Clean up and install only production dependencies
+						sh 'npm prune --production'
 
-					// Scan for Dependency Check and RetireJS warnings
-					def scanFiles = [[path: 'dependency-check-report.xml']]
-					dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: false, includeHtmlReports: false, includeJsonReports: false, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
-					dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
+						// Scan for Dependency Check and RetireJS warnings
+						def scanFiles = [[path: 'dependency-check-report.xml']]
+						dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: false, includeHtmlReports: false, includeJsonReports: false, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
+						dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
 
-					sh 'npm install -g retire'
-					def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
-					if (retireExitCode != 0) {
-						scanFiles << [path: 'retire.json']
-					}
+						sh 'npm install -g retire'
+						def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
+						if (retireExitCode != 0) {
+							scanFiles << [path: 'retire.json']
+						}
 
-					if (!scanFiles.isEmpty()) {
-						step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
-					}
+						// Don't publish to threadfix except for master builds
+						if ('master'.equals(env.BRANCH_NAME) && !scanFiles.isEmpty()) {
+							step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
+						}
 
-					// re-install dev dependencies for testing later...
-					sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
-				} // end 'Security' stage
+						// re-install dev dependencies for testing later...
+						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+					} // end 'Security' stage
+				}
 			} // nodeJs
 		} // end node for checkout/build
 

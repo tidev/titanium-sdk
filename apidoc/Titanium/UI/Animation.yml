@@ -229,7 +229,7 @@ examples:
             win.add(box);
 
             box.addEventListener('click', function() {
-              var matrix = Ti.UI.create2DMatrix()
+              var matrix = Ti.UI.create2DMatrix();
               matrix = matrix.rotate(180);
               matrix = matrix.scale(2, 2);
               var a = Ti.UI.createAnimation({
@@ -240,6 +240,8 @@ examples:
               });
               box.animate(a);
             });
+            
+            win.add(box);
 
   - title: Using an anchorPoint (Android and iOS)
     example: |
