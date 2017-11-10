@@ -10,13 +10,12 @@
 
 @interface TiUIiPhoneListViewCellSelectionStyleProxy : TiProxy {
 
-@private
-
+  @private
 }
 
-@property(nonatomic,readonly) NSNumber* NONE;
-@property(nonatomic,readonly) NSNumber* BLUE;
-@property(nonatomic,readonly) NSNumber* GRAY;
+@property (nonatomic, readonly) NSNumber *NONE;
+@property (nonatomic, readonly) NSNumber *BLUE;
+@property (nonatomic, readonly) NSNumber *GRAY;
 
 @end
 

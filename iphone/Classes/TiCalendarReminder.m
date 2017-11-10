@@ -9,11 +9,10 @@
 
 @implementation TiCalendarReminder
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.Calendar.Reminder";
+  return @"Ti.Calendar.Reminder";
 }
-
 
 @end
 #endif

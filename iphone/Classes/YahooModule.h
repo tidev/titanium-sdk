@@ -6,25 +6,23 @@
  */
 #ifdef USE_TI_YAHOO
 
-#import "TiModule.h"
-#import "KrollCallback.h"
 #import "APSHTTPClient.h"
+#import "KrollCallback.h"
+#import "TiModule.h"
 
 @interface YahooModule : TiModule {
-@private
+  @private
 }
 
 @end
 
-
-@interface YQLCallback : NSObject<APSHTTPRequestDelegate>
-{
-@private
-	YahooModule *module;
-	KrollCallback *callback;
+@interface YQLCallback : NSObject <APSHTTPRequestDelegate> {
+  @private
+  YahooModule *module;
+  KrollCallback *callback;
 }
 
--(id)initWithCallback:(KrollCallback*)callback module:(YahooModule*)module;
+- (id)initWithCallback:(KrollCallback *)callback module:(YahooModule *)module;
 
 @end
 

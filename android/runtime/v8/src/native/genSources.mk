@@ -59,4 +59,4 @@ $(GENERATED_DIR)/KrollNativeBindings.cpp: $(THIS_DIR)/KrollNativeBindings.gperf
 
 JAVAH := javah
 $(JNI_PREFIX)%.h:
-	$(JAVAH) -classpath $(DIST_DIR)/kroll-v8.jar$(CP_SEP)$(DIST_DIR)/kroll-common.jar$(CP_SEP)$(ANDROID_PLATFORM)/android.jar -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))
+	$(JAVAH) -classpath $(DIST_DIR)/java_websocket.jar$(CP_SEP)$(DIST_DIR)/kroll-v8.jar$(CP_SEP)$(DIST_DIR)/kroll-common.jar$(CP_SEP)$(ANDROID_PLATFORM)/android.jar -d $(GENERATED_DIR) $(subst .h,,$(subst _,.,$(patsubst $(GENERATED_DIR)/%,%,$(@F))))
