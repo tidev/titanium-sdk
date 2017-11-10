@@ -70,6 +70,11 @@ extern "C" {
   {                            \
     TiLogMessage(__VA_ARGS__); \
   }
+  
+// Hide assertions in prod-builds
+#ifdef NDEBUG
+#define assert(e)   ((void)0)
+#endif
 
 // create a mutable array that doesn't retain internal references to objects
 NSMutableArray *TiCreateNonRetainingArray();
@@ -118,8 +123,12 @@ NSString *JavascriptNameForClass(Class c);
     x = [y retain];               \
   }
 
+#ifdef DEBUG
 #define CODELOCATION [NSString stringWithFormat:@"%s (%@:%d)", __FUNCTION__, [[NSString stringWithFormat:@"%s", __FILE__] lastPathComponent], __LINE__]
-
+#else
+#define CODELOCATION @""
+#endif
+  
 #define NULL_IF_NIL(x) ({ id xx = (x); (xx==nil)?[NSNull null]:xx; })
 
 //NOTE: these checks can be pulled out of production build type
