@@ -73,7 +73,7 @@ function AndroidBuilder() {
 
 	this.targets = [ 'emulator', 'device', 'dist-playstore' ];
 
-	this.validABIs = [ 'armeabi-v7a', 'x86' ];
+	this.validABIs = [ 'arm64-v8a', 'armeabi-v7a', 'x86' ];
 
 	this.uncompressedTypes = [
 		'jpg', 'jpeg', 'png', 'gif',
@@ -910,8 +910,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// get the javac params
 	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '1024M');
-	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
-	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
+	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
+	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
@@ -1490,7 +1490,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	return function (callback) {
-		this.validateTiModules('android', this.deployType, function (err, modules) {
+		this.validateTiModules('android', this.deployType, function validateTiModulesCallback(err, modules) {
 			this.modules = modules.found;
 
 			this.commonJsModules = [];
@@ -1620,6 +1620,58 @@ process.exit(1);
 			this.modulesManifestHash = this.hash(manifestHashes.length ? manifestHashes.sort().join(',') : '');
 			this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
 			this.modulesBindingsHash = this.hash(bindingsHashes.length ? bindingsHashes.sort().join(',') : '');
+
+			// check for any missing module dependencies
+			let unresolvedDependencies = [];
+			for (let module of this.nativeLibModules) {
+				const timoduleXmlFile = path.join(module.modulePath, 'timodule.xml'),
+					timodule = fs.existsSync(timoduleXmlFile) ? new tiappxml(timoduleXmlFile) : undefined;
+
+				if (timodule && Array.isArray(timodule.modules)) {
+					for (let dependency of timodule.modules) {
+						if (!dependency.platform || /^android$/.test(dependency.platform)) {
+
+							let missing = true;
+							for (let module of this.nativeLibModules) {
+								if (module.id === dependency.id) {
+									missing = false;
+									break;
+								}
+							}
+							if (missing) {
+								dependency.depended = module;
+
+								// attempt to include missing dependency
+								this.cli.tiapp.modules.push({
+									id: dependency.id,
+									version: dependency.version,
+									platform: [ 'android' ],
+									deployType: [ this.deployType ]
+								});
+
+								unresolvedDependencies.push(dependency);
+							}
+						}
+					}
+				}
+			}
+			if (unresolvedDependencies.length) {
+				/*
+				let msg = 'could not find required module dependencies:';
+		 		for (let dependency of unresolvedDependencies) {
+		 			msg += __('\n  id: %s  version: %s  platform: %s  required by %s',
+		 				dependency.id,
+		 				dependency.version ? dependency.version : 'latest',
+		 				dependency.platform ? dependency.platform : 'all',
+		 				dependency.depended.id);
+		 		}
+		 		logger.error(msg);
+		 		process.exit(1);
+		 		*/
+
+				// re-validate modules
+				return this.validateTiModules('android', this.deployType, validateTiModulesCallback.bind(this));
+			}
 
 			// check if we have any conflicting jars
 			const possibleConflicts = Object.keys(jarHashes).filter(function (jar) { return jarHashes[jar].length > 1; }); // eslint-disable-line max-statements-per-line
@@ -3210,13 +3262,17 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	// generate the JavaScript-based services
 	if (android && android.services) {
 		const serviceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSService.java')).toString(),
-			intervalServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSIntervalService.java')).toString();
+			intervalServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSIntervalService.java')).toString(),
+			quickSettingsServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSQuickSettingsService.java')).toString();
 		Object.keys(android.services).forEach(function (name) {
 			const service = android.services[name];
 			let tpl = serviceTemplate;
 			if (service.type === 'interval') {
 				tpl = intervalServiceTemplate;
 				this.logger.debug(__('Generating interval service class: %s', service.classname.cyan));
+			} else if (service.type === 'quicksettings') {
+				tpl = quickSettingsServiceTemplate;
+				this.logger.debug(__('Generating quick settings service class: %s', service.classname.cyan));
 			} else {
 				this.logger.debug(__('Generating service class: %s', service.classname.cyan));
 			}
@@ -3387,6 +3443,30 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 
 	next();
 };
+
+function serviceParser(serviceNode) {
+	// add service attributes
+	const resultService = {};
+	appc.xml.forEachAttr(serviceNode, function (attr) {
+		resultService[attr.localName] = attr.value;
+	});
+	appc.xml.forEachElement(serviceNode, function (node) {
+		if (!resultService[node.tagName]) {
+			resultService[node.tagName] = [];
+		}
+		// create intent-filter instance
+		const intentFilter = {};
+		const action = [];
+		intentFilter['action'] = action;
+		// add atrributes from parent
+		appc.xml.forEachElement(node, function (intentFilterAaction) {
+			intentFilter['action'].push(appc.xml.getAttr(intentFilterAaction, 'android:name'));
+		});
+		// add intent filter object to array
+		resultService[node.tagName].push(intentFilter);
+	});
+	return resultService;
+}
 
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {
 	if (!this.forceRebuild && fs.existsSync(this.androidManifestFile)) {
@@ -3607,14 +3687,26 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	tiappServices && Object.keys(tiappServices).forEach(function (filename) {
 		const service = tiappServices[filename];
 		if (service.url) {
-			const s = {
-				'name': this.appid + '.' + service.classname
-			};
-			Object.keys(service).forEach(function (key) {
-				if (!/^(type|name|url|options|classname|android:name)$/.test(key)) {
-					s[key.replace(/^android:/, '')] = service[key];
-				}
-			});
+			let s = {};
+			if (service.type === 'quicksettings') {
+				const serviceName = this.appid + '.' + service.classname;
+				const icon = '@drawable/' + (service.icon || this.tiapp.icon).replace(/((\.9)?\.(png|jpg))$/, '');
+				const label = service.label || this.tiapp.name;
+				const serviceXML = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'QuickService.xml')).toString(), {
+					serviceName: serviceName,
+					icon: icon,
+					label: label
+				});
+				const doc = new DOMParser().parseFromString(serviceXML, 'text/xml');
+				s = serviceParser(doc.firstChild);
+			} else {
+				s.name = this.appid + '.' + service.classname;
+				Object.keys(service).forEach(function (key) {
+					if (!/^(type|name|url|options|classname|android:name)$/.test(key)) {
+						s[key.replace(/^android:/, '')] = service[key];
+					}
+				});
+			}
 			finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 			finalAndroidManifest.application.service[s.name] = s;
 		}
