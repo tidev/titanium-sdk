@@ -438,7 +438,7 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo() {
  * @param {Function} next Callback function
  */
 AndroidModuleBuilder.prototype.replaceBundledSupportLibraries = function replaceBundledSupportLibraries(next) {
-	Object.keys(this.classPaths).forEach(function(libraryPathAndFilename) {
+	Object.keys(this.classPaths).forEach(function (libraryPathAndFilename) {
 		if (this.isExternalAndroidLibraryAvailable(libraryPathAndFilename)) {
 			this.logger.debug('Excluding library ' + libraryPathAndFilename.cyan);
 			delete this.classPaths[libraryPathAndFilename];
@@ -519,7 +519,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 						const resArchivePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.res.zip'));
 						const respackagePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.respackage'));
 						if (fs.existsSync(resArchivePathAndFilename) && fs.existsSync(respackagePathAndFilename)) {
-							var packageName = fs.readFileSync(respackagePathAndFilename).toString().split(/\r?\n/).shift().trim();
+							const packageName = fs.readFileSync(respackagePathAndFilename).toString().split(/\r?\n/).shift().trim();
 							if (!this.hasAndroidLibrary(packageName)) {
 								extraPackages.push(packageName);
 								resArchives.push(resArchivePathAndFilename);
@@ -1227,8 +1227,8 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 	this.logger.info(__('Generating v8 bindings'));
 
-	var dependsMap = this.dependencyMap;
-	Array.prototype.push.apply(this.metaData,dependsMap.required);
+	const dependsMap = this.dependencyMap;
+	Array.prototype.push.apply(this.metaData, dependsMap.required);
 
 	Object.keys(dependsMap.dependencies).forEach(function (key) {
 		dependsMap.dependencies[key].forEach(function (item) {

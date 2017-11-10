@@ -67,18 +67,18 @@ exports.init = function (logger, config, cli, appc) {
 		 * @param {Object} data Hook data
 		 * @param {Function} callback Callback function
 		 */
-		pre: function(data, callback) {
-			var builder= data.ctx;
-			var dexerOptions = data.args[1].slice(0, 6);
-			var dexerPaths = data.args[1].slice(6);
-			var hyperloopModule = null;
+		pre: function (data, callback) {
+			const builder = data.ctx;
+			const dexerOptions = data.args[1].slice(0, 6);
+			const dexerPaths = data.args[1].slice(6);
+			let hyperloopModule = null;
 			builder.nativeLibModules.forEach(function (module) {
 				if (module.id === 'hyperloop' && module.version === '2.1.0') {
 					hyperloopModule = module;
 				}
 			});
 			if (hyperloopModule && builder.androidLibraries.length > 0) {
-				var fixedDexerPaths = [];
+				let fixedDexerPaths = [];
 				dexerPaths.forEach(function (entryPathAndFilename) {
 					if (!this.isExternalAndroidLibraryAvailable(entryPathAndFilename)) {
 						fixedDexerPaths.push(entryPathAndFilename);

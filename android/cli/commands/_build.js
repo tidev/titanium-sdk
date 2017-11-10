@@ -1658,16 +1658,16 @@ process.exit(1);
 			if (unresolvedDependencies.length) {
 				/*
 				let msg = 'could not find required module dependencies:';
-		 		for (let dependency of unresolvedDependencies) {
-		 			msg += __('\n  id: %s  version: %s  platform: %s  required by %s',
-		 				dependency.id,
-		 				dependency.version ? dependency.version : 'latest',
-		 				dependency.platform ? dependency.platform : 'all',
-		 				dependency.depended.id);
-		 		}
-		 		logger.error(msg);
-		 		process.exit(1);
-		 		*/
+				for (let dependency of unresolvedDependencies) {
+					msg += __('\n  id: %s  version: %s  platform: %s  required by %s',
+						dependency.id,
+						dependency.version ? dependency.version : 'latest',
+						dependency.platform ? dependency.platform : 'all',
+						dependency.depended.id);
+				}
+				logger.error(msg);
+				process.exit(1);
+				*/
 
 				// re-validate modules
 				return this.validateTiModules('android', this.deployType, validateTiModulesCallback.bind(this));
@@ -2948,7 +2948,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
 		let jar = moduleJarMap[namespace];
 		if (jar) {
-			jar = jar == 'titanium.jar' ? path.join(this.platformPath, jar) : path.join(this.platformPath, 'modules', jar);
+			jar = jar === 'titanium.jar' ? path.join(this.platformPath, jar) : path.join(this.platformPath, 'modules', jar);
 			if (this.isExternalAndroidLibraryAvailable(jar)) {
 				this.logger.debug('Excluding library ' + jar.cyan);
 			} else if (fs.existsSync(jar) && !jarLibraries[jar]) {
@@ -2960,7 +2960,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		}
 
 		depMap.libraries[namespace] && depMap.libraries[namespace].forEach(function (jar) {
-			jar = path.join(this.platformPath, jar)
+			jar = path.join(this.platformPath, jar);
 			if (this.isExternalAndroidLibraryAvailable(jar)) {
 				this.logger.debug('Excluding dependency library ' + jar.cyan);
 				return;
@@ -3151,15 +3151,15 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 			const resFile = jarFile.replace(/\.jar$/, '.res.zip'),
 				resPkgFile = jarFile.replace(/\.jar$/, '.respackage');
 
-				if (fs.existsSync(resPkgFile) && fs.existsSync(resFile)) {
-					var packageName = fs.readFileSync(resPkgFile).toString().split(/\r?\n/).shift().trim();
-					if (!this.hasAndroidLibrary(packageName)) {
-						this.resPackages[resFile] = packageName;
-					} else {
-						this.logger.info(__('Excluding core module resources of %s (%s) because Android Library with same package name is available.', jarFile, packageName));
-						return done();
-					}
+			if (fs.existsSync(resPkgFile) && fs.existsSync(resFile)) {
+				const packageName = fs.readFileSync(resPkgFile).toString().split(/\r?\n/).shift().trim();
+				if (!this.hasAndroidLibrary(packageName)) {
+					this.resPackages[resFile] = packageName;
+				} else {
+					this.logger.info(__('Excluding core module resources of %s (%s) because Android Library with same package name is available.', jarFile, packageName));
+					return done();
 				}
+			}
 
 			if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) {
 				return done();

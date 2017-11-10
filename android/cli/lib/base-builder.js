@@ -122,7 +122,7 @@ AndroidBaseBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest
  * @return {Boolean} True if the Android Library is available, false if not
  */
 AndroidBaseBuilder.prototype.hasAndroidLibrary = function hasAndroidLibrary(packageName) {
-	return this.androidLibraries.some(function(libraryInfo) {
+	return this.androidLibraries.some(function (libraryInfo) {
 		return libraryInfo.packageName === packageName;
 	});
 };
@@ -141,31 +141,31 @@ AndroidBaseBuilder.prototype.hasAndroidLibrary = function hasAndroidLibrary(pack
  * android/dependency.json and needs to be maintained if anything changes there.
  *
  * @param {string} libraryPathAndFilename Path and filename to the .jar file to check
- * @type {Boolean} True if the given library is available as an Android Library, false if not
+ * @return {Boolean} True if the given library is available as an Android Library, false if not
  */
 AndroidBaseBuilder.prototype.isExternalAndroidLibraryAvailable = function isExternalAndroidLibraryAvailable(libraryPathAndFilename) {
-	var replaceableAndroidLibraries = {
-		'android.support.graphics.drawable': ['android-support-vector-drawable.jar'],
-		'android.support.graphics.drawable.animated': ['android-support-animated-vector-drawable.jar'],
-		'android.support.v4': ['android-support-v4.jar'],
-		'android.support.compat': ['android-support-compat.jar'],
-		'android.support.coreui': ['android-support-core-ui.jar'],
-		'android.support.coreutils': ['android-support-core-utils.jar'],
-		'android.support.design': ['android-support-design.jar'],
-		'android.support.fragment': ['android-support-fragment.jar'],
-		'android.support.mediacompat': ['android-support-media-compat.jar'],
-		'android.support.transition': ['android-support-transition.jar'],
-		'android.support.v7.appcompat': ['android-support-v7-appcompat.jar'],
-		'android.support.v7.cardview': ['android-support-v7-cardview.jar'],
-		'android.support.v7.recyclerview': ['android-support-v7-recyclerview.jar']
+	const replaceableAndroidLibraries = {
+		'android.support.graphics.drawable': [ 'android-support-vector-drawable.jar' ],
+		'android.support.graphics.drawable.animated': [ 'android-support-animated-vector-drawable.jar' ],
+		'android.support.v4': [ 'android-support-v4.jar' ],
+		'android.support.compat': [ 'android-support-compat.jar' ],
+		'android.support.coreui': [ 'android-support-core-ui.jar' ],
+		'android.support.coreutils': [ 'android-support-core-utils.jar' ],
+		'android.support.design': [ 'android-support-design.jar' ],
+		'android.support.fragment': [ 'android-support-fragment.jar' ],
+		'android.support.mediacompat': [ 'android-support-media-compat.jar' ],
+		'android.support.transition': [ 'android-support-transition.jar' ],
+		'android.support.v7.appcompat': [ 'android-support-v7-appcompat.jar' ],
+		'android.support.v7.cardview': [ 'android-support-v7-cardview.jar' ],
+		'android.support.v7.recyclerview': [ 'android-support-v7-recyclerview.jar' ]
 	};
-	return this.androidLibraries.some(function(libraryInfo) {
+	return this.androidLibraries.some(function (libraryInfo) {
 		if (!replaceableAndroidLibraries[libraryInfo.packageName]) {
 			return false;
 		}
 
-		var libraryFilename = path.basename(libraryPathAndFilename);
-		var shouldExcludeLibrary = replaceableAndroidLibraries[libraryInfo.packageName].indexOf(libraryFilename) !== -1;
+		const libraryFilename = path.basename(libraryPathAndFilename);
+		const shouldExcludeLibrary = replaceableAndroidLibraries[libraryInfo.packageName].indexOf(libraryFilename) !== -1;
 		if (shouldExcludeLibrary) {
 			this.logger.trace(__('Android library %s (%s) available, marking %s to be excluded.', libraryInfo.task.aarPathAndFilename, libraryInfo.packageName.cyan, libraryPathAndFilename.cyan));
 			return true;
