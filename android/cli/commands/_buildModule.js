@@ -290,20 +290,20 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	// process module dependencies
 	this.modules = this.timodule && !Array.isArray(this.timodule.modules) ? [] : this.timodule.modules.filter(function (m) {
 		if (!m.platform || /^android$/.test(m.platform)) {
-			var localPath = path.join(this.modulesDir, m.id),
+			const localPath = path.join(this.modulesDir, m.id),
 				globalPath = path.join(this.globalModulesDir, m.id);
 
 			function getModulePath (modulePath) {
 				var items = fs.readdirSync(modulePath);
 				if (m.version) {
-					for (var item of items) {
+					for (const item of items) {
 						if (item === m.version) {
 							m.path = path.join(modulePath, m.version);
 							return true;
 						}
 					}
 				} else if (items.length) {
-					var latest = items[items.length - 1];
+					const latest = items[items.length - 1];
 					if (!latest.startsWith('.')) {
 						m.version = latest;
 						m.path = path.join(modulePath, m.version);
@@ -323,20 +323,20 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 
 	// obtain module dependency android archives for aar-transform to find
 	this.moduleAndroidLibraries = [];
-	function obtainModuleDependency (name, libPath) {
-		var file = path.join(libPath, name);
-		if (/\.aar$/.test(name) && fs.existsSync(file)) {
-			this.moduleAndroidLibraries.push({
-				aarPathAndFilename: String(file),
-				originType: 'Module'
-			});
-		}
+	function obtainModuleDependency (module) {
+		const libPath = path.join(module.path, 'lib');
+		fs.existsSync(libPath) && fs.readdirSync(libPath).forEach(function (name) {
+			const file = path.join(libPath, name);
+			if (/\.aar$/.test(name) && fs.existsSync(file)) {
+				this.moduleAndroidLibraries.push({
+					aarPathAndFilename: String(file),
+					originType: 'Module'
+				});
+			}
+		}, this);
 	}
 
-	for (let module of this.modules) {
-		var libPath = path.join(module.path, 'lib');
-		fs.existsSync(libPath) && fs.readdirSync(libPath).forEach(obtainModuleDependency, this);
-	}
+	this.modules.forEach(obtainModuleDependency, this);
 
 	// module java archive paths
 	this.jarPaths = [ path.join(this.platformPath, 'lib'), path.join(this.platformPath, 'modules'), this.platformPath ];
