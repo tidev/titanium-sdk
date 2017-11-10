@@ -1,29 +1,25 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2016-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.kroll.runtime.v8;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.UUID;
 
-import android.net.LocalSocket;
+import org.java_websocket.WebSocket;
+import org.java_websocket.framing.Framedata;
+import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.server.WebSocketServer;
+
 import android.os.Handler;
-import android.os.Looper;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -32,42 +28,46 @@ public final class JSDebugger
 {
 	private static final String TAG = "JSDebugger";
 
-	// The line endings assumed by the debug protocol
-	private static final String LINE_ENDING = "\r\n";
-
-	// Line ending as bytes for writing out to V8MessageHandler
-	private static final byte[] LINE_END_BYTES = LINE_ENDING.getBytes();
-
-	// The message used to disconnect the debugger from V8
-	private static final String DISCONNECT_MESSAGE = "{\"seq\":0,\"type\":\"request\",\"command\":\"disconnect\"}";
-
-	// The handshake message
-	// FIXME Grab the v8 version from the system!
-	private static final String HANDSHAKE_MESSAGE = "Type: connect\r\nV8-Version: 5.7.492.71\r\nProtocol-Version: 1\r\nEmbedding-Host: Titanium v%s\r\nContent-Length: 0\r\n\r\n";
-
 	// The port to listen to for debugger connections
 	private final int port;
 
 	// The sdk version we report in embedding host header for handshake message to debugger.
 	private final String sdkVersion;
 
+	// The lock used to wait for debugger to connect
+	private final Object waitLock;
+
+	// Are we ready to continue? Has the debugger been connected and we've processed the first set of messages?
+	private AtomicBoolean ready = new AtomicBoolean(false);
+
 	// Holding place for messages received from V8 intended for debugger
 	private LinkedBlockingQueue<String> v8Messages = new LinkedBlockingQueue<String>();
 
-	// The thread which acts as the main agent for listening to debugger and V8 messages
-	private DebugAgentThread agentThread;
+	// The queue holding messages coming from debugger -> V8
+	private LinkedBlockingQueue<String> inspectorMessages = new LinkedBlockingQueue<String>();
+	// The initial queue of messages received after debugger connected to "initialize" (until we get Runtime.runIfWaitingForDebugger)
+	private LinkedBlockingQueue<String> initialMessages = new LinkedBlockingQueue<String>();
 
-	// The runnable used to tell V8 to process the debug messages on the main thread.
+	// The thread which acts as the main agent for listening to debugger and V8 messages
+	private InspectorAgent agentThread;
+
+	// We had crashes due to empty debug context when we just sent messages through JNI off main thread.
+	// So we must run on runtime/main thread when dispatching debugger/inspector messages
 	private final Runnable processDebugMessagesRunnable = new Runnable() {
 		@Override
 		public void run() {
-			nativeProcessDebugMessages();
+			String nextMessage = inspectorMessages.poll();
+			while (nextMessage != null) {
+				nativeSendCommand(nextMessage);
+				nextMessage = inspectorMessages.poll();
+			}
 		}
 	};
 
 	public JSDebugger(int port, String sdkVersion) {
 		this.port = port;
 		this.sdkVersion = sdkVersion;
+		this.waitLock = new Object();
 	}
 
 	/**
@@ -76,323 +76,181 @@ public final class JSDebugger
 	 */
 	public void handleMessage(String message)
 	{
-		v8Messages.add(message);
+		v8Messages.offer(message);
 	}
 
-	public void sendMessage(String message)
-	{
-		byte[] cmdBytes = null;
-		try
-		{
-			cmdBytes = message.getBytes("UTF-16LE");
-		}
-		catch (UnsupportedEncodingException e)
-		{
-			// ignore, should never happen
+	public String waitForMessage() {
+		try {
+			return inspectorMessages.take(); // wait until we get a message!
+		} catch (InterruptedException e) {
+			Log.e(TAG, "Failed to retrieve next message from debugger", e);
 		}
 
-		// Send the command to V8 via C++
-		nativeSendCommand(cmdBytes, cmdBytes.length);
-
-		// Tell V8 to process the message (on the runtime thread)
-		TiMessenger.postOnRuntime(processDebugMessagesRunnable);
+		return null;
 	}
 
 	public void start() {
-		this.agentThread = new DebugAgentThread("titanium-debug");
-		this.agentThread.start();
+		try {
+			this.agentThread = new InspectorAgent(this.port);
+			this.agentThread.start();
+		} catch (Exception e) {
+			Log.e(TAG, "Failed to start websocket server agent to handle debugger connection", e);
+		}
 
 		// Tell C++ side to hook up the debug message handler
 		nativeEnable();
 
-		// Immediately break the debugger so we can set up our breakpoints and
-		// options when we connect, before the app starts running.
-		// This allows us to hit breakpoints as early as the first line in app.js
-		nativeDebugBreak();
+		// Now wait for the debugger to connect before we continue
+		waitForDebugger();
 	}
 
-	/**
-	 * Wipe the queued messages from V8
-	 */
-	private void clearMessages() {
-		v8Messages.clear();
-	}
-
-	// JNI method prototypes
-	private native void nativeProcessDebugMessages();
-	private native void nativeEnable();
-	private native void nativeDisable();
-	private native void nativeDebugBreak();
-	private native boolean nativeIsDebuggerActive();
-	private native void nativeSendCommand(byte[] command, int length);
-
-	/**
-	 * This replaces what used to be built into V8 before. We listen on a port
-	 * for debugger connections and act as a go-between to shuttle messages back
-	 * and forth between the debugger and V8.
-	 */
-	private class DebugAgentThread extends Thread {
-
-		private ServerSocket serverSocket;
-		private V8MessageHandler v8MessageHandler;
-		private DebuggerMessageHandler debuggerMessageHandler;
-
-		private DebugAgentThread(String name) {
-			super(name);
+	// Sends the initial set of messages from debugger to V8.
+	private void sendInitialMessages() {
+		while (!initialMessages.isEmpty()) {
+			String msg = initialMessages.poll();
+			nativeSendCommand(msg);
 		}
+	}
 
-		public void run() {
+	private void waitForDebugger() {
+		synchronized (this.waitLock) {
 			try {
-				serverSocket = new ServerSocket();
-				serverSocket.setReuseAddress(true);
-				serverSocket.bind(new InetSocketAddress(port));
-				while (true) {
-					Socket socket = null;
-					try {
-						socket = serverSocket.accept();
-
-						// handle messages coming from V8 -> Debugger
-						this.v8MessageHandler = new V8MessageHandler(socket);
-						Thread v8MessageThread = new Thread(this.v8MessageHandler);
-						v8MessageThread.start();
-
-						// handle messages coming from Debugger -> V8
-						this.debuggerMessageHandler = new DebuggerMessageHandler(socket);
-						Thread debuggerMessageThread = new Thread(this.debuggerMessageHandler);
-						debuggerMessageThread.start();
-
-						// Wait until the debugger thread dies (because debugger says it's done)
-						debuggerMessageThread.join();
-
-						// Stop listening to V8
-						this.v8MessageHandler.stop();
-					} catch (Throwable t) {
-						// TODO We should at least log this...
-					} finally {
-						try {
-							// Close our connection to the debugger
-							if (socket != null) {
-								socket.close();
-							}
-						} catch (Throwable t) {
-							// ignore
-						}
-
-						// Wipe the messages from V8
-						JSDebugger.this.clearMessages();
-					}
-				}
-			} catch (Throwable t) {
-				// TODO Log it? Do something?
+				// FIXME Use this UUID to store sessions and enforce it's used when a client is connecting
+				String id = UUID.randomUUID().toString();
+				String url = "127.0.0.1:" + this.port + "/" + id;
+				Log.w(TAG, "Debugger listening on ws://" + url);
+				Log.w(TAG, "To connect Chrome DevTools, open Chrome to chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=" + url);
+				Log.w(TAG, "Waiting for debugger to connect for next 60 seconds...");
+				this.waitLock.wait(60000); // wait up to 60 seconds for debugger
+			} catch (InterruptedException e) {
+				Log.w(TAG, "Debugger did not connect within 60 seconds");
 			} finally {
-				try {
-					if (serverSocket != null) {
-						serverSocket.close();
-					}
-				} catch (IOException e) {
-					// ignore
-				}
+				ready.getAndSet(true);
+				sendInitialMessages();
+				// We break at start of app.js in module.js' Module.prototype._runScript
 			}
 		}
 	}
 
-	private class V8MessageHandler implements Runnable
-	{
-		private OutputStream output;
+	// JNI method prototypes
+	private native void nativeEnable();
+	private native void nativeDisable(); // TODO Remove?
+	private native void nativeDebugBreak();
+	private native boolean nativeIsDebuggerActive(); // TODO Remove?
+	private native void nativeSendCommand(String command);
+
+	private class InspectorAgent extends WebSocketServer {
+		private V8MessageHandler handler;
+
+		public InspectorAgent(int port) throws UnknownHostException {
+			super(new InetSocketAddress(port));
+		}
+
+		@Override
+		public void onOpen(WebSocket conn, ClientHandshake handshake) {
+			// Start up V8MessageHandler to process responses we get
+			try {
+				Log.w(TAG, "Debugger client connected");
+				handler = new V8MessageHandler(conn);
+				new Thread(handler).start();
+			} catch (Exception e) {
+
+			}
+		}
+
+		@Override
+		public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+			// Kill the V8MessageHandler!
+			if (handler != null) {
+				handler.stop();
+				handler = null;
+				TiMessenger.postOnRuntime(new Runnable() {
+					@Override
+					public void run() {
+						JSDebugger.this.nativeDisable();
+					}
+				});
+			}
+		}
+
+		@Override
+		public void onError(WebSocket conn, Exception ex) {
+			Log.e(TAG, "Error with websocket server", ex);
+		}
+
+		@Override
+		public void onStart() {
+		}
+
+		@Override
+		public void onMessage(WebSocket conn, String message) {
+			inspectorMessages.offer(message); // put message into queue
+
+			// if we haven't initialied yet, sniff the incoming messages
+			if (!JSDebugger.this.ready.get()) {
+				// copy any waiting messages into our initial queue
+				String nextMessage = inspectorMessages.poll();
+				while (nextMessage != null) {
+					initialMessages.offer(nextMessage);
+					nextMessage = inspectorMessages.poll();
+				}
+
+				// Once we get the magic message saying we can continue, unlock the main thread
+				if (message.contains("\"Runtime.runIfWaitingForDebugger\"")) {
+					synchronized (JSDebugger.this.waitLock) {
+						JSDebugger.this.waitLock.notify();
+					}
+				}
+			} else {
+				// schedule main thread to dispatch messages to v8
+				TiMessenger.postOnRuntime(JSDebugger.this.processDebugMessagesRunnable);
+			}
+		}
+
+		@Override
+		public void onMessage(WebSocket conn, ByteBuffer blob) {
+			// TODO How do we handle binary messages?
+		}
+
+		@Override
+		public void onWebsocketMessageFragment(WebSocket conn, Framedata frame) {
+		}
+	}
+
+	private class V8MessageHandler implements Runnable {
+		private WebSocket conn;
 		private AtomicBoolean stop = new AtomicBoolean(false);
 
 		// Dummy message used to stop the sentinel loop if it was waiting on v8Messages.take() while stop() got called.
 		private static final String STOP_MESSAGE = "STOP_MESSAGE";
 
-		public V8MessageHandler(Socket socket) throws IOException
-		{
-			this.output = socket.getOutputStream();
+		public V8MessageHandler(WebSocket conn) throws IOException {
+			this.conn = conn;
 		}
 
-		public void stop()
-		{
+		public void stop() {
 			this.stop.set(true);
 			// put dummy message into queue to unlock on take() below.
-			JSDebugger.this.v8Messages.add(STOP_MESSAGE);
+			JSDebugger.this.v8Messages.offer(STOP_MESSAGE);
 		}
 
 		@Override
-		public void run()
-		{
-			this.sendHandshake();
-			while (!stop.get())
-			{
-				try
-				{
-					String message = JSDebugger.this.v8Messages.take();
-					if (message.equals(STOP_MESSAGE))
-					{
+		public void run() {
+			while (!stop.get()) {
+				try {
+					String message = JSDebugger.this.v8Messages.take(); // wait for next message
+					if (message.equals(STOP_MESSAGE)) {
 						break;
 					}
 
-					this.sendMessageToDebugger(message);
+					conn.send(message);
 				}
-				catch (Throwable t)
-				{
+				catch (Throwable t) {
 					// ignore
 				}
 			}
 
-			try
-			{
-				this.output.close();
-			}
-			catch (IOException e)
-			{
-				// ignore
-			}
-		}
-
-		private void sendHandshake()
-		{
-			try
-			{
-				output.write(String.format(HANDSHAKE_MESSAGE, JSDebugger.this.sdkVersion).getBytes("UTF8"));
-				output.flush();
-			}
-			catch (IOException e)
-			{
-				// FIXME Stop the DebuggerMessageHandler too!
-			}
-		}
-
-		private void sendMessageToDebugger(String msg)
-		{
-			byte[] utf8;
-			try
-			{
-				utf8 = msg.getBytes("UTF8");
-			}
-			catch (UnsupportedEncodingException e)
-			{
-				// should never happen...
-				return;
-			}
-
-			try
-			{
-				String s = "Content-Length: " + utf8.length;
-				output.write(s.getBytes("UTF8"));
-				output.write(LINE_END_BYTES);
-
-				output.write(LINE_END_BYTES);
-
-				output.write(utf8);
-				output.flush();
-			}
-			catch (IOException e)
-			{
-				// FIXME Stop the DebuggerMessageHandler too!
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private class DebuggerMessageHandler implements Runnable
-	{
-		private BufferedReader input;
-		private AtomicBoolean stop = new AtomicBoolean(false);
-
-		public DebuggerMessageHandler(Socket socket) throws IOException
-		{
-			this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		}
-
-		public void stop()
-		{
-			this.stop.set(true);
-			try
-			{
-				this.input.close();
-			}
-			catch (IOException e1)
-			{
-				// ignore
-			}
-		}
-
-		public void run()
-		{
-			try
-			{
-				while (!stop.get()) {
-					int length = readHeaders();
-					if (length == -1) {
-						break; // assume we hit EOF or got told to stop
-					}
-					//Log.w(TAG, "Message length: " + length);
-
-					String message = readMessage(length);
-					if (message == null) {
-						// we return null if told to stop, or reading didn't give us the number of characters we expected
-						break;
-					}
-
-					// send along the message to the debugger
-					//Log.w(TAG, "Forwarding Message: " + message);
-					JSDebugger.this.sendMessage(message);
-				}
-			}
-			catch (IOException e)
-			{
-				//e.printStackTrace();
-
-				// TODO Stop the V8MessageHandler too!
-			}
-			finally
-			{
-				this.stop.set(true);
-				JSDebugger.this.sendMessage(DISCONNECT_MESSAGE);
-				try
-				{
-					this.input.close();
-				}
-				catch (IOException e1)
-				{
-					// ignore
-				}
-			}
-		}
-
-		private int readHeaders() throws IOException
-		{
-			int messageLength = -1;
-			String line;
-			while (!stop.get() && ((line = this.input.readLine()) != null))
-			{
-				final int lineLength = line.length();
-				// empty line means end of headers
-				if (lineLength == 0)
-				{
-					return messageLength;
-				}
-				// if it's telling us the message length, record that
-				if (line.startsWith("Content-Length:"))
-				{
-					String strLen = line.substring(15).trim();
-					messageLength = Integer.parseInt(strLen);
-				}
-				// otherwise, ignore the other headers - BUT MAKE SURE TO CONSUME THEM!
-			}
-			return messageLength;
-		}
-
-		private String readMessage(int length) throws IOException
-		{
-			if (stop.get()) {
-				return null;
-			}
-			char[] buf = new char[length];
-			int result = this.input.read(buf, 0, length);
-			if (result != length) {
-				return null;
-			}
-			return new String(buf);
+			this.conn.close();
 		}
 	}
 }
