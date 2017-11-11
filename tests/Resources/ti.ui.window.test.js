@@ -28,6 +28,18 @@ describe('Titanium.UI.Window', function () {
 		win = null;
 	});
 
+	// Create and open a root window for the rest of the below child window tests to use as a parent.
+	// We're not going to close this window until the end of this test suite.
+	// Note: Android needs this so that closing the last window won't back us out of the app.
+	var rootWindow;
+	it('open', function(finish) {
+		rootWindow = Ti.UI.createWindow();
+		rootWindow.addEventListener('open', function () {
+			finish();
+		});
+		rootWindow.open();
+	});
+
 	it('title', function () {
 		win = Ti.UI.createWindow({
 			title: 'this is some text'
@@ -56,26 +68,34 @@ describe('Titanium.UI.Window', function () {
 		should(win.title).eql('this is my value'); // FIXME Windows: https://jira.appcelerator.org/browse/TIMOB-23498
 	});
 
-	it.windowsMissing('orientationModes-PORTRAIT', function() {
+	function doOrientationModeTest(mocha, finish, orientation) {
+		mocha.slow(5000);
+		mocha.timeout(20000);
 		win = Ti.UI.createWindow({
-			orientationModes: [Ti.UI.PORTRAIT]
+			orientationModes: [orientation]
 		});
-		should(win.orientationModes.length).be.eql(1);
-		should(win.orientationModes[0]).eql(Ti.UI.PORTRAIT);
+		win.addEventListener('open', function() {
+			setTimeout(function() {
+				try {
+					should(win.orientationModes.length).be.eql(1);
+					should(win.orientationModes[0]).eql(orientation);
+					should(win.orientation).eql(orientation);
+					finish();
+				} catch (err) {
+					finish(err);
+				}
+			}, 3000);
+		});
+		win.open();
+	};
+	it.windowsMissing('orientationModes-PORTRAIT', function(finish) {
+		doOrientationModeTest(this, finish, Ti.UI.PORTRAIT);
 	});
-	it.windowsMissing('orientationModes-LANDSCAPE_LEFT', function() {
-		win = Ti.UI.createWindow({
-			orientationModes: [Ti.UI.LANDSCAPE_LEFT]
-		});
-		should(win.orientationModes.length).be.eql(1);
-		should(win.orientationModes[0]).eql(Ti.UI.LANDSCAPE_LEFT);
+	it.windowsMissing('orientationModes-LANDSCAPE_LEFT', function(finish) {
+		doOrientationModeTest(this, finish, Ti.UI.LANDSCAPE_LEFT);
 	});
-	it.windowsMissing('orientationModes-LANDSCAPE_RIGHT', function() {
-		win = Ti.UI.createWindow({
-			orientationModes: [Ti.UI.LANDSCAPE_RIGHT]
-		});
-		should(win.orientationModes.length).be.eql(1);
-		should(win.orientationModes[0]).eql(Ti.UI.LANDSCAPE_RIGHT);
+	it.windowsMissing('orientationModes-LANDSCAPE_RIGHT', function(finish) {
+		doOrientationModeTest(this, finish, Ti.UI.LANDSCAPE_RIGHT);
 	});
 
 	// FIXME Get working on iOS. iOS reports size of 100, which seems right...
@@ -470,5 +490,14 @@ describe('Titanium.UI.Window', function () {
 		should(win.custom).not.exist;
 		win.applyProperties({ custom: 1234 });
 		should(win.custom).be.eql(1234);
+	});
+
+	it('close', function(finish) {
+		this.slow(3000);
+		this.timeout(5000);
+		rootWindow.addEventListener('close', function () {
+			finish();
+		});
+		rootWindow.close();
 	});
 });
