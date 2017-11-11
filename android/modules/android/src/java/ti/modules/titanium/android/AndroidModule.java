@@ -11,6 +11,7 @@ import java.util.List;
 
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.service.quicksettings.Tile;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
@@ -274,6 +275,10 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int NAVIGATION_MODE_LIST = ActionBar.NAVIGATION_MODE_LIST;
 	@Kroll.constant public static final int NAVIGATION_MODE_STANDARD = ActionBar.NAVIGATION_MODE_STANDARD;
 	@Kroll.constant public static final int NAVIGATION_MODE_TABS = ActionBar.NAVIGATION_MODE_TABS;
+
+	@Kroll.constant public static final int TILE_STATE_UNAVAILABLE = Tile.STATE_UNAVAILABLE;
+	@Kroll.constant public static final int TILE_STATE_INACTIVE = Tile.STATE_INACTIVE;
+	@Kroll.constant public static final int TILE_STATE_ACTIVE = Tile.STATE_ACTIVE;
 
 	@Kroll.constant public static final int WAKE_LOCK_PARTIAL = PowerManager.PARTIAL_WAKE_LOCK;
 	@Kroll.constant public static final int WAKE_LOCK_FULL = PowerManager.FULL_WAKE_LOCK;
