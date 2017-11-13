@@ -1658,16 +1658,16 @@ process.exit(1);
 			if (unresolvedDependencies.length) {
 				/*
 				let msg = 'could not find required module dependencies:';
-		 		for (let dependency of unresolvedDependencies) {
-		 			msg += __('\n  id: %s  version: %s  platform: %s  required by %s',
-		 				dependency.id,
-		 				dependency.version ? dependency.version : 'latest',
-		 				dependency.platform ? dependency.platform : 'all',
-		 				dependency.depended.id);
-		 		}
-		 		logger.error(msg);
-		 		process.exit(1);
-		 		*/
+				for (let dependency of unresolvedDependencies) {
+					msg += __('\n  id: %s  version: %s  platform: %s  required by %s',
+						dependency.id,
+						dependency.version ? dependency.version : 'latest',
+						dependency.platform ? dependency.platform : 'all',
+						dependency.depended.id);
+				}
+				logger.error(msg);
+				process.exit(1);
+				*/
 
 				// re-validate modules
 				return this.validateTiModules('android', this.deployType, validateTiModulesCallback.bind(this));
@@ -2887,7 +2887,7 @@ AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindi
 };
 
 AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
-	const depMap = JSON.parse(fs.readFileSync(path.join(this.platformPath, 'dependency.json'))),
+	var depMap = this.dependencyMap,
 		modulesMap = JSON.parse(fs.readFileSync(path.join(this.platformPath, 'modules.json'))),
 		modulesPath = path.join(this.platformPath, 'modules'),
 		moduleBindings = {},
@@ -2949,7 +2949,9 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		let jar = moduleJarMap[namespace];
 		if (jar) {
 			jar = jar === 'titanium.jar' ? path.join(this.platformPath, jar) : path.join(this.platformPath, 'modules', jar);
-			if (fs.existsSync(jar) && !jarLibraries[jar]) {
+			if (this.isExternalAndroidLibraryAvailable(jar)) {
+				this.logger.debug('Excluding library ' + jar.cyan);
+			} else if (fs.existsSync(jar) && !jarLibraries[jar]) {
 				this.logger.debug(__('Adding library %s', jar.cyan));
 				jarLibraries[jar] = 1;
 			}
@@ -2958,7 +2960,13 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		}
 
 		depMap.libraries[namespace] && depMap.libraries[namespace].forEach(function (jar) {
-			if (fs.existsSync(jar = path.join(this.platformPath, jar)) && !jarLibraries[jar]) {
+			jar = path.join(this.platformPath, jar);
+			if (this.isExternalAndroidLibraryAvailable(jar)) {
+				this.logger.debug('Excluding dependency library ' + jar.cyan);
+				return;
+			}
+
+			if (fs.existsSync(jar) && !jarLibraries[jar]) {
 				this.logger.debug(__('Adding dependency library %s', jar.cyan));
 				jarLibraries[jar] = 1;
 			}
@@ -3144,7 +3152,13 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 				resPkgFile = jarFile.replace(/\.jar$/, '.respackage');
 
 			if (fs.existsSync(resPkgFile) && fs.existsSync(resFile)) {
-				this.resPackages[resFile] = fs.readFileSync(resPkgFile).toString().split('\n').shift().trim();
+				const packageName = fs.readFileSync(resPkgFile).toString().split(/\r?\n/).shift().trim();
+				if (!this.hasAndroidLibrary(packageName)) {
+					this.resPackages[resFile] = packageName;
+				} else {
+					this.logger.info(__('Excluding core module resources of %s (%s) because Android Library with same package name is available.', jarFile, packageName));
+					return done();
+				}
 			}
 
 			if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) {
@@ -3262,13 +3276,17 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	// generate the JavaScript-based services
 	if (android && android.services) {
 		const serviceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSService.java')).toString(),
-			intervalServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSIntervalService.java')).toString();
+			intervalServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSIntervalService.java')).toString(),
+			quickSettingsServiceTemplate = fs.readFileSync(path.join(this.templatesDir, 'JSQuickSettingsService.java')).toString();
 		Object.keys(android.services).forEach(function (name) {
 			const service = android.services[name];
 			let tpl = serviceTemplate;
 			if (service.type === 'interval') {
 				tpl = intervalServiceTemplate;
 				this.logger.debug(__('Generating interval service class: %s', service.classname.cyan));
+			} else if (service.type === 'quicksettings') {
+				tpl = quickSettingsServiceTemplate;
+				this.logger.debug(__('Generating quick settings service class: %s', service.classname.cyan));
 			} else {
 				this.logger.debug(__('Generating service class: %s', service.classname.cyan));
 			}
@@ -3439,6 +3457,30 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 
 	next();
 };
+
+function serviceParser(serviceNode) {
+	// add service attributes
+	const resultService = {};
+	appc.xml.forEachAttr(serviceNode, function (attr) {
+		resultService[attr.localName] = attr.value;
+	});
+	appc.xml.forEachElement(serviceNode, function (node) {
+		if (!resultService[node.tagName]) {
+			resultService[node.tagName] = [];
+		}
+		// create intent-filter instance
+		const intentFilter = {};
+		const action = [];
+		intentFilter['action'] = action;
+		// add atrributes from parent
+		appc.xml.forEachElement(node, function (intentFilterAaction) {
+			intentFilter['action'].push(appc.xml.getAttr(intentFilterAaction, 'android:name'));
+		});
+		// add intent filter object to array
+		resultService[node.tagName].push(intentFilter);
+	});
+	return resultService;
+}
 
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {
 	if (!this.forceRebuild && fs.existsSync(this.androidManifestFile)) {
@@ -3659,14 +3701,26 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	tiappServices && Object.keys(tiappServices).forEach(function (filename) {
 		const service = tiappServices[filename];
 		if (service.url) {
-			const s = {
-				'name': this.appid + '.' + service.classname
-			};
-			Object.keys(service).forEach(function (key) {
-				if (!/^(type|name|url|options|classname|android:name)$/.test(key)) {
-					s[key.replace(/^android:/, '')] = service[key];
-				}
-			});
+			let s = {};
+			if (service.type === 'quicksettings') {
+				const serviceName = this.appid + '.' + service.classname;
+				const icon = '@drawable/' + (service.icon || this.tiapp.icon).replace(/((\.9)?\.(png|jpg))$/, '');
+				const label = service.label || this.tiapp.name;
+				const serviceXML = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'QuickService.xml')).toString(), {
+					serviceName: serviceName,
+					icon: icon,
+					label: label
+				});
+				const doc = new DOMParser().parseFromString(serviceXML, 'text/xml');
+				s = serviceParser(doc.firstChild);
+			} else {
+				s.name = this.appid + '.' + service.classname;
+				Object.keys(service).forEach(function (key) {
+					if (!/^(type|name|url|options|classname|android:name)$/.test(key)) {
+						s[key.replace(/^android:/, '')] = service[key];
+					}
+				});
+			}
 			finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 			finalAndroidManifest.application.service[s.name] = s;
 		}
