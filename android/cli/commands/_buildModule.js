@@ -390,7 +390,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	// Original templates under this.titaniumSdkPath/module/android/generated
 	this.moduleGenTemplateDir = path.join(this.platformPath, 'templates', 'module', 'generated');
 	this.jsTemplateFile = path.join(this.moduleGenTemplateDir, 'bootstrap.js.ejs');
-	this.gperfTemplateFile = path.join(this.moduleGenTemplateDir, 'bootstrap.gperf.ejs');
+	this.bindingsTemplateFile = path.join(this.moduleGenTemplateDir, 'bootstrap.cpp.ejs');
 	this.javaTemplateFile = path.join(this.moduleGenTemplateDir, '{{ModuleIdAsIdentifier}}Bootstrap.java.ejs');
 	this.cppTemplateFile = path.join(this.moduleGenTemplateDir, '{{ModuleIdAsIdentifier}}Bootstrap.cpp.ejs');
 	this.btJsToCppTemplateFile = path.join(this.moduleGenTemplateDir, 'BootstrapJS.cpp.ejs');
@@ -901,7 +901,7 @@ AndroidModuleBuilder.prototype.generateRuntimeBindings = function (next) {
 		[ModuleName]Bootstrap.java,
 		[ModuleName]Bootstrap.cpp,
 		bootstrap.js,
-		KrollGeneratedBindings.gperf.
+		KrollGeneratedBindings.cpp.
 
 */
 AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
@@ -1124,7 +1124,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				const initFunction = '::' + className + '::bindProxy';
 				const disposeFunction = '::' + className + '::dispose';
 
-				initTable.unshift([ proxy, initFunction, disposeFunction ].join(',').toString());
+				initTable.unshift('{' + [ '"' + proxy + '"', initFunction, disposeFunction ].join(', ').toString() + '}');
 
 			}, this);
 
@@ -1143,9 +1143,9 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				'moduleName': moduleName
 			};
 
-			var gperfContext = {
+			var bindingsContext = {
 				'headers': headers,
-				'bindings': initTable.join('\n'),
+				'bindings': initTable,
 				'moduleName': fileNamePrefix
 			};
 
@@ -1155,13 +1155,9 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			);
 
 			fs.writeFileSync(
-				path.join(this.buildGenDir, 'KrollGeneratedBindings.gperf'),
-				ejs.render(fs.readFileSync(this.gperfTemplateFile).toString(), gperfContext)
+				path.join(this.buildGenDir, 'KrollGeneratedBindings.cpp'),
+				ejs.render(fs.readFileSync(this.bindingsTemplateFile).toString(), bindingsContext)
 			);
-
-			// clean any old 'KrollGeneratedBindings.cpp'
-			const krollGeneratedBindingsCpp = path.join(this.buildGenDir, 'KrollGeneratedBindings.cpp');
-			fs.existsSync(krollGeneratedBindingsCpp) && fs.unlinkSync(krollGeneratedBindingsCpp);
 
 			cb();
 		},
