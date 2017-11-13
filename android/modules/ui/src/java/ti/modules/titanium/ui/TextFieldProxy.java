@@ -46,7 +46,8 @@ import android.os.Message;
 	TiC.PROPERTY_VALUE,
 	TiC.PROPERTY_VERTICAL_ALIGN,
 	TiC.PROPERTY_RETURN_KEY_TYPE,
-	TiC.PROPERTY_PADDING
+	TiC.PROPERTY_PADDING,
+	TiC.PROPERTY_LINE_SPACING
 })
 public class TextFieldProxy extends TiViewProxy
 {
