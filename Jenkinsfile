@@ -98,6 +98,7 @@ timestamps {
 					if (fileExists('titanium_mobile.git')) {
 						dir('titanium_mobile.git') {
 							sh 'git remote update -p' // update the clone
+							sh 'git prune' // prune to avoid "warning: There are too many unreachable loose objects"
 						}
 					} else {
 						sh 'git clone --mirror git@github.com:appcelerator/titanium_mobile.git' // create a mirror
