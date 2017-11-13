@@ -136,7 +136,7 @@ properties:
         documentation.
 
         To use a UUID across different applications of the same vendor,
-        use <Titanium.Platform.indentifierForVendor> instead. 
+        use <Titanium.Platform.identifierForVendor> instead. 
 
         To use a UUID for tracking / advertising purposes, 
         use <Titanium.Platform.identifierForAdvertising> instead.
