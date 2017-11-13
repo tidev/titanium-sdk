@@ -39,6 +39,9 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #endif
 #import "TiUIiOSLivePhoto.h"
+#ifdef USE_TI_MEDIAVIDEOPLAYER
+#import "TiMediaVideoPlayerProxy.h"
+#endif
 
 // by default, we want to make the camera fullscreen and
 // these transform values will scale it when we have our own overlay
@@ -351,6 +354,9 @@ MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT_FILL, AVLayerVideoGravityResizeAspec
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_UNKNOWN, AVPlayerStatusUnknown);
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_PLAYABLE, AVPlayerStatusReadyToPlay);
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_FAILED, AVPlayerStatusFailed);
+
+MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_NEAREST_KEYFRAME, VideoTimeOptionNearestKeyFrame);
+MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, VideoTimeOptionExact);
 #endif
 
 - (TiMediaMusicPlayer *)systemMusicPlayer

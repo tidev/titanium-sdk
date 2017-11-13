@@ -156,10 +156,6 @@ examples:
 methods:
 
   - name: cancelAllThumbnailImageRequests
-    deprecated:
-        since: '7.0.0'
-        notes: This method has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: '7.0.0'
     summary: Cancels all pending asynchronous thumbnail requests.
     description: |
         Asynchronous thumbnail requests initiated with

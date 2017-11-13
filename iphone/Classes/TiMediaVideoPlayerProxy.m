@@ -381,6 +381,59 @@ NSArray *moviePlayerKeys = nil;
       YES);
 }
 
+- (void)requestThumbnailImagesAtTimes:(id)args
+{
+  ENSURE_ARG_COUNT(args, 3);
+  ENSURE_TYPE([args objectAtIndex:0], NSArray);
+  ENSURE_TYPE([args objectAtIndex:1], NSNumber);
+  ENSURE_TYPE([args objectAtIndex:2], KrollCallback);
+
+  NSArray *array = [args objectAtIndex:0];
+  if ([array count] > 0) {
+    NSMutableArray *cmTimeArray = [NSMutableArray arrayWithCapacity:[array count]];
+
+    for (NSNumber *time in array) {
+      CMTime cmTime = CMTimeMakeWithSeconds([time floatValue], 1);
+      [cmTimeArray addObject:[NSValue valueWithCMTime:cmTime]];
+    }
+    TiThreadPerformOnMainThread(^{
+      AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:[[[movie player] currentItem] asset]];
+      NSNumber *option = [args objectAtIndex:1];
+
+      if ([option intValue] == VideoTimeOptionExact) {
+        imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
+        imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
+      }
+
+      [imageGenerator cancelAllCGImageGeneration];
+
+      RELEASE_TO_NIL(thumbnailCallback);
+      callbackRequestCount = [array count];
+      thumbnailCallback = [[args objectAtIndex:2] retain];
+
+      [imageGenerator generateCGImagesAsynchronouslyForTimes:cmTimeArray
+                                           completionHandler:^(CMTime requestedTime, CGImageRef _Nullable imageRef, CMTime actualTime, AVAssetImageGeneratorResult result, NSError *_Nullable error) {
+                                             NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+
+                                             if (error == nil) {
+                                               UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
+                                               TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
+                                               [event setObject:blob forKey:@"image"];
+                                               [image release];
+                                             }
+                                             [event setObject:NUMDOUBLE(actualTime.value / actualTime.timescale) forKey:@"time"];
+
+                                             [self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
+
+                                             if (--callbackRequestCount <= 0) {
+                                               RELEASE_TO_NIL(thumbnailCallback);
+                                             }
+                                           }];
+    },
+        NO);
+  }
+}
+
 - (NSNumber *)pictureInPictureEnabled
 {
   return NUMBOOL([TiUtils isIOS9OrGreater] && [movie allowsPictureInPicturePlayback]);
@@ -405,7 +458,11 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)cancelAllThumbnailImageRequests:(id)value
 {
-  DEPRECATED_REMOVED(@"Media.VideoPlayer.cancelAllThumbnailImageRequests", @"7.0.0", @"7.0.0")
+  TiThreadPerformOnMainThread(^{
+    AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:[[[movie player] currentItem] asset]];
+    [imageGenerator cancelAllCGImageGeneration];
+  },
+      NO);
 }
 
 - (TiBlob *)thumbnailImageAtTime:(id)args
