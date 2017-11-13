@@ -41,6 +41,7 @@ require('./ti.app.windows.backgroundservice.test');
 require('./ti.blob.test');
 require('./ti.builtin.test');
 require('./ti.buffer.test');
+require('./ti.calendar.calendar.test');
 require('./ti.codec.test');
 require('./ti.contacts.test');
 require('./ti.contacts.group.test');
