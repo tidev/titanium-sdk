@@ -305,6 +305,10 @@ events:
     platforms: [android]
 
   - name: fullscreen
+    deprecated:
+        since: '7.0.0'
+        notes: This event has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: '7.0.0'
     summary: Fired when a movie changes to or from fullscreen view.
     description: |
         On iOS, this event is fired at the beginning of the transition to
@@ -374,6 +378,10 @@ events:
         constants: Titanium.Media.VIDEO_PLAYBACK_STATE_*
 
   - name: mediatypesavailable
+    deprecated:
+        since: '7.0.0'
+        notes: This event has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: '7.0.0'
     summary: Fired when the media types in the current movie are determined.
     platforms: [iphone, ipad]
     properties:
@@ -432,6 +440,10 @@ events:
         summary: New `sourceType` value.
 
   - name: sourcechange
+    deprecated:
+        since: '7.0.0'
+        notes: This event has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: '7.0.0'
     summary: |
         Fired when the [sourceType](Titanium.Media.VideoPlayer.sourceType) property
         changes.
@@ -647,8 +659,9 @@ properties:
 
   - name: mediaControlStyle
     deprecated:
-        since: "7.0.0"
+        since: '7.0.0'
         notes: On iOS, use <Titanium.Media.VideoPlayer.showsControls> instead.
+        removed: '7.0.0'
     summary: The style of the playback controls.
     description: |
         Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and

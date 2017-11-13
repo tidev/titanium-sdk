@@ -204,8 +204,8 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)setBackgroundView:(id)proxy
 {
-  DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.backgroundView", @"7.0.0", @"7.0.0", @"Media.VideoPlayer.overlayView");
-  [self setOverlayView:proxy];
+  DEPRECATED_REPLACED(@"Media.VideoPlayer.backgroundView", @"7.0.0", @"Media.VideoPlayer.overlayView")
+      [self setOverlayView:proxy];
 }
 
 - (NSNumber *)playing

@@ -13,7 +13,7 @@
 #import <AVKit/AVKit.h>
 #import <MediaPlayer/MediaPlayer.h>
 
-enum {
+typedef NS_ENUM(NSInteger, VideoTimeOption) {
   VideoTimeOptionNearestKeyFrame = 0,
   VideoTimeOptionExact,
 };
@@ -21,7 +21,6 @@ enum {
 @interface TiMediaVideoPlayerProxy : TiViewProxy {
   @protected
   AVPlayerViewController *movie;
-  MPMoviePlayerViewController *cont;
   AVPlayerItem *item;
   NSRecursiveLock *playerLock;
   BOOL playing;
