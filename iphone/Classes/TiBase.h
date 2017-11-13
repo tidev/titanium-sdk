@@ -70,11 +70,6 @@ extern "C" {
   {                            \
     TiLogMessage(__VA_ARGS__); \
   }
-  
-// Hide assertions in prod-builds
-#ifdef NDEBUG
-#define assert(e)   ((void)0)
-#endif
 
 // create a mutable array that doesn't retain internal references to objects
 NSMutableArray *TiCreateNonRetainingArray();
