@@ -201,6 +201,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			cli.emit('build.module.pre.compile', this, next);
 		},
 
+		'replaceBundledSupportLibraries',
 		'processResources',
 		'compileAidlFiles',
 		'compileModuleJavaSrc',
@@ -290,20 +291,20 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	// process module dependencies
 	this.modules = this.timodule && !Array.isArray(this.timodule.modules) ? [] : this.timodule.modules.filter(function (m) {
 		if (!m.platform || /^android$/.test(m.platform)) {
-			var localPath = path.join(this.modulesDir, m.id),
+			const localPath = path.join(this.modulesDir, m.id),
 				globalPath = path.join(this.globalModulesDir, m.id);
 
 			function getModulePath (modulePath) {
 				var items = fs.readdirSync(modulePath);
 				if (m.version) {
-					for (var item of items) {
+					for (const item of items) {
 						if (item === m.version) {
 							m.path = path.join(modulePath, m.version);
 							return true;
 						}
 					}
 				} else if (items.length) {
-					var latest = items[items.length - 1];
+					const latest = items[items.length - 1];
 					if (!latest.startsWith('.')) {
 						m.version = latest;
 						m.path = path.join(modulePath, m.version);
@@ -323,20 +324,20 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 
 	// obtain module dependency android archives for aar-transform to find
 	this.moduleAndroidLibraries = [];
-	function obtainModuleDependency (name, libPath) {
-		var file = path.join(libPath, name);
-		if (/\.aar$/.test(name) && fs.existsSync(file)) {
-			this.moduleAndroidLibraries.push({
-				aarPathAndFilename: String(file),
-				originType: 'Module'
-			});
-		}
+	function obtainModuleDependency (module) {
+		const libPath = path.join(module.path, 'lib');
+		fs.existsSync(libPath) && fs.readdirSync(libPath).forEach(function (name) {
+			const file = path.join(libPath, name);
+			if (/\.aar$/.test(name) && fs.existsSync(file)) {
+				this.moduleAndroidLibraries.push({
+					aarPathAndFilename: String(file),
+					originType: 'Module'
+				});
+			}
+		}, this);
 	}
 
-	for (let module of this.modules) {
-		var libPath = path.join(module.path, 'lib');
-		fs.existsSync(libPath) && fs.readdirSync(libPath).forEach(obtainModuleDependency, this);
-	}
+	this.modules.forEach(obtainModuleDependency, this);
 
 	// module java archive paths
 	this.jarPaths = [ path.join(this.platformPath, 'lib'), path.join(this.platformPath, 'modules'), this.platformPath ];
@@ -427,6 +428,27 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo() {
 };
 
 /**
+ * Replaces any .jar file in the Class Path that comes bundled with our SDK
+ * with a user provided one if available.
+ *
+ * We need to do this in this in an extra step because by the time our bundled
+ * Support Libraries will be added, we haven't parsed any other Android
+ * Libraries yet.
+ *
+ * @param {Function} next Callback function
+ */
+AndroidModuleBuilder.prototype.replaceBundledSupportLibraries = function replaceBundledSupportLibraries(next) {
+	Object.keys(this.classPaths).forEach(function (libraryPathAndFilename) {
+		if (this.isExternalAndroidLibraryAvailable(libraryPathAndFilename)) {
+			this.logger.debug('Excluding library ' + libraryPathAndFilename.cyan);
+			delete this.classPaths[libraryPathAndFilename];
+		}
+	}, this);
+
+	next();
+};
+
+/**
  * Processes resources for this module.
  *
  * This step will generate R classes for this module, our core modules and any
@@ -497,8 +519,13 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 						const resArchivePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.res.zip'));
 						const respackagePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.respackage'));
 						if (fs.existsSync(resArchivePathAndFilename) && fs.existsSync(respackagePathAndFilename)) {
-							extraPackages.push(fs.readFileSync(respackagePathAndFilename).toString().split('\n').shift().trim());
-							resArchives.push(resArchivePathAndFilename);
+							const packageName = fs.readFileSync(respackagePathAndFilename).toString().split(/\r?\n/).shift().trim();
+							if (!this.hasAndroidLibrary(packageName)) {
+								extraPackages.push(packageName);
+								resArchives.push(resArchivePathAndFilename);
+							} else {
+								this.logger.info(__('Excluding core module resources of %s (%s) because Android Library with same package name is available.', file, packageName));
+							}
 						}
 					}, this);
 
@@ -1200,7 +1227,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 	this.logger.info(__('Generating v8 bindings'));
 
-	const dependsMap =  JSON.parse(fs.readFileSync(this.dependencyJsonFile));
+	const dependsMap = this.dependencyMap;
 	Array.prototype.push.apply(this.metaData, dependsMap.required);
 
 	Object.keys(dependsMap.dependencies).forEach(function (key) {
