@@ -88,13 +88,13 @@ describe('Titanium.UI.Window', function () {
 		});
 		win.open();
 	};
-	it.windowsMissing('orientationModes-PORTRAIT', function(finish) {
+	it.android('orientationModes-PORTRAIT', function(finish) {
 		doOrientationModeTest(this, finish, Ti.UI.PORTRAIT);
 	});
-	it.windowsMissing('orientationModes-LANDSCAPE_LEFT', function(finish) {
+	it.android('orientationModes-LANDSCAPE_LEFT', function(finish) {
 		doOrientationModeTest(this, finish, Ti.UI.LANDSCAPE_LEFT);
 	});
-	it.windowsMissing('orientationModes-LANDSCAPE_RIGHT', function(finish) {
+	it.android('orientationModes-LANDSCAPE_RIGHT', function(finish) {
 		doOrientationModeTest(this, finish, Ti.UI.LANDSCAPE_RIGHT);
 	});
 
