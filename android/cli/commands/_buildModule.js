@@ -25,6 +25,7 @@ const AdmZip = require('adm-zip'),
 	markdown = require('markdown').markdown,
 	path = require('path'),
 	temp = require('temp'),
+	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
@@ -167,8 +168,8 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 
 			// get the javac params
 			this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
-			this.javacSource = cli.timodule.properties['android.javac.source'] && cli.timodule.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
-			this.javacTarget = cli.timodule.properties['android.javac.target'] && cli.timodule.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
+			this.javacSource = cli.timodule.properties['android.javac.source'] && cli.timodule.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
+			this.javacTarget = cli.timodule.properties['android.javac.target'] && cli.timodule.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
 			this.dxMaxMemory = cli.timodule.properties['android.dx.maxmemory'] && cli.timodule.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 
 			// detect java development kit
@@ -208,6 +209,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			cli.emit('build.module.pre.compile', this, next);
 		},
 
+		'replaceBundledSupportLibraries',
 		'processResources',
 		'compileAidlFiles',
 		'compileModuleJavaSrc',
@@ -274,17 +276,6 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.classPaths[this.androidCompileSDK.androidJar] = 1;
 	this.manifestFile = path.join(this.projectDir, 'manifest');
 
-	[ 'lib', 'modules', '' ].forEach(function (folder) {
-		var jarDir = path.join(this.platformPath, folder);
-
-		fs.existsSync(jarDir) && fs.readdirSync(jarDir).forEach(function (name) {
-			var file = path.join(jarDir, name);
-			if (/\.jar$/.test(name) && fs.existsSync(file)) {
-				this.classPaths[file] = 1;
-			}
-		}, this);
-	}, this);
-
 	this.dependencyJsonFile = path.join(this.platformPath, 'dependency.json');
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
 	this.moduleIdSubDir = this.manifest.moduleid.split('.').join(path.sep);
@@ -301,6 +292,79 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.sharedHooksDir = path.resolve(this.projectDir, '..', 'hooks');
 
 	this.timoduleXmlFile = path.join(this.projectDir, 'timodule.xml');
+	this.timodule = fs.existsSync(this.timoduleXmlFile) ? new tiappxml(this.timoduleXmlFile) : undefined;
+	this.modulesDir = path.join(this.projectDir, 'modules', 'android');
+	this.globalModulesDir = path.join(this.globalModulesPath, 'android');
+
+	// process module dependencies
+	this.modules = this.timodule && !Array.isArray(this.timodule.modules) ? [] : this.timodule.modules.filter(function (m) {
+		if (!m.platform || /^android$/.test(m.platform)) {
+			const localPath = path.join(this.modulesDir, m.id),
+				globalPath = path.join(this.globalModulesDir, m.id);
+
+			function getModulePath (modulePath) {
+				var items = fs.readdirSync(modulePath);
+				if (m.version) {
+					for (const item of items) {
+						if (item === m.version) {
+							m.path = path.join(modulePath, m.version);
+							return true;
+						}
+					}
+				} else if (items.length) {
+					const latest = items[items.length - 1];
+					if (!latest.startsWith('.')) {
+						m.version = latest;
+						m.path = path.join(modulePath, m.version);
+						return true;
+					}
+				}
+				return false;
+			}
+
+			if ((fs.existsSync(localPath) && getModulePath(localPath))
+				|| (fs.existsSync(globalPath) && getModulePath(globalPath))) {
+				return true;
+			}
+		}
+		return false;
+	}.bind(this));
+
+	// obtain module dependency android archives for aar-transform to find
+	this.moduleAndroidLibraries = [];
+	function obtainModuleDependency (module) {
+		const libPath = path.join(module.path, 'lib');
+		fs.existsSync(libPath) && fs.readdirSync(libPath).forEach(function (name) {
+			const file = path.join(libPath, name);
+			if (/\.aar$/.test(name) && fs.existsSync(file)) {
+				this.moduleAndroidLibraries.push({
+					aarPathAndFilename: String(file),
+					originType: 'Module'
+				});
+			}
+		}, this);
+	}
+
+	this.modules.forEach(obtainModuleDependency, this);
+
+	// module java archive paths
+	this.jarPaths = [ path.join(this.platformPath, 'lib'), path.join(this.platformPath, 'modules'), this.platformPath ];
+
+	// module dependencies java archive paths
+	for (let module of this.modules) {
+		this.jarPaths.push(path.join(module.path));
+		this.jarPaths.push(path.join(module.path, 'lib'));
+	}
+
+	this.jarPaths.forEach(function (jarDir) {
+		fs.existsSync(jarDir) && fs.readdirSync(jarDir).forEach(function (name) {
+			var file = path.join(jarDir, name);
+			if (/\.jar$/.test(name) && fs.existsSync(file)) {
+				this.classPaths[file] = 1;
+			}
+		}, this);
+	}, this);
+
 	this.licenseFile = path.join(this.projectDir, 'LICENSE');
 	if (!fs.existsSync(this.licenseFile)) {
 		this.licenseFile = path.join(this.projectDir, '..', 'LICENSE');
@@ -372,6 +436,27 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo() {
 };
 
 /**
+ * Replaces any .jar file in the Class Path that comes bundled with our SDK
+ * with a user provided one if available.
+ *
+ * We need to do this in this in an extra step because by the time our bundled
+ * Support Libraries will be added, we haven't parsed any other Android
+ * Libraries yet.
+ *
+ * @param {Function} next Callback function
+ */
+AndroidModuleBuilder.prototype.replaceBundledSupportLibraries = function replaceBundledSupportLibraries(next) {
+	Object.keys(this.classPaths).forEach(function (libraryPathAndFilename) {
+		if (this.isExternalAndroidLibraryAvailable(libraryPathAndFilename)) {
+			this.logger.debug('Excluding library ' + libraryPathAndFilename.cyan);
+			delete this.classPaths[libraryPathAndFilename];
+		}
+	}, this);
+
+	next();
+};
+
+/**
  * Processes resources for this module.
  *
  * This step will generate R classes for this module, our core modules and any
@@ -384,7 +469,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 	var mergedResPath = path.join(this.buildIntermediatesDir, 'res/merged');
 	var extraPackages = [];
 	var merge = function (src, dest) {
-		fs.readdirSync(src).forEach(function (filename) {
+		fs.existsSync(src) && fs.readdirSync(src).forEach(function (filename) {
 			var from = path.join(src, filename),
 				to = path.join(dest, filename);
 			if (fs.existsSync(from)) {
@@ -442,8 +527,13 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 						const resArchivePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.res.zip'));
 						const respackagePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.respackage'));
 						if (fs.existsSync(resArchivePathAndFilename) && fs.existsSync(respackagePathAndFilename)) {
-							extraPackages.push(fs.readFileSync(respackagePathAndFilename).toString().split('\n').shift().trim());
-							resArchives.push(resArchivePathAndFilename);
+							const packageName = fs.readFileSync(respackagePathAndFilename).toString().split(/\r?\n/).shift().trim();
+							if (!this.hasAndroidLibrary(packageName)) {
+								extraPackages.push(packageName);
+								resArchives.push(resArchivePathAndFilename);
+							} else {
+								this.logger.info(__('Excluding core module resources of %s (%s) because Android Library with same package name is available.', file, packageName));
+							}
 						}
 					}, this);
 
@@ -1145,7 +1235,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 	this.logger.info(__('Generating v8 bindings'));
 
-	const dependsMap =  JSON.parse(fs.readFileSync(this.dependencyJsonFile));
+	const dependsMap = this.dependencyMap;
 	Array.prototype.push.apply(this.metaData, dependsMap.required);
 
 	Object.keys(dependsMap.dependencies).forEach(function (key) {
@@ -1623,7 +1713,11 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 		function generateModuleJar(cb) {
 			const moduleJarStream = fs.createWriteStream(this.moduleJarFile);
 			const moduleJarArchive = archiver('zip', {
-				store: true
+				options: {
+					zlib: {
+						level: 9
+					}
+				}
 			});
 			moduleJarStream.on('close', cb);
 			moduleJarArchive.on('error', cb);
