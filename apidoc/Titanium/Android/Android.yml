@@ -1998,6 +1998,30 @@ properties:
     since: "3.6.0"
     osver: {android: {min: "5.0"}}
 
+  - name: TILE_STATE_UNAVAILABLE
+    summary: QuickSettings tile is unavailble.
+    description: |
+        For some reason the Tile is not avaialable to the used and will have no click action.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: TILE_STATE_INACTIVE
+    summary: QuickSettings tile is inactive.
+    description: |
+        The Tile is in disabled state, but the user can interact with it.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: TILE_STATE_ACTIVE
+    summary: QuickSettings tile is active.
+    description: |
+        The Tile is in enabled state and the user can interact with it.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
   - name: WAKE_LOCK_PARTIAL
     summary: Ensures that the CPU is running; the screen and keyboard backlight will be allowed to go off.
     description: |
