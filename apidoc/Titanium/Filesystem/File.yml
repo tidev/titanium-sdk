@@ -177,15 +177,20 @@ methods:
     returns:
         type: Array<String>
   - name: getParent
-    summary: Returns the path of the parent directory holding the file identified by this
-        file object, as a String **or** as a `File` object.
+    summary: |
+        Returns the path of the parent directory holding the file identified by this
+        file object, as a String (deprecated) **or** as a `File` object.
     description: |
-        On iOS, this method returns the path of the parent directory as a String.
-
-        Android supports a [parent](Titanium.Filesystem.File.parent) property, which
-        is a `File` object representing the parent directory path. The `getParent` method
-        on Android is a getter for the `parent` property, so it returns a `File` object
-        rather than a String.
+        Prior to Titanium SDK 7.0.0, on iOS this method returned the path of the parent
+        directory as a String. Since Titanium SDK 7.0.0, this method has been deprecated
+        in favor of the <Titanium.Filesystem.File.parent> property and will return
+        a <Titanium.Filesystem.File> reference in the future as well.
+    deprecated:
+        since: "7.0.0"
+        notes: | 
+            Use the <Titanium.Filesystem.File.parent> property to receive a `File`
+            reference instead. If you wish to receive the path, use the `nativePath`
+            property of that reference instead.
     returns:
       - type: String
       - type: Titanium.Filesystem.File
@@ -354,8 +359,13 @@ properties:
         method to obtain a plain file path for use with native modules.
     type: String
     permission: read-only
+
   - name: parent
     summary: A `File` object representing the parent directory of the file identified by this object.
+    description: |
+        iOS platform-note: Prior to Titanium SDK 7.0.0, this method returned the 
+        path of the parent directory as a String. Since Titanium SDK 7.0.0 it 
+        returnes a <Titanium.Filesystem.File> reference for parity wih Android and Windows.
     type: Titanium.Filesystem.File
     permission: read-only
     platforms: [android]
