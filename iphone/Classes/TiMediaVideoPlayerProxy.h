@@ -13,6 +13,11 @@
 #import <AVKit/AVKit.h>
 #import <MediaPlayer/MediaPlayer.h>
 
+typedef NS_ENUM(NSInteger, VideoTimeOption) {
+  VideoTimeOptionNearestKeyFrame = 0,
+  VideoTimeOptionExact,
+};
+
 @interface TiMediaVideoPlayerProxy : TiViewProxy {
   @protected
   AVPlayerViewController *movie;
