@@ -100,6 +100,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)dealloc
 {
+  if ([searchController isActive]) {
+    searchController.view.hidden = YES;
+    [searchController setActive:NO];
+  }
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
 
@@ -120,6 +124,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [_footerViewProxy setProxyObserver:nil];
   [_pullViewProxy setProxyObserver:nil];
   [searchController setDelegate:nil];
+  [searchController setSearchResultsUpdater:nil];
   RELEASE_TO_NIL(_searchString);
   RELEASE_TO_NIL(_searchResults);
   RELEASE_TO_NIL(_pullViewWrapper);
@@ -200,6 +205,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _searchTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _searchTableView.delegate = self;
     _searchTableView.dataSource = self;
+
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater]) {
+      _searchTableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#endif
 
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
@@ -898,6 +909,16 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)setDisableBounce_:(id)value
 {
   [[self tableView] setBounces:![TiUtils boolValue:value def:NO]];
+}
+
+- (void)setAllowsMultipleSelectionDuringEditing_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  [[self proxy] replaceValue:value forKey:@"allowsMultipleSelectionDuringEditing" notification:NO];
+
+  [[self tableView] beginUpdates];
+  [[self tableView] setAllowsMultipleSelectionDuringEditing:[TiUtils boolValue:value]];
+  [[self tableView] endUpdates];
 }
 
 #pragma mark - Search Support
@@ -2154,10 +2175,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [viewController presentViewController:controller
                                animated:NO
                              completion:^{
+                               CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:viewController.view];
+
                                UIView *view = controller.searchBar.superview;
-                               view.frame = CGRectMake(view.frame.origin.x, self.frame.origin.y, view.frame.size.width, view.frame.size.height);
+                               view.frame = CGRectMake(view.frame.origin.x, convertedOrigin.y, view.frame.size.width, view.frame.size.height);
                                controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-                               resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
+                               resultViewController.tableView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
                              }];
 
   id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];

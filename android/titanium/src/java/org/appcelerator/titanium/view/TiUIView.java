@@ -444,7 +444,8 @@ public abstract class TiUIView
 
 	private boolean hasBorder(KrollDict d)
 	{
-		return (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
+		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
+			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
 				&& TiConvert.toTiDimension(d.getString(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH).getValue() > 0f)
 			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
 				&& TiConvert.toTiDimension(d.getString(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_WIDTH).getValue() > 0f);
@@ -1418,7 +1419,7 @@ public abstract class TiUIView
 					}
 					borderView.setRadius(radius);
 				}
-				
+
 				if (bgColor != null) {
 					borderView.setBgColor(bgColor);
 					borderView.setColor(bgColor);
@@ -1427,14 +1428,21 @@ public abstract class TiUIView
 					borderView.setColor(TiConvert.toColor(d, TiC.PROPERTY_BORDER_COLOR));
 				}
 
+				//Have a default border width of 1
+				Object borderWidth = "1";
 				if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-					TiDimension width = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH);
-					if (width != null) {
-						if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
-							disableHWAcceleration();
-						}
-						borderView.setBorderWidth((float) width.getPixels(borderView));
+					borderWidth = d.get(TiC.PROPERTY_BORDER_WIDTH);
+				} else {
+					// Add the default width of 1 to the proxy as well
+					proxy.setProperty(TiC.PROPERTY_BORDER_WIDTH, borderWidth);
+				}
+
+				TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
+				if (width != null) {
+					if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
+						disableHWAcceleration();
 					}
+					borderView.setBorderWidth((float) width.getPixels(borderView));
 				}
 
 				nativeView.invalidate();
@@ -1982,7 +1990,7 @@ public abstract class TiUIView
 
 	protected void disableHWAcceleration()
 	{
-		if (borderView == null || !borderView.isHardwareAccelerated()) {
+		if (borderView == null || (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN && !borderView.isHardwareAccelerated())) {
 			return;
 		}
 		Log.d(TAG, "Disabling hardware acceleration for instance of " + borderView.getClass().getSimpleName(),
