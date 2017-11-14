@@ -148,6 +148,11 @@ describe('Titanium.UI.ScrollView', function () {
 		should(bar.scrollToBottom).be.a.Function;
 	});
 
+	it('#scrollToTop()', function () {
+		var bar = Ti.UI.createScrollView({});
+		should(bar.scrollToTop).be.a.Function;
+	});
+
 	it('add-insert-remove', function() {
 		var scrollView = Ti.UI.createScrollView({ layout: "vertical" });
 		var view1 = Ti.UI.createView();
