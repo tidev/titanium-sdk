@@ -22,7 +22,7 @@
 }
 #endif
 
-- (id)initWithPlayer:(AVPlayerViewController *)controller_ proxy:(TiProxy *)proxy_ loaded:(BOOL)loaded_
+- (id)initWithPlayer:(MPMoviePlayerController *)controller_ proxy:(TiProxy *)proxy_ loaded:(BOOL)loaded_
 {
   if (self = [super init]) {
     loaded = loaded_;
@@ -55,7 +55,7 @@
   loaded = YES;
 }
 
-- (void)setMovie:(AVPlayerViewController *)controller_
+- (void)setMovie:(MPMoviePlayerController *)controller_
 {
   if (controller_ == controller) {
     // don't add the movie more than once if the same

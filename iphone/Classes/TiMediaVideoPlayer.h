@@ -7,20 +7,18 @@
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 
 #import "TiUIView.h"
-#import <AVFoundation/AVFoundation.h>
-#import <AVKit/AVKit.h>
 #import <MediaPlayer/MediaPlayer.h>
 
 @interface TiMediaVideoPlayer : TiUIView {
   @private
-  AVPlayerViewController *controller;
+  MPMoviePlayerController *controller;
   UIActivityIndicatorView *spinner;
 
   BOOL loaded;
 }
 
-- (id)initWithPlayer:(AVPlayerViewController *)controller proxy:(TiProxy *)proxy loaded:(BOOL)loaded_;
-- (void)setMovie:(AVPlayerViewController *)controller;
+- (id)initWithPlayer:(MPMoviePlayerController *)controller proxy:(TiProxy *)proxy loaded:(BOOL)loaded_;
+- (void)setMovie:(MPMoviePlayerController *)controller;
 - (void)movieLoaded;
 
 @end
