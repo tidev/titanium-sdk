@@ -651,25 +651,25 @@ public class TiUIText extends TiUIView
 			}
 
 			if (d.containsKey(TiC.PROPERTY_INPUT_TYPE)) {
-			    Object obj = d.get(TiC.PROPERTY_INPUT_TYPE);
-			    boolean combineInput = false;
-			    int[] inputTypes = null;
-			    int combinedInputType = 0;
+				Object obj = d.get(TiC.PROPERTY_INPUT_TYPE);
+				boolean combineInput = false;
+				int[] inputTypes = null;
+				int combinedInputType = 0;
 
-			    if (obj instanceof Object[]) {
-			        inputTypes = TiConvert.toIntArray((Object[]) obj);
-			    }
+				if (obj instanceof Object[]) {
+					inputTypes = TiConvert.toIntArray((Object[]) obj);
+				}
 
-			    if (inputTypes != null) {
-			        combineInput = true;
-			        for (int inputType: inputTypes) {
-			            combinedInputType |= inputType;
-			        }
-			    }
+				if (inputTypes != null) {
+					combineInput = true;
+					for (int inputType: inputTypes) {
+						combinedInputType |= inputType;
+					}
+				}
 
-			    if (combineInput) {
-			        textTypeAndClass = combinedInputType;
-			    }
+				if (combineInput) {
+					textTypeAndClass = combinedInputType;
+				}
 			}
 
 			if (passwordMask) {
@@ -710,18 +710,29 @@ public class TiUIText extends TiUIView
 
 	public void setSelection(int start, int end) 
 	{
+		// Validate arguments.
 		int textLength = tv.length();
 		if (start < 0 || start > textLength || end < 0 || end > textLength) {
 			Log.w(TAG, "Invalid range for text selection. Ignoring.");
 			return;
 		}
 
-		// http://stackoverflow.com/a/35527348/1504248
+		// Do not continue if selection isn't changing. (This is an optimization.)
+		if ((start == tv.getSelectionStart()) && (end == tv.getSelectionEnd())) {
+			return;
+		}
+
+		// This works-around an Android 4.x bug where the "end" index will be ignored
+		// if setSelection() is called just after tapping the text field. (See: TIMOB-19639)
 		Editable text = tv.getText();
 		if (text.length() > 0) {
+			boolean wasDisabled = this.disableChangeEvent;
+			this.disableChangeEvent = true;
 			text.replace(0, 1, text.subSequence(0, 1), 0, 1);
+			this.disableChangeEvent = wasDisabled;
 		}
-		
+
+		// Change the cursor position and text selection.
 		tv.setSelection(start, end);
 	}
 	

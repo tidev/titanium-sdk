@@ -1,9 +1,8 @@
 #!/usr/bin/env node
+'use strict';
 
-var exec = require('child_process').exec,
-	os = require('os'),
+const os = require('os'),
 	path = require('path'),
-	async = require('async'),
 	program = require('commander'),
 	version = require('../package.json').version,
 	appc = require('node-appc');
@@ -13,15 +12,14 @@ program
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')
 	.parse(process.argv);
 
-var versionTag = program.versionTag || program.sdkVersion;
+const versionTag = program.versionTag || program.sdkVersion;
 
 /**
  * @param  {String}   versionTag [description]
  * @param  {Function} next        [description]
  */
 function install(versionTag, next) {
-	var zipfile,
-		dest,
+	let dest,
 		osName = os.platform();
 
 	if (osName === 'win32') {
@@ -37,9 +35,8 @@ function install(versionTag, next) {
 		osName = 'linux';
 		dest = path.join(process.env.HOME, '.titanium');
 	}
-	// TODO Where should we install on Windows?
 
-	zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
+	const zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
 	console.log('Installing %s...', zipfile);
 
 	appc.zip.unzip(zipfile, dest, {}, next);

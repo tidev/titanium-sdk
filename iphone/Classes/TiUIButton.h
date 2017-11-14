@@ -9,28 +9,28 @@
 #import "TiUIView.h"
 
 @interface TiUIButton : TiUIView {
-@private
-	UIButton *button;
+  @private
+  UIButton *button;
 
 #ifndef TI_USE_AUTOLAYOUT
-    //In the rare case where the button is treated as a view group, we must have
-    //an empty wrapper for -[parentViewForChild:]
-	UIView * viewGroupWrapper;
+  //In the rare case where the button is treated as a view group, we must have
+  //an empty wrapper for -[parentViewForChild:]
+  UIView *viewGroupWrapper;
 #endif
-	UIImage * backgroundImageCache;
-	UIImage * backgroundImageUnstretchedCache;
+  UIImage *backgroundImageCache;
+  UIImage *backgroundImageUnstretchedCache;
 
-	int style;
-	
-    BOOL touchStarted;
+  int style;
+
+  BOOL touchStarted;
 }
 
--(UIButton*)button;
+- (UIButton *)button;
 #ifndef TI_USE_AUTOLAYOUT
--(UIView*)viewGroupWrapper;
+- (UIView *)viewGroupWrapper;
 #endif
 
--(void)setEnabled_:(id)value;
+- (void)setEnabled_:(id)value;
 
 @end
 
