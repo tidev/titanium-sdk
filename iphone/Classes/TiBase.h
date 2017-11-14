@@ -123,7 +123,7 @@ NSString *JavascriptNameForClass(Class c);
 #else
 #define CODELOCATION @""
 #endif
-  
+
 #define NULL_IF_NIL(x) ({ id xx = (x); (xx==nil)?[NSNull null]:xx; })
 
 //NOTE: these checks can be pulled out of production build type
