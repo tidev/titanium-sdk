@@ -264,7 +264,16 @@ public class TiUIWebView extends TiUIView
 			return super.onCheckIsTextEditor();
 		}
 	}
-	
+
+	@Override
+	protected boolean hasBorder(KrollDict d) {
+		if (LOWER_THAN_JELLYBEAN) {
+			return false;
+		} else {
+			return super.hasBorder(d);
+		}
+	}
+
 	private boolean isHTCSenseDevice()
 	{
 		boolean isHTC = false;
@@ -938,12 +947,7 @@ public class TiUIWebView extends TiUIView
 	}
 
 	@Override
-	protected void disableHWAcceleration()
-	{
-		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
-			super.disableHWAcceleration();
-		} else {
-			Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
-		}
+	protected void disableHWAcceleration() {
+		Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
 	}
 }

@@ -88,7 +88,7 @@ public abstract class TiUIView
 
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-	private static final boolean LOWER_THAN_JELLYBEAN = (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2);
+	protected static final boolean LOWER_THAN_JELLYBEAN = (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2);
 	private static final boolean LOWER_THAN_MARSHMALLOW = (Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
 
 	private static final int LAYER_TYPE_SOFTWARE = 1;
@@ -442,7 +442,7 @@ public abstract class TiUIView
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_GRADIENT);
 	}
 
-	private boolean hasBorder(KrollDict d)
+	protected boolean hasBorder(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
 			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
@@ -886,8 +886,8 @@ public abstract class TiUIView
 
 					// TIMOB-24898: disable HW acceleration to allow transparency
 					// when the backgroundColor alpha channel has been set
-					byte bgAlpha = bgColor != null ? (byte)(bgColor >> 24) : (byte)0xFF;
-					if (bgAlpha != 0xFF) {
+
+					if (bgColor != null && bgColor >>> 24 != 0xFF) {
 						disableHWAcceleration();
 					}
 				}
@@ -1451,8 +1451,7 @@ public abstract class TiUIView
 
 			// TIMOB-24898: disable HW acceleration to allow transparency
 			// when the backgroundColor alpha channel has been set
-			byte bgAlpha = bgColor != null ? (byte)(bgColor >> 24) : (byte)0xFF;
-			if (bgAlpha != 0xFF) {
+			if (bgColor != null && bgColor >>> 24 != 0xFF) {
 				disableHWAcceleration();
 			}
 		}
@@ -1990,7 +1989,7 @@ public abstract class TiUIView
 
 	protected void disableHWAcceleration()
 	{
-		if (borderView == null || (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN && !borderView.isHardwareAccelerated())) {
+		if (borderView == null) {
 			return;
 		}
 		Log.d(TAG, "Disabling hardware acceleration for instance of " + borderView.getClass().getSimpleName(),
