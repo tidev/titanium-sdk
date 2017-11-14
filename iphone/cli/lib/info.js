@@ -65,10 +65,10 @@ exports.detect = function (types, config, next) {
 		this.issues.forEach(function (issue) {
 			switch (issue.id) {
 				case 'IOS_SECURITY_EXECUTABLE_NOT_FOUND':
-					issue.message += '\n' + __('If you know where this executable is, you can tell the Titanium CLI where it located by running \'titanium config osx.executables.security /path/to/security\'.');
+					issue.message += '\n' + __('If you know where this executable is, you can tell the Titanium CLI where it located by running \'%stitanium config osx.executables.security /path/to/security\'.', process.env.APPC_ENV ? 'appc ' : '');
 					break;
 				case 'IOS_XCODE_SELECT_EXECUTABLE_NOT_FOUND':
-					issue.message += '\n' + __('If you know where this executable is, you can tell the Titanium CLI where it located by running \'titanium config osx.executables.xcodeSelect /path/to/xcode-select\'.');
+					issue.message += '\n' + __('If you know where this executable is, you can tell the Titanium CLI where it located by running \'%stitanium config osx.executables.xcodeSelect /path/to/xcode-select\'.', process.env.APPC_ENV ? 'appc ' : '');
 					break;
 				case 'IOS_XCODE_TOO_OLD':
 					issue.message = __('Xcode %s is too old and is no longer supported by Titanium SDK %s.', '__' + issue.xcodeVer + '__', manifestJson.version) + '\n'
