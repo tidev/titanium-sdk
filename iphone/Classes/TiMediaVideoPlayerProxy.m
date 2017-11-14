@@ -218,7 +218,7 @@ NSArray *moviePlayerKeys = nil;
   [movie setVideoGravity:[TiUtils stringValue:value properties:nil def:AVLayerVideoGravityResize]];
 }
 
-- (void)setScalingMode:(NSNumber *)value
+- (void)setScalingMode:(NSString *)value
 {
   if (movie != nil) {
     TiThreadPerformOnMainThread(^{
@@ -253,7 +253,7 @@ NSArray *moviePlayerKeys = nil;
   if (movie != nil) {
     return NUMBOOL([[movie player] allowsExternalPlayback]);
   } else {
-    [loadProperties valueForKey:@"allowsAirPlay"] || NUMBOOL(NO);
+    RETURN_FROM_LOAD_PROPERTIES(@"allowsAirPlay", NUMBOOL(NO));
   }
 }
 
@@ -420,9 +420,8 @@ NSArray *moviePlayerKeys = nil;
                                                TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:image] autorelease];
                                                [event setObject:blob forKey:@"image"];
                                                [image release];
+                                               [event setObject:NUMDOUBLE(actualTime.value / actualTime.timescale) forKey:@"time"];
                                              }
-                                             [event setObject:NUMDOUBLE(actualTime.value / actualTime.timescale) forKey:@"time"];
-
                                              [self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
 
                                              if (--callbackRequestCount <= 0) {

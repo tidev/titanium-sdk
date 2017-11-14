@@ -802,6 +802,7 @@ properties:
     platforms: [iphone, ipad]
     type: Boolean
     default: true
+    since: "7.0.0"
 
   - name: sourceType
     deprecated:
