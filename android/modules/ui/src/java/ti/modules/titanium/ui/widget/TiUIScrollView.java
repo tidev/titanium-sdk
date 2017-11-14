@@ -887,6 +887,16 @@ public class TiUIScrollView extends TiUIView
 		}
 	}
 
+	public void scrollToTop()
+	{
+		View view = this.scrollView;
+		if (view instanceof TiHorizontalScrollView) {
+			((TiHorizontalScrollView)this.scrollView).fullScroll(View.FOCUS_LEFT);
+		} else if (view instanceof TiVerticalScrollView) {
+			((TiVerticalScrollView)this.scrollView).fullScroll(View.FOCUS_UP);
+		}
+	}
+
 	@Override
 	public void add(TiUIView child)
 	{
