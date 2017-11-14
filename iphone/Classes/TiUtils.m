@@ -783,58 +783,59 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     return url;
   }
 
-  //NOTE; I'm not sure the order here.. the docs don't necessarily
-  //specify the exact order
   NSFileManager *fm = [NSFileManager defaultManager];
   NSString *partial = [path stringByDeletingPathExtension];
 
   NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
 
   if ([TiUtils isRetinaHDDisplay]) {
-    // first try -736h@3x iphone6 Plus specific
-    NSString *testpath = [NSString stringWithFormat:@"%@-736h@3x.%@", partial, ext];
-    if ([fm fileExistsAtPath:testpath]) {
-      return [NSURL fileURLWithPath:testpath];
+    if ([TiUtils isRetinaiPhoneX]) {
+      // -2436h@3x iPhone X specific
+      NSString *testpath = [NSString stringWithFormat:@"%@-2436h@3x.%@", partial, ext];
+      if ([fm fileExistsAtPath:testpath]) {
+        return [NSURL fileURLWithPath:testpath];
+      }
+    } else if ([TiUtils isRetinaiPhone6]) {
+      // -736h@3x iPhone 6/7 Plus specific
+      NSString *testpath = [NSString stringWithFormat:@"%@-736h@3x.%@", partial, ext];
+      if ([fm fileExistsAtPath:testpath]) {
+        return [NSURL fileURLWithPath:testpath];
+      }
     }
 
-    // second try -2436h@3x iPhone X specific
-    testpath = [NSString stringWithFormat:@"%@-2436h@3x.%@", partial, ext];
-    if ([fm fileExistsAtPath:testpath]) {
-      return [NSURL fileURLWithPath:testpath];
-    }
-
-    // third try plain @3x
-    testpath = [NSString stringWithFormat:@"%@@3x.%@", partial, ext];
+    // Plain @3x
+    NSString *testpath = [NSString stringWithFormat:@"%@@3x.%@", partial, ext];
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
     }
   }
   if ([TiUtils isRetinaDisplay]) {
     if ([TiUtils isRetinaiPhone6]) {
-      // first try -667h@2x iphone6 specific
+      // -667h@2x iPhone 6/7 specific
       NSString *testpath = [NSString stringWithFormat:@"%@-667h@2x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {
         return [NSURL fileURLWithPath:testpath];
       }
     } else if ([TiUtils isRetinaFourInch]) {
-      // first try -568h@2x iphone5 specific
+      // -568h@2x iPhone 5 specific
       NSString *testpath = [NSString stringWithFormat:@"%@-568h@2x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {
         return [NSURL fileURLWithPath:testpath];
       }
     }
-    // first try 2x device specific
+    // @2x device specific
     NSString *testpath = [NSString stringWithFormat:@"%@@2x%@.%@", partial, os, ext];
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
     }
-    // second try plain 2x
+    // Plain @2x
     testpath = [NSString stringWithFormat:@"%@@2x.%@", partial, ext];
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
     }
   }
-  // third try just device specific normal res
+
+  // Fallback: Just device specific normal res
   NSString *testpath = [NSString stringWithFormat:@"%@%@.%@", partial, os, ext];
   if ([fm fileExistsAtPath:testpath]) {
     return [NSURL fileURLWithPath:testpath];
