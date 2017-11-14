@@ -419,8 +419,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
-    since: "3.6.0"
+    platforms: [iphone, ipad, android]
+    since: {iphone: "3.6.0", ipad: "3.6.0", android: "7.0.0"}
     osver: {ios: {min: "7.0"}}
     permission: read-only
 
