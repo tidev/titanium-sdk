@@ -23,9 +23,6 @@
 #ifdef USE_TI_UIANIMATION
 #import "TiAnimation.h"
 #endif
-#ifdef USE_TI_UIIPHONE
-#import "TiUIiPhoneProxy.h"
-#endif
 #ifdef USE_TI_UIIPAD
 #import "TiUIiPadProxy.h"
 #endif
@@ -355,18 +352,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 
 #pragma mark iPhone namespace
-
-#ifdef USE_TI_UIIPHONE
-- (id)iPhone
-{
-  if (iphone == nil) {
-    // cache it since it's used alot
-    iphone = [[TiUIiPhoneProxy alloc] _initWithPageContext:[self executionContext]];
-    [self rememberProxy:iphone];
-  }
-  return iphone;
-}
-#endif
 
 #ifdef USE_TI_UIIPAD
 - (id)iPad
