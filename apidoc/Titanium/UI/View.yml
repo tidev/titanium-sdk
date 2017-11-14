@@ -684,7 +684,7 @@ methods:
             other controls, added to its `items` array. Views added using the `add` method are
             displayed on top of the controls in the `items` array.
 
-        *   The `Tab`, `TabGroup`, `NavigationGroup`, `NavigationWindow` and `SplitWindow` objects are
+        *   The `Tab`, `TabGroup`, `NavigationWindow` and `SplitWindow` objects are
             special containers that manage windows. These are discussed in the
             "Top-Level Containers" section.
 
@@ -702,9 +702,6 @@ methods:
         <Titanium.UI.TabGroup> manage windows.
         These managed windows may be referred to as *children* of the
         container, but they are not added using the `add` method.
-
-        Note that although a `NavigationGroup` manages windows, it is not itself a
-        top-level container.  It must be added to a `Window` in order to be displayed.
 
         `Tab` is another kind of special container: it is not itself a top-level container,
         but can only be used within a `TabGroup`. You cannot `add` a `Tab` to an arbitrary
