@@ -1,14 +1,10 @@
 ---
-name: Titanium.UI.iPhone.SystemIcon
+name: Titanium.UI.iOS.SystemIcon
 summary: A set of constants for the system icon styles that can be used on a tab group tab.
 extends: Titanium.Proxy
 platforms: [iphone, ipad]
-since: "0.8"
+since: "5.4.0"
 createable: false
-deprecated:
-    since: "5.4.0"
-    removed: "7.0.0"
-    notes: Use <Titanium.UI.iOS.SystemIcon> instead.
 
 properties:
   - name: BOOKMARKS
