@@ -10,21 +10,21 @@
 
 @class TiUIPickerItemProxy;
 
-@interface TiUIPicker : TiUIView<UIPickerViewDelegate, UIPickerViewDataSource> {
-@private
-	UIControl *picker;
-	int type;
-	
-	BOOL propertiesConfigured; // We're order-dependent on type being configured first, so have to re-configure after the initial setup.  What a pain!
+@interface TiUIPicker : TiUIView <UIPickerViewDelegate, UIPickerViewDataSource> {
+  @private
+  UIControl *picker;
+  int type;
+
+  BOOL propertiesConfigured; // We're order-dependent on type being configured first, so have to re-configure after the initial setup.  What a pain!
 }
 
 @property (nonatomic, readonly, copy) id value_;
 
--(NSArray*)columns;
--(void)reloadColumn:(id)column;
--(TiProxy*)selectedRowForColumn:(NSInteger)column;
--(void)selectRowForColumn:(NSInteger)column row:(NSInteger)row animated:(BOOL)animated;
--(void)selectRow:(NSArray*)array;
+- (NSArray *)columns;
+- (void)reloadColumn:(id)column;
+- (TiProxy *)selectedRowForColumn:(NSInteger)column;
+- (void)selectRowForColumn:(NSInteger)column row:(NSInteger)row animated:(BOOL)animated;
+- (void)selectRow:(NSArray *)array;
 
 @end
 #endif

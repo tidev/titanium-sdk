@@ -9,71 +9,65 @@
 #import "TiUtils.h"
 
 @implementation TiPoint
-@synthesize xDimension,yDimension;
+@synthesize xDimension, yDimension;
 
--(id)initWithPoint:(CGPoint)point_
+- (id)initWithPoint:(CGPoint)point_
 {
-	if (self = [super init])
-	{
-		[self setPoint:point_];
-	}
-	return self;
+  if (self = [super init]) {
+    [self setPoint:point_];
+  }
+  return self;
 }
 
--(id)initWithObject:(id)object
+- (id)initWithObject:(id)object
 {
-	if (self = [super init])
-	{
-		[self setValues:object];
-	}
-	return self;
+  if (self = [super init]) {
+    [self setValues:object];
+  }
+  return self;
 }
 
--(void)setValues:(id)object
+- (void)setValues:(id)object
 {
-	if ([object isKindOfClass:[NSDictionary class]])
-	{
-		xDimension = TiDimensionFromObject([object objectForKey:@"x"]);
-		yDimension = TiDimensionFromObject([object objectForKey:@"y"]);
-	}
-	else
-	{
-		xDimension = TiDimensionUndefined;
-		yDimension = TiDimensionUndefined;
-	}
-
+  if ([object isKindOfClass:[NSDictionary class]]) {
+    xDimension = TiDimensionFromObject([object objectForKey:@"x"]);
+    yDimension = TiDimensionFromObject([object objectForKey:@"y"]);
+  } else {
+    xDimension = TiDimensionUndefined;
+    yDimension = TiDimensionUndefined;
+  }
 }
 
--(void)setPoint:(CGPoint)point_
+- (void)setPoint:(CGPoint)point_
 {
-	xDimension = TiDimensionDip(point_.x);
-	yDimension = TiDimensionDip(point_.y);
+  xDimension = TiDimensionDip(point_.x);
+  yDimension = TiDimensionDip(point_.y);
 }
 
--(CGPoint)point
+- (CGPoint)point
 {
-	return CGPointMake(TiDimensionCalculateValue(xDimension, 0),
-			TiDimensionCalculateValue(yDimension, 0));
+  return CGPointMake(TiDimensionCalculateValue(xDimension, 0),
+      TiDimensionCalculateValue(yDimension, 0));
 }
 
--(id)x
+- (id)x
 {
-	return [TiUtils valueFromDimension:xDimension];
+  return [TiUtils valueFromDimension:xDimension];
 }
 
--(void)setX:(id)x
+- (void)setX:(id)x
 {
-	xDimension = TiDimensionFromObject(x);
+  xDimension = TiDimensionFromObject(x);
 }
 
--(id)y
+- (id)y
 {
-	return [TiUtils valueFromDimension:yDimension];
+  return [TiUtils valueFromDimension:yDimension];
 }
 
--(void)setY:(id)y
+- (void)setY:(id)y
 {
-	yDimension = TiDimensionFromObject(y);
+  yDimension = TiDimensionFromObject(y);
 }
 
 @end

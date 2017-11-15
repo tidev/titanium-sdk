@@ -8,4 +8,4 @@ description: |
     `Buffer`.
 since: "1.7"
 createable: false
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]

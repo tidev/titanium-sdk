@@ -29,6 +29,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -113,6 +114,9 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ENDED = 0;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ERROR = 1;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_USER_EXITED = 2;
+	
+	@Kroll.constant public static final int VIDEO_REPEAT_MODE_NONE = 0;
+	@Kroll.constant public static final int VIDEO_REPEAT_MODE_ONE = 1;
 
 	@Kroll.constant public static final int VIDEO_TIME_OPTION_NEAREST_KEYFRAME = MediaMetadataRetriever.OPTION_CLOSEST;
 	@Kroll.constant public static final int VIDEO_TIME_OPTION_CLOSEST_SYNC = MediaMetadataRetriever.OPTION_CLOSEST_SYNC;
@@ -130,6 +134,18 @@ public class MediaModule extends KrollModule
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static String extension = ".jpg";
+
+	private static class ApiLevel16
+	{
+		private ApiLevel16() {}
+
+		public static void setIntentClipData(Intent intent, ClipData data)
+		{
+			if (intent != null) {
+				intent.setClipData(data);
+			}
+		}
+	}
 
 	public MediaModule()
 	{
@@ -244,8 +260,12 @@ public class MediaModule extends KrollModule
 		}
 
 		//Create Intent
-		Uri fileUri = Uri.fromFile(imageFile); // create a file to save the image
+		Uri fileUri = TiFileProvider.createUriFrom(imageFile);
 		Intent intent = new Intent(intentType);
+		intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		if (Build.VERSION.SDK_INT >= 16) {
+			ApiLevel16.setIntentClipData(intent, android.content.ClipData.newRawUri("", fileUri));
+		}
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, videoQuality);
 		intent.putExtra("android.intent.extras.CAMERA_FACING", cameraType);
@@ -363,6 +383,18 @@ public class MediaModule extends KrollModule
 		return false;
 	}
 
+	@Kroll.method
+	public boolean hasAudioRecorderPermissions() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Context context = TiApplication.getInstance().getApplicationContext();
+		if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		}
+		return false;
+	}
+
 	private boolean hasCameraPermission() {
 	    if (Build.VERSION.SDK_INT < 23) {
 	        return true;
@@ -431,6 +463,17 @@ public class MediaModule extends KrollModule
 		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
 
+	}
+
+	@Kroll.method
+	public void requestAudioRecorderPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback) {
+		if (hasAudioRecorderPermissions()) {
+			return;
+		}
+		String[] permissions = new String[] {Manifest.permission.RECORD_AUDIO};
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_MICROPHONE,permissionCallback, getKrollObject());
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_MICROPHONE);
 	}
 
 	/*
@@ -584,7 +627,7 @@ public class MediaModule extends KrollModule
 		File file;
 		String ext = extension == null ? ".jpg" : extension;
 		try {
-			file = TiFileHelper.getInstance().getTempFile(appDir, ext, false);
+			file = TiFileHelper.getInstance().getTempFile(appDir, ext, !isPublic);
 		} catch (IOException e) {
 			Log.e(TAG, "Failed to create file: " + e.getMessage());
 			return null;
@@ -593,7 +636,7 @@ public class MediaModule extends KrollModule
 	}
 
 	private static File createGalleryImageFile(String extension) {
-		return createExternalStorageFile(extension, Environment.DIRECTORY_PICTURES, false);
+		return createExternalStorageFile(extension, Environment.DIRECTORY_PICTURES, true);
 	}
 
 	protected class CameraResultHandler implements TiActivityResultHandler, Runnable
@@ -766,7 +809,7 @@ public class MediaModule extends KrollModule
 							copyFile(imageFile, dataFile);
 							imageFile.delete();
 							imageFile = dataFile;
-
+							TiFileHelper.getInstance().destroyOnExit(imageFile);
 						} catch(Throwable t) {
 							if (errorCallback != null) {
 								KrollDict response = new KrollDict();
@@ -1266,6 +1309,13 @@ public class MediaModule extends KrollModule
 
 		return result;
 
+	}
+
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getCanRecord()
+	{
+		return TiApplication.getInstance().getPackageManager().hasSystemFeature("android.hardware.microphone");
 	}
 
 	@Override

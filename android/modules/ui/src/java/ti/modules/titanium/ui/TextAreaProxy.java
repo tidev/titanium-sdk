@@ -35,6 +35,7 @@ import android.os.Message;
 	TiC.PROPERTY_FULLSCREEN,
 	TiC.PROPERTY_HINT_TEXT,
 	TiC.PROPERTY_HINT_TEXT_COLOR,
+	TiC.PROPERTY_HINT_TYPE,
 	TiC.PROPERTY_KEYBOARD_TYPE,
 	TiC.PROPERTY_MAX_LENGTH,
 	TiC.PROPERTY_PASSWORD_MASK,
@@ -56,6 +57,7 @@ public class TextAreaProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_VALUE, "");
 		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
 		defaultValues.put(TiC.PROPERTY_FULLSCREEN, true);
+		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
 	}
 
 	@Override

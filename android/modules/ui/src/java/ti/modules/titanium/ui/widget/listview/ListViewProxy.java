@@ -38,6 +38,7 @@ import android.os.Message;
 	TiC.PROPERTY_CASE_INSENSITIVE_SEARCH,
 	TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
 	TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
+	TiC.PROPERTY_REFRESH_CONTROL,
 	TiC.PROPERTY_SEPARATOR_HEIGHT
 })
 public class ListViewProxy extends TiViewProxy {
@@ -91,6 +92,9 @@ public class ListViewProxy extends TiViewProxy {
 			if (obj instanceof Object[]) {
 				addPreloadSections((Object[]) obj, -1, true);
 			}
+		}
+		if (options.containsKey(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE)) {
+			setProperty(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, options.get(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE));
 		}
 	}
 	

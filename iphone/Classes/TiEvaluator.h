@@ -4,33 +4,33 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <Foundation/Foundation.h>
 #import "KrollContext.h"
+#import <Foundation/Foundation.h>
 
 @class TiHost;
 
 @protocol TiEvaluator <NSObject>
 
-- (TiHost*)host;
+- (TiHost *)host;
 
-- (NSString*)basename;
+- (NSString *)basename;
 
-@property(nonatomic,readwrite,retain)	NSURL * currentURL;
+@property (nonatomic, readwrite, retain) NSURL *currentURL;
 
-- (void)evalJSWithoutResult:(NSString*)code;
+- (void)evalJSWithoutResult:(NSString *)code;
 
-- (void)evalFile:(NSString*)file;
+- (void)evalFile:(NSString *)file;
 
 - (BOOL)evaluationError;
 
 // NOTE: this must only be called on a thread JS thread or an exception will occur
-- (id)evalJSAndWait:(NSString*)code;
+- (id)evalJSAndWait:(NSString *)code;
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_;
 
 - (id)preloadForKey:(id)key name:(id)key;
 
-- (KrollContext*)krollContext;
+- (KrollContext *)krollContext;
 
 //Creates a kroll object to be used with the proxy.
 - (id)registerProxy:(id)proxy;

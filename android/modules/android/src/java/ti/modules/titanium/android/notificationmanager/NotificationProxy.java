@@ -16,16 +16,21 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiColorHelper;
 
 import ti.modules.titanium.android.AndroidModule;
 import ti.modules.titanium.android.PendingIntentProxy;
 import ti.modules.titanium.android.RemoteViewsProxy;
+
 import android.app.Notification;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
+import android.os.Build;
+
+import java.util.HashMap;
 
 @SuppressWarnings("deprecation")
 @Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
@@ -40,6 +45,7 @@ public class NotificationProxy extends KrollProxy
 	private int flags, ledARGB, ledOnMS, ledOffMS;
 	private Uri sound;
 	private int audioStreamType;
+	private HashMap wakeParams;
 
 	public NotificationProxy()
 	{
@@ -51,6 +57,7 @@ public class NotificationProxy extends KrollProxy
 		//set up default values
 		flags = Notification.FLAG_AUTO_CANCEL;
 		audioStreamType = Notification.STREAM_DEFAULT;
+		wakeParams = new HashMap();
 	}
 
 	@Override
@@ -66,6 +73,9 @@ public class NotificationProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_LARGE_ICON)) {
 			setLargeIcon(d.get(TiC.PROPERTY_LARGE_ICON));
 		}
+		if (d.containsKey(TiC.PROPERTY_COLOR)) {
+			setColor(TiConvert.toString(d, TiC.PROPERTY_COLOR));
+		}
 		if (d.containsKey(TiC.PROPERTY_TICKER_TEXT)) {
 			setTickerText(TiConvert.toString(d, TiC.PROPERTY_TICKER_TEXT));
 		}
@@ -74,6 +84,9 @@ public class NotificationProxy extends KrollProxy
 		}
 		if (d.containsKey(TiC.PROPERTY_AUDIO_STREAM_TYPE)) {
 			setAudioStreamType(TiConvert.toInt(d, TiC.PROPERTY_AUDIO_STREAM_TYPE));
+		}
+		if (d.containsKey(TiC.PROPERTY_CHANNEL_ID)) {
+			setChannelId(d.getString(TiC.PROPERTY_CHANNEL_ID));
 		}
 		if (d.containsKey(TiC.PROPERTY_CONTENT_VIEW)) {
 			setContentView((RemoteViewsProxy) d.get(TiC.PROPERTY_CONTENT_VIEW));
@@ -119,6 +132,18 @@ public class NotificationProxy extends KrollProxy
 		}
 		if (d.containsKey(TiC.PROPERTY_PRIORITY)) {
 			setPriority(TiConvert.toInt(d, TiC.PROPERTY_PRIORITY));
+		}
+		if (d.containsKey(TiC.PROPERTY_GROUP_KEY)) {
+			setGroupKey(TiConvert.toString(d, TiC.PROPERTY_GROUP_KEY));
+		}
+		if (d.containsKey(TiC.PROPERTY_GROUP_ALERT_BEHAVIOR)) {
+			setGroupAlertBehavior(TiConvert.toInt(d, TiC.PROPERTY_GROUP_ALERT_BEHAVIOR));
+		}
+		if (d.containsKey(TiC.PROPERTY_GROUP_SUMMARY)) {
+			setGroupSummary(TiConvert.toBoolean(d, TiC.PROPERTY_GROUP_SUMMARY));
+		}
+		if (d.containsKey(TiC.PROPERTY_WAKE_LOCK)) {
+			setWakeLock((HashMap) d.get(TiC.PROPERTY_WAKE_LOCK));
 		}
 		checkLatestEventInfoProperties(d);
 	}
@@ -168,6 +193,15 @@ public class NotificationProxy extends KrollProxy
 	}
 
 	@Kroll.method @Kroll.setProperty
+	public void setColor(String color)
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			notificationBuilder.setColor(TiColorHelper.parseColor(color));
+		}
+		setProperty(TiC.PROPERTY_COLOR, color);
+	}
+
+	@Kroll.method @Kroll.setProperty
 	public void setVisibility(int visibility)
 	{
 		notificationBuilder.setVisibility(visibility);
@@ -179,6 +213,15 @@ public class NotificationProxy extends KrollProxy
 	{
 		notificationBuilder.setPriority(priority);
 		setProperty(TiC.PROPERTY_PRIORITY, priority);
+	}
+	
+	@Kroll.method @Kroll.setProperty
+	public void setWakeLock(HashMap d)
+	{
+		if (d == null) {
+			return;
+		}
+		wakeParams = d;
 	}
 	
 	@Kroll.method @Kroll.setProperty
@@ -308,6 +351,24 @@ public class NotificationProxy extends KrollProxy
 		setProperty(TiC.PROPERTY_VIBRATE_PATTERN, pattern);
 	}
 
+	@Kroll.method @Kroll.setProperty
+	public void setGroupKey(String groupKey) {
+		notificationBuilder.setGroup(groupKey);
+		setProperty(TiC.PROPERTY_GROUP_KEY, groupKey);
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setGroupAlertBehavior(int groupAlertBehavior) {
+		notificationBuilder.setGroupAlertBehavior(groupAlertBehavior);
+		setProperty(TiC.PROPERTY_GROUP_ALERT_BEHAVIOR, groupAlertBehavior);
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setGroupSummary(boolean isGroupSummary) {
+		notificationBuilder.setGroupSummary(isGroupSummary);
+		setProperty(TiC.PROPERTY_GROUP_SUMMARY, isGroupSummary);
+	}
+
 	protected void checkLatestEventInfoProperties(KrollDict d)
 	{
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)
@@ -332,6 +393,13 @@ public class NotificationProxy extends KrollProxy
 		.setContentText(contentText)
 		.setContentTitle(contentTitle);
 	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setChannelId(String channelId)
+	{
+		notificationBuilder.setChannelId(channelId);
+		setProperty(TiC.PROPERTY_CHANNEL_ID, channelId);
+	}
 	
 	@Kroll.method
 	public void setProgress(int max, int progress, boolean indeterminate)
@@ -339,11 +407,43 @@ public class NotificationProxy extends KrollProxy
 		notificationBuilder.setProgress(max, progress, indeterminate);
 	}
 
+	@Kroll.method
+	public void addAction(Object icon, String title, PendingIntentProxy pendingIntent)
+	{
+		int iconId = -1;
+		if (icon instanceof Number) {
+			iconId = ((Number)icon).intValue();
+		} else {
+			String iconUrl = TiConvert.toString(icon);
+			if (iconUrl == null) {
+				Log.e(TAG, "Url is null");
+				return;
+			}
+			String iconFullUrl = resolveUrl(null, iconUrl);
+			iconId = TiUIHelper.getResourceId(iconFullUrl);
+		}
+		if (pendingIntent == null) {
+			Log.e(TAG, "a pending intent for the action button must be provided");
+			return;
+		}
+		notificationBuilder.addAction(iconId, title, pendingIntent.getPendingIntent());
+	}
+
 	public Notification buildNotification()
 	{
 		Notification notification = notificationBuilder.build();
-		notification.flags = this.flags;
+		
+		if (hasProperty(TiC.PROPERTY_GROUP_KEY)) {
+			// remove FLAG_AUTO_CANCEL as this will prevent group notifications
+			this.flags &= ~Notification.FLAG_AUTO_CANCEL;
+		}
+		notification.flags |= this.flags;
+
 		return notification;
+	}
+
+	public HashMap getWakeParams() {
+		return wakeParams;
 	}
 
 	@Override
