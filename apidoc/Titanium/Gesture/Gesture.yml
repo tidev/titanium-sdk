@@ -8,7 +8,7 @@ since: "0.8"
 
 methods:
   - name: isLandscape
-    summary: Returns whether current window is considered landscape by the device.
+    summary: Returns whether or not the device is currently held in landscape form.
     description: Value returns `true` if in landscape, and `false` otherwise.
     deprecated:
         since: 6.1.0
@@ -17,7 +17,7 @@ methods:
         type: Boolean
 
   - name: isPortrait
-    summary: Returns whether current window is considered portrait by the device.
+    summary: Returns whether or not the device is currently held in portrait form.
     description: Value returns `true` if in portrait, and `false` otherwise.
     deprecated:
         since: 6.1.0
@@ -27,7 +27,7 @@ methods:
 
 properties:
   - name: portrait
-    summary: Indicates whether current window is considered portrait by the device.
+    summary: Indicates if the device is currently held in portrait form.
     description: |
         Value is `true` if in portrait, and `false` otherwise.
     type: Boolean
@@ -36,7 +36,7 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: landscape
-    summary: Indicates whether current window is considered landscape by the device.
+    summary: Indicates if the device is currently held in landscape form.
     description: |
         Value is `true` if in landscape, and `false` otherwise.
     type: Boolean
@@ -45,7 +45,7 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: orientation
-    summary: Orientation of the current window.
+    summary: Orientation of the device.
     description: |
         Value may be one of the group of <Titanium.UI> orientation constants,
         <Titanium.UI.PORTRAIT>,
@@ -59,9 +59,6 @@ properties:
         On iOS and Windows, returns the current orientation of the *device*,
         regardless of the window orientation. To determine the current window orientation,
         use [Window.orientation](Titanium.UI.Window.orientation).
-
-        On Android, returns the orientation of the current window, and never reports
-        the "reverse" orientations (`LANDSCAPE_RIGHT` and `UPSIDE_PORTRAIT`).
 
         To set the *allowable* orientations for a window, see <Titanium.UI.Window.orientationModes>.
     type: Number
@@ -78,13 +75,9 @@ events:
         Almost all real-world applications will have a heavyweight window or a tab group. This is
         only likely to be an issue if you create a test case or test application that adds an
         orientation change listener from `app.js` without opening a heavyweight window.
-
-        Android does not report the "reverse" orientations,
-        `UPSIDE_PORTRAIT` and `LANDSCAPE_RIGHT`. These are reported as
-        `PORTRAIT` and `LANDSCAPE_LEFT`, respectively.
     properties:
       - name: orientation
-        summary: Orientation of the current window.
+        summary: Orientation of the device.
         type: Number
         constants: [Titanium.UI.PORTRAIT, Titanium.UI.UPSIDE_PORTRAIT, Titanium.UI.LANDSCAPE_*,
                     Titanium.UI.FACE_*, Titanium.UI.UNKNOWN]
