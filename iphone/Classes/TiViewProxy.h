@@ -102,6 +102,9 @@ enum {
   int vzIndex;
   BOOL hidden; //This is the boolean version of ![TiUtils boolValue:visible def:yes]
       //And has nothing to do with whether or not it's onscreen or
+#if IS_XCODE_9
+  BOOL safeAreaProxyAdded;
+#endif
 
 #pragma mark Parent/Children relationships
   TiViewProxy *parent;
