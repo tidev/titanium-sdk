@@ -11,7 +11,11 @@
 //  this copyright and permission notice. Attribution in compiled projects is
 //  appreciated but not required.
 //
-#if defined(USE_TI_MEDIA) && defined(USE_TI_MEDIAAUDIOPLAYER)
+
+#if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) ||    \
+    defined(USE_TI_MEDIAAPPMUSICPLAYER) ||       \
+    defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || \
+    defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
 
 #import "AudioStreamer.h"
 #import "AudioStreamerCUR.h"

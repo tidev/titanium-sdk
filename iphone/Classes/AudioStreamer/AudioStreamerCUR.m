@@ -12,7 +12,10 @@
 //  appreciated but not required.
 //
 
-#if defined(USE_TI_MEDIA) && defined(USE_TI_MEDIAAUDIOPLAYER)
+#if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) ||    \
+    defined(USE_TI_MEDIAAPPMUSICPLAYER) ||       \
+    defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || \
+    defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
 
 #import "AudioStreamerCUR.h"
 #ifdef TARGET_OS_IPHONE			
