@@ -22,7 +22,10 @@
 // namespaces is a recurring problem, and we can thank Objective-C for it.
 // - SPT
 
-#if defined(USE_TI_MEDIA) && defined(USE_TI_MEDIAAUDIOPLAYER)
+#if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) ||    \
+    defined(USE_TI_MEDIAAPPMUSICPLAYER) ||       \
+    defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || \
+    defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
 
 #define LOG_QUEUED_BUFFERS 0
 
