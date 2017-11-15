@@ -113,6 +113,8 @@ public class CalendarProxy extends KrollProxy {
 	@Kroll.method
 	public EventProxy[] getEventsInYear(int year)
 	{
+		Log.w(TAG, "getEventsInYear(year) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
+
 		Calendar jan1 = Calendar.getInstance();
 		jan1.clear();
 		jan1.set(year, 0, 1);
@@ -126,6 +128,8 @@ public class CalendarProxy extends KrollProxy {
 	@Kroll.method
 	public EventProxy[] getEventsInMonth(int year, int month)
 	{
+		Log.w(TAG, "getEventsInMonth(year, month) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
+
 		Calendar firstOfTheMonth = Calendar.getInstance();
 		firstOfTheMonth.clear();
 		firstOfTheMonth.set(year, month, 1);
