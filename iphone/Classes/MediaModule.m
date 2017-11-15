@@ -433,20 +433,17 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
 
 - (void)setDefaultAudioSessionMode:(NSNumber *)mode
 {
-  DEPRECATED_REPLACED_REMOVED(@"Media.defaultAudioSessionMode", @"3.5.1", @"6.0.0", @"Media.audioSessionCategory")
-      [self setAudioSessionMode:mode];
+  DEPRECATED_REPLACED_REMOVED(@"Media.defaultAudioSessionMode", @"3.5.1", @"6.0.0", @"Media.audioSessionCategory");
 }
 
 - (NSNumber *)defaultAudioSessionMode
 {
-  DEPRECATED_REPLACED_REMOVED(@"Media.defaultAudioSessionMode", @"3.5.1", @"6.0.0", @"Media.audioSessionCategory")
-  return [self audioSessionMode];
+  DEPRECATED_REPLACED_REMOVED(@"Media.defaultAudioSessionMode", @"3.5.1", @"6.0.0", @"Media.audioSessionCategory");
 }
 
 - (void)setAudioSessionMode:(NSNumber *)mode
 {
-  DEPRECATED_REPLACED_REMOVED(@"Media.audioSessionMode", @"3.5.1", @"6.0.0", @"Media.audioSessionCategory")
-      [self setAudioSessionCategory:mode];
+  DEPRECATED_REPLACED_REMOVED(@"Media.audioSessionMode", @"3.5.1", @"6.0.0", @"Media.audioSessionCategory");
 }
 
 #if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIASOUND) || defined(USE_TI_MEDIAAUDIORECORDER)
