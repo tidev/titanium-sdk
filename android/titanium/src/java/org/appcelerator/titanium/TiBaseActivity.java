@@ -707,6 +707,11 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		return inForeground;
 	}
 
+	public boolean isDestroyed()
+	{
+		return onDestroyFired;
+	}
+
 	protected void sendMessage(final int msgId)
 	{
 		if (messenger == null || msgId == -1) {
