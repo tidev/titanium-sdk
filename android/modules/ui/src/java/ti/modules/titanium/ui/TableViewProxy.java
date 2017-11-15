@@ -856,6 +856,9 @@ public class TableViewProxy extends TiViewProxy
 	@Override
 	public boolean handleMessage(Message msg)
 	{
+		if (getTableView() == null) {
+			return false;
+		}
 		if (msg.what == MSG_UPDATE_VIEW) {
 			getTableView().updateView();
 			((AsyncResult) msg.obj).setResult(null);
