@@ -1280,8 +1280,6 @@ properties:
     platforms: [android]
 
   - name: HINT_TYPE_ANIMATED
-    deprecated:
-        since: "6.2.0"
     summary: |
         Use when creating a TextField to specify the hintType as animated.
     type: Number
