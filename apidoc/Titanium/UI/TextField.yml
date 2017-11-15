@@ -136,6 +136,8 @@ properties:
         The attributed hint text by the textField. If set, avoid setting common attributes
         in textField, such as `hintText`, `color` and `font`, as unexpected behaviors may result.
 
+        This has no effect when used with `hintType` Ti.UI.HINT_TYPE_ANIMATED.
+
         Prior to Release 3.6.0, assign this property an object from the
         <Titanium.UI.iOS.AttributedString> class.
 
@@ -300,6 +302,9 @@ properties:
         by the <Titanium.UI.TextField.attributedHintText> which provides an advanced configuration to
         style hint texts.
 
+        This has no effect when used with `hintType` Ti.UI.HINT_TYPE_ANIMATED. Instead a theme must be
+        used that defines the `android:textColorHint` attribute.
+
         *Note for Android*:
         The hint text color in Android is determined by the theme of the application. By default, the
         theme is 'Theme.AppCompat' which is a Dark theme. When you create the background to be white,
@@ -327,7 +332,7 @@ properties:
   - name: hintType
     summary: Hint type to display on the text field.
     platforms: [android]
-    since: {android: "6.2.0"}
+    since: {android: "7.0.0"}
     description: |
         Setting this to <Titanium.UI.HINT_TYPE_ANIMATED> will use the animated TextInputLayout on Android.
     type: Number
@@ -545,7 +550,10 @@ properties:
     since: 5.0.0
 
   - name: textAlign
-    summary: Text alignment within this text field.
+    summary: |
+        Text alignment within this text field.
+
+        This has no effect on `hintText` when `hintType` is Ti.UI.HINT_TYPE_ANIMATED.
     type: [String, Number]
     constants: Titanium.UI.TEXT_ALIGNMENT_*
     default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>

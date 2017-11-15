@@ -90,6 +90,19 @@ methods:
     platforms: [android, iphone, ipad]
     since: {iphone: "2.1.0", ipad: "2.1.0"}
 
+  - name: scrollToTop
+    summary: Moves the top of the scrollable region into the viewable area.
+    description: |
+        On Android the behavior of `scrollToTop` depends on whether this scroll view scrolls
+        horizontally or vertically. For vertical scroll views, `scrollToTop` moves the top
+        of the scrollable region into the viewable area. For horizontal scroll views,
+        `scrollToTop` moves the leftmost edge of of the scrollable region into the viewable area.
+        
+        On iOS, `scrollToTop` moves the top-left corner of the scrollable region into the 
+        viewable area.
+    platforms: [iphone, ipad, android]
+    since: "7.0.0"
+        
 events:
   - name: scale
     summary: Fired when the zoom scale factor changes.

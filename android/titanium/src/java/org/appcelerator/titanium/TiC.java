@@ -3016,6 +3016,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_USER_AGENT = "userAgent";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_USERNAME = "username";
 
 	/**
