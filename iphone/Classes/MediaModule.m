@@ -199,6 +199,7 @@ typedef void (^PermissionBlock)(BOOL granted)
   return @"Ti.Media";
 }
 
+#ifdef USE_TI_MEDIAAUDIORECORDER
 MAKE_SYSTEM_UINT(AUDIO_FORMAT_LINEAR_PCM, kAudioFormatLinearPCM);
 MAKE_SYSTEM_UINT(AUDIO_FORMAT_ULAW, kAudioFormatULaw);
 MAKE_SYSTEM_UINT(AUDIO_FORMAT_ALAW, kAudioFormatALaw);
@@ -216,6 +217,7 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_CAF, kAudioFileCAFType);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GPP, kAudioFile3GPType);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GP2, kAudioFile3GP2Type);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR, kAudioFileAMRType);
+#endif
 
 #ifdef USE_TI_MEDIACAMERA_AUTHORIZATION_AUTHORIZED
 MAKE_SYSTEM_UINT(CAMERA_AUTHORIZATION_AUTHORIZED, AVAuthorizationStatusAuthorized);
@@ -592,6 +594,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 #pragma mark Public Methods
 
+#if defined(USE_TI_MEDIABEEP) || defined(USE_TI_MEDIAVIBRATE)
 - (void)beep:(id)unused
 {
   ENSURE_UI_THREAD(beep, unused);
@@ -603,6 +606,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   //No pattern support on iOS
   [self beep:nil];
 }
+#endif
 
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
