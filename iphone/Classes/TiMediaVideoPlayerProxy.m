@@ -664,13 +664,12 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)setRepeatMode:(id)value
 {
-  DEPRECATED_REMOVED(@"Media.VideoPlayer.repeatMode", @"7.0.0", @"7.0.0");
+  [loadProperties setValue:value forKey:@"repeatMode"];
 }
 
 - (NSNumber *)repeatMode
 {
-  DEPRECATED_REMOVED(@"Media.VideoPlayer.repeatMode", @"7.0.0", @"7.0.0");
-  return NUMINT(-1);
+  RETURN_FROM_LOAD_PROPERTIES(@"repeatMode", NUMINT(VideoRepeatModeNone));
 }
 
 - (id)naturalSize
@@ -802,6 +801,9 @@ NSArray *moviePlayerKeys = nil;
     }
     playing = NO;
     [self playerItemDidReachEnd];
+    if ([[self repeatMode] intValue] == VideoRepeatModeOne) {
+      [self play:nil];
+    }
   }
 }
 

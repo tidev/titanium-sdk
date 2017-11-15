@@ -18,6 +18,11 @@ typedef NS_ENUM(NSInteger, VideoTimeOption) {
   VideoTimeOptionExact,
 };
 
+typedef NS_ENUM(NSInteger, VideoRepeatMode) {
+  VideoRepeatModeNone = 0,
+  VideoRepeatModeOne,
+};
+
 @interface TiMediaVideoPlayerProxy : TiViewProxy {
   @protected
   AVPlayerViewController *movie;

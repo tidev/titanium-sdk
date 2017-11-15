@@ -1369,20 +1369,12 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_REPEAT_MODE_NONE
-    deprecated:
-        since: "7.0.0"
-        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
     summary: Constant for disabling repeat on video playback.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
     since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
   - name: VIDEO_REPEAT_MODE_ONE
-    deprecated:
-        since: "7.0.0"
-        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
     summary: Constant for repeating one video (i.e., the one video will repeat constantly) during playback.
     type: Number
     permission: read-only
