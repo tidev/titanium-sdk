@@ -93,13 +93,6 @@ public class TiUIHelper
 	private static final String TAG = "TiUIHelper";
 	private static final String customFontPath = "Resources/fonts";
 
-	public static final int PORTRAIT = 1;
-	public static final int UPSIDE_PORTRAIT = 2;
-	public static final int LANDSCAPE_LEFT = 3;
-	public static final int LANDSCAPE_RIGHT = 4;
-	public static final int FACE_UP = 5;
-	public static final int FACE_DOWN = 6;
-	public static final int UNKNOWN = 7;
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 	public static final String MIME_TYPE_PNG = "image/png";
 
