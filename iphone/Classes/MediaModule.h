@@ -122,6 +122,7 @@
 @property (nonatomic, readonly) NSString *MEDIA_TYPE_PHOTO;
 @property (nonatomic, readonly) NSString *MEDIA_TYPE_LIVEPHOTO;
 
+#ifdef USE_TI_MEDIAAUDIORECORDER
 @property (nonatomic, readonly) NSNumber *AUDIO_FORMAT_LINEAR_PCM;
 @property (nonatomic, readonly) NSNumber *AUDIO_FORMAT_ULAW;
 @property (nonatomic, readonly) NSNumber *AUDIO_FORMAT_ALAW;
@@ -139,6 +140,7 @@
 @property (nonatomic, readonly) NSNumber *AUDIO_FILEFORMAT_3GPP;
 @property (nonatomic, readonly) NSNumber *AUDIO_FILEFORMAT_3GP2;
 @property (nonatomic, readonly) NSNumber *AUDIO_FILEFORMAT_AMR;
+#endif
 
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_CATEGORY_AMBIENT;
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_CATEGORY_SOLO_AMBIENT;
