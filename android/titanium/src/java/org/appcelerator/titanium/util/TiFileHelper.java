@@ -653,6 +653,11 @@ public class TiFileHelper implements Handler.Callback
 		return null;
 	}
 
+	public void destroyOnExit(File file)
+	{
+		tempFiles.add(file);
+	}
+
 	// Destroys all temporary files that have been created.
 	// This is called when the application is exited/destroyed.
 	public void destroyTempFiles()

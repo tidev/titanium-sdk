@@ -577,7 +577,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public boolean hasProperty(String name)
 	{
-		return properties.containsKey(name);
+		if (properties != null) {
+			return properties.containsKey(name);
+		}
+		return false;
 	}
 
 	/**
@@ -587,7 +590,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public boolean hasPropertyAndNotNull(String name)
 	{
-		return properties.containsKeyAndNotNull(name);
+		if (properties != null) {
+			return properties.containsKeyAndNotNull(name);
+		}
+		return false;
 	}
 
 	/**
@@ -599,7 +605,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public Object getProperty(String name)
 	{
-		return properties.get(name);
+		if (properties != null) {
+			return properties.get(name);
+		}
+		return null;
 	}
 
 	/**
@@ -608,6 +617,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void setProperty(String name, Object value)
 	{
+		if (properties == null) {
+			return;
+		}
+
 		properties.put(name, value);
 
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
@@ -826,7 +839,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean doFireEvent(String event, Object data)
 	{
-		if (!hierarchyHasListener(event)) {
+		if (!hierarchyHasListener(event) || eventListeners == null) {
 			return false;
 		}
 
