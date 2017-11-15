@@ -65,7 +65,6 @@
 		24CA895C111161050084E2DE /* AFOpenFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890E111161050084E2DE /* AFOpenFlowView.m */; };
 		24CA895D111161050084E2DE /* AFUIImageReflection.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8910111161050084E2DE /* AFUIImageReflection.m */; };
 		24CA8968111161050084E2DE /* AudioStreamer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8929111161050084E2DE /* AudioStreamer.m */; };
-		24CA8969111161050084E2DE /* Base64Transcoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 24CA892A111161050084E2DE /* Base64Transcoder.c */; };
 		24CA897D111161050084E2DE /* PlausibleDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA894F111161050084E2DE /* PlausibleDatabase.m */; };
 		24CA897E111161050084E2DE /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8954111161050084E2DE /* PLSqliteDatabase.m */; };
 		24CA897F111161050084E2DE /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8956111161050084E2DE /* PLSqlitePreparedStatement.m */; };
@@ -437,8 +436,6 @@
 		24CA8910111161050084E2DE /* AFUIImageReflection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFUIImageReflection.m; sourceTree = "<group>"; };
 		24CA8928111161050084E2DE /* AudioStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioStreamer.h; sourceTree = "<group>"; };
 		24CA8929111161050084E2DE /* AudioStreamer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioStreamer.m; sourceTree = "<group>"; };
-		24CA892A111161050084E2DE /* Base64Transcoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Base64Transcoder.c; path = ../Classes/Base64Transcoder.c; sourceTree = SOURCE_ROOT; };
-		24CA892B111161050084E2DE /* Base64Transcoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Base64Transcoder.h; path = ../Classes/Base64Transcoder.h; sourceTree = SOURCE_ROOT; };
 		24CA894E111161050084E2DE /* PlausibleDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlausibleDatabase.h; sourceTree = "<group>"; };
 		24CA894F111161050084E2DE /* PlausibleDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlausibleDatabase.m; sourceTree = "<group>"; };
 		24CA8950111161050084E2DE /* PLDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLDatabase.h; sourceTree = "<group>"; };
@@ -1200,8 +1197,6 @@
 				24E25CC1112A698C0083D43D /* SCListener.h */,
 				24E25CC2112A698C0083D43D /* SCListener.m */,
 				24EB0B72111E7EE8001DC2D1 /* NSData+Additions.h */,
-				24CA892A111161050084E2DE /* Base64Transcoder.c */,
-				24CA892B111161050084E2DE /* Base64Transcoder.h */,
 			);
 			name = Misc;
 			sourceTree = "<group>";
@@ -2536,7 +2531,6 @@
 				243ECCBE112698AA00639DF4 /* TiUITextWidgetProxy.m in Sources */,
 				243ECCAA1126981C00639DF4 /* TiUITableViewSectionProxy.m in Sources */,
 				24CA8968111161050084E2DE /* AudioStreamer.m in Sources */,
-				24CA8969111161050084E2DE /* Base64Transcoder.c in Sources */,
 				243ECCB91126989700639DF4 /* TiUITextWidget.m in Sources */,
 				24CA897D111161050084E2DE /* PlausibleDatabase.m in Sources */,
 				24CA897E111161050084E2DE /* PLSqliteDatabase.m in Sources */,
