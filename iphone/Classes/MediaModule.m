@@ -405,13 +405,13 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)setDefaultAudioSessionMode:(NSNumber *)mode
 {
-  DEPRECATED_REPLACED(@"Media.VideoPlayer.defaultAudioSessionMode", @"7.0.0", @"Media.VideoPlayer.audioSessionCategory");
+  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
   [self setAudioSessionMode:mode];
 }
 
 - (NSNumber *)defaultAudioSessionMode
 {
-  DEPRECATED_REPLACED(@"Media.VideoPlayer.defaultAudioSessionMode", @"7.0.0", @"Media.VideoPlayer.audioSessionCategory");
+  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
   return [self audioSessionMode];
 }
 
