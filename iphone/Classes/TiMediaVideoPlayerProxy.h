@@ -9,11 +9,19 @@
 #import "TiColor.h"
 #import "TiFile.h"
 #import "TiViewProxy.h"
+#import <AVFoundation/AVFoundation.h>
+#import <AVKit/AVKit.h>
 #import <MediaPlayer/MediaPlayer.h>
+
+typedef NS_ENUM(NSInteger, VideoTimeOption) {
+  VideoTimeOptionNearestKeyFrame = 0,
+  VideoTimeOptionExact,
+};
 
 @interface TiMediaVideoPlayerProxy : TiViewProxy {
   @protected
-  MPMoviePlayerController *movie;
+  AVPlayerViewController *movie;
+  AVPlayerItem *item;
   NSRecursiveLock *playerLock;
   BOOL playing;
   @private
@@ -24,6 +32,7 @@
   TiFile *tempFile;
   KrollCallback *thumbnailCallback;
   NSUInteger callbackRequestCount;
+  BOOL seekToZeroBeforePlay;
 
   NSMutableDictionary *loadProperties; // Used to set properties when the player is created
   BOOL sizeSet;
@@ -45,6 +54,7 @@
 @property (nonatomic, readwrite, assign) TiColor *backgroundColor;
 @property (nonatomic, readonly) NSNumber *playing;
 @property (nonatomic, copy) NSNumber *volume;
+@property (nonatomic, readwrite, assign) NSNumber *pictureInPictureEnabled;
 
 - (void)add:(id)proxy;
 - (void)remove:(id)proxy;
