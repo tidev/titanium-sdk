@@ -43,6 +43,7 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 					}
 				}
 				// copy over any overridden unit tests into this workspace
+				sh 'rm -rf tests'
 				unstash 'override-tests'
 				sh 'cp -R tests/ titanium-mobile-mocha-suite'
 				// Now run the unit test suite
