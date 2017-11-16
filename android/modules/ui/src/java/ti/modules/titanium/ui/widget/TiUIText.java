@@ -91,6 +91,9 @@ public class TiUIText extends TiUIView
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
 
+	// initialise as not in focus
+	private boolean initFocus = false;
+
 	protected TiUIEditText tv;
 	protected TextInputLayout textInputLayout;
 
@@ -432,14 +435,39 @@ public class TiUIText extends TiUIView
 				TiUIHelper.showSoftKeyboard(tv, false);
 			}
 			else {
-				TiUIHelper.requestSoftInputChange(proxy, tv);
+				TiUIHelper.showSoftKeyboard(tv, true);
 			}
 		}
 	}
 
 	@Override
+	public void blur()
+	{
+		View rootView = tv.getRootView();
+		if (rootView!=null){
+			//set rootView to focus and hide keyboard
+			rootView.setFocusable(true);
+			rootView.setFocusableInTouchMode(true);
+			if (rootView instanceof ViewGroup){
+				((ViewGroup) rootView).setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+			}
+			rootView.requestFocus();
+			tv.clearFocus();
+			Context context = TiApplication.getInstance().getApplicationContext();
+			InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputManager.hideSoftInputFromWindow(tv.getWindowToken(), 0);
+		}
+
+	}
+
+	@Override
 	public void onFocusChange(View v, boolean hasFocus)
 	{
+		// clear focus on the first auto-focus
+		if (!initFocus && hasFocus){
+			blur();
+			initFocus = true;
+		}
 		if (hasFocus) {
 			Boolean clearOnEdit = (Boolean) proxy.getProperty(TiC.PROPERTY_CLEAR_ON_EDIT);
 			if (clearOnEdit != null && clearOnEdit) {
