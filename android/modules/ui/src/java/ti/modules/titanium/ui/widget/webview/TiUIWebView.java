@@ -269,9 +269,8 @@ public class TiUIWebView extends TiUIView
 	protected boolean hasBorder(KrollDict d) {
 		if (LOWER_THAN_JELLYBEAN) {
 			return false;
-		} else {
-			return super.hasBorder(d);
 		}
+		return super.hasBorder(d);
 	}
 
 	private boolean isHTCSenseDevice()
