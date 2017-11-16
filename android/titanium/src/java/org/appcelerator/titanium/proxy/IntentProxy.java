@@ -23,10 +23,12 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.content.ClipData;
 import android.graphics.Bitmap;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 
 @Kroll.proxy(propertyAccessors = {
@@ -189,17 +191,22 @@ public class IntentProxy extends KrollProxy
 		// setType and setData are inexplicably intertwined
 		// calling setType by itself clears the type and vice-versa
 		// if you have both you _must_ call setDataAndType
-		if (type != null) {
-			Log.d(TAG, "Setting type: " + type, Log.DEBUG_MODE);
-			if (data != null) {
+		if (data != null) {
+			Uri dataUri = null;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && data.startsWith("file://")) {
 				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-				intent.setDataAndType(TiFileProvider.createUriFrom(data), type);
+				dataUri = TiFileProvider.createUriFrom(data);
 			} else {
-				intent.setType(type);
+				dataUri = Uri.parse(data);
 			}
-		} else if (data != null) {
-			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-			intent.setData(TiFileProvider.createUriFrom(data));
+			if (type != null) {
+				Log.d(TAG, "setting type: " + type, Log.DEBUG_MODE);
+				intent.setDataAndType(dataUri, type);
+			} else {
+				intent.setData(dataUri);
+			}
+		} else {
+			intent.setType(type);
 		}
 	}
 
@@ -258,25 +265,50 @@ public class IntentProxy extends KrollProxy
 	@Kroll.method
 	public void putExtraUri(String key, Object value)
 	{
-	    if (value == null) {
-	        return;
-	    } 
-	    
-	    if (value instanceof String) {
-	        intent.putExtra(key, Uri.parse((String) value));
-	    } else if (value instanceof Object[]) {
-	        try {
-	            Object[] objVal = (Object[]) value;
-	            String[] stringArray = Arrays.copyOf(objVal, objVal.length, String[].class);
-	            ArrayList<Uri> imageUris = new ArrayList<Uri>();
-	            for(String s: stringArray) {
-	                imageUris.add(Uri.parse(s));
-	            }
-	            intent.putParcelableArrayListExtra(key, imageUris);
-	        } catch (Exception ex) {
-	            Log.e(TAG, "Error unimplemented put conversion ", ex.getMessage());
-	        }
-	    }
+		if (value == null) {
+			return;
+		} 
+		
+		if (value instanceof String) {
+			String extraString = (String) value;
+			
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && extraString.startsWith("file://")) {
+				Uri contentUri = TiFileProvider.createUriFrom(extraString);
+				ClipData clipData = ClipData.newRawUri("FILE", contentUri);
+				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				intent.setClipData(clipData);
+				intent.putExtra(key, contentUri);
+			} else {
+				intent.putExtra(key, Uri.parse(extraString));
+			}
+		} else if (value instanceof Object[]) {
+			try {
+				Object[] objVal = (Object[]) value;
+				String[] stringArray = Arrays.copyOf(objVal, objVal.length, String[].class);
+				ArrayList<Uri> imageUris = new ArrayList<Uri>();
+				ClipData clipData = null;
+				for(String s : stringArray) {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && s.startsWith("file://")) {
+						Uri contentUri = TiFileProvider.createUriFrom(s);
+						imageUris.add(contentUri);
+						if (clipData == null) {
+							clipData = ClipData.newRawUri("FILES", contentUri);
+						} else {
+							clipData.addItem(new ClipData.Item(contentUri));
+						}
+					} else {
+						imageUris.add(Uri.parse(s));
+					}
+				}
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+					intent.setClipData(clipData);
+				}
+				intent.putParcelableArrayListExtra(key, imageUris);
+			} catch (Exception ex) {
+				Log.e(TAG, "Error unimplemented put conversion ", ex.getMessage());
+			}
+		}
 	}
 
 	@Kroll.method

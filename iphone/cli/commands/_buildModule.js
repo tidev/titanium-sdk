@@ -52,6 +52,14 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.buildOnly     = cli.argv['build-only'];
 	this.xcodeEnv      = null;
 
+	const sdkModuleAPIVersion = cli.sdk.manifest && cli.sdk.manifest.moduleAPIVersion && cli.sdk.manifest.moduleAPIVersion['iphone'];
+	if (this.manifest.apiversion && sdkModuleAPIVersion && this.manifest.apiversion !== sdkModuleAPIVersion) {
+		logger.error(__('The module manifest apiversion is currently set to %s', this.manifest.apiversion));
+		logger.error(__('Titanium SDK %s iOS module apiversion is at %s', this.titaniumSdkVersion, sdkModuleAPIVersion));
+		logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion.'));
+		process.exit(1);
+	}
+
 	return function (finished) {
 		ioslib.detect({
 			// env
