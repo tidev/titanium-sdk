@@ -313,6 +313,11 @@
   [currScrollView setContentOffset:newOffset animated:YES];
 }
 
+- (void)scrollToTop
+{
+  [[self scrollView] setContentOffset:CGPointMake(0, -[[self scrollView] contentInset].top) animated:YES];
+}
+
 - (void)setDecelerationRate_:(id)value
 {
   [self.proxy replaceValue:value forKey:@"decelerationRate" notification:NO];
