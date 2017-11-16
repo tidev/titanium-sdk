@@ -455,8 +455,13 @@ public class TiHTTPClient
 
 		if (readyState == READY_STATE_DONE) {
 			KrollDict data1 = new KrollDict();
-			data1.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
-			dispatchCallback(TiC.PROPERTY_ONLOAD, data1);
+			if (getStatus() >= 400) {
+				data1.putCodeAndMessage(getStatus(), getStatus() + " : " + getStatusText());
+				dispatchCallback(TiC.PROPERTY_ONERROR, data1);
+			} else {
+				data1.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+				dispatchCallback(TiC.PROPERTY_ONLOAD, data1);
+			}
 		}
 	}
 
@@ -1278,10 +1283,6 @@ public class TiHTTPClient
 				}
 				connected = false;
 				setResponseText(result);
-
-				if (getStatus() >= 400) {
-					throw new IOException(getStatus() + " : " + getStatusText());
-				}
 
 				if (!aborted) {
 					setReadyState(READY_STATE_DONE);

@@ -308,9 +308,20 @@ properties:
 
         See <Titanium.App.Android.R> for more information on accessing
         Android resources by ID.
-    type: [Number,String]
+    type: [Number, String]
     since: "4.2.0"
-
+ 
+  - name: color
+    summary: Accent color used behind icon.
+    description: |
+        Accent color of the circle used behind icon. The Icon will be stenciled in white on top of a 
+        cicle of the color set. For information about color values, see the "Colors" section of <Titanium.UI>.
+        
+        See Android Reference for the [color](https://developer.android.com/reference/android/app/Notification.html#color) property.
+    type: String
+    since: "7.0.0"
+    osver: {android: {min: "5.0"}}
+    
   - name: ledARGB
     summary: The color for the LED to blink.
     type: Number
