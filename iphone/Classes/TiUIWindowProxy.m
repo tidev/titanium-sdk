@@ -817,7 +817,7 @@
 {
 #if IS_XCODE_9
   ENSURE_UI_THREAD(setLargeTitleEnabled, value);
-  ENSURE_TYPE(value, NSNumber);
+  ENSURE_TYPE_OR_NIL(value, NSNumber);
 
   [self replaceValue:value forKey:@"largeTitleEnabled" notification:NO];
 
@@ -831,7 +831,7 @@
 {
 #if IS_XCODE_9
   ENSURE_UI_THREAD(setLargeTitleDisplayMode, value);
-  ENSURE_TYPE(value, NSNumber);
+  ENSURE_TYPE_OR_NIL(value, NSNumber);
 
   [self replaceValue:value forKey:@"largeTitleDisplayMode" notification:NO];
 
