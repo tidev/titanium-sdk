@@ -69,6 +69,7 @@
   BOOL allowsSelectionSet;
   UISearchController *searchController;
   UITableViewController *resultViewController;
+  UIViewController *searchControllerPresenter;
   BOOL _dimsBackgroundDuringPresentation;
   TiViewProxy *headerViewProxy;
   TiViewProxy *footerViewProxy;

@@ -45,6 +45,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   TiUISearchBarProxy *searchViewProxy;
   UISearchController *searchController;
   UITableViewController *resultViewController;
+  UIViewController *searchControllerPresenter;
 
   NSMutableArray *sectionTitles;
   NSMutableArray *sectionIndices;
@@ -317,6 +318,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     }
 #endif
   } else {
+    [self updateSearchControllerFrames];
     [_tableView reloadData];
   }
   [super frameSizeChanged:frame bounds:bounds];
@@ -619,6 +621,20 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     return thePath.section;
   }
   return section;
+}
+
+- (void)updateSearchControllerFrames
+{
+  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+  UIView *searchSuperView = [searchController.view superview];
+  searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
+
+  float width = [_searchWrapper view].frame.size.width;
+  UIView *view = searchController.searchBar.superview;
+  view.frame = CGRectMake(0, 0, width, view.frame.size.height);
+  searchController.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
+
+  resultViewController.tableView.frame = CGRectMake(0, view.frame.size.height, self.frame.size.width, self.frame.size.height);
 }
 
 #pragma mark - Public API
@@ -2119,6 +2135,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
   [searchViewProxy ensureSearchBarHierarchy];
   [_tableView reloadData];
+
+  searchControllerPresenter = nil;
 }
 
 - (void)presentSearchController:(UISearchController *)controller
@@ -2150,28 +2168,25 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   // Presenting search controller on window holding controller
-  id proxy = [(TiViewProxy *)self.proxy parent];
-  while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
-    proxy = [proxy parent];
+  if (!searchControllerPresenter) {
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+      proxy = [proxy parent];
+    }
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+      searchControllerPresenter = [proxy windowHoldingController];
+    } else {
+      searchControllerPresenter = [[TiApp app] controller];
+    }
   }
-  UIViewController *viewController = nil;
-  if ([proxy isKindOfClass:[TiWindowProxy class]]) {
-    viewController = [proxy windowHoldingController];
-  } else {
-    viewController = [[TiApp app] controller];
-  }
-  viewController.definesPresentationContext = YES;
 
-  [viewController presentViewController:controller
-                               animated:NO
-                             completion:^{
-                               CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:viewController.view];
+  searchControllerPresenter.definesPresentationContext = YES;
 
-                               UIView *view = controller.searchBar.superview;
-                               view.frame = CGRectMake(view.frame.origin.x, convertedOrigin.y, view.frame.size.width, view.frame.size.height);
-                               controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-                               resultViewController.tableView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
-                             }];
+  [searchControllerPresenter presentViewController:controller
+                                          animated:NO
+                                        completion:^{
+                                          [self updateSearchControllerFrames];
+                                        }];
 
   id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
   ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
