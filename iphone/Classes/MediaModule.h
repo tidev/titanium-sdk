@@ -87,10 +87,9 @@
 @property (nonatomic, readonly) NSNumber *VIDEO_CONTROL_DEFAULT;
 @property (nonatomic, readonly) NSNumber *VIDEO_CONTROL_HIDDEN;
 
-@property (nonatomic, readonly) NSNumber *VIDEO_SCALING_NONE;
-@property (nonatomic, readonly) NSNumber *VIDEO_SCALING_ASPECT_FIT;
-@property (nonatomic, readonly) NSNumber *VIDEO_SCALING_ASPECT_FILL;
-@property (nonatomic, readonly) NSNumber *VIDEO_SCALING_MODE_FILL;
+@property (nonatomic, readonly) NSString *VIDEO_SCALING_MODE_RESIZE;
+@property (nonatomic, readonly) NSString *VIDEO_SCALING_MODE_RESIZE_ASPECT;
+@property (nonatomic, readonly) NSString *VIDEO_SCALING_MODE_RESIZE_ASPECT_FILL;
 
 @property (nonatomic, readonly) NSNumber *QUALITY_HIGH;
 @property (nonatomic, readonly) NSNumber *QUALITY_MEDIUM;
@@ -179,14 +178,12 @@
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_SHUFFLE_SONGS;
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_SHUFFLE_ALBUMS;
 
-// NOTE: these are introduced in 3.2
-@property (nonatomic, readonly) NSNumber *VIDEO_CONTROL_NONE; // No controls
-@property (nonatomic, readonly) NSNumber *VIDEO_CONTROL_EMBEDDED; // Controls for an embedded view
-@property (nonatomic, readonly) NSNumber *VIDEO_CONTROL_FULLSCREEN; // Controls for fullscreen playback
-
-@property (nonatomic, readonly) NSNumber *VIDEO_MEDIA_TYPE_NONE;
-@property (nonatomic, readonly) NSNumber *VIDEO_MEDIA_TYPE_VIDEO;
-@property (nonatomic, readonly) NSNumber *VIDEO_MEDIA_TYPE_AUDIO;
+// New constants
+@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_KEY;
+@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_FIT;
+@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE;
+@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE_ASPECT;
+@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE_ASPECT_FILL;
 
 @property (nonatomic, readonly) NSNumber *VIDEO_SOURCE_TYPE_UNKNOWN;
 @property (nonatomic, readonly) NSNumber *VIDEO_SOURCE_TYPE_FILE;
@@ -201,11 +198,7 @@
 
 @property (nonatomic, readonly) NSNumber *VIDEO_LOAD_STATE_UNKNOWN;
 @property (nonatomic, readonly) NSNumber *VIDEO_LOAD_STATE_PLAYABLE;
-@property (nonatomic, readonly) NSNumber *VIDEO_LOAD_STATE_PLAYTHROUGH_OK;
-@property (nonatomic, readonly) NSNumber *VIDEO_LOAD_STATE_STALLED;
-
-@property (nonatomic, readonly) NSNumber *VIDEO_REPEAT_MODE_NONE;
-@property (nonatomic, readonly) NSNumber *VIDEO_REPEAT_MODE_ONE;
+@property (nonatomic, readonly) NSNumber *VIDEO_LOAD_STATE_FAILED;
 
 @property (nonatomic, readonly) NSNumber *VIDEO_TIME_OPTION_NEAREST_KEYFRAME;
 @property (nonatomic, readonly) NSNumber *VIDEO_TIME_OPTION_EXACT;

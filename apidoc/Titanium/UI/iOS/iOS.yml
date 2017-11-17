@@ -1267,6 +1267,144 @@ properties:
     type: Number
     permission: read-only
 
+  - name: MODAL_PRESENTATION_CURRENT_CONTEXT
+    summary: View presented with the same style as its parent window.
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+        and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
+    type: Number
+    since: "5.4.0"
+    
+  - name: MODAL_PRESENTATION_FORMSHEET
+    summary: |
+        Window width and height are smaller than those of the screen and the view is centered on 
+        the screen.
+    description: |
+        If the system is in a landscape orientation and the keyboard is visible, the position of the 
+        view is adjusted upward so that the view remains visible. All uncovered areas are dimmed 
+        and do not respond to touch to prevent the user from interacting with them.
+        
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+        and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+    
+  - name: MODAL_PRESENTATION_FULLSCREEN
+    summary: Window covers the screen.
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+        and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+    
+  - name: MODAL_PRESENTATION_PAGESHEET
+    summary: |
+        Window height is the height of the screen and width is equal to screen width in a portrait 
+        orientation.
+    description: |
+        Any uncovered areas are dimmed and do not respond to touch, to prevent the user from 
+        interacting with them. In portrait orientations, this option is essentially the same as 
+        <Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN>.
+        
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+        and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+
+  - name: MODAL_TRANSITION_STYLE_COVER_VERTICAL
+    summary: |
+        When the window is presented, its view slides up from the bottom of the screen. On dismissal, 
+        the view slides back down (default.)
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+        and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+   
+  - name: MODAL_TRANSITION_STYLE_CROSS_DISSOLVE
+    summary: |
+        When the window is presented, the current view fades out while the new view fades in at the 
+        same time. On dismissal, a similar type of cross-fade is used to return to the original view.
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+        and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+    
+  - name: MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL
+    summary: |
+        When the window is presented, the current view initiates a horizontal 3D flip from 
+        right-to-left, resulting in the revealing of the new view as if it were on the back of the 
+        previous view. On dismissal, the flip occurs from left-to-right, returning to the original 
+        view.
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+        and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+    
+  - name: MODAL_TRANSITION_STYLE_PARTIAL_CURL
+    summary: |
+        When the window is presented, one corner of the current view curls up to reveal the modal 
+        view underneath. On dismissal, the curled up page unfurls itself back on top of the modal 
+        view.
+    description: |
+        A modal view presented using this transition is itself prevented from presenting any 
+        additional modal views. This transition style is supported only if the window is presenting 
+        a <Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN> modal presentation style.
+        
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+        and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+
   - name: PUSH_MODE_CONTINUOUS
     summary: |
         Use with <Titanium.UI.iOS.PushBehavior.pushMode> to specifiy a continuous force.
