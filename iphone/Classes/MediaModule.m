@@ -122,8 +122,10 @@ typedef void (^PermissionBlock)(BOOL granted)
 - (void)dealloc
 {
   [self destroyPicker];
+#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
   RELEASE_TO_NIL(systemMusicPlayer);
   RELEASE_TO_NIL(appMusicPlayer);
+#endif
   RELEASE_TO_NIL(popoverView);
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super dealloc];
