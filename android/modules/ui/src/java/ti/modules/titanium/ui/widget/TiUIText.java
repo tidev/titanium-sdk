@@ -91,9 +91,6 @@ public class TiUIText extends TiUIView
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
 
-	// initialise as not in focus
-	private boolean initFocus = false;
-
 	protected TiUIEditText tv;
 	protected TextInputLayout textInputLayout;
 
@@ -463,11 +460,6 @@ public class TiUIText extends TiUIView
 	@Override
 	public void onFocusChange(View v, boolean hasFocus)
 	{
-		// clear focus on the first auto-focus
-		if (!initFocus && hasFocus){
-			blur();
-			initFocus = true;
-		}
 		if (hasFocus) {
 			Boolean clearOnEdit = (Boolean) proxy.getProperty(TiC.PROPERTY_CLEAR_ON_EDIT);
 			if (clearOnEdit != null && clearOnEdit) {
