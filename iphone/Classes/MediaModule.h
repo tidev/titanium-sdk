@@ -39,9 +39,11 @@
   MPMediaPickerController *musicPicker;
 #endif
 
-  // Music players
+// Music players
+#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
   TiMediaMusicPlayer *systemMusicPlayer;
   TiMediaMusicPlayer *appMusicPlayer;
+#endif
 
   // Shared picker bits; OK, since they're modal (and we can perform sanity checks for the necessary bits)
   BOOL animatedPicker;
@@ -77,8 +79,10 @@
 @property (nonatomic, assign) NSNumber *audioSessionMode;
 @property (nonatomic, assign) NSString *audioSessionCategory;
 
+#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
 @property (nonatomic, readonly) TiMediaMusicPlayer *systemMusicPlayer;
 @property (nonatomic, readonly) TiMediaMusicPlayer *appMusicPlayer;
+#endif
 
 @property (nonatomic, readonly) NSNumber *UNKNOWN_ERROR;
 @property (nonatomic, readonly) NSNumber *DEVICE_BUSY;

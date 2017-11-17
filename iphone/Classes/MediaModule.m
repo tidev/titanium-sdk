@@ -513,6 +513,26 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
   }
 }
 
+#pragma mark Event Listener Management
+
+- (void)audioRouteChanged:(NSNotification *)note
+{
+  NSDictionary *event = [note userInfo];
+  [self fireEvent:@"routechange" withObject:event];
+}
+
+- (void)audioVolumeChanged:(NSNotification *)note
+{
+  NSDictionary *userInfo = [note userInfo];
+  if (userInfo != nil) {
+    [self fireEvent:@"volume" withObject:userInfo];
+  } else {
+    NSMutableDictionary *event = [NSMutableDictionary dictionary];
+    [event setObject:[self volume] forKey:@"volume"];
+    [self fireEvent:@"volume" withObject:event];
+  }
+}
+
 #endif
 
 #if defined(USE_TI_MEDIAAVAILABLECAMERAMEDIATYPES) || defined(USE_TI_MEDIAISMEDIATYPESUPPORTED)
@@ -2136,26 +2156,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
   }
 }
 #endif
-
-#pragma mark Event Listener Management
-
-- (void)audioRouteChanged:(NSNotification *)note
-{
-  NSDictionary *event = [note userInfo];
-  [self fireEvent:@"routechange" withObject:event];
-}
-
-- (void)audioVolumeChanged:(NSNotification *)note
-{
-  NSDictionary *userInfo = [note userInfo];
-  if (userInfo != nil) {
-    [self fireEvent:@"volume" withObject:userInfo];
-  } else {
-    NSMutableDictionary *event = [NSMutableDictionary dictionary];
-    [event setObject:[self volume] forKey:@"volume"];
-    [self fireEvent:@"volume" withObject:event];
-  }
-}
 
 @end
 
