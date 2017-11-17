@@ -629,6 +629,16 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   UIView *searchSuperView = [searchController.view superview];
   searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
 
+  // Dimming view (transparent view of search controller, which is not exposed) need to manage as it is taking full height of screen always
+  // TO DO: Need to find proper way to manage it
+  UIView *dimmingView = nil;
+  for (UIView *view in [searchSuperView subviews]) {
+    if (view != searchController.view) {
+      dimmingView = view;
+    }
+  }
+  dimmingView.frame = CGRectMake(searchController.view.frame.origin.x, searchController.view.frame.origin.y, searchController.view.frame.size.width, searchController.view.frame.size.height);
+
   float width = [_searchWrapper view].frame.size.width;
   UIView *view = searchController.searchBar.superview;
   view.frame = CGRectMake(0, 0, width, view.frame.size.height);
