@@ -105,7 +105,7 @@
   }
 
   if ([TiUtils isIPad] && (cancelButtonIndex == -1)) {
-    UIAlertAction *theAction = [UIAlertAction actionWithTitle:@"Cancel"
+    UIAlertAction *theAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Cancel")
                                                         style:UIAlertActionStyleCancel
                                                       handler:^(UIAlertAction *action) {
                                                         [self fireClickEventWithAction:action];
