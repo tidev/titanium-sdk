@@ -450,6 +450,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "1.7.0"
+        removed: "7.0.0"
 
   - name: NETWORK_LAN
     summary: |

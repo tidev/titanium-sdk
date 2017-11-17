@@ -967,7 +967,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			logger.error(__('It is recommended that you define the app name using i18n strings.'));
 			logger.error(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'));
 			logger.error(__('To allow ampersands in the app name, run:'));
-			logger.error('    ti config android.allowAppNameAmpersands true\n');
+			logger.error('    %sti config android.allowAppNameAmpersands true\n', process.env.APPC_ENV ? 'appc ' : '');
 			process.exit(1);
 		}
 	}

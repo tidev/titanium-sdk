@@ -39,6 +39,7 @@ public class ScrollViewProxy extends TiViewProxy
 
 	private static final int MSG_SCROLL_TO = MSG_FIRST_ID + 100;
 	private static final int MSG_SCROLL_TO_BOTTOM = MSG_FIRST_ID + 101;
+	private static final int MSG_SCROLL_TO_TOP = MSG_FIRST_ID + 102;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	public ScrollViewProxy()
@@ -99,6 +100,15 @@ public class ScrollViewProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.method
+	public void scrollToTop() {
+		if (!TiApplication.isUIThread()) {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO_TOP), getActivity());
+		} else {
+			handleScrollToTop();
+		}
+	}
+
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (msg.what == MSG_SCROLL_TO) {
@@ -112,6 +122,11 @@ public class ScrollViewProxy extends TiViewProxy
 			AsyncResult result = (AsyncResult) msg.obj;
 			result.setResult(null); // signal scrolled
 			return true;
+		} else if (msg.what == MSG_SCROLL_TO_TOP) {
+			handleScrollToTop();
+			AsyncResult result = (AsyncResult) msg.obj;
+			result.setResult(null); // signal scrolled
+			return true;
 		}
 		return super.handleMessage(msg);
 	}
@@ -122,6 +137,10 @@ public class ScrollViewProxy extends TiViewProxy
 
 	public void handleScrollToBottom() {
 		getScrollView().scrollToBottom();
+	}
+
+	public void handleScrollToTop() {
+		getScrollView().scrollToTop();
 	}
 
 	@Override

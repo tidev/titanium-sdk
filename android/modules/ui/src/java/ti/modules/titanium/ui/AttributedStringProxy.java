@@ -17,6 +17,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -25,6 +26,7 @@ import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.LineHeightSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
@@ -206,6 +208,16 @@ public class AttributedStringProxy extends KrollProxy
 												+ range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 										}
 										results.putBoolean(TiC.PROPERTY_HAS_LINK, true);
+										break;
+									case UIModule.ATTRIBUTE_BASELINE_OFFSET:
+										final int offset = TiConvert.toInt(attrValue, 5);
+										spannableText.setSpan(new LineHeightSpan() {
+											@Override
+											public void chooseHeight(CharSequence charSequence, int i, int i1, int i2, int i3, Paint.FontMetricsInt fontMetricsInt) {
+												fontMetricsInt.bottom = offset * 2;
+												fontMetricsInt.descent = offset * 2;
+											}
+										}, range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 										break;
 								}
 							}
