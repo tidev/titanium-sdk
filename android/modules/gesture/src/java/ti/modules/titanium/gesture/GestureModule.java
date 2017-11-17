@@ -192,7 +192,7 @@ public class GestureModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public int getOrientation()
 	{
-		return this.deviceOrientationMonitor.getLastReadOrientation().toTiIntegerId();
+		return this.deviceOrientationMonitor.getLastReadOrientation().toTiIntId();
 	}
 
 	@Override

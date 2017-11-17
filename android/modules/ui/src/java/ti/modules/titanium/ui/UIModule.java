@@ -127,13 +127,13 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final String TEXT_VERTICAL_ALIGNMENT_CENTER = "middle";
 	@Kroll.constant public static final String TEXT_VERTICAL_ALIGNMENT_TOP = "top";
 
-	@Kroll.constant public static final int PORTRAIT = TiDeviceOrientation.TiIntegerId.PORTRAIT_UPRIGHT;
-	@Kroll.constant public static final int UPSIDE_PORTRAIT = TiDeviceOrientation.TiIntegerId.PORTRAIT_UPSIDE_DOWN;
-	@Kroll.constant public static final int LANDSCAPE_LEFT = TiDeviceOrientation.TiIntegerId.LANDSCAPE_LEFT;
-	@Kroll.constant public static final int LANDSCAPE_RIGHT = TiDeviceOrientation.TiIntegerId.LANDSCAPE_RIGHT;
-	@Kroll.constant public static final int FACE_UP = TiDeviceOrientation.TiIntegerId.FACE_UP;
-	@Kroll.constant public static final int FACE_DOWN = TiDeviceOrientation.TiIntegerId.FACE_DOWN;
-	@Kroll.constant public static final int UNKNOWN = TiDeviceOrientation.TiIntegerId.UNKNOWN;
+	@Kroll.constant public static final int PORTRAIT = TiDeviceOrientation.PORTRAIT.toTiIntId();
+	@Kroll.constant public static final int UPSIDE_PORTRAIT = TiDeviceOrientation.UPSIDE_PORTRAIT.toTiIntId();
+	@Kroll.constant public static final int LANDSCAPE_LEFT = TiDeviceOrientation.LANDSCAPE_LEFT.toTiIntId();
+	@Kroll.constant public static final int LANDSCAPE_RIGHT = TiDeviceOrientation.LANDSCAPE_RIGHT.toTiIntId();
+	@Kroll.constant public static final int FACE_UP = TiDeviceOrientation.FACE_UP.toTiIntId();
+	@Kroll.constant public static final int FACE_DOWN = TiDeviceOrientation.FACE_DOWN.toTiIntId();
+	@Kroll.constant public static final int UNKNOWN = TiDeviceOrientation.UNKNOWN.toTiIntId();
 
 	@Kroll.constant public static final int PICKER_TYPE_PLAIN = -1;
 	@Kroll.constant public static final int PICKER_TYPE_TIME = 0;
