@@ -2723,7 +2723,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							const stringVersionRegexp = /(\d+)\.(\d+)\.\d+\.\d+/;
 							const found = v8Version.match(stringVersionRegexp);
 							const chromeVersion = parseInt(found[0] + found[1]); // concat the first two numbers as string, then turn to int
-							this.logger.info(__('CHROME VERSION!!!!!!! %s', from.cyan, to.cyan));
+							this.logger.info(__('CHROME VERSION!!!!!!! %s', chromeVersion.cyan));
 							const result = babel.transform(r.contents, {
 								filename: from,
 								presets: [
