@@ -7,7 +7,6 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import "TiUIWebView.h"
-#import "Base64Transcoder.h"
 #import "Mimetypes.h"
 #import "TiApp.h"
 #import "TiBlob.h"
@@ -144,6 +143,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     webview.backgroundColor = [UIColor whiteColor];
     webview.contentMode = UIViewContentModeRedraw;
     webview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater]) {
+      webview.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#endif
+
     [self addSubview:webview];
 
     BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
@@ -641,6 +647,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 - (void)setBasicAuthentication:(NSArray *)args
 {
   ENSURE_ARG_COUNT(args, 2);
+
   NSString *username = [args objectAtIndex:0];
   NSString *password = [args objectAtIndex:1];
 
@@ -650,18 +657,12 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   }
 
   NSString *toEncode = [NSString stringWithFormat:@"%@:%@", username, password];
-  const char *data = [toEncode UTF8String];
-  size_t len = [toEncode length];
+  NSData *data = [toEncode dataUsingEncoding:NSUTF8StringEncoding];
+  NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
 
-  char *base64Result;
-  size_t theResultLength;
-  bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
-  if (result) {
-    NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-    free(base64Result);
-    NSString *string = [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
+  if (base64Encoded != nil) {
     RELEASE_TO_NIL(basicCredentials);
-    basicCredentials = [[NSString stringWithFormat:@"Basic %@", string] retain];
+    basicCredentials = [[NSString stringWithFormat:@"Basic %@", base64Encoded] retain];
     if (url != nil) {
       [self setUrl_:[NSArray arrayWithObject:[url absoluteString]]];
     }

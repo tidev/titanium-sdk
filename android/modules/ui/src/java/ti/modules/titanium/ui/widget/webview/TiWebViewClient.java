@@ -46,7 +46,8 @@ public class TiWebViewClient extends WebViewClient
 	{
 		super.onPageFinished(view, url);
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
-		if (proxy == null) {
+		if (proxy == null || webView.hasSetUserAgent) {
+			webView.hasSetUserAgent = false;
 			return;
 		}
 		webView.changeProxyUrl(url);
@@ -80,7 +81,7 @@ public class TiWebViewClient extends WebViewClient
 	{
 		super.onPageStarted(view, url, favicon);
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
-		if (proxy == null) {
+		if (proxy == null || webView.hasSetUserAgent) {
 			return;
 		}
 		KrollDict data = new KrollDict();
