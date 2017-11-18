@@ -9,16 +9,16 @@ extern NSData* filterDataInRange(NSData* thedata, NSRange range);
 
 - (NSData *)moduleAsset
 {
-	<%- mainEncryptedAsset %>
+  <%- mainEncryptedAsset %>
 
-	<%- mainEncryptedAssetReturn %>
+  <%- mainEncryptedAssetReturn %>
 }
 
 - (NSData *)resolveModuleAsset:(NSString *)path
 {
-	<%- allEncryptedAssets %>
+  <%- allEncryptedAssets %>
 
-	<%- allEncryptedAssetsReturn %>
+  <%- allEncryptedAssetsReturn %>
 }
 
 @end

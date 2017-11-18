@@ -4,11 +4,12 @@
 //
 // see the following webpage for instructions on the settings
 // for this file:
-// http://developer.apple.com/mac/library/documentation/DeveloperTools/Conceptual/XcodeBuildSystem/400-Build_Configurations/build_configs.html
+// https://developer.apple.com/library/content/featuredarticles/XcodeConcepts/Concept-Build_Settings.html
 // 
 
 //
-// How to add a Framework (example)
+// How to manually add a Framework (example)
+// Note: Titanium SDK 6.2.2+ detects and links frameworks automatically
 //
 // OTHER_LDFLAGS=$(inherited) -framework Foo
 //
