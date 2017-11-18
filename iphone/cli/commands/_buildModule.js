@@ -243,7 +243,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			'moduleIdAsIdentifier' : this.moduleIdAsIdentifier,
 			'mainEncryptedAssetReturn': 'return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[0]);',
 			'allEncryptedAssetsReturn': 'NSNumber *index = [map objectForKey:path];'
-				+ '\n  if (index == nil) {\n    return nil;\n\  }'
+				+ '\n  if (index == nil) {\n    return nil;\n  }'
 				+ '\n  return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);'
 		},
 		titaniumPrepHook = this.cli.createHook('build.ios.titaniumprep', this, function (exe, args, opts, done) {
@@ -614,8 +614,8 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
 			this.dirWalker(this.platformDir, function (file, name) {
+				var stat = fs.statSync(file);
 				if (name !== 'README.md') {
-					var stat = fs.statSync(file);
 					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file)), mode: stat.mode });
 				}
 			}.bind(this));
