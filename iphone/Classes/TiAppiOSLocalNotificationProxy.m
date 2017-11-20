@@ -26,12 +26,12 @@
 
 - (void)cancel:(id)unused
 {
-  DEPRECATED_REPLACED(@"App.iOS.LocalNotification.cancel", @"6.1.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
+  DEPRECATED_REPLACED(@"App.iOS.LocalNotification.cancel", @"7.1.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
 
   if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-    DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
-    return;
+    NSString *identifier = [(UNMutableNotificationContent *)self.notification categoryIdentifier] ?: @"notification";
+    [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[identifier]];
 #endif
   } else {
     UILocalNotification *cancelledNotification = [self.notification retain];
