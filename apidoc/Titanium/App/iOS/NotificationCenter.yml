@@ -87,7 +87,7 @@ properties:
 
   - name: alertAction
     summary: |
-        Alert button text ('View', by default) or slider text ('slide to unlock...', by default).
+        Alert button text ('Open', by default) or home text ('Press Home to unlock', by default)
         type: String
     type: String
 

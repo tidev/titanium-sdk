@@ -1259,7 +1259,7 @@ properties:
 
   - name: alertAction
     summary: |
-        Alert button text ('Open', by default) or home text ('Press Home to Unlock', by default)
+        Alert button text ('Open', by default) or home text ('Press Home to unlock', by default)
         to display.
     type: String
     optional: true
