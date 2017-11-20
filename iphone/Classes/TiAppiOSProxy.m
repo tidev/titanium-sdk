@@ -656,7 +656,13 @@
     }
 
     if (userInfo) {
-      [content setUserInfo:userInfo];
+      if (identifier != nil && ![userInfo objectForKey:@"id"]) {
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:userInfo];
+        [dict setObject:identifier forKey:@"id"];
+        [content setUserInfo:dict];
+      } else {
+        [content setUserInfo:userInfo];
+      }
     }
 
     if (attachments) {
@@ -761,26 +767,20 @@
     if (region != nil) {
       ENSURE_TYPE(region, NSDictionary);
 
+      CLLocationDegrees latitude = [TiUtils doubleValue:@"latitude" properties:region def:0];
+      CLLocationDegrees longitude = [TiUtils doubleValue:@"longitude" properties:region def:0];
+      CLLocationDistance radius = [TiUtils doubleValue:@"radius" properties:region def:kCLDistanceFilterNone];
+      NSString *regionIdentifier = [TiUtils stringValue:@"identifier" properties:region def:@"notification"];
       BOOL regionTriggersOnce = [TiUtils boolValue:[region valueForKey:@"triggersOnce"] def:YES];
-      double latitude = [TiUtils doubleValue:[region valueForKey:@"latitude"] def:0];
-      double longitude = [TiUtils doubleValue:[region valueForKey:@"longitude"] def:0];
-      double radius = [TiUtils doubleValue:[region valueForKey:@"radius"] def:kCLDistanceFilterNone];
 
       CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
 
       if (!CLLocationCoordinate2DIsValid(center)) {
         DebugLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
-        RELEASE_TO_NIL(content);
-        return;
+      } else {
+        content.region = [[[CLCircularRegion alloc] initWithCenter:center radius:radius identifier:regionIdentifier] autorelease];
+        content.regionTriggersOnce = regionTriggersOnce;
       }
-
-      content.region = [[[CLCircularRegion alloc] initWithCenter:center
-                                                          radius:radius
-                                                      identifier:[TiUtils stringValue:@"identifier"
-                                                                           properties:args
-                                                                                  def:@"notification"]] autorelease];
-
-      content.regionTriggersOnce = regionTriggersOnce;
     }
 
     if (sound) {
