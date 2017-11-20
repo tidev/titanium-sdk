@@ -5797,17 +5797,14 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								this.unmarkBuildDirFile(to);
 
 								// generate our transpile target based on tijscore/jscore
-								// and if jscore, then use min supported ios version
-								const presetEnvTargets = {};
-								if (this.useJSCore) {
-									// what's our min sdk? 8 for now
-									presetEnvTargets['targets'] = { 'ios': '8' };
-								}
+								const presets = this.useJSCore ? [ env, {
+									'targets': {
+										'ios': this.minSupportedIosSdk // if using jscore, target our min ios version
+									}
+								}] : [ env ]; // if not jscore, just transpile everything down (no target)
 								const result = babel.transform(r.contents, {
 									filename: from,
-									presets: [
-										[ env, presetEnvTargets ]
-									]
+									presets: presets
 								});
 								const newContents = result.code;
 
