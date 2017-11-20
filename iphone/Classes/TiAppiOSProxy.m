@@ -609,10 +609,10 @@
     UNNotificationTrigger *trigger;
 
     if (date) {
-      NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+      NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
 
       // Per default, use all components and don't repeat
-      NSCalendarUnit components = NSYearCalendarUnit | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+      NSCalendarUnit components = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
 
       if (repeat != nil) {
         if ([repeat isEqual:@"weekly"]) {
@@ -745,13 +745,13 @@
 
     if (repeat != nil) {
       if ([repeat isEqual:@"weekly"]) {
-        content.repeatInterval = NSWeekCalendarUnit;
+        content.repeatInterval = NSCalendarUnitWeekOfYear;
       } else if ([repeat isEqual:@"daily"]) {
-        content.repeatInterval = NSDayCalendarUnit;
+        content.repeatInterval = NSCalendarUnitDay;
       } else if ([repeat isEqual:@"yearly"]) {
-        content.repeatInterval = NSYearCalendarUnit;
+        content.repeatInterval = NSCalendarUnitYear;
       } else if ([repeat isEqual:@"monthly"]) {
-        content.repeatInterval = NSMonthCalendarUnit;
+        content.repeatInterval = NSCalendarUnitMonth;
       }
     }
 
