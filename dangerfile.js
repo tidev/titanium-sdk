@@ -11,7 +11,7 @@ const github = danger.github;
 const labels = [];
 
 // To spit out the raw data we can use:
-// markdown(JSON.stringify(github));
+// markdown(JSON.stringify(danger));
 
 // Check if the user deleted more code than added, give a thumbs-up if so
 if (github.pr.deletions > github.pr.additions) {
@@ -159,6 +159,15 @@ if (failures_and_errors.length !== 0) {
 
 	markdown(message);
 }
+
+markdown(JSON.stringify(process.env));
+
+// Add link to built SDK zipfile!
+if (process.env.BUILD_STATUS === 'SUCCESS' || process.env.BUILD_STATUS === 'UNSTABLE') {
+	const sdkLink = danger.utils.href(`${process.env.BUILD_URL}/artifact/dist/${process.env.ZIPFILE}`, 'Here\'s the generated SDK zipfile');
+	message(`:floppy_disk: ${sdkLink}.`);
+}
+
 // TODO Pass along any warnings/errors from eslint in a readable way? Right now we don't have any way to get at the output of the eslint step of npm test
 // May need to edit Jenkinsfile to do a try/catch to spit out the npm test output to some file this dangerfile can consume?
 // Or port https://github.com/leonhartX/danger-eslint/blob/master/lib/eslint/plugin.rb to JS - have it run on any edited/added JS files?
