@@ -25,7 +25,7 @@ exports.testNumVar = 101;
 exports.testBoolVar = true;
 exports.testNullVar = null;
 
-// FIXME: So apparently we unofficially support the ability to hang off global by referencing "this" in node_modules
+// FIXME: So apparently we unofficially support the ability to hang off global by referencing "this"
 // Using babel-preset-env breaks this as it resolves the top-level "this" to "undefined" and inlines that
 // Without it you could do:
 // it('require global as this binding', function () {
