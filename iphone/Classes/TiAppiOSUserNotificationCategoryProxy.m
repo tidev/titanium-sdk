@@ -45,9 +45,9 @@
     }
 
     if (intentIdentifiers) {
-      for (id itentIdentifier in intentIdentifiers) {
-        if (![itentIdentifier isKindOfClass:[NSString class]]) {
-          NSLog(@"[ERROR] All elements in itentIdentifiers must be a String, \"%@\" is not!", itentIdentifier);
+      for (id intentIdentifier in intentIdentifiers) {
+        if (![intentIdentifier isKindOfClass:[NSString class]]) {
+          DebugLog(@"[ERROR] All elements in \"intentIdentifiers\" must be a String, \"%@\" is not!", intentIdentifier);
         }
       }
     }

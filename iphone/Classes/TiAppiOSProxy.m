@@ -607,7 +607,7 @@
         } else if ([repeat isEqual:@"monthly"]) {
           components = NSCalendarUnitMonth;
         } else {
-          NSLog(@"[ERROR] Unknown `repeat` value specified. Disabling repeat-behavior.");
+          DebugLog(@"[ERROR] Unknown `repeat` value specified. Disabling repeat-behavior.");
         }
       }
 
@@ -676,7 +676,7 @@
                                                                                            options:_options
                                                                                              error:&error];
         if (error != nil) {
-          NSLog(@"[ERROR] Attachment with the identifier = \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
+          DebugLog(@"[ERROR] Attachment with the identifier = \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
         } else {
           [_attachments addObject:_attachment];
         }
@@ -769,7 +769,7 @@
       CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
 
       if (!CLLocationCoordinate2DIsValid(center)) {
-        NSLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
+        DebugLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
         RELEASE_TO_NIL(content);
         return;
       }

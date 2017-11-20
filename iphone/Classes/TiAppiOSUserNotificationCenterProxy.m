@@ -86,7 +86,7 @@
         NO);
 #endif
   } else {
-    NSLog(@"[WARN] Ti.App.iOS.NotificationCenter.getDeliveredNotifications is not available in iOS < 10.");
+    DebugLog(@"[WARN] Ti.App.iOS.NotificationCenter.getDeliveredNotifications is not available in iOS < 10.");
   }
 }
 
@@ -108,7 +108,7 @@
         // Loop through current notification requests
         for (UNNotificationRequest *request in requests) {
 
-          // Loop throigh provided notifications
+          // Loop through provided notifications
           for (id notification in args) {
             ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
 
@@ -156,7 +156,7 @@
         // Loop through current notification requests
         for (UNNotificationRequest *request in requests) {
 
-          // Loop throigh provided notifications
+          // Loop through provided notifications
           for (id notification in args) {
             ENSURE_TYPE(notification, TiAppiOSLocalNotificationProxy);
 
@@ -170,7 +170,7 @@
         NO);
 #endif
   } else {
-    NSLog(@"[WARN] Ti.App.iOS.NotificationCenter.removeDeliveredNotifications is only avaible in iOS 10 and later.");
+    DebugLog(@"[WARN] Ti.App.iOS.NotificationCenter.removeDeliveredNotifications is only available in iOS 10 and later.");
   }
 }
 
