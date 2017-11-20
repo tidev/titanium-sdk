@@ -48,7 +48,8 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	i18nLib = appc.i18n(__dirname),
 	__ = i18nLib.__,
 	__n = i18nLib.__n,
-	version = appc.version;
+	version = appc.version,
+	V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
@@ -2711,19 +2712,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
 							const dir = path.dirname(to);
 							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-							// TODO Based on target platform os version and sdk version we may need to transpile via babel
-							// So I guess here we know that we're doing android, so only need to worry about mapping v8 versions
-							// Do no options if SDK < 6? Then it'll compile everything to es5 (Technically it was v8 3.9)
-							// For SDK 6+, it's 51
-							// For SDK 6.2+, it's 57
-							// For SDK 7+, it'll likely be 62
-							// FIXME: We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
+							// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
 							const v8Version = this.packageJson.v8.version;
-							const stringVersionRegexp = /(\d+)\.(\d+)\.\d+\.\d+/;
-							const found = v8Version.match(stringVersionRegexp);
-							const chromeVersion = parseInt(found[0] + found[1]); // concat the first two numbers as string, then turn to int
-							this.logger.info(__('CHROME VERSION!!!!!!! %s', chromeVersion.cyan));
+							const found = v8Version.match(V8_STRING_VERSION_REGEXP);
+							const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
 							const result = babel.transform(r.contents, {
 								filename: from,
 								presets: [
