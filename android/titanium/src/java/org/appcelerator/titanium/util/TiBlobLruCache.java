@@ -39,13 +39,7 @@ public class TiBlobLruCache extends LruCache<String, Bitmap>
 	@Override
 	protected int sizeOf(String key, Bitmap bitmap)
 	{
-		// The cache size will be measured in kilobytes rather than
-		// number of items.
-		if (android.os.Build.VERSION.SDK_INT > TiC.API_LEVEL_HONEYCOMB) {
-			return bitmap.getByteCount() / 1024;
-		} else {
-			return bitmap.getRowBytes() * bitmap.getHeight() / 1024;
-		}
+		return bitmap.getByteCount();
 	}
 	
 	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
