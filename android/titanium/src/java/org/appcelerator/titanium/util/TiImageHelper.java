@@ -153,12 +153,15 @@ public class TiImageHelper
 			int orientationConst = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
 			switch (orientationConst) {
 				case ExifInterface.ORIENTATION_ROTATE_270:
+				case ExifInterface.ORIENTATION_TRANSVERSE:
 					orientation = 270;
 					break;
 				case ExifInterface.ORIENTATION_ROTATE_180:
+				case ExifInterface.ORIENTATION_FLIP_VERTICAL:
 					orientation = 180;
 					break;
 				case ExifInterface.ORIENTATION_ROTATE_90:
+				case ExifInterface.ORIENTATION_TRANSPOSE:
 					orientation = 90;
 					break;
 			}

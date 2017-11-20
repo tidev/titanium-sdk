@@ -32,13 +32,11 @@ import android.webkit.WebView;
 	TiC.PROPERTY_DATA,
 	TiC.PROPERTY_ON_CREATE_WINDOW,
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
-	TiC.PROPERTY_REQUEST_HEADERS,
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR,
 	TiC.PROPERTY_OVER_SCROLL_MODE,
 	TiC.PROPERTY_CACHE_MODE,
-	TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
-	TiC.PROPERTY_HTML
+	TiC.PROPERTY_LIGHT_TOUCH_ENABLED
 })
 public class WebViewProxy extends ViewProxy
 	implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
@@ -75,7 +73,7 @@ public class WebViewProxy extends ViewProxy
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
-		defaultValues.put(TiC.PROPERTY_BORDER_RADIUS, 0);
+		defaultValues.put(TiC.PROPERTY_DISABLE_CONTEXT_MENU, false);
 	}
 
 	@Override
@@ -123,18 +121,17 @@ public class WebViewProxy extends ViewProxy
 		return (String) getProperty(TiC.PROPERTY_HTML);
 	}
 
-	@Kroll.method
-	public void setHtml(String html, @Kroll.argument(optional = true) KrollDict d)
+	@Kroll.method @Kroll.setProperty
+	public void setHtml(String html)
 	{
 		setProperty(TiC.PROPERTY_HTML, html);
-		setProperty(OPTIONS_IN_SETHTML, d);
 
 		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
 		// view is created.
 		TiUIView v = peekView();
 		if (v != null) {
 			if (TiApplication.isUIThread()) {
-				((TiUIWebView) v).setHtml(html, d);
+				((TiUIWebView) v).setHtml(html);
 			} else {
 				getMainHandler().sendEmptyMessage(MSG_SET_HTML);
 			}
@@ -200,8 +197,7 @@ public class WebViewProxy extends ViewProxy
 					return true;
 				case MSG_SET_HTML:
 					String html = TiConvert.toString(getProperty(TiC.PROPERTY_HTML));
-					HashMap<String, Object> d = (HashMap<String, Object>) getProperty(OPTIONS_IN_SETHTML);
-					getWebView().setHtml(html, d);
+					getWebView().setHtml(html);
 					return true;
 			}
 		}
@@ -353,7 +349,10 @@ public class WebViewProxy extends ViewProxy
 	@Kroll.method @Kroll.getProperty
 	public boolean getDisableContextMenu()
 	{
-		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU));
+		if (hasPropertyAndNotNull(TiC.PROPERTY_DISABLE_CONTEXT_MENU)) {
+			return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU));
+		}
+		return false;
 	}
 
 	@Kroll.method @Kroll.setProperty

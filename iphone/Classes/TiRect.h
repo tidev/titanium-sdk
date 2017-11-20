@@ -10,45 +10,45 @@
  The class for rectangle object proxy.
  */
 @interface TiRect : TiProxy {
-	CGRect rect;
+  CGRect rect;
 }
 
 /**
  Initializes the rect proxy from rect struct.
  @param rect_ The rect struct.
  */
--(void)setRect:(CGRect)rect_;
+- (void)setRect:(CGRect)rect_;
 
 /**
  Returns rect struct.
  @return The rect struct.
  */
--(CGRect)rect;
+- (CGRect)rect;
 
 /**
  Provides access to rectangle x coordinate.
  */
-@property(nonatomic,retain) NSNumber *x;
+@property (nonatomic, retain) NSNumber *x;
 
 /**
  Provides access to rectangle y coordinate.
  */
-@property(nonatomic,retain) NSNumber *y;
+@property (nonatomic, retain) NSNumber *y;
 
 /**
  Provides access to rectangle width.
  */
-@property(nonatomic,retain) NSNumber *width;
+@property (nonatomic, retain) NSNumber *width;
 
 /**
  Provides access to rectangle height.
  */
-@property(nonatomic,retain) NSNumber *height;
+@property (nonatomic, retain) NSNumber *height;
 
 /**
  Converts a rect to the specified unit. Assumes that the current rect size is in dip.
  @param unit The unit type (as a string) to convert the rect to.
  */
--(void)convertToUnit:(NSString*)unit;
+- (void)convertToUnit:(NSString *)unit;
 
 @end

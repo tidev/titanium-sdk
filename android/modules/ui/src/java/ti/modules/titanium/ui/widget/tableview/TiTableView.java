@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,12 +23,15 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.widget.listview.TiNestedListView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
+import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -38,10 +41,9 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 
-public class TiTableView extends FrameLayout
+public class TiTableView extends TiSwipeRefreshLayout
 	implements OnSearchChangeListener
 {
 	public static final int TI_TABLE_VIEW_ID = 101;
@@ -193,11 +195,21 @@ public class TiTableView extends FrameLayout
 				// Default creates view for each Item
 				boolean sameView = false;
 				if (item.proxy instanceof TableViewRowProxy) {
-					TableViewRowProxy row = (TableViewRowProxy)item.proxy;
+					TableViewRowProxy row = (TableViewRowProxy) item.proxy;
 					if (row.getTableViewRowProxyItem() != null) {
 						sameView = row.getTableViewRowProxyItem().equals(convertView);
 					}
 				}
+
+				// TIMOB-24560: prevent duplicate TableViewRowProxyItem on Android N
+				if (Build.VERSION.SDK_INT > 23) {
+					ArrayList<Item> models = viewModel.getViewModel();
+					if (models != null && v instanceof TiTableViewRowProxyItem && models.contains(v.getRowData())) {
+						v = null;
+						sameView = true;
+					}
+				}
+
 				if (!sameView) {
 					if (v.getClassName().equals(TableViewProxy.CLASSNAME_DEFAULT)) {
 						if (v.getRowData() != item) {
@@ -279,8 +291,11 @@ public class TiTableView extends FrameLayout
 		super(proxy.getActivity());
 		this.proxy = proxy;
 
+		// Disable pull-down refresh support until a Titanium "RefreshControl" has been assigned.
+		setSwipeRefreshEnabled(false);
+
 		if (proxy.getProperties().containsKey(TiC.PROPERTY_MAX_CLASSNAME)) {
-		    maxClassname = Math.max(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME)),maxClassname);
+			maxClassname = Math.max(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME)),maxClassname);
 		}
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);
@@ -289,7 +304,7 @@ public class TiTableView extends FrameLayout
 		rowTypes.put(TableViewProxy.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
 
 		this.viewModel = new TableViewModel(proxy);
-		this.listView = new ListView(getContext());
+		this.listView = TiNestedListView.createUsing(getContext());
 		listView.setId(TI_TABLE_VIEW_ID);
 
 		listView.setFocusable(true);
@@ -348,11 +363,11 @@ public class TiTableView extends FrameLayout
 		// get default divider height
 		dividerHeight = listView.getDividerHeight();
 		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_COLOR)) {
-		    setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
+			setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
 		}
 
 		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_STYLE)) {
-		    setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE), UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
+			setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE), UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
 		}
 		adapter = new TTVListAdapter(viewModel);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {

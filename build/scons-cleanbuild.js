@@ -1,25 +1,23 @@
 #!/usr/bin/env node
+'use strict';
 
-var exec = require('child_process').exec,
-	os = require('os'),
+const os = require('os'),
 	path = require('path'),
 	async = require('async'),
 	program = require('commander'),
 	packageJSON = require('../package.json'),
 	version = packageJSON.version,
+	Documentation = require('./docs'),
 	git = require('./git'),
 	Packager = require('./packager'),
-	platforms = [],
-	oses = [],
+	appc = require('node-appc'),
 	// TODO Move common constants somewhere?
 	ROOT_DIR = path.join(__dirname, '..'),
 	DIST_DIR = path.join(ROOT_DIR, 'dist'),
-	ALL_OSES = ['win32', 'linux', 'osx'],
-	ALL_PLATFORMS = ['ios', 'android', 'mobileweb', 'windows'],
 	OS_TO_PLATFORMS = {
-		'win32': ['android', 'mobileweb', 'windows'],
-		'osx': ['android', 'ios', 'mobileweb'],
-		'linux': ['android', 'mobileweb']
+		'win32': [ 'android', 'windows' ],
+		'osx': [ 'android', 'ios' ],
+		'linux': [ 'android' ]
 	};
 
 program
@@ -31,46 +29,42 @@ program
 	.parse(process.argv);
 
 // We're building for the host OS
-var thisOS = os.platform();
-if ('darwin' === thisOS) {
+let thisOS = os.platform();
+if (thisOS === 'darwin') {
 	thisOS = 'osx';
 }
-oses.push(thisOS);
+const oses = [ thisOS ];
 
-platforms = program.args;
+let platforms = program.args;
 if (!platforms.length) {
 	platforms = OS_TO_PLATFORMS[thisOS];
 }
 
 function install(versionTag, next) {
-	var zipfile,
-		dest,
+	let dest,
 		osName = os.platform();
 
 	if (osName === 'win32') {
-		return next('Unable to unzip files on Windows currently. FIXME!');
+		dest = path.join(process.env.ProgramData, 'Titanium');
 	}
 
 	if (osName === 'darwin') {
 		osName = 'osx';
 		dest = path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
 	}
-	// TODO Where should we install on Windows?
 
-	zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
+	if (osName === 'linux') {
+		osName = 'linux';
+		dest = path.join(process.env.HOME, '.titanium');
+	}
+
+	const zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
 	console.log('Installing %s...', zipfile);
 
-	// TODO Combine with unzip method in packager.js?
-	// TODO Support unzipping on windows
-	exec('/usr/bin/unzip -q -o -d "' + dest + '" "' + zipfile + '"', function (err, stdout, stderr) {
-		if (err) {
-			return next(err);
-		}
-		return next();
-	});
+	appc.zip.unzip(zipfile, dest, {}, next);
 }
 
-var versionTag = program.versionTag || program.sdkVersion;
+const versionTag = program.versionTag || program.sdkVersion;
 
 async.series([
 	function (next) {
@@ -82,50 +76,62 @@ async.series([
 	}
 ], function (err) {
 	if (err) {
+		console.error(err);
 		process.exit(1);
 		return;
 	}
 
 	async.each(platforms, function (item, next) {
-		var Platform = require('./' + item);
+		const Platform = require('./' + item); // eslint-disable-line security/detect-non-literal-require
 		new Platform(program).clean(next);
 	}, function (err) {
 		if (err) {
+			console.error(err);
 			process.exit(1);
 		}
 
 		async.eachSeries(platforms, function (item, next) {
-			var Platform = require('./' + item);
+			const Platform = require('./' + item); // eslint-disable-line security/detect-non-literal-require
 			new Platform(program).build(next);
 		}, function (err) {
 			if (err) {
+				console.error(err);
 				process.exit(1);
 			}
-			// TODO Avoid zipping during packaging and just copy over to install it!
-			async.eachSeries(oses, function (targetOS, next) {
-				// Match our master platform list against OS_TO_PLATFORMS[item] listing.
-				// Only package the platform if its in both arrays
-				var filteredPlatforms = [];
-				for (var i = 0; i < platforms.length; i++) {
-					if (OS_TO_PLATFORMS[targetOS].indexOf(platforms[i]) != -1) {
-						filteredPlatforms.push(platforms[i]);
-					}
-				}
 
-				new Packager(DIST_DIR, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, program.githash).package(next);
-			}, function (err) {
+			// Generate docs
+			new Documentation(DIST_DIR).generate(function (err) {
 				if (err) {
 					console.error(err);
 					process.exit(1);
 				}
-				console.log('Packaging version (%s) complete', versionTag);
 
-				install(versionTag, function (err) {
+				// TODO Avoid zipping during packaging and just copy over to install it!
+				async.eachSeries(oses, function (targetOS, next) {
+					// Match our master platform list against OS_TO_PLATFORMS[item] listing.
+					// Only package the platform if its in both arrays
+					const filteredPlatforms = [];
+					for (let i = 0; i < platforms.length; i++) {
+						if (OS_TO_PLATFORMS[targetOS].indexOf(platforms[i]) !== -1) {
+							filteredPlatforms.push(platforms[i]);
+						}
+					}
+
+					new Packager(DIST_DIR, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, program.githash).package(next);
+				}, function (err) {
 					if (err) {
 						console.error(err);
 						process.exit(1);
 					}
-					process.exit(0);
+					console.log('Packaging version (%s) complete', versionTag);
+
+					install(versionTag, function (err) {
+						if (err) {
+							console.error(err);
+							process.exit(1);
+						}
+						process.exit(0);
+					});
 				});
 			});
 		});

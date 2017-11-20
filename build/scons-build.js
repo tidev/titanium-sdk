@@ -1,12 +1,12 @@
 #!/usr/bin/env node
+'use strict';
 
-var path = require('path'),
+const path = require('path'),
 	async = require('async'),
 	program = require('commander'),
 	version = require('../package.json').version,
 	git = require('./git'),
-	platforms = [],
-	ALL_PLATFORMS = ['ios', 'android', 'mobileweb', 'windows'];
+	ALL_PLATFORMS = [ 'ios', 'android', 'windows' ];
 
 program
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
@@ -15,15 +15,9 @@ program
 	.option('-n, --android-ndk [path]', 'Explicitly set the path to the Android NDK used for building', process.env.ANDROID_NDK)
 	.parse(process.argv);
 
-platforms = program.args;
-
-if (!platforms.length) {
-	// assume all!
-	platforms = ['full'];
-}
-
-// expand 'full' to every platform
-if (platforms.length === 1 && platforms[0] == 'full') {
+let platforms = program.args;
+// if no platforms or single as 'full' use all platforms
+if (!platforms.length || (platforms.length === 1 && platforms[0] === 'full')) {
 	platforms = ALL_PLATFORMS;
 }
 
@@ -32,9 +26,9 @@ if (platforms.length === 1 && platforms[0] == 'full') {
 async.series([
 	function (next) {
 		git.getHash(path.join(__dirname, '..'), function (err, hash) {
-			program.githash = hash;
+			program.githash = hash || 'n/a';
 			console.log('Building MobileSDK version %s, githash %s', program.sdkVersion, program.githash);
-			next(err);
+			next();
 		});
 	}
 ], function (err) {
@@ -45,7 +39,7 @@ async.series([
 
 	// TODO Run in parallel? Output will get messy, but no reason we couldn't grab ios prereqs while Android compiles
 	async.eachSeries(platforms, function (item, next) {
-		var Platform = require('./' + item);
+		const Platform = require('./' + item); // eslint-disable-line security/detect-non-literal-require
 		new Platform(program).build(next);
 	}, function (err) {
 		if (err) {

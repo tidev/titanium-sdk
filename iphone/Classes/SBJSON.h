@@ -30,21 +30,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #import <Foundation/Foundation.h>
 
 // Have to rename this symbol to avoid conflicts; see below
-extern NSString * SBJSONErrorDomain;
+extern NSString *SBJSONErrorDomain;
 
 enum {
-    EUNSUPPORTED = 1,
-    EPARSENUM,
-    EPARSE,
-    EFRAGMENT,
-    ECTRL,
-    EUNICODE,
-    EDEPTH,
-    EESCAPE,
-    ETRAILCOMMA,
-    ETRAILGARBAGE,
-    EEOF,
-    EINPUT
+  EUNSUPPORTED = 1,
+  EPARSENUM,
+  EPARSE,
+  EFRAGMENT,
+  ECTRL,
+  EUNICODE,
+  EDEPTH,
+  EESCAPE,
+  ETRAILCOMMA,
+  ETRAILGARBAGE,
+  EEOF,
+  EINPUT
 };
 
 /**
@@ -89,14 +89,14 @@ anything else not in the JSON specification.
 // In order to preserve our SBJSON modifications while allowing modules to use their own (and updated)
 // SBJSON, we have to have an internal name for this class and alias it.
 @interface SBJSON : NSObject {
-    BOOL humanReadable;
-    BOOL sortKeys;
-    NSUInteger maxDepth;
+  BOOL humanReadable;
+  BOOL sortKeys;
+  NSUInteger maxDepth;
 
-@private
-    // Used temporarily during scanning/generation
-    NSUInteger depth;
-    const char *c;
+  @private
+  // Used temporarily during scanning/generation
+  NSUInteger depth;
+  const char *c;
 }
 
 /// Whether we are generating human-readable (multiline) JSON
@@ -116,29 +116,29 @@ anything else not in the JSON specification.
 /** Defaults to 512. */
 @property NSUInteger maxDepth;
 
-+ (id)decodeUrlQuery:(NSURL *) inputUrl;
-+ (NSString *) stringify: (id) inputObject;
++ (id)decodeUrlQuery:(NSURL *)inputUrl;
++ (NSString *)stringify:(id)inputObject;
 
 /// Return JSON representation of an array  or dictionary
-- (NSString*)stringWithObject:(id)value error:(NSError**)error;
+- (NSString *)stringWithObject:(id)value error:(NSError **)error;
 
 /// Return JSON representation of any legal JSON value
-- (NSString*)stringWithFragment:(id)value error:(NSError**)error;
+- (NSString *)stringWithFragment:(id)value error:(NSError **)error;
 
 /// Return the object represented by the given string
-- (id)objectWithString:(NSString*)jsonrep error:(NSError**)error;
+- (id)objectWithString:(NSString *)jsonrep error:(NSError **)error;
 
 /// Return the fragment represented by the given string
-- (id)fragmentWithString:(NSString*)jsonrep error:(NSError**)error;
+- (id)fragmentWithString:(NSString *)jsonrep error:(NSError **)error;
 
 /// Return JSON representation (or fragment) for the given object
-- (NSString*)stringWithObject:(id)value
-                  allowScalar:(BOOL)x
-    					error:(NSError**)error;
+- (NSString *)stringWithObject:(id)value
+                   allowScalar:(BOOL)x
+                         error:(NSError **)error;
 
 /// Parse the string and return the represented object (or scalar)
 - (id)objectWithString:(id)value
            allowScalar:(BOOL)x
-    			 error:(NSError**)error;
+                 error:(NSError **)error;
 
 @end
