@@ -77,7 +77,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)serviceExtensionTimeWillExpire
 {
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteExtentionWillExpire object:@{} userInfo:nil];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteExtentionWillExpire object:self userInfo:nil];
 }
 
 @end

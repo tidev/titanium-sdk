@@ -30,8 +30,15 @@
 
   if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-    NSString *identifier = [(UNMutableNotificationContent *)self.notification categoryIdentifier] ?: @"notification";
-    [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[identifier]];
+    NSString *identifier = @"notification";
+    NSDictionary *userInfo = [(UNMutableNotificationContent *)self.notification userInfo];
+
+    if (userInfo != nil) {
+      if ([userInfo objectForKey:@"id"] != nil) {
+        identifier = [TiUtils stringValue:[userInfo objectForKey:@"id"]];
+      }
+    }
+    [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[ [TiUtils stringValue:identifier] ]];
 #endif
   } else {
     UILocalNotification *cancelledNotification = [self.notification retain];

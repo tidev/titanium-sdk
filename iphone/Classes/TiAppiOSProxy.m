@@ -676,7 +676,7 @@
                                                                                            options:_options
                                                                                              error:&error];
         if (error != nil) {
-          NSLog(@"[ERROR] The attachment \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
+          NSLog(@"[ERROR] Attachment with the identifier = \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
         } else {
           [_attachments addObject:_attachment];
         }
@@ -825,30 +825,27 @@
   DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications", @"6.1.0", @"App.iOS.NotificationCenter.removeAllPendingNotifications");
 
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
-    DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.removeAllPendingNotifications in iOS 10 and later.");
-#endif
+    [[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
   } else {
     [[UIApplication sharedApplication] cancelAllLocalNotifications];
   }
 }
 
-- (void)cancelLocalNotification:(id)args
+- (void)cancelLocalNotification:(id)value
 {
-  ENSURE_SINGLE_ARG(args, NSObject);
-  ENSURE_UI_THREAD(cancelLocalNotification, args);
+  ENSURE_SINGLE_ARG(value, NSObject);
+  ENSURE_UI_THREAD(cancelLocalNotification, value);
 
   DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification", @"6.1.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
 
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
-    DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers in iOS 10 and later.");
-#endif
+    NSString *identifier = [TiUtils stringValue:value] ?: @"notification";
+    [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[ identifier ]];
   } else {
     NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
     if (notifications != nil) {
       for (UILocalNotification *notification in notifications) {
-        if ([[[notification userInfo] objectForKey:@"id"] isEqual:args]) {
+        if ([[[notification userInfo] objectForKey:@"id"] isEqual:[TiUtils stringValue:value]]) {
           [[UIApplication sharedApplication] cancelLocalNotification:notification];
           return;
         }
@@ -857,34 +854,29 @@
   }
 }
 
-- (void)didReceiveContinueActivityNotification:(NSNotification *)notif
+- (void)didReceiveContinueActivityNotification:(NSNotification *)note
 {
-  NSDictionary *notification = [notif userInfo];
-  [self fireEvent:@"continueactivity" withObject:notification];
+  [self fireEvent:@"continueactivity" withObject:[note userInfo]];
 }
 
 - (void)didReceiveLocalNotification:(NSNotification *)note
 {
-  NSDictionary *notification = [note object];
-  [self fireEvent:@"notification" withObject:notification];
+  [self fireEvent:@"notification" withObject:[note userInfo]];
 }
 
 - (void)didReceiveLocalNotificationAction:(NSNotification *)note
 {
-  NSDictionary *notification = [note object];
-  [self fireEvent:@"localnotificationaction" withObject:notification];
+  [self fireEvent:@"localnotificationaction" withObject:[note userInfo]];
 }
 
 - (void)didReceiveRemoteNotificationAction:(NSNotification *)note
 {
-  NSDictionary *notification = [note object];
-  [self fireEvent:@"remotenotificationaction" withObject:notification];
+  [self fireEvent:@"remotenotificationaction" withObject:[note userInfo]];
 }
 
 - (void)remoteExtensionWillExpire:(NSNotification *)note
 {
-  NSDictionary *notification = [note object];
-  [self fireEvent:@"remoteextentionwillexpire" withObject:notification];
+  [self fireEvent:@"remoteextentionwillexpire" withObject:[note userInfo]];
 }
 
 - (void)didReceiveBackgroundFetchNotification:(NSNotification *)note
@@ -926,10 +918,10 @@
   [self fireEvent:@"uploadprogress" withObject:[note userInfo]];
 }
 
-- (void)didRegisterUserNotificationSettingsNotification:(NSNotification *)notificationSettings
+- (void)didRegisterUserNotificationSettingsNotification:(NSNotification *)note
 {
   [self fireEvent:@"usernotificationsettings"
-       withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings *)[notificationSettings object]]];
+       withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings *)[[note userInfo] valueForKey:@"userNotificationSettings"]]];
 }
 
 #pragma mark Apple Watchkit notifications
