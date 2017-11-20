@@ -5687,10 +5687,7 @@
 		};
 
 	}); // module: utils.js
-	// The global object is "self" in Web Workers.
-	if (!global) {
-		global = (function () { return this; }());
-	}
+
 	/**
  * Save timer references to avoid Sinon interfering (see GH-237).
  */
