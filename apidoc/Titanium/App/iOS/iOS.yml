@@ -1250,13 +1250,16 @@ platforms: [iphone, ipad]
 properties:
   - name: identifier
     summary: The notification identifier.
-    description: This property is required in iOS 10 and later.
+    description: |
+        This property is required in iOS 10 and later and will fallback 
+        to "notification" if not set.
     optional: false
     since: "7.1.0"
+    type: String
 
   - name: alertAction
     summary: |
-        Alert button text ('Open', by default) or slider text ('slide to unlock...', by default)
+        Alert button text ('Open', by default) or home text ('Press Home to Unlock', by default)
         to display.
     type: String
     optional: true
