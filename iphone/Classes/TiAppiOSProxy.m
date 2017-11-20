@@ -822,7 +822,7 @@
 {
   ENSURE_UI_THREAD(cancelAllLocalNotifications, unused);
 
-  DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications", @"6.1.0", @"App.iOS.NotificationCenter.removeAllPendingNotifications");
+  DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications", @"7.1.0", @"App.iOS.NotificationCenter.removeAllPendingNotifications");
 
   if ([TiUtils isIOS10OrGreater]) {
     [[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
@@ -836,7 +836,7 @@
   ENSURE_SINGLE_ARG(value, NSObject);
   ENSURE_UI_THREAD(cancelLocalNotification, value);
 
-  DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification", @"6.1.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
+  DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification", @"7.1.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
 
   if ([TiUtils isIOS10OrGreater]) {
     NSString *identifier = [TiUtils stringValue:value] ?: @"notification";
