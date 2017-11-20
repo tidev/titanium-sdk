@@ -12,15 +12,14 @@
 #endif
 
 @interface TiAppiOSLocalNotificationProxy : TiProxy {
-@private
-	id _notification;
+  @private
+  id _notification;
 }
 
-@property(nonatomic,retain) id notification;
+@property (nonatomic, retain) id notification;
 
--(void)cancel:(id)used;
+- (void)cancel:(id)used;
 
 @end
-
 
 #endif

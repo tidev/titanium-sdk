@@ -13,75 +13,75 @@
 
 @implementation TiAppiOSUserNotificationCategoryProxy
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(_notificationCategory);
-	[super dealloc];
+  RELEASE_TO_NIL(_notificationCategory);
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-	return @"Ti.App.iOS.UserNotificationCategory";
+  return @"Ti.App.iOS.UserNotificationCategory";
 }
 
--(void)_initWithProperties:(NSDictionary *)properties
+- (void)_initWithProperties:(NSDictionary *)properties
 {
-    if (_notificationCategory == nil) {
-        
-        id identifier = [properties valueForKey:@"identifier"];
-        id actionsForDefaultContext = [properties valueForKey:@"actionsForDefaultContext"];
-        id actionsForMinimalContext = [properties valueForKey:@"actionsForMinimalContext"];
-        id intentIdentifiers = [properties valueForKey:@"intentIdentifiers"];
-        
-        NSMutableArray *defaultActions = [NSMutableArray new];
-        NSMutableArray *minimalActions = [NSMutableArray new];
-        
-        for (TiAppiOSUserNotificationActionProxy *action in actionsForDefaultContext) {
-            [defaultActions addObject:[action notificationAction]];
-        }
-        
-        for (TiAppiOSUserNotificationActionProxy *action in actionsForMinimalContext) {
-            [minimalActions addObject:[action notificationAction]];
-        }
-        
-        if (intentIdentifiers) {
-            for (id itentIdentifier in intentIdentifiers) {
-                if (![itentIdentifier isKindOfClass:[NSString class]]) {
-                    NSLog(@"[ERROR] All elements in itentIdentifiers must be a String, \"%@\" is not!", itentIdentifier);
-                }
-            }
-        }
-        
-        if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
-            _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
-                                                                           actions:defaultActions
-                                                                  intentIdentifiers:intentIdentifiers ?: @[]
-                                                                            options:UNNotificationCategoryOptionCustomDismissAction] retain];
-#endif
-        } else {
-            _notificationCategory = [UIMutableUserNotificationCategory new];
-            
-            [_notificationCategory setIdentifier:identifier];
-            [_notificationCategory setActions:defaultActions forContext:UIUserNotificationActionContextDefault];
-            [_notificationCategory setActions:minimalActions forContext:UIUserNotificationActionContextMinimal];
-        }
-    
-        RELEASE_TO_NIL(minimalActions);
-        RELEASE_TO_NIL(defaultActions);
+  if (_notificationCategory == nil) {
+
+    id identifier = [properties valueForKey:@"identifier"];
+    id actionsForDefaultContext = [properties valueForKey:@"actionsForDefaultContext"];
+    id actionsForMinimalContext = [properties valueForKey:@"actionsForMinimalContext"];
+    id intentIdentifiers = [properties valueForKey:@"intentIdentifiers"];
+
+    NSMutableArray *defaultActions = [NSMutableArray new];
+    NSMutableArray *minimalActions = [NSMutableArray new];
+
+    for (TiAppiOSUserNotificationActionProxy *action in actionsForDefaultContext) {
+      [defaultActions addObject:[action notificationAction]];
     }
-    
-    [super _initWithProperties:properties];
+
+    for (TiAppiOSUserNotificationActionProxy *action in actionsForMinimalContext) {
+      [minimalActions addObject:[action notificationAction]];
+    }
+
+    if (intentIdentifiers) {
+      for (id itentIdentifier in intentIdentifiers) {
+        if (![itentIdentifier isKindOfClass:[NSString class]]) {
+          NSLog(@"[ERROR] All elements in itentIdentifiers must be a String, \"%@\" is not!", itentIdentifier);
+        }
+      }
+    }
+
+    if ([TiUtils isIOS10OrGreater]) {
+#if IS_XCODE_8
+      _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
+                                                                      actions:defaultActions
+                                                            intentIdentifiers:intentIdentifiers ?: @[]
+                                                                      options:UNNotificationCategoryOptionCustomDismissAction] retain];
+#endif
+    } else {
+      _notificationCategory = [UIMutableUserNotificationCategory new];
+
+      [_notificationCategory setIdentifier:identifier];
+      [_notificationCategory setActions:defaultActions forContext:UIUserNotificationActionContextDefault];
+      [_notificationCategory setActions:minimalActions forContext:UIUserNotificationActionContextMinimal];
+    }
+
+    RELEASE_TO_NIL(minimalActions);
+    RELEASE_TO_NIL(defaultActions);
+  }
+
+  [super _initWithProperties:properties];
 }
 
--(id)notificationCategory
+- (id)notificationCategory
 {
-	return _notificationCategory;
+  return _notificationCategory;
 }
 
--(NSString*)identifier
+- (NSString *)identifier
 {
-	return [[self notificationCategory] identifier];
+  return [[self notificationCategory] identifier];
 }
 
 @end

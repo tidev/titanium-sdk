@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_APPIOS
 
-#import "TiProxy.h"
 #import "TiApp.h"
+#import "TiProxy.h"
 #if IS_XCODE_8
 #import <UserNotifications/UserNotifications.h>
 #endif

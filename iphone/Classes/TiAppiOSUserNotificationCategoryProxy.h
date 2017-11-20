@@ -13,8 +13,8 @@
 
 @interface TiAppiOSUserNotificationCategoryProxy : TiProxy
 
-@property (nonatomic,retain) id notificationCategory;
-@property (nonatomic,readonly) NSString *identifier;
+@property (nonatomic, retain) id notificationCategory;
+@property (nonatomic, readonly) NSString *identifier;
 
 - (id)notificationCategory;
 

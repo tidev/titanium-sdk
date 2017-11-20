@@ -14,9 +14,8 @@
 
 @interface TiAppiOSUserNotificationActionProxy : TiProxy
 
-@property(nonatomic,retain) id notificationAction;
+@property (nonatomic, retain) id notificationAction;
 
 @end
-
 
 #endif

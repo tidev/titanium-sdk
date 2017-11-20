@@ -13,33 +13,34 @@
 
 @synthesize notification = _notification;
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(_notification);
-	[super dealloc];
+  RELEASE_TO_NIL(_notification);
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.App.iOS.LocalNotification";
+  return @"Ti.App.iOS.LocalNotification";
 }
 
--(void)cancel:(id)unused
+- (void)cancel:(id)unused
 {
-    DEPRECATED_REPLACED(@"App.iOS.LocalNotification.cancel", @"6.1.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
-    
-    if ([TiUtils isIOS10OrGreater]) {
+  DEPRECATED_REPLACED(@"App.iOS.LocalNotification.cancel", @"6.1.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
+
+  if ([TiUtils isIOS10OrGreater]) {
 #if IS_XCODE_8
-        DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
-        return;
+    DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
+    return;
 #endif
-    } else {
-        UILocalNotification * cancelledNotification = [self.notification retain];
-        TiThreadPerformOnMainThread(^{
-            [[UIApplication sharedApplication] cancelLocalNotification:cancelledNotification];
-            [cancelledNotification release];
-        }, NO);
-    }
+  } else {
+    UILocalNotification *cancelledNotification = [self.notification retain];
+    TiThreadPerformOnMainThread(^{
+      [[UIApplication sharedApplication] cancelLocalNotification:cancelledNotification];
+      [cancelledNotification release];
+    },
+        NO);
+  }
 }
 
 @end
