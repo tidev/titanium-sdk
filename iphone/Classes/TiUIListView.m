@@ -630,7 +630,15 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
-
+  CGFloat topMargin = convertedOrigin.y;
+  
+#if IS_XCODE_9
+  if ([TiUtils isIOS11OrGreater]) {
+    topMargin += self.safeAreaInsets.top;
+    _tableView.frame = CGRectMake(0, self.safeAreaInsets.top, _tableView.frame.size.width, _tableView.frame.size.height - self.safeAreaInsets.top);
+  }
+#endif
+  
   UIView *searchSuperView = [searchController.view superview];
   if (!searchSuperView) {
     return;
@@ -644,7 +652,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     }
   }
 
-  searchController.view.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
+  searchController.view.frame = CGRectMake(convertedOrigin.x, topMargin, self.frame.size.width, self.frame.size.height);
   dimmingView.frame = CGRectMake(searchController.view.frame.origin.x, searchController.view.frame.origin.y, self.frame.size.width, self.frame.size.height);
 
   float width = [_searchWrapper view].frame.size.width;
@@ -2145,6 +2153,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)didDismissSearchController:(UISearchController *)searchController
 {
+#if IS_XCODE_9
+  if ([TiUtils isIOS11OrGreater]) {
+    _tableView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  }
+#endif
+
   self.searchString = @"";
   [self buildResultsForSearchText];
 
