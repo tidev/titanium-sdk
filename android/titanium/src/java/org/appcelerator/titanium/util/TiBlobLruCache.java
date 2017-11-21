@@ -39,7 +39,8 @@ public class TiBlobLruCache extends LruCache<String, Bitmap>
 	@Override
 	protected int sizeOf(String key, Bitmap bitmap)
 	{
-		return bitmap.getByteCount();
+		int byteCount = bitmap.getRowBytes() * bitmap.getHeight();
+		return byteCount / 1024;
 	}
 	
 	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
