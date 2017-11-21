@@ -1458,13 +1458,13 @@
 
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
   CGFloat topMargin = convertedOrigin.y;
-  
-  #if IS_XCODE_9
+
+#if IS_XCODE_9
   if ([TiUtils isIOS11OrGreater]) {
     topMargin += self.safeAreaInsets.top;
     tableview.frame = CGRectMake(0, self.safeAreaInsets.top, tableview.frame.size.width, tableview.frame.size.height - self.safeAreaInsets.top);
   }
-  #endif
+#endif
   UIView *searchSuperView = [searchController.view superview];
   if (!searchSuperView) {
     return;
@@ -2704,7 +2704,7 @@
     tableview.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
   }
 #endif
-  
+
   if (viewWillDetach) {
     return;
   }

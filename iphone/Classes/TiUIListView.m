@@ -631,14 +631,14 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
   CGFloat topMargin = convertedOrigin.y;
-  
+
 #if IS_XCODE_9
   if ([TiUtils isIOS11OrGreater]) {
     topMargin += self.safeAreaInsets.top;
     _tableView.frame = CGRectMake(0, self.safeAreaInsets.top, _tableView.frame.size.width, _tableView.frame.size.height - self.safeAreaInsets.top);
   }
 #endif
-  
+
   UIView *searchSuperView = [searchController.view superview];
   if (!searchSuperView) {
     return;
