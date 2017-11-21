@@ -557,7 +557,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		version = this.moduleVersion,
 		moduleZipName = [ moduleId, '-iphone-', version, '.zip' ].join(''),
 		moduleZipFullPath = path.join(this.projectDir, moduleZipName),
-		moduleFolders = path.join('modules', 'ios', moduleId, version),
+		moduleFolders = path.join('modules', 'iphone', moduleId, version),
 		binarylibName = 'lib' + moduleId + '.a',
 		binarylibFile = path.join(this.projectDir, 'build', binarylibName);
 

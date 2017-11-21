@@ -13,10 +13,10 @@
 //
 // OTHER_LDFLAGS=$(inherited) -framework Foo
 //
-// Adding a framework for a specific version(s) of iPhone:
+// Adding a framework for a specific version(s) of iOS, e.g iOS 11:
 //
-// OTHER_LDFLAGS[sdk=iphoneos4*]=$(inherited) -framework Foo
-// OTHER_LDFLAGS[sdk=iphonesimulator4*]=$(inherited) -framework Foo
+// OTHER_LDFLAGS[sdk=iphoneos11*]=$(inherited) -framework Foo
+// OTHER_LDFLAGS[sdk=iphonesimulator11*]=$(inherited) -framework Foo
 //
 //
 // How to add a compiler define:
