@@ -48,11 +48,12 @@ public class TiUISearchBar extends TiUIText
 
 		View nativeView = getNativeView();
 		if (nativeView instanceof EditText) {
-			this.tv = (EditText)nativeView;
+			this.tv = (EditText) nativeView;
 		} else if (nativeView instanceof TextInputLayout) {
-			this.tv = ((TextInputLayout)nativeView).getEditText();
-		} else {
-			throw new IllegalStateException();
+ 			this.tv = ((TextInputLayout) nativeView).getEditText();
+		}
+		if (this.tv == null) {
+			throw new Error("could not obtain EditText component");
 		}
 
 		this.tv.setImeOptions(EditorInfo.IME_ACTION_DONE);

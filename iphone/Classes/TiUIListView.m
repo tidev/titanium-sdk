@@ -960,6 +960,16 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [[self tableView] setBounces:![TiUtils boolValue:value def:NO]];
 }
 
+- (void)setAllowsMultipleSelectionDuringEditing_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  [[self proxy] replaceValue:value forKey:@"allowsMultipleSelectionDuringEditing" notification:NO];
+
+  [[self tableView] beginUpdates];
+  [[self tableView] setAllowsMultipleSelectionDuringEditing:[TiUtils boolValue:value]];
+  [[self tableView] endUpdates];
+}
+
 #pragma mark - Search Support
 - (void)setCaseInsensitiveSearch_:(id)args
 {
@@ -1003,7 +1013,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [_searchWrapper add:searchViewProxy];
     NSString *curPlaceHolder = [[searchViewProxy searchBar] placeholder];
     if (curPlaceHolder == nil) {
-      [[searchViewProxy searchBar] setPlaceholder:@"Search"];
+      [[searchViewProxy searchBar] setPlaceholder:NSLocalizedString(@"Search", @"Search")];
     }
     self.searchString = [[searchViewProxy searchBar] text];
     [self initSearchController:self];
