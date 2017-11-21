@@ -625,10 +625,16 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)updateSearchControllerFrames
 {
+  if (![searchController isActive]) {
+    return;
+  }
+
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
   UIView *searchSuperView = [searchController.view superview];
-  searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
+  if (!searchSuperView) {
+    return;
+  }
 
   // Dimming view (transparent view of search controller, which is not exposed) need to manage as it is taking full height of screen always
   UIView *dimmingView = nil;
@@ -637,15 +643,23 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       dimmingView = view;
     }
   }
+
+  searchController.view.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
   dimmingView.frame = CGRectMake(searchController.view.frame.origin.x, searchController.view.frame.origin.y, self.frame.size.width, self.frame.size.height);
-  //  searchController.view.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
 
   float width = [_searchWrapper view].frame.size.width;
   UIView *view = searchController.searchBar.superview;
   view.frame = CGRectMake(0, 0, width, view.frame.size.height);
   searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
 
-  resultViewController.tableView.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height);
+  UIView *resultSuperview = [resultViewController.view superview];
+  if (resultSuperview) {
+    resultSuperview.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height);
+    resultViewController.tableView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+
+  } else {
+    resultViewController.tableView.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height);
+  }
 }
 
 #pragma mark - Public API
@@ -2133,21 +2147,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   self.searchString = @"";
   [self buildResultsForSearchText];
-  /*
-  if (_searchWrapper != nil) {
-    CGFloat rowWidth = floorf([self computeRowWidth:_tableView]);
-    if (rowWidth > 0) {
-      CGFloat right = _tableView.bounds.size.width - rowWidth;
-#ifndef TI_USE_AUTOLAYOUT
-      [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
-#endif
-      [_searchWrapper refreshView:nil];
-    }
-  }
-  _searchTableView.tableHeaderView = nil;
 
-  [searchViewProxy ensureSearchBarHierarchy];
-   */
   [_tableView reloadData];
 
   searchControllerPresenter = nil;
@@ -2348,7 +2348,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     searchController = [[[UISearchController alloc] initWithSearchResultsController:resultViewController] retain];
     searchController.delegate = self;
     searchController.searchResultsUpdater = self;
-    searchController.hidesNavigationBarDuringPresentation = NO;
+    searchController.hidesNavigationBarDuringPresentation = YES;
     searchController.dimsBackgroundDuringPresentation = _dimsBackgroundDuringPresentation;
 
     searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
