@@ -1,42 +1,42 @@
 /**
- * Copyright (c) 2015 Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2017 Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  *
  * Common Library for Doctools
  */
+'use strict';
 
-var yaml = require('js-yaml'),
+const yaml = require('js-yaml'),
 	fs = require('fs'),
+	colors = require('colors'), // eslint-disable-line no-unused-vars
 	nodeappc = require('node-appc'),
-	colors = require('colors'),
 	pagedown = require('pagedown'),
 	converter = new pagedown.Converter(),
-	ignoreList = ['node_modules', '.travis.yml'],
+	ignoreList = [ 'node_modules', '.travis.yml' ],
 	LOG_INFO = 0,
 	LOG_WARN = LOG_INFO + 1,
-	LOG_ERROR = LOG_WARN + 1,
-	logLevel = LOG_INFO;
+	LOG_ERROR = LOG_WARN + 1;
 
-exports.VALID_PLATFORMS = ['android', 'blackberry', 'iphone', 'ipad', 'mobileweb', 'windowsphone'];
-exports.VALID_OSES = ['android', 'blackberry', 'ios', 'mobileweb', 'windowsphone'];
+let logLevel = LOG_INFO;
+
+exports.VALID_PLATFORMS = [ 'android', 'blackberry', 'iphone', 'ipad', 'windowsphone' ];
+exports.VALID_OSES = [ 'android', 'blackberry', 'ios', 'windowsphone' ];
 exports.DEFAULT_VERSIONS = {
 	'android' : '0.8',
 	'iphone' : '0.8',
-	'ipad' : '0.8',
-	'mobileweb' : '1.8'
+	'ipad' : '0.8'
 };
 exports.ADDON_VERSIONS = {
 	'blackberry' : '3.1.2',
 	'windowsphone' : '4.1.0'
 };
-exports.DATA_TYPES = ['Array', 'Boolean', 'Callback', 'Date', 'Dictionary', 'Number', 'Object', 'String'];
+exports.DATA_TYPES = [ 'Array', 'Boolean', 'Callback', 'Date', 'Dictionary', 'Number', 'Object', 'String' ];
 exports.PRETTY_PLATFORM = {
 	'android': 'Android',
 	'blackberry': 'BlackBerry',
 	'ios': 'iOS',
 	'iphone': 'iPhone',
 	'ipad': 'iPad',
-	'mobileweb': 'Mobile Web',
 	'tizen': 'Tizen',
 	'windowsphone' : 'Windows Phone'
 };
@@ -57,6 +57,8 @@ exports.REGEXP_CHEVRON_LINKS = /(?!`)<[^>]+?>(?!`)/g;
 
 /**
  * Converts a Markdown string to HTML
+ * @param {string} text markdown to convert to html
+ * @return {string} HTML
  */
 exports.markdownToHTML = function markdownToHTML(text) {
 	return converter.makeHtml(text);
@@ -68,16 +70,18 @@ exports.LOG_ERROR = LOG_ERROR;
 
 /**
  * Logs output
+ * @param {number} level log level
+ * @param {string} message log message
  */
-exports.log = function log (level, message) {
-	var args = [];
+exports.log = function log(level, message) {
+	const args = [];
 
 	if (level < logLevel) {
 		return;
 	}
 
 	if (arguments.length >= 3) {
-		for (var key in arguments) {
+		for (const key in arguments) {
 			args.push(arguments[key]);
 		}
 		args.splice(0, 2);
@@ -108,14 +112,18 @@ exports.log = function log (level, message) {
 
 /**
  * Sets the log level for output
+ * @param {number} level target log level for filtering
  */
-exports.setLogLevel = function setLogLevel (level) {
+exports.setLogLevel = function setLogLevel(level) {
 	logLevel = level;
 };
 
 /**
  * Determines if the key exists in the object and is defined
  * Also if it's array, make sure the array is not empty
+ * @param {object} obj an object
+ * @param {object} key an expected key on the object
+ * @return {boolean} true if the object has a value for the key (and if it's an array, it has to have at least one element)
  */
 exports.assertObjectKey = function assertObjectKey(obj, key) {
 	if (key in obj && obj[key]) {
@@ -132,8 +140,9 @@ exports.assertObjectKey = function assertObjectKey(obj, key) {
 
 /**
  * Error message
+ * @return {string} error message
  */
-function errorMessage () {
+function errorMessage() {
 	return 'ERROR: Missing name for doc in file';
 }
 
@@ -143,14 +152,15 @@ function errorMessage () {
  * @returns {Object} Dictionary containing the parsed data and any YAML errors
  */
 exports.parseYAML = function parseYAML(path) {
-	var rv = {data : {}, errors : []},
-		currentFile = path;
+	const rv = {
+		data: {},
+		errors: []
+	};
+	let currentFile = path;
 	try {
-		var fsArray = fs.readdirSync(path),
-			i = 0,
-			len = fsArray.length;
+		const fsArray = fs.readdirSync(path);
 		fsArray.forEach(function (fsElement) {
-			var elem = path + '/' + fsElement,
+			const elem = path + '/' + fsElement,
 				stat = fs.statSync(elem);
 			currentFile = elem;
 
@@ -163,16 +173,16 @@ exports.parseYAML = function parseYAML(path) {
 			} else if (stat.isFile()) {
 				if (elem.split('.').pop() === 'yml') {
 					try {
-						var fileBuffer = fs.readFileSync(elem, 'utf8');
+						const fileBuffer = fs.readFileSync(elem, 'utf8');
 						// remove comments
-						fileBuffer.replace(/\w*\#.*/, '');
+						fileBuffer.replace(/\w*#.*/, '');
 						yaml.safeLoadAll(fileBuffer, function (doc) {
 							if (!doc.name) {
-								rv.errors.push({toString: errorMessage(), __file: currentFile});
+								rv.errors.push({ toString: errorMessage(), __file: currentFile });
 								return;
 							}
 							// data does not exist in doc
-							if (rv.data[doc.name] == null) {
+							if (!rv.data[doc.name]) {
 								rv.data[doc.name] = doc;
 								rv.data[doc.name].__file = currentFile;
 							} else {
@@ -180,18 +190,38 @@ exports.parseYAML = function parseYAML(path) {
 								nodeappc.util.mixObj(rv.data[doc.name], doc);
 							}
 						});
-					}
-					catch (e) {
+					} catch (e) {
 						e.__file = currentFile;
 						rv.errors.push(e);
 					}
 				}
 			}
 		});
-		return rv;
-	}
-	catch (e) {
+	} catch (e) {
 		e.__file = currentFile;
 		rv.errors.push(e);
 	}
+	return rv;
+};
+
+/**
+ * Find the API in the docs
+ * @param {Object} doc full api tree
+ * @param {Object} className class name
+ * @param {Object} memberName member name
+ * @param {Object} type sub-type of class?
+ * @return {boolean} true if found, false otherwise
+ */
+exports.findAPI = function (doc, className, memberName, type) {
+	var cls = doc[className],
+		x = 0;
+
+	if (cls && type in cls && cls[type]) {
+		for (x = 0; x < cls[type].length; x++) {
+			if (cls[type][x].name === memberName) {
+				return true;
+			}
+		}
+	}
+	return false;
 };

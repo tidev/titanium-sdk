@@ -6,38 +6,37 @@
  */
 #ifdef USE_TI_MEDIAAUDIORECORDER
 
-#import "TiProxy.h"
 #import "TiFile.h"
+#import "TiProxy.h"
 #import <AVFoundation/AVAudioRecorder.h>
 
-typedef enum
-{
-    RecordStarted = 0,
-    RecordStopped = 1,
-    RecordPaused = 2
+typedef enum {
+  RecordStarted = 0,
+  RecordStopped = 1,
+  RecordPaused = 2
 } RecorderState;
 
-@interface TiMediaAudioRecorderProxy : TiProxy<AVAudioRecorderDelegate> {
-@private
-    AVAudioRecorder *recorder;
-    TiFile *file;
-    NSNumber *compression;
-    NSNumber *format;
-    RecorderState curState;
+@interface TiMediaAudioRecorderProxy : TiProxy <AVAudioRecorderDelegate> {
+  @private
+  AVAudioRecorder *recorder;
+  TiFile *file;
+  NSNumber *compression;
+  NSNumber *format;
+  RecorderState curState;
 }
 
 #pragma mark Public APIs
 
-@property(nonatomic,readonly) NSNumber* recording;
-@property(nonatomic,readonly) NSNumber* stopped;
-@property(nonatomic,readonly) NSNumber* paused;
-@property(nonatomic,readwrite,retain) NSNumber *compression;
-@property(nonatomic,readwrite,retain) NSNumber *format;
+@property (nonatomic, readonly) NSNumber *recording;
+@property (nonatomic, readonly) NSNumber *stopped;
+@property (nonatomic, readonly) NSNumber *paused;
+@property (nonatomic, readwrite, retain) NSNumber *compression;
+@property (nonatomic, readwrite, retain) NSNumber *format;
 
--(void)pause:(id)args;
--(void)resume:(id)args;
--(void)start:(id)args;
--(id)stop:(id)args;
+- (void)pause:(id)args;
+- (void)resume:(id)args;
+- (void)start:(id)args;
+- (id)stop:(id)args;
 
 @end
 

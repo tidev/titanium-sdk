@@ -218,6 +218,9 @@ public abstract class KrollRuntime implements Handler.Callback
 
 		// Set state to released when since we have not fully disposed of it yet
 		synchronized (runtimeState) {
+			if (runtimeState == State.DISPOSED) {
+				return;
+			}
 			runtimeState = State.RELEASED;
 		}
 
@@ -229,7 +232,6 @@ public abstract class KrollRuntime implements Handler.Callback
 
 		if (isRuntimeThread()) {
 			internalDispose();
-
 		} else {
 			handler.sendEmptyMessage(MSG_DISPOSE);
 		}
@@ -427,6 +429,9 @@ public abstract class KrollRuntime implements Handler.Callback
 	private void internalDispose()
 	{
 		synchronized (runtimeState) {
+			if (runtimeState == State.DISPOSED) {
+				return;
+			}
 			if (runtimeState == State.RELAUNCHED) {
 				// Abort the dispose if the application has been re-launched since we scheduled this dispose during the
 				// last exit. Then set it back to the initialized state.

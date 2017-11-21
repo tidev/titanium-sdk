@@ -19,11 +19,4 @@
         <item name="android:listPreferredItemPaddingLeft">@dimen/abc_list_item_padding_horizontal_material</item>
         <item name="android:listPreferredItemPaddingRight">@dimen/abc_list_item_padding_horizontal_material</item>
     </style>
-    <style name="TextAppearance.StatusBar.EventContent" parent="@android:style/TextAppearance.StatusBar.EventContent"/>
-    <style name="TextAppearance.StatusBar.EventContent.Info"/>
-    <style name="TextAppearance.StatusBar.EventContent.Line2">
-        <item name="android:textSize">@dimen/notification_subtext_size</item>
-    </style>
-    <style name="TextAppearance.StatusBar.EventContent.Time"/>
-    <style name="TextAppearance.StatusBar.EventContent.Title" parent="@android:style/TextAppearance.StatusBar.EventContent.Title"/>
 </resources>

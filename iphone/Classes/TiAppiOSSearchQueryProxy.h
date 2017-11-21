@@ -10,20 +10,20 @@
 #import <CoreSpotlight/CoreSpotlight.h>
 
 @interface TiAppiOSSearchQueryProxy : TiProxy {
-    CSSearchQuery *query;
-    NSString *queryString;
-    NSArray<NSString*> *attributes;
+  CSSearchQuery *query;
+  NSString *queryString;
+  NSArray<NSString *> *attributes;
 }
 
-- (id)_initWithPageContext:(id<TiEvaluator>)context andArguments:(NSDictionary*)args;
+- (id)_initWithPageContext:(id<TiEvaluator>)context andArguments:(NSDictionary *)args;
 
-- (CSSearchQuery*)query;
+- (CSSearchQuery *)query;
 
 - (void)start:(id)unused;
 
 - (void)cancel:(id)unused;
 
-- (NSNumber*)isCancelled:(id)unused;
+- (NSNumber *)isCancelled:(id)unused;
 
 @end
 #endif

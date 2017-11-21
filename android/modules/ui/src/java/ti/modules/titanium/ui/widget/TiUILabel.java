@@ -62,6 +62,7 @@ public class TiUILabel extends TiUIView
 	private float minimumFontSizeInPixels = -1.0f;
 	private float unscaledFontSizeInPixels = -1.0f;
 	private CharSequence originalText = "";
+	private boolean isInvalidationAndLayoutsEnabled = true;
 
 	public TiUILabel(final TiViewProxy proxy)
 	{
@@ -88,15 +89,80 @@ public class TiUILabel extends TiUIView
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
+				// Update this view's layout.
 				super.onLayout(changed, left, top, right, bottom);
-				
+
+				// Auto-downscale the font to fit the view's width, if enabled.
 				adjustTextFontSize(this);
-				
+
+				// Apply ellipsis if enabled and if view has fixed height (ie: not sized to fit text).
+				if (!isSingleLine() && (viewHeightInLines <= 0) && (ellipsize != null) &&
+				    (layoutParams != null) &&
+				    ((layoutParams.optionHeight != null) || layoutParams.autoFillsHeight))
+				{
+					// First, we must reset/re-measure the text based on the original max lines setting.
+					// Note: Calling onMeasure() updates the view's StaticLayout and its getLineCount().
+					isInvalidationAndLayoutsEnabled = false;  // Suppress invalidate() and requestLayout().
+					setMaxLines((TiUILabel.this.maxLines > 0) ? TiUILabel.this.maxLines : Integer.MAX_VALUE);
+					isInvalidationAndLayoutsEnabled = true;
+					int measuredWidth = MeasureSpec.makeMeasureSpec(right - left, MeasureSpec.EXACTLY);
+					int measuredHeight = MeasureSpec.makeMeasureSpec(bottom - top, MeasureSpec.EXACTLY);
+					onMeasure(measuredWidth, measuredHeight);
+
+					// Calculate the number of "fully" visible lines within the TextView.
+					// Note: We can't assume all lines have the same height since we support stylized
+					//       spannable text via the "html" and "attributedString" properties.
+					int visibleLines = 0;
+					Layout layout = getLayout();
+					if (layout != null) {
+						int maxY = getHeight() - (getTotalPaddingTop() + getTotalPaddingBottom());
+						if (maxY > 0) {
+							int lineCount = layout.getLineCount();
+							for (int lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+								if (layout.getLineTop(lineIndex + 1) > maxY) {
+									break;
+								}
+								visibleLines++;
+							}
+						}
+					} else {
+						visibleLines = Integer.MAX_VALUE;
+					}
+
+					// The only way to apply ellipsis on Android is via the TextView's max lines setting.
+					// Also, make sure new setting doesn't exceed Titanium's "maxLines" property, if set.
+					int maxLines = Math.max(visibleLines, 1);
+					if (TiUILabel.this.maxLines > 0) {
+						maxLines = Math.min(maxLines, TiUILabel.this.maxLines);
+					}
+					isInvalidationAndLayoutsEnabled = false;  // Suppress invalidate() and requestLayout().
+					setMaxLines(maxLines);
+					isInvalidationAndLayoutsEnabled = true;
+					onMeasure(measuredWidth, measuredHeight);
+				}
+
+				// Fire a "postLayout" event in Titanium.
 				if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
 					proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 				}
 			}
-			
+
+			@Override
+			public void invalidate()
+			{
+				if (isInvalidationAndLayoutsEnabled) {
+					super.invalidate();
+				}
+			}
+
+			@Override
+			public void requestLayout()
+			{
+				if (isInvalidationAndLayoutsEnabled) {
+					super.requestLayout();
+				}
+			}
+
 			@Override
 			public boolean onTouchEvent(MotionEvent event) {
 				TextView textView = (TextView) this;
@@ -120,24 +186,26 @@ public class TiUILabel extends TiUIView
 						y += textView.getScrollY();
 
 						Layout layout = textView.getLayout();
-						int line = layout.getLineForVertical(y);
-						int off = layout.getOffsetForHorizontal(line, x);
+						if (layout != null) {
+							int line = layout.getLineForVertical(y);
+							int off = layout.getOffsetForHorizontal(line, x);
 
-						ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
+							ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
 
-						if (link.length != 0) {
-							ClickableSpan cSpan = link[0]; 
-							if (action == MotionEvent.ACTION_UP) {
-								TiViewProxy proxy = getProxy();
-								if(proxy.hasListeners("link") && (cSpan instanceof URLSpan)) {
-									KrollDict evnt = new KrollDict();
-									evnt.put("url", ((URLSpan)cSpan).getURL());
-									proxy.fireEvent("link", evnt, false);
-								} else {
-									cSpan.onClick(textView);
+							if (link.length != 0) {
+								ClickableSpan cSpan = link[0]; 
+								if (action == MotionEvent.ACTION_UP) {
+									TiViewProxy proxy = getProxy();
+									if(proxy.hasListeners("link") && (cSpan instanceof URLSpan)) {
+										KrollDict evnt = new KrollDict();
+										evnt.put("url", ((URLSpan)cSpan).getURL());
+										proxy.fireEvent("link", evnt, false);
+									} else {
+										cSpan.onClick(textView);
+									}
+								} else if (action == MotionEvent.ACTION_DOWN) {
+									Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
 								}
-							} else if (action == MotionEvent.ACTION_DOWN) {
-								Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
 							}
 						}
 					}
@@ -518,6 +586,15 @@ public class TiUILabel extends TiUIView
 			if (newValue instanceof HashMap) {
 				HashMap dict = (HashMap) newValue;
 				tv.setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0), TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
+			}
+		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
+			// Update the view's height.
+			// Note: We may need to update lines/maxLines settings when switching to an auto-sized height.
+			boolean hadFixedSize = (this.layoutParams != null) && ((this.layoutParams.optionHeight != null) || this.layoutParams.autoFillsHeight);
+			super.propertyChanged(key, oldValue, newValue, proxy);
+			boolean isAutoSized = (this.layoutParams != null) && (this.layoutParams.optionHeight == null) && !this.layoutParams.autoFillsHeight;
+			if (hadFixedSize && isAutoSized) {
+				updateLabelText();
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
