@@ -4,6 +4,8 @@
 const fs = require('fs-extra');
 const path = require('path');
 const DOMParser = require('xmldom').DOMParser;
+// Due to bug in danger, we hack env variables in build process.
+const ENV = fs.existsSync('./env.json') ? require('./env.json') : process.env;
 // constants
 const JIRARegexp = /https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/;
 const github = danger.github;
@@ -160,11 +162,9 @@ if (failures_and_errors.length !== 0) {
 	markdown(message);
 }
 
-markdown(JSON.stringify(process.env));
-
 // Add link to built SDK zipfile!
-if (process.env.BUILD_STATUS === 'SUCCESS' || process.env.BUILD_STATUS === 'UNSTABLE') {
-	const sdkLink = danger.utils.href(`${process.env.BUILD_URL}/artifact/dist/${process.env.ZIPFILE}`, 'Here\'s the generated SDK zipfile');
+if (ENV.BUILD_STATUS === 'SUCCESS' || ENV.BUILD_STATUS === 'UNSTABLE') {
+	const sdkLink = danger.utils.href(`${ENV.BUILD_URL}/artifact/dist/${ENV.ZIPFILE}`, 'Here\'s the generated SDK zipfile');
 	message(`:floppy_disk: ${sdkLink}.`);
 }
 
