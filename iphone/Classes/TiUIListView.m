@@ -644,9 +644,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 #endif
 
   UIView *searchSuperView = [searchController.view superview];
-  if (!searchSuperView) {
-    return;
-  }
 
   // Dimming view (transparent view of search controller, which is not exposed) need to manage as it is taking full height of screen always
   UIView *dimmingView = nil;
