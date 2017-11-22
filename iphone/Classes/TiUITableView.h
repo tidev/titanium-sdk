@@ -79,6 +79,7 @@
 #endif
   UIEdgeInsets defaultSeparatorInsets;
   UIEdgeInsets rowSeparatorInsets;
+  CGPoint tableContentOffset;
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;

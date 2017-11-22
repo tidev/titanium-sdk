@@ -75,6 +75,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   BOOL isScrollingToTop;
 
   BOOL _dimsBackgroundDuringPresentation;
+  CGPoint tableContentOffset;
 }
 
 #ifdef TI_USE_AUTOLAYOUT
@@ -318,7 +319,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     }
 #endif
   } else {
-    [self updateSearchControllerFrames];
     [_tableView reloadData];
   }
   [super frameSizeChanged:frame bounds:bounds];
@@ -332,6 +332,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (_pullViewWrapper != nil) {
     _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height);
     [_pullViewProxy parentSizeWillChange];
+  }
+
+  if ([searchController isActive]) {
+    [self updateSearchControllerFrames];
   }
 }
 
@@ -635,7 +639,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 #if IS_XCODE_9
   if ([TiUtils isIOS11OrGreater]) {
     topMargin += self.safeAreaInsets.top;
-    _tableView.frame = CGRectMake(0, self.safeAreaInsets.top, _tableView.frame.size.width, _tableView.frame.size.height - self.safeAreaInsets.top);
+    [_tableView setContentOffset:CGPointMake(tableContentOffset.x, tableContentOffset.y - self.safeAreaInsets.top)];
   }
 #endif
 
@@ -647,26 +651,26 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   // Dimming view (transparent view of search controller, which is not exposed) need to manage as it is taking full height of screen always
   UIView *dimmingView = nil;
   for (UIView *view in [searchSuperView subviews]) {
-    if (view != searchController.view) {
+    if ([NSStringFromClass(view.class) hasSuffix:@"UIDimmingView"]) {
       dimmingView = view;
+      break;
     }
   }
 
   searchController.view.frame = CGRectMake(convertedOrigin.x, topMargin, self.frame.size.width, self.frame.size.height);
   dimmingView.frame = CGRectMake(searchController.view.frame.origin.x, searchController.view.frame.origin.y, self.frame.size.width, self.frame.size.height);
 
-  float width = [_searchWrapper view].frame.size.width;
+  CGFloat width = [_searchWrapper view].frame.size.width;
   UIView *view = searchController.searchBar.superview;
   view.frame = CGRectMake(0, 0, width, view.frame.size.height);
   searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
 
   UIView *resultSuperview = [resultViewController.view superview];
   if (resultSuperview) {
-    resultSuperview.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height);
-    resultViewController.tableView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
-
+    resultSuperview.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+    resultViewController.tableView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
   } else {
-    resultViewController.tableView.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height);
+    resultViewController.tableView.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
   }
 }
 
@@ -2165,7 +2169,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
 #if IS_XCODE_9
   if ([TiUtils isIOS11OrGreater]) {
-    _tableView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    _tableView.contentOffset = tableContentOffset;
   }
 #endif
 
@@ -2204,6 +2208,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (resultsSeparatorStyle) {
     [resultViewController.tableView setSeparatorStyle:[TiUtils intValue:resultsSeparatorStyle def:UITableViewCellSeparatorStyleSingleLine]];
   }
+
+  tableContentOffset = [_tableView contentOffset];
   // Presenting search controller on window holding controller
   if (!searchControllerPresenter) {
     id proxy = [(TiViewProxy *)self.proxy parent];
@@ -2216,10 +2222,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       searchControllerPresenter = [[TiApp app] controller];
     }
   }
-  BOOL shouldAnimate = YES;
-  if ([TiUtils isIOS9OrGreater]) {
-    shouldAnimate = NO;
-  }
+  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
   searchControllerPresenter.definesPresentationContext = YES;
   [searchControllerPresenter presentViewController:controller
                                           animated:shouldAnimate

@@ -1396,8 +1396,6 @@
 
   if (!searchActivated) {
     [searchField ensureSearchBarHierarchy];
-  } else if ([searchController isActive]) {
-    [self updateSearchControllerFrames];
   }
 
   [super frameSizeChanged:frame bounds:bounds];
@@ -1431,6 +1429,10 @@
       [proxy layoutChildren:NO];
     }
   }
+
+  if ([searchController isActive]) {
+    [self updateSearchControllerFrames];
+  }
 }
 
 - (CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
@@ -1462,7 +1464,7 @@
 #if IS_XCODE_9
   if ([TiUtils isIOS11OrGreater]) {
     topMargin += self.safeAreaInsets.top;
-    tableview.frame = CGRectMake(0, self.safeAreaInsets.top, tableview.frame.size.width, tableview.frame.size.height - self.safeAreaInsets.top);
+    [tableview setContentOffset:CGPointMake(tableContentOffset.x, tableContentOffset.y - self.safeAreaInsets.top)];
   }
 #endif
   UIView *searchSuperView = [searchController.view superview];
@@ -1473,26 +1475,26 @@
   // Dimming view (transparent view of search controller, which is not exposed) need to manage as it is taking full height of screen always
   UIView *dimmingView = nil;
   for (UIView *view in [searchSuperView subviews]) {
-    if (view != searchController.view) {
+    if ([NSStringFromClass(view.class) hasSuffix:@"UIDimmingView"]) {
       dimmingView = view;
+      break;
     }
   }
 
   searchController.view.frame = CGRectMake(convertedOrigin.x, topMargin, self.frame.size.width, self.frame.size.height);
   dimmingView.frame = CGRectMake(searchController.view.frame.origin.x, searchController.view.frame.origin.y, self.frame.size.width, self.frame.size.height);
 
-  float width = [searchField view].frame.size.width;
+  CGFloat width = [searchField view].frame.size.width;
   UIView *view = searchController.searchBar.superview;
   view.frame = CGRectMake(0, 0, width, view.frame.size.height);
   searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
 
   UIView *resultSuperview = [resultViewController.view superview];
   if (resultSuperview) {
-    resultSuperview.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height);
-    resultViewController.tableView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
-
+    resultSuperview.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+    resultViewController.tableView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
   } else {
-    resultViewController.tableView.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height);
+    resultViewController.tableView.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
   }
 }
 
@@ -2701,7 +2703,7 @@
 {
 #if IS_XCODE_9
   if ([TiUtils isIOS11OrGreater]) {
-    tableview.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    tableview.contentOffset = tableContentOffset;
   }
 #endif
 
@@ -2719,6 +2721,8 @@
 
 - (void)presentSearchController:(UISearchController *)controller
 {
+  tableContentOffset = [tableview contentOffset];
+
   if (!searchControllerPresenter) {
     id proxy = [(TiViewProxy *)self.proxy parent];
     while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
@@ -2732,10 +2736,7 @@
   }
   searchControllerPresenter.definesPresentationContext = YES;
 
-  BOOL shouldAnimate = YES;
-  if ([TiUtils isIOS9OrGreater]) {
-    shouldAnimate = NO;
-  }
+  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
 
   [searchControllerPresenter presentViewController:controller
                                           animated:shouldAnimate
