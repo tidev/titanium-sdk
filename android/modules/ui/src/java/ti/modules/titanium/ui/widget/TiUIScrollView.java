@@ -396,6 +396,8 @@ public class TiUIScrollView extends TiUIView
 		{
 			if (mScrollingEnabled) {
 				super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+			} else {
+				dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, null);
 			}
 		}
 
