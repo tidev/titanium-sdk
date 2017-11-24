@@ -1335,6 +1335,25 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   // for subclasses
 }
 
+- (void)gainFocus
+{
+  NSArray *childProxies = [self children];
+  for (TiViewProxy *thisProxy in childProxies) {
+    if ([thisProxy respondsToSelector:@selector(gainFocus)]) {
+      [(id)thisProxy gainFocus];
+    }
+  }
+}
+
+- (void)resignFocus
+{
+  NSArray *childProxies = [self children];
+  for (TiViewProxy *thisProxy in childProxies) {
+    if ([thisProxy respondsToSelector:@selector(resignFocus)]) {
+      [(id)thisProxy resignFocus];
+    }
+  }}
+
 #pragma mark Housecleaning state accessors
 
 - (BOOL)viewHasSuperview:(UIView *)superview

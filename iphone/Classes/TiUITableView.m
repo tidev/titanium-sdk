@@ -29,6 +29,8 @@
 
 @interface TiUITableView ()
 @property (nonatomic, copy, readwrite) NSString *searchString;
+@property (nonatomic, copy, readwrite) NSString *searchedString;
+
 - (void)updateSearchResultIndexes;
 - (CGFloat)computeRowWidth;
 @end
@@ -1459,15 +1461,9 @@
   }
 
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
-  CGFloat topMargin = convertedOrigin.y;
 
-#if IS_XCODE_9
-  if ([TiUtils isIOS11OrGreater]) {
-    topMargin += self.safeAreaInsets.top;
-    [tableview setContentOffset:CGPointMake(tableContentOffset.x, tableContentOffset.y - self.safeAreaInsets.top)];
-  }
-#endif
   UIView *searchSuperView = [searchController.view superview];
+  searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
 
   // Dimming view (transparent view of search controller, which is not exposed) need to manage as it is taking full height of screen always
   UIView *dimmingView = nil;
@@ -1478,7 +1474,6 @@
     }
   }
 
-  searchController.view.frame = CGRectMake(convertedOrigin.x, topMargin, self.frame.size.width, self.frame.size.height);
   dimmingView.frame = CGRectMake(searchController.view.frame.origin.x, searchController.view.frame.origin.y, self.frame.size.width, self.frame.size.height);
 
   CGFloat width = [searchField view].frame.size.width;
@@ -1623,9 +1618,15 @@
   [self makeRootViewFirstResponder];
 }
 
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+{
+  self.searchedString = (searchText == nil) ? @"" : searchText;
+}
+
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
   // called when cancel button pressed
+  isSearched = NO;
   [searchBar setText:nil];
   [self setSearchString:nil];
   [self updateSearchResultIndexes];
@@ -1856,7 +1857,7 @@
     resultViewController = [[UITableViewController alloc] init];
     resultViewController.tableView = [self searchTableView];
     searchController = [[[UISearchController alloc] initWithSearchResultsController:resultViewController] retain];
-    searchController.hidesNavigationBarDuringPresentation = YES;
+    searchController.hidesNavigationBarDuringPresentation = NO;
     searchController.dimsBackgroundDuringPresentation = _dimsBackgroundDuringPresentation;
     searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
     searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -2359,6 +2360,26 @@
   [[self tableView] deselectRowAtIndexPath:path animated:animated];
 }
 
+- (void)viewResignFocus
+{
+  // As Search controller is presented, we can not open window over it. If any other window get opened above it, we are deactivating Search Controller with saved state if it is activated. And activate Search Controller again when this window get focus in viewGetFocus method.
+
+  if (!hideOnSearch && isSearched && [searchController isActive]) {
+    [searchController setActive:false];
+  } else {
+    isSearched = NO;
+  }
+}
+
+- (void)viewGetFocus
+{
+  if (!hideOnSearch && isSearched && self.searchedString && ![searchController isActive]) {
+    isSearched = NO;
+    searchController.searchBar.text = self.searchedString;
+    [searchController performSelector:@selector(setActive:) withObject:@YES afterDelay:.1];
+    [searchController.searchBar performSelector:@selector(becomeFirstResponder) withObject:nil afterDelay:.2];
+  }
+}
 #pragma mark Delegate
 
 - (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2698,12 +2719,6 @@
 
 - (void)didDismissSearchController:(UISearchController *)searchController
 {
-#if IS_XCODE_9
-  if ([TiUtils isIOS11OrGreater]) {
-    tableview.contentOffset = tableContentOffset;
-  }
-#endif
-
   if (viewWillDetach) {
     return;
   }
@@ -2738,6 +2753,7 @@
   [searchControllerPresenter presentViewController:controller
                                           animated:shouldAnimate
                                         completion:^{
+                                          isSearched = YES;
                                           [self updateSearchControllerFrames];
                                         }];
 }
