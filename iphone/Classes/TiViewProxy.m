@@ -1352,7 +1352,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     if ([thisProxy respondsToSelector:@selector(resignFocus)]) {
       [(id)thisProxy resignFocus];
     }
-  }}
+  }
+}
 
 #pragma mark Housecleaning state accessors
 
