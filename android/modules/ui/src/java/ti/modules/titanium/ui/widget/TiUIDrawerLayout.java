@@ -537,7 +537,13 @@ public class TiUIDrawerLayout extends TiUIView {
 		layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 		if (param instanceof HashMap) {
 			HashMap<String, Object> drawerParams = (HashMap<String, Object>) param;
-			layout.setDrawerLockMode(TiConvert.toInt(drawerParams.get(TiC.PROPERTY_LOCK_MODE)), TiConvert.toInt(drawerParams.get(TiC.PROPERTY_GRAVITY)));
+			if (TiConvert.toInt(drawerParams.get(TiC.PROPERTY_GRAVITY)) == 1) {
+				// set value for all views
+				layout.setDrawerLockMode(TiConvert.toInt(drawerParams.get(TiC.PROPERTY_LOCK_MODE)));
+			} else {
+				// set value for custom gravity
+				layout.setDrawerLockMode(TiConvert.toInt(drawerParams.get(TiC.PROPERTY_LOCK_MODE)), TiConvert.toInt(drawerParams.get(TiC.PROPERTY_GRAVITY)));
+			}
 		} else {
 			layout.setDrawerLockMode(TiConvert.toInt(param));
 		}
