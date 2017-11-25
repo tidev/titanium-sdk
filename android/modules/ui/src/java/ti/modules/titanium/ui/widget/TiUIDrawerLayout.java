@@ -35,6 +35,7 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
+import java.util.HashMap;
 import java.lang.reflect.Field;
 
 public class TiUIDrawerLayout extends TiUIView {
@@ -408,7 +409,8 @@ public class TiUIDrawerLayout extends TiUIView {
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
-			layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_DRAWER_LOCK_MODE)));
+			Object param = d.get(TiC.PROPERTY_DRAWER_LOCK_MODE);
+			setDrawerLockMode(param);
 		}
 		if (d.containsKey(TiC.PROPERTY_TOOLBAR_ENABLED)) {
 			toolbarEnabled = TiConvert.toBoolean(d.get(TiC.PROPERTY_TOOLBAR_ENABLED));
@@ -512,7 +514,7 @@ public class TiUIDrawerLayout extends TiUIView {
 			this.rightFrame.setLayoutParams(rightFrameLayout);
 
 		} else if (key.equals(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
-			layout.setDrawerLockMode(TiConvert.toInt(newValue));
+			setDrawerLockMode(newValue);
 
 		} else if (key.equals(TiC.PROPERTY_DRAWER_INDICATOR_ENABLED)) {
 			if (drawerToggle != null) {
@@ -527,6 +529,17 @@ public class TiUIDrawerLayout extends TiUIView {
 			setDrawMargin(getDevicePixels(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
+	}
+
+	private void setDrawerLockMode(Object param){
+		// reset first
+		layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+		if (param instanceof HashMap) {
+			HashMap<String, Object> drawerParams = (HashMap<String, Object>) param;
+			layout.setDrawerLockMode(TiConvert.toInt(drawerParams.get(TiC.PROPERTY_LOCK_MODE)), TiConvert.toInt(drawerParams.get(TiC.PROPERTY_GRAVITY)));
+		} else {
+			layout.setDrawerLockMode(TiConvert.toInt(param));
 		}
 	}
 

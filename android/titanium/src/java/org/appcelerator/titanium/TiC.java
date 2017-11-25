@@ -1556,6 +1556,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_GRAVITY = "gravity";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_GROUP_ID = "groupId";
 
 	/**
@@ -1818,6 +1823,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOCK_MODE = "lockMode";
 
 	/**
 	 * @module.api

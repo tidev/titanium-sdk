@@ -20,6 +20,9 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.os.Message;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
+
+import java.util.HashMap;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class)
 public class DrawerLayoutProxy extends TiViewProxy
@@ -28,6 +31,9 @@ public class DrawerLayoutProxy extends TiViewProxy
     @Kroll.constant public static final int LOCK_MODE_LOCKED_OPEN = DrawerLayout.LOCK_MODE_LOCKED_OPEN;
     @Kroll.constant public static final int LOCK_MODE_UNLOCKED = DrawerLayout.LOCK_MODE_UNLOCKED;
     @Kroll.constant public static final int LOCK_MODE_UNDEFINED = DrawerLayout.LOCK_MODE_UNDEFINED;
+    @Kroll.constant public static final int GRAVITY_BOTH = 1;
+    @Kroll.constant public static final int GRAVITY_LEFT = Gravity.LEFT;
+    @Kroll.constant public static final int GRAVITY_RIGHT = Gravity.RIGHT;
 
     private static final String TAG = "DrawerLayoutProxy";
 
@@ -158,11 +164,21 @@ public class DrawerLayoutProxy extends TiViewProxy
 
     @Kroll.method
     @Kroll.getProperty
-    public int getDrawerLockMode() {
+    public HashMap getDrawerLockMode() {
+        HashMap<String, Object> options = new HashMap<String, Object>(2);
+        options.put(TiC.PROPERTY_LOCK_MODE, LOCK_MODE_UNDEFINED);
+        options.put(TiC.PROPERTY_GRAVITY, GRAVITY_BOTH);
         if (hasProperty(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
-            return (Integer) getProperty(TiC.PROPERTY_DRAWER_LOCK_MODE);
+            if (getProperty(TiC.PROPERTY_DRAWER_LOCK_MODE) instanceof HashMap) {
+                HashMap<String, Object> drawerParams = (HashMap<String, Object>) getProperty(TiC.PROPERTY_DRAWER_LOCK_MODE);
+                options.put(TiC.PROPERTY_LOCK_MODE, (Integer) drawerParams.get(TiC.PROPERTY_LOCK_MODE));
+                options.put(TiC.PROPERTY_GRAVITY, (Integer) drawerParams.get(TiC.PROPERTY_GRAVITY));
+            } else {
+                // lock both sides
+                options.put(TiC.PROPERTY_LOCK_MODE, (Integer) getProperty(TiC.PROPERTY_DRAWER_LOCK_MODE));
+            }
         }
-        return LOCK_MODE_UNDEFINED;
+        return options;
     }
 
     @Kroll.method
