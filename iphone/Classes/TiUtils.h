@@ -25,8 +25,6 @@
 #import "TiFile.h"
 #import "WebFont.h"
 
-bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, char **outOutputDataPtr, size_t *outOutputDataSize);
-
 typedef enum {
   BAD_DEST_OFFSET = -1,
   BAD_SRC_OFFSET = -2,
@@ -604,6 +602,12 @@ typedef enum {
 + (BOOL)isIOS10OrGreater;
 
 /**
+ Whether or not the current OS version is equal to or greater than 11.0.
+ @return _YES_ if the current OS version is equal to or greater than 11.0, _NO_ otherwise.
+ */
++ (BOOL)isIOS11OrGreater;
+
+/**
  Whether or not the current OS version is equal to or greater than the specified version.
  @param version The version to compare.
  @return _YES_ if the current OS version is equal to or greater than the specified version, _NO_ otherwise.
@@ -629,10 +633,22 @@ typedef enum {
 + (BOOL)isRetinaFourInch;
 
 /**
- Whether or not the current device has a 4.7 inch retina display (iPhone6).
+ Whether or not the current device has a 4.7 inch retina display (iPhone 6).
  @return _YES_ if the current device has a 4.7 inch retina display, _NO_ otherwise.
  */
 + (BOOL)isRetinaiPhone6;
+
+/**
+ Whether or not the current device has a 5.5 inch retina display (iPhone 6).
+ @return _YES_ if the current device has a 5.5 inch retina display, _NO_ otherwise.
+ */
++ (BOOL)isRetinaiPhone6Plus;
+
+/**
+ Whether or not the current device has a 5.8 inch retina display (iPhone X).
+ @return _YES_ if the current device has a 5.8 inch retina display, _NO_ otherwise.
+ */
++ (BOOL)isRetinaiPhoneX;
 
 /**
  Whether or not the current device has HD retina display (@3X).

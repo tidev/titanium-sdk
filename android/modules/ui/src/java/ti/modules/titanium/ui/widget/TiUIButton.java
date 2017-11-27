@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.HashMap;
 
+import android.text.TextUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -51,6 +52,8 @@ public class TiUIButton extends TiUIView
 		};
 		btn.setGravity(Gravity.CENTER);
 		defaultColor = btn.getCurrentTextColor();
+		btn.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+		btn.setMaxLines(1);
 		setNativeView(btn);
 	}
 
@@ -180,7 +183,7 @@ public class TiUIButton extends TiUIView
 			if (newValue == null){
 				btn.getBackground().clearColorFilter();
 			} else {
-				btn.getBackground().setColorFilter( TiConvert.toColor(TiConvert.toString(newValue)), Mode.MULTIPLY);						
+				btn.getBackground().setColorFilter( TiConvert.toColor(TiConvert.toString(newValue)), Mode.MULTIPLY);
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);

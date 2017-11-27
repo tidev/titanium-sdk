@@ -182,14 +182,14 @@ static BOOL alertShowing = NO;
         textField.text = [TiUtils stringValue:[self valueForKey:@"loginValue"]];
         textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"loginReturnKeyType"] def:UIReturnKeyNext];
         textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
-        textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginHintText"]] ?: @"Login";
+        textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginHintText"]] ?: NSLocalizedString(@"Login", @"Login");
       }];
       [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
         textField.keyboardType = [TiUtils intValue:[self valueForKey:@"passwordKeyboardType"] def:UIKeyboardTypeDefault];
         textField.text = [TiUtils stringValue:[self valueForKey:@"passwordValue"]];
         textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"passwordReturnKeyType"] def:UIReturnKeyDone];
         textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
-        textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordHintText"]] ?: @"Password";
+        textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordHintText"]] ?: NSLocalizedString(@"Password", @"Password");
         textField.secureTextEntry = YES;
       }];
     }

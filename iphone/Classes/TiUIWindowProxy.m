@@ -145,6 +145,9 @@
 
 - (void)dealloc
 {
+#if IS_XCODE_9
+  self.safeAreaViewProxy = nil;
+#endif
   RELEASE_TO_NIL(barImageView);
   [super dealloc];
 }
@@ -246,7 +249,13 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+#if IS_XCODE_9
+  [self performSelector:@selector(processForSafeArea)
+             withObject:nil
+             afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+#endif
+  [super viewWillTransitionToSize:size
+        withTransitionCoordinator:coordinator];
   [self willChangeSize];
 }
 
@@ -372,6 +381,11 @@
   }
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+      [[[controller navigationController] navigationBar] setLargeTitleTextAttributes:theAttributes];
+    }
+#endif
     [[[controller navigationController] navigationBar] setTitleTextAttributes:theAttributes];
   }
 }
@@ -736,8 +750,7 @@
 #ifndef TI_USE_AUTOLAYOUT
       barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
 #endif
-      [TiUtils setView:oldView
-          positionRect:[TiUtils centerRect:barBounds inRect:barFrame]];
+      [oldView setBounds:barBounds];
       [oldView setAutoresizingMask:UIViewAutoresizingNone];
 
       //layout the titleControl children
@@ -798,6 +811,34 @@
     }
   },
       [NSThread isMainThread]);
+}
+
+- (void)setLargeTitleEnabled:(id)value
+{
+#if IS_XCODE_9
+  ENSURE_UI_THREAD(setLargeTitleEnabled, value);
+  ENSURE_TYPE_OR_NIL(value, NSNumber);
+
+  [self replaceValue:value forKey:@"largeTitleEnabled" notification:NO];
+
+  if ([TiUtils isIOS11OrGreater] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+    [[[controller navigationController] navigationBar] setPrefersLargeTitles:[TiUtils boolValue:value def:NO]];
+  }
+#endif
+}
+
+- (void)setLargeTitleDisplayMode:(id)value
+{
+#if IS_XCODE_9
+  ENSURE_UI_THREAD(setLargeTitleDisplayMode, value);
+  ENSURE_TYPE_OR_NIL(value, NSNumber);
+
+  [self replaceValue:value forKey:@"largeTitleDisplayMode" notification:NO];
+
+  if ([TiUtils isIOS11OrGreater] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+    [[controller navigationItem] setLargeTitleDisplayMode:[TiUtils intValue:value def:UINavigationItemLargeTitleDisplayModeAutomatic]];
+  }
+#endif
 }
 
 - (void)setTitlePrompt:(NSString *)title_
@@ -905,6 +946,8 @@
   SETPROP(@"titleAttributes", setTitleAttributes);
   SETPROP(@"title", setTitle);
   SETPROP(@"titlePrompt", setTitlePrompt);
+  SETPROP(@"largeTitleEnabled", setLargeTitleEnabled);
+  SETPROP(@"largeTitleDisplayMode", setLargeTitleDisplayMode);
   [self updateTitleView];
   SETPROP(@"barColor", setBarColor);
   SETPROP(@"navTintColor", setNavTintColor);
@@ -937,6 +980,92 @@
     [barImageView removeFromSuperview];
   }
 }
+
+#if IS_XCODE_9
+
+- (TiViewProxy *)safeAreaView
+{
+  return self.safeAreaViewProxy;
+}
+
+- (void)processForSafeArea
+{
+  // TO DO : Refactor this method
+  if (self.shouldExtendSafeArea || ![TiUtils isIOS11OrGreater]) {
+    return;
+  }
+  float left = 0.0;
+  float right = 0.0;
+  float top = 0.0;
+  float bottom = 0.0;
+  UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
+  UIEdgeInsets safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
+  if (self.tabGroup) {
+    TiWindowProxy *windowProxy = nil;
+    if ([self.tabGroup isKindOfClass:[TiWindowProxy class]]) {
+      windowProxy = (TiWindowProxy *)self.tabGroup;
+    }
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    if (!UIInterfaceOrientationIsPortrait(orientation)) {
+      if (windowProxy.isMasterWindow) {
+        left = safeAreaInset.left;
+      } else if (windowProxy.isDetailWindow) {
+        right = safeAreaInset.right;
+      } else {
+        left = safeAreaInset.left;
+        right = safeAreaInset.right;
+      }
+    }
+  } else if (self.tab) {
+    TiWindowProxy *windowProxy = nil;
+    if ([self.tab isKindOfClass:[TiWindowProxy class]]) {
+      windowProxy = (TiWindowProxy *)self.tab;
+    }
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    if (!UIInterfaceOrientationIsPortrait(orientation)) {
+      if (windowProxy.isMasterWindow) {
+        left = safeAreaInset.left;
+      } else if (windowProxy.isDetailWindow) {
+        right = safeAreaInset.right;
+      } else {
+        left = safeAreaInset.left;
+        right = safeAreaInset.right;
+      }
+    }
+    bottom = safeAreaInset.bottom;
+  } else {
+    if (self.isMasterWindow) {
+      left = safeAreaInset.left;
+    } else if (self.isDetailWindow) {
+      right = safeAreaInset.right;
+    } else {
+      left = safeAreaInset.left;
+      right = safeAreaInset.right;
+    }
+    bottom = safeAreaInset.bottom;
+    top = safeAreaInset.top;
+  }
+  TiViewProxy *safeAreaProxy = [self safeAreaViewProxy];
+  float oldTop = [[safeAreaProxy valueForKey:@"top"] floatValue];
+  float oldLeft = [[safeAreaProxy valueForKey:@"left"] floatValue];
+  float oldRight = [[safeAreaProxy valueForKey:@"right"] floatValue];
+  float oldBottom = [[safeAreaProxy valueForKey:@"bottom"] floatValue];
+
+  if (oldTop != top) {
+    [safeAreaProxy setTop:NUMFLOAT(top)];
+  }
+  if (oldBottom != bottom) {
+    [safeAreaProxy setBottom:NUMFLOAT(bottom)];
+  }
+  if (oldLeft != left) {
+    [safeAreaProxy setLeft:NUMFLOAT(left)];
+  }
+  if (oldRight != right) {
+    [safeAreaProxy setRight:NUMFLOAT(right)];
+  }
+}
+#endif
+
 @end
 
 #endif

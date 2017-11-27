@@ -3,6 +3,7 @@
 const path = require('path'),
 	os = require('os'),
 	exec = require('child_process').exec, // eslint-disable-line security/detect-child-process
+	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	async = require('async'),
 	fs = require('fs-extra'),
 	utils = require('./utils'),
@@ -41,9 +42,17 @@ function zip(folder, filename, next) {
 function unzip(zipfile, dest, next) {
 	console.log('Unzipping ' + zipfile + ' to ' + dest);
 	const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build', 'win32', 'unzip') : 'unzip';
-	exec(command + ' -o "' + zipfile  + '" -d "' + dest + '"', function (err) {
-		if (err) {
-			return next(err);
+	const child = spawn(command, [ '-o', zipfile, '-d', dest ], { stdio: [ 'ignore', 'ignore', 'pipe' ] });
+	let err = '';
+	child.stderr.on('data', function (buffer) {
+		err += buffer.toString();
+	});
+	child.on('error', function (err) {
+		return next(err);
+	});
+	child.on('close', function (code) {
+		if (code !== 0) {
+			return next(`Unzipping of ${zipfile} exited with non-zero exit code ${code}. ${err}`);
 		}
 		next();
 	});
@@ -175,6 +184,11 @@ Packager.prototype.includePackagedModules = function (next) {
 		|| supportedPlatforms.indexOf('ipad') !== -1) {
 		supportedPlatforms = supportedPlatforms.concat([ 'ios', 'iphone', 'ipad' ]);
 	}
+
+	// Hyperloop has no single platform downloads yet, so we use a fake platform
+	// that will download the all-in-one distribution.
+	supportedPlatforms = supportedPlatforms.concat([ 'hyperloop' ]);
+
 	let urls = []; // urls of module zips to grab
 	// Read modules.json, grab the object for each supportedPlatform
 	const contents = fs.readFileSync(path.join(SUPPORT_DIR, 'module', 'packaged', 'modules.json')).toString(),

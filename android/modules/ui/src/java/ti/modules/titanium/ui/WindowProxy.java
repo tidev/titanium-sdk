@@ -22,7 +22,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -57,14 +56,15 @@ import android.view.WindowManager;
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_MODAL,
 	TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
-	TiC.PROPERTY_FLAG_SECURE
+	TiC.PROPERTY_FLAG_SECURE,
+	TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE
 })
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "WindowProxy";
 	private static final String PROPERTY_POST_WINDOW_CREATED = "postWindowCreated";
 
-	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
+	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_WIDTH_HEIGHT = MSG_FIRST_ID + 102;
@@ -77,6 +77,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, PixelFormat.UNKNOWN);
+		defaultValues.put(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, false);
 	}
 
 	@Override
@@ -163,6 +164,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	        } else {
 	            topActivity.startActivity(intent);
 	        }
+	    }
+	    
+	    if (options.containsKey(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE)) {
+	        setSustainedPerformanceMode((Boolean) options.get(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE));
 	    }
 	}
 
@@ -383,6 +388,17 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		super.onPropertyChanged(name, value);
+	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setSustainedPerformanceMode(boolean mode) {
+		setProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, mode);
+		windowActivity.get().setSustainMode(mode);
+	}
+	
+	@Kroll.getProperty @Kroll.method
+	public boolean getSustainedPerformanceMode() {
+		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE), false);
 	}
 
 	@Override
