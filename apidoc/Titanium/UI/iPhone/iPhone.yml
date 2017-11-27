@@ -8,7 +8,8 @@ since: "0.5"
 platforms: [iphone, ipad]
 deprecated:
     since: "5.4.0"
-    notes: Use the constants on the <Titanium.UI.iOS> namespace instead.
+    notes: Use the unified <Titanium.UI.iOS> namespace instead.
+    removed: "7.0.0"
 
 methods:
   - name: hideStatusBar
@@ -53,6 +54,10 @@ properties:
     type: Number
     osver: {ios: {min: "3.2"}}
     permission: read-only
+    deprecated:
+        since: "5.4.0"
+        removed: "7.0.0"
+        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
     
   - name: MODAL_PRESENTATION_FORMSHEET
     summary: |
@@ -73,6 +78,10 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
+    deprecated:
+        since: "5.4.0"
+        removed: "7.0.0"
+        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
     
   - name: MODAL_PRESENTATION_FULLSCREEN
     summary: Window covers the screen.
@@ -87,6 +96,10 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
+    deprecated:
+        since: "5.4.0"
+        removed: "7.0.0"
+        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
     
   - name: MODAL_PRESENTATION_PAGESHEET
     summary: |
@@ -107,6 +120,10 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
+    deprecated:
+        since: "5.4.0"
+        removed: "7.0.0"
+        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
     
   - name: MODAL_TRANSITION_STYLE_COVER_VERTICAL
     summary: |
@@ -123,7 +140,11 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
-    
+    deprecated:
+        since: "5.4.0"
+        removed: "7.0.0"
+        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
+   
   - name: MODAL_TRANSITION_STYLE_CROSS_DISSOLVE
     summary: |
         When the window is presented, the current view fades out while the new view fades in at the 
@@ -139,6 +160,10 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
+    deprecated:
+        since: "5.4.0"
+        removed: "7.0.0"
+        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
     
   - name: MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL
     summary: |
@@ -157,6 +182,10 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
+    deprecated:
+        since: "5.4.0"
+        removed: "7.0.0"
+        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
     
   - name: MODAL_TRANSITION_STYLE_PARTIAL_CURL
     summary: |
@@ -178,12 +207,17 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "3.2"}}
+    deprecated:
+        since: "5.4.0"
+        removed: "7.0.0"
+        notes: Use <Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL> instead.
     
   - name: appBadge
     summary: Value of the badge for the application's springboard icon.
     type: Number
     deprecated:
         since: "5.4.0"
+        removed: "7.0.0"
         notes: Use <Titanium.UI.iOS.appBadge> instead.
 
   - name: appSupportsShakeToEdit
@@ -191,6 +225,7 @@ properties:
     type: Boolean
     deprecated:
         since: "5.4.0"
+        removed: "7.0.0"
         notes: Use <Titanium.UI.iOS.appSupportsShakeToEdit> instead.
 
   - name: statusBarHidden

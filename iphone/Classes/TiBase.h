@@ -118,7 +118,11 @@ NSString *JavascriptNameForClass(Class c);
     x = [y retain];               \
   }
 
+#ifdef DEBUG
 #define CODELOCATION [NSString stringWithFormat:@"%s (%@:%d)", __FUNCTION__, [[NSString stringWithFormat:@"%s", __FILE__] lastPathComponent], __LINE__]
+#else
+#define CODELOCATION @""
+#endif
 
 #define NULL_IF_NIL(x) ({ id xx = (x); (xx==nil)?[NSNull null]:xx; })
 
@@ -449,6 +453,8 @@ enum {
 
 #define TI_KEYBOARD_PORTRAIT_HEIGHT 216
 #define TI_KEYBOARD_LANDSCAPE_HEIGHT 140
+
+#define TI_SEARCHBAR_HEIGHT 56
 
 #ifdef DEBUG
 #define FRAME_DEBUG(f) \

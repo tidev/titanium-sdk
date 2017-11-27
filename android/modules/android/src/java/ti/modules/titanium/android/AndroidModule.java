@@ -11,6 +11,7 @@ import java.util.List;
 
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.service.quicksettings.Tile;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
@@ -33,6 +34,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
@@ -275,12 +277,24 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int NAVIGATION_MODE_STANDARD = ActionBar.NAVIGATION_MODE_STANDARD;
 	@Kroll.constant public static final int NAVIGATION_MODE_TABS = ActionBar.NAVIGATION_MODE_TABS;
 
+	@Kroll.constant public static final int TILE_STATE_UNAVAILABLE = Tile.STATE_UNAVAILABLE;
+	@Kroll.constant public static final int TILE_STATE_INACTIVE = Tile.STATE_INACTIVE;
+	@Kroll.constant public static final int TILE_STATE_ACTIVE = Tile.STATE_ACTIVE;
+
 	@Kroll.constant public static final int WAKE_LOCK_PARTIAL = PowerManager.PARTIAL_WAKE_LOCK;
 	@Kroll.constant public static final int WAKE_LOCK_FULL = PowerManager.FULL_WAKE_LOCK;
 	@Kroll.constant public static final int WAKE_LOCK_SCREEN_DIM = PowerManager.SCREEN_DIM_WAKE_LOCK;
 	@Kroll.constant public static final int WAKE_LOCK_SCREEN_BRIGHT = PowerManager.SCREEN_BRIGHT_WAKE_LOCK;
 	@Kroll.constant public static final int WAKE_LOCK_ACQUIRE_CAUSES_WAKEUP = PowerManager.ACQUIRE_CAUSES_WAKEUP;
 	@Kroll.constant public static final int WAKE_LOCK_ON_AFTER_RELEASE = PowerManager.ON_AFTER_RELEASE;
+
+	@Kroll.constant public static final int IMPORTANCE_DEFAULT = NotificationManagerCompat.IMPORTANCE_DEFAULT;
+	@Kroll.constant public static final int IMPORTANCE_HIGH = NotificationManagerCompat.IMPORTANCE_HIGH;
+	@Kroll.constant public static final int IMPORTANCE_LOW = NotificationManagerCompat.IMPORTANCE_LOW;
+	@Kroll.constant public static final int IMPORTANCE_MAX = NotificationManagerCompat.IMPORTANCE_MAX;
+	@Kroll.constant public static final int IMPORTANCE_MIN = NotificationManagerCompat.IMPORTANCE_MIN;
+	@Kroll.constant public static final int IMPORTANCE_NONE = NotificationManagerCompat.IMPORTANCE_NONE;
+	@Kroll.constant public static final int IMPORTANCE_UNSPECIFIED = NotificationManagerCompat.IMPORTANCE_UNSPECIFIED;
 
 	protected RProxy r;
 	private static final int REQUEST_CODE = 99;

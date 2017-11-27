@@ -25,8 +25,6 @@
 #import "TiFile.h"
 #import "WebFont.h"
 
-bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, char **outOutputDataPtr, size_t *outOutputDataSize);
-
 typedef enum {
   BAD_DEST_OFFSET = -1,
   BAD_SRC_OFFSET = -2,

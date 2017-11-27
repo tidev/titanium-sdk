@@ -22,7 +22,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiOrientationHelper;
+import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiAnimation;
@@ -53,7 +53,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	private static final String TAG = "TiWindowProxy";
 	protected static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 	
-	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
+	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_OPEN = MSG_FIRST_ID + 100;
 	private static final int MSG_CLOSE = MSG_FIRST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
@@ -314,21 +314,28 @@ public abstract class TiWindowProxy extends TiViewProxy
 			// look through orientation modes and determine what has been set
 			for (int i = 0; i < orientationModes.length; i++)
 			{
-				if (orientationModes [i] == TiOrientationHelper.ORIENTATION_PORTRAIT)
-				{
-					hasPortrait = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_PORTRAIT_REVERSE)
-				{
-					hasPortraitReverse = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_LANDSCAPE)
-				{
-					hasLandscape = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_LANDSCAPE_REVERSE)
-				{
-					hasLandscapeReverse = true;
+				int integerId = orientationModes[i];
+				TiDeviceOrientation orientation = TiDeviceOrientation.fromTiIntId(integerId);
+				if (orientation != null) {
+					switch (orientation) {
+						case PORTRAIT:
+							hasPortrait = true;
+							break;
+						case UPSIDE_PORTRAIT:
+							hasPortraitReverse = true;
+							break;
+						case LANDSCAPE_RIGHT:
+							hasLandscape = true;
+							break;
+						case LANDSCAPE_LEFT:
+							hasLandscapeReverse = true;
+							break;
+						default:
+							Log.w(TAG, "'orientationMode' cannot be set to: " + orientation.toTiConstantName());
+							break;
+					}
+				} else {
+					Log.w(TAG, "'orientationMode' was given unknown value: " + integerId);
 				}
 			}
 
@@ -475,20 +482,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method @Kroll.getProperty
 	public int getOrientation()
 	{
-		Activity activity = getActivity();
-
-		if (activity != null)
-		{
-		    DisplayMetrics dm = new DisplayMetrics();
-		    Display display = activity.getWindowManager().getDefaultDisplay();
-		    display.getMetrics(dm);
-		    int width = dm.widthPixels;
-		    int height = dm.heightPixels;
-		    return TiOrientationHelper.convertRotationToTiOrientationMode(display.getRotation(), width, height);
-		}
-
-		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);
-		return TiOrientationHelper.ORIENTATION_UNKNOWN;
+		return TiDeviceOrientation.fromDefaultDisplay().toTiIntId();
 	}
 
 	@Override
