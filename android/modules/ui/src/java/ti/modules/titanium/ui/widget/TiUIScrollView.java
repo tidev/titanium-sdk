@@ -862,17 +862,34 @@ public class TiUIScrollView extends TiUIView
 
 	public void scrollTo(int x, int y, boolean smoothScroll)
 	{
+		// Fetch the scroll view.
 		final View view = this.scrollView;
+		if (view == null) {
+			return;
+		}
+
+		// Convert the given coordinates to pixels.
+		x = TiConvert.toTiDimension(x, -1).getAsPixels(view);
+		y = TiConvert.toTiDimension(y, -1).getAsPixels(view);
+
+		// Disable smooth scrolling for vertical scroll views if not at top of view.
+		// Note: This works-around a bug in Google's NestedScrollView where attempting to
+		//       smooth scrolls will move to a totally different position or opposite directions.
+		if (smoothScroll && (view instanceof TiVerticalScrollView)) {
+			if (((TiVerticalScrollView)view).getScrollY() > 0) {
+				smoothScroll = false;
+			}
+		}
+
+		// Scroll to the given position.
 		if (smoothScroll) {
 			if (view instanceof TiHorizontalScrollView) {
-				TiHorizontalScrollView scrollView = (TiHorizontalScrollView) view;
-				scrollView.smoothScrollTo(x, y);
+				((TiHorizontalScrollView)view).smoothScrollTo(x, y);
 			} else if (view instanceof TiVerticalScrollView) {
-				TiVerticalScrollView scrollView = (TiVerticalScrollView) view;
-				scrollView.smoothScrollTo(x, y);
+				((TiVerticalScrollView)view).smoothScrollTo(x, y);
 			}
 		} else {
-			view.scrollTo(TiConvert.toTiDimension(x, -1).getAsPixels(view), TiConvert.toTiDimension(y, -1).getAsPixels(view));
+			view.scrollTo(x, y);
 		}
 		view.computeScroll();
 	}
@@ -881,9 +898,30 @@ public class TiUIScrollView extends TiUIView
 	{
 		View view = this.scrollView;
 		if (view instanceof TiHorizontalScrollView) {
-			((TiHorizontalScrollView)this.scrollView).fullScroll(View.FOCUS_RIGHT);
+			((TiHorizontalScrollView)view).fullScroll(View.FOCUS_RIGHT);
 		} else if (view instanceof TiVerticalScrollView) {
-			((TiVerticalScrollView)this.scrollView).fullScroll(View.FOCUS_DOWN);
+			((TiVerticalScrollView)view).fullScroll(View.FOCUS_DOWN);
+		}
+	}
+
+	public void scrollToTop()
+	{
+		View view = this.scrollView;
+		if (view instanceof TiHorizontalScrollView) {
+			// Scroll to the left-most side of the horizontal scroll view.
+			((TiHorizontalScrollView)view).fullScroll(View.FOCUS_LEFT);
+		} else if (view instanceof TiVerticalScrollView) {
+			// Scroll to the top of the vertical scroll view.
+			// Note: There is a bug in Google's NestedScrollView where smooth scrolling to top fails
+			//       and can scroll down instead. We must work-around it by temporarily disabling it.
+			TiVerticalScrollView verticalScrollView = (TiVerticalScrollView)view;
+			boolean wasEnabled = verticalScrollView.isSmoothScrollingEnabled();
+			verticalScrollView.setSmoothScrollingEnabled(false);
+			try {
+				((TiVerticalScrollView)view).fullScroll(View.FOCUS_UP);
+			} finally {
+				verticalScrollView.setSmoothScrollingEnabled(wasEnabled);
+			}
 		}
 	}
 
