@@ -28,6 +28,7 @@ const AdmZip = require('adm-zip'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
+	semver = require('semver'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	SymbolLoader = require('appc-aar-tools').SymbolLoader,
 	SymbolWriter = require('appc-aar-tools').SymbolWriter,
@@ -67,21 +68,21 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 			const cliSDKVersion = this.cli.sdk.manifest.version;
 			const manifestSDKVersion = this.manifest.minsdk;
 			const manifestModuleAPIVersion = this.manifest.apiversion;
-			const newVersion = String(parseInt(this.manifest.version.split('.')[0]) + 1) + '.0.0'; // TODO: Make this less error prone
+			const newVersion = semver.inc(this.manifest.version, 'major');
 			const manifestTemplateFile = path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', 'manifest.ejs');
-			
-			logger.info(__('⚠️  Detected Titanium %s that requires API-level %s, but the module currently only supports %s and API-level %s.', cliSDKVersion, cliModuleAPIVersion, manifestSDKVersion, manifestModuleAPIVersion)); 
-			logger.info(__('🛠  Migrating module manifest ...'));
-			
-			logger.info(__('🔄 Setting %s to %s', 'apiversion'.cyan, cliModuleAPIVersion.cyan));
+
+			logger.warn(__('Detected Titanium %s that requires API-level %s, but the module currently only supports %s and API-level %s.', cliSDKVersion, cliModuleAPIVersion, manifestSDKVersion, manifestModuleAPIVersion)); 
+			logger.info(__('Migrating module manifest ...'));
+
+			logger.info(__('Setting %s to %s', 'apiversion'.cyan, cliModuleAPIVersion.cyan));
 			this.manifest.apiversion = cliModuleAPIVersion;
-			
-			logger.info(__('🔄 Setting %s to %s', 'minsdk'.cyan, cliSDKVersion.cyan));
+
+			logger.info(__('Setting %s to %s', 'minsdk'.cyan, cliSDKVersion.cyan));
 			this.manifest.minsdk = cliSDKVersion;
 
-			logger.info(__('🔄 Bumping version from %s to %s', this.manifest.version.cyan, newVersion.cyan));
+			logger.info(__('Bumping version from %s to %s', this.manifest.version.cyan, newVersion.cyan));
 			this.manifest.version = newVersion;
-			
+
 			// Pre-fill placeholders
 			var manifestContent = ejs.render(fs.readFileSync(manifestTemplateFile).toString(), {
 				moduleName: this.manifest.name,
@@ -92,20 +93,20 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 				author: this.manifest.author,
 				publisher: this.manifest.author // The publisher does not have an own key in the manifest but can be different. Will override below
 			});
-						
+
 			// Migrate missing keys which don't have a placeholder (version, license, copyright & publisher) 
 			manifestContent = manifestContent.replace(/version.*/, 'version: ' + this.manifest.version);
 			manifestContent = manifestContent.replace(/license.*/, 'license: ' + this.manifest.license);
 			manifestContent = manifestContent.replace(/copyright.*/, 'copyright: ' + this.manifest.copyright);
-			
-			logger.info(__('🔄 Backing up old manifest to %s', 'manifest.bak'.cyan));
+
+			logger.info(__('Backing up old manifest to %s', 'manifest.bak'.cyan));
 			fs.renameSync(path.join(this.projectDir, 'manifest'), path.join(this.projectDir, 'manifest.bak'));
 
-			logger.info(__('🔄 Writing new manifest'));
+			logger.info(__('Writing new manifest'));
 			fs.writeFileSync(path.join(this.projectDir, 'manifest'), manifestContent);
 
 			logger.info(__(''));
-			logger.info(__('✅ Migration completed! Building module ...'));			
+			logger.info(__('Migration completed! Building module ...'));			
 		}
 
 		// detect android environment
