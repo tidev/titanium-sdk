@@ -53,6 +53,7 @@ util.inherits(AndroidModuleBuilder, Builder);
  * It takes care of migrating the "apiversion", "version", "minsdk" and "architecture" properties.
  *
  * @param {Function} next Callback function
+ * @return {undefined}
  */
 AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 	const cliModuleAPIVersion = this.cli.sdk && this.cli.sdk.manifest && this.cli.sdk.manifest.moduleAPIVersion && this.cli.sdk.manifest.moduleAPIVersion.android;
@@ -63,7 +64,7 @@ AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 	const newVersion = semver.inc(this.manifest.version, 'major');
 	const manifestTemplateFile = path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', 'manifest.ejs');
 
-	var performMigration = function(next) {
+	var performMigration = function (next) {
 		this.logger.info(__('Migrating module manifest ...'));
 
 		this.logger.info(__('Setting %s to %s', 'apiversion'.cyan, cliModuleAPIVersion.cyan));
@@ -76,7 +77,7 @@ AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 		this.manifest.version = newVersion;
 
 		// Pre-fill placeholders
-		var manifestContent = ejs.render(fs.readFileSync(manifestTemplateFile).toString(), {
+		let manifestContent = ejs.render(fs.readFileSync(manifestTemplateFile).toString(), {
 			moduleName: this.manifest.name,
 			moduleId: this.manifest.moduleid,
 			platform: this.manifest.platform,
@@ -86,7 +87,7 @@ AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 			publisher: this.manifest.author // The publisher does not have an own key in the manifest but can be different. Will override below
 		});
 
-		// Migrate missing keys which don't have a placeholder (version, license, copyright & publisher) 
+		// Migrate missing keys which don't have a placeholder (version, license, copyright & publisher)
 		manifestContent = manifestContent.replace(/version.*/, 'version: ' + this.manifest.version);
 		manifestContent = manifestContent.replace(/license.*/, 'license: ' + this.manifest.license);
 		manifestContent = manifestContent.replace(/copyright.*/, 'copyright: ' + this.manifest.copyright);
@@ -98,7 +99,7 @@ AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 		fs.writeFileSync(path.join(this.projectDir, 'manifest'), manifestContent);
 
 		this.logger.info(__(''));
-		this.logger.info(__('Migration completed! Building module ...'));	
+		this.logger.info(__('Migration completed! Building module ...'));
 
 		next();
 	}.bind(this);
@@ -106,20 +107,32 @@ AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 	if (!needsMigration) {
 		return next();
 	}
+	const logger = this.logger;
+	if (!this.cli.argv.prompt) {
+		logger.error(__('The module manifest apiversion is currently set to %s', manifestModuleAPIVersion));
+		logger.error(__('Titanium SDK %s Android module apiversion is at %s', cliSDKVersion, cliModuleAPIVersion));
+		logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion'));
+		logger.error(__('and the minsdk to %s', cliSDKVersion));
+		process.exit(1);
+	}
 
 	fields.select({
 		title: __('Detected Titanium %s that requires API-level %s, but the module currently only supports %s and API-level %s.', cliSDKVersion, cliModuleAPIVersion, manifestSDKVersion, manifestModuleAPIVersion),
 		promptLabel: __('Do you want to migrate your module now?'),
 		default: 'yes',
-		margin: '',
-		numbered: true,
+		display: 'prompt',
 		relistOnError: true,
 		complete: true,
 		suggest: true,
-		options: ['yes', 'no']
+		options: [ '__y__es', '__n__o' ]
 	}).prompt(function (err, value) {
-		if (err || value !== 'yes') {
-			return next();
+		if (err) {
+			return next(err);
+		}
+
+		if (value !== 'yes') {
+			logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion.'));
+			process.exit(1);
 		}
 
 		performMigration(next);
