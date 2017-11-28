@@ -55,7 +55,7 @@ util.inherits(AndroidModuleBuilder, Builder);
  * @param {Function} next Callback function
  */
 AndroidModuleBuilder.prototype.migrate = function migrate(next) {
-	const cliModuleAPIVersion = this.cli.sdk && this.cli.sdk.manifest && this.cli.sdk.manifest.moduleAPIVersion && this.cli.sdk.manifest.moduleAPIVersion['android'];
+	const cliModuleAPIVersion = this.cli.sdk && this.cli.sdk.manifest && this.cli.sdk.manifest.moduleAPIVersion && this.cli.sdk.manifest.moduleAPIVersion.android;
 	const needsMigration = this.manifest.apiversion && cliModuleAPIVersion && this.manifest.apiversion !== cliModuleAPIVersion;
 	const cliSDKVersion = this.cli.sdk.manifest.version;
 	const manifestSDKVersion = this.manifest.minsdk;
