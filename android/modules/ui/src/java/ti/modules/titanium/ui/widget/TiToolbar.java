@@ -89,6 +89,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 			}
 
 		};
+
 		setNativeView(toolbar);
 	}
 
@@ -522,7 +523,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	@Override
 	public void processProperties(KrollDict d) {
 		//process internal properties
-		if (d.containsKey("resourceLoadedListener")) {
+		if (d.containsKey("resourceLoadedListener") && d.get("resourceLoadedListener") instanceof KrollFunction) {
 			resourceLoadedListener = ((KrollFunction) d.get("resourceLoadedListener"));
 		}
 		//region process common properties

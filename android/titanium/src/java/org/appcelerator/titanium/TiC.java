@@ -1917,11 +1917,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_LOADED = "loaded";
-
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_LOOPING = "looping";
 
 	/**
