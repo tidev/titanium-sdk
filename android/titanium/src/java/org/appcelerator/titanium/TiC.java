@@ -876,6 +876,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_AUTOFILL_TYPE = "autofillType";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_AUTOPLAY = "autoplay";
 
 	/**
