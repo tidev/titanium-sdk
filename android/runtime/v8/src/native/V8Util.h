@@ -134,6 +134,35 @@ inline void SetTemplateMethod(v8::Isolate* isolate,
   t->SetClassName(name_string);  // NODE_SET_METHOD() compatibility.
 }
 
+// DEPRECATED: Use v8::String::Utf8Value. Remove in SDK 8.0
+// class [[deprecated("Replaced by v8::String::Utf8Value, which is now official V8 API")]] Utf8Value {
+class Utf8Value {
+  public:
+    explicit Utf8Value(v8::Local<v8::Value> value);
+
+    ~Utf8Value() {
+      if (str_ != str_st_)
+        free(str_);
+    }
+
+    char* operator*() {
+      return str_;
+    };
+
+    const char* operator*() const {
+      return str_;
+    };
+
+    size_t length() const {
+      return length_;
+    };
+
+  private:
+    size_t length_;
+    char* str_;
+    char str_st_[1024];
+};
+
 class V8Util {
 public:
 	static v8::Local<v8::Value> executeString(v8::Isolate* isolate, v8::Local<v8::String> source, v8::Local<v8::Value> filename);
