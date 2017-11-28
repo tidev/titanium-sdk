@@ -20,8 +20,13 @@ def npmVersion = '5.4.1' // We can change this without any changes to Jenkins.
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
-		// TODO Customize labels by os we're testing
-		node('android-emulator && git && android-sdk && osx') {
+		def labels = 'git && osx'
+		if ('ios'.equals(os)) {
+			labels = 'git && osx && xcode-9' // test app fails to build with xcode-8.1 as far as I can tell
+		} else {
+			labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
+		}
+		node(labels) {
 			timeout(20) {
 				// Unarchive the osx build of the SDK (as a zip)
 				sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
