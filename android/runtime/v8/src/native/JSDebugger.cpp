@@ -10,7 +10,7 @@
 #include "TypeConverter.h" // TypeConverter::javaStringToJsString
 #include "InspectorClient.h" // new InspectorClient
 #include "V8Runtime.h" // V8Runtime::platform and V8Runtime::v8_isolate
-#include "V8Util.h" // titanium::TwoByteValue
+#include "V8Util.h" // v8::String::Value
 
 #include "org_appcelerator_kroll_runtime_v8_JSDebugger.h"
 
@@ -87,7 +87,7 @@ void JSDebugger::sendCommand(JNIEnv *env, jstring command)
 
 	v8::Local<v8::Value> stringValue = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, command);
 	v8::Local<v8::String> message = stringValue.As<v8::String>();
-	titanium::TwoByteValue buffer(message);
+	v8::String::Value buffer(message);
 	v8_inspector::StringView message_view(*buffer, buffer.length());
 	client__->sendMessage(message_view);
 
