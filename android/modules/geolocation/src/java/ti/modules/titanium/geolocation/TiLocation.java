@@ -106,7 +106,12 @@ public class TiLocation implements Handler.Callback
 			}
 		}
 
-		return providerNames.size() != 0 && getLastKnownLocation() != null;
+		for (String providerName : providerNames) {
+			if (providerName.equals(LocationManager.GPS_PROVIDER)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public Location getLastKnownLocation()
