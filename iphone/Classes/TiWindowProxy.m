@@ -426,6 +426,13 @@
     }
     UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     [[self view] setAccessibilityElementsHidden:NO];
+    NSArray *childProxies = [self children];
+    for (TiViewProxy *thisProxy in childProxies) {
+      // Will pass messsage to view proxies if they are listening e.g TiUIListViewProxy
+      if ([thisProxy respondsToSelector:@selector(gainFocus)]) {
+        [(id)thisProxy gainFocus];
+      }
+    }
 #if IS_XCODE_9
     [self processForSafeArea];
 #endif
@@ -446,6 +453,13 @@
       }
     }
     [[self view] setAccessibilityElementsHidden:YES];
+  }
+  NSArray *childProxies = [self children];
+  for (TiViewProxy *thisProxy in childProxies) {
+    // Will pass messsage to view proxies if they are listening e.g TiUIListViewProxy
+    if ([thisProxy respondsToSelector:@selector(resignFocus)]) {
+      [(id)thisProxy resignFocus];
+    }
   }
 }
 
