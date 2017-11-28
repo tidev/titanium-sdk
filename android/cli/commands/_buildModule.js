@@ -59,12 +59,53 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 
 		this.manifest = this.cli.manifest;
 
-		const sdkModuleAPIVersion = this.cli.sdk && this.cli.sdk.manifest && this.cli.sdk.manifest.moduleAPIVersion && this.cli.sdk.manifest.moduleAPIVersion['android'];
-		if (this.manifest.apiversion && sdkModuleAPIVersion && this.manifest.apiversion !== sdkModuleAPIVersion) {
-			logger.error(__('The module manifest apiversion is currently set to %s', this.manifest.apiversion));
-			logger.error(__('Titanium SDK %s Android module apiversion is at %s', this.titaniumSdkVersion, sdkModuleAPIVersion));
-			logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion.'));
-			process.exit(1);
+		const cliModuleAPIVersion = this.cli.sdk && this.cli.sdk.manifest && this.cli.sdk.manifest.moduleAPIVersion && this.cli.sdk.manifest.moduleAPIVersion['android'];
+		const needsMigration = this.manifest.apiversion && cliModuleAPIVersion && this.manifest.apiversion !== cliModuleAPIVersion;
+
+		// Migrate modules built for earlier versions of V8 / Titanium 
+		if (needsMigration) {
+			const cliSDKVersion = this.cli.sdk.manifest.version;
+			const manifestSDKVersion = this.manifest.minsdk;
+			const manifestModuleAPIVersion = this.manifest.apiversion;
+			const newVersion = String(parseInt(this.manifest.version.split('.')[0]) + 1) + '.0.0'; // TODO: Make this less error prone
+			const manifestTemplateFile = path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', 'manifest.ejs');
+			
+			logger.info(__('⚠️  Detected Titanium %s that requires API-level %s, but the module currently only supports %s and API-level %s.', cliSDKVersion, cliModuleAPIVersion, manifestSDKVersion, manifestModuleAPIVersion)); 
+			logger.info(__('🛠  Migrating module manifest ...'));
+			
+			logger.info(__('🔄 Setting %s to %s', 'apiversion'.cyan, cliModuleAPIVersion.cyan));
+			this.manifest.apiversion = cliModuleAPIVersion;
+			
+			logger.info(__('🔄 Setting %s to %s', 'minsdk'.cyan, cliSDKVersion.cyan));
+			this.manifest.minsdk = cliSDKVersion;
+
+			logger.info(__('🔄 Bumping version from %s to %s', this.manifest.version.cyan, newVersion.cyan));
+			this.manifest.version = newVersion;
+			
+			// Pre-fill placeholders
+			var manifestContent = ejs.render(fs.readFileSync(manifestTemplateFile).toString(), {
+				moduleName: this.manifest.name,
+				moduleId: this.manifest.moduleid,
+				platform: this.manifest.platform,
+				tisdkVersion: this.manifest.minsdk,
+				guid: this.manifest.guid,
+				author: this.manifest.author,
+				publisher: this.manifest.author // The publisher does not have an own key in the manifest but can be different. Will override below
+			});
+						
+			// Migrate missing keys which don't have a placeholder (version, license, copyright & publisher) 
+			manifestContent = manifestContent.replace(/version.*/, 'version: ' + this.manifest.version);
+			manifestContent = manifestContent.replace(/license.*/, 'license: ' + this.manifest.license);
+			manifestContent = manifestContent.replace(/copyright.*/, 'copyright: ' + this.manifest.copyright);
+			
+			logger.info(__('🔄 Backing up old manifest to %s', 'manifest.bak'.cyan));
+			fs.renameSync(path.join(this.projectDir, 'manifest'), path.join(this.projectDir, 'manifest.bak'));
+
+			logger.info(__('🔄 Writing new manifest'));
+			fs.writeFileSync(path.join(this.projectDir, 'manifest'), manifestContent);
+
+			logger.info(__(''));
+			logger.info(__('✅ Migration completed! Building module ...'));			
 		}
 
 		// detect android environment
