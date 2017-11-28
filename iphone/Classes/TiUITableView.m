@@ -2728,7 +2728,7 @@
   // Since we clear the searchbar, the search string and indexes can be cleared as well.
   [self setSearchString:nil];
   RELEASE_TO_NIL(searchResultIndexes);
-  searchControllerPresenter = nil;
+  RELEASE_TO_NIL(searchControllerPresenter);
 }
 
 - (void)presentSearchController:(UISearchController *)controller
@@ -2741,9 +2741,9 @@
       proxy = [proxy parent];
     }
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
-      searchControllerPresenter = [proxy windowHoldingController];
+      searchControllerPresenter = [[proxy windowHoldingController] retain];
     } else {
-      searchControllerPresenter = [[TiApp app] controller];
+      searchControllerPresenter = [[[TiApp app] controller] retain];
     }
   }
   searchControllerPresenter.definesPresentationContext = YES;

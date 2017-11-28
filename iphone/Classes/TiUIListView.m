@@ -2165,7 +2165,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
   [_tableView reloadData];
 
-  searchControllerPresenter = nil;
+  RELEASE_TO_NIL(searchControllerPresenter);
 }
 
 - (void)presentSearchController:(UISearchController *)controller
@@ -2204,9 +2204,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       proxy = [proxy parent];
     }
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
-      searchControllerPresenter = [proxy windowHoldingController];
+      searchControllerPresenter = [[proxy windowHoldingController] retain];
     } else {
-      searchControllerPresenter = [[TiApp app] controller];
+      searchControllerPresenter = [[[TiApp app] controller] retain];
     }
   }
   BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
