@@ -1,8 +1,0 @@
-build
-*.zip
-bin
-.svn
-*.xcworkspace/
-xcuserdata
-*.xcuserstate
-*.xcuserdata*
