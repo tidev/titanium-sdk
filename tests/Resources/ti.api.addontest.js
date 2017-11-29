@@ -10,9 +10,15 @@
 'use strict';
 var should = require('./utilities/assertions');
 
-describe('Titanium.UI.ScrollView', function () {
-	it('#scrollToTop()', function () {
-		var bar = Ti.UI.createScrollView({});
-		should(bar.scrollToTop).be.a.Function;
+describe('Titanium.API', function () {
+
+	it('Ti.API.log with one non-String parameter', function () {
+		Ti.API.log({ key: 'value' }); // used to cause crash
+		should(true).equal(true);
+	});
+
+	it('Ti.API.log with second non-String parameter', function () {
+		Ti.API.log('debug', { key: 'value' }); // used to cause crash
+		should(true).equal(true);
 	});
 });
