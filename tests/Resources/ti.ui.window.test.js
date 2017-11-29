@@ -13,9 +13,7 @@ var should = require('./utilities/assertions'),
 	utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.Window', function () {
-	var win,
-		didFocus = false,
-		rootWindow;
+	var win, rootWindow;
 
 	this.timeout(5000);
 
@@ -37,10 +35,6 @@ describe('Titanium.UI.Window', function () {
 		rootWindow.close();
 	});
 
-	beforeEach(function () {
-		didFocus = false;
-	});
-
 	afterEach(function () {
 		if (win) {
 			win.close();
@@ -48,7 +42,11 @@ describe('Titanium.UI.Window', function () {
 		win = null;
 	});
 
-	it.ios('#navigationWindow', function () {
+	it.ios('.navigationWindow', function () {
+		var nav = Ti.UI.iOS.createNavigationWindow({
+		  window: win
+		});
+
 		win = Ti.UI.createWindow();
 		
 		win.addEventListener('open', function() {
@@ -60,14 +58,9 @@ describe('Titanium.UI.Window', function () {
 			should(nav.openWindow).be.a.function;
 			should(win.navigationWindow.openWindow).be.a.function;
 			nav.close();
-			win = null;
 			finish();
 		});
 		
-		var nav = Ti.UI.iOS.createNavigationWindow({
-		  window: win
-		});
-
 		nav.open();
 	});
 });
