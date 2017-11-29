@@ -43,11 +43,13 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 	});
 	
 	it('#openWindow', function () {
-		var nav = Ti.UI.iOS.createNavigationWindow({
+		var nav;
+		
+		win = Ti.UI.createWindow();
+		nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
 
-		win = Ti.UI.createWindow();
 		var subWindow = Ti.UI.createWindow();
 		
 		win.addEventListener('open', function () {
@@ -64,12 +66,13 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 	});
 	
 	it('#closeWindow', function () {
-		var nav = Ti.UI.iOS.createNavigationWindow({
+		var nav;
+		var subWindow = Ti.UI.createWindow();
+		
+		win = Ti.UI.createWindow();
+		nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
-
-		win = Ti.UI.createWindow();
-		var subWindow = Ti.UI.createWindow();
 		
 		win.addEventListener('open', function () {
 			nav.openWindow(subWindow);
@@ -88,12 +91,13 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 	});
 
 	it('#popToRootWindow', function () {
-		var nav = Ti.UI.iOS.createNavigationWindow({
+		var nav;
+		var subWindow = Ti.UI.createWindow();
+		
+		win = Ti.UI.createWindow();
+		nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
-
-		win = Ti.UI.createWindow();
-		var subWindow = Ti.UI.createWindow();
 		
 		win.addEventListener('open', function () {
 			nav.openWindow(subWindow);
@@ -109,11 +113,12 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 	});
 
 	it('.navigationWindow', function () {
-		var nav = Ti.UI.iOS.createNavigationWindow({
-		  window: win
-		});
-
+		var nav;
+		
 		win = Ti.UI.createWindow();
+		nav = Ti.UI.iOS.createNavigationWindow({
+			window: win
+		});
 		
 		win.addEventListener('open', function () {
 			should(nav).not.be.undefined;
