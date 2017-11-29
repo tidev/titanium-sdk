@@ -11,10 +11,20 @@
 var should = require('./utilities/assertions');
 
 describe('Titanium.UI.TableView', function () {
-	var didFocus = false;
+	var win,
+		didFocus = false;
+
+	this.timeout(5000);
 
 	beforeEach(function () {
 		didFocus = false;
+	});
+
+	afterEach(function () {
+		if (win) {
+			win.close();
+		}
+		win = null;
 	});
 
 	it('Ti.UI.TableView', function () {
@@ -133,16 +143,14 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Also crashes Android, with no stack trace or errors in logcat
 	it.androidAndIosBroken('insertRowAfter', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			tableView = Ti.UI.createTableView({
-				data: [ { title:'Red' } ]
-			});
+		var tableView = Ti.UI.createTableView({
+			data: [{ title:'Red' }]
+		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -164,14 +172,11 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('Purple');
 				should(tableView.sections[0].rows[2].title).be.eql('White');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -181,10 +186,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME This crashes the app entirely on iOS. Open a JIRA ticket!
 	// FIXME Crashes on Android as well.
 	it.androidAndIosBroken('insertRowAfter (TableViewRow)', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			tableView;
 
 		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
@@ -194,9 +196,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -218,14 +221,11 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('Purple');
 				should(tableView.sections[0].rows[2].title).be.eql('White');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -235,16 +235,14 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes Android as well
 	it.androidAndIosBroken('insertRowBefore', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			tableView = Ti.UI.createTableView({
-				data: [ { title:'Red' }, { title:'White' } ]
-			});
+		var tableView = Ti.UI.createTableView({
+			data: [{ title:'Red' }, { title:'White' }]
+		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -262,14 +260,11 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('Purple');
 				should(tableView.sections[0].rows[2].title).be.eql('White');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -279,12 +274,8 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes Android as well
 	it.androidAndIosBroken('insertRowBefore (TableViewRow)', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			tableView;
-
 		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
 		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
 		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
@@ -293,9 +284,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -313,14 +305,11 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('Purple');
 				should(tableView.sections[0].rows[2].title).be.eql('White');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -330,16 +319,14 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes on Android too
 	it.androidAndIosBroken('add row', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			tableView = Ti.UI.createTableView({
-				data: [ { title:'Red' } ]
-			});
+		var tableView = Ti.UI.createTableView({
+			data: [{ title:'Red' }]
+		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -361,14 +348,11 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('White');
 				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -378,16 +362,14 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Occasionally crashes Android as well
 	it.androidAndIosBroken('add rows', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			tableView = Ti.UI.createTableView({
-				data: [ { title:'Red' } ]
-			});
+		var tableView = Ti.UI.createTableView({
+			data: [{ title:'Red' }]
+		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -399,7 +381,7 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rowCount).be.eql(1);
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 
-				tableView.appendRow([ { title: 'White' }, { title: 'Purple' } ]);
+				tableView.appendRow([{ title: 'White' }, { title: 'Purple' }]);
 				should(tableView.sections[0].rowCount).be.eql(3);
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('White');
@@ -411,14 +393,11 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rows[1].title).be.eql('White');
 				should(tableView.sections[0].rows[2].title).be.eql('Purple');
 				should(tableView.sections[0].rows[3].title).be.eql('Gray');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -428,10 +407,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes on Android too
 	it.androidAndIosBroken('add row (TableViewRow)', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			tableView;
 
 		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
@@ -441,9 +417,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -462,14 +439,11 @@ describe('Titanium.UI.TableView', function () {
 				tableView.appendRow(Ti.UI.createTableViewRow({ title: 'Purple' }));
 				should(tableView.sections[0].rowCount).be.eql(3);
 				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -479,10 +453,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails intermittently on Android build machine
 	it.androidAndIosBroken('add row (TableViewSection)', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			tableView;
 
 		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
@@ -492,9 +463,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -511,14 +483,11 @@ describe('Titanium.UI.TableView', function () {
 				section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
 				should(tableView.sections[0].rowCount).be.eql(3);
 				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -528,10 +497,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails on Android on build machine
 	it.androidAndIosBroken('delete row (TableViewRow)', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			tableView;
 
 		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
@@ -543,9 +509,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -571,14 +538,11 @@ describe('Titanium.UI.TableView', function () {
 
 				tableView.deleteRow(0);
 				should(tableView.sections[0].rowCount).be.eql(0);
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -588,10 +552,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails intermittently on Android on build machine
 	it.androidAndIosBroken('delete row (TableViewSection)', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			tableView;
 
 		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
@@ -603,9 +564,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -623,14 +585,11 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rowCount).be.eql(2);
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('Purple');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -640,10 +599,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME get working on iOS
 	// FIXME Fails on Android on build machine
 	it.androidAndIosBroken('update row', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			tableView;
 
 		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
@@ -655,9 +611,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -670,14 +627,11 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('Green'); // iOS returns 'White' - updateRow seemed to have no effect?
 				should(tableView.sections[0].rows[2].title).be.eql('Purple');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -687,10 +641,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails intermittently on Android build machine
 	it.androidAndIosBroken('append section', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			section_1,
 			tableView;
 
@@ -708,9 +659,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -732,14 +684,11 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[1].rows[0].title).be.eql('Green');
 				should(tableView.sections[1].rows[1].title).be.eql('Yellow');
 				should(tableView.sections[1].rows[2].title).be.eql('Blue');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -749,10 +698,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME intermittently fails on Android build machine - I think due to test timeout
 	it.androidAndIosBroken('delete section', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			section_1,
 			tableView;
 
@@ -770,9 +716,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0, section_1 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -798,14 +745,11 @@ describe('Titanium.UI.TableView', function () {
 
 				tableView.deleteSection(0);
 				should(tableView.sectionCount).be.eql(0);
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -815,10 +759,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails on Android on build machine
 	it.androidAndIosBroken('update section', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			section_1,
 			section_2,
 			tableView;
@@ -842,9 +783,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0, section_1 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -872,14 +814,11 @@ describe('Titanium.UI.TableView', function () {
 
 				tableView.deleteSection(0);
 				should(tableView.sectionCount).be.eql(0);
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -889,10 +828,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME intermittently fails on Android build machine (timeout?)
 	it.iosBroken('insertSectionAfter', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			section_1,
 			section_2,
 			tableView;
@@ -916,9 +852,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0, section_1 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -948,14 +885,11 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[2].rows[0].title).be.eql('Green');
 				should(tableView.sections[2].rows[1].title).be.eql('Yellow');
 				should(tableView.sections[2].rows[2].title).be.eql('Blue');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
@@ -964,6 +898,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME This seems to hang the tests on Android too.
+	/* eslint-disable max-len */
 	/*
 	Logs from Android:
 
@@ -1008,13 +943,10 @@ describe('Titanium.UI.TableView', function () {
 	[ERROR] TiApplication: 	at android.app.Instrumentation.callActivityOnDestroy(Instrumentation.java:1142)
 	[ERROR] TiApplication: 	at android.app.ActivityThread.performDestroyActivity(ActivityThread.java:3818)
 	[ERROR] TiApplication: 	... 9 more
-
-	 */
+	*/
+	/* eslint-enable max-len */
 	it.iosBroken('insertSectionBefore', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			section_1,
 			section_2,
 			tableView;
@@ -1038,9 +970,10 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0, section_1 ]
 		});
 
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
 		win.addEventListener('focus', function () {
-			var error;
-
 			if (didFocus) {
 				return;
 			}
@@ -1070,14 +1003,11 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[2].rows[0].title).be.eql('Green');
 				should(tableView.sections[2].rows[1].title).be.eql('Yellow');
 				should(tableView.sections[2].rows[2].title).be.eql('Blue');
-			} catch (err) {
-				error = err;
-			}
 
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
 		});
 
 		win.add(tableView);
