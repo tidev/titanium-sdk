@@ -4,6 +4,8 @@
 const fs = require('fs-extra');
 const path = require('path');
 const DOMParser = require('xmldom').DOMParser;
+// Due to bug in danger, we hack env variables in build process.
+const ENV = fs.existsSync('./env.json') ? require('./env.json') : process.env;
 // constants
 const JIRARegexp = /https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/;
 const github = danger.github;
@@ -11,7 +13,7 @@ const github = danger.github;
 const labels = [];
 
 // To spit out the raw data we can use:
-// markdown(JSON.stringify(github));
+// markdown(JSON.stringify(danger));
 
 // Check if the user deleted more code than added, give a thumbs-up if so
 if (github.pr.deletions > github.pr.additions) {
@@ -159,6 +161,13 @@ if (failures_and_errors.length !== 0) {
 
 	markdown(message);
 }
+
+// Add link to built SDK zipfile!
+if (ENV.BUILD_STATUS === 'SUCCESS' || ENV.BUILD_STATUS === 'UNSTABLE') {
+	const sdkLink = danger.utils.href(`${ENV.BUILD_URL}/artifact/dist/${ENV.ZIPFILE}`, 'Here\'s the generated SDK zipfile');
+	message(`:floppy_disk: ${sdkLink}.`);
+}
+
 // TODO Pass along any warnings/errors from eslint in a readable way? Right now we don't have any way to get at the output of the eslint step of npm test
 // May need to edit Jenkinsfile to do a try/catch to spit out the npm test output to some file this dangerfile can consume?
 // Or port https://github.com/leonhartX/danger-eslint/blob/master/lib/eslint/plugin.rb to JS - have it run on any edited/added JS files?

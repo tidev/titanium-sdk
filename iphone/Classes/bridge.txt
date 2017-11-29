@@ -1,3 +1,5 @@
+// clang-format off
+
 Ti.App = {};
 Ti.API = {};
 Ti.App._listeners = {};
@@ -187,3 +189,5 @@ Ti.App.removeEventListener = function(name, fn) {
     }
   }
 };
+
+// clang-format on

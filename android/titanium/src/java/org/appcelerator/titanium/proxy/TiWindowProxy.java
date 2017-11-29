@@ -315,13 +315,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 			for (int i = 0; i < orientationModes.length; i++)
 			{
 				int integerId = orientationModes[i];
-				TiDeviceOrientation orientation = TiDeviceOrientation.fromTiIntegerId(integerId);
+				TiDeviceOrientation orientation = TiDeviceOrientation.fromTiIntId(integerId);
 				if (orientation != null) {
 					switch (orientation) {
-						case PORTRAIT_UPRIGHT:
+						case PORTRAIT:
 							hasPortrait = true;
 							break;
-						case PORTRAIT_UPSIDE_DOWN:
+						case UPSIDE_PORTRAIT:
 							hasPortraitReverse = true;
 							break;
 						case LANDSCAPE_RIGHT:
@@ -482,7 +482,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method @Kroll.getProperty
 	public int getOrientation()
 	{
-		return TiDeviceOrientation.fromDefaultDisplay().toTiIntegerId();
+		return TiDeviceOrientation.fromDefaultDisplay().toTiIntId();
 	}
 
 	@Override

@@ -23,11 +23,6 @@ static NSOperationQueue *_operationQueue = nil;
   return @"Ti.Network";
 }
 
-- (NSString *)INADDR_ANY
-{
-  return INADDR_ANY_token;
-}
-
 - (NSNumber *)READ_MODE
 {
   return [NSNumber numberWithInt:READ_MODE];

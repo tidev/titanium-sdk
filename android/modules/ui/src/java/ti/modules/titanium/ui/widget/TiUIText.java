@@ -147,6 +147,10 @@ public class TiUIText extends TiUIView
 	{
 		super.processProperties(d);
 
+		if (d.containsKey(TiC.PROPERTY_AUTOFILL_TYPE) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			tv.setAutofillHints(d.getString(TiC.PROPERTY_AUTOFILL_TYPE));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
@@ -279,7 +283,9 @@ public class TiUIText extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
-		if (key.equals(TiC.PROPERTY_ENABLED)) {
+		if (key.equals(TiC.PROPERTY_AUTOFILL_TYPE) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			tv.setAutofillHints(TiConvert.toString(newValue));
+		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			tv.setText(TiConvert.toString(newValue));
@@ -432,9 +438,29 @@ public class TiUIText extends TiUIView
 				TiUIHelper.showSoftKeyboard(tv, false);
 			}
 			else {
-				TiUIHelper.requestSoftInputChange(proxy, tv);
+				TiUIHelper.showSoftKeyboard(tv, true);
 			}
 		}
+	}
+
+	@Override
+	public void blur()
+	{
+		View rootView = tv.getRootView();
+		if (rootView!=null){
+			//set rootView to focus and hide keyboard
+			rootView.setFocusable(true);
+			rootView.setFocusableInTouchMode(true);
+			if (rootView instanceof ViewGroup){
+				((ViewGroup) rootView).setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+			}
+			rootView.requestFocus();
+			tv.clearFocus();
+			Context context = TiApplication.getInstance().getApplicationContext();
+			InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputManager.hideSoftInputFromWindow(tv.getWindowToken(), 0);
+		}
+
 	}
 
 	@Override

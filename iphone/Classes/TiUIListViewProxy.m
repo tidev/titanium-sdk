@@ -56,6 +56,16 @@
   [super windowWillClose];
 }
 
+- (void)gainFocus
+{
+  [[self listView] viewGetFocus];
+}
+
+- (void)resignFocus
+{
+  [[self listView] viewResignFocus];
+}
+
 - (void)dealloc
 {
   [_operationQueue release];
