@@ -12,7 +12,7 @@
 var should = require('./utilities/assertions'),
 	utilities = require('./utilities/utilities');
 
-describe('Titanium.UI.Window', function () {
+describe('Titanium.UI.iOS.NavigationWindow', function () {
 	var win, rootWindow;
 
 	this.timeout(5000);
@@ -41,6 +41,72 @@ describe('Titanium.UI.Window', function () {
 		}
 		win = null;
 	});
+	
+	it.ios('#openWindow', function () {
+		var nav = Ti.UI.iOS.createNavigationWindow({
+			window: win
+		});
+
+		win = Ti.UI.createWindow();
+		var subWindow = Ti.UI.createWindow();
+		
+		win.addEventListener('open', function () {
+			should(nav.openWindow).be.a.function;
+			nav.openWindow(subWindow);
+		});
+		
+		subWindow.addEventListener('open', function () {
+			nav.close();
+			finish();
+		});
+		
+		nav.open();
+	});
+	
+	it.ios('#closeWindow', function () {
+		var nav = Ti.UI.iOS.createNavigationWindow({
+			window: win
+		});
+
+		win = Ti.UI.createWindow();
+		var subWindow = Ti.UI.createWindow();
+		
+		win.addEventListener('open', function () {
+			nav.openWindow(subWindow);
+		});
+		
+		subWindow.addEventListener('open', function () {
+			should(nav.closeWindow).be.a.function;
+			nav.closeWindow(subWindow);
+		});
+		
+		subWindow.addEventListener('close', function () {
+			finish();
+		});
+		
+		nav.open();
+	});
+
+	it.ios('#popToRootWindow', function () {
+		var nav = Ti.UI.iOS.createNavigationWindow({
+			window: win
+		});
+
+		win = Ti.UI.createWindow();
+		var subWindow = Ti.UI.createWindow();
+		
+		win.addEventListener('open', function () {
+			nav.openWindow(subWindow);
+		});
+		
+		subWindow.addEventListener('open', function () {
+			should(nav.popToRootWindow).be.a.function;
+			nav.popToRootWindow();
+			finish();
+		});
+		
+		nav.open();
+	});
 
 	it.ios('.navigationWindow', function () {
 		var nav = Ti.UI.iOS.createNavigationWindow({
@@ -49,7 +115,7 @@ describe('Titanium.UI.Window', function () {
 
 		win = Ti.UI.createWindow();
 		
-		win.addEventListener('open', function() {
+		win.addEventListener('open', function () {
 			should(nav).not.be.undefined;
 			should(win.navigationWindow).not.be.undefined;
 
