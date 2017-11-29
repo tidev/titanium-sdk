@@ -120,7 +120,16 @@ public class EventProxy extends KrollProxy {
 			event.hasAlarm = !eventCursor.getString(7).equals("0");
 			event.status = eventCursor.getInt(8);
 			event.visibility = eventCursor.getInt(9);
-			event.setRecurrenceRules(eventCursor.getString(10), eventCursor.getInt(11));
+			// Guarding against Cursor implementations which would throw an exception
+			// instead of returning null if no recurrence rule is added to the event
+			String recurrenceRule = null;
+			try {
+				recurrenceRule = eventCursor.getString(10);
+			} catch (Exception e) {
+				Log.w(TAG, "Trying to get a recurrence rule for an event without one.");
+				e.printStackTrace();
+			}
+			event.setRecurrenceRules(recurrenceRule, eventCursor.getInt(11));
 			events.add(event);
 		}
 
@@ -423,12 +432,9 @@ public class EventProxy extends KrollProxy {
 
 	public void setRecurrenceRules(String rrule, int calendarID)
 	{
-		RecurrenceRuleProxy[] result;
+		RecurrenceRuleProxy[] result = new RecurrenceRuleProxy[]{};
 		if (rrule != null) {
-			result = new RecurrenceRuleProxy[1];
-			result[0] = new RecurrenceRuleProxy(rrule, calendarID, begin);;
-		} else {
-			result = new RecurrenceRuleProxy[]{};
+			result = new RecurrenceRuleProxy[] { new RecurrenceRuleProxy(rrule, calendarID, begin) };
 		}
 		setProperty(TiC.PROPERTY_RECURRENCE_RULES, result);
 	}
