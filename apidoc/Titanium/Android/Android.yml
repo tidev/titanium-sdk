@@ -1998,6 +1998,30 @@ properties:
     since: "3.6.0"
     osver: {android: {min: "5.0"}}
 
+  - name: TILE_STATE_UNAVAILABLE
+    summary: QuickSettings tile is unavailble.
+    description: |
+        For some reason the Tile is not avaialable to the used and will have no click action.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: TILE_STATE_INACTIVE
+    summary: QuickSettings tile is inactive.
+    description: |
+        The Tile is in disabled state, but the user can interact with it.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: TILE_STATE_ACTIVE
+    summary: QuickSettings tile is active.
+    description: |
+        The Tile is in enabled state and the user can interact with it.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
   - name: WAKE_LOCK_PARTIAL
     summary: Ensures that the CPU is running; the screen and keyboard backlight will be allowed to go off.
     description: |
@@ -2299,6 +2323,55 @@ properties:
     summary: The URI scheme used for intent URIs.
     type: Number
     permission: read-only
+
+  - name: IMPORTANCE_DEFAULT
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_HIGH
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_LOW
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_MAX
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_MIN
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_NONE
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_UNSPECIFIED
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
 
   - name: currentActivity
     summary: Activity of the active context.
