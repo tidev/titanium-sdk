@@ -12,7 +12,7 @@
 var should = require('./utilities/assertions'),
 	utilities = require('./utilities/utilities');
 
-describe('Titanium.UI.iOS.NavigationWindow', function () {
+describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 	var win, rootWindow;
 
 	this.timeout(5000);
@@ -42,7 +42,7 @@ describe('Titanium.UI.iOS.NavigationWindow', function () {
 		win = null;
 	});
 	
-	it.ios('#openWindow', function () {
+	it('#openWindow', function () {
 		var nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
@@ -63,7 +63,7 @@ describe('Titanium.UI.iOS.NavigationWindow', function () {
 		nav.open();
 	});
 	
-	it.ios('#closeWindow', function () {
+	it('#closeWindow', function () {
 		var nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
@@ -87,7 +87,7 @@ describe('Titanium.UI.iOS.NavigationWindow', function () {
 		nav.open();
 	});
 
-	it.ios('#popToRootWindow', function () {
+	it('#popToRootWindow', function () {
 		var nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
@@ -108,7 +108,7 @@ describe('Titanium.UI.iOS.NavigationWindow', function () {
 		nav.open();
 	});
 
-	it.ios('.navigationWindow', function () {
+	it('.navigationWindow', function () {
 		var nav = Ti.UI.iOS.createNavigationWindow({
 		  window: win
 		});
