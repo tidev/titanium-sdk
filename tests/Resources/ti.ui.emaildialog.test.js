@@ -107,7 +107,7 @@ describe('Titanium.UI.EmailDialog', function () {
 
 	(utilities.isWindowsDesktop() ? it.skip : it)('addAttachment', function () {
 		var file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, "File.txt");
-		file1.write("File test.");
+		file.write("File test.");
 		var blob = Ti.createBuffer({ value: "Blob test." }).toBlob();
 		var email = Ti.UI.createEmailDialog();
 		email.addAttachment(file);
