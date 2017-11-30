@@ -91,9 +91,6 @@ public class TiUIText extends TiUIView
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
 
-	// initialise as not in focus
-	private boolean initFocus = false;
-
 	protected TiUIEditText tv;
 	protected TextInputLayout textInputLayout;
 
@@ -149,6 +146,10 @@ public class TiUIText extends TiUIView
 	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
+
+		if (d.containsKey(TiC.PROPERTY_AUTOFILL_TYPE) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			tv.setAutofillHints(d.getString(TiC.PROPERTY_AUTOFILL_TYPE));
+		}
 
 		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
@@ -282,7 +283,9 @@ public class TiUIText extends TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
-		if (key.equals(TiC.PROPERTY_ENABLED)) {
+		if (key.equals(TiC.PROPERTY_AUTOFILL_TYPE) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			tv.setAutofillHints(TiConvert.toString(newValue));
+		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			tv.setText(TiConvert.toString(newValue));
@@ -463,11 +466,6 @@ public class TiUIText extends TiUIView
 	@Override
 	public void onFocusChange(View v, boolean hasFocus)
 	{
-		// clear focus on the first auto-focus
-		if (!initFocus && hasFocus){
-			blur();
-			initFocus = true;
-		}
 		if (hasFocus) {
 			Boolean clearOnEdit = (Boolean) proxy.getProperty(TiC.PROPERTY_CLEAR_ON_EDIT);
 			if (clearOnEdit != null && clearOnEdit) {
