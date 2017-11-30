@@ -358,7 +358,7 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		Local<Object> prototype = jsProxy->GetPrototype()->ToObject(isolate);
 		Local<Function> constructor = prototype->Get(constructorSymbol.Get(isolate)).As<Function>();
 		Local<String> javaClassName = constructor->Get(javaClassSymbol.Get(isolate)).As<String>();
-		titanium::Utf8Value javaClassNameVal(javaClassName);
+		v8::String::Utf8Value javaClassNameVal(javaClassName);
 		std::string javaClassNameString(*javaClassNameVal);
 		std::replace( javaClassNameString.begin(), javaClassNameString.end(), '.', '/');
 		// Create a copy of the char* since I'm seeing it get mangled when passed on to findClass later
@@ -380,7 +380,7 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		bool extend = true;
 		Local<Object> createProperties = args[0].As<Object>();
 		Local<String> constructorName = createProperties->GetConstructorName();
-		if (strcmp(*titanium::Utf8Value(constructorName), "Arguments") == 0) {
+		if (strcmp(*v8::String::Utf8Value(constructorName), "Arguments") == 0) {
 			extend = false;
 			int32_t argsLength = createProperties->Get(STRING_NEW(isolate, "length"))->Int32Value();
 			if (argsLength > 1) {
