@@ -10,7 +10,7 @@
 #include <libplatform/libplatform.h> // to pump message loop
 #include "InspectorClient.h"
 #include "InspectorFrontend.h" // new InspectorFrontend
-#include "V8Util.h" // titanium::TwoByteValue and DEFINE_METHOD
+#include "V8Util.h" // v8::String::Value and DEFINE_METHOD
 #include "V8Runtime.h" // V8Runtime::v8_isolate
 #include "JSDebugger.h" // JSDebugger::WaitForMessage()
 
@@ -28,7 +28,7 @@ InspectorClient::InspectorClient(v8::Local<v8::Context> context, v8::Platform* p
 	// FIXME Replace reference to V8Runtime::v8_isolate with isolate_
 	isolate_ = V8Runtime::v8_isolate;
 	inspector_ = v8_inspector::V8Inspector::create(V8Runtime::v8_isolate, this);
-	titanium::TwoByteValue contextName(STRING_NEW(V8Runtime::v8_isolate, "Titanium Main Context"));
+	v8::String::Value contextName(STRING_NEW(V8Runtime::v8_isolate, "Titanium Main Context"));
 	inspector_->contextCreated(v8_inspector::V8ContextInfo(
 			context, kContextGroupId, v8_inspector::StringView(*contextName, contextName.length())));
 
@@ -56,7 +56,7 @@ void InspectorClient::connect()
 void InspectorClient::BreakAtStart()
 {
 	v8::HandleScope scope(V8Runtime::v8_isolate);
-	titanium::TwoByteValue pauseReason(STRING_NEW(V8Runtime::v8_isolate, "PauseOnNextStatement"));
+	v8::String::Value pauseReason(STRING_NEW(V8Runtime::v8_isolate, "PauseOnNextStatement"));
 	session_->schedulePauseOnNextStatement(v8_inspector::StringView(*pauseReason, pauseReason.length()), v8_inspector::StringView());
 }
 
@@ -78,7 +78,7 @@ void InspectorClient::runMessageLoopOnPause(int context_group_id)
 	running_nested_loop_ = true;
 	while (!terminated_) {
 		v8::Local<v8::String> message = JSDebugger::WaitForMessage();
-		titanium::TwoByteValue buffer(message);
+		v8::String::Value buffer(message);
 		v8_inspector::StringView message_view(*buffer, buffer.length());
 		sendMessage(message_view);
 
