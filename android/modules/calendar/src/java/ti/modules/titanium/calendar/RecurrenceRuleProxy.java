@@ -9,6 +9,8 @@ package ti.modules.titanium.calendar;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -24,6 +26,8 @@ import java.util.regex.Pattern;
 @Kroll.proxy
 public class RecurrenceRuleProxy extends KrollProxy {
 
+	private static final String TAG = "RecurrenceRule";
+
 	// Keys for daysOfTheWeek dictionary.
 	private final String dayOfWeekKey = "daysOfWeek";
 	private final String weekNumberKey = "week";
@@ -38,7 +42,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 	private String rRule;
 
 	//region values that can be set from a Creation Dictionary
-	private Integer frequency = null;
+	TiRecurrenceFrequencyType frequency = TiRecurrenceFrequencyType.DAILY;
 	private Integer interval = 1;
 	private int[] daysOfTheMonth = new int[]{};
 	private int[] daysOfTheYear = new int[]{};
@@ -49,15 +53,52 @@ public class RecurrenceRuleProxy extends KrollProxy {
 	private KrollDict[] daysOfTheWeek = new KrollDict[]{};
 	//endregion
 
-	// Map matching frequency constants with their String counterparts in RRULE column.
-	private static final Map<Integer, String> frequencyMap;
-	static
+	// enum for matching Titanium frequency constants with Android recurrence rule words
+	public enum TiRecurrenceFrequencyType
 	{
-		frequencyMap = new HashMap<Integer, String>();
-		frequencyMap.put(CalendarModule.RECURRENCEFREQUENCY_DAILY, "DAILY");
-		frequencyMap.put(CalendarModule.RECURRENCEFREQUENCY_WEEKLY, "WEEKLY");
-		frequencyMap.put(CalendarModule.RECURRENCEFREQUENCY_MONTHLY, "MONTHLY");
-		frequencyMap.put(CalendarModule.RECURRENCEFREQUENCY_YEARLY, "YEARLY");
+		DAILY(CalendarModule.RECURRENCEFREQUENCY_DAILY, "DAILY"),
+		WEEKLY(CalendarModule.RECURRENCEFREQUENCY_WEEKLY, "WEEKLY"),
+		MONTHLY(CalendarModule.RECURRENCEFREQUENCY_MONTHLY, "MONTHLY"),
+		YEARLY(CalendarModule.RECURRENCEFREQUENCY_YEARLY, "YEARLY");
+
+		private final int tiIntId;
+		private final String rfcStringId;
+
+		private TiRecurrenceFrequencyType(int tiIntId, String rfcStringId)
+		{
+			this.tiIntId = tiIntId;
+			this.rfcStringId = rfcStringId;
+		}
+
+		public int toTiIntId()
+		{
+			return this.tiIntId;
+		}
+
+		public String toRfcStringId()
+		{
+			return this.rfcStringId;
+		}
+
+		public static TiRecurrenceFrequencyType fromTiIntId(int value)
+		{
+			for (TiRecurrenceFrequencyType nextObject : TiRecurrenceFrequencyType.values()) {
+				if ((nextObject != null) && (nextObject.tiIntId == value)) {
+					return nextObject;
+				}
+			}
+			return null;
+		}
+
+		public static TiRecurrenceFrequencyType fromRfcStringId(String value)
+		{
+			for (TiRecurrenceFrequencyType nextObject : TiRecurrenceFrequencyType.values()) {
+				if ((nextObject != null) && (nextObject.rfcStringId == value)) {
+					return nextObject;
+				}
+			}
+			return null;
+		}
 	}
 
 	// Map matching days of the week constants from Titanium docs with their String counterparts in RRULE column.
@@ -92,10 +133,13 @@ public class RecurrenceRuleProxy extends KrollProxy {
 			this.endDictionary = (KrollDict) creationDictionary.getKrollDict(TiC.PROPERTY_END);
 		}
 		if (creationDictionary.containsKey(TiC.PROPERTY_FREQUENCY)) {
-			this.frequency = TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_FREQUENCY));
+			this.frequency = TiRecurrenceFrequencyType.fromTiIntId(TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_FREQUENCY)));
 		}
-		if (creationDictionary.containsKey(TiC.PROPERTY_INTERVAL)) {
+		if (creationDictionary.containsKey(TiC.PROPERTY_INTERVAL) && TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_INTERVAL)) > 0) {
 			this.interval = TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_INTERVAL));
+		} else {
+			Log.e(TAG, "Interval must be greater than 0.\n");
+			TiApplication.terminateActivityStack();
 		}
 		if (creationDictionary.containsKey(TiC.PROPERTY_CALENDAR_MONTHS_OF_THE_YEAR)) {
 			this.monthsOfTheYear = creationDictionary.getIntArray(TiC.PROPERTY_CALENDAR_MONTHS_OF_THE_YEAR);
@@ -109,13 +153,13 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		StringBuilder finalRRule = new StringBuilder();
 		// Handle frequency.
 		if (this.frequency != null) {
-			String frequencyPart = "FREQ=" + this.frequencyMap.get(this.frequency);
+			String frequencyPart = "FREQ=" + frequency.toRfcStringId();
 			finalRRule.append(frequencyPart);
 			finalRRule.append(";");
 			// Handle frequency specific rules in different context.
 			switch (this.frequency) {
 				// Case for weekly recurring events.
-				case CalendarModule.RECURRENCEFREQUENCY_WEEKLY:
+				case WEEKLY:
 					StringBuilder weeklyRecurrencesString = new StringBuilder("BYDAY=");
 					int commaIndex = 0;
 					for (KrollDict dict: this.daysOfTheWeek) {
@@ -128,7 +172,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 					finalRRule.append(";");
 					break;
 				// Case for monthly recurring events.
-				case CalendarModule.RECURRENCEFREQUENCY_MONTHLY:
+				case MONTHLY:
 					StringBuilder monthlyReccurencesString = new StringBuilder("BYDAY=");
 					// daysOfTheWeek dictionary is with highest priority.
 					if (this.daysOfTheWeek.length > 0) {
@@ -182,7 +226,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		String days;
 		String byDay;
 		switch (this.frequency) {
-			case CalendarModule.RECURRENCEFREQUENCY_YEARLY:
+			case YEARLY:
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(this.eventBegin);
 				//weeksOfTheYear
@@ -195,7 +239,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 					this.daysOfTheYear = new int[]{ Integer.valueOf(days)};
 				}
 				break;
-			case CalendarModule.RECURRENCEFREQUENCY_MONTHLY:
+			case MONTHLY:
 				//daysOfTheMonth
 				days = matchExpression(".*(BYMONTHDAY=[0-9]*).*", 11);
 				if (days != null) {
@@ -210,7 +254,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 					this.daysOfTheWeek = new KrollDict[]{daysOfTheWeekDictionary};
 				}
 				break;
-			case CalendarModule.RECURRENCEFREQUENCY_WEEKLY:
+			case WEEKLY:
 				//daysOfTheWeek
 				byDay = matchExpression(".*(BYDAY=[,0-9A-Z]*).*", 6);
 				// Split the days from result.
@@ -282,7 +326,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 
 	@Kroll.getProperty @Kroll.method
 	public int getFrequency() {
-		return this.frequency;
+		return this.frequency.toTiIntId();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -315,11 +359,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		// Set the frequency in constructor, because it is required for other properties.
 		String frequency = matchExpression(".*(FREQ=[A-Z]*).*", 5);
 		if (frequency != null) {
-			for (Integer key: this.frequencyMap.keySet()) {
-				if (this.frequencyMap.get(key).equals(frequency)) {
-					this.frequency = key;
-				}
-			}
+			this.frequency = TiRecurrenceFrequencyType.fromRfcStringId(frequency);
 		}
 	}
 
