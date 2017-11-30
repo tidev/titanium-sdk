@@ -21,7 +21,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 
-@Kroll.module(parentModule=AppModule.class)
+@Kroll.module(parentModule = AppModule.class)
 public class AndroidModule extends KrollModule
 {
 	protected RProxy r;
@@ -34,7 +34,7 @@ public class AndroidModule extends KrollModule
 		super();
 	}
 
-	@Kroll.getProperty(name="R")
+	@Kroll.getProperty(name = "R")
 	public RProxy getR()
 	{
 		if (r == null) {
@@ -64,15 +64,16 @@ public class AndroidModule extends KrollModule
 		}
 
 		if (activity instanceof TiBaseActivity) {
-			return ((TiBaseActivity)activity).getActivityProxy();
+			return ((TiBaseActivity) activity).getActivityProxy();
 		} else {
 			return null;
 		}
 	}
 
-	@Kroll.getProperty
-	@Kroll.method
-	public int getAppVersionCode()
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public int getAppVersionCode()
 	{
 		if (appVersionCode == -1) {
 			initializeVersionValues();
@@ -80,8 +81,10 @@ public class AndroidModule extends KrollModule
 		return appVersionCode;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public IntentProxy getLaunchIntent()
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public IntentProxy getLaunchIntent()
 	{
 		TiApplication app = TiApplication.getInstance();
 		if (app != null) {
@@ -96,9 +99,10 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
-	@Kroll.getProperty
-	@Kroll.method
-	public String getAppVersionName()
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public String getAppVersionName()
 	{
 		if (appVersionName == null) {
 			initializeVersionValues();
@@ -110,8 +114,8 @@ public class AndroidModule extends KrollModule
 	{
 		PackageInfo pInfo;
 		try {
-			pInfo = TiApplication.getInstance().getPackageManager()
-				.getPackageInfo(TiApplication.getInstance().getPackageName(), 0);
+			pInfo = TiApplication.getInstance().getPackageManager().getPackageInfo(
+				TiApplication.getInstance().getPackageName(), 0);
 			appVersionCode = pInfo.versionCode;
 			appVersionName = pInfo.versionName;
 		} catch (NameNotFoundException e) {
