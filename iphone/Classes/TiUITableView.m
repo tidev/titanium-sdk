@@ -29,6 +29,8 @@
 
 @interface TiUITableView ()
 @property (nonatomic, copy, readwrite) NSString *searchString;
+@property (nonatomic, copy, readwrite) NSString *searchedString;
+
 - (void)updateSearchResultIndexes;
 - (CGFloat)computeRowWidth;
 @end
@@ -312,6 +314,11 @@
 
 - (void)dealloc
 {
+  if ([searchController isActive]) {
+    searchController.view.hidden = YES;
+    [searchController setActive:NO];
+  }
+
   if (searchField != nil) {
     [searchField setDelegate:nil];
     RELEASE_TO_NIL(searchField);
@@ -420,16 +427,20 @@
     _searchTableView.dataSource = self;
     _searchTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater]) {
+      _searchTableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#endif
+
     if (TiDimensionIsDip(rowHeight)) {
       [_searchTableView setRowHeight:rowHeight.value];
-    } else if ([TiUtils isIOS8OrGreater]) {
+    } else {
       //TIMOB-17373 rowHeight on iOS8 is -1. Bug??
       [_searchTableView setRowHeight:44];
     }
 
-    if ([TiUtils isIOS8OrGreater]) {
-      [_searchTableView setLayoutMargins:UIEdgeInsetsZero];
-    }
+    [_searchTableView setLayoutMargins:UIEdgeInsetsZero];
 
     if ([TiUtils isIOS9OrGreater]) {
       _searchTableView.cellLayoutMarginsFollowReadableWidth = NO;
@@ -454,9 +465,20 @@
     tableview.dataSource = self;
     tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
+    // Fixes incorrect heights in iOS 11 as we calculate them internally already
+    tableview.estimatedRowHeight = 0;
+    tableview.estimatedSectionFooterHeight = 0;
+    tableview.estimatedSectionHeaderHeight = 0;
+
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater]) {
+      tableview.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#endif
+
     if (TiDimensionIsDip(rowHeight)) {
       [tableview setRowHeight:rowHeight.value];
-    } else if ([TiUtils isIOS8OrGreater]) {
+    } else {
       //TIMOB-17373 rowHeight on iOS8 is -1. Bug??
       [tableview setRowHeight:44];
     }
@@ -475,9 +497,7 @@
 
     defaultSeparatorInsets = [tableview separatorInset];
 
-    if ([TiUtils isIOS8OrGreater]) {
-      [tableview setLayoutMargins:UIEdgeInsetsZero];
-    }
+    [tableview setLayoutMargins:UIEdgeInsetsZero];
 
     if ([TiUtils isIOS9OrGreater]) {
       tableview.cellLayoutMarginsFollowReadableWidth = NO;
@@ -1411,6 +1431,10 @@
       [proxy layoutChildren:NO];
     }
   }
+
+  if ([searchController isActive]) {
+    [self updateSearchControllerFrames];
+  }
 }
 
 - (CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
@@ -1428,6 +1452,42 @@
   }
 
   return height;
+}
+
+- (void)updateSearchControllerFrames
+{
+  if (![searchController isActive]) {
+    return;
+  }
+
+  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+
+  UIView *searchSuperView = [searchController.view superview];
+  searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
+
+  // Dimming view (transparent view of search controller, which is not exposed) need to manage as it is taking full height of screen always
+  UIView *dimmingView = nil;
+  for (UIView *view in [searchSuperView subviews]) {
+    if ([NSStringFromClass(view.class) hasSuffix:@"UIDimmingView"]) {
+      dimmingView = view;
+      break;
+    }
+  }
+
+  dimmingView.frame = CGRectMake(searchController.view.frame.origin.x, searchController.view.frame.origin.y, self.frame.size.width, self.frame.size.height);
+
+  CGFloat width = [searchField view].frame.size.width;
+  UIView *view = searchController.searchBar.superview;
+  view.frame = CGRectMake(0, 0, width, view.frame.size.height);
+  searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
+
+  UIView *resultSuperview = [resultViewController.view superview];
+  if (resultSuperview) {
+    resultSuperview.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+    resultViewController.tableView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  } else {
+    resultViewController.tableView.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  }
 }
 
 #pragma mark Searchbar-related IBActions
@@ -1527,7 +1587,8 @@
   UIView *searchView = [searchField view];
 
   if (tableHeaderView == nil) {
-    CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
+    CGFloat wrapperHeight = [TiUtils isIOS11OrGreater] ? TI_SEARCHBAR_HEIGHT : TI_NAVBAR_HEIGHT;
+    CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, wrapperHeight);
     tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
     [tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
@@ -1557,9 +1618,15 @@
   [self makeRootViewFirstResponder];
 }
 
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+{
+  self.searchedString = (searchText == nil) ? @"" : searchText;
+}
+
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
   // called when cancel button pressed
+  isSearched = NO;
   [searchBar setText:nil];
   [self setSearchString:nil];
   [self updateSearchResultIndexes];
@@ -2064,7 +2131,7 @@
   }
   [row initializeTableViewCell:cell];
 
-  if ([TiUtils isIOS8OrGreater] && ([searchController isActive])) {
+  if ([searchController isActive]) {
     [cell setLayoutMargins:UIEdgeInsetsZero];
   }
 
@@ -2293,6 +2360,26 @@
   [[self tableView] deselectRowAtIndexPath:path animated:animated];
 }
 
+- (void)viewResignFocus
+{
+  // As Search controller is presented, we can not open window over it. If any other window get opened above it, we are deactivating Search Controller with saved state if it is activated. And activate Search Controller again when this window get focus in viewGetFocus method.
+
+  if (!hideOnSearch && isSearched && [searchController isActive]) {
+    [searchController setActive:false];
+  } else {
+    isSearched = NO;
+  }
+}
+
+- (void)viewGetFocus
+{
+  if (!hideOnSearch && isSearched && self.searchedString && ![searchController isActive]) {
+    isSearched = NO;
+    searchController.searchBar.text = self.searchedString;
+    [searchController performSelector:@selector(setActive:) withObject:@YES afterDelay:.1];
+    [searchController.searchBar performSelector:@selector(becomeFirstResponder) withObject:nil afterDelay:.2];
+  }
+}
 #pragma mark Delegate
 
 - (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2641,31 +2728,34 @@
   // Since we clear the searchbar, the search string and indexes can be cleared as well.
   [self setSearchString:nil];
   RELEASE_TO_NIL(searchResultIndexes);
+  RELEASE_TO_NIL(searchControllerPresenter);
 }
 
 - (void)presentSearchController:(UISearchController *)controller
 {
-  id proxy = [(TiViewProxy *)self.proxy parent];
-  while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
-    proxy = [proxy parent];
-  }
-  UIViewController *viewController = nil;
-  if ([proxy isKindOfClass:[TiWindowProxy class]]) {
-    viewController = [proxy windowHoldingController];
-  } else {
-    viewController = [[TiApp app] controller];
-  }
-  viewController.definesPresentationContext = YES;
+  tableContentOffset = [tableview contentOffset];
 
-  [viewController presentViewController:controller
-                               animated:NO
-                             completion:^{
-                               UIView *view = controller.searchBar.superview;
-                               view.frame = CGRectMake(view.frame.origin.x, self.frame.origin.y, view.frame.size.width, view.frame.size.height);
-                               controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-                               resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
+  if (!searchControllerPresenter) {
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+      proxy = [proxy parent];
+    }
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+      searchControllerPresenter = [[proxy windowHoldingController] retain];
+    } else {
+      searchControllerPresenter = [[[TiApp app] controller] retain];
+    }
+  }
+  searchControllerPresenter.definesPresentationContext = YES;
 
-                             }];
+  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
+
+  [searchControllerPresenter presentViewController:controller
+                                          animated:shouldAnimate
+                                        completion:^{
+                                          isSearched = YES;
+                                          [self updateSearchControllerFrames];
+                                        }];
 }
 
 #pragma mark - UISearchResultsUpdating

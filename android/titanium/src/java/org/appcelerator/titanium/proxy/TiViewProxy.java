@@ -59,7 +59,7 @@ import android.view.ViewAnimationUtils;
 	"borderColor", "borderRadius", "borderWidth",
 
 	// layout / dimension (size/width/height have custom accessors)
-	"left", "top", "right", "bottom", "layout", "zIndex", TiC.PROPERTY_CENTER,
+	"left", "top", "right", "bottom", "layout", "zIndex",
 
 	// accessibility
 	TiC.PROPERTY_ACCESSIBILITY_HINT, TiC.PROPERTY_ACCESSIBILITY_LABEL, TiC.PROPERTY_ACCESSIBILITY_VALUE,
@@ -121,6 +121,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		defaultValues.put(TiC.PROPERTY_VISIBLE, true);
 		defaultValues.put(TiC.PROPERTY_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_HIDDEN_BEHAVIOR, View.INVISIBLE);
+		defaultValues.put(TiC.PROPERTY_HORIZONTAL_WRAP, true);
 	}
 
 	@Override
@@ -424,6 +425,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		return dict;
 	}
 
+	@Kroll.setProperty(retain=false) @Kroll.method
+	public void setCenter(Object center)
+	{
+		setPropertyAndFire(TiC.PROPERTY_CENTER, center);
+	}
+
 	public void clearView()
 	{
 		if (view != null) {
@@ -476,7 +483,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 */
 	public TiUIView getOrCreateView()
 	{
-		if (activity == null || view != null) {
+		TiBaseActivity activity = (TiBaseActivity) getActivity();
+		if (activity == null || activity.isDestroyed() || view != null) {
 			return view;
 		}
 
@@ -743,7 +751,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 		}
 	}
-	
+
 	/**
 	* Returns the view by the given ID.
 	* @module.api
@@ -768,7 +776,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 		return null;
 	}
-	
+
 	public void handleRemove(TiViewProxy child)
 	{
 		if (children != null) {

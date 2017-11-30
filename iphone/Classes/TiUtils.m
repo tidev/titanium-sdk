@@ -7,7 +7,6 @@
 #import <CommonCrypto/CommonDigest.h>
 #import <QuartzCore/QuartzCore.h>
 
-#import "Base64Transcoder.h"
 #import "ImageLoader.h"
 #import "TiApp.h"
 #import "TiBase.h"
@@ -35,31 +34,6 @@ static NSDictionary *encodingMap = nil;
 static NSDictionary *typeMap = nil;
 static NSDictionary *sizeMap = nil;
 static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
-
-bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, char **outOutputDataPtr, size_t *outOutputDataSize)
-{
-  //outsize is the same as *outOutputDataSize, but is a local copy.
-  size_t outSize = EstimateBas64EncodedDataSize(inInputDataSize);
-  char *outData = NULL;
-  if (outSize > 0) {
-    outData = malloc(sizeof(char) * outSize);
-  }
-  if (outData == NULL) {
-    *outOutputDataSize = 0;
-    *outOutputDataPtr = NULL;
-    return NO;
-  }
-  bool result = Base64EncodeData(inInputData, inInputDataSize, outData, &outSize);
-  if (!result) {
-    free(outData);
-    *outOutputDataSize = 0;
-    *outOutputDataPtr = NULL;
-    return NO;
-  }
-  *outOutputDataSize = outSize;
-  *outOutputDataPtr = outData;
-  return YES;
-}
 
 @implementation TiUtils
 
@@ -116,27 +90,30 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 + (BOOL)isRetinaFourInch
 {
   CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
-  if ([TiUtils isIOS8OrGreater]) {
-    return (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width == 568);
-  }
-  return (mainScreenBoundsSize.height == 568);
+  return (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width == 568);
 }
 
 + (BOOL)isRetinaiPhone6
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
-    return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
-  }
-  return NO;
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
+}
+
++ (BOOL)isRetinaiPhone6Plus
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 736 || mainScreenBoundsSize.width == 736);
+}
+
++ (BOOL)isRetinaiPhoneX
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 812 || mainScreenBoundsSize.width == 812);
 }
 
 + (BOOL)isRetinaHDDisplay
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    return ([UIScreen mainScreen].scale == 3.0);
-  }
-  return NO;
+  return [UIScreen mainScreen].scale == 3.0;
 }
 
 + (BOOL)isRetinaDisplay
@@ -205,6 +182,15 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
 {
 #if IS_XCODE_8
   return [TiUtils isIOSVersionOrGreater:@"10.0"];
+#else
+  return NO;
+#endif
+}
+
++ (BOOL)isIOS11OrGreater
+{
+#if IS_XCODE_9
+  return [TiUtils isIOSVersionOrGreater:@"11.0"];
 #else
   return NO;
 #endif
@@ -771,51 +757,59 @@ bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, c
     return url;
   }
 
-  //NOTE; I'm not sure the order here.. the docs don't necessarily
-  //specify the exact order
   NSFileManager *fm = [NSFileManager defaultManager];
   NSString *partial = [path stringByDeletingPathExtension];
 
   NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
 
   if ([TiUtils isRetinaHDDisplay]) {
-    // first try -736h@3x iphone6 Plus specific
-    NSString *testpath = [NSString stringWithFormat:@"%@-736h@3x.%@", partial, ext];
-    if ([fm fileExistsAtPath:testpath]) {
-      return [NSURL fileURLWithPath:testpath];
+    if ([TiUtils isRetinaiPhoneX]) {
+      // -2436h@3x iPhone X specific
+      NSString *testpath = [NSString stringWithFormat:@"%@-2436h@3x.%@", partial, ext];
+      if ([fm fileExistsAtPath:testpath]) {
+        return [NSURL fileURLWithPath:testpath];
+      }
+    } else if ([TiUtils isRetinaiPhone6]) {
+      // -736h@3x iPhone 6/7 Plus specific
+      NSString *testpath = [NSString stringWithFormat:@"%@-736h@3x.%@", partial, ext];
+      if ([fm fileExistsAtPath:testpath]) {
+        return [NSURL fileURLWithPath:testpath];
+      }
     }
-    // second try plain @3x
-    testpath = [NSString stringWithFormat:@"%@@3x.%@", partial, ext];
+
+    // Plain @3x
+    NSString *testpath = [NSString stringWithFormat:@"%@@3x.%@", partial, ext];
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
     }
   }
   if ([TiUtils isRetinaDisplay]) {
     if ([TiUtils isRetinaiPhone6]) {
-      // first try -667h@2x iphone6 specific
+      // -667h@2x iPhone 6/7 specific
       NSString *testpath = [NSString stringWithFormat:@"%@-667h@2x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {
         return [NSURL fileURLWithPath:testpath];
       }
     } else if ([TiUtils isRetinaFourInch]) {
-      // first try -568h@2x iphone5 specific
+      // -568h@2x iPhone 5 specific
       NSString *testpath = [NSString stringWithFormat:@"%@-568h@2x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {
         return [NSURL fileURLWithPath:testpath];
       }
     }
-    // first try 2x device specific
+    // @2x device specific
     NSString *testpath = [NSString stringWithFormat:@"%@@2x%@.%@", partial, os, ext];
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
     }
-    // second try plain 2x
+    // Plain @2x
     testpath = [NSString stringWithFormat:@"%@@2x.%@", partial, ext];
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
     }
   }
-  // third try just device specific normal res
+
+  // Fallback: Just device specific normal res
   NSString *testpath = [NSString stringWithFormat:@"%@%@.%@", partial, os, ext];
   if ([fm fileExistsAtPath:testpath]) {
     return [NSURL fileURLWithPath:testpath];

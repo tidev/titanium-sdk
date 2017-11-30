@@ -1,14 +1,14 @@
 ---
 name: Titanium.UI.PickerRow
 summary: |
-    A picker row, representing a selectable item in a <Titanium.UI.Picker>. 
+    A picker row, representing a selectable item in a <Titanium.UI.Picker>.
 description: |
     Use the <Titanium.UI.createPickerRow> method to create a picker row control. In an Alloy application,
     you can use a **`<PickerRow>`** element inside a `<PickerColumn>` element. You can also use `<Row>`
     as a shorthand for `<PickerRow>` (see Examples).
-    
+
     Views added to picker rows is only supported on iOS.
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 extends: Titanium.UI.View
 since: "0.9"
 
@@ -25,18 +25,17 @@ properties:
   - name: color
     summary: Color of the item text, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    platforms: [mobileweb, iphone, ipad, android]
+    platforms: [iphone, ipad, android]
     since:
-        mobileweb: 2.0.0
         android: 5.4.0
         iphone: 5.4.0
         ipad: 5.4.0
   - name: font
     summary: Font to use for the item text.
     type: Font
-    platforms: [mobileweb, iphone, ipad]
+    platforms: [iphone, ipad]
   - name: title
     summary: Item text.
     type: String
@@ -44,9 +43,9 @@ properties:
 examples:
   - title: Custom View for Row (iOS only)
     example: |
-        Create a two-column picker, with the first column containing a child view, and automatically 
+        Create a two-column picker, with the first column containing a child view, and automatically
         select a row in each column.
-        
+
             Ti.UI.backgroundColor = 'white';
             var win = Ti.UI.createWindow({
               exitOnClose: true,
@@ -60,7 +59,7 @@ examples:
 
             for(var i=0, ilen=fruit.length; i<ilen; i++){
               var row = Ti.UI.createPickerRow();
-                
+
               var label = Ti.UI.createLabel({
                 color:'red',
                 font:{fontSize:20,fontWeight:'bold'},
@@ -68,7 +67,7 @@ examples:
                 textAlign:'left',
                 width:'126'
               });
-              
+
               row.add(label);
               column1.addRow(row);
             }

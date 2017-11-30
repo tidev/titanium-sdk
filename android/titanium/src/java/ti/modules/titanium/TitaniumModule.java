@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -227,7 +227,7 @@ public class TitaniumModule extends KrollModule
 		String msg = (message == null? null : message.toString());
 
 		if (TiApplication.isUIThread()) {
-			TiUIHelper.doOkDialog("Alert", msg, null);
+			TiUIHelper.doOkDialog("", msg, null);
 		} else {
 			getMainHandler().obtainMessage(MSG_ALERT, msg).sendToTarget();
 		}
@@ -255,7 +255,7 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel("String.formatDate")
-	public String stringFormatDate(Date date, @Kroll.argument(optional=true) String format)
+	public String stringFormatDate(Object date, @Kroll.argument(optional=true) String format)
 	{
 		int style = DateFormat.SHORT;
 
@@ -269,16 +269,30 @@ public class TitaniumModule extends KrollModule
 				style = DateFormat.FULL;
 			}
 		}
-
-		return (DateFormat.getDateInstance(style)).format(date);
+		if (date instanceof Date) {
+			return (DateFormat.getDateInstance(style)).format(date);
+		} else {
+			Log.e(TAG, "The string.formatDate() function was given an invalid argument. Must be of type 'Date'.");
+			return null;
+		}
 	}
 
 	@Kroll.method @Kroll.topLevel("String.formatTime")
-	public String stringFormatTime(Date time)
+	public String stringFormatTime(Object time)
 	{
 		int style = DateFormat.SHORT;
 
-		return (DateFormat.getTimeInstance(style)).format(time);
+		if (time instanceof Date) {
+			try {
+				return (DateFormat.getTimeInstance(style)).format(time);
+			} catch (Exception ex) {
+				Log.e(TAG, "Error occurred while formatting time", ex);
+				return null;
+			}
+		} else {
+			Log.e(TAG, "The string.formatTime() function was given an invalid argument. Must be of type 'Date'.");
+			return null;
+		}
 	}
 
 	@Kroll.method @Kroll.topLevel("String.formatCurrency")

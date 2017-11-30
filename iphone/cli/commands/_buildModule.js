@@ -52,6 +52,14 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.buildOnly     = cli.argv['build-only'];
 	this.xcodeEnv      = null;
 
+	const sdkModuleAPIVersion = cli.sdk.manifest && cli.sdk.manifest.moduleAPIVersion && cli.sdk.manifest.moduleAPIVersion['iphone'];
+	if (this.manifest.apiversion && sdkModuleAPIVersion && this.manifest.apiversion !== sdkModuleAPIVersion) {
+		logger.error(__('The module manifest apiversion is currently set to %s', this.manifest.apiversion));
+		logger.error(__('Titanium SDK %s iOS module apiversion is at %s', this.titaniumSdkVersion, sdkModuleAPIVersion));
+		logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion.'));
+		process.exit(1);
+	}
+
 	return function (finished) {
 		ioslib.detect({
 			// env
@@ -145,7 +153,7 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 	this.metaDataFile = path.join(this.projectDir, 'metadata.json');
 	this.manifestFile = path.join(this.projectDir, 'manifest');
 	this.templatesDir = path.join(this.platformPath, 'templates');
-	this.assetsTemplateFile = path.join(this.templatesDir, 'module', 'default', 'template', 'iphone', 'Classes', '{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
+	this.assetsTemplateFile = path.join(this.templatesDir, 'module', 'default', 'template', 'ios', 'Classes', '{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
 	this.universalBinaryDir = path.join(this.projectDir, 'build');
 
 	[ 'assets', 'documentation', 'example', 'platform', 'Resources' ].forEach(function (folder) {
@@ -235,8 +243,8 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			'moduleIdAsIdentifier' : this.moduleIdAsIdentifier,
 			'mainEncryptedAssetReturn': 'return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[0]);',
 			'allEncryptedAssetsReturn': 'NSNumber *index = [map objectForKey:path];'
-				+ '\n\t\tif (index == nil) {\n\t\t\treturn nil;\n\t\t}'
-				+ '\n\t\treturn filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);'
+				+ '\n  if (index == nil) {\n    return nil;\n  }'
+				+ '\n  return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);'
 		},
 		titaniumPrepHook = this.cli.createHook('build.ios.titaniumprep', this, function (exe, args, opts, done) {
 			const jsFilesToEncrypt = opts.jsFiles,
@@ -605,8 +613,11 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
-			this.dirWalker(this.platformDir, function (file) {
-				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file)) });
+			this.dirWalker(this.platformDir, function (file, name) {
+				var stat = fs.statSync(file);
+				if (name !== 'README.md') {
+					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file)), mode: stat.mode });
+				}
 			}.bind(this));
 		}
 

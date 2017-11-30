@@ -18,6 +18,11 @@ let doc = {},
 	errorCount = 0,
 	standaloneFlag = false;
 
+// Constants that are valid, but are windows specific, so would fail validation
+const WINDOWS_CONSTANTS = [
+	'Titanium.UI.Windows.ListViewScrollPosition.*'
+];
+
 const Examples = [{
 	required: {
 		'title' : 'String',
@@ -230,6 +235,10 @@ function validateConstants(constants) {
 			errors = errors.concat(validateConstants(constant));
 		});
 	} else {
+		// skip windows constants that are OK, but would be marked invalid
+		if (WINDOWS_CONSTANTS.includes(constants)) {
+			return errors;
+		}
 		let prop = constants.split('.').pop();
 		const cls = constants.substring(0, constants.lastIndexOf('.'));
 		if (!(cls in doc) || !('properties' in doc[cls]) || doc[cls] === null) {
@@ -494,8 +503,8 @@ function validateObjectAgainstSyntax(obj, syntax, type, currentKey, className) {
 				const array = parent[type];
 				if (array) {
 					// find matching name in array
-					for (let i = 0; array.length; i++) {
-						if (array[i].name === currentKey) { // eslint-disable-line max-depth
+					for (let i = 0; i < array.length; i++) {
+						if (array[i] && array[i].name === currentKey) { // eslint-disable-line max-depth
 							parent = array[i];
 							break;
 						}

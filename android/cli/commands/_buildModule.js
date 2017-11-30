@@ -20,13 +20,16 @@ const AdmZip = require('adm-zip'),
 	async = require('async'),
 	Builder = require('../lib/base-builder'),
 	ejs = require('ejs'),
+	fields = require('fields'),
 	fs = require('fs'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	markdown = require('markdown').markdown,
 	path = require('path'),
 	temp = require('temp'),
+	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
+	semver = require('semver'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	SymbolLoader = require('appc-aar-tools').SymbolLoader,
 	SymbolWriter = require('appc-aar-tools').SymbolWriter,
@@ -37,12 +40,104 @@ const AdmZip = require('adm-zip'),
 function AndroidModuleBuilder() {
 	Builder.apply(this, arguments);
 
+	this.compileSdkVersion = this.packageJson.compileSDKVersion; // this should always be >= maxSupportedApiLevel
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
 }
 
 util.inherits(AndroidModuleBuilder, Builder);
+
+/**
+ * Migrates an existing module with an outdated "apiversion" in the manifest to the latest one.
+ * It takes care of migrating the "apiversion", "version", "minsdk" and "architecture" properties.
+ *
+ * @param {Function} next Callback function
+ * @return {undefined}
+ */
+AndroidModuleBuilder.prototype.migrate = function migrate(next) {
+	const cliModuleAPIVersion = this.cli.sdk && this.cli.sdk.manifest && this.cli.sdk.manifest.moduleAPIVersion && this.cli.sdk.manifest.moduleAPIVersion.android;
+	const needsMigration = this.manifest.apiversion && cliModuleAPIVersion && this.manifest.apiversion !== cliModuleAPIVersion;
+	const cliSDKVersion = this.cli.sdk.manifest.version;
+	const manifestSDKVersion = this.manifest.minsdk;
+	const manifestModuleAPIVersion = this.manifest.apiversion;
+	const newVersion = semver.inc(this.manifest.version, 'major');
+	const manifestTemplateFile = path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', 'manifest.ejs');
+
+	var performMigration = function (next) {
+		this.logger.info(__('Migrating module manifest ...'));
+
+		this.logger.info(__('Setting %s to %s', 'apiversion'.cyan, cliModuleAPIVersion.cyan));
+		this.manifest.apiversion = cliModuleAPIVersion;
+
+		this.logger.info(__('Setting %s to %s', 'minsdk'.cyan, cliSDKVersion.cyan));
+		this.manifest.minsdk = cliSDKVersion;
+
+		this.logger.info(__('Bumping version from %s to %s', this.manifest.version.cyan, newVersion.cyan));
+		this.manifest.version = newVersion;
+
+		// Pre-fill placeholders
+		let manifestContent = ejs.render(fs.readFileSync(manifestTemplateFile).toString(), {
+			moduleName: this.manifest.name,
+			moduleId: this.manifest.moduleid,
+			platform: this.manifest.platform,
+			tisdkVersion: this.manifest.minsdk,
+			guid: this.manifest.guid,
+			author: this.manifest.author,
+			publisher: this.manifest.author // The publisher does not have an own key in the manifest but can be different. Will override below
+		});
+
+		// Migrate missing keys which don't have a placeholder (version, license, copyright & publisher)
+		manifestContent = manifestContent.replace(/version.*/, 'version: ' + this.manifest.version);
+		manifestContent = manifestContent.replace(/license.*/, 'license: ' + this.manifest.license);
+		manifestContent = manifestContent.replace(/copyright.*/, 'copyright: ' + this.manifest.copyright);
+
+		this.logger.info(__('Backing up old manifest to %s', 'manifest.bak'.cyan));
+		fs.renameSync(path.join(this.projectDir, 'manifest'), path.join(this.projectDir, 'manifest.bak'));
+
+		this.logger.info(__('Writing new manifest'));
+		fs.writeFileSync(path.join(this.projectDir, 'manifest'), manifestContent);
+
+		this.logger.info(__(''));
+		this.logger.info(__('Migration completed! Building module ...'));
+
+		next();
+	}.bind(this);
+
+	if (!needsMigration) {
+		return next();
+	}
+	const logger = this.logger;
+	if (!this.cli.argv.prompt) {
+		logger.error(__('The module manifest apiversion is currently set to %s', manifestModuleAPIVersion));
+		logger.error(__('Titanium SDK %s Android module apiversion is at %s', cliSDKVersion, cliModuleAPIVersion));
+		logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion'));
+		logger.error(__('and the minsdk to %s', cliSDKVersion));
+		process.exit(1);
+	}
+
+	fields.select({
+		title: __('Detected Titanium %s that requires API-level %s, but the module currently only supports %s and API-level %s.', cliSDKVersion, cliModuleAPIVersion, manifestSDKVersion, manifestModuleAPIVersion),
+		promptLabel: __('Do you want to migrate your module now?'),
+		default: 'yes',
+		display: 'prompt',
+		relistOnError: true,
+		complete: true,
+		suggest: true,
+		options: [ '__y__es', '__n__o' ]
+	}).prompt(function (err, value) {
+		if (err) {
+			return next(err);
+		}
+
+		if (value !== 'yes') {
+			logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion.'));
+			process.exit(1);
+		}
+
+		performMigration(next);
+	});
+};
 
 AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	Builder.prototype.config.apply(this, arguments);
@@ -54,6 +149,7 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 
 		this.cli = cli;
 		this.logger = logger;
+		fields.setup({ colors: cli.argv.colors });
 
 		this.manifest = this.cli.manifest;
 
@@ -73,6 +169,14 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 					targetSDKMap[t.id.replace('android-', '')] = t;
 				}
 			}, this);
+
+			// check the Android SDK we require to build exists
+			this.androidCompileSDK = targetSDKMap[this.compileSdkVersion];
+			if (!this.androidCompileSDK) {
+				logger.error(__('Unable to find Android SDK API %s', this.compileSdkVersion));
+				logger.error(__('Android SDK API %s is required to build Android modules', this.compileSdkVersion) + '\n');
+				process.exit(1);
+			}
 
 			// if no target sdk, then default to most recent supported/installed
 			if (!this.targetSDK) {
@@ -150,8 +254,8 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 
 			// get the javac params
 			this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
-			this.javacSource = cli.timodule.properties['android.javac.source'] && cli.timodule.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
-			this.javacTarget = cli.timodule.properties['android.javac.target'] && cli.timodule.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
+			this.javacSource = cli.timodule.properties['android.javac.source'] && cli.timodule.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
+			this.javacTarget = cli.timodule.properties['android.javac.target'] && cli.timodule.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
 			this.dxMaxMemory = cli.timodule.properties['android.dx.maxmemory'] && cli.timodule.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 
 			// detect java development kit
@@ -183,6 +287,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			cli.emit('build.module.pre.construct', this, next);
 		},
 
+		'migrate',
 		'doAnalytics',
 		'initialize',
 		'loginfo',
@@ -191,6 +296,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			cli.emit('build.module.pre.compile', this, next);
 		},
 
+		'replaceBundledSupportLibraries',
 		'processResources',
 		'compileAidlFiles',
 		'compileModuleJavaSrc',
@@ -254,19 +360,8 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.metaData = [];
 	this.documentation = [];
 	this.classPaths = {};
-	this.classPaths[this.androidTargetSDK.androidJar] = 1;
+	this.classPaths[this.androidCompileSDK.androidJar] = 1;
 	this.manifestFile = path.join(this.projectDir, 'manifest');
-
-	[ 'lib', 'modules', '' ].forEach(function (folder) {
-		var jarDir = path.join(this.platformPath, folder);
-
-		fs.existsSync(jarDir) && fs.readdirSync(jarDir).forEach(function (name) {
-			var file = path.join(jarDir, name);
-			if (/\.jar$/.test(name) && fs.existsSync(file)) {
-				this.classPaths[file] = 1;
-			}
-		}, this);
-	}, this);
 
 	this.dependencyJsonFile = path.join(this.platformPath, 'dependency.json');
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
@@ -284,6 +379,79 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.sharedHooksDir = path.resolve(this.projectDir, '..', 'hooks');
 
 	this.timoduleXmlFile = path.join(this.projectDir, 'timodule.xml');
+	this.timodule = fs.existsSync(this.timoduleXmlFile) ? new tiappxml(this.timoduleXmlFile) : undefined;
+	this.modulesDir = path.join(this.projectDir, 'modules', 'android');
+	this.globalModulesDir = path.join(this.globalModulesPath, 'android');
+
+	// process module dependencies
+	this.modules = this.timodule && !Array.isArray(this.timodule.modules) ? [] : this.timodule.modules.filter(function (m) {
+		if (!m.platform || /^android$/.test(m.platform)) {
+			const localPath = path.join(this.modulesDir, m.id),
+				globalPath = path.join(this.globalModulesDir, m.id);
+
+			function getModulePath (modulePath) {
+				var items = fs.readdirSync(modulePath);
+				if (m.version) {
+					for (const item of items) {
+						if (item === m.version) {
+							m.path = path.join(modulePath, m.version);
+							return true;
+						}
+					}
+				} else if (items.length) {
+					const latest = items[items.length - 1];
+					if (!latest.startsWith('.')) {
+						m.version = latest;
+						m.path = path.join(modulePath, m.version);
+						return true;
+					}
+				}
+				return false;
+			}
+
+			if ((fs.existsSync(localPath) && getModulePath(localPath))
+				|| (fs.existsSync(globalPath) && getModulePath(globalPath))) {
+				return true;
+			}
+		}
+		return false;
+	}.bind(this));
+
+	// obtain module dependency android archives for aar-transform to find
+	this.moduleAndroidLibraries = [];
+	function obtainModuleDependency (module) {
+		const libPath = path.join(module.path, 'lib');
+		fs.existsSync(libPath) && fs.readdirSync(libPath).forEach(function (name) {
+			const file = path.join(libPath, name);
+			if (/\.aar$/.test(name) && fs.existsSync(file)) {
+				this.moduleAndroidLibraries.push({
+					aarPathAndFilename: String(file),
+					originType: 'Module'
+				});
+			}
+		}, this);
+	}
+
+	this.modules.forEach(obtainModuleDependency, this);
+
+	// module java archive paths
+	this.jarPaths = [ path.join(this.platformPath, 'lib'), path.join(this.platformPath, 'modules'), this.platformPath ];
+
+	// module dependencies java archive paths
+	for (let module of this.modules) {
+		this.jarPaths.push(path.join(module.path));
+		this.jarPaths.push(path.join(module.path, 'lib'));
+	}
+
+	this.jarPaths.forEach(function (jarDir) {
+		fs.existsSync(jarDir) && fs.readdirSync(jarDir).forEach(function (name) {
+			var file = path.join(jarDir, name);
+			if (/\.jar$/.test(name) && fs.existsSync(file)) {
+				this.classPaths[file] = 1;
+			}
+		}, this);
+	}, this);
+
 	this.licenseFile = path.join(this.projectDir, 'LICENSE');
 	if (!fs.existsSync(this.licenseFile)) {
 		this.licenseFile = path.join(this.projectDir, '..', 'LICENSE');
@@ -317,7 +485,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	// Original templates under this.titaniumSdkPath/module/android/generated
 	this.moduleGenTemplateDir = path.join(this.platformPath, 'templates', 'module', 'generated');
 	this.jsTemplateFile = path.join(this.moduleGenTemplateDir, 'bootstrap.js.ejs');
-	this.gperfTemplateFile = path.join(this.moduleGenTemplateDir, 'bootstrap.gperf.ejs');
+	this.bindingsTemplateFile = path.join(this.moduleGenTemplateDir, 'bootstrap.cpp.ejs');
 	this.javaTemplateFile = path.join(this.moduleGenTemplateDir, '{{ModuleIdAsIdentifier}}Bootstrap.java.ejs');
 	this.cppTemplateFile = path.join(this.moduleGenTemplateDir, '{{ModuleIdAsIdentifier}}Bootstrap.cpp.ejs');
 	this.btJsToCppTemplateFile = path.join(this.moduleGenTemplateDir, 'BootstrapJS.cpp.ejs');
@@ -355,6 +523,27 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo() {
 };
 
 /**
+ * Replaces any .jar file in the Class Path that comes bundled with our SDK
+ * with a user provided one if available.
+ *
+ * We need to do this in this in an extra step because by the time our bundled
+ * Support Libraries will be added, we haven't parsed any other Android
+ * Libraries yet.
+ *
+ * @param {Function} next Callback function
+ */
+AndroidModuleBuilder.prototype.replaceBundledSupportLibraries = function replaceBundledSupportLibraries(next) {
+	Object.keys(this.classPaths).forEach(function (libraryPathAndFilename) {
+		if (this.isExternalAndroidLibraryAvailable(libraryPathAndFilename)) {
+			this.logger.debug('Excluding library ' + libraryPathAndFilename.cyan);
+			delete this.classPaths[libraryPathAndFilename];
+		}
+	}, this);
+
+	next();
+};
+
+/**
  * Processes resources for this module.
  *
  * This step will generate R classes for this module, our core modules and any
@@ -367,7 +556,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 	var mergedResPath = path.join(this.buildIntermediatesDir, 'res/merged');
 	var extraPackages = [];
 	var merge = function (src, dest) {
-		fs.readdirSync(src).forEach(function (filename) {
+		fs.existsSync(src) && fs.readdirSync(src).forEach(function (filename) {
 			var from = path.join(src, filename),
 				to = path.join(dest, filename);
 			if (fs.existsSync(from)) {
@@ -425,8 +614,13 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 						const resArchivePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.res.zip'));
 						const respackagePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.respackage'));
 						if (fs.existsSync(resArchivePathAndFilename) && fs.existsSync(respackagePathAndFilename)) {
-							extraPackages.push(fs.readFileSync(respackagePathAndFilename).toString().split('\n').shift().trim());
-							resArchives.push(resArchivePathAndFilename);
+							const packageName = fs.readFileSync(respackagePathAndFilename).toString().split(/\r?\n/).shift().trim();
+							if (!this.hasAndroidLibrary(packageName)) {
+								extraPackages.push(packageName);
+								resArchives.push(resArchivePathAndFilename);
+							} else {
+								this.logger.info(__('Excluding core module resources of %s (%s) because Android Library with same package name is available.', file, packageName));
+							}
 						}
 					}, this);
 
@@ -551,7 +745,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 			const aaptOptions = [
 				'package',
 				'-f',
-				'-I', this.androidTargetSDK.androidJar,
+				'-I', this.androidCompileSDK.androidJar,
 				'-M', path.join(this.buildIntermediatesDir, 'manifests/aapt/AndroidManifest.xml'),
 				'-S', mergedResPath,
 				'-m',
@@ -633,8 +827,8 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next) {
 	this.logger.log(__('Generating java files from the .aidl files'));
 
-	if (!this.androidTargetSDK.aidl) {
-		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidTargetSDK['api-level']));
+	if (!this.androidCompileSDK.aidl) {
+		this.logger.info(__('Android SDK %s missing framework aidl, skipping', this.androidCompileSDK['api-level']));
 		return next();
 	}
 
@@ -670,7 +864,7 @@ AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next
 
 			aidlHook(
 				this.androidInfo.sdk.executables.aidl,
-				[ '-p' + this.androidTargetSDK.aidl, '-I' + this.javaSrcDir, file ],
+				[ '-p' + this.androidCompileSDK.aidl, '-I' + this.javaSrcDir, file ],
 				{},
 				callback
 			);
@@ -802,7 +996,7 @@ AndroidModuleBuilder.prototype.generateRuntimeBindings = function (next) {
 		[ModuleName]Bootstrap.java,
 		[ModuleName]Bootstrap.cpp,
 		bootstrap.js,
-		KrollGeneratedBindings.gperf.
+		KrollGeneratedBindings.cpp.
 
 */
 AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
@@ -881,7 +1075,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		let apiName = namespace.split('.'),
 			varName,
 			decl;
-		if (apiName === '') {
+		if (apiName[0] === '') {
 			varName = 'module';
 			namespace = moduleName;
 			apiName = moduleName;
@@ -1025,7 +1219,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				const initFunction = '::' + className + '::bindProxy';
 				const disposeFunction = '::' + className + '::dispose';
 
-				initTable.unshift([ proxy, initFunction, disposeFunction ].join(',').toString());
+				initTable.unshift('{' + [ '"' + proxy + '"', initFunction, disposeFunction ].join(', ').toString() + '}');
 
 			}, this);
 
@@ -1044,9 +1238,9 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				'moduleName': moduleName
 			};
 
-			var gperfContext = {
+			var bindingsContext = {
 				'headers': headers,
-				'bindings': initTable.join('\n'),
+				'bindings': initTable,
 				'moduleName': fileNamePrefix
 			};
 
@@ -1056,13 +1250,9 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			);
 
 			fs.writeFileSync(
-				path.join(this.buildGenDir, 'KrollGeneratedBindings.gperf'),
-				ejs.render(fs.readFileSync(this.gperfTemplateFile).toString(), gperfContext)
+				path.join(this.buildGenDir, 'KrollGeneratedBindings.cpp'),
+				ejs.render(fs.readFileSync(this.bindingsTemplateFile).toString(), bindingsContext)
 			);
-
-			// clean any old 'KrollGeneratedBindings.cpp'
-			const krollGeneratedBindingsCpp = path.join(this.buildGenDir, 'KrollGeneratedBindings.cpp');
-			fs.existsSync(krollGeneratedBindingsCpp) && fs.unlinkSync(krollGeneratedBindingsCpp);
 
 			cb();
 		},
@@ -1128,7 +1318,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 	this.logger.info(__('Generating v8 bindings'));
 
-	const dependsMap =  JSON.parse(fs.readFileSync(this.dependencyJsonFile));
+	const dependsMap = this.dependencyMap;
 	Array.prototype.push.apply(this.metaData, dependsMap.required);
 
 	Object.keys(dependsMap.dependencies).forEach(function (key) {
@@ -1606,13 +1796,17 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 		function generateModuleJar(cb) {
 			const moduleJarStream = fs.createWriteStream(this.moduleJarFile);
 			const moduleJarArchive = archiver('zip', {
-				store: true
+				options: {
+					zlib: {
+						level: 9
+					}
+				}
 			});
 			moduleJarStream.on('close', cb);
 			moduleJarArchive.on('error', cb);
 			moduleJarArchive.pipe(moduleJarStream);
 
-			const excludeRegex = /.*\/R\.class$|.*\/R\$(.*)\.class$/i;
+			const excludeRegex = new RegExp('.*\\' + path.sep + 'R\\.class$|.*\\' + path.sep + 'R\\$(.*)\\.class$', 'i'); // eslint-disable-line security/detect-non-literal-regexp
 
 			const assetsParentDir = path.join(this.assetsDir, '..');
 			this.dirWalker(this.assetsDir, function (file) {

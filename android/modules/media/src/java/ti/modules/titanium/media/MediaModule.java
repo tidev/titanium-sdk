@@ -628,7 +628,7 @@ public class MediaModule extends KrollModule
 		File file;
 		String ext = extension == null ? ".jpg" : extension;
 		try {
-			file = TiFileHelper.getInstance().getTempFile(appDir, ext, false);
+			file = TiFileHelper.getInstance().getTempFile(appDir, ext, !isPublic);
 		} catch (IOException e) {
 			Log.e(TAG, "Failed to create file: " + e.getMessage());
 			return null;
@@ -810,7 +810,7 @@ public class MediaModule extends KrollModule
 							copyFile(imageFile, dataFile);
 							imageFile.delete();
 							imageFile = dataFile;
-
+							TiFileHelper.getInstance().destroyOnExit(imageFile);
 						} catch(Throwable t) {
 							if (errorCallback != null) {
 								KrollDict response = new KrollDict();

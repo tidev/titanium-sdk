@@ -41,7 +41,8 @@ import android.os.Message;
 	TiC.PROPERTY_MIN_ROW_HEIGHT,
 	TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
 	TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
-	TiC.PROPERTY_MAX_CLASSNAME
+	TiC.PROPERTY_MAX_CLASSNAME,
+	TiC.PROPERTY_REFRESH_CONTROL
 })
 public class TableViewProxy extends TiViewProxy
 {
@@ -855,6 +856,9 @@ public class TableViewProxy extends TiViewProxy
 	@Override
 	public boolean handleMessage(Message msg)
 	{
+		if (getTableView() == null) {
+			return false;
+		}
 		if (msg.what == MSG_UPDATE_VIEW) {
 			getTableView().updateView();
 			((AsyncResult) msg.obj).setResult(null);

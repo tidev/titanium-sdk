@@ -9,6 +9,7 @@
 #import "TiApp.h"
 #import "TiErrorController.h"
 #import "TiUIWindow.h"
+#import "TiUIWindowProxy.h"
 
 @interface TiWindowProxy (Private)
 - (void)openOnUIThread:(id)args;
@@ -425,6 +426,16 @@
     }
     UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     [[self view] setAccessibilityElementsHidden:NO];
+    NSArray *childProxies = [self children];
+    for (TiViewProxy *thisProxy in childProxies) {
+      // Will pass messsage to view proxies if they are listening e.g TiUIListViewProxy
+      if ([thisProxy respondsToSelector:@selector(gainFocus)]) {
+        [(id)thisProxy gainFocus];
+      }
+    }
+#if IS_XCODE_9
+    [self processForSafeArea];
+#endif
   }
   TiThreadPerformOnMainThread(^{
     [self forceNavBarFrame];
@@ -442,6 +453,13 @@
       }
     }
     [[self view] setAccessibilityElementsHidden:YES];
+  }
+  NSArray *childProxies = [self children];
+  for (TiViewProxy *thisProxy in childProxies) {
+    // Will pass messsage to view proxies if they are listening e.g TiUIListViewProxy
+    if ([thisProxy respondsToSelector:@selector(resignFocus)]) {
+      [(id)thisProxy resignFocus];
+    }
   }
 }
 
@@ -700,7 +718,7 @@
 
   [self replaceValue:value forKey:@"hidesBarsOnSwipe" notification:NO];
 
-  if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
+  if ((controller != nil) && ([controller navigationController] != nil)) {
     [[controller navigationController] setHidesBarsOnSwipe:[TiUtils boolValue:value def:NO]];
   }
 }
@@ -712,7 +730,7 @@
 
   [self replaceValue:value forKey:@"hidesBarsOnTap" notification:NO];
 
-  if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
+  if ((controller != nil) && ([controller navigationController] != nil)) {
     [[controller navigationController] setHidesBarsOnTap:[TiUtils boolValue:value def:NO]];
   }
 }
@@ -724,7 +742,7 @@
 
   [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
 
-  if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
+  if ((controller != nil) && ([controller navigationController] != nil)) {
     [[controller navigationController] setHidesBarsWhenKeyboardAppears:[TiUtils boolValue:value def:NO]];
   }
 }
@@ -856,4 +874,10 @@
 }
 #endif
 
+#if IS_XCODE_9
+- (void)processForSafeArea
+{
+  // Overridden in subclass
+}
+#endif
 @end

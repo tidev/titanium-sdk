@@ -272,7 +272,7 @@ Creator.prototype.configOptionName = function configOptionName(order) {
 				logger.error(__('It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.'));
 				logger.error(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'));
 				logger.error(__('To allow ampersands in the app name, run:'));
-				logger.error('    ti config android.allowAppNameAmpersands true\n');
+				logger.error('    %sti config android.allowAppNameAmpersands true\n', process.env.APPC_ENV ? 'appc ' : '');
 				return callback(true);
 			}
 		}
@@ -346,10 +346,6 @@ Creator.prototype.configOptionPlatforms = function configOptionPlatforms(order) 
 					goodValues[p] = 1;
 				}
 			});
-		}
-
-		if (goodValues.mobileweb) {
-			logger.warn(__('MobileWeb platform has been deprecated in 5.4.0 and will be removed in 7.0.0.'));
 		}
 
 		callback(null, Object.keys(goodValues).join(','));

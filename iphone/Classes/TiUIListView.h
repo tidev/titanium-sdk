@@ -26,8 +26,11 @@
 - (void)setContentInsets_:(id)value withObject:(id)props;
 - (void)deselectAll:(BOOL)animated;
 - (void)updateIndicesForVisibleRows;
+- (void)viewResignFocus;
+- (void)viewGetFocus;
 
 + (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary *)properties;
+- (NSIndexPath *)pathForSearchPath:(NSIndexPath *)indexPath;
 
 @end
 

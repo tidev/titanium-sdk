@@ -200,7 +200,7 @@ DEFINE_EXCEPTIONS
       editButton.title = editTitle;
     } else {
       // TODO: Need to get the localized value here
-      editButton.title = @"Edit";
+      editButton.title = NSLocalizedString(@"Edit", @"Edit");
     }
   }
 }
@@ -417,11 +417,7 @@ DEFINE_EXCEPTIONS
 {
   TiColor *color = [TiUtils colorValue:value];
   //A nil tintColor is fine, too.
-  if ([TiUtils isIOS8OrGreater]) {
-    controller.tabBar.tintColor = color.color;
-  } else {
-    controller.tabBar.tintColor = color.color;
-  }
+  controller.tabBar.tintColor = color.color;
 }
 
 #pragma mark Public APIs

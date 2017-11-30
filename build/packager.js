@@ -3,6 +3,7 @@
 const path = require('path'),
 	os = require('os'),
 	exec = require('child_process').exec, // eslint-disable-line security/detect-child-process
+	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	async = require('async'),
 	fs = require('fs-extra'),
 	utils = require('./utils'),
@@ -41,9 +42,17 @@ function zip(folder, filename, next) {
 function unzip(zipfile, dest, next) {
 	console.log('Unzipping ' + zipfile + ' to ' + dest);
 	const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build', 'win32', 'unzip') : 'unzip';
-	exec(command + ' -o "' + zipfile  + '" -d "' + dest + '"', function (err) {
-		if (err) {
-			return next(err);
+	const child = spawn(command, [ '-o', zipfile, '-d', dest ], { stdio: [ 'ignore', 'ignore', 'pipe' ] });
+	let err = '';
+	child.stderr.on('data', function (buffer) {
+		err += buffer.toString();
+	});
+	child.on('error', function (err) {
+		return next(err);
+	});
+	child.on('close', function (code) {
+		if (code !== 0) {
+			return next(`Unzipping of ${zipfile} exited with non-zero exit code ${code}. ${err}`);
 		}
 		next();
 	});
@@ -87,8 +96,7 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 	this.packagers = {
 		'android': this.zipAndroid.bind(this),
 		'ios': this.zipIOS.bind(this),
-		'windows': this.zipWindows.bind(this),
-		'mobileweb': this.zipMobileWeb.bind(this)
+		'windows': this.zipWindows.bind(this)
 	};
 	// Location where we build up the zip file contents
 	this.zipDir = path.join(this.outputDir, 'ziptmp');
@@ -129,20 +137,6 @@ Packager.prototype.zipIOS = function (next) {
 	new IOS({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
 };
 
-/**
- * Zips up the Mobileweb SDK portion
- * @param  {Function} next callback function
- */
-Packager.prototype.zipMobileWeb = function (next) {
-	const MobileWeb = require('./mobileweb');
-	// FIXME Pass along the version/gitHash/options!
-	new MobileWeb({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
-};
-
-/**
- * Zips up the Windows SDK portion
- * @param  {Function} next callback function
- */
 Packager.prototype.zipWindows = function (next) {
 	const Windows = require('./windows');
 	// FIXME Pass along the version/gitHash/options!
@@ -190,6 +184,11 @@ Packager.prototype.includePackagedModules = function (next) {
 		|| supportedPlatforms.indexOf('ipad') !== -1) {
 		supportedPlatforms = supportedPlatforms.concat([ 'ios', 'iphone', 'ipad' ]);
 	}
+
+	// Hyperloop has no single platform downloads yet, so we use a fake platform
+	// that will download the all-in-one distribution.
+	supportedPlatforms = supportedPlatforms.concat([ 'hyperloop' ]);
+
 	let urls = []; // urls of module zips to grab
 	// Read modules.json, grab the object for each supportedPlatform
 	const contents = fs.readFileSync(path.join(SUPPORT_DIR, 'module', 'packaged', 'modules.json')).toString(),
