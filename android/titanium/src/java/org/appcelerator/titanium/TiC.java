@@ -527,7 +527,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_START_LISTENING = "startlistening";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_STOP = "stop";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_STOP_LISTENING = "stoplistening";
 
 	/**
 	 * @module.api
@@ -543,6 +553,41 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_TASK_REMOVED = "taskremoved";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_ADDED = "tileadded";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_DIALOG_OPTION_SELECTED = "tiledialogoptionselected";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_DIALOG_CANCELED = "tiledialogcancelled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_DIALOG_POSITIVE = "tiledialogpositive";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_DIALOG_NEUTRAL = "tiledialogneutral";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_DIALOG_NEGATIVE = "tiledialognegative";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_REMOVED = "tileremoved";
 
 	/**
 	 * @module.api
@@ -826,6 +871,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_AUTOFILL_TYPE = "autofillType";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_AUTOPLAY = "autoplay";
 
 	/**
@@ -1033,6 +1083,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BYPASS_DND = "bypassDnd";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CACHE_MODE = "cacheMode";
 
 	/**
@@ -1084,6 +1139,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CHARSET = "charset";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHANNEL_ID = "channelId";
 
 	/**
 	 * @module.api
@@ -1268,6 +1328,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DESCRIPTION = "description";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DEFAULT_IMAGE = "defaultImage";
 
 	/**
@@ -1383,7 +1448,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ENABLE_LIGHTS = "enableLights";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ENABLE_RETURN_KEY = "enableReturnKey";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ENABLE_VIBRATION = "enableVibration";
 
 	/**
 	 * @module.api
@@ -1712,6 +1787,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_IMPORTANCE = "importance";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_INDICATOR_COLOR = "indicatorColor";
 
 	/**
@@ -1772,6 +1852,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LABEL = "label";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LARGE_ICON = "largeIcon";
 
 	/**
@@ -1813,6 +1898,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LIGHT_COLOR = "lightColor";
 
 	/**
 	 * @module.api
@@ -1883,6 +1973,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LOGO = "logo";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOCKSCREEN_VISIBILITY = "lockscreenVisibility";
 
 	/**
 	 * @module.api
@@ -2608,6 +2703,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHOW_BADGE = "showBadge";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_CANCEL = "showCancel";
 
 	/**
@@ -2749,6 +2849,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SUMMARY_TEXT = "summaryText";
+	
+	/**
+	 @module.api
+	 */
+	public static final String PROPERTY_SUSTAINED_PERFORMANCE_MODE = "sustainedPerformanceMode";
 
 	/**
 	 * @module.api
@@ -2962,6 +3067,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_USE_SPINNER = "useSpinner";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_USER_AGENT = "userAgent";
 
 	/**
 	 * @module.api

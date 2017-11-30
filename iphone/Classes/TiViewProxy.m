@@ -20,6 +20,10 @@
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
+#if IS_XCODE_9
+#import "TiUIViewProxy.h"
+#import "TiUIWindowProxy.h"
+#endif
 
 #define IGNORE_IF_NOT_OPENED                      \
   if (!windowOpened || [self viewAttached] == NO) \
@@ -167,10 +171,29 @@ static NSArray *touchEventsArray;
 
 - (void)add:(id)arg
 {
+#if IS_XCODE_9
+  TiUIWindowProxy *windowProxy = nil;
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    windowProxy = (TiUIWindowProxy *)self;
+    if (arg == windowProxy.safeAreaViewProxy) {
+      // If adding the safeAreaViewProxy, it need to be add on window.
+      windowProxy = nil;
+    }
+  }
+#endif
+
   // allow either an array of arrays or an array of single proxy
   if ([arg isKindOfClass:[NSArray class]]) {
     for (id a in arg) {
-      [self add:a];
+#if IS_XCODE_9
+      if (windowProxy.safeAreaViewProxy) {
+        [windowProxy.safeAreaViewProxy add:a];
+      } else {
+#endif
+        [self add:a];
+#if IS_XCODE_9
+      }
+#endif
     }
     return;
   }
@@ -185,6 +208,12 @@ static NSArray *touchEventsArray;
     nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
 #endif
   if ([arg isKindOfClass:[NSDictionary class]]) {
+#if IS_XCODE_9
+    if (windowProxy.safeAreaViewProxy) {
+      [windowProxy.safeAreaViewProxy add:arg];
+      return;
+    }
+#endif
     childView = [arg objectForKey:@"view"];
     position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
   } else if ([arg isKindOfClass:[TiViewProxy class]]) {
@@ -277,6 +306,16 @@ static NSArray *touchEventsArray;
 
 - (void)replaceAt:(id)args
 {
+#if IS_XCODE_9
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    if (windowProxy.safeAreaViewProxy) {
+      [windowProxy.safeAreaViewProxy replaceAt:args];
+      return;
+    }
+  }
+#endif
+
   ENSURE_SINGLE_ARG(args, NSDictionary);
   NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
   NSArray *childrenArray = [self children];
@@ -290,6 +329,16 @@ static NSArray *touchEventsArray;
 
 - (void)remove:(id)arg
 {
+#if IS_XCODE_9
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    if (windowProxy.safeAreaViewProxy) {
+      [windowProxy.safeAreaViewProxy remove:arg];
+      return;
+    }
+  }
+#endif
+
   ENSURE_UI_THREAD_1_ARG(arg);
 
 #ifdef HYPERLOOP
@@ -351,6 +400,16 @@ static NSArray *touchEventsArray;
 
 - (void)removeAllChildren:(id)arg
 {
+#if IS_XCODE_9
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    if (windowProxy.safeAreaViewProxy) {
+      [windowProxy.safeAreaViewProxy removeAllChildren:arg];
+      return;
+    }
+  }
+#endif
+
   ENSURE_UI_THREAD_1_ARG(arg);
   pthread_rwlock_wrlock(&childrenLock);
   NSMutableArray *childrenCopy = [children mutableCopy];
@@ -728,8 +787,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     [blob setMimeType:@"image/png" type:TiBlobTypeImage];
     UIGraphicsEndImageContext();
     if (callback != nil) {
-      NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"blob"];
-      [self _fireEventToListener:@"blob" withObject:event listener:callback thisObject:nil];
+      DebugLog(@"[DEBUG] Since Titanium SDK 7.0.0, the toImage callback returns a single blob on iOS to match the Android / Windows behavior.");
+      DebugLog(@"[DEBUG] Please migrate your code in case you still use the old behavior. This debug-log will be removed in Titanium SDK 8.0.0");
+
+      [callback call:@[ blob ] thisObject:self];
     }
   },
       (callback == nil));
@@ -1274,6 +1335,26 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   // for subclasses
 }
 
+- (void)gainFocus
+{
+  NSArray *childProxies = [self children];
+  for (TiViewProxy *thisProxy in childProxies) {
+    if ([thisProxy respondsToSelector:@selector(gainFocus)]) {
+      [(id)thisProxy gainFocus];
+    }
+  }
+}
+
+- (void)resignFocus
+{
+  NSArray *childProxies = [self children];
+  for (TiViewProxy *thisProxy in childProxies) {
+    if ([thisProxy respondsToSelector:@selector(resignFocus)]) {
+      [(id)thisProxy resignFocus];
+    }
+  }
+}
+
 #pragma mark Housecleaning state accessors
 
 - (BOOL)viewHasSuperview:(UIView *)superview
@@ -1427,7 +1508,41 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   allowLayoutUpdate = YES;
   [self processTempProperties:nil];
   allowLayoutUpdate = NO;
+
+#if IS_XCODE_9
+  [self createSafeAreaViewProxyForWindowProperties:properties];
+#endif
 }
+
+#if IS_XCODE_9
+- (void)createSafeAreaViewProxyForWindowProperties:(NSDictionary *)properties
+{
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    /*
+     Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
+     */
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    windowProxy.shouldExtendSafeArea = [TiUtils boolValue:[self valueForUndefinedKey:@"extendSafeArea"] def:YES];
+    if (!windowProxy.safeAreaViewProxy && !windowProxy.shouldExtendSafeArea) {
+      NSMutableDictionary *safeAreaProperties = [NSMutableDictionary dictionary];
+
+      id layout = [self valueForUndefinedKey:@"layout"];
+      if (layout) {
+        safeAreaProperties[@"layout"] = layout;
+      }
+
+      id horizontalWrap = [self valueForUndefinedKey:@"horizontalWrap"];
+      if (horizontalWrap) {
+        safeAreaProperties[@"horizontalWrap"] = horizontalWrap;
+      }
+
+      windowProxy.safeAreaViewProxy = [[[TiUIViewProxy alloc] _initWithPageContext:[self pageContext] args:@[ safeAreaProperties ]] autorelease];
+      [windowProxy processForSafeArea];
+      [self add:windowProxy.safeAreaViewProxy];
+    }
+  }
+}
+#endif
 
 - (void)dealloc
 {

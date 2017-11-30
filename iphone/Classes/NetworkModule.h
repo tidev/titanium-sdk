@@ -54,7 +54,6 @@ typedef enum {
 @property (readonly, nonatomic) NSNumber *READ_MODE;
 @property (readonly, nonatomic) NSNumber *WRITE_MODE;
 @property (readonly, nonatomic) NSNumber *READ_WRITE_MODE;
-@property (readonly, nonatomic) NSString *INADDR_ANY;
 
 @property (nonatomic, readonly) NSNumber *TLS_VERSION_1_0;
 @property (nonatomic, readonly) NSNumber *TLS_VERSION_1_1;

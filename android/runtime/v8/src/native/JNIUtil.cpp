@@ -272,7 +272,7 @@ void JNIUtil::logClassName(const char *format, jclass javaClass, bool errorLevel
 bool JNIUtil::removePointer(jobject javaObject)
 {
 	JNIEnv *env = JNIScope::getEnv();
-	if (!env) {
+	if (!env || env->IsSameObject(javaObject, NULL)) {
 		return false;
 	}
 	if (env->IsInstanceOf(javaObject, JNIUtil::krollProxyClass)) {
