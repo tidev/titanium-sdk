@@ -91,37 +91,51 @@ NSArray *moviePlayerKeys = nil;
   return @"Ti.Media.VideoPlayer";
 }
 
-- (void)configureNotifications
+- (void)addNotificationObserver
 {
   WARN_IF_BACKGROUND_THREAD; //NSNotificationCenter is not threadsafe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-
+  
   // For durationavailable
   [movie addObserver:self forKeyPath:@"player.currentItem.duration" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-
+  
   // For playbackstate
   [movie addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-
+  
   // For playing
   [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-
+  
   // For load / loadstate / preload
   [movie addObserver:self forKeyPath:@"player.status" options:0 context:nil];
-
+  
   // naturalSize
   [movie addObserver:self forKeyPath:@"videoBounds" options:NSKeyValueObservingOptionInitial context:nil];
-
+  
   // For complete
   [nc addObserver:self selector:@selector(handlePlayerNotification:) name:AVPlayerItemDidPlayToEndTimeNotification object:[[movie player] currentItem]];
-
+  
   // For error
   [nc addObserver:self selector:@selector(handlePlayerErrorNotification:) name:AVPlayerItemFailedToPlayToEndTimeNotification object:[[movie player] currentItem]];
+}
+
+- (void)removeNotificationObserver
+{
+  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+  
+  [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
+  [movie removeObserver:self forKeyPath:@"player.rate"];
+  [self removeObserver:self forKeyPath:@"url"];
+  [movie removeObserver:self forKeyPath:@"player.status"];
+  [movie removeObserver:self forKeyPath:@"videoBounds"];
+  
+  [nc removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+  [nc removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
 }
 
 // Used to avoid duplicate code in Brightcove module; makes things easier to maintain.
 - (void)configurePlayer
 {
-  [self configureNotifications];
+  [self addNotificationObserver];
   [self setValuesForKeysWithDictionary:loadProperties];
   // we need this code below since the player can be realized before loading
   // properties in certain cases and when we go to create it again after setting
@@ -172,6 +186,7 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)viewDidDetach
 {
+  [self removeNotificationObserver];
   [[movie player] pause];
   [movie setPlayer:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -183,7 +198,6 @@ NSArray *moviePlayerKeys = nil;
 {
   [super windowWillClose];
   [[movie player] pause];
-  [movie setPlayer:nil];
   [(TiMediaVideoPlayer *)self.view setMovie:nil];
 }
 
