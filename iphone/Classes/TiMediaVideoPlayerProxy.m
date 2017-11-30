@@ -95,25 +95,25 @@ NSArray *moviePlayerKeys = nil;
 {
   WARN_IF_BACKGROUND_THREAD; //NSNotificationCenter is not threadsafe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-  
+
   // For durationavailable
   [movie addObserver:self forKeyPath:@"player.currentItem.duration" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-  
+
   // For playbackstate
   [movie addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-  
+
   // For playing
   [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-  
+
   // For load / loadstate / preload
   [movie addObserver:self forKeyPath:@"player.status" options:0 context:nil];
-  
+
   // naturalSize
   [movie addObserver:self forKeyPath:@"videoBounds" options:NSKeyValueObservingOptionInitial context:nil];
-  
+
   // For complete
   [nc addObserver:self selector:@selector(handlePlayerNotification:) name:AVPlayerItemDidPlayToEndTimeNotification object:[[movie player] currentItem]];
-  
+
   // For error
   [nc addObserver:self selector:@selector(handlePlayerErrorNotification:) name:AVPlayerItemFailedToPlayToEndTimeNotification object:[[movie player] currentItem]];
 }
@@ -121,13 +121,13 @@ NSArray *moviePlayerKeys = nil;
 - (void)removeNotificationObserver
 {
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-  
+
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
   [movie removeObserver:self forKeyPath:@"player.rate"];
   [self removeObserver:self forKeyPath:@"url"];
   [movie removeObserver:self forKeyPath:@"player.status"];
   [movie removeObserver:self forKeyPath:@"videoBounds"];
-  
+
   [nc removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
   [nc removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
 }
