@@ -34,11 +34,13 @@ describe('Titanium.Media.VideoPlayer', function() {
 
     // When the first window openes, open the next one
     win.addEventListener('open', function() {
+			this.timeout(500);
       nav.openWindow(detailWindow);
     });
 
     // Once the next window opens, close it again
     detailWindow.addEventListener('open', function() {
+			this.timeout(500);
       nav.closeWindow(detailWindow);
     });
 
