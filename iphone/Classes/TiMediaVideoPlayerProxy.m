@@ -349,7 +349,8 @@ NSArray *moviePlayerKeys = nil;
   if (movie != nil) {
     AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithURL:url];
     [[movie player] replaceCurrentItemWithPlayerItem:newVideoItem];
-    [self configureNotifications]; // playeritem related notification need to update
+    [self removeNotificationObserver]; // Remove old observers
+    [self addNotificationObserver]; // Add new oberservers
   } else {
     [self ensurePlayer];
   }
