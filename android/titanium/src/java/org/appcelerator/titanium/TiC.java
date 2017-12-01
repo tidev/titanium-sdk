@@ -3245,6 +3245,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CUSTOM_TOOLBAR = "customToolbar";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MIN_DATE = "minDate";
 
 	/**
