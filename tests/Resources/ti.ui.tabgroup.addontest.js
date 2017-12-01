@@ -5,44 +5,52 @@
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
-/* global Ti, L */
+/* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
 var should = require('./utilities/assertions');
 
 describe('Titanium.UI.Tabgroup', function () {
+	var tabGroup,
+		tab;
 
-	it('Remove MapView from TabGroup', function(finish) {
+	afterEach(function () {
+		if (tab && tabGroup) {
+			tabGroup.removeTab(tab);
+		}
+		tab = null;
+	});
+
+	it('Remove MapView from TabGroup', function (finish) {
 		// create tab group
-		var tabGroup = Titanium.UI.createTabGroup();
+		var win = Ti.UI.createWindow({
+				title:'Tab 1',
+				backgroundColor:'#fff'
+			}),
+			Map = require('ti.map'),
+			mapview;
 
-		var win1 = Titanium.UI.createWindow({
+		this.timeout(10000);
+
+		tabGroup = Ti.UI.createTabGroup();
+		tab = Ti.UI.createTab({
 			title:'Tab 1',
-			backgroundColor:'#fff'
+			window: win
 		});
 
-		var tab1 = Titanium.UI.createTab({
-			title:'Tab 1',
-			window:win1
-		});
-
-		var Map = require('ti.map');
-
-		var mapview = Map.createView({top: 0, height: '80%'});
-
-		mapview.addEventListener('complete', function() {
+		mapview = Map.createView({ top: 0, height: '80%' });
+		// when the map is done loading, close the tab group
+		mapview.addEventListener('complete', function () {
 			tabGroup.close();
 		});
 
-		win1.add(mapview);
-
-		tabGroup.addTab(tab1);
-
+		win.add(mapview);
+		tabGroup.addTab(tab);
 		tabGroup.open();
 
-		tabGroup.addEventListener('close', function() {
+		// when the tab group is closed, finish the test
+		tabGroup.addEventListener('close', function () {
 			finish();
 		});
-
-	}).timeout(5000);
+	});
 });
