@@ -7,6 +7,7 @@
 package ti.modules.titanium.calendar;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollException;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -42,7 +43,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 	private String rRule;
 
 	//region values that can be set from a Creation Dictionary
-	TiRecurrenceFrequencyType frequency = TiRecurrenceFrequencyType.DAILY;
+	private TiRecurrenceFrequencyType frequency;
 	private Integer interval = 1;
 	private int[] daysOfTheMonth = new int[]{};
 	private int[] daysOfTheYear = new int[]{};
@@ -52,54 +53,6 @@ public class RecurrenceRuleProxy extends KrollProxy {
 	private KrollDict endDictionary = new KrollDict();
 	private KrollDict[] daysOfTheWeek = new KrollDict[]{};
 	//endregion
-
-	// enum for matching Titanium frequency constants with Android recurrence rule words
-	public enum TiRecurrenceFrequencyType
-	{
-		DAILY(CalendarModule.RECURRENCEFREQUENCY_DAILY, "DAILY"),
-		WEEKLY(CalendarModule.RECURRENCEFREQUENCY_WEEKLY, "WEEKLY"),
-		MONTHLY(CalendarModule.RECURRENCEFREQUENCY_MONTHLY, "MONTHLY"),
-		YEARLY(CalendarModule.RECURRENCEFREQUENCY_YEARLY, "YEARLY");
-
-		private final int tiIntId;
-		private final String rfcStringId;
-
-		private TiRecurrenceFrequencyType(int tiIntId, String rfcStringId)
-		{
-			this.tiIntId = tiIntId;
-			this.rfcStringId = rfcStringId;
-		}
-
-		public int toTiIntId()
-		{
-			return this.tiIntId;
-		}
-
-		public String toRfcStringId()
-		{
-			return this.rfcStringId;
-		}
-
-		public static TiRecurrenceFrequencyType fromTiIntId(int value)
-		{
-			for (TiRecurrenceFrequencyType nextObject : TiRecurrenceFrequencyType.values()) {
-				if ((nextObject != null) && (nextObject.tiIntId == value)) {
-					return nextObject;
-				}
-			}
-			return null;
-		}
-
-		public static TiRecurrenceFrequencyType fromRfcStringId(String value)
-		{
-			for (TiRecurrenceFrequencyType nextObject : TiRecurrenceFrequencyType.values()) {
-				if ((nextObject != null) && (nextObject.rfcStringId == value)) {
-					return nextObject;
-				}
-			}
-			return null;
-		}
-	}
 
 	// Map matching days of the week constants from Titanium docs with their String counterparts in RRULE column.
 	private static final Map<String, Integer> weekdaysMap;
@@ -153,11 +106,13 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		StringBuilder finalRRule = new StringBuilder();
 		// Handle frequency.
 		if (this.frequency != null) {
-			String frequencyPart = "FREQ=" + frequency.toRfcStringId();
+			String frequencyPart = "FREQ=" + frequency.toRfcStringId() + "asd";
 			finalRRule.append(frequencyPart);
 			finalRRule.append(";");
 			// Handle frequency specific rules in different context.
 			switch (this.frequency) {
+				case DAILY:
+					break;
 				// Case for weekly recurring events.
 				case WEEKLY:
 					StringBuilder weeklyRecurrencesString = new StringBuilder("BYDAY=");
@@ -173,7 +128,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 					break;
 				// Case for monthly recurring events.
 				case MONTHLY:
-					StringBuilder monthlyReccurencesString = new StringBuilder("BYDAY=");
+					StringBuilder monthlyReccurencesString = new StringBuilder("BYMONTHDAY=");
 					// daysOfTheWeek dictionary is with highest priority.
 					if (this.daysOfTheWeek.length > 0) {
 						monthlyReccurencesString.append(this.daysOfTheWeek[0].getInt(this.weekNumberKey));
@@ -181,10 +136,12 @@ public class RecurrenceRuleProxy extends KrollProxy {
 						monthlyReccurencesString.append(this.weekdaysMap.keySet().toArray()[this.daysOfTheWeek[0].getInt(this.weekNumberKey)]);
 					} else {
 						// Case in which we do not have items in daysOfTheWeek array.
-						monthlyReccurencesString.append(String.valueOf(this.daysOfTheMonth));
+						monthlyReccurencesString.append(String.valueOf(this.daysOfTheMonth[0]));
 					}
 					finalRRule.append(monthlyReccurencesString);
 					finalRRule.append(";");
+					break;
+				case YEARLY:
 					break;
 			} // end of switch
  		}
@@ -225,49 +182,51 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		//reused variables in different cases
 		String days;
 		String byDay;
-		switch (this.frequency) {
-			case YEARLY:
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(this.eventBegin);
-				//weeksOfTheYear
-				this.weeksOfTheYear = new int[]{cal.get(Calendar.WEEK_OF_YEAR)};
-				//monthsOfTheYear
-				this.monthsOfTheYear = new int[]{cal.get(Calendar.MONTH)};
-				days = matchExpression(".*(BYYEARDAY=[0-9]*).*", 10);
-				if (days != null) {
-					//daysOfTheYear
-					this.daysOfTheYear = new int[]{ Integer.valueOf(days)};
-				}
-				break;
-			case MONTHLY:
-				//daysOfTheMonth
-				days = matchExpression(".*(BYMONTHDAY=[0-9]*).*", 11);
-				if (days != null) {
-					this.daysOfTheMonth = new int[]{Integer.valueOf(days)};
-				}
-				//daysOfTheWeek
-				byDay = matchExpression(".*(BYDAY=[,0-9A-Z]*).*", 6);
-				if (byDay != null) {
-					KrollDict daysOfTheWeekDictionary = new KrollDict();
-					daysOfTheWeekDictionary.put(this.dayOfWeekKey, this.weekdaysMap.get(byDay.substring(byDay.length() - 2)));
-					daysOfTheWeekDictionary.put(this.weekNumberKey, byDay.substring(0, byDay.length() - 2));
-					this.daysOfTheWeek = new KrollDict[]{daysOfTheWeekDictionary};
-				}
-				break;
-			case WEEKLY:
-				//daysOfTheWeek
-				byDay = matchExpression(".*(BYDAY=[,0-9A-Z]*).*", 6);
-				// Split the days from result.
-				String[] daysArray = byDay.split(",");
-				this.daysOfTheWeek = new KrollDict[daysArray.length];
-				for (int i=0; i < this.daysOfTheWeek.length; i++) {
-					KrollDict daysOfTheWeekDictionary = new KrollDict();
-					daysOfTheWeekDictionary.put(this.dayOfWeekKey, this.weekdaysMap.get(daysArray[i]));
-					// In the context of a weekly recurrence week number is irrelevant.
-					daysOfTheWeekDictionary.put(this.weekNumberKey, 0);
-					this.daysOfTheWeek[i]=daysOfTheWeekDictionary;
-				}
-				break;
+		if (this.frequency != null) {
+			switch (this.frequency) {
+				case YEARLY:
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(this.eventBegin);
+					//weeksOfTheYear
+					this.weeksOfTheYear = new int[]{cal.get(Calendar.WEEK_OF_YEAR)};
+					//monthsOfTheYear
+					this.monthsOfTheYear = new int[]{cal.get(Calendar.MONTH)};
+					days = matchExpression(".*(BYYEARDAY=[0-9]*).*", 10);
+					if (days != null) {
+						//daysOfTheYear
+						this.daysOfTheYear = new int[]{Integer.valueOf(days)};
+					}
+					break;
+				case MONTHLY:
+					//daysOfTheMonth
+					days = matchExpression(".*(BYMONTHDAY=(-)*[0-9]*).*", 11);
+					if (days != null) {
+						this.daysOfTheMonth = new int[]{Integer.valueOf(days)};
+					}
+					//daysOfTheWeek
+					byDay = matchExpression(".*(BYDAY=[,0-9A-Z]*).*", 6);
+					if (byDay != null) {
+						KrollDict daysOfTheWeekDictionary = new KrollDict();
+						daysOfTheWeekDictionary.put(this.dayOfWeekKey, this.weekdaysMap.get(byDay.substring(byDay.length() - 2)));
+						daysOfTheWeekDictionary.put(this.weekNumberKey, byDay.substring(0, byDay.length() - 2));
+						this.daysOfTheWeek = new KrollDict[]{daysOfTheWeekDictionary};
+					}
+					break;
+				case WEEKLY:
+					//daysOfTheWeek
+					byDay = matchExpression(".*(BYDAY=[,0-9A-Z]*).*", 6);
+					// Split the days from result.
+					String[] daysArray = byDay.split(",");
+					this.daysOfTheWeek = new KrollDict[daysArray.length];
+					for (int i = 0; i < this.daysOfTheWeek.length; i++) {
+						KrollDict daysOfTheWeekDictionary = new KrollDict();
+						daysOfTheWeekDictionary.put(this.dayOfWeekKey, this.weekdaysMap.get(daysArray[i]));
+						// In the context of a weekly recurrence week number is irrelevant.
+						daysOfTheWeekDictionary.put(this.weekNumberKey, 0);
+						this.daysOfTheWeek[i] = daysOfTheWeekDictionary;
+					}
+					break;
+			}
 		}
 	}
 
@@ -359,7 +318,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		// Set the frequency in constructor, because it is required for other properties.
 		String frequency = matchExpression(".*(FREQ=[A-Z]*).*", 5);
 		if (frequency != null) {
-			this.frequency = TiRecurrenceFrequencyType.fromRfcStringId(frequency);
+			this.frequency = null;
 		}
 	}
 

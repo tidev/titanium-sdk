@@ -145,7 +145,11 @@ public class EventProxy extends KrollProxy {
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(Events.RRULE, ruleToSave);
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
-		contentResolver.update(Events.CONTENT_URI, contentValues, Events._ID+"=?", new String[]{id});
+		try {
+			contentResolver.update(Events.CONTENT_URI, contentValues, Events._ID + "=?", new String[]{id});
+		} catch (IllegalArgumentException e) {
+			Log.e(TAG, "Invalid event recurrence rule.");
+		}
 	}
 
 	public static ArrayList<EventProxy> queryEvents(Uri uri, String query, String[] queryArgs, String orderBy)

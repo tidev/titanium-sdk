@@ -1118,7 +1118,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_CALENDAR_MONTHS_OF_THE_YEAR = "monthOfTheYear";
+	public static final String PROPERTY_CALENDAR_MONTHS_OF_THE_YEAR = "monthsOfTheYear";
 
 	/**
 	 * @module.api

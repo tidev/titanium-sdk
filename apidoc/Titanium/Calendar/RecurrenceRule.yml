@@ -10,7 +10,7 @@ description: |
     [daysOfTheWeek] will be used.
 extends: Titanium.Proxy
 platforms: [android, iphone, ipad]
-since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
+since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
 properties:
