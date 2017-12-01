@@ -1014,11 +1014,17 @@ properties:
 
   - name: longitude
     summary: Longitude of the geocoded address.
+    description: |
+        Right now, the longitude will be returned as a String. As of Titanium SDK 8.0.0,
+        it will return a Number instead.
     type: String
     platforms: [android, iphone, ipad]
 
   - name: latitude
     summary: Latitude of the geocoded address.
+    description: |
+        Right now, the latitude will be returned as a String. As of Titanium SDK 8.0.0,
+        it will return a Number instead.
     type: String
     platforms: [android, iphone, ipad]
 
@@ -1254,14 +1260,18 @@ properties:
     platforms: [android]
 
   - name: postalCode
-    summary: Postal code. On iOS, use `zipcode`.
+    summary: Postal code.
+    deprecated:
+        since: "7.0.0"
+        notes: Use the `zipcode` property for better parity instead.
     type: String
     platforms: [android]
 
   - name: zipcode
-    summary: Postal code. On Android, use `postalCode`.
+    summary: Postal code.
     type: String
-    platforms: [iphone, ipad]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.0.0" }
+    platforms: [iphone, ipad, android]
 
   - name: country
     summary: Country name.
@@ -1269,7 +1279,10 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: countryCode
-    summary: Country code. On iOS, use `country_code`.
+    summary: Country code.
+    deprecated:
+        since: "7.0.0"
+        notes: Use the `country_code` property for better parity instead.
     type: String
     platforms: [android]
 
@@ -1280,11 +1293,17 @@ properties:
 
   - name: longitude
     summary: Longitude of the geocoded point.
+    description: |
+        Right now, the longitude will be returned as a String. As of Titanium SDK 8.0.0,
+        it will return a Number instead.
     type: String
     platforms: [android, iphone, ipad]
 
   - name: latitude
     summary: Latitude of the geocoded point.
+    description: |
+        Right now, the latitude will be returned as a String. As of Titanium SDK 8.0.0,
+        it will return a Number instead.
     type: String
     platforms: [android, iphone, ipad]
 
