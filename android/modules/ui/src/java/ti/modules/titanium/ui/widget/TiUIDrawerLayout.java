@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import ti.modules.titanium.ui.ToolbarProxy;
 import ti.modules.titanium.ui.android.DrawerLayoutProxy;
 import ti.modules.titanium.ui.WindowProxy;
 
@@ -36,6 +37,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 
 public class TiUIDrawerLayout extends TiUIView {
 
@@ -92,10 +94,14 @@ public class TiUIDrawerLayout extends TiUIView {
 
 		toolbar = (Toolbar)layout.findViewById(id_toolbar);
 		if (activity.getSupportActionBar() == null && activity.getActionBar() == null) {
-			activity.setSupportActionBar(toolbar);
 			if (!toolbarEnabled) {
 				toolbarEnabled = true;
 				setToolbarVisible(toolbarEnabled);
+			} else {
+				// Only set the integrated Toolbar as an ActionBar if it is enabled
+				// Moving this here in order to remove the need of the users
+				// to manually set the custom Toolbar as an ActionBar
+				activity.setSupportActionBar(toolbar);
 			}
 		}
 
@@ -413,6 +419,16 @@ public class TiUIDrawerLayout extends TiUIView {
 		if (d.containsKey(TiC.PROPERTY_TOOLBAR_ENABLED)) {
 			toolbarEnabled = TiConvert.toBoolean(d.get(TiC.PROPERTY_TOOLBAR_ENABLED));
 			setToolbarVisible(toolbarEnabled);
+		}
+		if (d.containsKey(TiC.PROPERTY_CUSTOM_TOOLBAR)) {
+			if (!toolbarEnabled) {
+				if (((AppCompatActivity) proxy.getActivity()).getSupportActionBar() == null && (proxy.getActivity()).getActionBar() == null) {
+					View customToolbarInstance = ((ToolbarProxy) d.get(TiC.PROPERTY_CUSTOM_TOOLBAR)).getToolbarInstance();
+					((AppCompatActivity) proxy.getActivity()).setSupportActionBar(((Toolbar) customToolbarInstance));
+					RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+					((RelativeLayout) layout.findViewById(id_drawer_layout_container)).addView(customToolbarInstance, layoutParams);
+				}
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_DRAG_MARGIN)){
 			setDrawMargin(getDevicePixels(d.get(TiC.PROPERTY_DRAG_MARGIN)));
