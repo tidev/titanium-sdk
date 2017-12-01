@@ -3222,10 +3222,10 @@ public class TiC
 	 */
 	public static final String PROPERTY_ZINDEX = "zIndex";
 
-  /**
-   * @module.api
-   */
-  public static final String PROPERTY_ZIP_CODE = "zipcode";
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ZIP_CODE = "zipcode";
 
 	/**
 	 * @module.api
