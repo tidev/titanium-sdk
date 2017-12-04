@@ -3001,6 +3001,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TOOLBAR = "toolbar";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TOOLBAR_ENABLED = "toolbarEnabled";
 
 	/**
@@ -3241,11 +3246,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CUSTOM = "custom";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_CUSTOM_TOOLBAR = "customToolbar";
 
 	/**
 	 * @module.api
