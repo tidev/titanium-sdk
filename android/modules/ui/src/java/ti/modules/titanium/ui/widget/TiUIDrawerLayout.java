@@ -37,7 +37,6 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 
 public class TiUIDrawerLayout extends TiUIView {
 
@@ -94,14 +93,10 @@ public class TiUIDrawerLayout extends TiUIView {
 
 		toolbar = (Toolbar)layout.findViewById(id_toolbar);
 		if (activity.getSupportActionBar() == null && activity.getActionBar() == null) {
+			activity.setSupportActionBar(toolbar);
 			if (!toolbarEnabled) {
 				toolbarEnabled = true;
 				setToolbarVisible(toolbarEnabled);
-			} else {
-				// Only set the integrated Toolbar as an ActionBar if it is enabled
-				// Moving this here in order to remove the need of the users
-				// to manually set the custom Toolbar as an ActionBar
-				activity.setSupportActionBar(toolbar);
 			}
 		}
 
@@ -420,14 +415,13 @@ public class TiUIDrawerLayout extends TiUIView {
 			toolbarEnabled = TiConvert.toBoolean(d.get(TiC.PROPERTY_TOOLBAR_ENABLED));
 			setToolbarVisible(toolbarEnabled);
 		}
-		if (d.containsKey(TiC.PROPERTY_CUSTOM_TOOLBAR)) {
-			if (!toolbarEnabled) {
-				if (((AppCompatActivity) proxy.getActivity()).getSupportActionBar() == null && (proxy.getActivity()).getActionBar() == null) {
-					View customToolbarInstance = ((ToolbarProxy) d.get(TiC.PROPERTY_CUSTOM_TOOLBAR)).getToolbarInstance();
-					((AppCompatActivity) proxy.getActivity()).setSupportActionBar(((Toolbar) customToolbarInstance));
-					RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-					((RelativeLayout) layout.findViewById(id_drawer_layout_container)).addView(customToolbarInstance, layoutParams);
-				}
+		if (d.containsKey(TiC.PROPERTY_TOOLBAR)) {
+			if (toolbarEnabled) {
+				setToolbarVisible(false);
+				this.toolbar = ((Toolbar) ((ToolbarProxy) d.get(TiC.PROPERTY_TOOLBAR)).getToolbarInstance());
+				RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				((RelativeLayout) layout.findViewById(id_drawer_layout_container)).addView(this.toolbar, layoutParams);
+				((AppCompatActivity) proxy.getActivity()).setSupportActionBar(this.toolbar);
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_DRAG_MARGIN)){
