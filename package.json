@@ -52,7 +52,7 @@
     "xmldom": "0.1.22"
   },
   "devDependencies": {
-    "clang-format": "*",
+    "clang-format": "^1.1.1",
     "commander": "*",
     "danger": "^2.0.3",
     "fs-extra": "~0.30.0",
