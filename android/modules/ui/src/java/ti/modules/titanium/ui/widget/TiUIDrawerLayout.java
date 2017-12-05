@@ -34,7 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 
 import java.lang.reflect.Field;
 
@@ -49,11 +49,14 @@ public class TiUIDrawerLayout extends TiUIView {
 	private int rightWidth;
 
 	private Toolbar toolbar;
-	private boolean toolbarEnabled = false;
+	private boolean toolbarEnabled = true;
+	private boolean themeHasActionBar = true;
 
 	private TiViewProxy leftView;
 	private TiViewProxy rightView;
 	private TiViewProxy centerView;
+
+	private AppCompatActivity activity;
 
 	private static final String TAG = "TiUIDrawerLayout";
 
@@ -85,19 +88,15 @@ public class TiUIDrawerLayout extends TiUIView {
 		} catch (ResourceNotFoundException e) {
 			Log.e(TAG, "XML resources could not be found!!!");
 		}
-
-		AppCompatActivity activity = (AppCompatActivity) proxy.getActivity();
-		LayoutInflater inflater = LayoutInflater.from(activity);
+		this.activity = (AppCompatActivity) proxy.getActivity();
+		LayoutInflater inflater = LayoutInflater.from(this.activity);
 		layout = (DrawerLayout) inflater.inflate(id_drawer_layout, null, false);
 		layout.setDrawerListener(new DrawerListener());
-
 		toolbar = (Toolbar)layout.findViewById(id_toolbar);
-		if (activity.getSupportActionBar() == null && activity.getActionBar() == null) {
-			activity.setSupportActionBar(toolbar);
-			if (!toolbarEnabled) {
-				toolbarEnabled = true;
-				setToolbarVisible(toolbarEnabled);
-			}
+
+		// Check if the theme provides a default ActionBar
+		if (this.activity.getSupportActionBar() == null) {
+			this.themeHasActionBar = false;
 		}
 
 		setNativeView(layout);
@@ -309,7 +308,7 @@ public class TiUIDrawerLayout extends TiUIView {
 		TiUIView contentView = viewProxy.getOrCreateView();
 
 		View view = contentView.getOuterView();
-		RelativeLayout container = (RelativeLayout) layout.findViewById(id_drawer_layout_container);
+		LinearLayout container = (LinearLayout) layout.findViewById(id_drawer_layout_container);
 		TiCompositeLayout content = (TiCompositeLayout) container.getChildAt(1);
 		ViewParent viewParent = view.getParent();
 		if (viewParent != null && viewParent != content && viewParent instanceof ViewGroup) {
@@ -411,18 +410,24 @@ public class TiUIDrawerLayout extends TiUIView {
 		if (d.containsKey(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
 			layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_DRAWER_LOCK_MODE)));
 		}
-		if (d.containsKey(TiC.PROPERTY_TOOLBAR_ENABLED)) {
-			toolbarEnabled = TiConvert.toBoolean(d.get(TiC.PROPERTY_TOOLBAR_ENABLED));
-			setToolbarVisible(toolbarEnabled);
-		}
-		if (d.containsKey(TiC.PROPERTY_TOOLBAR)) {
-			if (toolbarEnabled) {
-				setToolbarVisible(false);
-				this.toolbar = ((Toolbar) ((ToolbarProxy) d.get(TiC.PROPERTY_TOOLBAR)).getToolbarInstance());
-				RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-				((RelativeLayout) layout.findViewById(id_drawer_layout_container)).addView(this.toolbar, layoutParams);
-				((AppCompatActivity) proxy.getActivity()).setSupportActionBar(this.toolbar);
+		// If theme has default ActionBar ignore `toolbarEnabled` and `toolbar` properties
+		if (!this.themeHasActionBar) {
+			if (d.containsKey(TiC.PROPERTY_TOOLBAR_ENABLED)) {
+				toolbarEnabled = TiConvert.toBoolean(d.get(TiC.PROPERTY_TOOLBAR_ENABLED));
+				setToolbarVisible(toolbarEnabled);
 			}
+			if (d.containsKey(TiC.PROPERTY_TOOLBAR)) {
+				// Hide embedded toolbar if a custom one was provided
+				setToolbarVisible(false);
+				ViewGroup.LayoutParams layoutParams = this.toolbar.getLayoutParams();
+				// Replace the current toolbar reference with the custom one
+				this.toolbar = ((Toolbar) ((ToolbarProxy) d.get(TiC.PROPERTY_TOOLBAR)).getToolbarInstance());
+				// Add it as a first child in the layout container
+				((LinearLayout) layout.findViewById(id_drawer_layout_container)).addView(this.toolbar, 0, layoutParams);
+				setToolbarVisible(toolbarEnabled);
+			}
+			// Only set the toolbar as ActionBar after we have processes proxy's properties
+			this.activity.setSupportActionBar(this.toolbar);
 		}
 		if (d.containsKey(TiC.PROPERTY_DRAG_MARGIN)){
 			setDrawMargin(getDevicePixels(d.get(TiC.PROPERTY_DRAG_MARGIN)));
@@ -530,9 +535,11 @@ public class TiUIDrawerLayout extends TiUIView {
 			}
 
 		} else if (key.equals(TiC.PROPERTY_TOOLBAR_ENABLED)) {
-			toolbarEnabled = TiConvert.toBoolean(newValue);
-			setToolbarVisible(toolbarEnabled);
-
+			// If we already have a Toolbar set ignore this property
+			if (!this.themeHasActionBar) {
+				toolbarEnabled = TiConvert.toBoolean(newValue);
+				setToolbarVisible(toolbarEnabled);
+			}
 		} else if (key.equals(TiC.PROPERTY_DRAG_MARGIN)) {
 			setDrawMargin(getDevicePixels(newValue));
 		} else {
