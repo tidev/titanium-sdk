@@ -32,10 +32,11 @@ import android.view.View;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-@Kroll
-	.module
-	@Kroll.dynamicApis(properties = { "currentWindow" })
-	public class UIModule extends KrollModule implements Handler.Callback
+// clang-format off
+@Kroll.module
+@Kroll.dynamicApis(properties = { "currentWindow" })
+public class UIModule extends KrollModule implements Handler.Callback
+// clang-format on
 {
 	private static final String TAG = "TiUIModule";
 
@@ -340,10 +341,11 @@ import android.widget.Toast;
 		super();
 	}
 
-	@Kroll
-		.setProperty(runOnUiThread = true)
-		@Kroll.method(runOnUiThread = true)
-		public void setBackgroundColor(String color)
+	// clang-format off
+	@Kroll.setProperty(runOnUiThread = true)
+	@Kroll.method(runOnUiThread = true)
+	public void setBackgroundColor(String color)
+	// clang-format off
 	{
 		if (TiApplication.isUIThread()) {
 			doSetBackgroundColor(color);
@@ -362,10 +364,11 @@ import android.widget.Toast;
 		}
 	}
 
-	@Kroll
-		.setProperty(runOnUiThread = true)
-		@Kroll.method(runOnUiThread = true)
-		public void setBackgroundImage(Object image)
+	// clang-format off
+	@Kroll.setProperty(runOnUiThread = true)
+	@Kroll.method(runOnUiThread = true)
+	public void setBackgroundImage(Object image)
+	// clang-format on
 	{
 		if (TiApplication.isUIThread()) {
 			doSetBackgroundImage(image);

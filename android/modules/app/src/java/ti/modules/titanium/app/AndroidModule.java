@@ -70,10 +70,11 @@ public class AndroidModule extends KrollModule
 		}
 	}
 
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public int getAppVersionCode()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public int getAppVersionCode()
+	// clang-format on
 	{
 		if (appVersionCode == -1) {
 			initializeVersionValues();
@@ -81,10 +82,11 @@ public class AndroidModule extends KrollModule
 		return appVersionCode;
 	}
 
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public IntentProxy getLaunchIntent()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public IntentProxy getLaunchIntent()
+	// clang-format on
 	{
 		TiApplication app = TiApplication.getInstance();
 		if (app != null) {
@@ -99,10 +101,11 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public String getAppVersionName()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public String getAppVersionName()
+	// clang-format on
 	{
 		if (appVersionName == null) {
 			initializeVersionValues();
