@@ -27,8 +27,15 @@ describe.windowsBroken('Titanium.Geolocation', function () {
 				// should(data).have.property('error'); // undefined on success, holds error message as String otherwise.
 				should(data).have.property('places').which.is.an.Array;
 				should(data.places[0].zipcode).be.eql('94043');
-				should(data.places[0]).have.property('latitude').which.is.a.Number; // docs say String!
-				should(data.places[0]).have.property('longitude').which.is.a.Number; // docs say String!
+				// FIXME Parity issue on Android
+				// deprecated in 7.0.0, adjusted in 8.0.0 (upcoming)
+				if (utilities.isAndroid()) {
+					should(data.places[0]).have.property('latitude').which.is.a.String;
+					should(data.places[0]).have.property('longitude').which.is.a.String;
+				} else {
+					should(data.places[0]).have.property('latitude').which.is.a.Number; // docs say String!
+					should(data.places[0]).have.property('longitude').which.is.a.Number; // docs say String!
+				}
 				should(data.places[0].country).be.eql('United States of America');
 				should(data.places[0].state).be.eql('California');
 				should(data.places[0].country_code).be.eql('US');
