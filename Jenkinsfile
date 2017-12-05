@@ -117,7 +117,7 @@ timestamps {
 					$class: 'GitSCM',
 					branches: scm.branches,
 					extensions: scm.extensions + [
-						[$class: 'CleanBeforeCheckout'],
+						[$class: 'WipeWorkspace'],
 						[$class: 'CloneOption', honorRefspec: true, noTags: true, reference: "${pwd()}/../titanium_mobile.git", shallow: true, depth: 30, timeout: 30]],
 					userRemoteConfigs: scm.userRemoteConfigs
 				])
