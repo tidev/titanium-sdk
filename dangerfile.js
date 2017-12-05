@@ -20,6 +20,15 @@ if (github.pr.deletions > github.pr.additions) {
 	message(':thumbsup: Hey!, You deleted more code than you added. That\'s awesome!');
 }
 
+// Check npm test output
+if (fs.existsSync('./npm_test.log')) {
+	const npmTestOutput = fs.readFileSync('./npm_test.log');
+	if (npmTestOutput.indexOf('Test failed.  See above for more details.') !== -1) {
+		fail(':disappointed_relieved: `npm test` failed. See below for details.');
+		message('```' + npmTestOutput + '\n```');
+	}
+}
+
 // TODO Check for PRs above a certain threshold of changes and warn?
 
 // Check that we have a JIRA Link in the body
