@@ -9,12 +9,14 @@ package org.appcelerator.titanium.util;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.net.URI;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollStreamHelper;
 
@@ -52,12 +54,20 @@ public class TiDownloadManager implements Handler.Callback
 		threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 	}
 
-	public void download(URI uri, TiDownloadListener listener)
+	public void download(URI uri, TiDownloadListener listener) {
+		download(uri, listener, null);
+	}
+
+	public void download(URI uri, TiDownloadListener listener, KrollDict requestHeaders)
 	{
 		if (TiResponseCache.peek(uri)) {
 			sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
 		} else {
-			startDownload(uri, listener);
+			if (requestHeaders == null) {
+				startDownload(uri, listener);
+			} else {
+				startDownload(uri, listener, requestHeaders);
+			}
 		}
 	}
 
@@ -68,7 +78,11 @@ public class TiDownloadManager implements Handler.Callback
 		msg.sendToTarget();
 	}
 
-	protected void startDownload(URI uri, TiDownloadListener listener)
+	protected void startDownload(URI uri, TiDownloadListener listener) {
+		startDownload(uri, listener, null);
+	}
+
+	protected void startDownload(URI uri, TiDownloadListener listener, KrollDict requestHeaders)
 	{
 		String hash = DigestUtils.shaHex(uri.toString());
 		ArrayList<SoftReference<TiDownloadListener>> listenerList = null;
@@ -90,7 +104,11 @@ public class TiDownloadManager implements Handler.Callback
 		synchronized (downloadingURIs) {
 			if (!downloadingURIs.contains(hash)) {
 				downloadingURIs.add(hash);
-				threadPool.execute(new DownloadJob(uri));
+				DownloadJob downloadJob = new DownloadJob(uri);
+				if (requestHeaders != null) {
+					downloadJob = new DownloadJob(uri, requestHeaders);
+				}
+				threadPool.execute(downloadJob);
 			}
 		}
 	}
@@ -121,10 +139,16 @@ public class TiDownloadManager implements Handler.Callback
 	protected class DownloadJob implements Runnable
 	{
 		protected URI uri;
+		protected KrollDict headersDictionary = null;
 
 		public DownloadJob(URI uri)
 		{
 			this.uri = uri;
+		}
+
+		public DownloadJob(URI uri, KrollDict headersDictionary) {
+			this.uri = uri;
+			this.headersDictionary = headersDictionary;
 		}
 
 		public void run()
@@ -132,7 +156,14 @@ public class TiDownloadManager implements Handler.Callback
 			try {
 				// all we want to do is instigate putting this into the cache, and this
 				// is enough for that:
-				InputStream stream = uri.toURL().openStream();
+				URLConnection urlConnection = uri.toURL().openConnection();
+				// assign headers if there are any
+				if (this.headersDictionary != null) {
+					for (String key:headersDictionary.keySet()) {
+						urlConnection.addRequestProperty(key, headersDictionary.getString(key));
+					}
+				}
+				InputStream stream = urlConnection.getInputStream();
 				KrollStreamHelper.pump(stream, null);
 				stream.close();
 

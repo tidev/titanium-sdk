@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -103,7 +104,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					// The requested image did not make it into our TiResponseCache,
 					// possibly because it had a header forbidding that. Now get it
 					// via the "old way" (not relying on cache).
-					TiLoadImageManager.getInstance().load(TiDrawableReference.fromUrl(imageViewProxy, uri.toString()), loadImageListener);
+					TiDrawableReference tempDrawableReference = TiDrawableReference.fromUrl(imageViewProxy, uri.toString());
+					tempDrawableReference.setNetworkURLHeaders(proxy.getProperty(TiC.PROPERTY_REQUEST_HEADERS));
+					TiLoadImageManager.getInstance().load(tempDrawableReference, loadImageListener);
 				}
 			}
 
@@ -726,6 +729,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 
 			if (imageref.isNetworkUrl()) {
+				imageref.setNetworkURLHeaders(proxy.getProperty(TiC.PROPERTY_REQUEST_HEADERS));
 				boolean isCachedInDisk = false;
 				URI uri = null;
 				try {
@@ -740,7 +744,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 				// Check if the image is not cached in disc and the uri is valid.
 				if (!isCachedInDisk && uri != null) {
-					TiDownloadManager.getInstance().download(uri, downloadListener);
+					if (imageref.getNetworkURLHeaders() != null) {
+						TiDownloadManager.getInstance().download(uri, downloadListener, imageref.getNetworkURLHeaders());
+					} else {
+						TiDownloadManager.getInstance().download(uri, downloadListener);
+					}
 				} else {
 					// If the image has been cached in disk or the uri is not valid,
 					// fetch and cache it and update the UI.

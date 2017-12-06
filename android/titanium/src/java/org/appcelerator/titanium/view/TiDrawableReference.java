@@ -59,6 +59,16 @@ public class TiDrawableReference
 		boundsCache = Collections.synchronizedMap(new HashMap<Integer, Bounds>());
 	}
 
+	public KrollDict getNetworkURLHeaders() {
+		return networkURLHeaders;
+	}
+
+	public void setNetworkURLHeaders(Object networkURLHeaders) {
+		if (networkURLHeaders != null && networkURLHeaders instanceof HashMap) {
+			this.networkURLHeaders = new KrollDict(((HashMap) networkURLHeaders));
+		}
+	}
+
 	public enum DrawableReferenceType
 	{
 		NULL, URL, RESOURCE_ID, BLOB, FILE
@@ -80,6 +90,7 @@ public class TiDrawableReference
 	private TiBlob blob;
 	private TiBaseFile file;
 	private DrawableReferenceType type;
+	private KrollDict networkURLHeaders = null;
 	private boolean oomOccurred = false;
 	private boolean anyDensityFalse = false;
 	private boolean autoRotate;
@@ -889,8 +900,11 @@ public class TiDrawableReference
 
 		if (isTypeUrl() && url != null) {
 			try {
-				stream = TiFileHelper.getInstance().openInputStream(url, false);
-				
+				if (networkURLHeaders != null) {
+					stream = TiFileHelper.getInstance().openInputStream(url, false, this.networkURLHeaders);
+				} else {
+					stream = TiFileHelper.getInstance().openInputStream(url, false);
+				}
 			} catch (IOException e) {
 				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
 			}
