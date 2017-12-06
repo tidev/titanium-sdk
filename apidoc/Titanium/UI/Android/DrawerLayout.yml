@@ -92,9 +92,18 @@ properties:
     default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
 
   - name: toolbarEnabled
-    summary: Determine whether to enable the toolbar
+    summary: Determine whether to enable the toolbar.
+    description: |
+      This property is ignored if the used theme provides a default ActionBar.
     type: Boolean
     default: true
+
+  - name: toolbar
+    summary: A Toolbar instance to use as a toolbar.
+    description: |
+      Allows using a [Toolbar]<Titanium.UI.Toolbar> as a toolbar in the DrawerLayout,
+      exposing [Toolbar's]<Titanium.UI.Toolbar> properties and methods for a further customization.
+    type: Titanium.UI.Toolbar
 
 methods:
   - name: toggleLeft
