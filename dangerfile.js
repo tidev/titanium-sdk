@@ -13,6 +13,7 @@ const github = danger.github;
 const Label = {
 	NEEDS_JIRA: 'needs jira',
 	NEEDS_TESTS: 'needs tests',
+	NO_TESTS: 'no tests',
 	NEEDS_CLA: 'needs cla',
 	IOS: 'ios',
 	ANDROID: 'android',
@@ -47,6 +48,14 @@ const hasJIRALink = body.match(JIRARegexp);
 if (!hasJIRALink) {
 	labels.push(Label.NEEDS_JIRA);
 	warn('There is no linked JIRA ticket in the PR body. Please include the URL of the relevant JIRA ticket. If you need to, you may file a ticket on ' + danger.utils.href('https://jira.appcelerator.org/secure/CreateIssue!default.jspa', 'JIRA'));
+} else {
+	// If it has the "needs jira" label, remove it since we do have one linked
+	const hasNeedsJIRALabel = github.issue.labels.some(function (label) {
+		return label.name === Label.NEEDS_JIRA;
+	});
+	if (hasNeedsJIRALabel) {
+		github.api.issues.removeLabel({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, name: Label.NEEDS_JIRA });
+	}
 }
 
 // Check that package.json and package-lock.json stay in-sync
@@ -96,8 +105,6 @@ if (github.pr.author_association === 'FIRST_TIMER') {
 	// Be nice, this is a community member who has landed PRs before!
 	message(`:tada: Another contribution from our awesome community member, ${github.pr.user.login}! Thanks again for helping us make Titanium SDK better. :thumbsup:`);
 }
-// Now apply our labels
-github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: labels });
 
 // Check if any tests were changed/added
 const hasAppChanges = (modifiedAndroidFiles.length + modifiedIOSFiles.length) > 0;
@@ -105,12 +112,27 @@ const testChanges = modified.filter(function (p) {
 	return p.startsWith('tests/') && p.endsWith('.js');
 });
 const hasTestChanges = testChanges.length > 0;
-if (hasAppChanges && !hasTestChanges) {
-	const link = github.utils.fileLinks([ 'README.md#unit-tests' ]);
-
+const hasNoTestsLabel = github.issue.labels.some(function (label) {
+	return label.name === Label.NO_TESTS;
+});
+// If we changed android/iOS source, but didn't change tests and didn't use the 'no tests' label
+// fail the PR
+if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
 	labels.push(Label.NEEDS_TESTS);
-	fail(`:microscope: There are library changes, but no changes to the unit tests. That's OK as long as you're refactoring existing code, but will require an admin to merge this PR. Please see ${link} for docs on unit testing.`); // eslint-disable-line max-len
+	const testDocLink = github.utils.fileLinks([ 'README.md#unit-tests' ]);
+	fail(`:microscope: There are library changes, but no changes to the unit tests. That's OK as long as you're refactoring existing code, but will require an admin to merge this PR. Please see ${testDocLink} for docs on unit testing.`); // eslint-disable-line max-len
+} else {
+	// If it has the "needs tests" label, remove it
+	const hasNeedsTestsLabel = github.issue.labels.some(function (label) {
+		return label.name === Label.NEEDS_TESTS;
+	});
+	if (hasNeedsTestsLabel) {
+		github.api.issues.removeLabel({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, name: Label.NEEDS_TESTS });
+	}
 }
+
+// Now apply our labels
+github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: labels });
 
 function gatherFailedTestcases(reportPath) {
 	if (!fs.existsSync(reportPath)) {
