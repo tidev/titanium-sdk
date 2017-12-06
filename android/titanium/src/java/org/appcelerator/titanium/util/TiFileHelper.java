@@ -20,6 +20,7 @@ import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -149,6 +151,12 @@ public class TiFileHelper implements Handler.Callback
 
 	public InputStream openInputStream(String path, boolean report) throws IOException
 	{
+		return openInputStream(path, report, null);
+	}
+
+	public InputStream openInputStream(String path, boolean report, KrollDict requestProperties)
+		throws IOException
+	{
 		InputStream is = null;
 
 		Context context = softContext.get();
@@ -179,11 +187,12 @@ public class TiFileHelper implements Handler.Callback
 					Log.e(TAG, "Unknown section identifier: " + section);
 				}
 			} else if (URLUtil.isNetworkUrl(path)) {
+				NetworkURLwithProperties networkRequest = new NetworkURLwithProperties(path, requestProperties);
 				if (TiApplication.isUIThread()) {
 					is = (InputStream) TiMessenger.sendBlockingRuntimeMessage(
-						getRuntimeHandler().obtainMessage(MSG_NETWORK_URL), path);
+						getRuntimeHandler().obtainMessage(MSG_NETWORK_URL), networkRequest);
 				} else {
-					is = handleNetworkURL(path);
+					is = handleNetworkURL(networkRequest);
 				}
 			} else if (path.startsWith(RESOURCE_ROOT_ASSETS)) {
 				int len = "file:///android_asset/".length();
@@ -229,11 +238,11 @@ public class TiFileHelper implements Handler.Callback
 		return is;
 	}
 
-	private InputStream handleNetworkURL(String path) throws IOException
+	private InputStream handleNetworkURL(NetworkURLwithProperties networkRequest) throws IOException
 	{
 		InputStream is = null;
 		try {
-			URI uri = new URI(path);
+			URI uri = new URI(networkRequest.getUrl());
 			if (TiResponseCache.peek(uri)) {
 				InputStream stream = TiResponseCache.openCachedStream(uri);
 				if (stream != null) {
@@ -242,10 +251,15 @@ public class TiFileHelper implements Handler.Callback
 				}
 			}
 		} catch (URISyntaxException uriException) {
+			uriException.printStackTrace();
 		}
 
-		URL u = new URL(path);
-		InputStream lis = u.openStream();
+		URL u = new URL(networkRequest.getUrl());
+		URLConnection connection = u.openConnection();
+		for (String key:networkRequest.getNetworkProperties().keySet()) {
+			connection.setRequestProperty(key, networkRequest.getNetworkProperties().getString(key));
+		}
+		InputStream lis = connection.getInputStream();
 		ByteArrayOutputStream bos = null;
 		try {
 			bos = new ByteArrayOutputStream(8192);
@@ -260,7 +274,7 @@ public class TiFileHelper implements Handler.Callback
 
 		} catch (IOException e) {
 
-			Log.e(TAG, "Problem pulling image data from " + path, e);
+			Log.e(TAG, "Problem pulling image data from " + networkRequest.getUrl(), e);
 			throw e;
 		} finally {
 			if (lis != null) {
@@ -303,8 +317,8 @@ public class TiFileHelper implements Handler.Callback
 	/**
 	 * This method creates a Drawable given the bitmap's path, and converts it to a NinePatch Drawable
 	 * if checkForNinePatch param is true.
-	 * @param path  the path/url of the Drawable 
-	 * @param report  this is not being used. 
+	 * @param path  the path/url of the Drawable
+	 * @param report  this is not being used.
 	 * @param checkForNinePatch  a boolean to determine whether the returning Drawable is a NinePatch Drawable.
 	 * @param densityScaled  a boolean to determine whether the returning Drawable is scaled based on device density.
 	 * @return  a Drawable instance.
@@ -780,12 +794,41 @@ public class TiFileHelper implements Handler.Callback
 			case MSG_NETWORK_URL:
 				AsyncResult result = (AsyncResult) msg.obj;
 				try {
-					result.setResult(handleNetworkURL(TiConvert.toString(result.getArg())));
+					result.setResult(handleNetworkURL((((NetworkURLwithProperties) result.getArg()))));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				return true;
 		}
 		return false;
+	}
+
+	// Class to pass network call URL together with required properties.
+	private class NetworkURLwithProperties {
+		private String url;
+		private KrollDict networkProperties;
+
+		public NetworkURLwithProperties(String url, KrollDict networkProperties) {
+			this.url = url;
+			if (networkProperties != null) {
+				this.networkProperties = networkProperties;
+			}
+		}
+
+		public String getUrl() {
+			return url;
+		}
+
+		public void setUrl(String url) {
+			this.url = url;
+		}
+
+		public KrollDict getNetworkProperties() {
+			return networkProperties;
+		}
+
+		public void setNetworkProperties(KrollDict networkProperties) {
+			this.networkProperties = networkProperties;
+		}
 	}
 }

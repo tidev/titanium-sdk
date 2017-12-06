@@ -59,7 +59,20 @@ public class TiDrawableReference
 		boundsCache = Collections.synchronizedMap(new HashMap<Integer, Bounds>());
 	}
 
-	public enum DrawableReferenceType { NULL, URL, RESOURCE_ID, BLOB, FILE }
+	public KrollDict getNetworkURLHeaders() {
+		return networkURLHeaders;
+	}
+
+	public void setNetworkURLHeaders(Object networkURLHeaders) {
+		if (networkURLHeaders != null && networkURLHeaders instanceof HashMap) {
+			this.networkURLHeaders = new KrollDict(((HashMap) networkURLHeaders));
+		}
+	}
+
+	public enum DrawableReferenceType
+	{
+		NULL, URL, RESOURCE_ID, BLOB, FILE
+	}
 
 	public static class Bounds
 	{
@@ -77,6 +90,7 @@ public class TiDrawableReference
 	private TiBlob blob;
 	private TiBaseFile file;
 	private DrawableReferenceType type;
+	private KrollDict networkURLHeaders = null;
 	private boolean oomOccurred = false;
 	private boolean anyDensityFalse = false;
 	private boolean autoRotate;
@@ -883,7 +897,7 @@ public class TiDrawableReference
 
 	/**
 	 * Based on the underlying type of reference this is, figures out how to get
-	 * an InputStream for it.  E.g., if a blob, calls blob.getInputStream, if 
+	 * an InputStream for it.  E.g., if a blob, calls blob.getInputStream, if
 	 * a resource id, calls context.getTiApp().getResources().openRawResource(resourceId).
 	 * @return InputStream or null if problem getting it (check logcat in that case)
 	 */
@@ -893,8 +907,11 @@ public class TiDrawableReference
 
 		if (isTypeUrl() && url != null) {
 			try {
-				stream = TiFileHelper.getInstance().openInputStream(url, false);
-
+				if (networkURLHeaders != null) {
+					stream = TiFileHelper.getInstance().openInputStream(url, false, this.networkURLHeaders);
+				} else {
+					stream = TiFileHelper.getInstance().openInputStream(url, false);
+				}
 			} catch (IOException e) {
 				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
 			}
@@ -924,7 +941,7 @@ public class TiDrawableReference
 
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
-	 * 
+	 *
 	 * @see <a href="http://developer.android.com/reference/android/graphics/BitmapFactory.Options.html#inSampleSize">BitmapFactory.Options.inSampleSize</a>
 	 * @param srcWidth int
 	 * @param srcHeight int
@@ -942,7 +959,7 @@ public class TiDrawableReference
 
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
-	 * 
+	 *
 	 * @see <a href="http://developer.android.com/reference/android/graphics/BitmapFactory.Options.html#inSampleSize">BitmapFactory.Options.inSampleSize</a>
 	 * @param srcWidth int
 	 * @param srcHeight int
