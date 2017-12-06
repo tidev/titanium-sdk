@@ -184,7 +184,7 @@ if (failures_and_errors.length !== 0) {
 
 // Add link to built SDK zipfile!
 if (ENV.BUILD_STATUS === 'SUCCESS' || ENV.BUILD_STATUS === 'UNSTABLE') {
-	const sdkLink = danger.utils.href(`${ENV.BUILD_URL}/artifact/dist/${ENV.ZIPFILE}`, 'Here\'s the generated SDK zipfile');
+	const sdkLink = danger.utils.href(`${ENV.BUILD_URL}artifact/${ENV.ZIPFILE}`, 'Here\'s the generated SDK zipfile');
 	message(`:floppy_disk: ${sdkLink}.`);
 }
 
