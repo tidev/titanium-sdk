@@ -360,13 +360,7 @@ public class TiBlob extends KrollProxy
 	{
 		switch (type) {
 			case TYPE_FILE:
-				long fileSize;
-				if (data instanceof TitaniumBlob) {
-					fileSize = ((TitaniumBlob) data).getFile().length();
-				} else {
-					fileSize = ((TiBaseFile) data).size();
-				}
-				return (int) fileSize;
+				return (int) ((TiBaseFile) data).size();
 			case TYPE_DATA:
 			case TYPE_IMAGE:
 				return ((byte[])data).length;
@@ -388,7 +382,7 @@ public class TiBlob extends KrollProxy
 			case TYPE_FILE:
 			try {
 				return ((TiBaseFile)data).getInputStream();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				Log.e(TAG, e.getMessage(), e);
 				return null;
 			}
