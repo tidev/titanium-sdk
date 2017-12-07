@@ -8,6 +8,7 @@ package ti.modules.titanium.media;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -828,8 +829,18 @@ public class MediaModule extends KrollModule
 
 					//Create a blob for response
 					try {
+						TiBlob theBlob;
 						TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
-						TiBlob theBlob = TiBlob.blobFromFile(theFile);
+						if (saveToPhotoGallery) {
+							theBlob = TiBlob.blobFromFile(theFile);
+						} else {
+							// Delete the temporary file if we do not save the picture in gallery.
+							byte[] imageBytes = new byte[(int) imageFile.length()];
+							DataInputStream dataInputStream = new DataInputStream(new FileInputStream(imageFile));
+							dataInputStream.readFully(imageBytes);
+							theBlob = TiBlob.blobFromData(imageBytes);
+							imageFile.delete();
+						}
 						KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
 						if (successCallback != null) {
 							successCallback.callAsync(getKrollObject(), response);

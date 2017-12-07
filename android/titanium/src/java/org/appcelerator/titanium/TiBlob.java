@@ -348,6 +348,7 @@ public class TiBlob extends KrollProxy
 						}
 					}
 				}
+				break;
 			default :
 				throw new IllegalArgumentException("Unknown Blob type id " + type);
 		}
