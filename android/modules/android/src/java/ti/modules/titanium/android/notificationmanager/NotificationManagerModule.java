@@ -23,6 +23,7 @@ import android.app.NotificationManager;
 import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.support.v4.app.NotificationManagerCompat;
 
 import java.util.HashMap;
 
@@ -111,6 +112,11 @@ public class NotificationManagerModule extends KrollModule
 				}
 			}
 		}
+	}
+
+	@Kroll.method
+	public boolean areNotificationsEnabled() {
+		return NotificationManagerCompat.from(TiApplication.getInstance()).areNotificationsEnabled();
 	}
 
 	@Override
