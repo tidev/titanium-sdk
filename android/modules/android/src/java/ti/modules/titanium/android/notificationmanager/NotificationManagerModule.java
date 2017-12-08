@@ -115,7 +115,8 @@ public class NotificationManagerModule extends KrollModule
 	}
 
 	@Kroll.method
-	public boolean areNotificationsEnabled() {
+	public boolean areNotificationsEnabled()
+	{
 		return NotificationManagerCompat.from(TiApplication.getInstance()).areNotificationsEnabled();
 	}
 
