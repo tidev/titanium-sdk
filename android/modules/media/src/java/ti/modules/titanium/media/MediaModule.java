@@ -23,6 +23,7 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -115,7 +116,7 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ENDED = 0;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ERROR = 1;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_USER_EXITED = 2;
-	
+
 	@Kroll.constant public static final int VIDEO_REPEAT_MODE_NONE = 0;
 	@Kroll.constant public static final int VIDEO_REPEAT_MODE_ONE = 1;
 
@@ -135,6 +136,7 @@ public class MediaModule extends KrollModule
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static String extension = ".jpg";
+	private TiTempFileHelper tempFileHelper;
 
 	private static class ApiLevel16
 	{
@@ -151,6 +153,7 @@ public class MediaModule extends KrollModule
 	public MediaModule()
 	{
 		super();
+		tempFileHelper = new TiTempFileHelper(TiApplication.getInstance());
 	}
 
 	@Kroll.method
@@ -806,11 +809,10 @@ public class MediaModule extends KrollModule
 					if (!saveToPhotoGallery) {
 						//Create a file in the internal data directory and delete the original file
 						try {
-							File dataFile = TiFileFactory.createDataFile("tia", extension);
+							File dataFile = tempFileHelper.createTempFile("tia", extension);
 							copyFile(imageFile, dataFile);
 							imageFile.delete();
 							imageFile = dataFile;
-							TiFileHelper.getInstance().destroyOnExit(imageFile);
 						} catch(Throwable t) {
 							if (errorCallback != null) {
 								KrollDict response = new KrollDict();
@@ -829,17 +831,10 @@ public class MediaModule extends KrollModule
 
 					//Create a blob for response
 					try {
-						TiBlob theBlob;
 						TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
-						if (saveToPhotoGallery) {
-							theBlob = TiBlob.blobFromFile(theFile);
-						} else {
-							// Delete the temporary file if we do not save the picture in gallery.
-							byte[] imageBytes = new byte[(int) imageFile.length()];
-							DataInputStream dataInputStream = new DataInputStream(new FileInputStream(imageFile));
-							dataInputStream.readFully(imageBytes);
-							theBlob = TiBlob.blobFromData(imageBytes);
-							imageFile.delete();
+						TiBlob theBlob = TiBlob.blobFromFile(theFile);
+						if (!saveToPhotoGallery) {
+							TiFileHelper.getInstance().destroyOnExit(imageFile);
 						}
 						KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
 						if (successCallback != null) {
