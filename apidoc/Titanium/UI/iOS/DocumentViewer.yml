@@ -29,6 +29,13 @@ description: |
     In the document viewer, click the **Done** button to dismiss the document viewer or click the
     right navigation button to open the options menu to perform another action with the document,
     such as printing the document or opening the document in another application.
+    
+    **Note for iOS 11 and later**
+    When using the DocumentViewer in iOS 11 and later, documents need to be placed in the app-bundle
+    in order to be shared to third-party apps. This is a privacy restriction and can be solved by 
+    using either a document from the `Resources` directory (classic Titanium) or `app/assets` (Alloy). 
+    Alternatively, documents can also be stored in the <Titanium.Filesystem.applicationCacheDirectory> 
+    or <Titanium.Filesystem.applicationDataDirectory>.
 extends: Titanium.UI.View
 platforms: [iphone,ipad]
 since: "2.1.1"

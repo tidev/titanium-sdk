@@ -108,8 +108,8 @@ static void krollLog(const FunctionCallbackInfo<Value>& args)
 		message = String::Concat(String::Concat(message, space), args[i].As<String>());
 	}
 
-	titanium::Utf8Value tagValue(tag);
-	titanium::Utf8Value messageValue(message);
+	v8::String::Utf8Value tagValue(tag);
+	v8::String::Utf8Value messageValue(message);
 	__android_log_print(ANDROID_LOG_DEBUG, *tagValue, *messageValue);
 }
 
@@ -172,11 +172,11 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 	HandleScope scope(V8Runtime::v8_isolate);
 
 	// Log reason and location of the error.
-	LOGD(TAG, *titanium::Utf8Value(msg->Get()));
+	LOGD(TAG, *v8::String::Utf8Value(msg->Get()));
 	LOGD(TAG, "%s @ %d >>> %s",
-		*titanium::Utf8Value(msg->GetScriptResourceName()),
+		*v8::String::Utf8Value(msg->GetScriptResourceName()),
 		msg->GetLineNumber(),
-		*titanium::Utf8Value(msg->GetSourceLine()));
+		*v8::String::Utf8Value(msg->GetSourceLine()));
 }
 
 } // namespace titanium
