@@ -61,11 +61,22 @@ AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 	const cliSDKVersion = this.cli.sdk.manifest.version;
 	const manifestSDKVersion = this.manifest.minsdk;
 	const manifestModuleAPIVersion = this.manifest.apiversion;
-	const newVersion = semver.inc(this.manifest.version, 'major');
 	const manifestTemplateFile = path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', 'manifest.ejs');
+	let newVersion = semver.inc(this.manifest.version, 'major');
 
 	var performMigration = function (next) {
 		this.logger.info(__('Migrating module manifest ...'));
+
+		// If a version is "1.0" instead of "1.0.0", semver currently fails. Work around it for now!
+		if (!newVersion) {
+			this.logger.warn(__('Detected non-semantic version (%s), will try to repair it!', this.manifest.version));
+			try {
+				newVersion = semver.inc(this.manifest.version.split('.')[0] + '.0.0', 'major');
+			} catch (e) {
+				this.logger.error(__('Unable to migrate version for you. Please update it manually by using a semantic version like "1.0.0" and try the migration again.'));
+				process.exit(1);
+			}
+		}
 
 		this.logger.info(__('Setting %s to %s', 'apiversion'.cyan, cliModuleAPIVersion.cyan));
 		this.manifest.apiversion = cliModuleAPIVersion;
