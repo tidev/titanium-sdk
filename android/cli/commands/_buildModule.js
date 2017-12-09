@@ -102,6 +102,7 @@ AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 		manifestContent = manifestContent.replace(/version.*/, 'version: ' + this.manifest.version);
 		manifestContent = manifestContent.replace(/license.*/, 'license: ' + this.manifest.license);
 		manifestContent = manifestContent.replace(/copyright.*/, 'copyright: ' + this.manifest.copyright);
+		manifestContent = manifestContent.replace(/description.*/, 'description: ' + this.manifest.description);
 
 		this.logger.info(__('Backing up old manifest to %s', 'manifest.bak'.cyan));
 		fs.renameSync(path.join(this.projectDir, 'manifest'), path.join(this.projectDir, 'manifest.bak'));
