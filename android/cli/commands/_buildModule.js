@@ -70,7 +70,8 @@ AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 		if (!newVersion) {
 			this.logger.warn(__('Detected non-semantic version (%s), will try to repair it!', this.manifest.version));
 			try {
-				newVersion = semver.inc(this.manifest.version.split('.')[0] + '.0.0', 'major');
+				const semanticVersion = appc.version.format(this.manifest.version, 3, 3, true);
+				newVersion = semver.inc(semanticVersion, 'major');
 			} catch (e) {
 				this.logger.error(__('Unable to migrate version for you. Please update it manually by using a semantic version like "1.0.0" and try the migration again.'));
 				process.exit(1);
