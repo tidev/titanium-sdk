@@ -21,14 +21,13 @@ const AdmZip = require('adm-zip'),
 	Builder = require('../lib/base-builder'),
 	ejs = require('ejs'),
 	fields = require('fields'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	markdown = require('markdown').markdown,
 	path = require('path'),
 	temp = require('temp'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
-	wrench = require('wrench'),
 	semver = require('semver'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	SymbolLoader = require('appc-aar-tools').SymbolLoader,
@@ -78,14 +77,21 @@ AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 			}
 		}
 
+		// Update the "apiversion" to the CLI API-version
 		this.logger.info(__('Setting %s to %s', 'apiversion'.cyan, cliModuleAPIVersion.cyan));
 		this.manifest.apiversion = cliModuleAPIVersion;
 
+		// Update the "minsdk" to the required CLI SDK-version
 		this.logger.info(__('Setting %s to %s', 'minsdk'.cyan, cliSDKVersion.cyan));
 		this.manifest.minsdk = cliSDKVersion;
 
+		// Update the "apiversion" to the next major
 		this.logger.info(__('Bumping version from %s to %s', this.manifest.version.cyan, newVersion.cyan));
 		this.manifest.version = newVersion;
+
+		// Add our new architecture
+		// TODO: Read this from a regex of the "manifestContent" instead to be more flexible
+		this.manifest.architectures = 'arm64-v8a ' + this.manifest.architectures;
 
 		// Pre-fill placeholders
 		let manifestContent = ejs.render(fs.readFileSync(manifestTemplateFile).toString(), {
@@ -104,9 +110,11 @@ AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 		manifestContent = manifestContent.replace(/copyright.*/, 'copyright: ' + this.manifest.copyright);
 		manifestContent = manifestContent.replace(/description.*/, 'description: ' + this.manifest.description);
 
+		// Make a backup of the old file in case something goes wrong
 		this.logger.info(__('Backing up old manifest to %s', 'manifest.bak'.cyan));
 		fs.renameSync(path.join(this.projectDir, 'manifest'), path.join(this.projectDir, 'manifest.bak'));
 
+		// Write the new manifest file
 		this.logger.info(__('Writing new manifest'));
 		fs.writeFileSync(path.join(this.projectDir, 'manifest'), manifestContent);
 
@@ -394,6 +402,24 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.timodule = fs.existsSync(this.timoduleXmlFile) ? new tiappxml(this.timoduleXmlFile) : undefined;
 	this.modulesDir = path.join(this.projectDir, 'modules', 'android');
 	this.globalModulesDir = path.join(this.globalModulesPath, 'android');
+	this.buildDir = path.join(this.projectDir, 'build');
+	this.libsDir = path.join(this.projectDir, 'libs');
+
+	// Flush the build/ and libs/ directory as they can cause issues when building from existing versions
+	if (fs.existsSync(this.buildDir)) {
+		fs.removeSync(this.buildDir);
+	}
+	fs.mkdirsSync(this.buildDir);
+
+	if (fs.existsSync(this.libsDir)) {
+		fs.removeSync(this.libsDir);
+	}
+	fs.mkdirsSync(this.libsDir);
+
+	// Write the architecture directories
+	this.manifest.architectures.split(' ').forEach(function (architecture) {
+		fs.mkdirsSync(path.join(this.libsDir, architecture));
+	}, this);
 
 	// process module dependencies
 	this.modules = this.timodule && !Array.isArray(this.timodule.modules) ? [] : this.timodule.modules.filter(function (m) {
@@ -471,8 +497,6 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.localJinDir = path.join(this.projectDir, 'jni');
 	this.javaSrcDir = path.join(this.projectDir, 'src');
 	this.distDir = path.join(this.projectDir, 'dist');
-	this.buildDir = path.join(this.projectDir, 'build');
-	this.libsDir = path.join(this.projectDir, 'libs');
 	this.projLibDir = path.join(this.projectDir, 'lib');
 
 	this.buildClassesDir = path.join(this.buildDir, 'classes');
@@ -598,8 +622,8 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 			this.logger.info(__('Merging resources'));
 
 			if (fs.existsSync(mergedResPath)) {
-				wrench.rmdirSyncRecursive(mergedResPath);
-				wrench.mkdirSyncRecursive(mergedResPath);
+				fs.removeSync(mergedResPath);
+				fs.mkdirsSync(mergedResPath);
 			}
 
 			appc.async.series(this, [
@@ -641,7 +665,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 					}
 
 					if (!fs.existsSync(explodedModuleResPath)) {
-						wrench.mkdirSyncRecursive(explodedModuleResPath);
+						fs.mkdirsSync(explodedModuleResPath);
 					}
 					/**
 					 * @param  {string}   resArchivePathAndFilename path
@@ -725,7 +749,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 			var manifestTemplatePathAndFilename = path.join(this.moduleGenTemplateDir, 'AndroidManifest.xml.ejs');
 			var manifestOutputPathAndFilename = path.join(this.buildIntermediatesDir, 'manifests/aapt/AndroidManifest.xml');
 			if (!fs.existsSync(path.dirname(manifestOutputPathAndFilename))) {
-				wrench.mkdirSyncRecursive(path.dirname(manifestOutputPathAndFilename));
+				fs.mkdirsSync(path.dirname(manifestOutputPathAndFilename));
 			}
 			const manifestContent = ejs.render(fs.readFileSync(manifestTemplatePathAndFilename).toString(), {
 				MODULE_ID: this.manifest.moduleid
@@ -747,11 +771,11 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 		function generateModuleRClassFile(cb) {
 			this.logger.trace('Generating R.java for module: ' + this.manifest.moduleid);
 			if (!fs.existsSync(this.buildGenRDir)) {
-				wrench.mkdirSyncRecursive(this.buildGenRDir);
+				fs.mkdirsSync(this.buildGenRDir);
 			}
 
 			if (!fs.existsSync(bundlesPath)) {
-				wrench.mkdirSyncRecursive(bundlesPath);
+				fs.mkdirsSync(bundlesPath);
 			}
 			const aaptBin = this.androidInfo.sdk.executables.aapt;
 			const aaptOptions = [
@@ -912,9 +936,9 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 	// 	dist/
 	[ this.buildClassesDir, this.buildGenJsonDir, this.buildGenJniDir, this.distDir ].forEach(function (dir) {
 		if (fs.existsSync(dir)) {
-			wrench.rmdirSyncRecursive(dir);
+			fs.removeSync(dir);
 		}
-		wrench.mkdirSyncRecursive(dir);
+		fs.mkdirsSync(dir);
 	}, this);
 
 	const javacHook = this.cli.createHook('build.android.javac', this, function (exe, args, opts, done) {
@@ -1278,7 +1302,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			};
 
 			const boostrapPathJava = path.join(this.buildGenJavaDir, this.moduleIdSubDir);
-			fs.existsSync(boostrapPathJava) || wrench.mkdirSyncRecursive(boostrapPathJava);
+			fs.existsSync(boostrapPathJava) || fs.mkdirsSync(boostrapPathJava);
 
 			fs.writeFileSync(
 				path.join(boostrapPathJava, fileNamePrefix + 'Bootstrap.java'),
@@ -1367,7 +1391,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 		var outputDir = path.dirname(path.join(this.buildGenJsDir, file)),
 			filePath = path.join(this.assetsDir, file);
 
-		fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
+		fs.existsSync(outputDir) || fs.mkdirsSync(outputDir);
 
 		const r = jsanalyze.analyzeJsFile(filePath, { minify: true });
 		this.tiSymbols[file] = r.symbols;
@@ -1587,7 +1611,7 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 							const relativeName = path.relative(this.buildGenLibsDir, file),
 								targetDir = path.join(this.libsDir, path.dirname(relativeName));
 
-							fs.existsSync(targetDir) || wrench.mkdirSyncRecursive(targetDir);
+							fs.existsSync(targetDir) || fs.mkdirsSync(targetDir);
 
 							fs.writeFileSync(
 								path.join(targetDir, path.basename(file)),
@@ -1616,13 +1640,13 @@ AndroidModuleBuilder.prototype.ndkLocalBuild = function (next) {
 	const localJniGenDir = path.join(this.buildGenJniLocalDir, 'jni'),
 		localJniGenLibs = path.join(this.buildGenJniLocalDir, 'libs');
 
-	wrench.mkdirSyncRecursive(this.buildGenJniLocalDir);
+	fs.mkdirsSync(this.buildGenJniLocalDir);
 	fs.writeFileSync(
 		path.join(this.buildGenJniLocalDir, 'Application.mk'),
 		fs.readFileSync(path.join(this.buildGenDir, 'Application.mk'))
 	);
 
-	wrench.mkdirSyncRecursive(localJniGenDir);
+	fs.mkdirsSync(localJniGenDir);
 
 	this.dirWalker(this.localJinDir, function (file) {
 		fs.writeFileSync(
@@ -1659,7 +1683,7 @@ AndroidModuleBuilder.prototype.ndkLocalBuild = function (next) {
 					const relativeName = path.relative(localJniGenLibs, file),
 						targetDir = path.join(this.libsDir, path.dirname(relativeName));
 
-					fs.existsSync(targetDir) || wrench.mkdirSyncRecursive(targetDir);
+					fs.ensureDirSync(targetDir);
 
 					fs.writeFileSync(
 						path.join(targetDir, path.basename(file)),
@@ -1709,7 +1733,7 @@ AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
 	fs.existsSync(javaSourcesFile) && fs.unlinkSync(javaSourcesFile);
 	fs.writeFileSync(javaSourcesFile, '"' + javaFiles.join('"\n"').replace(/\\/g, '/') + '"');
 
-	wrench.copyDirSyncRecursive(this.buildGenJsonDir, this.buildClassesDir, { forceDelete: true });
+	fs.copySync(this.buildGenJsonDir, this.buildClassesDir);
 
 	javacHook(
 		this.jdkInfo.executables.javac,
@@ -1727,7 +1751,7 @@ AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
 		function () {
 			// remove gen, prevent duplicate entry error
 			if (fs.existsSync(this.buildClassesGenDir)) {
-				wrench.rmdirSyncRecursive(this.buildClassesGenDir);
+				fs.removeSync(this.buildClassesGenDir);
 			}
 			next();
 		}.bind(this)
@@ -1770,8 +1794,7 @@ AndroidModuleBuilder.prototype.verifyBuildArch = function (next) {
 AndroidModuleBuilder.prototype.packageZip = function (next) {
 	this.logger.info(__('Packaging the module'));
 
-	fs.existsSync(this.distDir) || wrench.rmdirSyncRecursive(this.distDir);
-	wrench.mkdirSyncRecursive(this.distDir);
+	fs.ensureDirSync(this.distDir);
 
 	const tasks = [
 		function (cb) {
@@ -2053,7 +2076,7 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 
 		function (cb) {
 			// 1. create temp dir
-			wrench.mkdirSyncRecursive(tmpDir);
+			fs.mkdirsSync(tmpDir);
 
 			// 2. create temp proj
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
