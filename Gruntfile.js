@@ -6,6 +6,7 @@ const async = require('async'),
 module.exports = function (grunt) {
 
 	const iosSrc = [ 'iphone/Classes/*.h', 'iphone/Classes/*.m' ];
+	const androidSrc = [ 'android/runtime/v8/src/**/*.java' ];
 
 	// Project configuration.
 	grunt.initConfig({
@@ -17,6 +18,9 @@ module.exports = function (grunt) {
 		},
 		ios_format: {
 			src: iosSrc
+		},
+		android_format: {
+			src: androidSrc
 		}
 	});
 
@@ -44,7 +48,7 @@ module.exports = function (grunt) {
 		});
 	});
 
-	grunt.registerMultiTask('ios_format', 'Validates the iOS source code formatting.', function () {
+	function validateFormatting() {
 		const done = this.async(),
 			clangFormat = require('clang-format');
 
@@ -68,7 +72,7 @@ module.exports = function (grunt) {
 		async.mapLimit(src, EXEC_LIMIT, function (filepath, cb) {
 			let stdout = '';
 
-			const proc = clangFormat.spawnClangFormat([ '-output-replacements-xml', filepath ], function () {}, 'pipe');
+			const proc = clangFormat.spawnClangFormat([ '-style=file', '-output-replacements-xml', filepath ], function () {}, 'pipe');
 			proc.stdout.on('data', function (data) {
 				stdout += data.toString();
 			});
@@ -95,7 +99,10 @@ module.exports = function (grunt) {
 			}
 			done();
 		});
-	});
+	}
+
+	grunt.registerMultiTask('ios_format', 'Validates the iOS source code formatting.', validateFormatting);
+	grunt.registerMultiTask('android_format', 'Validates the Android source code formatting.', validateFormatting);
 
 	// Load grunt plugins for modules
 	grunt.loadNpmTasks('grunt-mocha-test');
@@ -104,7 +111,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
 	// register tasks
-	grunt.registerTask('lint', [ 'appcJs', 'ios_format', 'validate_docs' ]);
+	grunt.registerTask('lint', [ 'appcJs', 'ios_format', 'android_format', 'validate_docs' ]);
 
 	// register tasks
 	grunt.registerTask('format', [ 'clangFormat' ]);

@@ -965,10 +965,10 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
     return;
   }
 
-// TODO: Enquing safeProtect here may not be enough to guarantee that the object is actually
-// safely protected "in time" (i.e. it may be GC'd before the safe protect is evaluated
-// by the queue processor). We need to seriously re-evaluate the memory model and thread
-// interactions during such.
+  // TODO: Enquing safeProtect here may not be enough to guarantee that the object is actually
+  // safely protected "in time" (i.e. it may be GC'd before the safe protect is evaluated
+  // by the queue processor). We need to seriously re-evaluate the memory model and thread
+  // interactions during such.
 
 #ifdef TI_USE_KROLL_THREAD
   if (![context isKJSThread]) {
