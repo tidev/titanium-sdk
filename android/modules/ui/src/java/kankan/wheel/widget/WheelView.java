@@ -589,7 +589,13 @@ public class WheelView extends View {
 		if (itemsWidth > 0) {
 			canvas.save();
 			// Skip padding space and hide a part of top and bottom items
-			canvas.translate(PADDING, -getItemOffset());
+			float translateY;
+			if (Build.VERSION.SDK_INT < 21) {
+				translateY = -getItemOffset();
+			} else {
+				translateY = getTextSize();
+			}
+			canvas.translate(PADDING, translateY);
 			drawItems(canvas);
 			drawValue(canvas);
 			canvas.restore();
