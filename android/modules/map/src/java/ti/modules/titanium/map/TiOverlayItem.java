@@ -19,28 +19,34 @@ public class TiOverlayItem extends OverlayItem
 	private TiViewProxy rightView;
 	private AnnotationProxy proxy;
 
-	public TiOverlayItem(GeoPoint location, String title, String snippet, AnnotationProxy proxy) {
-		super(location,title,snippet);
+	public TiOverlayItem(GeoPoint location, String title, String snippet, AnnotationProxy proxy)
+	{
+		super(location, title, snippet);
 		this.proxy = proxy;
 	}
 
-	public void setLeftButton(String path) {
+	public void setLeftButton(String path)
+	{
 		leftButtonPath = path;
 	}
 
-	public String getLeftButton() {
+	public String getLeftButton()
+	{
 		return leftButtonPath;
 	}
 
-	public void setRightButton(String path) {
+	public void setRightButton(String path)
+	{
 		rightButtonPath = path;
 	}
 
-	public String getRightButton() {
+	public String getRightButton()
+	{
 		return rightButtonPath;
 	}
 
-	public void setLeftView(TiViewProxy leftView) {
+	public void setLeftView(TiViewProxy leftView)
+	{
 		this.leftView = leftView;
 	}
 
@@ -49,7 +55,8 @@ public class TiOverlayItem extends OverlayItem
 		return leftView;
 	}
 
-	public void setRightView(TiViewProxy rightView) {
+	public void setRightView(TiViewProxy rightView)
+	{
 		this.rightView = rightView;
 	}
 
@@ -58,10 +65,12 @@ public class TiOverlayItem extends OverlayItem
 		return rightView;
 	}
 
-	public AnnotationProxy getProxy() {
+	public AnnotationProxy getProxy()
+	{
 		return proxy;
 	}
-	public boolean hasData() {
+	public boolean hasData()
+	{
 		return getTitle() != null || getSnippet() != null | leftButtonPath != null || rightButtonPath != null;
 	}
 }

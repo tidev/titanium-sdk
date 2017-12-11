@@ -40,8 +40,7 @@ public class TiOverlayItemView extends FrameLayout
 	private View[] hitTestList;
 	private OnOverlayClicked overlayClickedListener;
 
-	public interface OnOverlayClicked
-	{
+	public interface OnOverlayClicked {
 		public void onClick(int lastIndex, String clickedItem);
 	}
 
@@ -77,7 +76,6 @@ public class TiOverlayItemView extends FrameLayout
 		textLayout.setId(101);
 
 		title = new TextView(context) {
-
 			@Override
 			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 			{
@@ -87,10 +85,9 @@ public class TiOverlayItemView extends FrameLayout
 					setMeasuredDimension(200, getMeasuredHeight());
 				}
 			}
-
 		};
 		title.setId(200);
-		title.setTextColor(Color.argb(255, 216,216,216));
+		title.setTextColor(Color.argb(255, 216, 216, 216));
 		title.setTag(TiC.PROPERTY_TITLE);
 		TiUIHelper.styleText(title, "sans-serif", "15sip", "bold");
 		params = createBaseParams();
@@ -99,7 +96,7 @@ public class TiOverlayItemView extends FrameLayout
 
 		snippet = new TextView(context);
 		snippet.setId(201);
-		snippet.setTextColor(Color.argb(255, 192,192,192));
+		snippet.setTextColor(Color.argb(255, 192, 192, 192));
 		snippet.setTag(TiC.PROPERTY_SUBTITLE);
 		TiUIHelper.styleText(snippet, "sans-serif", "10sip", "bold");
 		params = createBaseParams();
@@ -122,7 +119,8 @@ public class TiOverlayItemView extends FrameLayout
 		params.setMargins(5, 0, 0, 0);
 		layout.addView(rightPane, params);
 
-		FrameLayout.LayoutParams fparams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		FrameLayout.LayoutParams fparams =
+			new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		fparams.gravity = Gravity.NO_GRAVITY;
 		addView(layout, fparams);
 
@@ -146,7 +144,7 @@ public class TiOverlayItemView extends FrameLayout
 
 		String leftButton = item.getLeftButton();
 		TiViewProxy leftView = item.getLeftView();
-		if((leftButton != null) || (leftView != null)) {
+		if ((leftButton != null) || (leftView != null)) {
 			if (leftButton != null) {
 				try {
 					ImageView leftImage = new ImageView(getContext());
@@ -156,7 +154,6 @@ public class TiOverlayItemView extends FrameLayout
 
 				} catch (Exception e) {
 					Log.e(TAG, "Error loading left button - " + leftButton + ": " + e.getMessage());
-
 				}
 
 			} else if (leftView != null) {
@@ -170,7 +167,7 @@ public class TiOverlayItemView extends FrameLayout
 
 		String rightButton = item.getRightButton();
 		TiViewProxy rightView = item.getRightView();
-		if((rightButton != null) || (rightView != null)) {
+		if ((rightButton != null) || (rightView != null)) {
 			if (rightButton != null) {
 				try {
 					ImageView rightImage = new ImageView(getContext());
@@ -180,7 +177,6 @@ public class TiOverlayItemView extends FrameLayout
 
 				} catch (Exception e) {
 					Log.e(TAG, "Error loading right button - " + rightButton + ": " + e.getMessage());
-
 				}
 
 			} else if (rightView != null) {
@@ -193,7 +189,7 @@ public class TiOverlayItemView extends FrameLayout
 			rightPane.setVisibility(GONE);
 		}
 
-		if(item.getTitle() != null) {
+		if (item.getTitle() != null) {
 			title.setVisibility(VISIBLE);
 			title.setText(item.getTitle());
 
@@ -201,7 +197,7 @@ public class TiOverlayItemView extends FrameLayout
 			title.setVisibility(GONE);
 		}
 
-		if(item.getSnippet() != null) {
+		if (item.getSnippet() != null) {
 			snippet.setVisibility(VISIBLE);
 			snippet.setText(item.getSnippet());
 

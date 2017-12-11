@@ -29,14 +29,17 @@ import android.os.Bundle;
 import android.view.Window;
 
 @SuppressWarnings("deprecation")
-@Kroll.proxy(creatableInModule = MapModule.class, propertyAccessors = {
-	TiC.PROPERTY_ANNOTATIONS,
-	TiC.PROPERTY_MAP_TYPE,
-	TiC.PROPERTY_REGION,
-	TiC.PROPERTY_REGION_FIT,
-	TiC.PROPERTY_USER_LOCATION,
-	TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP
+// clang-format off
+@Kroll.proxy(creatableInModule = MapModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_ANNOTATIONS,
+		TiC.PROPERTY_MAP_TYPE,
+		TiC.PROPERTY_REGION,
+		TiC.PROPERTY_REGION_FIT,
+		TiC.PROPERTY_USER_LOCATION,
+		TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP
 })
+// clang-format on
 public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 {
 	private static LocalActivityManager lam;
@@ -46,7 +49,6 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_ADD_ROUTE = MSG_FIRST_ID + 50;
 	private static final int MSG_REMOVE_ROUTE = MSG_FIRST_ID + 51;
-
 
 	/*
 	 * Track whether the map activity has been destroyed (or told to destroy).
@@ -93,8 +95,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 			// We need to know when root activity destroys, since this lam is
 			// based on its context;
-			rootLifecycleListener = new OnLifecycleEvent()
-			{
+			rootLifecycleListener = new OnLifecycleEvent() {
 				@Override
 				public void onCreate(Activity activity, Bundle savedInstanceState)
 				{
@@ -135,7 +136,8 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		}
 
 		if (mapWindow != null) {
-			throw new IllegalStateException("MapView already created. Android can support one MapView per Application.");
+			throw new IllegalStateException(
+				"MapView already created. Android can support one MapView per Application.");
 		}
 
 		for (int i = 0; i < annotations.size(); i++) {
@@ -208,14 +210,14 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 				if (routes[i] instanceof HashMap) {
 					HashMap tempRoute = (HashMap) routes[i];
-					MapPoint mp = new MapPoint(TiConvert.toDouble(tempRoute, "latitude"), TiConvert.toDouble(tempRoute,
-						"longitude"));
+					MapPoint mp = new MapPoint(TiConvert.toDouble(tempRoute, "latitude"),
+											   TiConvert.toDouble(tempRoute, "longitude"));
 					pointsType[i] = mp;
 				}
 			}
 
-			MapRoute mr = new MapRoute(pointsType, TiConvert.toColor(routeMap, "color"), TiConvert.toInt(routeMap, "width"),
-				TiConvert.toString(routeMap, "name"));
+			MapRoute mr = new MapRoute(pointsType, TiConvert.toColor(routeMap, "color"),
+									   TiConvert.toInt(routeMap, "width"), TiConvert.toString(routeMap, "name"));
 
 			if (mapView == null) {
 				this.routes.add(mr);
@@ -339,7 +341,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		AnnotationProxy annotation = null;
 		if (arg != null) {
 			if (arg instanceof AnnotationProxy) {
-				annotation = (AnnotationProxy)arg;
+				annotation = (AnnotationProxy) arg;
 				title = TiConvert.toString(annotation.getProperty(TiC.PROPERTY_TITLE));
 			} else {
 				title = TiConvert.toString(arg);
@@ -373,7 +375,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 				Object selectedAnnotation = params.get(TiC.PROPERTY_ANNOTATION);
 				if (selectedAnnotation instanceof AnnotationProxy) {
-					selAnnotation = (AnnotationProxy)selectedAnnotation;
+					selAnnotation = (AnnotationProxy) selectedAnnotation;
 					title = TiConvert.toString(selAnnotation.getProperty(TiC.PROPERTY_TITLE));
 				} else {
 					title = TiConvert.toString(params, TiC.PROPERTY_TITLE);
@@ -458,14 +460,20 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
 	public double getLongitudeDelta()
+	// clang-format on
 	{
 		return mapView.getLongitudeDelta();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
 	public double getLatitudeDelta()
+	// clang-format on
 	{
 		return mapView.getLatitudeDelta();
 	}
@@ -525,11 +533,11 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	{
 		switch (msg.what) {
 			case MSG_ADD_ROUTE: {
-				handleAddRoute((HashMap)msg.obj);
+				handleAddRoute((HashMap) msg.obj);
 				return true;
 			}
 			case MSG_REMOVE_ROUTE: {
-				handleRemoveRoute((HashMap)msg.obj);
+				handleRemoveRoute((HashMap) msg.obj);
 				return true;
 			}
 			default: {

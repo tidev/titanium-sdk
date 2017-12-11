@@ -9,23 +9,24 @@ package ti.modules.titanium.map;
 /**
  * Simple object representing a point on the map.
  */
-public class MapPoint {
+public class MapPoint
+{
 
 	private double latitude;
 	private double longitude;
-	
-	public MapPoint(double latitude, double longitude) 
+
+	public MapPoint(double latitude, double longitude)
 	{
 		this.latitude = latitude;
 		this.longitude = longitude;
 	}
-	
-	public double getLatitude() 
+
+	public double getLatitude()
 	{
 		return latitude;
 	}
-	
-	public double getLongitude() 
+
+	public double getLongitude()
 	{
 		return longitude;
 	}
