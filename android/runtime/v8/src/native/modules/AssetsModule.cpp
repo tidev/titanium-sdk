@@ -90,7 +90,7 @@ void AssetsModule::readFile(const FunctionCallbackInfo<Value>& args)
 		return;
 	}
 
-	titanium::Utf8Value filename(args[0]);
+	v8::String::Utf8Value filename(args[0]);
 
 	FILE *file = fopen(*filename, "r");
 
