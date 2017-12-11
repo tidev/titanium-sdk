@@ -227,7 +227,7 @@ public class TitaniumModule extends KrollModule
 		String msg = (message == null? null : message.toString());
 
 		if (TiApplication.isUIThread()) {
-			TiUIHelper.doOkDialog("Alert", msg, null);
+			TiUIHelper.doOkDialog("", msg, null);
 		} else {
 			getMainHandler().obtainMessage(MSG_ALERT, msg).sendToTarget();
 		}

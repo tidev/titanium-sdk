@@ -22,6 +22,7 @@
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
 @property (nonatomic, copy, readwrite) NSString *searchString;
+@property (nonatomic, copy, readwrite) NSString *searchedString;
 @end
 
 static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint point);
@@ -45,6 +46,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   TiUISearchBarProxy *searchViewProxy;
   UISearchController *searchController;
   UITableViewController *resultViewController;
+  UIViewController *searchControllerPresenter;
 
   NSMutableArray *sectionTitles;
   NSMutableArray *sectionIndices;
@@ -74,6 +76,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   BOOL isScrollingToTop;
 
   BOOL _dimsBackgroundDuringPresentation;
+  CGPoint tableContentOffset;
+  BOOL isSearched;
 }
 
 #ifdef TI_USE_AUTOLAYOUT
@@ -312,7 +316,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       CGFloat rowWidth = [self computeRowWidth:_tableView];
       if (rowWidth > 0) {
         CGFloat right = _tableView.bounds.size.width - rowWidth;
-        [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
+        [_searchWrapper layoutProperties] -> right = TiDimensionDip(right);
       }
     }
 #endif
@@ -330,6 +334,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (_pullViewWrapper != nil) {
     _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height);
     [_pullViewProxy parentSizeWillChange];
+  }
+
+  if ([searchController isActive]) {
+    [self updateSearchControllerFrames];
   }
 }
 
@@ -619,6 +627,42 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     return thePath.section;
   }
   return section;
+}
+
+- (void)updateSearchControllerFrames
+{
+  if (![searchController isActive]) {
+    return;
+  }
+
+  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+
+  UIView *searchSuperView = [searchController.view superview];
+  searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
+
+  // Dimming view (transparent view of search controller, which is not exposed) need to manage as it is taking full height of screen always
+  UIView *dimmingView = nil;
+  for (UIView *view in [searchSuperView subviews]) {
+    if ([NSStringFromClass(view.class) hasSuffix:@"UIDimmingView"]) {
+      dimmingView = view;
+      break;
+    }
+  }
+
+  dimmingView.frame = CGRectMake(searchController.view.frame.origin.x, searchController.view.frame.origin.y, self.frame.size.width, self.frame.size.height);
+
+  CGFloat width = [_searchWrapper view].frame.size.width;
+  UIView *view = searchController.searchBar.superview;
+  view.frame = CGRectMake(0, 0, width, view.frame.size.height);
+  searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
+
+  UIView *resultSuperview = [resultViewController.view superview];
+  if (resultSuperview) {
+    resultSuperview.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+    resultViewController.tableView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  } else {
+    resultViewController.tableView.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  }
 }
 
 #pragma mark - Public API
@@ -964,7 +1008,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [_searchWrapper add:searchViewProxy];
     NSString *curPlaceHolder = [[searchViewProxy searchBar] placeholder];
     if (curPlaceHolder == nil) {
-      [[searchViewProxy searchBar] setPlaceholder:@"Search"];
+      [[searchViewProxy searchBar] setPlaceholder:NSLocalizedString(@"Search", @"Search")];
     }
     self.searchString = [[searchViewProxy searchBar] text];
     [self initSearchController:self];
@@ -1154,7 +1198,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
                                                                          if ([searchController isActive]) {
                                                                            [[resultViewController tableView] setEditing:NO];
                                                                          }
-
                                                                        }];
     if (color) {
       theAction.backgroundColor = [color color];
@@ -1854,8 +1897,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           if (maxWidth > 0) {
             TiUIListItemProxy *theProxy = [theCell proxy];
 #ifndef TI_USE_AUTOLAYOUT
-            [theProxy layoutProperties]->height = TiDimensionAutoSize;
-            [theProxy layoutProperties]->width = TiDimensionAutoFill;
+            [theProxy layoutProperties] -> height = TiDimensionAutoSize;
+            [theProxy layoutProperties] -> width = TiDimensionAutoFill;
 #endif
             CGFloat result = [theProxy minimumParentHeightForSize:CGSizeMake(maxWidth, self.bounds.size.height)];
             return result;
@@ -2050,7 +2093,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   if (_searchWrapper != nil) {
 #ifndef TI_USE_AUTOLAYOUT
-    [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
+    [_searchWrapper layoutProperties] -> right = TiDimensionDip(0);
 #endif
     [_searchWrapper refreshView:nil];
   }
@@ -2084,6 +2127,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
   self.searchString = (searchText == nil) ? @"" : searchText;
+  self.searchedString = self.searchString;
   [self buildResultsForSearchText];
   if (!searchActive) {
     // Reload since some cells could be reused as part of previous search.
@@ -2100,11 +2144,13 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
   self.searchString = @"";
+  isSearched = NO;
   [searchBar setText:self.searchString];
   [self buildResultsForSearchText];
 }
 
 #pragma mark - UISearchControllerDelegate
+
 - (void)willDismissSearchController:(UISearchController *)searchController
 {
   [[resultViewController tableView] setEditing:NO];
@@ -2115,20 +2161,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   self.searchString = @"";
   [self buildResultsForSearchText];
-  if (_searchWrapper != nil) {
-    CGFloat rowWidth = floorf([self computeRowWidth:_tableView]);
-    if (rowWidth > 0) {
-      CGFloat right = _tableView.bounds.size.width - rowWidth;
-#ifndef TI_USE_AUTOLAYOUT
-      [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
-#endif
-      [_searchWrapper refreshView:nil];
-    }
-  }
-  _searchTableView.tableHeaderView = nil;
 
-  [searchViewProxy ensureSearchBarHierarchy];
   [_tableView reloadData];
+
+  RELEASE_TO_NIL(searchControllerPresenter);
 }
 
 - (void)presentSearchController:(UISearchController *)controller
@@ -2159,29 +2195,27 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [resultViewController.tableView setSeparatorStyle:[TiUtils intValue:resultsSeparatorStyle def:UITableViewCellSeparatorStyleSingleLine]];
   }
 
+  tableContentOffset = [_tableView contentOffset];
   // Presenting search controller on window holding controller
-  id proxy = [(TiViewProxy *)self.proxy parent];
-  while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
-    proxy = [proxy parent];
+  if (!searchControllerPresenter) {
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+      proxy = [proxy parent];
+    }
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+      searchControllerPresenter = [[proxy windowHoldingController] retain];
+    } else {
+      searchControllerPresenter = [[[TiApp app] controller] retain];
+    }
   }
-  UIViewController *viewController = nil;
-  if ([proxy isKindOfClass:[TiWindowProxy class]]) {
-    viewController = [proxy windowHoldingController];
-  } else {
-    viewController = [[TiApp app] controller];
-  }
-  viewController.definesPresentationContext = YES;
-
-  [viewController presentViewController:controller
-                               animated:NO
-                             completion:^{
-                               CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:viewController.view];
-
-                               UIView *view = controller.searchBar.superview;
-                               view.frame = CGRectMake(view.frame.origin.x, convertedOrigin.y, view.frame.size.width, view.frame.size.height);
-                               controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-                               resultViewController.tableView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
-                             }];
+  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
+  searchControllerPresenter.definesPresentationContext = YES;
+  [searchControllerPresenter presentViewController:controller
+                                          animated:shouldAnimate
+                                        completion:^{
+                                          isSearched = YES;
+                                          [self updateSearchControllerFrames];
+                                        }];
 
   id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
   ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
@@ -2234,6 +2268,27 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 }
 
 #pragma mark - Internal Methods
+
+- (void)viewResignFocus
+{
+  // As Search controller is presented, we can not open window over it. If any other window get opened above it, we are deactivating Search Controller with saved state if it is activated. And activate Search Controller again when this window get focus in viewGetFocus method.
+
+  if (isSearched && [searchController isActive]) {
+    [searchController setActive:false];
+  } else {
+    isSearched = NO;
+  }
+}
+
+- (void)viewGetFocus
+{
+  if (isSearched && self.searchedString && ![searchController isActive]) {
+    isSearched = NO;
+    [searchController performSelector:@selector(setActive:) withObject:@YES afterDelay:.1];
+    searchController.searchBar.text = self.searchedString;
+    [searchController.searchBar performSelector:@selector(becomeFirstResponder) withObject:nil afterDelay:.2];
+  }
+}
 
 - (BOOL)isLazyLoadingEnabled
 {

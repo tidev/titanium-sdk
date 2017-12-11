@@ -1,21 +1,45 @@
-/* global danger, fail, warn, markdown, message */
+/* global danger, fail, warn, markdown, message, schedule */
 'use strict';
 // requires
 const fs = require('fs-extra');
 const path = require('path');
 const DOMParser = require('xmldom').DOMParser;
+// Due to bug in danger, we hack env variables in build process.
+const ENV = fs.existsSync('./env.json') ? require('./env.json') : process.env;
 // constants
 const JIRARegexp = /https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/;
 const github = danger.github;
+// Currently used PR-labels
+const Label = {
+	NEEDS_JIRA: 'needs jira',
+	NEEDS_TESTS: 'needs tests',
+	NO_TESTS: 'no tests',
+	NEEDS_CLA: 'needs cla',
+	IOS: 'ios',
+	ANDROID: 'android',
+	COMMUNITY: 'community',
+	DOCS: 'docs'
+};
 // Array to gather up the labels we want to auto-apply to the PR
 const labels = [];
+// Store the current directory so we can join it with file paths from PR metadata
+const CURRENT_DIR = path.resolve(__dirname);
 
 // To spit out the raw data we can use:
-// markdown(JSON.stringify(github));
+// markdown(JSON.stringify(danger));
 
 // Check if the user deleted more code than added, give a thumbs-up if so
 if (github.pr.deletions > github.pr.additions) {
 	message(':thumbsup: Hey!, You deleted more code than you added. That\'s awesome!');
+}
+
+// Check npm test output
+if (fs.existsSync('./npm_test.log')) {
+	const npmTestOutput = fs.readFileSync('./npm_test.log');
+	if (npmTestOutput.indexOf('Test failed.  See above for more details.') !== -1) {
+		fail(':disappointed_relieved: `npm test` failed. See below for details.');
+		message('```' + npmTestOutput + '\n```');
+	}
 }
 
 // TODO Check for PRs above a certain threshold of changes and warn?
@@ -24,8 +48,16 @@ if (github.pr.deletions > github.pr.additions) {
 const body = github.pr.body;
 const hasJIRALink = body.match(JIRARegexp);
 if (!hasJIRALink) {
-	labels.push('needs jira');
+	labels.push(Label.NEEDS_JIRA);
 	warn('There is no linked JIRA ticket in the PR body. Please include the URL of the relevant JIRA ticket. If you need to, you may file a ticket on ' + danger.utils.href('https://jira.appcelerator.org/secure/CreateIssue!default.jspa', 'JIRA'));
+} else {
+	// If it has the "needs jira" label, remove it since we do have one linked
+	const hasNeedsJIRALabel = github.issue.labels.some(function (label) {
+		return label.name === Label.NEEDS_JIRA;
+	});
+	if (hasNeedsJIRALabel) {
+		github.api.issues.removeLabel({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, name: Label.NEEDS_JIRA });
+	}
 }
 
 // Check that package.json and package-lock.json stay in-sync
@@ -44,39 +76,88 @@ const modifiedIOSFiles = modified.filter(function (p) {
 	return p.startsWith('iphone/Classes/') && (p.endsWith('.h') || p.endsWith('.m'));
 });
 
+function validateFormatting(files) {
+	const clangFormat = require('clang-format');
+	const fork = require('child_process').fork; // eslint-disable-line security/detect-child-process
+	const async = require('async');
+	const EXEC_LIMIT = 10;
+
+	schedule(done => {
+		const errors = [];
+		async.mapLimit(files, EXEC_LIMIT, function (filepath, cb) {
+			let stdout = '';
+			let stderr = '';
+			const fullpath = path.join(CURRENT_DIR, filepath);
+
+			const proc = fork(clangFormat.location, [ '-output-replacements-xml', fullpath ], { silent: true, cwd: CURRENT_DIR });
+			// Not sure why but this fails. Likely some weirdness with running under danger process?
+			// const proc = clangFormat.spawnClangFormat([ '-output-replacements-xml', path.join(__dirname, filepath) ], function () {}, 'pipe');
+			proc.stdout.on('data', function (data) {
+				stdout += data.toString();
+			});
+			proc.stderr.on('data', function (data) {
+				stderr += data.toString();
+			});
+			proc.on('close', function (exit) {
+				if (exit) {
+					const msg = `Failed to check formatting of ${fullpath}. Exit code: ${exit}, stdout: ${stdout}, stderr: ${stderr}`;
+					return cb(new Error(msg));
+				}
+
+				const modified = stdout.replace(/\r?\n/g, '');
+				if (modified !== '<?xml version=\'1.0\'?><replacements xml:space=\'preserve\' incomplete_format=\'false\'></replacements>') {
+					// Record failure, because formatting is bad.
+					// TODO Get the correctly formatted source? Give more details on the bad sections?
+					errors.push(filepath);
+				}
+				cb();
+			});
+		}, function (err) {
+			if (err) {
+				fail(err.toString());
+			}
+			if (errors.length > 0) {
+				fail(`:memo: Formatting reported as incorrect on the following files:\n- ${errors.join('\n- ')}\nYou can fix the formatting by running: \`npx clang-format -style=file -i <filepath>\``);
+				// Add note about running npx clang-format -style=file -i <filepath> for each?
+			}
+			done();
+		});
+	});
+}
+
 // Auto-assign android/ios labels
 if (modifiedAndroidFiles.length > 0) {
-	labels.push('android');
+	labels.push(Label.ANDROID);
+	// validate formatting of the modified android source files!
+	validateFormatting(modifiedAndroidFiles);
 }
 if (modifiedIOSFiles.length > 0) {
-	labels.push('ios');
+	labels.push(Label.IOS);
 }
 // Check if apidoc was modified and apply 'docs' label?
 const modifiedApiDocs = modified.filter(function (p) {
 	return p.startsWith('apidoc/');
 });
 if (modifiedApiDocs.length > 0) {
-	labels.push('docs');
+	labels.push(Label.DOCS);
 }
 
 // Check PR author to see if it's community, etc
 if (github.pr.author_association === 'FIRST_TIMER') {
-	labels.push('community');
-	labels.push('needs cla');
+	labels.push(Label.COMMUNITY);
+	labels.push(Label.NEEDS_CLA);
 	// Thank them profusely! This is their first ever github commit!
 	message(`:rocket: Wow, ${github.pr.user.login}, your first contribution to GitHub and it's to help us make Titanium better! You rock! :guitar:`);
 } else if (github.pr.author_association === 'FIRST_TIME_CONTRIBUTOR') {
-	labels.push('community');
-	labels.push('needs cla');
+	labels.push(Label.COMMUNITY);
+	labels.push(Label.NEEDS_CLA);
 	// Thank them, this is their first contribution to this repo!
 	message(`:confetti_ball: Welcome to the Titanium SDK community, ${github.pr.user.login}! Thank you so much for your PR, you're helping us make Titanium better. :gift:`);
 } else if (github.pr.author_association === 'CONTRIBUTOR') {
-	labels.push('community');
+	labels.push(Label.COMMUNITY);
 	// Be nice, this is a community member who has landed PRs before!
 	message(`:tada: Another contribution from our awesome community member, ${github.pr.user.login}! Thanks again for helping us make Titanium SDK better. :thumbsup:`);
 }
-// Now apply our labels
-github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: labels });
 
 // Check if any tests were changed/added
 const hasAppChanges = (modifiedAndroidFiles.length + modifiedIOSFiles.length) > 0;
@@ -84,11 +165,27 @@ const testChanges = modified.filter(function (p) {
 	return p.startsWith('tests/') && p.endsWith('.js');
 });
 const hasTestChanges = testChanges.length > 0;
-if (hasAppChanges && !hasTestChanges) {
-	const link = github.utils.fileLinks([ 'README.md#unit-tests' ]);
-	// TODO: Apply 'needs tests' label?
-	fail(`:microscope: There are library changes, but no changes to the unit tests. That's OK as long as you're refactoring existing code, but will require an admin to merge this PR. Please see ${link} for docs on unit testing.`); // eslint-disable-line max-len
+const hasNoTestsLabel = github.issue.labels.some(function (label) {
+	return label.name === Label.NO_TESTS;
+});
+// If we changed android/iOS source, but didn't change tests and didn't use the 'no tests' label
+// fail the PR
+if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
+	labels.push(Label.NEEDS_TESTS);
+	const testDocLink = github.utils.fileLinks([ 'README.md#unit-tests' ]);
+	fail(`:microscope: There are library changes, but no changes to the unit tests. That's OK as long as you're refactoring existing code, but will require an admin to merge this PR. Please see ${testDocLink} for docs on unit testing.`); // eslint-disable-line max-len
+} else {
+	// If it has the "needs tests" label, remove it
+	const hasNeedsTestsLabel = github.issue.labels.some(function (label) {
+		return label.name === Label.NEEDS_TESTS;
+	});
+	if (hasNeedsTestsLabel) {
+		github.api.issues.removeLabel({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, name: Label.NEEDS_TESTS });
+	}
 }
+
+// Now apply our labels
+github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: labels });
 
 function gatherFailedTestcases(reportPath) {
 	if (!fs.existsSync(reportPath)) {
@@ -159,6 +256,13 @@ if (failures_and_errors.length !== 0) {
 
 	markdown(message);
 }
+
+// Add link to built SDK zipfile!
+if (ENV.BUILD_STATUS === 'SUCCESS' || ENV.BUILD_STATUS === 'UNSTABLE') {
+	const sdkLink = danger.utils.href(`${ENV.BUILD_URL}artifact/${ENV.ZIPFILE}`, 'Here\'s the generated SDK zipfile');
+	message(`:floppy_disk: ${sdkLink}.`);
+}
+
 // TODO Pass along any warnings/errors from eslint in a readable way? Right now we don't have any way to get at the output of the eslint step of npm test
 // May need to edit Jenkinsfile to do a try/catch to spit out the npm test output to some file this dangerfile can consume?
 // Or port https://github.com/leonhartX/danger-eslint/blob/master/lib/eslint/plugin.rb to JS - have it run on any edited/added JS files?

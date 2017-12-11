@@ -58,6 +58,7 @@
 - (UIView *)wrapperView;
 #endif
 - (void)scrollToBottom;
+- (void)scrollToTop;
 
 @end
 

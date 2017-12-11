@@ -20,6 +20,7 @@ const AdmZip = require('adm-zip'),
 	async = require('async'),
 	Builder = require('../lib/base-builder'),
 	ejs = require('ejs'),
+	fields = require('fields'),
 	fs = require('fs'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	markdown = require('markdown').markdown,
@@ -28,6 +29,7 @@ const AdmZip = require('adm-zip'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
+	semver = require('semver'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	SymbolLoader = require('appc-aar-tools').SymbolLoader,
 	SymbolWriter = require('appc-aar-tools').SymbolWriter,
@@ -46,6 +48,97 @@ function AndroidModuleBuilder() {
 
 util.inherits(AndroidModuleBuilder, Builder);
 
+/**
+ * Migrates an existing module with an outdated "apiversion" in the manifest to the latest one.
+ * It takes care of migrating the "apiversion", "version", "minsdk" and "architecture" properties.
+ *
+ * @param {Function} next Callback function
+ * @return {undefined}
+ */
+AndroidModuleBuilder.prototype.migrate = function migrate(next) {
+	const cliModuleAPIVersion = this.cli.sdk && this.cli.sdk.manifest && this.cli.sdk.manifest.moduleAPIVersion && this.cli.sdk.manifest.moduleAPIVersion.android;
+	const needsMigration = this.manifest.apiversion && cliModuleAPIVersion && this.manifest.apiversion !== cliModuleAPIVersion;
+	const cliSDKVersion = this.cli.sdk.manifest.version;
+	const manifestSDKVersion = this.manifest.minsdk;
+	const manifestModuleAPIVersion = this.manifest.apiversion;
+	const newVersion = semver.inc(this.manifest.version, 'major');
+	const manifestTemplateFile = path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', 'manifest.ejs');
+
+	var performMigration = function (next) {
+		this.logger.info(__('Migrating module manifest ...'));
+
+		this.logger.info(__('Setting %s to %s', 'apiversion'.cyan, cliModuleAPIVersion.cyan));
+		this.manifest.apiversion = cliModuleAPIVersion;
+
+		this.logger.info(__('Setting %s to %s', 'minsdk'.cyan, cliSDKVersion.cyan));
+		this.manifest.minsdk = cliSDKVersion;
+
+		this.logger.info(__('Bumping version from %s to %s', this.manifest.version.cyan, newVersion.cyan));
+		this.manifest.version = newVersion;
+
+		// Pre-fill placeholders
+		let manifestContent = ejs.render(fs.readFileSync(manifestTemplateFile).toString(), {
+			moduleName: this.manifest.name,
+			moduleId: this.manifest.moduleid,
+			platform: this.manifest.platform,
+			tisdkVersion: this.manifest.minsdk,
+			guid: this.manifest.guid,
+			author: this.manifest.author,
+			publisher: this.manifest.author // The publisher does not have an own key in the manifest but can be different. Will override below
+		});
+
+		// Migrate missing keys which don't have a placeholder (version, license, copyright & publisher)
+		manifestContent = manifestContent.replace(/version.*/, 'version: ' + this.manifest.version);
+		manifestContent = manifestContent.replace(/license.*/, 'license: ' + this.manifest.license);
+		manifestContent = manifestContent.replace(/copyright.*/, 'copyright: ' + this.manifest.copyright);
+
+		this.logger.info(__('Backing up old manifest to %s', 'manifest.bak'.cyan));
+		fs.renameSync(path.join(this.projectDir, 'manifest'), path.join(this.projectDir, 'manifest.bak'));
+
+		this.logger.info(__('Writing new manifest'));
+		fs.writeFileSync(path.join(this.projectDir, 'manifest'), manifestContent);
+
+		this.logger.info(__(''));
+		this.logger.info(__('Migration completed! Building module ...'));
+
+		next();
+	}.bind(this);
+
+	if (!needsMigration) {
+		return next();
+	}
+	const logger = this.logger;
+	if (!this.cli.argv.prompt) {
+		logger.error(__('The module manifest apiversion is currently set to %s', manifestModuleAPIVersion));
+		logger.error(__('Titanium SDK %s Android module apiversion is at %s', cliSDKVersion, cliModuleAPIVersion));
+		logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion'));
+		logger.error(__('and the minsdk to %s', cliSDKVersion));
+		process.exit(1);
+	}
+
+	fields.select({
+		title: __('Detected Titanium %s that requires API-level %s, but the module currently only supports %s and API-level %s.', cliSDKVersion, cliModuleAPIVersion, manifestSDKVersion, manifestModuleAPIVersion),
+		promptLabel: __('Do you want to migrate your module now?'),
+		default: 'yes',
+		display: 'prompt',
+		relistOnError: true,
+		complete: true,
+		suggest: true,
+		options: [ '__y__es', '__n__o' ]
+	}).prompt(function (err, value) {
+		if (err) {
+			return next(err);
+		}
+
+		if (value !== 'yes') {
+			logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion.'));
+			process.exit(1);
+		}
+
+		performMigration(next);
+	});
+};
+
 AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	Builder.prototype.config.apply(this, arguments);
 	Builder.prototype.validate.apply(this, arguments);
@@ -56,16 +149,9 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 
 		this.cli = cli;
 		this.logger = logger;
+		fields.setup({ colors: cli.argv.colors });
 
 		this.manifest = this.cli.manifest;
-
-		const sdkModuleAPIVersion = this.cli.sdk && this.cli.sdk.manifest && this.cli.sdk.manifest.moduleAPIVersion && this.cli.sdk.manifest.moduleAPIVersion['android'];
-		if (this.manifest.apiversion && sdkModuleAPIVersion && this.manifest.apiversion !== sdkModuleAPIVersion) {
-			logger.error(__('The module manifest apiversion is currently set to %s', this.manifest.apiversion));
-			logger.error(__('Titanium SDK %s Android module apiversion is at %s', this.titaniumSdkVersion, sdkModuleAPIVersion));
-			logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion.'));
-			process.exit(1);
-		}
 
 		// detect android environment
 		androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
@@ -201,6 +287,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			cli.emit('build.module.pre.construct', this, next);
 		},
 
+		'migrate',
 		'doAnalytics',
 		'initialize',
 		'loginfo',
