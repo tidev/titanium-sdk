@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4",
@@ -39,7 +39,7 @@
     "markdown": "0.5.0",
     "moment": "2.18.1",
     "node-appc": "0.2.43",
-    "node-titanium-sdk": "^0.4.5",
+    "node-titanium-sdk": "^0.4.6",
     "node-uuid": "1.4.8",
     "pngjs": "3.0.1",
     "request": "2.81.0",
@@ -52,9 +52,9 @@
     "xmldom": "0.1.22"
   },
   "devDependencies": {
-    "clang-format": "*",
+    "clang-format": "^1.1.1",
     "commander": "*",
-    "danger": "^2.0.0-alpha.15",
+    "danger": "^2.0.3",
     "fs-extra": "~0.30.0",
     "grunt": "^1.0.1",
     "grunt-appc-js": "^2.0.1",

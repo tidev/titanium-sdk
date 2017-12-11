@@ -1798,7 +1798,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
 
 - (void)addStringsCacheToDoc
 {
-// utility routine for init methods
+  // utility routine for init methods
 
 #if DEBUG
   NSCAssert(xmlDoc_ != NULL && xmlDoc_->_private == NULL,
