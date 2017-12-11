@@ -39,6 +39,7 @@ const AdmZip = require('adm-zip'),
 function AndroidModuleBuilder() {
 	Builder.apply(this, arguments);
 
+	this.requiredArchitectures = this.packageJson.architectures;
 	this.compileSdkVersion = this.packageJson.compileSDKVersion; // this should always be >= maxSupportedApiLevel
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
@@ -90,9 +91,8 @@ AndroidModuleBuilder.prototype.migrate = function migrate(next) {
 		this.logger.info(__('Bumping version from %s to %s', this.manifest.version.cyan, newVersion.cyan));
 		this.manifest.version = newVersion;
 
-		// Add our new architecture
-		// TODO: Read this from a regex of the "manifestContent" instead to be more flexible
-		this.manifest.architectures = 'arm64-v8a ' + this.manifest.architectures;
+		// Add our new architecture(s)
+		this.manifest.architectures = this.requiredArchitectures.join(' ');
 
 		// Pre-fill placeholders
 		let manifestContent = ejs.render(fs.readFileSync(manifestTemplateFile).toString(), {
@@ -312,6 +312,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'doAnalytics',
 		'initialize',
 		'loginfo',
+		'cleanup',
 
 		function (next) {
 			cli.emit('build.module.pre.compile', this, next);
@@ -405,22 +406,6 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.globalModulesDir = path.join(this.globalModulesPath, 'android');
 	this.buildDir = path.join(this.projectDir, 'build');
 	this.libsDir = path.join(this.projectDir, 'libs');
-
-	// Flush the build/ and libs/ directory as they can cause issues when building from existing versions
-	if (fs.existsSync(this.buildDir)) {
-		fs.removeSync(this.buildDir);
-	}
-	fs.mkdirsSync(this.buildDir);
-
-	if (fs.existsSync(this.libsDir)) {
-		fs.removeSync(this.libsDir);
-	}
-	fs.mkdirsSync(this.libsDir);
-
-	// Write the architecture directories
-	this.manifest.architectures.split(' ').forEach(function (architecture) {
-		fs.mkdirsSync(path.join(this.libsDir, architecture));
-	}, this);
 
 	// process module dependencies
 	this.modules = this.timodule && !Array.isArray(this.timodule.modules) ? [] : this.timodule.modules.filter(function (m) {
@@ -545,7 +530,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	next();
 };
 
-AndroidModuleBuilder.prototype.loginfo = function loginfo() {
+AndroidModuleBuilder.prototype.loginfo = function loginfo(next) {
 	this.logger.info(__('javac Max Memory: %s', this.javacMaxMemory));
 	this.logger.info(__('javac Source: %s', this.javacSource));
 	this.logger.info(__('javac Target: %s', this.javacTarget));
@@ -557,6 +542,27 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo() {
 	this.logger.info(__('Example Dir: %s', this.exampleDir.cyan));
 	this.logger.info(__('Platform Dir: %s', this.platformDir.cyan));
 	this.logger.info(__('Resources Dir: %s', this.resourcesDir.cyan));
+
+	next();
+};
+
+AndroidModuleBuilder.prototype.cleanup = function cleanup(next) {
+		if (fs.existsSync(this.buildDir)) {
+			fs.removeSync(this.buildDir);
+		}
+		fs.mkdirsSync(this.buildDir);
+
+		if (fs.existsSync(this.libsDir)) {
+			fs.removeSync(this.libsDir);
+		}
+		fs.mkdirsSync(this.libsDir);
+
+console.log(this.requiredArchitectures.join(', '));
+		this.requiredArchitectures.forEach(function (architecture) {
+			fs.mkdirsSync(path.join(this.libsDir, architecture));
+		}, this);
+
+		next();
 };
 
 /**
@@ -1966,15 +1972,14 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				}.bind(this));
 
 				// 7. libs folder, only architectures defined in manifest
-				if (fs.existsSync(this.libsDir)) {
-					this.dirWalker(this.libsDir, function (file) {
-						const archLib = path.relative(this.libsDir, file).split(path.sep),
-							arch = archLib.length ? archLib[0] : undefined;
-						if (arch && manifestArchs.indexOf(arch) > -1) {
-							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'libs', path.relative(this.libsDir, file)) });
-						}
-					}.bind(this));
-				}
+				this.dirWalker(this.libsDir, function (file) {
+					const archLib = path.relative(this.libsDir, file).split(path.sep),
+						arch = archLib.length ? archLib[0] : undefined;
+					if (arch && manifestArchs.indexOf(arch) > -1) {
+						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'libs', path.relative(this.libsDir, file)) });
+					}
+				}.bind(this));
+
 
 				if (fs.existsSync(this.projLibDir)) {
 					this.dirWalker(this.projLibDir, function (file) {

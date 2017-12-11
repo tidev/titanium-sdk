@@ -60,6 +60,7 @@ function AndroidBuilder() {
 
 	this.dexAgent = false;
 
+	this.validABIs = this.packageJson.architectures;
 	this.compileSdkVersion = this.packageJson.compileSDKVersion; // this should always be >= maxSupportedApiLevel
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
@@ -72,8 +73,6 @@ function AndroidBuilder() {
 	};
 
 	this.targets = [ 'emulator', 'device', 'dist-playstore' ];
-
-	this.validABIs = [ 'arm64-v8a', 'armeabi-v7a', 'x86' ];
 
 	this.uncompressedTypes = [
 		'jpg', 'jpeg', 'png', 'gif',
