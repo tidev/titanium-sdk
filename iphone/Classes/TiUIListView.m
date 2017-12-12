@@ -316,7 +316,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       CGFloat rowWidth = [self computeRowWidth:_tableView];
       if (rowWidth > 0) {
         CGFloat right = _tableView.bounds.size.width - rowWidth;
-        [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
+        [_searchWrapper layoutProperties] -> right = TiDimensionDip(right);
       }
     }
 #endif
@@ -1198,7 +1198,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
                                                                          if ([searchController isActive]) {
                                                                            [[resultViewController tableView] setEditing:NO];
                                                                          }
-
                                                                        }];
     if (color) {
       theAction.backgroundColor = [color color];
@@ -1898,8 +1897,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           if (maxWidth > 0) {
             TiUIListItemProxy *theProxy = [theCell proxy];
 #ifndef TI_USE_AUTOLAYOUT
-            [theProxy layoutProperties]->height = TiDimensionAutoSize;
-            [theProxy layoutProperties]->width = TiDimensionAutoFill;
+            [theProxy layoutProperties] -> height = TiDimensionAutoSize;
+            [theProxy layoutProperties] -> width = TiDimensionAutoFill;
 #endif
             CGFloat result = [theProxy minimumParentHeightForSize:CGSizeMake(maxWidth, self.bounds.size.height)];
             return result;
@@ -2094,7 +2093,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   if (_searchWrapper != nil) {
 #ifndef TI_USE_AUTOLAYOUT
-    [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
+    [_searchWrapper layoutProperties] -> right = TiDimensionDip(0);
 #endif
     [_searchWrapper refreshView:nil];
   }
