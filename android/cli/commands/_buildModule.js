@@ -547,17 +547,9 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo(next) {
 };
 
 AndroidModuleBuilder.prototype.cleanup = function cleanup(next) {
-		if (fs.existsSync(this.buildDir)) {
-			fs.removeSync(this.buildDir);
-		}
-		fs.mkdirsSync(this.buildDir);
+		fs.emptyDirSync(this.buildDir);
+		fs.emptyDirSync(this.libsDir);
 
-		if (fs.existsSync(this.libsDir)) {
-			fs.removeSync(this.libsDir);
-		}
-		fs.mkdirsSync(this.libsDir);
-
-console.log(this.requiredArchitectures.join(', '));
 		this.requiredArchitectures.forEach(function (architecture) {
 			fs.mkdirsSync(path.join(this.libsDir, architecture));
 		}, this);
@@ -628,10 +620,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 		function mergeResources(cb) {
 			this.logger.info(__('Merging resources'));
 
-			if (fs.existsSync(mergedResPath)) {
-				fs.removeSync(mergedResPath);
-				fs.mkdirsSync(mergedResPath);
-			}
+			fs.emptydirSync(mergedResPath);
 
 			appc.async.series(this, [
 				/**
@@ -1309,7 +1298,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			};
 
 			const boostrapPathJava = path.join(this.buildGenJavaDir, this.moduleIdSubDir);
-			fs.existsSync(boostrapPathJava) || fs.mkdirsSync(boostrapPathJava);
+			fs.ensureDirSync(boostrapPathJava);
 
 			fs.writeFileSync(
 				path.join(boostrapPathJava, fileNamePrefix + 'Bootstrap.java'),
@@ -1398,7 +1387,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 		var outputDir = path.dirname(path.join(this.buildGenJsDir, file)),
 			filePath = path.join(this.assetsDir, file);
 
-		fs.existsSync(outputDir) || fs.mkdirsSync(outputDir);
+		fs.ensureDirSync(outputDir);
 
 		const r = jsanalyze.analyzeJsFile(filePath, { minify: true });
 		this.tiSymbols[file] = r.symbols;
@@ -1618,7 +1607,7 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 							const relativeName = path.relative(this.buildGenLibsDir, file),
 								targetDir = path.join(this.libsDir, path.dirname(relativeName));
 
-							fs.existsSync(targetDir) || fs.mkdirsSync(targetDir);
+							fs.ensureDirSync(targetDir);
 
 							fs.writeFileSync(
 								path.join(targetDir, path.basename(file)),
