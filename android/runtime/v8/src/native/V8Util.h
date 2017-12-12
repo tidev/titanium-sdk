@@ -72,8 +72,8 @@
 	LOGV(TAG, __VA_ARGS__); \
 	for (uint32_t i = 0; i < frameCount; i++) { \
 		v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(i); \
-		titanium::Utf8Value fnName(frame->GetFunctionName()); \
-		titanium::Utf8Value scriptUrl(frame->GetScriptName()); \
+		v8::String::Utf8Value fnName(frame->GetFunctionName()); \
+		v8::String::Utf8Value scriptUrl(frame->GetScriptName()); \
 		LOGV(TAG, "    at %s [%s:%d:%d]", *fnName, *scriptUrl, frame->GetLineNumber(), frame->GetColumn()); \
 	} \
 }
@@ -134,6 +134,8 @@ inline void SetTemplateMethod(v8::Isolate* isolate,
   t->SetClassName(name_string);  // NODE_SET_METHOD() compatibility.
 }
 
+// DEPRECATED: Use v8::String::Utf8Value. Remove in SDK 8.0
+// class [[deprecated("Replaced by v8::String::Utf8Value, which is now official V8 API")]] Utf8Value {
 class Utf8Value {
   public:
     explicit Utf8Value(v8::Local<v8::Value> value);
@@ -159,33 +161,6 @@ class Utf8Value {
     size_t length_;
     char* str_;
     char str_st_[1024];
-};
-
-class TwoByteValue {
-  public:
-    explicit TwoByteValue(v8::Local<v8::Value> value);
-
-    ~TwoByteValue() {
-      if (str_ != str_st_)
-        free(str_);
-    }
-
-    uint16_t* operator*() {
-      return str_;
-    };
-
-    const uint16_t* operator*() const {
-      return str_;
-    };
-
-    size_t length() const {
-      return length_;
-    };
-
-  private:
-    size_t length_;
-    uint16_t* str_;
-    uint16_t str_st_[1024];
 };
 
 class V8Util {
