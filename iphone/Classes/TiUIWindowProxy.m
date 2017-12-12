@@ -316,7 +316,6 @@
       [navBar setTintColor:[newColor color]];
       [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
     }
-
   },
       NO);
 }
