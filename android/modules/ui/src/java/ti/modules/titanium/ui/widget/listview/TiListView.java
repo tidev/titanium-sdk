@@ -85,7 +85,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	private RelativeLayout searchLayout;
 	private static final String TAG = "TiListView";
 
-	/* We cache properties that already applied to the recycled list tiem in ViewItem.java
+	/* We cache properties that already applied to the recycled list item in ViewItem.java
 	 * However, since Android randomly selects a cached view to recycle, our cached properties
 	 * will not be in sync with the native view's properties when user changes those values via
 	 * User Interaction - i.e click. For this reason, we create a list that contains the properties
@@ -94,7 +94,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	 */
 	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(
 			TiC.PROPERTY_VALUE, TiC.PROPERTY_AUTO_LINK, TiC.PROPERTY_TEXT, TiC.PROPERTY_HTML,
-			TiC.PROPERTY_WIDTH, TiC.PROPERTY_HEIGHT);
+			TiC.PROPERTY_WIDTH, TiC.PROPERTY_HEIGHT, TiC.PROPERTY_IMAGE);
 
 	public static final String MIN_SEARCH_HEIGHT = "50dp";
 	public static final int HEADER_FOOTER_WRAP_ID = 12345;
