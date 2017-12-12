@@ -547,14 +547,14 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo(next) {
 };
 
 AndroidModuleBuilder.prototype.cleanup = function cleanup(next) {
-		fs.emptyDirSync(this.buildDir);
-		fs.emptyDirSync(this.libsDir);
+	fs.emptyDirSync(this.buildDir);
+	fs.emptyDirSync(this.libsDir);
 
-		this.requiredArchitectures.forEach(function (architecture) {
-			fs.mkdirsSync(path.join(this.libsDir, architecture));
-		}, this);
+	this.requiredArchitectures.forEach(function (architecture) {
+		fs.mkdirsSync(path.join(this.libsDir, architecture));
+	}, this);
 
-		next();
+	next();
 };
 
 /**
@@ -1968,7 +1968,6 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'libs', path.relative(this.libsDir, file)) });
 					}
 				}.bind(this));
-
 
 				if (fs.existsSync(this.projLibDir)) {
 					this.dirWalker(this.projLibDir, function (file) {
