@@ -123,8 +123,10 @@ void JavaObject::MakeJSWeak()
 	// but this time, we say call us back as a finalizer so we can resurrect the
 	// object (save it from really being GCd by V8) and move it's Java object twin
 	// to a weak reference in the JVM. (where we can track when that gets GC'd by the JVM to call back and kill this)
-	persistent().SetWeak(this, DetachCallback, v8::WeakCallbackType::kFinalizer); // MUST BE kFinalizer or our object cannot be resurrected!
-	persistent().MarkIndependent();
+	if (!isDetached()) {
+		persistent().SetWeak(this, DetachCallback, v8::WeakCallbackType::kFinalizer); // MUST BE kFinalizer or our object cannot be resurrected!
+		persistent().MarkIndependent();
+	}
 }
 
 void JavaObject::detach()
@@ -168,12 +170,13 @@ void JavaObject::MakeJavaStrong()
 			ASSERT(refTableKey_ != 0);
 			JNIEnv *env = JNIUtil::getJNIEnv();
 			ASSERT(env != NULL);
-			jobject stored = ReferenceTable::clearWeakReference(refTableKey_);
+			jobject stored = ReferenceTable::clearReference(refTableKey_);
 			if (stored == NULL) {
 				// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
 				LOGE(TAG, "!!! OH NO! We tried to move a weak Java object back to strong, but it's aleady been GC'd by JVM! We're in a bad state! Key: %d", refTableKey_);
+			} else {
+				env->DeleteLocalRef(stored);
 			}
-			env->DeleteLocalRef(stored);
 		} else {
 			// New entry, make sure we have no key, have an object, get a new key
 			ASSERT(javaObject_ != NULL);
@@ -204,7 +207,9 @@ void JavaObject::MakeJavaWeak()
 		javaObject_ = weakRef;
 	} else {
 		ASSERT(refTableKey_ != 0);
-		ReferenceTable::makeWeakReference(refTableKey_);
+
+		// create a soft reference, which is more resiliant than a weak reference
+		ReferenceTable::makeSoftReference(refTableKey_);
 	}
 
 	UPDATE_STATS(0, 1); // add one to "detached" counter
