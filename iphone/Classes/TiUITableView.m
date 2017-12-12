@@ -411,6 +411,11 @@
   [table setOpaque:![[table backgroundColor] isEqual:[UIColor clearColor]]];
 }
 
+- (BOOL)isSearchStarted
+{
+  return ([searchController isActive] && searchResultIndexes);
+}
+
 - (UITableView *)searchTableView
 {
   if (_searchTableView == nil) {
@@ -609,8 +614,9 @@
       row.parent = section;
     }
   }
-
-  [self reloadDataFromCount:oldCount toCount:newCount animation:animation];
+  if (![self isSearchStarted]) {
+    [self reloadDataFromCount:oldCount toCount:newCount animation:animation];
+  }
 }
 
 //Assertions no longer are needed; we ensure that the sections are not nil.
@@ -730,21 +736,27 @@
   switch (action.type) {
   case TiUITableViewActionRowReload: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
-    NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
-    [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+      [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionUpdateRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self updateRow:row];
-    NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
-    [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+      [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionSectionReload: {
-    TiUITableViewSectionProxy *section = action.obj;
-    NSIndexSet *path = [NSIndexSet indexSetWithIndex:section.section];
-    [tableview reloadSections:path withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      TiUITableViewSectionProxy *section = action.obj;
+      NSIndexSet *path = [NSIndexSet indexSetWithIndex:section.section];
+      [tableview reloadSections:path withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionInsertRowBefore: {
@@ -757,8 +769,9 @@
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:NO];
     }
-
-    [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
 
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:YES];
@@ -800,8 +813,9 @@
         [addRows addObject:moveRow];
         [moveRow release];
       }
-
-      [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
+      if (![self isSearchStarted]) {
+        [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
+      }
     }
 
     [sections insertObject:newSection atIndex:newSectionIndex];
@@ -811,7 +825,9 @@
       //Removing the temporarly saved proxy.
       [(TiUITableViewProxy *)[self proxy] forgetProxy:moveRow];
     }
-    [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
+    }
 
     break;
   }
@@ -828,8 +844,9 @@
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:NO];
     }
-
-    [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
 
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:YES];
@@ -864,7 +881,9 @@
       [moveRow release];
     }
     // 1st stage of update: Remove all those nasty old rows.
-    [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
+    if (![self isSearchStarted]) {
+      [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
+    }
 
     // 2nd stage of update: Add in those shiny new rows and update the section.
     [sections insertObject:newSection atIndex:newSectionIndex];
@@ -872,15 +891,18 @@
     for (TiUITableViewRowProxy *moveRow in addRows) {
       [self appendRow:moveRow];
     }
-    [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
-
+    if (![self isSearchStarted]) {
+      [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionDeleteRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self deleteRow:row];
-    NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
-    [tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+      [tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionSetData: {
@@ -891,15 +913,19 @@
   case TiUITableViewActionAppendRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self appendRow:action.obj];
-    NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
-    [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+      [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionAppendRowWithSection: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [sections addObject:row.section];
     [self appendRow:action.obj];
-    [tableview insertSections:[NSIndexSet indexSetWithIndex:[sections count] - 1] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      [tableview insertSections:[NSIndexSet indexSetWithIndex:[sections count] - 1] withRowAnimation:action.animation];
+    }
     break;
   }
   }
@@ -2087,7 +2113,7 @@
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
-  if ([searchController isActive] && searchResultIndexes) {
+  if ([self isSearchStarted]) {
     int rowCount = 0;
     for (NSIndexSet *thisSet in searchResultIndexes) {
       rowCount += [thisSet count];
@@ -2105,7 +2131,7 @@
 - (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([searchController isActive] && searchResultIndexes) {
+  if ([self isSearchStarted]) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
@@ -2149,7 +2175,9 @@
     ourTableView.backgroundColor = [UIColor whiteColor];
   }
 
-  RETURN_IF_SEARCH_TABLE_VIEW(1);
+  if ([self isSearchStarted]) {
+    return 1;
+  }
   // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
   NSUInteger result = [(TiUITableViewProxy *)[self proxy] sectionCount];
   return MAX(1, result);
@@ -2506,7 +2534,7 @@
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([searchController isActive] && searchResultIndexes) {
+  if ([self isSearchStarted]) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
