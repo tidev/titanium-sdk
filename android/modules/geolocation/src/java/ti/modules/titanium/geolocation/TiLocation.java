@@ -98,6 +98,9 @@ public class TiLocation implements Handler.Callback
 	{
 		List<String> providerNames = locationManager.getProviders(true);
 
+		if (providerNames == null || providerNames.size() == 0)
+			return false;
+
 		if (Log.isDebugModeEnabled()) {
 			Log.i(TAG, "Enabled location provider count: " + providerNames.size());
 
@@ -106,7 +109,13 @@ public class TiLocation implements Handler.Callback
 			}
 		}
 
-		return providerNames.size() != 0 && getLastKnownLocation() != null;
+		//TIMOB-23135	Android: Ti.Geolocation.locationServicesEnabled returns false, but works
+		for (String providerName : providerNames) {
+			if (providerName.equals(LocationManager.GPS_PROVIDER) || providerName.equals(LocationManager.NETWORK_PROVIDER)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public Location getLastKnownLocation()
