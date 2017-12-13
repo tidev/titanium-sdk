@@ -27,8 +27,8 @@ import android.os.Message;
 		TiC.PROPERTY_INDICATOR_COLOR
 })
 @Kroll.dynamicApis(methods = { "hide", "show" })
-// clang-format on
 public class ActivityIndicatorProxy extends TiViewProxy
+// clang-format on
 {
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SHOW = MSG_FIRST_ID + 100;

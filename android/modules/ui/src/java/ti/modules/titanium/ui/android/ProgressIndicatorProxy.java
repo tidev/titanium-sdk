@@ -28,8 +28,8 @@ import android.app.Activity;
 		TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE
 })
 @Kroll.dynamicApis(methods = { "hide", "show" })
-// clang-format on
 public class ProgressIndicatorProxy extends TiDialogProxy
+// clang-format on
 {
 	public ProgressIndicatorProxy()
 	{
