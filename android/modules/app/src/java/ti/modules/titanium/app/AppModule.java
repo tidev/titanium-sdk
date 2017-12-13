@@ -65,7 +65,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getId()
 	// clang-format on
 	{
@@ -80,7 +80,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getName()
 	// clang-format on
 	{
@@ -89,7 +89,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getVersion()
 	// clang-format on
 	{
@@ -98,7 +98,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getPublisher()
 	// clang-format on
 	{
@@ -107,7 +107,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getUrl()
 	// clang-format on
 	{
@@ -122,7 +122,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getDescription()
 	// clang-format on
 	{
@@ -131,7 +131,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getCopyright()
 	// clang-format on
 	{
@@ -140,7 +140,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getGuid()
 	// clang-format on
 	{
@@ -155,7 +155,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getDeployType()
 	// clang-format on
 	{
@@ -164,7 +164,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getSessionId()
 	// clang-format on
 	{
@@ -173,7 +173,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public boolean getAnalytics()
 	// clang-format on
 	{
@@ -188,7 +188,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public boolean getAccessibilityEnabled()
 	// clang-format on
 	{
@@ -280,7 +280,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public boolean getProximityDetection()
 	// clang-format on
 	{
@@ -305,7 +305,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public boolean getProximityState()
 	// clang-format on
 	{

@@ -129,7 +129,7 @@ public class AlertProxy extends KrollProxy
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getId()
 	{
 		return id;
@@ -137,7 +137,7 @@ public class AlertProxy extends KrollProxy
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public String getEventId()
 	{
 		return eventId;
@@ -145,7 +145,7 @@ public class AlertProxy extends KrollProxy
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.setProperty
+	@Kroll.getProperty
 	public Date getBegin()
 	{
 		return begin;

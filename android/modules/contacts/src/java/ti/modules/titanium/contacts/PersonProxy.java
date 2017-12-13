@@ -122,7 +122,7 @@ public class PersonProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
+	@Kroll.setProperty
 	@Kroll.method
 	public void setImage(TiBlob blob)
 	// clang-format on
