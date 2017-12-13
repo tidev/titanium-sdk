@@ -20,7 +20,6 @@
       <module fileurl="file://$PROJECT_DIR$/modules/gesture/gesture.iml" filepath="$PROJECT_DIR$/modules/gesture/gesture.iml" />
       <module fileurl="file://$PROJECT_DIR$/kroll-apt/src/kroll-apt.iml" filepath="$PROJECT_DIR$/kroll-apt/src/kroll-apt.iml" />
       <module fileurl="file://$PROJECT_DIR$/modules/locale/locale.iml" filepath="$PROJECT_DIR$/modules/locale/locale.iml" />
-      <module fileurl="file://$PROJECT_DIR$/modules/map/map.iml" filepath="$PROJECT_DIR$/modules/map/map.iml" />
       <module fileurl="file://$PROJECT_DIR$/modules/media/media.iml" filepath="$PROJECT_DIR$/modules/media/media.iml" />
       <module fileurl="file://$PROJECT_DIR$/modules/network/network.iml" filepath="$PROJECT_DIR$/modules/network/network.iml" />
       <module fileurl="file://$PROJECT_DIR$/modules/platform/platform.iml" filepath="$PROJECT_DIR$/modules/platform/platform.iml" />
