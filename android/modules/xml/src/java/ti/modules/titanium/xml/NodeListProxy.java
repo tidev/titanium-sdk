@@ -31,8 +31,8 @@ public class NodeListProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getLength()
 	// clang-format on
 	{

@@ -184,8 +184,8 @@ public class AnalyticsModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getLastEvent()
 	// clang-format on
 	{

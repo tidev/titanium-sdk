@@ -448,8 +448,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getMediaControlStyle()
 	// clang-format on
 	{
@@ -457,8 +457,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setMediaControlStyle(int style)
 	// clang-format on
 	{
@@ -474,8 +474,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getMovieControlMode()
 	// clang-format on
 	{
@@ -484,8 +484,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setMovieControlMode(int style)
 	// clang-format on
 	{
@@ -500,8 +500,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	 * TODO
 	 */
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getMovieControlStyle()
 	// clang-format on
 	{
@@ -510,8 +510,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setMovieControlStyle(int style)
 	// clang-format on
 	{
@@ -520,8 +520,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getScalingMode()
 	// clang-format on
 	{
@@ -529,8 +529,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setScalingMode(int mode)
 	// clang-format on
 	{

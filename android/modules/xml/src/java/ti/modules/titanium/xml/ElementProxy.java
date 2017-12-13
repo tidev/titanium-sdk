@@ -29,8 +29,8 @@ public class ElementProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getTextContent()
 	// clang-format on
 	{
@@ -110,8 +110,8 @@ public class ElementProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getTagName()
 	// clang-format on
 	{

@@ -118,8 +118,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setHost(String host)
 	// clang-format on
 	{
@@ -127,8 +127,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setPort(int port)
 	// clang-format on
 	{
@@ -136,8 +136,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setTimeout(int timeout)
 	// clang-format on
 	{
@@ -145,8 +145,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setOptions(KrollDict options)
 	// clang-format on
 	{
@@ -155,8 +155,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setListenQueueSize(int listenQueueSize)
 	// clang-format on
 	{
@@ -164,8 +164,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setConnected(KrollFunction connected)
 	// clang-format on
 	{
@@ -173,8 +173,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setError(KrollFunction error)
 	// clang-format on
 	{
@@ -182,8 +182,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setAccepted(KrollFunction accepted)
 	// clang-format on
 	{
@@ -201,8 +201,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getState()
 	// clang-format on
 	{

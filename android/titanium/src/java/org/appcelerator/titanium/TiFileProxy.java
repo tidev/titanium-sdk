@@ -125,8 +125,8 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getReadonly()
 	// clang-format on
 	{
@@ -134,8 +134,8 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getWritable()
 	// clang-format on
 	{
@@ -206,8 +206,8 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getSymbolicLink()
 	// clang-format on
 	{
@@ -215,8 +215,8 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getExecutable()
 	// clang-format on
 	{
@@ -224,8 +224,8 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getHidden()
 	// clang-format on
 	{
@@ -233,8 +233,8 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String[] getDirectoryListing()
 	// clang-format on
 	{
@@ -243,8 +243,8 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public TiFileProxy getParent()
 	// clang-format on
 	{
@@ -259,8 +259,8 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getName()
 	// clang-format on
 	{
@@ -268,8 +268,8 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getNativePath()
 	// clang-format on
 	{
@@ -301,8 +301,8 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public double getSize()
 	// clang-format on
 	{

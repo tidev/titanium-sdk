@@ -22,8 +22,8 @@ public class DocumentTypeProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public DocumentType getDocumentType()
 	// clang-format on
 	{
@@ -31,8 +31,8 @@ public class DocumentTypeProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public NamedNodeMapProxy getEntities()
 	// clang-format on
 	{
@@ -40,8 +40,8 @@ public class DocumentTypeProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getInternalSubset()
 	// clang-format on
 	{
@@ -49,8 +49,8 @@ public class DocumentTypeProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getName()
 	// clang-format on
 	{
@@ -58,8 +58,8 @@ public class DocumentTypeProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public NamedNodeMapProxy getNotations()
 	// clang-format on
 	{
@@ -67,8 +67,8 @@ public class DocumentTypeProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getPublicId()
 	// clang-format on
 	{
@@ -76,8 +76,8 @@ public class DocumentTypeProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getSystemId()
 	// clang-format on
 	{

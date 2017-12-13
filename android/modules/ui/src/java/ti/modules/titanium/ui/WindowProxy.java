@@ -398,8 +398,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setSustainedPerformanceMode(boolean mode)
 	// clang-format on
 	{
@@ -408,8 +408,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getSustainedPerformanceMode()
 	// clang-format on
 	{

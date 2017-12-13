@@ -217,8 +217,8 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getFieldCount()
 	// clang-format on
 	{
@@ -255,8 +255,8 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getRowCount()
 	// clang-format on
 	{
@@ -268,8 +268,8 @@ public class TiResultSetProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean isValidRow()
 	// clang-format on
 	{

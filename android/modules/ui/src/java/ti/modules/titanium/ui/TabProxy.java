@@ -66,8 +66,8 @@ public class TabProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getActive()
 	// clang-format on
 	{
@@ -79,8 +79,8 @@ public class TabProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setActive(boolean active)
 	// clang-format on
 	{

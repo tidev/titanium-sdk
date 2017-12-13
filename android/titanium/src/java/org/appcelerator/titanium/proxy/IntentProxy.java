@@ -58,8 +58,8 @@ public class IntentProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getPackageName()
 	// clang-format on
 	{
@@ -74,8 +74,8 @@ public class IntentProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getClassName()
 	// clang-format on
 	{
@@ -257,8 +257,8 @@ public class IntentProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setFlags(int flags)
 	// clang-format on
 	{
@@ -266,8 +266,8 @@ public class IntentProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getFlags()
 	// clang-format on
 	{

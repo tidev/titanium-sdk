@@ -151,8 +151,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public NamedNodeMapProxy getAttributes()
 	// clang-format on
 	{
@@ -160,8 +160,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public NodeListProxy getChildNodes()
 	// clang-format on
 	{
@@ -169,8 +169,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public NodeProxy getFirstChild()
 	// clang-format on
 	{
@@ -178,8 +178,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public NodeProxy getLastChild()
 	// clang-format on
 	{
@@ -187,8 +187,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getLocalName()
 	// clang-format on
 	{
@@ -196,8 +196,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getNamespaceURI()
 	// clang-format on
 	{
@@ -205,8 +205,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public NodeProxy getNextSibling()
 	// clang-format on
 	{
@@ -214,8 +214,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getNodeName()
 	// clang-format on
 	{
@@ -223,8 +223,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public short getNodeType()
 	// clang-format on
 	{
@@ -232,8 +232,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getNodeValue() throws DOMException
 	// clang-format on
 	{
@@ -241,8 +241,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public DocumentProxy getOwnerDocument()
 	// clang-format on
 	{
@@ -250,8 +250,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public NodeProxy getParentNode()
 	// clang-format on
 	{
@@ -259,8 +259,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getPrefix()
 	// clang-format on
 	{
@@ -268,8 +268,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public NodeProxy getPreviousSibling()
 	// clang-format on
 	{
@@ -321,8 +321,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setNodeValue(String nodeValue) throws DOMException
 	// clang-format on
 	{
@@ -330,8 +330,8 @@ public class NodeProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setPrefix(String prefix) throws DOMException
 	// clang-format on
 	{

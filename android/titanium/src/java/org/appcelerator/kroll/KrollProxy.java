@@ -752,8 +752,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getBubbleParent()
 	// clang-format on
 	{
@@ -761,8 +761,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setBubbleParent(Object value)
 	// clang-format on
 	{

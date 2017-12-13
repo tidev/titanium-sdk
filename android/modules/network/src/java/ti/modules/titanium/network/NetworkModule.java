@@ -173,8 +173,8 @@ public class NetworkModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getOnline()
 	// clang-format on
 	{
@@ -214,8 +214,8 @@ public class NetworkModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getNetworkType()
 	// clang-format on
 	{
@@ -240,8 +240,8 @@ public class NetworkModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getNetworkTypeName()
 	// clang-format on
 	{

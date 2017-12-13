@@ -94,8 +94,8 @@ public class ReminderProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getId()
 	// clang-format on
 	{
@@ -103,8 +103,8 @@ public class ReminderProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getMinutes()
 	// clang-format on
 	{
@@ -112,8 +112,8 @@ public class ReminderProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getMethod()
 	// clang-format on
 	{

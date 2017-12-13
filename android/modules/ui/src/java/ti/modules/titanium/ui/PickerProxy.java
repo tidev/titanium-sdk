@@ -162,8 +162,8 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getUseSpinner()
 	// clang-format on
 	{
@@ -171,8 +171,8 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		return useSpinner;
 	}
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setUseSpinner(boolean value)
 	// clang-format on
 	{
@@ -192,8 +192,8 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getType()
 	// clang-format on
 	{
@@ -201,8 +201,8 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setType(int type)
 	// clang-format on
 	{
@@ -409,8 +409,8 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public PickerColumnProxy[] getColumns()
 	// clang-format on
 	{
@@ -426,8 +426,8 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setColumns(Object passedColumns)
 	// clang-format on
 	{

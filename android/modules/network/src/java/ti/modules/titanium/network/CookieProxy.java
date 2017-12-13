@@ -159,8 +159,8 @@ public class CookieProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getName()
 	// clang-format on
 	{

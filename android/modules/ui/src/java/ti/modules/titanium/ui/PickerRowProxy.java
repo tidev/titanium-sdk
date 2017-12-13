@@ -30,8 +30,8 @@ public class PickerRowProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getColor()
 	// clang-format on
 	{
@@ -39,8 +39,8 @@ public class PickerRowProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setColor(String color)
 	// clang-format on
 	{
@@ -48,8 +48,8 @@ public class PickerRowProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getTitle()
 	// clang-format on
 	{
@@ -57,8 +57,8 @@ public class PickerRowProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setTitle(String value)
 	// clang-format on
 	{

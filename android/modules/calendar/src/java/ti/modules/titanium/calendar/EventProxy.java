@@ -315,8 +315,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public ReminderProxy[] getReminders()
 	// clang-format on
 	{
@@ -337,8 +337,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public AlertProxy[] getAlerts()
 	// clang-format on
 	{
@@ -354,8 +354,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getId()
 	// clang-format on
 	{
@@ -363,8 +363,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getTitle()
 	// clang-format on
 	{
@@ -372,8 +372,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getDescription()
 	// clang-format on
 	{
@@ -381,8 +381,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getLocation()
 	// clang-format on
 	{
@@ -390,8 +390,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public Date getBegin()
 	// clang-format on
 	{
@@ -399,8 +399,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public Date getEnd()
 	// clang-format on
 	{
@@ -408,8 +408,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getAllDay()
 	// clang-format on
 	{
@@ -417,8 +417,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public AttendeeProxy[] getAttendees()
 	// clang-format on
 	{
@@ -426,8 +426,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getHasAlarm()
 	// clang-format on
 	{
@@ -435,8 +435,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getHasExtendedProperties()
 	// clang-format on
 	{
@@ -444,8 +444,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getStatus()
 	// clang-format on
 	{
@@ -453,8 +453,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getVisibility()
 	// clang-format on
 	{
@@ -462,8 +462,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getRecurrenceRule()
 	// clang-format on
 	{
@@ -471,8 +471,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getRecurrenceDate()
 	// clang-format on
 	{
@@ -480,8 +480,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getRecurrenceExceptionRule()
 	// clang-format on
 	{
@@ -489,8 +489,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getRecurrenceExceptionDate()
 	// clang-format on
 	{
@@ -498,8 +498,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public Date getLastDate()
 	// clang-format on
 	{
@@ -507,8 +507,8 @@ public class EventProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public KrollDict getExtendedProperties()
 	// clang-format on
 	{

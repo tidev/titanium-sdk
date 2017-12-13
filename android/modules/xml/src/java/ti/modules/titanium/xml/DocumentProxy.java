@@ -96,8 +96,8 @@ public class DocumentProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public DocumentTypeProxy getDoctype()
 	// clang-format on
 	{
@@ -105,8 +105,8 @@ public class DocumentProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public ElementProxy getDocumentElement()
 	// clang-format on
 	{
@@ -132,8 +132,8 @@ public class DocumentProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public DOMImplementationProxy getImplementation()
 	// clang-format on
 	{

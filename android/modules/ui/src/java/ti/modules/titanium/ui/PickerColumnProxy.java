@@ -192,8 +192,8 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public PickerRowProxy[] getRows()
 	// clang-format on
 	{
@@ -204,8 +204,8 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setRows(Object[] rows)
 	// clang-format on
 	{
@@ -237,8 +237,8 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getRowCount()
 	// clang-format on
 	{

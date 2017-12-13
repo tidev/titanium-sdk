@@ -206,8 +206,8 @@ public class CalendarProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getName()
 	// clang-format on
 	{
@@ -215,8 +215,8 @@ public class CalendarProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getId()
 	// clang-format on
 	{
@@ -224,8 +224,8 @@ public class CalendarProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getSelected()
 	// clang-format on
 	{
@@ -233,8 +233,8 @@ public class CalendarProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getHidden()
 	// clang-format on
 	{

@@ -308,8 +308,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setLeftNavButton(Object button)
 	// clang-format on
 	{

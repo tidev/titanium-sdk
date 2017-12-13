@@ -18,24 +18,24 @@ public class AudioRecorderProxy extends KrollProxy
 	TiAudioRecorder tiAudioRecorder = new TiAudioRecorder();
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public void setCompression(int value)
 	// clang-format on
 	{
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public void setFormat(int value)
 	// clang-format on
 	{
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getFormat()
 	// clang-format on
 	{
@@ -43,8 +43,8 @@ public class AudioRecorderProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getCompression()
 	// clang-format on
 	{
@@ -52,8 +52,8 @@ public class AudioRecorderProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getPaused()
 	// clang-format on
 	{
@@ -61,8 +61,8 @@ public class AudioRecorderProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getRecording()
 	// clang-format on
 	{
@@ -70,8 +70,8 @@ public class AudioRecorderProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getStopped()
 	// clang-format on
 	{

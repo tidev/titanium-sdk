@@ -30,8 +30,8 @@ public class LocaleModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getCurrentLanguage()
 	// clang-format on
 	{
@@ -39,8 +39,8 @@ public class LocaleModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getCurrentCountry()
 	// clang-format on
 	{
@@ -48,8 +48,8 @@ public class LocaleModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getCurrentLocale()
 	// clang-format on
 	{
@@ -90,8 +90,8 @@ public class LocaleModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public void setLanguage(String language)
 	// clang-format on
 	{

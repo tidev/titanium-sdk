@@ -59,8 +59,8 @@ public class ServiceProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getServiceInstanceId()
 	// clang-format on
 	{
@@ -68,8 +68,8 @@ public class ServiceProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public IntentProxy getIntent()
 	// clang-format on
 	{

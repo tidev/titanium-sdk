@@ -34,8 +34,8 @@ public class CharacterDataProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getData() throws DOMException
 	// clang-format on
 	{
@@ -43,8 +43,8 @@ public class CharacterDataProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setData(String data) throws DOMException
 	// clang-format on
 	{
@@ -52,8 +52,8 @@ public class CharacterDataProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getLength()
 	// clang-format on
 	{

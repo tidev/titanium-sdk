@@ -66,8 +66,8 @@ public class TextProxy extends CharacterDataProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getTextContent()
 	// clang-format on
 	{

@@ -56,8 +56,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getName()
 	// clang-format on
 	{
@@ -65,8 +65,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getOsname()
 	// clang-format on
 	{
@@ -74,8 +74,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getLocale()
 	// clang-format on
 	{
@@ -83,8 +83,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public DisplayCapsProxy getDisplayCaps()
 	// clang-format on
 	{
@@ -96,8 +96,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getProcessorCount()
 	// clang-format on
 	{
@@ -105,8 +105,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getUsername()
 	// clang-format on
 	{
@@ -114,8 +114,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getVersion()
 	// clang-format on
 	{
@@ -123,8 +123,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public double getAvailableMemory()
 	// clang-format on
 	{
@@ -132,8 +132,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getModel()
 	// clang-format on
 	{
@@ -141,8 +141,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getManufacturer()
 	// clang-format on
 	{
@@ -150,8 +150,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getOstype()
 	// clang-format on
 	{
@@ -159,8 +159,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getArchitecture()
 	// clang-format on
 	{
@@ -168,8 +168,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getAddress()
 	// clang-format on
 	{
@@ -177,8 +177,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getNetmask()
 	// clang-format on
 	{
@@ -223,8 +223,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getMacaddress()
 	// clang-format on
 	{
@@ -232,8 +232,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getId()
 	// clang-format on
 	{
@@ -241,8 +241,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setBatteryMonitoring(boolean monitor)
 	// clang-format on
 	{
@@ -254,8 +254,8 @@ public class PlatformModule extends KrollModule
 		}
 	}
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getBatteryMonitoring()
 	// clang-format on
 	{
@@ -263,8 +263,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getBatteryState()
 	// clang-format on
 	{
@@ -272,8 +272,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public double getBatteryLevel()
 	// clang-format on
 	{
@@ -281,8 +281,8 @@ public class PlatformModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getRuntime()
 	// clang-format on
 	{

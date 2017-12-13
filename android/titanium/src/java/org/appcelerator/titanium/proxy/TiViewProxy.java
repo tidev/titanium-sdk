@@ -398,8 +398,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	*/
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public KrollDict getRect()
 	// clang-format on
 	{
@@ -408,8 +408,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public KrollDict getSize()
 	// clang-format on
 	{
@@ -418,8 +418,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public Object getWidth()
 	// clang-format on
 	{
@@ -440,8 +440,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public Object getHeight()
 	// clang-format on
 	{
@@ -462,8 +462,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public Object getCenter()
 	// clang-format on
 	{
@@ -1118,8 +1118,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 * @module.api
 	 */
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public TiViewProxy getParent()
 	// clang-format on
 	{
@@ -1162,8 +1162,8 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 * @module.api
 	 */
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public TiViewProxy[] getChildren()
 	// clang-format on
 	{

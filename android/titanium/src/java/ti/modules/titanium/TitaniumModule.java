@@ -63,8 +63,8 @@ public class TitaniumModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getUserAgent()
 	// clang-format on
 	{
@@ -78,8 +78,8 @@ public class TitaniumModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getVersion()
 	// clang-format on
 	{
@@ -87,8 +87,8 @@ public class TitaniumModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getBuildTimestamp()
 	// clang-format on
 	{
@@ -96,8 +96,8 @@ public class TitaniumModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getBuildDate()
 	// clang-format on
 	{
@@ -105,8 +105,8 @@ public class TitaniumModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getBuildHash()
 	// clang-format on
 	{

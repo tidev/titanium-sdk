@@ -28,8 +28,8 @@ public class AttrProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getName()
 	// clang-format on
 	{
@@ -37,8 +37,8 @@ public class AttrProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public ElementProxy getOwnerElement()
 	// clang-format on
 	{
@@ -46,8 +46,8 @@ public class AttrProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getSpecified()
 	// clang-format on
 	{
@@ -62,8 +62,8 @@ public class AttrProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getValue()
 	// clang-format on
 	{
@@ -71,8 +71,8 @@ public class AttrProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setValue(String value) throws DOMException
 	// clang-format on
 	{

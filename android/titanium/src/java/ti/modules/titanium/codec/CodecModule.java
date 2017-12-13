@@ -254,8 +254,8 @@ public class CodecModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getNativeByteOrder()
 	// clang-format on
 	{

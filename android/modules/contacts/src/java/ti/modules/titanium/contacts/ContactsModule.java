@@ -65,8 +65,8 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getContactsAuthorization()
 	// clang-format on
 	{

@@ -103,8 +103,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getAllResponseHeaders()
 	// clang-format on
 	{
@@ -112,8 +112,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getReadyState()
 	// clang-format on
 	{
@@ -121,8 +121,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public TiBlob getResponseData()
 	// clang-format on
 	{
@@ -136,8 +136,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getResponseText()
 	// clang-format on
 	{
@@ -145,8 +145,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public DocumentProxy getResponseXML()
 	// clang-format on
 	{
@@ -154,8 +154,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getStatus()
 	// clang-format on
 	{
@@ -163,8 +163,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getStatusText()
 	// clang-format on
 	{
@@ -196,8 +196,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setTimeout(int millis)
 	// clang-format on
 	{
@@ -205,8 +205,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getLocation()
 	// clang-format on
 	{
@@ -214,8 +214,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getConnectionType()
 	// clang-format on
 	{
@@ -223,8 +223,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getConnected()
 	// clang-format on
 	{
@@ -232,8 +232,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getAutoEncodeUrl()
 	// clang-format on
 	{
@@ -241,8 +241,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setAutoEncodeUrl(boolean value)
 	// clang-format on
 	{
@@ -250,8 +250,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getAutoRedirect()
 	// clang-format on
 	{
@@ -259,8 +259,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setAutoRedirect(boolean value)
 	// clang-format on
 	{
@@ -268,8 +268,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getValidatesSecureCertificate()
 	// clang-format on
 	{
@@ -277,8 +277,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setValidatesSecureCertificate(boolean value)
 	// clang-format on
 	{
@@ -286,8 +286,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setUsername(String value)
 	// clang-format on
 	{
@@ -295,8 +295,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getUsername()
 	// clang-format on
 	{
@@ -307,8 +307,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setPassword(String value)
 	// clang-format on
 	{
@@ -316,8 +316,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getPassword()
 	// clang-format on
 	{
@@ -328,8 +328,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setDomain(String value)
 	// clang-format on
 	{
@@ -337,8 +337,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getDomain()
 	// clang-format on
 	{
@@ -379,8 +379,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setTlsVersion(int tlsVersion)
 	// clang-format on
 	{
@@ -388,8 +388,8 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getTlsVersion()
 	// clang-format on
 	{

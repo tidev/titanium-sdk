@@ -461,8 +461,8 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public double getLongitudeDelta()
 	// clang-format on
 	{
@@ -470,8 +470,8 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public double getLatitudeDelta()
 	// clang-format on
 	{

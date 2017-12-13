@@ -358,8 +358,8 @@ public class BufferProxy extends KrollProxy
 	 * @module.api
 	 */
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getLength()
 	// clang-format on
 	{
@@ -373,8 +373,8 @@ public class BufferProxy extends KrollProxy
 	 * @module.api
 	 */
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setLength(int length)
 	// clang-format on
 	{

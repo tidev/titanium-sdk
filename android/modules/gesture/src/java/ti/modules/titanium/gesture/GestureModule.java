@@ -172,8 +172,8 @@ public class GestureModule extends KrollModule implements SensorEventListener
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getPortrait()
 	// clang-format on
 	{
@@ -181,8 +181,8 @@ public class GestureModule extends KrollModule implements SensorEventListener
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getLandscape()
 	// clang-format on
 	{
@@ -190,8 +190,8 @@ public class GestureModule extends KrollModule implements SensorEventListener
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getOrientation()
 	// clang-format on
 	{

@@ -85,8 +85,8 @@ public class ScrollViewProxy extends TiViewProxy implements Handler.Callback
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setScrollingEnabled(Object enabled)
 	// clang-format on
 	{
@@ -94,8 +94,8 @@ public class ScrollViewProxy extends TiViewProxy implements Handler.Callback
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getScrollingEnabled()
 	// clang-format on
 	{

@@ -62,8 +62,8 @@ public class TableViewSectionProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public double getRowCount()
 	// clang-format on
 	{

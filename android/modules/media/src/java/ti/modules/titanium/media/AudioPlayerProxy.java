@@ -107,8 +107,8 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getUrl()
 	// clang-format on
 	{
@@ -116,8 +116,8 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public void setUrl(String url)
 	// clang-format on
 	{
@@ -127,8 +127,8 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getDuration()
 	// clang-format on
 	{
@@ -140,8 +140,8 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getAudioType()
 	// clang-format on
 	{
@@ -149,8 +149,8 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public void setAudioType(int val)
 	// clang-format on
 	{
@@ -158,8 +158,8 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean isPlaying()
 	// clang-format on
 	{
@@ -171,8 +171,8 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean isPaused()
 	// clang-format on
 	{
@@ -244,8 +244,8 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public double getTime()
 	// clang-format on
 	{
@@ -258,8 +258,8 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public void setTime(Object pos)
 	// clang-format on
 	{

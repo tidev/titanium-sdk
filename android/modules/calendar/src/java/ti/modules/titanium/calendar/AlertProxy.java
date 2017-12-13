@@ -152,8 +152,8 @@ public class AlertProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public Date getEnd()
 	// clang-format on
 	{
@@ -161,8 +161,8 @@ public class AlertProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public Date getAlarmTime()
 	// clang-format on
 	{
@@ -170,8 +170,8 @@ public class AlertProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getState()
 	// clang-format on
 	{
@@ -179,8 +179,8 @@ public class AlertProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getMinutes()
 	// clang-format on
 	{

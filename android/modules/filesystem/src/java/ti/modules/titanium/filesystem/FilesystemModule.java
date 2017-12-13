@@ -71,8 +71,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean isExternalStoragePresent()
 	// clang-format on
 	{
@@ -120,8 +120,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public FileProxy getApplicationDirectory()
 	// clang-format on
 	{
@@ -129,8 +129,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getApplicationDataDirectory()
 	// clang-format on
 	{
@@ -138,8 +138,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getResRawDirectory()
 	// clang-format on
 	{
@@ -148,8 +148,8 @@ public class FilesystemModule extends KrollModule
 
 	@SuppressWarnings("deprecation")
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getApplicationCacheDirectory()
 	// clang-format on
 	{
@@ -170,8 +170,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getResourcesDirectory()
 	// clang-format on
 	{
@@ -179,8 +179,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getExternalStorageDirectory()
 	// clang-format on
 	{
@@ -188,8 +188,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getTempDirectory()
 	// clang-format on
 	{
@@ -198,8 +198,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getSeparator()
 	// clang-format on
 	{
@@ -207,8 +207,8 @@ public class FilesystemModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getLineEnding()
 	// clang-format on
 	{

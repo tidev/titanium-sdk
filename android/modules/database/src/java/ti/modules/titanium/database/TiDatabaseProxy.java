@@ -158,8 +158,8 @@ public class TiDatabaseProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getName()
 	// clang-format on
 	{
@@ -167,8 +167,8 @@ public class TiDatabaseProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getLastInsertRowId()
 	// clang-format on
 	{
@@ -176,8 +176,8 @@ public class TiDatabaseProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getRowsAffected()
 	// clang-format on
 	{
@@ -205,8 +205,8 @@ public class TiDatabaseProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public TiFileProxy getFile()
 	// clang-format on
 	{

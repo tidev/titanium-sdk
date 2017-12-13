@@ -561,8 +561,8 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public TableViewSectionProxy[] getSections()
 	// clang-format on
 	{
@@ -571,8 +571,8 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getSectionCount()
 	// clang-format on
 	{
@@ -665,8 +665,8 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setData(Object[] args)
 	// clang-format on
 	{
@@ -683,8 +683,8 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setSections(Object[] args)
 	// clang-format on
 	{
@@ -715,8 +715,8 @@ public class TableViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public Object[] getData()
 	// clang-format on
 	{

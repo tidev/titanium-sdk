@@ -356,8 +356,8 @@ public class TiBlob extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getLength()
 	// clang-format on
 	{
@@ -435,8 +435,8 @@ public class TiBlob extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getText()
 	// clang-format on
 	{
@@ -470,8 +470,8 @@ public class TiBlob extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getMimeType()
 	// clang-format on
 	{
@@ -497,8 +497,8 @@ public class TiBlob extends KrollProxy
 	 * @module.api
 	 */
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getType()
 	// clang-format on
 	{
@@ -506,8 +506,8 @@ public class TiBlob extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getWidth()
 	// clang-format on
 	{
@@ -515,8 +515,8 @@ public class TiBlob extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getHeight()
 	// clang-format on
 	{
@@ -536,8 +536,8 @@ public class TiBlob extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getNativePath()
 	// clang-format on
 	{
@@ -567,8 +567,8 @@ public class TiBlob extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public TiFileProxy getFile()
 	// clang-format on
 	{

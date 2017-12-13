@@ -75,8 +75,8 @@ public class PersonProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getFullName()
 	// clang-format on
 	{
@@ -89,8 +89,8 @@ public class PersonProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public long getId()
 	// clang-format on
 	{
@@ -103,8 +103,8 @@ public class PersonProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public TiBlob getImage()
 	// clang-format on
 	{
@@ -122,8 +122,8 @@ public class PersonProxy extends KrollProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setImage(TiBlob blob)
 	// clang-format on
 	{

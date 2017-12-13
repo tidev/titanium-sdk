@@ -470,8 +470,8 @@ public class ListViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setSections(Object sections)
 	// clang-format on
 	{

@@ -163,8 +163,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public Object getViews()
 	// clang-format on
 	{
@@ -173,8 +173,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setViews(Object viewsObject)
 	// clang-format on
 	{
@@ -290,8 +290,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setScrollingEnabled(Object enabled)
 	// clang-format on
 	{
@@ -299,8 +299,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getScrollingEnabled()
 	// clang-format on
 	{
@@ -308,8 +308,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getCurrentPage()
 	// clang-format on
 	{
@@ -317,8 +317,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setCurrentPage(Object page)
 	// clang-format on
 	{

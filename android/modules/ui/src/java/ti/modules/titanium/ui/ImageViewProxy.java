@@ -70,8 +70,8 @@ public class ImageViewProxy extends ViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getAnimating()
 	// clang-format on
 	{
@@ -79,8 +79,8 @@ public class ImageViewProxy extends ViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getPaused()
 	// clang-format on
 	{
@@ -88,8 +88,8 @@ public class ImageViewProxy extends ViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getReverse()
 	// clang-format on
 	{
@@ -121,8 +121,8 @@ public class ImageViewProxy extends ViewProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getTintColor()
 	// clang-format on
 	{

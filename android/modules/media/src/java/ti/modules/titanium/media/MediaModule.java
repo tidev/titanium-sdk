@@ -959,8 +959,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getCameraFlashMode()
 	// clang-format on
 	{
@@ -1341,8 +1341,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getIsCameraSupported()
 	// clang-format on
 	{
@@ -1350,8 +1350,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int[] getAvailableCameras()
 	// clang-format on
 	{
@@ -1384,8 +1384,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public boolean getCanRecord()
 	// clang-format on
 	{

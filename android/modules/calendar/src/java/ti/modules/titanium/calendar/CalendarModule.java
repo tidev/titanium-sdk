@@ -128,8 +128,8 @@ public class CalendarModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public CalendarProxy[] getAllCalendars()
 	// clang-format on
 	{
@@ -138,8 +138,8 @@ public class CalendarModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public CalendarProxy[] getSelectableCalendars()
 	// clang-format on
 	{
@@ -174,8 +174,8 @@ public class CalendarModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public AlertProxy[] getAllAlerts()
 	// clang-format on
 	{

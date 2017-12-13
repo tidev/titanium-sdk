@@ -22,8 +22,8 @@ public class EntityProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getNotationName()
 	// clang-format on
 	{
@@ -31,8 +31,8 @@ public class EntityProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getPublicId()
 	// clang-format on
 	{
@@ -40,8 +40,8 @@ public class EntityProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getSystemId()
 	// clang-format on
 	{

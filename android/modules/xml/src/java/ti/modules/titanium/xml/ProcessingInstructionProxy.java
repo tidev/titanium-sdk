@@ -23,8 +23,8 @@ public class ProcessingInstructionProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getData()
 	// clang-format on
 	{
@@ -32,8 +32,8 @@ public class ProcessingInstructionProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getTarget()
 	// clang-format on
 	{
@@ -41,8 +41,8 @@ public class ProcessingInstructionProxy extends NodeProxy
 	}
 
 	// clang-format off
-	@Kroll.setProperty
 	@Kroll.method
+	@Kroll.setProperty
 	public void setData(String data) throws DOMException
 	// clang-format on
 	{
