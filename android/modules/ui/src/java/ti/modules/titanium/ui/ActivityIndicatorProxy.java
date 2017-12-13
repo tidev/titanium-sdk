@@ -16,17 +16,18 @@ import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 import android.app.Activity;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_MESSAGE,
-	TiC.PROPERTY_MESSAGEID,
-	TiC.PROPERTY_COLOR,
-	TiC.PROPERTY_FONT,
-	TiC.PROPERTY_STYLE,
-	TiC.PROPERTY_INDICATOR_COLOR
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_MESSAGE,
+		TiC.PROPERTY_MESSAGEID,
+		TiC.PROPERTY_COLOR,
+		TiC.PROPERTY_FONT,
+		TiC.PROPERTY_STYLE,
+		TiC.PROPERTY_INDICATOR_COLOR
 })
-@Kroll.dynamicApis(methods = {
-	"hide", "show"
-})
+@Kroll.dynamicApis(methods = { "hide", "show" })
+// clang-format on
 public class ActivityIndicatorProxy extends TiViewProxy
 {
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
@@ -62,7 +63,8 @@ public class ActivityIndicatorProxy extends TiViewProxy
 	}
 
 	@Override
-	protected KrollDict getLangConversionTable() {
+	protected KrollDict getLangConversionTable()
+	{
 		KrollDict table = new KrollDict();
 		table.put(TiC.PROPERTY_MESSAGE, TiC.PROPERTY_MESSAGEID);
 		return table;
