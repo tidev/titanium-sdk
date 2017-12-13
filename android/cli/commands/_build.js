@@ -2163,10 +2163,10 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (this.tiapp.navbarHidden !== manifest.navbarHidden) {
+	if (this.tiapp['navbar-hidden'] !== manifest.navbarHidden) {
 		this.logger.info(__('Forcing rebuild: tiapp.xml navbar-hidden changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.navbarHidden));
-		this.logger.info('  ' + __('Now: %s', this.tiapp.navbarHidden));
+		this.logger.info('  ' + __('Now: %s', this.tiapp['navbar-hidden']));
 		return true;
 	}
 
