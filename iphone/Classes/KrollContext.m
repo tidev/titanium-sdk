@@ -292,7 +292,7 @@ static TiValueRef AlertCallback(TiContextRef jsContext, TiObjectRef jsFunction, 
   NSString *message = [KrollObject toID:ctx value:args[0]];
 
   TiUIAlertDialogProxy *alert = [[[TiUIAlertDialogProxy alloc] _initWithPageContext:(id<TiEvaluator>)[ctx delegate] args:nil] autorelease];
-  [alert setValue:@"Alert" forKey:@"title"];
+  [alert setValue:@"" forKey:@"title"];
   [alert setValue:message forKey:@"message"];
   [alert show:nil];
 

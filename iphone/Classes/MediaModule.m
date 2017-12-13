@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -39,6 +39,9 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #endif
 #import "TiUIiOSLivePhoto.h"
+#ifdef USE_TI_MEDIAVIDEOPLAYER
+#import "TiMediaVideoPlayerProxy.h"
+#endif
 
 // by default, we want to make the camera fullscreen and
 // these transform values will scale it when we have our own overlay
@@ -345,58 +348,29 @@ MAKE_SYSTEM_PROP(QUALITY_IFRAME_960x540, UIImagePickerControllerQualityTypeIFram
 
 //Constants for MediaTypes in VideoPlayer
 #ifdef USE_TI_MEDIAVIDEOPLAYER
-MAKE_SYSTEM_PROP(VIDEO_MEDIA_TYPE_NONE, MPMovieMediaTypeMaskNone);
-MAKE_SYSTEM_PROP(VIDEO_MEDIA_TYPE_VIDEO, MPMovieMediaTypeMaskVideo);
-MAKE_SYSTEM_PROP(VIDEO_MEDIA_TYPE_AUDIO, MPMovieMediaTypeMaskAudio);
-
-//Constants for VideoPlayer complete event
-MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_PLAYBACK_ENDED, MPMovieFinishReasonPlaybackEnded);
-MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_PLAYBACK_ERROR, MPMovieFinishReasonPlaybackError);
-MAKE_SYSTEM_PROP(VIDEO_FINISH_REASON_USER_EXITED, MPMovieFinishReasonUserExited);
-
 //Constants for VideoPlayer mediaControlStyle
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_DEFAULT, MPMovieControlStyleDefault);
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_NONE, MPMovieControlStyleNone);
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_EMBEDDED, MPMovieControlStyleEmbedded);
-MAKE_SYSTEM_PROP(VIDEO_CONTROL_FULLSCREEN, MPMovieControlStyleFullscreen);
-
-- (NSNumber *)VIDEO_CONTROL_HIDDEN
-{
-  return [self VIDEO_CONTROL_NONE];
-}
+MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_KEY, AVVideoScalingModeKey);
+MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_FIT, AVVideoScalingModeFit);
+MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE, AVVideoScalingModeResize);
+MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE_ASPECT, AVVideoScalingModeResizeAspect);
+MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE_ASPECT_FILL, AVVideoScalingModeResizeAspectFill);
 
 //Constants for VideoPlayer scalingMode
-MAKE_SYSTEM_PROP(VIDEO_SCALING_NONE, MPMovieScalingModeNone);
-MAKE_SYSTEM_PROP(VIDEO_SCALING_ASPECT_FIT, MPMovieScalingModeAspectFit);
-MAKE_SYSTEM_PROP(VIDEO_SCALING_ASPECT_FILL, MPMovieScalingModeAspectFill);
-MAKE_SYSTEM_PROP(VIDEO_SCALING_MODE_FILL, MPMovieScalingModeFill);
-
-//Constants for VideoPlayer sourceType
-MAKE_SYSTEM_PROP(VIDEO_SOURCE_TYPE_UNKNOWN, MPMovieSourceTypeUnknown);
-MAKE_SYSTEM_PROP(VIDEO_SOURCE_TYPE_FILE, MPMovieSourceTypeFile);
-MAKE_SYSTEM_PROP(VIDEO_SOURCE_TYPE_STREAMING, MPMovieSourceTypeStreaming);
-
-//Constants for VideoPlayer playbackState
-MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_STOPPED, MPMoviePlaybackStateStopped);
-MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PLAYING, MPMoviePlaybackStatePlaying);
-MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PAUSED, MPMoviePlaybackStatePaused);
-MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_INTERRUPTED, MPMoviePlaybackStateInterrupted);
-MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_SEEKING_FORWARD, MPMoviePlaybackStateSeekingForward);
-MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD, MPMoviePlaybackStateSeekingBackward);
+MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE, AVLayerVideoGravityResize);
+MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT, AVLayerVideoGravityResizeAspect);
+MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT_FILL, AVLayerVideoGravityResizeAspectFill);
 
 //Constants for VideoPlayer loadState
-MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_UNKNOWN, MPMovieLoadStateUnknown);
-MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_PLAYABLE, MPMovieLoadStatePlayable);
-MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_PLAYTHROUGH_OK, MPMovieLoadStatePlaythroughOK);
-MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_STALLED, MPMovieLoadStateStalled);
+MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_UNKNOWN, AVPlayerStatusUnknown);
+MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_PLAYABLE, AVPlayerStatusReadyToPlay);
+MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_FAILED, AVPlayerStatusFailed);
 
-//Constants for VideoPlayer repeateMode
-MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_NONE, MPMovieRepeatModeNone);
-MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, MPMovieRepeatModeOne);
+MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_NEAREST_KEYFRAME, VideoTimeOptionNearestKeyFrame);
+MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, VideoTimeOptionExact);
 
-//Other Constants
-MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_NEAREST_KEYFRAME, MPMovieTimeOptionNearestKeyFrame);
-MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
+MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_NONE, VideoRepeatModeNone);
+MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
+
 #endif
 
 #if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
@@ -435,21 +409,42 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
 
 - (void)setDefaultAudioSessionMode:(NSNumber *)mode
 {
-  DEPRECATED_REPLACED_REMOVED(@"Media.defaultAudioSessionMode", @"3.5.1", @"6.0.0", @"Media.audioSessionCategory");
+  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
+  [self setAudioSessionMode:mode];
 }
 
 - (NSNumber *)defaultAudioSessionMode
 {
-  DEPRECATED_REPLACED_REMOVED(@"Media.defaultAudioSessionMode", @"3.5.1", @"6.0.0", @"Media.audioSessionCategory");
+  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
 }
 
 - (void)setAudioSessionMode:(NSNumber *)mode
 {
-  DEPRECATED_REPLACED_REMOVED(@"Media.audioSessionMode", @"3.5.1", @"6.0.0", @"Media.audioSessionCategory");
+  DEPRECATED_REPLACED(@"Media.VideoPlayer.audioSessionMode", @"7.0.0", @"Media.VideoPlayer.audioSessionCategory");
+
+  switch ([mode unsignedIntegerValue]) {
+  case kAudioSessionCategory_AmbientSound:
+    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_AMBIENT]];
+    break;
+  case kAudioSessionCategory_SoloAmbientSound:
+    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]];
+    break;
+  case kAudioSessionCategory_PlayAndRecord:
+    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]];
+    break;
+  case kAudioSessionCategory_RecordAudio:
+    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_RECORD]];
+    break;
+  case kAudioSessionCategory_MediaPlayback:
+    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAYBACK]];
+    break;
+  default:
+    DebugLog(@"Unsupported audioSessionMode specified");
+    break;
+  }
 }
 
-#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIASOUND) || defined(USE_TI_MEDIAAUDIORECORDER)
-
+#if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined(USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 - (void)setAudioSessionCategory:(NSString *)mode
 {
   [[TiMediaAudioSession sharedSession] setSessionMode:mode];
@@ -459,6 +454,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT, MPMovieTimeOptionExact);
 {
   return [[TiMediaAudioSession sharedSession] sessionMode];
 }
+#endif
 
 - (NSNumber *)canRecord
 {

@@ -39,7 +39,7 @@ import org.json.simple.JSONValue;
 @SupportedAnnotationTypes({
 	KrollJSONGenerator.Kroll_proxy,
 	KrollJSONGenerator.Kroll_module})
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedSourceVersion(SourceVersion.RELEASE_7)
 @SupportedOptions({KrollJSONGenerator.PROPERTY_JSON_PACKAGE, KrollJSONGenerator.PROPERTY_JSON_FILE})
 @SuppressWarnings("unchecked")
 public class KrollJSONGenerator extends AbstractProcessor {

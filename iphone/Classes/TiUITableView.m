@@ -29,6 +29,8 @@
 
 @interface TiUITableView ()
 @property (nonatomic, copy, readwrite) NSString *searchString;
+@property (nonatomic, copy, readwrite) NSString *searchedString;
+
 - (void)updateSearchResultIndexes;
 - (CGFloat)computeRowWidth;
 @end
@@ -1429,6 +1431,10 @@
       [proxy layoutChildren:NO];
     }
   }
+
+  if ([searchController isActive]) {
+    [self updateSearchControllerFrames];
+  }
 }
 
 - (CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
@@ -1446,6 +1452,42 @@
   }
 
   return height;
+}
+
+- (void)updateSearchControllerFrames
+{
+  if (![searchController isActive]) {
+    return;
+  }
+
+  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+
+  UIView *searchSuperView = [searchController.view superview];
+  searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
+
+  // Dimming view (transparent view of search controller, which is not exposed) need to manage as it is taking full height of screen always
+  UIView *dimmingView = nil;
+  for (UIView *view in [searchSuperView subviews]) {
+    if ([NSStringFromClass(view.class) hasSuffix:@"UIDimmingView"]) {
+      dimmingView = view;
+      break;
+    }
+  }
+
+  dimmingView.frame = CGRectMake(searchController.view.frame.origin.x, searchController.view.frame.origin.y, self.frame.size.width, self.frame.size.height);
+
+  CGFloat width = [searchField view].frame.size.width;
+  UIView *view = searchController.searchBar.superview;
+  view.frame = CGRectMake(0, 0, width, view.frame.size.height);
+  searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
+
+  UIView *resultSuperview = [resultViewController.view superview];
+  if (resultSuperview) {
+    resultSuperview.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+    resultViewController.tableView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  } else {
+    resultViewController.tableView.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  }
 }
 
 #pragma mark Searchbar-related IBActions
@@ -1576,9 +1618,15 @@
   [self makeRootViewFirstResponder];
 }
 
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+{
+  self.searchedString = (searchText == nil) ? @"" : searchText;
+}
+
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
   // called when cancel button pressed
+  isSearched = NO;
   [searchBar setText:nil];
   [self setSearchString:nil];
   [self updateSearchResultIndexes];
@@ -2312,6 +2360,26 @@
   [[self tableView] deselectRowAtIndexPath:path animated:animated];
 }
 
+- (void)viewResignFocus
+{
+  // As Search controller is presented, we can not open window over it. If any other window get opened above it, we are deactivating Search Controller with saved state if it is activated. And activate Search Controller again when this window get focus in viewGetFocus method.
+
+  if (!hideOnSearch && isSearched && [searchController isActive]) {
+    [searchController setActive:false];
+  } else {
+    isSearched = NO;
+  }
+}
+
+- (void)viewGetFocus
+{
+  if (!hideOnSearch && isSearched && self.searchedString && ![searchController isActive]) {
+    isSearched = NO;
+    searchController.searchBar.text = self.searchedString;
+    [searchController performSelector:@selector(setActive:) withObject:@YES afterDelay:.1];
+    [searchController.searchBar performSelector:@selector(becomeFirstResponder) withObject:nil afterDelay:.2];
+  }
+}
 #pragma mark Delegate
 
 - (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2660,32 +2728,35 @@
   // Since we clear the searchbar, the search string and indexes can be cleared as well.
   [self setSearchString:nil];
   RELEASE_TO_NIL(searchResultIndexes);
+  RELEASE_TO_NIL(searchControllerPresenter);
+  [searchField ensureSearchBarHierarchy];
 }
 
 - (void)presentSearchController:(UISearchController *)controller
 {
-  id proxy = [(TiViewProxy *)self.proxy parent];
-  while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
-    proxy = [proxy parent];
-  }
-  UIViewController *viewController = nil;
-  if ([proxy isKindOfClass:[TiWindowProxy class]]) {
-    viewController = [proxy windowHoldingController];
-  } else {
-    viewController = [[TiApp app] controller];
-  }
-  viewController.definesPresentationContext = YES;
+  tableContentOffset = [tableview contentOffset];
 
-  [viewController presentViewController:controller
-                               animated:NO
-                             completion:^{
-                               CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:viewController.view];
+  if (!searchControllerPresenter) {
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+      proxy = [proxy parent];
+    }
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+      searchControllerPresenter = [[proxy windowHoldingController] retain];
+    } else {
+      searchControllerPresenter = [[[TiApp app] controller] retain];
+    }
+  }
+  searchControllerPresenter.definesPresentationContext = YES;
 
-                               UIView *view = controller.searchBar.superview;
-                               view.frame = CGRectMake(view.frame.origin.x, convertedOrigin.y, view.frame.size.width, view.frame.size.height);
-                               controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-                               resultViewController.tableView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
-                             }];
+  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
+
+  [searchControllerPresenter presentViewController:controller
+                                          animated:shouldAnimate
+                                        completion:^{
+                                          isSearched = YES;
+                                          [self updateSearchControllerFrames];
+                                        }];
 }
 
 #pragma mark - UISearchResultsUpdating
