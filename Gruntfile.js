@@ -7,6 +7,7 @@ module.exports = function (grunt) {
 
 	const iosSrc = [ 'iphone/Classes/*.h', 'iphone/Classes/*.m' ];
 	const androidSrc = [
+		'android/build/src/**/*.java',
 		'android/kroll-apt/src/**/*.java',
 		'android/modules/*/src/**/*.java',
 		'android/runtime/*/src/**/*.java',
