@@ -17,7 +17,7 @@ import org.appcelerator.titanium.util.TiStreamHelper;
 
 import ti.modules.titanium.BufferProxy;
 
-@Kroll.proxy(parentModule=StreamModule.class)
+@Kroll.proxy(parentModule = StreamModule.class)
 public class BlobStreamProxy extends KrollProxy implements TiStream
 {
 	private TiBlob tiBlob;
@@ -42,9 +42,9 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 		int offset = 0;
 		int length = 0;
 
-		if(args.length == 1 || args.length == 3) {
-			if(args.length > 0) {
-				if(args[0] instanceof BufferProxy) {
+		if (args.length == 1 || args.length == 3) {
+			if (args.length > 0) {
+				if (args[0] instanceof BufferProxy) {
 					bufferProxy = (BufferProxy) args[0];
 					length = bufferProxy.getLength();
 
@@ -53,22 +53,22 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 				}
 			}
 
-			if(args.length == 3) {
-				if(args[1] instanceof Integer) {
-					offset = ((Integer)args[1]).intValue();
+			if (args.length == 3) {
+				if (args[1] instanceof Integer) {
+					offset = ((Integer) args[1]).intValue();
 
-				} else if(args[1] instanceof Double) {
-					offset = ((Double)args[1]).intValue();
+				} else if (args[1] instanceof Double) {
+					offset = ((Double) args[1]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid offset argument");
 				}
 
-				if(args[2] instanceof Integer) {
-					length = ((Integer)args[2]).intValue();
+				if (args[2] instanceof Integer) {
+					length = ((Integer) args[2]).intValue();
 
-				} else if(args[2] instanceof Double) {
-					length = ((Double)args[2]).intValue();
+				} else if (args[2] instanceof Double) {
+					length = ((Double) args[2]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid length argument");
@@ -84,7 +84,7 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 			// TODO set position based on mode
 		}
 
-		if(inputStream != null) {
+		if (inputStream != null) {
 			try {
 				return TiStreamHelper.read(inputStream, bufferProxy, offset, length);
 
@@ -130,4 +130,3 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 		return "Ti.BlobStream";
 	}
 }
-
