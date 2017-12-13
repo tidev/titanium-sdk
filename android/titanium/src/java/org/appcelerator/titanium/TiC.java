@@ -3225,6 +3225,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ZIP_CODE = "zipcode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ZOOM_ENABLED = "zoomEnabled";
 
 	/**
