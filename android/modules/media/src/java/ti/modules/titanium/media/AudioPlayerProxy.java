@@ -117,7 +117,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.getProperty
+	@Kroll.setProperty
 	public void setUrl(String url)
 	// clang-format on
 	{
@@ -150,7 +150,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.getProperty
+	@Kroll.setProperty
 	public void setAudioType(int val)
 	// clang-format on
 	{
@@ -259,7 +259,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.getProperty
+	@Kroll.setProperty
 	public void setTime(Object pos)
 	// clang-format on
 	{

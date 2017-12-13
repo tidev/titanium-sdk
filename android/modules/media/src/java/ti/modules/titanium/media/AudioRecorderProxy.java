@@ -19,7 +19,7 @@ public class AudioRecorderProxy extends KrollProxy
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.getProperty
+	@Kroll.setProperty
 	public void setCompression(int value)
 	// clang-format on
 	{
@@ -27,7 +27,7 @@ public class AudioRecorderProxy extends KrollProxy
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.getProperty
+	@Kroll.setProperty
 	public void setFormat(int value)
 	// clang-format on
 	{

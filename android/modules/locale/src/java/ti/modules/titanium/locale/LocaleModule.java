@@ -91,7 +91,7 @@ public class LocaleModule extends KrollModule
 
 	// clang-format off
 	@Kroll.method
-	@Kroll.getProperty
+	@Kroll.setProperty
 	public void setLanguage(String language)
 	// clang-format on
 	{
