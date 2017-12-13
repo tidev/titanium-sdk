@@ -28,7 +28,6 @@ NSString *const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputChan
   [[AVAudioSession sharedInstance] removeObserver:self forKeyPath:@"outputVolume"];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [[AVAudioSession sharedInstance] setActive:NO error:nil];
-  ;
 }
 
 - (void)activateSession
