@@ -5,6 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_WATCHSESSION
+
 #import "WatchSessionModule.h"
 #import "TiEvaluator.h"
 #import "TiUtils.h"
@@ -507,3 +509,5 @@
 }
 
 @end
+
+#endif
