@@ -41,8 +41,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
 
-	public void printError(String title, String message, String sourceName, int line, String lineSource,
-		int lineOffset)
+	public void printError(String title, String message, String sourceName, int line, String lineSource, int lineOffset)
 	{
 		Log.e(TAG, "----- Titanium Javascript " + title + " -----");
 		Log.e(TAG, "- In " + sourceName + ":" + line + "," + lineOffset);
@@ -96,8 +95,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		if (!dialogShowing) {
 			dialogShowing = true;
 			final ExceptionMessage fError = error;
-			application.waitForCurrentActivity(new CurrentActivityListener()
-			{
+			application.waitForCurrentActivity(new CurrentActivityListener() {
 				// TODO @Override
 				public void onCurrentActivityReady(Activity activity)
 				{
@@ -165,8 +163,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		vlayout.addView(sourceLabel);
 		vlayout.addView(sourceView);
 
-		OnClickListener clickListener = new OnClickListener()
-		{
+		OnClickListener clickListener = new OnClickListener() {
 			public void onClick(DialogInterface dialog, int which)
 			{
 				if (which == DialogInterface.BUTTON_POSITIVE) {
@@ -180,7 +177,6 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 					// if (error.tiContext != null && error.tiContext.get() != null) {
 					// reload(error.sourceName);
 					// }
-
 				}
 				if (!errorMessages.isEmpty()) {
 					createDialog(errorMessages.removeFirst());
@@ -192,10 +188,11 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(context)
-			.setTitle(error.title).setView(layout)
-			.setPositiveButton("Kill", clickListener)
-			.setNeutralButton("Continue", clickListener)
-			.setCancelable(false);
+										  .setTitle(error.title)
+										  .setView(layout)
+										  .setPositiveButton("Kill", clickListener)
+										  .setNeutralButton("Continue", clickListener)
+										  .setCancelable(false);
 
 		// TODO: Enable when we have fastdev working
 		// if (TiFastDev.isFastDevEnabled()) {

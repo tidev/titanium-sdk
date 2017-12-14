@@ -15,8 +15,7 @@ import java.io.OutputStream;
 
 public interface ContentBody extends ContentDescriptor {
 
-    String getFilename();
+	String getFilename();
 
-    void writeTo(OutputStream out) throws IOException;
-
+	void writeTo(OutputStream out) throws IOException;
 }
