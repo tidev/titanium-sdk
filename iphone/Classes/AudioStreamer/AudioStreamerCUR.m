@@ -15,7 +15,9 @@
 #if defined(USE_TI_MEDIASYSTEMMUSICPLAYER) ||    \
     defined(USE_TI_MEDIAAPPMUSICPLAYER) ||       \
     defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || \
-    defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
+    defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || \
+    defined(USE_TI_MEDIAAUDIOPLAYER) || \
+    defined(USE_TI_MEDIAGETAUDIOPLAYER)
 
 #import "AudioStreamerCUR.h"
 #ifdef TARGET_OS_IPHONE			
