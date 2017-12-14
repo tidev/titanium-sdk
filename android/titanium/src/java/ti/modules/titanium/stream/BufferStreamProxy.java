@@ -17,8 +17,7 @@ import org.appcelerator.titanium.util.TiStreamHelper;
 
 import ti.modules.titanium.BufferProxy;
 
-
-@Kroll.proxy(parentModule=StreamModule.class)
+@Kroll.proxy(parentModule = StreamModule.class)
 public class BufferStreamProxy extends KrollProxy implements TiStream
 {
 	private static final String TAG = "BufferStream";
@@ -27,7 +26,6 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 	private int mode = -1;
 	private int position = -1;
 	private boolean isOpen = false;
-
 
 	public BufferStreamProxy(BufferProxy buffer, int mode)
 	{
@@ -65,9 +63,9 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 		int offset = 0;
 		int length = 0;
 
-		if(args.length == 1 || args.length == 3) {
-			if(args.length > 0) {
-				if(args[0] instanceof BufferProxy) {
+		if (args.length == 1 || args.length == 3) {
+			if (args.length > 0) {
+				if (args[0] instanceof BufferProxy) {
 					bufferProxy = (BufferProxy) args[0];
 					length = bufferProxy.getLength();
 
@@ -76,22 +74,22 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 				}
 			}
 
-			if(args.length == 3) {
-				if(args[1] instanceof Integer) {
-					offset = ((Integer)args[1]).intValue();
+			if (args.length == 3) {
+				if (args[1] instanceof Integer) {
+					offset = ((Integer) args[1]).intValue();
 
-				} else if(args[1] instanceof Double) {
-					offset = ((Double)args[1]).intValue();
+				} else if (args[1] instanceof Double) {
+					offset = ((Double) args[1]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid offset argument");
 				}
 
-				if(args[2] instanceof Integer) {
-					length = ((Integer)args[2]).intValue();
+				if (args[2] instanceof Integer) {
+					length = ((Integer) args[2]).intValue();
 
-				} else if(args[2] instanceof Double) {
-					length = ((Double)args[2]).intValue();
+				} else if (args[2] instanceof Double) {
+					length = ((Double) args[2]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid length argument");
@@ -102,7 +100,8 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 			throw new IllegalArgumentException("Invalid number of arguments");
 		}
 
-		ByteArrayInputStream bufferInputStream = new ByteArrayInputStream(buffer.getBuffer(), position, (buffer.getLength() - position));
+		ByteArrayInputStream bufferInputStream =
+			new ByteArrayInputStream(buffer.getBuffer(), position, (buffer.getLength() - position));
 		int bytesRead;
 
 		try {
@@ -135,9 +134,9 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 		int offset = 0;
 		int length = 0;
 
-		if(args.length == 1 || args.length == 3) {
-			if(args.length > 0) {
-				if(args[0] instanceof BufferProxy) {
+		if (args.length == 1 || args.length == 3) {
+			if (args.length > 0) {
+				if (args[0] instanceof BufferProxy) {
 					bufferProxy = (BufferProxy) args[0];
 					length = bufferProxy.getLength();
 
@@ -146,22 +145,22 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 				}
 			}
 
-			if(args.length == 3) {
-				if(args[1] instanceof Integer) {
-					offset = ((Integer)args[1]).intValue();
+			if (args.length == 3) {
+				if (args[1] instanceof Integer) {
+					offset = ((Integer) args[1]).intValue();
 
-				} else if(args[1] instanceof Double) {
-					offset = ((Double)args[1]).intValue();
+				} else if (args[1] instanceof Double) {
+					offset = ((Double) args[1]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid offset argument");
 				}
 
-				if(args[2] instanceof Integer) {
-					length = ((Integer)args[2]).intValue();
+				if (args[2] instanceof Integer) {
+					length = ((Integer) args[2]).intValue();
 
-				} else if(args[2] instanceof Double) {
-					length = ((Double)args[2]).intValue();
+				} else if (args[2] instanceof Double) {
+					length = ((Double) args[2]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid length argument");
@@ -211,4 +210,3 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 		return "Ti.BufferStream";
 	}
 }
-
