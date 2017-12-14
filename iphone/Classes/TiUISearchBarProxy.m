@@ -84,8 +84,8 @@
     UISearchBar *searchBar = [self searchBar];
     if ([searchBar superview] != view) {
       [view addSubview:searchBar];
-      [searchBar setFrame:[view bounds]];
     }
+    [searchBar setFrame:[view bounds]];
   }
 }
 
