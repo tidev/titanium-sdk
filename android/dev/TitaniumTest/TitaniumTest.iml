@@ -32,7 +32,6 @@
     <orderEntry type="module" module-name="accelerometer" />
     <orderEntry type="module" module-name="locale" />
     <orderEntry type="module" module-name="analytics" />
-    <orderEntry type="module" module-name="map" />
     <orderEntry type="module" module-name="android" />
     <orderEntry type="module" module-name="app" />
     <orderEntry type="module" module-name="network" />
