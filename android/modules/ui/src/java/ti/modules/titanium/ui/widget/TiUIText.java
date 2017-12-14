@@ -519,8 +519,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		//this callback is triggered twice (except for keys that are mapped to EditorInfo.IME_ACTION_NEXT or EditorInfo.IME_ACTION_DONE). The first check is to deal with those keys - filter out
 		//one of the two callbacks, and the next checks deal with 'Next' and 'Done' callbacks, respectively.
 		//Refer to TiUIText.handleReturnKeyType(int) for a list of return keys that are mapped to EditorInfo.IME_ACTION_NEXT and EditorInfo.IME_ACTION_DONE.
-		if ((actionId == EditorInfo.IME_NULL && keyEvent != null) || actionId == EditorInfo.IME_ACTION_NEXT
-			|| actionId == EditorInfo.IME_ACTION_DONE) {
+		if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
 			fireEvent(TiC.EVENT_RETURN, data);
 		}
 
