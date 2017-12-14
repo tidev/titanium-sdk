@@ -8,11 +8,13 @@
 var utilities,
 	win,
 	$results = [],
-	failed = false;
+	failed = false,
+	should;
 
 require('./ti-mocha');
 // I *think* we need to load mocha first before utilities...
 utilities = require('./utilities/utilities');
+should = require('./utilities/assertions');
 win = Ti.UI.createWindow({
 	backgroundColor: 'yellow'
 });
