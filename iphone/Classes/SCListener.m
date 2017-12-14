@@ -5,7 +5,8 @@
 // (c) 2009-* Stephen Celis, <stephen@stephencelis.com>.
 // Released under the MIT License.
 //
-#ifdef USE_TI_MEDIA
+
+#if defined(USE_TI_MEDIASTARTMICROPHONEMONITOR) || defined(USE_TI_MEDIASTOPMICROPHONEMONITOR) || defined(USE_TI_MEDIAPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAGETPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAAVERAGEMICROPHONEPOWER) || defined(USE_TI_MEDIAGETAVERAGEMICROPHONEPOWER)
 
 #import "SCListener.h"
 #if IS_XCODE_8
