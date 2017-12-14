@@ -10,7 +10,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.NodeList;
 
-@Kroll.proxy(parentModule=XMLModule.class)
+@Kroll.proxy(parentModule = XMLModule.class)
 public class NodeListProxy extends KrollProxy
 {
 	// Support an offset so we can ignore the first "this"
@@ -30,8 +30,11 @@ public class NodeListProxy extends KrollProxy
 		this.offset = offset;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getLength()
+	// clang-format on
 	{
 		return list.getLength() - offset;
 	}

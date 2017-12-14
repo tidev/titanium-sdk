@@ -148,6 +148,9 @@ timestamps {
 						sh 'npm install'
 					}
 					// Run npm test, but record output in a file and check for failure of command by checking output
+					if (fileExists('npm_test.log')) {
+						sh 'rm -rf npm_test.log'
+					}
 					def npmTestResult = sh(returnStatus: true, script: 'npm test &> npm_test.log')
 					if (isPR) { // Stash files for danger.js later
 						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js,npm_test.log,android/**/*.java', name: 'danger'

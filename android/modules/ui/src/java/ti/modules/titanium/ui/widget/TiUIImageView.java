@@ -75,13 +75,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private TiDownloadListener downloadListener;
 	private TiLoadImageListener loadImageListener;
 	private Object releasedLock = new Object();
-	
+
 	private Handler mainHandler = new Handler(Looper.getMainLooper(), this);
 	private static final int SET_IMAGE = 10001;
 	private static final int START = 10002;
 	private static final int STOP = 10003;
 	private static final int SET_TINT = 10004;
-	
+
 	// This handles the memory cache of images.
 	private TiImageLruCache mMemoryCache = TiImageLruCache.getInstance();
 
@@ -94,8 +94,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		TiImageView view = new TiImageView(proxy.getActivity(), proxy);
 
-		downloadListener = new TiDownloadListener()
-		{
+		downloadListener = new TiDownloadListener() {
 			@Override
 			public void downloadTaskFinished(URI uri)
 			{
@@ -103,7 +102,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					// The requested image did not make it into our TiResponseCache,
 					// possibly because it had a header forbidding that. Now get it
 					// via the "old way" (not relying on cache).
-					TiLoadImageManager.getInstance().load(TiDrawableReference.fromUrl(imageViewProxy, uri.toString()), loadImageListener);
+					TiLoadImageManager.getInstance().load(TiDrawableReference.fromUrl(imageViewProxy, uri.toString()),
+														  loadImageListener);
 				}
 			}
 
@@ -124,8 +124,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 		};
 
-		loadImageListener = new TiLoadImageListener()
-		{
+		loadImageListener = new TiLoadImageListener() {
 			@Override
 			public void loadImageFinished(int hash, Bitmap bitmap)
 			{
@@ -142,8 +141,11 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 							return;
 						}
 						if (imgsrc.hashCode() == hash
-							|| (imgsrc.getUrl() != null && TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString())
-								.hashCode() == hash)) {
+							|| (imgsrc.getUrl() != null
+								&& TiDrawableReference
+										   .fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString())
+										   .hashCode()
+									   == hash)) {
 							setImage(bitmap);
 							if (!firedLoad) {
 								fireLoad(TiC.PROPERTY_IMAGE);
@@ -201,25 +203,25 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	public boolean handleMessage(Message msg)
 	{
-		switch(msg.what) {
-		
-		case SET_IMAGE:
-			AsyncResult result = (AsyncResult) msg.obj;
-			handleSetImage((Bitmap) result.getArg());
-			result.setResult(null);
-			return true;
-		case START:
-			handleStart();
-			return true;
-		case STOP:
-			handleStop();
-			return true;
-		case SET_TINT:
-			handleTint((String) msg.obj);
-			return true;			
-			
-		default: return false;
-		
+		switch (msg.what) {
+
+			case SET_IMAGE:
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetImage((Bitmap) result.getArg());
+				result.setResult(null);
+				return true;
+			case START:
+				handleStart();
+				return true;
+			case STOP:
+				handleStop();
+				return true;
+			case SET_TINT:
+				handleTint((String) msg.obj);
+				return true;
+
+			default:
+				return false;
 		}
 	}
 
@@ -232,8 +234,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				return;
 			}
 			if (imageref.equals(imgsrc)
-				|| imageref
-					.equals(TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString()))) {
+				|| imageref.equals(
+					   TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString()))) {
 				int hash = imageref.hashCode();
 				Bitmap bitmap = imageref.getBitmap(true);
 				if (bitmap != null) {
@@ -311,12 +313,12 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				return imageSources.size() - 1;
 			}
 			return 0;
-
 		}
 
 		private boolean isNotFinalFrame(int frame)
 		{
-			synchronized (releasedLock) {
+			synchronized (releasedLock)
+			{
 				if (imageSources == null) {
 					return false;
 				}
@@ -345,7 +347,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			isLoading.set(true);
 			firedLoad = false;
 			boolean shouldCache = getRepeatCount() >= 5 ? true : false;
-			topLoop: while (isRepeating()) {
+		topLoop:
+			while (isRepeating()) {
 
 				if (imageSources == null) {
 					break;
@@ -364,7 +367,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								break;
 							}
 
-							synchronized (this) {
+							synchronized (this)
+							{
 								wait();
 							}
 
@@ -384,7 +388,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					}
 
 					waitTime = 0;
-					synchronized (releasedLock) {
+					synchronized (releasedLock)
+					{
 						if (imageSources == null || j >= imageSources.size()) {
 							break topLoop;
 						}
@@ -402,13 +407,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						} else {
 							b = imageRef.getBitmap(true);
 						}
-						BitmapWithIndex bIndex = new BitmapWithIndex(b,j);
+						BitmapWithIndex bIndex = new BitmapWithIndex(b, j);
 						while (waitTime < getDuration() * imageSources.size()) {
 							try {
 								if (!bitmapQueue.offer(bIndex)) {
 									if (isStopping.get()) {
 										break;
-									} 
+									}
 									Thread.sleep(sleepTime);
 									waitTime += sleepTime;
 
@@ -426,7 +431,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 
 				Log.d(TAG, "TIME TO LOAD FRAMES: " + (System.currentTimeMillis() - time) + "ms", Log.DEBUG_MODE);
-
 			}
 			isLoading.set(false);
 			//clean out the cache after animation
@@ -457,7 +461,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			Log.d(TAG, "STARTING LOADER THREAD " + loaderThread + " for " + this, Log.DEBUG_MODE);
 			loaderThread.start();
 		}
-
 	}
 
 	public double getDuration()
@@ -471,7 +474,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 		}
 		proxy.setProperty(TiC.PROPERTY_DURATION, DEFAULT_DURATION);
-		
+
 		return DEFAULT_DURATION;
 	}
 
@@ -534,7 +537,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			boolean waitOnResume = false;
 			try {
 				if (paused) {
-					synchronized (this) {
+					synchronized (this)
+					{
 						KrollDict data = new KrollDict();
 						fireEvent(TiC.EVENT_PAUSE, data);
 						waitOnResume = true;
@@ -603,7 +607,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 	}
 
-	public void pause() 
+	public void pause()
 	{
 		paused = true;
 	}
@@ -611,15 +615,17 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	public void resume()
 	{
 		paused = false;
-		
+
 		if (animator != null) {
-			synchronized (animator) {
+			synchronized (animator)
+			{
 				animator.notify();
 			}
 		}
-		
+
 		if (loader != null) {
-			synchronized (loader) {
+			synchronized (loader)
+			{
 				loader.notify();
 			}
 		}
@@ -629,7 +635,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	{
 		if (!TiApplication.isUIThread()) {
 			Message message = mainHandler.obtainMessage(STOP);
-			message.sendToTarget();		
+			message.sendToTarget();
 		} else {
 			handleStop();
 		}
@@ -651,7 +657,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			loaderThread = null;
 		}
 		if (loader != null) {
-			synchronized (loader) {
+			synchronized (loader)
+			{
 				loader.notify();
 			}
 		}
@@ -692,8 +699,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			defaultImageSource = TiDrawableReference.fromObject(proxy, object);
 		}
 	}
-	
-	private void setImageInternal() {
+
+	private void setImageInternal()
+	{
 		// Set default image or clear previous image first.
 		if (defaultImageSource != null) {
 			setDefaultImage();
@@ -786,7 +794,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			heightDefined = !TiC.LAYOUT_SIZE.equals(heightProperty) && !TiC.SIZE_AUTO.equals(heightProperty);
 			view.setHeightDefined(heightDefined);
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_LEFT) && d.containsKey(TiC.PROPERTY_RIGHT)) {
 			view.setWidthDefined(true);
 		}
@@ -794,7 +802,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (d.containsKey(TiC.PROPERTY_TOP) && d.containsKey(TiC.PROPERTY_BOTTOM)) {
 			view.setHeightDefined(true);
 		}
-	
+
 		if (d.containsKey(TiC.PROPERTY_IMAGES)) {
 			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
@@ -822,7 +830,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					view.setOrientation(source.getOrientation());
 				}
 				if (d.containsKey(TiC.PROPERTY_DECODE_RETRIES)) {
-					source.setDecodeRetries(TiConvert.toInt(d.get(TiC.PROPERTY_DECODE_RETRIES), TiDrawableReference.DEFAULT_DECODE_RETRIES));
+					source.setDecodeRetries(TiConvert.toInt(d.get(TiC.PROPERTY_DECODE_RETRIES),
+															TiDrawableReference.DEFAULT_DECODE_RETRIES));
 				}
 				setImageSource(source);
 				firedLoad = false;
@@ -867,7 +876,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					view.setOrientation(source.getOrientation());
 				}
 				if (proxy.hasProperty(TiC.PROPERTY_DECODE_RETRIES)) {
-					source.setDecodeRetries(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_DECODE_RETRIES), TiDrawableReference.DEFAULT_DECODE_RETRIES));
+					source.setDecodeRetries(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_DECODE_RETRIES),
+															TiDrawableReference.DEFAULT_DECODE_RETRIES));
 				}
 				setImageSource(source);
 				firedLoad = false;
@@ -895,7 +905,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	public void onCreate(Activity activity, Bundle savedInstanceState)
 	{
 	}
- 
+
 	public void onDestroy(Activity activity)
 	{
 	}
@@ -923,7 +933,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	{
 		return animating.get() && !paused;
 	}
-	
+
 	public boolean isPaused()
 	{
 		return paused;
@@ -956,8 +966,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		return null;
 	}
 
-
-	public void setTintColor(String color){
+	public void setTintColor(String color)
+	{
 		if (!TiApplication.isUIThread()) {
 			Message message = mainHandler.obtainMessage(SET_TINT, color);
 			message.sendToTarget();
@@ -966,12 +976,14 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 	}
 
-	public void handleTint(String color){
+	public void handleTint(String color)
+	{
 		TiImageView view = getView();
 		view.setTintColor(color);
 	}
 
-	public int getTintColor(){
+	public int getTintColor()
+	{
 		TiImageView view = getView();
 		return view.getTintColor();
 	}
@@ -980,7 +992,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	public void release()
 	{
 		handleStop();
-		synchronized(releasedLock) {
+		synchronized (releasedLock)
+		{
 			if (imageSources != null) {
 				for (TiDrawableReference imageref : imageSources) {
 					int hash = imageref.hashCode();

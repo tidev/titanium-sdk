@@ -21,18 +21,18 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class TiUIProgressBar extends TiUIView {
+public class TiUIProgressBar extends TiUIView
+{
 
 	private TextView label;
 	private ProgressBar progress;
 	private LinearLayout view;
-	
+
 	public TiUIProgressBar(final TiViewProxy proxy)
 	{
 		super(proxy);
-		
-		view = new LinearLayout(proxy.getActivity())
-		{
+
+		view = new LinearLayout(proxy.getActivity()) {
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
@@ -49,24 +49,25 @@ public class TiUIProgressBar extends TiUIView {
 		progress = new ProgressBar(proxy.getActivity(), null, android.R.attr.progressBarStyleHorizontal);
 		progress.setIndeterminate(false);
 		progress.setMax(1000);
-		
+
 		view.addView(label);
 		view.addView(progress);
-		
+
 		setNativeView(view);
 	}
-	
+
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(KrollDict d)
+	{
 		super.processProperties(d);
-		
+
 		if (d.containsKey(TiC.PROPERTY_MESSAGE)) {
 			handleSetMessage(TiConvert.toString(d, TiC.PROPERTY_MESSAGE));
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-		    final int color = TiConvert.toColor(d, TiC.PROPERTY_COLOR);
-		    progress.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
-		    handleSetMessageColor(color);
+			final int color = TiConvert.toColor(d, TiC.PROPERTY_COLOR);
+			progress.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
+			handleSetMessageColor(color);
 		}
 		updateProgress();
 	}
@@ -84,56 +85,60 @@ public class TiUIProgressBar extends TiUIView {
 				handleSetMessage(message);
 			}
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-		    final int color = TiConvert.toColor(TiConvert.toString(newValue));
-		    progress.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
-		    handleSetMessageColor(color);
+			final int color = TiConvert.toColor(TiConvert.toString(newValue));
+			progress.getProgressDrawable().setColorFilter(color, Mode.SRC_IN);
+			handleSetMessageColor(color);
 		}
 	}
 
-	private double getMin() {
+	private double getMin()
+	{
 		Object value = proxy.getProperty("min");
 		if (value == null) {
 			return 0;
 		}
-		
+
 		return TiConvert.toDouble(value);
 	}
-	
-	private double getMax() {
+
+	private double getMax()
+	{
 		Object value = proxy.getProperty("max");
 		if (value == null) {
 			return 0;
 		}
-		
+
 		return TiConvert.toDouble(value);
 	}
-	
-	private double getValue() {
+
+	private double getValue()
+	{
 		Object value = proxy.getProperty(TiC.PROPERTY_VALUE);
 		if (value == null) {
 			return 0;
 		}
-		
+
 		return TiConvert.toDouble(value);
 	}
-	
+
 	private int convertRange(double min, double max, double value, int base)
 	{
-		return (int)Math.floor((value/(max - min))*base);
+		return (int) Math.floor((value / (max - min)) * base);
 	}
-	
+
 	public void updateProgress()
 	{
 		progress.setProgress(convertRange(getMin(), getMax(), getValue(), 1000));
 	}
-	
+
 	public void handleSetMessage(String message)
 	{
 		label.setText(message);
 		label.requestLayout();
 	}
-	
-	protected void handleSetMessageColor(int color) {
-	    label.setTextColor(color);
+
+	protected void handleSetMessageColor(int color)
+	{
+		label.setTextColor(color);
 	}
 }

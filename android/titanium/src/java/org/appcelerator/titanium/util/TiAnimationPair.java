@@ -15,12 +15,14 @@ public class TiAnimationPair
 	Animation in;
 	Animation out;
 
-	public void apply(ViewAnimator layout) {
+	public void apply(ViewAnimator layout)
+	{
 		layout.setInAnimation(in);
 		layout.setOutAnimation(out);
 	}
 
-	public void setAnimationListener(AnimationListener listener) {
+	public void setAnimationListener(AnimationListener listener)
+	{
 		in.setAnimationListener(listener);
 	}
 }
