@@ -453,7 +453,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   return [[TiMediaAudioSession sharedSession] sessionMode];
 }
-#endif
 
 - (NSNumber *)canRecord
 {
@@ -529,7 +528,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     [self fireEvent:@"volume" withObject:event];
   }
 }
-
 #endif
 
 #if defined(USE_TI_MEDIAAVAILABLECAMERAMEDIATYPES) || defined(USE_TI_MEDIAISMEDIATYPESUPPORTED)
