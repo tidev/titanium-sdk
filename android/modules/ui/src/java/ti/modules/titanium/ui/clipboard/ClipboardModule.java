@@ -16,7 +16,7 @@ import android.content.Context;
 import android.text.ClipboardManager;
 
 @SuppressWarnings("deprecation")
-@Kroll.module(parentModule=UIModule.class)
+@Kroll.module(parentModule = UIModule.class)
 public class ClipboardModule extends KrollModule
 {
 	private String TAG = "Clipboard";
@@ -45,7 +45,7 @@ public class ClipboardModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void clearData(@Kroll.argument(optional=true) String type)
+	public void clearData(@Kroll.argument(optional = true) String type)
 	{
 		clearText();
 	}
@@ -59,19 +59,19 @@ public class ClipboardModule extends KrollModule
 	@Kroll.method
 	public Object getData(String type)
 	{
-		if (isTextType(type))
-		{
+		if (isTextType(type)) {
 			return getText();
-		}
-		else
-		{
+		} else {
 			// Android clipboard is text-only... :(
 			return null;
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getText()
+	// clang-format on
 	{
 		return board().getText().toString();
 	}
@@ -79,12 +79,9 @@ public class ClipboardModule extends KrollModule
 	@Kroll.method
 	public boolean hasData(String type)
 	{
-		if (type == null || isTextType(type))
-		{
+		if (type == null || isTextType(type)) {
 			return hasText();
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
@@ -105,8 +102,11 @@ public class ClipboardModule extends KrollModule
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setText(String text)
+	// clang-format on
 	{
 		board().setText(text);
 	}

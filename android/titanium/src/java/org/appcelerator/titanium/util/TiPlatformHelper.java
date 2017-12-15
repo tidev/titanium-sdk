@@ -34,13 +34,14 @@ import com.appcelerator.aps.APSAnalyticsHelper;
 public class TiPlatformHelper extends APSAnalyticsHelper
 {
 	public static final String TAG = "TiPlatformHelper";
-	private static final Map<String, Locale> locales = java.util.Collections.synchronizedMap(new HashMap<String, Locale>());
-	private static final Map<Locale, String> currencyCodes = java.util.Collections
-		.synchronizedMap(new HashMap<Locale, String>());
-	private static final Map<Locale, String> currencySymbols = java.util.Collections
-		.synchronizedMap(new HashMap<Locale, String>());
-	private static final Map<String, String> currencySymbolsByCode = java.util.Collections
-		.synchronizedMap(new HashMap<String, String>());
+	private static final Map<String, Locale> locales =
+		java.util.Collections.synchronizedMap(new HashMap<String, Locale>());
+	private static final Map<Locale, String> currencyCodes =
+		java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
+	private static final Map<Locale, String> currencySymbols =
+		java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
+	private static final Map<String, String> currencySymbolsByCode =
+		java.util.Collections.synchronizedMap(new HashMap<String, String>());
 
 	public static float applicationScaleFactor = 1.0F;
 	public static int applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
@@ -57,7 +58,6 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 
 	private TiPlatformHelper()
 	{
-
 	}
 
 	public void initialize()
@@ -192,7 +192,8 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		String ipAddress = null;
 		TiApplication tiApp = TiApplication.getInstance();
 
-		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+			== PackageManager.PERMISSION_GRANTED) {
 			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
 			if (wifiManager != null) {
 				WifiInfo wifiInfo = wifiManager.getConnectionInfo();
@@ -217,7 +218,8 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		String netmask = null;
 		TiApplication tiApp = TiApplication.getInstance();
 
-		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+			== PackageManager.PERMISSION_GRANTED) {
 			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
 			if (wifiManager != null) {
 				DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
@@ -236,5 +238,4 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 
 		return netmask;
 	}
-
 }

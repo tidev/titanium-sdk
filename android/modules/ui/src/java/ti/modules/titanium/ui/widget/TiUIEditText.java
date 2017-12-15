@@ -19,7 +19,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
-
 /**
  * EditText derived class used by Titanium's "Ti.UI.TextField" and "Ti.UI.TextArea" types.
  * <p>
@@ -44,7 +43,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 
 	/** Stores the last received nested touch event in screen coordinates along the y-axis. */
 	private int lastRawTouchY;
-
 
 	/** Creates a new EditText view. */
 	public TiUIEditText(Context context)
@@ -90,7 +88,8 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	public boolean onKeyPreIme(int keyCode, KeyEvent event)
 	{
 		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
-		if (Build.VERSION.SDK_INT < 24 && (getGravity() & Gravity.LEFT) != Gravity.LEFT && keyCode == KeyEvent.KEYCODE_BACK) {
+		if (Build.VERSION.SDK_INT < 24 && (getGravity() & Gravity.LEFT) != Gravity.LEFT
+			&& keyCode == KeyEvent.KEYCODE_BACK) {
 			ViewGroup view = (ViewGroup) getParent();
 			view.setFocusableInTouchMode(true);
 			view.requestFocus();
@@ -136,8 +135,8 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 					} else {
 						this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_HORIZONTAL;
 					}
-					this.lastRawTouchX = (int)event.getRawX();
-					this.lastRawTouchY = (int)event.getRawY();
+					this.lastRawTouchX = (int) event.getRawX();
+					this.lastRawTouchY = (int) event.getRawY();
 					startNestedScroll(this.scrollAxisDirection);
 				}
 
@@ -152,8 +151,8 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 					// Determine scroll direction, distance, and if EditText has hit scroll limit.
 					computeScroll();
 					boolean isVertical = (this.scrollAxisDirection == ViewCompat.SCROLL_AXIS_VERTICAL);
-					int deltaX = this.lastRawTouchX - (int)event.getRawX();
-					int deltaY = this.lastRawTouchY - (int)event.getRawY();
+					int deltaX = this.lastRawTouchX - (int) event.getRawX();
+					int deltaY = this.lastRawTouchY - (int) event.getRawY();
 					int deltaValue = isVertical ? deltaY : deltaX;
 					boolean isScrollEnabled;
 					boolean canScrollFurther;
@@ -182,8 +181,8 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 
 					// Store the last received touch point in screen coordinates.
 					// This is needed to calculate nested scroll distances.
-					this.lastRawTouchX = (int)event.getRawX();
-					this.lastRawTouchY = (int)event.getRawY();
+					this.lastRawTouchX = (int) event.getRawX();
+					this.lastRawTouchY = (int) event.getRawY();
 				} else {
 					// Nested scrolling is disabled. Let EditText do default touch handling.
 					result = super.onTouchEvent(event);
@@ -249,19 +248,19 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	}
 
 	@Override
-	public boolean dispatchNestedScroll(
-		int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow)
+	public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
+										int[] offsetInWindow)
 	{
-		return this.nestedScrollingHelper.dispatchNestedScroll(
-				dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
+		return this.nestedScrollingHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+															   offsetInWindow);
 	}
 
 	@Override
-	public boolean dispatchNestedScroll(
-		int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow, int type)
+	public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
+										int[] offsetInWindow, int type)
 	{
-		return this.nestedScrollingHelper.dispatchNestedScroll(
-				dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow, type);
+		return this.nestedScrollingHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+															   offsetInWindow, type);
 	}
 
 	@Override

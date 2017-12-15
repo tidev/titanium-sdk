@@ -20,72 +20,81 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StringBody extends AbstractContentBody {
+public class StringBody extends AbstractContentBody
+{
 
-    private final byte[] content;
-    private final Charset charset;
-    
-    public StringBody(final String text, final String mimeType, Charset charset) throws UnsupportedEncodingException {
-        super(mimeType);
-        if (text == null) {
-            throw new IllegalArgumentException("Text may not be null");
-        }
-        if (charset == null) {
-            charset = Charset.defaultCharset();
-        }
-        this.content = text.getBytes(charset.name());
-        this.charset = charset;
-    }
-    
-    public StringBody(final String text, Charset charset) throws UnsupportedEncodingException {
-        this(text, "text/plain", charset);
-    }
-    
-    public StringBody(final String text) throws UnsupportedEncodingException {
-        this(text, "text/plain", null);
-    }
-    
-    public Reader getReader() {
-        return new InputStreamReader(new ByteArrayInputStream(this.content), this.charset);
-    }
+	private final byte[] content;
+	private final Charset charset;
 
-    @Override
-    public void writeTo(final OutputStream out) throws IOException {
-        if (out == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
-        InputStream in = new ByteArrayInputStream(this.content);
-        byte[] tmp = new byte[4096];
-        int l;
-        while ((l = in.read(tmp)) != -1) {
-            out.write(tmp, 0, l);
-        }
-        out.flush();
-    }
+	public StringBody(final String text, final String mimeType, Charset charset) throws UnsupportedEncodingException
+	{
+		super(mimeType);
+		if (text == null) {
+			throw new IllegalArgumentException("Text may not be null");
+		}
+		if (charset == null) {
+			charset = Charset.defaultCharset();
+		}
+		this.content = text.getBytes(charset.name());
+		this.charset = charset;
+	}
 
-    public String getTransferEncoding() {
-    	return "8bit";
-    }
+	public StringBody(final String text, Charset charset) throws UnsupportedEncodingException
+	{
+		this(text, "text/plain", charset);
+	}
 
-    public String getCharset() {
-        return this.charset.name();
-    }
+	public StringBody(final String text) throws UnsupportedEncodingException
+	{
+		this(text, "text/plain", null);
+	}
 
-    @Override
-    public Map<String, String> getContentTypeParameters() {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("charset", this.charset.name());
-        return map;
-    }
-
-    public long getContentLength() {
-        return this.content.length;
-    }
+	public Reader getReader()
+	{
+		return new InputStreamReader(new ByteArrayInputStream(this.content), this.charset);
+	}
 
 	@Override
-	public String getFilename() {
+	public void writeTo(final OutputStream out) throws IOException
+	{
+		if (out == null) {
+			throw new IllegalArgumentException("Output stream may not be null");
+		}
+		InputStream in = new ByteArrayInputStream(this.content);
+		byte[] tmp = new byte[4096];
+		int l;
+		while ((l = in.read(tmp)) != -1) {
+			out.write(tmp, 0, l);
+		}
+		out.flush();
+	}
+
+	public String getTransferEncoding()
+	{
+		return "8bit";
+	}
+
+	public String getCharset()
+	{
+		return this.charset.name();
+	}
+
+	@Override
+	public Map<String, String> getContentTypeParameters()
+	{
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("charset", this.charset.name());
+		return map;
+	}
+
+	public long getContentLength()
+	{
+		return this.content.length;
+	}
+
+	@Override
+	public String getFilename()
+	{
 		return null;
 	}
-    
 }
-
