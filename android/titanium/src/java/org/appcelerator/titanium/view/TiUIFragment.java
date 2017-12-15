@@ -21,7 +21,6 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	private Fragment fragment;
 	protected boolean fragmentOnly = false;
 
-
 	public TiUIFragment(TiViewProxy proxy, Activity activity)
 	{
 		super(proxy);
@@ -34,8 +33,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 		if (fragmentOnly) {
 			fragment = createFragment();
 		} else {
-			TiCompositeLayout container = new TiCompositeLayout(activity, proxy)
-			{
+			TiCompositeLayout container = new TiCompositeLayout(activity, proxy) {
 				@Override
 				public boolean dispatchTouchEvent(MotionEvent ev)
 				{
@@ -51,16 +49,15 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 			transaction.add(container.getId(), fragment);
 			transaction.commitAllowingStateLoss();
 		}
-
 	}
-
 
 	public Fragment getFragment()
 	{
 		return fragment;
 	}
 
-	public boolean handleMessage (Message msg) {
+	public boolean handleMessage(Message msg)
+	{
 		//overwriting so descendents don't have to
 		return true;
 	}
