@@ -660,9 +660,8 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 						return callback();
 					}
 
-					if (!fs.existsSync(explodedModuleResPath)) {
-						fs.mkdirsSync(explodedModuleResPath);
-					}
+					fs.ensureDirSync(explodedModuleResPath);
+
 					/**
 					 * @param  {string}   resArchivePathAndFilename path
 					 * @param  {Function} done                      callback function
@@ -744,9 +743,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 		function generateAaptFriendlyManifest(cb) {
 			var manifestTemplatePathAndFilename = path.join(this.moduleGenTemplateDir, 'AndroidManifest.xml.ejs');
 			var manifestOutputPathAndFilename = path.join(this.buildIntermediatesDir, 'manifests/aapt/AndroidManifest.xml');
-			if (!fs.existsSync(path.dirname(manifestOutputPathAndFilename))) {
-				fs.mkdirsSync(path.dirname(manifestOutputPathAndFilename));
-			}
+			fs.ensureDirSync(manifestOutputPathAndFilename);
 			const manifestContent = ejs.render(fs.readFileSync(manifestTemplatePathAndFilename).toString(), {
 				MODULE_ID: this.manifest.moduleid
 			});
@@ -766,13 +763,10 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 		 */
 		function generateModuleRClassFile(cb) {
 			this.logger.trace('Generating R.java for module: ' + this.manifest.moduleid);
-			if (!fs.existsSync(this.buildGenRDir)) {
-				fs.mkdirsSync(this.buildGenRDir);
-			}
 
-			if (!fs.existsSync(bundlesPath)) {
-				fs.mkdirsSync(bundlesPath);
-			}
+			fs.ensureDirSync(this.buildGenRDir);
+			fs.ensureDirSync(bundlesPath);
+
 			const aaptBin = this.androidInfo.sdk.executables.aapt;
 			const aaptOptions = [
 				'package',
@@ -1790,7 +1784,7 @@ AndroidModuleBuilder.prototype.verifyBuildArch = function (next) {
 AndroidModuleBuilder.prototype.packageZip = function (next) {
 	this.logger.info(__('Packaging the module'));
 
-	fs.ensureDirSync(this.distDir);
+	fs.emptyDirSync(this.distDir);
 
 	const tasks = [
 		function (cb) {
