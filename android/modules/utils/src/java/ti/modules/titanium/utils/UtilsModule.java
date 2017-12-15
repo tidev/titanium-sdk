@@ -52,7 +52,8 @@ public class UtilsModule extends KrollModule
 			return TiBlob.blobFromString(((TiBlob) obj).toBase64());
 		} else if (obj instanceof TiFileProxy) {
 			try {
-				return TiBlob.blobFromStreamBase64(((TiFileProxy) obj).getInputStream(),
+				return TiBlob.blobFromStreamBase64(
+					((TiFileProxy) obj).getInputStream(),
 					TiMimeTypeHelper.getMimeType(((TiFileProxy) obj).getBaseFile().nativePath()));
 			} catch (IOException e) {
 				Log.e(TAG, "Problem reading file");
@@ -61,7 +62,8 @@ public class UtilsModule extends KrollModule
 		String data = convertToString(obj);
 		if (data != null) {
 			try {
-				return TiBlob.blobFromString(new String(Base64.encode(data.getBytes("UTF-8"), Base64.NO_WRAP), "UTF-8"));
+				return TiBlob.blobFromString(
+					new String(Base64.encode(data.getBytes("UTF-8"), Base64.NO_WRAP), "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, "UTF-8 is not a supported encoding type");
 			}
@@ -150,7 +152,7 @@ public class UtilsModule extends KrollModule
 			Charset charsetOut = Charset.forName(outEncoding);
 			Charset charsetIn = Charset.forName(inEncoding);
 
-			ByteBuffer bufferIn = ByteBuffer.wrap(orig.getBytes(charsetIn.name()) );
+			ByteBuffer bufferIn = ByteBuffer.wrap(orig.getBytes(charsetIn.name()));
 			CharBuffer dataIn = charsetIn.decode(bufferIn);
 			bufferIn.clear();
 			bufferIn = null;
