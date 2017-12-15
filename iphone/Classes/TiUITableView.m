@@ -2757,6 +2757,7 @@
   [self setSearchString:nil];
   RELEASE_TO_NIL(searchResultIndexes);
   RELEASE_TO_NIL(searchControllerPresenter);
+  [searchField ensureSearchBarHierarchy];
 }
 
 - (void)presentSearchController:(UISearchController *)controller
