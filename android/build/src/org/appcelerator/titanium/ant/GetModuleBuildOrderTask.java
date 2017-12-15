@@ -18,32 +18,40 @@ import org.apache.tools.ant.Task;
  * Reads the Titanium/Android dependency JSON map, and sets "property" to a space-separated list of the correct module build order
  * Warning: this doesn't detect circular dependencies.. be careful 
  */
-public class GetModuleBuildOrderTask extends Task {
+public class GetModuleBuildOrderTask extends Task
+{
 
 	protected String json;
 	protected String property;
 	protected HashMap<String, Module> modules = new HashMap<String, Module>();
-	
-	protected class Module {
+
+	protected class Module
+	{
 		String name;
 		int dependedCount = 0;
 		ArrayList<String> dependencies = new ArrayList<String>();
-		public Module(String name) { this.name = name; }
-		public void addDependent() {
+		public Module(String name)
+		{
+			this.name = name;
+		}
+		public void addDependent()
+		{
 			dependedCount++;
 			for (String dep : dependencies) {
 				modules.get(dep).addDependent();
 			}
 		}
-		
+
 		@Override
-		public String toString() {
+		public String toString()
+		{
 			return name;
 		}
 	}
-	
+
 	@Override
-	public void execute() throws BuildException {
+	public void execute() throws BuildException
+	{
 		if (json == null) {
 			throw new BuildException("No JSON file specified for " + getTaskName());
 		}
@@ -51,10 +59,10 @@ public class GetModuleBuildOrderTask extends Task {
 			throw new BuildException("No property specified for " + getTaskName());
 		}
 		modules.clear();
-		
+
 		try {
 			TiModuleDependencies dependencies = new TiModuleDependencies(json);
-			
+
 			for (String moduleName : dependencies.getModules()) {
 				Module module = null;
 				if (!modules.containsKey(moduleName)) {
@@ -65,7 +73,7 @@ public class GetModuleBuildOrderTask extends Task {
 				}
 				module.dependencies.addAll(dependencies.getModuleDependencies(moduleName));
 			}
-			
+
 			for (Module module : modules.values()) {
 				for (String dependency : module.dependencies) {
 					modules.get(dependency).addDependent();
@@ -74,34 +82,39 @@ public class GetModuleBuildOrderTask extends Task {
 			ArrayList<Module> buildOrder = new ArrayList<Module>(modules.values());
 			Collections.sort(buildOrder, new Comparator<Module>() {
 				@Override
-				public int compare(Module m1, Module m2) {
+				public int compare(Module m1, Module m2)
+				{
 					if (m1.dependedCount == m2.dependedCount) {
 						return m1.name.compareTo(m2.name);
 					}
-					return m2.dependedCount-m1.dependedCount;
+					return m2.dependedCount - m1.dependedCount;
 				}
 			});
-			
+
 			getProject().setProperty(property, TiAntUtil.join(buildOrder, " "));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	public String getProperty() {
+
+	public String getProperty()
+	{
 		return property;
 	}
 
-	public void setProperty(String property) {
+	public void setProperty(String property)
+	{
 		this.property = property;
 	}
 
-	public String getJson() {
+	public String getJson()
+	{
 		return json;
 	}
 
-	public void setJson(String json) {
+	public void setJson(String json)
+	{
 		this.json = json;
 	}
 }

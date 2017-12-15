@@ -19,9 +19,8 @@ import android.app.Activity;
 /**
  * This is the parent class for all modules. All modules must extend this class.
  */
-@Kroll.module(name="KrollModule")
-public class KrollModule extends KrollProxy
-	implements KrollProxyListener, OnLifecycleEvent
+@Kroll.module(name = "KrollModule")
+public class KrollModule extends KrollProxy implements KrollProxyListener, OnLifecycleEvent
 {
 
 	protected static ArrayList<KrollModuleInfo> customModuleInfoList = new ArrayList<KrollModuleInfo>();
@@ -70,7 +69,7 @@ public class KrollModule extends KrollProxy
 
 		super.initActivity(moduleActivity);
 		if (moduleActivity instanceof TiBaseActivity) {
-			((TiBaseActivity)moduleActivity).addOnLifecycleEventListener(this);
+			((TiBaseActivity) moduleActivity).addOnLifecycleEventListener(this);
 		}
 	}
 
@@ -79,7 +78,8 @@ public class KrollModule extends KrollProxy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onResume(Activity activity) {
+	public void onResume(Activity activity)
+	{
 	}
 
 	/**
@@ -87,7 +87,8 @@ public class KrollModule extends KrollProxy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onPause(Activity activity) {
+	public void onPause(Activity activity)
+	{
 	}
 
 	/**
@@ -95,7 +96,8 @@ public class KrollModule extends KrollProxy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onDestroy(Activity activity) {
+	public void onDestroy(Activity activity)
+	{
 	}
 
 	/**
@@ -103,7 +105,8 @@ public class KrollModule extends KrollProxy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onStart(Activity activity) {
+	public void onStart(Activity activity)
+	{
 	}
 
 	/**
@@ -111,7 +114,8 @@ public class KrollModule extends KrollProxy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onStop(Activity activity) {
+	public void onStop(Activity activity)
+	{
 	}
 
 	/**
@@ -123,7 +127,8 @@ public class KrollModule extends KrollProxy
 	 * @param proxy the proxy instance that the event listener was added to
 	 * @module.api
 	 */
-	public void listenerAdded(String type, int count, KrollProxy proxy) {
+	public void listenerAdded(String type, int count, KrollProxy proxy)
+	{
 	}
 
 	/**
@@ -135,7 +140,8 @@ public class KrollModule extends KrollProxy
 	 * @param proxy the proxy instance that the event listener was removed from
 	 * @module.api
 	 */
-	public void listenerRemoved(String type, int count, KrollProxy proxy) {
+	public void listenerRemoved(String type, int count, KrollProxy proxy)
+	{
 	}
 
 	/**
@@ -143,7 +149,8 @@ public class KrollModule extends KrollProxy
 	 * @param properties  a set of properties to process.
 	 * @module.api
 	 */
-	public void processProperties(KrollDict properties) {
+	public void processProperties(KrollDict properties)
+	{
 	}
 
 	/**
@@ -154,10 +161,12 @@ public class KrollModule extends KrollProxy
 	 * @param proxy     the associated proxy.
 	 * @module.api
 	 */
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
 	}
 
-	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy) {
+	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
+	{
 		for (KrollPropertyChange change : changes) {
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}

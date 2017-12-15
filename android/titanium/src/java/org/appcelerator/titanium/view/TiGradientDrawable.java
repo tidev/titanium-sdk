@@ -21,10 +21,9 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.view.View;
 
-public class TiGradientDrawable extends ShapeDrawable {
-	public enum GradientType {
-		LINEAR_GRADIENT, RADIAL_GRADIENT
-	}
+public class TiGradientDrawable extends ShapeDrawable
+{
+	public enum GradientType { LINEAR_GRADIENT, RADIAL_GRADIENT }
 
 	private static final TiPoint DEFAULT_START_POINT = new TiPoint(0, 0);
 	private static final TiPoint DEFAULT_END_POINT = new TiPoint("0", "100%");
@@ -39,7 +38,8 @@ public class TiGradientDrawable extends ShapeDrawable {
 	private View view;
 
 	@SuppressWarnings("rawtypes")
-	public TiGradientDrawable(View view, KrollDict properties) {
+	public TiGradientDrawable(View view, KrollDict properties)
+	{
 		super(new RectShape());
 
 		// Determine which type of gradient is being used.
@@ -63,7 +63,7 @@ public class TiGradientDrawable extends ShapeDrawable {
 		// Load the 'startPoint' property which defines the start of the gradient.
 		Object startPointObject = properties.get("startPoint");
 		if (startPointObject instanceof HashMap) {
-			startPoint = new TiPoint((HashMap)startPointObject, 0, 0);
+			startPoint = new TiPoint((HashMap) startPointObject, 0, 0);
 		}
 
 		// Load the 'endPoint' property which defines the end of the gradient.
@@ -71,7 +71,7 @@ public class TiGradientDrawable extends ShapeDrawable {
 		// support an ending circle for radial gradients.
 		Object endPointObject = properties.get("endPoint");
 		if (endPointObject instanceof HashMap) {
-			endPoint = new TiPoint((HashMap)endPointObject, 0, 1);
+			endPoint = new TiPoint((HashMap) endPointObject, 0, 1);
 		}
 
 		startRadius = TiConvert.toTiDimension(properties, "startRadius", TiDimension.TYPE_UNDEFINED);
@@ -84,25 +84,27 @@ public class TiGradientDrawable extends ShapeDrawable {
 			Log.w(TAG, "Android does not support gradients without colors.");
 			throw new IllegalArgumentException("Must provide an array of colors.");
 		}
-		loadColors((Object[])colors);
+		loadColors((Object[]) colors);
 
 		this.view = view;
 
 		setShaderFactory(new GradientShaderFactory());
 	}
 
-	public GradientType getGradientType() {
+	public GradientType getGradientType()
+	{
 		return gradientType;
 	}
 
-	private void loadColors(Object[] colors) {
+	private void loadColors(Object[] colors)
+	{
 		this.colors = new int[colors.length];
 		int offsetCount = 0;
 		for (int i = 0; i < colors.length; i++) {
 			Object color = colors[i];
 			if (color instanceof HashMap) {
 				@SuppressWarnings({ "rawtypes", "unchecked" })
-				HashMap<String, Object> colorRefObject = (HashMap)color;
+				HashMap<String, Object> colorRefObject = (HashMap) color;
 				this.colors[i] = TiConvert.toColor(colorRefObject, "color");
 
 				if (offsets == null) {
@@ -126,22 +128,24 @@ public class TiGradientDrawable extends ShapeDrawable {
 		}
 	}
 
-	private class GradientShaderFactory extends ShaderFactory {
+	private class GradientShaderFactory extends ShaderFactory
+	{
 		@Override
-		public Shader resize(int width, int height) {
+		public Shader resize(int width, int height)
+		{
 			float x0 = startPoint.getX().getAsPixels(view);
 			float y0 = startPoint.getY().getAsPixels(view);
 			float x1 = endPoint.getX().getAsPixels(view);
 			float y1 = endPoint.getY().getAsPixels(view);
 
 			switch (gradientType) {
-			case LINEAR_GRADIENT:
-				return new LinearGradient(x0, y0, x1, y1, colors, offsets, TileMode.CLAMP);
-			case RADIAL_GRADIENT:
-				// TODO: implement radial gradient
-				return null;
-			default:
-				throw new AssertionError("No valid gradient type set.");
+				case LINEAR_GRADIENT:
+					return new LinearGradient(x0, y0, x1, y1, colors, offsets, TileMode.CLAMP);
+				case RADIAL_GRADIENT:
+					// TODO: implement radial gradient
+					return null;
+				default:
+					throw new AssertionError("No valid gradient type set.");
 			}
 		}
 	}
