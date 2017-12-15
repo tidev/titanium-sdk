@@ -239,6 +239,11 @@ timestamps {
 						dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
 						dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
 
+						// Adding appc-license scan, until we can get the output from Dependency Check/Track
+						sh 'npm install appc-license'
+						sh 'npx appc-license > output.csv'
+						archiveArtifacts 'output.csv'
+
 						sh 'npm install -g retire'
 						def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
 						if (retireExitCode != 0) {
