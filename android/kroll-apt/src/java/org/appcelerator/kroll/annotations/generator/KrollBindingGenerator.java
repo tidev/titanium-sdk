@@ -47,7 +47,7 @@ public class KrollBindingGenerator
 
 	private JSONUtils jsonUtils;
 
-	public KrollBindingGenerator(String outPath,  String moduleId)
+	public KrollBindingGenerator(String outPath, String moduleId)
 	{
 		this.outPath = outPath;
 		this.moduleId = moduleId;
@@ -108,7 +108,6 @@ public class KrollBindingGenerator
 				}
 			}
 		}
-		
 	}
 
 	protected String getParentModuleClass(Map<String, Object> proxy)
@@ -200,12 +199,13 @@ public class KrollBindingGenerator
 					origEntryMap.put("apiName", newEntryMap.get("apiName"));
 				}
 
-				String[] listNames = {"childModules", "createProxies"};
+				String[] listNames = { "childModules", "createProxies" };
 				for (String listName : listNames) {
 					if (newEntryMap.containsKey(listName)) {
 						JSONArray list = (JSONArray) newEntryMap.get(listName);
 						for (int i = 0; i < list.size(); i++) {
-							jsonUtils.appendUniqueObject(origEntryMap, listName, "id", (Map<Object, Object>) list.get(i));
+							jsonUtils.appendUniqueObject(origEntryMap, listName, "id",
+														 (Map<Object, Object>) list.get(i));
 						}
 					}
 				}
@@ -214,12 +214,10 @@ public class KrollBindingGenerator
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void loadBindings(String jsonPath)
-		throws ParseException, IOException
+	protected void loadBindings(String jsonPath) throws ParseException, IOException
 	{
 		FileReader reader = new FileReader(jsonPath);
-		Map<String, Object> properties = (Map<String, Object>)
-			JSONValue.parseWithException(reader);
+		Map<String, Object> properties = (Map<String, Object>) JSONValue.parseWithException(reader);
 		reader.close();
 
 		Map<String, Object> proxies = jsonUtils.getStringMap(properties, "proxies");
@@ -230,8 +228,7 @@ public class KrollBindingGenerator
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void loadTitaniumBindings()
-		throws ParseException, IOException, URISyntaxException
+	protected void loadTitaniumBindings() throws ParseException, IOException, URISyntaxException
 	{
 		// Load the binding JSON data from the titanium.jar relative to the kroll-apt.jar
 		// where this class is defined in the MobileSDK
@@ -250,8 +247,8 @@ public class KrollBindingGenerator
 		ZipEntry jsonEntry = titaniumJar.getEntry("org/appcelerator/titanium/bindings/titanium.json");
 		InputStream jsonStream = titaniumJar.getInputStream(jsonEntry);
 
-		Map<String, Object> properties = (Map<String, Object>)
-			JSONValue.parseWithException(new InputStreamReader(jsonStream));
+		Map<String, Object> properties =
+			(Map<String, Object>) JSONValue.parseWithException(new InputStreamReader(jsonStream));
 		jsonStream.close();
 		titaniumJar.close();
 
@@ -268,8 +265,7 @@ public class KrollBindingGenerator
 		}
 	}
 
-	protected void generateBindings()
-		throws ParseException, IOException
+	protected void generateBindings() throws ParseException, IOException
 	{
 		for (String proxyName : proxies.keySet()) {
 			Map<Object, Object> proxy = jsonUtils.getMap(proxies, proxyName);
@@ -287,15 +283,14 @@ public class KrollBindingGenerator
 
 			saveTypeTemplate(v8HeaderTemplate, v8ProxyHeader, root);
 			saveTypeTemplate(v8SourceTemplate, v8ProxySource, root);
-
 		}
 	}
 
-	public static void main(String[] args)
-		throws Exception
+	public static void main(String[] args) throws Exception
 	{
 		if (args.length < 4) {
-			System.err.println("Usage: KrollBindingGenerator <outdir> <isModule> <modulePackage> <binding.json> [<binding.json> ...]");
+			System.err.println(
+				"Usage: KrollBindingGenerator <outdir> <isModule> <modulePackage> <binding.json> [<binding.json> ...]");
 			System.exit(1);
 		}
 
@@ -303,7 +298,7 @@ public class KrollBindingGenerator
 		boolean isModule = "true".equalsIgnoreCase(args[1]);
 		String packageName = args[2];
 
-		KrollBindingGenerator generator = new KrollBindingGenerator( outDir, packageName);
+		KrollBindingGenerator generator = new KrollBindingGenerator(outDir, packageName);
 
 		// First pass to generate the entire API tree
 		for (int i = 3; i < args.length; i++) {
@@ -316,7 +311,5 @@ public class KrollBindingGenerator
 
 		generator.generateApiTree();
 		generator.generateBindings();
-
 	}
-
 }

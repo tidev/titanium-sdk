@@ -58,7 +58,7 @@
     "fs-extra": "~0.30.0",
     "grunt": "^1.0.1",
     "grunt-appc-js": "^2.0.1",
-    "grunt-clang-format": "^1.0.0",
+    "grunt-clang-format": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-mocha-test": "^0.13.2",
