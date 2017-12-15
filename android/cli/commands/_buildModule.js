@@ -743,7 +743,9 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 		function generateAaptFriendlyManifest(cb) {
 			var manifestTemplatePathAndFilename = path.join(this.moduleGenTemplateDir, 'AndroidManifest.xml.ejs');
 			var manifestOutputPathAndFilename = path.join(this.buildIntermediatesDir, 'manifests/aapt/AndroidManifest.xml');
-			fs.ensureDirSync(manifestOutputPathAndFilename);
+
+			fs.ensureDirSync(path.dirname(manifestOutputPathAndFilename));
+
 			const manifestContent = ejs.render(fs.readFileSync(manifestTemplatePathAndFilename).toString(), {
 				MODULE_ID: this.manifest.moduleid
 			});
