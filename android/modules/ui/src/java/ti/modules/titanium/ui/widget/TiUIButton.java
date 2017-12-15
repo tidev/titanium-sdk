@@ -41,8 +41,7 @@ public class TiUIButton extends TiUIView
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
-		AppCompatButton btn = new AppCompatButton(proxy.getActivity())
-		{
+		AppCompatButton btn = new AppCompatButton(proxy.getActivity()) {
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
@@ -180,14 +179,13 @@ public class TiUIButton extends TiUIView
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
-			if (newValue == null){
+			if (newValue == null) {
 				btn.getBackground().clearColorFilter();
 			} else {
-				btn.getBackground().setColorFilter( TiConvert.toColor(TiConvert.toString(newValue)), Mode.MULTIPLY);
+				btn.getBackground().setColorFilter(TiConvert.toColor(TiConvert.toString(newValue)), Mode.MULTIPLY);
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
-
 }

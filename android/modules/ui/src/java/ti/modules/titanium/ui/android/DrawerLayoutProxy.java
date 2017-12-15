@@ -26,10 +26,14 @@ import android.support.v4.widget.DrawerLayout;
 @Kroll.proxy(creatableInModule = AndroidModule.class)
 public class DrawerLayoutProxy extends TiViewProxy
 {
-	@Kroll.constant public static final int LOCK_MODE_LOCKED_CLOSED = DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
-	@Kroll.constant public static final int LOCK_MODE_LOCKED_OPEN = DrawerLayout.LOCK_MODE_LOCKED_OPEN;
-	@Kroll.constant public static final int LOCK_MODE_UNLOCKED = DrawerLayout.LOCK_MODE_UNLOCKED;
-	@Kroll.constant public static final int LOCK_MODE_UNDEFINED = DrawerLayout.LOCK_MODE_UNDEFINED;
+	@Kroll.constant
+	public static final int LOCK_MODE_LOCKED_CLOSED = DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
+	@Kroll.constant
+	public static final int LOCK_MODE_LOCKED_OPEN = DrawerLayout.LOCK_MODE_LOCKED_OPEN;
+	@Kroll.constant
+	public static final int LOCK_MODE_UNLOCKED = DrawerLayout.LOCK_MODE_UNLOCKED;
+	@Kroll.constant
+	public static final int LOCK_MODE_UNDEFINED = DrawerLayout.LOCK_MODE_UNDEFINED;
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 
@@ -44,12 +48,14 @@ public class DrawerLayoutProxy extends TiViewProxy
 
 	private TiUIDrawerLayout drawer;
 
-	public DrawerLayoutProxy() {
+	public DrawerLayoutProxy()
+	{
 		super();
 	}
 
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		drawer = new TiUIDrawerLayout(this);
 		drawer.getLayoutParams().autoFillsHeight = true;
 		drawer.getLayoutParams().autoFillsWidth = true;
@@ -57,11 +63,11 @@ public class DrawerLayoutProxy extends TiViewProxy
 	}
 
 	@Override
-	public boolean handleMessage(Message msg) 
+	public boolean handleMessage(Message msg)
 	{
 		AsyncResult result = null;
-		
-		switch(msg.what) {
+
+		switch (msg.what) {
 			case MSG_OPEN_LEFT: {
 				result = (AsyncResult) msg.obj;
 				if (drawer != null) {
@@ -110,15 +116,16 @@ public class DrawerLayoutProxy extends TiViewProxy
 				result.setResult(null);
 				return true;
 			}
-			
-			default : {
+
+			default: {
 				return super.handleMessage(msg);
 			}
 		}
 	}
 
 	@Kroll.method
-	public void toggleLeft() {
+	public void toggleLeft()
+	{
 		if (TiApplication.isUIThread()) {
 			if (drawer != null) {
 				drawer.toggleLeft();
@@ -129,7 +136,8 @@ public class DrawerLayoutProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void openLeft() {		
+	public void openLeft()
+	{
 		if (TiApplication.isUIThread()) {
 			if (drawer != null) {
 				drawer.openLeft();
@@ -140,7 +148,8 @@ public class DrawerLayoutProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void closeLeft() {
+	public void closeLeft()
+	{
 		if (TiApplication.isUIThread()) {
 			if (drawer != null) {
 				drawer.closeLeft();
@@ -151,7 +160,8 @@ public class DrawerLayoutProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void toggleRight() {
+	public void toggleRight()
+	{
 		if (TiApplication.isUIThread()) {
 			if (drawer != null) {
 				drawer.toggleRight();
@@ -162,7 +172,8 @@ public class DrawerLayoutProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void openRight() {
+	public void openRight()
+	{
 		if (TiApplication.isUIThread()) {
 			if (drawer != null) {
 				drawer.openRight();
@@ -173,7 +184,8 @@ public class DrawerLayoutProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void closeRight() {
+	public void closeRight()
+	{
 		if (TiApplication.isUIThread()) {
 			if (drawer != null) {
 				drawer.closeRight();
@@ -183,107 +195,153 @@ public class DrawerLayoutProxy extends TiViewProxy
 		}
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-	public boolean getIsLeftOpen() {
+	public boolean getIsLeftOpen()
+	// clang-format on
+	{
 		return drawer != null && drawer.isLeftOpen();
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-	public boolean getIsRightOpen() {
+	public boolean getIsRightOpen()
+	// clang-format on
+	{
 		return drawer != null && drawer.isRightOpen();
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-	public boolean getIsLeftVisible() {
+	public boolean getIsLeftVisible()
+	// clang-format on
+	{
 		return drawer != null && drawer.isLeftVisible();
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-	public boolean getIsRightVisible() {
+	public boolean getIsRightVisible()
+	// clang-format on
+	{
 		return drawer != null && drawer.isRightVisible();
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
-	public void setLeftWidth(Object arg) {
+	public void setLeftWidth(Object arg)
+	// clang-format on
+	{
 		setPropertyAndFire(TiC.PROPERTY_LEFT_WIDTH, arg);
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
-	public void setLeftView(Object arg) {
+	public void setLeftView(Object arg)
+	// clang-format on
+	{
 		setPropertyAndFire(TiC.PROPERTY_LEFT_VIEW, arg);
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
-	public void setRightWidth(Object arg) {
+	public void setRightWidth(Object arg)
+	// clang-format on
+	{
 		setPropertyAndFire(TiC.PROPERTY_RIGHT_WIDTH, arg);
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
-	public void setRightView(Object arg) {
+	public void setRightView(Object arg)
+	// clang-format on
+	{
 		setPropertyAndFire(TiC.PROPERTY_RIGHT_VIEW, arg);
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
-	public void setCenterView(Object arg) {
+	public void setCenterView(Object arg)
+	// clang-format on
+	{
 		setPropertyAndFire(TiC.PROPERTY_CENTER_VIEW, arg);
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-	public boolean getDrawerIndicatorEnabled() {
+	public boolean getDrawerIndicatorEnabled()
+	// clang-format on
+	{
 		if (hasProperty(TiC.PROPERTY_DRAWER_INDICATOR_ENABLED)) {
 			return (Boolean) getProperty(TiC.PROPERTY_DRAWER_INDICATOR_ENABLED);
 		}
 		return true;
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
-	public void setDrawerIndicatorEnabled(Object arg) {
+	public void setDrawerIndicatorEnabled(Object arg)
+	// clang-format on
+	{
 		setPropertyAndFire(TiC.PROPERTY_DRAWER_INDICATOR_ENABLED, arg);
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-	public int getDrawerLockMode() {
+	public int getDrawerLockMode()
+	// clang-format on
+	{
 		if (hasProperty(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
 			return (Integer) getProperty(TiC.PROPERTY_DRAWER_LOCK_MODE);
 		}
 		return LOCK_MODE_UNDEFINED;
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
-	public void setDrawerLockMode(Object arg) {
+	public void setDrawerLockMode(Object arg)
+	// clang-format on
+	{
 		setPropertyAndFire(TiC.PROPERTY_DRAWER_LOCK_MODE, arg);
 	}
 
 	@Kroll.method
-	public void interceptTouchEvent (TiViewProxy view, Boolean disallowIntercept){
+	public void interceptTouchEvent(TiViewProxy view, Boolean disallowIntercept)
+	{
 		view.getOrCreateView().getOuterView().getParent().requestDisallowInterceptTouchEvent(disallowIntercept);
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-	public boolean getToolbarEnabled() {
+	public boolean getToolbarEnabled()
+	// clang-format on
+	{
 		if (hasProperty(TiC.PROPERTY_TOOLBAR_ENABLED)) {
 			return (Boolean) getProperty(TiC.PROPERTY_TOOLBAR_ENABLED);
 		}
 		return true;
 	}
 
+	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty
-	public void setToolbarEnabled(Object arg) {
+	public void setToolbarEnabled(Object arg)
+	// clang-format on
+	{
 		setPropertyAndFire(TiC.PROPERTY_TOOLBAR_ENABLED, arg);
 	}
 }

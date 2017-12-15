@@ -15,12 +15,13 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiColorHelper;
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
-
-
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_TINT_COLOR,
-	TiC.PROPERTY_TITLE,
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_TINT_COLOR,
+		TiC.PROPERTY_TITLE,
 })
+// clang-format on
 public class RefreshControlProxy extends KrollProxy
 {
 	/** The default Android log tag name to be used by this class. */
@@ -47,7 +48,6 @@ public class RefreshControlProxy extends KrollProxy
 	 * Set to null if not currently assigned to a view.
 	 */
 	private TiSwipeRefreshLayout swipeRefreshLayout;
-
 
 	/** Creates a new Titanium "RefreshControl" proxy binding. */
 	public RefreshControlProxy()
@@ -129,7 +129,7 @@ public class RefreshControlProxy extends KrollProxy
 		if (colorName == null) {
 			this.tintColor = RefreshControlProxy.DEFAULT_TINT_COLOR;
 		} else if (colorName instanceof String) {
-			this.tintColor = TiColorHelper.parseColor((String)colorName);
+			this.tintColor = TiColorHelper.parseColor((String) colorName);
 		} else {
 			Log.e(TAG, "Property '" + TiC.PROPERTY_TINT_COLOR + "' must be of type string.");
 			return;
@@ -143,7 +143,8 @@ public class RefreshControlProxy extends KrollProxy
 		// Apply the color to the refresh progress indicator.
 		runOnMainThread(new Runnable() {
 			@Override
-			public void run() {
+			public void run()
+			{
 				if (swipeRefreshLayout != null) {
 					swipeRefreshLayout.setColorSchemeColors(tintColor);
 				}
@@ -161,7 +162,8 @@ public class RefreshControlProxy extends KrollProxy
 	{
 		runOnMainThread(new Runnable() {
 			@Override
-			public void run() {
+			public void run()
+			{
 				// Do not continue if a refreshable view has not been assigned to this control.
 				if (swipeRefreshLayout == null) {
 					return;
@@ -188,7 +190,8 @@ public class RefreshControlProxy extends KrollProxy
 	{
 		runOnMainThread(new Runnable() {
 			@Override
-			public void run() {
+			public void run()
+			{
 				// Do not continue if a refreshable view has not be assigned to this control.
 				if (swipeRefreshLayout == null) {
 					return;

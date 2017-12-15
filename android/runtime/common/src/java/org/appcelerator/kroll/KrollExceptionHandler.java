@@ -31,15 +31,14 @@ package org.appcelerator.kroll;
  * 
  * @module.api
  */
-public interface KrollExceptionHandler
-{
+public interface KrollExceptionHandler {
 	public class ExceptionMessage
 	{
 		public String title, message, sourceName, lineSource;
 		public int line, lineOffset;
 
 		public ExceptionMessage(final String title, final String message, final String sourceName, final int line,
-			final String lineSource, final int lineOffset)
+								final String lineSource, final int lineOffset)
 		{
 			this.title = title;
 			this.message = message;

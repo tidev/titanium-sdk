@@ -14,22 +14,22 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.TiDialogProxy;
 import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
 import android.app.Activity;
-
-@Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
-	TiC.PROPERTY_MESSAGE,
-	TiC.PROPERTY_MESSAGEID,
-	TiC.PROPERTY_VALUE,
-	TiC.PROPERTY_LOCATION,
-	TiC.PROPERTY_TYPE,
-	TiC.PROPERTY_MIN,
-	TiC.PROPERTY_MAX,
-	TiC.PROPERTY_CANCELABLE,
-	TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE
+// clang-format off
+@Kroll.proxy(creatableInModule = AndroidModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_MESSAGE,
+		TiC.PROPERTY_MESSAGEID,
+		TiC.PROPERTY_VALUE,
+		TiC.PROPERTY_LOCATION,
+		TiC.PROPERTY_TYPE,
+		TiC.PROPERTY_MIN,
+		TiC.PROPERTY_MAX,
+		TiC.PROPERTY_CANCELABLE,
+		TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE
 })
-@Kroll.dynamicApis(methods = {
-	"hide", "show"
-})
+@Kroll.dynamicApis(methods = { "hide", "show" })
 public class ProgressIndicatorProxy extends TiDialogProxy
+// clang-format on
 {
 	public ProgressIndicatorProxy()
 	{
@@ -37,7 +37,8 @@ public class ProgressIndicatorProxy extends TiDialogProxy
 	}
 
 	@Override
-	protected KrollDict getLangConversionTable() {
+	protected KrollDict getLangConversionTable()
+	{
 		KrollDict table = new KrollDict();
 		table.put(TiC.PROPERTY_MESSAGE, TiC.PROPERTY_MESSAGEID);
 		return table;
@@ -50,7 +51,8 @@ public class ProgressIndicatorProxy extends TiDialogProxy
 	}
 
 	@Override
-	protected void handleShow(KrollDict options) {
+	protected void handleShow(KrollDict options)
+	{
 		super.handleShow(options);
 
 		TiUIProgressIndicator ai = (TiUIProgressIndicator) getOrCreateView();
@@ -58,7 +60,8 @@ public class ProgressIndicatorProxy extends TiDialogProxy
 	}
 
 	@Override
-	protected void handleHide(KrollDict options) {
+	protected void handleHide(KrollDict options)
+	{
 		super.handleHide(options);
 
 		TiUIProgressIndicator ai = (TiUIProgressIndicator) getOrCreateView();
