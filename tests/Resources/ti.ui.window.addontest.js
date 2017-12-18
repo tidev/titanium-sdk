@@ -20,14 +20,15 @@ describe('Titanium.UI.Window', function () {
 		win = null;
 	});
 
-	it.ios('#ExtendSafeArea (safeAreaView exists)', function (finish) {
-		// TO DO: Add more unit tests related to top, bottom, left, right margins of win.safeAreaView.
+	it.ios('.extendSafeArea exists', function (finish) {
+		this.timeout(5000);
+		// TODO: Add more unit tests related to top, bottom, left, right margins of win.safeAreaView.
 		win = Ti.UI.createWindow({
 			backgroundColor: 'gray',
 			extendSafeArea: false
 		});
 
-		win.addEventListener('focus', function () {
+		win.addEventListener('open', function () {
 			try {
 				should(win.safeAreaView).be.a.Object;
 				finish();
