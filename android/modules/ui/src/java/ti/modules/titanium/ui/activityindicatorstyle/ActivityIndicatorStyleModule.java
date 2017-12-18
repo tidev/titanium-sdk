@@ -12,13 +12,17 @@ import org.appcelerator.kroll.annotations.Kroll;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 
-@Kroll.module(parentModule=UIModule.class)
+@Kroll.module(parentModule = UIModule.class)
 public class ActivityIndicatorStyleModule extends KrollModule
 {
-	@Kroll.constant public static final int PLAIN = TiUIActivityIndicator.PLAIN;
-	@Kroll.constant public static final int BIG = TiUIActivityIndicator.BIG;
-	@Kroll.constant public static final int DARK = TiUIActivityIndicator.DARK;
-	@Kroll.constant public static final int BIG_DARK = TiUIActivityIndicator.BIG_DARK;
+	@Kroll.constant
+	public static final int PLAIN = TiUIActivityIndicator.PLAIN;
+	@Kroll.constant
+	public static final int BIG = TiUIActivityIndicator.BIG;
+	@Kroll.constant
+	public static final int DARK = TiUIActivityIndicator.DARK;
+	@Kroll.constant
+	public static final int BIG_DARK = TiUIActivityIndicator.BIG_DARK;
 
 	public ActivityIndicatorStyleModule()
 	{

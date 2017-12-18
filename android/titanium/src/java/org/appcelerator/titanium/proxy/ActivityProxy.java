@@ -23,7 +23,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-
+// clang-format off
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_SUPPORT_TOOLBAR,
 	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,
@@ -36,13 +36,13 @@ import android.support.v7.app.AppCompatActivity;
 	TiC.PROPERTY_ON_STOP,
 	TiC.PROPERTY_ON_DESTROY
 })
+// clang-format on
 /**
  * This is a proxy representation of the Android Activity type.
  * Refer to <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity</a>
  * for more details.
  */
-public class ActivityProxy extends KrollProxy
-	implements TiActivityResultHandler
+public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 {
 	private static final String TAG = "ActivityProxy";
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
@@ -93,13 +93,12 @@ public class ActivityProxy extends KrollProxy
 
 				return null;
 			}
-			DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity)activity).getLayout());
+			DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity) activity).getLayout());
 			decorViewProxy.setActivity(activity);
 			savedDecorViewProxy = decorViewProxy;
 		}
-		
+
 		return savedDecorViewProxy;
-		
 	}
 
 	@Kroll.method
@@ -118,7 +117,7 @@ public class ActivityProxy extends KrollProxy
 		if (activity != null) {
 			TiActivitySupport support = null;
 			if (activity instanceof TiActivitySupport) {
-				support = (TiActivitySupport)activity;
+				support = (TiActivitySupport) activity;
 			} else {
 				support = new TiActivitySupportHelper(activity);
 			}
@@ -168,14 +167,15 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void sendBroadcastWithPermission(IntentProxy intent, @Kroll.argument(optional = true) String receiverPermission)
+	public void sendBroadcastWithPermission(IntentProxy intent,
+											@Kroll.argument(optional = true) String receiverPermission)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			activity.sendBroadcast(intent.getIntent(), receiverPermission);
 		}
 	}
-	
+
 	@Kroll.method
 	public String getString(int resId, Object[] formatArgs)
 	{
@@ -190,14 +190,20 @@ public class ActivityProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public IntentProxy getIntent()
+	// clang-format on
 	{
 		return intentProxy;
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setRequestedOrientation(int orientation)
+	// clang-format on
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -206,8 +212,7 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void setResult(int resultCode,
-		@Kroll.argument(optional=true) IntentProxy intent)
+	public void setResult(int resultCode, @Kroll.argument(optional = true) IntentProxy intent)
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
@@ -238,8 +243,11 @@ public class ActivityProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public TiWindowProxy getWindow()
+	// clang-format on
 	{
 		Activity activity = getWrappedActivity();
 		if (!(activity instanceof TiBaseActivity)) {
@@ -250,8 +258,11 @@ public class ActivityProxy extends KrollProxy
 		return tiActivity.getWindowProxy();
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public ActionBarProxy getActionBar()
+	// clang-format on
 	{
 		AppCompatActivity activity = (AppCompatActivity) getWrappedActivity();
 		if (actionBarProxy == null && activity != null) {
@@ -274,14 +285,15 @@ public class ActivityProxy extends KrollProxy
 	public void invalidateOptionsMenu()
 	{
 		if (TiApplication.isUIThread()) {
-				handleInvalidateOptionsMenu();
+			handleInvalidateOptionsMenu();
 		} else {
-				getMainHandler().obtainMessage(MSG_INVALIDATE_OPTIONS_MENU).sendToTarget();
+			getMainHandler().obtainMessage(MSG_INVALIDATE_OPTIONS_MENU).sendToTarget();
 		}
 	}
 
 	@Kroll.method
-	public void setSupportActionBar(TiToolbarProxy tiToolbarProxy) {
+	public void setSupportActionBar(TiToolbarProxy tiToolbarProxy)
+	{
 		TiBaseActivity activity = (TiBaseActivity) getWrappedActivity();
 		if (activity != null) {
 			activity.setSupportActionBar((Toolbar) tiToolbarProxy.getToolbarInstance());
@@ -300,7 +312,7 @@ public class ActivityProxy extends KrollProxy
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null && activity instanceof AppCompatActivity) {
-			((AppCompatActivity)activity).supportInvalidateOptionsMenu();
+			((AppCompatActivity) activity).supportInvalidateOptionsMenu();
 		}
 	}
 

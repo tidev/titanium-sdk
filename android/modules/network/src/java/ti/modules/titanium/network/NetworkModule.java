@@ -36,33 +36,44 @@ import android.webkit.CookieSyncManager;
 
 @SuppressWarnings("deprecation")
 @Kroll.module
-public class NetworkModule extends KrollModule {
+public class NetworkModule extends KrollModule
+{
 
 	private static final String TAG = "TiNetwork";
 	private static java.net.CookieManager cookieManager;
 
 	public static final String EVENT_CONNECTIVITY = "change";
-	public static final String NETWORK_USER_AGENT = System.getProperties().getProperty("http.agent") ;
+	public static final String NETWORK_USER_AGENT = System.getProperties().getProperty("http.agent");
 
-	@Kroll.constant public static final int NETWORK_NONE = 0;
-	@Kroll.constant public static final int NETWORK_WIFI = 1;
-	@Kroll.constant public static final int NETWORK_MOBILE = 2;
-	@Kroll.constant public static final int NETWORK_LAN = 3;
-	@Kroll.constant public static final int NETWORK_UNKNOWN = 4;
+	@Kroll.constant
+	public static final int NETWORK_NONE = 0;
+	@Kroll.constant
+	public static final int NETWORK_WIFI = 1;
+	@Kroll.constant
+	public static final int NETWORK_MOBILE = 2;
+	@Kroll.constant
+	public static final int NETWORK_LAN = 3;
+	@Kroll.constant
+	public static final int NETWORK_UNKNOWN = 4;
 
-	@Kroll.constant public static final int TLS_DEFAULT = 0;
-	@Kroll.constant public static final int TLS_VERSION_1_0 = 1;
-	@Kroll.constant public static final int TLS_VERSION_1_1 = 2;
-	@Kroll.constant public static final int TLS_VERSION_1_2 = 3;
+	@Kroll.constant
+	public static final int TLS_DEFAULT = 0;
+	@Kroll.constant
+	public static final int TLS_VERSION_1_0 = 1;
+	@Kroll.constant
+	public static final int TLS_VERSION_1_1 = 2;
+	@Kroll.constant
+	public static final int TLS_VERSION_1_2 = 3;
 
-	@Kroll.constant public static final int PROGRESS_UNKNOWN = -1;
+	@Kroll.constant
+	public static final int PROGRESS_UNKNOWN = -1;
 
-    public enum State {
-        UNKNOWN,
+	public enum State {
+		UNKNOWN,
 
-        /** This state is returned if there is connectivity to any network **/
-        CONNECTED,
-        /**
+		/** This state is returned if there is connectivity to any network **/
+		CONNECTED,
+		/**
          * This state is returned if there is no connectivity to any network. This is set
          * to true under two circumstances:
          * <ul>
@@ -71,17 +82,19 @@ public class NetworkModule extends KrollModule {
          * <li>When connectivity is lost to one network, and the attempt to switch to
          * another network fails.</li>
          */
-        NOT_CONNECTED
-    }
+		NOT_CONNECTED
+	}
 
-	class NetInfo {
+	class NetInfo
+	{
 		public State state;
 		public boolean failover;
 		public String typeName;
 		public int type;
 		public String reason;
 
-		public NetInfo() {
+		public NetInfo()
+		{
 			state = State.UNKNOWN;
 			failover = false;
 			typeName = "NONE";
@@ -108,7 +121,8 @@ public class NetworkModule extends KrollModule {
 			String reason = b.getString(TiNetworkListener.EXTRA_REASON);
 
 			// Set last state
-			synchronized(lastNetInfo) {
+			synchronized (lastNetInfo)
+			{
 				if (connected) {
 					lastNetInfo.state = State.CONNECTED;
 				} else {
@@ -158,8 +172,11 @@ public class NetworkModule extends KrollModule {
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean getOnline()
+	// clang-format on
 	{
 		boolean result = false;
 
@@ -167,7 +184,7 @@ public class NetworkModule extends KrollModule {
 		if (cm != null) {
 			NetworkInfo ni = getConnectivityManager().getActiveNetworkInfo();
 
-			if(ni != null && ni.isAvailable() && ni.isConnected()) {
+			if (ni != null && ni.isAvailable() && ni.isConnected()) {
 				result = true;
 			}
 		} else {
@@ -176,17 +193,19 @@ public class NetworkModule extends KrollModule {
 		return result;
 	}
 
-	protected int networkTypeToTitanium(boolean online, int androidType) {
+	protected int networkTypeToTitanium(boolean online, int androidType)
+	{
 		int type = NetworkModule.NETWORK_UNKNOWN;
 		if (online) {
-			switch(androidType) {
-			case ConnectivityManager.TYPE_WIFI :
-				type = NetworkModule.NETWORK_WIFI;
-				break;
-			case ConnectivityManager.TYPE_MOBILE :
-				type = NetworkModule.NETWORK_MOBILE;
-				break;
-			default : type = NetworkModule.NETWORK_UNKNOWN;
+			switch (androidType) {
+				case ConnectivityManager.TYPE_WIFI:
+					type = NetworkModule.NETWORK_WIFI;
+					break;
+				case ConnectivityManager.TYPE_MOBILE:
+					type = NetworkModule.NETWORK_MOBILE;
+					break;
+				default:
+					type = NetworkModule.NETWORK_UNKNOWN;
 			}
 		} else {
 			type = NetworkModule.NETWORK_NONE;
@@ -194,8 +213,12 @@ public class NetworkModule extends KrollModule {
 		return type;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getNetworkType() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getNetworkType()
+	// clang-format on
+	{
 		int type = NETWORK_UNKNOWN;
 
 		// start event needs network type. So get it if we don't have it.
@@ -205,7 +228,7 @@ public class NetworkModule extends KrollModule {
 
 		try {
 			NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-			if(ni != null && ni.isAvailable() && ni.isConnected()) {
+			if (ni != null && ni.isAvailable() && ni.isConnected()) {
 				type = networkTypeToTitanium(true, ni.getType());
 			} else {
 				type = NetworkModule.NETWORK_NONE;
@@ -216,35 +239,51 @@ public class NetworkModule extends KrollModule {
 		return type;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getNetworkTypeName()
+	// clang-format on
 	{
 		return networkTypeToTypeName(getNetworkType());
 	}
 
 	private String networkTypeToTypeName(int type)
 	{
-		switch(type)
-		{
-			case 0 : return "NONE";
-			case 1 : return "WIFI";
-			case 2 : return "MOBILE";
-			case 3 : return "LAN";
-			default : return "UNKNOWN";
+		switch (type) {
+			case 0:
+				return "NONE";
+			case 1:
+				return "WIFI";
+			case 2:
+				return "MOBILE";
+			case 3:
+				return "LAN";
+			default:
+				return "UNKNOWN";
 		}
 	}
 
-	@Kroll.method @Kroll.topLevel
-	public String encodeURIComponent(String component) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel
+	public String encodeURIComponent(String component)
+	// clang-format on
+	{
 		return Uri.encode(component);
 	}
 
-	@Kroll.method @Kroll.topLevel
-	public String decodeURIComponent(String component) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel
+	public String decodeURIComponent(String component)
+	// clang-format on
+	{
 		return Uri.decode(component);
 	}
 
-	protected void manageConnectivityListener(boolean attach) {
+	protected void manageConnectivityListener(boolean attach)
+	{
 		if (attach) {
 			if (!isListeningForConnectivity) {
 				if (hasListeners(EVENT_CONNECTIVITY)) {
@@ -280,7 +319,8 @@ public class NetworkModule extends KrollModule {
 	}
 
 	@Override
-	public void onDestroy(Activity activity) {
+	public void onDestroy(Activity activity)
+	{
 		super.onDestroy(activity);
 		manageConnectivityListener(false);
 		connectivityManager = null;
@@ -404,7 +444,8 @@ public class NetworkModule extends KrollModule {
 			String cookieName = cookie.getName();
 			String cookieDomain = cookie.getDomain();
 			String cookiePath = cookie.getPath();
-			if (!(name.equals(cookieName) && stringEqual(domain, cookieDomain, false) && stringEqual(path, cookiePath, true))) {
+			if (!(name.equals(cookieName) && stringEqual(domain, cookieDomain, false)
+				  && stringEqual(path, cookiePath, true))) {
 				URI uriDomain;
 				try {
 					uriDomain = new URI(cookieDomain);
@@ -489,7 +530,6 @@ public class NetworkModule extends KrollModule {
 		CookieManager cookieManager = CookieManager.getInstance();
 		cookieManager.setCookie(domain, cookieString);
 		CookieSyncManager.getInstance().sync();
-
 	}
 
 	/**
@@ -552,7 +592,8 @@ public class NetworkModule extends KrollModule {
 			return;
 		}
 		String lower_domain = domain.toLowerCase();
-		String cookieString = name + "=; domain=" + lower_domain + "; path=" + path + "; expires=" + CookieProxy.systemExpiryDateFormatter.format(new Date(0));
+		String cookieString = name + "=; domain=" + lower_domain + "; path=" + path
+							  + "; expires=" + CookieProxy.systemExpiryDateFormatter.format(new Date(0));
 		CookieSyncManager.createInstance(TiApplication.getInstance().getRootOrCurrentActivity());
 		CookieManager cookieManager = CookieManager.getInstance();
 		cookieManager.setCookie(lower_domain, cookieString);
@@ -593,7 +634,7 @@ public class NetworkModule extends KrollModule {
 			if (lower_domain.endsWith(lower_cookieDomain.substring(1))) {
 				int cookieLen = lower_cookieDomain.length();
 				int domainLen = lower_domain.length();
-				if (domainLen > cookieLen -1) {
+				if (domainLen > cookieLen - 1) {
 					// make sure bar.com doesn't match .ar.com
 					return lower_domain.charAt(domainLen - cookieLen) == '.';
 				}
