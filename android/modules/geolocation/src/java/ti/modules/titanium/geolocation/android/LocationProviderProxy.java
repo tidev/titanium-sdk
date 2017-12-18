@@ -17,7 +17,6 @@ import android.location.LocationListener;
 import android.location.LocationProvider;
 import android.os.Bundle;
 
-
 /**
  * LocationProviderProxy represents a location provider that can be registered with the OS
  * and get location updates.  The interaction with the OS is driven by the name, distance and 
@@ -35,8 +34,7 @@ import android.os.Bundle;
  * </ul>
  */
 @Kroll.proxy
-public class LocationProviderProxy extends KrollProxy
-	implements LocationListener
+public class LocationProviderProxy extends KrollProxy implements LocationListener
 {
 	public static final int STATE_DISABLED = 0;
 	public static final int STATE_ENABLED = 1;
@@ -52,14 +50,11 @@ public class LocationProviderProxy extends KrollProxy
 
 	private LocationProviderListener providerListener;
 
-
-	public interface LocationProviderListener
-	{
+	public interface LocationProviderListener {
 		public abstract void onLocationChanged(Location location);
 		public abstract void onProviderStateChanged(String providerName, int state);
 		public abstract void onProviderUpdated(LocationProviderProxy locationProvider);
 	}
-
 
 	/**
 	 * Constructor.  Used primarily when creating a location provider via 
@@ -92,7 +87,8 @@ public class LocationProviderProxy extends KrollProxy
 	 * @param providerListener		listener that will be notified when a location update is
 	 * 								received or the provider state changes
 	 */
-	public LocationProviderProxy(String name, double minUpdateDistance, double minUpdateTime, LocationProviderListener providerListener)
+	public LocationProviderProxy(String name, double minUpdateDistance, double minUpdateTime,
+								 LocationProviderListener providerListener)
 	{
 		super();
 
@@ -136,7 +132,7 @@ public class LocationProviderProxy extends KrollProxy
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras)
 	{
-		switch(status) {
+		switch (status) {
 			case LocationProvider.OUT_OF_SERVICE:
 				providerListener.onProviderStateChanged(provider, STATE_OUT_OF_SERVICE);
 
@@ -254,4 +250,3 @@ public class LocationProviderProxy extends KrollProxy
 		return "Ti.Geolocation.Android.LocationProvider";
 	}
 }
-
