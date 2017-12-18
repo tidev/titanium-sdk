@@ -75,18 +75,19 @@ public class TiResourceFile extends TiBaseFile
 		if (context != null) {
 			String p = TiFileHelper2.joinSegments("Resources", path);
 			in = context.getAssets().open(p);
-
 		}
 		return in;
 	}
 
 	@Override
-	public OutputStream getOutputStream() {
+	public OutputStream getOutputStream()
+	{
 		return null; // read-only;
 	}
 
 	@Override
-	public File getNativeFile() {
+	public File getNativeFile()
+	{
 		return new File(toURL());
 	}
 
@@ -97,7 +98,8 @@ public class TiResourceFile extends TiBaseFile
 	}
 
 	@Override
-	public void open(int mode, boolean binary) throws IOException {
+	public void open(int mode, boolean binary) throws IOException
+	{
 		if (mode == MODE_READ) {
 			InputStream in = getInputStream();
 			if (in != null) {
@@ -175,9 +177,8 @@ public class TiResourceFile extends TiBaseFile
 	public String name()
 	{
 		int idx = path.lastIndexOf("/");
-		if (idx != -1)
-		{
-			return path.substring(idx+1);
+		if (idx != -1) {
+			return path.substring(idx + 1);
 		}
 		return path;
 	}
@@ -186,9 +187,8 @@ public class TiResourceFile extends TiBaseFile
 	public String extension()
 	{
 		int idx = path.lastIndexOf(".");
-		if (idx != -1)
-		{
-			return path.substring(idx+1);
+		if (idx != -1) {
+			return path.substring(idx + 1);
 		}
 		return null;
 	}
@@ -200,11 +200,13 @@ public class TiResourceFile extends TiBaseFile
 	}
 
 	@Override
-	public double spaceAvailable() {
+	public double spaceAvailable()
+	{
 		return 0;
 	}
 
-	public String toURL() {
+	public String toURL()
+	{
 		return TiC.URL_ANDROID_ASSET_RESOURCES + path;
 	}
 
@@ -227,7 +229,6 @@ public class TiResourceFile extends TiBaseFile
 			}
 		}
 		return length;
-
 	}
 
 	@Override
@@ -242,7 +243,7 @@ public class TiResourceFile extends TiBaseFile
 			String[] names = TiApplication.getInstance().getAssets().list(lpath);
 			if (names != null) {
 				int len = names.length;
-				for(int i = 0; i < len; i++) {
+				for (int i = 0; i < len; i++) {
 					listing.add(names[i]);
 				}
 			}
@@ -252,12 +253,12 @@ public class TiResourceFile extends TiBaseFile
 		return listing;
 	}
 
-	public String toString ()
+	public String toString()
 	{
 		return toURL();
 	}
 
-	private void fetchType ()
+	private void fetchType()
 	{
 		InputStream is = null;
 		try {

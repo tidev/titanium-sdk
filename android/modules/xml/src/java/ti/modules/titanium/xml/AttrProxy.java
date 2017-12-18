@@ -10,32 +10,47 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 
-@Kroll.proxy(parentModule=XMLModule.class)
-public class AttrProxy extends NodeProxy {
+@Kroll.proxy(parentModule = XMLModule.class)
+public class AttrProxy extends NodeProxy
+{
 
 	private Attr attr;
 
-	public AttrProxy(Attr attr) {
+	public AttrProxy(Attr attr)
+	{
 		super(attr);
 		this.attr = attr;
 	}
 
-	public Attr getAttr() {
+	public Attr getAttr()
+	{
 		return attr;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getName() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getName()
+	// clang-format on
+	{
 		return attr.getName();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public ElementProxy getOwnerElement() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public ElementProxy getOwnerElement()
+	// clang-format on
+	{
 		return getProxy(attr.getOwnerElement());
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public boolean getSpecified() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getSpecified()
+	// clang-format on
+	{
 		// Harmony will return false even when ownerElement is null, whereas
 		// spec says: "If the ownerElement attribute is null (i.e. because it
 		// was just created or was set to null by the various removal and cloning
@@ -46,13 +61,21 @@ public class AttrProxy extends NodeProxy {
 		return attr.getSpecified();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getValue() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getValue()
+	// clang-format on
+	{
 		return attr.getValue();
 	}
 
-	@Kroll.setProperty @Kroll.method
-	public void setValue(String value) throws DOMException {
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setValue(String value) throws DOMException
+	// clang-format on
+	{
 		attr.setValue(value);
 	}
 
