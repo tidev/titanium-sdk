@@ -20,7 +20,6 @@ import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
-
 /**
  * EditText derived class used by Titanium's "Ti.UI.TextField" and "Ti.UI.TextArea" types.
  * <p>
@@ -160,8 +159,8 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 					} else {
 						this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_HORIZONTAL;
 					}
-					this.startRawTouchX = (int)event.getRawX();
-					this.startRawTouchY = (int)event.getRawY();
+					this.startRawTouchX = (int) event.getRawX();
+					this.startRawTouchY = (int) event.getRawY();
 					this.lastRawTouchX = this.startRawTouchX;
 					this.lastRawTouchY = this.startRawTouchY;
 					boolean wasStarted = startNestedScroll(this.scrollAxisDirection);
@@ -183,9 +182,9 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 					if (!this.isDragging) {
 						int dragDistance;
 						if (isVertical) {
-							dragDistance = this.startRawTouchY - (int)event.getRawY();
+							dragDistance = this.startRawTouchY - (int) event.getRawY();
 						} else {
-							dragDistance = this.startRawTouchX - (int)event.getRawX();
+							dragDistance = this.startRawTouchX - (int) event.getRawX();
 						}
 						if (Math.abs(dragDistance) > this.minDragStartDistance) {
 							this.isDragging = true;
@@ -196,8 +195,8 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 					if (this.isDragging) {
 						// Determine scroll direction, distance, and if EditText has hit scroll limit.
 						computeScroll();
-						int deltaX = this.lastRawTouchX - (int)event.getRawX();
-						int deltaY = this.lastRawTouchY - (int)event.getRawY();
+						int deltaX = this.lastRawTouchX - (int) event.getRawX();
+						int deltaY = this.lastRawTouchY - (int) event.getRawY();
 						int deltaValue = isVertical ? deltaY : deltaX;
 						boolean isScrollEnabled;
 						boolean canScrollFurther;
@@ -227,8 +226,8 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 
 					// Store the last received touch point in screen coordinates.
 					// This is needed to calculate nested scroll distances.
-					this.lastRawTouchX = (int)event.getRawX();
-					this.lastRawTouchY = (int)event.getRawY();
+					this.lastRawTouchX = (int) event.getRawX();
+					this.lastRawTouchY = (int) event.getRawY();
 				}
 
 				// Let the EditText handle the event if the parent wasn't scrolled via the above.

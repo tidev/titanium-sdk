@@ -34,11 +34,16 @@ public class DatabaseModule extends KrollModule
 {
 	private static final String TAG = "TiDatabase";
 
-	@Kroll.constant public static final int FIELD_TYPE_UNKNOWN = -1;
-	@Kroll.constant public static final int FIELD_TYPE_STRING = 0;
-	@Kroll.constant public static final int FIELD_TYPE_INT = 1;
-	@Kroll.constant public static final int FIELD_TYPE_FLOAT = 2;
-	@Kroll.constant public static final int FIELD_TYPE_DOUBLE = 3;
+	@Kroll.constant
+	public static final int FIELD_TYPE_UNKNOWN = -1;
+	@Kroll.constant
+	public static final int FIELD_TYPE_STRING = 0;
+	@Kroll.constant
+	public static final int FIELD_TYPE_INT = 1;
+	@Kroll.constant
+	public static final int FIELD_TYPE_FLOAT = 2;
+	@Kroll.constant
+	public static final int FIELD_TYPE_DOUBLE = 3;
 
 	public DatabaseModule()
 	{
@@ -56,7 +61,8 @@ public class DatabaseModule extends KrollModule
 				String absolutePath = tiFile.getBaseFile().getNativeFile().getAbsolutePath();
 				Log.d(TAG, "Opening database from filesystem: " + absolutePath);
 
-				SQLiteDatabase db = SQLiteDatabase.openDatabase(absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+				SQLiteDatabase db = SQLiteDatabase.openDatabase(
+					absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 				dbp = new TiDatabaseProxy(db);
 			} else {
 				String name = TiConvert.toString(file);
@@ -80,10 +86,8 @@ public class DatabaseModule extends KrollModule
 	{
 		try {
 			Context ctx = TiApplication.getInstance();
-			for (String dbname : ctx.databaseList())
-			{
-				if (dbname.equals(name))
-				{
+			for (String dbname : ctx.databaseList()) {
+				if (dbname.equals(name)) {
 					return open(name);
 				}
 			}
@@ -115,19 +119,22 @@ public class DatabaseModule extends KrollModule
 
 				byte[] buf = new byte[8096];
 				int count = 0;
-				try
-				{
+				try {
 					is = new BufferedInputStream(srcDb.getInputStream());
 					os = new BufferedOutputStream(new FileOutputStream(dbPath));
 
-					while((count = is.read(buf)) != -1) {
+					while ((count = is.read(buf)) != -1) {
 						os.write(buf, 0, count);
 					}
-				}
-				finally
-				{
-					try { is.close(); } catch (Exception ig) { }
-					try { os.close(); } catch (Exception ig) { }
+				} finally {
+					try {
+						is.close();
+					} catch (Exception ig) {
+					}
+					try {
+						os.close();
+					} catch (Exception ig) {
+					}
 				}
 			}
 			return open(name);
@@ -136,8 +143,7 @@ public class DatabaseModule extends KrollModule
 			String msg = "Error installing database: " + name + " msg=" + e.getMessage();
 			Log.e(TAG, msg, e);
 			throw e;
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			String msg = "Error installing database: " + name + " msg=" + e.getMessage();
 			Log.e(TAG, msg, e);
 			throw e;

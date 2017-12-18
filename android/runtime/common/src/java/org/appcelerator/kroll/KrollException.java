@@ -19,8 +19,8 @@ public class KrollException
 		this.stack = stack;
 		parseInfo();
 	}
-	
-	private void parseInfo() 
+
+	private void parseInfo()
 	{
 		if (stack == null) {
 			return;
@@ -34,13 +34,11 @@ public class KrollException
 
 			String info[];
 			info = secondLine.split(":");
-			if (info.length >=2) {
+			if (info.length >= 2) {
 				lineNumber = info[1];
 				fileName = info[0];
 			}
 		}
-		
-		
 	}
 
 	public String getStack()
@@ -52,15 +50,14 @@ public class KrollException
 	{
 		return message;
 	}
-	
+
 	public String getLineNumber()
 	{
 		return lineNumber;
 	}
-	
+
 	public String getFileName()
 	{
 		return fileName;
 	}
-
 }

@@ -15,7 +15,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.android.AndroidModule;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=AndroidModule.class)
+@Kroll.proxy(creatableInModule = AndroidModule.class)
 public class TiActivityWindowProxy extends TiWindowProxy
 {
 	private static final String TAG = "TiActivityWindowProxy";
@@ -41,7 +41,7 @@ public class TiActivityWindowProxy extends TiWindowProxy
 		fireEvent("close", null);
 
 		if (view != null) {
-			((TiUIActivityWindow)view).close();
+			((TiUIActivityWindow) view).close();
 		}
 
 		releaseViews();
@@ -56,7 +56,8 @@ public class TiActivityWindowProxy extends TiWindowProxy
 	@Override
 	protected Activity getWindowActivity()
 	{
-		if (view == null) return null;
-		return ((TiUIActivityWindow)view).getActivity();
+		if (view == null)
+			return null;
+		return ((TiUIActivityWindow) view).getActivity();
 	}
 }
