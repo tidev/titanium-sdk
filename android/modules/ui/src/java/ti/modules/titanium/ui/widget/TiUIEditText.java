@@ -57,7 +57,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	/** Set true if we're in the middle of doing a nested drag/scroll. */
 	private boolean isDragging;
 
-
 	/** Creates a new EditText view. */
 	public TiUIEditText(Context context)
 	{
@@ -109,8 +108,10 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	@Override
 	public boolean onKeyPreIme(int keyCode, KeyEvent event)
 	{
-		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
-		if (Build.VERSION.SDK_INT < 24 && (getGravity() & Gravity.LEFT) != Gravity.LEFT && keyCode == KeyEvent.KEYCODE_BACK) {
+		// Work-around Android bug where center-alisgned and right-aligned EditText won't
+		// always pan above the virtual keyboard when given the focus. (See TIMOB-23757)
+		boolean isLeftAligned = (getGravity() & Gravity.LEFT) != 0;
+		if ((Build.VERSION.SDK_INT < 24) && !isLeftAligned && (keyCode == KeyEvent.KEYCODE_BACK)) {
 			ViewGroup view = (ViewGroup) getParent();
 			view.setFocusableInTouchMode(true);
 			view.requestFocus();
@@ -296,19 +297,19 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	}
 
 	@Override
-	public boolean dispatchNestedScroll(
-		int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow)
+	public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
+										int[] offsetInWindow)
 	{
-		return this.nestedScrollingHelper.dispatchNestedScroll(
-				dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
+		return this.nestedScrollingHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+															   offsetInWindow);
 	}
 
 	@Override
-	public boolean dispatchNestedScroll(
-		int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow, int type)
+	public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
+										int[] offsetInWindow, int type)
 	{
-		return this.nestedScrollingHelper.dispatchNestedScroll(
-				dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow, type);
+		return this.nestedScrollingHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+															   offsetInWindow, type);
 	}
 
 	@Override
