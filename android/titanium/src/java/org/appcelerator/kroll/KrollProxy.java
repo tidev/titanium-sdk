@@ -951,6 +951,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 					source = ((KrollProxy) hashValue).getKrollObject();
 				}
 				krollData.remove(TiC.EVENT_PROPERTY_SOURCE);
+			} else {
+				source = this.getKrollObject();
 			}
 			if (krollData.size() == 0) {
 				krollData = null;
