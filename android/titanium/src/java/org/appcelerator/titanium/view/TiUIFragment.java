@@ -1,6 +1,5 @@
 package org.appcelerator.titanium.view;
 
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -79,7 +78,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 				FragmentTransaction transaction = null;
 				Fragment tabFragment = fragmentManager.findFragmentById(android.R.id.tabcontent);
 				if (tabFragment != null) {
-					FragmentManager childManager = tabFragment.getChildFragmentManager();
+					FragmentManager childManager = fragment.getActivity().getSupportFragmentManager();
 					transaction = childManager.beginTransaction();
 				} else {
 					transaction = fragmentManager.beginTransaction();
