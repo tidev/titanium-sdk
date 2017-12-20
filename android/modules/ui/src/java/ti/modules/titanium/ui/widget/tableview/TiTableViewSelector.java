@@ -18,7 +18,6 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ListView;
 
-
 public class TiTableViewSelector extends Drawable
 {
 	private ListView listView;
@@ -29,7 +28,6 @@ public class TiTableViewSelector extends Drawable
 	private boolean dither = false;
 	private ColorFilter colorFilter;
 
-
 	public TiTableViewSelector(ListView listView)
 	{
 		this.listView = listView;
@@ -38,26 +36,21 @@ public class TiTableViewSelector extends Drawable
 		selectedDrawable = defaultDrawable;
 	}
 
-
 	@Override
 	protected boolean onStateChange(int[] state)
 	{
-		if (selectedDrawable != null)
-		{
+		if (selectedDrawable != null) {
 			invalidateSelf();
 			return true;
 		}
 		return false;
 	}
 
-
 	public void getRowDrawable(View row)
 	{
-		if (row instanceof TiTableViewRowProxyItem)
-		{
+		if (row instanceof TiTableViewRowProxyItem) {
 			TiTableViewRowProxyItem rowView = (TiTableViewRowProxyItem) row;
-			if (rowView.hasSelector())
-			{
+			if (rowView.hasSelector()) {
 				selectedDrawable = rowView.getSelectorDrawable();
 				selectedRowProxy = rowView.getRowProxy();
 
@@ -68,7 +61,6 @@ public class TiTableViewSelector extends Drawable
 		selectedDrawable = defaultDrawable;
 		selectedRowProxy = null;
 	}
-
 
 	@Override
 	public void draw(Canvas canvas)
@@ -100,28 +92,23 @@ public class TiTableViewSelector extends Drawable
 		}
 	}
 
-
 	@Override
 	public Drawable getCurrent()
 	{
-		if (selectedDrawable != null)
-		{
+		if (selectedDrawable != null) {
 			return selectedDrawable;
 		}
 		return null;
 	}
 
-
 	@Override
 	public int getOpacity()
 	{
-		if (selectedDrawable != null)
-		{
+		if (selectedDrawable != null) {
 			return selectedDrawable.getOpacity();
 		}
 		return PixelFormat.UNKNOWN;
 	}
-
 
 	@Override
 	public void setAlpha(int alpha)
@@ -129,13 +116,11 @@ public class TiTableViewSelector extends Drawable
 		this.alpha = alpha;
 	}
 
-
 	@Override
 	public void setColorFilter(ColorFilter colorFilter)
 	{
 		this.colorFilter = colorFilter;
 	}
-
 
 	@Override
 	public void setDither(boolean dither)
@@ -144,4 +129,3 @@ public class TiTableViewSelector extends Drawable
 		this.dither = dither;
 	}
 }
-

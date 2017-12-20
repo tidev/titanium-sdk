@@ -9,8 +9,9 @@ import org.appcelerator.titanium.proxy.TiToolbarProxy;
 import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.TiToolbar;
-
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
 		TiC.PROPERTY_BAR_COLOR,
 		TiC.PROPERTY_EXTEND_BACKGROUND,
 		TiC.PROPERTY_ITEMS,
@@ -25,111 +26,132 @@ import ti.modules.titanium.ui.widget.TiToolbar;
 		TiC.PROPERTY_CONTENT_INSET_END_WITH_ACTIONS,
 		TiC.PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION
 })
-public class ToolbarProxy extends TiToolbarProxy {
+// clang-format on
+public class ToolbarProxy extends TiToolbarProxy
+{
 
 	private static final java.lang.String TAG = "Toolbar";
 
-	public View getToolbarInstance() {
+	public View getToolbarInstance()
+	{
 		return getTiToolbarView().getNativeView();
 	}
 
-	private TiToolbar getTiToolbarView() {
+	private TiToolbar getTiToolbarView()
+	{
 		return ((TiToolbar) getOrCreateView());
 	}
 
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		return new TiToolbar(this);
 	}
 
 	//region Android only methods
 	@Kroll.method
-	public void collapseActionView() {
+	public void collapseActionView()
+	{
 		getTiToolbarView().collapseActionView();
 	}
 
 	@Kroll.method
-	public void dismissPopupMenus() {
+	public void dismissPopupMenus()
+	{
 		getTiToolbarView().dismissPopupMenus();
 	}
 
 	@Kroll.method
-	public int getContentInsetEnd() {
+	public int getContentInsetEnd()
+	{
 		//Gets the ending content inset for this toolbar.
 		return ((Toolbar) getTiToolbarView().getNativeView()).getContentInsetEnd();
 	}
 
 	@Kroll.method
-	public int getContentInsetLeft() {
+	public int getContentInsetLeft()
+	{
 		//Gets the left content inset for this toolbar.
 		return ((Toolbar) getTiToolbarView().getNativeView()).getContentInsetLeft();
 	}
 
 	@Kroll.method
-	public int getContentInsetRight() {
+	public int getContentInsetRight()
+	{
 		//Gets the right content inset for this toolbar.
 		return ((Toolbar) getTiToolbarView().getNativeView()).getContentInsetRight();
 	}
 
 	@Kroll.method
-	public int getContentInsetStart() {
+	public int getContentInsetStart()
+	{
 		//Gets the starting content inset for this toolbar.
 		return ((Toolbar) getTiToolbarView().getNativeView()).getContentInsetStart();
 	}
 
 	@Kroll.method
-	public int getCurrentContentInsetEnd() {
+	public int getCurrentContentInsetEnd()
+	{
 		//Gets the content inset that will be used on the ending side of the bar in the current toolbar configuration.
 		return ((Toolbar) getTiToolbarView().getNativeView()).getCurrentContentInsetEnd();
 	}
 
 	@Kroll.method
-	public int getCurrentContentInsetLeft() {
+	public int getCurrentContentInsetLeft()
+	{
 		//Gets the content inset that will be used on the left side of the bar in the current toolbar configuration.
 		return ((Toolbar) getTiToolbarView().getNativeView()).getCurrentContentInsetLeft();
 	}
 
 	@Kroll.method
-	public int getCurrentContentInsetRight() {
+	public int getCurrentContentInsetRight()
+	{
 		//Gets the content inset that will be used on the right side of the bar in the current toolbar configuration.
 		return ((Toolbar) getTiToolbarView().getNativeView()).getCurrentContentInsetRight();
 	}
 
 	@Kroll.method
-	public int getCurrentContentInsetStart() {
+	public int getCurrentContentInsetStart()
+	{
 		//Gets the content inset that will be used on the starting side of the bar in the current toolbar configuration.
 		return ((Toolbar) getTiToolbarView().getNativeView()).getCurrentContentInsetStart();
 	}
 
 	@Kroll.method
-	public boolean hasExpandedActionView() {
+	public boolean hasExpandedActionView()
+	{
 		return ((Toolbar) getTiToolbarView().getNativeView()).hasExpandedActionView();
 	}
 
 	@Kroll.method
-	public void hideOverflowMenu() {
+	public void hideOverflowMenu()
+	{
 		getTiToolbarView().hideOverFlowMenu();
 	}
 
 	@Kroll.method
-	public boolean isOverflowMenuShowing() {
+	public boolean isOverflowMenuShowing()
+	{
 		return ((Toolbar) getTiToolbarView().getNativeView()).isOverflowMenuShowing();
 	}
 
 	//Sets the content insets for this toolbar.
 	@Kroll.method
-	public void setContentInsetsAbsolute(int insetLeft, int insetRight) {
+	public void setContentInsetsAbsolute(int insetLeft, int insetRight)
+	{
 		getTiToolbarView().setContentInsetsAbsolute(insetLeft, insetRight);
 	}
 
 	//Sets the content insets for this toolbar relative to layout direction.
 	@Kroll.method
-	public void setContentInsetsRelative(int insetStart, int insetEnd) {
+	public void setContentInsetsRelative(int insetStart, int insetEnd)
+	{
 		getTiToolbarView().setContentInsetsRelative(insetStart, insetEnd);
 	}
 
 	@Kroll.method
-	public void showOverflowMenu() {
+	public void showOverflowMenu()
+	{
 		getTiToolbarView().showOverFlowMenu();
 	}
 	//endregion
