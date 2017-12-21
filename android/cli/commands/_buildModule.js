@@ -548,7 +548,6 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo(next) {
 
 AndroidModuleBuilder.prototype.cleanup = function cleanup(next) {
 	fs.emptyDirSync(this.buildDir);
-	fs.emptyDirSync(this.libsDir);
 
 	this.requiredArchitectures.forEach(function (architecture) {
 		fs.mkdirsSync(path.join(this.libsDir, architecture));
