@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "Base64Transcoder.h"
 #import "NSData+Additions.h"
 #import <CommonCrypto/CommonCryptor.h>
 

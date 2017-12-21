@@ -110,7 +110,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	private int mCurrentBufferPercentage;
 	private OnErrorListener mOnErrorListener;
 	private int mSeekWhenPrepared; // recording the seek position while
-									// preparing
+								   // preparing
 	@SuppressWarnings("unused")
 	private int mStateWhenSuspended; // state before calling suspend()
 
@@ -180,8 +180,10 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 
 	protected void measureVideo(int videoWidth, int videoHeight, int widthMeasureSpec, int heightMeasureSpec)
 	{
-		Log.e(TAG, "******* mVideoWidth: " + videoWidth + " mVideoHeight: " + videoHeight + " width: "
-			+ MeasureSpec.getSize(widthMeasureSpec) + " height: " + MeasureSpec.getSize(heightMeasureSpec), Log.DEBUG_MODE);
+		Log.e(TAG,
+			  "******* mVideoWidth: " + videoWidth + " mVideoHeight: " + videoHeight + " width: "
+				  + MeasureSpec.getSize(widthMeasureSpec) + " height: " + MeasureSpec.getSize(heightMeasureSpec),
+			  Log.DEBUG_MODE);
 
 		int width = getDefaultSize(videoWidth, widthMeasureSpec);
 		int height = getDefaultSize(videoHeight, heightMeasureSpec);
@@ -225,8 +227,8 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 				d.getMetrics(dm);
 				if (TiPlatformHelper.applicationLogicalDensity != dm.densityDpi) {
 					int maxScaledWidth = (int) Math.floor((d.getWidth() - 1) * TiPlatformHelper.applicationScaleFactor);
-					int maxScaledHeight = (int) Math.floor((d.getHeight() - 1)
-						* TiPlatformHelper.applicationScaleFactor);
+					int maxScaledHeight =
+						(int) Math.floor((d.getHeight() - 1) * TiPlatformHelper.applicationScaleFactor);
 					if (width * TiPlatformHelper.applicationScaleFactor > maxScaledWidth) {
 						int oldWidth = width;
 						width = d.getWidth() - 1;
@@ -378,7 +380,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			// mMediaPlayer.setDataSource(mContext, mUri, mHeaders); // Not in
 			// public API
 			if (URLUtil.isAssetUrl(mUri.toString())) { // DST: 20090606 detect
-														// asset url
+													   // asset url
 				AssetFileDescriptor afd = null;
 				try {
 					String path = mUri.toString().substring("file:///android_asset/".length());
@@ -556,12 +558,13 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		}
 	};
 
-	private MediaPlayer.OnBufferingUpdateListener mBufferingUpdateListener = new MediaPlayer.OnBufferingUpdateListener() {
-		public void onBufferingUpdate(MediaPlayer mp, int percent)
-		{
-			mCurrentBufferPercentage = percent;
-		}
-	};
+	private MediaPlayer.OnBufferingUpdateListener mBufferingUpdateListener =
+		new MediaPlayer.OnBufferingUpdateListener() {
+			public void onBufferingUpdate(MediaPlayer mp, int percent)
+			{
+				mCurrentBufferPercentage = percent;
+			}
+		};
 
 	/**
 	 * Register a callback to be invoked when the media file
@@ -630,7 +633,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			 * resume();
 			 * } else {
 			 */
-			openVideo();/*
+			openVideo(); /*
 						 * }
 						 */
 		}
@@ -685,8 +688,8 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
 		boolean isKeyCodeSupported = keyCode != KeyEvent.KEYCODE_BACK && keyCode != KeyEvent.KEYCODE_VOLUME_UP
-			&& keyCode != KeyEvent.KEYCODE_VOLUME_DOWN && keyCode != KeyEvent.KEYCODE_MENU
-			&& keyCode != KeyEvent.KEYCODE_CALL && keyCode != KeyEvent.KEYCODE_ENDCALL;
+									 && keyCode != KeyEvent.KEYCODE_VOLUME_DOWN && keyCode != KeyEvent.KEYCODE_MENU
+									 && keyCode != KeyEvent.KEYCODE_CALL && keyCode != KeyEvent.KEYCODE_ENDCALL;
 		if (isInPlaybackState() && isKeyCodeSupported && mMediaController != null) {
 			if (keyCode == KeyEvent.KEYCODE_HEADSETHOOK || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) {
 				if (mMediaPlayer.isPlaying()) {
@@ -820,7 +823,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		} else {
 			mSeekWhenPrepared = msec;
 		}
-		
+
 		if (mPlaybackListener != null) {
 			if (msec > currPosition) {
 				mPlaybackListener.onSeekingForward();
@@ -845,7 +848,8 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 
 	public boolean isInPlaybackState()
 	{
-		return (mMediaPlayer != null && mCurrentState != STATE_ERROR && mCurrentState != STATE_IDLE && mCurrentState != STATE_PREPARING);
+		return (mMediaPlayer != null && mCurrentState != STATE_ERROR && mCurrentState != STATE_IDLE
+				&& mCurrentState != STATE_PREPARING);
 	}
 
 	public boolean canPause()

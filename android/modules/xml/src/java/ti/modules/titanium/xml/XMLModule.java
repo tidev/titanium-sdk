@@ -26,13 +26,15 @@ import org.appcelerator.kroll.common.Log;
 import org.xml.sax.SAXException;
 
 @Kroll.module
-public class XMLModule extends KrollModule {
+public class XMLModule extends KrollModule
+{
 
 	private static DocumentBuilder builder;
 	private static final String TAG = "XMLModule";
 	private static TransformerFactory transformerFactory;
 
-	static {
+	static
+	{
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setNamespaceAware(true);
@@ -50,20 +52,17 @@ public class XMLModule extends KrollModule {
 	}
 
 	@Kroll.method
-	public DocumentProxy parseString(String xml)
-		throws SAXException, IOException
+	public DocumentProxy parseString(String xml) throws SAXException, IOException
 	{
 		return parse(xml);
 	}
 
-	public static DocumentProxy parse(String xml)
-		throws SAXException, IOException
+	public static DocumentProxy parse(String xml) throws SAXException, IOException
 	{
 		return parse(xml, System.getProperty("file.encoding", "UTF-8"));
 	}
 
-	public static DocumentProxy parse(String xml, String encoding)
-		throws SAXException, IOException
+	public static DocumentProxy parse(String xml, String encoding) throws SAXException, IOException
 	{
 		if (builder != null) {
 			try {

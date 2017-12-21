@@ -19,12 +19,13 @@ public class AsyncResult extends Semaphore
 	protected Object result;
 	protected Object arg;
 	protected Throwable exception;
-	
+
 	/**
 	 * Constructs an AsyncResult with no argument.
 	 * @module.api
 	 */
-	public AsyncResult() {
+	public AsyncResult()
+	{
 		this(null);
 	}
 
@@ -33,7 +34,8 @@ public class AsyncResult extends Semaphore
 	 * @param arg the general user data for a {@link android.os.Message Message}.
 	 * @module.api
 	 */
-	public AsyncResult(Object arg) {
+	public AsyncResult(Object arg)
+	{
 		super(0);
 		this.arg = arg;
 	}
@@ -42,7 +44,8 @@ public class AsyncResult extends Semaphore
 	 * @return the arg object that is passed into the constructor.
 	 * @module.api
 	 */
-	public Object getArg() {
+	public Object getArg()
+	{
 		return arg;
 	}
 
@@ -51,17 +54,19 @@ public class AsyncResult extends Semaphore
 	 * @param result the resulting object.
 	 * @module.api
 	 */
-	public void setResult(Object result) {
+	public void setResult(Object result)
+	{
 		this.result = result;
 		this.release();
 	}
-	
+
 	/**
 	 * Sets an exception to be thrown to the code that is blocking on {@link #setResult(Object)}, and releases the lock.
 	 * @param exception a thrown exception. It can be thrown from any place that handles an AsyncResult.
 	 * @module.api
 	 */
-	public void setException(Throwable exception) {
+	public void setException(Throwable exception)
+	{
 		this.result = null;
 		this.exception = exception;
 		this.release();
@@ -84,7 +89,8 @@ public class AsyncResult extends Semaphore
 		return result;
 	}
 
-	public Object getResultUnsafe() {
+	public Object getResultUnsafe()
+	{
 		return result;
 	}
 }

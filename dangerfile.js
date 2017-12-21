@@ -1,34 +1,70 @@
-/* global danger, fail, warn, markdown, message */
+/* global danger, fail, warn, markdown, message, schedule */
 'use strict';
-const fs = require('fs-extra'),
-	path = require('path'),
-	DOMParser = require('xmldom').DOMParser;
+// requires
+const fs = require('fs-extra');
+const path = require('path');
+const DOMParser = require('xmldom').DOMParser;
+// Due to bug in danger, we hack env variables in build process.
+const ENV = fs.existsSync('./env.json') ? require('./env.json') : process.env;
+// constants
+const JIRARegexp = /https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/;
+const github = danger.github;
+// Currently used PR-labels
+const Label = {
+	NEEDS_JIRA: 'needs jira',
+	NEEDS_TESTS: 'needs tests',
+	NO_TESTS: 'no tests',
+	NEEDS_CLA: 'needs cla',
+	IOS: 'ios',
+	ANDROID: 'android',
+	COMMUNITY: 'community',
+	DOCS: 'docs'
+};
+// Array to gather up the labels we want to auto-apply to the PR
+const labels = [];
+// Store the current directory so we can join it with file paths from PR metadata
+const CURRENT_DIR = path.resolve(__dirname);
 
 // To spit out the raw data we can use:
 // markdown(JSON.stringify(danger));
 
 // Check if the user deleted more code than added, give a thumbs-up if so
-if (danger.github.pr.deletions > danger.github.pr.additions) {
+if (github.pr.deletions > github.pr.additions) {
 	message(':thumbsup: Hey!, You deleted more code than you added. That\'s awesome!');
+}
+
+// Check npm test output
+if (fs.existsSync('./npm_test.log')) {
+	const npmTestOutput = fs.readFileSync('./npm_test.log');
+	if (npmTestOutput.indexOf('Test failed.  See above for more details.') !== -1) {
+		fail(':disappointed_relieved: `npm test` failed. See below for details.');
+		message('```' + npmTestOutput + '\n```');
+	}
 }
 
 // TODO Check for PRs above a certain threshold of changes and warn?
 
 // Check that we have a JIRA Link in the body
-const body = danger.github.pr.body;
-const JIRARegexp = /https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/;
+const body = github.pr.body;
 const hasJIRALink = body.match(JIRARegexp);
 if (!hasJIRALink) {
+	labels.push(Label.NEEDS_JIRA);
 	warn('There is no linked JIRA ticket in the PR body. Please include the URL of the relevant JIRA ticket. If you need to, you may file a ticket on ' + danger.utils.href('https://jira.appcelerator.org/secure/CreateIssue!default.jspa', 'JIRA'));
+} else {
+	// If it has the "needs jira" label, remove it since we do have one linked
+	const hasNeedsJIRALabel = github.issue.labels.some(function (label) {
+		return label.name === Label.NEEDS_JIRA;
+	});
+	if (hasNeedsJIRALabel) {
+		github.api.issues.removeLabel({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, name: Label.NEEDS_JIRA });
+	}
 }
 
 // Check that package.json and package-lock.json stay in-sync
 const hasPackageChanges = danger.git.modified_files.indexOf('package.json') !== -1;
 const hasLockfileChanges = danger.git.modified_files.indexOf('package-lock.json') !== -1;
 if (hasPackageChanges && !hasLockfileChanges) {
-	const message = ':lock: Changes were made to package.json, but not to package-lock.json';
-	const idea = 'Perhaps you need to run `npm install`?';
-	warn(message + ' - <i>' + idea + '</i>');
+	warn(':lock: Changes were made to package.json, but not to package-lock.json - <i>Perhaps you need to run `npm install`?</i>');
 }
 
 // Check that if we modify the Android or iOS SDK, we also update the tests
@@ -39,16 +75,66 @@ const modifiedAndroidFiles = modified.filter(function (p) {
 const modifiedIOSFiles = modified.filter(function (p) {
 	return p.startsWith('iphone/Classes/') && (p.endsWith('.h') || p.endsWith('.m'));
 });
-const hasAppChanges = (modifiedAndroidFiles.length + modifiedIOSFiles.length) > 0;
 
+// Auto-assign android/ios labels
+if (modifiedAndroidFiles.length > 0) {
+	labels.push(Label.ANDROID);
+}
+if (modifiedIOSFiles.length > 0) {
+	labels.push(Label.IOS);
+}
+// Check if apidoc was modified and apply 'docs' label?
+const modifiedApiDocs = modified.filter(function (p) {
+	return p.startsWith('apidoc/');
+});
+if (modifiedApiDocs.length > 0) {
+	labels.push(Label.DOCS);
+}
+
+// Check PR author to see if it's community, etc
+if (github.pr.author_association === 'FIRST_TIMER') {
+	labels.push(Label.COMMUNITY);
+	labels.push(Label.NEEDS_CLA);
+	// Thank them profusely! This is their first ever github commit!
+	message(`:rocket: Wow, ${github.pr.user.login}, your first contribution to GitHub and it's to help us make Titanium better! You rock! :guitar:`);
+} else if (github.pr.author_association === 'FIRST_TIME_CONTRIBUTOR') {
+	labels.push(Label.COMMUNITY);
+	labels.push(Label.NEEDS_CLA);
+	// Thank them, this is their first contribution to this repo!
+	message(`:confetti_ball: Welcome to the Titanium SDK community, ${github.pr.user.login}! Thank you so much for your PR, you're helping us make Titanium better. :gift:`);
+} else if (github.pr.author_association === 'CONTRIBUTOR') {
+	labels.push(Label.COMMUNITY);
+	// Be nice, this is a community member who has landed PRs before!
+	message(`:tada: Another contribution from our awesome community member, ${github.pr.user.login}! Thanks again for helping us make Titanium SDK better. :thumbsup:`);
+}
+
+// Check if any tests were changed/added
+const hasAppChanges = (modifiedAndroidFiles.length + modifiedIOSFiles.length) > 0;
 const testChanges = modified.filter(function (p) {
 	return p.startsWith('tests/') && p.endsWith('.js');
 });
 const hasTestChanges = testChanges.length > 0;
-if (hasAppChanges && !hasTestChanges) {
-	const link = danger.github.utils.fileLinks([ 'README.md#unit-tests' ]);
-	fail(':microscope: There are library changes, but no changes to the unit tests. That\'s OK as long as you\'re refactoring existing code, but will require an admin to merge this PR. Please see ' + link + ' for docs on unit testing.');
+const hasNoTestsLabel = github.issue.labels.some(function (label) {
+	return label.name === Label.NO_TESTS;
+});
+// If we changed android/iOS source, but didn't change tests and didn't use the 'no tests' label
+// fail the PR
+if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
+	labels.push(Label.NEEDS_TESTS);
+	const testDocLink = github.utils.fileLinks([ 'README.md#unit-tests' ]);
+	fail(`:microscope: There are library changes, but no changes to the unit tests. That's OK as long as you're refactoring existing code, but will require an admin to merge this PR. Please see ${testDocLink} for docs on unit testing.`); // eslint-disable-line max-len
+} else {
+	// If it has the "needs tests" label, remove it
+	const hasNeedsTestsLabel = github.issue.labels.some(function (label) {
+		return label.name === Label.NEEDS_TESTS;
+	});
+	if (hasNeedsTestsLabel) {
+		github.api.issues.removeLabel({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, name: Label.NEEDS_TESTS });
+	}
 }
+
+// Now apply our labels
+github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: labels });
 
 function gatherFailedTestcases(reportPath) {
 	if (!fs.existsSync(reportPath)) {
@@ -118,6 +204,12 @@ if (failures_and_errors.length !== 0) {
 	});
 
 	markdown(message);
+}
+
+// Add link to built SDK zipfile!
+if (ENV.BUILD_STATUS === 'SUCCESS' || ENV.BUILD_STATUS === 'UNSTABLE') {
+	const sdkLink = danger.utils.href(`${ENV.BUILD_URL}artifact/${ENV.ZIPFILE}`, 'Here\'s the generated SDK zipfile');
+	message(`:floppy_disk: ${sdkLink}.`);
 }
 
 // TODO Pass along any warnings/errors from eslint in a readable way? Right now we don't have any way to get at the output of the eslint step of npm test
