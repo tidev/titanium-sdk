@@ -94,7 +94,7 @@ public class TiUIDrawerLayout extends TiUIView
 		LayoutInflater inflater = LayoutInflater.from(this.activity);
 		layout = (DrawerLayout) inflater.inflate(id_drawer_layout, null, false);
 		layout.setDrawerListener(new DrawerListener());
-		toolbar = (Toolbar)layout.findViewById(id_toolbar);
+		toolbar = (Toolbar) layout.findViewById(id_toolbar);
 
 		// Check if the theme provides a default ActionBar
 		if (this.activity.getSupportActionBar() == null) {
