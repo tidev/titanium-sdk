@@ -69,7 +69,8 @@ public class TiDimension
 	public static final String UNIT_PERCENT = "%";
 	public static final String UNIT_AUTO = "auto";
 
-	public static Pattern DIMENSION_PATTERN = Pattern.compile("(-?[0-9]*\\.?[0-9]+)\\s*(system|px|dp|dip|sp|sip|mm|cm|pt|in|%)?");
+	public static Pattern DIMENSION_PATTERN =
+		Pattern.compile("(-?[0-9]*\\.?[0-9]+)\\s*(system|px|dp|dip|sp|sip|mm|cm|pt|in|%)?");
 	protected static DisplayMetrics metrics = null;
 
 	protected double value;
@@ -212,7 +213,7 @@ public class TiDimension
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * Calculates and returns the number of pixels, depending on the type.
 	 * It also takes screen/view density into consideration.
@@ -259,7 +260,7 @@ public class TiDimension
 
 		return (int) Math.round((getPixels(parent) / getDisplayMetrics(parent).density));
 	}
-	
+
 	/**
 	 * Calculates and returns the dimension in the default units. If the default
 	 * unit is not valid, returns in PX.
@@ -271,14 +272,11 @@ public class TiDimension
 		String defaultUnit = TiApplication.getInstance().getDefaultUnit();
 		if (UNIT_DP.equals(defaultUnit) || UNIT_DIP.equals(defaultUnit)) {
 			return (double) getAsDIP(parent);
-		}
-		else if (UNIT_MM.equals(defaultUnit)) {
+		} else if (UNIT_MM.equals(defaultUnit)) {
 			return getAsMillimeters(parent);
-		}
-		else if (UNIT_CM.equals(defaultUnit)) {
+		} else if (UNIT_CM.equals(defaultUnit)) {
 			return getAsCentimeters(parent);
-		}
-		else if (UNIT_IN.equals(defaultUnit)) {
+		} else if (UNIT_IN.equals(defaultUnit)) {
 			return getAsInches(parent);
 		}
 
@@ -313,7 +311,7 @@ public class TiDimension
 	{
 		if (metrics == null) {
 			Context context = (parent != null) ? parent.getContext() : TiApplication.getInstance();
-			WindowManager windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+			WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 			Display display = windowManager.getDefaultDisplay();
 			metrics = new DisplayMetrics();
 			display.getMetrics(metrics);
@@ -331,10 +329,10 @@ public class TiDimension
 		}
 		return -1;
 	}
-	
+
 	protected double getDPIForType(View parent)
 	{
-		DisplayMetrics metrics = getDisplayMetrics(parent);		
+		DisplayMetrics metrics = getDisplayMetrics(parent);
 		float dpi = -1;
 		switch (valueType) {
 			case TYPE_TOP:
@@ -352,14 +350,14 @@ public class TiDimension
 			default:
 				dpi = metrics.densityDpi;
 		}
-		
+
 		return dpi;
 	}
-	
+
 	protected double getSizePixels(View parent)
 	{
 		double dpi = getDPIForType(parent);
-		
+
 		if (units == TypedValue.COMPLEX_UNIT_PT) {
 			return (this.value * (dpi / POINT_DPI));
 		} else if (units == TypedValue.COMPLEX_UNIT_MM) {

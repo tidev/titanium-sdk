@@ -41,7 +41,7 @@ public class Log
 	private static final int WARN = 3;
 	private static final int ERROR = 4;
 	private static final int VERBOSE = 5;
-	
+
 	/**
 	 * Sends a 'verbose' log message, with the thread name and time stamp pre-appended.
 	 * For more information regarding formatting, refer to {@link #w(String, String)}.
@@ -255,7 +255,7 @@ public class Log
 	{
 		return processLog(WARN, tag, msg, mode);
 	}
-	
+
 	/**
 	 * Sends a 'warn' log message, with the thread name and time stamp pre-appended.
 	 * For example, "(main) [298, 474] hello" --> "(thread-name) [elapsed time, total time] msg".
@@ -423,10 +423,14 @@ public class Log
 		lastLog = currentMillis;
 
 		StringBuilder sb = new StringBuilder(256);
-		sb.append("(").append(Thread.currentThread().getName()).append(") [")
-			.append(elapsed).append(",").append(total).append("] ")
-			.append(msg)
-		;
+		sb.append("(")
+			.append(Thread.currentThread().getName())
+			.append(") [")
+			.append(elapsed)
+			.append(",")
+			.append(total)
+			.append("] ")
+			.append(msg);
 		String s = sb.toString();
 		sb.setLength(0);
 		return s;

@@ -29,7 +29,7 @@
 			android:configChanges="keyboardHidden|orientation|fontScale|screenSize|smallestScreenSize|screenLayout" />
 		<activity android:name="org.appcelerator.titanium.TiTranslucentActivity"
 			android:configChanges="keyboardHidden|orientation|fontScale|screenSize|smallestScreenSize|screenLayout"
-			android:theme="@style/Theme.AppCompat.Translucent" />
+			android:theme="@style/Theme.Titanium.Translucent" />
 		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
 
 		<provider

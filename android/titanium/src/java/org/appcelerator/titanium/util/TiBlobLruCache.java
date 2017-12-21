@@ -47,14 +47,16 @@ public class TiBlobLruCache extends LruCache<String, Bitmap>
 			return bitmap.getRowBytes() * bitmap.getHeight() / 1024;
 		}
 	}
-	
-	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
-	    if (getBitmapFromMemCache(key) == null) {
-	        _instance.put(key, bitmap);
-	    }
+
+	public void addBitmapToMemoryCache(String key, Bitmap bitmap)
+	{
+		if (getBitmapFromMemCache(key) == null) {
+			_instance.put(key, bitmap);
+		}
 	}
 
-	public Bitmap getBitmapFromMemCache(String key) {
-	    return _instance.get(key);
+	public Bitmap getBitmapFromMemCache(String key)
+	{
+		return _instance.get(key);
 	}
 }
