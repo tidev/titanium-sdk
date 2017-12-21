@@ -6,7 +6,7 @@
 		"https://github.com/appcelerator-modules/ti.map/releases/download/ios-3.0.1/ti.map-iphone-3.0.1.zip",
 		"https://github.com/appcelerator-modules/ti.safaridialog/releases/download/iOS-1.1.1/ti.safaridialog-iphone-1.1.1.zip",
 		"https://github.com/appcelerator-modules/ti.touchid/releases/download/ios-2.1.4/ti.touchid-iphone-2.1.4.zip",
-		"https://github.com/appcelerator-modules/titanium-identity/releases/download/ios-1.0.1/ti.identity-iphone-1.0.1.zip"
+		"https://github.com/appcelerator-modules/titanium-identity/releases/download/ios-1.0.3/ti.identity-iphone-1.0.3.zip"
 	],
 	"android": [
 		"https://github.com/appcelerator-modules/ti.facebook/releases/download/android-7.0.0/facebook-android-7.0.0.zip",
