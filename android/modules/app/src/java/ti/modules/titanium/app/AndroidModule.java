@@ -71,8 +71,8 @@ public class AndroidModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public int getAppVersionCode()
 	// clang-format on
 	{
@@ -83,8 +83,8 @@ public class AndroidModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public IntentProxy getLaunchIntent()
 	// clang-format on
 	{
@@ -102,8 +102,8 @@ public class AndroidModule extends KrollModule
 	}
 
 	// clang-format off
-	@Kroll.getProperty
 	@Kroll.method
+	@Kroll.getProperty
 	public String getAppVersionName()
 	// clang-format on
 	{

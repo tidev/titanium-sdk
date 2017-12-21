@@ -37,8 +37,7 @@ public class TiCamera
 	}
 
 	// add some fancy click noise here in the future
-	ShutterCallback shutterCallback = new ShutterCallback()
-	{
+	ShutterCallback shutterCallback = new ShutterCallback() {
 		public void onShutter()
 		{
 			Log.i(TAG, "onShutter() called. Capturing image.", Log.DEBUG_MODE);
@@ -46,16 +45,14 @@ public class TiCamera
 	};
 
 	// need the callback but we don't want to do anything with this currently
-	PictureCallback rawCallback = new PictureCallback()
-	{
+	PictureCallback rawCallback = new PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera camera)
 		{
 			Log.i(TAG, "Picture taken: raw picture available", Log.DEBUG_MODE);
 		}
 	};
 
-	PictureCallback jpegCallback = new PictureCallback()
-	{
+	PictureCallback jpegCallback = new PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera camera)
 		{
 			FileOutputStream outputStream = null;
@@ -64,7 +61,7 @@ public class TiCamera
 
 				// create storage location for photos if it does not exist
 				File photosDirectory = new File(photosPath);
-				if(!(photosDirectory.exists())) {
+				if (!(photosDirectory.exists())) {
 					photosDirectory.mkdirs();
 				}
 
@@ -83,4 +80,3 @@ public class TiCamera
 		}
 	};
 }
-

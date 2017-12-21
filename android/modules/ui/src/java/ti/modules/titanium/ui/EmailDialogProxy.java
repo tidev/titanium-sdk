@@ -37,9 +37,19 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.text.Html;
 
-@Kroll.proxy(creatableInModule=UIModule.class,
-	propertyAccessors={"bccRecipients", "ccRecipients", "html", "messageBody", "subject", "toRecipients"})
-public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionListener {
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		"bccRecipients",
+		"ccRecipients",
+		"html",
+		"messageBody",
+		"subject",
+		"toRecipients"
+})
+// clang-format on
+public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionListener
+{
 
 	private static final String TAG = "EmailDialogProxy";
 
@@ -64,7 +74,8 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 	}
 
 	@Kroll.method
-	public boolean isSupported() {
+	public boolean isSupported()
+	{
 		boolean supported = false;
 		Activity activity = TiApplication.getAppRootOrCurrentActivity();
 		if (activity != null) {
@@ -83,7 +94,8 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 	}
 
 	@Kroll.method
-	public void addAttachment(Object attachment) {
+	public void addAttachment(Object attachment)
+	{
 		if (attachment instanceof FileProxy || attachment instanceof TiBlob) {
 			if (attachments == null) {
 				attachments = new ArrayList<Object>();
@@ -91,12 +103,15 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 			attachments.add(attachment);
 		} else {
 			// silently ignore?
-			Log.d(TAG, "addAttachment for type " + attachment.getClass().getName()
-				+ " ignored. Only files and blobs may be attached.", Log.DEBUG_MODE);
+			Log.d(TAG,
+				  "addAttachment for type " + attachment.getClass().getName()
+					  + " ignored. Only files and blobs may be attached.",
+				  Log.DEBUG_MODE);
 		}
 	}
 
-	private String baseMimeType(boolean isHtml) {
+	private String baseMimeType(boolean isHtml)
+	{
 		String result = isHtml ? "text/html" : "text/plain";
 		// After 1.6 (api 4, "Donut"), message/rfc822 will work and still recognize
 		// html encoded text.  The advantage to putting it to message/rfc822 is that
@@ -110,9 +125,11 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		return result;
 	}
 
-	private Intent buildIntent() {
+	private Intent buildIntent()
+	{
 		ArrayList<Uri> uris = getAttachmentUris();
-		Intent sendIntent = new Intent((uris != null && uris.size()>1) ? Intent.ACTION_SEND_MULTIPLE : Intent.ACTION_SEND);
+		Intent sendIntent =
+			new Intent((uris != null && uris.size() > 1) ? Intent.ACTION_SEND_MULTIPLE : Intent.ACTION_SEND);
 		boolean isHtml = false;
 		if (hasProperty("html")) {
 			isHtml = TiConvert.toBoolean(getProperty("html"));
@@ -123,7 +140,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		putAddressExtra(sendIntent, Intent.EXTRA_CC, "ccRecipients");
 		putAddressExtra(sendIntent, Intent.EXTRA_BCC, "bccRecipients");
 		putStringExtra(sendIntent, Intent.EXTRA_SUBJECT, "subject");
-		putStringExtra(sendIntent, Intent.EXTRA_TEXT , "messageBody", isHtml);
+		putStringExtra(sendIntent, Intent.EXTRA_TEXT, "messageBody", isHtml);
 		prepareAttachments(sendIntent, uris);
 
 		Log.d(TAG, "Choosing for mime type " + sendIntent.getType(), Log.DEBUG_MODE);
@@ -152,12 +169,10 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 			TiActivitySupport activitySupport = (TiActivitySupport) activity;
 			final int code = activitySupport.getUniqueResultCode();
 
-			activitySupport.launchActivityForResult(choosingIntent, code,
-					new TiActivityResultHandler() {
-
+			activitySupport.launchActivityForResult(choosingIntent, code, new TiActivityResultHandler() {
 				@Override
-				public void onResult(Activity activity, int requestCode, int resultCode,
-						Intent data) {
+				public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
+				{
 					// ACTION_SEND does not set a result code (so the default of 0
 					// is always returned. We'll neither confirm nor deny -- assume SENT
 					// see http://code.google.com/p/android/issues/detail?id=5512
@@ -168,7 +183,8 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 				}
 
 				@Override
-				public void onError(Activity activity, int requestCode, Exception e) {
+				public void onError(Activity activity, int requestCode, Exception e)
+				{
 					KrollDict result = new KrollDict();
 					result.put("result", FAILED);
 					result.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, e.getMessage());
@@ -179,7 +195,6 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		} else {
 			Log.e(TAG, "Could not open email dialog, current activity is null.");
 		}
-
 	}
 
 	private File blobToTemp(TiBlob blob, String fileName)
@@ -208,7 +223,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		File tempfile = null;
 		try {
 			tempfile = blobToTemp(file.read(), file.getName());
-		} catch(IOException e) {
+		} catch (IOException e) {
 			Log.e(TAG, "Unable to attach file " + file.getName() + ": " + e.getMessage(), e);
 		}
 		return tempfile;
@@ -220,13 +235,13 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		// the photo gallery . If that's the case with this
 		// blob, then just attach the file and be done with it.
 		if (blob.getType() == TiBlob.TYPE_FILE) {
-			return ((TiBaseFile)blob.getData()).getNativeFile();
+			return ((TiBaseFile) blob.getData()).getNativeFile();
 		}
 
 		// For non-file blobs, make a temp file and attach.
-		String fileName ="attachment";
+		String fileName = "attachment";
 		String extension = TiMimeTypeHelper.getFileExtensionFromMimeType(blob.getMimeType(), "");
-		if (extension.length() > 0 ) {
+		if (extension.length() > 0) {
 			fileName += "." + extension;
 		}
 		return blobToTemp(blob, fileName);
@@ -250,7 +265,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 				}
 			}
 		} else if (attachment instanceof TiBlob) {
-			File file = blobToFile((TiBlob)attachment);
+			File file = blobToFile((TiBlob) attachment);
 			if (file != null) {
 				return Uri.fromFile(file);
 			}
@@ -263,7 +278,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		if (attachments == null) {
 			return null;
 		}
-		ArrayList<Uri>  uris = new ArrayList<Uri>();
+		ArrayList<Uri> uris = new ArrayList<Uri>();
 		for (Object attachment : attachments) {
 			Uri uri = getAttachmentUri(attachment);
 			if (uri != null) {
@@ -273,7 +288,8 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		return uris;
 	}
 
-	private void prepareAttachments(Intent sendIntent, ArrayList<Uri> uris) {
+	private void prepareAttachments(Intent sendIntent, ArrayList<Uri> uris)
+	{
 		if (uris == null || uris.size() == 0) {
 			return;
 		}
@@ -294,9 +310,10 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		putStringExtra(intent, extraType, ourKey, false);
 	}
 
-	private void putStringExtra(Intent intent, String extraType, String ourkey, boolean encodeHtml) {
+	private void putStringExtra(Intent intent, String extraType, String ourkey, boolean encodeHtml)
+	{
 		if (this.hasProperty(ourkey)) {
-			String text = TiConvert.toString(this.getProperty(ourkey)) ;
+			String text = TiConvert.toString(this.getProperty(ourkey));
 			if (encodeHtml) {
 				intent.putExtra(extraType, Html.fromHtml(text));
 			} else {
@@ -305,7 +322,8 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		}
 	}
 
-	private void putAddressExtra(Intent intent, String extraType, String ourkey) {
+	private void putAddressExtra(Intent intent, String extraType, String ourkey)
+	{
 		Object testprop = this.getProperty(ourkey);
 		if (testprop instanceof Object[]) {
 			Object[] oaddrs = (Object[]) testprop;
@@ -319,14 +337,15 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 	}
 
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		return null;
 	}
 
 	private boolean isPrivateData(FileProxy file)
 	{
 		if (file.isFile()) {
-			if (file.getNativePath().contains("android_asset")){
+			if (file.getNativePath().contains("android_asset")) {
 				return true;
 			}
 			if (file.getNativePath().contains(privateDataDirectoryPath)) {

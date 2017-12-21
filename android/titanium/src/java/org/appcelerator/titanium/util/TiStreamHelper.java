@@ -27,7 +27,8 @@ public class TiStreamHelper
 		return inputStream.read(buffer, offset, length);
 	}
 
-	public static int write(OutputStream outputStream, BufferProxy bufferProxy, int offset, int length) throws IOException
+	public static int write(OutputStream outputStream, BufferProxy bufferProxy, int offset, int length)
+		throws IOException
 	{
 		byte[] buffer = bufferProxy.getBuffer();
 
@@ -40,5 +41,4 @@ public class TiStreamHelper
 
 		return length;
 	}
-
 }
