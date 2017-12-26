@@ -17,6 +17,7 @@ import android.view.Gravity;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
 /**
@@ -38,11 +39,23 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	 */
 	private int scrollAxisDirection = ViewCompat.SCROLL_AXIS_NONE;
 
+	/** Stores the start point of a nested touch event in screen coordinates along the x-axis. */
+	private int startRawTouchX;
+
+	/** Stores the start point of a nested touch event in screen coordinates along the y-axis. */
+	private int startRawTouchY;
+
 	/** Stores the last received nested touch event in screen coordinates along the x-axis. */
 	private int lastRawTouchX;
 
 	/** Stores the last received nested touch event in screen coordinates along the y-axis. */
 	private int lastRawTouchY;
+
+	/** Min pixel distance a touch move must cover before it's considered to be a drag/scroll event. */
+	private int minDragStartDistance;
+
+	/** Set true if we're in the middle of doing a nested drag/scroll. */
+	private boolean isDragging;
 
 	/** Creates a new EditText view. */
 	public TiUIEditText(Context context)
@@ -71,6 +84,14 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	 */
 	private void initializeView()
 	{
+		// Fetch the system's min touch move distance until it's considered to be a drag event.
+		// Note: This is the same setting Android's ScrollViews use.
+		ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
+		if (viewConfiguration != null) {
+			this.minDragStartDistance = viewConfiguration.getScaledTouchSlop();
+		}
+
+		// Set up this view for nested scrolling.
 		this.nestedScrollingHelper = new NestedScrollingChildHelper(this);
 		setNestedScrollingEnabled(true);
 	}
@@ -87,9 +108,10 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	@Override
 	public boolean onKeyPreIme(int keyCode, KeyEvent event)
 	{
-		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
-		if (Build.VERSION.SDK_INT < 24 && (getGravity() & Gravity.LEFT) != Gravity.LEFT
-			&& keyCode == KeyEvent.KEYCODE_BACK) {
+		// Work-around Android bug where center-alisgned and right-aligned EditText won't
+		// always pan above the virtual keyboard when given the focus. (See TIMOB-23757)
+		boolean isLeftAligned = (getGravity() & Gravity.LEFT) != 0;
+		if ((Build.VERSION.SDK_INT < 24) && !isLeftAligned && (keyCode == KeyEvent.KEYCODE_BACK)) {
 			ViewGroup view = (ViewGroup) getParent();
 			view.setFocusableInTouchMode(true);
 			view.requestFocus();
@@ -116,10 +138,12 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 		}
 
 		// Handle nested touch input and scroll handling.
-		boolean result = false;
+		boolean wasHandled = false;
 		switch (event.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN: {
 				// Determine if the EditText can be scrolled vertically or horizontally.
+				// Note: There is a bug in EditText where canScrollHorizontally() will return
+				//       true when it's not scrollable for "center" or "right" aligned text.
 				boolean isVertical = ((getInputType() & EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE) != 0);
 				boolean isScrollable;
 				if (isVertical) {
@@ -129,72 +153,97 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 				}
 
 				// Start nested scrolling if the EditText is scrollable.
+				this.isDragging = false;
 				if (isScrollable) {
 					if (isVertical) {
 						this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_VERTICAL;
 					} else {
 						this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_HORIZONTAL;
 					}
-					this.lastRawTouchX = (int) event.getRawX();
-					this.lastRawTouchY = (int) event.getRawY();
-					startNestedScroll(this.scrollAxisDirection);
+					this.startRawTouchX = (int) event.getRawX();
+					this.startRawTouchY = (int) event.getRawY();
+					this.lastRawTouchX = this.startRawTouchX;
+					this.lastRawTouchY = this.startRawTouchY;
+					boolean wasStarted = startNestedScroll(this.scrollAxisDirection);
+					if (!wasStarted) {
+						this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_NONE;
+					}
 				}
 
 				// Let the base class handle the touch "down" event.
-				result = super.onTouchEvent(event);
+				wasHandled = super.onTouchEvent(event);
 				break;
 			}
 			case MotionEvent.ACTION_MOVE: {
-				// Handle the touch move/drag event.
+				// Handle nested scrolling, if enabled.
 				if (this.scrollAxisDirection != ViewCompat.SCROLL_AXIS_NONE) {
-					// We're doing a nested scroll.
-					// Determine scroll direction, distance, and if EditText has hit scroll limit.
-					computeScroll();
+					// Determine if the touch point has moved far enough to be considered a drag event.
+					// Note: Touch down/up events within this min distance are considered taps/clicks.
 					boolean isVertical = (this.scrollAxisDirection == ViewCompat.SCROLL_AXIS_VERTICAL);
-					int deltaX = this.lastRawTouchX - (int) event.getRawX();
-					int deltaY = this.lastRawTouchY - (int) event.getRawY();
-					int deltaValue = isVertical ? deltaY : deltaX;
-					boolean isScrollEnabled;
-					boolean canScrollFurther;
-					if (isVertical) {
-						isScrollEnabled = canScrollVertically(1) || canScrollVertically(-1);
-						canScrollFurther = canScrollVertically(deltaValue);
-					} else {
-						isScrollEnabled = canScrollHorizontally(1) || canScrollHorizontally(-1);
-						canScrollFurther = canScrollHorizontally(deltaValue);
+					if (!this.isDragging) {
+						int dragDistance;
+						if (isVertical) {
+							dragDistance = this.startRawTouchY - (int) event.getRawY();
+						} else {
+							dragDistance = this.startRawTouchX - (int) event.getRawX();
+						}
+						if (Math.abs(dragDistance) > this.minDragStartDistance) {
+							this.isDragging = true;
+						}
 					}
 
-					// Handle the nested scroll.
-					if (!isScrollEnabled || !canScrollFurther) {
-						// EditText cannot scroll or is unable to scroll any farther.
-						// Request the parent to scroll instead.
-						result = dispatchNestedPreScroll(deltaX, deltaY, null, null);
-						result |= dispatchNestedScroll(0, 0, deltaX, deltaY, null);
+					// Check if we need to scroll the parent, if currently dragging.
+					if (this.isDragging) {
+						// Determine scroll direction, distance, and if EditText has hit scroll limit.
+						computeScroll();
+						int deltaX = this.lastRawTouchX - (int) event.getRawX();
+						int deltaY = this.lastRawTouchY - (int) event.getRawY();
+						int deltaValue = isVertical ? deltaY : deltaX;
+						boolean isScrollEnabled;
+						boolean canScrollFurther;
+						if (isVertical) {
+							isScrollEnabled = canScrollVertically(1) || canScrollVertically(-1);
+							canScrollFurther = canScrollVertically(deltaValue);
+						} else {
+							isScrollEnabled = canScrollHorizontally(1) || canScrollHorizontally(-1);
+							canScrollFurther = canScrollHorizontally(deltaValue);
+						}
 
-						// Cancel the EditText's long-press timer. Prevents long-press from triggering
-						// text selection while scrolling the parent view. (Looks goofy when it happens.)
-						cancelLongPress();
-					} else {
-						// EditText can scroll. Let the EditText handle the move/scroll event.
-						result = super.onTouchEvent(event);
+						// Request the parent to scroll if one of the following is true:
+						// - EditText is not scrollable. (ie: All text fits within the box.)
+						// - EditText is scrollabe, but cannot scroll any further in given direction.
+						if (!isScrollEnabled || !canScrollFurther) {
+							wasHandled = dispatchNestedPreScroll(deltaX, deltaY, null, null);
+							wasHandled |= dispatchNestedScroll(0, 0, deltaX, deltaY, null);
+						}
+
+						// Cancel EditText's long-press timer if parent was scrolled.
+						// Note: EditText will move with the user's finger while scrolling the parent
+						//       in this case and we don't want it to trigger a long-press text selection.
+						if (wasHandled) {
+							cancelLongPress();
+						}
 					}
 
 					// Store the last received touch point in screen coordinates.
 					// This is needed to calculate nested scroll distances.
 					this.lastRawTouchX = (int) event.getRawX();
 					this.lastRawTouchY = (int) event.getRawY();
-				} else {
-					// Nested scrolling is disabled. Let EditText do default touch handling.
-					result = super.onTouchEvent(event);
+				}
+
+				// Let the EditText handle the event if the parent wasn't scrolled via the above.
+				if (!wasHandled) {
+					wasHandled = super.onTouchEvent(event);
 				}
 				break;
 			}
 			case MotionEvent.ACTION_CANCEL:
 			case MotionEvent.ACTION_UP: {
 				// Handle the touch release event.
-				result = super.onTouchEvent(event);
+				wasHandled = super.onTouchEvent(event);
 
 				// Stop nested-scrolling if active.
+				this.isDragging = false;
 				if (this.scrollAxisDirection != ViewCompat.SCROLL_AXIS_NONE) {
 					stopNestedScroll();
 					this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_NONE;
@@ -203,11 +252,11 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 			}
 			default: {
 				// Let the base class handle all other events, such as multi-touch.
-				result = super.onTouchEvent(event);
+				wasHandled = super.onTouchEvent(event);
 				break;
 			}
 		}
-		return result;
+		return wasHandled;
 	}
 
 	@Override

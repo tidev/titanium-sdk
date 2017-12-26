@@ -459,7 +459,7 @@ public class TableViewProxy extends TiViewProxy
 	public void insertSectionBefore(int index, Object data, @Kroll.argument(optional = true) KrollDict options)
 	{
 		if (TiApplication.isUIThread()) {
-			handleInsertRowBefore(index, data);
+			handleInsertSectionBefore(index, data);
 			return;
 		}
 
