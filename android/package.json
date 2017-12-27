@@ -13,6 +13,7 @@
 	"maintainers": [
 		"Chris Barber <cbarber@appcelerator.com>"
 	],
+	"architectures": ["arm64-v8a", "armeabi-v7a", "x86"],
 	"minSDKVersion": "16",
 	"compileSDKVersion": "26",
 	"vendorDependencies": {
