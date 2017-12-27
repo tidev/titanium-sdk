@@ -233,6 +233,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		KrollFunction successCallback = null;
 		KrollFunction cancelCallback = null;
 		KrollFunction errorCallback = null;
+		KrollFunction androidbackCallback = null;
 		boolean saveToPhotoGallery = false;
 		String[] mediaTypes = null;
 		String intentType = MediaStore.ACTION_IMAGE_CAPTURE;
@@ -248,6 +249,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ERROR)) {
 			errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ANDROID_BACK)) {
+			androidbackCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ANDROID_BACK);
 		}
 		if (cameraOptions.containsKeyAndNotNull("saveToPhotoGallery")) {
 			saveToPhotoGallery = cameraOptions.getBoolean("saveToPhotoGallery");
@@ -329,6 +333,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		resultHandler.successCallback = successCallback;
 		resultHandler.errorCallback = errorCallback;
 		resultHandler.cancelCallback = cancelCallback;
+		resultHandler.androidbackCallback = androidbackCallback;
 		resultHandler.cameraIntent = intent;
 		resultHandler.saveToPhotoGallery = saveToPhotoGallery;
 		resultHandler.activitySupport = activitySupport;
@@ -342,6 +347,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		KrollFunction successCallback = null;
 		KrollFunction cancelCallback = null;
 		KrollFunction errorCallback = null;
+		KrollFunction androidbackCallback = null;
 		boolean saveToPhotoGallery = false;
 		boolean autohide = true;
 		int videoMaximumDuration = 0;
@@ -356,6 +362,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_CANCEL)) {
 			cancelCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_CANCEL);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ANDROID_BACK)) {
+			androidbackCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ANDROID_BACK);
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ERROR)) {
 			errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
@@ -399,6 +408,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiCameraActivity.successCallback = successCallback;
 		TiCameraActivity.cancelCallback = cancelCallback;
 		TiCameraActivity.errorCallback = errorCallback;
+		TiCameraActivity.androidbackCallback = androidbackCallback;
 		TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
 		TiCameraActivity.autohide = autohide;
 		TiCameraActivity.overlayProxy = overLayProxy;
@@ -700,7 +710,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		protected File imageFile;
 		protected boolean saveToPhotoGallery;
 		protected int code;
-		protected KrollFunction successCallback, cancelCallback, errorCallback;
+		protected KrollFunction successCallback, cancelCallback, errorCallback, androidbackCallback;
 		protected TiActivitySupport activitySupport;
 		protected Intent cameraIntent;
 		protected int lastImageId;
