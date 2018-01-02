@@ -593,7 +593,7 @@ public class WheelView extends View {
 			if (Build.VERSION.SDK_INT < 21) {
 				translateY = -getItemOffset();
 			} else {
-				translateY = 0;
+				translateY = getTextSize() / 2.0f;
 			}
 			canvas.translate(PADDING, translateY);
 			drawItems(canvas);
