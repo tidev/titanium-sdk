@@ -28,7 +28,8 @@ import android.provider.ContactsContract;
 
 public abstract class CommonContactsApi
 {
-	private static final boolean TRY_NEWER_API = (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT);
+	private static final boolean TRY_NEWER_API =
+		(android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT);
 	private static final String TAG = "TiCommonContactsApi";
 
 	protected static CommonContactsApi getInstance()
@@ -56,20 +57,20 @@ public abstract class CommonContactsApi
 			} else {
 				return c;
 			}
-
 		}
 
 		return null;
 	}
 
-	public boolean hasContactsPermissions() {
+	public boolean hasContactsPermissions()
+	{
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
 		Context context = TiApplication.getInstance().getApplicationContext();
 		// If READ_CONTACTS is granted, WRITE_CONTACTS is also granted if the permission is included in manifest.
-		if (context != null &&
-				context.checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+		if (context != null
+			&& context.checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
 		Log.w(TAG, "Contact permissions are missing");
@@ -101,7 +102,7 @@ public abstract class CommonContactsApi
 	{
 		PersonProxy[] proxies = new PersonProxy[persons.size()];
 		int index = 0;
-		for (LightPerson person: persons.values()) {
+		for (LightPerson person : persons.values()) {
 			proxies[index] = person.proxify();
 			index++;
 		}
@@ -221,7 +222,6 @@ public abstract class CommonContactsApi
 		return key;
 	}
 
-
 	protected static String getPostalAddressTextType(int type)
 	{
 		String key = "other";
@@ -277,7 +277,8 @@ public abstract class CommonContactsApi
 			this.hasImage = (cursor.getInt(ContactsApiLevel5.PEOPLE_COL_PHOTO_ID) > 0);
 		}
 
-		void addDataFromL5Cursor(Cursor cursor) {
+		void addDataFromL5Cursor(Cursor cursor)
+		{
 			String kind = cursor.getString(ContactsApiLevel5.DATA_COLUMN_MIMETYPE);
 			if (kind.equals(ContactsApiLevel5.KIND_ADDRESS)) {
 				loadAddressFromL5DataRow(cursor);
@@ -285,13 +286,13 @@ public abstract class CommonContactsApi
 				loadEmailFromL5DataRow(cursor);
 			} else if (kind.equals(ContactsApiLevel5.KIND_EVENT)) {
 				loadBirthdayFromL5DataRow(cursor);
-			}else if (kind.equals(ContactsApiLevel5.KIND_NAME)) {
+			} else if (kind.equals(ContactsApiLevel5.KIND_NAME)) {
 				loadNameFromL5DataRow(cursor);
 			} else if (kind.equals(ContactsApiLevel5.KIND_NOTE)) {
 				loadNoteFromL5DataRow(cursor);
 			} else if (kind.equals(ContactsApiLevel5.KIND_PHONE)) {
 				loadPhoneFromL5DataRow(cursor);
-			}else if (kind.equals(ContactsApiLevel5.KIND_PHONE)) {
+			} else if (kind.equals(ContactsApiLevel5.KIND_PHONE)) {
 				loadPhoneFromL5DataRow(cursor);
 			} else if (kind.equals(ContactsApiLevel5.KIND_NICKNAME)) {
 				loadPhonNickL5DataRow(cursor);
@@ -320,7 +321,6 @@ public abstract class CommonContactsApi
 			}
 			collection.add(instantMessage);
 		}
-
 
 		void loadRelatedNamesL5DataRow(Cursor rnCursor)
 		{
@@ -397,10 +397,9 @@ public abstract class CommonContactsApi
 
 		void loadWebSiteL5DataRow(Cursor websitesCursor)
 		{
-			ArrayList<String>  collection;
+			ArrayList<String> collection;
 			String website = websitesCursor.getString(ContactsApiLevel5.DATA_COLUMN_WEBSITE_ADDR);
 			String key = "website";
-
 
 			if (websites.containsKey(key)) {
 				collection = websites.get(key);
@@ -409,10 +408,8 @@ public abstract class CommonContactsApi
 				websites.put(key, collection);
 			}
 
-
 			collection.add(website);
 		}
-
 
 		void loadDatesL5DataRow(Cursor datesCursor)
 		{
@@ -428,7 +425,6 @@ public abstract class CommonContactsApi
 			}
 			collection.add(date);
 		}
-
 
 		void loadNameFromL5DataRow(Cursor nameCursor)
 		{
@@ -488,9 +484,6 @@ public abstract class CommonContactsApi
 			proxy.setProperty(TiC.PROPERTY_ID, id);
 			proxy.hasImage = this.hasImage;
 			return proxy;
-
 		}
 	}
-
-
 }

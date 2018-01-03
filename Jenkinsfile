@@ -20,8 +20,13 @@ def npmVersion = '5.4.1' // We can change this without any changes to Jenkins.
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
-		// TODO Customize labels by os we're testing
-		node('android-emulator && git && android-sdk && osx') {
+		def labels = 'git && osx'
+		if ('ios'.equals(os)) {
+			labels = 'git && osx && xcode-9' // test app fails to build with xcode-8.1 as far as I can tell
+		} else {
+			labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
+		}
+		node(labels) {
 			timeout(20) {
 				// Unarchive the osx build of the SDK (as a zip)
 				sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
@@ -112,7 +117,7 @@ timestamps {
 					$class: 'GitSCM',
 					branches: scm.branches,
 					extensions: scm.extensions + [
-						[$class: 'CleanBeforeCheckout'],
+						[$class: 'WipeWorkspace'],
 						[$class: 'CloneOption', honorRefspec: true, noTags: true, reference: "${pwd()}/../titanium_mobile.git", shallow: true, depth: 30, timeout: 30]],
 					userRemoteConfigs: scm.userRemoteConfigs
 				])
@@ -142,11 +147,21 @@ timestamps {
 						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
 						sh 'npm install'
 					}
-					// Stash files for danger.js later
-					if (isPR) {
-						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js', name: 'danger'
+					// Run npm test, but record output in a file and check for failure of command by checking output
+					if (fileExists('npm_test.log')) {
+						sh 'rm -rf npm_test.log'
 					}
-					sh 'npm test' // Run linting first // TODO Record the eslint output somewhere for danger to use later?
+					def npmTestResult = sh(returnStatus: true, script: 'npm test &> npm_test.log')
+					if (isPR) { // Stash files for danger.js later
+						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js,npm_test.log,android/**/*.java', name: 'danger'
+					}
+					// was it a failure?
+					if (npmTestResult != 0) {
+						// empty stashes of test reports, so danger step can still run.
+						stash allowEmpty: true, name: 'test-report-ios'
+						stash allowEmpty: true, name: 'test-report-android'
+						error readFile('npm_test.log')
+					}
 				}
 
 				// Skip the Windows SDK portion if a PR, we don't need it
@@ -221,8 +236,13 @@ timestamps {
 
 						// Scan for Dependency Check and RetireJS warnings
 						def scanFiles = [[path: 'dependency-check-report.xml']]
-						dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: false, includeHtmlReports: false, includeJsonReports: false, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
+						dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
 						dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
+
+						// Adding appc-license scan, until we can get the output from Dependency Check/Track
+						sh 'npm install appc-license'
+						sh 'npx appc-license > output.csv'
+						archiveArtifacts 'output.csv'
 
 						sh 'npm install -g retire'
 						def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
@@ -410,17 +430,20 @@ timestamps {
 			stage('Danger') {
 				node('osx || linux') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						unstash 'danger' // this gives us dangerfile.js, package.json, package-lock.json, node_modules/
+						unstash 'danger' // this gives us dangerfile.js, package.json, package-lock.json, node_modules/, android java sources for format check
 						unstash 'test-report-ios' // junit.ios.report.xml
 						unstash 'test-report-android' // junit.android.report.xml
 						sh "npm install -g npm@${npmVersion}"
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
 						// See https://github.com/danger/danger-js/issues/379
-						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}"]) {
+						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}", "ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}"]) {
+							// FIXME Can't pass along env variables properly, so we cheat and write them as a JSON file we can require
+							sh 'node -p \'JSON.stringify(process.env)\' > env.json'
 							sh 'npx danger'
 						} // withEnv
 					} // nodejs
+					deleteDir()
 				} // node
 			} // Danger stage
 		} // isPR

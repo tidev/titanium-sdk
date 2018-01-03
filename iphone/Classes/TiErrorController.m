@@ -55,14 +55,14 @@
   dismissButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   dismissButton.backgroundColor = [UIColor whiteColor];
   dismissButton.translatesAutoresizingMaskIntoConstraints = NO;
-  [dismissButton setTitle:@"Dismiss" forState:UIControlStateNormal];
+  [dismissButton setTitle:NSLocalizedString(@"Dismiss", @"Dismiss") forState:UIControlStateNormal];
 
   disclosureLabel = [[UILabel alloc] init];
   disclosureLabel.backgroundColor = [UIColor clearColor];
   disclosureLabel.font = [UIFont boldSystemFontOfSize:14];
   disclosureLabel.numberOfLines = 0;
   disclosureLabel.shadowOffset = CGSizeMake(0.0, -1.0);
-  disclosureLabel.text = @"Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!";
+  disclosureLabel.text = NSLocalizedString(@"Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!", @"Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!");
   disclosureLabel.textColor = [UIColor blackColor];
   disclosureLabel.translatesAutoresizingMaskIntoConstraints = NO;
 
@@ -74,7 +74,7 @@
   titleLabel.font = [UIFont boldSystemFontOfSize:32];
   titleLabel.shadowColor = [UIColor darkGrayColor];
   titleLabel.shadowOffset = CGSizeMake(2.0, 1.0);
-  titleLabel.text = @"Application Error";
+  titleLabel.text = NSLocalizedString(@"Application Error", @"Application Error");
   titleLabel.textAlignment = NSTextAlignmentCenter;
   titleLabel.textColor = [UIColor greenColor];
   titleLabel.translatesAutoresizingMaskIntoConstraints = NO;

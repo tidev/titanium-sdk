@@ -15,13 +15,18 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import android.app.Activity;
-
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	"prompt", "promptid",
-	"hintText", "hinttextid",
-	"showCancel", "barColor",
-	TiC.PROPERTY_VALUE
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		"prompt",
+		"promptid",
+		"hintText",
+		"hinttextid",
+		"showCancel",
+		"barColor",
+		TiC.PROPERTY_VALUE
 })
+// clang-format on
 public class SearchBarProxy extends TiViewProxy
 {
 	public SearchBarProxy()
@@ -30,13 +35,15 @@ public class SearchBarProxy extends TiViewProxy
 	}
 
 	@Override
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
+	{
 		super.handleCreationArgs(createdInModule, args);
 		setProperty(TiC.PROPERTY_VALUE, "");
 	}
 
 	@Override
-	protected KrollDict getLangConversionTable() {
+	protected KrollDict getLangConversionTable()
+	{
 		KrollDict table = new KrollDict();
 		table.put("prompt", "promptid");
 		table.put("hintText", "hinttextid");
@@ -44,7 +51,8 @@ public class SearchBarProxy extends TiViewProxy
 	}
 
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		return new TiUISearchBar(this);
 	}
 

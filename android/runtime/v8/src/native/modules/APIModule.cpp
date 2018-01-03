@@ -96,56 +96,56 @@ void APIModule::Initialize(Local<Object> target, Local<Context> context)
 void APIModule::logDebug(const FunctionCallbackInfo<Value>& args)
 {
 	HandleScope scope(args.GetIsolate());
-	titanium::Utf8Value message(APIModule::combineLogMessages(args));
+	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_DEBUG, LCAT, *message);
 }
 
 void APIModule::logInfo(const FunctionCallbackInfo<Value>& args)
 {
 	HandleScope scope(args.GetIsolate());
-	titanium::Utf8Value message(APIModule::combineLogMessages(args));
+	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
 }
 
 void APIModule::logWarn(const FunctionCallbackInfo<Value>& args)
 {
 	HandleScope scope(args.GetIsolate());
-	titanium::Utf8Value message(APIModule::combineLogMessages(args));
+	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_WARN, LCAT, *message);
 }
 
 void APIModule::logError(const FunctionCallbackInfo<Value>& args)
 {
 	HandleScope scope(args.GetIsolate());
-	titanium::Utf8Value message(APIModule::combineLogMessages(args));
+	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_ERROR, LCAT, *message);
 }
 
 void APIModule::logTrace(const FunctionCallbackInfo<Value>& args)
 {
 	HandleScope scope(args.GetIsolate());
-	titanium::Utf8Value message(APIModule::combineLogMessages(args));
+	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);
 }
 
 void APIModule::logNotice(const FunctionCallbackInfo<Value>& args)
 {
 	HandleScope scope(args.GetIsolate());
-	titanium::Utf8Value message(APIModule::combineLogMessages(args));
+	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_NOTICE, LCAT, *message);
 }
 
 void APIModule::logCritical(const FunctionCallbackInfo<Value>& args)
 {
 	HandleScope scope(args.GetIsolate());
-	titanium::Utf8Value message(APIModule::combineLogMessages(args));
+	v8::String::Utf8Value message(APIModule::combineLogMessages(args));
 	APIModule::logInternal(LOG_LEVEL_CRITICAL, LCAT, *message);
 }
 
 void APIModule::logFatal(const FunctionCallbackInfo<Value>& args)
 {
 	HandleScope scope(args.GetIsolate());
-	titanium::Utf8Value message(args[0]);
+	v8::String::Utf8Value message(args[0]);
 	APIModule::logInternal(LOG_LEVEL_FATAL, LCAT, *message);
 }
 
@@ -194,11 +194,11 @@ void APIModule::log(const FunctionCallbackInfo<Value>& args)
 {
 	HandleScope scope(args.GetIsolate());
 	if (args.Length()  == 1) {
-		titanium::Utf8Value message(args[0]);
+		v8::String::Utf8Value message(args[0]);
 		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
 	} else {
-		titanium::Utf8Value level(args[0]);
-		titanium::Utf8Value message(APIModule::combineLogMessages(args, 1));
+		v8::String::Utf8Value level(args[0]);
+		v8::String::Utf8Value message(APIModule::combineLogMessages(args, 1));
 
 		if (strcasecmp(*level, "TRACE") == 0) {
 			APIModule::logInternal(LOG_LEVEL_TRACE, LCAT, *message);

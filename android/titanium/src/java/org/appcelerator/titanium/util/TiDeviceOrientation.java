@@ -14,84 +14,62 @@ import android.view.Surface;
 import android.view.WindowManager;
 import org.appcelerator.titanium.TiApplication;
 
-
 /**
  * Enum type indicating if a device is portrait-upright, landscape-left, landscape-right, etc.
  * <p>
  * Provides methods to acquire its unique Titanium integer ID used in JavaScript
  * and to determine if the device is portrait or landscape.
  */
-public enum TiDeviceOrientation
-{
+public enum TiDeviceOrientation {
 	/** Indicates that the device orientation is unknown. */
-	UNKNOWN(TiIntegerId.UNKNOWN, "Ti.UI.UNKNOWN"),
+	UNKNOWN(0),
 
 	/** Indicates that the device is in portrait form and in the upright position. */
-	PORTRAIT_UPRIGHT(TiIntegerId.PORTRAIT_UPRIGHT, "Ti.UI.PORTRAIT"),
+	PORTRAIT(1),
 
 	/** Indicates that the device is in portrait form and upside-down. */
-	PORTRAIT_UPSIDE_DOWN(TiIntegerId.PORTRAIT_UPSIDE_DOWN, "Ti.UI.UPSIDE_PORTRAIT"),
+	UPSIDE_PORTRAIT(2),
 
 	/** Indicates that the device is landscape where the bottom of the device is on the left side. */
-	LANDSCAPE_LEFT(TiIntegerId.LANDSCAPE_LEFT, "Ti.UI.LANDSCAPE_LEFT"),
+	LANDSCAPE_LEFT(3),
 
 	/** Indicates that the device is landscape where the bottom of the device is on the right side. */
-	LANDSCAPE_RIGHT(TiIntegerId.LANDSCAPE_RIGHT, "Ti.UI.LANDSCAPE_RIGHT"),
+	LANDSCAPE_RIGHT(4),
 
 	/** Indicates that the device is laying down flat and is facing up towards the sky. */
-	FACE_UP(TiIntegerId.FACE_UP, "Ti.UI.FACE_UP"),
+	FACE_UP(5),
 
 	/** Indicates that the device is laying down flat and is facing down towards the Earth. */
-	FACE_DOWN(TiIntegerId.FACE_DOWN, "Ti.UI.FACE_DOWN");
-
-
-	/**
-	 * Provides inlined constants for Titanium's unique orientation integer IDs.
-	 * <p>
-	 * These integer constants are exposed to JavaScript via Titanium's "UIModule" class.
-	 * These constants are also returned by the parent enum's toTiIntegerId() method.
-	 */
-	public static abstract class TiIntegerId
-	{
-		public static int UNKNOWN = 0;
-		public static int PORTRAIT_UPRIGHT = 1;
-		public static int PORTRAIT_UPSIDE_DOWN = 2;
-		public static int LANDSCAPE_LEFT = 3;
-		public static int LANDSCAPE_RIGHT = 4;
-		public static int FACE_UP = 5;
-		public static int FACE_DOWN = 6;
-	}
-
+	FACE_DOWN(6);
 
 	/** Titanium's unique integer ID used in JavaScript to identify the orientation position. */
-	private int tiIntegerId;
+	private final int tiIntId;
 
 	/** JavaScript constant name defined by Titanium's UI module for this orientation position. */
-	private String tiConstantName;
-
+	private final String tiConstantName;
 
 	/**
 	 * Creates a new device orientation type using the given data.
-	 * @param tiIntegerId Unique ID used in JavaScript to identify the orientation position.
+	 * @param tiIntId Unique ID used in JavaScript to identify the orientation position.
 	 */
-	private TiDeviceOrientation(int tiIntegerId, String tiConstantName)
+	private TiDeviceOrientation(int tiIntId)
 	{
-		this.tiIntegerId = tiIntegerId;
-		this.tiConstantName = tiConstantName;
+		this.tiIntId = tiIntId;
+		this.tiConstantName = "Ti.UI." + this.name();
 	}
 
 	/**
 	 * Determines if the device orientation is in portrait form.
 	 * @return
-	 * Returns true if orientation is PORTRAIT_UPRIGHT or PORTRAIT_UPSIDE_DOWN.
+	 * Returns true if orientation is PORTRAIT or UPSIDE_PORTRAIT.
 	 * <p>
 	 * Returns false for all other orientation types.
 	 */
 	public boolean isPortrait()
 	{
 		switch (this) {
-			case PORTRAIT_UPRIGHT:
-			case PORTRAIT_UPSIDE_DOWN:
+			case PORTRAIT:
+			case UPSIDE_PORTRAIT:
 				return true;
 		}
 		return false;
@@ -119,9 +97,9 @@ public enum TiDeviceOrientation
 	 * in JavaScript such as Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT, etc.
 	 * @return Returns the device orientation's unique integer identifier.
 	 */
-	public int toTiIntegerId()
+	public int toTiIntId()
 	{
-		return this.tiIntegerId;
+		return this.tiIntId;
 	}
 
 	/**
@@ -147,16 +125,16 @@ public enum TiDeviceOrientation
 	/**
 	 * Fetches a device orientation matching the given unique Titanium integer ID.
 	 * <p>
-	 * This ID matches the value returned by TiDeviceOrientation.toTiIntegerId().
+	 * This ID matches the value returned by TiDeviceOrientation.toTiIntId().
 	 * It also matches the orientation IDs Titanium uses in JavaScript such as
 	 * Ti.UI.PORTRAIT, Ti.UI.LANDSCAPE_LEFT, etc.
 	 * @param value The unique integer ID of the orientation to search for.
 	 * @return Returns a matching orientation object. Returns null if given an invalid ID.
 	 */
-	public static TiDeviceOrientation fromTiIntegerId(int value)
+	public static TiDeviceOrientation fromTiIntId(int value)
 	{
 		for (TiDeviceOrientation nextObject : TiDeviceOrientation.values()) {
-			if ((nextObject != null) && (nextObject.tiIntegerId == value)) {
+			if ((nextObject != null) && (nextObject.tiIntId == value)) {
 				return nextObject;
 			}
 		}
@@ -285,7 +263,7 @@ public enum TiDeviceOrientation
 	 * <p>
 	 * This method will never return FACE_UP or FACE_DOWN orientations.
 	 * @return
-	 * Returns PORTRAIT_UPRIGHT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, or LANDSCAPE_RIGHT
+	 * Returns PORTRAIT, UPSIDE_PORTRAIT, LANDSCAPE_LEFT, or LANDSCAPE_RIGHT
 	 * if the default display orientation was successfully acquired.
 	 * <p>
 	 * Returns UNKNOWN if failed to acquire the default display's orientation.
@@ -300,7 +278,7 @@ public enum TiDeviceOrientation
 	 * <p>
 	 * This method will never return FACE_UP or FACE_DOWN orientations.
 	 * @return
-	 * Returns PORTRAIT_UPRIGHT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, or LANDSCAPE_RIGHT
+	 * Returns PORTRAIT, UPSIDE_PORTRAIT, LANDSCAPE_LEFT, or LANDSCAPE_RIGHT
 	 * if the display orientation was successfully acquired.
 	 * <p>
 	 * Returns UNKNOWN if given a null display reference.
@@ -351,7 +329,7 @@ public enum TiDeviceOrientation
 		DisplayInfo displayInfo = DisplayInfo.from(display);
 		if (displayInfo != null) {
 			if (displayInfo.isUprightOrientationPortrait()) {
-				return TiDeviceOrientation.PORTRAIT_UPRIGHT;
+				return TiDeviceOrientation.PORTRAIT;
 			} else if (displayInfo.isUprightOrientationLandscape()) {
 				return TiDeviceOrientation.LANDSCAPE_RIGHT;
 			}
@@ -369,13 +347,12 @@ public enum TiDeviceOrientation
 		if (application != null) {
 			Object object = application.getSystemService(Context.WINDOW_SERVICE);
 			if (object instanceof WindowManager) {
-				WindowManager windowManager = (WindowManager)object;
+				WindowManager windowManager = (WindowManager) object;
 				return windowManager.getDefaultDisplay();
 			}
 		}
 		return null;
 	}
-
 
 	/**
 	 * Private class used to fetch or store screen information and determine its upright orientation.
@@ -447,11 +424,11 @@ public enum TiDeviceOrientation
 			if (isUprightOrientationPortrait()) {
 				switch (this.rotationId) {
 					case Surface.ROTATION_0:
-						return TiDeviceOrientation.PORTRAIT_UPRIGHT;
+						return TiDeviceOrientation.PORTRAIT;
 					case Surface.ROTATION_90:
 						return TiDeviceOrientation.LANDSCAPE_RIGHT;
 					case Surface.ROTATION_180:
-						return TiDeviceOrientation.PORTRAIT_UPSIDE_DOWN;
+						return TiDeviceOrientation.UPSIDE_PORTRAIT;
 					case Surface.ROTATION_270:
 						return TiDeviceOrientation.LANDSCAPE_LEFT;
 				}
@@ -460,11 +437,11 @@ public enum TiDeviceOrientation
 					case Surface.ROTATION_0:
 						return TiDeviceOrientation.LANDSCAPE_RIGHT;
 					case Surface.ROTATION_90:
-						return TiDeviceOrientation.PORTRAIT_UPSIDE_DOWN;
+						return TiDeviceOrientation.UPSIDE_PORTRAIT;
 					case Surface.ROTATION_180:
 						return TiDeviceOrientation.LANDSCAPE_LEFT;
 					case Surface.ROTATION_270:
-						return TiDeviceOrientation.PORTRAIT_UPRIGHT;
+						return TiDeviceOrientation.PORTRAIT;
 				}
 			}
 			return TiDeviceOrientation.UNKNOWN;

@@ -6,7 +6,6 @@
  */
 package org.appcelerator.kroll;
 
-public interface KrollEventCallback
-{
+public interface KrollEventCallback {
 	public void call(Object data);
 }
