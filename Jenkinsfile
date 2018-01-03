@@ -148,6 +148,9 @@ timestamps {
 						sh 'npm install'
 					}
 					// Run npm test, but record output in a file and check for failure of command by checking output
+					if (fileExists('npm_test.log')) {
+						sh 'rm -rf npm_test.log'
+					}
 					def npmTestResult = sh(returnStatus: true, script: 'npm test &> npm_test.log')
 					if (isPR) { // Stash files for danger.js later
 						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js,npm_test.log,android/**/*.java', name: 'danger'
@@ -235,6 +238,11 @@ timestamps {
 						def scanFiles = [[path: 'dependency-check-report.xml']]
 						dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
 						dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
+
+						// Adding appc-license scan, until we can get the output from Dependency Check/Track
+						sh 'npm install appc-license'
+						sh 'npx appc-license > output.csv'
+						archiveArtifacts 'output.csv'
 
 						sh 'npm install -g retire'
 						def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')

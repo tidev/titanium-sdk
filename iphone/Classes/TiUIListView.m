@@ -2165,6 +2165,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [_tableView reloadData];
 
   RELEASE_TO_NIL(searchControllerPresenter);
+  [searchViewProxy ensureSearchBarHierarchy];
 }
 
 - (void)presentSearchController:(UISearchController *)controller
