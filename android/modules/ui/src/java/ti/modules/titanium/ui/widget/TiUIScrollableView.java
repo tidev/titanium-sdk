@@ -75,13 +75,12 @@ public class TiUIScrollableView extends TiUIView
 		mViews = new ArrayList<TiViewProxy>();
 		mAdapter = new ViewPagerAdapter(activity, mViews);
 		mPager = buildViewPager(activity, mAdapter);
-		mContainer.addView(
-				mPager, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		mContainer.addView(mPager, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
 		// Add paging controls to container.
 		mPagingControl = buildPagingControl(activity);
-		mContainer.addView(
-				mPagingControl, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		mContainer.addView(mPagingControl,
+						   new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
 		setNativeView(mContainer);
 	}
@@ -301,7 +300,7 @@ public class TiUIScrollableView extends TiUIView
 		if (context.getResources() != null) {
 			DisplayMetrics metrics = context.getResources().getDisplayMetrics();
 			if ((metrics != null) && (metrics.density >= 0.5f)) {
-				arrowSizeInPixels = (int)((float)arrowSizeInPixels * metrics.density);
+				arrowSizeInPixels = (int) ((float) arrowSizeInPixels * metrics.density);
 			}
 		}
 
@@ -311,12 +310,12 @@ public class TiUIScrollableView extends TiUIView
 		layout.setFocusableInTouchMode(false);
 
 		// Add left arrow button to overlay.
-		TiArrowView left = new TiArrowView(context);
-		left.setVisibility(View.INVISIBLE);
-		left.setId(PAGE_LEFT_ID);
-		left.setMinimumWidth(arrowSizeInPixels);
-		left.setMinimumHeight(arrowSizeInPixels);
-		left.setOnClickListener(new OnClickListener() {
+		TiArrowView leftArrow = new TiArrowView(context);
+		leftArrow.setVisibility(View.INVISIBLE);
+		leftArrow.setId(PAGE_LEFT_ID);
+		leftArrow.setMinimumWidth(arrowSizeInPixels);
+		leftArrow.setMinimumHeight(arrowSizeInPixels);
+		leftArrow.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v)
 			{
@@ -325,18 +324,19 @@ public class TiUIScrollableView extends TiUIView
 				}
 			}
 		});
-		layout.addView(left, new FrameLayout.LayoutParams(
-				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-				Gravity.LEFT | Gravity.CENTER_VERTICAL));
+		FrameLayout.LayoutParams leftLayoutParams =
+			new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		leftLayoutParams.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
+		layout.addView(leftArrow, leftLayoutParams);
 
 		// Add right arrow button to overlay.
-		TiArrowView right = new TiArrowView(context);
-		right.setLeft(false);
-		right.setVisibility(View.INVISIBLE);
-		right.setId(PAGE_RIGHT_ID);
-		right.setMinimumWidth(arrowSizeInPixels);
-		right.setMinimumHeight(arrowSizeInPixels);
-		right.setOnClickListener(new OnClickListener() {
+		TiArrowView rightArrow = new TiArrowView(context);
+		rightArrow.setLeft(false);
+		rightArrow.setVisibility(View.INVISIBLE);
+		rightArrow.setId(PAGE_RIGHT_ID);
+		rightArrow.setMinimumWidth(arrowSizeInPixels);
+		rightArrow.setMinimumHeight(arrowSizeInPixels);
+		rightArrow.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v)
 			{
@@ -345,9 +345,10 @@ public class TiUIScrollableView extends TiUIView
 				}
 			}
 		});
-		layout.addView(right, new FrameLayout.LayoutParams(
-				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
-				Gravity.RIGHT | Gravity.CENTER_VERTICAL));
+		FrameLayout.LayoutParams rightLayoutParams =
+			new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		rightLayoutParams.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
+		layout.addView(rightArrow, rightLayoutParams);
 
 		// Hide this overlay by default. Will be shown if Titanium "showPagingControl" is set true.
 		layout.setVisibility(View.GONE);
