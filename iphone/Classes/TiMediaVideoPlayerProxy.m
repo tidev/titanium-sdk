@@ -99,10 +99,7 @@ NSArray *moviePlayerKeys = nil;
   // For durationavailable event
   [movie addObserver:self forKeyPath:@"player.currentItem.duration" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 
-  // For playbackstate event
-  [movie addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-
-  // For playbackState property
+  // For playbackState property / playbackstate event
   [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
   
   // For playing
@@ -127,7 +124,6 @@ NSArray *moviePlayerKeys = nil;
 
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
   [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
-  [movie removeObserver:self forKeyPath:@"player.rate"];
   [self removeObserver:self forKeyPath:@"url"];
   [movie removeObserver:self forKeyPath:@"player.status"];
   [movie removeObserver:self forKeyPath:@"videoBounds"];
@@ -907,25 +903,6 @@ NSArray *moviePlayerKeys = nil;
   }
 }
 
-- (void)handlePlaybackStateChangeNotification:(NSNotification *)note
-{
-  if ([self _hasListeners:@"playbackstate"]) {
-    NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
-    [self fireEvent:@"playbackstate" withObject:event];
-  }
-
-  switch ([[movie player] status]) {
-  case AVPlayerStatusUnknown:
-  case AVPlayerStatusFailed:
-    playing = NO;
-    _playbackState = TiVideoPlayerPlaybackStateInterrupted;
-    break;
-  case AVPlayerStatusReadyToPlay:
-    playing = ([[movie player] rate] == 1.0);
-    break;
-  }
-}
-
 - (void)handleNaturalSizeAvailableNotification:(NSNotification *)note
 {
   if ([self _hasListeners:@"naturalsizeavailable"]) {
@@ -941,6 +918,8 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)handleTimeControlStatusNotification:(NSNotification *)note
 {
+  playing = movie.player.timeControlStatus == AVPlayerTimeControlStatusPlaying;
+
   if (movie.player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
     _playbackState = TiVideoPlayerPlaybackStatePlaying;
   } else if (movie.player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
@@ -950,15 +929,17 @@ NSArray *moviePlayerKeys = nil;
       _playbackState = TiVideoPlayerPlaybackStatePaused;
     }
   }
+  
+  if ([self _hasListeners:@"playbackstate"]) {
+    NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINTEGER(_playbackState) forKey:@"playbackState"];
+    [self fireEvent:@"playbackstate" withObject:event];
+  }
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context
 {
   if ([keyPath isEqualToString:@"player.currentItem.duration"]) {
     [self handleDurationAvailableNotification:nil];
-  }
-  if ([keyPath isEqualToString:@"player.rate"]) {
-    [self handlePlaybackStateChangeNotification:nil];
   }
   if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
     [self handleTimeControlStatusNotification:nil];
