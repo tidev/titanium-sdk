@@ -71,7 +71,7 @@ public class TiImageHelper
 		int width = image.getWidth();
 		int height = image.getHeight();
 		Bitmap imageRoundedCorner = Bitmap.createBitmap(width + (int) (borderSize * 2), height + (int) (borderSize * 2),
-			Bitmap.Config.ARGB_8888);
+														Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(imageRoundedCorner);
 
 		Path clipPath = new Path();
@@ -123,24 +123,27 @@ public class TiImageHelper
 
 		int width = image.getWidth();
 		int height = image.getHeight();
-		Bitmap imageBorder = Bitmap.createBitmap(width + borderSize * 2, height + borderSize * 2, Bitmap.Config.ARGB_8888);
+		Bitmap imageBorder =
+			Bitmap.createBitmap(width + borderSize * 2, height + borderSize * 2, Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(imageBorder);
 		canvas.drawBitmap(imageWithAlpha(image), borderSize, borderSize, paint);
 		return imageBorder;
 	}
-	
+
 	private static final String FILE_PREFIX = "file://";
-	
+
 	/**
 	 * Find the orientation of the image.
 	 * @param file image file
 	 * @return return the orientation in degrees, -1 for error
 	 */
-	public static int getOrientation(String path) {
+	public static int getOrientation(String path)
+	{
 		int orientation = 0;
 		try {
 			if (path == null) {
-				Log.e(TAG,
+				Log.e(
+					TAG,
 					"Path of image file could not determined. Could not create an exifInterface from an invalid path.");
 				return 0;
 			}
@@ -148,7 +151,7 @@ public class TiImageHelper
 			if (path.startsWith(FILE_PREFIX)) {
 				path = path.replaceFirst(FILE_PREFIX, "");
 			}
-			
+
 			ExifInterface ei = new ExifInterface(path);
 			int orientationConst = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
 			switch (orientationConst) {
@@ -170,16 +173,17 @@ public class TiImageHelper
 		}
 		return orientation;
 	}
-	
+
 	/**
 	 * Rotate the image
 	 * @param bm source bitmap
 	 * @param rotation degree of rotation
 	 * @return return the rotated bitmap
 	 */
-	public static Bitmap rotateImage(Bitmap bm, int rotation) {
+	public static Bitmap rotateImage(Bitmap bm, int rotation)
+	{
 		Matrix matrix = new Matrix();
-	    matrix.postRotate(rotation);
-	    return Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
+		matrix.postRotate(rotation);
+		return Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
 	}
 }

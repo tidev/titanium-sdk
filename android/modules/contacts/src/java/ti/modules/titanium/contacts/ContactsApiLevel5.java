@@ -58,6 +58,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	private static Class<?> Contacts;
 	private static Uri ContactsUri;
 	private static Uri DataUri;
+	// clang-format off
 	private static String[] DATA_PROJECTION = new String[] {
 		"contact_id",
 		"mimetype",
@@ -73,8 +74,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		"data8",
 		"data9",
 		"data10"
-
 	};
+	// clang-format on
 	protected static int DATA_COLUMN_CONTACT_ID = 0;
 	protected static int DATA_COLUMN_MIMETYPE = 1;
 	protected static int DATA_COLUMN_PHOTO_ID = 2;
@@ -142,22 +143,22 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected static String KIND_WEBSITE = "vnd.android.cursor.item/website";
 
 	protected static String BASE_SELECTION = Data.RAW_CONTACT_ID + "=? AND " + Data.MIMETYPE + "=?";
-	protected static String[] RELATED_NAMES_TYPE = {TiC.PROPERTY_ASSISTANT, TiC.PROPERTY_BROTHER, TiC.PROPERTY_CHILD, TiC.PROPERTY_DOMESTIC_PARTNER,
-		TiC.PROPERTY_FATHER, TiC.PROPERTY_FRIEND, TiC.PROPERTY_MANAGER, TiC.PROPERTY_MOTHER, TiC.PROPERTY_PARENT,
-		TiC.PROPERTY_PARTNER, TiC.PROPERTY_REFERRED_BY, TiC.PROPERTY_OTHER, TiC.PROPERTY_SISTER};
-
-	private static String[] PEOPLE_PROJECTION = new String[] {
-		"_id",
-		"display_name",
-		"photo_id"
+	protected static String[] RELATED_NAMES_TYPE = {
+		TiC.PROPERTY_ASSISTANT, TiC.PROPERTY_BROTHER, TiC.PROPERTY_CHILD,       TiC.PROPERTY_DOMESTIC_PARTNER,
+		TiC.PROPERTY_FATHER,    TiC.PROPERTY_FRIEND,  TiC.PROPERTY_MANAGER,     TiC.PROPERTY_MOTHER,
+		TiC.PROPERTY_PARENT,    TiC.PROPERTY_PARTNER, TiC.PROPERTY_REFERRED_BY, TiC.PROPERTY_OTHER,
+		TiC.PROPERTY_SISTER
 	};
+
+	private static String[] PEOPLE_PROJECTION = new String[] { "_id", "display_name", "photo_id" };
 	protected static int PEOPLE_COL_ID = 0;
 	protected static int PEOPLE_COL_NAME = 1;
 	protected static int PEOPLE_COL_PHOTO_ID = 2;
 
-	private static String INConditionForKinds =
-		"('" + KIND_ADDRESS + "','" + KIND_EMAIL + "','" + KIND_EVENT + "','" +
-				KIND_NAME + "','" + KIND_NOTE + "','" + KIND_PHONE + "','"+ KIND_NICKNAME +"','"+KIND_ORGANIZE+"','"+KIND_IM+"','"+KIND_RELATED_NAME+"','"+KIND_WEBSITE+"')";
+	private static String INConditionForKinds = "('" + KIND_ADDRESS + "','" + KIND_EMAIL + "','" + KIND_EVENT + "','"
+												+ KIND_NAME + "','" + KIND_NOTE + "','" + KIND_PHONE + "','"
+												+ KIND_NICKNAME + "','" + KIND_ORGANIZE + "','" + KIND_IM + "','"
+												+ KIND_RELATED_NAME + "','" + KIND_WEBSITE + "')";
 
 	protected ContactsApiLevel5()
 	{
@@ -166,10 +167,12 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			DataUri = (Uri) Class.forName("android.provider.ContactsContract$Data").getField("CONTENT_URI").get(null);
 			Contacts = Class.forName("android.provider.ContactsContract$Contacts");
 			ContactsUri = (Uri) Contacts.getField("CONTENT_URI").get(null);
-			openContactPhotoInputStream = Contacts.getMethod("openContactPhotoInputStream", ContentResolver.class, Uri.class);
+			openContactPhotoInputStream =
+				Contacts.getMethod("openContactPhotoInputStream", ContentResolver.class, Uri.class);
 
 		} catch (Throwable t) {
-			Log.e(TAG, "Failed to load android.provider.ContactsContract$Contacts " + t.getMessage(), t, Log.DEBUG_MODE);
+			Log.e(TAG, "Failed to load android.provider.ContactsContract$Contacts " + t.getMessage(), t,
+				  Log.DEBUG_MODE);
 			loadedOk = false;
 			return;
 		}
@@ -208,11 +211,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 
 		Cursor cursor = activity.getContentResolver().query(
-				DataUri,
-				DATA_PROJECTION,
-				condition,
-				additionalSelectionArgs,
-				"display_name COLLATE LOCALIZED asc, contact_id asc, mimetype asc, is_super_primary desc, is_primary desc");
+			DataUri, DATA_PROJECTION, condition, additionalSelectionArgs,
+			"display_name COLLATE LOCALIZED asc, contact_id asc, mimetype asc, is_super_primary desc, is_primary desc");
 
 		while (cursor.moveToNext() && persons.size() < limit) {
 			long id = cursor.getLong(DATA_COLUMN_CONTACT_ID);
@@ -241,15 +241,16 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	@Override
 	protected PersonProxy[] getPeopleWithName(String name)
 	{
-		return getPeople(Integer.MAX_VALUE, "display_name like ? or display_name like ?" , new String[]{name + '%', "% " + name + '%'});
+		return getPeople(Integer.MAX_VALUE, "display_name like ? or display_name like ?",
+						 new String[] { name + '%', "% " + name + '%' });
 	}
 
 	protected void updateContactField(ArrayList<ContentProviderOperation> ops, String mimeType, String idKey,
-			Object idValue, String typeKey, int typeValue, long rawContactId)
+									  Object idValue, String typeKey, int typeValue, long rawContactId)
 	{
-		ContentProviderOperation.Builder  builder = ContentProviderOperation.newInsert(Data.CONTENT_URI)
-				.withValue(Data.MIMETYPE, mimeType)
-				.withValue(idKey, idValue);
+		ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(Data.CONTENT_URI)
+													   .withValue(Data.MIMETYPE, mimeType)
+													   .withValue(idKey, idValue);
 		if (rawContactId == -1) {
 			builder.withValueBackReference(Data.RAW_CONTACT_ID, 0);
 		} else {
@@ -294,7 +295,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 
-	protected void parseIm(ArrayList<ContentProviderOperation> ops, HashMap instantHashMap, long rawContactId) {
+	protected void parseIm(ArrayList<ContentProviderOperation> ops, HashMap instantHashMap, long rawContactId)
+	{
 
 		if (instantHashMap.containsKey(TiC.PROPERTY_WORK)) {
 			processInstantMsg(instantHashMap, TiC.PROPERTY_WORK, ops, Im.TYPE_WORK, rawContactId);
@@ -309,7 +311,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 
-	protected void processInstantMsg(HashMap instantHashMap, String msgType, ArrayList<ContentProviderOperation> ops, int iType, long rawContactId)
+	protected void processInstantMsg(HashMap instantHashMap, String msgType, ArrayList<ContentProviderOperation> ops,
+									 int iType, long rawContactId)
 	{
 		Object instantObject = instantHashMap.get(msgType);
 		if (instantObject instanceof Object[]) {
@@ -341,9 +344,9 @@ public class ContactsApiLevel5 extends CommonContactsApi
 						continue;
 					}
 					ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(Data.CONTENT_URI)
-							.withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
-							.withValue(Im.DATA, userName)
-							.withValue(Im.TYPE, iType);
+																   .withValue(Data.MIMETYPE, Im.CONTENT_ITEM_TYPE)
+																   .withValue(Im.DATA, userName)
+																   .withValue(Im.TYPE, iType);
 					if (rawContactId == -1) {
 						builder.withValueBackReference(Data.RAW_CONTACT_ID, 0);
 					} else {
@@ -363,7 +366,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	}
 
 	protected void processData(HashMap dataHashMap, String dataType, ArrayList<ContentProviderOperation> ops, int dType,
-			String mimeType, String idKey, String typeKey, long rawContactId)
+							   String mimeType, String idKey, String typeKey, long rawContactId)
 	{
 		Object dataObject = dataHashMap.get(dataType);
 		if (dataObject instanceof Object[]) {
@@ -393,14 +396,18 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 
-	protected void processURL(HashMap urlHashMap, String urlType, ArrayList<ContentProviderOperation> ops, int uType, long rawContactId)
+	protected void processURL(HashMap urlHashMap, String urlType, ArrayList<ContentProviderOperation> ops, int uType,
+							  long rawContactId)
 	{
-		processData(urlHashMap, urlType, ops, uType, Website.CONTENT_ITEM_TYPE, Website.DATA, Website.TYPE, rawContactId);
+		processData(urlHashMap, urlType, ops, uType, Website.CONTENT_ITEM_TYPE, Website.DATA, Website.TYPE,
+					rawContactId);
 	}
 
-	protected void processRelation(HashMap relHashMap, String relType, ArrayList<ContentProviderOperation> ops, int rType, long rawContactId)
+	protected void processRelation(HashMap relHashMap, String relType, ArrayList<ContentProviderOperation> ops,
+								   int rType, long rawContactId)
 	{
-		processData(relHashMap, relType, ops, rType, Relation.CONTENT_ITEM_TYPE, Relation.DATA, Relation.TYPE, rawContactId);
+		processData(relHashMap, relType, ops, rType, Relation.CONTENT_ITEM_TYPE, Relation.DATA, Relation.TYPE,
+					rawContactId);
 	}
 
 	protected void parseDate(ArrayList<ContentProviderOperation> ops, HashMap dateHashMap, long rawContactId)
@@ -414,9 +421,11 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 
-	protected void processDate(HashMap dateHashMap, String dateType, ArrayList<ContentProviderOperation> ops, int dType, long rawContactId)
+	protected void processDate(HashMap dateHashMap, String dateType, ArrayList<ContentProviderOperation> ops, int dType,
+							   long rawContactId)
 	{
-		processData(dateHashMap, dateType, ops, dType, Event.CONTENT_ITEM_TYPE, Event.START_DATE, Event.TYPE, rawContactId);
+		processData(dateHashMap, dateType, ops, dType, Event.CONTENT_ITEM_TYPE, Event.START_DATE, Event.TYPE,
+					rawContactId);
 	}
 
 	protected void parseEmail(ArrayList<ContentProviderOperation> ops, HashMap emailHashMap, long rawContactId)
@@ -434,7 +443,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 
-	protected void processEmail(HashMap emailHashMap, String emailType, ArrayList<ContentProviderOperation> ops, int eType, long rawContactId)
+	protected void processEmail(HashMap emailHashMap, String emailType, ArrayList<ContentProviderOperation> ops,
+								int eType, long rawContactId)
 	{
 		processData(emailHashMap, emailType, ops, eType, Email.CONTENT_ITEM_TYPE, Email.DATA, Email.TYPE, rawContactId);
 	}
@@ -454,13 +464,16 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 
 		if (phoneHashMap.containsKey(TiC.PROPERTY_OTHER)) {
-			processPhone(phoneHashMap, TiC.PROPERTY_OTHER, ops, ContactsContract.CommonDataKinds.Phone.TYPE_OTHER, rawContactId);
+			processPhone(phoneHashMap, TiC.PROPERTY_OTHER, ops, ContactsContract.CommonDataKinds.Phone.TYPE_OTHER,
+						 rawContactId);
 		}
 	}
 
-	protected void processPhone(HashMap phoneHashMap, String phoneType, ArrayList<ContentProviderOperation> ops, int pType, long rawContactId)
+	protected void processPhone(HashMap phoneHashMap, String phoneType, ArrayList<ContentProviderOperation> ops,
+								int pType, long rawContactId)
 	{
-		processData(phoneHashMap, phoneType, ops, pType, Phone.CONTENT_ITEM_TYPE, Phone.NUMBER, Phone.TYPE, rawContactId);
+		processData(phoneHashMap, phoneType, ops, pType, Phone.CONTENT_ITEM_TYPE, Phone.NUMBER, Phone.TYPE,
+					rawContactId);
 	}
 
 	protected void parseAddress(ArrayList<ContentProviderOperation> ops, HashMap addressHashMap, long rawContactId)
@@ -478,7 +491,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 	}
 
-	protected void processAddress(HashMap addressHashMap, String addressType, ArrayList<ContentProviderOperation> ops, int aType, long rawContactId)
+	protected void processAddress(HashMap addressHashMap, String addressType, ArrayList<ContentProviderOperation> ops,
+								  int aType, long rawContactId)
 	{
 		String country = "";
 		String street = "";
@@ -513,7 +527,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 						state = TiConvert.toString(typeHashMap, "State");
 					}
 
-					ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(Data.CONTENT_URI)
+					ContentProviderOperation.Builder builder =
+						ContentProviderOperation.newInsert(Data.CONTENT_URI)
 							.withValue(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE)
 							.withValue(StructuredPostal.CITY, city)
 							.withValue(StructuredPostal.REGION, state)
@@ -551,8 +566,9 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
 		ops.add(ContentProviderOperation.newInsert(RawContacts.CONTENT_URI)
-				.withValue(RawContacts.ACCOUNT_TYPE, null)
-				.withValue(RawContacts.ACCOUNT_NAME, null).build());
+					.withValue(RawContacts.ACCOUNT_TYPE, null)
+					.withValue(RawContacts.ACCOUNT_NAME, null)
+					.build());
 
 		if (options.containsKey(TiC.PROPERTY_FIRSTNAME)) {
 			firstName = TiConvert.toString(options, TiC.PROPERTY_FIRSTNAME);
@@ -571,7 +587,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 		displayName = firstName + " " + middleName + " " + lastName;
 
-		updateContactField(ops, StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, displayName, null, 0, rawContactId);
+		updateContactField(ops, StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, displayName, null, 0,
+						   rawContactId);
 
 		if (displayName.length() > 0) {
 			newContact.setFullName(displayName);
@@ -580,7 +597,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		if (options.containsKey(TiC.PROPERTY_PHONE)) {
 			Object phoneNumbers = options.get(TiC.PROPERTY_PHONE);
 			if (phoneNumbers instanceof HashMap) {
-				HashMap phoneHashMap = (HashMap)phoneNumbers;
+				HashMap phoneHashMap = (HashMap) phoneNumbers;
 				newContact.setProperty(TiC.PROPERTY_PHONE, phoneHashMap);
 				parsePhone(ops, phoneHashMap, rawContactId);
 			}
@@ -589,7 +606,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		if (options.containsKey(TiC.PROPERTY_BIRTHDAY)) {
 			birthday = TiConvert.toString(options, TiC.PROPERTY_BIRTHDAY);
 			newContact.setProperty(TiC.PROPERTY_BIRTHDAY, birthday);
-			updateContactField(ops, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE, Event.TYPE_BIRTHDAY, rawContactId);
+			updateContactField(ops, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE,
+							   Event.TYPE_BIRTHDAY, rawContactId);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_ADDRESS)) {
@@ -613,7 +631,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		if (options.containsKey(TiC.PROPERTY_ORGANIZATION)) {
 			String organization = TiConvert.toString(options, TiC.PROPERTY_ORGANIZATION);
 			newContact.setProperty(TiC.PROPERTY_ORGANIZATION, organization);
-			updateContactField(ops, Organization.CONTENT_ITEM_TYPE, Organization.COMPANY, organization, null, 0, rawContactId);
+			updateContactField(ops, Organization.CONTENT_ITEM_TYPE, Organization.COMPANY, organization, null, 0,
+							   rawContactId);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_URL)) {
@@ -641,7 +660,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 				newContact.setProperty(TiC.PROPERTY_RELATED_NAMES, namesHashMap);
 				for (int i = 0; i < RELATED_NAMES_TYPE.length; i++) {
 					if (namesHashMap.containsKey(RELATED_NAMES_TYPE[i])) {
-						processRelation(namesHashMap, RELATED_NAMES_TYPE[i], ops, i+1, rawContactId);
+						processRelation(namesHashMap, RELATED_NAMES_TYPE[i], ops, i + 1, rawContactId);
 					}
 				}
 			}
@@ -656,7 +675,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		if (options.containsKey(TiC.PROPERTY_NICKNAME)) {
 			String nickname = TiConvert.toString(options, TiC.PROPERTY_NICKNAME);
 			newContact.setProperty(TiC.PROPERTY_NICKNAME, nickname);
-			updateContactField(ops, Nickname.CONTENT_ITEM_TYPE, Nickname.NAME, nickname, Nickname.TYPE, Nickname.TYPE_DEFAULT, rawContactId);
+			updateContactField(ops, Nickname.CONTENT_ITEM_TYPE, Nickname.NAME, nickname, Nickname.TYPE,
+							   Nickname.TYPE_DEFAULT, rawContactId);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_IMAGE)) {
@@ -664,7 +684,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			if (imageObject instanceof TiBlob) {
 				TiBlob imageBlob = (TiBlob) imageObject;
 				newContact.setImage(imageBlob);
-				updateContactField(ops, Photo.CONTENT_ITEM_TYPE, Photo.PHOTO, imageBlob.getData(), null, 0, rawContactId);
+				updateContactField(ops, Photo.CONTENT_ITEM_TYPE, Photo.PHOTO, imageBlob.getData(), null, 0,
+								   rawContactId);
 			}
 		}
 
@@ -679,7 +700,9 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 		try {
 
-			ContentProviderResult[] providerResult = TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+			ContentProviderResult[] providerResult =
+				TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY,
+																							ops);
 			long id = ContentUris.parseId(providerResult[0].uri);
 			newContact.setProperty(TiC.PROPERTY_ID, id);
 
@@ -712,8 +735,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		if (idObj instanceof Long) {
 			Long id = (Long) idObj;
 			ContentResolver cr = TiApplication.getAppRootOrCurrentActivity().getContentResolver();
-			Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
-				null, Data._ID + "=?", new String[] {String.valueOf(id)}, null);
+			Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, Data._ID + "=?",
+								  new String[] { String.valueOf(id) }, null);
 			if (cur.moveToNext()) {
 				String lookupKey = cur.getString(cur.getColumnIndex(Data.LOOKUP_KEY));
 				Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_LOOKUP_URI, lookupKey);
@@ -745,9 +768,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		CommonContactsApi.LightPerson person = null;
 
 		// Basic person data.
-		Cursor cursor = activity.getContentResolver().query(
-				ContentUris.withAppendedId(ContactsUri, id),
-				PEOPLE_PROJECTION, null, null, null);
+		Cursor cursor = activity.getContentResolver().query(ContentUris.withAppendedId(ContactsUri, id),
+															PEOPLE_PROJECTION, null, null, null);
 
 		if (cursor.moveToFirst()) {
 			person = new CommonContactsApi.LightPerson();
@@ -761,15 +783,11 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		}
 
 		// Extended data (emails, phones, etc.)
-		String condition = "mimetype IN " + INConditionForKinds +
-				" AND contact_id = ?";
+		String condition = "mimetype IN " + INConditionForKinds + " AND contact_id = ?";
 
-		cursor = activity.getContentResolver().query(
-				DataUri,
-				DATA_PROJECTION,
-				condition,
-				new String[]{String.valueOf(id)},
-				"mimetype asc, is_super_primary desc, is_primary desc");
+		cursor = activity.getContentResolver().query(DataUri, DATA_PROJECTION, condition,
+													 new String[] { String.valueOf(id) },
+													 "mimetype asc, is_super_primary desc, is_primary desc");
 
 		while (cursor.moveToNext()) {
 			person.addDataFromL5Cursor(cursor);
@@ -821,9 +839,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 	protected void deleteField(ArrayList<ContentProviderOperation> ops, String selection, String[] selectionArgs)
 	{
-		ops.add(ContentProviderOperation.newDelete(Data.CONTENT_URI)
-			    .withSelection(selection, selectionArgs)
-			    .build());
+		ops.add(ContentProviderOperation.newDelete(Data.CONTENT_URI).withSelection(selection, selectionArgs).build());
 	}
 
 	protected void modifyName(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
@@ -848,24 +864,26 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		displayName = firstName + " " + middleName + " " + lastName;
 		person.setFullName(displayName);
 
-		String[] selectionArgs = new String[]{id, StructuredName.CONTENT_ITEM_TYPE};
+		String[] selectionArgs = new String[] { id, StructuredName.CONTENT_ITEM_TYPE };
 		deleteField(ops, BASE_SELECTION, selectionArgs);
-		updateContactField(ops, StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, displayName, null, 0, person.getId());
+		updateContactField(ops, StructuredName.CONTENT_ITEM_TYPE, StructuredName.DISPLAY_NAME, displayName, null, 0,
+						   person.getId());
 	}
 
 	protected void modifyBirthday(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
 		String birthday = TiConvert.toString(person.getProperty(TiC.PROPERTY_BIRTHDAY));
 		String selection = BASE_SELECTION + " AND " + Event.TYPE + "=?";
-		String[] selectionArgs = new String[]{id, Event.CONTENT_ITEM_TYPE, String.valueOf(Event.TYPE_BIRTHDAY)};
+		String[] selectionArgs = new String[] { id, Event.CONTENT_ITEM_TYPE, String.valueOf(Event.TYPE_BIRTHDAY) };
 		deleteField(ops, selection, selectionArgs);
-		updateContactField(ops, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE, Event.TYPE_BIRTHDAY, person.getId());
+		updateContactField(ops, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE, Event.TYPE_BIRTHDAY,
+						   person.getId());
 	}
 
 	protected void modifyOrganization(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
 		String company = TiConvert.toString(person.getProperty(TiC.PROPERTY_ORGANIZATION));
-		String[] selectionArgs =  new String[]{id, Organization.CONTENT_ITEM_TYPE};
+		String[] selectionArgs = new String[] { id, Organization.CONTENT_ITEM_TYPE };
 		deleteField(ops, BASE_SELECTION, selectionArgs);
 		updateContactField(ops, Organization.CONTENT_ITEM_TYPE, Organization.COMPANY, company, null, 0, person.getId());
 	}
@@ -873,7 +891,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected void modifyNote(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
 		String note = TiConvert.toString(person.getProperty(TiC.PROPERTY_NOTE));
-		String[] selectionArgs = new String[]{id, Note.CONTENT_ITEM_TYPE};
+		String[] selectionArgs = new String[] { id, Note.CONTENT_ITEM_TYPE };
 		deleteField(ops, BASE_SELECTION, selectionArgs);
 		updateContactField(ops, Note.CONTENT_ITEM_TYPE, Note.NOTE, note, null, 0, person.getId());
 	}
@@ -882,25 +900,27 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	{
 		String nickname = TiConvert.toString(person.getProperty(TiC.PROPERTY_NICKNAME));
 		String selection = BASE_SELECTION + " AND " + Nickname.TYPE + "=?";
-		String[] selectionArgs = new String[]{id, Nickname.CONTENT_ITEM_TYPE, String.valueOf(Nickname.TYPE_DEFAULT)};
+		String[] selectionArgs = new String[] { id, Nickname.CONTENT_ITEM_TYPE, String.valueOf(Nickname.TYPE_DEFAULT) };
 		deleteField(ops, selection, selectionArgs);
-		updateContactField(ops, Nickname.CONTENT_ITEM_TYPE, Nickname.NAME, nickname, Nickname.TYPE, Nickname.TYPE_DEFAULT, person.getId());
+		updateContactField(ops, Nickname.CONTENT_ITEM_TYPE, Nickname.NAME, nickname, Nickname.TYPE,
+						   Nickname.TYPE_DEFAULT, person.getId());
 	}
 
 	protected void modifyImage(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id)
 	{
 		TiBlob imageBlob = person.getImage();
-		String[] selectionArgs = new String[]{id, Photo.CONTENT_ITEM_TYPE};
+		String[] selectionArgs = new String[] { id, Photo.CONTENT_ITEM_TYPE };
 		deleteField(ops, BASE_SELECTION, selectionArgs);
 		updateContactField(ops, Photo.CONTENT_ITEM_TYPE, Photo.PHOTO, imageBlob.getData(), null, 0, person.getId());
 	}
 
-	protected void modifyField(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id, long rawContactId, String field, String itemType)
+	protected void modifyField(ArrayList<ContentProviderOperation> ops, PersonProxy person, String id,
+							   long rawContactId, String field, String itemType)
 	{
 		Object fieldObject = person.getProperty(field);
 		if (fieldObject instanceof HashMap) {
 			HashMap fieldHashMap = (HashMap) fieldObject;
-			String[] selectionArgs = new String[]{id, itemType};
+			String[] selectionArgs = new String[] { id, itemType };
 			deleteField(ops, BASE_SELECTION, selectionArgs);
 			if (field.equals(TiC.PROPERTY_PHONE)) {
 				parsePhone(ops, fieldHashMap, rawContactId);
@@ -915,7 +935,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			} else if (field.equals(TiC.PROPERTY_RELATED_NAMES)) {
 				for (int i = 0; i < RELATED_NAMES_TYPE.length; i++) {
 					if (fieldHashMap.containsKey(RELATED_NAMES_TYPE[i])) {
-						processRelation(fieldHashMap, RELATED_NAMES_TYPE[i], ops, i+1, rawContactId);
+						processRelation(fieldHashMap, RELATED_NAMES_TYPE[i], ops, i + 1, rawContactId);
 					}
 				}
 			} else if (field.equals(TiC.PROPERTY_DATE)) {
@@ -923,9 +943,9 @@ public class ContactsApiLevel5 extends CommonContactsApi
 				//Since date contains birthday, when we modify date, we must re-add birthday event appropriately
 				if (person.hasProperty(TiC.PROPERTY_BIRTHDAY)) {
 					String birthday = TiConvert.toString(person.getProperty(TiC.PROPERTY_BIRTHDAY));
-					updateContactField(ops, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE, Event.TYPE_BIRTHDAY, rawContactId);
+					updateContactField(ops, Event.CONTENT_ITEM_TYPE, Event.START_DATE, birthday, Event.TYPE,
+									   Event.TYPE_BIRTHDAY, rawContactId);
 				}
-
 			}
 		}
 	}
@@ -1019,18 +1039,19 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			modifyDate(ops, person, id);
 		}
 		try {
-			TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+			TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY,
+																						ops);
 			person.finishModification();
 		} catch (RemoteException e) {
 			Log.e(TAG, "RemoteException - unable to save changes to contact Database.");
 		} catch (OperationApplicationException e) {
 			Log.e(TAG, "OperationApplicationException - unable to save changes to contact Database.");
 		}
-
 	}
 
 	@Override
-	protected void save(Object people) {
+	protected void save(Object people)
+	{
 
 		if (!(people instanceof Object[]) || !hasContactsPermissions()) {
 			return;
@@ -1051,7 +1072,5 @@ public class ContactsApiLevel5 extends CommonContactsApi
 				Log.e(TAG, "Invalid argument type to save");
 			}
 		}
-
 	}
-
 }

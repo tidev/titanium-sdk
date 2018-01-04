@@ -14,15 +14,13 @@ import android.view.Surface;
 import android.view.WindowManager;
 import org.appcelerator.titanium.TiApplication;
 
-
 /**
  * Enum type indicating if a device is portrait-upright, landscape-left, landscape-right, etc.
  * <p>
  * Provides methods to acquire its unique Titanium integer ID used in JavaScript
  * and to determine if the device is portrait or landscape.
  */
-public enum TiDeviceOrientation
-{
+public enum TiDeviceOrientation {
 	/** Indicates that the device orientation is unknown. */
 	UNKNOWN(0),
 
@@ -44,13 +42,11 @@ public enum TiDeviceOrientation
 	/** Indicates that the device is laying down flat and is facing down towards the Earth. */
 	FACE_DOWN(6);
 
-
 	/** Titanium's unique integer ID used in JavaScript to identify the orientation position. */
 	private final int tiIntId;
 
 	/** JavaScript constant name defined by Titanium's UI module for this orientation position. */
 	private final String tiConstantName;
-
 
 	/**
 	 * Creates a new device orientation type using the given data.
@@ -351,13 +347,12 @@ public enum TiDeviceOrientation
 		if (application != null) {
 			Object object = application.getSystemService(Context.WINDOW_SERVICE);
 			if (object instanceof WindowManager) {
-				WindowManager windowManager = (WindowManager)object;
+				WindowManager windowManager = (WindowManager) object;
 				return windowManager.getDefaultDisplay();
 			}
 		}
 		return null;
 	}
-
 
 	/**
 	 * Private class used to fetch or store screen information and determine its upright orientation.
