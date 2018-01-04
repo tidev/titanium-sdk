@@ -1,6 +1,5 @@
 package ti.modules.titanium.ui.widget;
 
-
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.Color;
@@ -71,24 +70,29 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 	 * @param proxy the associated proxy.
 	 * @module.api
 	 */
-	public TiToolbar(final TiViewProxy proxy) {
+	public TiToolbar(final TiViewProxy proxy)
+	{
 		super(proxy);
 		toolbar = new Toolbar(proxy.getActivity()) {
-
 			// Check the resource loading once the view is drawn
 			@Override
-			protected void onDraw(Canvas canvas) {
+			protected void onDraw(Canvas canvas)
+			{
 				super.onDraw(canvas);
 				//if we have attached listener send the dictionary
 				if (resourceLoadedListener != null) {
 					KrollDict callbackParam = new KrollDict();
-					callbackParam.put(TiC.PROPERTY_LOGO, checkResourceLoading(drawableMap.get(TiC.PROPERTY_LOGO), this.getLogo()));
-					callbackParam.put(TiC.PROPERTY_OVERFLOW_ICON, checkResourceLoading(drawableMap.get(TiC.PROPERTY_OVERFLOW_ICON), this.getOverflowIcon()));
-					callbackParam.put(TiC.PROPERTY_NAVIGATION_ICON, checkResourceLoading(drawableMap.get(TiC.PROPERTY_NAVIGATION_ICON), this.getNavigationIcon()));
+					callbackParam.put(TiC.PROPERTY_LOGO,
+									  checkResourceLoading(drawableMap.get(TiC.PROPERTY_LOGO), this.getLogo()));
+					callbackParam.put(
+						TiC.PROPERTY_OVERFLOW_ICON,
+						checkResourceLoading(drawableMap.get(TiC.PROPERTY_OVERFLOW_ICON), this.getOverflowIcon()));
+					callbackParam.put(
+						TiC.PROPERTY_NAVIGATION_ICON,
+						checkResourceLoading(drawableMap.get(TiC.PROPERTY_NAVIGATION_ICON), this.getNavigationIcon()));
 					resourceLoadedListener.callAsync(proxy.getKrollObject(), callbackParam);
 				}
 			}
-
 		};
 
 		setNativeView(toolbar);
@@ -563,12 +567,14 @@ public class TiToolbar extends TiUIView implements Handler.Callback
 		toolbar.setContentInsetsAbsolute(values[0], values[1]);
 	}
 
-	private boolean checkResourceLoading(TiDrawableReference source, Drawable result) {
+	private boolean checkResourceLoading(TiDrawableReference source, Drawable result)
+	{
 		return (source != null && result != null && source.compareBitmapWith(result));
 	}
 
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(KrollDict d)
+	{
 		//process internal properties
 		if (d.containsKey("resourceLoadedListener") && d.get("resourceLoadedListener") instanceof KrollFunction) {
 			resourceLoadedListener = ((KrollFunction) d.get("resourceLoadedListener"));
