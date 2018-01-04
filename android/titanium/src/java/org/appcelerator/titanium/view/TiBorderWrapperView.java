@@ -54,7 +54,6 @@ public class TiBorderWrapperView extends FrameLayout
 	{
 		getDrawingRect(bounds);
 
-
 		int maxPadding = (int) Math.min(bounds.right / 2, bounds.bottom / 2);
 		int padding = (int) Math.min(borderWidth, maxPadding);
 		RectF innerRect =
