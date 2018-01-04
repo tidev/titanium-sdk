@@ -21,17 +21,15 @@ public class TiC
 	public static final int PERMISSION_CODE_CAMERA = 101;
 	public static final int PERMISSION_CODE_CONTACTS = 102;
 	public static final int PERMISSION_CODE_EXTERNAL_STORAGE = 103;
-	public static final int PERMISSION_CODE_LOCATION= 104;
+	public static final int PERMISSION_CODE_LOCATION = 104;
 	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
 	public static final int PERMISSION_CODE_MICROPHONE = 106;
-
 
 	public static final String PERMISSION_CALENDAR = "calendar";
 	public static final String PERMISSION_CAMERA = "camera";
 	public static final String PERMISSION_CONTACTS = "contacts";
 	public static final String PERMISSION_EXTERNAL_STORAGE = "externalstorage";
 	public static final String PERMISSION_LOCATION = "location";
-
 
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
@@ -964,12 +962,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_FEEDBACK = "touchFeedback";
-	
+
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -1565,7 +1563,6 @@ public class TiC
 	 */
 	public static final String PROPERTY_FLAGS = "flags";
 
-
 	/**
 	 * @module.api
 	 */
@@ -1610,7 +1607,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONT_SIZE = "font-size";
-		
+
 	/**
 	 * @module.api
 	 */
@@ -1752,7 +1749,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HINT_TEXT = "hintText";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -1807,7 +1804,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
-
 
 	/**
 	 * @module.api
@@ -2132,12 +2128,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MIN_AGE = "minAge";
-	
+
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -2152,7 +2148,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MINIMUM_FONT_SIZE = "minimumFontSize";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -2894,7 +2890,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SUMMARY_TEXT = "summaryText";
-	
+
 	/**
 	 @module.api
 	 */

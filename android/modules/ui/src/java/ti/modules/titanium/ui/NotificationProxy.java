@@ -16,9 +16,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUINotification;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_MESSAGE
-})
+@Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = { TiC.PROPERTY_MESSAGE })
 public class NotificationProxy extends TiViewProxy
 {
 	public NotificationProxy()
@@ -33,20 +31,29 @@ public class NotificationProxy extends TiViewProxy
 	}
 
 	@Override
-	protected void handleShow(KrollDict options) {
+	protected void handleShow(KrollDict options)
+	{
 		super.handleShow(options);
 
 		TiUINotification n = (TiUINotification) getOrCreateView();
 		n.show(options);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void setMessage(String message) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setMessage(String message)
+	// clang-format on
+	{
 		setPropertyAndFire(TiC.PROPERTY_MESSAGE, message);
 	}
 
-	@Kroll.method @Kroll.getProperty
-	public String getMessage() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getMessage()
+	// clang-format on
+	{
 		return TiConvert.toString(getProperty(TiC.PROPERTY_MESSAGE));
 	}
 

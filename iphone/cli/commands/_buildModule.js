@@ -153,7 +153,7 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 	this.metaDataFile = path.join(this.projectDir, 'metadata.json');
 	this.manifestFile = path.join(this.projectDir, 'manifest');
 	this.templatesDir = path.join(this.platformPath, 'templates');
-	this.assetsTemplateFile = path.join(this.templatesDir, 'module', 'default', 'template', 'iphone', 'Classes', '{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
+	this.assetsTemplateFile = path.join(this.templatesDir, 'module', 'default', 'template', 'ios', 'Classes', '{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
 	this.universalBinaryDir = path.join(this.projectDir, 'build');
 
 	[ 'assets', 'documentation', 'example', 'platform', 'Resources' ].forEach(function (folder) {
@@ -243,8 +243,8 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			'moduleIdAsIdentifier' : this.moduleIdAsIdentifier,
 			'mainEncryptedAssetReturn': 'return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[0]);',
 			'allEncryptedAssetsReturn': 'NSNumber *index = [map objectForKey:path];'
-				+ '\n\t\tif (index == nil) {\n\t\t\treturn nil;\n\t\t}'
-				+ '\n\t\treturn filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);'
+				+ '\n  if (index == nil) {\n    return nil;\n  }'
+				+ '\n  return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);'
 		},
 		titaniumPrepHook = this.cli.createHook('build.ios.titaniumprep', this, function (exe, args, opts, done) {
 			const jsFilesToEncrypt = opts.jsFiles,
@@ -613,9 +613,11 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
-			this.dirWalker(this.platformDir, function (file) {
+			this.dirWalker(this.platformDir, function (file, name) {
 				var stat = fs.statSync(file);
-				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file)), mode: stat.mode });
+				if (name !== 'README.md') {
+					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file)), mode: stat.mode });
+				}
 			}.bind(this));
 		}
 

@@ -46,7 +46,7 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, Local<Value> cla
 	Local<Object> exports = KrollBindings::getBinding(isolate, className->ToString(isolate));
 
 	if (exports.IsEmpty()) {
-		titanium::Utf8Value classStr(className);
+		v8::String::Utf8Value classStr(className);
 		LOGE(TAG, "Failed to find class for %s", *classStr);
 		LOG_JNIENV_ERROR("while creating V8 Proxy.");
 		return Local<Object>();
@@ -55,7 +55,7 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, Local<Value> cla
 	// FIXME: We pick the first item in exports as the constructor. We should do something more intelligent (for ES6 look at default export?)
 	Local<Array> names = exports->GetPropertyNames();
 	if (names->Length() < 1) {
-		titanium::Utf8Value classStr(className);
+		v8::String::Utf8Value classStr(className);
 		LOGE(TAG, "Failed to find class for %s", *classStr);
 		LOG_JNIENV_ERROR("while creating V8 Proxy.");
 		return Local<Object>();
@@ -103,7 +103,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 
 	// We also pass the creation URL of the proxy so we can track relative URLs
 	Local<Value> sourceUrl = args.Callee()->GetScriptOrigin().ResourceName();
-	titanium::Utf8Value sourceUrlValue(sourceUrl);
+	v8::String::Utf8Value sourceUrlValue(sourceUrl);
 
 	const char *url = "app://app.js";
 	jstring javaSourceUrl = NULL;

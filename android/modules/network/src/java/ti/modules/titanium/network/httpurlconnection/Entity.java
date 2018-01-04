@@ -12,31 +12,34 @@ package ti.modules.titanium.network.httpurlconnection;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public abstract class Entity {
-    protected String contentType;
-    protected String contentEncoding;
-    
-    public Entity() {
-    	
-    }
-    
-    public String getContentType() {
-        return this.contentType;
-    }
-    
-    public String getContentEncoding() {
-        return this.contentEncoding;
-    }
-    
-    public void setContentType(final String contentType) {
-        this.contentType = contentType;
-    }
-    
-    public void setContentEncoding(final String contentEncoding) {
-        this.contentEncoding = contentEncoding;
-    }
-    
-    public abstract void writeTo(OutputStream out) throws IOException;
+public abstract class Entity
+{
+	protected String contentType;
+	protected String contentEncoding;
 
+	public Entity()
+	{
+	}
 
+	public String getContentType()
+	{
+		return this.contentType;
+	}
+
+	public String getContentEncoding()
+	{
+		return this.contentEncoding;
+	}
+
+	public void setContentType(final String contentType)
+	{
+		this.contentType = contentType;
+	}
+
+	public void setContentEncoding(final String contentEncoding)
+	{
+		this.contentEncoding = contentEncoding;
+	}
+
+	public abstract void writeTo(OutputStream out) throws IOException;
 }

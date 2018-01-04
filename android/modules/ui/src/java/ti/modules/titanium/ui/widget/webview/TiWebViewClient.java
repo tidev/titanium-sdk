@@ -56,7 +56,8 @@ public class TiWebViewClient extends WebViewClient
 		proxy.fireEvent(TiC.EVENT_LOAD, data);
 		boolean enableJavascriptInjection = true;
 		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
-			enableJavascriptInjection = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+			enableJavascriptInjection =
+				TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		}
 		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection) {
 			WebView nativeWebView = webView.getWebView();
@@ -103,7 +104,6 @@ public class TiWebViewClient extends WebViewClient
 		data.putCodeAndMessage(errorCode, description);
 		data.put("message", description);
 		proxy.fireEvent("error", data);
-
 	}
 
 	@Override
@@ -115,7 +115,8 @@ public class TiWebViewClient extends WebViewClient
 			return super.shouldOverrideUrlLoading(view, url);
 		}
 		if (proxy.hasProperty(TiC.PROPERTY_BLACKLISTED_URLS)) {
-			String [] blacklistedSites = TiConvert.toStringArray((Object[])proxy.getProperty(TiC.PROPERTY_BLACKLISTED_URLS));
+			String[] blacklistedSites =
+				TiConvert.toStringArray((Object[]) proxy.getProperty(TiC.PROPERTY_BLACKLISTED_URLS));
 			for (String site : blacklistedSites) {
 				if (url.equalsIgnoreCase(site) || (url.indexOf(site) > -1)) {
 					KrollDict data = new KrollDict();
@@ -135,7 +136,7 @@ public class TiWebViewClient extends WebViewClient
 			// go through the proxy to ensure we're on the UI thread
 			proxy.setPropertyAndFire(TiC.PROPERTY_URL, url);
 			return true;
-		} else if(url.startsWith(WebView.SCHEME_TEL)) {
+		} else if (url.startsWith(WebView.SCHEME_TEL)) {
 			Log.i(TAG, "Launching dialer for " + url, Log.DEBUG_MODE);
 			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");
 			proxy.getActivity().startActivity(dialer);
@@ -180,10 +181,9 @@ public class TiWebViewClient extends WebViewClient
 	}
 
 	@Override
-	public void onReceivedHttpAuthRequest(WebView view,
-			HttpAuthHandler handler, String host, String realm)
+	public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm)
 	{
-		
+
 		if (this.username != null && this.password != null) {
 			handler.proceed(this.username, this.password);
 		}
@@ -207,7 +207,7 @@ public class TiWebViewClient extends WebViewClient
 		if (proxy == null) {
 			return;
 		}
-		
+
 		KrollDict data = new KrollDict();
 		data.put(TiC.ERROR_PROPERTY_CODE, error.getPrimaryError());
 		proxy.fireSyncEvent(TiC.EVENT_SSL_ERROR, data);
@@ -216,8 +216,8 @@ public class TiWebViewClient extends WebViewClient
 		try {
 			ignoreSslError = proxy.getProperties().optBoolean(TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR, false);
 
-		} catch(IllegalArgumentException e) {
-			Log.e(TAG, TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR + " property does not contain a boolean value, ignoring"); 
+		} catch (IllegalArgumentException e) {
+			Log.e(TAG, TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR + " property does not contain a boolean value, ignoring");
 		}
 
 		if (ignoreSslError == true) {
@@ -242,5 +242,4 @@ public class TiWebViewClient extends WebViewClient
 		data.put(TiC.PROPERTY_URL, url);
 		proxy.fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, data);
 	}
-
 }
