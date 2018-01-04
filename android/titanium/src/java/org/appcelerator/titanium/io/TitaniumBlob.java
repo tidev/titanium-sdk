@@ -26,7 +26,8 @@ public class TitaniumBlob extends TiBaseFile
 	protected String name;
 	protected String path;
 
-	public TitaniumBlob(String url) {
+	public TitaniumBlob(String url)
+	{
 		super(TYPE_BLOB);
 		this.url = url;
 		if (url != null) {
@@ -34,11 +35,9 @@ public class TitaniumBlob extends TiBaseFile
 		}
 	}
 
-	protected void init() {
-		String[] projection = {
-			MediaStore.Images.ImageColumns.DISPLAY_NAME,
-			MediaStore.Images.ImageColumns.DATA
-		};
+	protected void init()
+	{
+		String[] projection = { MediaStore.Images.ImageColumns.DISPLAY_NAME, MediaStore.Images.ImageColumns.DATA };
 		Cursor c = null;
 
 		if (url.startsWith("content://com.android.providers.media.documents")) {
@@ -50,8 +49,8 @@ public class TitaniumBlob extends TiBaseFile
 				c.close();
 
 				c = TiApplication.getInstance().getContentResolver().query(
-					android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-					projection, MediaStore.Images.Media._ID + " = ? ", new String[]{id}, null);
+					android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
+					MediaStore.Images.Media._ID + " = ? ", new String[] { id }, null);
 
 				if (c.moveToNext()) {
 					name = c.getString(0);
@@ -62,10 +61,11 @@ public class TitaniumBlob extends TiBaseFile
 					c.close();
 				}
 			}
-		}  else if (url.startsWith("content://com.android.providers.downloads.documents")) {
+		} else if (url.startsWith("content://com.android.providers.downloads.documents")) {
 			try {
 				String id = DocumentsContract.getDocumentId(Uri.parse(url));
-				Uri uri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+				Uri uri =
+					ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 				c = TiApplication.getInstance().getContentResolver().query(uri, projection, null, null, null);
 
 				if (c.moveToNext()) {
@@ -79,7 +79,8 @@ public class TitaniumBlob extends TiBaseFile
 			}
 		} else {
 			try {
-				c = TiApplication.getInstance().getContentResolver().query(Uri.parse(url), projection, null, null, null);
+				c = TiApplication.getInstance().getContentResolver().query(Uri.parse(url), projection, null, null,
+																		   null);
 
 				if (c.moveToNext()) {
 					name = c.getString(0);
@@ -93,7 +94,8 @@ public class TitaniumBlob extends TiBaseFile
 		}
 	}
 
-	public void setUrl(String url) {
+	public void setUrl(String url)
+	{
 		this.url = url;
 		if (url != null) {
 			init();
@@ -101,44 +103,51 @@ public class TitaniumBlob extends TiBaseFile
 	}
 
 	@Override
-	public String nativePath() {
+	public String nativePath()
+	{
 		return url;
 	}
 
-	public String toURL() {
+	public String toURL()
+	{
 		return url;
 	}
 
 	@Override
-	public String name() {
+	public String name()
+	{
 		return name;
 	}
 
-	public File getFile() {
+	public File getFile()
+	{
 		return new File(path);
 	}
 
-	public String getContentType() {
+	public String getContentType()
+	{
 		return TiApplication.getInstance().getContentResolver().getType(Uri.parse(url));
 	}
 
-	public InputStream getInputStream()
-		throws IOException
+	public InputStream getInputStream() throws IOException
 	{
 		return TiApplication.getInstance().getContentResolver().openInputStream(Uri.parse(url));
 	}
 
 	@Override
-	public OutputStream getOutputStream() throws IOException {
+	public OutputStream getOutputStream() throws IOException
+	{
 		return null;
 	}
 
 	@Override
-	public File getNativeFile() {
+	public File getNativeFile()
+	{
 		return new File(path);
 	}
 
-	public String getNativePath() {
+	public String getNativePath()
+	{
 		return path;
 	}
 }
