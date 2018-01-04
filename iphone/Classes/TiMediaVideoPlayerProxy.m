@@ -101,7 +101,7 @@ NSArray *moviePlayerKeys = nil;
 
   // For playbackState property / playbackstate event
   [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
-  
+
   // For playing
   [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 
