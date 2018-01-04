@@ -281,7 +281,7 @@
 		B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
 		B606EF35190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF34190B109D00663EFC /* TiNetworkHTTPClientProxy.m */; };
-		B606EF4A190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; };
+		B606EF4A190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		B606EF60190B42FB00663EFC /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */; };
 		B637616F1BC5CA4A0070A695 /* TiLayoutDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = B637616C1BC5CA4A0070A695 /* TiLayoutDimension.m */; };
 		B63761701BC5CA4A0070A695 /* TiLayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = B637616E1BC5CA4A0070A695 /* TiLayoutView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -2863,6 +2863,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
+				ENABLE_NS_ASSERTIONS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
@@ -2876,6 +2877,7 @@
 					"\"$(SRCROOT)/../Classes/APSAnalytics\"",
 					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
+				OTHER_CFLAGS = "-DNDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = "1,2";
