@@ -271,7 +271,8 @@ public class ActionBarProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void setCustomView(TiViewProxy view) {
+	public void setCustomView(TiViewProxy view)
+	{
 		actionBar.setDisplayShowCustomEnabled(true);
 		if (TiApplication.isUIThread()) {
 			handleSetCustomView(view);
@@ -390,7 +391,8 @@ public class ActionBarProxy extends KrollProxy
 		return tfh.loadDrawable(imageUrl.resolve(), false);
 	}
 
-	private void handleSetCustomView(TiViewProxy view) {
+	private void handleSetCustomView(TiViewProxy view)
+	{
 		actionBar.setCustomView(view.getOrCreateView().getNativeView());
 	}
 
