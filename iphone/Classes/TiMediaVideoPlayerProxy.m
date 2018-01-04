@@ -96,25 +96,28 @@ NSArray *moviePlayerKeys = nil;
   WARN_IF_BACKGROUND_THREAD; //NSNotificationCenter is not threadsafe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
-  // For durationavailable
+  // For durationavailable event
   [movie addObserver:self forKeyPath:@"player.currentItem.duration" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 
-  // For playbackstate
+  // For playbackstate event
   [movie addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 
+  // For playbackState property
+  [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
+  
   // For playing
   [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 
   // For load / loadstate / preload
   [movie addObserver:self forKeyPath:@"player.status" options:0 context:nil];
 
-  // naturalSize
+  // For naturalSize event
   [movie addObserver:self forKeyPath:@"videoBounds" options:NSKeyValueObservingOptionInitial context:nil];
 
-  // For complete
+  // For complete event
   [nc addObserver:self selector:@selector(handlePlayerNotification:) name:AVPlayerItemDidPlayToEndTimeNotification object:[[movie player] currentItem]];
 
-  // For error
+  // For error event
   [nc addObserver:self selector:@selector(handlePlayerErrorNotification:) name:AVPlayerItemFailedToPlayToEndTimeNotification object:[[movie player] currentItem]];
 }
 
@@ -123,6 +126,7 @@ NSArray *moviePlayerKeys = nil;
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
+  [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
   [movie removeObserver:self forKeyPath:@"player.rate"];
   [self removeObserver:self forKeyPath:@"url"];
   [movie removeObserver:self forKeyPath:@"player.status"];
@@ -135,6 +139,8 @@ NSArray *moviePlayerKeys = nil;
 // Used to avoid duplicate code in Brightcove module; makes things easier to maintain.
 - (void)configurePlayer
 {
+  _playbackState = TiVideoPlayerPlaybackStateStopped;
+  
   [self addNotificationObserver];
   [self setValuesForKeysWithDictionary:loadProperties];
   // we need this code below since the player can be realized before loading
@@ -671,10 +677,7 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)playbackState
 {
-  if ([movie player] != nil) {
-    return NUMINT([[movie player] rate]);
-  }
-  return NUMINT(AVPlayerStatusUnknown);
+  return NUMINTEGER(_playbackState);
 }
 
 - (void)setRepeatMode:(id)value
@@ -707,7 +710,10 @@ NSArray *moviePlayerKeys = nil;
 - (void)stop:(id)args
 {
   ENSURE_UI_THREAD(stop, args);
+
   playing = NO;
+  _playbackState = TiVideoPlayerPlaybackStateStopped;
+
   [[movie player] seekToTime:CMTimeMake(0, 1)];
   [[movie player] pause];
 }
@@ -825,6 +831,8 @@ NSArray *moviePlayerKeys = nil;
 - (void)handlePlayerErrorNotification:(NSNotification *)note
 {
   NSError *error = note.userInfo[AVPlayerItemFailedToPlayToEndTimeErrorKey];
+  _playbackState = TiVideoPlayerPlaybackStateInterrupted;
+
   if ([self _hasListeners:@"error"]) {
     NSDictionary *event = [NSDictionary dictionaryWithObject:[error localizedDescription] forKey:@"error"];
     [self fireEvent:@"error" withObject:event];
@@ -834,6 +842,7 @@ NSArray *moviePlayerKeys = nil;
 /* Called when the player item has played to its end time. */
 - (void)playerItemDidReachEnd
 {
+  _playbackState = TiVideoPlayerPlaybackStateStopped;
   seekToZeroBeforePlay = YES;
 }
 
@@ -890,6 +899,8 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)handleNowPlayingNotification:(NSNotification *)note
 {
+  _playbackState = TiVideoPlayerPlaybackStatePlaying;
+
   if ([self _hasListeners:@"playing"]) {
     NSDictionary *event = [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
     [self fireEvent:@"playing" withObject:event];
@@ -907,6 +918,7 @@ NSArray *moviePlayerKeys = nil;
   case AVPlayerStatusUnknown:
   case AVPlayerStatusFailed:
     playing = NO;
+    _playbackState = TiVideoPlayerPlaybackStateInterrupted;
     break;
   case AVPlayerStatusReadyToPlay:
     playing = ([[movie player] rate] == 1.0);
@@ -927,6 +939,19 @@ NSArray *moviePlayerKeys = nil;
   }
 }
 
+- (void)handleTimeControlStatusNotification:(NSNotification *)note
+{
+  if (movie.player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
+    _playbackState = TiVideoPlayerPlaybackStatePlaying;
+  } else if (movie.player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
+    if (movie.player.currentItem.duration.value == movie.player.currentItem.currentTime.value) {
+      _playbackState = TiVideoPlayerPlaybackStateStopped;
+    } else {
+      _playbackState = TiVideoPlayerPlaybackStatePaused;
+    }
+  }
+}
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context
 {
   if ([keyPath isEqualToString:@"player.currentItem.duration"]) {
@@ -934,6 +959,9 @@ NSArray *moviePlayerKeys = nil;
   }
   if ([keyPath isEqualToString:@"player.rate"]) {
     [self handlePlaybackStateChangeNotification:nil];
+  }
+  if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
+    [self handleTimeControlStatusNotification:nil];
   }
   if ([keyPath isEqualToString:@"url"]) {
     [self handleNowPlayingNotification:nil];

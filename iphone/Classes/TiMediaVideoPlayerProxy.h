@@ -23,6 +23,15 @@ typedef NS_ENUM(NSInteger, VideoRepeatMode) {
   VideoRepeatModeOne,
 };
 
+typedef NS_ENUM(NSInteger, TiVideoPlayerPlaybackState) {
+  TiVideoPlayerPlaybackStateStopped = 0,
+  TiVideoPlayerPlaybackStatePlaying,
+  TiVideoPlayerPlaybackStatePaused,
+  TiVideoPlayerPlaybackStateInterrupted,
+  TiVideoPlayerPlaybackStateSeekingForward, // Not supported so far
+  TiVideoPlayerPlaybackStateSeekingBackward, // Not supported so far
+};
+
 @interface TiMediaVideoPlayerProxy : TiViewProxy {
   @protected
   AVPlayerViewController *movie;
@@ -53,6 +62,9 @@ typedef NS_ENUM(NSInteger, VideoRepeatMode) {
 
   // Have to track loading in the proxy in addition to the view, in case we load before the view should be rendered
   BOOL loaded;
+  
+  // Track the playback state for parity
+  TiVideoPlayerPlaybackState _playbackState;
 }
 
 @property (nonatomic, readwrite, assign) id url;
