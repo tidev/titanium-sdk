@@ -132,9 +132,8 @@ public class ScrollableViewProxy extends TiViewProxy
 						handled = true;
 					}
 				} else if (childView != null) {
-					String message =
-						"addView() ignored. Expected a Titanium view object, got " +
-						childView.getClass().getSimpleName();
+					String message = "addView() ignored. Expected a Titanium view object, got "
+									 + childView.getClass().getSimpleName();
 					Log.w(TAG, message);
 				}
 				holder.setResult(null);
