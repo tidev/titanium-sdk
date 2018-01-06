@@ -79,8 +79,8 @@ methods:
     parameters:
       - name: view
         summary: |
-            A <Titanium.UI.View> object (all platforms) or integer index (iPhone, iPad only) of
-            a page to remove.
+            A <Titanium.UI.View> object (all platforms) or integer index (Android and iOS only) of
+            the page to remove.
         type: [Number, Titanium.UI.View]
 
   - name: scrollToView

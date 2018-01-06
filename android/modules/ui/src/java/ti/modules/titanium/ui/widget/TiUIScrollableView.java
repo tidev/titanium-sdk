@@ -172,107 +172,114 @@ public class TiUIScrollableView extends TiUIView
 
 		pager.setAdapter(adapter);
 		pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-			private boolean isValidScroll = false;
-			private boolean justFiredDragEnd = false;
+			private int lastSelectedPageIndex;
+			private boolean isScrolling;
+			private boolean isDragging;
 
 			@Override
 			public void onPageScrollStateChanged(int scrollState)
 			{
-				mPager.requestDisallowInterceptTouchEvent(scrollState != ViewPager.SCROLL_STATE_IDLE);
+				switch (scrollState) {
+					case ViewPager.SCROLL_STATE_DRAGGING: {
+						if (!this.isDragging && !mViews.isEmpty()) {
+							// This is the start of a touch/drag event by the end-user. Fire a "dragstart" event.
+							this.isDragging = true;
+							this.isScrolling = true;
+							if (proxy != null) {
+								proxy.fireEvent(TiC.EVENT_DRAGSTART, new KrollDict());
+							}
 
-				if ((scrollState == ViewPager.SCROLL_STATE_IDLE) && isValidScroll) {
-					int oldIndex = mCurIndex;
+							// Disable touch input interception from parent view hierarchy when dragging.
+							// This makes page scrolling work if the ScrollableView is within a ScrollView.
+							mPager.requestDisallowInterceptTouchEvent(true);
+						}
+						break;
+					}
+					case ViewPager.SCROLL_STATE_IDLE: {
+						// Handle the end of a scroll/drag event.
+						if (this.isScrolling || this.isDragging) {
+							// Store the index to the currently selected page.
+							mCurIndex = this.lastSelectedPageIndex;
 
-					if (mCurIndex >= 0) {
-						if (oldIndex >= 0 && oldIndex != mCurIndex && oldIndex < mViews.size()) {
-							// Don't know what these focused and unfocused
-							// events are good for, but they were in our previous
-							// scrollable implementation.
-							// cf. https://github.com/appcelerator/titanium_mobile/blob/20335d8603e2708b59a18bafbb91b7292278de8e/android/modules/ui/src/ti/modules/titanium/ui/widget/TiScrollableView.java#L260
-							TiEventHelper.fireFocused(mViews.get(oldIndex));
+							// Fetch the proxy for the currently selected page.
+							TiViewProxy pageProxy = null;
+							if ((this.lastSelectedPageIndex >= 0) && (this.lastSelectedPageIndex < mViews.size())) {
+								pageProxy = mViews.get(this.lastSelectedPageIndex);
+							}
+
+							// Fire a "dragend" event if dragging. (We only support this event on Android.)
+							// Note: We don't raise this event when user releases finger from screen because
+							//       "currentPage" can index previous page if user flings the scrollable view.
+							//       Developers expect "currentPage" to reference destination page instead,
+							//       so, we wait until the scroll animation finishes before firing event.
+							if (this.isDragging) {
+								this.isDragging = false;
+								if (proxy != null) {
+									((ScrollableViewProxy) proxy).fireDragEnd(this.lastSelectedPageIndex, pageProxy);
+								}
+								mPager.requestDisallowInterceptTouchEvent(false);
+							}
+
+							// Fire a "scrollend" event.
+							if (this.isScrolling) {
+								this.isScrolling = false;
+								if (proxy != null) {
+									((ScrollableViewProxy) proxy).fireScrollEnd(this.lastSelectedPageIndex, pageProxy);
+								}
+							}
 						}
 
-						TiEventHelper.fireUnfocused(mViews.get(mCurIndex));
-						if (oldIndex >= 0) {
-							// oldIndex will be -1 if the view has just
-							// been created and is setting currentPage
-							// to something other than 0. In that case we
-							// don't want a `scrollend` to fire.
-							((ScrollableViewProxy) proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
-						}
-
+						// Show the left/right arrow pagination buttons when the view stops scrolling.
 						if (shouldShowPager()) {
 							showPager();
 						}
-					}
-
-					// If we don't use this state variable to check if it's a valid
-					// scroll, this event will fire when the view is first created
-					// because on creation, the scroll state is initialized to
-					// `idle` and this handler is called.
-					isValidScroll = false;
-				} else if (scrollState == ViewPager.SCROLL_STATE_SETTLING) {
-					((ScrollableViewProxy) proxy).fireDragEnd(mCurIndex, mViews.get(mCurIndex));
-
-					// Note that we just fired a `dragend` so the `onPageSelected`
-					// handler below doesn't fire a `scrollend`.  Read below comment.
-					justFiredDragEnd = true;
-				}
-			}
-
-			@Override
-			public void onPageSelected(int page)
-			{
-
-				// If we didn't just fire a `dragend` event then this is the case
-				// where a user drags the view and settles it on a different view.
-				// Since the OS settling logic is never run, the
-				// `onPageScrollStateChanged` handler is never run, and therefore
-				// we forgot to inform the Javascripters that the user just scrolled
-				// their thing.
-
-				if (!justFiredDragEnd && mCurIndex != -1) {
-					((ScrollableViewProxy) proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
-
-					if (shouldShowPager()) {
-						showPager();
+						break;
 					}
 				}
 			}
 
 			@Override
-			public void onPageScrolled(int positionRoundedDown, float positionOffset, int positionOffsetPixels)
+			public void onPageSelected(int pageIndex)
 			{
+				this.lastSelectedPageIndex = pageIndex;
+			}
+
+			@Override
+			public void onPageScrolled(int pageIndex, float pageOffsetNormalized, int pageOffsetPixels)
+			{
+				// Ignored scroll/drag events if there are no child pages within the ViewPager.
 				if (mViews.isEmpty()) {
 					return;
 				}
 
-				isValidScroll = true;
+				// Determine if scrolling has just started.
+				// This detects animated scrolls to another page via moveNext(), movePrevious(), and scrollToView().
+				// This ignores animated scroll method calls to currently displayed page (no scroll occurs).
+				if (!this.isScrolling && (Math.abs(pageOffsetNormalized) >= 0.01f)) {
+					this.isScrolling = true;
+				}
 
-				// When we touch and drag the view and hold it inbetween the second
-				// and third sub-view, this function will have been called with values
-				// similar to:
-				//		positionRoundedDown:	1
-				//		positionOffset:			 0.5
-				// ie, the first parameter is always rounded down; the second parameter
-				// is always just an offset between the current and next view, it does
-				// not take into account the current view.
+				// Do not continue if we're not in the scrolling state yet.
+				if (!this.isScrolling) {
+					return;
+				}
 
-				// If we add positionRoundedDown to positionOffset, positionOffset will
-				// have the 'correct' value; ie, will be a natural number when we're on
-				// one particular view, something.5 when inbetween views, etc.
-				float positionFloat = positionOffset + positionRoundedDown;
+				// Determine which page is most visible within the container.
+				// This will be our current page for our Titanium "scroll" event.
+				// Note: We do a Math.floor(x + 0.5) so that we can round -0.5 to -1.0 (towards negative infinity).
+				float currentPageAsFloat = pageIndex + pageOffsetNormalized;
+				int currentPageIndex = (int) Math.floor(currentPageAsFloat + 0.5f);
+				if (currentPageIndex < 0) {
+					currentPageIndex = 0;
+				} else if (currentPageIndex >= mViews.size()) {
+					currentPageIndex = mViews.size() - 1;
+				}
+				mCurIndex = currentPageIndex;
 
-				// `positionFloat` can now be used to calculate the correct value for
-				// the current index. We add 0.5 so that positionFloat will be rounded
-				// half up; ie, if it has a value of 1.5, it will be rounded up to 2; if
-				// it has a value of 1.4, it will be rounded down to 1.
-				mCurIndex = (int) Math.floor(positionFloat + 0.5);
-				((ScrollableViewProxy) proxy).fireScroll(mCurIndex, positionFloat, mViews.get(mCurIndex));
-
-				// Note that we didn't just fire a `dragend`.  See the above comment
-				// in `onPageSelected`.
-				justFiredDragEnd = false;
+				// Fire a "scroll" event.
+				if (proxy != null) {
+					((ScrollableViewProxy) proxy).fireScroll(mCurIndex, currentPageAsFloat, mViews.get(mCurIndex));
+				}
 			}
 		});
 		return pager;
@@ -385,10 +392,8 @@ public class TiUIScrollableView extends TiUIView
 			mPager.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 		}
 
-		if (d.containsKey("cacheSize")) {
-			int cacheSize = TiConvert.toInt(d.get("cacheSize"));
-			cacheSize = Math.max(cacheSize, 1);
-			mPager.setOffscreenPageLimit(cacheSize);
+		if (d.containsKey(TiC.PROPERTY_CACHE_SIZE)) {
+			setPageCacheSize(TiConvert.toInt(d.get(TiC.PROPERTY_CACHE_SIZE)));
 		}
 
 		super.processProperties(d);
@@ -410,9 +415,38 @@ public class TiUIScrollableView extends TiUIView
 			mEnabled = TiConvert.toBoolean(newValue);
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
 			mPager.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+		} else if (TiC.PROPERTY_CACHE_SIZE.equals(key)) {
+			setPageCacheSize(TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
+	}
+
+	private void setPageCacheSize(int value)
+	{
+		// Do not allow given size to be less than min. (iOS min size is 3.)
+		if (value < ScrollableViewProxy.MIN_CACHE_SIZE) {
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("ScrollableView 'cacheSize' cannot be set less than ");
+			stringBuilder.append(ScrollableViewProxy.MIN_CACHE_SIZE);
+			stringBuilder.append(". Given value: ");
+			stringBuilder.append(value);
+			Log.w(TAG, stringBuilder.toString());
+			value = ScrollableViewProxy.MIN_CACHE_SIZE;
+		}
+
+		// Convert the given Titanium/iOS cache size value to an Android offscreen page limit value.
+		// Notes:
+		// - Titanium/iOS cache-size includes all pages buffered, including the page being displayed.
+		//   Ex: Value of 3 includes the 1 currently displayed page and 2 offscreen pages.
+		// - Android offscreen-page-limit value is number of pages to buffer on 1 side of the current page.
+		//   Normally defaults to 1, which buffers 1 offscreen page on the left and 1 offscreen page on the right.
+		// - Assume worst-case scenario where ScrollableView is showing 1st page and only supports scrolling forward.
+		//   In this case, cache size of 3 must use offscreen page limit of 2 (ie: current page + 2 pages on right).
+		value--;
+
+		// Update the view's offscreen page caching limit.
+		mPager.setOffscreenPageLimit(value);
 	}
 
 	public void addView(TiViewProxy proxy)
@@ -456,6 +490,13 @@ public class TiUIScrollableView extends TiUIView
 				getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
 				mAdapter.notifyDataSetChanged();
 			}
+		}
+	}
+
+	public void removeViewByIndex(int index)
+	{
+		if ((index >= 0) && (index < mViews.size())) {
+			removeView(mViews.get(index));
 		}
 	}
 
