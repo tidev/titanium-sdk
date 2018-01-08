@@ -287,6 +287,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
+			//TIMOB-17210 Android: A textfield change listener is wrongly triggered also if the value is programmatically set before creation
 			disableChangeEvent = true;
 			tv.setText(TiConvert.toString(newValue));
 			disableChangeEvent = false;
