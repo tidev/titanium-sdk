@@ -18,7 +18,7 @@ describe('Titanium.Media.VideoPlayer', function () {
 		should(Ti.Media.VIDEO_PLAYBACK_STATE_PAUSED).eql(2);
 		should(Ti.Media.VIDEO_PLAYBACK_STATE_INTERRUPTED).eql(3);
 		
-		if (utility.isAndroid()) {
+		if (utilities.isAndroid()) {
 			should(Ti.Media.VIDEO_PLAYBACK_STATE_SEEKING_FORWARD).eql(4);
 			should(Ti.Media.VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD).eql(5);
 		}
