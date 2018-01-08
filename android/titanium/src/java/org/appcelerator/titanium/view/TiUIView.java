@@ -1157,7 +1157,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	/**
 	 * @param props View's property dictionary
-	 * @return true if touch feedback can be applied. 
+	 * @return true if touch feedback can be applied.
 	 */
 	protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
 	{
@@ -1166,17 +1166,17 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	}
 
 	/**
-	 * Applies touch feedback. Should check canApplyTouchFeedback() before calling this. 
-	 * @param backgroundColor The background color of the view. 
+	 * Applies touch feedback. Should check canApplyTouchFeedback() before calling this.
+	 * @param backgroundColor The background color of the view.
 	 * @param rippleColor The ripple color.
 	 */
 	private void applyTouchFeedback(@NonNull Integer backgroundColor, @Nullable Integer rippleColor)
 	{
 		if (rippleColor == null) {
-			Context context = TiApplication.getInstance();
+			Context context = proxy.getActivity();
 			TypedValue attribute = new TypedValue();
 			if (context.getTheme().resolveAttribute(android.R.attr.colorControlHighlight, attribute, true)) {
-				rippleColor = context.getResources().getColor(attribute.resourceId);
+				rippleColor = attribute.data;
 			} else {
 				throw new RuntimeException("android.R.attr.colorControlHighlight cannot be resolved into Drawable");
 			}
