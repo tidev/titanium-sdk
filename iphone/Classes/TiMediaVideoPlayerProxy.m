@@ -99,8 +99,15 @@ NSArray *moviePlayerKeys = nil;
   // For durationavailable event
   [movie addObserver:self forKeyPath:@"player.currentItem.duration" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
 
-  // For playbackState property / playbackstate event
-  [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
+  // The AVPlayer does not properly support state management on iOS < 10.
+  // Remove this once we bump the minimum iOS version to 10+.
+  if ([TiUtils isIOS10OrGreater]) {
+    // iOS 10+: For playbackState property / playbackstate event
+    [movie addObserver:self forKeyPath:@"player.timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
+  } else {
+    // iOS < 10: For playbackstate event
+    [movie addObserver:self forKeyPath:@"player.rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+  }
 
   // For playing
   [self addObserver:self forKeyPath:@"url" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
@@ -123,10 +130,15 @@ NSArray *moviePlayerKeys = nil;
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
-  [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
   [self removeObserver:self forKeyPath:@"url"];
   [movie removeObserver:self forKeyPath:@"player.status"];
   [movie removeObserver:self forKeyPath:@"videoBounds"];
+
+  if ([TiUtils isIOS10OrGreater]) {
+    [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
+  } else {
+    [movie removeObserver:self forKeyPath:@"player.rate"];
+  }
 
   [nc removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
   [nc removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
@@ -136,7 +148,7 @@ NSArray *moviePlayerKeys = nil;
 - (void)configurePlayer
 {
   _playbackState = TiVideoPlayerPlaybackStateStopped;
-  
+
   [self addNotificationObserver];
   [self setValuesForKeysWithDictionary:loadProperties];
   // we need this code below since the player can be realized before loading
@@ -916,8 +928,39 @@ NSArray *moviePlayerKeys = nil;
   }
 }
 
+// iOS < 10
+- (void)handlePlaybackStateChangeNotification:(NSNotification *)note
+{
+  TiVideoPlayerPlaybackState oldState = _playbackState;
+
+  switch ([[movie player] status]) {
+  case AVPlayerStatusUnknown:
+  case AVPlayerStatusFailed:
+    playing = NO;
+    _playbackState = TiVideoPlayerPlaybackStateInterrupted;
+    break;
+  case AVPlayerStatusReadyToPlay:
+    playing = ([[movie player] rate] == 1.0);
+    if (playing) {
+      _playbackState = TiVideoPlayerPlaybackStatePlaying;
+    } else if (movie.player.currentItem.duration.value == movie.player.currentItem.currentTime.value || !movie.player.currentItem.canStepBackward) {
+      _playbackState = TiVideoPlayerPlaybackStateStopped;
+    } else {
+      _playbackState = TiVideoPlayerPlaybackStatePaused;
+    }
+    break;
+  }
+
+  if ([self _hasListeners:@"playbackstate"] && oldState != _playbackState) {
+    NSDictionary *event = [NSDictionary dictionaryWithObject:[self playbackState] forKey:@"playbackState"];
+    [self fireEvent:@"playbackstate" withObject:event];
+  }
+}
+
+// iOS 10+
 - (void)handleTimeControlStatusNotification:(NSNotification *)note
 {
+  TiVideoPlayerPlaybackState oldState = _playbackState;
   playing = movie.player.timeControlStatus == AVPlayerTimeControlStatusPlaying;
 
   if (movie.player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
@@ -928,9 +971,11 @@ NSArray *moviePlayerKeys = nil;
     } else {
       _playbackState = TiVideoPlayerPlaybackStatePaused;
     }
+  } else if ([TiUtils boolValue:[loadProperties valueForKey:@"autoplay"]]) {
+    _playbackState = TiVideoPlayerPlaybackStatePlaying;
   }
-  
-  if ([self _hasListeners:@"playbackstate"]) {
+
+  if ([self _hasListeners:@"playbackstate"] && oldState != _playbackState) {
     NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINTEGER(_playbackState) forKey:@"playbackState"];
     [self fireEvent:@"playbackstate" withObject:event];
   }
@@ -941,9 +986,6 @@ NSArray *moviePlayerKeys = nil;
   if ([keyPath isEqualToString:@"player.currentItem.duration"]) {
     [self handleDurationAvailableNotification:nil];
   }
-  if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
-    [self handleTimeControlStatusNotification:nil];
-  }
   if ([keyPath isEqualToString:@"url"]) {
     [self handleNowPlayingNotification:nil];
   }
@@ -952,6 +994,15 @@ NSArray *moviePlayerKeys = nil;
   }
   if ([keyPath isEqualToString:@"videoBounds"]) {
     [self handleNaturalSizeAvailableNotification:nil];
+  }
+  if ([TiUtils isIOS10OrGreater]) {
+    if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
+      [self handleTimeControlStatusNotification:nil];
+    }
+  } else {
+    if ([keyPath isEqualToString:@"player.rate"]) {
+      [self handlePlaybackStateChangeNotification:nil];
+    }
   }
 }
 
