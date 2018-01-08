@@ -62,7 +62,7 @@ typedef NS_ENUM(NSInteger, TiVideoPlayerPlaybackState) {
 
   // Have to track loading in the proxy in addition to the view, in case we load before the view should be rendered
   BOOL loaded;
-  
+
   // Track the playback state for parity
   TiVideoPlayerPlaybackState _playbackState;
 }
