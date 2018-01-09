@@ -9,8 +9,9 @@ package ti.modules.titanium.xml;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.Entity;
 
-@Kroll.proxy(parentModule=XMLModule.class)
-public class EntityProxy extends NodeProxy {
+@Kroll.proxy(parentModule = XMLModule.class)
+public class EntityProxy extends NodeProxy
+{
 
 	private Entity entity;
 
@@ -20,18 +21,30 @@ public class EntityProxy extends NodeProxy {
 		this.entity = entity;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getNotationName() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getNotationName()
+	// clang-format on
+	{
 		return entity.getNotationName();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getPublicId() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getPublicId()
+	// clang-format on
+	{
 		return entity.getPublicId();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getSystemId() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getSystemId()
+	// clang-format on
+	{
 		return entity.getSystemId();
 	}
 

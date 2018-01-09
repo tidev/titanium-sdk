@@ -60,6 +60,7 @@ function AndroidBuilder() {
 
 	this.dexAgent = false;
 
+	this.validABIs = this.packageJson.architectures;
 	this.compileSdkVersion = this.packageJson.compileSDKVersion; // this should always be >= maxSupportedApiLevel
 	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
 	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
@@ -72,8 +73,6 @@ function AndroidBuilder() {
 	};
 
 	this.targets = [ 'emulator', 'device', 'dist-playstore' ];
-
-	this.validABIs = [ 'arm64-v8a', 'armeabi-v7a', 'x86' ];
 
 	this.uncompressedTypes = [
 		'jpg', 'jpeg', 'png', 'gif',
@@ -2163,10 +2162,10 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (this.tiapp.navbarHidden !== manifest.navbarHidden) {
+	if (this.tiapp['navbar-hidden'] !== manifest.navbarHidden) {
 		this.logger.info(__('Forcing rebuild: tiapp.xml navbar-hidden changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.navbarHidden));
-		this.logger.info('  ' + __('Now: %s', this.tiapp.navbarHidden));
+		this.logger.info('  ' + __('Now: %s', this.tiapp['navbar-hidden']));
 		return true;
 	}
 
@@ -3450,8 +3449,17 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
 			flags += '.Fullscreen';
 		}
 
+		let theme = flags;
+		if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
+			let appTheme = this.tiappAndroidManifest.application.theme;
+			if (appTheme.startsWith('@style/') && appTheme !== '@style/Theme.Titanium.Translucent') {
+				theme = appTheme.replace('@style/', '');
+			}
+		}
+
 		fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
-			flags: flags
+			flags: flags,
+			theme: theme
 		}));
 	}
 

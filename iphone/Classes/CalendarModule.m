@@ -245,7 +245,6 @@ typedef void (^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError
     return;
   }
   TiThreadPerformOnMainThread(^() {
-
     EKEventStore *ourstore = [self store];
     [ourstore requestAccessToEntityType:EKEntityTypeEvent
                              completion:^(BOOL granted, NSError *error) {
