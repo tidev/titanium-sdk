@@ -828,10 +828,13 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		Bundle bundleText =
 			AttributedStringProxy.toSpannableInBundle(attrString, TiApplication.getAppCurrentActivity());
 		if (bundleText.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			//TIMOB-17210 Android: A textfield change listener is wrongly triggered also if the value is programmatically set before creation
+			disableChangeEvent = true;
 			tv.setText((Spannable) bundleText.getCharSequence(TiC.PROPERTY_ATTRIBUTED_STRING));
 			if (bundleText.getBoolean(TiC.PROPERTY_HAS_LINK, false)) {
 				tv.setMovementMethod(LinkMovementMethod.getInstance());
 			}
+			disableChangeEvent = false;
 		}
 	}
 
