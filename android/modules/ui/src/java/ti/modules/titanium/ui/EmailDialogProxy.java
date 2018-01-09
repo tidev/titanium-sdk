@@ -298,7 +298,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		try {
 			String fileName = "attachment";
 			String extension = TiMimeTypeHelper.getFileExtensionFromMimeType(blob.getMimeType(), "");
-			if (extension.length() > 0 ) {
+			if (extension.length() > 0) {
 				fileName += "." + extension;
 			}
 			tempFile = blobToTemp(blob, fileName);
@@ -342,7 +342,8 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		return uris;
 	}
 
-	private void prepareAttachments(Intent sendIntent, ArrayList<Uri> uris) {
+	private void prepareAttachments(Intent sendIntent, ArrayList<Uri> uris)
+	{
 		// Validate arguments.
 		if ((sendIntent == null) || (uris == null) || (uris.size() <= 0)) {
 			return;
