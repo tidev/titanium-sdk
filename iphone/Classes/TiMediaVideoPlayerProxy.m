@@ -147,8 +147,6 @@ NSArray *moviePlayerKeys = nil;
 // Used to avoid duplicate code in Brightcove module; makes things easier to maintain.
 - (void)configurePlayer
 {
-  _playbackState = TiVideoPlayerPlaybackStateStopped;
-
   [self addNotificationObserver];
   [self setValuesForKeysWithDictionary:loadProperties];
   // we need this code below since the player can be realized before loading
@@ -685,7 +683,11 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)playbackState
 {
-  return NUMINTEGER(_playbackState);
+  if (_playbackState != nil) {
+    return NUMINTEGER(_playbackState);
+  }
+
+  return NUMINTEGER(TiVideoPlayerPlaybackStateStopped);
 }
 
 - (void)setRepeatMode:(id)value
@@ -720,7 +722,6 @@ NSArray *moviePlayerKeys = nil;
   ENSURE_UI_THREAD(stop, args);
 
   playing = NO;
-  _playbackState = TiVideoPlayerPlaybackStateStopped;
 
   [[movie player] seekToTime:CMTimeMake(0, 1)];
   [[movie player] pause];
