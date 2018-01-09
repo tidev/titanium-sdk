@@ -905,7 +905,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// Verifies that we don't run into the JNI ref overflow issue on Android
 	// FIXME Eventually crashes on Windows Desktop, crashes right away with no output on Phone
-	/*it.windowsBroken('TIMOB-15765', function () {
+	it.windowsBroken('TIMOB-15765', function () {
 		var numberOfTableRowsToTest = 400, // 50 is enough to trigger on Android 4.4.2. 400 hits error on Android 6.0/23
 			vAnswerTable,
 			numOfQuestions = numberOfTableRowsToTest / 5,
@@ -948,5 +948,5 @@ describe('Titanium.UI.TableView', function () {
 				Ti.API.info('Here after ' + y + ' iterations inner loop, ' + x + ' iterations outer loop. Current section row: ' +  vAnswerTable.data[x].rows[y]);
 			}
 		}
-	});*/
+	});
 });
