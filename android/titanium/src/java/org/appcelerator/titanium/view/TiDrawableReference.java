@@ -59,20 +59,19 @@ public class TiDrawableReference
 		boundsCache = Collections.synchronizedMap(new HashMap<Integer, Bounds>());
 	}
 
-	public KrollDict getNetworkURLHeaders() {
+	public KrollDict getNetworkURLHeaders()
+	{
 		return networkURLHeaders;
 	}
 
-	public void setNetworkURLHeaders(Object networkURLHeaders) {
+	public void setNetworkURLHeaders(Object networkURLHeaders)
+	{
 		if (networkURLHeaders != null && networkURLHeaders instanceof HashMap) {
 			this.networkURLHeaders = new KrollDict(((HashMap) networkURLHeaders));
 		}
 	}
 
-	public enum DrawableReferenceType
-	{
-		NULL, URL, RESOURCE_ID, BLOB, FILE
-	}
+	public enum DrawableReferenceType { NULL, URL, RESOURCE_ID, BLOB, FILE }
 
 	public static class Bounds
 	{

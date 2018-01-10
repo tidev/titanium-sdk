@@ -56,7 +56,8 @@ public class TiDownloadManager implements Handler.Callback
 		threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 	}
 
-	public void download(URI uri, TiDownloadListener listener) {
+	public void download(URI uri, TiDownloadListener listener)
+	{
 		download(uri, listener, null);
 	}
 
@@ -80,7 +81,8 @@ public class TiDownloadManager implements Handler.Callback
 		msg.sendToTarget();
 	}
 
-	protected void startDownload(URI uri, TiDownloadListener listener) {
+	protected void startDownload(URI uri, TiDownloadListener listener)
+	{
 		startDownload(uri, listener, null);
 	}
 
@@ -150,7 +152,8 @@ public class TiDownloadManager implements Handler.Callback
 			this.uri = uri;
 		}
 
-		public DownloadJob(URI uri, KrollDict headersDictionary) {
+		public DownloadJob(URI uri, KrollDict headersDictionary)
+		{
 			this.uri = uri;
 			this.headersDictionary = headersDictionary;
 		}
@@ -163,7 +166,7 @@ public class TiDownloadManager implements Handler.Callback
 				URLConnection urlConnection = uri.toURL().openConnection();
 				// assign headers if there are any
 				if (this.headersDictionary != null) {
-					for (String key:headersDictionary.keySet()) {
+					for (String key : headersDictionary.keySet()) {
 						urlConnection.addRequestProperty(key, headersDictionary.getString(key));
 					}
 				}
