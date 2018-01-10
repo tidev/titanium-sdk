@@ -683,7 +683,7 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)playbackState
 {
-  if (_playbackState != nil) {
+  if (_playbackState != TiVideoPlayerPlaybackStateUnknown) {
     return NUMINTEGER(_playbackState);
   }
 
@@ -851,7 +851,6 @@ NSArray *moviePlayerKeys = nil;
 /* Called when the player item has played to its end time. */
 - (void)playerItemDidReachEnd
 {
-  _playbackState = TiVideoPlayerPlaybackStateStopped;
   seekToZeroBeforePlay = YES;
 }
 

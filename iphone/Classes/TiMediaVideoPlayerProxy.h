@@ -24,7 +24,8 @@ typedef NS_ENUM(NSInteger, VideoRepeatMode) {
 };
 
 typedef NS_ENUM(NSInteger, TiVideoPlayerPlaybackState) {
-  TiVideoPlayerPlaybackStateStopped = 0,
+  TiVideoPlayerPlaybackStateUnknown = -1,
+  TiVideoPlayerPlaybackStateStopped,
   TiVideoPlayerPlaybackStatePlaying,
   TiVideoPlayerPlaybackStatePaused,
   TiVideoPlayerPlaybackStateInterrupted,
