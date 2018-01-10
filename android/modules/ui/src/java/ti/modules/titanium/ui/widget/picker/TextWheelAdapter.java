@@ -7,7 +7,6 @@
 
 package ti.modules.titanium.ui.widget.picker;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -17,7 +16,7 @@ public class TextWheelAdapter implements WheelAdapter
 {
 	private ArrayList<Object> values = null;
 	private int maxLength;
-	
+
 	public TextWheelAdapter(ArrayList<Object> values)
 	{
 		setValues(values);
@@ -25,7 +24,7 @@ public class TextWheelAdapter implements WheelAdapter
 
 	public TextWheelAdapter(Object[] values)
 	{
-		this( new ArrayList<Object>( Arrays.asList(values) ) );
+		this(new ArrayList<Object>(Arrays.asList(values)));
 	}
 
 	@Override
@@ -59,12 +58,13 @@ public class TextWheelAdapter implements WheelAdapter
 
 	public void setValues(Object[] newValues)
 	{
-		setValues( new ArrayList<Object>( Arrays.asList(newValues) ) );
+		setValues(new ArrayList<Object>(Arrays.asList(newValues)));
 	}
 
 	public void setValues(ArrayList<Object> newValues)
 	{
-		if (values != null) values.clear();
+		if (values != null)
+			values.clear();
 		this.values = newValues;
 		this.maxLength = calcMaxLength();
 	}
@@ -74,5 +74,4 @@ public class TextWheelAdapter implements WheelAdapter
 	{
 		return (values == null) ? 0 : values.size();
 	}
-	
 }

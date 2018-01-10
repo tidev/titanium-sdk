@@ -14,12 +14,14 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
-public class ModulePathTask extends Task {
+public class ModulePathTask extends Task
+{
 
 	protected String json, module, modulesDir, pathid;
-	
+
 	@Override
-	public void execute() throws BuildException {
+	public void execute() throws BuildException
+	{
 		if (json == null) {
 			throw new BuildException("No JSON file specified for " + getTaskName());
 		}
@@ -34,7 +36,7 @@ public class ModulePathTask extends Task {
 		}
 
 		Path moduleDepsPath = new Path(getProject());
-		
+
 		TiModuleDependencies deps = new TiModuleDependencies(json);
 		List<String> moduleDeps = deps.getModuleDependencies(module);
 		if (moduleDeps != null) {
@@ -53,35 +55,43 @@ public class ModulePathTask extends Task {
 		getProject().addReference(pathid, moduleDepsPath);
 	}
 
-	public String getJson() {
+	public String getJson()
+	{
 		return json;
 	}
 
-	public void setJson(String json) {
+	public void setJson(String json)
+	{
 		this.json = json;
 	}
 
-	public String getModule() {
+	public String getModule()
+	{
 		return module;
 	}
 
-	public void setModule(String module) {
+	public void setModule(String module)
+	{
 		this.module = module;
 	}
-	
-	public String getPathid() {
+
+	public String getPathid()
+	{
 		return pathid;
 	}
 
-	public void setPathid(String pathid) {
+	public void setPathid(String pathid)
+	{
 		this.pathid = pathid;
 	}
 
-	public String getModulesDir() {
+	public String getModulesDir()
+	{
 		return modulesDir;
 	}
 
-	public void setModulesDir(String modulesDir) {
+	public void setModulesDir(String modulesDir)
+	{
 		this.modulesDir = modulesDir;
 	}
 }

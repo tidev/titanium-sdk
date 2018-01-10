@@ -20,30 +20,33 @@ import org.appcelerator.titanium.TiC;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-@Kroll.proxy(parentModule=ContactsModule.class, propertyAccessors={
-	TiC.PROPERTY_LASTNAME,
-	TiC.PROPERTY_FIRSTNAME,
-	TiC.PROPERTY_MIDDLENAME,
-	TiC.PROPERTY_NICKNAME,
-	TiC.PROPERTY_NOTE,
-	TiC.PROPERTY_ORGANIZATION,
-	TiC.PROPERTY_BIRTHDAY,
-	TiC.PROPERTY_EMAIL,
-	TiC.PROPERTY_PHONE,
-	TiC.PROPERTY_ADDRESS,
-	TiC.PROPERTY_URL,
-	TiC.PROPERTY_INSTANTMSG,
-	TiC.PROPERTY_RELATED_NAMES,
-	TiC.PROPERTY_DATE,
-	TiC.PROPERTY_KIND,
-	TiC.PROPERTY_PREFIX,
-	TiC.PROPERTY_SUFFIX,
-	TiC.PROPERTY_FIRSTPHONETIC,
-	TiC.PROPERTY_MIDDLEPHONETIC,
-	TiC.PROPERTY_LASTPHONETIC,
-	TiC.PROPERTY_JOBTITLE,
-	TiC.PROPERTY_DEPARTMENT
+// clang-format off
+@Kroll.proxy(parentModule = ContactsModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_LASTNAME,
+		TiC.PROPERTY_FIRSTNAME,
+		TiC.PROPERTY_MIDDLENAME,
+		TiC.PROPERTY_NICKNAME,
+		TiC.PROPERTY_NOTE,
+		TiC.PROPERTY_ORGANIZATION,
+		TiC.PROPERTY_BIRTHDAY,
+		TiC.PROPERTY_EMAIL,
+		TiC.PROPERTY_PHONE,
+		TiC.PROPERTY_ADDRESS,
+		TiC.PROPERTY_URL,
+		TiC.PROPERTY_INSTANTMSG,
+		TiC.PROPERTY_RELATED_NAMES,
+		TiC.PROPERTY_DATE,
+		TiC.PROPERTY_KIND,
+		TiC.PROPERTY_PREFIX,
+		TiC.PROPERTY_SUFFIX,
+		TiC.PROPERTY_FIRSTPHONETIC,
+		TiC.PROPERTY_MIDDLEPHONETIC,
+		TiC.PROPERTY_LASTPHONETIC,
+		TiC.PROPERTY_JOBTITLE,
+		TiC.PROPERTY_DEPARTMENT
 })
+// clang-format on
 public class PersonProxy extends KrollProxy
 {
 	private static final String TAG = "Person";
@@ -63,7 +66,7 @@ public class PersonProxy extends KrollProxy
 	private boolean isPhotoFetchable()
 	{
 		long id = (Long) getProperty(TiC.PROPERTY_ID);
-		return (id > 0 && hasImage );
+		return (id > 0 && hasImage);
 	}
 
 	public void finishModification()
@@ -71,8 +74,11 @@ public class PersonProxy extends KrollProxy
 		modified.clear();
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getFullName()
+	// clang-format on
 	{
 		return fullName;
 	}
@@ -82,9 +88,11 @@ public class PersonProxy extends KrollProxy
 		fullName = fname;
 	}
 
-
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public long getId()
+	// clang-format on
 	{
 		return (Long) getProperty(TiC.PROPERTY_ID);
 	}
@@ -94,9 +102,11 @@ public class PersonProxy extends KrollProxy
 		return (modified.containsKey(field) && modified.get(field));
 	}
 
-
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public TiBlob getImage()
+	// clang-format on
 	{
 		if (this.image != null) {
 			return this.image;
@@ -111,8 +121,11 @@ public class PersonProxy extends KrollProxy
 		return this.image;
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setImage(TiBlob blob)
+	// clang-format on
 	{
 		image = blob;
 		hasImage = true;
@@ -166,7 +179,7 @@ public class PersonProxy extends KrollProxy
 		// But Android 1.6 does not have structured addresses so we're just put
 		// everything in Street.
 		KrollDict address = new KrollDict();
-		for (String key: map.keySet()) {
+		for (String key : map.keySet()) {
 			ArrayList<String> values = map.get(key);
 			KrollDict[] dictValues = new KrollDict[values.size()];
 			for (int i = 0; i < dictValues.length; i++) {
@@ -186,18 +199,19 @@ public class PersonProxy extends KrollProxy
 			return;
 		}
 
-		if (name.equals(TiC.PROPERTY_FIRSTNAME) || name.equals(TiC.PROPERTY_MIDDLENAME) || name.equals(TiC.PROPERTY_LASTNAME)) {
+		if (name.equals(TiC.PROPERTY_FIRSTNAME) || name.equals(TiC.PROPERTY_MIDDLENAME)
+			|| name.equals(TiC.PROPERTY_LASTNAME)) {
 			modified.put(TiC.PROPERTY_NAME, true);
-		} else if (name.equals(TiC.PROPERTY_BIRTHDAY) || name.equals(TiC.PROPERTY_ORGANIZATION) ||
-				name.equals(TiC.PROPERTY_NOTE) || name.equals(TiC.PROPERTY_NICKNAME) ||
-				name.equals(TiC.PROPERTY_PHONE) || name.equals(TiC.PROPERTY_ADDRESS) ||
-				name.equals(TiC.PROPERTY_INSTANTMSG) || name.equals(TiC.PROPERTY_URL) ||
-				name.equals(TiC.PROPERTY_EMAIL) || name.equals(TiC.PROPERTY_RELATED_NAMES) ||
-				name.equals(TiC.PROPERTY_DATE) || name.equals(TiC.PROPERTY_KIND) ||
-				name.equals(TiC.PROPERTY_PREFIX) || name.equals(TiC.PROPERTY_SUFFIX) ||
-				name.equals(TiC.PROPERTY_FIRSTPHONETIC) || name.equals(TiC.PROPERTY_MIDDLEPHONETIC) ||
-				name.equals(TiC.PROPERTY_LASTPHONETIC) || name.equals(TiC.PROPERTY_JOBTITLE) ||
-				name.equals(TiC.PROPERTY_DEPARTMENT)) {
+		} else if (name.equals(TiC.PROPERTY_BIRTHDAY) || name.equals(TiC.PROPERTY_ORGANIZATION)
+				   || name.equals(TiC.PROPERTY_NOTE) || name.equals(TiC.PROPERTY_NICKNAME)
+				   || name.equals(TiC.PROPERTY_PHONE) || name.equals(TiC.PROPERTY_ADDRESS)
+				   || name.equals(TiC.PROPERTY_INSTANTMSG) || name.equals(TiC.PROPERTY_URL)
+				   || name.equals(TiC.PROPERTY_EMAIL) || name.equals(TiC.PROPERTY_RELATED_NAMES)
+				   || name.equals(TiC.PROPERTY_DATE) || name.equals(TiC.PROPERTY_KIND)
+				   || name.equals(TiC.PROPERTY_PREFIX) || name.equals(TiC.PROPERTY_SUFFIX)
+				   || name.equals(TiC.PROPERTY_FIRSTPHONETIC) || name.equals(TiC.PROPERTY_MIDDLEPHONETIC)
+				   || name.equals(TiC.PROPERTY_LASTPHONETIC) || name.equals(TiC.PROPERTY_JOBTITLE)
+				   || name.equals(TiC.PROPERTY_DEPARTMENT)) {
 
 			modified.put(name, true);
 		}
