@@ -149,13 +149,12 @@ public class TiFileHelper implements Handler.Callback
 		return _instance;
 	}
 
-	public InputStream openInputStream(String path, boolean report)
-    throws IOException {
+	public InputStream openInputStream(String path, boolean report) throws IOException
+	{
 		return openInputStream(path, report, null);
 	}
 
-	public InputStream openInputStream(String path, boolean report, KrollDict requestProperties)
-		throws IOException
+	public InputStream openInputStream(String path, boolean report, KrollDict requestProperties) throws IOException
 	{
 		InputStream is = null;
 
@@ -189,7 +188,8 @@ public class TiFileHelper implements Handler.Callback
 			} else if (URLUtil.isNetworkUrl(path)) {
 				NetworkURLwithProperties networkRequest = new NetworkURLwithProperties(path, requestProperties);
 				if (TiApplication.isUIThread()) {
-					is = (InputStream) TiMessenger.sendBlockingRuntimeMessage(getRuntimeHandler().obtainMessage(MSG_NETWORK_URL), networkRequest);
+					is = (InputStream) TiMessenger.sendBlockingRuntimeMessage(
+						getRuntimeHandler().obtainMessage(MSG_NETWORK_URL), networkRequest);
 				} else {
 					is = handleNetworkURL(networkRequest);
 				}
@@ -255,7 +255,7 @@ public class TiFileHelper implements Handler.Callback
 
 		URL u = new URL(networkRequest.getUrl());
 		URLConnection connection = u.openConnection();
-		for (String key:networkRequest.getNetworkProperties().keySet()) {
+		for (String key : networkRequest.getNetworkProperties().keySet()) {
 			connection.setRequestProperty(key, networkRequest.getNetworkProperties().getString(key));
 		}
 		InputStream lis = connection.getInputStream();
@@ -803,30 +803,36 @@ public class TiFileHelper implements Handler.Callback
 	}
 
 	// Class to pass network call URL together with required properties.
-	private class NetworkURLwithProperties {
+	private class NetworkURLwithProperties
+	{
 		private String url;
 		private KrollDict networkProperties;
 
-		public NetworkURLwithProperties(String url, KrollDict networkProperties) {
+		public NetworkURLwithProperties(String url, KrollDict networkProperties)
+		{
 			this.url = url;
 			if (networkProperties != null) {
 				this.networkProperties = networkProperties;
 			}
 		}
 
-		public String getUrl() {
+		public String getUrl()
+		{
 			return url;
 		}
 
-		public void setUrl(String url) {
+		public void setUrl(String url)
+		{
 			this.url = url;
 		}
 
-		public KrollDict getNetworkProperties() {
+		public KrollDict getNetworkProperties()
+		{
 			return networkProperties;
 		}
 
-		public void setNetworkProperties(KrollDict networkProperties) {
+		public void setNetworkProperties(KrollDict networkProperties)
+		{
 			this.networkProperties = networkProperties;
 		}
 	}

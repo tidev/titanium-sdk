@@ -103,7 +103,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					// The requested image did not make it into our TiResponseCache,
 					// possibly because it had a header forbidding that. Now get it
 					// via the "old way" (not relying on cache).
-					TiDrawableReference tempDrawableReference = TiDrawableReference.fromUrl(imageViewProxy, uri.toString());
+					TiDrawableReference tempDrawableReference =
+						TiDrawableReference.fromUrl(imageViewProxy, uri.toString());
 					tempDrawableReference.setNetworkURLHeaders(proxy.getProperty(TiC.PROPERTY_REQUEST_HEADERS));
 					TiLoadImageManager.getInstance().load(tempDrawableReference, loadImageListener);
 				}
@@ -752,7 +753,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				// Check if the image is not cached in disc and the uri is valid.
 				if (!isCachedInDisk && uri != null) {
 					if (imageref.getNetworkURLHeaders() != null) {
-						TiDownloadManager.getInstance().download(uri, downloadListener, imageref.getNetworkURLHeaders());
+						TiDownloadManager.getInstance().download(uri, downloadListener,
+																 imageref.getNetworkURLHeaders());
 					} else {
 						TiDownloadManager.getInstance().download(uri, downloadListener);
 					}

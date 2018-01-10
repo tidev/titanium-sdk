@@ -311,7 +311,8 @@ public class TiResponseCache extends ResponseCache
 	@Override
 	public CacheResponse get(URI uri, String rqstMethod, Map<String, List<String>> rqstHeaders) throws IOException
 	{
-		if (uri == null || cacheDir == null) return null;
+		if (uri == null || cacheDir == null)
+			return null;
 
 		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
@@ -407,7 +408,8 @@ public class TiResponseCache extends ResponseCache
 	@Override
 	public CacheRequest put(URI uri, URLConnection conn) throws IOException
 	{
-		if (cacheDir == null || uri == null) return null;
+		if (cacheDir == null || uri == null)
+			return null;
 
 		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
