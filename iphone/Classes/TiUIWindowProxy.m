@@ -943,7 +943,6 @@
     return;
   }
 
-  [[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
   //Need to clear title for titleAttributes to apply correctly on iOS6.
   [[controller navigationItem] setTitle:nil];
   SETPROP(@"titleAttributes", setTitleAttributes);
@@ -957,6 +956,7 @@
   SETPROP(@"translucent", setTranslucent);
   SETPROP(@"tabBarHidden", setTabBarHidden);
   SETPROPOBJ(@"toolbar", setToolbar);
+  [[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
   [self updateBarImage];
   [self updateNavButtons];
   [self refreshBackButton];
