@@ -16,6 +16,7 @@ import android.app.Activity;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
+		TiC.PROPERTY_CACHE,
 		TiC.PROPERTY_DECODE_RETRIES,
 		TiC.PROPERTY_AUTOROTATE,
 		TiC.PROPERTY_DEFAULT_IMAGE,
@@ -32,6 +33,7 @@ public class ImageViewProxy extends ViewProxy
 	public ImageViewProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_CACHE, true);
 	}
 
 	@Override

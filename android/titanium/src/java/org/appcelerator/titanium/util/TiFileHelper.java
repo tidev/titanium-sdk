@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -45,6 +46,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.webkit.URLUtil;
+import org.appcelerator.titanium.TiC;
 
 @SuppressWarnings("deprecation")
 public class TiFileHelper implements Handler.Callback
@@ -149,6 +151,10 @@ public class TiFileHelper implements Handler.Callback
 
 	public InputStream openInputStream(String path, boolean report) throws IOException
 	{
+		return openInputStream(path, report, false);
+	}
+	public InputStream openInputStream(String path, boolean report, boolean useCaches) throws IOException
+	{
 		InputStream is = null;
 
 		Context context = softContext.get();
@@ -180,10 +186,11 @@ public class TiFileHelper implements Handler.Callback
 				}
 			} else if (URLUtil.isNetworkUrl(path)) {
 				if (TiApplication.isUIThread()) {
-					is = (InputStream) TiMessenger.sendBlockingRuntimeMessage(
-						getRuntimeHandler().obtainMessage(MSG_NETWORK_URL), path);
+					Message message = getRuntimeHandler().obtainMessage(MSG_NETWORK_URL);
+					message.getData().putBoolean(TiC.PROPERTY_CACHE, useCaches);
+					is = (InputStream) TiMessenger.sendBlockingRuntimeMessage(message, path);
 				} else {
-					is = handleNetworkURL(path);
+					is = handleNetworkURL(path, useCaches);
 				}
 			} else if (path.startsWith(RESOURCE_ROOT_ASSETS)) {
 				int len = "file:///android_asset/".length();
@@ -229,7 +236,7 @@ public class TiFileHelper implements Handler.Callback
 		return is;
 	}
 
-	private InputStream handleNetworkURL(String path) throws IOException
+	private InputStream handleNetworkURL(String path, boolean useCaches) throws IOException
 	{
 		InputStream is = null;
 		try {
@@ -245,7 +252,9 @@ public class TiFileHelper implements Handler.Callback
 		}
 
 		URL u = new URL(path);
-		InputStream lis = u.openStream();
+		HttpURLConnection client = (HttpURLConnection) u.openConnection();
+		client.setUseCaches(useCaches);
+		InputStream lis = client.getInputStream();
 		ByteArrayOutputStream bos = null;
 		try {
 			bos = new ByteArrayOutputStream(8192);
@@ -303,8 +312,8 @@ public class TiFileHelper implements Handler.Callback
 	/**
 	 * This method creates a Drawable given the bitmap's path, and converts it to a NinePatch Drawable
 	 * if checkForNinePatch param is true.
-	 * @param path  the path/url of the Drawable 
-	 * @param report  this is not being used. 
+	 * @param path  the path/url of the Drawable
+	 * @param report  this is not being used.
 	 * @param checkForNinePatch  a boolean to determine whether the returning Drawable is a NinePatch Drawable.
 	 * @param densityScaled  a boolean to determine whether the returning Drawable is scaled based on device density.
 	 * @return  a Drawable instance.
@@ -780,7 +789,8 @@ public class TiFileHelper implements Handler.Callback
 			case MSG_NETWORK_URL:
 				AsyncResult result = (AsyncResult) msg.obj;
 				try {
-					result.setResult(handleNetworkURL(TiConvert.toString(result.getArg())));
+					result.setResult(handleNetworkURL(TiConvert.toString(result.getArg()),
+													  msg.getData().getBoolean(TiC.PROPERTY_CACHE)));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

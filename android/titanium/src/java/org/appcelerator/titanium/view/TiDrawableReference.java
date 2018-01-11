@@ -23,6 +23,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
@@ -81,6 +82,7 @@ public class TiDrawableReference
 	private boolean anyDensityFalse = false;
 	private boolean autoRotate;
 	private int orientation = -1;
+	public boolean useCaches = false;
 
 	// TIMOB-3599: A bug in Gingerbread forces us to retry decoding bitmaps when they initially fail
 	public static final int DEFAULT_DECODE_RETRIES = 5;
@@ -163,7 +165,14 @@ public class TiDrawableReference
 		if (url == null || url.length() == 0 || url.trim().length() == 0) {
 			return new TiDrawableReference(proxy.getActivity(), DrawableReferenceType.NULL);
 		}
-		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
+		boolean useCaches = false;
+		Object cacheProperty = proxy.getProperty(TiC.PROPERTY_CACHE);
+		if (cacheProperty != null) {
+			useCaches = TiConvert.toBoolean(cacheProperty);
+		}
+		TiDrawableReference ref = fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
+		ref.useCaches = useCaches;
+		return ref;
 	}
 
 	/**
@@ -239,8 +248,15 @@ public class TiDrawableReference
 			object = proxy.resolveUrl(null, (String) object);
 		}
 
+		boolean useCaches = false;
+		Object cacheProperty = proxy.getProperty(TiC.PROPERTY_CACHE);
+		if (cacheProperty != null) {
+			useCaches = TiConvert.toBoolean(cacheProperty);
+		}
 		// Create a drawable reference from the given object.
-		return TiDrawableReference.fromObject(activity, object);
+		TiDrawableReference ref = TiDrawableReference.fromObject(activity, object);
+		ref.useCaches = useCaches;
+		return ref;
 	}
 
 	/**
@@ -411,6 +427,7 @@ public class TiDrawableReference
 						URL mURL = new URL(url);
 						connection = (HttpURLConnection) mURL.openConnection();
 						connection.setInstanceFollowRedirects(true);
+						connection.setUseCaches(useCaches);
 						connection.setDoInput(true);
 						connection.connect();
 						int responseCode = connection.getResponseCode();
@@ -893,7 +910,7 @@ public class TiDrawableReference
 
 		if (isTypeUrl() && url != null) {
 			try {
-				stream = TiFileHelper.getInstance().openInputStream(url, false);
+				stream = TiFileHelper.getInstance().openInputStream(url, false, useCaches);
 
 			} catch (IOException e) {
 				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
