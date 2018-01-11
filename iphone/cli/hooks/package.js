@@ -228,6 +228,18 @@ exports.init = function (logger, config, cli) {
 		exportsOptions.provisioningProfiles = {};
 		exportsOptions.provisioningProfiles[builder.tiapp.id] = pp.uuid;
 
+		builder.extensions.forEach(function (ext) {
+			ext.targets.forEach(function (item) {
+				let id;
+				if (item.name.indexOf('WatchKit Extension') !== -1) {
+					id = builder.tiapp.id + '.watchkitapp.watchkitextension';
+				} else if (item.name.indexOf('WatchKit App') !== -1) {
+					id = builder.tiapp.id + '.watchkitapp';
+				}
+				id && (exportsOptions.provisioningProfiles[id] = item.ppUUIDs.target || pp.uuid);
+			});
+		});
+
 		// check if the app is using CloudKit
 		const entitlementsFile = path.join(builder.buildDir, builder.tiapp.name + '.entitlements');
 		if (fs.existsSync(entitlementsFile)) {
