@@ -103,9 +103,13 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	 * @param type TextView.BufferType - characteristics of the text such as static, styleable, or editable.
 	 */
 	@Override
-	public void setText(CharSequence text, BufferType type) {
+	public void setText(CharSequence text, BufferType type)
+	{
+		// Update the field's text.
 		super.setText(text, type);
-		setSelection(text.length());
+
+		// Move the cursor to the end of the field. (Matches iOS' behavior.)
+		setSelection(length());
 	}
 
 	/**
