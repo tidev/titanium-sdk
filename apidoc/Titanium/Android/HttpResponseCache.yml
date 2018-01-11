@@ -1,0 +1,125 @@
+---
+name: Titanium.Android.HttpResponseCache
+summary: The Titanium binding of an Android HttpResponseCache.
+description: |
+    Caches HTTP and HTTPS responses to the filesystem so they may be reused, saving time and bandwidth.
+
+    See also [android.net.http.HttpResponseCache](https://developer.android.com/reference/android/net/http/HttpResponseCache.html)
+    in the Android API Reference.
+
+    Cache will be saved in external storage if it present on the moment then
+    [install](Titanium.Android.HttpResponseCache.install) method is called.
+
+    #### Usage example
+
+            if(Ti.Platform.osname == "android") {
+                Ti.Android.HttpResponseCache.setHttpCachePath('_http_');
+                Ti.Android.HttpResponseCache.setHttpCacheSize(30 * 1024 * 1024);  // 30MB
+                Ti.Android.HttpResponseCache.install();
+            }
+
+extends: Titanium.Proxy
+platforms: [android]
+createable: false
+since: "8.0.0"
+methods:
+  - name: close
+    summary: Uninstalls the cache and releases any active resources.
+    description: |
+        See also:
+        [close](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#close())
+        in the Android API Reference.
+
+  - name: flush
+    summary: Force buffered operations to the filesystem.
+    description: |
+        See also:
+        [flush](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#flush())
+        in the Android API Reference.
+
+  - name: install
+    summary: Creates a new HTTP response cache and sets it as the system default cache.
+    description: |
+        See also:
+        [install](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#install(java.io.File, long))
+        in the Android API Reference.
+
+  - name: remove
+    summary: Uninstalls the cache and deletes all of its stored contents.
+    description: |
+        See also:
+        [delete](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#delete())
+        in the Android API Reference.
+
+  - name: getHitCount
+    summary: Returns the number of HTTP requests whose response was provided by the cache.
+    description: |
+        See also:
+        [getHitCount](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#getHitCount())
+        in the Android API Reference.
+    returns:
+        type: Number
+
+  - name: getNetworkCount
+    summary: Returns the number of HTTP requests that required the network to either supply a response or validate a locally cached response.
+    description: |
+        See also:
+        [getNetworkCount](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#getNetworkCount())
+        in the Android API Reference.
+    returns:
+        type: Number
+
+  - name: getRequestCount
+    summary: Returns the total number of HTTP requests that were made.
+    description: |
+        See also:
+        [getRequestCount](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#getRequestCount())
+        in the Android API Reference.
+    returns:
+        type: Number
+
+  - name: size
+    summary: Returns the number of bytes currently being used to store the values in this cache.
+    description: |
+        See also:
+        [size](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#size())
+        in the Android API Reference.
+    returns:
+        type: Number
+
+  - name: getHttpCachePath
+    summary: Gets relative path for cache.
+    description: |
+        Default value `http`.
+    returns:
+        type: String
+
+  - name: getHttpCacheSize
+    summary: Returns the maximum number of bytes that this cache should use to store its data.
+    description: |
+        Default value is 25MB. This could be redefined by
+        [setHttpCacheSize](Titanium.Android.HttpResponseCache.setHttpCacheSize) or by setting
+        `ti.android.cache.size.max` property in `tiapp.xml`
+        See also:
+        [maxSize](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#maxSize())
+        in the Android API Reference.
+    returns:
+        type: Number
+
+  - name: setHttpCachePath
+    summary: Sets relative path for cache.
+    description: |
+        Override default cache path.
+    parameters:
+      - name: path
+        summary: Relative path for cache.
+        type: String
+
+  - name: SetHttpCacheSize
+    summary: Sets the maximum number of bytes that this cache should use to store its data.
+    description: |
+        Should be set before calling [install](Titanium.Android.HttpResponseCache.install) method
+    parameters:
+      - name: size
+        summary: Maximum cache size in bytes.
+        type: Number
