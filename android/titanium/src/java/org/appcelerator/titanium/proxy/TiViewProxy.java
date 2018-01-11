@@ -483,8 +483,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 	 */
 	public TiUIView getOrCreateView()
 	{
-		TiBaseActivity activity = (TiBaseActivity) getActivity();
-		if (activity == null || activity.isDestroyed() || view != null) {
+		if (view != null) {
 			return view;
 		}
 
@@ -503,6 +502,12 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			}
 
 			Activity activity = getActivity();
+			if (activity.isDestroyed()) {
+				activity = activity.getParent();
+			}
+			if (activity == null) {
+				activity = TiApplication.getAppRootOrCurrentActivity();
+			}
 			view = createView(activity);
 			if (isDecorView) {
 				if (activity != null) {
