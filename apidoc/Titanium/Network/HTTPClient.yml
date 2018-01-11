@@ -536,9 +536,9 @@ properties:
 
         This propery must be set before `open` is called.
     type: Boolean
-    since: "2.0.0"
+    since: {android: "8.0.0", iphone: "2.0.0", ipad: "2.0.0"}
     default: false
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
 
 examples:
   - title: Simple GET Request

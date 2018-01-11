@@ -1360,13 +1360,14 @@ public class TiHTTPClient
 				return;
 			}
 
+			client.setUseCaches(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CACHE)));
 			client.setRequestMethod(method);
 			client.setDoInput(true);
 
 			if (isPostOrPutOrPatch) {
 				client.setDoOutput(true);
 			}
-			client.setUseCaches(false);
+
 			//Set Authorization value for Basic authentication
 			if (hasAuthentication) {
 				String domain = proxy.getDomain();
