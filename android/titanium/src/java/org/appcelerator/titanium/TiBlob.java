@@ -1104,6 +1104,18 @@ public class TiBlob extends KrollProxy
 	}
 
 	@Override
+	public void release()
+	{
+		if (data != null) {
+			data = null;
+		}
+		if (image != null) {
+			image = null;
+		}
+		super.release();
+	}
+
+	@Override
 	public String getApiName()
 	{
 		return "Ti.Blob";
