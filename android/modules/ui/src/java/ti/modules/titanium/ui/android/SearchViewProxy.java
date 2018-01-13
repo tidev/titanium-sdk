@@ -19,6 +19,7 @@ import android.app.Activity;
 	TiC.PROPERTY_ICONIFIED,
 	TiC.PROPERTY_ICONIFIED_BY_DEFAULT,
 	TiC.PROPERTY_HINT_TEXT,
+	TiC.PROPERTY_HINT_TEXT_COLOR,
 	TiC.PROPERTY_VALUE })
 public class SearchViewProxy extends TiViewProxy
 {
