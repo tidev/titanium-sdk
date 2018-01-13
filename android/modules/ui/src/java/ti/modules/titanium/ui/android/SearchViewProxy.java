@@ -14,6 +14,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import android.app.Activity;
 
+// clang-format off
 @Kroll.proxy(creatableInModule = AndroidModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_COLOR,
@@ -23,6 +24,7 @@ import android.app.Activity;
 		TiC.PROPERTY_HINT_TEXT_COLOR,
 		TiC.PROPERTY_VALUE
 })
+// clang-format on
 
 public class SearchViewProxy extends TiViewProxy
 {
