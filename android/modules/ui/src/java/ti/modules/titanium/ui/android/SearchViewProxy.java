@@ -14,13 +14,16 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
-	TiC.PROPERTY_COLOR,
-	TiC.PROPERTY_ICONIFIED,
-	TiC.PROPERTY_ICONIFIED_BY_DEFAULT,
-	TiC.PROPERTY_HINT_TEXT,
-	TiC.PROPERTY_HINT_TEXT_COLOR,
-	TiC.PROPERTY_VALUE })
+@Kroll.proxy(creatableInModule = AndroidModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_COLOR,
+		TiC.PROPERTY_ICONIFIED,
+		TiC.PROPERTY_ICONIFIED_BY_DEFAULT,
+		TiC.PROPERTY_HINT_TEXT,
+    TiC.PROPERTY_HINT_TEXT_COLOR,
+		TiC.PROPERTY_VALUE
+})
+
 public class SearchViewProxy extends TiViewProxy
 {
 	private static final String TAG = "SearchProxy";

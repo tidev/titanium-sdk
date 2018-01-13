@@ -92,8 +92,8 @@ enum {
  */
 @interface TiViewProxy : TiProxy <LayoutAutosizing> {
   @protected
-//TODO: Actually have a rhyme and reason on keeping things @protected vs @private.
-//For now, for sake of proper value grouping, we're all under one roof.
+  //TODO: Actually have a rhyme and reason on keeping things @protected vs @private.
+  //For now, for sake of proper value grouping, we're all under one roof.
 
 #ifndef TI_USE_AUTOLAYOUT
 #pragma mark Layout properties
@@ -102,12 +102,15 @@ enum {
   int vzIndex;
   BOOL hidden; //This is the boolean version of ![TiUtils boolValue:visible def:yes]
       //And has nothing to do with whether or not it's onscreen or
+#if IS_XCODE_9
+  BOOL safeAreaProxyAdded;
+#endif
 
 #pragma mark Parent/Children relationships
   TiViewProxy *parent;
   pthread_rwlock_t childrenLock;
   NSMutableArray *children;
-//	NSMutableArray *pendingAdds;
+  //	NSMutableArray *pendingAdds;
 
 #pragma mark Visual components
   TiUIView *view;
@@ -125,10 +128,10 @@ enum {
   UIViewAutoresizing autoresizeCache; //Changed by repositioning or resizing.
 
   BOOL parentVisible;
-//In most cases, this is the same as [parent parentVisible] && ![parent hidden]
-//However, in the case of windows attached to the root view, the parent is ALWAYS visible.
-//That is, will be true if and only if all parents are visible or are the root controller.
-//Use parentWillShow and parentWillHide to set this.
+  //In most cases, this is the same as [parent parentVisible] && ![parent hidden]
+  //However, in the case of windows attached to the root view, the parent is ALWAYS visible.
+  //That is, will be true if and only if all parents are visible or are the root controller.
+  //Use parentWillShow and parentWillHide to set this.
 
 #pragma mark Housecleaning that is set and used
   NSRecursiveLock *destroyLock;

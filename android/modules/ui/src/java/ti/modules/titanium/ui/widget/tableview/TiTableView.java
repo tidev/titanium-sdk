@@ -23,6 +23,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.widget.listview.TiNestedListView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
@@ -42,8 +43,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
-public class TiTableView extends TiSwipeRefreshLayout
-	implements OnSearchChangeListener
+public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeListener
 {
 	public static final int TI_TABLE_VIEW_ID = 101;
 	private static final String TAG = "TiTableView";
@@ -76,37 +76,42 @@ public class TiTableView extends TiSwipeRefreshLayout
 		public boolean onLongClick(KrollDict item);
 	}
 
-	class TTVListAdapter extends BaseAdapter {
+	class TTVListAdapter extends BaseAdapter
+	{
 		TableViewModel viewModel;
 		ArrayList<Integer> index;
 		private boolean filtered;
 
-		TTVListAdapter(TableViewModel viewModel) {
+		TTVListAdapter(TableViewModel viewModel)
+		{
 			this.viewModel = viewModel;
 			this.index = new ArrayList<Integer>(viewModel.getRowCount());
 			reIndexItems();
 		}
 
-		protected void registerClassName(String className) {
+		protected void registerClassName(String className)
+		{
 			if (!rowTypes.containsKey(className)) {
 				Log.d(TAG, "registering new className " + className, Log.DEBUG_MODE);
 				rowTypes.put(className, rowTypeCounter.incrementAndGet());
 			}
 		}
 
-		public void reIndexItems() {
+		public void reIndexItems()
+		{
 			ArrayList<Item> items = viewModel.getViewModel();
 			int count = items.size();
 			index.clear();
 
 			filtered = false;
-			if (filterAttribute != null && filterText != null && filterAttribute.length() > 0 && filterText.length() > 0) {
+			if (filterAttribute != null && filterText != null && filterAttribute.length() > 0
+				&& filterText.length() > 0) {
 				filtered = true;
 				String filter = filterText;
 				if (filterCaseInsensitive) {
 					filter = filterText.toLowerCase();
 				}
-				for(int i = 0; i < count; i++) {
+				for (int i = 0; i < count; i++) {
 					boolean keep = true;
 					Item item = items.get(i);
 					registerClassName(item.className);
@@ -116,13 +121,12 @@ public class TiTableView extends TiSwipeRefreshLayout
 							t = t.toLowerCase();
 						}
 						if (filterAnchored) {
-						    if(!t.startsWith(filter)) {
-							keep = false;
+							if (!t.startsWith(filter)) {
+								keep = false;
 							}
-						}
-						else {
-						    if(t.indexOf(filter) < 0) {
-							keep = false;
+						} else {
+							if (t.indexOf(filter) < 0) {
+								keep = false;
 							}
 						}
 					}
@@ -131,7 +135,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 					}
 				}
 			} else {
-				for(int i = 0; i < count; i++) {
+				for (int i = 0; i < count; i++) {
 					Item item = items.get(i);
 					registerClassName(item.className);
 					index.add(i);
@@ -142,12 +146,14 @@ public class TiTableView extends TiSwipeRefreshLayout
 			}
 		}
 
-		public int getCount() {
+		public int getCount()
+		{
 			//return viewModel.getViewModel().length();
 			return index.size();
 		}
 
-		public Object getItem(int position) {
+		public Object getItem(int position)
+		{
 			if (position >= index.size()) {
 				return null;
 			}
@@ -155,19 +161,22 @@ public class TiTableView extends TiSwipeRefreshLayout
 			return viewModel.getViewModel().get(index.get(position));
 		}
 
-		public long getItemId(int position) {
+		public long getItemId(int position)
+		{
 			return position;
 		}
 
 		@Override
-		public int getViewTypeCount() {
-		        // Fix for TIMOB-20038. Seems that there are 3 more
-		        // hidden views that needs to be recreated onLayout
+		public int getViewTypeCount()
+		{
+			// Fix for TIMOB-20038. Seems that there are 3 more
+			// hidden views that needs to be recreated onLayout
 			return maxClassname + 3;
 		}
 
 		@Override
-		public int getItemViewType(int position) {
+		public int getItemViewType(int position)
+		{
 			Item item = (Item) getItem(position);
 			registerClassName(item.className);
 			return rowTypes.get(item.className);
@@ -185,7 +194,8 @@ public class TiTableView extends TiSwipeRefreshLayout
 		 * proxies and views.   Those associations must be made only for the views
 		 *  that are used for layout, and should be driven from the onLayout() callback.
 		 */
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(int position, View convertView, ViewGroup parent)
+		{
 			Item item = (Item) getItem(position);
 			TiBaseTableViewItem v = null;
 
@@ -220,8 +230,10 @@ public class TiTableView extends TiSwipeRefreshLayout
 					} else {
 						// otherwise compare class names
 						if (!v.getClassName().equals(item.className)) {
-							Log.w(TAG, "Handed a view to convert with className " + v.getClassName() + " expected "
-								+ item.className, Log.DEBUG_MODE);
+							Log.w(TAG,
+								  "Handed a view to convert with className " + v.getClassName() + " expected "
+									  + item.className,
+								  Log.DEBUG_MODE);
 							v = null;
 						}
 					}
@@ -247,20 +259,22 @@ public class TiTableView extends TiSwipeRefreshLayout
 					v = new TiTableViewRowProxyItem(proxy.getActivity());
 					v.setClassName(item.className);
 				}
-				v.setLayoutParams(new AbsListView.LayoutParams(
-					AbsListView.LayoutParams.MATCH_PARENT, AbsListView.LayoutParams.MATCH_PARENT));
+				v.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,
+															   AbsListView.LayoutParams.MATCH_PARENT));
 			}
 			v.setRowData(item);
 			return v;
 		}
 
 		@Override
-		public boolean areAllItemsEnabled() {
+		public boolean areAllItemsEnabled()
+		{
 			return false;
 		}
 
 		@Override
-		public boolean isEnabled(int position) {
+		public boolean isEnabled(int position)
+		{
 			Item item = (Item) getItem(position);
 			boolean enabled = true;
 			if (item != null && item.className.equals(TableViewProxy.CLASSNAME_HEADER)) {
@@ -270,17 +284,20 @@ public class TiTableView extends TiSwipeRefreshLayout
 		}
 
 		@Override
-		public boolean hasStableIds() {
+		public boolean hasStableIds()
+		{
 			return true;
 		}
 
 		@Override
-		public void notifyDataSetChanged() {
+		public void notifyDataSetChanged()
+		{
 			reIndexItems();
 			super.notifyDataSetChanged();
 		}
 
-		public boolean isFiltered() {
+		public boolean isFiltered()
+		{
 			return filtered;
 		}
 	}
@@ -294,7 +311,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 		setSwipeRefreshEnabled(false);
 
 		if (proxy.getProperties().containsKey(TiC.PROPERTY_MAX_CLASSNAME)) {
-			maxClassname = Math.max(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME)),maxClassname);
+			maxClassname = Math.max(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME)), maxClassname);
 		}
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);
@@ -303,7 +320,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 		rowTypes.put(TableViewProxy.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
 
 		this.viewModel = new TableViewModel(proxy);
-		this.listView = new ListView(getContext());
+		this.listView = TiNestedListView.createUsing(getContext());
 		listView.setId(TI_TABLE_VIEW_ID);
 
 		listView.setFocusable(true);
@@ -311,8 +328,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 		listView.setBackgroundColor(Color.TRANSPARENT);
 		listView.setCacheColorHint(Color.TRANSPARENT);
 		final KrollProxy fProxy = proxy;
-		listView.setOnScrollListener(new OnScrollListener()
-		{
+		listView.setOnScrollListener(new OnScrollListener() {
 			private boolean scrollValid = false;
 			private int lastValidfirstItem = 0;
 
@@ -330,8 +346,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 					fProxy.fireEvent(TiC.EVENT_SCROLLEND, eventArgs);
 					// TODO: Deprecate old event
 					fProxy.fireEvent("scrollEnd", scrollEndArgs);
-				}
-				else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+				} else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
 					scrollValid = true;
 				}
 			}
@@ -345,7 +360,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 					//we must check to see if the first visibleItem has changed.
 					fireScroll = (lastValidfirstItem != firstVisibleItem);
 				}
-				if(fireScroll) {
+				if (fireScroll) {
 					lastValidfirstItem = firstVisibleItem;
 					KrollDict eventArgs = new KrollDict();
 					eventArgs.put("firstVisibleItem", firstVisibleItem);
@@ -366,7 +381,8 @@ public class TiTableView extends TiSwipeRefreshLayout
 		}
 
 		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_STYLE)) {
-			setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE), UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
+			setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE),
+											  UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
 		}
 		adapter = new TTVListAdapter(viewModel);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
@@ -380,23 +396,25 @@ public class TiTableView extends TiSwipeRefreshLayout
 
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+			{
 				if (itemClickListener != null) {
 					if (!(view instanceof TiBaseTableViewItem)) {
 						return;
 					}
-					rowClicked((TiBaseTableViewItem)view, position, false);
+					rowClicked((TiBaseTableViewItem) view, position, false);
 				}
 			}
 		});
 		listView.setOnItemLongClickListener(new OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
+			{
 				if (itemLongClickListener == null) {
 					return false;
 				}
 				TiBaseTableViewItem tvItem = null;
 				if (view instanceof TiBaseTableViewItem) {
-					tvItem = (TiBaseTableViewItem)view;
+					tvItem = (TiBaseTableViewItem) view;
 				} else {
 					tvItem = getParentTableViewItem(view);
 				}
@@ -459,12 +477,13 @@ public class TiTableView extends TiSwipeRefreshLayout
 		return null;
 	}
 
-	public void enableCustomSelector() {
+	public void enableCustomSelector()
+	{
 		Drawable currentSelector = listView.getSelector();
 		if (currentSelector != selector) {
 			selector = new StateListDrawable();
-			TiTableViewSelector selectorDrawable = new TiTableViewSelector (listView);
-			selector.addState(new int[] {android.R.attr.state_pressed}, selectorDrawable);
+			TiTableViewSelector selectorDrawable = new TiTableViewSelector(listView);
+			selector.addState(new int[] { android.R.attr.state_pressed }, selectorDrawable);
 			listView.setSelector(selector);
 		}
 	}
@@ -480,18 +499,21 @@ public class TiTableView extends TiSwipeRefreshLayout
 		return viewModel.getViewModel().get(adapter.index.get(position));
 	}
 
-	public int getIndexFromXY(double x, double y) {
+	public int getIndexFromXY(double x, double y)
+	{
 		int bound = listView.getLastVisiblePosition() - listView.getFirstVisiblePosition();
 		for (int i = 0; i <= bound; i++) {
 			View child = listView.getChildAt(i);
-			if (child != null && x >= child.getLeft() && x <= child.getRight() && y >= child.getTop() && y <= child.getBottom()) {
+			if (child != null && x >= child.getLeft() && x <= child.getRight() && y >= child.getTop()
+				&& y <= child.getBottom()) {
 				return listView.getFirstVisiblePosition() + i;
 			}
 		}
 		return -1;
 	}
 
-	protected boolean rowClicked(TiBaseTableViewItem rowView, int position, boolean longClick) {
+	protected boolean rowClicked(TiBaseTableViewItem rowView, int position, boolean longClick)
+	{
 		String viewClicked = rowView.getLastClickedViewName();
 		Item item = getItemAtPosition(position);
 		KrollDict event = new KrollDict();
@@ -527,8 +549,8 @@ public class TiTableView extends TiSwipeRefreshLayout
 		View outerView = (viewProxy.peekView() == null) ? null : viewProxy.peekView().getOuterView();
 		if (outerView != null) {
 			ViewParent vParent = outerView.getParent();
-			if ( vParent instanceof ViewGroup ) {
-				((ViewGroup)vParent).removeView(outerView);
+			if (vParent instanceof ViewGroup) {
+				((ViewGroup) vParent).removeView(outerView);
 			}
 		}
 		TiBaseTableViewItem.clearChildViews(viewProxy);
@@ -552,13 +574,15 @@ public class TiTableView extends TiSwipeRefreshLayout
 		return tiView;
 	}
 
-	public void dataSetChanged() {
+	public void dataSetChanged()
+	{
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
 		}
 	}
 
-	public void setOnItemClickListener(OnItemClickedListener listener) {
+	public void setOnItemClickListener(OnItemClickedListener listener)
+	{
 		this.itemClickListener = listener;
 	}
 
@@ -567,53 +591,63 @@ public class TiTableView extends TiSwipeRefreshLayout
 		this.itemLongClickListener = listener;
 	}
 
-	public void setSeparatorColor(String colorstring) {
+	public void setSeparatorColor(String colorstring)
+	{
 		int sepColor = TiColorHelper.parseColor(colorstring);
 		listView.setDivider(new ColorDrawable(sepColor));
 		listView.setDividerHeight(dividerHeight);
 	}
 
-	public void setSeparatorStyle(int style) {
-	    if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE) {
-	        listView.setDividerHeight(0);
-	    } else if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE) {
-	        listView.setDividerHeight(dividerHeight);
-	    }
+	public void setSeparatorStyle(int style)
+	{
+		if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE) {
+			listView.setDividerHeight(0);
+		} else if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE) {
+			listView.setDividerHeight(dividerHeight);
+		}
 	}
 
-	public TableViewModel getTableViewModel() {
+	public TableViewModel getTableViewModel()
+	{
 		return this.viewModel;
 	}
 
-	public ListView getListView() {
+	public ListView getListView()
+	{
 		return listView;
 	}
 
 	@Override
-	public void filterBy(String text) {
+	public void filterBy(String text)
+	{
 		filterText = text;
 		if (adapter != null) {
 			proxy.getActivity().runOnUiThread(new Runnable() {
-				public void run() {
+				public void run()
+				{
 					dataSetChanged();
 				}
 			});
 		}
 	}
 
-	public void setFilterAttribute(String filterAttribute) {
+	public void setFilterAttribute(String filterAttribute)
+	{
 		this.filterAttribute = filterAttribute;
 	}
 
-	public void setFilterAnchored(boolean filterAnchored) {
-		this.filterAnchored  = filterAnchored;
+	public void setFilterAnchored(boolean filterAnchored)
+	{
+		this.filterAnchored = filterAnchored;
 	}
 
-	public void setFilterCaseInsensitive(boolean filterCaseInsensitive) {
-		this.filterCaseInsensitive  = filterCaseInsensitive;
+	public void setFilterCaseInsensitive(boolean filterCaseInsensitive)
+	{
+		this.filterCaseInsensitive = filterCaseInsensitive;
 	}
 
-	public void release() {
+	public void release()
+	{
 		adapter = null;
 		if (listView != null) {
 			listView.setAdapter(null);
@@ -627,7 +661,8 @@ public class TiTableView extends TiSwipeRefreshLayout
 	}
 
 	@Override
-	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+	{
 		// To prevent undesired "focus" and "blur" events during layout caused
 		// by ListView temporarily taking focus, we will disable focus events until
 		// layout has finished.
