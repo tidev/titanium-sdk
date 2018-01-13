@@ -13,7 +13,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import android.app.Activity;
-
 // clang-format off
 @Kroll.proxy(creatableInModule = AndroidModule.class,
 	propertyAccessors = {
