@@ -71,6 +71,8 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 						} finally {
 							// Kill the emulators!
 							if ('android'.equals(os)) {
+								sh 'adb shell am force-stop com.appcelerator.testApp.testing'
+								sh 'adb uninstall com.appcelerator.testApp.testing'
 								sh 'killall -9 emulator || echo ""'
 								sh 'killall -9 emulator64-arm || echo ""'
 								sh 'killall -9 emulator64-x86 || echo ""'
