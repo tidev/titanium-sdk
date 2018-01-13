@@ -1444,7 +1444,8 @@ properties:
     summary: If `true`, the tableview can be scrolled.
     type: Boolean
     default: true
-    platforms: [iphone,ipad]
+    since: { android: 7.1.0, iphone: 0.8, ipad: 0.8 }
+    platforms: [android, iphone, ipad]
 
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.

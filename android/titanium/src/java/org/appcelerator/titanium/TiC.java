@@ -2594,6 +2594,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SCROLLABLE = "scrollable";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SEARCH = "search";
 
 	/**
