@@ -24,7 +24,6 @@ import android.app.Activity;
 		TiC.PROPERTY_VALUE
 })
 // clang-format on
-
 public class SearchViewProxy extends TiViewProxy
 {
 	private static final String TAG = "SearchProxy";
