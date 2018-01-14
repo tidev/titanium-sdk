@@ -484,14 +484,14 @@
     if (TiDimensionIsDip(rowHeight)) {
       [tableview setRowHeight:rowHeight.value];
     } else {
-      //TIMOB-17373 rowHeight on iOS8 is -1. Bug??
+      // TIMOB-17373 rowHeight on iOS8 is -1. Bug??
       [tableview setRowHeight:44];
     }
 
     BOOL initBackGround = YES;
     id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
     if (style == UITableViewStyleGrouped) {
-      //If it is IOS 6 and style is grouped do not call this method unless a backgroundColor is specified
+      //If the style is grouped do not call this method unless a backgroundColor is specified
       initBackGround = (bgInitValue != nil);
     }
     if (initBackGround) {
