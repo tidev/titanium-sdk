@@ -60,8 +60,7 @@ static NSDictionary *TI_itemProperties;
 static NSDictionary *TI_filterableItemProperties;
 #endif
 
-@interface TiImagePickerController : UIImagePickerController
-{
+@interface TiImagePickerController : UIImagePickerController {
   @private
   BOOL autoRotate;
 }
