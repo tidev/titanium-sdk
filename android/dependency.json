@@ -17,7 +17,6 @@
 		"gesture":["ui"],
 		"geolocation":[],
 		"locale":[],
-		"map":[],
 		"media":["filesystem"],
 		"network":["xml"],
 		"platform":[],
