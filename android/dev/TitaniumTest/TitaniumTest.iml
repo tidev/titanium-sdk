@@ -2,7 +2,9 @@
 <module type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="android" name="Android">
-      <configuration />
+      <configuration>
+        <option name="ADDITIONAL_PACKAGING_COMMAND_LINE_PARAMETERS" value="--no-version-vectors" />
+      </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
@@ -30,7 +32,6 @@
     <orderEntry type="module" module-name="accelerometer" />
     <orderEntry type="module" module-name="locale" />
     <orderEntry type="module" module-name="analytics" />
-    <orderEntry type="module" module-name="map" />
     <orderEntry type="module" module-name="android" />
     <orderEntry type="module" module-name="app" />
     <orderEntry type="module" module-name="network" />

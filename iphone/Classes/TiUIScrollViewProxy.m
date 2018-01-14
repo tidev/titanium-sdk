@@ -330,10 +330,18 @@ static NSArray *scrollViewKeySequence;
   [offset release];
 }
 
-- (void)scrollToBottom:(id)args
+- (void)scrollToBottom:(id)unused
 {
   TiThreadPerformOnMainThread(^{
     [(TiUIScrollView *)[self view] scrollToBottom];
+  },
+      YES);
+}
+
+- (void)scrollToTop:(id)unused
+{
+  TiThreadPerformOnMainThread(^{
+    [(TiUIScrollView *)[self view] scrollToTop];
   },
       YES);
 }
