@@ -6,43 +6,34 @@
  */
 #ifdef USE_TI_MEDIAAUDIOPLAYER
 
-#import "AudioStreamer/AudioStreamer.h"
 #import "TiProxy.h"
 
-@interface TiMediaAudioPlayerProxy : TiProxy <AudioStreamerDelegate> {
+typedef NS_ENUM(NSInteger, AudioStreamerState) {
+  AS_INITIALIZED = 0,
+  AS_STARTING_FILE_THREAD,
+  AS_WAITING_FOR_DATA,
+  AS_FLUSHING_EOF,
+  AS_WAITING_FOR_QUEUE_TO_START,
+  AS_PLAYING,
+  AS_BUFFERING,
+  AS_STOPPING,
+  AS_STOPPED,
+  AS_PAUSED
+};
+
+@class AVPlayer;
+
+@interface TiMediaAudioPlayerProxy : TiProxy {
   @private
-  NSURL *url;
-  UInt32 bufferSize;
-  double volume;
-  double duration;
-  AudioStreamer *player;
-  BOOL progress;
-  NSTimer *timer;
+  AVPlayer *_player;
+  NSURL *_url;
+  double _bufferSize;
+  double _volume;
+  double _duration;
+  BOOL _progress;
+  id _timeObserver;
+  AudioStreamerState _state;
 }
-
-@property (nonatomic, readonly) NSURL *url;
-@property (nonatomic, readwrite, assign) NSNumber *paused;
-@property (nonatomic, readonly) NSNumber *playing;
-@property (nonatomic, readonly) NSNumber *waiting;
-@property (nonatomic, readonly) NSNumber *idle;
-@property (nonatomic, readonly) NSNumber *bitRate;
-@property (nonatomic, readonly) NSNumber *progress;
-@property (nonatomic, readonly) NSNumber *state;
-@property (nonatomic, readonly) NSNumber *duration;
-
-@property (nonatomic, copy) NSNumber *volume;
-
-@property (nonatomic, readwrite, assign) NSNumber *bufferSize;
-
-@property (nonatomic, readonly) NSNumber *STATE_INITIALIZED;
-@property (nonatomic, readonly) NSNumber *STATE_STARTING;
-@property (nonatomic, readonly) NSNumber *STATE_WAITING_FOR_DATA;
-@property (nonatomic, readonly) NSNumber *STATE_WAITING_FOR_QUEUE;
-@property (nonatomic, readonly) NSNumber *STATE_PLAYING;
-@property (nonatomic, readonly) NSNumber *STATE_BUFFERING;
-@property (nonatomic, readonly) NSNumber *STATE_STOPPING;
-@property (nonatomic, readonly) NSNumber *STATE_STOPPED;
-@property (nonatomic, readonly) NSNumber *STATE_PAUSED;
 
 @end
 
