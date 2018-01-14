@@ -428,12 +428,6 @@
     tableview.estimatedSectionFooterHeight = 0;
     tableview.estimatedSectionHeaderHeight = 0;
 
-#if IS_XCODE_9
-    if ([TiUtils isIOS11OrGreater]) {
-      tableview.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-    }
-#endif
-
     if (TiDimensionIsDip(rowHeight)) {
       [tableview setRowHeight:rowHeight.value];
     } else {
