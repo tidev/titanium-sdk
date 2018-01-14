@@ -29,7 +29,6 @@ import java.util.HashMap;
 @Kroll.proxy(creatableInModule = AndroidModule.class)
 public class DrawerLayoutProxy extends TiViewProxy
 {
-
 	@Kroll.constant
 	public static final int LOCK_MODE_LOCKED_CLOSED = DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 	@Kroll.constant
@@ -310,7 +309,6 @@ public class DrawerLayoutProxy extends TiViewProxy
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-
 	public HashMap getDrawerLockMode() 
 	// clang-format on
 	{
