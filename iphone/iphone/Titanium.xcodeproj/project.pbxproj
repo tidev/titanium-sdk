@@ -127,7 +127,7 @@
 		24CA8BBB111161FE0084E2DE /* TiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AB8111161FD0084E2DE /* TiModule.m */; };
 		24CA8BBC111161FE0084E2DE /* TiMediaVideoPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABA111161FD0084E2DE /* TiMediaVideoPlayerProxy.m */; };
 		24CA8BBD111161FE0084E2DE /* TiMediaSoundProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABC111161FD0084E2DE /* TiMediaSoundProxy.m */; };
-		24CA8BBE111161FE0084E2DE /* TiMediaAudioPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABE111161FD0084E2DE /* TiMediaAudioPlayerProxy.m */; };
+		24CA8BBE111161FE0084E2DE /* TiMediaAudioPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABE111161FD0084E2DE /* TiMediaAudioPlayerProxy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		24CA8BC2111161FE0084E2DE /* TiHost.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC6111161FD0084E2DE /* TiHost.m */; };
 		24CA8BC3111161FE0084E2DE /* TiFilesystemFileProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC8111161FD0084E2DE /* TiFilesystemFileProxy.m */; };
 		24CA8BC7111161FE0084E2DE /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD1111161FD0084E2DE /* TiDimension.m */; };

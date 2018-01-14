@@ -20,19 +20,19 @@
 - (void)_initWithProperties:(NSDictionary *)properties
 {
   [super _initWithProperties:properties];
-  _url = [[TiUtils toURL:[properties objectForKey:@"url"] proxy:self] retain];
+  _url = [TiUtils toURL:[properties objectForKey:@"url"] proxy:self];
 }
 
 - (void)_destroy
 {
-    if (_state == TiAudioPlayerStatePlaying || _state == TiAudioPlayerStatePaused) {
-      [self stop:nil];
-      [[TiMediaAudioSession sharedSession] stopAudioSession];
-    }
+  if (_state == TiAudioPlayerStatePlaying || _state == TiAudioPlayerStatePaused) {
+    [self stop:nil];
+    [[TiMediaAudioSession sharedSession] stopAudioSession];
+  }
 
   [self removeNotificationObserver];
 
-  RELEASE_TO_NIL(_player);
+  _player = nil;
   [super _destroy];
 }
 
@@ -45,10 +45,10 @@
 {
   if (count == 1 && [type isEqualToString:@"progress"]) {
     [[self player] addPeriodicTimeObserverForInterval:CMTimeMake(1, 1)
-                                          queue:nil
-                                     usingBlock:^(CMTime time) {
-                                       [self fireEvent:@"progress" withObject:@{ @"progress" : NUMINT(CMTimeGetSeconds(time) * 1000) }];
-                                     }];
+                                                queue:nil
+                                           usingBlock:^(CMTime time) {
+                                             [self fireEvent:@"progress" withObject:@{ @"progress" : NUMINT(CMTimeGetSeconds(time) * 1000) }];
+                                           }];
   }
 }
 
@@ -56,7 +56,7 @@
 {
   if (count == 0 && [type isEqualToString:@"progress"]) {
     [[self player] removeTimeObserver:_timeObserver];
-    RELEASE_TO_NIL(_timeObserver);
+    _timeObserver = nil;
   }
 }
 
@@ -78,7 +78,7 @@
 - (void)setPaused:(NSNumber *)paused
 {
   DEPRECATED_REPLACED(@"Media.AudioPlayer.setPaused", @"7.1.0", @"Media.AudioPlayer.pause");
-  
+
   if ([TiUtils boolValue:paused]) {
     [[self player] pause];
   } else {
@@ -209,9 +209,8 @@
     return;
   }
 
-  RELEASE_TO_NIL(_url);
   ENSURE_SINGLE_ARG(url, NSString);
-  _url = [[TiUtils toURL:url proxy:self] retain];
+  _url = [TiUtils toURL:url proxy:self];
 
   if (_player != nil) {
     [self restart:nil];
@@ -226,18 +225,19 @@
 - (void)seekToTime:(id)time
 {
   ENSURE_SINGLE_ARG(time, NSNumber);
-  
+
   if (_player == nil) {
     return;
   }
-  
+
   float formattedTime = [TiUtils floatValue:time] / 1000;
-  
-  [_player seekToTime:CMTimeMake(formattedTime, 1) completionHandler:^(BOOL finished) {
-    if ([self _hasListeners:@"seek"]) {
-      [self fireEvent:@"seek" withObject:@{ @"finished": NUMBOOL(finished) }];
-    }
-  }];
+
+  [_player seekToTime:CMTimeMake(formattedTime, 1)
+      completionHandler:^(BOOL finished) {
+        if ([self _hasListeners:@"seek"]) {
+          [self fireEvent:@"seek" withObject:@{ @"finished" : NUMBOOL(finished) }];
+        }
+      }];
 }
 
 - (void)start:(id)unused
@@ -344,7 +344,7 @@
   // Remove this once we bump the minimum iOS version to 10+.
   if ([TiUtils isIOS10OrGreater]) {
     // iOS 10+: For playbackState property / playbackstate event
-    [[self player] addObserver:self forKeyPath:@"timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
+    [[self player] addObserver:self forKeyPath:@"timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
   } else {
     // iOS < 10: For playbackstate event
     [[self player] addObserver:self forKeyPath:@"rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
@@ -382,16 +382,16 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
 {
-  if (object != [[self player] currentItem]) {
+  if (object != [self player]) {
     return;
   }
 
   if ([TiUtils isIOS10OrGreater]) {
-    if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
+    if ([keyPath isEqualToString:@"timeControlStatus"]) {
       [self handleTimeControlStatusNotification:nil];
     }
   } else {
-    if ([keyPath isEqualToString:@"player.rate"]) {
+    if ([keyPath isEqualToString:@"rate"]) {
       [self handlePlaybackStateChangeNotification:nil];
     }
   }
@@ -427,7 +427,7 @@
   }
 
   if ([self _hasListeners:@"change"] && oldState != _state) {
-    [self fireEvent:@"playbackstate"
+    [self fireEvent:@"change"
          withObject:@{
            @"state" : NUMINTEGER(_state),
            @"description" : [TiMediaAudioPlayerProxy _stateToString:_state]
@@ -453,7 +453,7 @@
   }
 
   if ([self _hasListeners:@"change"] && oldState != _state) {
-    [self fireEvent:@"playbackstate"
+    [self fireEvent:@"change"
          withObject:@{
            @"state" : NUMINTEGER(_state),
            @"description" : [TiMediaAudioPlayerProxy _stateToString:_state]
