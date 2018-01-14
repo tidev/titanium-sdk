@@ -8,29 +8,33 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+var should = require('./utilities/assertions');
 
 describe('Titanium.UI.Window', function () {
-	it.ios('#ExtendSafeArea (safeAreaView exists)', function (finish) {
-		// TO DO: Add more unit tests related to top, bottom, left, right margins of win.safeAreaView.
-		var win = Ti.UI.createWindow({
+	var win;
+
+	afterEach(function () {
+		if (win) {
+			win.close();
+		}
+		win = null;
+	});
+
+	it.ios('.extendSafeArea exists', function (finish) {
+		this.timeout(5000);
+		// TODO: Add more unit tests related to top, bottom, left, right margins of win.safeAreaView.
+		win = Ti.UI.createWindow({
 			backgroundColor: 'gray',
 			extendSafeArea: false
 		});
 
-		win.addEventListener('focus', function () {
+		win.addEventListener('open', function () {
 			try {
-				var error;
 				should(win.safeAreaView).be.a.Object;
+				finish();
 			} catch (err) {
-				error = err;
+				finish(err);
 			}
-
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
 		});
 
 		win.open();
