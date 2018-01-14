@@ -38,12 +38,12 @@ public class DrawerLayoutProxy extends TiViewProxy
 	public static final int LOCK_MODE_UNLOCKED = DrawerLayout.LOCK_MODE_UNLOCKED;
 	@Kroll.constant
 	public static final int LOCK_MODE_UNDEFINED = DrawerLayout.LOCK_MODE_UNDEFINED;
-  @Kroll.constant
-  public static final int GRAVITY_BOTH = 1;
-  @Kroll.constant
-  public static final int GRAVITY_LEFT = Gravity.LEFT;
-  @Kroll.constant
-  public static final int GRAVITY_RIGHT = Gravity.RIGHT;
+	@Kroll.constant
+	public static final int GRAVITY_BOTH = 1;
+	@Kroll.constant
+	public static final int GRAVITY_LEFT = Gravity.LEFT;
+	@Kroll.constant
+	public static final int GRAVITY_RIGHT = Gravity.RIGHT;
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 
@@ -312,8 +312,8 @@ public class DrawerLayoutProxy extends TiViewProxy
 	@Kroll.getProperty
 
 	public HashMap getDrawerLockMode() 
-  // clang-format on
-  {
+	// clang-format on
+	{
 		HashMap<String, Object> options = new HashMap<String, Object>(2);
 		options.put(TiC.PROPERTY_LOCK_MODE, LOCK_MODE_UNDEFINED);
 		options.put(TiC.PROPERTY_GRAVITY, GRAVITY_BOTH);
