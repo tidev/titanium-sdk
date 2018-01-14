@@ -131,8 +131,11 @@ methods:
 
   - name: play
     summary: Starts or resumes audio playback.
+    deprecated:
+        since: "7.1.0"
+        notes: Use the cross-platform API [start](Titanium.Media.AudioPlayer.start) instead.
     description: |
-        This method is identical to [start](Titanium.Media.AudioPlayer.start).
+        This method is identical to .
     platforms: [android]
 
   - name: setPaused
@@ -145,7 +148,24 @@ methods:
       - name: paused
         summary: Pass `true` to pause the current playback temporarily, `false` to unpause it.
         type: Boolean
+    deprecated:
+        since: "7.1.0"
+        notes: Use the cross-platform API [pause](Titanium.Media.AudioPlayer.pause) instead.
     platforms: [iphone, ipad]
+
+  - name: seekToTime
+    parameters:
+      - name: time
+        summary: The time in milliseconds to seek to.
+        type: Number
+    summary: |
+        Moves the playback cursor and invokes the specified block when the seek 
+        operation has either been completed or been interrupted.
+    description: |
+        Use this method to seek to a specified time for the current player item and 
+        to be notified by the `seek` event when the seek operation is complete.  
+    platforms: [iphone, ipad]
+    since: "7.1.0"
 
   - name: release
     summary: Stops buffering audio data and releases audio resources.
@@ -231,6 +251,17 @@ events:
     properties:
       - name: progress
         summary: Current progress, in milliseconds.
+        
+  - name: seek
+    summary: Fired once the [seekToTime](Titanium.Media.AudioPlayer.seek) method completes.
+    properties:
+      - name: finished
+        summary: |        
+            The event for any prior seek request that is still in process will be invoked 
+            immediately with the `finished` parameter set to `false`. 
+            If the new request completes without being interrupted by another seek 
+            request or by any other operation this event will be invoked with 
+            the `finished` parameter set to `true`. 
 properties:
   - name: STATE_BUFFERING
     summary: Audio data is being buffered from the network.
@@ -372,6 +403,44 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
 
+  - name: muted
+    summary: Indicates whether or not audio output of the player is muted. 
+    description: Only affects audio muting for the player instance and not for the device.
+    platforms: [iphone, ipad]
+    type: Boolean
+    since: "7.1.0"
+    
+  - name: externalPlaybackActive
+    summary: Indicates whether the player is currently playing video in "external playback" mode.
+    platforms: [iphone, ipad]
+    type: Boolean
+    since: "7.1.0"    
+    permission: read-only
+ 
+  - name: allowsExternalPlayback
+    summary: Indicates whether the player allows switching to "external playback" mode.
+    default: true
+    type: Boolean
+    since: "7.1.0"    
+    platforms: [iphone, ipad]
+    
+  - name: rate
+    summary: |
+        Indicates the desired rate of playback; 0.0 means "paused", 1.0 indicates a 
+        desire to play at the natural rate of the current item.
+    description: |
+        Setting the value of rate to 0.0 pauses playback, causing the value of 
+        the `state` property change to <Titanium.Media.AudioPlayer.STATE_PAUSED>.
+        Setting the rate to a non-zero value causes the value of the `state` property 
+        to become either <Titanium.Media.AudioPlayer.STATE_WAITING_FOR_QUEUE> or 
+        <Titanium.Media.AudioPlayer.STATE_PLAYING>, depending on whether sufficient 
+        media data has been buffered for playback to occur and whether the player's 
+        default behavior of waiting in order to minimize stalling is permitted.
+    default: 0.0
+    type: Number
+    since: "7.1.0"    
+    platforms: [iphone, ipad]
+
   - name: paused
     summary: Boolean indicating if audio playback is paused.
     type: Boolean
@@ -426,7 +495,10 @@ properties:
     platforms: [iphone, ipad]
 
   - name: bufferSize
-    summary: Size of the buffer used for streaming, in bytes.
+    summary: Size of the buffer used for streaming, in milliseconds.
+    description: |
+        Prior to Titanium 7.1.0, this property was set in bytes. Since the internal iOS
+        API moved to the more modern AVPlayer, this property now works with milliseconds instead.
     type: Number
     platforms: [iphone, ipad]
 

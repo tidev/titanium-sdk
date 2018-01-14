@@ -19,18 +19,16 @@
 
 - (void)_initWithProperties:(NSDictionary *)properties
 {
-  _volume = [TiUtils doubleValue:@"volume" properties:properties def:1.0];
+  [super _initWithProperties:properties];
   _url = [[TiUtils toURL:[properties objectForKey:@"url"] proxy:self] retain];
 }
 
 - (void)_destroy
 {
-  if (_player != nil) {
-    if (_state == AS_PLAYING || _state == AS_PAUSED) {
+    if (_state == TiAudioPlayerStatePlaying || _state == TiAudioPlayerStatePaused) {
       [self stop:nil];
       [[TiMediaAudioSession sharedSession] stopAudioSession];
     }
-  }
 
   [self removeNotificationObserver];
 
@@ -46,7 +44,7 @@
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
   if (count == 1 && [type isEqualToString:@"progress"]) {
-    [_player addPeriodicTimeObserverForInterval:CMTimeMake(1, 1)
+    [[self player] addPeriodicTimeObserverForInterval:CMTimeMake(1, 1)
                                           queue:nil
                                      usingBlock:^(CMTime time) {
                                        [self fireEvent:@"progress" withObject:@{ @"progress" : NUMINT(CMTimeGetSeconds(time) * 1000) }];
@@ -57,7 +55,7 @@
 - (void)_listenerRemoved:(NSString *)type count:(int)count
 {
   if (count == 0 && [type isEqualToString:@"progress"]) {
-    [_player removeTimeObserver:_timeObserver];
+    [[self player] removeTimeObserver:_timeObserver];
     RELEASE_TO_NIL(_timeObserver);
   }
 }
@@ -69,60 +67,61 @@
       [self throwException:NSLocalizedString(@"invalid url", nil) subreason:NSLocalizedString(@"url has not been set", nil) location:CODELOCATION];
     }
     _player = [AVPlayer playerWithURL:_url];
-    [_player setVolume:_volume];
-    _state = AS_INITIALIZED;
-
     [self addNotificationObserver];
+    _state = TiAudioPlayerStateInitialized;
   }
   return _player;
 }
 
-#pragma mark Public APIs
+#pragma mark Deprecated APIs
 
 - (void)setPaused:(NSNumber *)paused
 {
-  if (_player != nil) {
-    if ([TiUtils boolValue:paused]) {
-      [_player pause];
-    } else {
-      [_player play];
-    }
+  DEPRECATED_REPLACED(@"Media.AudioPlayer.setPaused", @"7.1.0", @"Media.AudioPlayer.pause");
+  
+  if ([TiUtils boolValue:paused]) {
+    [[self player] pause];
+  } else {
+    [[self player] play];
   }
 }
 
+- (void)play:(id)unused
+{
+  DEPRECATED_REPLACED(@"Media.AudioPlayer.play", @"7.1.0", @"Media.AudioPlayer.start");
+  [self start:unused];
+}
+
+#pragma mark Public APIs
+
 - (NSNumber *)waiting
 {
-  return NUMBOOL(_state == AS_STARTING_FILE_THREAD || _state == AS_WAITING_FOR_DATA || _state == AS_WAITING_FOR_QUEUE_TO_START || _state == AS_BUFFERING);
+  return NUMBOOL(_state == TiAudioPlayerStateWaitingForQueueToStart || _state == TiAudioPlayerStateBuffering);
 }
 
 - (NSNumber *)idle
 {
-  return NUMBOOL(_state == AS_INITIALIZED);
+  return NUMBOOL(_state == TiAudioPlayerStateInitialized);
 }
 
 - (NSNumber *)playing
 {
-  return NUMBOOL(_state == AS_PLAYING);
-}
-
-- (NSNumber *)paused
-{
-  return NUMBOOL(_state == AS_PAUSED);
+  return NUMBOOL(_state == TiAudioPlayerStatePlaying);
 }
 
 - (NSNumber *)buffering
 {
-  return NUMBOOL(_state == AS_BUFFERING);
+  return NUMBOOL(_state == TiAudioPlayerStateBuffering);
 }
 
 - (NSNumber *)bitRate
 {
-  return NUMFLOAT(_player.rate);
+  return NUMFLOAT([[self player] rate]);
 }
 
 - (NSNumber *)progress
 {
-  return NUMDOUBLE(CMTimeGetSeconds([_player currentTime]) * 1000);
+  return NUMDOUBLE(CMTimeGetSeconds([[self player] currentTime]) * 1000);
 }
 
 - (NSNumber *)state
@@ -132,42 +131,72 @@
 
 - (NSNumber *)duration
 {
-  if (_player != nil) {
-    if (CMTimeGetSeconds(_player.currentItem.duration) == CMTimeGetSeconds(kCMTimeIndefinite)) {
-      _duration = 0.0;
-    } else {
-      // Convert duration to milliseconds (parity with progress/Android)
-      _duration = (int)(CMTimeGetSeconds(_player.currentItem.duration) * 1000);
-    }
+  if (CMTimeGetSeconds([[[self player] currentItem] duration]) == CMTimeGetSeconds(kCMTimeIndefinite)) {
+    _duration = 0.0;
+  } else {
+    // Convert duration to milliseconds (parity with progress/Android)
+    _duration = (int)(CMTimeGetSeconds([[[self player] currentItem] duration]) * 1000);
   }
-  return NUMDOUBLE(_duration);
+}
+
+- (NSNumber *)paused
+{
+  return NUMBOOL(_state == TiAudioPlayerStatePaused);
 }
 
 - (NSNumber *)volume
 {
-  return NUMDOUBLE(_volume);
+  return NUMFLOAT([[self player] volume]);
 }
 
-- (void)setVolume:(NSNumber *)newVolume
+- (void)setVolume:(NSNumber *)volume
 {
-  _volume = [TiUtils doubleValue:newVolume def:_volume];
-  if (_player != nil) {
-    [_player setVolume:_volume];
-  }
+  [[self player] setVolume:[TiUtils floatValue:volume def:1.0]];
 }
 
 - (void)setBufferSize:(NSNumber *)bufferSize
 {
-  _bufferSize = [bufferSize doubleValue];
-  if (_player != nil) {
-    [[_player currentItem] setPreferredForwardBufferDuration:_bufferSize];
-  }
+  [[[self player] currentItem] setPreferredForwardBufferDuration:[bufferSize doubleValue] * 1000];
+}
+
+- (void)setAllowsExternalPlayback:(NSNumber *)allowsExternalPlayback
+{
+  [[self player] setAllowsExternalPlayback:[TiUtils boolValue:allowsExternalPlayback]];
+}
+
+- (NSNumber *)allowsExternalPlayback
+{
+  return NUMBOOL([[self player] allowsExternalPlayback]);
+}
+
+- (void)setRate:(NSNumber *)rate
+{
+  [[self player] setRate:[TiUtils floatValue:rate]];
+}
+
+- (NSNumber *)rate
+{
+  return NUMFLOAT([[self player] rate]);
+}
+
+- (void)setMuted:(NSNumber *)muted
+{
+  [[self player] setMuted:[TiUtils boolValue:muted]];
+}
+
+- (NSNumber *)muted
+{
+  return NUMBOOL([[self player] isMuted]);
+}
+
+- (void)externalPlaybackActive
+{
+  return NUMBOOL([[self player] isExternalPlaybackActive]);
 }
 
 - (NSNumber *)bufferSize
 {
-  // TODO: Validate that the default (0.0) matches the old behavior
-  return NUMDOUBLE(_player.currentItem.preferredForwardBufferDuration);
+  return NUMDOUBLE([[[self player] currentItem] preferredForwardBufferDuration]);
 }
 
 - (void)setUrl:(id)url
@@ -194,10 +223,21 @@
   return _url;
 }
 
-- (void)play:(id)unused
+- (void)seekToTime:(id)time
 {
-  DEPRECATED_REPLACED(@"Media.AudioPlayer.play", @"7.1.0", @"Media.AudioPlayer.start");
-  [self start:unused];
+  ENSURE_SINGLE_ARG(time, NSNumber);
+  
+  if (_player == nil) {
+    return;
+  }
+  
+  float formattedTime = [TiUtils floatValue:time] / 1000;
+  
+  [_player seekToTime:CMTimeMake(formattedTime, 1) completionHandler:^(BOOL finished) {
+    if ([self _hasListeners:@"seek"]) {
+      [self fireEvent:@"seek" withObject:@{ @"finished": NUMBOOL(finished) }];
+    }
+  }];
 }
 
 - (void)start:(id)unused
@@ -209,16 +249,21 @@
         YES);
     return;
   }
+
+  _state = TiAudioPlayerStateStartingFileThread;
+
   // indicate we're going to start playing
   if (![[TiMediaAudioSession sharedSession] canPlayback]) {
+    _state = TiAudioPlayerStateStopped;
     [self throwException:@"Improper audio session mode for playback"
                subreason:[[TiMediaAudioSession sharedSession] sessionMode]
                 location:CODELOCATION];
   }
 
-  if (_player == nil || !(_state == AS_PLAYING || _state == AS_PAUSED)) {
+  if (_player == nil || !(_state == TiAudioPlayerStatePlaying || _state == TiAudioPlayerStatePaused)) {
     [[TiMediaAudioSession sharedSession] startAudioSession];
   }
+
   [[self player] play];
 }
 
@@ -237,10 +282,9 @@
         YES);
     return;
   }
-  if (_player != nil) {
-    [_player pause];
-    [_player seekToTime:kCMTimeZero];
-  }
+
+  [[self player] pause];
+  [[self player] seekToTime:kCMTimeZero];
 }
 
 - (void)pause:(id)unused
@@ -252,9 +296,8 @@
         YES);
     return;
   }
-  if (_player != nil) {
-    [_player pause];
-  }
+
+  [[self player] pause];
 }
 
 - (NSString *)stateDescription:(id)state
@@ -268,23 +311,23 @@
 + (NSString *)_stateToString:(NSInteger)state
 {
   switch (state) {
-  case AS_INITIALIZED:
+  case TiAudioPlayerStateInitialized:
     return NSLocalizedString(@"initialized", nil);
-  case AS_STARTING_FILE_THREAD:
+  case TiAudioPlayerStateStartingFileThread:
     return NSLocalizedString(@"starting", nil);
-  case AS_WAITING_FOR_DATA:
+  case TiAudioPlayerStateWaitingForData:
     return NSLocalizedString(@"waiting_for_data", nil);
-  case AS_WAITING_FOR_QUEUE_TO_START:
+  case TiAudioPlayerStateWaitingForQueueToStart:
     return NSLocalizedString(@"waiting_for_queue", nil);
-  case AS_PLAYING:
+  case TiAudioPlayerStatePlaying:
     return NSLocalizedString(@"playing", nil);
-  case AS_BUFFERING:
+  case TiAudioPlayerStateBuffering:
     return NSLocalizedString(@"buffering", nil);
-  case AS_STOPPING:
+  case TiAudioPlayerStateStopping:
     return NSLocalizedString(@"stopping", nil);
-  case AS_STOPPED:
+  case TiAudioPlayerStateStopped:
     return NSLocalizedString(@"stopped", nil);
-  case AS_PAUSED:
+  case TiAudioPlayerStatePaused:
     return NSLocalizedString(@"paused", nil);
   }
   return NSLocalizedString(@"unknown", nil);
@@ -301,10 +344,10 @@
   // Remove this once we bump the minimum iOS version to 10+.
   if ([TiUtils isIOS10OrGreater]) {
     // iOS 10+: For playbackState property / playbackstate event
-    [_player addObserver:self forKeyPath:@"timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
+    [[self player] addObserver:self forKeyPath:@"timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:self];
   } else {
     // iOS < 10: For playbackstate event
-    [_player addObserver:self forKeyPath:@"rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+    [[self player] addObserver:self forKeyPath:@"rate" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
   }
 
   // For "error" event
@@ -314,9 +357,9 @@
   [nc addObserver:self selector:@selector(handlePlayerCompleteNotification:) name:AVPlayerItemDidPlayToEndTimeNotification object:_player.currentItem];
 
   // Buffering
-  [_player.currentItem addObserver:self forKeyPath:@"playbackBufferEmpty" options:NSKeyValueObservingOptionNew context:nil];
-  [_player.currentItem addObserver:self forKeyPath:@"playbackLikelyToKeepUp" options:NSKeyValueObservingOptionNew context:nil];
-  [_player.currentItem addObserver:self forKeyPath:@"playbackBufferFull" options:NSKeyValueObservingOptionNew context:nil];
+  [[[self player] currentItem] addObserver:self forKeyPath:@"playbackBufferEmpty" options:NSKeyValueObservingOptionNew context:nil];
+  [[[self player] currentItem] addObserver:self forKeyPath:@"playbackLikelyToKeepUp" options:NSKeyValueObservingOptionNew context:nil];
+  [[[self player] currentItem] addObserver:self forKeyPath:@"playbackBufferFull" options:NSKeyValueObservingOptionNew context:nil];
 }
 
 - (void)removeNotificationObserver
@@ -324,22 +367,22 @@
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
   if ([TiUtils isIOS10OrGreater]) {
-    [_player removeObserver:self forKeyPath:@"timeControlStatus"];
+    [[self player] removeObserver:self forKeyPath:@"timeControlStatus"];
   } else {
-    [_player removeObserver:self forKeyPath:@"rate"];
+    [[self player] removeObserver:self forKeyPath:@"rate"];
   }
 
   [nc removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
   [nc removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
 
-  [_player removeObserver:self forKeyPath:@"playbackBufferEmpty"];
-  [_player removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
-  [_player removeObserver:self forKeyPath:@"playbackBufferFull"];
+  [[self player] removeObserver:self forKeyPath:@"playbackBufferEmpty"];
+  [[self player] removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
+  [[self player] removeObserver:self forKeyPath:@"playbackBufferFull"];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
 {
-  if (object != _player.currentItem) {
+  if (object != [[self player] currentItem]) {
     return;
   }
 
@@ -354,31 +397,31 @@
   }
 
   if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
-    _state = AS_BUFFERING;
+    _state = TiAudioPlayerStateBuffering;
   }
 
   if ([keyPath isEqualToString:@"playbackBufferFull"] || [keyPath isEqualToString:@"playbackBufferFull"]) {
-    _state = AS_WAITING_FOR_QUEUE_TO_START;
+    _state = TiAudioPlayerStateWaitingForQueueToStart;
   }
 }
 
 // iOS < 10
 - (void)handlePlaybackStateChangeNotification:(NSNotification *)note
 {
-  AudioStreamerState oldState = _state;
+  TiAudioPlayerState oldState = _state;
 
   switch (_player.status) {
   case AVPlayerStatusUnknown:
   case AVPlayerStatusFailed:
-    _state = AS_STOPPED;
+    _state = TiAudioPlayerStateStopped;
     break;
   case AVPlayerStatusReadyToPlay:
     if (_player.rate == 1.0) {
-      _state = AS_PLAYING;
+      _state = TiAudioPlayerStatePlaying;
     } else if (_player.currentItem.duration.value == _player.currentItem.currentTime.value || !_player.currentItem.canStepBackward) {
-      _state = AS_STOPPED;
+      _state = TiAudioPlayerStateStopped;
     } else {
-      _state = AS_PAUSED;
+      _state = TiAudioPlayerStatePaused;
     }
     break;
   }
@@ -395,16 +438,18 @@
 // iOS 10+
 - (void)handleTimeControlStatusNotification:(NSNotification *)note
 {
-  AudioStreamerState oldState = _state;
+  TiAudioPlayerState oldState = _state;
 
   if (_player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
-    _state = AS_PLAYING;
+    _state = TiAudioPlayerStatePlaying;
   } else if (_player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
     if (_player.currentItem.duration.value == _player.currentItem.currentTime.value) {
-      _state = AS_STOPPED;
+      _state = TiAudioPlayerStateStopped;
     } else {
-      _state = AS_PAUSED;
+      _state = TiAudioPlayerStatePaused;
     }
+  } else if (_player.timeControlStatus == AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate) {
+    _state = TiAudioPlayerStateWaitingForQueueToStart;
   }
 
   if ([self _hasListeners:@"change"] && oldState != _state) {
@@ -421,7 +466,7 @@
 - (void)handlePlayerErrorNotification:(NSNotification *)note
 {
   NSError *error = note.userInfo[AVPlayerItemFailedToPlayToEndTimeErrorKey];
-  _state = AS_STOPPED;
+  _state = TiAudioPlayerStateStopped;
 
   if ([self _hasListeners:@"error"]) {
     [self fireEvent:@"error" withObject:@{ @"error" : error.localizedDescription }];
@@ -442,15 +487,15 @@
 
 #pragma mark Constants
 
-MAKE_SYSTEM_PROP(STATE_INITIALIZED, AS_INITIALIZED);
-MAKE_SYSTEM_PROP(STATE_STARTING, AS_STARTING_FILE_THREAD);
-MAKE_SYSTEM_PROP(STATE_WAITING_FOR_DATA, AS_WAITING_FOR_DATA);
-MAKE_SYSTEM_PROP(STATE_WAITING_FOR_QUEUE, AS_WAITING_FOR_QUEUE_TO_START);
-MAKE_SYSTEM_PROP(STATE_PLAYING, AS_PLAYING);
-MAKE_SYSTEM_PROP(STATE_BUFFERING, AS_BUFFERING);
-MAKE_SYSTEM_PROP(STATE_STOPPING, AS_STOPPING);
-MAKE_SYSTEM_PROP(STATE_STOPPED, AS_STOPPED);
-MAKE_SYSTEM_PROP(STATE_PAUSED, AS_PAUSED);
+MAKE_SYSTEM_PROP(STATE_INITIALIZED, TiAudioPlayerStateInitialized);
+MAKE_SYSTEM_PROP(STATE_STARTING, TiAudioPlayerStateStartingFileThread);
+MAKE_SYSTEM_PROP(STATE_WAITING_FOR_DATA, TiAudioPlayerStateWaitingForData);
+MAKE_SYSTEM_PROP(STATE_WAITING_FOR_QUEUE, TiAudioPlayerStateWaitingForQueueToStart);
+MAKE_SYSTEM_PROP(STATE_PLAYING, TiAudioPlayerStatePlaying);
+MAKE_SYSTEM_PROP(STATE_BUFFERING, TiAudioPlayerStateBuffering);
+MAKE_SYSTEM_PROP(STATE_STOPPING, TiAudioPlayerStateStopping);
+MAKE_SYSTEM_PROP(STATE_STOPPED, TiAudioPlayerStateStopped);
+MAKE_SYSTEM_PROP(STATE_PAUSED, TiAudioPlayerStatePaused);
 
 @end
 

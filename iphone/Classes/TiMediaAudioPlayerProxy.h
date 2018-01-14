@@ -8,17 +8,17 @@
 
 #import "TiProxy.h"
 
-typedef NS_ENUM(NSInteger, AudioStreamerState) {
-  AS_INITIALIZED = 0,
-  AS_STARTING_FILE_THREAD,
-  AS_WAITING_FOR_DATA,
-  AS_FLUSHING_EOF,
-  AS_WAITING_FOR_QUEUE_TO_START,
-  AS_PLAYING,
-  AS_BUFFERING,
-  AS_STOPPING,
-  AS_STOPPED,
-  AS_PAUSED
+typedef NS_ENUM(NSInteger, TiAudioPlayerState) {
+  TiAudioPlayerStateBuffering = 0,
+  TiAudioPlayerStateInitialized,
+  TiAudioPlayerStatePaused,
+  TiAudioPlayerStatePlaying,
+  TiAudioPlayerStateStartingFileThread,
+  TiAudioPlayerStateStopped,
+  TiAudioPlayerStateStopping,
+  TiAudioPlayerStateWaitingForData, // Unused
+  TiAudioPlayerStateWaitingForQueueToStart,
+  TiAudioPlayerStateFlushingEOF, // Unused
 };
 
 @class AVPlayer;
@@ -27,13 +27,71 @@ typedef NS_ENUM(NSInteger, AudioStreamerState) {
   @private
   AVPlayer *_player;
   NSURL *_url;
-  double _bufferSize;
-  double _volume;
   double _duration;
   BOOL _progress;
   id _timeObserver;
-  AudioStreamerState _state;
+  TiAudioPlayerState _state;
 }
+
+- (void)setPaused:(NSNumber *)paused __deprecated_msg("Deprecated in favor of pause()");
+
+- (void)play:(id)unused __deprecated_msg("Deprecated in favor of start()");
+
+- (NSNumber *)waiting;
+
+- (NSNumber *)idle;
+
+- (NSNumber *)playing;
+
+- (NSNumber *)paused;
+
+- (NSNumber *)buffering;
+
+- (NSNumber *)bitRate;
+
+- (NSNumber *)progress;
+
+- (NSNumber *)state;
+
+- (NSNumber *)duration;
+
+- (NSNumber *)volume;
+
+- (void)setVolume:(NSNumber *)volume;
+
+- (void)setBufferSize:(NSNumber *)bufferSize;
+
+- (void)setAllowsExternalPlayback:(NSNumber *)allowsExternalPlayback;
+
+- (NSNumber *)allowsExternalPlayback;
+
+- (void)setRate:(NSNumber *)rate;
+
+- (NSNumber *)rate;
+
+- (void)setMuted:(NSNumber *)muted;
+
+- (NSNumber *)muted;
+
+- (void)externalPlaybackActive;
+
+- (NSNumber *)bufferSize;
+
+- (void)setUrl:(id)url;
+
+- (NSURL *)url;
+
+- (void)seekToTime:(id)time;
+
+- (void)start:(id)unused;
+
+- (void)restart:(id)args;
+
+- (void)stop:(id)unused;
+
+- (void)pause:(id)unused;
+
+- (NSString *)stateDescription:(id)state;
 
 @end
 
