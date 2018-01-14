@@ -283,6 +283,8 @@
     return;
   }
 
+  _state = TiAudioPlayerStateStopping;
+
   [[self player] pause];
   [[self player] seekToTime:kCMTimeZero];
 }
@@ -418,7 +420,7 @@
   case AVPlayerStatusReadyToPlay:
     if (_player.rate == 1.0) {
       _state = TiAudioPlayerStatePlaying;
-    } else if (_player.currentItem.duration.value == _player.currentItem.currentTime.value || !_player.currentItem.canStepBackward) {
+    } else if (_player.currentItem.duration.value == _player.currentItem.currentTime.value || !_player.currentItem.canStepBackward || oldState == TiAudioPlayerStateStopping) {
       _state = TiAudioPlayerStateStopped;
     } else {
       _state = TiAudioPlayerStatePaused;
