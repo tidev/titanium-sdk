@@ -958,6 +958,7 @@
 		DB0D54931F3B4A3D00E2B771 /* TiUIToolbarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIToolbarProxy.h; sourceTree = "<group>"; };
 		DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIToolbarProxy.m; sourceTree = "<group>"; };
 		DB3246B32028AAE3006CADFC /* TiMediaTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiMediaTypes.h; sourceTree = "<group>"; };
+		DB3C58B9200BA3580052CE8D /* TiMediaAudioStateConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiMediaAudioStateConstants.h; sourceTree = "<group>"; };
 		DB90749D1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSFeedbackGeneratorProxy.h; sourceTree = "<group>"; };
 		DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSFeedbackGeneratorProxy.m; sourceTree = "<group>"; };
 		DBCFCB7A1F8261BF00A4CE61 /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SBJSON.h; path = ../Classes/SBJSON.h; sourceTree = "<group>"; };
@@ -1473,7 +1474,6 @@
 		24CA8C18111164440084E2DE /* Media */ = {
 			isa = PBXGroup;
 			children = (
-				24CA8B04111161FE0084E2DE /* MediaModule.m */,
 				24CA8B05111161FE0084E2DE /* MediaModule.h */,
 				24CA8ABE111161FD0084E2DE /* TiMediaAudioPlayerProxy.m */,
 				24CA8ABF111161FD0084E2DE /* TiMediaAudioPlayerProxy.h */,
@@ -2393,6 +2393,81 @@
 				DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */,
 			);
 			name = Toolbar;
+			sourceTree = "<group>";
+		};
+		DB3C58B1200BA2E60052CE8D /* Audio Player */ = {
+			isa = PBXGroup;
+			children = (
+				24CA8ABE111161FD0084E2DE /* TiMediaAudioPlayerProxy.m */,
+				24CA8ABF111161FD0084E2DE /* TiMediaAudioPlayerProxy.h */,
+				DB3C58B9200BA3580052CE8D /* TiMediaAudioStateConstants.h */,
+			);
+			name = "Audio Player";
+			sourceTree = "<group>";
+		};
+		DB3C58B2200BA2ED0052CE8D /* Video Player */ = {
+			isa = PBXGroup;
+			children = (
+				2412F464115C296300454E5B /* TiMediaVideoPlayer.h */,
+				2412F465115C296300454E5B /* TiMediaVideoPlayer.m */,
+				24CA8ABA111161FD0084E2DE /* TiMediaVideoPlayerProxy.m */,
+				24CA8ABB111161FD0084E2DE /* TiMediaVideoPlayerProxy.h */,
+			);
+			name = "Video Player";
+			sourceTree = "<group>";
+		};
+		DB3C58B3200BA2F40052CE8D /* Sound */ = {
+			isa = PBXGroup;
+			children = (
+				24CA8ABC111161FD0084E2DE /* TiMediaSoundProxy.m */,
+				24CA8ABD111161FD0084E2DE /* TiMediaSoundProxy.h */,
+			);
+			name = Sound;
+			sourceTree = "<group>";
+		};
+		DB3C58B4200BA2FA0052CE8D /* Audio Recorder */ = {
+			isa = PBXGroup;
+			children = (
+				24FBE58111293D06005C8D48 /* TiMediaAudioRecorderProxy.h */,
+				24FBE58211293D06005C8D48 /* TiMediaAudioRecorderProxy.mm */,
+			);
+			name = "Audio Recorder";
+			sourceTree = "<group>";
+		};
+		DB3C58B5200BA3020052CE8D /* _Audio Session */ = {
+			isa = PBXGroup;
+			children = (
+				24A1E515112D33AF003DA834 /* TiMediaAudioSession.h */,
+				24A1E516112D33AF003DA834 /* TiMediaAudioSession.m */,
+			);
+			name = "_Audio Session";
+			sourceTree = "<group>";
+		};
+		DB3C58B6200BA3150052CE8D /* Music Player */ = {
+			isa = PBXGroup;
+			children = (
+				DA864E3011A2314A00B9CD68 /* TiMediaMusicPlayer.h */,
+				DA864E3111A2314A00B9CD68 /* TiMediaMusicPlayer.m */,
+			);
+			name = "Music Player";
+			sourceTree = "<group>";
+		};
+		DB3C58B7200BA31F0052CE8D /* _Media Item */ = {
+			isa = PBXGroup;
+			children = (
+				DAA905CC11A359F10030B119 /* TiMediaItem.h */,
+				DAA905CD11A359F10030B119 /* TiMediaItem.m */,
+			);
+			name = "_Media Item";
+			sourceTree = "<group>";
+		};
+		DB3C58B8200BA3240052CE8D /* System Alert */ = {
+			isa = PBXGroup;
+			children = (
+				C6BEA5841D8FD0B100485DAC /* TiMediaSystemAlertProxy.h */,
+				C6BEA5851D8FD0B100485DAC /* TiMediaSystemAlertProxy.m */,
+			);
+			name = "System Alert";
 			sourceTree = "<group>";
 		};
 		DBCFCB791F8261AB00A4CE61 /* SBJSON */ = {

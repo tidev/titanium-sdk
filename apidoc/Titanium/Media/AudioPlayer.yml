@@ -8,7 +8,9 @@ description: |
     release associated system resources.
 
     On iOS, you can control how the audio stream interacts with other system sounds
-    by setting <Titanium.Media.audioSessionMode>.
+    by setting <Titanium.Media.audioSessionMode>. Since Titanium 7.1.0, this API
+    is using the [AVPlayer API](https://developer.apple.com/documentation/avfoundation/avplayer) for a more modern
+    and performant audio playback.
 
     Use the <Titanium.Media.createAudioPlayer> method to create an audio player.
 extends: Titanium.Proxy
@@ -51,14 +53,13 @@ examples:
                 allowBackground: true
             });
 
-            startStopButton.addEventListener('click',function() {
+            startStopButton.addEventListener('click', function() {
                 // When paused, playing returns false.
                 // If both are false, playback is stopped.
                 if (audioPlayer.playing || audioPlayer.paused) {
                     audioPlayer.stop();
                     pauseResumeButton.enabled = false;
-                    if (Ti.Platform.name === 'android')
-                    {
+                    if (Ti.Platform.name === 'android') {
                         audioPlayer.release();
                     }
                 } else {
@@ -83,10 +84,9 @@ examples:
                 Ti.API.info('State: ' + e.description + ' (' + e.state + ')');
             });
 
-            win.addEventListener('close',function() {
+            win.addEventListener('close', function() {
                 audioPlayer.stop();
-                if (Ti.Platform.osname === 'android')
-                {
+                if (Ti.Platform.osname === 'android') {
                     audioPlayer.release();
                 }
             });
@@ -207,7 +207,7 @@ events:
       - name: state
         summary: Current state of playback.
         type: Number
-        constants: Titanium.Media.AudioPlayer.STATE_*
+        constants: Titanium.Media.AUDIO_STATE_*
       - name: description
         summary: Text description of the state of playback.
 
@@ -267,46 +267,73 @@ properties:
     summary: Audio data is being buffered from the network.
     type: Number
     permission: read-only
+    deprecated:
+        since: "7.1.0"
+        notes: Use <Titanium.Media.AUDIO_STATE_BUFFERING> instead.
 
   - name: STATE_INITIALIZED
     summary: Audio playback is being initialized.
     type: Number
     permission: read-only
+    deprecated:
+        since: "7.1.0"
+        notes: Use <Titanium.Media.AUDIO_STATE_BUFFERING> instead.
 
   - name: STATE_PAUSED
     summary: Playback is paused.
     type: Number
     permission: read-only
+    deprecated:
+        since: "7.1.0"
+        notes: Use <Titanium.Media.AUDIO_STATE_BUFFERING> instead.
 
   - name: STATE_PLAYING
     summary: Audio playback is active.
     type: Number
     permission: read-only
+    deprecated:
+        since: "7.1.0"
+        notes: Use <Titanium.Media.AUDIO_STATE_BUFFERING> instead.
 
   - name: STATE_STARTING
     summary: Audio playback is starting.
     type: Number
     permission: read-only
+    deprecated:
+        since: "7.1.0"
+        notes: Use <Titanium.Media.AUDIO_STATE_STARTING> instead.
 
   - name: STATE_STOPPED
     summary: Audio playback is stopped.
     type: Number
     permission: read-only
+    deprecated:
+        since: "7.1.0"
+        notes: Use <Titanium.Media.AUDIO_STATE_STOPPED> instead.
 
   - name: STATE_STOPPING
     summary: Audio playback is stopping.
     type: Number
     permission: read-only
+    deprecated:
+        since: "7.1.0"
+        notes: Use <Titanium.Media.AUDIO_STATE_STOPPING> instead.
 
   - name: STATE_WAITING_FOR_DATA
     summary: Player is waiting for audio data from the network.
     type: Number
     permission: read-only
+    deprecated:
+        since: "7.1.0"
+        notes: Use <Titanium.Media.AUDIO_STATE_WAITING_FOR_DATA> instead.
 
   - name: STATE_WAITING_FOR_QUEUE
     summary: Player is waiting for audio data to fill the queue.
     type: Number
     permission: read-only
+    deprecated:
+        since: "7.1.0"
+        notes: Use <Titanium.Media.AUDIO_STATE_WAITING_FOR_QUEUE> instead.
 
   - name: AUDIO_TYPE_ALARM
     summary: Used to identify the volume of audio streams for alarms.
@@ -430,10 +457,10 @@ properties:
         desire to play at the natural rate of the current item.
     description: |
         Setting the value of rate to 0.0 pauses playback, causing the value of 
-        the `state` property change to <Titanium.Media.AudioPlayer.STATE_PAUSED>.
+        the `state` property change to <Titanium.Media.AUDIO_STATE_PAUSED>.
         Setting the rate to a non-zero value causes the value of the `state` property 
-        to become either <Titanium.Media.AudioPlayer.STATE_WAITING_FOR_QUEUE> or 
-        <Titanium.Media.AudioPlayer.STATE_PLAYING>, depending on whether sufficient 
+        to become either <Titanium.Media.AUDIO_STATE_WAITING_FOR_QUEUE> or 
+        <Titanium.Media.AUDIO_STATE_PLAYING>, depending on whether sufficient 
         media data has been buffered for playback to occur and whether the player's 
         default behavior of waiting in order to minimize stalling is permitted.
     default: 0.0
@@ -463,7 +490,7 @@ properties:
   - name: state
     summary: Current state of playback, specified using one of the `STATE` constants defined on this object.
     type: Number
-    constants: Titanium.Media.AudioPlayer.STATE_*
+    constants: Titanium.Media.AUDIO_STATE_*
     permission: read-only
     platforms: [iphone, ipad]
 

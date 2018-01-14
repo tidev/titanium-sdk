@@ -9,6 +9,7 @@
 #import "KrollCallback.h"
 #import "MediaPlayer/MediaPlayer.h"
 #import "TiMediaAudioSession.h"
+#import "TiMediaAudioStateConstants.h"
 #import "TiMediaMusicPlayer.h"
 #import "TiModule.h"
 #import "TiViewProxy.h"
@@ -227,6 +228,15 @@
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_BLUETOOTHHFP;
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_USBAUDIO;
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_CARAUDIO;
+
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_STARTING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_WAITING_FOR_DATA;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_WAITING_FOR_QUEUE;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_PLAYING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_BUFFERING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_STOPPING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_STOPPED;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_PAUSED;
 
 @end
 

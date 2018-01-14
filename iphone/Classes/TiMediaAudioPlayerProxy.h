@@ -6,20 +6,8 @@
  */
 #ifdef USE_TI_MEDIAAUDIOPLAYER
 
+#import "TiMediaAudioStateConstants.h"
 #import "TiProxy.h"
-
-typedef NS_ENUM(NSInteger, TiAudioPlayerState) {
-  TiAudioPlayerStateBuffering = 0,
-  TiAudioPlayerStateInitialized,
-  TiAudioPlayerStatePaused,
-  TiAudioPlayerStatePlaying,
-  TiAudioPlayerStateStartingFileThread,
-  TiAudioPlayerStateStopped,
-  TiAudioPlayerStateStopping,
-  TiAudioPlayerStateWaitingForData, // Unused
-  TiAudioPlayerStateWaitingForQueueToStart,
-  TiAudioPlayerStateFlushingEOF, // Unused
-};
 
 @class AVPlayer;
 
