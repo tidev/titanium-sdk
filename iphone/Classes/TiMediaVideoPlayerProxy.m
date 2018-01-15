@@ -412,21 +412,22 @@ NSArray *moviePlayerKeys = nil;
       CMTime cmTime = CMTimeMakeWithSeconds([time floatValue], 1);
       [cmTimeArray addObject:[NSValue valueWithCMTime:cmTime]];
     }
-    TiThreadPerformOnMainThread(^{
-      AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:[[[movie player] currentItem] asset]];
-      NSNumber *option = [args objectAtIndex:1];
 
-      if ([option intValue] == VideoTimeOptionExact) {
-        imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
-        imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
-      }
+    AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:[[[movie player] currentItem] asset]];
+    NSNumber *option = [args objectAtIndex:1];
 
-      [imageGenerator cancelAllCGImageGeneration];
+    if ([option intValue] == VideoTimeOptionExact) {
+      imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
+      imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
+    }
 
-      RELEASE_TO_NIL(thumbnailCallback);
-      callbackRequestCount = [array count];
-      thumbnailCallback = [[args objectAtIndex:2] retain];
+    [imageGenerator cancelAllCGImageGeneration];
 
+    RELEASE_TO_NIL(thumbnailCallback);
+    callbackRequestCount = [array count];
+    thumbnailCallback = [[args objectAtIndex:2] retain];
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       [imageGenerator generateCGImagesAsynchronouslyForTimes:cmTimeArray
                                            completionHandler:^(CMTime requestedTime, CGImageRef _Nullable imageRef, CMTime actualTime, AVAssetImageGeneratorResult result, NSError *_Nullable error) {
                                              NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
@@ -438,14 +439,17 @@ NSArray *moviePlayerKeys = nil;
                                                [image release];
                                                [event setObject:NUMDOUBLE(actualTime.value / actualTime.timescale) forKey:@"time"];
                                              }
-                                             [self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
+
+                                             TiThreadPerformOnMainThread(^{
+                                               [self _fireEventToListener:@"thumbnail" withObject:event listener:thumbnailCallback thisObject:nil];
+                                             },
+                                                 YES);
 
                                              if (--callbackRequestCount <= 0) {
                                                RELEASE_TO_NIL(thumbnailCallback);
                                              }
                                            }];
-    },
-        NO);
+    });
   }
 }
 
