@@ -67,6 +67,8 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)_destroy
 {
+  [self removeNotificationObserver];
+
   if (playing) {
     [[movie player] pause];
     [movie setPlayer:nil];
@@ -186,7 +188,6 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)viewDidDetach
 {
-  [self removeNotificationObserver];
   [[movie player] pause];
   [movie setPlayer:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
