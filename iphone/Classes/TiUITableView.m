@@ -1787,7 +1787,7 @@
 - (void)initSearhController
 {
   if (searchController == nil) {
-    searchController = [[[UISearchController alloc] initWithSearchResultsController:nil] retain];
+    searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
     searchController.hidesNavigationBarDuringPresentation = NO;
     searchController.dimsBackgroundDuringPresentation = NO;
     searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);

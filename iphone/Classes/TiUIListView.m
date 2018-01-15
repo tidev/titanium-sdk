@@ -2282,7 +2282,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)initSearchController:(id)sender
 {
   if (sender == self && searchController == nil) {
-    searchController = [[[UISearchController alloc] initWithSearchResultsController:nil] retain];
+    searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
     searchController.delegate = self;
     searchController.searchResultsUpdater = self;
     searchController.hidesNavigationBarDuringPresentation = NO;
