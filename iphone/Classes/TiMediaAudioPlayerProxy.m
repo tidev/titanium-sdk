@@ -44,10 +44,15 @@
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
   if (count == 1 && [type isEqualToString:@"progress"]) {
-    [[self player] addPeriodicTimeObserverForInterval:CMTimeMake(1, 1)
+    __weak TiMediaAudioPlayerProxy *weakSelf = self;
+    [[self player] addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0, NSEC_PER_SEC)
                                                 queue:nil
                                            usingBlock:^(CMTime time) {
-                                             [self fireEvent:@"progress" withObject:@{ @"progress" : NUMINT(CMTimeGetSeconds(time) * 1000) }];
+                                             TiMediaAudioPlayerProxy *strongSelf = weakSelf;
+                                             [strongSelf fireEvent:@"progress"
+                                                        withObject:@{
+                                                          @"progress" : NUMINT(CMTimeGetSeconds(time) * 1000)
+                                                        }];
                                            }];
   }
 }
@@ -212,7 +217,18 @@
   ENSURE_SINGLE_ARG(url, NSString);
   _url = [TiUtils toURL:url proxy:self];
 
+  // Properly clean up old observer before changing player item
   if (_player != nil) {
+    // Remove old KVO-observer
+    [self removeNotificationObserver];
+
+    // Change player item
+    [[self player] replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithURL:_url]];
+
+    // Add new KVO-observer
+    [self addNotificationObserver];
+
+    // Restart (stop -> start) player
     [self restart:nil];
   }
 }
@@ -231,11 +247,14 @@
   }
 
   float formattedTime = [TiUtils floatValue:time] / 1000;
+  __weak TiMediaAudioPlayerProxy *weakSelf = self;
 
   [_player seekToTime:CMTimeMake(formattedTime, 1)
       completionHandler:^(BOOL finished) {
-        if ([self _hasListeners:@"seek"]) {
-          [self fireEvent:@"seek" withObject:@{ @"finished" : NUMBOOL(finished) }];
+        TiMediaAudioPlayerProxy *strongSelf = weakSelf;
+
+        if ([strongSelf _hasListeners:@"seek"]) {
+          [strongSelf fireEvent:@"seek" withObject:@{ @"finished" : NUMBOOL(finished) }];
         }
       }];
 }
@@ -377,9 +396,9 @@
   [nc removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
   [nc removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
 
-  [[self player] removeObserver:self forKeyPath:@"playbackBufferEmpty"];
-  [[self player] removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
-  [[self player] removeObserver:self forKeyPath:@"playbackBufferFull"];
+  [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferEmpty"];
+  [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
+  [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferFull"];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context

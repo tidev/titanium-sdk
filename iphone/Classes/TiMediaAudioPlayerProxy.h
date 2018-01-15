@@ -16,7 +16,6 @@
   AVPlayer *_player;
   NSURL *_url;
   double _duration;
-  BOOL _progress;
   id _timeObserver;
   TiAudioPlayerState _state;
 }
