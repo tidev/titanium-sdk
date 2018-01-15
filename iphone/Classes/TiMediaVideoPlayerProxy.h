@@ -47,10 +47,6 @@ typedef NS_ENUM(NSInteger, VideoRepeatMode) {
   // We need some internal way whether or not to check if it's OK to create a view - this is it.
   BOOL reallyAttached;
 
-  // Need to preserve status bar frame information when entering/exiting fullscreen to properly re-render
-  // views when exiting it.
-  BOOL statusBarWasHidden;
-
   // Have to track loading in the proxy in addition to the view, in case we load before the view should be rendered
   BOOL loaded;
 }

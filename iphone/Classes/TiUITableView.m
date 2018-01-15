@@ -356,6 +356,7 @@
   RELEASE_TO_NIL(filterAttribute);
   RELEASE_TO_NIL(searchResultIndexes);
   RELEASE_TO_NIL(tableHeaderPullView);
+  RELEASE_TO_NIL(_searchedString);
   [searchString release];
 #ifdef USE_TI_UIREFRESHCONTROL
   RELEASE_TO_NIL(_refreshControlProxy);

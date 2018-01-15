@@ -145,6 +145,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   RELEASE_TO_NIL(filteredTitles);
   RELEASE_TO_NIL(filteredIndices);
   RELEASE_TO_NIL(_measureProxies);
+  RELEASE_TO_NIL(_searchedString);
 #ifdef USE_TI_UIREFRESHCONTROL
   RELEASE_TO_NIL(_refreshControlProxy);
 #endif

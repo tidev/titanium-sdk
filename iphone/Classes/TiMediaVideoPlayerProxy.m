@@ -597,6 +597,7 @@ NSArray *moviePlayerKeys = nil;
                                       actualTime:&actualTime
                                            error:&error];
   UIImage *image = [UIImage imageWithCGImage:cgIm];
+  [generator release];
 
   if (cgIm == NULL) {
     DebugLog(@"[ERROR] Error making screenshot: Actual screenshot time: %f, requested screenshot time: %f", CMTimeGetSeconds(actualTime),
