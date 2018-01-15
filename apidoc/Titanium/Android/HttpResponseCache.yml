@@ -21,7 +21,7 @@ description: |
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
-since: "8.0.0"
+since: "7.1.0"
 methods:
   - name: close
     summary: Uninstalls the cache and releases any active resources.
@@ -42,7 +42,9 @@ methods:
     description: |
         See also:
         [install](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#install(java.io.File, long))
-        in the Android API Reference.
+        in the Android API Reference. Returns false if and only if failed to create the directory; true otherwise
+    returns:
+        type: Boolean
 
   - name: remove
     summary: Uninstalls the cache and deletes all of its stored contents.
@@ -123,3 +125,25 @@ methods:
       - name: size
         summary: Maximum cache size in bytes.
         type: Number
+
+properties:
+
+  - name: httpCacheSize
+    summary: Maximum  cache size in bytes.
+    description: |
+        See also:
+        [maxSize](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#maxSize())
+        in the Android API Reference.
+    type: Number
+
+  - name: httpCachePath
+    summary: Relative path for cache
+    description: |
+        HTTP response cache will be stored on external storage if it exists on moment
+        [install](Titanium.Android.HttpResponseCache.install) method is called.
+        See also:
+        [getCacheDir](https://developer.android.com/reference/android/content/Context.html#getCacheDir()),
+        [getExternalCacheDir](https://developer.android.com/reference/android/content/Context.html#getExternalCacheDir())
+        in the Android API Reference.
+    type: String
+

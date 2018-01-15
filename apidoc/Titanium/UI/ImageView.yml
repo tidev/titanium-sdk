@@ -156,7 +156,7 @@ properties:
     type: Boolean
     default: true.
     availability: creation
-    since: 8.0.0
+    since: 7.1.0
     platforms: [android]
 
   - name: decodeRetries

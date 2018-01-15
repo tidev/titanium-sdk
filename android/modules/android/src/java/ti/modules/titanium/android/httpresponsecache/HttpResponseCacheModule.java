@@ -2,6 +2,7 @@ package ti.modules.titanium.android.httpresponsecache;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
 import ti.modules.titanium.android.AndroidModule;
@@ -15,11 +16,13 @@ import java.io.IOException;
 @Kroll.module(parentModule = AndroidModule.class)
 public class HttpResponseCacheModule extends KrollModule
 {
+	private static final String TAG = "HttpResponseCache";
 	private static final String CACHE_SIZE_KEY = "ti.android.cache.size.max";
 	private static final int DEFAULT_CACHE_SIZE = 25 * 1024; // 25MB
 
 	private String httpCachePath;
 	private long httpCacheSize;
+	private File httpCacheDir;
 
 	public HttpResponseCacheModule()
 	{
@@ -30,7 +33,7 @@ public class HttpResponseCacheModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void install() throws IOException
+	public boolean install() throws IOException
 	{
 		HttpResponseCache cache = HttpResponseCache.getInstalled();
 		if (cache != null) {
@@ -42,8 +45,18 @@ public class HttpResponseCacheModule extends KrollModule
 		if (dir == null) {
 			dir = tiApp.getApplicationContext().getCacheDir();
 		}
-		File httpCacheDir = new File(dir, httpCachePath);
+		httpCacheDir = new File(dir, httpCachePath);
+		if (!httpCacheDir.exists()) {
+			if (!httpCacheDir.mkdir()) {
+				Log.e(TAG, "Failed to create cache directory");
+				return false;
+			}
+		} else if (!httpCacheDir.isDirectory()) {
+			Log.e(TAG, "Failed to create cache directory. \"" + httpCacheDir.getPath() + "\" exists.");
+			return false;
+		}
 		cache = HttpResponseCache.install(httpCacheDir, httpCacheSize);
+		return true;
 	}
 
 	@Kroll.method
@@ -113,26 +126,38 @@ public class HttpResponseCacheModule extends KrollModule
 		return 0;
 	}
 
+	// clang-format off
 	@Kroll.method
+	@Kroll.getProperty
 	public String getHttpCachePath()
+	// clang-format on
 	{
 		return httpCachePath;
 	}
 
+	// clang-format off
 	@Kroll.method
+	@Kroll.getProperty
 	public long getHttpCacheSize()
+	// clang-format on
 	{
 		return httpCacheSize;
 	}
 
+	// clang-format off
 	@Kroll.method
+	@Kroll.setProperty
 	public void setHttpCachePath(String value)
+	// clang-format on
 	{
 		httpCachePath = value;
 	}
 
+	// clang-format off
 	@Kroll.method
+	@Kroll.setProperty
 	public void setHttpCacheSize(long value)
+	// clang-format on
 	{
 		httpCacheSize = value;
 	}
