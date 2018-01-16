@@ -11,7 +11,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.view.View.MeasureSpec;
 
-
 /**
  * View group used to display a refresh progress indicator when the user swipes down.
  * <p>
@@ -25,7 +24,6 @@ public class TiSwipeRefreshLayout extends SwipeRefreshLayout
 {
 	/** Set true if swipe-down support is enabled. False if disabled. */
 	private boolean isSwipeRefreshEnabled = true;
-
 
 	/**
 	 * Creates a new swipe-down refresh layout.
@@ -111,9 +109,7 @@ public class TiSwipeRefreshLayout extends SwipeRefreshLayout
 			// Update this view's given height spec to match the tallest child view, but only if:
 			// - Height mode is UNSPECIFIED. (View can be any height it wants.)
 			// - Height mode is AT_MOST and the min height is less than given height.
-			if ((heightMode == MeasureSpec.UNSPECIFIED) ||
-			    (minHeight < MeasureSpec.getSize(heightMeasureSpec)))
-			{
+			if ((heightMode == MeasureSpec.UNSPECIFIED) || (minHeight < MeasureSpec.getSize(heightMeasureSpec))) {
 				heightMode = MeasureSpec.AT_MOST;
 				heightMeasureSpec = MeasureSpec.makeMeasureSpec(minHeight, heightMode);
 			}

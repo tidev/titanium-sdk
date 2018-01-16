@@ -122,7 +122,7 @@ void KrollBindings::getExternalBinding(const FunctionCallbackInfo<Value>& args)
 		return;
 	}
 
-	titanium::Utf8Value bindingValue(binding);
+	v8::String::Utf8Value bindingValue(binding);
 	int length = bindingValue.length();
 	struct bindings::BindEntry *externalBinding = KrollBindings::getExternalBinding(*bindingValue, length);
 	Local<Object> exports = KrollBindings::instantiateBinding(isolate, externalBinding, binding, cache);
@@ -173,7 +173,7 @@ Local<Object> KrollBindings::getBinding(v8::Isolate* isolate, Local<String> bind
 		return cache->Get(binding)->ToObject(isolate);
 	}
 
-	titanium::Utf8Value bindingValue(binding);
+	v8::String::Utf8Value bindingValue(binding);
 	int length = bindingValue.length();
 
 	Local<Object> exports;
@@ -245,7 +245,7 @@ void KrollBindings::dispose(v8::Isolate* isolate)
 	uint32_t length = propertyNames->Length();
 
 	for (uint32_t i = 0; i < length; i++) {
-		titanium::Utf8Value binding(propertyNames->Get(i));
+		v8::String::Utf8Value binding(propertyNames->Get(i));
 		int bindingLength = binding.length();
 
 		struct titanium::bindings::BindEntry *generated = bindings::generated::lookupGeneratedInit(*binding, bindingLength);
@@ -298,7 +298,7 @@ void KrollBindings::isExternalCommonJsModule(const FunctionCallbackInfo<Value>& 
 	}
 
 	v8::Local<v8::String> name = args[0].As<String>();
-	titanium::Utf8Value nameVal(name);
+	v8::String::Utf8Value nameVal(name);
 	std::string nameKey(*nameVal);
 
 	bool exists = (externalCommonJsModules.count(nameKey) > 0);
@@ -320,7 +320,7 @@ void KrollBindings::getExternalCommonJsModule(const FunctionCallbackInfo<Value>&
 	}
 
 	v8::Local<v8::String> name = args[0].As<String>();
-	titanium::Utf8Value nameVal(name);
+	v8::String::Utf8Value nameVal(name);
 	std::string nameKey(*nameVal);
 	std::string moduleRoot = nameKey;
 	std::string subPath = nameKey;

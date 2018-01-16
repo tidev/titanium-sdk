@@ -18,29 +18,40 @@ public class TiAnalyticsEventFactory extends APSAnalyticsEventFactory
 {
 	public static final String TAG = "TiAnalyticsEventFactory";
 	public static final long MAX_GEO_ANALYTICS_FREQUENCY = 60000L;
-	
-//  Application Crash Detected
-//
-//	Description:
-//
-//	Each time an application crash is detected, the following event SHOULD be sent.
-//
-//	Event name:
-//
-//	ti.crash
-//
-//	Event data:
-//
-//	- details		-- event details (string)
+
+	//  Application Crash Detected
+	//
+	//	Description:
+	//
+	//	Each time an application crash is detected, the following event SHOULD be sent.
+	//
+	//	Event name:
+	//
+	//	ti.crash
+	//
+	//	Event data:
+	//
+	//	- details		-- event details (string)
 
 	public static APSAnalyticsEvent createErrorEvent(Thread t, Throwable err, String tiVersionInfo)
 	{
 		APSAnalyticsEvent event = null;
 
 		StringBuilder sb = new StringBuilder(1024);
-		sb.append("thread_name").append(t.getName()).append("\n").append("thread_id").append(t.getId()).append("\n")
-			.append("error_msg").append(err.toString()).append("\n").append("ti_version").append(tiVersionInfo).append("\n")
-			.append("<<<<<<<<<<<<<<< STACK TRACE >>>>>>>>>>>>>>>").append("\n");
+		sb.append("thread_name")
+			.append(t.getName())
+			.append("\n")
+			.append("thread_id")
+			.append(t.getId())
+			.append("\n")
+			.append("error_msg")
+			.append(err.toString())
+			.append("\n")
+			.append("ti_version")
+			.append(tiVersionInfo)
+			.append("\n")
+			.append("<<<<<<<<<<<<<<< STACK TRACE >>>>>>>>>>>>>>>")
+			.append("\n");
 
 		StackTraceElement[] elements = err.getStackTrace();
 		int len = elements.length;
@@ -68,5 +79,4 @@ public class TiAnalyticsEventFactory extends APSAnalyticsEventFactory
 		}
 		return null;
 	}
-
 }

@@ -88,6 +88,16 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   }
 }
 
+- (void)gainFocus
+{
+  [[self tableView] viewGetFocus];
+}
+
+- (void)resignFocus
+{
+  [[self tableView] viewResignFocus];
+}
+
 - (NSArray *)keySequence
 {
   if (tableKeySequence == nil) {

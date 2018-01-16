@@ -69,6 +69,7 @@
   BOOL allowsSelectionSet;
   UISearchController *searchController;
   UITableViewController *resultViewController;
+  UIViewController *searchControllerPresenter;
   BOOL _dimsBackgroundDuringPresentation;
   TiViewProxy *headerViewProxy;
   TiViewProxy *footerViewProxy;
@@ -78,6 +79,8 @@
 #endif
   UIEdgeInsets defaultSeparatorInsets;
   UIEdgeInsets rowSeparatorInsets;
+  CGPoint tableContentOffset;
+  BOOL isSearched;
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;
@@ -103,7 +106,8 @@
 - (void)deselectRow:(id)args;
 - (void)reloadDataFromCount:(NSUInteger)oldCount toCount:(NSUInteger)newCount animation:(UITableViewRowAnimation)animation;
 - (void)refreshSearchControllerUsingReload:(BOOL)reloadSearch;
-
+- (void)viewResignFocus;
+- (void)viewGetFocus;
 @end
 
 #endif

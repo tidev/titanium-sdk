@@ -6,20 +6,20 @@
 		"https://github.com/appcelerator-modules/ti.map/releases/download/ios-3.0.1/ti.map-iphone-3.0.1.zip",
 		"https://github.com/appcelerator-modules/ti.safaridialog/releases/download/iOS-1.1.1/ti.safaridialog-iphone-1.1.1.zip",
 		"https://github.com/appcelerator-modules/ti.touchid/releases/download/ios-2.1.4/ti.touchid-iphone-2.1.4.zip",
-		"https://github.com/appcelerator-modules/titanium-identity/releases/download/ios-1.0.1/ti.identity-iphone-1.0.1.zip"
+		"https://github.com/appcelerator-modules/titanium-identity/releases/download/ios-1.0.3/ti.identity-iphone-1.0.3.zip"
 	],
 	"android": [
 		"https://github.com/appcelerator-modules/ti.facebook/releases/download/android-7.0.0/facebook-android-7.0.0.zip",
-		"https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-5.0.0.zip",
+		"https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-5.0.1.zip",
 		"https://github.com/appcelerator-modules/ti.map/releases/download/android-4.0.0/ti.map-android-4.0.0.zip",
 		"https://github.com/appcelerator-modules/ti.touchid/releases/download/android-3.0.0/ti.touchid-android-3.0.0.zip",
 		"https://github.com/appcelerator-modules/ti.playservices/releases/download/android-11.0.40/ti.playservices-android-11.0.40.zip",
-		"https://github.com/appcelerator-modules/titanium-identity/releases/download/android-1.0.0/ti.identity-android-1.0.0.zip"
+		"https://github.com/appcelerator-modules/titanium-identity/releases/download/android-2.0.0/ti.identity-android-2.0.0.zip"
 	],
 	"commonjs": [
 		"https://github.com/appcelerator-modules/ti.cloud/releases/download/3.2.11/ti.cloud-commonjs-3.2.11.zip"
 	],
 	"hyperloop": [
-		"https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v3.0.0-beta.4/hyperloop-3.0.0-beta.4.zip"
+		"https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v3.0.1/hyperloop-3.0.1.zip"
 	]
 }

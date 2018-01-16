@@ -3,14 +3,14 @@
  * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- * 
+ *
  * Copied and modified from Apache's HTTPClient implementation (APL2 license):
  * org.apache.http.HeaderElement
  */
 package ti.modules.titanium.network.httpurlconnection;
 
 /**
- * One element of an HTTP {@link Header header} value consisting of 
+ * One element of an HTTP {@link Header header} value consisting of
  * a name / value pair and a number of optional name / value parameters.
  * <p>
  * Some HTTP headers (such as the set-cookie header) have values that
@@ -36,54 +36,53 @@ package ti.modules.titanium.network.httpurlconnection;
  * header, element or param and is ignored. A missing value in any
  * element or param will be stored as the empty {@link String};
  * if the "=" is also missing <var>null</var> will be stored instead.
- * 
+ *
  * @since 4.0
  */
 public interface HeaderElement {
 
-    /**
-     * Returns header element name.
-     * 
-     * @return header element name
-     */
-    String getName();
+	/**
+	 * Returns header element name.
+	 *
+	 * @return header element name
+	 */
+	String getName();
 
-    /**
-     * Returns header element value. 
-     * 
-     * @return header element value
-     */
-    String getValue();
+	/**
+	 * Returns header element value.
+	 *
+	 * @return header element value
+	 */
+	String getValue();
 
-    /** 
-     * Returns an array of name / value pairs.
-     * 
-     * @return array of name / value pairs
-     */
-    NameValuePair[] getParameters();
-    
-    /** 
-     * Returns the first parameter with the given name.
-     * 
-     * @param name parameter name
-     * 
-     * @return name / value pair
-     */
-    NameValuePair getParameterByName(String name);
+	/**
+	 * Returns an array of name / value pairs.
+	 *
+	 * @return array of name / value pairs
+	 */
+	NameValuePair[] getParameters();
 
-    /**
-     * Returns the total count of parameters.
-     * 
-     * @return parameter count
-     */
-    int getParameterCount();
+	/**
+	 * Returns the first parameter with the given name.
+	 *
+	 * @param name parameter name
+	 *
+	 * @return name / value pair
+	 */
+	NameValuePair getParameterByName(String name);
 
-    /**
-     * Returns parameter with the given index.
-     *  
-     * @param index
-     * @return name / value pair
-     */
-    NameValuePair getParameter(int index);
-    
+	/**
+	 * Returns the total count of parameters.
+	 *
+	 * @return parameter count
+	 */
+	int getParameterCount();
+
+	/**
+	 * Returns parameter with the given index.
+	 *
+	 * @param index
+	 * @return name / value pair
+	 */
+	NameValuePair getParameter(int index);
 }
