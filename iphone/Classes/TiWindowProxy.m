@@ -622,6 +622,9 @@
     id properties = (args != nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
     [[controller navigationController] setNavigationBarHidden:NO animated:animated];
+#if IS_XCODE_9
+    [self processForSafeArea];
+#endif
   }
 }
 
@@ -633,6 +636,9 @@
     id properties = (args != nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
     [[controller navigationController] setNavigationBarHidden:YES animated:animated];
+#if IS_XCODE_9
+    [self processForSafeArea];
+#endif
     //TODO: need to fix height
   }
 }

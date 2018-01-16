@@ -56,8 +56,8 @@ public class ListItemProxy extends TiViewProxy
 			if (source != null && !source.equals(this) && listProxy != null) {
 
 				// append bind properties
-				if (eventData.containsKey(TiC.PROPERTY_BIND_ID) && eventData.containsKey(TiC.PROPERTY_ITEM_INDEX) &&
-						eventData.containsKey(TiC.PROPERTY_SECTION)) {
+				if (eventData.containsKey(TiC.PROPERTY_BIND_ID) && eventData.containsKey(TiC.PROPERTY_ITEM_INDEX)
+					&& eventData.containsKey(TiC.PROPERTY_SECTION)) {
 					int itemIndex = eventData.getInt(TiC.PROPERTY_ITEM_INDEX);
 					String bindId = eventData.getString(TiC.PROPERTY_BIND_ID);
 					ListSectionProxy section = (ListSectionProxy) eventData.get(TiC.PROPERTY_SECTION);

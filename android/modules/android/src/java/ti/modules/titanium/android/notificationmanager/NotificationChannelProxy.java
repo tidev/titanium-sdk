@@ -19,19 +19,21 @@ import android.app.NotificationChannel;
 import android.os.Build;
 
 @TargetApi(26)
+// clang-format off
 @Kroll.proxy(propertyAccessors = {
-		TiC.PROPERTY_BYPASS_DND,
-		TiC.PROPERTY_DESCRIPTION,
-		TiC.PROPERTY_ENABLE_LIGHTS,
-		TiC.PROPERTY_ENABLE_VIBRATION,
-		TiC.PROPERTY_GROUP_ID,
-		TiC.PROPERTY_IMPORTANCE,
-		TiC.PROPERTY_LIGHT_COLOR,
-		TiC.PROPERTY_LOCKSCREEN_VISIBILITY,
-		TiC.PROPERTY_NAME,
-		TiC.PROPERTY_SHOW_BADGE,
-		TiC.PROPERTY_VIBRATE_PATTERN
+	TiC.PROPERTY_BYPASS_DND,
+	TiC.PROPERTY_DESCRIPTION,
+	TiC.PROPERTY_ENABLE_LIGHTS,
+	TiC.PROPERTY_ENABLE_VIBRATION,
+	TiC.PROPERTY_GROUP_ID,
+	TiC.PROPERTY_IMPORTANCE,
+	TiC.PROPERTY_LIGHT_COLOR,
+	TiC.PROPERTY_LOCKSCREEN_VISIBILITY,
+	TiC.PROPERTY_NAME,
+	TiC.PROPERTY_SHOW_BADGE,
+	TiC.PROPERTY_VIBRATE_PATTERN
 })
+// clang-format on
 public class NotificationChannelProxy extends KrollProxy
 {
 	private static final String TAG = "TiNotificationChannel";
@@ -47,10 +49,11 @@ public class NotificationChannelProxy extends KrollProxy
 	public void handleCreationDict(KrollDict d)
 	{
 		super.handleCreationDict(d);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && d != null &&
-				d.containsKey(TiC.PROPERTY_ID) && d.containsKey(TiC.PROPERTY_NAME) && d.containsKey(TiC.PROPERTY_IMPORTANCE)) {
-			
-			channel = new NotificationChannel(d.getString(TiC.PROPERTY_ID), d.getString(TiC.PROPERTY_NAME), d.getInt(TiC.PROPERTY_IMPORTANCE));
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && d != null && d.containsKey(TiC.PROPERTY_ID)
+			&& d.containsKey(TiC.PROPERTY_NAME) && d.containsKey(TiC.PROPERTY_IMPORTANCE)) {
+
+			channel = new NotificationChannel(d.getString(TiC.PROPERTY_ID), d.getString(TiC.PROPERTY_NAME),
+											  d.getInt(TiC.PROPERTY_IMPORTANCE));
 
 			if (d.containsKey(TiC.PROPERTY_BYPASS_DND)) {
 				setBypassDnd(d.getBoolean(TiC.PROPERTY_BYPASS_DND));
@@ -84,84 +87,120 @@ public class NotificationChannelProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getId()
+	// clang-format on
 	{
 		return channel.getId();
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setEnableLights(boolean lights)
+	// clang-format on
 	{
 		channel.enableLights(lights);
 		setProperty(TiC.PROPERTY_ENABLE_LIGHTS, lights);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setEnableVibration(boolean vibration)
+	// clang-format on
 	{
 		channel.enableVibration(vibration);
 		setProperty(TiC.PROPERTY_ENABLE_VIBRATION, vibration);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void	setBypassDnd(boolean bypassDnd)
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setBypassDnd(boolean bypassDnd)
+	// clang-format on
 	{
 		channel.setBypassDnd(bypassDnd);
 		setProperty(TiC.PROPERTY_BYPASS_DND, bypassDnd);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void	setDescription(String description)
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setDescription(String description)
+	// clang-format on
 	{
 		channel.setDescription(description);
 		setProperty(TiC.PROPERTY_DESCRIPTION, description);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void	setGroupId(String groupId)
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setGroupId(String groupId)
+	// clang-format on
 	{
 		channel.setGroup(groupId);
 		setProperty(TiC.PROPERTY_GROUP_ID, groupId);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setImportance(int importance)
+	// clang-format on
 	{
 		channel.setImportance(importance);
 		setProperty(TiC.PROPERTY_IMPORTANCE, importance);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setLightColor(int argb)
+	// clang-format on
 	{
 		channel.setLightColor(argb);
 		setProperty(TiC.PROPERTY_LIGHT_COLOR, argb);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setLockscreenVisibility(int lockscreenVisibility)
+	// clang-format on
 	{
 		channel.setLockscreenVisibility(lockscreenVisibility);
 		setProperty(TiC.PROPERTY_LOCKSCREEN_VISIBILITY, lockscreenVisibility);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setName(String name)
+	// clang-format on
 	{
 		channel.setName(name);
 		setProperty(TiC.PROPERTY_NAME, name);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setShowBadge(boolean showBadge)
+	// clang-format on
 	{
 		channel.setShowBadge(showBadge);
 		setProperty(TiC.PROPERTY_SHOW_BADGE, showBadge);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setVibrationPattern(Object patternObj)
+	// clang-format on
 	{
 		if (patternObj instanceof Object[]) {
 			Object[] patternArray = (Object[]) patternObj;

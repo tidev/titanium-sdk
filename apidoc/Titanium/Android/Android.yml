@@ -2240,7 +2240,7 @@ properties:
   - name: NAVIGATION_MODE_STANDARD
     summary: Standard Action Bar navigation mode
     description: |
-        Use with the <Titanium.Android.ActionBar.navigationMode> property.
+        Use with the <Titanium.Android.ActionBar.navigationMode> property. Note: NAVIGATION_MODE_STANDARD has been deprecated in API level 21 and up.
     type: Number
     permission: read-only
     since: "3.2.0"
@@ -2248,7 +2248,7 @@ properties:
   - name: NAVIGATION_MODE_TABS
     summary: Action Bar tab navigation mode
     description: |
-        Use with the <Titanium.Android.ActionBar.navigationMode> property.
+        Use with the <Titanium.Android.ActionBar.navigationMode> property. Note: NAVIGATION_MODE_TABS has been deprecated in API level 21 and up.
     type: Number
     permission: read-only
     since: "3.2.0"

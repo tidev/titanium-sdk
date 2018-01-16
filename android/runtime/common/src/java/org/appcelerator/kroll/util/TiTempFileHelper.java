@@ -63,7 +63,6 @@ public class TiTempFileHelper
 		File tempFile = File.createTempFile(prefix, suffix, tempDir);
 		excludeFileOnCleanup(tempFile);
 		return tempFile;
-
 	}
 
 	/**
@@ -127,7 +126,8 @@ public class TiTempFileHelper
 	public void excludeFileOnCleanup(File f)
 	{
 		if (f != null && tempDir.equals(f.getParentFile())) {
-			synchronized (createdThisSession) {
+			synchronized (createdThisSession)
+			{
 				createdThisSession.add(f.getAbsolutePath());
 			}
 		}
@@ -141,7 +141,8 @@ public class TiTempFileHelper
 		}
 		for (File file : tempDir.listFiles()) {
 			String absolutePath = file.getAbsolutePath();
-			synchronized (createdThisSession) {
+			synchronized (createdThisSession)
+			{
 				if (createdThisSession.contains(absolutePath)) {
 					continue;
 				}
@@ -181,7 +182,6 @@ public class TiTempFileHelper
 			if (!tempDir.exists()) {
 				tempDir.mkdirs();
 			}
-
 		}
 		previousExternalStorageState = extState;
 	}

@@ -17,7 +17,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.picker.TiUISpinnerRow;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule = UIModule.class)
 public class PickerRowProxy extends TiViewProxy
 {
 	private static final String TAG = "PickerRowProxy";
@@ -29,26 +29,38 @@ public class PickerRowProxy extends TiViewProxy
 		super();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getColor()
+	// clang-format on
 	{
-		return (String)getProperty(TiC.PROPERTY_COLOR);
+		return (String) getProperty(TiC.PROPERTY_COLOR);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setColor(String color)
+	// clang-format on
 	{
 		setPropertyAndFire(TiC.PROPERTY_COLOR, color);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getTitle()
+	// clang-format on
 	{
 		return toString();
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setTitle(String value)
+	// clang-format on
 	{
 		title = value;
 		if (rowListener != null) {
@@ -72,6 +84,7 @@ public class PickerRowProxy extends TiViewProxy
 	{
 		Log.w(TAG, "PickerRow does not support child controls");
 	}
+
 	@Override
 	public void remove(TiViewProxy child)
 	{
@@ -93,8 +106,7 @@ public class PickerRowProxy extends TiViewProxy
 		}
 	}
 
-	public interface PickerRowListener
-	{
+	public interface PickerRowListener {
 		void rowChanged(PickerRowProxy row);
 	}
 

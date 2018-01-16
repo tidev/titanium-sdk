@@ -10,6 +10,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 
 @Kroll.proxy
-public class TiAnimation extends KrollProxy {
-
+public class TiAnimation extends KrollProxy
+{
 }
