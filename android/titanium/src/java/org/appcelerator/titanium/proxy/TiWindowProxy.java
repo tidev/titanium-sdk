@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -39,6 +39,8 @@ import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.Display;
 import android.view.View;
+import android.view.Window;
+
 // clang-format off
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_EXIT_ON_CLOSE,
@@ -481,7 +483,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public void addSharedElement(TiViewProxy view, String transitionName)
 	{
 		if (LOLLIPOP_OR_GREATER) {
-			TiUIView v = view.peekView();
+			TiUIView v = view.getOrCreateView();
 			if (v != null) {
 				Pair<View, String> p = new Pair<View, String>(v.getNativeView(), transitionName);
 				sharedElementPairs.add(p);
@@ -506,7 +508,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity)
 	{
-		if (hasActivityTransitions()) {
+		if (hasActivityTransitions() && sharedElementPairs != null && !sharedElementPairs.isEmpty()) {
 			Bundle b = ActivityOptions
 						   .makeSceneTransitionAnimation(
 							   activity, sharedElementPairs.toArray(new Pair[sharedElementPairs.size()]))
@@ -522,7 +524,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 	 */
 	protected boolean hasActivityTransitions()
 	{
-		final boolean animated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
-		return (LOLLIPOP_OR_GREATER && animated && sharedElementPairs != null && !sharedElementPairs.isEmpty());
+		if (LOLLIPOP_OR_GREATER) {
+			final Window win = getActivity() != null ? getActivity().getWindow() : null;
+			final boolean isAnimated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
+			final boolean hasSharedElements = sharedElementPairs != null && !sharedElementPairs.isEmpty();
+			final boolean hasTransitions =
+				win != null
+				&& (win.getEnterTransition() != null || win.getExitTransition() != null
+					|| win.getReenterTransition() != null || win.getReturnTransition() != null);
+			return isAnimated && (hasSharedElements || hasTransitions);
+		}
+		return false;
 	}
 }
