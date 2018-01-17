@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -31,6 +32,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -197,36 +199,104 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		}
 	}
 
-	private File blobToTemp(TiBlob blob, String fileName)
+	private File blobToTemp(TiBlob blob, String fileName) throws Exception
 	{
-		File tempFolder = new File(TiFileHelper.getInstance().getDataDirectory(false), "temp");
+		Exception exception = null;
+		File tempFile = null;
+
+		// First, attempt to copy blob to a temp file under external storage.
+		// Note: Read permission flags set on intent's attachments are temporary and will be lost
+		//       when device is rebooted. So, external storage is preferred for continued access.
+		try {
+			boolean usePrivateDirectory = false;
+			tempFile = blobToTemp(blob, fileName, usePrivateDirectory);
+		} catch (Exception ex) {
+			exception = ex;
+		}
+
+		// Fall-back to using app's sandboxed temp folder if unable to write to external storage.
+		// This can happen if:
+		// - External storage is not mounted. (ie: Doesn't exist or SD card was ejected.)
+		// - App does not have write permission to external storage.
+		// - External storage is full.
+		if (tempFile == null) {
+			try {
+				boolean usePrivateDirectory = true;
+				tempFile = blobToTemp(blob, fileName, usePrivateDirectory);
+			} catch (Exception ex) {
+				exception = ex;
+			}
+		}
+
+		// Throw an exception if we've failed to write to temp file.
+		if (tempFile == null) {
+			if (exception == null) {
+				exception = new Exception("Unknown error occurred.");
+			}
+			throw exception;
+		}
+
+		// We've successfully written the blob to temp directory. Return its file path.
+		return tempFile;
+	}
+
+	private File blobToTemp(TiBlob blob, String fileName, boolean usePrivateDirectory) throws Exception
+	{
+		// Fetch a path to a temp directory that we have write access to.
+		TiFileHelper fileHelper = TiFileHelper.getInstance();
+		File tempFolder = new File(fileHelper.getDataDirectory(usePrivateDirectory), "temp");
 		tempFolder.mkdirs();
 
+		// Create temp file destination path.
 		File tempfilej = new File(tempFolder, fileName);
 		TiFile tempfile = new TiFile(tempfilej, tempfilej.getPath(), false);
 
+		// Delete previous temp file, if it exists.
 		if (tempfile.exists()) {
 			tempfile.deleteFile();
 		}
-		try {
-			tempfile.write(blob, false);
-			return tempfile.getNativeFile();
-		} catch (IOException e) {
-			Log.e(TAG, "Unable to attach file " + fileName + ": " + e.getMessage(), e);
-		}
 
-		return null;
+		// Copy given blob's contents to temp file.
+		tempfile.write(blob, false);
+		return tempfile.getNativeFile();
 	}
 
-	private File privateFileToTemp(FileProxy file)
+	private File getAttachableFileFrom(FileProxy fileProxy)
 	{
-		File tempfile = null;
-		try {
-			tempfile = blobToTemp(file.read(), file.getName());
-		} catch (IOException e) {
-			Log.e(TAG, "Unable to attach file " + file.getName() + ": " + e.getMessage(), e);
+		Exception exception = null;
+		File file = null;
+
+		// First, attempt to copy the file to a public temp directory.
+		// We only need to do this with sandboxed files.
+		if (isPrivateData(fileProxy)) {
+			try {
+				file = blobToTemp(fileProxy.read(), fileProxy.getName());
+			} catch (Exception ex) {
+				exception = ex;
+			}
 		}
-		return tempfile;
+
+		// Use the given file path if we haven't copied it to a temp directory up above.
+		// Note: Our content provider an provide access to sandboxed files too, but copying them to
+		//       external storage is preferred since permission set by provider is temporary.
+		if (file == null) {
+			try {
+				file = fileProxy.getBaseFile().getNativeFile();
+			} catch (Exception ex) {
+				exception = ex;
+			}
+		}
+
+		// Log an error if failed to acquire an attachable file path.
+		if (file == null) {
+			if (exception == null) {
+				exception = new Exception("Unknown error occurred.");
+			}
+			Log.e(TAG, "Unable to attach file " + fileProxy.getName() + ": " + exception.getMessage(), exception);
+		}
+
+		// Returns an attachable file path or null if failed.
+		return file;
 	}
 
 	private File blobToFile(TiBlob blob)
@@ -239,12 +309,18 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		}
 
 		// For non-file blobs, make a temp file and attach.
-		String fileName = "attachment";
-		String extension = TiMimeTypeHelper.getFileExtensionFromMimeType(blob.getMimeType(), "");
-		if (extension.length() > 0) {
-			fileName += "." + extension;
+		File tempFile = null;
+		try {
+			String fileName = "attachment";
+			String extension = TiMimeTypeHelper.getFileExtensionFromMimeType(blob.getMimeType(), "");
+			if (extension.length() > 0) {
+				fileName += "." + extension;
+			}
+			tempFile = blobToTemp(blob, fileName);
+		} catch (Exception e) {
+			Log.e(TAG, "Unable to attach blob: " + e.getMessage(), e);
 		}
-		return blobToTemp(blob, fileName);
+		return tempFile;
 	}
 
 	private Uri getAttachmentUri(Object attachment)
@@ -252,22 +328,15 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		if (attachment instanceof FileProxy) {
 			FileProxy fileProxy = (FileProxy) attachment;
 			if (fileProxy.isFile()) {
-				if (isPrivateData(fileProxy)) {
-					File file = privateFileToTemp(fileProxy);
-					if (file != null) {
-						return Uri.fromFile(file);
-					} else {
-						return null;
-					}
-				} else {
-					File nativeFile = fileProxy.getBaseFile().getNativeFile();
-					return Uri.fromFile(nativeFile);
+				File file = getAttachableFileFrom(fileProxy);
+				if (file != null) {
+					return TiFileProvider.createUriFrom(file);
 				}
 			}
 		} else if (attachment instanceof TiBlob) {
 			File file = blobToFile((TiBlob) attachment);
 			if (file != null) {
-				return Uri.fromFile(file);
+				return TiFileProvider.createUriFrom(file);
 			}
 		}
 		return null;
@@ -290,19 +359,41 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 
 	private void prepareAttachments(Intent sendIntent, ArrayList<Uri> uris)
 	{
-		if (uris == null || uris.size() == 0) {
+		// Validate arguments.
+		if ((sendIntent == null) || (uris == null) || (uris.size() <= 0)) {
 			return;
 		}
+
+		// Attach files via the following intent extras. (This is always required.)
 		if (uris.size() == 1) {
 			sendIntent.putExtra(Intent.EXTRA_STREAM, uris.get(0));
-			// For api level 4, set the intent mimetype to single attachment's mimetype.
-			if (android.os.Build.VERSION.SDK_INT == android.os.Build.VERSION_CODES.DONUT) {
-				sendIntent.setType(TiMimeTypeHelper.getMimeType(uris.get(0).toString()));
-			}
-			return;
+		} else {
+			sendIntent.putExtra(Intent.EXTRA_STREAM, uris);
 		}
-		// Multiple attachments.
-		sendIntent.putExtra(Intent.EXTRA_STREAM, uris);
+
+		// We must also copy the given file URIs to the intent's clip data as well.
+		// Note: This is needed so that we can grant read-only access permissions below.
+		ClipData clipData = null;
+		for (Uri nextUri : uris) {
+			if (nextUri != null) {
+				if (clipData == null) {
+					clipData = ClipData.newRawUri("", nextUri);
+				} else {
+					clipData.addItem(new ClipData.Item(nextUri));
+				}
+			}
+		}
+		if (clipData != null) {
+			sendIntent.setClipData(clipData);
+		}
+
+		// Enable read-only access to the attached files to the app that consumes the intent.
+		// Note: These flags only apply to intent's main data URI and clip data, not the EXTRA_STREAM.
+		int flags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
+		if (android.os.Build.VERSION.SDK_INT >= 19) {
+			flags |= Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION;
+		}
+		sendIntent.addFlags(flags);
 	}
 
 	private void putStringExtra(Intent intent, String extraType, String ourKey)

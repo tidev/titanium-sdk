@@ -201,8 +201,6 @@
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_PLAYING;
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_PAUSED;
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_INTERRUPTED;
-@property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_SEEKING_FORWARD;
-@property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD;
 
 @property (nonatomic, readonly) NSNumber *VIDEO_LOAD_STATE_UNKNOWN;
 @property (nonatomic, readonly) NSNumber *VIDEO_LOAD_STATE_PLAYABLE;

@@ -2,7 +2,8 @@
  * Appcelerator Titanium Mobile
  * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
- * Please see the LICENSE included with this distribution sr details.
+ * Please see the LICENSE included with this distribution for details.
+
  */
 /* eslint-env mocha */
 /* global Ti */
@@ -11,7 +12,7 @@
 var should = require('./utilities/assertions');
 
 describe('Titanium.UI.TableView', function () {
-		var win;
+	var win;
 
 	beforeEach(function () {
 		win = Ti.UI.createWindow({
@@ -68,7 +69,7 @@ describe('Titanium.UI.TableView', function () {
 	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
 	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
 	 */
-	it('createTableView', function () {
+	it.android('createTableView', function () {
 		var section_0,
 			section_1,
 			tableView;
@@ -138,7 +139,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Also crashes Android, with no stack trace or errors in logcat
-	it('insertRowAfter', function (finish) {
+	it.android('insertRowAfter', function (finish) {
 		var tableView = Ti.UI.createTableView({
 				data: [ { title:'Red' } ]
 			});
@@ -175,7 +176,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME This crashes the app entirely on iOS. Open a JIRA ticket!
 	// FIXME Crashes on Android as well.
-	it('insertRowAfter (TableViewRow)', function (finish) {
+	it.android('insertRowAfter (TableViewRow)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -218,7 +219,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes Android as well
-	it('insertRowBefore', function (finish) {
+	it.android('insertRowBefore', function (finish) {
 		var tableView = Ti.UI.createTableView({
 				data: [ { title:'Red' }, { title:'White' } ]
 			});
@@ -250,7 +251,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes Android as well
-	it('insertRowBefore (TableViewRow)', function (finish) {
+	it.android('insertRowBefore (TableViewRow)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -290,7 +291,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes on Android too
-	it('add row', function (finish) {
+	it.android('add row', function (finish) {
 		var tableView = Ti.UI.createTableView({
 				data: [ { title:'Red' } ]
 			});
@@ -326,7 +327,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Occasionally crashes Android as well
-	it('add rows', function (finish) {
+	it.android('add rows', function (finish) {
 		var tableView = Ti.UI.createTableView({
 				data: [ { title:'Red' } ]
 			});
@@ -364,7 +365,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes on Android too
-	it('add row (TableViewRow)', function (finish) {
+	it.android('add row (TableViewRow)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -404,7 +405,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails intermittently on Android build machine
-	it('add row (TableViewSection)', function (finish) {
+	it.android('add row (TableViewSection)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -442,7 +443,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails on Android on build machine
-	it('delete row (TableViewRow)', function (finish) {
+	it.android('delete row (TableViewRow)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -490,7 +491,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails intermittently on Android on build machine
-	it('delete row (TableViewSection)', function (finish) {
+	it.android('delete row (TableViewSection)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -530,7 +531,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME get working on iOS
 	// FIXME Fails on Android on build machine
-	it('update row', function (finish) {
+	it.android('update row', function (finish) {
 		var section_0,
 			tableView;
 
@@ -565,7 +566,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails intermittently on Android build machine
-	it('append section', function (finish) {
+	it.android('append section', function (finish) {
 		var section_0,
 			section_1,
 			tableView;
@@ -615,7 +616,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME intermittently fails on Android build machine - I think due to test timeout
-	it('delete section', function (finish) {
+	it.android('delete section', function (finish) {
 		var section_0,
 			section_1,
 			tableView;
@@ -669,7 +670,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails on Android on build machine
-	it('update section', function (finish) {
+	it.android('update section', function (finish) {
 		var section_0,
 			section_1,
 			section_2,
@@ -731,7 +732,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME intermittently fails on Android build machine (timeout?)
-	it('insertSectionAfter', function (finish) {
+	it.android('insertSectionAfter', function (finish) {
 		var section_0,
 			section_1,
 			section_2,
@@ -841,7 +842,7 @@ describe('Titanium.UI.TableView', function () {
 	[ERROR] TiApplication: 	... 9 more
 
 	 */
-	it('insertSectionBefore', function (finish) {
+	it.android('insertSectionBefore', function (finish) {
 		var section_0,
 			section_1,
 			section_2,
@@ -948,5 +949,53 @@ describe('Titanium.UI.TableView', function () {
 				Ti.API.info('Here after ' + y + ' iterations inner loop, ' + x + ' iterations outer loop. Current section row: ' +  vAnswerTable.data[x].rows[y]);
 			}
 		}
+	});
+  
+  it.ios('Delete row (Search Active)', function (finish) {
+		var win = Ti.UI.createWindow({
+				backgroundColor: 'blue'
+			}),
+			section_0,
+			searchBar,
+			tableView,
+			isFocused;
+		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
+		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
+		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
+		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
+
+		searchBar = Titanium.UI.createSearchBar({showCancel:true});
+		tableView = Ti.UI.createTableView({
+			data: [ section_0 ],
+			search: searchBar
+		});
+		
+		isFocused = false;
+
+		win.addEventListener('focus', function () {
+			var error;
+
+			if (isFocused) {
+				return;
+			}
+			isFocused = true;
+
+			try {
+				searchBar.setValue('e');
+  				searchBar.focus();
+				should(tableView.sections[0].rowCount).be.eql(3);
+				tableView.deleteRow(0);
+				should(tableView.sections[0].rowCount).be.eql(2);
+			} catch (err) {
+				error = err;
+			}				
+			setTimeout(function () {
+				win.close();
+				finish(error);
+			}, 1000);
+		});
+
+		win.add(tableView);
+		win.open();
 	});
 });
