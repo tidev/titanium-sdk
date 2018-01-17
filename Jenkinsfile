@@ -437,10 +437,10 @@ timestamps {
 						// ok to not grab test results, still run Danger.JS
 						try {
 							unstash 'test-report-ios' // junit.ios.report.xml
-						} catch () {}
+						} catch (e) {}
 						try {
 							unstash 'test-report-android' // junit.android.report.xml
-						} catch () {}
+						} catch (e) {}
 						sh "npm install -g npm@${npmVersion}"
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
