@@ -97,12 +97,12 @@ methods:
         horizontally or vertically. For vertical scroll views, `scrollToTop` moves the top
         of the scrollable region into the viewable area. For horizontal scroll views,
         `scrollToTop` moves the leftmost edge of of the scrollable region into the viewable area.
-        
-        On iOS, `scrollToTop` moves the top-left corner of the scrollable region into the 
+
+        On iOS, `scrollToTop` moves the top-left corner of the scrollable region into the
         viewable area.
     platforms: [iphone, ipad, android]
     since: "7.0.0"
-        
+
 events:
   - name: scale
     summary: Fired when the zoom scale factor changes.
@@ -159,13 +159,6 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
-  - name: scrollEnd
-    summary: Fired when the view has stopped moving completely.
-    description: |
-        This event has been deprecated and renamed scrollend (lower case).
-    platforms: []
-    since: "2.1.0"
-
   - name: dragStart
     summary: Fired when the scrollable region starts being dragged.
     description: |
@@ -189,11 +182,6 @@ events:
             Indicates whether scrolling will continue but decelerate, now that the drag gesture has
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
-
-  - name: scrollend
-    summary: Fired when the view has stopped moving completely.
-    platforms: []
-    since: "3.0.0"
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.
