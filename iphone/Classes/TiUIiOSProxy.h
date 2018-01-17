@@ -228,7 +228,7 @@
 - (id)createBlurView:(id)args;
 #endif
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
-- (id)createApplicationShortcuts:(id)args;
+- (id)createApplicationShortcuts:(id)args; // Deprecated in 7.1.0 in favor of API on Ti.UI namespace
 #endif
 #if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
