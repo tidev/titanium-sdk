@@ -9,47 +9,18 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 var should = require('./utilities/assertions'),
-  utilities = require('./utilities/utilities');
+	utilities = require('./utilities/utilities');
 
-describe('Titanium.Media.VideoPlayer', function() {
-  it.ios('Close window containing a video player (TIMOB-25574)', function() {
-    var win = Titanium.UI.createWindow();
-
-    var nav = Titanium.UI.iOS.createNavigationWindow({
-      window: win
-    });
-
-    var detailWindow = Titanium.UI.createWindow();
-
-    var videoPlayer = Titanium.Media.createVideoPlayer({
-      url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      top: 2,
-      autoplay: true,
-      backgroundColor: 'blue',
-      height: 300,
-      width: 300,
-      mediaControlStyle: Titanium.Media.VIDEO_CONTROL_DEFAULT,
-      scalingMode: Titanium.Media.VIDEO_SCALING_ASPECT_FIT
-    });
-
-    // When the first window openes, open the next one
-    win.addEventListener('open', function() {
-			this.timeout(500);
-      nav.openWindow(detailWindow);
-    });
-
-    // Once the next window opens, close it again
-    detailWindow.addEventListener('open', function() {
-			this.timeout(500);
-      nav.closeWindow(detailWindow);
-    });
-
-    // If the detail window closes successfully without a crahs, we are good!
-    detailWindow.addEventListener('close', function() {
-      finish();
-    });
-
-    detailWindow.add(videoPlayer);
-    nav.open();
-  });
+describe('Titanium.Media.VideoPlayer', function () {
+	it.windowsMissing('VIDEO_PLAYBACK_* constants', function () {
+		should(Ti.Media.VIDEO_PLAYBACK_STATE_STOPPED).eql(0);
+		should(Ti.Media.VIDEO_PLAYBACK_STATE_PLAYING).eql(1);
+		should(Ti.Media.VIDEO_PLAYBACK_STATE_PAUSED).eql(2);
+		should(Ti.Media.VIDEO_PLAYBACK_STATE_INTERRUPTED).eql(3);
+		
+		if (utilities.isAndroid()) {
+			should(Ti.Media.VIDEO_PLAYBACK_STATE_SEEKING_FORWARD).eql(4);
+			should(Ti.Media.VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD).eql(5);
+		}
+	});
 });
