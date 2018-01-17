@@ -2381,7 +2381,7 @@
 - (void)keyboardWillChangeFrame:(NSNotification *)notification
 {
   NSDictionary *userInfo = [notification userInfo];
-  CGRect keyboardEndFrame = [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+  CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
   CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
@@ -2393,7 +2393,7 @@
 - (void)keyboardDidChangeFrame:(NSNotification *)notification
 {
   NSDictionary *userInfo = [notification userInfo];
-  CGRect keyboardEndFrame = [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+  CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
   CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
