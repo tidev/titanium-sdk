@@ -952,10 +952,7 @@ describe('Titanium.UI.TableView', function () {
 	});
   
   it.ios('Delete row (Search Active)', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
-			}),
-			section_0,
+		var section_0,
 			searchBar,
 			tableView,
 			isFocused;
@@ -970,15 +967,8 @@ describe('Titanium.UI.TableView', function () {
 			search: searchBar
 		});
 		
-		isFocused = false;
-
 		win.addEventListener('focus', function () {
 			var error;
-
-			if (isFocused) {
-				return;
-			}
-			isFocused = true;
 
 			try {
 				searchBar.setValue('e');
@@ -989,10 +979,6 @@ describe('Titanium.UI.TableView', function () {
 			} catch (err) {
 				error = err;
 			}				
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
 		});
 
 		win.add(tableView);
