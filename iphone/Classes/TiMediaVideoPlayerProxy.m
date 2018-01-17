@@ -67,24 +67,12 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)_destroy
 {
-  [self removeNotificationObserver];
-
-  if (playing) {
-    [[movie player] pause];
-    [movie setPlayer:nil];
-  }
-
-  TiThreadPerformOnMainThread(^{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    RELEASE_TO_NIL(movie);
-  },
-      YES);
-
   RELEASE_TO_NIL(thumbnailCallback);
   RELEASE_TO_NIL(tempFile);
   RELEASE_TO_NIL(url);
   RELEASE_TO_NIL(loadProperties);
   RELEASE_TO_NIL(playerLock);
+
   [super _destroy];
 }
 
@@ -122,16 +110,11 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)removeNotificationObserver
 {
-  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
   [movie removeObserver:self forKeyPath:@"player.rate"];
   [self removeObserver:self forKeyPath:@"url"];
   [movie removeObserver:self forKeyPath:@"player.status"];
   [movie removeObserver:self forKeyPath:@"videoBounds"];
-
-  [nc removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
-  [nc removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
 }
 
 // Used to avoid duplicate code in Brightcove module; makes things easier to maintain.
@@ -188,9 +171,11 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)viewDidDetach
 {
+  [self removeNotificationObserver];
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+
   [[movie player] pause];
   [movie setPlayer:nil];
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
   RELEASE_TO_NIL(movie);
   reallyAttached = NO;
 }
