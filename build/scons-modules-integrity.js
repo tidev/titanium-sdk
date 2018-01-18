@@ -2,7 +2,6 @@
 'use strict';
 
 const async = require('async'),
-	program = require('commander'),
 	utils = require('./utils'),
 	modules = require('../support/module/packaged/modules.json');
 

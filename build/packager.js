@@ -2,7 +2,6 @@
 
 const path = require('path');
 const os = require('os');
-const ssri = require('ssri');
 const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
 const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const async = require('async');

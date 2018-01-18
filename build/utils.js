@@ -119,8 +119,8 @@ function downloadWithIntegrity(url, downloadPath, integrity, callback) {
 			return callback(err);
 		}
 		// Verify integrity!
-		ssri.checkStream(fs.createReadStream(downloadPath), integrity).then((hash) => {
-			callback(null, downloadPath);
+		ssri.checkStream(fs.createReadStream(file), integrity).then(() => {
+			callback(null, file);
 		}).catch((e) => {
 			callback(e);
 		});
@@ -137,7 +137,7 @@ function cachedDownloadPath(url) {
 	return path.join(cacheDir, filename);
 }
 
-Utils.generateSSRIHashFromURL = function(url, callback) {
+Utils.generateSSRIHashFromURL = function (url, callback) {
 	const downloadPath = cachedDownloadPath(url);
 	fs.removeSync(downloadPath);
 	download(url, downloadPath, function (err, file) {
@@ -145,13 +145,13 @@ Utils.generateSSRIHashFromURL = function(url, callback) {
 			return callback(err);
 		}
 		// Generate integrity hash!
-		ssri.fromStream(fs.createReadStream(downloadPath)).then(integrity => {
+		ssri.fromStream(fs.createReadStream(file)).then(integrity => {
 			callback(null, integrity.toString());
 		}).catch(e => {
 			callback(e);
 		});
 	});
-}
+};
 
 Utils.downloadURL = function downloadURL(url, integrity, callback) {
 	const downloadPath = cachedDownloadPath(url);
@@ -162,7 +162,7 @@ Utils.downloadURL = function downloadURL(url, integrity, callback) {
 	// Check if file already exists and passes integrity check!
 	if (fs.existsSync(downloadPath)) {
 		// if it passes integrity check, we're all good, return path to file
-		ssri.checkStream(fs.createReadStream(downloadPath), integrity).then((hash) => {
+		ssri.checkStream(fs.createReadStream(downloadPath), integrity).then(() => {
 			// cached copy is still valid, integrity hash matches
 			callback(null, downloadPath);
 		}).catch(() => {

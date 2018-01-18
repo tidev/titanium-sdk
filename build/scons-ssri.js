@@ -24,7 +24,7 @@ async.each(urls, function (url, next) {
 		};
 		console.log(JSON.stringify(obj));
 		return next(null, hash);
-	})
+	});
 }, function (err) {
 	if (err) {
 		process.exit(1);
