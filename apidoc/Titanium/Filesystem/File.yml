@@ -115,7 +115,9 @@ methods:
         type: String
     returns:
         type: Boolean
-    platforms: [android]
+    platforms: [android, iphone, ipad]
+    since: { iphone: "7.1.0", ipad: "7.1.0", android: "0.9" }
+
   - name: createDirectory
     summary: Creates a directory at the path identified by this file object.
     description: |
@@ -368,14 +370,14 @@ properties:
         returnes a <Titanium.Filesystem.File> reference for parity wih Android and Windows.
     type: Titanium.Filesystem.File
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
 
   - name: readonly
     summary: |
         `true` if the file identified by this object is read-only.
     type: Boolean
     permission: read-only
-    platforms: [android]
+    platforms: [android, iphone, ipad]
 
   - name: size
     summary: Size, in bytes, of the file identified by this object.

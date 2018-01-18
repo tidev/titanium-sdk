@@ -258,6 +258,21 @@ FILENOOP(setHidden
   return dest;
 }
 
+- (id)copy:(id)args
+{
+  ENSURE_TYPE(args, NSArray);
+  NSError *error = nil;
+  NSString *dest = [self _grabFirstArgumentAsFileName_:args];
+
+  if (![dest isAbsolutePath]) {
+    NSString *subpath = [path stringByDeletingLastPathComponent];
+    dest = [subpath stringByAppendingPathComponent:dest];
+  }
+
+  BOOL result = [fm copyItemAtPath:path toPath:dest error:&error];
+  return NUMBOOL(result);
+}
+
 - (id)move:(id)args
 {
   ENSURE_TYPE(args, NSArray);
