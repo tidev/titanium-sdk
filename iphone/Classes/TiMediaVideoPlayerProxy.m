@@ -127,9 +127,6 @@ NSArray *moviePlayerKeys = nil;
   } else {
     [movie removeObserver:self forKeyPath:@"player.rate"];
   }
-
-  [nc removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
-  [nc removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
 }
 
 // Used to avoid duplicate code in Brightcove module; makes things easier to maintain.
