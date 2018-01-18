@@ -15,8 +15,8 @@ def isMainlineBranch = true // used to determine if we should publish to S3 (and
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json
 
 // Variables we can change
-def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
-def npmVersion = '5.4.1' // We can change this without any changes to Jenkins.
+def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def npmVersion = '5.6.0' // We can change this without any changes to Jenkins.
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
