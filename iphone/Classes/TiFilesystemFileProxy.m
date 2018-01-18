@@ -82,13 +82,13 @@
 
 - (NSNumber *)modificationTimestamp:(id)unused
 {
-  NSError *error = nil;                                                                                    \
-  NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:_path error:&error];                                \
-  if (error != nil) {                                                                      \
-    [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION]; \
-  }                                                                                                        \
+  NSError *error = nil;
+  NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:_path error:&error];
+  if (error != nil) {
+    [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
+  }
   NSDate *result = [resultDict objectForKey:NSFileModificationDate];
-  
+
   return @([result timeIntervalSince1970]);
 }
 

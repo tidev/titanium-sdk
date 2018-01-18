@@ -12,7 +12,6 @@
 @class TiFilesystemFileStreamProxy;
 
 @interface TiFilesystemFileProxy : TiFile {
-
 }
 
 - (id)initWithFile:(NSString *)path;
