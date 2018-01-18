@@ -11,3 +11,4 @@ description: |
 
 since: "5.2.0"
 createable: false
+extends: Titanium.Proxy

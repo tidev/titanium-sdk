@@ -4,45 +4,44 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_UIIOSTABBEDBAR) || defined(USE_TI_UITABBEDBAR)
+#ifdef USE_TI_UIIOSTABBEDBAR
 #import "TiUIiOSTabbedBarProxy.h"
 #import "TiUIButtonBar.h"
 
 @implementation TiUIiOSTabbedBarProxy
 
-
--(NSArray*)keySequence
+- (NSArray *)keySequence
 {
-    static NSArray* tabbedKeySequence = nil;
-	if (tabbedKeySequence == nil) {
-		tabbedKeySequence = [[NSArray alloc] initWithObjects:@"labels",@"style",nil];
-	}
-	return tabbedKeySequence;
+  static NSArray *tabbedKeySequence = nil;
+  if (tabbedKeySequence == nil) {
+    tabbedKeySequence = [[NSArray alloc] initWithObjects:@"labels", @"style", nil];
+  }
+  return tabbedKeySequence;
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.TabbedBar";
+  return @"Ti.UI.iOS.TabbedBar";
 }
 
--(TiUIView*)newView
+- (TiUIView *)newView
 {
-	TiUIButtonBar * result = [[TiUIButtonBar alloc] init];
-	[result setTabbedBar:YES];
-	return result;
+  TiUIButtonBar *result = [[TiUIButtonBar alloc] init];
+  [result setTabbedBar:YES];
+  return result;
 }
 
 USE_VIEW_FOR_CONTENT_WIDTH
 USE_VIEW_FOR_CONTENT_HEIGHT
 
 #ifndef TI_USE_AUTOLAYOUT
--(TiDimension)defaultAutoWidthBehavior:(id)unused
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 #endif
 

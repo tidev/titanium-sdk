@@ -31,9 +31,10 @@ public class ServiceProxy extends KrollProxy
 	private boolean forBoundServices;
 	private int serviceInstanceId;
 	private IntentProxy intentProxy;
-	private ServiceConnection serviceConnection = null; // Set only if the service is started via bindService as opposed to startService
+	private ServiceConnection serviceConnection =
+		null; // Set only if the service is started via bindService as opposed to startService
 	private static final String TAG = "TiServiceProxy";
-	
+
 	public ServiceProxy()
 	{
 	}
@@ -57,14 +58,20 @@ public class ServiceProxy extends KrollProxy
 		this.serviceInstanceId = serviceInstanceId;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getServiceInstanceId()
+	// clang-format on
 	{
 		return serviceInstanceId;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public IntentProxy getIntent()
+	// clang-format on
 	{
 		return intentProxy;
 	}
@@ -87,7 +94,9 @@ public class ServiceProxy extends KrollProxy
 	public void start()
 	{
 		if (!forBoundServices) {
-			Log.w(TAG, "Only services created via Ti.Android.createService can be started via the start() command. Ignoring start() request.");
+			Log.w(
+				TAG,
+				"Only services created via Ti.Android.createService can be started via the start() command. Ignoring start() request.");
 			return;
 		}
 		bindAndInvokeService();
@@ -103,21 +112,21 @@ public class ServiceProxy extends KrollProxy
 		} else {
 			unbindService();
 		}
-		
 	}
 
 	private void bindAndInvokeService()
 	{
-		serviceConnection = new ServiceConnection()
-		{
-			public void onServiceDisconnected(ComponentName name) {}
+		serviceConnection = new ServiceConnection() {
+			public void onServiceDisconnected(ComponentName name)
+			{
+			}
 
 			public void onServiceConnected(ComponentName name, IBinder service)
 			{
 				if (service instanceof TiServiceBinder) {
 					TiServiceBinder binder = (TiServiceBinder) service;
-					ServiceProxy proxy =  ServiceProxy.this;
-					TiBaseService tiService =(TiBaseService) binder.getService();
+					ServiceProxy proxy = ServiceProxy.this;
+					TiBaseService tiService = (TiBaseService) binder.getService();
 					proxy.serviceInstanceId = tiService.nextServiceInstanceId();
 					Log.d(TAG, tiService.getClass().getSimpleName() + " service successfully bound", Log.DEBUG_MODE);
 					proxy.invokeBoundService(tiService);
@@ -125,7 +134,8 @@ public class ServiceProxy extends KrollProxy
 			}
 		};
 
-		TiApplication.getInstance().bindService(this.getIntent().getIntent(), serviceConnection, Context.BIND_AUTO_CREATE);
+		TiApplication.getInstance().bindService(this.getIntent().getIntent(), serviceConnection,
+												Context.BIND_AUTO_CREATE);
 	}
 
 	private void unbindService()
@@ -144,12 +154,13 @@ public class ServiceProxy extends KrollProxy
 		context.unbindService(serviceConnection);
 		serviceConnection = null;
 	}
-	
+
 	protected void invokeBoundService(Service boundService)
 	{
 		this.service = boundService;
 		if (!(boundService instanceof TiBaseService)) {
-			Log.w(TAG, "Service " + boundService.getClass().getSimpleName() + " is not a Ti Service.  Cannot start directly.");
+			Log.w(TAG, "Service " + boundService.getClass().getSimpleName()
+						   + " is not a Ti Service.  Cannot start directly.");
 			return;
 		}
 

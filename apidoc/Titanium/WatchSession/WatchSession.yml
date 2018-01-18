@@ -41,6 +41,25 @@ properties:
     platforms: [iphone]
     since: "5.4.0"
 
+  - name: hasContentPending
+    summary: Returns `true` if there is more content for the session to deliver.
+    type: Boolean
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.0.0"
+    platforms: [iphone]
+
+  - name: remainingComplicationUserInfoTransfers
+    summary: |
+        The number of calls remaining to `transferCurrentComplication` before the system starts 
+        transferring the complicationUserInfo as regular userInfos.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "6.0.0"
+    default: 0
+    platforms: [iphone]
+
   - name: isSupported
     summary: Returns `true` if the device supports watch connectivity.
     type: Boolean
@@ -128,7 +147,7 @@ methods:
         Sends an app context update to the apple watch.
     description: |
         Sends an app context update to the apple watch. If watchapp is in background during transfer,
-        watchapp will fire the <Titanium.WatchSession.event.receiveapplicationcontext> immediately when 
+        watchapp will fire the <Titanium.WatchSession.receiveapplicationcontext> event immediately when 
         it becomes active. Only one app context is stored at any one time. Subsequent updates will simply 
         replace the earlier one sent.
     parameters: 
@@ -423,6 +442,18 @@ events:
             and later. See <Ti.WatchSession.isActivated> for more infos.
         type: Boolean
         platforms: [iphone]
+      - name: hasContentPending
+        summary: | 
+            If the apple watch has currently content pending. Only available on iOS 10.0
+            and later. See <Ti.WatchSession.hasContentPending> for more infos.
+        type: Boolean
+        platforms: [iphone]
+      - name: remainingComplicationUserInfoTransfers
+        summary: | 
+            If the apple watch has complication userInfo transfers left. Only available on iOS 10.0
+            and later. See <Ti.WatchSession.remainingComplicationUserInfoTransfers> for more infos.
+        type: Boolean
+        platforms: [iphone]
       - name: activationState
         summary: | 
             Returns the current activation state of the watch.  Only available on iOS 9.3
@@ -504,8 +535,8 @@ examples:
         The following example demonstrates how to create a new watch session, and call methods to transfer
         data to the watch. Also include event listeners for receiving data from the watch.
         
-        It is important to note that this only works if there is a corresponding watchOS2 app written
-        in Objective-C in the Xcode project inside the extensions folder of the Titanium Project.
+        It is important to note that this only works if there is a corresponding watchOS app written
+        in Objective-C / Swift in the Xcode project inside the extensions folder of the Titanium Project.
         
         #### app.js
         
@@ -544,7 +575,7 @@ examples:
 
             statusBtn.addEventListener('click', function(e) {
                 eventsArea.value += '\nbtn pressed '
-                + '\nwatchOS2 is supported: ' + Ti.WatchSession.isSupported
+                + '\nwatchOS is supported: ' + Ti.WatchSession.isSupported
                 + '\nwatch is paired: ' + Ti.WatchSession.isPaired
                 + '\nwatchApp is installed: ' + Ti.WatchSession.isWatchAppInstalled
                 + '\nwatchComplication is enabled: ' + Ti.WatchSession.isComplicationEnabled

@@ -17,7 +17,7 @@ since: "1.5"
 createable: false
 deprecated: 
     since: "3.2.0"
-    notes: Use the [Titanium.Calendar](Titanium.Calendar) class instead.
+    notes: Use <Titanium.Calendar> instead.
 
 methods:
   - name: getCalendarById

@@ -16,10 +16,11 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
 
+public abstract class TiUIAbstractTab extends TiUIView
+{
 
-public abstract class TiUIAbstractTab extends TiUIView {
-
-	public TiUIAbstractTab(TabProxy proxy) {
+	public TiUIAbstractTab(TabProxy proxy)
+	{
 		super(proxy);
 		proxy.setView(this);
 	}
@@ -29,16 +30,19 @@ public abstract class TiUIAbstractTab extends TiUIView {
 	 *
 	 * @param selected true if the tab is now selected or false if it was unselected.
 	 */
-	public void onSelectionChange(boolean selected) { }
+	public void onSelectionChange(boolean selected)
+	{
+	}
 
 	/**
 	 * Returns the content view for this tab.
 	 *
 	 * @return the content view or null if the tab is empty
 	 */
-	public View getContentView() {
+	public View getContentView()
+	{
 		TiWindowProxy windowProxy = getWindowProxy();
-		if (windowProxy == null) {
+		if (windowProxy == null || proxy == null) {
 			// If no window is provided use an empty view.
 			View emptyContent = new View(TiApplication.getInstance().getApplicationContext());
 			emptyContent.setBackgroundColor(Color.BLACK);
@@ -57,7 +61,8 @@ public abstract class TiUIAbstractTab extends TiUIView {
 		return windowProxy.getOrCreateView().getOuterView();
 	}
 
-	private TiWindowProxy getWindowProxy() {
+	private TiWindowProxy getWindowProxy()
+	{
 		Object windowProxy = proxy.getProperty(TiC.PROPERTY_WINDOW);
 		if (windowProxy instanceof TiWindowProxy) {
 			return (TiWindowProxy) windowProxy;
@@ -65,5 +70,4 @@ public abstract class TiUIAbstractTab extends TiUIView {
 
 		return null;
 	}
-
 }

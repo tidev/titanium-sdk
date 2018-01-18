@@ -43,11 +43,15 @@ methods:
   - name: setQueue
     summary: Sets the media queue.
     description: |
-        Sets the media queue to a single media item or a list of items.
+        Sets the media queue to a single media item or a list of items. 
+        
+        Starting in Titanium 6.1.0 you can also pass a String that identifies 
+        the Media item. This string has to be the <Titanium.Media.Item.persistentID> 
+        property that identifies a media item uniquely.
     parameters:
       - name: queue
         summary: One or more media items.
-        type: [Titanium.Media.Item, Array<Titanium.Media.Item>, PlayerQueue]
+        type: [Titanium.Media.Item, Array<Titanium.Media.Item>, String]
 
   - name: skipToBeginning
     summary: Skips to the beginning of the currently playing media item.
@@ -76,9 +80,7 @@ events:
   - name: playingChange
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [playingchange](Titanium.Media.MusicPlayer.playingchange)
-            (all lowercase).
+        notes: Use <Titanium.Media.MusicPlayer.playingchange> instead.
     summary: Fired when the currently playing media item changes.
     description: |
         See [nowPlaying](Titanium.Media.MusicPlayer.nowPlaying) to identify the current
@@ -87,9 +89,7 @@ events:
   - name: stateChange
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [statechange](Titanium.Media.MusicPlayer.statechange)
-            (all lowercase).
+        notes: Use <Titanium.Media.MusicPlayer.statechange> instead.
     summary: Fired when the music player's playback state changes.
     description: |
         See [playbackState](Titanium.Media.MusicPlayer.playbackState) to identify the current
@@ -98,9 +98,7 @@ events:
   - name: volumeChange
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [volumechange](Titanium.Media.MusicPlayer.volumechange)
-            (all lowercase).
+        notes: Use <Titanium.Media.MusicPlayer.volumechange> instead.
     summary: Fired when the volume changes.
     description: |
         This event has been deprecated and renamed volumechange (lower case).
@@ -173,11 +171,3 @@ properties:
         with Apple's simulator.
     type: Number
     osver: {ios: {"max": "7.0"}}
-
----
-name: PlayerQueue
-summary: A simple object for specifying a queue of media items.
-properties:
-  - name: items
-    summary: An array of media items.
-    type: Array<Titanium.Media.Item>

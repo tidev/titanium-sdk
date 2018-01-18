@@ -21,9 +21,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 @SuppressWarnings("deprecation")
-@Kroll.proxy(propertyAccessors = {
-	TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED
-})
+@Kroll.proxy(propertyAccessors = { TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED })
 public class ActionBarProxy extends KrollProxy
 {
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
@@ -55,12 +53,22 @@ public class ActionBarProxy extends KrollProxy
 	{
 		super();
 		actionBar = activity.getSupportActionBar();
+		// Guard against calls to ActionBar made before inflating the ActionBarView
+		if (actionBar != null) {
+			actionBar.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_HOME
+										| ActionBar.DISPLAY_SHOW_TITLE);
+		} else {
+			Log.w(TAG, "Trying to get a reference to ActionBar before its container was inflated.");
+		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setDisplayHomeAsUp(boolean showHomeAsUp)
+	// clang-format on
 	{
-		if(TiApplication.isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handlesetDisplayHomeAsUp(showHomeAsUp);
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_DISPLAY_HOME_AS_UP, showHomeAsUp);
@@ -69,10 +77,13 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setHomeButtonEnabled(boolean homeButtonEnabled)
+	// clang-format on
 	{
-		if(TiApplication.isUIThread()) {
+		if (TiApplication.isUIThread()) {
 			handlesetHomeButtonEnabled(homeButtonEnabled);
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_SET_HOME_BUTTON_ENABLED, homeButtonEnabled);
@@ -81,8 +92,11 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setNavigationMode(int navigationMode)
+	// clang-format on
 	{
 		if (TiApplication.isUIThread()) {
 			handlesetNavigationMode(navigationMode);
@@ -93,8 +107,11 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setBackgroundImage(String url)
+	// clang-format on
 	{
 		if (TiApplication.isUIThread()) {
 			handleSetBackgroundImage(url);
@@ -105,8 +122,11 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setTitle(String title)
+	// clang-format on
 	{
 		if (TiApplication.isUIThread()) {
 			handleSetTitle(title);
@@ -117,8 +137,11 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setSubtitle(String subTitle)
+	// clang-format on
 	{
 		if (TiApplication.isUIThread()) {
 			handleSetSubTitle(subTitle);
@@ -128,13 +151,14 @@ public class ActionBarProxy extends KrollProxy
 			message.sendToTarget();
 		}
 	}
-	
-	@Kroll.method 
-	public void setDisplayShowHomeEnabled(boolean show) {
+
+	@Kroll.method
+	public void setDisplayShowHomeEnabled(boolean show)
+	{
 		if (actionBar == null) {
 			return;
 		}
-		
+
 		if (TiApplication.isUIThread()) {
 			actionBar.setDisplayShowHomeEnabled(show);
 		} else {
@@ -142,13 +166,14 @@ public class ActionBarProxy extends KrollProxy
 			message.sendToTarget();
 		}
 	}
-	
+
 	@Kroll.method
-	public void setDisplayShowTitleEnabled(boolean show) {
+	public void setDisplayShowTitleEnabled(boolean show)
+	{
 		if (actionBar == null) {
 			return;
 		}
-		
+
 		if (TiApplication.isUIThread()) {
 			actionBar.setDisplayShowTitleEnabled(show);
 			showTitleEnabled = show;
@@ -157,29 +182,36 @@ public class ActionBarProxy extends KrollProxy
 			message.sendToTarget();
 		}
 	}
-	
-	@Kroll.method @Kroll.getProperty
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getSubtitle()
+	// clang-format on
 	{
 		if (actionBar == null) {
 			return null;
 		}
 		return (String) actionBar.getSubtitle();
 	}
-	
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getTitle()
+	// clang-format on
 	{
 		if (actionBar == null) {
 			return null;
 		}
 		return (String) actionBar.getTitle();
 	}
-	
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getNavigationMode()
+	// clang-format on
 	{
 		if (actionBar == null) {
 			return 0;
@@ -207,8 +239,11 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setLogo(String url)
+	// clang-format on
 	{
 		if (TiApplication.isUIThread()) {
 			handleSetLogo(url);
@@ -217,11 +252,13 @@ public class ActionBarProxy extends KrollProxy
 			message.getData().putString(LOGO, url);
 			message.sendToTarget();
 		}
-		
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setIcon(String url)
+	// clang-format on
 	{
 		if (TiApplication.isUIThread()) {
 			handleSetIcon(url);
@@ -230,7 +267,6 @@ public class ActionBarProxy extends KrollProxy
 			message.getData().putString(ICON, url);
 			message.sendToTarget();
 		}
-		
 	}
 
 	private void handleSetIcon(String url)
@@ -243,7 +279,7 @@ public class ActionBarProxy extends KrollProxy
 		Drawable icon = getDrawableFromUrl(url);
 		if (icon != null) {
 			actionBar.setIcon(icon);
-		} 
+		}
 	}
 
 	private void handleSetTitle(String title)
@@ -264,7 +300,7 @@ public class ActionBarProxy extends KrollProxy
 			Log.w(TAG, "ActionBar is not enabled");
 		}
 	}
-	
+
 	private void handleShow()
 	{
 		if (actionBar != null) {
@@ -308,14 +344,14 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-        private void handlesetHomeButtonEnabled(boolean homeButtonEnabled)
-        {
-                if (actionBar != null) {
-                        actionBar.setHomeButtonEnabled(homeButtonEnabled);
-                } else {
-                        Log.w(TAG, "ActionBar is not enabled");
-                }
-        }
+	private void handlesetHomeButtonEnabled(boolean homeButtonEnabled)
+	{
+		if (actionBar != null) {
+			actionBar.setHomeButtonEnabled(homeButtonEnabled);
+		} else {
+			Log.w(TAG, "ActionBar is not enabled");
+		}
+	}
 
 	private void handlesetNavigationMode(int navigationMode)
 	{

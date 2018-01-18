@@ -75,7 +75,7 @@ properties:
         This is the style you should choose if you want to supply your own background images, 
         background gradient, and so on.
         
-        Note that for tabbed bar or button bars, the [BAR](Titanium.UI.iOS.SystemButtonStyle.BAR)
+        Note that for tabbed bar or button bars, the `Titanium.UI.iOS.SystemButtonStyle.BAR`
         style is used to allow the bar's background color or gradient to show through.
     type: Number
     permission: read-only

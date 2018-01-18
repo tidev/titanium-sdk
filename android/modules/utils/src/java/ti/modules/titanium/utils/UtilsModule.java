@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,7 +19,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
@@ -46,11 +45,6 @@ public class UtilsModule extends KrollModule
 		}
 	}
 
-	public UtilsModule(TiContext tiContext)
-	{
-		this();
-	}
-
 	@Kroll.method
 	public TiBlob base64encode(Object obj)
 	{
@@ -58,7 +52,8 @@ public class UtilsModule extends KrollModule
 			return TiBlob.blobFromString(((TiBlob) obj).toBase64());
 		} else if (obj instanceof TiFileProxy) {
 			try {
-				return TiBlob.blobFromStreamBase64(((TiFileProxy) obj).getInputStream(),
+				return TiBlob.blobFromStreamBase64(
+					((TiFileProxy) obj).getInputStream(),
 					TiMimeTypeHelper.getMimeType(((TiFileProxy) obj).getBaseFile().nativePath()));
 			} catch (IOException e) {
 				Log.e(TAG, "Problem reading file");
@@ -67,7 +62,8 @@ public class UtilsModule extends KrollModule
 		String data = convertToString(obj);
 		if (data != null) {
 			try {
-				return TiBlob.blobFromString(new String(Base64.encode(data.getBytes("UTF-8"), Base64.NO_WRAP), "UTF-8"));
+				return TiBlob.blobFromString(
+					new String(Base64.encode(data.getBytes("UTF-8"), Base64.NO_WRAP), "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, "UTF-8 is not a supported encoding type");
 			}
@@ -116,7 +112,7 @@ public class UtilsModule extends KrollModule
 	}
 
 	@Kroll.method
-	public boolean arrayTest(float[] a, long[] b, int[] c, String[] d) 
+	public boolean arrayTest(float[] a, long[] b, int[] c, String[] d)
 	{
 		return true;
 	}
@@ -152,11 +148,11 @@ public class UtilsModule extends KrollModule
 	public String transcodeString(String orig, String inEncoding, String outEncoding)
 	{
 		try {
-			
+
 			Charset charsetOut = Charset.forName(outEncoding);
 			Charset charsetIn = Charset.forName(inEncoding);
 
-			ByteBuffer bufferIn = ByteBuffer.wrap(orig.getBytes(charsetIn.name()) );
+			ByteBuffer bufferIn = ByteBuffer.wrap(orig.getBytes(charsetIn.name()));
 			CharBuffer dataIn = charsetIn.decode(bufferIn);
 			bufferIn.clear();
 			bufferIn = null;
@@ -167,9 +163,9 @@ public class UtilsModule extends KrollModule
 			byte[] dataOut = bufferOut.array();
 			bufferOut.clear();
 			bufferOut = null;
-			
+
 			return new String(dataOut, charsetOut.name());
-			
+
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, "Unsupported encoding: " + e.getMessage(), e);
 		}

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
@@ -22,7 +21,7 @@ import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
-@Kroll.proxy(parentModule=DatabaseModule.class)
+@Kroll.proxy(parentModule = DatabaseModule.class)
 public class TiDatabaseProxy extends KrollProxy
 {
 	private static final String TAG = "TiDB";
@@ -33,7 +32,6 @@ public class TiDatabaseProxy extends KrollProxy
 
 	public TiDatabaseProxy(String name, SQLiteDatabase db)
 	{
-		//super(tiContext);
 		super();
 		this.name = name;
 		this.db = db;
@@ -41,15 +39,9 @@ public class TiDatabaseProxy extends KrollProxy
 		readOnly = false;
 	}
 
-	public TiDatabaseProxy(TiContext tiContext, String name, SQLiteDatabase db)
-	{
-		this(name, db);
-	}
-
 	// readonly database
 	public TiDatabaseProxy(SQLiteDatabase db)
 	{
-		//super(tiContext);
 		super();
 		this.name = db.getPath();
 		this.db = db;
@@ -57,13 +49,9 @@ public class TiDatabaseProxy extends KrollProxy
 		readOnly = true;
 	}
 
-	public TiDatabaseProxy(TiContext tiContext, SQLiteDatabase db)
-	{
-		this(db);
-	}
-
 	@Kroll.method
-	public void close() {
+	public void close()
+	{
 		if (db.isOpen()) {
 			Log.d(TAG, "Closing database: " + name, Log.DEBUG_MODE);
 			db.close();
@@ -84,12 +72,12 @@ public class TiDatabaseProxy extends KrollProxy
 			sqlArgs = args;
 		}
 
-		if(statementLogging) {
+		if (statementLogging) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Executing SQL: ").append(sql).append("\n  Args: [ ");
 			boolean needsComma = false;
 
-			for(Object s : sqlArgs) {
+			for (Object s : sqlArgs) {
 				if (needsComma) {
 					sb.append(", \"");
 				} else {
@@ -105,7 +93,7 @@ public class TiDatabaseProxy extends KrollProxy
 		TiResultSetProxy rs = null;
 		Cursor c = null;
 		try {
-			String lcSql = sql.toLowerCase().trim(); 
+			String lcSql = sql.toLowerCase().trim();
 			// You must use execSQL unless you are expecting a resultset, changes aren't committed
 			// if you don't. Just expecting them on select or pragma may be enough, but
 			// it may need additional tuning. The better solution would be to expose
@@ -119,7 +107,7 @@ public class TiDatabaseProxy extends KrollProxy
 					}
 				}
 				c = db.rawQuery(sql, selectArgs);
-	 			if (c != null) {
+				if (c != null) {
 					// Most non-SELECT statements won't actually return data, but some such as
 					// PRAGMA do. If there are no results, just return null.
 					// Thanks to brion for working through the logic, based off of commit
@@ -169,23 +157,36 @@ public class TiDatabaseProxy extends KrollProxy
 		return rs;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getName() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getName()
+	// clang-format on
+	{
 		return name;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getLastInsertRowId() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getLastInsertRowId()
+	// clang-format on
+	{
 		return (int) DatabaseUtils.longForQuery(db, "select last_insert_rowid()", null);
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getRowsAffected() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getRowsAffected()
+	// clang-format on
+	{
 		return (int) DatabaseUtils.longForQuery(db, "select changes()", null);
 	}
 
 	@Kroll.method
-	public void remove() {
+	public void remove()
+	{
 		if (readOnly) {
 			Log.w(TAG, name + " is a read-only database, cannot remove");
 			return;
@@ -203,12 +204,16 @@ public class TiDatabaseProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public TiFileProxy getFile(){
-	        String path = TiApplication.getInstance().getApplicationContext().getDatabasePath(this.name).getAbsolutePath();
-		return new TiFileProxy(TiFileFactory.createTitaniumFile(path,false));               
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public TiFileProxy getFile()
+	// clang-format on
+	{
+		String path = TiApplication.getInstance().getApplicationContext().getDatabasePath(this.name).getAbsolutePath();
+		return new TiFileProxy(TiFileFactory.createTitaniumFile(path, false));
 	}
-	   
+
 	@Override
 	public String getApiName()
 	{

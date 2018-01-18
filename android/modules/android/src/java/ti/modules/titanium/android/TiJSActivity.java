@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiActivityWindowProxy;
-import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIActivityWindow;
 
@@ -38,6 +37,18 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	}
 
 	@Override
+	protected void onResume()
+	{
+		super.onResume();
+
+		// launched alloy activity from intent
+		// finish to prevent redundant activity
+		if (this.alloyIntent) {
+			this.finish();
+		}
+	}
+
+	@Override
 	public String getUrl()
 	{
 		if (url == null) {
@@ -57,7 +68,6 @@ public abstract class TiJSActivity extends TiLaunchActivity
 		super.contextCreated();
 		TiActivityWindowProxy window = new TiActivityWindowProxy();
 		window.setActivity(this);
-		TiBindingHelper.bindCurrentWindow(window);
 		setWindowProxy(window);
 		setLayoutProxy(window);
 	}
@@ -76,7 +86,7 @@ public abstract class TiJSActivity extends TiLaunchActivity
 		setLayoutProxy(window);
 
 		// The UIWindow needs to be created before we run the script
-		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy)window, this, getLayout());
+		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy) window, this, getLayout());
 		super.windowCreated(savedInstanceState);
 	}
 
@@ -85,5 +95,4 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	{
 		return true;
 	}
-
 }

@@ -78,6 +78,9 @@ properties:
     
   - name: masterIsOverlayed
     summary: Determines whether to show the master view is overlayed in portrait orientation. 
+    description: |
+        Note that you need to set `showMasterInPortrait` to `true` if you want to use 
+        this property in portrait mode.
     type: Boolean
     default: false
     

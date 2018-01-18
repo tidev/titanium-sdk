@@ -6,26 +6,25 @@
  */
 package org.appcelerator.titanium;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
+import android.os.Looper;
+import android.support.multidex.MultiDex;
+import android.util.DisplayMetrics;
+import android.view.accessibility.AccessibilityManager;
+import com.appcelerator.aps.APSAnalytics;
+import com.appcelerator.aps.APSAnalytics.DeployType;
 import org.appcelerator.kroll.KrollApplication;
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiConfig;
@@ -43,22 +42,22 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import ti.modules.titanium.TitaniumModule;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Build;
-import android.os.Looper;
-import android.util.DisplayMetrics;
-import android.view.accessibility.AccessibilityManager;
 
-import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalytics.DeployType;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The main application entry point for all Titanium applications and services.
@@ -112,11 +111,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected String[] filteredAnalyticsEvents;
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
-	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
+	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners =
+		new ArrayList<ActivityTransitionListener>();
 	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
 
-	public static interface ActivityTransitionListener
-	{
+	public static interface ActivityTransitionListener {
 		public void onActivityTransition(boolean state);
 	}
 
@@ -136,7 +135,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		for (int i = 0; i < activityTransitionListeners.size(); ++i) {
 			activityTransitionListeners.get(i).onActivityTransition(state);
 		}
-
 	}
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
@@ -232,7 +230,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		Activity currentActivity = getAppCurrentActivity();
 		if (currentActivity instanceof TiBaseActivity) {
-			return ((TiBaseActivity)currentActivity).isInForeground();
+			return ((TiBaseActivity) currentActivity).isInForeground();
 		}
 		return false;
 	}
@@ -282,7 +280,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 			// Skip and remove any activities which are dead or in the process of finishing.
 			if (activity == null || activity.isFinishing()) {
-				activityStack.remove(activityStackSize -1);
+				activityStack.remove(activityStackSize - 1);
 				continue;
 			}
 
@@ -319,28 +317,27 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	protected void loadBuildProperties()
 	{
-		buildVersion = "1.0";
-		buildTimestamp = "N/A";
-		buildHash = "N/A";
-		InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
-		if (versionStream != null) {
-			Properties properties = new Properties();
-			try {
-				properties.load(versionStream);
-				if (properties.containsKey("build.version")) {
-					buildVersion = properties.getProperty("build.version");
-				}
-				if (properties.containsKey("build.timestamp")) {
-					buildTimestamp = properties.getProperty("build.timestamp");
-				}
-				if (properties.containsKey("build.githash")) {
-					buildHash = properties.getProperty("build.githash");
-				}
-			} catch (IOException e) {}
+		// Initialize build property member variables.
+		this.buildVersion = "1.0";
+		this.buildTimestamp = "N/A";
+		this.buildHash = "N/A";
+
+		// Attempt to read the "build.properties" file.
+		final String FILE_NAME = "org/appcelerator/titanium/build.properties";
+		try (InputStream stream = getClass().getClassLoader().getResourceAsStream(FILE_NAME)) {
+			if (stream != null) {
+				Properties properties = new Properties();
+				properties.load(stream);
+				this.buildVersion = properties.getProperty("build.version", this.buildVersion);
+				this.buildTimestamp = properties.getProperty("build.timestamp", this.buildTimestamp);
+				this.buildHash = properties.getProperty("build.githash", this.buildHash);
+			}
+		} catch (Exception e) {
 		}
 	}
 
-	public void loadAppProperties() {
+	public void loadAppProperties()
+	{
 		// Load the JSON file:
 		String appPropertiesString = KrollAssetHelper.readAsset("Resources/_app_props_.json");
 		if (appPropertiesString != null) {
@@ -353,6 +350,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	@Override
+	protected void attachBaseContext(Context base)
+	{
+		super.attachBaseContext(base);
+		MultiDex.install(this);
+	}
+
+	@Override
 	public void onCreate()
 	{
 		super.onCreate();
@@ -360,11 +364,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-			public void uncaughtException(Thread t, Throwable e) {
+			public void uncaughtException(Thread t, Throwable e)
+			{
 				if (isAnalyticsEnabled()) {
-					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
-					Log.e(TAG, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
-					TiPlatformHelper.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
+					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash;
+					Log.e(TAG,
+						  "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium "
+							  + tiVer,
+						  e);
+					TiPlatformHelper.getInstance().postAnalyticsEvent(
+						TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
 				}
 				defaultHandler.uncaughtException(t, e);
 			}
@@ -391,7 +400,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	@Override
-	public void onLowMemory ()
+	public void onLowMemory()
 	{
 		// Release all the cached images
 		TiBlobLruCache.getInstance().evictAll();
@@ -418,6 +427,31 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiPlatformHelper.getInstance().initialize();
 		// Fastdev has been deprecated
 		// TiFastDev.initFastDev(this);
+
+		if (isAnalyticsEnabled()) {
+
+			TiPlatformHelper.getInstance().initAnalytics();
+			TiPlatformHelper.getInstance().setSdkVersion("ti." + getTiBuildVersion());
+			TiPlatformHelper.getInstance().setAppName(getAppInfo().getName());
+			TiPlatformHelper.getInstance().setAppId(getAppInfo().getId());
+			TiPlatformHelper.getInstance().setAppVersion(getAppInfo().getVersion());
+
+			String deployType = appProperties.getString("ti.deploytype", "unknown");
+			String buildType = appInfo.getBuildType();
+			if ("unknown".equals(deployType)) {
+				deployType = getDeployType();
+			}
+			if (buildType != null && !buildType.equals("")) {
+				TiPlatformHelper.getInstance().setBuildType(buildType);
+			}
+			// Just use type 'other' enum since it's open ended.
+			DeployType.OTHER.setName(deployType);
+			TiPlatformHelper.getInstance().setDeployType(DeployType.OTHER);
+			APSAnalytics.getInstance().sendAppEnrollEvent();
+
+		} else {
+			Log.i(TAG, "Analytics have been disabled");
+		}
 	}
 
 	public void postOnCreate()
@@ -444,8 +478,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private File getRemoteCacheDir()
 	{
 		File cacheDir = new File(tempFileHelper.getTempDirectory(), "remote-cache");
-		if (!cacheDir.exists())
-		{
+		if (!cacheDir.exists()) {
 			cacheDir.mkdirs();
 			tempFileHelper.excludeFileOnCleanup(cacheDir);
 		}
@@ -460,8 +493,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		// calculate the display density
 		DisplayMetrics dm = new DisplayMetrics();
 		rootActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-		switch(dm.densityDpi)
-		{
+		switch (dm.densityDpi) {
 			case DisplayMetrics.DENSITY_HIGH: {
 				density = "high";
 				break;
@@ -476,30 +508,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		}
 
-		if (isAnalyticsEnabled()) {
-
-			TiPlatformHelper.getInstance().initAnalytics();
-			TiPlatformHelper.getInstance().setSdkVersion("ti." + getTiBuildVersion());
-			TiPlatformHelper.getInstance().setAppName(getAppInfo().getName());
-			TiPlatformHelper.getInstance().setAppId(getAppInfo().getId());
-			TiPlatformHelper.getInstance().setAppVersion(getAppInfo().getVersion());
-
-			String deployType = appProperties.getString("ti.deploytype", "unknown");
-			String buildType = appInfo.getBuildType();
-			if ("unknown".equals(deployType)) {
-				deployType = getDeployType();
-			}
-			if (buildType != null && !buildType.equals("")) {
-				TiPlatformHelper.getInstance().setBuildType(buildType);
-			}
-			// Just use type 'other' enum since it's open ended.
-			DeployType.OTHER.setName(deployType);
-			TiPlatformHelper.getInstance().setDeployType(DeployType.OTHER);
-			APSAnalytics.getInstance().sendAppEnrollEvent();
-
-		} else {
-			Log.i(TAG, "Analytics have been disabled");
-		}
 		tempFileHelper.scheduleCleanTempDir();
 	}
 
@@ -532,7 +540,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
 	{
-		synchronized (this) {
+		synchronized (this)
+		{
 			Activity currentActivity = getCurrentActivity();
 			if (currentActivity == null || callingActivity == currentActivity) {
 				this.currentActivity = new WeakReference<Activity>(newValue);
@@ -593,16 +602,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return appProperties;
 	}
 
-	/**
-	 * @deprecated
-	 */
-	public TiProperties getSystemProperties()
-	{
-		// This should actually be removed, but we are changing it to 'appProperties' instead so we don't break module
-		// developers who use this.
-		return appProperties;
-	}
-
 	public ITiAppInfo getAppInfo()
 	{
 		return appInfo;
@@ -648,17 +647,22 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		return getAppInfo().isAnalyticsEnabled();
 	}
-	
+
 	public boolean runOnMainThread()
 	{
 		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
 	}
-	
+
+	public boolean intentFilterNewTask()
+	{
+		return getAppProperties().getBool("intent-filter-new-task", false);
+	}
+
 	public void setFilterAnalyticsEvents(String[] events)
 	{
 		filteredAnalyticsEvents = events;
 	}
-	
+
 	public boolean isAnalyticsFiltered(String eventName)
 	{
 		if (filteredAnalyticsEvents == null) {
@@ -670,7 +674,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			if (eventName.equals(currentName)) {
 				return true;
 			}
-					
 		}
 		return false;
 	}
@@ -686,6 +689,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public String getTiBuildVersion()
 	{
 		return buildVersion;
+	}
+
+	public String getSDKVersion()
+	{
+		return getTiBuildVersion();
 	}
 
 	public String getTiBuildTimestamp()
@@ -744,8 +752,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public boolean isCoverageEnabled()
 	{
-		if (!getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION))
-		{
+		if (!getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
 			return getAppProperties().getBool(TiApplication.PROPERTY_ENABLE_COVERAGE, false);
 		}
 		return false;
@@ -755,7 +762,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		Log.w(TAG, "Scheduling application restart");
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
+			Log.d(TAG,
+				  "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
 			(new Exception()).printStackTrace();
 		}
 		this.restartPending = true;
@@ -819,8 +827,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	private void startExternalStorageMonitor()
 	{
-		externalStorageReceiver = new BroadcastReceiver()
-		{
+		externalStorageReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent)
 			{
@@ -903,4 +910,3 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public abstract void verifyCustomModules(TiRootActivity rootActivity);
 }
-

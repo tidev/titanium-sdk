@@ -8,9 +8,11 @@ package org.appcelerator.titanium;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
+import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -35,21 +37,21 @@ import android.widget.Toast;
 public abstract class TiLaunchActivity extends TiBaseActivity
 {
 	private static final String TAG = "TiLaunchActivity";
-	
+
 	private static final int MSG_FINISH = 100;
 	private static final int RESTART_DELAY = 500;
 	private static final int FINISH_DELAY = 500;
 
 	// Constants for Kindle fire fix for android bug 2373 (TIMOB-7843)
 	private static final AtomicInteger creationCounter = new AtomicInteger();
-	private static final int KINDLE_FIRE_RESTART_FLAGS = (Intent.FLAG_ACTIVITY_NEW_TASK
-		| Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+	private static final int KINDLE_FIRE_RESTART_FLAGS =
+		(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
+		 | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 	private static final String KINDLE_MODEL = "kindle";
 
 	// For general android bug 2373 condition checking.
-	private static final int VALID_LAUNCH_FLAGS = Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-			| Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
-
+	private static final int VALID_LAUNCH_FLAGS =
+		Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED | Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
 
 	// For restarting due to android bug 2373 detection.
 	private boolean invalidLaunchDetected = false;
@@ -66,6 +68,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected boolean finishing2373 = false;
 
 	protected TiUrl url;
+	protected boolean alloyIntent = false;
 
 	/**
 	 * @return The Javascript URL that this Activity should run
@@ -73,34 +76,63 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	public abstract String getUrl();
 
 	/**
+	 * @return is this an alloy activity that has been launched from an intent
+	 */
+	public boolean isAlloyIntent()
+	{
+		return this.alloyIntent;
+	}
+
+	/**
 	 * Subclasses should override to perform custom behavior
 	 * when the Launch Activity's script is finished loading
 	 */
-	protected void scriptLoaded() { }
+	protected void scriptLoaded()
+	{
+	}
 
 	/**
 	 * Subclasses should override to perform custom behavior
 	 * when the TiContext has been created.
 	 * This happens before the script is loaded.
 	 */
-	protected void contextCreated() { }
+	protected void contextCreated()
+	{
+	}
+
+	protected String resolveUrl(String url)
+	{
+		String fullUrl = TiUrl.normalizeWindowUrl(url).resolve();
+
+		if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {
+			fullUrl = fullUrl.replaceAll("app:/", "Resources");
+		} else if (fullUrl.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
+			fullUrl = fullUrl.replaceAll("file:///android_asset/", "");
+		}
+
+		return fullUrl;
+	}
+	protected String resolveUrl(TiUrl url)
+	{
+		return resolveUrl(url.url);
+	}
 
 	protected void loadActivityScript()
 	{
 		try {
-			String fullUrl = url.resolve();
+			String fullUrl = resolveUrl(url);
 
-			Log.d(TAG, "Eval JS Activity:" + fullUrl, Log.DEBUG_MODE);
-
-			if (fullUrl.startsWith(TiC.URL_APP_PREFIX)) {
-				fullUrl = fullUrl.replaceAll("app:/", "Resources");
-
-			} else if (fullUrl.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
-				fullUrl = fullUrl.replaceAll("file:///android_asset/", "");
+			// TIMOB-20502: if Alloy app and root activity is not available then
+			// run root activity first to initialize Alloy global variables etc...
+			// NOTE: this will only occur when launching from an intent or shortcut
+			this.alloyIntent = isJSActivity() && KrollAssetHelper.assetExists("Resources/alloy.js");
+			if (this.alloyIntent && !getTiApp().isRootActivityAvailable()) {
+				String rootUrl = resolveUrl("app.js");
+				KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(rootUrl), rootUrl, activityProxy);
+				KrollRuntime.getInstance().evalString(KrollAssetHelper.readAsset(fullUrl), fullUrl);
+			} else {
+				KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
 			}
-
-			KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(fullUrl), fullUrl, activityProxy);
-
 		} finally {
 			Log.d(TAG, "Signal JS loaded", Log.DEBUG_MODE);
 		}
@@ -131,7 +163,7 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		url = TiUrl.normalizeWindowUrl(getUrl());
 
 		// we only want to set the current activity for good in the resume state but we need it right now.
-		// save off the existing current activity, set ourselves to be the new current activity temporarily 
+		// save off the existing current activity, set ourselves to be the new current activity temporarily
 		// so we don't run into problems when we bind the current activity
 		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 		tiApp.setCurrentActivity(this, this);
@@ -141,6 +173,13 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 		contextCreated();
 		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent)
+	{
+		super.onNewIntent(intent);
+		setIntent(intent);
 	}
 
 	@Override
@@ -156,8 +195,8 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		Intent intent = getIntent();
 		if (intent != null) {
 			TiProperties systemProperties = getTiApp().getAppProperties();
-			boolean detectionDisabled = systemProperties.getBool("ti.android.bug2373.disableDetection", false) ||
-					systemProperties.getBool("ti.android.bug2373.finishfalseroot", true);
+			boolean detectionDisabled = systemProperties.getBool("ti.android.bug2373.disableDetection", false)
+										|| systemProperties.getBool("ti.android.bug2373.finishfalseroot", true);
 			if (!detectionDisabled) {
 				return checkInvalidLaunch(intent, savedInstanceState);
 			}
@@ -187,11 +226,15 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			}
 
 			if (invalidLaunchDetected) {
-				Log.e(TAG, "Android issue 2373 detected (missing intent CATEGORY_LAUNCHER or FLAG_ACTIVITY_RESET_TASK_IF_NEEDED), restarting app. " + this);
+				Log.e(
+					TAG,
+					"Android issue 2373 detected (missing intent CATEGORY_LAUNCHER or FLAG_ACTIVITY_RESET_TASK_IF_NEEDED), restarting app. "
+						+ this);
 				layout = new TiCompositeLayout(this, window);
 				setContentView(layout);
 				TiProperties systemProperties = getTiApp().getAppProperties();
-				int backgroundColor = TiColorHelper.parseColor(systemProperties.getString("ti.android.bug2373.backgroundColor", "black"));
+				int backgroundColor =
+					TiColorHelper.parseColor(systemProperties.getString("ti.android.bug2373.backgroundColor", "black"));
 				getWindow().getDecorView().setBackgroundColor(backgroundColor);
 				layout.setBackgroundColor(backgroundColor);
 
@@ -218,20 +261,21 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			}
 			restartActivity(restartDelay, finishDelay);
 		} else {
-			OnClickListener restartListener = new OnClickListener() 
-			{
-				public void onClick(DialogInterface arg0, int arg1) {
+			OnClickListener restartListener = new OnClickListener() {
+				public void onClick(DialogInterface arg0, int arg1)
+				{
 					restartActivity(restartDelay, finishDelay);
 				}
 			};
-	
+
 			String title = systemProperties.getString("ti.android.bug2373.title", "Restart Required");
 			String buttonText = systemProperties.getString("ti.android.bug2373.buttonText", "Continue");
 			invalidLaunchAlert = new AlertDialog.Builder(this)
-				.setTitle(title)
-				.setMessage(message)
-				.setPositiveButton(buttonText, restartListener)
-				.setCancelable(false).create();
+									 .setTitle(title)
+									 .setMessage(message)
+									 .setPositiveButton(buttonText, restartListener)
+									 .setCancelable(false)
+									 .create();
 			invalidLaunchAlert.show();
 		}
 	}
@@ -249,15 +293,15 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 		restartAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 		if (restartAlarmManager != null) {
-			restartPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
+			restartPendingIntent =
+				PendingIntent.getActivity(getApplicationContext(), 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
 			restartDelay = delay;
 		}
 
 		if (finishDelay > 0) {
-			Handler handler = new Handler() 
-			{
+			Handler handler = new Handler() {
 				@Override
-				public void handleMessage(Message msg) 
+				public void handleMessage(Message msg)
 				{
 					if (msg.what == MSG_FINISH) {
 						doFinishForRestart();
@@ -283,7 +327,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 		if (!isFinishing()) {
 			finish();
 		}
-
 	}
 
 	public boolean isJSActivity()
@@ -384,6 +427,17 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			alertMissingLauncher(); // This also kicks off the finish() and restart.
 			activityOnResume();
 			return;
+		}
+
+		// handle 'onIntent' event for both TiRootActivity and TiJSActivity
+		Intent intent = getIntent();
+		if (intent != null) {
+			KrollDict data = new KrollDict();
+			data.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(intent));
+
+			if (!getTiApp().isRootActivityAvailable()) {
+				activityProxy.fireEvent(TiC.PROPERTY_ON_INTENT, data);
+			}
 		}
 
 		super.onResume();
@@ -487,12 +541,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 			systemProperties = tiApp.getAppProperties();
 		}
 
-		if (systemProperties != null
-				&& systemProperties.getBool("ti.android.bug2373.finishfalseroot", true)) {
+		if (systemProperties != null && systemProperties.getBool("ti.android.bug2373.finishfalseroot", true)) {
 			finishing2373 = true;
-		} else if (Build.MODEL.toLowerCase().contains(KINDLE_MODEL)
-				&& creationCounter.getAndIncrement() > 0
-				&& intent.getFlags() == KINDLE_FIRE_RESTART_FLAGS) {
+		} else if (Build.MODEL.toLowerCase().contains(KINDLE_MODEL) && creationCounter.getAndIncrement() > 0
+				   && intent.getFlags() == KINDLE_FIRE_RESTART_FLAGS) {
 			finishing2373 = true;
 		}
 
@@ -506,5 +558,4 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 
 		return finishing2373;
 	}
-
 }

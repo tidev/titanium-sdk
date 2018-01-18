@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import org.appcelerator.kroll.KrollFunction;
@@ -21,7 +22,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.stream.FileStreamProxy;
@@ -31,9 +31,12 @@ public class FilesystemModule extends KrollModule
 {
 	private static final String TAG = "TiFilesystem";
 
-	@Kroll.constant public static final int MODE_READ = 0;
-	@Kroll.constant public static final int MODE_WRITE = 1;
-	@Kroll.constant public static final int MODE_APPEND = 2;
+	@Kroll.constant
+	public static final int MODE_READ = 0;
+	@Kroll.constant
+	public static final int MODE_WRITE = 1;
+	@Kroll.constant
+	public static final int MODE_APPEND = 2;
 
 	private static String[] RESOURCES_DIR = { "app://" };
 
@@ -41,11 +44,6 @@ public class FilesystemModule extends KrollModule
 	public FilesystemModule()
 	{
 		super();
-	}
-
-	public FilesystemModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.method
@@ -66,14 +64,17 @@ public class FilesystemModule extends KrollModule
 	{
 		String dir = String.valueOf(System.currentTimeMillis());
 		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
-		File f = new File(tmpdir,dir);
+		File f = new File(tmpdir, dir);
 		f.mkdirs();
 		String[] parts = { f.getAbsolutePath() };
 		return new FileProxy(invocation.getSourceUrl(), parts);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean isExternalStoragePresent()
+	// clang-format on
 	{
 		return android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
 	}
@@ -81,57 +82,76 @@ public class FilesystemModule extends KrollModule
 	@Kroll.method
 	public FileProxy getFile(KrollInvocation invocation, Object[] parts)
 	{
+		//If directory doesn't exist, return
+		if (parts[0] == null) {
+			Log.w(TAG, "A null directory was passed. Returning null.");
+			return null;
+		}
 		String[] sparts = TiConvert.toStringArray(parts);
 		return new FileProxy(invocation.getSourceUrl(), sparts);
 	}
 
 	@Kroll.method
-	private boolean hasStoragePermissions() {
+	private boolean hasStoragePermissions()
+	{
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+		Context context = TiApplication.getInstance().getApplicationContext();
+		if (context.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+			== PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
 		return false;
 	}
 
 	@Kroll.method
-	public void requestStoragePermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
+	public void requestStoragePermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
 	{
 		if (hasStoragePermissions()) {
 			return;
 		}
 
-		String[] permissions = new String[] {android.Manifest.permission.READ_EXTERNAL_STORAGE};
+		String[] permissions = new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE };
 		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback, getKrollObject());
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback,
+														 getKrollObject());
 		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
-
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public FileProxy getApplicationDirectory()
+	// clang-format on
 	{
 		return null;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getApplicationDataDirectory()
+	// clang-format on
 	{
 		return "appdata-private://";
 	}
-	
-	@Kroll.getProperty @Kroll.method
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getResRawDirectory()
+	// clang-format on
 	{
 		return "android.resource://" + TiApplication.getInstance().getPackageName() + "/raw/";
 	}
 
 	@SuppressWarnings("deprecation")
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getApplicationCacheDirectory()
+	// clang-format on
 	{
 		TiApplication app = TiApplication.getInstance();
 		if (app == null) {
@@ -149,33 +169,48 @@ public class FilesystemModule extends KrollModule
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getResourcesDirectory()
+	// clang-format on
 	{
 		return "app://";
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getExternalStorageDirectory()
+	// clang-format on
 	{
 		return "appdata://";
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getTempDirectory()
+	// clang-format on
 	{
 		TiApplication tiApplication = TiApplication.getInstance();
 		return "file://" + tiApplication.getTempFileHelper().getTempDirectory().getAbsolutePath();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getSeparator()
+	// clang-format on
 	{
 		return File.separator;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getLineEnding()
+	// clang-format on
 	{
 		return System.getProperty("line.separator");
 	}

@@ -549,6 +549,27 @@ properties:
     summary: URL of the item.
     type: String
     osver: {ios: {min: "9.0"}}
+  - name: fullyFormattedAddress
+    summary: The fully formatted address of the item (obtained from MapKit).
+    type: String
+    osver: {ios: {min: "10.0"}}
+    since: "6.0.0"
+  - name: subThoroughfare
+    summary: The sub-location (e.g., street number) for the item according to guidelines established by the provider.
+    type: String
+    osver: {ios: {min: "10.0"}}
+    since: "6.0.0"
+  - name: thoroughfare
+    summary: The location (e.g., street name) for the item according to guidelines established by the provider.
+    type: String
+    osver: {ios: {min: "10.0"}}
+    since: "6.0.0"
+  - name: postalCode
+    summary: The postal code for the item according to guidelines established by the provider.
+    type: String
+    osver: {ios: {min: "10.0"}}
+    since: "6.0.0"
+
     platforms: [iphone,ipad]
 examples:
   - title: Add Searchable Content to the On-Device Index

@@ -18,23 +18,28 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
-@Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors={
-	TiC.PROPERTY_VALUE,
-	TiC.PROPERTY_DOMAIN,
-	TiC.PROPERTY_EXPIRY_DATE,
-	TiC.PROPERTY_COMMENT,
-	TiC.PROPERTY_PATH,
-	TiC.PROPERTY_SECURE,
-	TiC.PROPERTY_HTTP_ONLY,
-	TiC.PROPERTY_VERSION
+// clang-format off
+@Kroll.proxy(creatableInModule = NetworkModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_VALUE,
+		TiC.PROPERTY_DOMAIN,
+		TiC.PROPERTY_EXPIRY_DATE,
+		TiC.PROPERTY_COMMENT,
+		TiC.PROPERTY_PATH,
+		TiC.PROPERTY_SECURE,
+		TiC.PROPERTY_HTTP_ONLY,
+		TiC.PROPERTY_VERSION
 })
+// clang-format on
 public class CookieProxy extends KrollProxy
 {
 	private static final String TAG = "CookieProxy";
 	private static TimeZone timezone = TimeZone.getTimeZone("GMT");
 	private static final SimpleDateFormat httpExpiryDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-	public static final SimpleDateFormat systemExpiryDateFormatter = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss 'GMT'");
-	static {
+	public static final SimpleDateFormat systemExpiryDateFormatter =
+		new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss 'GMT'");
+	static
+	{
 		httpExpiryDateFormatter.setTimeZone(timezone);
 		systemExpiryDateFormatter.setTimeZone(timezone);
 	}
@@ -105,7 +110,7 @@ public class CookieProxy extends KrollProxy
 			// PROPERTY_EXPIRY_DATE not used instead, PROPERTY_MAX_AGE is used
 			// See http://developer.android.com/reference/java/net/HttpCookie.html for more info
 			httpCookie.setMaxAge(TiConvert.toInt(getProperty(TiC.PROPERTY_MAX_AGE)));
-		}		
+		}
 		if (dict.containsKey(TiC.PROPERTY_COMMENT)) {
 			httpCookie.setComment(TiConvert.toString(getProperty(TiC.PROPERTY_COMMENT)));
 		}
@@ -153,10 +158,23 @@ public class CookieProxy extends KrollProxy
 		return httpCookie;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getName()
+	// clang-format on
 	{
 		return TiConvert.toString(getProperty(TiC.PROPERTY_NAME));
+	}
+
+	@Kroll.method
+	public boolean isValid()
+	{
+		String name = TiConvert.toString(getProperty(TiC.PROPERTY_NAME));
+		String value = TiConvert.toString(getProperty(TiC.PROPERTY_VALUE));
+		String path = TiConvert.toString(getProperty(TiC.PROPERTY_PATH));
+		String domain = TiConvert.toString(getProperty(TiC.PROPERTY_DOMAIN));
+		return (name != null && value != null && path != null && domain != null);
 	}
 
 	@Override

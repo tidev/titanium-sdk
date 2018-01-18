@@ -15,8 +15,7 @@ import android.app.Activity;
 /**
  * An interface for things Kroll needs from the application instance
  */
-public interface KrollApplication
-{
+public interface KrollApplication {
 	boolean DEFAULT_RUN_ON_MAIN_THREAD = false;
 
 	public int getThreadStackSize();
@@ -34,16 +33,18 @@ public interface KrollApplication
 	public String getAppGUID();
 
 	public boolean isDebuggerEnabled();
-	
+
 	public boolean runOnMainThread();
 
 	public void dispose();
-	
+
 	public String getDeployType();
 
 	public String getDefaultUnit();
 
+	public String getSDKVersion();
+
 	public void cancelTimers();
 
-    public void loadAppProperties();
+	public void loadAppProperties();
 }

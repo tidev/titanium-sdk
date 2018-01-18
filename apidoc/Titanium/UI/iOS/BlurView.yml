@@ -6,6 +6,8 @@ summary: |
     blur view above other views and all visible views layered under the blur view are blurred as well.
 
     For more information on BlurView, please refer to the official [Apple documentation](https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIVisualEffectView/).
+    Note: Apple introduced two new constants <Titanium.UI.iOS.BLUR_EFFECT_STYLE_REGULAR> and <Titanium.UI.iOS.BLUR_EFFECT_STYLE_PROMINENT> in
+    iOS 10. These are internally mapped to <Titanium.UI.iOS.BLUR_EFFECT_STYLE_LIGHT> and <Titanium.UI.iOS.BLUR_EFFECT_STYLE_EXTRA_LIGHT>.
 
 extends: Titanium.UI.View
 platforms: [iphone,ipad]
@@ -16,7 +18,7 @@ properties:
   - name: effect
     summary: The effect you provide for the view.
     type: Number
-    constants: [Titanium.UI.iOS.BLUR_EFFECT_STYLE_EXTRA_LIGHT,Titanium.UI.iOS.BLUR_EFFECT_STYLE_LIGHT,Titanium.UI.iOS.BLUR_EFFECT_STYLE_DARK]
+    constants: Titanium.UI.iOS.BLUR_EFFECT_STYLE_*
     default: undefined (no effect is applied)
 
 examples:

@@ -193,6 +193,17 @@ methods:
         type: Titanium.Android.Intent
         optional: true
 
+  - name: setSupportActionBar
+    summary: Sets a toolbar instance to be used as an ActionBar.
+    description: |
+        This method is used if you want to add a Toolbar as an ActionBar after the Activity has been created.
+        If you want to set it up before that [supportToolbar](Titanium.Android.Activity.supportToolbar) must be used.
+    parameters:
+      - name: toolbar
+        summary: Instance of a toolbar to be used as an ActionBar
+        type: Titanium.UI.Toolbar  
+    since: 6.2.0
+
   - name: startActivity
     summary: Starts a new activity, using the passed in `Intent` as the description. 
     description: |
@@ -253,7 +264,7 @@ events:
     summary: Fired from the activity's `onCreate` method.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onCreate](Titanium.Android.Activity.onCreate) property instead.
+        notes: Use <Titanium.Android.Activity.onCreate> instead.
     description: |
         See also:
         [onCreate](http://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
@@ -263,7 +274,7 @@ events:
     summary: Fired from the activity's `onDestroy` method.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onDestroy](Titanium.Android.Activity.onDestroy) property instead.
+        notes: Use <Titanium.Android.Activity.onDestroy> instead.
     description: |
         See also: [onDestroy](http://developer.android.com/reference/android/app/Activity.html#onDestroy())
         in the Android Developer Reference.
@@ -271,9 +282,7 @@ events:
   - name: newIntent
     deprecated:
         since: "3.0.0"
-        notes: |
-            Renamed to [newintent](Titanium.Android.Activity.newintent)
-            (all lowercase).
+        notes: Use <Titanium.Android.Activity.newintent> instead.
     summary: Fired when the activity is already running and certain flags are set in its intent. 
     description: |
         See also:
@@ -296,11 +305,19 @@ events:
         type: Titanium.Android.Intent
     since: '3.0.0'
 
+  - name: onIntent
+    summary: Fired when the activity is launched.
+    properties:
+      - name: intent
+        summary: The `Intent` used to launch the Activity.
+        type: Titanium.Android.Intent
+    since: '6.0.0'
+
   - name: pause
     summary: Fired when the activity is paused.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onPause](Titanium.Android.Activity.onPause) property instead.
+        notes: Use <Titanium.Android.Activity.onPause> instead.
     description: |
         See also:
         [onPause](http://developer.android.com/reference/android/app/Activity.html#onPause())
@@ -310,7 +327,7 @@ events:
     summary: Fired when the activity is resumed.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onResume](Titanium.Android.Activity.onResume) property instead.
+        notes: Use <Titanium.Android.Activity.onResume> instead.
     description: |
         See also: [onResume](http://developer.android.com/reference/android/app/Activity.html#onResume())
         in the Android Developer Reference.
@@ -319,7 +336,7 @@ events:
     summary: Fired when the activity is started.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onStart](Titanium.Android.Activity.onStart) property instead.
+        notes: Use <Titanium.Android.Activity.onStart> instead.
     description: |
         See also: [onStart](http://developer.android.com/reference/android/app/Activity.html#onStart())
         in the Android Developer Reference.
@@ -328,7 +345,7 @@ events:
     summary: Fired when the activity is stopped.
     deprecated:
         since: "3.4.0"
-        notes: Use the [onStop](Titanium.Android.Activity.onStop) property instead.
+        notes: Use <Titanium.Android.Activity.onStop> instead.
     description: |
         See also: [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
         in the Android Developer Reference.
@@ -429,6 +446,14 @@ properties:
     type: Number
     permission: write-only
 
+  - name: supportToolbar
+    summary: Toolbar instance that serves as ActionBar
+    description: |
+         This property is used to set a toolbar as an ActionBar prior to the actual activity creation.
+         After the activity is created that must be done through the [setSupportActionBar()](Titanium.Android.Activity.setSupportActionBar) method.
+    type: Titanium.UI.Toolbar
+    since: 6.2.0
+    
 examples:
   - title: Callback Example
     example: |

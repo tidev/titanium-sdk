@@ -40,8 +40,8 @@ properties:
         The `BAR` style specifies a more compact style and allows the bar's background color or 
         gradient to show through.
     type: Number
-    constants: Titanium.UI.iPhone.SystemButtonStyle.*
-    default: Titanium.UI.iPhone.SystemButtonStyle.PLAIN
+    constants: Titanium.UI.iOS.SystemButtonStyle.*
+    default: Titanium.UI.iOS.SystemButtonStyle.PLAIN
 
 examples:
   - title: Simple Tabbed Bar with 3 items
@@ -52,7 +52,7 @@ examples:
             	labels:['One', 'Two', 'Three'],
             	backgroundColor:'#336699',
             	top:50,
-            	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
+            	style:Titanium.UI.iOS.SystemButtonStyle.BAR,
             	height:25,
             	width:200
             });

@@ -13,54 +13,61 @@ package ti.modules.titanium.network.httpurlconnection;
 import java.util.Collections;
 import java.util.Map;
 
-public abstract class AbstractContentBody extends SingleBody implements ContentBody {
+public abstract class AbstractContentBody extends SingleBody implements ContentBody
+{
 
-    private final String mimeType;
-    private final String mediaType;
-    private final String subType;
-    
-    private Entity parent = null;
+	private final String mimeType;
+	private final String mediaType;
+	private final String subType;
 
-    public AbstractContentBody(final String mimeType) {
-        super();
-        if (mimeType == null) {
-            throw new IllegalArgumentException("MIME type may not be null");
-        }
-        this.mimeType = mimeType;
-        int i = mimeType.indexOf('/');
-        if (i != -1) {
-            this.mediaType = mimeType.substring(0, i);
-            this.subType = mimeType.substring(i + 1);
-        } else {
-            this.mediaType = mimeType;
-            this.subType = null;
-        }
-    }
+	private Entity parent = null;
 
-    @Override
-    public Entity getParent() {
-        return this.parent;
-    }
+	public AbstractContentBody(final String mimeType)
+	{
+		super();
+		if (mimeType == null) {
+			throw new IllegalArgumentException("MIME type may not be null");
+		}
+		this.mimeType = mimeType;
+		int i = mimeType.indexOf('/');
+		if (i != -1) {
+			this.mediaType = mimeType.substring(0, i);
+			this.subType = mimeType.substring(i + 1);
+		} else {
+			this.mediaType = mimeType;
+			this.subType = null;
+		}
+	}
 
-    @Override
-    public void setParent(final Entity parent) {
-        this.parent = parent;
-    }
+	@Override
+	public Entity getParent()
+	{
+		return this.parent;
+	}
 
-    public String getMimeType() {
-        return this.mimeType;
-    }
-    
-    public String getMediaType() {
-        return this.mediaType;
-    }
+	@Override
+	public void setParent(final Entity parent)
+	{
+		this.parent = parent;
+	}
 
-    public String getSubType() {
-        return this.subType;
-    }
+	public String getMimeType()
+	{
+		return this.mimeType;
+	}
 
-    public Map<String, String> getContentTypeParameters() {
-        return Collections.emptyMap();
-    }
+	public String getMediaType()
+	{
+		return this.mediaType;
+	}
 
+	public String getSubType()
+	{
+		return this.subType;
+	}
+
+	public Map<String, String> getContentTypeParameters()
+	{
+		return Collections.emptyMap();
+	}
 }

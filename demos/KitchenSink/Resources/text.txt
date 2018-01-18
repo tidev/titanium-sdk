@@ -1,1 +1,0 @@
-Hello World. this is a filesystem read test.

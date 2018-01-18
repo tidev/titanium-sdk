@@ -4,242 +4,208 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 #import "TiBase.h"
 #import "TiApp.h"
+#ifndef DISABLE_TI_LOG_SERVER
+#import "TiLogServer.h"
+#endif
 
-#include <stdarg.h>
 #include <pthread.h>
+#include <stdarg.h>
 #include <sys/time.h>
 
 #if DEBUG
-
 #include <assert.h>
 #include <stdbool.h>
+#include <sys/sysctl.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <sys/sysctl.h>
-
 #endif
 
 #ifndef USE_JSCORE_FRAMEWORK
 #import "TiDebugger.h"
 #endif
 
-static bool ApplicationBeingDebugged(void)
-// Returns true if the current process is being debugged (either
-// running under the debugger or has a debugger attached post facto).
+NSMutableArray *TiCreateNonRetainingArray()
 {
-#if TARGET_IPHONE_SIMULATOR
-    return 1;
-#elif DEBUG
-    int                 junk;
-    int                 mib[4];
-    struct kinfo_proc   info;
-    size_t              size;
-    
-    // Initialize the flags so that, if sysctl fails for some bizarre
-    // reason, we get a predictable result.
-    
-    info.kp_proc.p_flag = 0;
-    
-    // Initialize mib, which tells sysctl the info we want, in this case
-    // we're looking for information about a specific process ID.
-    
-    mib[0] = CTL_KERN;
-    mib[1] = KERN_PROC;
-    mib[2] = KERN_PROC_PID;
-    mib[3] = getpid();
-    
-    // Call sysctl.
-    
-    size = sizeof(info);
-    junk = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
-    if(junk != 0){
-        return 0;
-    }
-    // We're being debugged if the P_TRACED flag is set.
-    return ( (info.kp_proc.p_flag & P_TRACED) != 0 );
-#else
-    return 0;
-#endif
+  CFArrayCallBacks callbacks = kCFTypeArrayCallBacks;
+  callbacks.retain = NULL;
+  callbacks.release = NULL;
+  return (NSMutableArray *)CFArrayCreateMutable(nil, 0, &callbacks);
 }
 
-NSMutableArray* TiCreateNonRetainingArray() 
+NSMutableDictionary *TiCreateNonRetainingDictionary()
 {
-	CFArrayCallBacks callbacks = kCFTypeArrayCallBacks;
-	callbacks.retain = NULL;
-	callbacks.release = NULL;
-	return (NSMutableArray*)CFArrayCreateMutable(nil, 0, &callbacks);
+  CFDictionaryKeyCallBacks keyCallbacks = kCFTypeDictionaryKeyCallBacks;
+  CFDictionaryValueCallBacks callbacks = kCFTypeDictionaryValueCallBacks;
+  callbacks.retain = NULL;
+  callbacks.release = NULL;
+  return (NSMutableDictionary *)CFDictionaryCreateMutable(nil, 0, &keyCallbacks, &callbacks);
 }
 
-NSMutableDictionary* TiCreateNonRetainingDictionary() 
+CGPoint midpointBetweenPoints(CGPoint a, CGPoint b)
 {
-	CFDictionaryKeyCallBacks keyCallbacks = kCFTypeDictionaryKeyCallBacks;
-	CFDictionaryValueCallBacks callbacks = kCFTypeDictionaryValueCallBacks;
-	callbacks.retain = NULL;
-	callbacks.release = NULL;
-	return (NSMutableDictionary*)CFDictionaryCreateMutable(nil, 0, &keyCallbacks, &callbacks);
+  CGFloat x = (a.x + b.x) / 2.0;
+  CGFloat y = (a.y + b.y) / 2.0;
+  return CGPointMake(x, y);
 }
 
-CGPoint midpointBetweenPoints(CGPoint a, CGPoint b) 
+/**
+ * Logs a message from the app's console.log(), Ti.API.info(), and native
+ * NSLog() calls to the log server.
+ */
+void TiLogMessage(NSString *str, ...)
 {
-    CGFloat x = (a.x + b.x) / 2.0;
-    CGFloat y = (a.y + b.y) / 2.0;
-    return CGPointMake(x, y);
-}
+  va_list args;
+  va_start(args, str);
 
-void TiLogMessage(NSString* str, ...) {
-    va_list args;
-    va_start(args, str);
-    
-    NSString* message = [[NSString alloc] initWithFormat:str arguments:args];
-    if ([[TiApp app] debugMode]) {
-#ifndef USE_JSCORE_FRAMEWORK
-        TiDebuggerLogMessage(OUT, message);
-#endif
-    }
-    else {
-        
-        if (ApplicationBeingDebugged()) {
-            const char* s = [message UTF8String];
-            if (s[0]=='[')
-            {
-                fprintf(stderr,"%s\n", s);
-                fflush(stderr);
-            }
-            else
-            {
-                fprintf(stderr,"[DEBUG] %s\n", s);
-                fflush(stderr);
-            }
-        }
-        else{
+  NSString *message = [[[NSString alloc] initWithFormat:str arguments:args] autorelease];
+
 #pragma push
 #undef NSLog
-            NSLog(@"%@",message);
+  // first output the message to the system log
+  // we want to see the message regardless of which target we're running on
+  NSLog(@"%@", message);
 #pragma pop
-        }
-    }
-    [message release];
-}
 
-NSString * const kTiASCIIEncoding = @"ascii";
-NSString * const kTiISOLatin1Encoding = @"ios-latin-1";
-NSString * const kTiUTF8Encoding = @"utf8";
-NSString * const kTiUTF16Encoding = @"utf16";
-NSString * const kTiUTF16LEEncoding = @"utf16le";
-NSString * const kTiUTF16BEEncoding = @"utf16be";
-
-NSString * const kTiByteTypeName = @"byte";
-NSString * const kTiShortTypeName = @"short";
-NSString * const kTiIntTypeName = @"int";
-NSString * const kTiLongTypeName = @"long";
-NSString * const kTiFloatTypeName = @"float";
-NSString * const kTiDoubleTypeName = @"double";
-
-NSString * const kTiContextShutdownNotification = @"TiContextShutdown";
-NSString * const kTiWillShutdownNotification = @"TiWillShutdown";
-NSString * const kTiShutdownNotification = @"TiShutdown";
-NSString * const kTiSuspendNotification = @"TiSuspend";
-NSString * const kTiPausedNotification = @"TiPaused";
-NSString * const kTiResumeNotification = @"TiResume";
-NSString * const kTiResumedNotification = @"TiResumed";
-NSString * const kTiErrorNotification = @"TiError";
-NSString * const kTiAnalyticsNotification = @"TiAnalytics";
-NSString * const kTiRemoteDeviceUUIDNotification = @"TiDeviceUUID";
-NSString * const kTiGestureShakeNotification = @"TiGestureShake";
-NSString * const kTiRemoteControlNotification = @"TiRemoteControl";
-NSString * const kTiBackgroundFetchNotification = @"TiBackgroundFetch";
-NSString * const kTiSilentPushNotification = @"TiSilentPush";
-NSString * const kTiBackgroundTransfer = @"TiBackgroundTransfer";
-NSString * const kTiURLDownloadFinished = @"TiDownloadFinished";
-NSString * const kTiURLSessionCompleted = @"TiSessionCompleted";
-NSString * const kTiURLSessionEventsCompleted = @"TiSessionEventsCompleted";
-NSString * const kTiURLDowloadProgress = @"TiDownloadProgress";
-NSString * const kTiURLUploadProgress = @"TiUploadProgress";
-NSString * const kTiFrameAdjustNotification = @"TiFrameAdjust";
-NSString * const kTiLocalNotification = @"TiLocalNotification";
-NSString * const kTiLocalNotificationAction = @"TiLocalNotificationAction";
-NSString * const kTiRemoteNotificationAction = @"TiRemoteNotificationAction";
-NSString * const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
-NSString * const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
-NSString * const kTiContinueActivity = @"TiContinueActivity";
-NSString * const kTiApplicationShortcut = @"TiApplicationShortcut";
-
-#ifndef TI_USE_AUTOLAYOUT
-NSString* const kTiBehaviorSize = @"SIZE";
-NSString* const kTiBehaviorFill = @"FILL";
-NSString* const kTiBehaviorAuto = @"auto";
-NSString* const kTiUnitPixel = @"px";
-NSString* const kTiUnitCm = @"cm";
-NSString* const kTiUnitMm = @"mm";
-NSString* const kTiUnitInch = @"in";
-NSString* const kTiUnitDip = @"dip";
-NSString* const kTiUnitDipAlternate = @"dp";
-NSString* const kTiUnitSystem = @"system";
-NSString* const kTiUnitPercent = @"%";
+#ifndef DISABLE_TI_LOG_SERVER
+  // next we send the message to the log server to be sent or queued up
+  [TiLogServer log:message];
 #endif
 
-NSString* const kTiExceptionSubreason = @"TiExceptionSubreason";
-NSString* const kTiExceptionLocation = @"TiExceptionLocation";
+#ifndef USE_JSCORE_FRAMEWORK
+  // lastly, if we're debugging the app, write the message to the debugger
+  if ([[TiApp app] debugMode]) {
+    TiDebuggerLogMessage(OUT, message);
+  }
+#endif
+}
 
+NSString *const kTiASCIIEncoding = @"ascii";
+NSString *const kTiISOLatin1Encoding = @"ios-latin-1";
+NSString *const kTiUTF8Encoding = @"utf8";
+NSString *const kTiUTF16Encoding = @"utf16";
+NSString *const kTiUTF16LEEncoding = @"utf16le";
+NSString *const kTiUTF16BEEncoding = @"utf16be";
 
+NSString *const kTiByteTypeName = @"byte";
+NSString *const kTiShortTypeName = @"short";
+NSString *const kTiIntTypeName = @"int";
+NSString *const kTiLongTypeName = @"long";
+NSString *const kTiFloatTypeName = @"float";
+NSString *const kTiDoubleTypeName = @"double";
+
+NSString *const kTiContextShutdownNotification = @"TiContextShutdown";
+NSString *const kTiWillShutdownNotification = @"TiWillShutdown";
+NSString *const kTiShutdownNotification = @"TiShutdown";
+NSString *const kTiSuspendNotification = @"TiSuspend";
+NSString *const kTiPausedNotification = @"TiPaused";
+NSString *const kTiResumeNotification = @"TiResume";
+NSString *const kTiResumedNotification = @"TiResumed";
+NSString *const kTiErrorNotification = @"TiError";
+NSString *const kTiAnalyticsNotification = @"TiAnalytics";
+NSString *const kTiRemoteDeviceUUIDNotification = @"TiDeviceUUID";
+NSString *const kTiGestureShakeNotification = @"TiGestureShake";
+NSString *const kTiRemoteControlNotification = @"TiRemoteControl";
+NSString *const kTiBackgroundFetchNotification = @"TiBackgroundFetch";
+NSString *const kTiSilentPushNotification = @"TiSilentPush";
+NSString *const kTiBackgroundTransfer = @"TiBackgroundTransfer";
+NSString *const kTiURLDownloadFinished = @"TiDownloadFinished";
+NSString *const kTiURLSessionCompleted = @"TiSessionCompleted";
+NSString *const kTiURLSessionEventsCompleted = @"TiSessionEventsCompleted";
+NSString *const kTiURLDowloadProgress = @"TiDownloadProgress";
+NSString *const kTiURLUploadProgress = @"TiUploadProgress";
+NSString *const kTiFrameAdjustNotification = @"TiFrameAdjust";
+NSString *const kTiLocalNotification = @"TiLocalNotification";
+NSString *const kTiLocalNotificationAction = @"TiLocalNotificationAction";
+NSString *const kTiRemoteNotificationAction = @"TiRemoteNotificationAction";
+NSString *const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
+NSString *const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
+NSString *const kTiContinueActivity = @"TiContinueActivity";
+NSString *const kTiApplicationShortcut = @"TiApplicationShortcut";
+NSString *const kTiApplicationLaunchedFromURL = @"TiApplicationLaunchedFromURL";
+
+#ifndef TI_USE_AUTOLAYOUT
+NSString *const kTiBehaviorSize = @"SIZE";
+NSString *const kTiBehaviorFill = @"FILL";
+NSString *const kTiBehaviorAuto = @"auto";
+NSString *const kTiUnitPixel = @"px";
+NSString *const kTiUnitCm = @"cm";
+NSString *const kTiUnitMm = @"mm";
+NSString *const kTiUnitInch = @"in";
+NSString *const kTiUnitDip = @"dip";
+NSString *const kTiUnitDipAlternate = @"dp";
+NSString *const kTiUnitSystem = @"system";
+NSString *const kTiUnitPercent = @"%";
+#endif
+
+NSString *const kTiExceptionSubreason = @"TiExceptionSubreason";
+NSString *const kTiExceptionLocation = @"TiExceptionLocation";
 
 BOOL TiExceptionIsSafeOnMainThread = NO;
 
 void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason, NSString *subreason, NSString *location)
 {
-	if (TiExceptionIsSafeOnMainThread || ![NSThread isMainThread]) {
-		NSDictionary *details = [NSDictionary dictionaryWithObjectsAndKeys:subreason, kTiExceptionSubreason, location, kTiExceptionLocation, nil];
-		@throw [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
-	} else {
-		NSString * message = [NSString stringWithFormat:@"%@. %@ %@",reason,(subreason!=nil?subreason:@""),(location!=nil?location:@"")];
-		NSLog(@"[ERROR] %@", message);
-	}
+  if (TiExceptionIsSafeOnMainThread || ![NSThread isMainThread]) {
+    NSDictionary *details = [NSDictionary dictionaryWithObjectsAndKeys:subreason, kTiExceptionSubreason, location, kTiExceptionLocation, nil];
+    @throw [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
+  } else {
+    NSString *message = [NSString stringWithFormat:@"%@. %@ %@", reason, (subreason != nil ? subreason : @""), (location != nil ? location : @"")];
+    NSLog(@"[ERROR] %@", message);
+  }
 }
 
 NSString *JavascriptNameForClass(Class c)
 {
-	if([c isSubclassOfClass:[NSString class]]) return @"String";
-	else if([c isSubclassOfClass:[NSNumber class]]) return @"Number";
-	else if([c isSubclassOfClass:[NSArray class]]) return @"Array";
-	else if([c isSubclassOfClass:[NSDictionary class]]) return @"Object";
-	else if([c isSubclassOfClass:[KrollCallback class]]) return @"Function";
-	else if([c isSubclassOfClass:[KrollWrapper class]]) return @"Function";
-	else if ([c conformsToProtocol:@protocol(JavascriptClass)]) {
-		return [(id<JavascriptClass>)c javascriptClassName];
-	}
-	return NSStringFromClass(c);
+  if ([c isSubclassOfClass:[NSString class]])
+    return @"String";
+  else if ([c isSubclassOfClass:[NSNumber class]])
+    return @"Number";
+  else if ([c isSubclassOfClass:[NSArray class]])
+    return @"Array";
+  else if ([c isSubclassOfClass:[NSDictionary class]])
+    return @"Object";
+  else if ([c isSubclassOfClass:[KrollCallback class]])
+    return @"Function";
+  else if ([c isSubclassOfClass:[KrollWrapper class]])
+    return @"Function";
+  else if ([c conformsToProtocol:@protocol(JavascriptClass)]) {
+    return [(id<JavascriptClass>)c javascriptClassName];
+  }
+  return NSStringFromClass(c);
 }
 #ifdef TI_USE_KROLL_THREAD
-void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)
+void TiThreadReleaseOnMainThread(id releasedObject, BOOL waitForFinish)
 {
-	if (releasedObject == nil) {
-		return;
-	}
-	if ([NSThread isMainThread]) {
-		[releasedObject release];
-	}
-	else
-	{
-        __block id blockVar = releasedObject;
-		TiThreadPerformOnMainThread(^{[blockVar release];}, waitForFinish);
-	}
+  if (releasedObject == nil) {
+    return;
+  }
+  if ([NSThread isMainThread]) {
+    [releasedObject release];
+  } else {
+    __block id blockVar = releasedObject;
+    TiThreadPerformOnMainThread(^{
+      [blockVar release];
+    },
+        waitForFinish);
+  }
 }
 
-void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish)
+void TiThreadRemoveFromSuperviewOnMainThread(UIView *view, BOOL waitForFinish)
 {
-	if (view == nil) {
-		return;
-	}
-	if ([NSThread isMainThread]) {
-		[view removeFromSuperview];
-	}
-	else
-	{
-        __block UIView* blockVar = view;
-		TiThreadPerformOnMainThread(^{[blockVar removeFromSuperview];}, waitForFinish);
-	}
+  if (view == nil) {
+    return;
+  }
+  if ([NSThread isMainThread]) {
+    [view removeFromSuperview];
+  } else {
+    __block UIView *blockVar = view;
+    TiThreadPerformOnMainThread(^{
+      [blockVar removeFromSuperview];
+    },
+        waitForFinish);
+  }
 }
 #endif
 // NOTE: This method of batch-processing is actually fairly expensive
@@ -253,190 +219,188 @@ void TiThreadRemoveFromSuperviewOnMainThread(UIView* view,BOOL waitForFinish)
 // expensive (still have to semaphore the queue) and requires further research.
 
 #ifdef TI_USE_KROLL_THREAD
-NSMutableArray * TiThreadBlockQueue = nil;
+NSMutableArray *TiThreadBlockQueue = nil;
 pthread_mutex_t TiThreadBlockMutex;
 pthread_cond_t TiThreadBlockCondition;
 
 void TiThreadInitalize()
 {
-	pthread_mutex_init(&TiThreadBlockMutex,NULL);
-    pthread_cond_init(&TiThreadBlockCondition, NULL);
-	TiThreadBlockQueue = [[NSMutableArray alloc] initWithCapacity:10];
+  pthread_mutex_init(&TiThreadBlockMutex, NULL);
+  pthread_cond_init(&TiThreadBlockCondition, NULL);
+  TiThreadBlockQueue = [[NSMutableArray alloc] initWithCapacity:10];
 }
 #endif
 
-void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
+void TiThreadPerformOnMainThread(void (^mainBlock)(void), BOOL waitForFinish)
 {
-	BOOL alreadyOnMainThread = [NSThread isMainThread];
-    
+  BOOL alreadyOnMainThread = [NSThread isMainThread];
+
 #ifdef TI_USE_KROLL_THREAD
 
-	BOOL usesWaitSemaphore = waitForFinish && !alreadyOnMainThread;
+  BOOL usesWaitSemaphore = waitForFinish && !alreadyOnMainThread;
 
-	__block dispatch_semaphore_t waitSemaphore;
-	if (usesWaitSemaphore) {
-		waitSemaphore = dispatch_semaphore_create(0);
-	}
-	__block NSException * caughtException = nil;
-	void (^wrapperBlock)() = ^{
-		BOOL exceptionsWereSafe = TiExceptionIsSafeOnMainThread;
-		TiExceptionIsSafeOnMainThread = YES;
-		@try {
-			mainBlock();
-		}
-		@catch (NSException *exception) {
-			if (waitForFinish && (!alreadyOnMainThread || exceptionsWereSafe)) {
-				caughtException = [exception retain];
-			}
-		}
-		TiExceptionIsSafeOnMainThread = exceptionsWereSafe;
-		if (usesWaitSemaphore) {
-			dispatch_semaphore_signal(waitSemaphore);
-		}
-	};
-	
-    
-    // If we're on the main thread and required to wait for completion, just
-    // run the block immediately. This behavior is consistent with
-    // -[NSObject performSelectorOnMainThread:withObject:waitUntilDone:], which
-    // our code may currently rely on the assumptions for.
-    
-    if (alreadyOnMainThread && waitForFinish) {
-        wrapperBlock();
-
-        if (caughtException != nil) {
-            [caughtException autorelease];
-            [caughtException raise];
-        }
-        
-        return;
+  __block dispatch_semaphore_t waitSemaphore;
+  if (usesWaitSemaphore) {
+    waitSemaphore = dispatch_semaphore_create(0);
+  }
+  __block NSException *caughtException = nil;
+  void (^wrapperBlock)() = ^{
+    BOOL exceptionsWereSafe = TiExceptionIsSafeOnMainThread;
+    TiExceptionIsSafeOnMainThread = YES;
+    @try {
+      mainBlock();
     }
-    
-	void (^wrapperBlockCopy)() = [wrapperBlock copy];
-	
-	pthread_mutex_lock(&TiThreadBlockMutex);
-    [TiThreadBlockQueue addObject:wrapperBlockCopy];
-    pthread_cond_signal(&TiThreadBlockCondition);
-    pthread_mutex_unlock(&TiThreadBlockMutex);
-	
-	dispatch_block_t dispatchedMainBlock = (dispatch_block_t)^(){
-		TiThreadProcessPendingMainThreadBlocks(0.0, YES, nil);
-	};
-    
-    dispatch_async(dispatch_get_main_queue(), dispatchedMainBlock);
-    
-    if (waitForFinish)
-    {
-        /*
+    @catch (NSException *exception) {
+      if (waitForFinish && (!alreadyOnMainThread || exceptionsWereSafe)) {
+        caughtException = [exception retain];
+      }
+    }
+    TiExceptionIsSafeOnMainThread = exceptionsWereSafe;
+    if (usesWaitSemaphore) {
+      dispatch_semaphore_signal(waitSemaphore);
+    }
+  };
+
+  // If we're on the main thread and required to wait for completion, just
+  // run the block immediately. This behavior is consistent with
+  // -[NSObject performSelectorOnMainThread:withObject:waitUntilDone:], which
+  // our code may currently rely on the assumptions for.
+
+  if (alreadyOnMainThread && waitForFinish) {
+    wrapperBlock();
+
+    if (caughtException != nil) {
+      [caughtException autorelease];
+      [caughtException raise];
+    }
+
+    return;
+  }
+
+  void (^wrapperBlockCopy)() = [wrapperBlock copy];
+
+  pthread_mutex_lock(&TiThreadBlockMutex);
+  [TiThreadBlockQueue addObject:wrapperBlockCopy];
+  pthread_cond_signal(&TiThreadBlockCondition);
+  pthread_mutex_unlock(&TiThreadBlockMutex);
+
+  dispatch_block_t dispatchedMainBlock = (dispatch_block_t) ^ () {
+    TiThreadProcessPendingMainThreadBlocks(0.0, YES, nil);
+  };
+
+  dispatch_async(dispatch_get_main_queue(), dispatchedMainBlock);
+
+  if (waitForFinish) {
+    /*
          *	The reason we use a semaphore instead of simply calling the block sychronously
          *	is that it is possible that a previous dispatchedMainBlock (Or manual call of
          *	TiThreadProcessPendingMainThreadBlocks) processes the wrapperBlockCopy we
          *	care about. In other words, sychronously waiting will lead to the thread
          *	blocking much longer than necessary, especially during the shutdown sequence.
          */
-        dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
-        BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
-        if (waiting) {
-            DeveloperLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@",CODELOCATION);
-            dispatch_semaphore_wait(waitSemaphore, DISPATCH_TIME_FOREVER);
-        }
-        dispatch_release(waitSemaphore);
+    dispatch_time_t oneSecond = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC);
+    BOOL waiting = dispatch_semaphore_wait(waitSemaphore, oneSecond);
+    if (waiting) {
+      DeveloperLog(@"[WARN] Timing out waiting on main thread. Possibly a deadlock? %@", CODELOCATION);
+      dispatch_semaphore_wait(waitSemaphore, DISPATCH_TIME_FOREVER);
     }
+    dispatch_release(waitSemaphore);
+  }
 
-	[wrapperBlockCopy release];
-	if (caughtException != nil) {
-		[caughtException autorelease];
-		[caughtException raise];
-	}
+  [wrapperBlockCopy release];
+  if (caughtException != nil) {
+    [caughtException autorelease];
+    [caughtException raise];
+  }
 #else
-    if (waitForFinish) {
-        if (alreadyOnMainThread) {
-            mainBlock();
-        } else {
-            dispatch_sync(dispatch_get_main_queue(), mainBlock);
-        }
+  if (waitForFinish) {
+    if (alreadyOnMainThread) {
+      mainBlock();
     } else {
-        dispatch_async(dispatch_get_main_queue(), mainBlock);
+      dispatch_sync(dispatch_get_main_queue(), mainBlock);
     }
+  } else {
+    dispatch_async(dispatch_get_main_queue(), mainBlock);
+  }
 #endif
 }
-
 
 #ifdef TI_USE_KROLL_THREAD
 //Initializing krollContextCounter to zero.
 int krollContextCounter = 0;
 
-BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void * reserved )
+BOOL TiThreadProcessPendingMainThreadBlocks(NSTimeInterval timeout, BOOL doneWhenEmpty, void *reserved)
 {
-	struct timeval doneTime;
-	gettimeofday(&doneTime, NULL);
-	float timeoutSeconds = floorf(timeout);
-	doneTime.tv_sec += (int)timeoutSeconds;
-	doneTime.tv_usec += ((timeout - timeoutSeconds) * USEC_PER_SEC);
-	if (doneTime.tv_usec >= USEC_PER_SEC) {
-		doneTime.tv_usec -= USEC_PER_SEC;
-		doneTime.tv_sec++;
-	}
-	
-	BOOL shouldContinue = YES;
-	BOOL isEmpty = NO;
-	do {
-		void (^thisAction)(void) = nil;
-		
-		pthread_mutex_lock(&TiThreadBlockMutex);
-			isEmpty = [TiThreadBlockQueue count] <= 0;
-			if (!isEmpty) {
-				thisAction = [[TiThreadBlockQueue objectAtIndex:0] retain];
-				[TiThreadBlockQueue removeObjectAtIndex:0];
-			}
-		pthread_mutex_unlock(&TiThreadBlockMutex);
-		
-		if (thisAction != nil) {
-			NSAutoreleasePool * smallPool = [[NSAutoreleasePool alloc] init];
-			thisAction();
-			[thisAction release];
-			[smallPool release];
-		}
-		//It's entirely possible that the action itself caused more entries.
+  struct timeval doneTime;
+  gettimeofday(&doneTime, NULL);
+  float timeoutSeconds = floorf(timeout);
+  doneTime.tv_sec += (int)timeoutSeconds;
+  doneTime.tv_usec += ((timeout - timeoutSeconds) * USEC_PER_SEC);
+  if (doneTime.tv_usec >= USEC_PER_SEC) {
+    doneTime.tv_usec -= USEC_PER_SEC;
+    doneTime.tv_sec++;
+  }
 
-		pthread_mutex_lock(&TiThreadBlockMutex);
-			isEmpty = [TiThreadBlockQueue count] <= 0;
-			shouldContinue = !(doneWhenEmpty && isEmpty);
-			if (shouldContinue) {
-				struct timeval nowTime;
-				gettimeofday(&nowTime, NULL);
-				shouldContinue = timercmp(&nowTime, &doneTime, <);
-			}
-			
-			if (shouldContinue && isEmpty && (krollContextCounter >0)) {
-				struct timespec doneTimeSpec;
-				TIMEVAL_TO_TIMESPEC(&doneTime,&doneTimeSpec);
-				/*
+  BOOL shouldContinue = YES;
+  BOOL isEmpty = NO;
+  do {
+    void (^thisAction)(void) = nil;
+
+    pthread_mutex_lock(&TiThreadBlockMutex);
+    isEmpty = [TiThreadBlockQueue count] <= 0;
+    if (!isEmpty) {
+      thisAction = [[TiThreadBlockQueue objectAtIndex:0] retain];
+      [TiThreadBlockQueue removeObjectAtIndex:0];
+    }
+    pthread_mutex_unlock(&TiThreadBlockMutex);
+
+    if (thisAction != nil) {
+      NSAutoreleasePool *smallPool = [[NSAutoreleasePool alloc] init];
+      thisAction();
+      [thisAction release];
+      [smallPool release];
+    }
+    //It's entirely possible that the action itself caused more entries.
+
+    pthread_mutex_lock(&TiThreadBlockMutex);
+    isEmpty = [TiThreadBlockQueue count] <= 0;
+    shouldContinue = !(doneWhenEmpty && isEmpty);
+    if (shouldContinue) {
+      struct timeval nowTime;
+      gettimeofday(&nowTime, NULL);
+      shouldContinue = timercmp(&nowTime, &doneTime, <);
+    }
+
+    if (shouldContinue && isEmpty && (krollContextCounter > 0)) {
+      struct timespec doneTimeSpec;
+      TIMEVAL_TO_TIMESPEC(&doneTime, &doneTimeSpec);
+      /*
 				 *	If we're told to loop despite there being nothing to loop, it
 				 *	is likely we're waiting for the background thread to request
 				 *	something. In this case, we should briefly sleep.
 				 */
-				pthread_cond_timedwait(&TiThreadBlockCondition, &TiThreadBlockMutex, &doneTimeSpec);
-			}
-		pthread_mutex_unlock(&TiThreadBlockMutex);
-	} while (shouldContinue && (krollContextCounter >0));
-	return isEmpty;
+      pthread_cond_timedwait(&TiThreadBlockCondition, &TiThreadBlockMutex, &doneTimeSpec);
+    }
+    pthread_mutex_unlock(&TiThreadBlockMutex);
+  } while (shouldContinue && (krollContextCounter > 0));
+  return isEmpty;
 }
 
 //KrollCounter Helper function
 
-void incrementKrollCounter(){
-    OSAtomicIncrement32Barrier(&krollContextCounter);
+void incrementKrollCounter()
+{
+  OSAtomicIncrement32Barrier(&krollContextCounter);
 }
 
-void decrementKrollCounter(){
-    
-    int currentContextCount = OSAtomicDecrement32Barrier(&krollContextCounter);
-    if(currentContextCount == 0)
-    {
-        pthread_mutex_lock(&TiThreadBlockMutex);
-        pthread_cond_signal(&TiThreadBlockCondition);
-        pthread_mutex_unlock(&TiThreadBlockMutex);
-    }
+void decrementKrollCounter()
+{
+
+  int currentContextCount = OSAtomicDecrement32Barrier(&krollContextCounter);
+  if (currentContextCount == 0) {
+    pthread_mutex_lock(&TiThreadBlockMutex);
+    pthread_cond_signal(&TiThreadBlockCondition);
+    pthread_mutex_unlock(&TiThreadBlockMutex);
+  }
 }
 #endif

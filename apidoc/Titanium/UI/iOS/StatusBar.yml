@@ -40,7 +40,7 @@ properties:
   - name: DEFAULT
     summary: Default status bar style.
     description: |
-        Use with the <Titanium.UI.iOS.StatusBarStyle> and <Titanium.UI.Window.statusBarStyle> properties.
+        Use with the <Titanium.UI.Window.statusBarStyle> property.
         
         One of the group of status bar style constants 
         [DEFAULT](Titanium.UI.iOS.StatusBar.DEFAULT), 
@@ -53,7 +53,7 @@ properties:
   - name: GRAY
     summary: Gray-colored status bar style.
     description: |
-        Use with the <Titanium.UI.iOS.StatusBarStyle> and <Titanium.UI.Window.statusBarStyle> properties.
+        Use with the <Titanium.UI.Window.statusBarStyle> property.
         
         One of the group of status bar style constants 
         [DEFAULT](Titanium.UI.iOS.StatusBar.DEFAULT), 
@@ -68,7 +68,7 @@ properties:
     description: |
         Alias for [GRAY](Titanium.UI.iOS.StatusBar.GRAY).
         
-        Use with the <Titanium.UI.iOS.StatusBarStyle> and <Titanium.UI.Window.statusBarStyle> properties.
+        Use with the <Titanium.UI.Window.statusBarStyle> property.
         
         One of the group of status bar style constants 
         [DEFAULT](Titanium.UI.iOS.StatusBar.DEFAULT), 
@@ -81,8 +81,7 @@ properties:
   - name: LIGHT_CONTENT
     summary: Status bar style to use with dark backgrounds. Valid on iOS 7 and above.
     description: |
-        Use with the <Titanium.UI.iOS.StatusBarStyle> and <Titanium.UI.Window.statusBarStyle> properties.
-        When used with versions lower than iOS 7, returns [TRANSLUCENT_BLACK](Titanium.UI.iOS.StatusBar.TRANSLUCENT_BLACK).
+        Use with the <Titanium.UI.Window.statusBarStyle> property.
         
         One of the group of status bar style constants 
         [DEFAULT](Titanium.UI.iOS.StatusBar.DEFAULT), 

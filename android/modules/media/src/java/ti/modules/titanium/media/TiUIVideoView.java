@@ -26,8 +26,8 @@ import android.view.View.OnTouchListener;
 import android.widget.MediaController;
 import android.widget.TiVideoView8;
 
-public class TiUIVideoView extends TiUIView
-	implements OnPreparedListener, OnCompletionListener, OnErrorListener, TiPlaybackListener
+public class TiUIVideoView
+	extends TiUIView implements OnPreparedListener, OnCompletionListener, OnErrorListener, TiPlaybackListener
 {
 	private static final String TAG = "TiUIView";
 
@@ -139,6 +139,9 @@ public class TiUIVideoView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_VOLUME)) {
 			videoView.setVolume(TiConvert.toFloat(d, TiC.PROPERTY_VOLUME, 1.0f));
 		}
+		if (d.containsKey(TiC.PROPERTY_REPEAT_MODE)) {
+			videoView.setRepeatMode(TiConvert.toInt(d, TiC.PROPERTY_REPEAT_MODE));
+		}
 	}
 
 	@Override
@@ -166,6 +169,8 @@ public class TiUIVideoView extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_VOLUME)) {
 			videoView.setVolume(TiConvert.toFloat(newValue));
 
+		} else if (key.equals(TiC.PROPERTY_REPEAT_MODE)) {
+			videoView.setRepeatMode(TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -188,6 +193,15 @@ public class TiUIVideoView extends TiUIView
 		videoView.setScalingMode(mode);
 	}
 
+	public void setRepeatMode(int mode)
+	{
+		if (videoView == null) {
+			return;
+		}
+
+		videoView.setRepeatMode(mode);
+	}
+
 	public void setMediaControlStyle(int style)
 	{
 		if (videoView == null) {
@@ -196,7 +210,7 @@ public class TiUIVideoView extends TiUIView
 
 		boolean showController = true;
 
-		switch(style) {
+		switch (style) {
 			case MediaModule.VIDEO_CONTROL_DEFAULT:
 			case MediaModule.VIDEO_CONTROL_EMBEDDED:
 			case MediaModule.VIDEO_CONTROL_FULLSCREEN:
@@ -252,7 +266,6 @@ public class TiUIVideoView extends TiUIView
 		}
 
 		videoView.start();
-
 	}
 
 	public void stop()
@@ -350,7 +363,7 @@ public class TiUIVideoView extends TiUIView
 	{
 		getPlayerProxy().onPlaying();
 	}
-	
+
 	@Override
 	public void onSeekingForward()
 	{
@@ -362,7 +375,7 @@ public class TiUIVideoView extends TiUIView
 	{
 		getPlayerProxy().onSeekingBackward();
 	}
-	
+
 	private VideoPlayerProxy getPlayerProxy()
 	{
 		return ((VideoPlayerProxy) proxy);

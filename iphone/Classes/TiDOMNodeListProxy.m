@@ -12,48 +12,46 @@
 
 @implementation TiDOMNodeListProxy
 
--(id)_initWithPageContext:(id<TiEvaluator>)context nodes:(NSArray*)nodeList document:(GDataXMLDocument*)theDocument;
+- (id)_initWithPageContext:(id<TiEvaluator>)context nodes:(NSArray *)nodeList document:(GDataXMLDocument *)theDocument;
 {
-    if (self = [super _initWithPageContext:context]) {
-        nodes = [nodeList retain];
-        document = [theDocument retain];
-    }
-    return self;
+  if (self = [super _initWithPageContext:context]) {
+    nodes = [nodeList retain];
+    document = [theDocument retain];
+  }
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	[nodes release];
-	[document release];
-	[super dealloc];
+  [nodes release];
+  [document release];
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.XML.NodeList";
+  return @"Ti.XML.NodeList";
 }
 
--(id)item:(id)args
+- (id)item:(id)args
 {
-    ENSURE_SINGLE_ARG(args,NSObject);
-    int index = [TiUtils intValue:args];
-    
-    if ( (index < [nodes count]) && (index >=0) ) {
-        GDataXMLNode* theNode = [nodes objectAtIndex:index];
-        id context = ([self executionContext]==nil)?[self pageContext]:[self executionContext];
-        id nodeProxy = [TiDOMNodeProxy makeNode:theNode context:context];
-        [(TiDOMNodeProxy*)nodeProxy setDocument:document];
-        return nodeProxy;
-    }
-    return [NSNull null];
+  ENSURE_SINGLE_ARG(args, NSObject);
+  int index = [TiUtils intValue:args];
+
+  if ((index < [nodes count]) && (index >= 0)) {
+    GDataXMLNode *theNode = [nodes objectAtIndex:index];
+    id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
+    id nodeProxy = [TiDOMNodeProxy makeNode:theNode context:context];
+    [(TiDOMNodeProxy *)nodeProxy setDocument:document];
+    return nodeProxy;
+  }
+  return [NSNull null];
 }
 
--(NSNumber*)length
+- (NSNumber *)length
 {
-    return NUMUINTEGER([nodes count]);
+  return NUMUINTEGER([nodes count]);
 }
-
-
 
 @end
 

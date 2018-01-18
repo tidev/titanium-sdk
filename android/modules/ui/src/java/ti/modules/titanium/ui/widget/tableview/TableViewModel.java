@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,6 @@ import java.util.ArrayList;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -24,11 +23,14 @@ public class TableViewModel
 
 	// Flat view
 
-	public class Item {
-		public Item(int index) {
+	public class Item
+	{
+		public Item(int index)
+		{
 			this.index = index;
 		}
-		public boolean hasHeader() {
+		public boolean hasHeader()
+		{
 			return headerText != null;
 		}
 
@@ -51,19 +53,16 @@ public class TableViewModel
 	// The unstructured set of data. Modifier operations are treated as edits to this
 	// and the section structure.
 
-	public TableViewModel(TableViewProxy proxy) {
+	public TableViewModel(TableViewProxy proxy)
+	{
 		this.proxy = proxy;
 
 		viewModel = new ArrayList<Item>();
 		dirty = true;
 	}
 
-	public TableViewModel(TiContext tiContext, TableViewProxy proxy)
+	public void release()
 	{
-		this(proxy);
-	}
-
-	public void release() {
 		if (viewModel != null) {
 			viewModel.clear();
 			viewModel = null;
@@ -71,7 +70,8 @@ public class TableViewModel
 		proxy = null;
 	}
 
-	public static String classNameForRow(TableViewRowProxy rowProxy) {
+	public static String classNameForRow(TableViewRowProxy rowProxy)
+	{
 		String className = TiConvert.toString(rowProxy.getProperty(TiC.PROPERTY_CLASS_NAME));
 		if (className == null) {
 			className = TableViewProxy.CLASSNAME_DEFAULT;
@@ -79,7 +79,8 @@ public class TableViewModel
 		return className;
 	}
 
-	private Item itemForHeader(int index, TableViewSectionProxy proxy, String headerText, String footerText) {
+	private Item itemForHeader(int index, TableViewSectionProxy proxy, String headerText, String footerText)
+	{
 		Item newItem = new Item(index);
 		newItem.className = TableViewProxy.CLASSNAME_HEADER;
 		if (headerText != null) {
@@ -92,7 +93,8 @@ public class TableViewModel
 		return newItem;
 	}
 
-	public int getRowCount() {
+	public int getRowCount()
+	{
 		if (viewModel == null) {
 			return 0;
 		}
@@ -158,7 +160,7 @@ public class TableViewModel
 							Log.e(TAG, "FooterView must be of type TiViewProxy");
 						}
 					}
-					
+
 					sectionIndex++;
 					indexInSection = 0;
 				}
@@ -168,11 +170,12 @@ public class TableViewModel
 		return viewModel;
 	}
 
-	public int getViewIndex(int index) {
+	public int getViewIndex(int index)
+	{
 		int position = -1;
 		// the View index can be larger than model index if there are headers.
 		if (viewModel != null && index <= viewModel.size()) {
-			for(int i = 0; i < viewModel.size(); i++) {
+			for (int i = 0; i < viewModel.size(); i++) {
 				Item item = viewModel.get(i);
 				if (index == item.index) {
 					position = i;
@@ -184,7 +187,8 @@ public class TableViewModel
 		return position;
 	}
 
-	public int getRowHeight(int position, int defaultHeight) {
+	public int getRowHeight(int position, int defaultHeight)
+	{
 		int rowHeight = defaultHeight;
 
 		Item item = viewModel.get(position);
@@ -196,7 +200,8 @@ public class TableViewModel
 		return rowHeight;
 	}
 
-	public void setDirty() {
+	public void setDirty()
+	{
 		dirty = true;
 	}
 }

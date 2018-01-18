@@ -151,6 +151,10 @@ methods:
       - name: property
         summary: Name of property.
         type: String
+
+  - name: removeAllProperties
+    summary: Removes all properties that have been set by the user on runtime, or does nothing otherwise.
+    since: "6.0.0"
         
   - name: setBool
     summary: |

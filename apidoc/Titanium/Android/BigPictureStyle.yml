@@ -32,6 +32,7 @@ examples:
 
 since: "5.4.0"
 platforms: [android]
+extends: Titanium.Proxy
 properties:
 
   - name: bigLargeIcon

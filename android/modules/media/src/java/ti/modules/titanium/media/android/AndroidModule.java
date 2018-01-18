@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
@@ -29,23 +28,17 @@ import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
 
-@Kroll.module(parentModule=MediaModule.class)
+@Kroll.module(parentModule = MediaModule.class)
 public class AndroidModule extends KrollModule
 {
 	private static final String TAG = "TiMedia.Android";
 
 	protected static AndroidModule _instance = null;
 
-
 	public AndroidModule()
 	{
 		super();
 		_instance = this;
-	}
-
-	public AndroidModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.method
@@ -100,20 +93,10 @@ public class AndroidModule extends KrollModule
 			this.callback = callback;
 		}
 
-		public MediaScannerClient(TiContext tiContext, String[] paths, Object[] mimeTypes, KrollFunction callback)
-		{
-			this(tiContext.getActivity(), paths, mimeTypes, callback);
-		}
-
-		public MediaScannerClient(TiContext tiContext, String[] paths, Object[] mimeTypes)
-		{
-			this(tiContext, paths, mimeTypes, null);
-		}
-
 		@Override
 		public void onMediaScannerConnected()
 		{
-			if (paths == null || paths.length == 0){
+			if (paths == null || paths.length == 0) {
 				connection.disconnect();
 				return;
 			}
@@ -123,7 +106,7 @@ public class AndroidModule extends KrollModule
 					path = path.substring("file://".length()); // the service doesn't like file://
 				}
 				String mimeType = null;
-				if (mimeTypes != null && mimeTypes.length > i){
+				if (mimeTypes != null && mimeTypes.length > i) {
 					mimeType = TiConvert.toString(mimeTypes[i]);
 				}
 				connection.scanFile(path, mimeType);

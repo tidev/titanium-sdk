@@ -13,7 +13,7 @@ description: |
     
     The buttons share a common style, defined by the `style` property. This can be 
     set to one of the constants defined in 
-    [Titanium.UI.iPhone.SystemButtonStyle](Titanium.UI.iPhone.SystemButtonStyle):
+    [Titanium.UI.iOS.SystemButtonStyle](Titanium.UI.iOS.SystemButtonStyle):
 
     * `PLAIN`. Default style for `ButtonBar` and `TabbedBar`.
     * `BORDERED`. Creates a bar like the `PLAIN` bar, but with a heavier border.
@@ -21,7 +21,7 @@ description: |
             translucent buttons that allow the bar's background color to show through.
 
     If you want the background color or background gradient of the button bar itself 
-    to show through, the style must be set to <Titanium.UI.iPhone.SystemButtonStyle.BAR>.
+    to show through, the style must be set to <Titanium.UI.iOS.SystemButtonStyle.BAR>.
 
     Note that you cannot style individual buttons in a button bar. If you want to give a
     distinct visual style to individual buttons, to use an icon and text on the same button,
@@ -77,14 +77,14 @@ properties:
     summary: Style of the button bar.
     description: |
         Specify one of the constants defined in
-        [Titanium.UI.iPhone.SystemButtonStyle](Titanium.UI.iPhone.SystemButtonStyle),
+        [Titanium.UI.iOS.SystemButtonStyle](Titanium.UI.iOS.SystemButtonStyle),
         either `PLAIN`, `BORDERED`, or `BAR`.
 
         The `BAR` style specifies a more compact style and allows the bar's background
         color or gradient to show through.
     type: Number
-    constants: Titanium.UI.iPhone.SystemButtonStyle.*
-    default: Titanium.UI.iPhone.SystemButtonStyle.PLAIN
+    constants: Titanium.UI.iOS.SystemButtonStyle.*
+    default: Titanium.UI.iOS.SystemButtonStyle.PLAIN
     deprecated:
         since: "3.4.1"
         notes: The style property no longer has any effect on iOS 7 and greater.
@@ -97,7 +97,7 @@ examples:
             	labels:['One', 'Two', 'Three'],
             	backgroundColor:'#336699',
             	top:50,
-            	style:Titanium.UI.iPhone.SystemButtonStyle.BAR,
+            	style:Titanium.UI.iOS.SystemButtonStyle.BAR,
             	height:25,
             	width:200
             });

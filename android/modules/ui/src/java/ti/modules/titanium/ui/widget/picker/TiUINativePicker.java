@@ -25,7 +25,6 @@ import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,12 +36,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class TiUINativePicker extends TiUIPicker 
-		implements OnItemSelectedListener
+public class TiUINativePicker extends TiUIPicker implements OnItemSelectedListener
 {
 	private static final String TAG = "TiUINativePicker";
 	private boolean firstSelectedFired = false;
-	
+	private static int defaultTextColor;
+	private static boolean setDefaultTextColor = false;
+
 	public static class TiSpinnerAdapter<T> extends ArrayAdapter<T>
 	{
 		String[] fontProperties;
@@ -67,27 +67,34 @@ public class TiUINativePicker extends TiUIPicker
 			styleTextView(position, tv);
 			return tv;
 		}
-		
+
 		public void setFontProperties(KrollDict d)
 		{
 			fontProperties = TiUIHelper.getFontProperties(d);
 		}
-		
-		private void styleTextView(int position, TextView tv) {
-		    TiViewProxy rowProxy = (TiViewProxy) this.getItem(position);
-		    if (fontProperties != null) {
-		        TiUIHelper.styleText(tv, fontProperties[TiUIHelper.FONT_FAMILY_POSITION],
-		        fontProperties[TiUIHelper.FONT_SIZE_POSITION], fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
-		        fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
-		    }
-		    if (rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
-		        final int color = TiConvert.toColor(rowProxy.getProperties(), TiC.PROPERTY_COLOR);
-		        tv.setTextColor(color);
-		    }
+
+		private void styleTextView(int position, TextView tv)
+		{
+			TiViewProxy rowProxy = (TiViewProxy) this.getItem(position);
+			if (fontProperties != null) {
+				TiUIHelper.styleText(
+					tv, fontProperties[TiUIHelper.FONT_FAMILY_POSITION], fontProperties[TiUIHelper.FONT_SIZE_POSITION],
+					fontProperties[TiUIHelper.FONT_WEIGHT_POSITION], fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
+			}
+			if (!setDefaultTextColor) {
+				defaultTextColor = tv.getCurrentTextColor();
+				setDefaultTextColor = true;
+			}
+			if (rowProxy.hasProperty(TiC.PROPERTY_COLOR)) {
+				final int color = TiConvert.toColor((String) rowProxy.getProperty(TiC.PROPERTY_COLOR));
+				tv.setTextColor(color);
+			} else {
+				tv.setTextColor(defaultTextColor);
+			}
 		}
 	}
-	
-	public TiUINativePicker(TiViewProxy proxy) 
+
+	public TiUINativePicker(TiViewProxy proxy)
 	{
 		super(proxy);
 	}
@@ -106,20 +113,19 @@ public class TiUINativePicker extends TiUIPicker
 		}
 		Spinner spinner = (Spinner) activity.getLayoutInflater().inflate(spinnerId, null);
 
-		spinner.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
-		{
+		spinner.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override
-			public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight,
-				int oldBottom)
+			public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop,
+									   int oldRight, int oldBottom)
 			{
 				TiUIHelper.firePostLayoutEvent(proxy);
 			}
 		});
 
-		spinner.setOnTouchListener(new View.OnTouchListener()
-		{
+		spinner.setOnTouchListener(new View.OnTouchListener() {
 			@Override
-			public boolean onTouch(View v, MotionEvent event) {
+			public boolean onTouch(View v, MotionEvent event)
+			{
 				if (event.getAction() == MotionEvent.ACTION_UP) {
 					KrollDict data = new KrollDict();
 					data.put(TiC.PROPERTY_X, event.getX());
@@ -136,15 +142,16 @@ public class TiUINativePicker extends TiUIPicker
 
 		spinner.setOnItemSelectedListener(this);
 	}
-	
+
 	private void preselectRows()
 	{
 		ArrayList<Integer> preselectedRows = getPickerProxy().getPreselectedRows();
 		if (preselectedRows == null || preselectedRows.size() == 0) {
 			return;
 		}
-		Spinner spinner = (Spinner)nativeView;
-		if (spinner == null)return;
+		Spinner spinner = (Spinner) nativeView;
+		if (spinner == null)
+			return;
 		try {
 			spinner.setOnItemSelectedListener(null);
 			for (int i = 0; i < preselectedRows.size(); i++) {
@@ -168,7 +175,7 @@ public class TiUINativePicker extends TiUIPicker
 			Log.w(TAG, "Only one column is supported. Ignoring request to set selected row of column " + columnIndex);
 			return;
 		}
-		Spinner view = (Spinner)nativeView;
+		Spinner view = (Spinner) nativeView;
 		int rowCount = view.getAdapter().getCount();
 		if (rowIndex < 0 || rowIndex >= rowCount) {
 			Log.w(TAG, "Ignoring request to select out-of-bounds row index " + rowIndex);
@@ -176,7 +183,7 @@ public class TiUINativePicker extends TiUIPicker
 		}
 		view.setSelection(rowIndex, animated);
 	}
-	
+
 	@Override
 	public void openPicker()
 	{
@@ -191,15 +198,15 @@ public class TiUINativePicker extends TiUIPicker
 			Log.w(TAG, "Ignoring request to get selected row from out-of-bounds columnIndex " + columnIndex);
 			return -1;
 		}
-		return ((Spinner)getNativeView()).getSelectedItemPosition();
+		return ((Spinner) getNativeView()).getSelectedItemPosition();
 	}
 
 	@Override
-	protected void refreshNativeView() 
+	protected void refreshNativeView()
 	{
 		// Don't allow change events here
 		suppressChangeEvent = true;
-		Spinner spinner = (Spinner)nativeView;
+		Spinner spinner = (Spinner) nativeView;
 		if (spinner == null) {
 			return;
 		}
@@ -222,27 +229,25 @@ public class TiUINativePicker extends TiUIPicker
 			// is fetched via PickerRowProxy.toString(). If we allow
 			// anything beyond a string, we'll have to implement our own
 			// layouts (maybe our own Adapter too.)
-			TiSpinnerAdapter<TiViewProxy> adapter = new TiSpinnerAdapter<TiViewProxy>(spinner.getContext(),
-				android.R.layout.simple_spinner_item, rows);
+			TiSpinnerAdapter<TiViewProxy> adapter =
+				new TiSpinnerAdapter<TiViewProxy>(spinner.getContext(), android.R.layout.simple_spinner_item, rows);
 			adapter.setFontProperties(proxy.getProperties());
 			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			spinner.setAdapter(adapter);
 			if (rememberSelectedRow >= 0) {
 				selectRow(0, rememberSelectedRow, false);
 			}
-			
-		} catch(Throwable t) {
+
+		} catch (Throwable t) {
 			Log.e(TAG, "Unable to refresh native spinner control: " + t.getMessage(), t);
 		} finally {
 			suppressChangeEvent = false;
 			spinner.setOnItemSelectedListener(this);
 		}
 	}
-	
 
 	@Override
-	public void onItemSelected(AdapterView<?> parent, View view, int position,
-			long itemId)
+	public void onItemSelected(AdapterView<?> parent, View view, int position, long itemId)
 	{
 		if (!firstSelectedFired) {
 			// swallow the first selected event that gets fired after the adapter gets set, so as to avoid
@@ -304,9 +309,9 @@ public class TiUINativePicker extends TiUIPicker
 	}
 	protected void fireSelectionChange(int columnIndex, int rowIndex)
 	{
-		((PickerProxy)proxy).fireSelectionChange(columnIndex, rowIndex);
+		((PickerProxy) proxy).fireSelectionChange(columnIndex, rowIndex);
 	}
-	
+
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{

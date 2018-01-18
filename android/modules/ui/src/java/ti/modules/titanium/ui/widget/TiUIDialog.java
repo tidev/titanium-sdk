@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiBaseActivity.DialogWrapper;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -25,6 +26,7 @@ import android.support.v7.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.support.v4.view.ViewCompat;
+import android.view.ViewParent;
 import android.widget.ListView;
 
 public class TiUIDialog extends TiUIView
@@ -39,10 +41,12 @@ public class TiUIDialog extends TiUIView
 	protected class ClickHandler implements DialogInterface.OnClickListener
 	{
 		private int result;
-		public ClickHandler(int id) {
+		public ClickHandler(int id)
+		{
 			this.result = id;
 		}
-		public void onClick(DialogInterface dialog, int which) {
+		public void onClick(DialogInterface dialog, int which)
+		{
 			handleEvent(result);
 			hide(null);
 		}
@@ -63,7 +67,7 @@ public class TiUIDialog extends TiUIView
 		}
 		return currentActivity;
 	}
-	
+
 	private Builder getBuilder()
 	{
 		if (builder == null) {
@@ -71,7 +75,7 @@ public class TiUIDialog extends TiUIView
 		}
 		return builder;
 	}
-	
+
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -82,25 +86,24 @@ public class TiUIDialog extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_MESSAGE)) {
 			getBuilder().setMessage(d.getString(TiC.PROPERTY_MESSAGE));
 		}
-		if (d.containsKey(TiC.PROPERTY_BUTTON_NAMES))
-		{
+		if (d.containsKey(TiC.PROPERTY_BUTTON_NAMES)) {
 			buttonText = d.getStringArray(TiC.PROPERTY_BUTTON_NAMES);
 		} else if (d.containsKey(TiC.PROPERTY_OK)) {
-			buttonText = new String[]{d.getString(TiC.PROPERTY_OK)};
+			buttonText = new String[] { d.getString(TiC.PROPERTY_OK) };
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_ANDROID_VIEW)) {
 			processView((TiViewProxy) proxy.getProperty(TiC.PROPERTY_ANDROID_VIEW));
 		} else if (d.containsKey(TiC.PROPERTY_OPTIONS)) {
 			String[] optionText = d.getStringArray(TiC.PROPERTY_OPTIONS);
-			int selectedIndex = d.containsKey(TiC.PROPERTY_SELECTED_INDEX) ? d.getInt(TiC.PROPERTY_SELECTED_INDEX) : -1; 
-			if(selectedIndex >= optionText.length){
+			int selectedIndex = d.containsKey(TiC.PROPERTY_SELECTED_INDEX) ? d.getInt(TiC.PROPERTY_SELECTED_INDEX) : -1;
+			if (selectedIndex >= optionText.length) {
 				Log.d(TAG, "Ooops invalid selected index specified: " + selectedIndex, Log.DEBUG_MODE);
 				selectedIndex = -1;
 			}
-			
+
 			processOptions(optionText, selectedIndex);
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_PERSISTENT)) {
 			dialogWrapper.setPersistent(d.getBoolean(TiC.PROPERTY_PERSISTENT));
 		}
@@ -111,10 +114,11 @@ public class TiUIDialog extends TiUIView
 		super.processProperties(d);
 	}
 
-	private void processOptions(String[] optionText,int selectedIndex)
+	private void processOptions(String[] optionText, int selectedIndex)
 	{
-		getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
+		getBuilder().setSingleChoiceItems(optionText, selectedIndex, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which)
+			{
 				handleEvent(which);
 				hide(null);
 			}
@@ -131,8 +135,7 @@ public class TiUIDialog extends TiUIView
 			public void onCancel(DialogInterface dialog)
 			{
 				dialog = null;
-				if (view != null)
-				{
+				if (view != null) {
 					view.getProxy().releaseViews();
 					view = null;
 				}
@@ -143,17 +146,17 @@ public class TiUIDialog extends TiUIView
 			String text = buttonText[id];
 			ClickHandler clicker = new ClickHandler(id | BUTTON_MASK);
 			switch (id) {
-			case 0:
-				getBuilder().setPositiveButton(text, clicker);
-				break;
-			case 1:
-				getBuilder().setNeutralButton(text, clicker);
-				break;
-			case 2:
-				getBuilder().setNegativeButton(text, clicker);
-				break;
-			default:
-				Log.e(TAG, "Only 3 buttons are supported");
+				case 0:
+					getBuilder().setPositiveButton(text, clicker);
+					break;
+				case 1:
+					getBuilder().setNeutralButton(text, clicker);
+					break;
+				case 2:
+					getBuilder().setNegativeButton(text, clicker);
+					break;
+				default:
+					Log.e(TAG, "Only 3 buttons are supported");
 			}
 		}
 	}
@@ -164,7 +167,18 @@ public class TiUIDialog extends TiUIView
 			//reset the child view context to parent context
 			proxy.setActivity(dialogWrapper.getActivity());
 			view = proxy.getOrCreateView();
-			getBuilder().setView(view.getNativeView());
+
+			// handle view border
+			ViewParent viewParent = view.getNativeView().getParent();
+			if (viewParent != null) {
+				if (viewParent instanceof TiBorderWrapperView) {
+					getBuilder().setView((TiBorderWrapperView) viewParent);
+				} else {
+					Log.w(TAG, "could not set androidView, unsupported object: " + proxy.getClass().getSimpleName());
+				}
+			} else {
+				getBuilder().setView(view.getNativeView());
+			}
 		}
 	}
 
@@ -193,7 +207,7 @@ public class TiUIDialog extends TiUIView
 				dialog.dismiss();
 				dialog = null;
 			}
-			processButtons(new String[]{TiConvert.toString(newValue)});
+			processButtons(new String[] { TiConvert.toString(newValue) });
 		} else if (key.equals(TiC.PROPERTY_OPTIONS)) {
 			if (dialog != null) {
 				dialog.dismiss();
@@ -211,11 +225,11 @@ public class TiUIDialog extends TiUIView
 				dialog.dismiss();
 				dialog = null;
 			}
-			
+
 			getBuilder().setView(null);
 			if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
-				processOptions(TiConvert.toStringArray((Object[]) proxy.getProperty(TiC.PROPERTY_OPTIONS)), TiConvert.toInt(newValue));
-
+				processOptions(TiConvert.toStringArray((Object[]) proxy.getProperty(TiC.PROPERTY_OPTIONS)),
+							   TiConvert.toInt(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_ANDROID_VIEW)) {
 			if (dialog != null) {
@@ -245,7 +259,7 @@ public class TiUIDialog extends TiUIView
 				}
 			}
 		} else if (key.equals(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE) && dialog != null) {
-		    dialog.setCanceledOnTouchOutside(TiConvert.toBoolean(newValue));
+			dialog.setCanceledOnTouchOutside(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -262,15 +276,19 @@ public class TiUIDialog extends TiUIView
 			processProperties(proxy.getProperties());
 			getBuilder().setOnCancelListener(new OnCancelListener() {
 				@Override
-				public void onCancel(DialogInterface dlg) {
-					int cancelIndex = (proxy.hasProperty(TiC.PROPERTY_CANCEL)) ? TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
+				public void onCancel(DialogInterface dlg)
+				{
+					int cancelIndex = (proxy.hasProperty(TiC.PROPERTY_CANCEL))
+										  ? TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL))
+										  : -1;
 					Log.d(TAG, "onCancelListener called. Sending index: " + cancelIndex, Log.DEBUG_MODE);
 					handleEvent(cancelIndex);
 					hide(null);
 				}
 			});
 			dialog = getBuilder().create();
-			dialog.setCanceledOnTouchOutside(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, true));
+			dialog.setCanceledOnTouchOutside(
+				proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, true));
 			// Initially apply accessibility properties here, the first time
 			// the dialog actually becomes available. After this, propertyChanged
 			// can also be used.
@@ -301,7 +319,8 @@ public class TiUIDialog extends TiUIView
 				}
 			} else {
 				dialog = null;
-				Log.w(TAG, "Dialog activity is destroyed, unable to show dialog with message: " + TiConvert.toString(proxy.getProperty(TiC.PROPERTY_MESSAGE)));
+				Log.w(TAG, "Dialog activity is destroyed, unable to show dialog with message: "
+							   + TiConvert.toString(proxy.getProperty(TiC.PROPERTY_MESSAGE)));
 			}
 		} catch (Throwable t) {
 			Log.w(TAG, "Context must have gone away: " + t.getMessage(), t);
@@ -330,30 +349,40 @@ public class TiUIDialog extends TiUIView
 			this.builder.setCancelable(true);
 
 			//Native dialogs are persistent by default.
-			TiBaseActivity dialogActivity = (TiBaseActivity)currentActivity;
-			dialogWrapper = dialogActivity.new DialogWrapper(null, true, new WeakReference<TiBaseActivity>(dialogActivity));
+			TiBaseActivity dialogActivity = (TiBaseActivity) currentActivity;
+			dialogWrapper =
+				dialogActivity.new DialogWrapper(null, true, new WeakReference<TiBaseActivity>(dialogActivity));
 		} else {
-			Log.e (TAG, "Unable to find an activity for dialog.");
+			Log.e(TAG, "Unable to find an activity for dialog.");
 		}
 	}
 
 	public void handleEvent(int id)
 	{
-		int cancelIndex = (proxy.hasProperty(TiC.PROPERTY_CANCEL)) ?
-			TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
+		int cancelIndex =
+			(proxy.hasProperty(TiC.PROPERTY_CANCEL)) ? TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
 		KrollDict data = new KrollDict();
-		if ((id & BUTTON_MASK) != 0) {
-			data.put(TiC.PROPERTY_BUTTON, true);
-			id &= ~BUTTON_MASK;
-		} else {
-			data.put(TiC.PROPERTY_BUTTON, false);
-			// If an option was selected and the user accepted it, update the proxy.
-			if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
-				proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id);
+
+		// TIMOB-18500 Android: event.cancel not set properly for optionsDialog
+		boolean isCancel = id == cancelIndex;
+		if (!isCancel) {
+			if ((id & BUTTON_MASK) != 0) {
+				data.put(TiC.PROPERTY_BUTTON, true);
+				id &= ~BUTTON_MASK;
+			} else {
+				data.put(TiC.PROPERTY_BUTTON, false);
+				// If an option was selected and the user accepted it, update the proxy.
+				if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
+					proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id);
+				}
 			}
 		}
 		data.put(TiC.EVENT_PROPERTY_INDEX, id);
-		data.put(TiC.PROPERTY_CANCEL, id == cancelIndex);
-		fireEvent(TiC.EVENT_CLICK, data);
+		data.put(TiC.PROPERTY_CANCEL, isCancel);
+		if (isCancel) {
+			fireEvent(TiC.EVENT_CANCEL, data);
+		} else {
+			fireEvent(TiC.EVENT_CLICK, data);
+		}
 	}
 }

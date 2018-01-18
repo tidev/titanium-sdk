@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,7 +21,6 @@ import org.appcelerator.kroll.KrollLogging;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,17 +43,18 @@ public class TiWebViewBinding
 	// - change polling.js
 	// - minify polling.js to create polling.min.js
 	protected static String POLLING_CODE = "";
-	static {
+	static
+	{
 		StringBuilder jsonCode = readResourceFile("json2.js");
 		StringBuilder tiCode = readResourceFile("binding.min.js");
 		StringBuilder pollingCode = readResourceFile("polling.min.js");
-		
+
 		if (pollingCode == null) {
 			Log.w(TAG, "Unable to read polling code");
 		} else {
 			POLLING_CODE = pollingCode.toString();
 		}
-		
+
 		StringBuilder scriptCode = new StringBuilder();
 		StringBuilder injectionCode = new StringBuilder();
 		scriptCode.append("\n<script id=\"" + SCRIPT_INJECTION_ID + "\">\n");
@@ -99,12 +99,7 @@ public class TiWebViewBinding
 		tiReturn = new TiReturn();
 	}
 
-	public TiWebViewBinding(TiContext tiContext, WebView webView)
-	{
-		this(webView);
-	}
-
-	public void addJavascriptInterfaces() 
+	public void addJavascriptInterfaces()
 	{
 		if (webView != null && !interfacesAdded) {
 			webView.addJavascriptInterface(appBinding, "TiApp");
@@ -158,15 +153,17 @@ public class TiWebViewBinding
 		// Don't try to evaluate js code again if the binding has already been destroyed
 		if (!destroyed && interfacesAdded) {
 			String code = "_TiReturn.setValue((function(){try{return " + expression
-				+ "+\"\";}catch(ti_eval_err){return '';}})());";
+						  + "+\"\";}catch(ti_eval_err){return '';}})());";
 			Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
 			returnSemaphore.drainPermits();
-			synchronized (codeSnippets) {
+			synchronized (codeSnippets)
+			{
 				codeSnippets.push(code);
 			}
 			try {
 				if (!returnSemaphore.tryAcquire(3500, TimeUnit.MILLISECONDS)) {
-					synchronized (codeSnippets) {
+					synchronized (codeSnippets)
+					{
 						codeSnippets.removeElement(code);
 					}
 					Log.w(TAG, "Timeout waiting to evaluate JS");
@@ -213,7 +210,8 @@ public class TiWebViewBinding
 			}
 
 			String code = "Ti.executeListener(" + id + dataString + ");";
-			synchronized (codeSnippets) {
+			synchronized (codeSnippets)
+			{
 				codeSnippets.push(code);
 			}
 		}
@@ -230,7 +228,7 @@ public class TiWebViewBinding
 		{
 			module = TiApplication.getInstance().getModuleByName("App");
 		}
-		
+
 		@JavascriptInterface
 		public void fireEvent(String event, String json)
 		{
@@ -244,7 +242,7 @@ public class TiWebViewBinding
 				Log.e(TAG, "Error parsing event JSON", e);
 			}
 		}
-		
+
 		@JavascriptInterface
 		public int addEventListener(String event, int id)
 		{
@@ -255,13 +253,13 @@ public class TiWebViewBinding
 
 			return result;
 		}
-		
+
 		@JavascriptInterface
 		public void removeEventListener(String event, int id)
 		{
 			module.removeEventListener(event, id);
 		}
-		
+
 		@JavascriptInterface
 		public void clearEventListeners()
 		{
@@ -269,7 +267,7 @@ public class TiWebViewBinding
 				removeEventListener(event, appListeners.get(event));
 			}
 		}
-		
+
 		@JavascriptInterface
 		public String getJSCode()
 		{
@@ -278,7 +276,7 @@ public class TiWebViewBinding
 			}
 			return code;
 		}
-		
+
 		@JavascriptInterface
 		public int hasResult()
 		{
@@ -286,8 +284,9 @@ public class TiWebViewBinding
 				return -1;
 			}
 			int result = 0;
-			synchronized (codeSnippets) {
-				if(codeSnippets.empty()) {
+			synchronized (codeSnippets)
+			{
+				if (codeSnippets.empty()) {
 					code = "";
 				} else {
 					result = 1;
@@ -295,7 +294,6 @@ public class TiWebViewBinding
 				}
 			}
 			return result;
-			
 		}
 	}
 
@@ -307,31 +305,31 @@ public class TiWebViewBinding
 		{
 			logging = KrollLogging.getDefault();
 		}
-		
+
 		@JavascriptInterface
 		public void log(String level, String arg)
 		{
 			logging.log(level, arg);
 		}
-		
+
 		@JavascriptInterface
 		public void info(String arg)
 		{
 			logging.info(arg);
 		}
-		
+
 		@JavascriptInterface
 		public void debug(String arg)
 		{
 			logging.debug(arg);
 		}
-		
+
 		@JavascriptInterface
 		public void error(String arg)
 		{
 			logging.error(arg);
 		}
-		
+
 		@JavascriptInterface
 		public void trace(String arg)
 		{

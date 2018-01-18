@@ -6,18 +6,22 @@
  */
 #ifdef USE_TI_UIIMAGEVIEW
 
-#import "TiViewProxy.h"
 #import "ImageLoader.h"
+#import "TiViewProxy.h"
 
-@interface TiUIImageViewProxy : TiViewProxy<ImageLoaderDelegate, TiProxyDelegate> {
-	ImageLoaderRequest *urlRequest;
-    NSURL* imageURL;
+@interface TiUIImageViewProxy : TiViewProxy <ImageLoaderDelegate> {
+  ImageLoaderRequest *urlRequest;
+  NSURL *imageURL;
 }
-@property (nonatomic,retain) NSURL* imageURL;
 
--(void)cancelPendingImageLoads;
--(void)startImageLoad:(NSURL *)url;
--(void)propagateLoadEvent:(NSString *)stateString;
+@property (nonatomic, retain) NSURL *imageURL;
+#ifdef TI_USE_KROLL_THREAD
+@property (nonatomic, assign) NSString *loadEventState;
+#endif
+
+- (void)cancelPendingImageLoads;
+- (void)startImageLoad:(NSURL *)url;
+- (void)propagateLoadEvent:(NSString *)stateString;
 
 @end
 
