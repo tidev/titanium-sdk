@@ -37,12 +37,12 @@
 		243AAFB511FCE62600E37D8B /* TiUIDashboardItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 243AAFB411FCE62600E37D8B /* TiUIDashboardItem.m */; };
 		243ECCAA1126981C00639DF4 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		243ECCB21126984E00639DF4 /* TiUITableViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */; };
-		243ECCB71126986F00639DF4 /* TiFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5AEB3111F9DE9005C9199 /* TiFile.m */; };
+		243ECCB71126986F00639DF4 /* TiFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5AEB3111F9DE9005C9199 /* TiFile.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		243ECCB91126989700639DF4 /* TiUITextWidget.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829611264FF500A6B66C /* TiUITextWidget.m */; };
 		243ECCBE112698AA00639DF4 /* TiUITextWidgetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */; };
 		24596694118E70D300519F79 /* ApplicationRouting.m in Sources */ = {isa = PBXBuildFile; fileRef = 24596692118E70D300519F79 /* ApplicationRouting.m */; };
 		245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
-		2465592411E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2465592311E5862F0059BBF4 /* TiFilesystemBlobProxy.m */; };
+		2465592411E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2465592311E5862F0059BBF4 /* TiFilesystemBlobProxy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		2467310811E2549300D39AF7 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = 2467310611E2549300D39AF7 /* Webcolor.m */; };
 		2478B2A611C447A4005814DF /* ApplicationMods.m in Sources */ = {isa = PBXBuildFile; fileRef = 2478B2A411C447A4005814DF /* ApplicationMods.m */; };
 		248133A7115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */; };
@@ -130,7 +130,7 @@
 		24CA8BBD111161FE0084E2DE /* TiMediaSoundProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABC111161FD0084E2DE /* TiMediaSoundProxy.m */; };
 		24CA8BBE111161FE0084E2DE /* TiMediaAudioPlayerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8ABE111161FD0084E2DE /* TiMediaAudioPlayerProxy.m */; };
 		24CA8BC2111161FE0084E2DE /* TiHost.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC6111161FD0084E2DE /* TiHost.m */; };
-		24CA8BC3111161FE0084E2DE /* TiFilesystemFileProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC8111161FD0084E2DE /* TiFilesystemFileProxy.m */; };
+		24CA8BC3111161FE0084E2DE /* TiFilesystemFileProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AC8111161FD0084E2DE /* TiFilesystemFileProxy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		24CA8BC7111161FE0084E2DE /* TiDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD1111161FD0084E2DE /* TiDimension.m */; };
 		24CA8BC8111161FE0084E2DE /* TiDatabaseResultSetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD3111161FD0084E2DE /* TiDatabaseResultSetProxy.m */; };
 		24CA8BC9111161FE0084E2DE /* TiDatabaseProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8AD5111161FD0084E2DE /* TiDatabaseProxy.m */; };

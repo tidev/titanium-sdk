@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,43 +13,41 @@
 
 - (void)dealloc
 {
-  if (deleteOnExit) {
-    [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+  if (_deleteOnExit) {
+    [[NSFileManager defaultManager] removeItemAtPath:_path error:nil];
   }
-  RELEASE_TO_NIL(path);
-  [super dealloc];
 }
 
-- (id)initWithPath:(NSString *)path_
+- (id)initWithPath:(NSString *)path
 {
   if (self = [super init]) {
-    path = [path_ retain];
+    _path = path;
   }
   return self;
 }
 
-- (id)initWithTempFilePath:(NSString *)path_
+- (id)initWithTempFilePath:(NSString *)path
 {
-  if (self = [self initWithPath:path_]) {
-    deleteOnExit = YES;
+  if (self = [self initWithPath:path]) {
+    _deleteOnExit = YES;
   }
   return self;
 }
 
 - (NSString *)path
 {
-  return path;
+  return _path;
 }
 
 - (unsigned long long)size
 {
   NSFileManager *fm = [NSFileManager defaultManager];
   NSError *error = nil;
-  NSDictionary *resultDict = [fm attributesOfItemAtPath:path error:&error];
+  NSDictionary *resultDict = [fm attributesOfItemAtPath:_path error:&error];
   id resultType = [resultDict objectForKey:NSFileType];
   if ([resultType isEqualToString:NSFileTypeSymbolicLink]) {
     // TODO: We should be translating all symlinks into their actual paths always
-    NSString *realPath = [fm destinationOfSymbolicLinkAtPath:path error:nil];
+    NSString *realPath = [fm destinationOfSymbolicLinkAtPath:_path error:nil];
     if (realPath != nil) {
       resultDict = [fm attributesOfItemAtPath:realPath error:&error];
     }
@@ -63,7 +61,7 @@
 
 - (id)blob
 {
-  return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:path] autorelease];
+  return [[TiBlob alloc] _initWithPageContext:[self pageContext] andFile:_path];
 }
 
 - (id)toBlob:(id)args
@@ -100,7 +98,7 @@
     return nil;
   }
 
-  return [[[TiFile alloc] initWithTempFilePath:resultPath] autorelease];
+  return [[TiFile alloc] initWithTempFilePath:resultPath];
 }
 
 @end
