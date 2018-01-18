@@ -432,8 +432,11 @@ timestamps {
 			stage('Danger') {
 				node('osx || linux') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						unarchive mapping: ['mocha_*.crash': '.'] // unarchive any iOS simulator crashes
 						unstash 'danger' // this gives us dangerfile.js, package.json, package-lock.json, node_modules/, android java sources for format check
+						// ok to not grab crash logs, still run Danger.JS
+						try {
+							unarchive mapping: ['mocha_*.crash': '.'] // unarchive any iOS simulator crashes
+						} catch (e) {}
 						// ok to not grab test results, still run Danger.JS
 						try {
 							unstash 'test-report-ios' // junit.ios.report.xml
