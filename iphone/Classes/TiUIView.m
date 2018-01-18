@@ -792,6 +792,27 @@ DEFINE_EXCEPTIONS
   [self updateClipping];
 }
 
+-(void)setHorizontalMotionEffect_:(id)args
+{
+    CGFloat min = [TiUtils floatValue:[args objectForKey:@"min"]];
+    CGFloat max = [TiUtils floatValue:[args objectForKey:@"max"]];
+    UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc]initWithKeyPath:@"center.x" type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
+    effect.minimumRelativeValue = @(min);
+    effect.maximumRelativeValue = @(max);
+
+    [self addMotionEffect:effect];
+}
+
+-(void)setVerticalMotionEffect_:(id)args
+{
+    CGFloat min = [TiUtils floatValue:[args objectForKey:@"min"]];
+    CGFloat max = [TiUtils floatValue:[args objectForKey:@"max"]];
+    UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc]initWithKeyPath:@"center.y" type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
+    effect.minimumRelativeValue = @(min);
+    effect.maximumRelativeValue = @(max);
+    [self addMotionEffect:effect];
+}
+
 - (void)updateViewShadowPath
 {
   if ([self shadowLayer].shadowOpacity > 0.0f) {
