@@ -1,4 +1,4 @@
-/* global danger, fail, warn, markdown, message, schedule */
+/* global danger, fail, warn, markdown, message */
 'use strict';
 // requires
 const fs = require('fs-extra');
@@ -22,8 +22,6 @@ const Label = {
 };
 // Array to gather up the labels we want to auto-apply to the PR
 const labels = [];
-// Store the current directory so we can join it with file paths from PR metadata
-const CURRENT_DIR = path.resolve(__dirname);
 
 // To spit out the raw data we can use:
 // markdown(JSON.stringify(danger));
@@ -136,6 +134,16 @@ if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
 // Now apply our labels
 github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: labels });
 
+// Check for iOS crash file
+const crashFiles = fs.readdirSync(__dirname).filter(function (p) {
+	return p.startsWith('mocha_') && p.endsWith('.crash');
+});
+if (crashFiles.length > 0) {
+	const crashLink = danger.utils.href(`${ENV.BUILD_URL}artifact/${crashFiles[0]}`, 'the crash log');
+	fail(`Test suite crashed on iOS simulator. Please see ${crashLink} for more details.`);
+}
+
+// Report test failures
 function gatherFailedTestcases(reportPath) {
 	if (!fs.existsSync(reportPath)) {
 		return [];
@@ -176,7 +184,7 @@ if (failures_and_errors.length !== 0) {
 	});
 	attributes.push('Error');
 
-	// TODO Include stderr/stdout, or full test stack too?
+	// TODO Include stderr/stdout too?
 	// Create the headers
 	message += '| ' + attributes.join(' | ') + ' |\n';
 	message += '| ' + attributes.map(function () {
@@ -191,11 +199,11 @@ if (failures_and_errors.length !== 0) {
 		// push error/failure message too
 		const errors = test.getElementsByTagName('error');
 		if (errors.length !== 0) {
-			row_values.push(errors.item(0).getAttribute('message'));
+			row_values.push(errors.item(0).getAttribute('message') + errors.item(0).getAttribute('stack'));
 		} else {
 			const failures = test.getElementsByTagName('failure');
 			if (failures.length !== 0) {
-				row_values.push(failures.item(0).getAttribute('message'));
+				row_values.push(failures.item(0).getAttribute('message') + failures.item(0).getAttribute('stack'));
 			} else {
 				row_values.push(''); // This shouldn't ever happen
 			}
