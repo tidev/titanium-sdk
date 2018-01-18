@@ -792,24 +792,27 @@ DEFINE_EXCEPTIONS
   [self updateClipping];
 }
 
--(void)setHorizontalMotionEffect_:(id)args
+- (void)setHorizontalMotionEffect_:(id)motionEffect
 {
-    CGFloat min = [TiUtils floatValue:[args objectForKey:@"min"]];
-    CGFloat max = [TiUtils floatValue:[args objectForKey:@"max"]];
-    UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc]initWithKeyPath:@"center.x" type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
+    CGFloat min = [TiUtils floatValue:[motionEffect objectForKey:@"min"]];
+    CGFloat max = [TiUtils floatValue:[motionEffect objectForKey:@"max"]];
+    UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc]initWithKeyPath:@"center.x"
+					                                                 type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
     effect.minimumRelativeValue = @(min);
     effect.maximumRelativeValue = @(max);
 
     [self addMotionEffect:effect];
 }
 
--(void)setVerticalMotionEffect_:(id)args
+-(void)setVerticalMotionEffect_:(id)motionEffect
 {
-    CGFloat min = [TiUtils floatValue:[args objectForKey:@"min"]];
-    CGFloat max = [TiUtils floatValue:[args objectForKey:@"max"]];
-    UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc]initWithKeyPath:@"center.y" type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
+    CGFloat min = [TiUtils floatValue:[motionEffect objectForKey:@"min"]];
+    CGFloat max = [TiUtils floatValue:[motionEffect objectForKey:@"max"]];
+    UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc]initWithKeyPath:@"center.y"
+					                                                 type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
     effect.minimumRelativeValue = @(min);
     effect.maximumRelativeValue = @(max);
+
     [self addMotionEffect:effect];
 }
 
