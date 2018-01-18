@@ -154,8 +154,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   TiViewProxy *theProxy = [[TiViewProxy alloc] init];
 #ifndef TI_USE_AUTOLAYOUT
   LayoutConstraint *viewLayout = [theProxy layoutProperties];
-  viewLayout -> width = TiDimensionAutoFill;
-  viewLayout -> height = TiDimensionAutoSize;
+  viewLayout->width = TiDimensionAutoFill;
+  viewLayout->height = TiDimensionAutoSize;
 #endif
   return theProxy;
 }
@@ -186,7 +186,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _headerViewProxy = [self initWrapperProxy];
 #ifndef TI_USE_AUTOLAYOUT
   LayoutConstraint *viewLayout = [_headerViewProxy layoutProperties];
-  viewLayout -> layoutStyle = TiLayoutRuleVertical;
+  viewLayout->layoutStyle = TiLayoutRuleVertical;
 #endif
   [self setHeaderFooter:_headerViewProxy
                isHeader:YES];
@@ -401,8 +401,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 #ifndef TI_USE_AUTOLAYOUT
     LayoutConstraint *viewLayout = [viewproxy layoutProperties];
     //If height is not dip, explicitly set it to SIZE
-    if (viewLayout -> height.type != TiDimensionTypeDip) {
-      viewLayout -> height = TiDimensionAutoSize;
+    if (viewLayout->height.type != TiDimensionTypeDip) {
+      viewLayout->height = TiDimensionAutoSize;
     }
 #endif
     TiUIView *theView = [viewproxy view];
@@ -793,16 +793,16 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 #ifndef TI_USE_AUTOLAYOUT
     LayoutConstraint *viewLayout = [_pullViewProxy layoutProperties];
     // If height is not dip, explicitly set it to SIZE
-    if (viewLayout -> height.type != TiDimensionTypeDip) {
-      viewLayout -> height = TiDimensionAutoSize;
+    if (viewLayout->height.type != TiDimensionTypeDip) {
+      viewLayout->height = TiDimensionAutoSize;
     }
     // If bottom is not dip set it to 0
-    if (viewLayout -> bottom.type != TiDimensionTypeDip) {
-      viewLayout -> bottom = TiDimensionZero;
+    if (viewLayout->bottom.type != TiDimensionTypeDip) {
+      viewLayout->bottom = TiDimensionZero;
     }
     // Remove other vertical positioning constraints
-    viewLayout -> top = TiDimensionUndefined;
-    viewLayout -> centerY = TiDimensionUndefined;
+    viewLayout->top = TiDimensionUndefined;
+    viewLayout->centerY = TiDimensionUndefined;
 #endif
     [_pullViewProxy setProxyObserver:self];
     [_pullViewProxy windowWillOpen];
@@ -1667,9 +1667,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
 #ifndef TI_USE_AUTOLAYOUT
     LayoutConstraint *viewLayout = [viewProxy layoutProperties];
-    switch (viewLayout -> height.type) {
+    switch (viewLayout->height.type) {
     case TiDimensionTypeDip:
-      size += viewLayout -> height.value;
+      size += viewLayout->height.value;
       break;
     case TiDimensionTypeAuto:
     case TiDimensionTypeAutoSize:
@@ -1724,9 +1724,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     TiViewProxy *viewProxy = (TiViewProxy *)[view proxy];
 #ifndef TI_USE_AUTOLAYOUT
     LayoutConstraint *viewLayout = [viewProxy layoutProperties];
-    switch (viewLayout -> height.type) {
+    switch (viewLayout->height.type) {
     case TiDimensionTypeDip:
-      size += viewLayout -> height.value;
+      size += viewLayout->height.value;
       break;
     case TiDimensionTypeAuto:
     case TiDimensionTypeAutoSize:
@@ -1927,7 +1927,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     }
 
     NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
-      @"targetContentOffset" : NUMFLOAT(targetContentOffset -> y),
+      @"targetContentOffset" : NUMFLOAT(targetContentOffset->y),
       @"velocity" : NUMFLOAT(velocity.y)
     }];
     if (direction != nil) {
@@ -2425,12 +2425,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 #ifndef TI_USE_AUTOLAYOUT
   LayoutConstraint *viewLayout = [titleProxy layoutProperties];
-  viewLayout -> width = TiDimensionAutoFill;
-  viewLayout -> height = TiDimensionAutoSize;
-  viewLayout -> top = TiDimensionDip(10.0);
-  viewLayout -> bottom = TiDimensionDip(10.0);
-  viewLayout -> left = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
-  viewLayout -> right = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
+  viewLayout->width = TiDimensionAutoFill;
+  viewLayout->height = TiDimensionAutoSize;
+  viewLayout->top = TiDimensionDip(10.0);
+  viewLayout->bottom = TiDimensionDip(10.0);
+  viewLayout->left = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
+  viewLayout->right = ([tableView style] == UITableViewStyleGrouped) ? TiDimensionDip(15.0) : TiDimensionDip(10.0);
 #endif
   return [titleProxy autorelease];
 }
