@@ -174,19 +174,6 @@ events:
         type: Number
         platforms: [iphone, ipad]
 
-  - name: dblclick
-    summary: Fired when the device detects a double click against the view.
-    platforms: []
-    properties:
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-
-
   - name: delete
     summary: Fired when a table row is deleted by the user.
     platforms: [iphone, ipad]
@@ -356,22 +343,6 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
-  - name: pinch
-    summary: Fired when the device detects a pinch gesture.
-    description: |
-        A pinch is a touch and expand or contract
-        with two fingers.  The event occurs continuously until a finger is lifted again.
-    platforms: []
-    since: "1.8.0"
-    properties:
-      - name: scale
-        summary: The scale factor relative to the points of the two touches in screen coordinates.
-        type: Number
-
-      - name: velocity
-        summary: The velocity of the pinch in scale factor per second.
-        type: Number
-
   - name: scroll
     summary: Fired when the table view is scrolled.
     properties:
@@ -407,17 +378,6 @@ events:
         summary: Number of rows currently visible in the view.
         type: Number
         platforms: [android]
-
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        platforms: []
-
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-        platforms: []
-
 
   - name: scrollEnd
     deprecated:
@@ -627,45 +587,6 @@ events:
                 var table = Ti.UI.createTableView({data: data});
         type: Dictionary<Titanium.UI.TableViewRow>
 
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-
-      - name: force
-        summary: |
-            The current force value of the touch event.
-            Note: This property only available for iOS devices that support 3D-Touch and run 9.0 or later.
-        type: Number
-
-      - name: maximumPossibleForce
-        summary: |
-            Maximum possible value of the force property.
-            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
-        type: Number
-
-      - name: altitudeAngle
-        summary: |
-            A value which indicates the stylus angle on the screen. If the stylus is perpendicular to the screen or no stylus is
-            being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
-            Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
-        type: Number
-
-      - name: timestamp
-        summary: |
-           The time (in seconds) when the touch was used in correlation with the system start up.
-            Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
-        type: Number
-
-  - name: touchmove
-    summary: Fired as soon as the device detects movement of a touch.
-    description: |
-        Event coordinates are always relative to the view in which the initial touch occurred
-    platforms: []
-    properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
         type: Number
