@@ -385,7 +385,12 @@ describe('Titanium.Network.HTTPClient', function () {
 				if (dataStreamFinished) {
 					finish();
 				} else {
-					finish(new Error('onreadystatechange done fired before 100% progress'));
+					if (attempts-- > 0) {
+						Ti.API.warn('failed, attempting to retry request...');
+						xhr.send();
+					} else {
+						finish(new Error('onreadystatechange done fired before 100% progress'));
+					}
 				}
 			}
 		};
