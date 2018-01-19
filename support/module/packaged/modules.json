@@ -13,8 +13,8 @@
 			"integrity": "sha512-h1wM7mE/cgpk2n1YOYBNMNBQq5ViLxil6+GRnVqSaFB3LY3ubGSZVkZQ5rzC74anLlNXJVpsH/bP98AQ6zzXbA=="
 		},
 		"ti.map": {
-			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/ios-3.0.1/ti.map-iphone-3.0.1.zip",
-			"integrity": "sha512-vD9DLBQgRpmkt8FBbEzRKWKFuJkUTwjwK2ijvRTR9lebGmsgRa9uA2uOLltR8w27b4mbtREZowAEYcVvkQ01Dw=="
+			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/ios-3.0.2/ti.map-iphone-3.0.2.zip",
+			"integrity": "sha512-44NB1WsujEcW5OOsQPCUNY6PTJ31jmLoKFU7vA5V4Iu6vAgy4tEuO1n6Rio1LEa4Is23LMlajjeZW38J4XXn2w=="
 		},
 		"ti.safaridialog": {
 			"url": "https://github.com/appcelerator-modules/ti.safaridialog/releases/download/iOS-1.1.1/ti.safaridialog-iphone-1.1.1.zip",
