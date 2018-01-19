@@ -106,7 +106,7 @@ properties:
     description: |
         Important note: For iOS 11.2 and later, you need to reference this URL
         from either the application data directory or temporary directory. Read
-        more about this change in the "Note for iOS 11.2 and later" pargraph of 
+        more about this change in the "Note for iOS 11.2 and later" paragraph of 
         the API summary.
     type: String
 
