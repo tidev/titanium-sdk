@@ -1016,48 +1016,56 @@ describe('Titanium.UI.TableView', function () {
 
 	// Verifies that we don't run into the JNI ref overflow issue on Android
 	// FIXME Eventually crashes on Windows Desktop, crashes right away with no output on Phone
-	it.windowsBroken('TIMOB-15765', function () {
-		var numberOfTableRowsToTest = 400, // 50 is enough to trigger on Android 4.4.2. 400 hits error on Android 6.0/23
-			vAnswerTable,
-			numOfQuestions = numberOfTableRowsToTest / 5,
-			numOfAnswers = numOfQuestions * 4,
-			sections = [],
-			i,
-			questionTableSection,
-			questionRow,
-			j,
-			answerRow,
-			lAnswer,
-			x,
-			y;
-		this.timeout(6e4); // minute
+	it.windowsBroken('TIMOB-15765 rev.1', function (finish) {
+		var views = [],
+			references = 51200, // JNI max is 51200
+			error;
 
-		vAnswerTable = Ti.UI.createTableView({
-			data: [ Ti.UI.createTableViewRow({ title:'Loading...' }) ],
-		});
+		// create references
+		for (var i = 0; i < references; i++) {
+			views.push(Ti.UI.createView());
 
-		for (i = 0; i < numOfQuestions; i++) {
-			questionTableSection = Ti.UI.createTableViewSection({});
-			questionRow = Ti.UI.createTableViewRow({});
-			questionTableSection.add(questionRow);
-
-			for (j = 0; j < numOfAnswers; j++) {
-				answerRow = Ti.UI.createTableViewRow({});
-				lAnswer = Ti.UI.createLabel({});
-				answerRow.add(lAnswer);
-				questionTableSection.add(answerRow);
-			}
-			sections.push(questionTableSection);
-		}
-
-		// Add the sections created above to the table view
-		vAnswerTable.setData(sections);
-
-		for (x = 0; x < vAnswerTable.data.length; x++) {
-			Ti.API.info('Here after ' + x + ' iterations outer loop. Current section: ' + vAnswerTable.data[x]);
-			for (y = 0; y < vAnswerTable.data[x].rowCount; y++) {
-				Ti.API.info('Here after ' + y + ' iterations inner loop, ' + x + ' iterations outer loop. Current section row: ' +  vAnswerTable.data[x].rows[y]);
+			if (!(i % Math.floor(references / 10))) {
+				Ti.API.info('creating references... ' + i + '/' + references);
 			}
 		}
+
+		// validate references
+		try {
+			should(views.length).be.eql(references);
+
+			for (i = 0; i < references; i++) {
+				should(views[i]).not.be.undefined;
+				should(views[i]).be.an.Object;
+			}
+
+			Ti.API.info('success, created ' + references + ' references!');
+		} catch (e) {
+			error = e;
+		}
+		finish(error);
+	});
+
+	it.windowsBroken('TIMOB-15765 rev.2', function (finish) {
+		var references = 51200, // JNI max is 51200
+			error;
+
+		// create references
+		try {
+			for (var i = 0; i < references; i++) {
+				var blob = Ti.createBuffer({ length: 1 }).toBlob();
+
+				should(blob).not.be.undefined;
+				should(blob).be.an.Object;
+
+				if (!(i % Math.floor(references / 10))) {
+					Ti.API.info('creating temporary references... ' + i + '/' + references);
+				}
+			}
+			Ti.API.info('success!');
+		} catch (e) {
+			error = e;
+		}
+		finish(error);
 	});
 });

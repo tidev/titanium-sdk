@@ -15,8 +15,8 @@ def isMainlineBranch = true // used to determine if we should publish to S3 (and
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json
 
 // Variables we can change
-def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
-def npmVersion = '5.4.1' // We can change this without any changes to Jenkins.
+def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def npmVersion = '5.6.0' // We can change this without any changes to Jenkins.
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
@@ -432,8 +432,11 @@ timestamps {
 			stage('Danger') {
 				node('osx || linux') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						unarchive mapping: ['mocha_*.crash': '.'] // unarchive any iOS simulator crashes
 						unstash 'danger' // this gives us dangerfile.js, package.json, package-lock.json, node_modules/, android java sources for format check
+						// ok to not grab crash logs, still run Danger.JS
+						try {
+							unarchive mapping: ['mocha_*.crash': '.'] // unarchive any iOS simulator crashes
+						} catch (e) {}
 						// ok to not grab test results, still run Danger.JS
 						try {
 							unstash 'test-report-ios' // junit.ios.report.xml

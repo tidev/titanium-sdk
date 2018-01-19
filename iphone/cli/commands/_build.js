@@ -43,7 +43,7 @@ const appc = require('node-appc'),
 	parallel = appc.async.parallel,
 	series = appc.async.series,
 	version = appc.version;
-const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + '$)'); // eslint-disable-line security/detect-non-literal-regexp
+const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 
 function iOSBuilder() {
