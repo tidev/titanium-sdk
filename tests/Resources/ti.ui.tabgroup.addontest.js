@@ -44,4 +44,27 @@ describe('Titanium.UI.TabGroup', function () {
 		tabGroup.addTab(tab);
 		tabGroup.open();
 	});
+
+	it('close event', function (finish) {
+		this.timeout(10000);
+
+		var win = Ti.UI.createWindow();
+
+		tabGroup.addEventListener('open', function () {
+			tabGroup.close();
+		});
+
+		tabGroup.addEventListener('close', function () {
+			finish();
+		});
+
+		tabGroup = Ti.UI.createTabGroup();
+		tab = Ti.UI.createTab({
+			title: 'Tab',
+			window: win
+		});
+
+		tabGroup.addTab(tab);
+		tabGroup.open();
+	});
 });
