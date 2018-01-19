@@ -10,7 +10,7 @@
 'use strict';
 var should = require('./utilities/assertions');
 
-describe('Titanium.UI.Tabgroup', function () {
+describe('Titanium.UI.TabGroup', function () {
 	var tabGroup,
 		tab;
 
@@ -21,36 +21,27 @@ describe('Titanium.UI.Tabgroup', function () {
 		tab = null;
 	});
 
-	it('Remove MapView from TabGroup', function (finish) {
-		// create tab group
-		var win = Ti.UI.createWindow({
-				title:'Tab 1',
-				backgroundColor:'#fff'
-			}),
-			Map = require('ti.map'),
-			mapview;
-
+	it('add Map.View to TabGroup', function (finish) {
 		this.timeout(10000);
+
+		var win = Ti.UI.createWindow(),
+			map = require('ti.map'),
+			mapView = map.createView({ top: 0, height: '80%' });
+
+		mapView.addEventListener('complete', function () {
+			tabGroup.close();
+			finish();
+		});
+
+		win.add(mapView);
 
 		tabGroup = Ti.UI.createTabGroup();
 		tab = Ti.UI.createTab({
-			title:'Tab 1',
+			title: 'Tab',
 			window: win
 		});
 
-		mapview = Map.createView({ top: 0, height: '80%' });
-		// when the map is done loading, close the tab group
-		mapview.addEventListener('complete', function () {
-			tabGroup.close();
-		});
-
-		win.add(mapview);
 		tabGroup.addTab(tab);
 		tabGroup.open();
-
-		// when the tab group is closed, finish the test
-		tabGroup.addEventListener('close', function () {
-			finish();
-		});
 	});
 });
