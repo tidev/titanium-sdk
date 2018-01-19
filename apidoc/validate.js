@@ -557,11 +557,16 @@ function validateKey(obj, syntax, currentKey, className) {
 			if (Array.isArray(syntax[0])) {
 				// Validate array elements against syntax array
 				const errs = [];
-				obj.forEach(function (elem) {
-					if (!~syntax[0].indexOf(elem)) {
-						errs.push('Invalid array element: ' + elem + '; possible values: ' + syntax[0]);
-					}
-				});
+				// If key is 'platforms', validate not an empty array!
+				if (currentKey === 'platforms' && obj.length === 0) {
+					errs.push('platforms array must not be empty. Remove to fall back to "default" platforms based on "since" value; or remove doc entry if this applies to no platforms.');
+				} else {
+					obj.forEach(function (elem) {
+						if (!~syntax[0].indexOf(elem)) {
+							errs.push('Invalid array element: ' + elem + '; possible values: ' + syntax[0]);
+						}
+					});
+				}
 				if (errs.length > 0) {
 					errors = errs;
 				}
