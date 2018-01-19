@@ -59,8 +59,8 @@ description: |
           
         // Check if the current device runs iOS 11.2+
         function isiOS11_2() {
-        	var version = Ti.Platform.version.split(".");	
-        	return (parseInt(version[0]) >= 11 && parseInt(version[1]) >= 2);
+          var version = Ti.Platform.version.split(".");	
+          return (parseInt(version[0]) >= 11 && parseInt(version[1]) >= 2);
         }
 
         // Create a temporary file with the contents of the old file
