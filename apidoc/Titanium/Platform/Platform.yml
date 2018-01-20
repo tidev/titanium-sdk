@@ -46,7 +46,7 @@ methods:
     description: |
         **iOS Note**: For iOS 10 and later, this method is performed asynchronously 
         and will call the function passed as an (optional) third parameter instead
-        of returnin a boolean synchronously.
+        of returning a boolean synchronously.
         
         Example:
           
@@ -66,7 +66,7 @@ methods:
       - name: options
         summary: |
             The optional options to pass to the URL handling (iOS 10+). Pass a
-            dictionary with one or more of the followingstring-keys:
+            dictionary with one or more of the following string-keys:
                 * UIApplicationOpenURLOptionsSourceApplicationKey
                 * UIApplicationOpenURLOptionsAnnotationKey
                 * UIApplicationOpenURLOptionsOpenInPlaceKey
