@@ -52,8 +52,8 @@ methods:
           
             Ti.Platform.openURL('myapp://', {
               'UIApplicationOpenURLOptionUniversalLinksOnly': true
-            }, function(success) {
-              Ti.API.info('URL open successfully? ' + success);
+            }, function(e) {
+              Ti.API.info('URL open successfully? ' + e.success);
             });
 
     platforms: [android, iphone, ipad]

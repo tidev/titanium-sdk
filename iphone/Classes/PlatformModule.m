@@ -277,9 +277,13 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   NSMutableDictionary *options = [NSMutableDictionary dictionary];
 
   if ([args count] > 0) {
-    ENSURE_ARG_AT_INDEX(callback, args, 1, KrollCallback);
-    if ([args count] == 2) {
-      ENSURE_ARG_AT_INDEX(options, args, 2, NSMutableDictionary);
+    if ([[args objectAtIndex:1] isKindOfClass:[NSDictionary class]]) {
+      ENSURE_ARG_AT_INDEX(options, args, 1, NSMutableDictionary);
+      if ([args count] == 3) {
+        ENSURE_ARG_AT_INDEX(callback, args, 2, KrollCallback);
+      }
+    } else {
+      ENSURE_ARG_AT_INDEX(callback, args, 1, KrollCallback);
     }
   }
 
