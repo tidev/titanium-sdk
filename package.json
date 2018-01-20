@@ -66,7 +66,8 @@
     "mocha": "*",
     "optimist": "^0.6.1",
     "pagedown": "~1.1.0",
-    "should": "^11.2.1"
+    "should": "^11.2.1",
+    "ssri": "^5.0.0"
   },
   "repository": {
     "type": "git",
