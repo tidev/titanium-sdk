@@ -774,7 +774,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   UIApplication *uiApp = [UIApplication sharedApplication];
 
   if ([uiApp canOpenURL:newUrl] && !willHandleUrl) {
-    [uiApp openURL:newUrl];
+    if ([TiUtils isIOS10OrGreater]) {
+      [uiApp openURL:newUrl options:@{} completionHandler:nil];
+    } else {
+      [uiApp openURL:newUrl];
+    }
     return NO;
   }
 

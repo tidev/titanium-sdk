@@ -271,8 +271,30 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   NSString *newUrlString = [args objectAtIndex:0];
   NSURL *newUrl = [TiUtils toURL:newUrlString proxy:self];
   BOOL result = NO;
+
+  // iOS 10+
+  KrollCallback *callback = nil;
+  NSMutableDictionary *options = [NSMutableDictionary dictionary];
+
+  if ([args count] > 0) {
+    ENSURE_ARG_AT_INDEX(callback, args, 1, KrollCallback);
+    if ([args count] == 2) {
+      ENSURE_ARG_AT_INDEX(options, args, 2, NSMutableDictionary);
+    }
+  }
+
   if (newUrl != nil) {
-    [[UIApplication sharedApplication] openURL:newUrl];
+    if ([TiUtils isIOS10OrGreater]) {
+      [[UIApplication sharedApplication] openURL:newUrl
+                                         options:options
+                               completionHandler:^(BOOL success) {
+                                 if (callback != nil) {
+                                   [callback call:@[ @{ @"success" : @(success) } ] thisObject:self];
+                                 }
+                               }];
+    } else {
+      result = [[UIApplication sharedApplication] openURL:newUrl];
+    }
   }
 
   return [NSNumber numberWithBool:result];
