@@ -185,20 +185,12 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (BOOL)isIOS10OrGreater
 {
-#if IS_XCODE_8
   return [TiUtils isIOSVersionOrGreater:@"10.0"];
-#else
-  return NO;
-#endif
 }
 
 + (BOOL)isIOS11OrGreater
 {
-#if IS_XCODE_9
   return [TiUtils isIOSVersionOrGreater:@"11.0"];
-#else
-  return NO;
-#endif
 }
 
 + (BOOL)isIOSVersionOrGreater:(NSString *)version

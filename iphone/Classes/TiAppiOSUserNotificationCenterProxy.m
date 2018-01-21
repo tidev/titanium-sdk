@@ -21,7 +21,6 @@
   ENSURE_ARG_AT_INDEX(callback, args, 0, KrollCallback);
 
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     TiThreadPerformOnMainThread(^{
       [[UNUserNotificationCenter currentNotificationCenter] getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
         NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
@@ -40,7 +39,6 @@
       }];
     },
         NO);
-#endif
   } else {
     NSArray<UILocalNotification *> *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
@@ -62,7 +60,6 @@
 - (void)getDeliveredNotifications:(id)args
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     KrollCallback *callback = nil;
     ENSURE_ARG_AT_INDEX(callback, args, 0, KrollCallback);
 
@@ -84,7 +81,6 @@
       }];
     },
         NO);
-#endif
   } else {
     DebugLog(@"[WARN] Ti.App.iOS.NotificationCenter.getDeliveredNotifications is not available in iOS < 10.");
   }
@@ -95,7 +91,6 @@
   ENSURE_TYPE(args, NSArray);
 
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     TiThreadPerformOnMainThread(^{
       if ([args count] == 0) {
@@ -120,7 +115,6 @@
       }];
     },
         NO);
-#endif
   } else {
     TiThreadPerformOnMainThread(^{
       if ([args count] == 0) {
@@ -142,7 +136,6 @@
   ENSURE_TYPE(args, NSArray);
 
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     TiThreadPerformOnMainThread(^{
       UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
@@ -168,7 +161,6 @@
       }];
     },
         NO);
-#endif
   } else {
     DebugLog(@"[WARN] Ti.App.iOS.NotificationCenter.removeDeliveredNotifications is only available in iOS 10 and later.");
   }
@@ -182,7 +174,6 @@
   KrollCallback *callback = [args objectAtIndex:0];
 
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     TiThreadPerformOnMainThread(^{
       [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
         NSDictionary *propertiesDict = @{
@@ -202,7 +193,6 @@
       }];
     },
         NO);
-#endif
   } else {
     TiThreadPerformOnMainThread(^{
       UIUserNotificationSettings *settings = [[UIApplication sharedApplication] currentUserNotificationSettings];
@@ -219,7 +209,6 @@
 
 #pragma mark Utilities
 
-#if IS_XCODE_8
 - (NSDictionary *)dictionaryWithUserNotificationRequest:(UNNotificationRequest *)request
 {
   NSMutableDictionary *event = [NSMutableDictionary dictionary];
@@ -251,7 +240,6 @@
 
   return event;
 }
-#endif
 
 - (NSDictionary *)formatUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {

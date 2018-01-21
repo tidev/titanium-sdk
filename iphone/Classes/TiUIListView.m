@@ -115,11 +115,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _searchTableView.dataSource = nil;
   RELEASE_TO_NIL(_searchTableView)
 
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     _tableView.prefetchDataSource = nil;
   }
-#endif
 
   [_tableView release];
   [_templates release];
@@ -216,11 +214,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     }
 #endif
 
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
       _searchTableView.prefetchDataSource = self;
     }
-#endif
 
     if (TiDimensionIsDip(_rowHeight)) {
       [_searchTableView setRowHeight:_rowHeight.value];
@@ -269,11 +265,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     }
 #endif
 
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
       _tableView.prefetchDataSource = self;
     }
-#endif
 
     if (TiDimensionIsDip(_rowHeight)) {
       [_tableView setRowHeight:_rowHeight.value];
@@ -1634,7 +1628,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 #pragma mark - UITableViewDataSourcePrefetching
 
-#if IS_XCODE_8
 - (void)tableView:(UITableView *)tableView prefetchRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths
 {
   NSString *eventName = @"prefetch";
@@ -1668,7 +1661,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [self.proxy fireEvent:eventName withObject:@{ @"prefetchedItems" : cells }];
   RELEASE_TO_NIL(cells);
 }
-#endif
 
 - (NSDictionary *)listItemFromIndexPath:(NSIndexPath *)indexPath
 {

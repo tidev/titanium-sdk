@@ -56,7 +56,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)appBoot;
 @end
 
-#if IS_XCODE_8
 @interface TiUserNotificationExtention : UNNotificationServiceExtension
 
 @end
@@ -81,7 +80,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 }
 
 @end
-#endif
 
 @implementation TiApp
 
@@ -518,7 +516,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                                     userInfo:@{ @"userNotificationSettings" : notificationSettings }];
 }
 
-#if IS_XCODE_8
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
   // TODO: Get desired options from notification
@@ -562,7 +559,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   completionHandler();
 }
-#endif
 
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
 {
@@ -1404,7 +1400,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #define NOTNIL(v) ((v == nil) ? (id)[NSNull null] : v)
 
-#if IS_XCODE_8
 + (NSDictionary *)dictionaryWithUserNotification:(UNNotification *)notification withIdentifier:(NSString *)identifier
 {
   if (notification == nil) {
@@ -1426,7 +1421,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   return event;
 }
-#endif
 
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier:(NSString *)identifier
 {

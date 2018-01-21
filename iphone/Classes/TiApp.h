@@ -6,10 +6,7 @@
  */
 
 #import <UIKit/UIKit.h>
-
-#if IS_XCODE_8
 #import <UserNotifications/UserNotifications.h>
-#endif
 
 #import "KrollBridge.h"
 #import "TiHost.h"
@@ -213,12 +210,10 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  */
 - (NSString *)systemUserAgent;
 
-#if IS_XCODE_8
 /**
  Returns a dictionary containing the native notification information (iOS 10 and later).
  */
 + (NSDictionary *)dictionaryWithUserNotification:(UNNotification *)notification withIdentifier:(NSString *)identifier;
-#endif
 
 /**
  Returns a dictionary containing the native notification information.

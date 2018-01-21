@@ -53,12 +53,10 @@
     }
 
     if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
       _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
                                                                       actions:defaultActions
                                                             intentIdentifiers:intentIdentifiers ?: @[]
                                                                       options:UNNotificationCategoryOptionCustomDismissAction] retain];
-#endif
     } else {
       _notificationCategory = [UIMutableUserNotificationCategory new];
 

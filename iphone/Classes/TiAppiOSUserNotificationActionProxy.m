@@ -26,9 +26,7 @@
 - (void)_initWithProperties:(NSDictionary *)properties
 {
   if (_notificationAction == nil) {
-
     if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
       id identifier = [properties valueForKey:@"identifier"];
       id title = [properties valueForKey:@"title"];
       id activationMode = [properties valueForKey:@"activationMode"];
@@ -62,7 +60,6 @@
                                                                     title:title
                                                                   options:[TiUtils intValue:activationMode]] retain];
       }
-#endif
     } else {
       _notificationAction = [[UIMutableUserNotificationAction new] retain];
     }
@@ -78,7 +75,6 @@
 
 #pragma mark Public API's
 
-#if !defined(IS_XCODE_8)
 - (void)setIdentifier:(id)value
 {
   [[self notificationAction] setIdentifier:value];
@@ -91,24 +87,39 @@
 
 - (void)setActivationMode:(id)value
 {
-  [[self notificationAction] setActivationMode:[TiUtils intValue:value]];
+  if (![TiUtils isIOS10OrGreater]) {
+    return; // Not available on iOS 10+
+  }
+    
+  [(UIMutableUserNotificationAction *)[self notificationAction] setActivationMode:[TiUtils intValue:value]];
 }
 
 - (void)setBehavior:(id)value
 {
-  [[self notificationAction] setBehavior:[TiUtils intValue:value]];
+  if (![TiUtils isIOS10OrGreater]) {
+    return; // Not available on iOS 10+
+  }
+
+  [(UIMutableUserNotificationAction *)[self notificationAction] setBehavior:[TiUtils intValue:value]];
 }
 
 - (void)setDestructive:(id)value
 {
-  [[self notificationAction] setDestructive:[TiUtils boolValue:value]];
+  if (![TiUtils isIOS10OrGreater]) {
+    return; // Not available on iOS 10+
+  }
+
+  [(UIMutableUserNotificationAction *)[self notificationAction] setDestructive:[TiUtils boolValue:value]];
 }
 
 - (void)setAuthenticationRequired:(id)value
 {
-  [[self notificationAction] setAuthenticationRequired:[TiUtils boolValue:value]];
+  if (![TiUtils isIOS10OrGreater]) {
+    return; // Not available on iOS 10+
+  }
+
+  [(UIMutableUserNotificationAction *)[self notificationAction] setAuthenticationRequired:[TiUtils boolValue:value]];
 }
-#endif
 
 @end
 

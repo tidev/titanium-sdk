@@ -24,18 +24,13 @@
 #import "TiAppiOSUserNotificationCenterProxy.h"
 #endif
 
-#if IS_XCODE_8
-#import <UserNotifications/UserNotifications.h>
-#endif
-
-#if IS_XCODE_8
 #ifdef USE_TI_APPIOSSEARCHQUERY
 #import "TiAppiOSSearchQueryProxy.h"
-#endif
 #endif
 
 #import <CoreLocation/CLCircularRegion.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <UserNotifications/UserNotifications.h>
 
 @implementation TiAppiOSProxy
 
@@ -298,7 +293,6 @@
 }
 #endif
 
-#if IS_XCODE_8
 #ifdef USE_TI_APPIOSSEARCHQUERY
 - (id)createSearchQuery:(id)args
 {
@@ -319,7 +313,6 @@
 
   return [[[TiAppiOSSearchQueryProxy alloc] _initWithPageContext:[self pageContext] andArguments:args] autorelease];
 }
-#endif
 #endif
 
 #ifdef USE_TI_APPIOSUSERACTIVITY
@@ -403,16 +396,13 @@
 
   NSUInteger types = UIUserNotificationTypeNone;
 
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     types = UNAuthorizationOptionNone;
   }
-#endif
 
   if (typesRequested != nil) {
     for (id thisTypeRequested in typesRequested) {
       if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
         switch ([TiUtils intValue:thisTypeRequested]) {
         case UNAuthorizationOptionBadge: // USER_NOTIFICATION_TYPE_BADGE
         {
@@ -435,7 +425,6 @@
           break;
         }
         }
-#endif
       } else {
         switch ([TiUtils intValue:thisTypeRequested]) {
         case UIUserNotificationTypeBadge: // USER_NOTIFICATION_TYPE_BADGE
@@ -459,7 +448,6 @@
   }
 
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:types
                                                                         completionHandler:^(BOOL granted, NSError *error) {
                                                                           if (granted == YES) {
@@ -477,7 +465,6 @@
                                                                             [self fireEvent:@"usernotificationsettings" withObject:event];
                                                                           }
                                                                         }];
-#endif
   } else {
     UIUserNotificationSettings *notif = [UIUserNotificationSettings settingsForTypes:types
                                                                           categories:[NSSet setWithArray:nativeCategories]];
@@ -511,10 +498,8 @@
   DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"7.1.0", @"App.iOS.NotificationCenter.requestUserNotificationSettings");
 
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
     return;
-#endif
   } else {
     __block NSDictionary *returnVal = nil;
     TiThreadPerformOnMainThread(^{
@@ -583,7 +568,6 @@
   TiAppiOSLocalNotificationProxy *lp = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     id identifier = [args objectForKey:@"identifier"];
     id alertSubtitle = [args objectForKey:@"alertSubtitle"];
     id category = [args objectForKey:@"category"];
@@ -722,7 +706,6 @@
     [content release];
 
     return lp;
-#endif
   } else {
     UILocalNotification *content = [UILocalNotification new];
     id alertAction = [args objectForKey:@"alertAction"];
@@ -990,9 +973,7 @@
 - (NSNumber *)USER_NOTIFICATION_TYPE_NONE
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return NUMINT(UNAuthorizationOptionNone);
-#endif
   }
 
   return NUMINT(UIUserNotificationTypeNone);
@@ -1001,9 +982,7 @@
 - (NSNumber *)USER_NOTIFICATION_TYPE_BADGE
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return NUMINT(UNAuthorizationOptionBadge);
-#endif
   }
 
   return NUMINT(UIUserNotificationTypeBadge);
@@ -1012,9 +991,7 @@
 - (NSNumber *)USER_NOTIFICATION_TYPE_SOUND
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return NUMINT(UNAuthorizationOptionSound);
-#endif
   }
 
   return NUMINT(UIUserNotificationTypeSound);
@@ -1023,9 +1000,7 @@
 - (NSNumber *)USER_NOTIFICATION_TYPE_ALERT
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return NUMINT(UNAuthorizationOptionAlert);
-#endif
   }
 
   return NUMINT(UIUserNotificationTypeAlert);
@@ -1034,9 +1009,7 @@
 - (NSNumber *)USER_NOTIFICATION_TYPE_CAR_PLAY
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return NUMINT(UNAuthorizationOptionCarPlay);
-#endif
   }
   return NUMINT(0);
 }
@@ -1044,9 +1017,7 @@
 - (NSNumber *)USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return NUMINT(UNNotificationActionOptionNone);
-#endif
   }
 
   return NUMINT(UIUserNotificationActivationModeBackground);
@@ -1055,9 +1026,7 @@
 - (NSNumber *)USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return NUMINT(UNNotificationActionOptionForeground);
-#endif
   }
 
   return NUMINT(UIUserNotificationActivationModeForeground);
@@ -1303,11 +1272,10 @@
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_LAYOUT_CHANGED, @"accessibilitylayoutchanged");
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_SCREEN_CHANGED, @"accessibilityscreenchanged");
 
-MAKE_SYSTEM_PROP(FETCH_NEWDATA, 0); //UIBackgroundFetchResultNewData
-MAKE_SYSTEM_PROP(FETCH_NODATA, 1); //UIBackgroundFetchResultNoData
-MAKE_SYSTEM_PROP(FETCH_FAILED, 2); //UIBackgroundFetchResultFailed
+MAKE_SYSTEM_PROP(FETCH_NEWDATA, 0); // UIBackgroundFetchResultNewData
+MAKE_SYSTEM_PROP(FETCH_NODATA, 1); // UIBackgroundFetchResultNoData
+MAKE_SYSTEM_PROP(FETCH_FAILED, 2); // UIBackgroundFetchResultFailed
 
-#if IS_XCODE_8
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED, UNAuthorizationStatusDenied);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED, UNAuthorizationStatusAuthorized);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_AUTHORIZATION_STATUS_NOT_DETERMINED, UNAuthorizationStatusNotDetermined);
@@ -1319,7 +1287,6 @@ MAKE_SYSTEM_PROP(USER_NOTIFICATION_SETTING_NOT_SUPPORTED, UNNotificationSettingN
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_NONE, UNAlertStyleNone);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_ALERT, UNAlertStyleAlert);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_BANNER, UNAlertStyleBanner);
-#endif
 
 @end
 

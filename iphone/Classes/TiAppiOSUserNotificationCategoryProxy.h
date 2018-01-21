@@ -7,9 +7,7 @@
 #import "TiProxy.h"
 
 #ifdef USE_TI_APPIOS
-#if IS_XCODE_8
 #import <UserNotifications/UserNotifications.h>
-#endif
 
 @interface TiAppiOSUserNotificationCategoryProxy : TiProxy
 
