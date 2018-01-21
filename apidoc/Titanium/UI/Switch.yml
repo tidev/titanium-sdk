@@ -35,12 +35,10 @@ methods:
         to appear on top of it.
 
         See also: <Titanium.UI.View.add>.
-    platforms: []
 
   - name: remove
     description: |
         See also: [add](Titanium.UI.Switch.add), <Titanium.UI.View.add>.
-    platforms: []
 
 properties:
   - name: animated
