@@ -476,7 +476,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 }
 
 #pragma mark
-#pragma mark Background Fetch iOS 7
+#pragma mark Background Fetch
 
 #ifdef USE_TI_FETCH
 
@@ -507,7 +507,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #endif
 
-#pragma mark Remote and Local Notifications iOS 8
+#pragma mark Remote and Local Notifications
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
@@ -518,46 +518,26 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
-  // TODO: Get desired options from notification
-  // For example, pass none for silent pushes
+  // TODO: Get desired options from notification?
   completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response
              withCompletionHandler:(void (^)(void))completionHandler
 {
-  /*RELEASE_TO_NIL(remoteNotification);
-   [self generateNotification:userInfo];
-   NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
-   event[@"data"] = remoteNotification;
-   if (identifier != nil) {
-   event[@"identifier"] = identifier;
-   }
-   NSString *category = remoteNotification[@"category"];
-   if (category != nil) {
-   event[@"category"] = category;
-   }
-   [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteNotificationAction object:event userInfo:nil];
-   [event autorelease];
-   completionHandler();*/
-
-  // TODO: Find out where the payload is stored to handle the above
-
   if ([[[[[response notification] request] content] userInfo] valueForKey:@"isRemoteNotification"] != nil) {
     RELEASE_TO_NIL(remoteNotification);
     remoteNotification = [[[self class] dictionaryWithUserNotification:response.notification
                                                         withIdentifier:response.actionIdentifier] retain];
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteNotificationAction object:remoteNotification userInfo:nil];
+    [self tryToPostNotification:remoteNotification withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
   } else {
     RELEASE_TO_NIL(localNotification);
     localNotification = [[[self class] dictionaryWithUserNotification:response.notification
                                                        withIdentifier:response.actionIdentifier] retain];
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
+    [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
   }
-
-  completionHandler();
 }
 
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
@@ -724,7 +704,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 }
 
 #pragma mark
-#pragma mark Remote Notifications iOS 7
+#pragma mark Remote Notifications
 
 #ifdef USE_TI_SILENTPUSH
 // Delegate callback for Silent Remote Notification.
@@ -761,11 +741,10 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
   }
 }
-
 #endif
 
 #pragma mark
-#pragma mark Background Transfer Service iOS 7
+#pragma mark Background Transfer Service
 
 //Delegate callback for Background Transfer completes.
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
@@ -1253,7 +1232,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   return kjsBridge;
 }
 
-#pragma mark Backgrounding
+#pragma mark Background Tasks
 
 - (void)beginBackgrounding
 {
