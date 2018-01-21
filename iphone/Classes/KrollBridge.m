@@ -552,6 +552,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
   prop = TiStringCreateWithCFString((CFStringRef) @"console");
   TiObjectSetProperty(jsContext, globalRef, prop, [KrollObject toValue:kroll value:console], kTiPropertyAttributeNone, NULL);
 
+  // Make the global object itself available under the name "global"
+  TiStringRef globalPropertyName = TiStringCreateWithCFString((CFStringRef) @"global");
+  TiObjectSetProperty(jsContext, globalRef, globalPropertyName, globalRef, kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete, NULL);
+
   //if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
     for (NSString *name in preload) {

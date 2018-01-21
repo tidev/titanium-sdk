@@ -45,21 +45,22 @@ public class TiResponseCache extends ResponseCache
 	private static final String TAG = "TiResponseCache";
 
 	private static final String HEADER_SUFFIX = ".hdr";
-	private static final String BODY_SUFFIX   = ".bdy";
+	private static final String BODY_SUFFIX = ".bdy";
 	private static final String CACHE_SIZE_KEY = "ti.android.cache.size.max";
 	private static final int DEFAULT_CACHE_SIZE = 25 * 1024 * 1024; // 25MB
 	private static final int INITIAL_DELAY = 10000;
 	private static final int CLEANUP_DELAY = 60000;
-	private static HashMap<String, ArrayList<CompleteListener>> completeListeners = new HashMap<String, ArrayList<CompleteListener>>();
+	private static HashMap<String, ArrayList<CompleteListener>> completeListeners =
+		new HashMap<String, ArrayList<CompleteListener>>();
 	private static long maxCacheSize = 0;
 
 	// List of Video Media Formats from http://developer.android.com/guide/appendix/media-formats.html
-	private static final List<String> videoFormats = new ArrayList<String>(Arrays.asList("mkv","webm","3gp","mp4","ts"));
+	private static final List<String> videoFormats =
+		new ArrayList<String>(Arrays.asList("mkv", "webm", "3gp", "mp4", "ts"));
 
 	private static ScheduledExecutorService cleanupExecutor = null;
-	
-	public static interface CompleteListener
-	{
+
+	public static interface CompleteListener {
 		public void cacheCompleted(URI uri);
 	}
 
@@ -69,7 +70,7 @@ public class TiResponseCache extends ResponseCache
 		private long maxSize;
 		public TiCacheCleanup(File cacheDir, long maxSize)
 		{
-			this.cacheDir  = cacheDir;
+			this.cacheDir = cacheDir;
 			this.maxSize = maxSize;
 		}
 
@@ -79,15 +80,15 @@ public class TiResponseCache extends ResponseCache
 			// Build up a list of access times
 			HashMap<Long, File> lastTime = new HashMap<Long, File>();
 			for (File hdrFile : cacheDir.listFiles(new FilenameFilter() {
-					// TODO @Override
-					public boolean accept(File dir, String name) {
-						return name.endsWith(HEADER_SUFFIX);
-					}
-				}))
-			{
+					 // TODO @Override
+					 public boolean accept(File dir, String name)
+					 {
+						 return name.endsWith(HEADER_SUFFIX);
+					 }
+				 })) {
 				lastTime.put(hdrFile.lastModified(), hdrFile);
 			}
-			
+
 			// Ensure that the cache is under the required size
 			List<Long> sz = new ArrayList<Long>(lastTime.keySet());
 			Collections.sort(sz);
@@ -97,7 +98,7 @@ public class TiResponseCache extends ResponseCache
 				File hdrFile = lastTime.get(last);
 				String h = hdrFile.getName().substring(0, hdrFile.getName().lastIndexOf('.')); // Hash
 				File bdyFile = new File(cacheDir, h + BODY_SUFFIX);
-				
+
 				cacheSize += hdrFile.length();
 				cacheSize += bdyFile.length();
 				if (cacheSize > this.maxSize) {
@@ -106,27 +107,26 @@ public class TiResponseCache extends ResponseCache
 				}
 			}
 		}
-		
 	}
-	
-	private static class TiCacheResponse extends CacheResponse {
+
+	private static class TiCacheResponse extends CacheResponse
+	{
 		private Map<String, List<String>> headers;
 		private InputStream istream;
-		
+
 		public TiCacheResponse(Map<String, List<String>> hdrs, InputStream istr)
 		{
 			super();
 			headers = hdrs;
 			istream = istr;
 		}
-		
+
 		@Override
-		public Map<String, List<String>> getHeaders()
-			throws IOException
+		public Map<String, List<String>> getHeaders() throws IOException
 		{
 			return headers;
 		}
-		
+
 		@Override
 		public InputStream getBody() throws IOException
 		{
@@ -137,16 +137,14 @@ public class TiResponseCache extends ResponseCache
 	private static class TiCacheOutputStream extends FileOutputStream
 	{
 		private URI uri;
-		public TiCacheOutputStream(URI uri, File file)
-			throws FileNotFoundException
+		public TiCacheOutputStream(URI uri, File file) throws FileNotFoundException
 		{
 			super(file);
 			this.uri = uri;
 		}
 
 		@Override
-		public void close()
-			throws IOException
+		public void close() throws IOException
 		{
 			super.close();
 			fireCacheCompleted(uri);
@@ -169,8 +167,7 @@ public class TiResponseCache extends ResponseCache
 		}
 
 		@Override
-		public OutputStream getBody()
-			throws IOException
+		public OutputStream getBody() throws IOException
 		{
 			return new TiCacheOutputStream(uri, bFile);
 		}
@@ -183,8 +180,10 @@ public class TiResponseCache extends ResponseCache
 			// whenever the file is closed, successful writes or not
 			if (bFile.length() != this.contentLength) {
 				Log.e(TAG, "Failed to add item to the cache!");
-				if (bFile.exists()) bFile.delete();
-				if (hFile.exists()) hFile.delete();
+				if (bFile.exists())
+					bFile.delete();
+				if (hFile.exists())
+					hFile.delete();
 			}
 		}
 	}
@@ -283,7 +282,8 @@ public class TiResponseCache extends ResponseCache
 
 	public static void addCompleteListener(URI uri, CompleteListener listener)
 	{
-		synchronized (completeListeners) {
+		synchronized (completeListeners)
+		{
 			String hash = DigestUtils.shaHex(uri.toString());
 			if (!completeListeners.containsKey(hash)) {
 				completeListeners.put(hash, new ArrayList<CompleteListener>());
@@ -294,7 +294,8 @@ public class TiResponseCache extends ResponseCache
 
 	private File cacheDir = null;
 
-	public TiResponseCache(File cachedir, TiApplication tiApp) {
+	public TiResponseCache(File cachedir, TiApplication tiApp)
+	{
 		super();
 		assert cachedir.isDirectory() : "cachedir MUST be a directory";
 		cacheDir = cachedir;
@@ -308,10 +309,10 @@ public class TiResponseCache extends ResponseCache
 	}
 
 	@Override
-	public CacheResponse get(URI uri, String rqstMethod,
-			Map<String, List<String>> rqstHeaders) throws IOException 
+	public CacheResponse get(URI uri, String rqstMethod, Map<String, List<String>> rqstHeaders) throws IOException
 	{
-		if (!TiFileHelper2.hasStoragePermission() || uri == null || cacheDir == null) return null;
+		if (!TiFileHelper2.hasStoragePermission() || uri == null || cacheDir == null)
+			return null;
 
 		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
@@ -321,34 +322,34 @@ public class TiResponseCache extends ResponseCache
 		if (videoFormats.contains(fileFormat) && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
 			return null;
 		}
-		
+
 		// Get our key, which is a hash of the URI
 		String hash = DigestUtils.shaHex(uri.toString());
-		
+
 		// Make our cache files
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX);
 		File bFile = new File(cacheDir, hash + BODY_SUFFIX);
-		
+
 		if (!bFile.exists() || !hFile.exists()) {
 			return null;
 		}
 
 		// Read in the headers
 		Map<String, List<String>> headers = readHeaders(hFile);
-		
+
 		// Update the access log
 		hFile.setLastModified(System.currentTimeMillis());
-		
+
 		// Respond with the cache
 		return new TiCacheResponse(headers, new FileInputStream(bFile));
 	}
 
-	private static Map<String, List<String>> readHeaders(File hFile) throws IOException 
+	private static Map<String, List<String>> readHeaders(File hFile) throws IOException
 	{
 		// Read in the headers
 		Map<String, List<String>> headers = new HashMap<String, List<String>>();
 		BufferedReader rdr = new BufferedReader(new FileReader(hFile), 1024);
-		for (String line=rdr.readLine() ; line != null ; line=rdr.readLine()) {
+		for (String line = rdr.readLine(); line != null; line = rdr.readLine()) {
 			String keyval[] = line.split("=", 2);
 			if (keyval.length < 2) {
 				continue;
@@ -361,14 +362,13 @@ public class TiResponseCache extends ResponseCache
 			if (!headers.containsKey(keyval[0])) {
 				headers.put(keyval[0], new ArrayList<String>());
 			}
-			
+
 			headers.get(keyval[0]).add(keyval[1]);
-			
 		}
 		rdr.close();
 		return headers;
 	}
-	
+
 	protected static String getHeader(Map<String, List<String>> headers, String header)
 	{
 		List<String> values = headers.get(header);
@@ -408,7 +408,8 @@ public class TiResponseCache extends ResponseCache
 	@Override
 	public CacheRequest put(URI uri, URLConnection conn) throws IOException
 	{
-		if (cacheDir == null || !TiFileHelper2.hasStoragePermission()) return null;
+		if (cacheDir == null || !TiFileHelper2.hasStoragePermission())
+			return null;
 
 		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
@@ -418,12 +419,12 @@ public class TiResponseCache extends ResponseCache
 		if (videoFormats.contains(fileFormat) && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
 			return null;
 		}
-		
+
 		// Make sure the cacheDir exists, in case user clears cache while app is running
 		if (!cacheDir.exists()) {
 			cacheDir.mkdirs();
 		}
-		
+
 		// Gingerbread 2.3 bug: getHeaderField tries re-opening the InputStream
 		// getHeaderFields() just checks the response itself
 		Map<String, List<String>> headers = makeLowerCaseHeaders(conn.getHeaderFields());
@@ -435,9 +436,10 @@ public class TiResponseCache extends ResponseCache
 		boolean skipTransferEncodingHeader = false;
 		String tEncoding = getHeader(headers, "transfer-encoding");
 		if (tEncoding != null && tEncoding.toLowerCase().equals("chunked")) {
-			skipTransferEncodingHeader = true; // don't put "chunked" transfer-encoding into our header file, else the http connection object that gets our header information will think the data starts with a chunk length specification
+			skipTransferEncodingHeader =
+				true; // don't put "chunked" transfer-encoding into our header file, else the http connection object that gets our header information will think the data starts with a chunk length specification
 		}
-		
+
 		// Form the headers and generate the content length
 		String newl = System.getProperty("line.separator");
 		long contentLength = getHeaderInt(headers, "content-length", 0);
@@ -455,28 +457,30 @@ public class TiResponseCache extends ResponseCache
 		if (contentLength + sb.length() > maxCacheSize) {
 			return null;
 		}
-		
+
 		// Work around an android bug which gives us the wrong URI
 		try {
 			uri = conn.getURL().toURI();
-		} catch (URISyntaxException e) {}
-		
+		} catch (URISyntaxException e) {
+		}
+
 		// Get our key, which is a hash of the URI
 		String hash = DigestUtils.shaHex(uri.toString());
-		
+
 		// Make our cache files
-		File hFile = new File(cacheDir, hash + HEADER_SUFFIX); 
+		File hFile = new File(cacheDir, hash + HEADER_SUFFIX);
 		File bFile = new File(cacheDir, hash + BODY_SUFFIX);
 
 		// Write headers synchronously
 		FileWriter hWriter = new FileWriter(hFile);
 		try {
 			hWriter.write(sb.toString());
-		} finally { 
+		} finally {
 			hWriter.close();
 		}
 
-		synchronized (this) {
+		synchronized (this)
+		{
 			// Don't add it to the cache if its already being written
 			if (!bFile.createNewFile()) {
 				return null;
@@ -484,7 +488,7 @@ public class TiResponseCache extends ResponseCache
 			return new TiCacheRequest(uri, bFile, hFile, contentLength);
 		}
 	}
-	
+
 	public void setCacheDir(File dir)
 	{
 		cacheDir = dir;
@@ -492,7 +496,8 @@ public class TiResponseCache extends ResponseCache
 
 	private static final void fireCacheCompleted(URI uri)
 	{
-		synchronized (completeListeners) {
+		synchronized (completeListeners)
+		{
 			String hash = DigestUtils.shaHex(uri.toString());
 			if (completeListeners.containsKey(hash)) {
 				for (CompleteListener listener : completeListeners.get(hash)) {
