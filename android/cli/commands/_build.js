@@ -3250,42 +3250,6 @@ AndroidBuilder.prototype.copyGradleTemplate = function copyGradleTemplate(next) 
 	fs.chmodSync(path.join(this.buildDir, 'gradlew'), 0o755);
 	fs.chmodSync(path.join(this.buildDir, 'gradlew.bat'), 0o755);
 
-	// Attempt to read the Gradle properties file copied to the build directory above.
-	var propertyArray = [],
-		propertiesFilePath = path.join(this.buildDir, 'gradle', 'wrapper', 'gradle-wrapper.properties');
-	try {
-		if (fs.existsSync(propertiesFilePath)) {
-			propertyArray = fs.readFileSync(propertiesFilePath).toString().split('\n');
-		}
-	} catch (ex) {
-		this.logger.warn(
-				'Unable to read gradle properties file.\n' +
-				'- Path: ' + propertiesFilePath + '\n' +
-				'- Reason: ' + ex.message);
-	}
-
-	// Update the properties file to use the newest version of gradle recommended by Google.
-	var urlKey = 'distributionUrl',
-		urlValue = 'http\://services.gradle.org/distributions/gradle-4.1-all.zip',
-		wasUrlFound = false;
-	for (var index = 0; index < propertyArray.length; index++) {
-		var keyValuePair = propertyArray[index].split('=');
-		if ((keyValuePair.length > 0) && (keyValuePair[0].trim() === urlKey)) {
-			propertyArray[index] = urlKey + '=' + urlValue;
-			wasUrlFound = true;
-		}
-	}
-	if (!wasUrlFound) {
-		propertyArray.push(urlKey + '=' + urlValue);
-	}
-	try {
-		fs.writeFileSync(propertiesFilePath, propertyArray.join('\n'));
-	} catch (ex) {
-		ex.message.split('\n').forEach(this.logger.error);
-		this.logger.log();
-		process.exit(1);
-	}
-
 	next();
 };
 
@@ -4231,12 +4195,12 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			}
 
 			// Create a ProGuard config file.
-			let proguardConfig =
-					'-dontoptimize\n' +
-					'-dontobfuscate\n' +
-					'-dontpreverify\n' +
-					'-dontwarn **\n' +
-					'-libraryjars ' + shrinkedAndroid + '\n';
+			let proguardConfig
+					= '-dontoptimize\n'
+					+ '-dontobfuscate\n'
+					+ '-dontpreverify\n'
+					+ '-dontwarn **\n'
+					+ '-libraryjars ' + shrinkedAndroid + '\n';
 			for (let index = 0; index < injarsCore.length; index++) {
 				proguardConfig += '-injars ' + injarsCore[index] + '(!META-INF/**)\n';
 			}
