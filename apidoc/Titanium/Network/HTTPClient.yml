@@ -505,18 +505,6 @@ properties:
         release in distribution mode.
     platforms: [android, iphone, ipad]
 
-  - name: withCredentials
-    summary: |
-        Determines whether the request should include any cookies and HTTP authentication information.
-    description: |
-        Set to `true` to include cookies and HTTP authentication information with the request.
-
-        This property must be set before open() is called. Setting this to true will force the
-        request to be asynchronous.
-    type: Boolean
-    default: false
-    platforms: []
-
   - name: tlsVersion
     summary: Sets the TLS version to use for handshakes.
     description: |

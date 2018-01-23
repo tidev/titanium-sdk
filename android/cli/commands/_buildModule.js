@@ -548,7 +548,15 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo(next) {
 
 AndroidModuleBuilder.prototype.cleanup = function cleanup(next) {
 	fs.emptyDirSync(this.buildDir);
-	fs.emptyDirSync(this.libsDir);
+
+	// remove old module libraries
+	fs.existsSync(this.libsDir) && this.dirWalker(this.libsDir, function (file) {
+		const libExp = new RegExp('lib' + this.manifest.moduleid + '.so$', 'i');
+		if (libExp.test(file) && fs.existsSync(file)) {
+			this.logger.debug(__('Removing %s', file.cyan));
+			fs.removeSync(file);
+		}
+	}.bind(this));
 
 	this.requiredArchitectures.forEach(function (architecture) {
 		fs.mkdirsSync(path.join(this.libsDir, architecture));
