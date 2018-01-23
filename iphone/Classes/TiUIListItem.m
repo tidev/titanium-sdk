@@ -12,6 +12,9 @@
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "Webcolor.h"
+#ifdef USE_TI_UIACTIVITYINDICATOR
+#import "TiUIActivityIndicator.h"
+#endif
 
 @implementation TiUIListItem {
   TiUIListItemProxy *_proxy;
@@ -91,6 +94,21 @@
 {
   RELEASE_TO_NIL(_dataItem);
   [super prepareForReuse];
+
+#ifdef USE_TI_UIACTIVITYINDICATOR
+  // TIMOB-17572: Attempt to resume activity indicator animation to reuse cell
+  // Use this workaroud until iOS is smart enough to retain the animation state itself
+  if (self.subviews.firstObject != nil) {
+    UIView *container = self.subviews.firstObject;
+    [[container subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+      if ([obj isKindOfClass:[TiUIActivityIndicator class]]) {
+        UIActivityIndicatorView *activityIndicator = [(TiUIActivityIndicator *)obj indicatorView];
+        [activityIndicator startAnimating];
+        *stop = YES;
+      }
+    }];
+  }
+#endif
 }
 
 - (void)layoutSubviews
