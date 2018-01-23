@@ -255,7 +255,6 @@
 
 @property (nonatomic, readonly) NSNumber *ATTRIBUTE_UNDERLINE_STYLE_NONE;
 @property (nonatomic, readonly) NSNumber *ATTRIBUTE_UNDERLINE_STYLE_SINGLE;
-// iOS 7 ----
 @property (nonatomic, readonly) NSNumber *ATTRIBUTE_UNDERLINE_STYLE_THICK;
 @property (nonatomic, readonly) NSNumber *ATTRIBUTE_UNDERLINE_STYLE_DOUBLE;
 @property (nonatomic, readonly) NSNumber *ATTRIBUTE_UNDERLINE_PATTERN_SOLID;
