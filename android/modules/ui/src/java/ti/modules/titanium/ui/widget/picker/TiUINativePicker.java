@@ -101,7 +101,7 @@ public class TiUINativePicker extends TiUIPicker implements OnItemSelectedListen
 	public TiUINativePicker(final TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
-
+		((PickerProxy) proxy).getPreselectedRows().add(0, 0);
 		int spinnerId;
 		try {
 			spinnerId = TiRHelper.getResource("layout.titanium_ui_spinner");
