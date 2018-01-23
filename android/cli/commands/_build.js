@@ -1738,6 +1738,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'processTiSymbols',
 		'copyModuleResources',
 		'removeOldFiles',
+		'copyGradleTemplate',
 		'generateJavaFiles',
 		'generateAidl',
 
@@ -3235,6 +3236,59 @@ AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 	next();
 };
 
+AndroidBuilder.prototype.copyGradleTemplate = function copyGradleTemplate(next) {
+	// Copy Titanium's ProGuard gradle script to the app's build directory.
+	afs.copyFileSync(path.join(this.templatesDir, 'proguard.gradle'), this.buildDir, { logger: this.logger.debug });
+
+	// Copy the gradle template directory tree to the app's build directory.
+	// Note: The copy function does not copy file permissions. So, we must re-add execute permissions.
+	//       0o755 = User Read/Write/Exec, Group Read/Execute, Others Read/Execute
+	afs.copyDirSyncRecursive(path.join(this.platformPath, 'templates', 'gradle'), this.buildDir, {
+		logger: this.logger.debug,
+		preserve: false
+	});
+	fs.chmodSync(path.join(this.buildDir, 'gradlew'), 0o755);
+	fs.chmodSync(path.join(this.buildDir, 'gradlew.bat'), 0o755);
+
+	// Attempt to read the Gradle properties file copied to the build directory above.
+	var propertyArray = [],
+		propertiesFilePath = path.join(this.buildDir, 'gradle', 'wrapper', 'gradle-wrapper.properties');
+	try {
+		if (fs.existsSync(propertiesFilePath)) {
+			propertyArray = fs.readFileSync(propertiesFilePath).toString().split('\n');
+		}
+	} catch (ex) {
+		this.logger.warn(
+				'Unable to read gradle properties file.\n' +
+				'- Path: ' + propertiesFilePath + '\n' +
+				'- Reason: ' + ex.message);
+	}
+
+	// Update the properties file to use the newest version of gradle recommended by Google.
+	var urlKey = 'distributionUrl',
+		urlValue = 'http\://services.gradle.org/distributions/gradle-4.1-all.zip',
+		wasUrlFound = false;
+	for (var index = 0; index < propertyArray.length; index++) {
+		var keyValuePair = propertyArray[index].split('=');
+		if ((keyValuePair.length > 0) && (keyValuePair[0].trim() === urlKey)) {
+			propertyArray[index] = urlKey + '=' + urlValue;
+			wasUrlFound = true;
+		}
+	}
+	if (!wasUrlFound) {
+		propertyArray.push(urlKey + '=' + urlValue);
+	}
+	try {
+		fs.writeFileSync(propertiesFilePath, propertyArray.join('\n'));
+	} catch (ex) {
+		ex.message.split('\n').forEach(this.logger.error);
+		this.logger.log();
+		process.exit(1);
+	}
+
+	next();
+};
+
 AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	if (!this.forceRebuild) {
 		return next();
@@ -4092,8 +4146,11 @@ AndroidBuilder.prototype.runProguard = function runProguard(next) {
 		});
 
 	proguardHook(
-		this.jdkInfo.executables.java,
-		[ '-jar', this.androidInfo.sdk.proguard, '@' + proguardConfigFile ],
+		path.join(this.buildDir, (process.platform === 'win32') ? 'gradlew.bat' : 'gradlew'),
+		[
+			'-b', path.join(this.buildDir, 'proguard.gradle'),
+			'-Pconfiguration=' + proguardConfigFile
+		],
 		{ cwd: this.buildDir },
 		next
 	);
@@ -4124,7 +4181,8 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 		injarsAll = injarsCore.slice().concat(Object.keys(this.moduleJars)),
 		shrinkedAndroid = path.join(path.dirname(this.androidInfo.sdk.dx), 'shrinkedAndroid.jar'),
 		baserules = path.join(path.dirname(this.androidInfo.sdk.dx), '..', 'mainDexClasses.rules'),
-		outjar = path.join(this.buildDir, 'mainDexClasses.jar');
+		outjar = path.join(this.buildDir, 'mainDexClasses.jar'),
+		pathArraySeparator = (process.platform === 'win32') ? ';' : ':';
 	let dexArgs = [
 		'-Xmx' + this.dxMaxMemory,
 		'-XX:-UseGCOverheadLimit',
@@ -4172,23 +4230,29 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				return done();
 			}
 
-			// Run: java
-			// -jar $this.androidInfo.sdk.proguard
-			// -injars "${@}"
-			// -dontwarn -forceprocessing
-			// -outjars ${tmpOut}
-			// -libraryjars "${shrinkedAndroidJar}"
-			// -dontoptimize -dontobfuscate -dontpreverify
-			// -include "${baserules}"
-			appc.subprocess.run(this.jdkInfo.executables.java, [
-				'-jar',
-				this.androidInfo.sdk.proguard,
-				'-injars', injarsCore.join(':'),
-				'-dontwarn', '-forceprocessing',
-				'-outjars', outjar,
-				'-libraryjars', shrinkedAndroid,
-				'-dontoptimize', '-dontobfuscate', '-dontpreverify', '-include',
-				baserules
+			// Create a ProGuard config file.
+			let proguardConfig =
+					'-dontoptimize\n' +
+					'-dontobfuscate\n' +
+					'-dontpreverify\n' +
+					'-dontwarn **\n' +
+					'-libraryjars ' + shrinkedAndroid + '\n';
+			for (let index = 0; index < injarsCore.length; index++) {
+				proguardConfig += '-injars ' + injarsCore[index] + '(!META-INF/**)\n';
+			}
+			proguardConfig += '-outjars ' + outjar + '\n';
+			const mainDexProGuardFilePath = path.join(this.buildDir, 'mainDexProGuard.txt');
+			fs.writeFileSync(mainDexProGuardFilePath, proguardConfig);
+
+			// Run ProGuard via Gradle to create a single JAR of all the main Java classes used by the app.
+			// Note: ProGuard included with the Android SDK is very old (v4.x) and doesn't support loading Java 8 JARs,
+			//       such as the JARs Google provides with Android build-tools v27. Google now acquires the newest
+			//       version of ProGuard via Gradle/Maven, which is kept up to date by the ProGuard maintainers.
+			const gradleAppFileName = (process.platform === 'win32') ? 'gradlew.bat' : 'gradlew';
+			appc.subprocess.run(path.join(this.buildDir, gradleAppFileName), [
+				'-b', path.join(this.buildDir, 'proguard.gradle'),
+				'-Pforceprocessing=true',
+				'-Pconfiguration=' + baserules + pathArraySeparator + mainDexProGuardFilePath
 			], {}, function (code, out, err) {
 				if (code) {
 					this.logger.error(__('Failed to run dexer:'));
@@ -4207,7 +4271,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				return done();
 			}
 
-			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injarsCore.join(':') ], {}, function (code, out, err) {
+			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injarsCore.join(pathArraySeparator) ], {}, function (code, out, err) {
 				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
 				if (code) {
 					this.logger.error(__('Failed to run dexer:'));
