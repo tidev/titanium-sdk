@@ -43,7 +43,7 @@ const appc = require('node-appc'),
 	parallel = appc.async.parallel,
 	series = appc.async.series,
 	version = appc.version;
-const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + '$)'); // eslint-disable-line security/detect-non-literal-regexp
+const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 
 function iOSBuilder() {
@@ -3177,7 +3177,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			outputPaths: [],
 			runOnlyForDeploymentPostprocessing: 0,
 			shellPath: '/bin/sh',
-			shellScript: '"cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\""',
+			shellScript: '"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\""',
 			showEnvVarsInLog: 0
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';

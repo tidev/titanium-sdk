@@ -318,6 +318,7 @@
     searchController.view.hidden = YES;
     [searchController setActive:NO];
   }
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 
   if (searchField != nil) {
     [searchField setDelegate:nil];
@@ -339,16 +340,11 @@
   searchController.searchResultsUpdater = nil;
   searchController.delegate = nil;
   RELEASE_TO_NIL(searchController);
-  RELEASE_TO_NIL(resultViewController);
 
   tableview.delegate = nil;
   tableview.dataSource = nil;
   RELEASE_TO_NIL(tableview);
-
-  _searchTableView.delegate = nil;
-  _searchTableView.dataSource = nil;
-  RELEASE_TO_NIL(_searchTableView);
-
+  RELEASE_TO_NIL(dimmingView);
   RELEASE_TO_NIL(sectionIndex);
   RELEASE_TO_NIL(sectionIndexMap);
   RELEASE_TO_NIL(tableHeaderView);
@@ -416,44 +412,6 @@
   return ([searchController isActive] && searchResultIndexes);
 }
 
-- (UITableView *)searchTableView
-{
-  if (_searchTableView == nil) {
-    id styleObject = [self.proxy valueForKey:@"style"];
-    UITableViewStyle style = [TiUtils intValue:styleObject def:UITableViewStylePlain];
-#ifdef VERBOSE
-    NSLog(@"[DEBUG] Generating a new tableView, and style for %@ is %d", [self.proxy valueForKey:@"style"], style);
-    if (styleObject == nil) {
-      NSLog(@"[WARN] No style object!");
-    }
-#endif
-    _searchTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height) style:style];
-    _searchTableView.delegate = self;
-    _searchTableView.dataSource = self;
-    _searchTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-
-#if IS_XCODE_9
-    if ([TiUtils isIOS11OrGreater]) {
-      _searchTableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-    }
-#endif
-
-    if (TiDimensionIsDip(rowHeight)) {
-      [_searchTableView setRowHeight:rowHeight.value];
-    } else {
-      //TIMOB-17373 rowHeight on iOS8 is -1. Bug??
-      [_searchTableView setRowHeight:44];
-    }
-
-    [_searchTableView setLayoutMargins:UIEdgeInsetsZero];
-
-    if ([TiUtils isIOS9OrGreater]) {
-      _searchTableView.cellLayoutMarginsFollowReadableWidth = NO;
-    }
-  }
-  return _searchTableView;
-}
-
 - (UITableView *)tableView
 {
   if (tableview == nil) {
@@ -474,12 +432,6 @@
     tableview.estimatedRowHeight = 0;
     tableview.estimatedSectionFooterHeight = 0;
     tableview.estimatedSectionHeaderHeight = 0;
-
-#if IS_XCODE_9
-    if ([TiUtils isIOS11OrGreater]) {
-      tableview.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-    }
-#endif
 
     if (TiDimensionIsDip(rowHeight)) {
       [tableview setRowHeight:rowHeight.value];
@@ -712,10 +664,10 @@
     // table reload to the same method. The only time we reloadData, though, is when setting the
     // data, so toggle a flag to indicate what the search should do.
     if (reloadSearch) {
-      [resultViewController.tableView reloadData];
+      [tableview reloadData];
     } else {
-      [resultViewController.tableView reloadSections:[NSIndexSet indexSetWithIndex:0]
-                                    withRowAnimation:UITableViewRowAnimationFade];
+      [[self tableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
+                      withRowAnimation:UITableViewRowAnimationFade];
     }
   } else if (searchHidden) {
     [self hideSearchScreen:nil];
@@ -1146,7 +1098,7 @@
     }
 
     BOOL viaSearch = [searchController isActive];
-    UITableView *theTableView = viaSearch ? resultViewController.tableView : [self tableView];
+    UITableView *theTableView = [self tableView];
     CGPoint point = [recognizer locationInView:theTableView];
     CGPoint pointInView = [recognizer locationInView:self];
     NSIndexPath *indexPath = nil;
@@ -1198,7 +1150,7 @@
 - (void)recognizedTap:(UITapGestureRecognizer *)recognizer
 {
   BOOL viaSearch = [searchController isActive];
-  UITableView *theTableView = viaSearch ? resultViewController.tableView : [self tableView];
+  UITableView *theTableView = [self tableView];
   CGPoint point = [recognizer locationInView:theTableView];
   CGPoint pointInView = [recognizer locationInView:self];
   NSIndexPath *indexPath = nil;
@@ -1485,35 +1437,17 @@
   if (![searchController isActive]) {
     return;
   }
-
+  [dimmingView setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
   UIView *searchSuperView = [searchController.view superview];
   searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
 
-  // Dimming view (transparent view of search controller, which is not exposed) need to manage as it is taking full height of screen always
-  UIView *dimmingView = nil;
-  for (UIView *view in [searchSuperView subviews]) {
-    if ([NSStringFromClass(view.class) hasSuffix:@"UIDimmingView"]) {
-      dimmingView = view;
-      break;
-    }
-  }
-
-  dimmingView.frame = CGRectMake(searchController.view.frame.origin.x, searchController.view.frame.origin.y, self.frame.size.width, self.frame.size.height);
-
   CGFloat width = [searchField view].frame.size.width;
   UIView *view = searchController.searchBar.superview;
   view.frame = CGRectMake(0, 0, width, view.frame.size.height);
   searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
-
-  UIView *resultSuperview = [resultViewController.view superview];
-  if (resultSuperview) {
-    resultSuperview.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
-    resultViewController.tableView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
-  } else {
-    resultViewController.tableView.frame = CGRectMake(0, view.frame.origin.y + searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
-  }
+  [searchField ensureSearchBarHierarchy];
 }
 
 #pragma mark Searchbar-related IBActions
@@ -1851,7 +1785,6 @@
     [searchField setDelegate:nil];
   }
   RELEASE_TO_NIL(searchField);
-  RELEASE_TO_NIL(resultViewController);
   RELEASE_TO_NIL(searchController);
 
   if (search != nil) {
@@ -1880,11 +1813,9 @@
 - (void)initSearhController
 {
   if (searchController == nil) {
-    resultViewController = [[UITableViewController alloc] init];
-    resultViewController.tableView = [self searchTableView];
-    searchController = [[[UISearchController alloc] initWithSearchResultsController:resultViewController] retain];
+    searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
     searchController.hidesNavigationBarDuringPresentation = NO;
-    searchController.dimsBackgroundDuringPresentation = _dimsBackgroundDuringPresentation;
+    searchController.dimsBackgroundDuringPresentation = NO;
     searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
     searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     searchController.searchBar.placeholder = [[searchField searchBar] placeholder];
@@ -1893,8 +1824,15 @@
     searchController.delegate = self;
     searchController.searchResultsUpdater = self;
 
-    [TiUtils configureController:resultViewController withObject:self.proxy];
     [TiUtils configureController:searchController withObject:self.proxy];
+
+    if (_dimsBackgroundDuringPresentation) {
+      [self createDimmingView];
+    }
+
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
+    [nc addObserver:self selector:@selector(keyboardDidChangeFrame:) name:UIKeyboardDidChangeFrameNotification object:nil];
   }
 }
 
@@ -1902,8 +1840,8 @@
 {
   ENSURE_SINGLE_ARG_OR_NIL(arg, NSNumber);
 
-  if (searchController) {
-    searchController.dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
+  if (searchController && [TiUtils boolValue:arg def:YES]) {
+    [self createDimmingView];
   } else {
     _dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
   }
@@ -2408,6 +2346,62 @@
     [searchController.searchBar performSelector:@selector(becomeFirstResponder) withObject:nil afterDelay:.2];
   }
 }
+
+#pragma mark - DimmingView Manage
+
+- (void)createDimmingView
+{
+  if (dimmingView == nil) {
+    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+    dimmingView.backgroundColor = [UIColor blackColor];
+    dimmingView.alpha = .2;
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
+    [dimmingView addGestureRecognizer:tapGesture];
+  }
+}
+
+- (void)showDimmingView
+{
+  dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  if (!dimmingView.superview) {
+    [self addSubview:dimmingView];
+    [self bringSubviewToFront:dimmingView];
+  }
+}
+- (void)hideDimmingView
+{
+  [dimmingView removeFromSuperview];
+}
+
+- (void)dismissSearchController
+{
+  [searchController setActive:NO];
+}
+
+- (void)keyboardWillChangeFrame:(NSNotification *)notification
+{
+  NSDictionary *userInfo = [notification userInfo];
+  CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+
+  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+
+  [self keyboardDidShowAtHeight:height];
+}
+
+- (void)keyboardDidChangeFrame:(NSNotification *)notification
+{
+  NSDictionary *userInfo = [notification userInfo];
+  CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+
+  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+
+  [self keyboardDidShowAtHeight:height];
+}
+
 #pragma mark Delegate
 
 - (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2745,6 +2739,11 @@
 
 #pragma mark - UISearchControllerDelegate
 
+- (void)willDismissSearchController:(UISearchController *)searchController
+{
+  [self hideDimmingView];
+}
+
 - (void)didDismissSearchController:(UISearchController *)searchController
 {
   if (viewWillDetach) {
@@ -2783,6 +2782,7 @@
                                           animated:shouldAnimate
                                         completion:^{
                                           isSearched = YES;
+                                          [self showDimmingView];
                                           [self updateSearchControllerFrames];
                                         }];
 }
@@ -2792,12 +2792,15 @@
 - (void)updateSearchResultsForSearchController:(UISearchController *)controller
 {
   self.searchString = [controller.searchBar text];
-  [self updateSearchResultIndexes];
-  if (controller.isActive) {
-    [resultViewController.tableView reloadData];
-  } else {
-    [tableview reloadData];
+
+  if (self.searchString.length > 0) {
+    [self hideDimmingView];
+  } else if (controller.isActive) {
+    [self showDimmingView];
   }
+
+  [self updateSearchResultIndexes];
+  [tableview reloadData];
 }
 
 @end

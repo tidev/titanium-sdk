@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -120,24 +121,23 @@ public class TiDownloadManager implements Handler.Callback
 
 	protected void handleFireDownloadMessage(URI uri, int what)
 	{
-		ArrayList<SoftReference<TiDownloadListener>> toRemove = new ArrayList<SoftReference<TiDownloadListener>>();
+		String hash = DigestUtils.shaHex(uri.toString());
+		ArrayList<SoftReference<TiDownloadListener>> listenerList;
 		synchronized (listeners)
 		{
-			String hash = DigestUtils.shaHex(uri.toString());
-			ArrayList<SoftReference<TiDownloadListener>> listenerList = listeners.get(hash);
-			for (SoftReference<TiDownloadListener> listener : listenerList) {
-				TiDownloadListener downloadListener = listener.get();
+			listenerList = listeners.get(hash);
+		}
+		if (listenerList != null) {
+			for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext();) {
+				TiDownloadListener downloadListener = i.next().get();
 				if (downloadListener != null) {
 					if (what == MSG_FIRE_DOWNLOAD_FINISHED) {
 						downloadListener.downloadTaskFinished(uri);
 					} else {
 						downloadListener.downloadTaskFailed(uri);
 					}
-					toRemove.add(listener);
+					i.remove();
 				}
-			}
-			for (SoftReference<TiDownloadListener> listener : toRemove) {
-				listenerList.remove(listener);
 			}
 		}
 	}
@@ -186,9 +186,12 @@ public class TiDownloadManager implements Handler.Callback
 				{
 					listenerList = listeners.get(hash);
 				}
-				for (SoftReference<TiDownloadListener> listener : listenerList) {
-					if (listener.get() != null) {
-						listener.get().postDownload(uri);
+				if (listenerList != null) {
+					for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext();) {
+						TiDownloadListener downloadListener = i.next().get();
+						if (downloadListener != null) {
+							downloadListener.postDownload(uri);
+						}
 					}
 				}
 
