@@ -22,7 +22,6 @@
 		15CB44151C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44141C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m */; };
 		15CB44191C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44181C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m */; };
 		1953DD631E0A5E6E00414348 /* TiAppiOSUserActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1953DD621E0A5E6E00414348 /* TiAppiOSUserActivityProxy.m */; };
-		1953DD641E0A5EBA00414348 /* TiAppiOSUserActivityProxy.h in Sources */ = {isa = PBXBuildFile; fileRef = 1953DD611E0A5E6E00414348 /* TiAppiOSUserActivityProxy.h */; };
 		1D0061C1160283820016BBEE /* TiBindingRunLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0061C0160283820016BBEE /* TiBindingRunLoop.m */; };
 		1D1029A815F9769200372EC0 /* TiBindingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D1029A715F9769100372EC0 /* TiBindingEvent.m */; };
 		1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */; };
@@ -2521,7 +2520,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1953DD641E0A5EBA00414348 /* TiAppiOSUserActivityProxy.h in Sources */,
 				AD3174C21D015DA9000D5F1A /* TiCalendarAttendee.m in Sources */,
 				243ECCB21126984E00639DF4 /* TiUITableViewAction.m in Sources */,
 				243ECCB71126986F00639DF4 /* TiFile.m in Sources */,
