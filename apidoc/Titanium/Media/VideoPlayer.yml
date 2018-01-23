@@ -207,7 +207,7 @@ methods:
   - name: thumbnailImageAtTime
     deprecated:
         since: '3.4.2'
-        notes: Use <Titanium.Media.VideoPlayer.mediaControlStyle> instead.
+        notes: Use <Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes> instead.
         removed: '3.6.0'
     summary: Returns a thumbnail image for the video at the specified time.
     platforms: [iphone, ipad]
