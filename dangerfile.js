@@ -1,4 +1,4 @@
-/* global danger, fail, warn, markdown, message, schedule */
+/* global danger, fail, warn, markdown, message */
 'use strict';
 // requires
 const fs = require('fs-extra');

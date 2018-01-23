@@ -684,7 +684,7 @@ class FrameworkIntegrator {
 
 		let scriptPhaseUuid = this._builder.generateXcodeUuid();
 		let shellPath = '/bin/sh';
-		let shellScript = 'bash "' + stripFrameworksScriptPath + '"';
+		let shellScript = '/bin/bash "' + stripFrameworksScriptPath + '"';
 
 		this._xobjs.PBXShellScriptBuildPhase = this._xobjs.PBXShellScriptBuildPhase || {};
 		this._xobjs.PBXShellScriptBuildPhase[scriptPhaseUuid] = {
