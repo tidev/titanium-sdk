@@ -47,6 +47,12 @@ public class TiBorderWrapperView extends FrameLayout
 
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		bounds = new Rect();
+
+		// TIMOB-25661: disable hardware acceleration to prevent broken
+		// animation behaviour on Android 7.0 and above
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		}
 	}
 
 	@Override

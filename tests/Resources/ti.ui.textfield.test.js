@@ -251,7 +251,7 @@ describe('Titanium.UI.TextField', function () {
 	});
 
 	// Tests adding and removing a TextField's focus.
-	it.windowsDesktopBroken('focus-blur', function (finish) {
+	it.ios('focus-blur', function (finish) {
 		var textField;
 		this.timeout(5000);
 		win = Ti.UI.createWindow({ layout: 'vertical' });
