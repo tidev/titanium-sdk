@@ -1,0 +1,177 @@
+/**
+ * Appcelerator Titanium Mobile
+ * Copyright (c) 2018 by Appcelerator, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+#import "TiAppWorkerProxy.h"
+
+@implementation TiAppWorkerProxy
+
+#pragma mark Public APIs
+
+- (void)terminate:(id)unused
+{
+  dispatch_async(_serialQueue, ^{
+    if (_bridge) {
+      _booted = NO;
+      [_bridge enqueueEvent:@"terminated" forProxy:_selfProxy withObject:unused];
+
+      // we need to give time to process the terminated event
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [self contextShutdown:nil];
+      });
+
+      [self fireEvent:@"terminated"];
+    }
+  });
+}
+
+- (void)postMessage:(id)message
+{
+  ENSURE_SINGLE_ARG(message, NSObject);
+
+  dispatch_async(_serialQueue, ^{
+    if (_booted) {
+      [_bridge enqueueEvent:@"message" forProxy:_selfProxy withObject:@{ @"data" : message }];
+    } else {
+      dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+      dispatch_async(queue, ^{
+        [self postMessage:message];
+      });
+    }
+  });
+}
+
+- (void)setOnerror:(id)onErrorCallback
+{
+  _onErrorCallback = onErrorCallback;
+}
+
+- (void)setOnmessage:(id)onMessageCallback
+{
+  _onMessageCallback = onMessageCallback;
+}
+
+- (void)setOnmessageerror:(id)onMessageErrorCallback
+{
+  _onMessageErrorCallback = onMessageErrorCallback;
+}
+
+#pragma mark Private APIs
+
+- (NSString *)makeTemp:(NSData *)data
+{
+  NSString *tempDir = NSTemporaryDirectory();
+  NSError *error = nil;
+
+  if (![[NSFileManager defaultManager] fileExistsAtPath:tempDir]) {
+    [[NSFileManager defaultManager] createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error];
+    if (error != nil) {
+      [_onErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorInvalidTemporaryDirectory) } ] thisObject:self];
+      return nil;
+    }
+  }
+
+  int timestamp = (int)(time(NULL) & 0xFFFFL);
+  NSString *resultPath;
+  do {
+    resultPath = [tempDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%X", timestamp]];
+    timestamp++;
+  } while ([[NSFileManager defaultManager] fileExistsAtPath:resultPath]);
+
+  [data writeToFile:resultPath options:NSDataWritingFileProtectionComplete error:&error];
+
+  if (error != nil) {
+    [_onErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorInvalidTemporaryDirectory) } ] thisObject:self];
+    return nil;
+  }
+  return resultPath;
+}
+
+- (id)initWithPath:(NSString *)path host:(id)host pageContext:(id<TiEvaluator>)_pageContext
+{
+  if ((self = [super _initWithPageContext:_pageContext])) {
+    if (path == nil || [path isEqualToString:@""]) {
+      [_onErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorInvalidPath) } ] thisObject:self];
+      return;
+    }
+
+    if (host == nil) {
+      [_onErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorInvalidHost) } ] thisObject:self];
+      return;
+    }
+
+    if (_pageContext == nil) {
+      [_onErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorInvalidContext) } ] thisObject:self];
+      return;
+    }
+
+    // The kroll bridge is effectively our JS thread environment
+    _bridge = [[KrollBridge alloc] initWithHost:host];
+    NSURL *_url = [TiUtils toURL:path proxy:self];
+
+    _serialQueue = dispatch_queue_create("ti.worker", DISPATCH_QUEUE_SERIAL);
+    _selfProxy = [[TiAppWorkerSelfProxy alloc] initWithParent:self url:path pageContext:_bridge];
+
+    NSData *data = [TiUtils loadAppResource:_url];
+    if (data == nil) {
+      data = [NSData dataWithContentsOfURL:_url];
+    }
+
+    NSString *source = nil;
+    NSError *error = nil;
+    if (data == nil) {
+      source = [NSString stringWithContentsOfFile:[_url path] encoding:NSUTF8StringEncoding error:&error];
+    } else {
+      source = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    }
+
+    // pull it in to some wrapper code so we can provide a start function and pre-define some variables/functions
+    NSString *wrapper = [NSString stringWithFormat:@"function TiAppWorkerStart__() { var worker = Ti.App.currentWorker; worker.nextTick = function(t) { setTimeout(t,0); }; %@ };", source];
+
+    // we delete file below when booted
+    _tempFile = [self makeTemp:[wrapper dataUsingEncoding:NSUTF8StringEncoding]];
+    NSURL *tempurl = [NSURL fileURLWithPath:_tempFile isDirectory:NO];
+
+    // start the boot which will run on its own thread automatically
+    [_bridge boot:self url:tempurl preload:@{ @"App" : @{ @"currentWorker" : _selfProxy } }];
+  }
+  return self;
+}
+
+- (KrollBridge *)_bridge
+{
+  return _bridge;
+}
+
+- (void)booted:(id)bridge
+{
+  // this callback is called when the thread is up and running
+  dispatch_async(_serialQueue, ^{
+    _booted = YES;
+    [_selfProxy setExecutionContext:_bridge];
+    [[NSFileManager defaultManager] removeItemAtPath:_tempFile error:nil];
+  });
+
+  // start our JS processing
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [_bridge evalJSWithoutResult:@"TiAppWorkerStart__();"];
+  });
+}
+
+- (void)fireMessageCallback:(NSDictionary *)messageEvent error:(NSError *)error
+{
+  dispatch_async(_serialQueue, ^{
+    if (_booted) {
+      if (error != nil) {
+        [_onMessageErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorCannotSerialize) } ] thisObject:self];
+      } else {
+        [_onMessageCallback call:@[ @{ @"data" : messageEvent } ] thisObject:self];
+      }
+    }
+  });
+}
+
+@end

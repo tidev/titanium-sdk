@@ -319,6 +319,8 @@
 		DADE76D413D65C590079FC75 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DADE76D313D65C590079FC75 /* libicucore.dylib */; };
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DB0D54951F3B4A3D00E2B771 /* TiUIToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */; };
+		DB8B316820192626004FE6DB /* TiAppWorkerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB8B316720192626004FE6DB /* TiAppWorkerProxy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		DB8B316E201926D1004FE6DB /* TiAppWorkerSelfProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB8B316D201926D1004FE6DB /* TiAppWorkerSelfProxy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		DB90749F1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */; };
 		DBCFCB7C1F8261BF00A4CE61 /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = DBCFCB7B1F8261BF00A4CE61 /* SBJSON.m */; };
 		EF0ADCFA143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
@@ -963,6 +965,10 @@
 		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
 		DB0D54931F3B4A3D00E2B771 /* TiUIToolbarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIToolbarProxy.h; sourceTree = "<group>"; };
 		DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIToolbarProxy.m; sourceTree = "<group>"; };
+		DB8B316620192626004FE6DB /* TiAppWorkerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppWorkerProxy.h; sourceTree = "<group>"; };
+		DB8B316720192626004FE6DB /* TiAppWorkerProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppWorkerProxy.m; sourceTree = "<group>"; };
+		DB8B316C201926D1004FE6DB /* TiAppWorkerSelfProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiAppWorkerSelfProxy.h; sourceTree = "<group>"; };
+		DB8B316D201926D1004FE6DB /* TiAppWorkerSelfProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiAppWorkerSelfProxy.m; sourceTree = "<group>"; };
 		DB90749D1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSFeedbackGeneratorProxy.h; sourceTree = "<group>"; };
 		DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSFeedbackGeneratorProxy.m; sourceTree = "<group>"; };
 		DBCFCB7A1F8261BF00A4CE61 /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SBJSON.h; path = ../Classes/SBJSON.h; sourceTree = "<group>"; };
@@ -1380,11 +1386,11 @@
 		24CA8C0F111163B50084E2DE /* App */ = {
 			isa = PBXGroup;
 			children = (
-				24ADC50F1299F5A50014DB75 /* iOS */,
 				24CA8B56111161FE0084E2DE /* AppModule.m */,
 				24CA8B57111161FE0084E2DE /* AppModule.h */,
-				24CA8AE4111161FE0084E2DE /* TiAppPropertiesProxy.m */,
-				24CA8AE5111161FE0084E2DE /* TiAppPropertiesProxy.h */,
+				24ADC50F1299F5A50014DB75 /* iOS */,
+				DB8B316920192632004FE6DB /* Worker */,
+				DB8B316A2019263D004FE6DB /* Properties */,
 			);
 			name = App;
 			sourceTree = "<group>";
@@ -2412,6 +2418,34 @@
 			name = Toolbar;
 			sourceTree = "<group>";
 		};
+		DB8B316920192632004FE6DB /* Worker */ = {
+			isa = PBXGroup;
+			children = (
+				DB8B316B201926BE004FE6DB /* Internal */,
+				DB8B316620192626004FE6DB /* TiAppWorkerProxy.h */,
+				DB8B316720192626004FE6DB /* TiAppWorkerProxy.m */,
+			);
+			name = Worker;
+			sourceTree = "<group>";
+		};
+		DB8B316A2019263D004FE6DB /* Properties */ = {
+			isa = PBXGroup;
+			children = (
+				24CA8AE4111161FE0084E2DE /* TiAppPropertiesProxy.m */,
+				24CA8AE5111161FE0084E2DE /* TiAppPropertiesProxy.h */,
+			);
+			name = Properties;
+			sourceTree = "<group>";
+		};
+		DB8B316B201926BE004FE6DB /* Internal */ = {
+			isa = PBXGroup;
+			children = (
+				DB8B316C201926D1004FE6DB /* TiAppWorkerSelfProxy.h */,
+				DB8B316D201926D1004FE6DB /* TiAppWorkerSelfProxy.m */,
+			);
+			name = Internal;
+			sourceTree = "<group>";
+		};
 		DBCFCB791F8261AB00A4CE61 /* SBJSON */ = {
 			isa = PBXGroup;
 			children = (
@@ -2525,6 +2559,7 @@
 				243ECCB71126986F00639DF4 /* TiFile.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				24CA895B111161050084E2DE /* AFItemView.m in Sources */,
+				DB8B316E201926D1004FE6DB /* TiAppWorkerSelfProxy.m in Sources */,
 				24CA895C111161050084E2DE /* AFOpenFlowView.m in Sources */,
 				24CA895D111161050084E2DE /* AFUIImageReflection.m in Sources */,
 				84A00FF517FB675E00D4BF94 /* TiSnapBehavior.m in Sources */,
@@ -2723,6 +2758,7 @@
 				DA864E3211A2314A00B9CD68 /* TiMediaMusicPlayer.m in Sources */,
 				823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */,
 				DAA905CE11A359F10030B119 /* TiMediaItem.m in Sources */,
+				DB8B316820192626004FE6DB /* TiAppWorkerProxy.m in Sources */,
 				B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
 				84EB08011A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */,
 				242E967711BAD2F20046A0D0 /* AsyncSocket.m in Sources */,

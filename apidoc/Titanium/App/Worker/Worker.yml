@@ -1,0 +1,72 @@
+---
+name: Titanium.App.Worker
+summary: |
+    The Worker API is made to realize multi-threading in Titanium applications.
+description: |
+    This API is designed to be used when applications need to process 
+    multi-threaded application logic in the background from the main application 
+    thread. These threads are typically expensive, long-lived tasks which can be 
+    executed independent of the application processing or the main UI thread.
+
+    It is important to note that even though you can use this library to create 
+    worker threads, any processing or rendering that must be done by the UI will 
+    always continue to be single-threaded by the host OS and executed on the 
+    main "UI thread", regardless of how many parallel threads are used in the background.
+extends: Titanium.Proxy
+since: "7.1.0"
+
+methods:
+  - name: postMessage
+    summary: Sends a message to the worker's inner scope.
+    description: |
+        The data may be any value or JavaScript object handled by the structured 
+        clone algorithm, which includes cyclical references.
+    parameters:
+      - name: message
+        summary: The message to post to the worker.
+        type: String  
+        
+  - name: terminate
+    summary: Immediately terminates the Worker.
+    description: |
+        This does not offer the worker an opportunity to finish its operations; 
+        it is simply stopped at once.
+
+properties:
+  - name: onerror
+    summary: Callback function to be called when the error event occurs and bubbles through the Worker.
+    type: Callback<TiWorkerErrorCallback>
+  
+  - name: onmessage
+    summary: Callback function to be called when the message event occurs. 
+    description: |
+        These events will be called when the worker's parent receives a message 
+        (i.e. from the <Titanium.App.Worker.postMessage> method.
+    type: Callback<TiWorkerMessageCallback>
+  
+  - name: onmessageerror
+    summary: Callback function to be called when the Worker receives a message that cannot be deserialized.
+    type: Callback<TiWorkerErrorCallback>
+
+events:
+  - name: terminated
+    summary: Called when the worker terminates. This event does not include any properties.
+
+---
+name: TiWorkerErrorCallback
+summary: Argument passed to the callback when a worker terminates with an error.
+extends: ErrorResponse
+
+---
+name: TiWorkerMessageCallback
+summary: Argument passed to the callback when a worker terminates with an error.
+extends: ErrorResponse
+properties:
+  - name: data
+    summary: The data returned by the worker.
+    type: Dictionary
+
+---
+name: TiWorkerMessageErrorCallback
+summary: Argument passed to the callback when a worker terminates with an error.
+extends: ErrorResponse

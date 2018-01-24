@@ -10,6 +10,7 @@
 #import "ListenerEntry.h"
 #import "TiApp.h"
 #import "TiHost.h"
+#import "TiAppWorkerProxy.h"
 #if defined(USE_TI_APPIOS)
 #import "TiAppiOSProxy.h"
 #endif
@@ -560,6 +561,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
 }
 
+- (TiAppWorkerProxy *)createWorker:(id)args
+{
+  ENSURE_SINGLE_ARG(args,NSString);
+  return [[[TiAppWorkerProxy alloc] initWithPath:args host:[self _host] pageContext:[self executionContext]] autorelease];
+}
+
 - (void)setForceSplashAsSnapshot:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSNumber)
@@ -583,6 +590,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_ANNOUNCEMENT, @"accessibilityannouncement");
 MAKE_SYSTEM_STR(EVENT_ACCESSIBILITY_CHANGED, @"accessibilitychanged");
+
+MAKE_SYSTEM_PROP(WORKER_ERROR_INVALID_PATH, 0);
+MAKE_SYSTEM_PROP(WORKER_ERROR_INVALID_HOST, 1);
+MAKE_SYSTEM_PROP(WORKER_ERROR_INVALID_CONTEXT, 2);
+MAKE_SYSTEM_PROP(WORKER_ERROR_INVALID_TEMPORARY_DIRECTORY, 3);
+MAKE_SYSTEM_PROP(WORKER_ERROR_CANNOT_SERIALIZE, 4);
 
 @end
 
