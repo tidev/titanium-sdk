@@ -6,9 +6,11 @@
  */
 
 #import "TiViewTemplate.h"
+#import "TiModule.h"
 
 @implementation TiViewTemplate {
   NSString *_type;
+  NSString *_module;
   NSMutableDictionary *_properties;
   NSMutableDictionary *_events;
   NSMutableArray *_childTemplates;
@@ -18,6 +20,7 @@
 @synthesize properties = _properties;
 @synthesize events = _events;
 @synthesize childTemplates = _childTemplates;
+@synthesize module = _module;
 
 - (id)initWithViewTemplate:(NSDictionary *)viewTemplate
 {
@@ -31,6 +34,7 @@
 - (void)dealloc
 {
   [_type release];
+  [_module release];
   [_properties release];
   [_events release];
   [_childTemplates release];
@@ -53,6 +57,17 @@
 
   [_type release];
   _type = [[viewTemplate objectForKey:@"type"] copy];
+
+  if ([viewTemplate objectForKey:@"module"] != nil) {
+    RELEASE_TO_NIL(_module);
+    TiModule *moduleCore = [viewTemplate objectForKey:@"module"];
+    NSString *className = NSStringFromClass([moduleCore class]);
+    if (![className containsString:@"Module"]) {
+      NSLog(@"[ERROR] Invalid \"module\" key provided to item-template.");
+    }
+    className = [className substringWithRange:NSMakeRange(0, [className rangeOfString:@"Module"].location)];
+    _module = [className copy];
+  }
 
   id properties = [viewTemplate objectForKey:@"properties"];
   if ([properties isKindOfClass:[NSDictionary class]]) {

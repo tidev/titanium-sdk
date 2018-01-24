@@ -85,6 +85,30 @@ description: |
     or <Titanium.UI.ListView.defaultItemTemplate> property: <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>,
     <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
 
+    #### External Modules (Titanium 7.1.0 and later)
+    
+    In addition to using one of the predefined view classes, you can also pass module views to your list
+    item template. For example, use the Ti.Map module to show a map-view in your list view:
+      
+        var map = require('ti.map');
+
+        var myTemplate = {
+          childTemplates: [{
+            type: 'View', // The name of the module view class to use
+            module: map, // Your module instance
+            bindId: 'myMap' // The ID to reference it (like other child templates)
+          }]
+        };
+
+        var listView = Ti.UI.createListView({
+          templates: {
+            'template': myTemplate
+          },
+          defaultItemTemplate: 'template'
+        });
+    
+    For example, use 'View' if you would usually create it with `map.createView()`;
+
     #### Eventing
 
     Unlike other views, you cannot use the `addEventListener` method to bind callbacks to events for a
@@ -511,6 +535,49 @@ examples:
 
             win.add(listView);
             win.open();
+            
+  - title: List Items with a module-based Item Template
+    example: |
+        This example shows how to use a view from an external module (in this case Ti.Map)
+        in your list item template.
+
+        Monitors the `click` event of the item rather than the `itemclick` event of the list view.
+
+            var map = require('ti.map');
+            var win = Ti.UI.createWindow({
+              backgroundColor: 'white'
+            });
+
+            var myTemplate = {
+              childTemplates: [{
+                type: 'View',
+                module: map,
+                bindId: 'map',
+                properties: {}
+              }]
+            };
+
+            var listView = Ti.UI.createListView({
+              templates: {
+                'template': myTemplate
+              },
+              defaultItemTemplate: 'template'
+            });
+            var sections = [];
+
+            var fruitSection = Ti.UI.createListSection();
+            var fruitDataSet = [{
+              map: {
+                width: Ti.UI.FILL,
+                height: 100
+              }
+            }, ];
+            fruitSection.setItems(fruitDataSet);
+            sections.push(fruitSection);
+
+            listView.setSections(sections);
+            win.add(listView);
+            win.open();
 
 ---
 name: ItemTemplate
@@ -570,6 +637,7 @@ properties:
           * <Titanium.UI.iOS.Stepper>
           * <Titanium.UI.iOS.TabbedBar>
           
+        Alternatively, use the view class of the module defined under the `module` key (Titanium 7.1.0 and later).
     type: String
     optional: false
 
@@ -594,6 +662,11 @@ properties:
         Contains an array of subview templates to be added (in order) as children to this view.
     type: Array<ViewTemplate>
 
+  - name: module
+    summary: |
+        The module instance used to determine where to instantiate the view class defined in `type`.
+    description: Available in Titanium SDK 7.1.0 and later.
+    type: Titanium.Module
 
 ---
 name: ListDataItem

@@ -9,6 +9,7 @@
 @interface TiViewTemplate : TiProxy
 
 @property (nonatomic, readonly) NSString *type;
+@property (nonatomic, readonly) NSString *module;
 @property (nonatomic, readonly) NSDictionary *properties;
 @property (nonatomic, readonly) NSDictionary *events;
 @property (nonatomic, readonly) NSArray *childTemplates;

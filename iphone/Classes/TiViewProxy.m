@@ -2935,7 +2935,16 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   }
 
   if (viewTemplate.type != nil) {
-    TiViewProxy *proxy = [[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
+    TiViewProxy *proxy = nil;
+
+    // Handle module views or core-views
+    if (viewTemplate.module != nil) {
+      NSString *proxyName = [NSString stringWithFormat:@"%@%@", viewTemplate.module, viewTemplate.type];
+      proxy = [[self class] createProxy:proxyName withProperties:nil inContext:context];
+    } else {
+      proxy = [[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
+    }
+
     [context.krollContext invokeBlockOnThread:^{
       [context registerProxy:proxy];
       [proxy rememberSelf];
