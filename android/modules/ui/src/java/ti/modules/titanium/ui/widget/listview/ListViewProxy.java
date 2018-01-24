@@ -28,6 +28,7 @@ import android.app.Activity;
 import android.os.Message;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
+	TiC.PROPERTY_CAN_SCROLL,
 	TiC.PROPERTY_HEADER_TITLE,
 	TiC.PROPERTY_FOOTER_TITLE,
 	TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
@@ -464,19 +465,7 @@ public class ListViewProxy extends TiViewProxy {
 			
 		}
 	}
-	
-	@Kroll.method @Kroll.setProperty
-	public void setCanScroll(boolean canScroll)
-	{
-		setProperty(TiC.PROPERTY_CAN_SCROLL, canScroll);
-	}
-	
-	@Kroll.method @Kroll.getProperty
-	public boolean getCanScroll()
-	{
-		return (Boolean) getProperty(TiC.PROPERTY_CAN_SCROLL);
-	}
-	
+
 	private ListSectionProxy[] handleSections()
 	{
 		if (peekView() == null && getParent() != null) {

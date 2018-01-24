@@ -15,8 +15,8 @@ def isMainlineBranch = true // used to determine if we should publish to S3 (and
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json
 
 // Variables we can change
-def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
-def npmVersion = '5.4.1' // We can change this without any changes to Jenkins.
+def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def npmVersion = '5.6.0' // We can change this without any changes to Jenkins.
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
@@ -71,6 +71,8 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 						} finally {
 							// Kill the emulators!
 							if ('android'.equals(os)) {
+								sh 'adb shell am force-stop com.appcelerator.testApp.testing'
+								sh 'adb uninstall com.appcelerator.testApp.testing'
 								sh 'killall -9 emulator || echo ""'
 								sh 'killall -9 emulator64-arm || echo ""'
 								sh 'killall -9 emulator64-x86 || echo ""'
@@ -147,11 +149,21 @@ timestamps {
 						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
 						sh 'npm install'
 					}
-					// Stash files for danger.js later
-					if (isPR) {
-						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js', name: 'danger'
+					// Run npm test, but record output in a file and check for failure of command by checking output
+					if (fileExists('npm_test.log')) {
+						sh 'rm -rf npm_test.log'
 					}
-					sh 'npm test' // Run linting first // TODO Record the eslint output somewhere for danger to use later?
+					def npmTestResult = sh(returnStatus: true, script: 'npm test &> npm_test.log')
+					if (isPR) { // Stash files for danger.js later
+						stash includes: 'node_modules/,package.json,package-lock.json,dangerfile.js,npm_test.log,android/**/*.java', name: 'danger'
+					}
+					// was it a failure?
+					if (npmTestResult != 0) {
+						// empty stashes of test reports, so danger step can still run.
+						stash allowEmpty: true, name: 'test-report-ios'
+						stash allowEmpty: true, name: 'test-report-android'
+						error readFile('npm_test.log')
+					}
 				}
 
 				// Skip the Windows SDK portion if a PR, we don't need it
@@ -420,9 +432,18 @@ timestamps {
 			stage('Danger') {
 				node('osx || linux') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						unstash 'danger' // this gives us dangerfile.js, package.json, package-lock.json, node_modules/
-						unstash 'test-report-ios' // junit.ios.report.xml
-						unstash 'test-report-android' // junit.android.report.xml
+						unstash 'danger' // this gives us dangerfile.js, package.json, package-lock.json, node_modules/, android java sources for format check
+						// ok to not grab crash logs, still run Danger.JS
+						try {
+							unarchive mapping: ['mocha_*.crash': '.'] // unarchive any iOS simulator crashes
+						} catch (e) {}
+						// ok to not grab test results, still run Danger.JS
+						try {
+							unstash 'test-report-ios' // junit.ios.report.xml
+						} catch (e) {}
+						try {
+							unstash 'test-report-android' // junit.android.report.xml
+						} catch (e) {}
 						sh "npm install -g npm@${npmVersion}"
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
@@ -430,7 +451,7 @@ timestamps {
 						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}", "ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}"]) {
 							// FIXME Can't pass along env variables properly, so we cheat and write them as a JSON file we can require
 							sh 'node -p \'JSON.stringify(process.env)\' > env.json'
-							sh 'npx danger'
+							sh returnStatus: true, script: 'npx danger' // Don't fail build if danger fails. We want to retain existign build status.
 						} // withEnv
 					} // nodejs
 					deleteDir()
