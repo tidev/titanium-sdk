@@ -675,7 +675,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   }
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
 // Activity Type for CLlocationManager.
 - (NSNumber *)activityType
 {
@@ -706,7 +705,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   },
       NO);
 }
-#endif
 
 - (void)restart:(id)arg
 {
@@ -731,15 +729,12 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS, kCLLocationAccuracyThreeKilomete
 MAKE_SYSTEM_PROP_DBL(ACCURACY_LOW, kCLLocationAccuracyThreeKilometers);
 MAKE_SYSTEM_PROP(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation); //Since 2.1.3
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_2
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);
-MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorized);
+MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorizedAlways);
+MAKE_SYSTEM_PROP(AUTHORIZATION_WHEN_IN_USE, kCLAuthorizationStatusAuthorizedWhenInUse);
+MAKE_SYSTEM_PROP(AUTHORIZATION_ALWAYS, kCLAuthorizationStatusAuthorizedAlways);
 MAKE_SYSTEM_PROP(AUTHORIZATION_DENIED, kCLAuthorizationStatusDenied);
 MAKE_SYSTEM_PROP(AUTHORIZATION_RESTRICTED, kCLAuthorizationStatusRestricted);
-#else
-// We only need auth unknown, because that's all the system will return.
-MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, 0);
-#endif
 
 MAKE_SYSTEM_PROP(ERROR_LOCATION_UNKNOWN, kCLErrorLocationUnknown);
 MAKE_SYSTEM_PROP(ERROR_DENIED, kCLErrorDenied);
@@ -750,22 +745,10 @@ MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DENIED, kCLErrorRegionMonitoringDenied)
 MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_FAILURE, kCLErrorRegionMonitoringFailure);
 MAKE_SYSTEM_PROP(ERROR_REGION_MONITORING_DELAYED, kCLErrorRegionMonitoringSetupDelayed);
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
 MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER, CLActivityTypeOther);
 MAKE_SYSTEM_PROP(ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION, CLActivityTypeAutomotiveNavigation);
 MAKE_SYSTEM_PROP(ACTIVITYTYPE_FITNESS, CLActivityTypeFitness);
 MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
-#endif
-
-- (NSNumber *)AUTHORIZATION_ALWAYS
-{
-  return NUMINT(kCLAuthorizationStatusAuthorizedAlways);
-}
-
-- (NSNumber *)AUTHORIZATION_WHEN_IN_USE
-{
-  return NUMINT(kCLAuthorizationStatusAuthorizedWhenInUse);
-}
 
 - (CLLocationManager *)locationPermissionManager
 {
@@ -823,7 +806,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
   if (requestedAuthorizationStatus == kCLAuthorizationStatusAuthorizedWhenInUse) {
     if ([GeolocationModule hasWhenInUsePermissionKeys]) {
-      if ((currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) || (currentPermissionLevel == kCLAuthorizationStatusAuthorized)) {
+      if (currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) {
         errorMessage = @"Cannot change already granted permission from AUTHORIZATION_ALWAYS to the lower permission-level AUTHORIZATION_WHEN_IN_USE";
       } else {
         TiThreadPerformOnMainThread(^{
@@ -1020,8 +1003,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 #pragma mark Delegates
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
-
 - (void)locationManagerDidPauseLocationUpdates:(CLLocationManager *)manager
 {
   if ([self _hasListeners:@"locationupdatepaused"]) {
@@ -1035,8 +1016,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     [self fireEvent:@"locationupdateresumed" withObject:nil];
   }
 }
-
-#endif
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {

@@ -8,13 +8,11 @@
 @import Foundation;
 @import CoreLocation;
 
-
 /** Constant indicating development deployment */
 extern NSString * const APSDeployTypeDevelopment;
 
 /** Constant indicating production deployment */
 extern NSString * const APSDeployTypeProduction;
-
 
 /**
  * The APSAnalytics class configures the application to use the APS analytic services
@@ -28,7 +26,7 @@ extern NSString * const APSDeployTypeProduction;
 /**
  * Return the singleton instance to the real-time analytics service.
  */
-+(instancetype) sharedInstance;
++ (instancetype) sharedInstance;
 
 /**
  * The session timeout in seconds. If the application has been in the background
@@ -49,7 +47,7 @@ extern NSString * const APSDeployTypeProduction;
  * @param location A CLLocation object containing the location data.
  */
 
--(void)sendAppGeoEvent:(CLLocation *) location;
+- (void)sendAppGeoEvent:(CLLocation *) location;
 
 /**
  * Sends a navigation event
@@ -58,7 +56,7 @@ extern NSString * const APSDeployTypeProduction;
  * @param eventName String describing the event.
  * @param payload Extra data to send. You can only send strings and numbers.
  */
--(void)sendAppNavEventFromView:(NSString *)firstView
+- (void)sendAppNavEventFromView:(NSString *)firstView
                         toView:(NSString *)secondView
                       withName:(NSString *)eventName
                        payload:(NSDictionary *)payload;
@@ -68,7 +66,14 @@ extern NSString * const APSDeployTypeProduction;
  * @param eventName String describing the event.
  * @param payload Extra data to send. You can only send strings and numbers.
  */
--(void)sendAppFeatureEvent:(NSString *)eventName
+- (void)sendAppFeatureEvent:(NSString *)eventName
                    payload:(NSDictionary *)payload;
+
+/**
+ * Enables Analytics with a given app-key and deploy-type.
+ * @param appKey The APSAnalytics app-key.
+ * @param deployTime The deploy-type of the application.
+ */
+-(void)enableWithAppKey:(NSString *)appKey andDeployType:(NSString *)deployType;
 
 @end

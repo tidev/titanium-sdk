@@ -60,20 +60,7 @@ static NSDictionary *TI_itemProperties;
 static NSDictionary *TI_filterableItemProperties;
 #endif
 
-#pragma mark - Backwards compatibility for pre-iOS 7.0
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_7_0
-
-@protocol AVAudioSessionIOS7Support <NSObject>
-@optional
-- (void)requestRecordPermission:(PermissionBlock)response;
-typedef void (^PermissionBlock)(BOOL granted)
-    @end
-
-#endif
-
-    @interface TiImagePickerController : UIImagePickerController
-{
+@interface TiImagePickerController : UIImagePickerController {
   @private
   BOOL autoRotate;
 }
@@ -263,6 +250,12 @@ MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNo
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
 
 #endif
+
+// Constants for VideoPlayer.playbackState
+MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_INTERRUPTED, TiVideoPlayerPlaybackStateInterrupted);
+MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PAUSED, TiVideoPlayerPlaybackStatePaused);
+MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PLAYING, TiVideoPlayerPlaybackStatePlaying);
+MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_STOPPED, TiVideoPlayerPlaybackStateStopped);
 
 //Constants for Camera
 #if defined(USE_TI_MEDIACAMERA_FRONT) || defined(USE_TI_MEDIACAMERA_REAR) || defined(USE_TI_MEDIACAMERA_FLASH_OFF) || defined(USE_TI_MEDIACAMERA_FLASH_AUTO) || defined(USE_TI_MEDIACAMERA_FLASH_ON)
@@ -598,9 +591,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-/**
- Check if camera is authorized, only available for >= iOS 7
- **/
 #if defined(USE_TI_MEDIACAMERAAUTHORIZATION) || defined(USE_TI_MEDIACAMERAAUTHORIZATIONSTATUS)
 - (NSNumber *)cameraAuthorizationStatus
 {
