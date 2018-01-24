@@ -13,16 +13,6 @@
 #import "TiContactsPerson.h"
 #import <AddressBookUI/AddressBookUI.h>
 
-#pragma Backwards compatibility for pre - iOS 6.0
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_6_0
-//TODO: Should we warn that they need to update to the latest XCode is this is happening?
-#define kABAuthorizationStatusNotDetermined 0
-#define kABAuthorizationStatusRestricted 1
-#define kABAuthorizationStatusDenied 2
-#define kABAuthorizationStatusAuthorized 3
-#endif
-
 #define appleUndocumentedBirthdayProperty 999
 #define appleUndocumentedToneProperty 16
 #define appleUndocumentedRingToneIdentifier -1
