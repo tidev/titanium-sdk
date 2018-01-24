@@ -43,7 +43,6 @@
 @interface TiUITableView : TiUIView <UISearchResultsUpdating, UISearchControllerDelegate, UIScrollViewDelegate, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, TiScrolling, TiProxyObserver> {
   @private
   UITableView *tableview;
-  UITableView *_searchTableView;
   BOOL moving;
   BOOL editing;
   BOOL searchHidden;
@@ -68,8 +67,8 @@
   BOOL filterCaseInsensitive;
   BOOL allowsSelectionSet;
   UISearchController *searchController;
-  UITableViewController *resultViewController;
   UIViewController *searchControllerPresenter;
+  UIView *dimmingView;
   BOOL _dimsBackgroundDuringPresentation;
   TiViewProxy *headerViewProxy;
   TiViewProxy *footerViewProxy;
