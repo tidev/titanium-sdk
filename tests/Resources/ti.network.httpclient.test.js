@@ -406,6 +406,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
 				Ti.API.warn('failed, attempting to retry request...');
+				xhr.abort();
 				xhr.send();
 			} else {
 				Ti.API.debug(JSON.stringify(e, null , 2));
