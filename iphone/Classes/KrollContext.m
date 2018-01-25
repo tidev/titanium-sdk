@@ -1153,6 +1153,7 @@ TiClassRef TiWorker_class(TiContextRef context)
     definition.initialize = TiWorker_initialize;
     definition.finalize = TiWorker_finalize;
     definition.staticFunctions = TiWorker_staticFunctions;
+    definition.setProperty = TiWorker_setProperty;
 
     jsClass = TiClassCreate(&definition);
   }
@@ -1179,6 +1180,41 @@ TiStaticFunction TiWorker_staticFunctions[] = {
   { "terminate", TiWorker_terminate, kTiPropertyAttributeDontDelete },
   { 0, 0, 0 }
 };
+
+// Generically set callbacks (onerror, onmessage, onmessageerror) on worker proxy
+bool TiWorker_setProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef prop, TiValueRef value, TiValueRef *exception)
+{
+  id privateObject = (id)TiObjectGetPrivate(object);
+  if ([privateObject isKindOfClass:[KrollContext class]]) {
+    return false;
+  }
+
+  KrollObject *o = (KrollObject *)privateObject;
+  @try {
+    NSString *name = (NSString *)TiStringCopyCFString(kCFAllocatorDefault, prop);
+    [name autorelease];
+
+    id v = TiBindingTiValueToNSObject(jsContext, value);
+
+    if (![v isKindOfClass:[KrollCallback class]]) {
+      return ThrowException(jsContext, @"Invalid type provided, should be a callback", exception);
+    }
+#ifdef TI_USE_KROLL_THREAD
+    [o setValue:v
+          forKey:name];
+#else
+    TiThreadPerformOnMainThread(^{
+      [o setValue:v forKey:name];
+    },
+        YES);
+#endif
+    return true;
+  }
+  @catch (NSException *ex) {
+    *exception = [KrollObject toValue:[o context] value:ex];
+  }
+  return false;
+}
 
 // worker.postMessage(message);
 TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
