@@ -59,7 +59,7 @@
   ENSURE_SINGLE_ARG(args, NSObject);
 
   NSString *str = [[self convertToString:args] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-  NSData *decodedData = [[NSData alloc] initWithBase64EncodedString:str options:0];
+  NSData *decodedData = [[[NSData alloc] initWithBase64EncodedString:str options:0] autorelease];
 
   if (decodedData != nil) {
     return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:decodedData mimetype:@"application/octet-stream"] autorelease];
