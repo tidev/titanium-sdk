@@ -9,14 +9,6 @@
 #import "TiAppWorkerSelfProxy.h"
 #import "TiProxy.h"
 
-typedef NS_ENUM(NSInteger, TiWorkerError) {
-  TiWorkerErrorInvalidPath = 0,
-  TiWorkerErrorInvalidHost,
-  TiWorkerErrorInvalidContext,
-  TiWorkerErrorInvalidTemporaryDirectory,
-  TiWorkerErrorCannotSerialize
-};
-
 @interface TiAppWorkerProxy : TiProxy {
   KrollBridge *_bridge;
   TiAppWorkerSelfProxy *_selfProxy;

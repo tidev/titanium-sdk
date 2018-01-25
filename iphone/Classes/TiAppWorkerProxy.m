@@ -69,7 +69,7 @@
   if (![[NSFileManager defaultManager] fileExistsAtPath:tempDir]) {
     [[NSFileManager defaultManager] createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error];
     if (error != nil) {
-      [_onErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorInvalidTemporaryDirectory) } ] thisObject:self];
+      [_onErrorCallback call:@[ [self dictionaryFromError:kTiWorkerErrorInvalidTemporaryDirectory] ] thisObject:self];
       return nil;
     }
   }
@@ -84,7 +84,7 @@
   [data writeToFile:resultPath options:NSDataWritingFileProtectionComplete error:&error];
 
   if (error != nil) {
-    [_onErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorInvalidTemporaryDirectory) } ] thisObject:self];
+    [_onErrorCallback call:@[ [self dictionaryFromError:kTiWorkerErrorInvalidTemporaryDirectory] ] thisObject:self];
     return nil;
   }
   return resultPath;
@@ -94,17 +94,17 @@
 {
   if ((self = [super _initWithPageContext:_pageContext])) {
     if (path == nil || [path isEqualToString:@""]) {
-      [_onErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorInvalidPath) } ] thisObject:self];
+      [_onErrorCallback call:@[ [self dictionaryFromError:kTiWorkerErrorInvalidPath] ] thisObject:self];
       return;
     }
 
     if (host == nil) {
-      [_onErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorInvalidHost) } ] thisObject:self];
+      [_onErrorCallback call:@[ [self dictionaryFromError:kTiWorkerErrorInvalidHost] ] thisObject:self];
       return;
     }
 
     if (_pageContext == nil) {
-      [_onErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorInvalidContext) } ] thisObject:self];
+      [_onErrorCallback call:@[ [self dictionaryFromError:kTiWorkerErrorInvalidContext] ] thisObject:self];
       return;
     }
 
@@ -166,12 +166,21 @@
   dispatch_async(_serialQueue, ^{
     if (_booted) {
       if (error != nil) {
-        [_onMessageErrorCallback call:@[ @{ @"error" : @(TiWorkerErrorCannotSerialize) } ] thisObject:self];
+        [_onMessageErrorCallback call:@[ [self dictionaryFromError:kTiWorkerErrorCannotSerialize] ] thisObject:self];
       } else {
         [_onMessageCallback call:@[ @{ @"data" : messageEvent } ] thisObject:self];
       }
     }
   });
+}
+
+- (NSDictionary *)dictionaryFromError:(NSString *)error
+{
+  return @{
+    @"message" : error,
+    @"filename" : _selfProxy.url,
+    @"lineno" : @0 // TODO: Can we determine the line number in the JavaScript context?
+  };
 }
 
 @end

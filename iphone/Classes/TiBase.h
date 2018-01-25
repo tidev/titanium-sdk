@@ -598,6 +598,12 @@ extern NSString *const kTiContinueActivity;
 extern NSString *const kTiApplicationShortcut;
 extern NSString *const kTiApplicationLaunchedFromURL;
 
+extern NSString *const kTiWorkerErrorInvalidPath;
+extern NSString *const kTiWorkerErrorInvalidHost;
+extern NSString *const kTiWorkerErrorInvalidContext;
+extern NSString *const kTiWorkerErrorInvalidTemporaryDirectory;
+extern NSString *const kTiWorkerErrorCannotSerialize;
+  
 #ifndef TI_USE_AUTOLAYOUT
 extern NSString *const kTiBehaviorSize;
 extern NSString *const kTiBehaviorFill;

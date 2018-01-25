@@ -126,6 +126,12 @@ NSString *const kTiContinueActivity = @"TiContinueActivity";
 NSString *const kTiApplicationShortcut = @"TiApplicationShortcut";
 NSString *const kTiApplicationLaunchedFromURL = @"TiApplicationLaunchedFromURL";
 
+NSString *const kTiWorkerErrorInvalidPath = @"Invalid path";
+NSString *const kTiWorkerErrorInvalidHost = @"Invalid host";
+NSString *const kTiWorkerErrorInvalidContext = @"Invalid context";
+NSString *const kTiWorkerErrorInvalidTemporaryDirectory = @"Invalid temporary directory";
+NSString *const kTiWorkerErrorCannotSerialize = @"Cannot serialize message";
+
 #ifndef TI_USE_AUTOLAYOUT
 NSString *const kTiBehaviorSize = @"SIZE";
 NSString *const kTiBehaviorFill = @"FILL";

@@ -53,9 +53,23 @@ events:
     summary: Called when the worker terminates. This event does not include any properties.
 
 ---
+name: TiWorkerGenericError
+summary: A generic error in the <Titanium.App.Worker.onerror> and <Titanium.App.Worker.onmessageerror> event.
+properties:
+  - name: message
+    summary: A human-readable error message.
+    type: String
+  - name: filename
+    summary: The name of the script file in which the error occurred.
+    type: String
+  - name: lineno
+    summary: The line number of the script file on which the error occurred.
+    type: Number
+
+---
 name: TiWorkerErrorCallback
 summary: Argument passed to the callback when a worker terminates with an error.
-extends: ErrorResponse
+extends: TiWorkerGenericError
 
 ---
 name: TiWorkerMessageCallback
@@ -69,4 +83,4 @@ properties:
 ---
 name: TiWorkerMessageErrorCallback
 summary: Argument passed to the callback when a worker terminates with an error.
-extends: ErrorResponse
+extends: TiWorkerGenericError
