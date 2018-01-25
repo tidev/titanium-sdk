@@ -1,5 +1,5 @@
 ---
-name: Titanium.App.Worker
+name: Global.Worker
 summary: |
     The Worker API is made to realize multi-threading in Titanium applications.
 description: |
@@ -12,8 +12,8 @@ description: |
     worker threads, any processing or rendering that must be done by the UI will 
     always continue to be single-threaded by the host OS and executed on the 
     main "UI thread", regardless of how many parallel threads are used in the background.
-extends: Titanium.Proxy
 since: "7.1.0"
+platforms: [iphone, ipad]
 
 methods:
   - name: postMessage
@@ -41,7 +41,7 @@ properties:
     summary: Callback function to be called when the message event occurs. 
     description: |
         These events will be called when the worker's parent receives a message 
-        (i.e. from the <Titanium.App.Worker.postMessage> method.
+        (i.e. from the <Global.Worker.postMessage> method.
     type: Callback<TiWorkerMessageCallback>
   
   - name: onmessageerror
@@ -54,7 +54,7 @@ events:
 
 ---
 name: TiWorkerGenericError
-summary: A generic error in the <Titanium.App.Worker.onerror> and <Titanium.App.Worker.onmessageerror> event.
+summary: A generic error in the <Global.Worker.onerror> and <Global.Worker.onmessageerror> event.
 properties:
   - name: message
     summary: A human-readable error message.
