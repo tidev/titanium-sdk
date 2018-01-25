@@ -11,12 +11,11 @@
 
 #pragma mark Public APIs
 
-TiAppWorkerProxy* Worker_new(void)
+TiAppWorkerProxy *Worker_new(void)
 {
   // TODO: Hook class logic into here or be able to call the real constructor (initWithPath:host:pageContext:)
   return NULL;
 }
-
 
 - (void)terminate:(id)unused
 {
@@ -170,6 +169,16 @@ TiAppWorkerProxy* Worker_new(void)
 
 - (void)fireMessageCallback:(NSDictionary *)messageEvent error:(NSError *)error
 {
+  if (_onMessageCallback == nil) {
+    [self throwException:@"Missing \"onmessage\" callback!" subreason:@"The required \"onmessage\" callback is missing in your worker instance" location:CODELOCATION];
+    return;
+  }
+
+  if (_onErrorCallback == nil) {
+    [self throwException:@"Missing \"onerror\" callback!" subreason:@"The required \"onerror\" callback is missing in your worker instance" location:CODELOCATION];
+    return;
+  }
+
   dispatch_async(_serialQueue, ^{
     if (_booted) {
       if (error != nil) {
