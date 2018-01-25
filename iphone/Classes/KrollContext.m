@@ -1184,9 +1184,9 @@ TiStaticFunction TiWorker_staticFunctions[] = {
 static TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
 {
   TiAppWorkerProxy* worker = TiObjectGetPrivate(thisObject);
-  NSString* message = TiObjectGetPrivate(TiValueToObject(context, arguments[0], NULL));
-  
-  // TODO: Call actual [worker postMessage:message];
+  NSString *message = [((NSString *)TiStringCopyCFString( kCFAllocatorDefault, TiValueToStringCopy(context, arguments[0], NULL))) autorelease];
+
+  [worker postMessage:message];
   
   return TiValueMakeUndefined(context);
 }
@@ -1207,8 +1207,10 @@ TiObjectRef TiWorker_new(TiContextRef context, TiAppWorkerProxy* worker)
 // Constructor (new Worker(message))
 TiObjectRef TiWorker_construct(TiContextRef context, TiObjectRef object, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
 {
-  NSString *path = [((NSString *)TiStringCopyCFString( kCFAllocatorDefault, arguments[0])) autorelease];
-  return TiWorker_new(context, [[TiAppWorkerProxy alloc] initWithPath:path host:NULL pageContext:(id<TiEvaluator>)[context delegate]]);
+  KrollContext *ctx = GetKrollContext(context);
+  NSString *path = [((NSString *)TiStringCopyCFString( kCFAllocatorDefault, TiValueToStringCopy(context, arguments[0], NULL))) autorelease];
+
+  return TiWorker_new(context, [[TiAppWorkerProxy alloc] initWithPath:path host:[(id<TiEvaluator>)[ctx delegate] host] pageContext:(id<TiEvaluator>)[ctx delegate]]);
 }
 
 - (void)main

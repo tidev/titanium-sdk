@@ -185,8 +185,8 @@ TiAppWorkerProxy* Worker_new(void)
 {
   return @{
     @"message" : error,
-    @"filename" : _selfProxy.url,
-    @"lineno" : @0 // TODO: Can we determine the line number in the JavaScript context?
+    @"filename" : NULL_IF_NIL(_selfProxy.url), // FIXME: Why is this nil?
+    @"lineno" : @0 // FIXME: Can we determine the line number in the JavaScript context?
   };
 }
 
