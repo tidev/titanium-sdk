@@ -79,6 +79,7 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Downgrading to weak reference for key: " + key, Log.DEBUG_MODE);
 		Object ref = references.get(key);
+		references.remove(key);
 		references.put(key, new WeakReference<Object>(ref));
 	}
 
@@ -91,6 +92,7 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Downgrading to soft reference for key: " + key, Log.DEBUG_MODE);
 		Object ref = references.get(key);
+		references.remove(key);
 		references.put(key, new SoftReference<Object>(ref));
 	}
 
@@ -105,6 +107,7 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Upgrading reference to strong for key: " + key, Log.DEBUG_MODE);
 		Object ref = getReference(key);
+		references.remove(key);
 		references.put(key, ref);
 		return ref;
 	}
