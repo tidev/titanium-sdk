@@ -8,9 +8,10 @@
 #import "KrollCallback.h"
 #import "KrollObject.h"
 #import "KrollTimer.h"
+#import "TiAppWorkerProxy.h"
+#import "TiBindingTiValue.h"
 #import "TiLocale.h"
 #import "TiUtils.h"
-#import "TiAppWorkerProxy.h"
 
 #import "TiExceptionHandler.h"
 #include <pthread.h>
@@ -1161,7 +1162,7 @@ TiClassRef TiWorker_class(TiContextRef context)
 // Worker initializer
 static void TiWorker_initialize(TiContextRef context, TiObjectRef object)
 {
-  TiAppWorkerProxy* worker = TiObjectGetPrivate(object);
+  TiAppWorkerProxy *worker = TiObjectGetPrivate(object);
   // TODO: What to do here?
 }
 
@@ -1169,7 +1170,7 @@ static void TiWorker_initialize(TiContextRef context, TiObjectRef object)
 static void TiWorker_finalize(TiObjectRef object)
 {
   TiAppWorkerProxy *worker = TiObjectGetPrivate(object);
-  
+
   // TODO: What to do here?
 }
 
@@ -1181,36 +1182,33 @@ TiStaticFunction TiWorker_staticFunctions[] = {
 };
 
 // worker.postMessage(message);
-static TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
+static TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
 {
-  TiAppWorkerProxy* worker = TiObjectGetPrivate(thisObject);
-  NSString *message = [((NSString *)TiStringCopyCFString( kCFAllocatorDefault, TiValueToStringCopy(context, arguments[0], NULL))) autorelease];
+  TiAppWorkerProxy *worker = TiObjectGetPrivate(thisObject);
+  NSDictionary *message = TiBindingTiValueToNSDictionary(context, arguments[0]);
 
   [worker postMessage:message];
-  
+
   return TiValueMakeUndefined(context);
 }
 
 // worker.terminate();
-static TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
+static TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
 {
-  // TODO: Do something?
-  
+  TiAppWorkerProxy *worker = TiObjectGetPrivate(thisObject);
+  [worker terminate:nil];
+
   return TiValueMakeUndefined(context);
 }
 
-TiObjectRef TiWorker_new(TiContextRef context, TiAppWorkerProxy* worker)
-{
-  return TiObjectMake(context, TiWorker_class(context), worker);
-}
-
-// Constructor (new Worker(message))
-TiObjectRef TiWorker_construct(TiContextRef context, TiObjectRef object, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
+// Constructor: var worker = new Worker(message);
+TiObjectRef TiWorker_construct(TiContextRef context, TiObjectRef object, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
 {
   KrollContext *ctx = GetKrollContext(context);
-  NSString *path = [((NSString *)TiStringCopyCFString( kCFAllocatorDefault, TiValueToStringCopy(context, arguments[0], NULL))) autorelease];
+  NSString *path = [((NSString *)TiStringCopyCFString(kCFAllocatorDefault, TiValueToStringCopy(context, arguments[0], NULL)))autorelease];
+  TiAppWorkerProxy *proxy = [[TiAppWorkerProxy alloc] initWithPath:path host:[(id<TiEvaluator>)[ctx delegate] host] pageContext:(id<TiEvaluator>)[ctx delegate]];
 
-  return TiWorker_new(context, [[TiAppWorkerProxy alloc] initWithPath:path host:[(id<TiEvaluator>)[ctx delegate] host] pageContext:(id<TiEvaluator>)[ctx delegate]]);
+  return TiObjectMake(context, TiWorker_class(context), proxy);
 }
 
 - (void)main
@@ -1265,7 +1263,7 @@ TiObjectRef TiWorker_construct(TiContextRef context, TiObjectRef object, size_t 
   TiStringRef node = TiStringCreateWithUTF8CString("Worker");
   TiObjectSetProperty(context, globalRef, node, TiObjectMakeConstructor(context, TiWorker_class(context), TiWorker_construct), kTiPropertyAttributeNone, NULL);
   TiStringRelease(node);
-  
+
   prop = TiStringCreateWithUTF8CString("String");
 
   // create a special method -- String.format -- that will act as a string formatter
