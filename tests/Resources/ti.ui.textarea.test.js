@@ -122,7 +122,7 @@ describe('Titanium.UI.TextArea', function () {
 			// Focus has been received. Now test removing focus.
 			setTimeout(function () {
 				textArea.blur();
-			}, 10);
+			}, 500);
 		});
 		textArea.addEventListener('blur', function () {
 			// Focus has been lost. The test was finished successfully. (Timeout means failure.)
@@ -131,10 +131,10 @@ describe('Titanium.UI.TextArea', function () {
 		win.add(textArea);
 
 		// Start the test when the window has been opened.
-		win.addEventListener('open', function () {
+		win.addEventListener('postlayout', function () {
 			setTimeout(function () {
 				textArea.focus();
-			}, 10);
+			}, 500);
 		});
 		win.open();
 	});
