@@ -1160,14 +1160,14 @@ TiClassRef TiWorker_class(TiContextRef context)
 }
 
 // Worker initializer
-static void TiWorker_initialize(TiContextRef context, TiObjectRef object)
+void TiWorker_initialize(TiContextRef context, TiObjectRef object)
 {
   TiWorkerProxy *worker = TiObjectGetPrivate(object);
   // TODO: What to do here?
 }
 
 // Worker finalizer
-static void TiWorker_finalize(TiObjectRef object)
+void TiWorker_finalize(TiObjectRef object)
 {
   TiWorkerProxy *worker = TiObjectGetPrivate(object);
   // TODO: Cleanup or manually terminate here?
@@ -1181,7 +1181,7 @@ TiStaticFunction TiWorker_staticFunctions[] = {
 };
 
 // worker.postMessage(message);
-static TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
+TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
 {
   TiWorkerProxy *worker = TiObjectGetPrivate(thisObject);
   NSDictionary *message = TiBindingTiValueToNSDictionary(context, arguments[0]);
@@ -1192,7 +1192,7 @@ static TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef functio
 }
 
 // worker.terminate();
-static TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
+TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
 {
   TiWorkerProxy *worker = TiObjectGetPrivate(thisObject);
   [worker terminate:nil];
