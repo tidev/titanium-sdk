@@ -249,24 +249,16 @@ public class TiUINativePicker extends TiUIPicker
 		}
 	}
 
-	final OnItemSelectedListener onItemSelectedListener = new OnItemSelectedListener() {
+	private final OnItemSelectedListener onItemSelectedListener = new OnItemSelectedListener() {
 		@Override
 		public void onItemSelected(AdapterView<?> parent, View view, int position, long itemId)
 		{
-			/*if (!firstSelectedFired) {
-			// swallow the first selected event that gets fired after the adapter gets set, so as to avoid
-			// firing our change event in that case.
-			firstSelectedFired = true;
-			return;
-		}*/
 			fireSelectionChange(0, position);
 
 			// Invalidate the parent view after the item is selected (TIMOB-13540).
-			if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
-				ViewParent p = nativeView.getParent();
-				if (p instanceof View) {
-					((View) p).invalidate();
-				}
+			ViewParent p = nativeView.getParent();
+			if (p instanceof View) {
+				((View) p).invalidate();
 			}
 		}
 
