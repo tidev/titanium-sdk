@@ -10,6 +10,7 @@
 #import "KrollTimer.h"
 #import "TiLocale.h"
 #import "TiUtils.h"
+#import "TiAppWorkerProxy.h"
 
 #import "TiExceptionHandler.h"
 #include <pthread.h>
@@ -1141,6 +1142,27 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   return 0;
 }
 
+TiClassRef TiWorker_class(TiContextRef context)
+{
+  static TiClassRef jsClass;
+  if (!jsClass) {
+    TiClassDefinition definition = kTiClassDefinitionEmpty;
+    // TODO: More class definition needed
+    jsClass = TiClassCreate(&definition);
+  }
+  return jsClass;
+}
+
+TiObjectRef TiWorker_new(TiContextRef context, TiAppWorkerProxy* worker)
+{
+  return TiObjectMake(context, TiWorker_class(context), worker);
+}
+
+TiObjectRef TiWorker_construct(TiContextRef context, TiObjectRef object, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
+{
+  return TiWorker_new(context, Worker_new());
+}
+
 - (void)main
 {
 #ifdef TI_USE_KROLL_THREAD
@@ -1189,6 +1211,11 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   [self bindCallback:@"L" callback:&LCallback];
   [self bindCallback:@"alert" callback:&AlertCallback];
 
+  // create Worker global, instantiated with "new Worker('path/to/file.js')
+  TiStringRef node = TiStringCreateWithUTF8CString("Worker");
+  TiObjectSetProperty(context, globalRef, node, TiObjectMakeConstructor(context, TiWorker_class(context), TiWorker_construct), kTiPropertyAttributeNone, NULL);
+  TiStringRelease(node);
+  
   prop = TiStringCreateWithUTF8CString("String");
 
   // create a special method -- String.format -- that will act as a string formatter

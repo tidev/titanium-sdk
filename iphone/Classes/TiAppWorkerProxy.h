@@ -20,6 +20,10 @@
   KrollCallback *_onMessageErrorCallback;
 }
 
+extern TiObjectRef TiWorker_new(TiContextRef context, TiAppWorkerProxy* worker);
+
+extern TiAppWorkerProxy* Worker_new(void);
+
 #pragma mark Public APIs
 
 - (void)postMessage:(id)message;

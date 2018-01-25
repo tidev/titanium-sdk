@@ -11,6 +11,13 @@
 
 #pragma mark Public APIs
 
+TiAppWorkerProxy* Worker_new(void)
+{
+  // TODO: Hook class logic into here or be able to call the real constructor (initWithPath:host:pageContext:)
+  return NULL;
+}
+
+
 - (void)terminate:(id)unused
 {
   dispatch_async(_serialQueue, ^{
