@@ -52,6 +52,9 @@
 #endif
 }
 
+static TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception);
+static TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception);
+
 @property (nonatomic, readwrite, assign) id<KrollDelegate> delegate;
 
 - (void)start;

@@ -1142,6 +1142,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   return 0;
 }
 
+// Worker class definition
 TiClassRef TiWorker_class(TiContextRef context)
 {
   static TiClassRef jsClass;
@@ -1157,12 +1158,14 @@ TiClassRef TiWorker_class(TiContextRef context)
   return jsClass;
 }
 
+// Worker initializer
 static void TiWorker_initialize(TiContextRef context, TiObjectRef object)
 {
   TiAppWorkerProxy* worker = TiObjectGetPrivate(object);
   // TODO: What to do here?
 }
 
+// Worker finalizer
 static void TiWorker_finalize(TiObjectRef object)
 {
   TiAppWorkerProxy *worker = TiObjectGetPrivate(object);
@@ -1170,13 +1173,15 @@ static void TiWorker_finalize(TiObjectRef object)
   // TODO: What to do here?
 }
 
-static TiStaticFunction TiWorker_staticFunctions[] = {
+// Expose public worker APIs
+TiStaticFunction TiWorker_staticFunctions[] = {
   { "postMessage", TiWorker_postMessage, kTiPropertyAttributeDontDelete },
-  { "terminate", TiWorker_terminate, kTiPropertyAttributeDontDelete }
+  { "terminate", TiWorker_terminate, kTiPropertyAttributeDontDelete },
   { 0, 0, 0 }
 };
 
-TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
+// worker.postMessage(message);
+static TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
 {
   TiAppWorkerProxy* worker = TiObjectGetPrivate(thisObject);
   NSString* message = TiObjectGetPrivate(TiValueToObject(context, arguments[0], NULL));
@@ -1186,7 +1191,8 @@ TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiOb
   return TiValueMakeUndefined(context);
 }
 
-TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
+// worker.terminate();
+static TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
 {
   // TODO: Do something?
   
@@ -1198,9 +1204,11 @@ TiObjectRef TiWorker_new(TiContextRef context, TiAppWorkerProxy* worker)
   return TiObjectMake(context, TiWorker_class(context), worker);
 }
 
+// Constructor (new Worker(message))
 TiObjectRef TiWorker_construct(TiContextRef context, TiObjectRef object, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
 {
-  return TiWorker_new(context, Worker_new());
+  NSString *path = [((NSString *)TiStringCopyCFString( kCFAllocatorDefault, arguments[0])) autorelease];
+  return TiWorker_new(context, [[TiAppWorkerProxy alloc] initWithPath:path host:NULL pageContext:(id<TiEvaluator>)[context delegate]]);
 }
 
 - (void)main
