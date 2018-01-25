@@ -9,8 +9,8 @@
 #import "AppModule.h"
 #import "ListenerEntry.h"
 #import "TiApp.h"
-#import "TiHost.h"
 #import "TiAppWorkerProxy.h"
+#import "TiHost.h"
 #if defined(USE_TI_APPIOS)
 #import "TiAppiOSProxy.h"
 #endif
@@ -563,7 +563,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (TiAppWorkerProxy *)createWorker:(id)args
 {
-  ENSURE_SINGLE_ARG(args,NSString);
+  ENSURE_SINGLE_ARG(args, NSString);
   return [[[TiAppWorkerProxy alloc] initWithPath:args host:[self _host] pageContext:[self executionContext]] autorelease];
 }
 
