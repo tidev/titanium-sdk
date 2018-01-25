@@ -10,8 +10,6 @@
 
 #import "TiAppPropertiesProxy.h"
 
-@class TiAppWorkerProxy;
-
 @interface AppModule : TiModule {
   @private
   NSMutableDictionary *appListeners;
@@ -25,7 +23,6 @@
 - (void)removeEventListener:(NSArray *)args;
 - (void)fireEvent:(NSArray *)args;
 - (int)garbageCollect:(NSArray *)args;
-- (TiAppWorkerProxy *)createWorker:(id)args;
 
 @property (nonatomic, readonly) NSString *id;
 @property (nonatomic, readonly) NSString *url;

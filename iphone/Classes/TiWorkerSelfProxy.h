@@ -7,7 +7,7 @@
 
 #import "TiProxy.h"
 
-@interface TiAppWorkerSelfProxy : TiProxy {
+@interface TiWorkerSelfProxy : TiProxy {
   TiProxy *_parent;
   NSString *_url;
   KrollCallback *_onMessageCallback;

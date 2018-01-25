@@ -6,12 +6,12 @@
  */
 
 #import "KrollBridge.h"
-#import "TiAppWorkerSelfProxy.h"
 #import "TiProxy.h"
+#import "TiWorkerSelfProxy.h"
 
-@interface TiAppWorkerProxy : TiProxy {
+@interface TiWorkerProxy : TiProxy {
   KrollBridge *_bridge;
-  TiAppWorkerSelfProxy *_selfProxy;
+  TiWorkerSelfProxy *_selfProxy;
   BOOL _booted;
   dispatch_queue_t _serialQueue;
   NSString *_tempFile;
@@ -19,10 +19,6 @@
   KrollCallback *_onMessageCallback;
   KrollCallback *_onMessageErrorCallback;
 }
-
-extern TiObjectRef TiWorker_new(TiContextRef context, TiAppWorkerProxy* worker);
-
-extern TiAppWorkerProxy* Worker_new(void);
 
 #pragma mark Public APIs
 

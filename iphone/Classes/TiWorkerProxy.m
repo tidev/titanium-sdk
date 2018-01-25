@@ -5,17 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiAppWorkerProxy.h"
+#import "TiWorkerProxy.h"
 
-@implementation TiAppWorkerProxy
+@implementation TiWorkerProxy
 
 #pragma mark Public APIs
-
-TiAppWorkerProxy *Worker_new(void)
-{
-  // TODO: Hook class logic into here or be able to call the real constructor (initWithPath:host:pageContext:)
-  return NULL;
-}
 
 - (void)terminate:(id)unused
 {
@@ -119,7 +113,7 @@ TiAppWorkerProxy *Worker_new(void)
     NSURL *_url = [TiUtils toURL:path proxy:self];
 
     _serialQueue = dispatch_queue_create("ti.worker", DISPATCH_QUEUE_SERIAL);
-    _selfProxy = [[TiAppWorkerSelfProxy alloc] initWithParent:self url:path pageContext:_bridge];
+    _selfProxy = [[TiWorkerSelfProxy alloc] initWithParent:self url:path pageContext:_bridge];
 
     NSData *data = [TiUtils loadAppResource:_url];
     if (data == nil) {
@@ -135,7 +129,7 @@ TiAppWorkerProxy *Worker_new(void)
     }
 
     // pull it in to some wrapper code so we can provide a start function and pre-define some variables/functions
-    NSString *wrapper = [NSString stringWithFormat:@"function TiAppWorkerStart__() { var worker = Ti.App.currentWorker; worker.nextTick = function(t) { setTimeout(t,0); }; %@ };", source];
+    NSString *wrapper = [NSString stringWithFormat:@"function TiWorkerStart__() { var worker = Ti.App.currentWorker; worker.nextTick = function(t) { setTimeout(t,0); }; %@ };", source];
 
     // we delete file below when booted
     _tempFile = [self makeTemp:[wrapper dataUsingEncoding:NSUTF8StringEncoding]];
@@ -163,7 +157,7 @@ TiAppWorkerProxy *Worker_new(void)
 
   // start our JS processing
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    [_bridge evalJSWithoutResult:@"TiAppWorkerStart__();"];
+    [_bridge evalJSWithoutResult:@"TiWorkerStart__();"];
   });
 }
 

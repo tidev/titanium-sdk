@@ -5,10 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiAppWorkerSelfProxy.h"
-#import "TiAppWorkerProxy.h"
+#import "TiWorkerSelfProxy.h"
+#import "TiWorkerProxy.h"
 
-@implementation TiAppWorkerSelfProxy
+@implementation TiWorkerSelfProxy
 
 - (id)initWithParent:(TiProxy *)parent url:(NSString *)url pageContext:(id<TiEvaluator>)_pageContext
 {
@@ -41,14 +41,14 @@
     error = [NSError errorWithDomain:NSCocoaErrorDomain code:1 userInfo:@{ NSLocalizedDescriptionKey : NSLocalizedString(@"Cannot serialize message", nil) }];
   }
 
-  TiAppWorkerProxy *proxy = (TiAppWorkerProxy *)_parent;
+  TiWorkerProxy *proxy = (TiWorkerProxy *)_parent;
   [proxy fireMessageCallback:@{ @"data" : message } error:error];
 }
 
 - (void)terminate:(id)unused
 {
   // If we call terminate on ourselves, just go through the normal route
-  [((TiAppWorkerProxy *)_parent) terminate:unused];
+  [((TiWorkerProxy *)_parent) terminate:unused];
 }
 
 - (void)setOnmessage:(id)onMessageCallback

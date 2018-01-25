@@ -8,10 +8,10 @@
 #import "KrollCallback.h"
 #import "KrollObject.h"
 #import "KrollTimer.h"
-#import "TiAppWorkerProxy.h"
 #import "TiBindingTiValue.h"
 #import "TiLocale.h"
 #import "TiUtils.h"
+#import "TiWorkerProxy.h"
 
 #import "TiExceptionHandler.h"
 #include <pthread.h>
@@ -1162,16 +1162,15 @@ TiClassRef TiWorker_class(TiContextRef context)
 // Worker initializer
 static void TiWorker_initialize(TiContextRef context, TiObjectRef object)
 {
-  TiAppWorkerProxy *worker = TiObjectGetPrivate(object);
+  TiWorkerProxy *worker = TiObjectGetPrivate(object);
   // TODO: What to do here?
 }
 
 // Worker finalizer
 static void TiWorker_finalize(TiObjectRef object)
 {
-  TiAppWorkerProxy *worker = TiObjectGetPrivate(object);
-
-  // TODO: What to do here?
+  TiWorkerProxy *worker = TiObjectGetPrivate(object);
+  // TODO: Cleanup or manually terminate here?
 }
 
 // Expose public worker APIs
@@ -1184,7 +1183,7 @@ TiStaticFunction TiWorker_staticFunctions[] = {
 // worker.postMessage(message);
 static TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
 {
-  TiAppWorkerProxy *worker = TiObjectGetPrivate(thisObject);
+  TiWorkerProxy *worker = TiObjectGetPrivate(thisObject);
   NSDictionary *message = TiBindingTiValueToNSDictionary(context, arguments[0]);
 
   [worker postMessage:message];
@@ -1195,7 +1194,7 @@ static TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef functio
 // worker.terminate();
 static TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
 {
-  TiAppWorkerProxy *worker = TiObjectGetPrivate(thisObject);
+  TiWorkerProxy *worker = TiObjectGetPrivate(thisObject);
   [worker terminate:nil];
 
   return TiValueMakeUndefined(context);
@@ -1206,7 +1205,7 @@ TiObjectRef TiWorker_construct(TiContextRef context, TiObjectRef object, size_t 
 {
   KrollContext *ctx = GetKrollContext(context);
   NSString *path = [((NSString *)TiStringCopyCFString(kCFAllocatorDefault, TiValueToStringCopy(context, arguments[0], NULL)))autorelease];
-  TiAppWorkerProxy *proxy = [[TiAppWorkerProxy alloc] initWithPath:path host:[(id<TiEvaluator>)[ctx delegate] host] pageContext:(id<TiEvaluator>)[ctx delegate]];
+  TiWorkerProxy *proxy = [[TiWorkerProxy alloc] initWithPath:path host:[(id<TiEvaluator>)[ctx delegate] host] pageContext:(id<TiEvaluator>)[ctx delegate]];
 
   return TiObjectMake(context, TiWorker_class(context), proxy);
 }

@@ -9,7 +9,6 @@
 #import "AppModule.h"
 #import "ListenerEntry.h"
 #import "TiApp.h"
-#import "TiAppWorkerProxy.h"
 #import "TiHost.h"
 #if defined(USE_TI_APPIOS)
 #import "TiAppiOSProxy.h"
@@ -559,12 +558,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 - (NSNumber *)keyboardVisible
 {
   return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
-}
-
-- (TiAppWorkerProxy *)createWorker:(id)args
-{
-  ENSURE_SINGLE_ARG(args, NSString);
-  return [[[TiAppWorkerProxy alloc] initWithPath:args host:[self _host] pageContext:[self executionContext]] autorelease];
 }
 
 - (void)setForceSplashAsSnapshot:(id)args
