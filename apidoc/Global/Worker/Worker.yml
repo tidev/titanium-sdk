@@ -57,7 +57,13 @@ name: TiWorkerGenericError
 summary: A generic error in the <Global.Worker.onerror> and <Global.Worker.onmessageerror> event.
 properties:
   - name: message
-    summary: A human-readable error message.
+    summary: |
+        A human-readable error message. One of the following constants:
+            * <Titanium.App.WORKER_ERROR_INVALID_PATH>
+            * <Titanium.App.WORKER_ERROR_INVALID_HOST>
+            * <Titanium.App.WORKER_ERROR_INVALID_CONTEXT>
+            * <Titanium.App.WORKER_ERROR_INVALID_TEMPORARY_DIRECTORY>
+            * <Titanium.App.WORKER_ERROR_CANNOT_SERIALIZE>
     type: String
   - name: filename
     summary: The name of the script file in which the error occurred.

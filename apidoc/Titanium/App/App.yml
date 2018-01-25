@@ -394,7 +394,6 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
 
-
   - name: EVENT_ACCESSIBILITY_CHANGED
     summary: Convenience constant for system event "accessibilitychanged".
     type: String
@@ -402,24 +401,66 @@ properties:
     platforms: [android, iphone, ipad]
     since: "3.0.0"
 
+  - name: WORKER_ERROR_INVALID_PATH
+    summary: |
+        Convenience constant for the worker "onerror" callback indicating an
+        invalid path.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "7.1.0"
+
+  - name: WORKER_ERROR_INVALID_HOST
+    summary: |
+        Convenience constant for the worker "onerror" callback indicating an
+        invalid host.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "7.1.0"
+
+  - name: WORKER_ERROR_INVALID_CONTEXT
+    summary: |
+        Convenience constant for the worker "onerror" callback indicating an
+        invalid context.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "7.1.0"
+
+  - name: WORKER_ERROR_INVALID_TEMPORARY_DIRECTORY
+    summary: |
+        Convenience constant for the worker "onerror" callback indicating an
+        invalid temporary directory.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "7.1.0"
+
+  - name: WORKER_ERROR_CANNOT_SERIALIZE
+    summary: |
+        Convenience constant for the worker "onerror" callback indicating that the 
+        message cannot be serialized.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "7.1.0"
+
   - name: accessibilityEnabled
     summary: Indicates whether Accessibility is enabled by the system.
     type: Boolean
     permission: read-only
 
- 
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean
     permission: read-only
 
-    
   - name: copyright
     summary: Application copyright statement, determined by `tiapp.xml`.
     type: String
     permission: read-only
 
-    
   - name: deployType
     summary: |
         Build type that reflects how the application was packaged.
@@ -431,19 +472,16 @@ properties:
     type: String
     permission: read-only
 
-    
   - name: description
     summary: Application description, determined by `tiapp.xml`.
     type: String
     permission: read-only
 
-    
   - name: guid
     summary: Application globally-unique ID, determined by `tiapp.xml`.
     description: This value is system-generated and consistent through all versions.
     type: String
     permission: read-only
-
     
   - name: forceSplashAsSnapshot
     summary: Shows the application's splash screen on app resume.
@@ -462,7 +500,6 @@ properties:
     type: String
     permission: read-only
 
-    
   - name: installId
     summary: The install ID for this application.
     description: |
@@ -485,7 +522,6 @@ properties:
     summary: Application name, determined by `tiapp.xml`.
     type: String
     permission: read-only
-
     
   - name: proximityDetection
     summary: Determines whether proximity detection is enabled. 
@@ -527,24 +563,20 @@ properties:
     type: String
     permission: read-only
 
-    
   - name: sessionId
     summary: Unique session identifier for the current continuous run of the application.
     type: String
     permission: read-only
 
-    
   - name: url
     summary: Application URL, from `tiapp.xml`.
     type: String
     permission: read-only
 
-    
   - name: version
     summary: Application version, from `tiapp.xml`.
     type: String
     permission: read-only
-
     
   - name: keyboardVisible
     summary: Indicates whether or not the soft keyboard is visible.
