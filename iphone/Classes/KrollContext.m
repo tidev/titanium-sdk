@@ -1147,10 +1147,50 @@ TiClassRef TiWorker_class(TiContextRef context)
   static TiClassRef jsClass;
   if (!jsClass) {
     TiClassDefinition definition = kTiClassDefinitionEmpty;
-    // TODO: More class definition needed
+    definition.className = "Worker";
+    definition.initialize = TiWorker_initialize;
+    definition.finalize = TiWorker_finalize;
+    definition.staticFunctions = TiWorker_staticFunctions;
+
     jsClass = TiClassCreate(&definition);
   }
   return jsClass;
+}
+
+static void TiWorker_initialize(TiContextRef context, TiObjectRef object)
+{
+  TiAppWorkerProxy* worker = TiObjectGetPrivate(object);
+  // TODO: What to do here?
+}
+
+static void TiWorker_finalize(TiObjectRef object)
+{
+  TiAppWorkerProxy *worker = TiObjectGetPrivate(object);
+  
+  // TODO: What to do here?
+}
+
+static TiStaticFunction TiWorker_staticFunctions[] = {
+  { "postMessage", TiWorker_postMessage, kTiPropertyAttributeDontDelete },
+  { "terminate", TiWorker_terminate, kTiPropertyAttributeDontDelete }
+  { 0, 0, 0 }
+};
+
+TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
+{
+  TiAppWorkerProxy* worker = TiObjectGetPrivate(thisObject);
+  NSString* message = TiObjectGetPrivate(TiValueToObject(context, arguments[0], NULL));
+  
+  // TODO: Call actual [worker postMessage:message];
+  
+  return TiValueMakeUndefined(context);
+}
+
+TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef* exception)
+{
+  // TODO: Do something?
+  
+  return TiValueMakeUndefined(context);
 }
 
 TiObjectRef TiWorker_new(TiContextRef context, TiAppWorkerProxy* worker)
