@@ -26,8 +26,8 @@ import android.view.View.OnTouchListener;
 import android.widget.MediaController;
 import android.widget.TiVideoView8;
 
-public class TiUIVideoView extends TiUIView
-	implements OnPreparedListener, OnCompletionListener, OnErrorListener, TiPlaybackListener
+public class TiUIVideoView
+	extends TiUIView implements OnPreparedListener, OnCompletionListener, OnErrorListener, TiPlaybackListener
 {
 	private static final String TAG = "TiUIView";
 
@@ -192,7 +192,7 @@ public class TiUIVideoView extends TiUIView
 
 		videoView.setScalingMode(mode);
 	}
-	
+
 	public void setRepeatMode(int mode)
 	{
 		if (videoView == null) {
@@ -210,7 +210,7 @@ public class TiUIVideoView extends TiUIView
 
 		boolean showController = true;
 
-		switch(style) {
+		switch (style) {
 			case MediaModule.VIDEO_CONTROL_DEFAULT:
 			case MediaModule.VIDEO_CONTROL_EMBEDDED:
 			case MediaModule.VIDEO_CONTROL_FULLSCREEN:
@@ -266,7 +266,6 @@ public class TiUIVideoView extends TiUIView
 		}
 
 		videoView.start();
-
 	}
 
 	public void stop()
@@ -364,7 +363,7 @@ public class TiUIVideoView extends TiUIView
 	{
 		getPlayerProxy().onPlaying();
 	}
-	
+
 	@Override
 	public void onSeekingForward()
 	{
@@ -376,7 +375,7 @@ public class TiUIVideoView extends TiUIView
 	{
 		getPlayerProxy().onSeekingBackward();
 	}
-	
+
 	private VideoPlayerProxy getPlayerProxy()
 	{
 		return ((VideoPlayerProxy) proxy);

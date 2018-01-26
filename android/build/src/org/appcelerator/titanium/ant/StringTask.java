@@ -12,7 +12,8 @@ import org.apache.tools.ant.Task;
 /**
  * A simple wrapper around convenient String APIs
  */
-public class StringTask extends Task {
+public class StringTask extends Task
+{
 
 	protected String string, property;
 	protected String substring;
@@ -23,9 +24,10 @@ public class StringTask extends Task {
 	protected boolean toLowerCase = false;
 	protected boolean toUpperCase = false;
 	protected boolean trim = false;
-	
+
 	@Override
-	public void execute() throws BuildException {
+	public void execute() throws BuildException
+	{
 		String result = string;
 		if (indexOf != null) {
 			result = string.indexOf(indexOf, fromIndex == -1 ? 0 : fromIndex) + "";
@@ -35,13 +37,19 @@ public class StringTask extends Task {
 			String[] args = substring.split("[,:\\-]");
 			if (args.length == 1) {
 				int begin = Integer.parseInt(args[0]);
-				if (begin < 0) { begin += result.length(); }
+				if (begin < 0) {
+					begin += result.length();
+				}
 				result = string.substring(begin);
 			} else {
 				int begin = Integer.parseInt(args[0]);
-				if (begin < 0) { begin += result.length(); }
+				if (begin < 0) {
+					begin += result.length();
+				}
 				int end = Integer.parseInt(args[1]);
-				if (end < 0) { end += result.length(); }
+				if (end < 0) {
+					end += result.length();
+				}
 				result = string.substring(begin, end);
 			}
 		} else if (replace != null && with != null) {
@@ -55,99 +63,122 @@ public class StringTask extends Task {
 		} else if (charAt != -1) {
 			result = string.charAt(charAt) + "";
 		}
-		
+
 		getProject().setProperty(property, result);
 	}
 
-	public void addText(String text) {
+	public void addText(String text)
+	{
 		this.string = text;
 	}
-	
-	public String getString() {
+
+	public String getString()
+	{
 		return string;
 	}
 
-	public void setString(String string) {
+	public void setString(String string)
+	{
 		this.string = string;
 	}
 
-	public String getProperty() {
+	public String getProperty()
+	{
 		return property;
 	}
 
-	public void setProperty(String property) {
+	public void setProperty(String property)
+	{
 		this.property = property;
 	}
 
-	public String getSubstring() {
+	public String getSubstring()
+	{
 		return substring;
 	}
 
-	public void setSubstring(String substring) {
+	public void setSubstring(String substring)
+	{
 		this.substring = substring;
 	}
 
-	public String getIndexOf() {
+	public String getIndexOf()
+	{
 		return indexOf;
 	}
 
-	public void setIndexOf(String indexOf) {
+	public void setIndexOf(String indexOf)
+	{
 		this.indexOf = indexOf;
 	}
 
-	public boolean isToLowerCase() {
+	public boolean isToLowerCase()
+	{
 		return toLowerCase;
 	}
 
-	public void setToLowerCase(boolean toLowerCase) {
+	public void setToLowerCase(boolean toLowerCase)
+	{
 		this.toLowerCase = toLowerCase;
 	}
 
-	public boolean isToUpperCase() {
+	public boolean isToUpperCase()
+	{
 		return toUpperCase;
 	}
 
-	public void setToUpperCase(boolean toUpperCase) {
+	public void setToUpperCase(boolean toUpperCase)
+	{
 		this.toUpperCase = toUpperCase;
 	}
 
-	public String getLastIndexOf() {
+	public String getLastIndexOf()
+	{
 		return lastIndexOf;
 	}
 
-	public void setLastIndexOf(String lastIndexOf) {
+	public void setLastIndexOf(String lastIndexOf)
+	{
 		this.lastIndexOf = lastIndexOf;
 	}
 
-	public int getFromIndex() {
+	public int getFromIndex()
+	{
 		return fromIndex;
 	}
 
-	public void setFromIndex(int fromIndex) {
+	public void setFromIndex(int fromIndex)
+	{
 		this.fromIndex = fromIndex;
 	}
 
-	public String getReplace() {
+	public String getReplace()
+	{
 		return replace;
 	}
 
-	public void setReplace(String replace) {
+	public void setReplace(String replace)
+	{
 		this.replace = replace;
 	}
 
-	public String getWith() {
+	public String getWith()
+	{
 		return with;
 	}
 
-	public void setWith(String with) {
+	public void setWith(String with)
+	{
 		this.with = with;
 	}
 
-	public boolean isTrim() {
+	public boolean isTrim()
+	{
 		return trim;
 	}
 
-	public void setTrim(boolean trim) {
+	public void setTrim(boolean trim)
+	{
 		this.trim = trim;
 	}
 }

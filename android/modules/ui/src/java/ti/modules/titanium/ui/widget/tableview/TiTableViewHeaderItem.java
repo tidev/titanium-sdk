@@ -41,8 +41,8 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			textView.setId(101);
 			textView.setFocusable(false);
 			textView.setFocusableInTouchMode(false);
-			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.MATCH_PARENT);
+			RelativeLayout.LayoutParams params =
+				new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 			params.addRule(CENTER_VERTICAL);
 			params.alignWithParent = true;
 			addView(textView, params);
@@ -102,7 +102,10 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 
 	public Item getRowData()
 	{
-		return rowView.getRowData();
+		if (rowView != null) {
+			return rowView.getRowData();
+		}
+		return null;
 	}
 
 	@Override
@@ -113,12 +116,11 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		int h = 0;
 		// If measure spec is not specified, height should behave as Ti.UI.SIZE
 		if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED) {
-		    h = getSuggestedMinimumHeight();
+			h = getSuggestedMinimumHeight();
 		} else {
-		    h = Math.max(MeasureSpec.getSize(heightMeasureSpec), getSuggestedMinimumHeight());
+			h = Math.max(MeasureSpec.getSize(heightMeasureSpec), getSuggestedMinimumHeight());
 		}
 		setMeasuredDimension(resolveSize(w, widthMeasureSpec), resolveSize(h, heightMeasureSpec));
-
 	}
 
 	@Override

@@ -18,6 +18,11 @@ let doc = {},
 	errorCount = 0,
 	standaloneFlag = false;
 
+// Constants that are valid, but are windows specific, so would fail validation
+const WINDOWS_CONSTANTS = [
+	'Titanium.UI.Windows.ListViewScrollPosition.*'
+];
+
 const Examples = [{
 	required: {
 		'title' : 'String',
@@ -230,6 +235,10 @@ function validateConstants(constants) {
 			errors = errors.concat(validateConstants(constant));
 		});
 	} else {
+		// skip windows constants that are OK, but would be marked invalid
+		if (WINDOWS_CONSTANTS.includes(constants)) {
+			return errors;
+		}
 		let prop = constants.split('.').pop();
 		const cls = constants.substring(0, constants.lastIndexOf('.'));
 		if (!(cls in doc) || !('properties' in doc[cls]) || doc[cls] === null) {
@@ -548,11 +557,16 @@ function validateKey(obj, syntax, currentKey, className) {
 			if (Array.isArray(syntax[0])) {
 				// Validate array elements against syntax array
 				const errs = [];
-				obj.forEach(function (elem) {
-					if (!~syntax[0].indexOf(elem)) {
-						errs.push('Invalid array element: ' + elem + '; possible values: ' + syntax[0]);
-					}
-				});
+				// If key is 'platforms', validate not an empty array!
+				if (currentKey === 'platforms' && obj.length === 0) {
+					errs.push('platforms array must not be empty. Remove to fall back to "default" platforms based on "since" value; or remove doc entry if this applies to no platforms.');
+				} else {
+					obj.forEach(function (elem) {
+						if (!~syntax[0].indexOf(elem)) {
+							errs.push('Invalid array element: ' + elem + '; possible values: ' + syntax[0]);
+						}
+					});
+				}
 				if (errs.length > 0) {
 					errors = errs;
 				}

@@ -13,12 +13,13 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.PickerProxy;
 
-public abstract class TiUIPicker extends TiUIView 
+public abstract class TiUIPicker extends TiUIView
 {
 	protected boolean suppressChangeEvent = false;
-	public boolean batchModelChange = false; // Set by proxy to indicate that several model changes are occurring and therefore view can wait to refresh
+	public boolean batchModelChange =
+		false; // Set by proxy to indicate that several model changes are occurring and therefore view can wait to refresh
 
-	public TiUIPicker(TiViewProxy proxy) 
+	public TiUIPicker(TiViewProxy proxy)
 	{
 		super(proxy);
 	}
@@ -26,29 +27,37 @@ public abstract class TiUIPicker extends TiUIView
 	public abstract void selectRow(int columnIndex, int rowIndex, boolean animated);
 	public abstract int getSelectedRowIndex(int columnIndex);
 	protected abstract void refreshNativeView();
-	
-	public void openPicker() {};
+
+	public void openPicker(){};
 
 	// When the whole set of columns has been changed out.
 	public void onModelReplaced()
 	{
-		if (!batchModelChange){
+		if (!batchModelChange) {
 			refreshNativeView();
 		}
 	}
 
 	// When a column has been added.
-	public void onColumnAdded(int columnIndex) {}
+	public void onColumnAdded(int columnIndex)
+	{
+	}
 	// When a column has been removed.
-	public void onColumnRemoved(int oldColumnIndex) {}	
+	public void onColumnRemoved(int oldColumnIndex)
+	{
+	}
 	// When a row has been added to / removed from a column
-	public void onColumnModelChanged(int columnIndex) {}
+	public void onColumnModelChanged(int columnIndex)
+	{
+	}
 	// When a row value has been changed.
-	public void onRowChanged(int columnIndex, int rowIndex) {}
+	public void onRowChanged(int columnIndex, int rowIndex)
+	{
+	}
 
 	protected PickerProxy getPickerProxy()
 	{
-		return (PickerProxy)proxy;
+		return (PickerProxy) proxy;
 	}
 
 	public void selectRows(ArrayList<Integer> selectionIndexes)

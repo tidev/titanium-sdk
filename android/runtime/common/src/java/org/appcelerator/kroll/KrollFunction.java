@@ -11,8 +11,7 @@ import java.util.HashMap;
 /**
  * An interface that exposes a Javascript function to Java.
  */
-public interface KrollFunction
-{
+public interface KrollFunction {
 	public class FunctionArgs
 	{
 		public KrollObject krollObject;
@@ -33,7 +32,7 @@ public interface KrollFunction
 	 * @module.api
 	 */
 	public Object call(KrollObject krollObject, HashMap args);
-	
+
 	/**
 	 * Executes a function synchronously. The result of call is the result of the Javascript function.
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
@@ -42,7 +41,7 @@ public interface KrollFunction
 	 * @module.api
 	 */
 	public Object call(KrollObject krollObject, Object[] args);
-	
+
 	/**
 	 * Executes a function asynchronously. 
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
@@ -50,7 +49,7 @@ public interface KrollFunction
 	 * @module.api
 	 */
 	public void callAsync(KrollObject krollObject, HashMap args);
-	
+
 	/**
 	 * Executes a function asynchronously. 
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
@@ -59,4 +58,3 @@ public interface KrollFunction
 	 */
 	public void callAsync(KrollObject krollObject, Object[] args);
 }
-

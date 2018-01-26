@@ -21,6 +21,11 @@
   [super dealloc];
 }
 
+- (NSString *)apiName
+{
+  return @"Ti.App.iOS.SearchQuery";
+}
+
 - (id)_initWithPageContext:(id<TiEvaluator>)context andArguments:(NSDictionary *)args
 {
   ENSURE_TYPE([args objectForKey:@"queryString"], NSString);

@@ -21,11 +21,13 @@ import javax.net.ssl.TrustManager;
 
 import org.appcelerator.kroll.common.Log;
 
-public class NonValidatingSSLSocketFactory extends SSLSocketFactory {
+public class NonValidatingSSLSocketFactory extends SSLSocketFactory
+{
 	private SSLSocketFactory sslFactory;
 	private static final String TAG = "NVSSLSocketFactory";
 
-	public NonValidatingSSLSocketFactory() {
+	public NonValidatingSSLSocketFactory()
+	{
 		try {
 			SSLContext context = SSLContext.getInstance("TLS");
 			TrustManager managers[] = new TrustManager[] { new NonValidatingTrustManager() };
@@ -37,48 +39,52 @@ public class NonValidatingSSLSocketFactory extends SSLSocketFactory {
 	}
 
 	@Override
-	public Socket createSocket() throws IOException {
+	public Socket createSocket() throws IOException
+	{
 		return sslFactory.createSocket();
 	}
 
 	@Override
-	public Socket createSocket(String host, int port) throws IOException,
-			UnknownHostException {
+	public Socket createSocket(String host, int port) throws IOException, UnknownHostException
+	{
 		return sslFactory.createSocket(host, port);
 	}
 
 	@Override
-	public Socket createSocket(String host, int port, InetAddress localHost,
-			int localPort) throws IOException, UnknownHostException {
-		return sslFactory.createSocket(host, port, localHost,localPort);
+	public Socket createSocket(String host, int port, InetAddress localHost, int localPort)
+		throws IOException, UnknownHostException
+	{
+		return sslFactory.createSocket(host, port, localHost, localPort);
 	}
 
 	@Override
-	public Socket createSocket(InetAddress host, int port) throws IOException {
+	public Socket createSocket(InetAddress host, int port) throws IOException
+	{
 		return sslFactory.createSocket(host, port);
 	}
 
 	@Override
-	public Socket createSocket(InetAddress address, int port,
-			InetAddress localAddress, int localPort) throws IOException {
-		return sslFactory.createSocket(address, port, localAddress,localPort);
+	public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort)
+		throws IOException
+	{
+		return sslFactory.createSocket(address, port, localAddress, localPort);
 	}
 
-
 	@Override
-	public String[] getDefaultCipherSuites() {
+	public String[] getDefaultCipherSuites()
+	{
 		return null;
 	}
 
-
 	@Override
-	public String[] getSupportedCipherSuites() {
+	public String[] getSupportedCipherSuites()
+	{
 		return null;
 	}
 
-
 	@Override
-	public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
-		return sslFactory.createSocket(s,host, port, autoClose);
+	public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException
+	{
+		return sslFactory.createSocket(s, host, port, autoClose);
 	}
 }

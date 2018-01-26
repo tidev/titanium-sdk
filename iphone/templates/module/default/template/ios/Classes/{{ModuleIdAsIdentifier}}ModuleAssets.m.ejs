@@ -1,0 +1,24 @@
+/**
+ * This is a generated file. Do not edit or your changes will be lost
+ */
+#import "<%- moduleIdAsIdentifier %>ModuleAssets.h"
+
+extern NSData* filterDataInRange(NSData* thedata, NSRange range);
+
+@implementation <%- moduleIdAsIdentifier %>ModuleAssets
+
+- (NSData *)moduleAsset
+{
+  <%- mainEncryptedAsset %>
+
+  <%- mainEncryptedAssetReturn %>
+}
+
+- (NSData *)resolveModuleAsset:(NSString *)path
+{
+  <%- allEncryptedAssets %>
+
+  <%- allEncryptedAssetsReturn %>
+}
+
+@end

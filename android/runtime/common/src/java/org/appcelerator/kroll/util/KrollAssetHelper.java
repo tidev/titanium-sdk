@@ -20,12 +20,11 @@ import android.util.Log;
 public class KrollAssetHelper
 {
 	private static final String TAG = "TiAssetHelper";
-	private static WeakReference<AssetManager> manager;
+	private static AssetManager assetManager;
 	private static String packageName, cacheDir;
 	private static AssetCrypt assetCrypt;
 
-	public interface AssetCrypt
-	{
+	public interface AssetCrypt {
 		String readAsset(String path);
 	}
 
@@ -36,7 +35,7 @@ public class KrollAssetHelper
 
 	public static void init(Context context)
 	{
-		KrollAssetHelper.manager = new WeakReference<AssetManager>(context.getAssets());
+		KrollAssetHelper.assetManager = context.getAssets();
 		KrollAssetHelper.packageName = context.getPackageName();
 		KrollAssetHelper.cacheDir = context.getCacheDir().getAbsolutePath();
 	}
@@ -53,7 +52,6 @@ public class KrollAssetHelper
 		}
 
 		try {
-			AssetManager assetManager = manager.get();
 			if (assetManager == null) {
 				Log.e(TAG, "AssetManager is null, can't read asset: " + path);
 				return null;
@@ -105,18 +103,19 @@ public class KrollAssetHelper
 		return null;
 	}
 
-	public static boolean assetExists(String path) {
+	public static boolean assetExists(String path)
+	{
 		if (assetCrypt != null) {
 			String asset = assetCrypt.readAsset(path.replace("Resources/", ""));
 			if (asset != null) {
 				return true;
 			}
 		}
-		if (manager != null) {
-			AssetManager assetManager = manager.get();
+		if (assetManager != null) {
 			try {
 				return assetManager != null && assetManager.open(path) != null;
-			} catch (IOException e) {}
+			} catch (IOException e) {
+			}
 		}
 		return false;
 	}
