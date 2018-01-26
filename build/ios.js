@@ -13,7 +13,8 @@ const exec = require('child_process').exec, // eslint-disable-line security/dete
 	ROOT_DIR = path.join(__dirname, '..'),
 	IOS_ROOT = path.join(ROOT_DIR, 'iphone'),
 	IOS_LIB = path.join(IOS_ROOT, 'lib'),
-	TI_CORE_VERSION = 24;
+	TI_CORE_VERSION = 24,
+	TI_CORE_INTEGRITY = 'sha512-iTyrzaMs6SfPlyEgO70pg8EW08mn211tjpAI5hAmRHQaZGu1ieuBnT8uEkEYcsO8hdzAFbouqPPEaXWcJH5SLA==';
 
 function gunzip(gzFile, destFile, next) {
 	console.log('Gunzipping ' + gzFile + ' to ' + destFile);
@@ -55,7 +56,7 @@ IOS.prototype.fetchLibTiCore = function (next) {
 	console.log('You don\'t seem to have the appropriate thirdparty files. I\'ll fetch them.');
 	console.log('This could take awhile.. Might want to grab a cup of Joe or make fun of Nolan.');
 
-	downloadURL(url, function (err, file) {
+	downloadURL(url, TI_CORE_INTEGRITY, function (err, file) {
 		if (err) {
 			return next(err);
 		}
