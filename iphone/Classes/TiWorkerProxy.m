@@ -61,7 +61,7 @@
 
 #pragma mark Private APIs
 
-- (NSString *)makeTemp:(NSData *)data
+- (NSString *)writeWorkerFile:(NSData *)data
 {
   NSString *tempDir = NSTemporaryDirectory();
   NSError *error = nil;
@@ -129,10 +129,25 @@
     }
 
     // pull it in to some wrapper code so we can provide a start function and pre-define some variables/functions
-    NSString *wrapper = [NSString stringWithFormat:@"function TiWorkerStart__() { var worker = Ti.App.currentWorker; worker.nextTick = function(t) { setTimeout(t,0); }; %@ };", source];
+    NSString *wrapper = [NSString stringWithFormat:@" \
+                          function TiWorkerStart__() { \
+                            var worker =  Ti.App.currentWorker; \
+                            \
+                            function postMessage(message) { \
+                              Ti.App.currentWorker.postMessage(message); \
+                            } \
+                            \
+                            function nextTick(t) { \
+                              setTimeout(t,0); \
+                            } \
+                            \
+                            %@ \
+                          }; \
+                        ",
+                                  source];
 
     // we delete file below when booted
-    _tempFile = [self makeTemp:[wrapper dataUsingEncoding:NSUTF8StringEncoding]];
+    _tempFile = [self writeWorkerFile:[wrapper dataUsingEncoding:NSUTF8StringEncoding]];
     NSURL *tempurl = [NSURL fileURLWithPath:_tempFile isDirectory:NO];
 
     // start the boot which will run on its own thread automatically
@@ -152,7 +167,11 @@
   dispatch_async(_serialQueue, ^{
     _booted = YES;
     [_selfProxy setExecutionContext:_bridge];
-    [[NSFileManager defaultManager] removeItemAtPath:_tempFile error:nil];
+    NSError *error = nil;
+    [[NSFileManager defaultManager] removeItemAtPath:_tempFile error:&error];
+    if (error != nil) {
+      DebugLog(@"[DEBUG] Cannot remove temporary worker file");
+    }
   });
 
   // start our JS processing
@@ -188,7 +207,7 @@
 {
   return @{
     @"message" : error,
-    @"filename" : NULL_IF_NIL(_selfProxy.url), // FIXME: Why is this nil?
+    @"filename" : NULL_IF_NIL(_selfProxy.url),
     @"lineno" : @0 // FIXME: Can we determine the line number in the JavaScript context?
   };
 }

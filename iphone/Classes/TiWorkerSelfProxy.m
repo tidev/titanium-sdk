@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import "KrollBridge.h"
 #import "TiWorkerSelfProxy.h"
 #import "TiWorkerProxy.h"
 

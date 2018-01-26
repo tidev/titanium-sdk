@@ -6,6 +6,7 @@
  */
 
 #import "KrollBridge.h"
+#import "TiBindingTiValue.h"
 #import "TiProxy.h"
 #import "TiWorkerSelfProxy.h"
 

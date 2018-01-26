@@ -319,6 +319,7 @@
 		DADE76D413D65C590079FC75 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DADE76D313D65C590079FC75 /* libicucore.dylib */; };
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DB0D54951F3B4A3D00E2B771 /* TiUIToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */; };
+		DB32CEDC201B37B000F75305 /* TiWorkerJS.m in Sources */ = {isa = PBXBuildFile; fileRef = DB32CEDB201B37B000F75305 /* TiWorkerJS.m */; };
 		DB8B316820192626004FE6DB /* TiWorkerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB8B316720192626004FE6DB /* TiWorkerProxy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		DB8B316E201926D1004FE6DB /* TiWorkerSelfProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB8B316D201926D1004FE6DB /* TiWorkerSelfProxy.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		DB90749F1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */; };
@@ -965,6 +966,8 @@
 		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
 		DB0D54931F3B4A3D00E2B771 /* TiUIToolbarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIToolbarProxy.h; sourceTree = "<group>"; };
 		DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIToolbarProxy.m; sourceTree = "<group>"; };
+		DB32CEDA201B37B000F75305 /* TiWorkerJS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiWorkerJS.h; sourceTree = "<group>"; };
+		DB32CEDB201B37B000F75305 /* TiWorkerJS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiWorkerJS.m; sourceTree = "<group>"; };
 		DB8B316620192626004FE6DB /* TiWorkerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiWorkerProxy.h; sourceTree = "<group>"; };
 		DB8B316720192626004FE6DB /* TiWorkerProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiWorkerProxy.m; sourceTree = "<group>"; };
 		DB8B316C201926D1004FE6DB /* TiWorkerSelfProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiWorkerSelfProxy.h; sourceTree = "<group>"; };
@@ -2425,6 +2428,8 @@
 				DB8B316D201926D1004FE6DB /* TiWorkerSelfProxy.m */,
 				DB8B316620192626004FE6DB /* TiWorkerProxy.h */,
 				DB8B316720192626004FE6DB /* TiWorkerProxy.m */,
+				DB32CEDA201B37B000F75305 /* TiWorkerJS.h */,
+				DB32CEDB201B37B000F75305 /* TiWorkerJS.m */,
 			);
 			name = Worker;
 			sourceTree = "<group>";
@@ -2829,6 +2834,7 @@
 				502A68DA16EEAA7500661EF6 /* TiUIListItem.m in Sources */,
 				502A68DD16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */,
 				502A68E016EEAA7500661EF6 /* TiUIListSectionProxy.m in Sources */,
+				DB32CEDC201B37B000F75305 /* TiWorkerJS.m in Sources */,
 				502A68E316EEAA7500661EF6 /* TiUIListView.m in Sources */,
 				502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
 				502A68EB16F0428500661EF6 /* TiViewTemplate.m in Sources */,

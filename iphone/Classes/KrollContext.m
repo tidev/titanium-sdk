@@ -8,10 +8,9 @@
 #import "KrollCallback.h"
 #import "KrollObject.h"
 #import "KrollTimer.h"
-#import "TiBindingTiValue.h"
 #import "TiLocale.h"
 #import "TiUtils.h"
-#import "TiWorkerProxy.h"
+#import "TiWorkerJS.h"
 
 #import "TiExceptionHandler.h"
 #include <pthread.h>
@@ -1143,109 +1142,6 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   return 0;
 }
 
-// Worker class definition
-TiClassRef TiWorker_class(TiContextRef context)
-{
-  static TiClassRef jsClass;
-  if (!jsClass) {
-    TiClassDefinition definition = kTiClassDefinitionEmpty;
-    definition.className = "Worker";
-    definition.initialize = TiWorker_initialize;
-    definition.finalize = TiWorker_finalize;
-    definition.staticFunctions = TiWorker_staticFunctions;
-    definition.setProperty = TiWorker_setProperty;
-
-    jsClass = TiClassCreate(&definition);
-  }
-  return jsClass;
-}
-
-// Worker initializer
-void TiWorker_initialize(TiContextRef context, TiObjectRef object)
-{
-  TiWorkerProxy *worker = TiObjectGetPrivate(object);
-  // TODO: What to do here?
-}
-
-// Worker finalizer
-void TiWorker_finalize(TiObjectRef object)
-{
-  TiWorkerProxy *worker = TiObjectGetPrivate(object);
-  // TODO: Cleanup or manually terminate here?
-}
-
-// Expose public worker APIs
-TiStaticFunction TiWorker_staticFunctions[] = {
-  { "postMessage", TiWorker_postMessage, kTiPropertyAttributeDontDelete },
-  { "terminate", TiWorker_terminate, kTiPropertyAttributeDontDelete },
-  { 0, 0, 0 }
-};
-
-// Generically set callbacks (onerror, onmessage, onmessageerror) on worker proxy
-bool TiWorker_setProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef prop, TiValueRef value, TiValueRef *exception)
-{
-  id privateObject = (id)TiObjectGetPrivate(object);
-  if ([privateObject isKindOfClass:[KrollContext class]]) {
-    return false;
-  }
-
-  KrollObject *o = (KrollObject *)privateObject;
-  @try {
-    NSString *name = (NSString *)TiStringCopyCFString(kCFAllocatorDefault, prop);
-    [name autorelease];
-
-    id v = TiBindingTiValueToNSObject(jsContext, value);
-
-    if (![v isKindOfClass:[KrollCallback class]]) {
-      return ThrowException(jsContext, @"Invalid type provided, should be a callback", exception);
-    }
-#ifdef TI_USE_KROLL_THREAD
-    [o setValue:v
-          forKey:name];
-#else
-    TiThreadPerformOnMainThread(^{
-      [o setValue:v forKey:name];
-    },
-        YES);
-#endif
-    return true;
-  }
-  @catch (NSException *ex) {
-    *exception = [KrollObject toValue:[o context] value:ex];
-  }
-  return false;
-}
-
-// worker.postMessage(message);
-TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
-{
-  TiWorkerProxy *worker = TiObjectGetPrivate(thisObject);
-  NSDictionary *message = TiBindingTiValueToNSDictionary(context, arguments[0]);
-
-  [worker postMessage:message];
-
-  return TiValueMakeUndefined(context);
-}
-
-// worker.terminate();
-TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
-{
-  TiWorkerProxy *worker = TiObjectGetPrivate(thisObject);
-  [worker terminate:nil];
-
-  return TiValueMakeUndefined(context);
-}
-
-// Constructor: var worker = new Worker(message);
-TiObjectRef TiWorker_construct(TiContextRef context, TiObjectRef object, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
-{
-  KrollContext *ctx = GetKrollContext(context);
-  NSString *path = [((NSString *)TiStringCopyCFString(kCFAllocatorDefault, TiValueToStringCopy(context, arguments[0], NULL)))autorelease];
-  TiWorkerProxy *proxy = [[TiWorkerProxy alloc] initWithPath:path host:[(id<TiEvaluator>)[ctx delegate] host] pageContext:(id<TiEvaluator>)[ctx delegate]];
-
-  return TiObjectMake(context, TiWorker_class(context), proxy);
-}
-
 - (void)main
 {
 #ifdef TI_USE_KROLL_THREAD
@@ -1296,7 +1192,8 @@ TiObjectRef TiWorker_construct(TiContextRef context, TiObjectRef object, size_t 
 
   // create Worker global, instantiated with "new Worker('path/to/file.js')
   TiStringRef node = TiStringCreateWithUTF8CString("Worker");
-  TiObjectSetProperty(context, globalRef, node, TiObjectMakeConstructor(context, TiWorker_class(context), TiWorker_construct), kTiPropertyAttributeNone, NULL);
+  TiWorkerJS *workerJS = [TiWorkerJS new];
+  TiObjectSetProperty(context, globalRef, node, TiObjectMake(context, [workerJS constructWithContext:context], NULL), kTiPropertyAttributeNone, NULL);
   TiStringRelease(node);
 
   prop = TiStringCreateWithUTF8CString("String");
