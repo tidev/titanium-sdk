@@ -10,6 +10,14 @@
 
 @interface TiWorkerJS : NSObject
 
+// Constructor
 - (TiClassRef)constructWithContext:(TiContextRef)context;
+
+// Methods
+TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception);
+TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception);
+
+// Properties
+bool TiWorker_setProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef prop, TiValueRef value, TiValueRef *exception);
 
 @end
