@@ -58,7 +58,17 @@
 {
   ENSURE_SINGLE_ARG(args, NSObject);
 
-  NSString *str = [[self convertToString:args] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+  NSMutableString *str = [[NSMutableString alloc] initWithString:[[self convertToString:args]
+                                                                     stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+  // Fill padding for backwards compatibility
+  while ([str length] % 4 != 0) {
+    [str appendString:@"="];
+  }
+
+  if ([str rangeOfString:@"="].length > 2) {
+    NSLog(@"[WARN] The Base64 string seems to have an invalid padding, please make sure to pass a valid value!");
+  }
+
   NSData *decodedData = [[[NSData alloc] initWithBase64EncodedString:str options:0] autorelease];
 
   if (decodedData != nil) {
