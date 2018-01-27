@@ -170,7 +170,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: "7.1.0"
 
   - name: hintText
@@ -180,10 +180,10 @@ properties:
 
   - name: hintTextColor
     summary: Hint text color to display when the field is empty.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     since: "7.1.0"
     description: |
-        Sets the color of the <Titanium.UI.TextField.hintText>.
+        Sets the color of the <Titanium.UI.SearchBar.hintText>.
     type: String
     default: The platform's default hint text color.
 
