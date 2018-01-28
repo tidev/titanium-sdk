@@ -380,7 +380,6 @@ AndroidModuleBuilder.prototype.doAnalytics = function doAnalytics(next) {
 AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.tiSymbols = {};
 	this.metaData = [];
-	this.documentation = [];
 	this.classPaths = {};
 	this.classPaths[this.androidCompileSDK.androidJar] = 1;
 	this.manifestFile = path.join(this.projectDir, 'manifest');
@@ -1797,26 +1796,6 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 	fs.emptyDirSync(this.distDir);
 
 	const tasks = [
-		function (cb) {
-			// Generate documentation
-			if (fs.existsSync(this.documentationDir)) {
-				const files = fs.readdirSync(this.documentationDir);
-				for (const i in files) {
-					const file = files[i],
-						currentFile = path.join(this.documentationDir, file);
-					if (fs.statSync(currentFile).isFile()) {
-						const obj = {},
-							contents = fs.readFileSync(currentFile).toString();
-
-						obj[file] = markdown.toHTML(contents);
-						this.documentation.push(obj);
-					}
-				}
-			}
-
-			cb();
-		},
-
 		/**
 		 * Generates the module jar file.
 		 *
@@ -1907,10 +1886,10 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 							return walk(file, path.join(parent, name));
 						}
 
-						let contents = fs.readFileSync(file).toString();
+						let contents = fs.readFileSync(file);
 
 						if (mdRegExp.test(name)) {
-							contents = markdown.toHTML(contents);
+							contents = markdown.toHTML(contents.toString());
 							name = name.replace(/\.md$/, '.html');
 						}
 
