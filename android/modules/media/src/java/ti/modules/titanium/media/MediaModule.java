@@ -1227,13 +1227,15 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		TiIntentWrapper previewIntent = new TiIntentWrapper(intent);
 		String mimeType = image.getMimeType();
+		Uri imageUri = TiFileProvider.createUriFrom(f.getNativeFile());
 
 		if (mimeType != null && mimeType.length() > 0) {
-			intent.setDataAndType(Uri.parse(f.nativePath()), mimeType);
+			intent.setDataAndType(imageUri, mimeType);
 		} else {
-			intent.setData(Uri.parse(f.nativePath()));
+			intent.setData(imageUri);
 		}
 
 		previewIntent.setWindowId(TiIntentWrapper.createActivityName("PREVIEW"));

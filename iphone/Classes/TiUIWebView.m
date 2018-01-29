@@ -315,19 +315,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (UIScrollView *)scrollview
 {
-  UIWebView *webView = [self webview];
-  if ([webView respondsToSelector:@selector(scrollView)]) {
-    // as of iOS 5.0, we can return the scroll view
-    return [webView scrollView];
-  } else {
-    // in earlier versions, we need to find the scroll view
-    for (id subview in [webView subviews]) {
-      if ([subview isKindOfClass:[UIScrollView class]]) {
-        return (UIScrollView *)subview;
-      }
-    }
-  }
-  return nil;
+  return [[self webview] scrollView];
 }
 
 #pragma mark Public APIs

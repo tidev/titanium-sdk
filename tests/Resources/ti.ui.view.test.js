@@ -18,6 +18,21 @@ describe('Titanium.UI.View', function () {
 
 	this.timeout(5000);
 
+	before(function (finish) {
+		rootWindow = Ti.UI.createWindow();
+		rootWindow.addEventListener('open', function () {
+			finish();
+		});
+		rootWindow.open();
+	});
+
+	after(function (finish) {
+		rootWindow.addEventListener('close', function () {
+			finish();
+		});
+		rootWindow.close();
+	});
+
 	beforeEach(function () {
 		didFocus = false;
 		didPostLayout = false;
@@ -645,6 +660,34 @@ describe('Titanium.UI.View', function () {
 				finish(err);
 			}
 		});
+		win.open();
+	});
+
+	// TIMOB-25656: Android specific issue where getOrCreateView() could return null
+	it.android('getOrCreateView() should always return a View', function (finish) {
+		win = Ti.UI.createWindow();
+		
+		win.addEventListener('open', function (e) {
+
+			var child = Ti.UI.createWindow();
+			
+			child.addEventListener('open', function (e) {
+				var imageView = Ti.UI.createImageView();
+
+				child.addEventListener('close', function (e) {
+					try {
+						imageView.tintColor;
+					} catch (error) {
+						finish(error);
+					}
+					finish();
+				});
+				child.close();
+			});
+
+			child.open();
+		});
+
 		win.open();
 	});
 });

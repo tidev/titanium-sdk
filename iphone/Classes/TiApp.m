@@ -454,8 +454,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   return YES;
 }
 
-#pragma mark
-#pragma mark Background Fetch iOS 7
+#pragma mark Background Fetch
 
 #ifdef USE_TI_FETCH
 
@@ -486,7 +485,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #endif
 
-#pragma mark Remote and Local Notifications iOS 8
+#pragma mark Remote and Local Notifications
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
@@ -699,8 +698,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #endif
 
-#pragma mark
-#pragma mark Background Transfer Service iOS 7
+#pragma mark Background Transfer Service
 
 //Delegate callback for Background Transfer completes.
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
