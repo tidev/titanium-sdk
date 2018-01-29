@@ -24,11 +24,13 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
+	babel = require('babel-core'),
 	Builder = require('../lib/base-builder.js'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
+	env = require('babel-preset-env'),
 	fields = require('fields'),
 	fs = require('fs'),
 	i18n = require('node-titanium-sdk/lib/i18n'),
@@ -46,7 +48,8 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	i18nLib = appc.i18n(__dirname),
 	__ = i18nLib.__,
 	__n = i18nLib.__n,
-	version = appc.version;
+	version = appc.version,
+	V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
@@ -2699,27 +2702,41 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				try {
 					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
 						// parse the AST
-						const r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+						const originalContents = fs.readFileSync(from).toString();
+						const r = jsanalyze.analyzeJs(originalContents, { minify: this.minifyJS, filename: from });
 
 						// we want to sort by the "to" filename so that we correctly handle file overwriting
 						this.tiSymbols[to] = r.symbols;
 
-						const dir = path.dirname(to);
-						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+						// Now transpile too!
+						this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
+							const dir = path.dirname(to);
+							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+							// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
+							const v8Version = this.packageJson.v8.version;
+							const found = v8Version.match(V8_STRING_VERSION_REGEXP);
+							const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
+							const result = babel.transform(r.contents, {
+								filename: from,
+								presets: [
+									[ env, {
+										'targets': {
+											'chrome': chromeVersion,
+										}
+									}]
+								]
+							});
+							const newContents = result.code;
 
-						if (this.minifyJS) {
-							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-
-							this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
-								fs.writeFile(to, r.contents, cb2);
-							})(r, from, to, cb);
-						} else if (symlinkFiles) {
-							copyFile.call(this, from, to, cb);
-						} else {
-							// we've already read in the file, so just write the original contents
-							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-							fs.writeFile(to, r.contents, cb);
-						}
+							// If we're able to symlink and the contents didn't change, great let's just symlink
+							if (symlinkFiles && newContents === originalContents) {
+								copyFile.call(this, from, to, cb2);
+							} else {
+								// code changed or we can't symlink. Either way, write the file to dest
+								this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+								fs.writeFile(to, newContents, cb2);
+							}
+						})(r, from, to, cb);
 					})(from, to, done);
 				} catch (ex) {
 					ex.message.split('\n').forEach(this.logger.error);
