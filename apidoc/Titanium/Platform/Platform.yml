@@ -67,10 +67,11 @@ methods:
         summary: |
             The optional options to pass to the URL handling (iOS 10+). Pass a
             dictionary with one or more of the following string-keys:
-                * UIApplicationOpenURLOptionsSourceApplicationKey
-                * UIApplicationOpenURLOptionsAnnotationKey
-                * UIApplicationOpenURLOptionsOpenInPlaceKey
-                * UIApplicationOpenURLOptionUniversalLinksOnly
+                * `UIApplicationOpenURLOptionsSourceApplicationKey` (String value)
+                * `UIApplicationOpenURLOptionsAnnotationKey` (Array value)
+                * `UIApplicationOpenURLOptionsOpenInPlaceKey` (Boolean value)
+                * `UIApplicationOpenURLOptionUniversalLinksOnly` (Boolean value)
+            Read more about the available keys in the [Apple documentation](https://developer.apple.com/documentation/uikit/uiapplicationopenurloptionskey?language=objc).
         type: Dictionary
       - name: callback
         summary: The optional callback that is called once the URL is opened (iOS 10+).
