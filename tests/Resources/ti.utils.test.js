@@ -63,16 +63,26 @@ describe('Titanium.Utils', function () {
 		should(Ti.Utils.base64encode(contents).toString()).eql('SSBhbSBub3QgZW5jb2RlZCB5ZXQu');
 	});
 
-	// FIXME: This base64encode and base64decode accept Ti.File as a parameter, but Windows doesn't.
+	// FIXME: base64encode accepts Ti.File as a parameter on iOS/Android, but not on Windows.
 	it.windowsBroken('#base64encode(Ti.Filesystem.File)', function () {
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt'),
-			blob = Ti.Utils.base64encode(f),
-			string;
+		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt');
+		var blob = Ti.Utils.base64encode(f);
 
 		// result here is a Ti.Blob
 		should(blob).be.a.Object;
 		should(blob.apiName).eql('Ti.Blob');
 		should(blob.text).eql('SSBhbSBub3QgZW5jb2RlZCB5ZXQu');
+	});
+
+	// FIXME: base64decode accepts Ti.File as a parameter on iOS/Android, but not on Windows.
+	it.windowsBroken('#base64decode(Ti.Filesystem.File)', function () {		
+		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/encodedFile.txt');
+		var blob = Ti.Utils.base64decode(f);
+
+		// result here is a Ti.Blob
+		should(blob).be.a.Object;
+		should(blob.apiName).eql('Ti.Blob');
+		should(blob.toString()).eql('Decoding successful!');
 	});
 
 	it('#md5HexDigest(String)', function () {

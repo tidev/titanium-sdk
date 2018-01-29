@@ -11,7 +11,7 @@ methods:
   - name: base64decode
     summary: Returns the specified data decoded from Base64.
     description: |
-        The parameter can be a String, Ti.Blob or Ti.File (iOS and Android only).
+        The parameter can be a String, Ti.Blob or Ti.File (iOS since 7.0.2 and Android since 3.3.0).
     returns:
         type: Titanium.Blob
     parameters:
@@ -22,7 +22,7 @@ methods:
   - name: base64encode
     summary: Returns the specified data encoded to Base64.
     description: |
-        The parameter can be a String, Ti.Blob or Ti.File (iOS and Android only).
+        The parameter can be a String, Ti.Blob or Ti.File (iOS since 7.0.2 and Android since 3.3.0).
     returns:
         type: Titanium.Blob
     parameters:
