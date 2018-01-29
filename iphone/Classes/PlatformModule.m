@@ -276,7 +276,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   KrollCallback *callback = nil;
   NSMutableDictionary *options = [NSMutableDictionary dictionary];
 
-  if ([args count] > 0) {
+  if ([args count] >= 2) {
     if ([[args objectAtIndex:1] isKindOfClass:[NSDictionary class]]) {
       ENSURE_ARG_AT_INDEX(options, args, 1, NSMutableDictionary);
       if ([args count] == 3) {
