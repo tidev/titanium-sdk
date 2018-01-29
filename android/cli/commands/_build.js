@@ -1738,6 +1738,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'processTiSymbols',
 		'copyModuleResources',
 		'removeOldFiles',
+		'copyGradleTemplate',
 		'generateJavaFiles',
 		'generateAidl',
 
@@ -3235,6 +3236,23 @@ AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 	next();
 };
 
+AndroidBuilder.prototype.copyGradleTemplate = function copyGradleTemplate(next) {
+	// Copy Titanium's ProGuard gradle script to the app's build directory.
+	afs.copyFileSync(path.join(this.templatesDir, 'proguard.gradle'), this.buildDir, { logger: this.logger.debug });
+
+	// Copy the gradle template directory tree to the app's build directory.
+	// Note: The copy function does not copy file permissions. So, we must re-add execute permissions.
+	//       0o755 = User Read/Write/Exec, Group Read/Execute, Others Read/Execute
+	afs.copyDirSyncRecursive(path.join(this.platformPath, 'templates', 'gradle'), this.buildDir, {
+		logger: this.logger.debug,
+		preserve: false
+	});
+	fs.chmodSync(path.join(this.buildDir, 'gradlew'), 0o755);
+	fs.chmodSync(path.join(this.buildDir, 'gradlew.bat'), 0o755);
+
+	next();
+};
+
 AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	if (!this.forceRebuild) {
 		return next();
@@ -4092,8 +4110,11 @@ AndroidBuilder.prototype.runProguard = function runProguard(next) {
 		});
 
 	proguardHook(
-		this.jdkInfo.executables.java,
-		[ '-jar', this.androidInfo.sdk.proguard, '@' + proguardConfigFile ],
+		path.join(this.buildDir, (process.platform === 'win32') ? 'gradlew.bat' : 'gradlew'),
+		[
+			'-b', path.join(this.buildDir, 'proguard.gradle'),
+			'-Pconfiguration=' + proguardConfigFile
+		],
 		{ cwd: this.buildDir },
 		next
 	);
@@ -4117,13 +4138,15 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				done();
 			}.bind(this));
 		}),
-		injars = [
+		injarsCore = [
 			this.buildBinClassesDir,
 			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
-		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries)),
+		].concat(Object.keys(this.jarLibraries)),
+		injarsAll = injarsCore.slice().concat(Object.keys(this.moduleJars)),
 		shrinkedAndroid = path.join(path.dirname(this.androidInfo.sdk.dx), 'shrinkedAndroid.jar'),
 		baserules = path.join(path.dirname(this.androidInfo.sdk.dx), '..', 'mainDexClasses.rules'),
-		outjar = path.join(this.buildDir, 'mainDexClasses.jar');
+		outjar = path.join(this.buildDir, 'mainDexClasses.jar'),
+		pathArraySeparator = (process.platform === 'win32') ? ';' : ':';
 	let dexArgs = [
 		'-Xmx' + this.dxMaxMemory,
 		'-XX:-UseGCOverheadLimit',
@@ -4141,11 +4164,11 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	}
 
 	if (this.allowDebugging && this.debugPort) {
-		injars.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
+		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
 	}
 
 	if (this.allowProfiling && this.profilerPort) {
-		injars.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
+		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
 	}
 
 	// nuke and create the folder holding all the classes*.dex files
@@ -4157,32 +4180,43 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	// Wipe existing outjar
 	fs.existsSync(outjar) && fs.unlinkSync(outjar);
 
-	// We need to hack multidex for APi level < 21 to generate the list of classes that *need* to go into the first dex file
-	// We skip these intermediate steps if 21+ and eventually just run dexer
+	// Add all Java classes used/declared by the "Application" derived class to main dex file.
+	// We only do this if the min Android OS version supported is less than 5.0.
+	// Note: Android OS versions older than 5.0 (API Level 21) do not natively support multidexed apps.
+	//       So, we have to call Multidex.install() Java method upon app startup for Android 4.x support.
+	//       Since Java runtime attempts to find all classes used by "Application" derived class before
+	//       the app can invoke the Multidex.install() method, we must ensure those classes are in the
+	//       main dex file or else the runtime will fail to link those classes and cause a crash on 4.x.
 	async.series([
 		function (done) {
-			// 'api-level' and 'sdk' properties both seem to hold apiLevel
-			if (this.androidTargetSDK.sdk >= 21) {
+			// Skip the below if the min Android OS version supported is 5.0 or higher.
+			if (this.minSDK >= 21) {
 				return done();
 			}
 
-			// Run: java
-			// -jar $this.androidInfo.sdk.proguard
-			// -injars "${@}"
-			// -dontwarn -forceprocessing
-			// -outjars ${tmpOut}
-			// -libraryjars "${shrinkedAndroidJar}"
-			// -dontoptimize -dontobfuscate -dontpreverify
-			// -include "${baserules}"
-			appc.subprocess.run(this.jdkInfo.executables.java, [
-				'-jar',
-				this.androidInfo.sdk.proguard,
-				'-injars', injars.join(':'),
-				'-dontwarn', '-forceprocessing',
-				'-outjars', outjar,
-				'-libraryjars', shrinkedAndroid,
-				'-dontoptimize', '-dontobfuscate', '-dontpreverify', '-include',
-				baserules
+			// Create a ProGuard config file.
+			let proguardConfig
+					= '-dontoptimize\n'
+					+ '-dontobfuscate\n'
+					+ '-dontpreverify\n'
+					+ '-dontwarn **\n'
+					+ '-libraryjars ' + shrinkedAndroid + '\n';
+			for (let index = 0; index < injarsCore.length; index++) {
+				proguardConfig += '-injars ' + injarsCore[index] + '(!META-INF/**)\n';
+			}
+			proguardConfig += '-outjars ' + outjar + '\n';
+			const mainDexProGuardFilePath = path.join(this.buildDir, 'mainDexProGuard.txt');
+			fs.writeFileSync(mainDexProGuardFilePath, proguardConfig);
+
+			// Run ProGuard via Gradle to create a single JAR of all the main Java classes used by the app.
+			// Note: ProGuard included with the Android SDK is very old (v4.x) and doesn't support loading Java 8 JARs,
+			//       such as the JARs Google provides with Android build-tools v27. Google now acquires the newest
+			//       version of ProGuard via Gradle/Maven, which is kept up to date by the ProGuard maintainers.
+			const gradleAppFileName = (process.platform === 'win32') ? 'gradlew.bat' : 'gradlew';
+			appc.subprocess.run(path.join(this.buildDir, gradleAppFileName), [
+				'-b', path.join(this.buildDir, 'proguard.gradle'),
+				'-Pforceprocessing=true',
+				'-Pconfiguration=' + baserules + pathArraySeparator + mainDexProGuardFilePath
 			], {}, function (code, out, err) {
 				if (code) {
 					this.logger.error(__('Failed to run dexer:'));
@@ -4196,12 +4230,12 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 		}.bind(this),
 		// Run: java -cp $this.androidInfo.sdk.dx com.android.multidex.MainDexListBuilder "$outjar" "$injars"
 		function (done) {
-			// 'api-level' and 'sdk' properties both seem to hold apiLevel
-			if (this.androidTargetSDK.sdk >= 21) {
+			// Skip the below if the min Android OS version supported is 5.0 or higher.
+			if (this.minSDK >= 21) {
 				return done();
 			}
 
-			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injars.join(':') ], {}, function (code, out, err) {
+			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injarsCore.join(pathArraySeparator) ], {}, function (code, out, err) {
 				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
 				if (code) {
 					this.logger.error(__('Failed to run dexer:'));
@@ -4220,7 +4254,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			}.bind(this));
 		}.bind(this),
 		function (done) {
-			dexArgs = dexArgs.concat(injars);
+			dexArgs = dexArgs.concat(injarsAll);
 			dexerHook(this.jdkInfo.executables.java, dexArgs, {}, done);
 		}.bind(this)
 	], next);
