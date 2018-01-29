@@ -55,17 +55,6 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public TiBlob base64encode(Object obj)
 	{
-		if (obj instanceof TiBlob) {
-			return TiBlob.blobFromString(((TiBlob) obj).toBase64());
-		} else if (obj instanceof TiFileProxy) {
-			try {
-				return TiBlob.blobFromStreamBase64(
-					((TiFileProxy) obj).getInputStream(),
-					TiMimeTypeHelper.getMimeType(((TiFileProxy) obj).getBaseFile().nativePath()));
-			} catch (IOException e) {
-				Log.e(TAG, "Problem reading file");
-			}
-		}
 		String data = convertToString(obj);
 		if (data != null) {
 			try {
