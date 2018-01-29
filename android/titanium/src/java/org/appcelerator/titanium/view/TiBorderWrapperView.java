@@ -58,6 +58,17 @@ public class TiBorderWrapperView extends FrameLayout
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
+		// TIMOB-25733: attempt to prevent 'View too large to fit into drawing cache' by creating
+		// an auto-sized drawing cache
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isDrawingCacheEnabled() && getDrawingCache() == null) {
+			buildDrawingCache(true);
+
+			// failed to use drawing cache, disable
+			if (getDrawingCache() == null) {
+				setDrawingCacheEnabled(false);
+			}
+		}
+
 		getDrawingRect(bounds);
 
 		int maxPadding = (int) Math.min(bounds.right / 2, bounds.bottom / 2);
