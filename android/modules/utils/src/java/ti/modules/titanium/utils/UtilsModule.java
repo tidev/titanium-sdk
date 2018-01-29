@@ -41,7 +41,12 @@ public class UtilsModule extends KrollModule
 		} else if (obj instanceof TiBlob) {
 			return ((TiBlob) obj).getText();
 		} else if (obj instanceof TiFileProxy) {
-			return ((TiFileProxy) obj).read().getText();
+			try {
+				return ((TiFileProxy) obj).read().getText();
+			} catch (IOException e) {
+				Log.e(TAG, "Problem reading file");
+				return null;
+			}
 		} else {
 			throw new IllegalArgumentException("Invalid type for argument");
 		}
