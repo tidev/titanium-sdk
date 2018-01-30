@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * Copyright (c) 2012-2013 Chris Talkington, contributors.
  * {@link https://github.com/ctalkington/node-archiver}
@@ -24,13 +24,11 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
-	babel = require('babel-core'),
 	Builder = require('../lib/base-builder.js'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
-	env = require('babel-preset-env'),
 	fields = require('fields'),
 	fs = require('fs'),
 	i18n = require('node-titanium-sdk/lib/i18n'),
@@ -916,6 +914,13 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
+
+	// Transpilation details
+	this.transpile = cli.tiapp['transpile'].transpile !== false; // FIXME Does this properly default to true?
+	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
+	const v8Version = this.packageJson.v8.version;
+	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
+	this.chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
 
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
@@ -2701,42 +2706,38 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				try {
 					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
-						// parse the AST
+						// Read the original file
 						const originalContents = fs.readFileSync(from).toString();
-						const r = jsanalyze.analyzeJs(originalContents, { minify: this.minifyJS, filename: from });
+						// Analyze Ti API usage, possibly also minify/transpile
+						const r = jsanalyze.analyzeJs(originalContents, {
+							filename: from,
+							minify: this.minifyJS,
+							transpile: this.transpile,
+							targets: {
+								chrome: this.chromeVersion
+							}
+						});
+						const newContents = r.code;
 
 						// we want to sort by the "to" filename so that we correctly handle file overwriting
 						this.tiSymbols[to] = r.symbols;
 
-						// Now transpile too!
-						this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
-							const dir = path.dirname(to);
-							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-							// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
-							const v8Version = this.packageJson.v8.version;
-							const found = v8Version.match(V8_STRING_VERSION_REGEXP);
-							const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
-							const result = babel.transform(r.contents, {
-								filename: from,
-								presets: [
-									[ env, {
-										'targets': {
-											'chrome': chromeVersion,
-										}
-									}]
-								]
-							});
-							const newContents = result.code;
+						const dir = path.dirname(to);
+						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-							// If we're able to symlink and the contents didn't change, great let's just symlink
-							if (symlinkFiles && newContents === originalContents) {
-								copyFile.call(this, from, to, cb2);
-							} else {
-								// code changed or we can't symlink. Either way, write the file to dest
-								this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-								fs.writeFile(to, newContents, cb2);
-							}
-						})(r, from, to, cb);
+						if (symlinkFiles && newContents === originalContents) {
+							copyFile.call(this, from, to, cb);
+						} else if (this.minifyJS || this.transpile) {
+							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+							// FIXME If minify and/or transpile is true, why not wrap the jsanalyze stuff in this hook instead?
+							this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
+								fs.writeFile(to, r.contents, cb2);
+							})(r, from, to, cb);
+						} else {
+							// we've already read in the file, so just write the original contents
+							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+							fs.writeFile(to, newContents, cb);
+						}
 					})(from, to, done);
 				} catch (ex) {
 					ex.message.split('\n').forEach(this.logger.error);

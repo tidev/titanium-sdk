@@ -15,14 +15,12 @@
 
 const appc = require('node-appc'),
 	async = require('async'),
-	babel = require('babel-core'),
 	bufferEqual = require('buffer-equal'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	CleanCSS = require('clean-css'),
 	crypto = require('crypto'),
 	cyan = require('colors').cyan,
 	DOMParser = require('xmldom').DOMParser,
-	env = require('babel-preset-env'),
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
@@ -1825,6 +1823,10 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// this may have already been called in an option validate() callback
 		this.initTiappSettings();
+
+		// Transpilation details
+		this.transpile = cli.tiapp['transpile'].transpile !== false; // FIXME Does this properly default to true?
+		// this.minSupportedIosSdk holds the target ios version to transpile down to
 
 		// check for blacklisted files in the Resources directory
 		[	path.join(this.projectDir, 'Resources'),
@@ -5783,55 +5785,52 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					try {
 						this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
 							const originalContents = fs.readFileSync(from).toString();
-							// parse the AST
-							const r = jsanalyze.analyzeJs(originalContents, { minify: this.minifyJS, filename: from });
+							const analyzeOptions = {
+								filename: from,
+								minify: this.minifyJS,
+								transpile: this.transpile,
+							};
+							// generate our transpile target based on tijscore/jscore
+							if (this.useJSCore) {
+								analyzeOptions.targets = { 'ios': this.minSupportedIosSdk }; // if using jscore, target our min ios version
+							} // if not jscore, just transpile everything down (no target)
+
+							// Analyze Ti API usage, possibly also minify/transpile
+							const r = jsanalyze.analyzeJs(originalContents, analyzeOptions);
 
 							// we want to sort by the "to" filename so that we correctly handle file overwriting
 							this.tiSymbols[to] = r.symbols;
 
-							// Now transpile too!
-							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-								const dir = path.dirname(to);
-								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+							const dir = path.dirname(to);
+							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-								this.unmarkBuildDirFile(to);
+							this.unmarkBuildDirFile(to);
 
-								// generate our transpile target based on tijscore/jscore
-								const presets = this.useJSCore ? [[ env, {
-									'targets': {
-										'ios': this.minSupportedIosSdk // if using jscore, target our min ios version
-									}
-								}]] : [ env ]; // if not jscore, just transpile everything down (no target)
-								const result = babel.transform(r.contents, {
-									filename: from,
-									presets: presets
-								});
-								const newContents = result.code;
-
-								// if we didn't change the contents any...
-								if (newContents === originalContents) {
-									if (this.copyFileSync(from, to)) { // copy/symlink if necessary
-										this.jsFilesChanged = true;
-									} else { // possibly no need to copy/change, so we skipped entirely!
-										this.logger.trace(__('No change, skipping %s', to.cyan));
-									}
-								} else {
-									// contents definitely changed from source file...
+							if (this.minifyJS || this.transpile) {
+								// file contents should change
+								this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
 									const exists = fs.existsSync(to);
-									// check if dest file already exists and has same modified contents
-									if (!exists || newContents !== fs.readFileSync(to).toString()) {
-										// dest doesn't exist or it's different, so let's write the new file
+									// dest doesn't exist, or new contents differs frome xisting dest file
+									if (!exists || r.contents !== fs.readFileSync(to).toString()) {
 										this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 										exists && fs.unlinkSync(to);
-										fs.writeFileSync(to, newContents);
+										fs.writeFileSync(to, r.contents);
 										this.jsFilesChanged = true;
 									} else {
-										// so we changed from the source file, but we already wrote teh modified contents before and that didn't change
 										this.logger.trace(__('No change, skipping %s', to.cyan));
 									}
+									cb2();
+								})(r, from, to, cb);
+							} else {
+								// no minify/transpile, so contents shouldn't have changed
+								if (this.copyFileSync(from, to)) { // copy file if dest doesn't exist
+									this.jsFilesChanged = true;
+								} else {
+									// no change and dest already exists
+									this.logger.trace(__('No change, skipping %s', to.cyan));
 								}
-								cb2();
-							})(r, from, to, cb);
+								cb();
+							}
 						})(info.src, info.dest, next);
 					} catch (ex) {
 						ex.message.split('\n').forEach(this.logger.error);
