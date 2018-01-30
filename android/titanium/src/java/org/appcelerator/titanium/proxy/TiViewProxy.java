@@ -555,17 +555,17 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
 			}
 
-			Activity activity = getActivity();
+			TiBaseActivity activity = (TiBaseActivity) getActivity();
 			if (activity != null && activity.isDestroyed()) {
-				activity = activity.getParent();
+				activity = (TiBaseActivity) activity.getParent();
 			}
 			if (activity == null || activity.isDestroyed()) {
-				activity = TiApplication.getAppRootOrCurrentActivity();
+				activity = (TiBaseActivity) TiApplication.getAppRootOrCurrentActivity();
 			}
 			view = createView(activity);
 			if (isDecorView) {
 				if (activity != null) {
-					((TiBaseActivity) activity).setViewProxy(view.getProxy());
+					activity.setViewProxy(view.getProxy());
 				} else {
 					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
 				}
