@@ -4,7 +4,7 @@
   "version": "8.0.0",
   "moduleApiVersion": {
     "iphone": "2",
-    "android": "4",
+    "android": "5",
     "windows": "6"
   },
   "keywords": [
