@@ -895,7 +895,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 
 	protected void processSections(Object[] sections)
 	{
-
+		// Release current sections in the lest
+		for (ListSectionProxy listSectionProxy : this.sections) {
+			listSectionProxy.release();
+		}
 		this.sections.clear();
 		for (int i = 0; i < sections.length; i++) {
 			processSection(sections[i], -1);

@@ -1088,6 +1088,7 @@ public class ListSectionProxy extends ViewProxy
 
 	public void releaseViews()
 	{
+		release();
 		listView = null;
 	}
 
