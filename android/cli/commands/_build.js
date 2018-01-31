@@ -1638,13 +1638,9 @@ process.exit(1);
 					for (let dependency of timodule.modules) {
 						if (!dependency.platform || /^android$/.test(dependency.platform)) {
 
-							let missing = true;
-							for (let module of this.nativeLibModules) {
-								if (module.id === dependency.id) {
-									missing = false;
-									break;
-								}
-							}
+							let missing = !this.nativeLibModules.some(function (mod) {
+								return mod.id === dependency.id;
+							});
 							if (missing) {
 								dependency.depended = module;
 
