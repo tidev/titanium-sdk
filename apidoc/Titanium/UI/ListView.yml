@@ -1304,20 +1304,20 @@ examples:
         Creates a list with three sections, each with two rows.
         Adds two sections to the table before and one after it is rendered.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white'});
-            var listView = Ti.UI.createListView();
-            var sections = [];
+            const win = Ti.UI.createWindow({backgroundColor: 'white'});
+            const listView = Ti.UI.createListView();
+            let sections = [];
 
-            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
-            var fruitDataSet = [
+            const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
+            let fruitDataSet = [
                 {properties: { title: 'Apple'}},
                 {properties: { title: 'Banana'}},
             ];
             fruitSection.setItems(fruitDataSet);
             sections.push(fruitSection);
 
-            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
-            var vegDataSet = [
+            const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
+            let vegDataSet = [
                 {properties: { title: 'Carrots'}},
                 {properties: { title: 'Potatoes'}},
             ];
@@ -1328,8 +1328,8 @@ examples:
             win.add(listView);
             win.open();
 
-            var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
-            var fishDataSet = [
+            const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
+            let fishDataSet = [
                 {properties: { title: 'Cod'}},
                 {properties: { title: 'Haddock'}},
             ];
@@ -1340,11 +1340,11 @@ examples:
     example: |
         Modifies the previous example to create a list using an item template to customize the view layout.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            const win = Ti.UI.createWindow({backgroundColor: 'white'});
 
             // Create a custom template that displays an image on the left, 
             // then a title next to it with a subtitle below it.
-            var myTemplate = {
+            const myTemplate = {
                 childTemplates: [
                     {                            // Image justified left
                         type: 'Ti.UI.ImageView', // Use an image view for the image
@@ -1374,17 +1374,17 @@ examples:
                 ]
             };
 
-            var listView = Ti.UI.createListView({
+            const listView = Ti.UI.createListView({
                 // Maps myTemplate dictionary to 'template' string
                 templates: { 'template': myTemplate },
                 // Use 'template', that is, the myTemplate dict created earlier
                 // for all items as long as the template property is not defined for an item.
                 defaultItemTemplate: 'template'
             });
-            var sections = [];
+            let sections = [];
 
-            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas'});
-            var fruitDataSet = [
+            const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas'});
+            let fruitDataSet = [
                 // the text property of info maps to the text property of the title label
                 // the text property of es_info maps to text property of the subtitle label
                 // the image property of pic maps to the image property of the image view
@@ -1394,16 +1394,16 @@ examples:
             fruitSection.setItems(fruitDataSet);
             sections.push(fruitSection);
 
-            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras'});
-            var vegDataSet = [
+            const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras'});
+            let vegDataSet = [
                 { info: {text: 'Carrot'}, es_info: {text: 'Zanahoria'}, pic: {image: 'carrot.png'}},
                 { info: {text: 'Potato'}, es_info: {text: 'Patata'}, pic: {image: 'potato.png'}}
             ];
             vegSection.setItems(vegDataSet);
             sections.push(vegSection);
 
-            var grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos'});
-            var grainDataSet = [
+            const grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos'});
+            const grainDataSet = [
                 { info: {text: 'Corn'}, es_info: {text: 'Maiz'}, pic: {image: 'corn.png'}},
                 { info: {text: 'Rice'}, es_info: {text: 'Arroz'}, pic: {image: 'rice.png'}}
             ];
@@ -1420,36 +1420,36 @@ examples:
         utilized along with the [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events to
         create a refresh control.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white'});
-            var listView = Ti.UI.createListView({height:'90%', top:0});
-            var sections = [];
+            const win = Ti.UI.createWindow({backgroundColor: 'white'});
+            const listView = Ti.UI.createListView({height:'90%', top:0});
+            let sections = [];
 
-            var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
-            var fruitDataSet = [
+            const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
+            const fruitDataSet = [
                 {properties: { title: 'Apple'}},
                 {properties: { title: 'Banana'}},
             ];
             fruitSection.setItems(fruitDataSet);
             sections.push(fruitSection);
 
-            var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
-            var vegDataSet = [
+            const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
+            const vegDataSet = [
                 {properties: { title: 'Carrots'}},
                 {properties: { title: 'Potatoes'}},
             ];
             vegSection.setItems(vegDataSet);
 
-            var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
-            var fishDataSet = [
+            const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
+            const fishDataSet = [
                 {properties: { title: 'Cod'}},
                 {properties: { title: 'Haddock'}},
             ];
             fishSection.setItems(fishDataSet);
             listView.sections = sections;
-            var refreshCount = 0;
+            let refreshCount = 0;
 
             function getFormattedDate() {
-                var date = new Date();
+                const date = new Date();
                 return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
             }
  
@@ -1470,25 +1470,24 @@ examples:
                 listView.setContentInsets({top:0}, {animated:true});
             }
  
-            function loadTableData()
-            {
+            function loadTableData() {
                 if (refreshCount == 0) {
                     listView.appendSection(vegSection);
                 } else if (refreshCount == 1) {
                     listView.appendSection(fishSection);
                 } 
-                refreshCount ++;
+                refreshCount++;
                 resetPullHeader();
             }
 
             function pullListener(e) {
                 eventStatus.text = 'EVENT pull FIRED. e.active = '+e.active;
                 if (e.active == false) {
-                    var unrotate = Ti.UI.create2DMatrix();
+                    const unrotate = Ti.UI.create2DMatrix();
                     imageArrow.animate({transform:unrotate, duration:180});
                     labelStatus.text = 'Pull down to refresh...';
                 } else {
-                    var rotate = Ti.UI.create2DMatrix().rotate(180);
+                    const rotate = Ti.UI.create2DMatrix().rotate(180);
                     imageArrow.animate({transform:rotate, duration:180});
                     if (refreshCount == 0) {
                         labelStatus.text = 'Release to get Vegetables...';
@@ -1514,26 +1513,26 @@ examples:
                 }, 2000);
             }
 
-            var tableHeader = Ti.UI.createView({
+            const tableHeader = Ti.UI.createView({
                 backgroundColor:'#e2e7ed',
                 width:320, height:80
             });
 
-            var border = Ti.UI.createView({
+            const border = Ti.UI.createView({
                 backgroundColor:'#576c89',
                 bottom:0,
                 height:2
             });
             tableHeader.add(border);
 
-            var imageArrow = Ti.UI.createImageView({
+            const imageArrow = Ti.UI.createImageView({
                 image:'arrow.png',
                 left:20, bottom:10,
                 width:23, height:60
             });
             tableHeader.add(imageArrow);
 
-            var labelStatus = Ti.UI.createLabel({
+            const labelStatus = Ti.UI.createLabel({
                 color:'#576c89',
                 font:{fontSize:13, fontWeight:'bold'},
                 text:'Pull down to refresh...',
@@ -1543,7 +1542,7 @@ examples:
             });
             tableHeader.add(labelStatus);
 
-            var labelLastUpdated = Ti.UI.createLabel({
+            const labelLastUpdated = Ti.UI.createLabel({
                 color:'#576c89',
                 font:{fontSize:12},
                 text:'Last Updated: ' + getFormattedDate(),
@@ -1553,7 +1552,7 @@ examples:
             });
             tableHeader.add(labelLastUpdated);
 
-            var actInd = Ti.UI.createActivityIndicator({
+            const actInd = Ti.UI.createActivityIndicator({
                 left:20, bottom:13,
                 width:30, height:30
             });
@@ -1562,7 +1561,7 @@ examples:
             listView.addEventListener('pull', pullListener);
             listView.addEventListener('pullend',pullendListener);
 
-            var eventStatus = Ti.UI.createLabel({
+            const eventStatus = Ti.UI.createLabel({
                 font:{fontSize:13, fontWeight:'bold'},
                 text: 'Event data will show here',
                 bottom:0,

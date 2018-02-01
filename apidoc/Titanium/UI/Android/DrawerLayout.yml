@@ -145,18 +145,18 @@ examples:
         The following code shows a simple drawer-layout usage.
 
 
-            var win = Ti.UI.createWindow();
+            const win = Ti.UI.createWindow();
 
-            var leftView = Ti.UI.createView({ backgroundColor:'red' });
-            var centerView = Ti.UI.createView({ backgroundColor:'yellow' });
-            var rightView = Ti.UI.createView({ backgroundColor:'orange' });
+            const leftView = Ti.UI.createView({ backgroundColor:'red' });
+            const centerView = Ti.UI.createView({ backgroundColor:'yellow' });
+            const rightView = Ti.UI.createView({ backgroundColor:'orange' });
 
-            var drawer = Ti.UI.Android.createDrawerLayout({
+            const drawer = Ti.UI.Android.createDrawerLayout({
                 leftView: leftView,
                 centerView: centerView,
                 rightView: rightView
             });
-            var btn = Ti.UI.createButton({ title: 'RIGHT' });
+            const btn = Ti.UI.createButton({ title: 'RIGHT' });
 
             btn.addEventListener('click', () => {
                 drawer.toggleRight();
@@ -165,7 +165,7 @@ examples:
             centerView.add(btn);
 
             win.addEventListener('open', () => {
-                var activity = win.getActivity(),
+                const activity = win.getActivity(),
                     actionBar = activity.getActionBar();
 
                 if (actionBar) {

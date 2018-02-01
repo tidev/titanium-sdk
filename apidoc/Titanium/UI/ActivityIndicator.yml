@@ -164,16 +164,16 @@ examples:
 
             Ti.UI.backgroundColor = 'white';
 
-            var win1 = Ti.UI.createWindow({
+            const win1 = Ti.UI.createWindow({
               backgroundColor: 'blue'
             });
 
-            var win2 = Ti.UI.createWindow({
+            const win2 = Ti.UI.createWindow({
               backgroundColor: 'yellow',
               fullscreen: true
             });
 
-            var activityIndicator = Ti.UI.createActivityIndicator({
+            const activityIndicator = Ti.UI.createActivityIndicator({
               color: 'green',
               font: { fontSize:26, fontWeight:'bold' },
               message: 'Loading...',
@@ -215,7 +215,7 @@ examples:
         win1.js:
 
             function openWin2 () {
-                var win2 = Alloy.createController('win2').getView();
+                const win2 = Alloy.createController('win2').getView();
                 win2.open();
             }
 

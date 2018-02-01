@@ -24,7 +24,6 @@ examples:
     example: |
         Creating a UserDefaults object
         
-            var props = Ti.App.iOS.createUserDefaults({
+            const props = Ti.App.iOS.createUserDefaults({
                 suiteName: 'group.mySuite'
             });
-

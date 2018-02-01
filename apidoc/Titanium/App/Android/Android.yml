@@ -50,8 +50,8 @@ examples:
         
         In Javascript, this can be accessed as follows.
     
-            var activity = Ti.Android.currentActivity;
-            var R = Ti.App.Android.R;
+            const activity = Ti.Android.currentActivity;
+            const R = Ti.App.Android.R;
             
-            var mystring = activity.getString(R.string.mystring);
+            const mystring = activity.getString(R.string.mystring);
             Ti.API.debug("mystring = " + mystring);

@@ -187,7 +187,7 @@ methods:
         example, the following call retrieves the `document.title` element from the
         document currently loaded into the web view.
 
-            var docTitle = myWebView.evalJS('document.title');
+            const docTitle = myWebView.evalJS('document.title');
 
         It is not necessary to include `return` in the JavaScript. In fact, the following
         call returns the empty string:
@@ -521,13 +521,13 @@ properties:
 
         The following example opens new web content in a new tab rather than a new window:
 
-            var tabGroup = Ti.UI.createTabGroup(),
+            const tabGroup = Ti.UI.createTabGroup(),
                 win = Ti.UI.createWindow(),
                 tab = Ti.UI.createTab({window: win, title: 'Start Page'}),
                 webview = Ti.UI.createWebView({ url:'index.html'});
 
             webview.onCreateWindow = (e) => {
-                var newWin = Ti.UI.createWindow(),
+                const newWin = Ti.UI.createWindow(),
                     newWebView = Ti.UI.createWebView(),
                     newTab = Ti.UI.createTab({window: newWin, title: 'New Page'});
                 newWin.add(newWebView);

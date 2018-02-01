@@ -106,17 +106,17 @@ examples:
             Ti.API.info("event payload:" + JSON.stringify(e));
         });
 
-        var win = Titanium.UI.createWindow({
+        const win = Titanium.UI.createWindow({
             title:'Test', backgroundColor:'#fff', layout:"vertical"
         });
 
-        var btn1 = Ti.UI.createButton({
+        const btn1 = Ti.UI.createButton({
             top: 50, height:45, title:"Add Contact Us Application Shortcut"
         });
         win.add(btn1);
 
         btn1.addEventListener("click", () => {
-            var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            const appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
             appShortcuts.addDynamicShortcut({
                 itemtype:"contact_us",
                 title:"Contact Us",
@@ -128,70 +128,70 @@ examples:
             });
         });
 
-        var btn2 = Ti.UI.createButton({
+        const btn2 = Ti.UI.createButton({
             top: 10, height:45, title:"Remove Contact Us Application Shortcut"
         });
         win.add(btn2);
 
         btn2.addEventListener("click", () => {
-            var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            const appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
             appShortcuts.removeDynamicShortcut("contact_us");
         });
 
-        var btn3 = Ti.UI.createButton({
+        const btn3 = Ti.UI.createButton({
             top: 10, height:45, title:"Count Dynamic App Shortcuts"
         });
         win.add(btn3);
 
         btn3.addEventListener("click", () => {
-            var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
-            var shortcuts = appShortcuts.listDynamicShortcuts();
+            const appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            const shortcuts = appShortcuts.listDynamicShortcuts();
             Ti.API.info("Dynamic App Shortcut count:" + shortcuts.length);
             Ti.API.info("Dynamic App Shortcut as JSON:" + JSON.stringify(shortcuts));
         });
 
-        var btn4 = Ti.UI.createButton({
+        const btn4 = Ti.UI.createButton({
             top: 10, height:45, title:"Count Static App Shortcuts"
         });
         win.add(btn4);
 
         btn4.addEventListener("click", () => {
-            var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
-            var shortcuts = appShortcuts.listStaticShortcuts();
+            const appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            const shortcuts = appShortcuts.listStaticShortcuts();
             Ti.API.info("Static App Shortcut count:" + shortcuts.length);
             Ti.API.info("Static App Shortcut as JSON:" + JSON.stringify(shortcuts));
         });
 
-        var btn5 = Ti.UI.createButton({
+        const btn5 = Ti.UI.createButton({
             top: 10, height:45, title:"Dynamic Shortcut Exists?"
         });
         win.add(btn5);
 
         btn5.addEventListener("click", () => {
-            var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
-            var exists = appShortcuts.dynamicShortcutExists("contact_us");
-            var msg = (exists) ? "Icon exists" : "Sorry isn't there";
+            const appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            const exists = appShortcuts.dynamicShortcutExists("contact_us");
+            const msg = (exists) ? "Icon exists" : "Sorry isn't there";
             alert(msg);
         });
 
-        var btn6 = Ti.UI.createButton({
+        const btn6 = Ti.UI.createButton({
             top: 10, height:45, title:"Remove All Dynamic Shortcuts"
         });
         win.add(btn6);
 
         btn6.addEventListener("click", () => {
-            var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            const appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
             appShortcuts.removeAllDynamicShortcuts();
         });
 
-        var btn7 = Ti.UI.createButton({
+        const btn7 = Ti.UI.createButton({
             top: 10, height:45, title:"Get shortcut by itemtype \"contact_us\""
         });
         win.add(btn7);
 
         btn7.addEventListener("click", () => {
-            var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
-            var shortcut = appShortcuts.getDynamicShortcut("contact_us");
+            const appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+            const shortcut = appShortcuts.getDynamicShortcut("contact_us");
             alert(shortcut);
         });
 
@@ -206,11 +206,11 @@ examples:
                 Ti.API.info("person:" + JSON.stringify(e.userInfo.person));
             });
 
-            var win = Titanium.UI.createWindow({
+            const win = Titanium.UI.createWindow({
                 title:'Test', backgroundColor:'#fff', layout:"vertical"
             });
 
-            var btn1 = Ti.UI.createButton({
+            const btn1 = Ti.UI.createButton({
                 top: 50, height:45, title:"Add Ti.Contacts Application Shortcut"
             });
             win.add(btn1);
@@ -227,22 +227,22 @@ examples:
                 }
             });
 
-            var btn2 = Ti.UI.createButton({
+            const btn2 = Ti.UI.createButton({
                 top: 10, height:45, title:"Remove Ti.Contacts Application Shortcut"
             });
             win.add(btn2);
 
             btn2.addEventListener("click", () => {
-                var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+                const appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
                 appShortcuts.removeDynamicShortcut("contact_us");
             });
 
             function createShortcut() {
                 Ti.Contacts.showContacts({
                     selectedPerson: (e) => {
-                        var person = e.person;
+                        const person = e.person;
 
-                        var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
+                        const appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
                         appShortcuts.addDynamicShortcut({
                             itemtype:"contact_us",
                             title: person.fullName,

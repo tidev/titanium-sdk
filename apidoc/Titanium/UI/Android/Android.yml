@@ -804,7 +804,7 @@ examples:
         
         #### `app.js`
         
-            var button = Ti.UI.createButton({
+            const button = Ti.UI.createButton({
               title:	'Click to Open Preferences'
             });
             button.addEventListener('click', () => {

@@ -35,7 +35,7 @@ examples:
         module to read data from a socket. The `pump` method registers a callback that is 
         called repeatedly to process incoming data from the socket.
             
-            var socket = Ti.Network.Socket.createTCP({
+            const socket = Ti.Network.Socket.createTCP({
                 host: 'blog.example.com', port: 80,
                 connected: (e) => {
                     Ti.API.info('Socket opened!');
@@ -62,7 +62,7 @@ examples:
                 }
                 try {
                     if (e.buffer) {
-                        var received = e.buffer.toString();
+                        const received = e.buffer.toString();
                         Ti.API.info('Received: ' + received);
                     } else {
                         Ti.API.error('Error: read callback called with no buffer!');
@@ -83,9 +83,9 @@ examples:
             // the WiFi interface).
             // Android supports only the loopback address.
             
-            var hostname = '127.0.0.1';
+            const hostname = '127.0.0.1';
             
-            var clientSocket = Ti.Network.Socket.createTCP({
+            const clientSocket = Ti.Network.Socket.createTCP({
                 host : hostname,
                 port : 40404,
                 connected : (e) => {
@@ -113,7 +113,7 @@ examples:
                 }
                 try {
                     if (e.buffer) {
-                        var received = e.buffer.toString();
+                        const received = e.buffer.toString();
                         Ti.API.info('Received: ' + received);
                     } else {
                         Ti.API.error('Error: read callback called with no buffer!');
@@ -124,7 +124,7 @@ examples:
             }
             
             //Create a socket and listen for incoming connections
-            var listenSocket = Ti.Network.Socket.createTCP({
+            const listenSocket = Ti.Network.Socket.createTCP({
                 host : hostname,
                 port : 40404,
                 accepted : (e) => {

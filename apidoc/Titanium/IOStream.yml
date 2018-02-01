@@ -120,11 +120,11 @@ examples:
     example: |
         This example demonstrates writing data to a stream.
 
-            var outBuffer = Ti.createBuffer({data: "write me"});
+            const outBuffer = Ti.createBuffer({data: "write me"});
             // stream object could be socket, file, buffer or blob
-            var outStream = Ti.Stream.createStream({mode: Ti.Stream.MODE_WRITE});
+            const outStream = Ti.Stream.createStream({mode: Ti.Stream.MODE_WRITE});
 
-            var bytesWritten = outStream.write(outBuffer);  // writes entire buffer to stream
+            const bytesWritten = outStream.write(outBuffer);  // writes entire buffer to stream
             Ti.API.info("Bytes written:" + bytesWritten);  // should be 8
 
             bytesWritten = outStream.write(outBuffer, 2, 5);  // only writes "ite m" to stream
@@ -135,7 +135,7 @@ examples:
         This shows a simple example of reading data from a stream, one buffer full at a
         time.
 
-            var size = 0;
+            let size = 0;
             // read data one buffer full at a time
             while ((size = instream.read(buffer)) > -1) {
                 // do something with the data here ...
@@ -148,10 +148,10 @@ examples:
         the `inStream` variable holds a previously initialized stream that contains the
         string, "World Titanium".
 
-            var inBuffer = Ti.createBuffer({ value: "Hello [           ]" });
+            const inBuffer = Ti.createBuffer({ value: "Hello [           ]" });
 
             // Read the first 6 bytes from the stream to the buffer, starting at position 10.
-            var bytesRead = inStream.read(inBuffer, 10, 6);
+            let bytesRead = inStream.read(inBuffer, 10, 6);
 
             Ti.API.info("Bytes read: " + bytesRead);
             Ti.API.info(inBuffer.toString());

@@ -279,8 +279,8 @@ examples:
         In this example, we create a simple image view:
 
             Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow();
-            var image = Ti.UI.createImageView({
+            const win = Ti.UI.createWindow();
+            const image = Ti.UI.createImageView({
               image:'/images/myimage.png'
             });
             win.add(image);

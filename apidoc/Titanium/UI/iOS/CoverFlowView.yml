@@ -72,7 +72,7 @@ examples:
     example: |
         Create a simple cover flow view.
         
-            var view = Titanium.UI.iOS.createCoverFlowView({
+            const view = Titanium.UI.iOS.createCoverFlowView({
             	backgroundColor:'#000',
             	images:['a.png','b.png','c.png']
             });

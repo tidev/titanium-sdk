@@ -631,11 +631,11 @@ examples:
     example: |
         Create a simple text field with a round border style.
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
 
-            var textField = Ti.UI.createTextField({
+            const textField = Ti.UI.createTextField({
               borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
               color: '#336699',
               top: 10, left: 10,
@@ -653,28 +653,28 @@ examples:
 
         This code excerpt creates a text field with a toolbar:
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
                 backgroundColor: 'white'
             });
 
-            var send = Ti.UI.createButton({
+            const send = Ti.UI.createButton({
                 title : 'Send',
                 style : Ti.UI.iOS.SystemButtonStyle.DONE,
             });
 
-            var camera = Ti.UI.createButton({
+            const camera = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.CAMERA,
             });
 
-            var cancel = Ti.UI.createButton({
+            const cancel = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.CANCEL
             });
 
-            var flexSpace = Ti.UI.createButton({
+            const flexSpace = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
 
-            var textfield = Ti.UI.createTextField({
+            const textfield = Ti.UI.createTextField({
                 borderStyle : Ti.UI.INPUT_BORDERSTYLE_BEZEL,
                 hintText : 'Focus to see keyboard with toolbar',
                 keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],

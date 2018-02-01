@@ -501,7 +501,7 @@ examples:
         Create a single-button alert dialog using the global `alert()` alias.
 
             Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               title: 'Click window to test',
               backgroundColor: 'white'
             });
@@ -568,11 +568,11 @@ examples:
         Output entered text value to the log when the OK button is clicked.
 
             Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               title: 'Click window to test'
             });
             win.addEventListener('click', (e) => {
-              var dialog = Ti.UI.createAlertDialog({
+              const dialog = Ti.UI.createAlertDialog({
                 title: 'Enter text',
                 style: Ti.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT,
                 buttonNames: ['OK']

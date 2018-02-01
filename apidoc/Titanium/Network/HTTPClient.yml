@@ -195,11 +195,11 @@ methods:
         To send array data, specify each array element individually as a property of the object.
         For example, normally, you specify an array in an object as:
 
-            var payload = { myArray: [1, 2, 3] };
+            const payload = { myArray: [1, 2, 3] };
 
         Instead, for the HTTP client to encode the data correctly, you need to send the data as:
 
-            var payload = {
+            const payload = {
                 "myArray[0]" : 1,
                 "myArray[1]" : 2,
                 "myArray[2]" : 3
@@ -545,8 +545,8 @@ examples:
     example: |
         The following code excerpt does a simple GET request and logs the response text.
 
-             var url = "http://www.appcelerator.com";
-             var client = Ti.Network.createHTTPClient({
+             const url = "http://www.appcelerator.com";
+             const client = Ti.Network.createHTTPClient({
                  // function called when the response data is available
                  onload : (e) => {
                      Ti.API.info("Received text: " + this.responseText);

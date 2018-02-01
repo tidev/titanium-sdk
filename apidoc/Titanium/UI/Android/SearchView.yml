@@ -102,19 +102,19 @@ examples:
         and displays it as an Action Bar item if the Google API level is 11 or later.
         If not, it defaults to use the search bar.
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
                 backgroundColor: 'blue',
                 fullscreen: false
             });
 
             // Use action bar search view
-            var search = Ti.UI.Android.createSearchView({
+            const search = Ti.UI.Android.createSearchView({
                 hintText: "Table Search"
             });
 
             win.activity.onCreateOptionsMenu = (e) => {
-                var menu = e.menu;
-                var menuItem = menu.add({
+                const menu = e.menu;
+                const menuItem = menu.add({
                     title: 'Table Search',
                     actionView : search,
                     icon: (Ti.Android.R.drawable.ic_menu_search ? Ti.Android.R.drawable.ic_menu_search : "my_search.png"),
@@ -122,13 +122,13 @@ examples:
                 });
             };
 
-            var data = [];
+            let data = [];
             data.push(Ti.UI.createTableViewRow({title:'Apple'}));
             data.push(Ti.UI.createTableViewRow({title:'Banana'}));
             data.push(Ti.UI.createTableViewRow({title:'Orange'}));
             data.push(Ti.UI.createTableViewRow({title:'Raspberry'}));
 
-            var tableview = Titanium.UI.createTableView({
+            const tableview = Titanium.UI.createTableView({
                 data: data,
                 search: search,
                 searchAsChild: false
@@ -157,7 +157,7 @@ examples:
         index.js:
 
             // use action bar search view
-            var search = Alloy.createController("searchview").getView();
+            const search = Alloy.createController("searchview").getView();
             $.tableview.search = search;
             $.win.addEventListener("open", () => {
                 $.win.activity.onCreateOptionsMenu = (e) => {

@@ -65,7 +65,7 @@ examples:
         
         Create a simple cover flow view.
         
-            var view = Titanium.UI.createCoverFlowView({
+            const view = Titanium.UI.createCoverFlowView({
             	images:['a.png','b.png','c.png'],
             	backgroundColor:'#000'
             });

@@ -90,28 +90,28 @@ examples:
     example: |
         The following code excerpt creates a simple toolbar, placed at the bottom of the window. 
         
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
                 backgroundColor: 'white'
             });
         
-            var send = Ti.UI.createButton({
+            const send = Ti.UI.createButton({
                 title: 'Send',
                 style: Ti.UI.iOS.SystemButtonStyle.DONE,
             });
             
-            var camera = Ti.UI.createButton({
+            const camera = Ti.UI.createButton({
                 systemButton: Ti.UI.iOS.SystemButton.CAMERA,
             });
             
-            var cancel = Ti.UI.createButton({
+            const cancel = Ti.UI.createButton({
                 systemButton: Ti.UI.iOS.SystemButton.CANCEL
             });
             
-            var flexSpace = Ti.UI.createButton({
+            const flexSpace = Ti.UI.createButton({
                 systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
-            var toolbar = Titanium.UI.iOS.createToolbar({
+            const toolbar = Titanium.UI.iOS.createToolbar({
                 items: [send, flexSpace, camera, flexSpace, cancel],
                 bottom: 0
             });
@@ -129,20 +129,20 @@ examples:
     example: |
         The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar (**iOS 7 only**). 
         
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
                 backgroundColor: 'white'
             });
         
-            var send = Ti.UI.createButton({
+            const send = Ti.UI.createButton({
                 title: 'Send',
                 style: Ti.UI.iOS.SystemButtonStyle.DONE,
             });
             
-            var camera = Ti.UI.createButton({
+            const camera = Ti.UI.createButton({
                 systemButton: Ti.UI.iOS.SystemButton.CAMERA,
             });
             
-            var cancel = Ti.UI.createButton({
+            const cancel = Ti.UI.createButton({
                 systemButton: Ti.UI.iOS.SystemButton.CANCEL
             });
             
@@ -150,7 +150,7 @@ examples:
                 systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
             
-            var toolbar = Ti.UI.iOS.createToolbar({
+            const toolbar = Ti.UI.iOS.createToolbar({
                 items: [send, flexSpace, camera, flexSpace, cancel],
                 top: 20,
                 extendBackground: true

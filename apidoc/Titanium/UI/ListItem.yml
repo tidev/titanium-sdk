@@ -331,16 +331,17 @@ examples:
         Creates a list without using an item template. Monitors the `itemclick` event to check and
         uncheck tasks.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white'});
-            var listView = Ti.UI.createListView();
+            const win = Ti.UI.createWindow({backgroundColor: 'white'});
+            const listView = Ti.UI.createListView();
 
-            var tasks = [
+            let tasks = [
                 {id: 'trash', name: 'Take Out the Trash', icon: 'trash.png'},
                 {id: 'dishes', name: 'Do the Dishes', icon: 'dishes.png'},
                 {id: 'doggie', name: 'Walk the Dog', icon: 'doggie.png'}
             ];
 
-            var data = [];
+            let data = [];
+
             for (let i = 0; i < tasks.length; i++) {
                 data.push({ 
                     properties: {
@@ -353,11 +354,11 @@ examples:
                 });
             }
 
-            var section = Ti.UI.createListSection();
+            const section = Ti.UI.createListSection();
             section.setItems(data);
             listView.sections = [section];
             listView.addEventListener('itemclick', (e) => {
-                var item = section.getItemAt(e.itemIndex);
+                const item = section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
                     item.properties.color = 'red';
@@ -393,7 +394,7 @@ examples:
 
             <!-- controllers/index.js -->
             $.listView.addEventListener('itemclick', (e) => {
-                var item = $.section.getItemAt(e.itemIndex);
+                const item = $.section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
                     item.properties.color = 'red';
@@ -412,9 +413,9 @@ examples:
 
         Monitors the `click` event of the item rather than the `itemclick` event of the list view.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            const win = Ti.UI.createWindow({backgroundColor: 'white'});
 
-            var plainTemplate = {
+            const plainTemplate = {
                 childTemplates: [
                     {                            // Image justified left
                         type: 'Ti.UI.ImageView', // Use an image view for the image
@@ -450,14 +451,14 @@ examples:
             // This method of copying an object is simple but not quick.
             // If performance is a factor, create your own method to copy an object.
 
-            var redTemplate = JSON.parse(JSON.stringify(plainTemplate));
+            const redTemplate = JSON.parse(JSON.stringify(plainTemplate));
             // Change the text color to red
             redTemplate.childTemplates[1].properties.color = 'red';
             redTemplate.childTemplates[2].properties.color = 'red';
             // Rebind the click event callback
             redTemplate.events.click = toggleCheck;
 
-            var listView = Ti.UI.createListView({
+            const listView = Ti.UI.createListView({
                 // Maps plainTemplate to 'uncheck' and redTemplate to 'check' 
                 templates: { 'uncheck': plainTemplate, 'check': redTemplate },
                 // Use 'uncheck', that is, the plainTemplate created earlier for all items
@@ -465,13 +466,13 @@ examples:
                 defaultItemTemplate: 'uncheck'
             });
 
-            var tasks = [
+            let tasks = [
                 {id: 'trash', name: 'Take Out the Trash', person: 'Yakko', icon: 'trash.png'},
                 {id: 'dishes', name: 'Do the Dishes', person: 'Wakko', icon: 'dishes.png'},
                 {id: 'doggie', name: 'Walk the Dog', person: 'Dot', icon: 'doggie.png'}
             ];
 
-            var data = [];
+            let data = [];
             for (let i = 0; i < tasks.length; i++) {
                 data.push({
                     // Maps to the title component in the template
@@ -491,14 +492,14 @@ examples:
                 });
             }
 
-            var section = Ti.UI.createListSection();
+            const section = Ti.UI.createListSection();
             section.setItems(data);
             listView.sections = [section];
 
             // Modified version of the `itemclick` event listener
             // Changes the item template rather than the list item's color property
             function toggleCheck(e) {
-                var item = section.getItemAt(e.itemIndex);
+                const item = section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
                     item.template = 'check';

@@ -179,18 +179,18 @@ examples:
     example: |
         The following example creates a CardView used in a ScrollView.
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
                 backgroundColor:'white',
                 title: 'Card Demo'
             });
 
             function createRow(i) {
-                var card = Ti.UI.Android.createCardView({
+                const card = Ti.UI.Android.createCardView({
                     contentPadding: 20,
                     cardCornerRadius: 10,
                     cardUseCompatPadding: true
                 });
-                var label = Ti.UI.createLabel({
+                const label = Ti.UI.createLabel({
                     color:'black',
                     text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
                 });
@@ -199,12 +199,12 @@ examples:
                 return card;
             }
 
-            var scrollView = Ti.UI.createScrollView({
+            const scrollView = Ti.UI.createScrollView({
                 layout: 'vertical'
             });
 
             for (let i = 0; i <= 20; i++) {
-                var row = createRow(i);
+                const row = createRow(i);
                 scrollView.add(row);
             }
 

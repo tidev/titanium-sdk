@@ -148,7 +148,7 @@ methods:
             
             #### `/Resources/app.js`
                 
-                var i18nMissingMsg = '<no translation available>';
+                const i18nMissingMsg = '<no translation available>';
                 
                 // for English locales, displays "You say goodbye and I say hello!"
                 // for Spanish locales, displays "You say adios and I say hola!"

@@ -1106,13 +1106,13 @@ properties:
             The following code excerpt creates two views, one with a linear gradient and one with
             a radial gradient.
 
-                var win1 = Titanium.UI.createWindow({
+                const win1 = Titanium.UI.createWindow({
                     title:'Tab 1',
                     backgroundColor:'#fff',
                     layout: 'vertical'
                 });
 
-                var radialGradient = Ti.UI.createView({
+                const radialGradient = Ti.UI.createView({
                     top: 10,
                     width: 100,
                     height: 100,
@@ -1126,7 +1126,7 @@ properties:
                         backfillStart: true
                     }
                 });
-                var linearGradient = Ti.UI.createView({
+                const linearGradient = Ti.UI.createView({
                     top: 10,
                     width: 100,
                     height: 100,
@@ -1747,7 +1747,7 @@ examples:
     example: |
         Create a rounded view.
 
-            var view = Titanium.UI.createView({
+            const view = Titanium.UI.createView({
                borderRadius:10,
                backgroundColor:'red',
                width:50,

@@ -76,21 +76,21 @@ examples:
         Press the button to open the blue window.
         Use the back button to return to the red root window.
 
-            var win2 = Titanium.UI.createWindow({
+            const win2 = Titanium.UI.createWindow({
                 backgroundColor: 'red',
                 title: 'Red Window'
             });
 
-            var win1 = Titanium.UI.iOS.createNavigationWindow({
+            const win1 = Titanium.UI.iOS.createNavigationWindow({
                window: win2
             });
 
-            var win3 = Titanium.UI.createWindow({
+            const win3 = Titanium.UI.createWindow({
                 backgroundColor: 'blue',
                 title: 'Blue Window'
             });
 
-            var button = Titanium.UI.createButton({
+            const button = Titanium.UI.createButton({
                 title: 'Open Blue Window'
             });
             button.addEventListener('click', () => {
@@ -98,7 +98,7 @@ examples:
             });
 
             win2.add(button);
-            var button2 = Titanium.UI.createButton({
+            const button2 = Titanium.UI.createButton({
                 title: 'Close Blue Window'
             });
             button2.addEventListener('click', () => {
@@ -125,7 +125,7 @@ examples:
         app/controllers/index.js:
 
             function openBlueWindow(e) {
-                var win3 = Alloy.createController('bluewin').getView();
+                const win3 = Alloy.createController('bluewin').getView();
                 $.win1.openWindow(win3);
             }
 

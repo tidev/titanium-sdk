@@ -116,13 +116,13 @@ properties:
             click the window to test again. Note that the logged information relates to the UI rather 
             than the physical orientation of the device.
             
-                var win = Ti.UI.createWindow({
+                const win = Ti.UI.createWindow({
                   title: 'Click window to output UI dimensions',
                   backgroundColor: 'white',
                   orientationModes: [ Titanium.UI.PORTRAIT ] // UI restricted to portrait mode
                 });
                 
-                var label = Ti.UI.createLabel({
+                const label = Ti.UI.createLabel({
                   text:'Hello world'
                 });
                 win.add(label);

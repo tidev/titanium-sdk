@@ -88,7 +88,7 @@ examples:
   - title: Simple 3 button button bar
     example: |
         
-            var bb1 = Titanium.UI.createButtonBar({
+            const bb1 = Titanium.UI.createButtonBar({
             	labels:['One', 'Two', 'Three'],
             	backgroundColor:'#336699',
             	top:50,

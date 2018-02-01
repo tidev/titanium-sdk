@@ -211,23 +211,23 @@ examples:
         you can set privacy options described in `Ti.UI.CLIPBOARD_OPTION_*`. Note that you can not have the
         same two keys in one object and the key must match a valid mime-type. If no valid mime-type is specified
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
                 backgroundColor : "#fff"
             });
 
-            var btn1 = Ti.UI.createButton({
+            const btn1 = Ti.UI.createButton({
                 title : "Set clipboard items",
                 top: 40
             });
 
-            var btn2 = Ti.UI.createButton({
+            const btn2 = Ti.UI.createButton({
                 title : "Get clipboard items",
                 top: 80
             });
 
             btn1.addEventListener("click", () => {
-            	var localOnly = Ti.UI.CLIPBOARD_OPTION_LOCAL_ONLY;
-            	var expirationDate = Ti.UI.CLIPBOARD_OPTION_EXPIRATION_DATE;
+            	const localOnly = Ti.UI.CLIPBOARD_OPTION_LOCAL_ONLY;
+            	const expirationDate = Ti.UI.CLIPBOARD_OPTION_EXPIRATION_DATE;
 
                 Ti.UI.Clipboard.setItems({
             	    items: [{
@@ -252,13 +252,13 @@ examples:
 
   - title: Use of named clipboard in iOS
     example: |
-            var clipboard1 = Ti.UI.createClipboard({
+            const clipboard1 = Ti.UI.createClipboard({
                 name : 'myClipboard',
                 allowCreation : true
             });
             clipboard1.setText('hello');
 
-            var clipboard2 = Ti.UI.createClipboard({
+            const clipboard2 = Ti.UI.createClipboard({
                 name : 'myClipboard'
             });
 
@@ -269,7 +269,7 @@ examples:
 
   - title: Use of unique named clipboard in iOS
     example: |
-            var clipboard = Ti.UI.createClipboard({
+            const clipboard = Ti.UI.createClipboard({
                 unique : true
             });
             clipboard.setText('hello');

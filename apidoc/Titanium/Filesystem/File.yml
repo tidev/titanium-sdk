@@ -59,8 +59,8 @@ examples:
             // resourcesDirectory is actually the default location, so the first
             // argument could be omitted here.
             file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, "textfile.txt");
-            var blob = file.read();
-            var readText = blob.text;
+            const blob = file.read();
+            const readText = blob.text;
             // dispose of file handle & blob.
             file = null;
             blob = null;
@@ -74,14 +74,14 @@ examples:
         myImageID, a string containing some kind of ID for the downloaded image,
         and myImageData, a `Blob` containing JPEG image data.
 
-            var imageDir = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,
+            const imageDir = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory,
                 'downloaded_images');
             if (! imageDir.exists()) {
                 imageDir.createDirectory();
             }
 
             // .resolve() provides the resolved native path for the directory.
-            var imageFile  = Ti.Filesystem.getFile(imageDir.resolve(), myImageID + '.jpg');
+            const imageFile  = Ti.Filesystem.getFile(imageDir.resolve(), myImageID + '.jpg');
             Ti.API.info("ImageFile path is: " + imageFile.resolve());
             if (imageFile.write(myImageData)===false) {
                 // handle write error

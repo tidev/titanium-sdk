@@ -43,19 +43,19 @@ examples:
 
         <img src="images/animator/snapbehavior.gif" height="455" style="border:1px solid black"/>
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
+            const win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
             
             // Create an Animator object using the window as the coordinate system
-            var animator = Ti.UI.iOS.createAnimator({referenceView: win});
+            const animator = Ti.UI.iOS.createAnimator({referenceView: win});
 
-            var block = Ti.UI.createView({
+            const block = Ti.UI.createView({
                 width: 100,
                 height: 100,
                 backgroundColor: 'blue'
             });
 
             // Snap to the top-left corner when the app starts
-            var snap = Ti.UI.iOS.createSnapBehavior({
+            const snap = Ti.UI.iOS.createSnapBehavior({
                 item: block,
                 snapPoint: {x: 0, y: 0},
             });

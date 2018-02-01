@@ -228,7 +228,7 @@ examples:
 
         #### app.js
 
-            var activity =  Ti.App.iOS.createUserActivity({
+            const activity =  Ti.App.iOS.createUserActivity({
             activityType: 'com.setdirection.home',
                 title: 'activity 1',
                 userInfo: {

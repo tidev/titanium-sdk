@@ -18,7 +18,7 @@ description: |
 
     Then, you can retrieve the property during runtime with the following API call:
 
-        var foo = Ti.App.Properties.getString('foo');
+        const foo = Ti.App.Properties.getString('foo');
 
     As of Release 3.2.0, any application properties defined in the `tiapp.xml` file are stored in the
     device's secure storage, making them read-only.  Additionally, external access to these

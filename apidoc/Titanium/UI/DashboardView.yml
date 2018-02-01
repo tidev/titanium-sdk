@@ -156,22 +156,22 @@ examples:
         Copy your image files to the local project `/images/dashboard` directory.
         
                 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
                 backgroundColor: '#13386c'
             });
             
-            var button = Ti.UI.createButton({
+            const button = Ti.UI.createButton({
                 title: 'Edit',
                 style: Ti.UI.iOS.SystemButtonStyle.DONE,
             });
             
-            var toolbar = Ti.UI.iOS.createToolbar({
+            const toolbar = Ti.UI.iOS.createToolbar({
                 items: [button],
                 top: 0
             });
             win.add(toolbar);
             
-            var label = Ti.UI.createLabel({
+            const label = Ti.UI.createLabel({
               color: 'white',
               font: { fontSize: 14 },
               text: 'Click an item to reset badge\nPress and hold an item to enable edit mode',
@@ -182,8 +182,8 @@ examples:
             });
             win.add(label);
             
-            var dashboardData = [];
-            var itemData = [
+            let dashboardData = [];
+            let itemData = [
               { name: 'account', badge: 10 },
               { name: 'cases', badge: 2 },
               { name: 'calls', badge: 2 },
@@ -196,7 +196,7 @@ examples:
             ];
             
             for (let i = 0; i < itemData.length; i++) {
-              var item = Ti.UI.createDashboardItem({
+              const item = Ti.UI.createDashboardItem({
                 badge: itemData[i].badge,
                 image: '/images/dashboard/' + itemData[i].name + '_off.png',
                 selectedImage: '/images/dashboard/' + itemData[i].name + '_on.png',
@@ -205,14 +205,14 @@ examples:
               dashboardData.push(item);
             }
             
-            var dashboard = Ti.UI.createDashboardView({
+            const dashboard = Ti.UI.createDashboardView({
               data: dashboardData,
               wobble: true,
               top: 100
             });
             win.add(dashboard);
             
-            var isEditable = false;
+            const isEditable = false;
             
             button.addEventListener('click', (e) => {
               if (isEditable) {
@@ -277,7 +277,7 @@ examples:
 
         dashboard.js:
 
-            var isEditable = false;
+            const isEditable = false;
 
             function changeMode(e) {
               if (isEditable) {

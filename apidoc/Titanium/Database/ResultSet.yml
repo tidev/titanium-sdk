@@ -157,22 +157,22 @@ examples:
         table, insert data into it, query the table and iterate through the returned
         `ResultSet`.
         
-            var db = Ti.Database.open('mydb1Installed');
+            const db = Ti.Database.open('mydb1Installed');
             db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
             db.execute('DELETE FROM people');
             
-            var thisName = 'Arthur';
-            var thisPhoneNo = '1-617-000-0000';
-            var thisCity = 'Mountain View';
+            const thisName = 'Arthur';
+            const thisPhoneNo = '1-617-000-0000';
+            const thisCity = 'Mountain View';
             db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', thisName, thisPhoneNo, thisCity);
             
-            var personArray = ['Paul','020 7000 0000', 'London'];
+            const personArray = ['Paul','020 7000 0000', 'London'];
             db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
             
-            var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
+            const rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
             Ti.API.info('Row count: ' + rows.rowCount);
 
-            var fieldCount = rows.fieldCount;
+            const fieldCount = rows.fieldCount;
             Ti.API.info('Field count: ' + fieldCount);
             
             while (rows.isValidRow()) {

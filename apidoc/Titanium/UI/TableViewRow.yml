@@ -382,8 +382,8 @@ examples:
     example: |
         Create a table view row containing a red square view.
 
-            var row = Titanium.UI.createTableViewRow();
-            var view = Titanium.UI.createView({
+            const row = Titanium.UI.createTableViewRow();
+            const view = Titanium.UI.createView({
               backgroundColor:'red',
               width: 20, height: 20
             });
@@ -392,28 +392,28 @@ examples:
     example: |
         Create a table of rows. When a row is swiped, output its ID to the log.
 
-            var tableData = [];
+            let tableData = [];
 
-            var win = Ti.UI.createWindow({ backgroundColor: 'white' });
+            const win = Ti.UI.createWindow({ backgroundColor: 'white' });
 
-            var table = Ti.UI.createTableView({ objName: 'table' });
+            const table = Ti.UI.createTableView({ objName: 'table' });
 
             for (let i = 0; i <= 20; i++) {
-              var row = Ti.UI.createTableViewRow({
+              const row = Ti.UI.createTableViewRow({
                 className: 'row',
                 objName: 'row',
                 touchEnabled: true,
                 height: 100
               });
 
-              var enabledWrapperView = Ti.UI.createView({
+              const enabledWrapperView = Ti.UI.createView({
                 backgroundColor:'#008FD5',
                 objName: 'enabledWrapperView',
                 rowID: i,
                 width: Ti.UI.FILL, height: '100%'
               });
 
-              var disabledWrapperView = Ti.UI.createView({
+              const disabledWrapperView = Ti.UI.createView({
                 backgroundColor:'#A2E0FF',
                 objName: 'disabledWrapperView',
                 touchEnabled: false,
@@ -421,7 +421,7 @@ examples:
               });
               enabledWrapperView.add(disabledWrapperView);
 
-              var label = Ti.UI.createLabel({
+              const label = Ti.UI.createLabel({
                 backgroundColor:'#313F48',
                 color: 'white',
                 objName: 'label',

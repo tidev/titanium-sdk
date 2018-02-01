@@ -53,7 +53,7 @@ examples:
   - title: Simple Tabbed Bar with 3 items
     example: |
         
-            var bb1 = Ti.UI.createTabbedBar({
+            const bb1 = Ti.UI.createTabbedBar({
             	labels: ['One', 'Two', 'Three'],
             	backgroundColor: '#336699',
             	style: Ti.UI.iOS.SystemButtonStyle.BAR,

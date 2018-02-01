@@ -20,7 +20,7 @@ description: |
     pass an optional <MatrixCreationDict> dictionary to the method to initialize the
     matrix. For example, the following creates a new matrix with a 45 degree rotation.
 
-        var m = Ti.UI.create2DMatrix({
+        const m = Ti.UI.create2DMatrix({
             rotate: 45
         });
 
@@ -212,11 +212,11 @@ examples:
     example: |
         The following uses a 2D matrix to translate a label in the y direction.
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
 
-            var label = Ti.UI.createLabel({
+            const label = Ti.UI.createLabel({
               font:{fontSize:50},
               text:'Titanium',
               textAlign:'center',
@@ -224,7 +224,7 @@ examples:
             });
             win.add(label);
 
-            var button = Ti.UI.createButton({
+            const button = Ti.UI.createButton({
               title:'Animate',
               bottom:20,
               width:200, height:40
@@ -232,9 +232,9 @@ examples:
             win.add(button);
 
             button.addEventListener('click', () => {
-              var t1 = Ti.UI.create2DMatrix();
+              const t1 = Ti.UI.create2DMatrix();
               t1 = t1.translate(0, 300);
-              var a1 = Ti.UI.createAnimation();
+              const a1 = Ti.UI.createAnimation();
               a1.transform = t1;
               a1.duration = 800;
               label.animate(a1);

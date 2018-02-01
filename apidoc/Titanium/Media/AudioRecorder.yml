@@ -76,33 +76,32 @@ examples:
     example: |
         The following code-example creates a window that controls the audio-recorder flow.
         
-            var window = Ti.UI.createWindow({
+            const window = Ti.UI.createWindow({
               backgroundColor: '#fff'
             });
             
-            var recordStart = Ti.UI.createButton({
+            const recordStart = Ti.UI.createButton({
               title: 'Start',
               top: 10
             });
             
-            var recordPause = Ti.UI.createButton({
+            const recordPause = Ti.UI.createButton({
               title: 'Pause',
               top: 60
             });
             
-            var recordStop = Ti.UI.createButton({
+            const recordStop = Ti.UI.createButton({
               title: 'Stop',
               top: 110
             });
             
-            var recordPlay = Ti.UI.createButton({
+            const recordPlay = Ti.UI.createButton({
               title: 'Play',
               top: 160
             });
             
-            var audioRecorder = Ti.Media.createAudioRecorder();
-            var record;
-            var audioPlayer;
+            const audioRecorder = Ti.Media.createAudioRecorder();
+            let record = null;
 
             window.addEventListener('open', (e) => {
               if (!Ti.Media.hasAudioRecorderPermissions()) {
@@ -136,7 +135,7 @@ examples:
             });
 
             recordPlay.addEventListener('click', (e) => {
-              audioPlayer = Ti.Media.createAudioPlayer({
+              const audioPlayer = Ti.Media.createAudioPlayer({
                 url: record.getNativePath()
               });
               audioPlayer.start();

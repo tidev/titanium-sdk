@@ -245,12 +245,12 @@ examples:
     example: |
 
         Ti.UI.setBackgroundColor('white');
-        var win = Ti.UI.createWindow({
+        const win = Ti.UI.createWindow({
           title: 'Click window to test',
           backgroundColor: 'white'
         });
 
-        var opts = {
+        const opts = {
           cancel: 2,
           options: ['Confirm', 'Help', 'Cancel'],
           selectedIndex: 2,
@@ -259,23 +259,23 @@ examples:
         };
 
         win.addEventListener('click', (e) => {
-          var dialog = Ti.UI.createOptionDialog(opts).show();
+          const dialog = Ti.UI.createOptionDialog(opts).show();
         });
         win.open();
 
   - title: Dialog with 2 Options and 1 Button on Android and 3 Options on iOS
     example: |
 
-        var win = Ti.UI.createWindow({
+        const win = Ti.UI.createWindow({
           title: 'Click window to test OptionDialog',
           backgroundColor: 'white'
         });
 
-        var opts = {
+        const opts = {
           title: 'Delete File?'
         };
 
-        var isAndroid = Ti.Platform.osname === 'android';
+        const isAndroid = Ti.Platform.osname === 'android';
 
         if (isAndroid) {
           opts.options = ['Confirm', 'Cancel'];
@@ -284,9 +284,8 @@ examples:
           opts.options = ['Confirm', 'Help', 'Cancel'];
         }
 
-        var dialog;
         win.addEventListener('click', () => {
-          dialog = Ti.UI.createOptionDialog(opts);
+          const dialog = Ti.UI.createOptionDialog(opts);
           
           dialog.addEventListener('click', onSelectDialog);
           dialog.addEventListener('cancel', (e) => {

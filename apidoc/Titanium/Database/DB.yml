@@ -36,19 +36,19 @@ methods:
         [Titanium.Database.install](Titanium.Database.install) and execute SQL statements that will 
         create a table, insert data and query the table.
         
-            var db = Ti.Database.install('mydb1', 'mydb1Installed');
+            const db = Ti.Database.install('mydb1', 'mydb1Installed');
             db.execute('DELETE FROM people');
             db.execute('CREATE TABLE IF NOT EXISTS people (name TEXT, phone_number TEXT, city TEXT)');
             
-            var thisName = 'Arthur';
-            var thisPhoneNo = '1-617-000-0000';
-            var thisCity = 'Mountain View';
+            const thisName = 'Arthur';
+            const thisPhoneNo = '1-617-000-0000';
+            const thisCity = 'Mountain View';
             db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', thisName, thisPhoneNo, thisCity);
             
-            var personArray = ['Paul','020 7000 0000', 'London'];
+            const personArray = ['Paul','020 7000 0000', 'London'];
             db.execute('INSERT INTO people (name, phone_number, city) VALUES (?, ?, ?)', personArray);
             
-            var rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
+            const rows = db.execute('SELECT rowid,name,phone_number,city FROM people');
             db.close();
             
             while (rows.isValidRow())

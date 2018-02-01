@@ -523,10 +523,10 @@ examples:
     example: |
         This example creates a highly customized text area.
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
-            var textArea = Ti.UI.createTextArea({
+            const textArea = Ti.UI.createTextArea({
               borderWidth: 2,
               borderColor: '#bbb',
               borderRadius: 5,
@@ -552,24 +552,24 @@ examples:
 
         Example using a custom keyboard toolbar:
 
-            var send = Ti.UI.createButton({
+            const send = Ti.UI.createButton({
                 style : Ti.UI.iOS.SystemButtonStyle.DONE,
                 title : 'Send'
             });
 
-            var camera = Ti.UI.createButton({
+            const camera = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.CAMERA
             });
 
-            var cancel = Ti.UI.createButton({
+            const cancel = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.CANCEL
             });
 
-            var flexSpace = Ti.UI.createButton({
+            const flexSpace = Ti.UI.createButton({
                 systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
 
-            var textarea = Ti.UI.createTextArea({
+            const textarea = Ti.UI.createTextArea({
                 borderColor : '#000',
                 color : '#000',
                 keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],

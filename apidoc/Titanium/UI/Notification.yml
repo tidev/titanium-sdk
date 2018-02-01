@@ -17,7 +17,7 @@ examples:
     example: |
         The simplest use case is also the most common.
 
-            var toast = Ti.UI.createNotification({
+            const toast = Ti.UI.createNotification({
                 message:"Please Stand By",
                 duration: Ti.UI.NOTIFICATION_DURATION_LONG
             });

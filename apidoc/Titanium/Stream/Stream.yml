@@ -24,7 +24,7 @@ examples:
     example: |
         The following example shows how to use the [pump](Titanium.Stream.pump) method.
         
-            var pumpCallback = (arg) => {
+            const pumpCallback = (arg) => {
                 if (arg.bytesProcessed == -1) {
                     Ti.API.info("At end of stream.");
                 } else {
@@ -40,10 +40,10 @@ examples:
         to copy the contents of an input stream to a file. This can be used for any kind
         of input stream -- `BufferStream`, `FileStream`, or `Socket.TCP`.
         
-            var outFileStream = Ti.Filesystem.getFile('outfile.txt').open(Ti.Filesystem.MODE_WRITE);
+            const outFileStream = Ti.Filesystem.getFile('outfile.txt').open(Ti.Filesystem.MODE_WRITE);
             
             // writes all data from inputStream to outFileStream in chunks of 1024 bytes
-            var bytesWritten = Ti.Stream.writeStream(inputStream, outFileStream, 1024);
+            const bytesWritten = Ti.Stream.writeStream(inputStream, outFileStream, 1024);
             Ti.API.info('Wrote ' + bytesWritten + ' bytes, closing both streams.');
             
             inputStream.close();

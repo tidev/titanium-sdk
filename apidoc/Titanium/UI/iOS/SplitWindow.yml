@@ -103,17 +103,19 @@ examples:
     example: |
         This is an example of a Split Window.
 
-            var detail = Ti.UI.createWindow({ backgroundColor: 'white' });
-            var label1 = Ti.UI.createLabel({ text: 'Detail View' });
+            const detail = Ti.UI.createWindow({ backgroundColor: 'white' });
+            const label1 = Ti.UI.createLabel({ text: 'Detail View' });
             detail.add(label1);
-            var detailNav = Ti.UI.iOS.createNavigationWindow({ window: detail });
-            
-            var master = Ti.UI.createWindow({ backgroundColor: 'gray' });
-            var label2 = Ti.UI.createLabel({ text: 'Master View' });
-            master.add(label2);
-            var masterNav = Ti.UI.iOS.createNavigationWindow({ window: master });
 
-            var splitWin = Ti.UI.iOS.createSplitWindow({
+            const detailNav = Ti.UI.iOS.createNavigationWindow({ window: detail });
+            
+            const master = Ti.UI.createWindow({ backgroundColor: 'gray' });
+            const label2 = Ti.UI.createLabel({ text: 'Master View' });
+            master.add(label2);
+
+            const masterNav = Ti.UI.iOS.createNavigationWindow({ window: master });
+
+            const splitWin = Ti.UI.iOS.createSplitWindow({
                 detailView: detailNav,
                 masterView: masterNav
             });

@@ -78,29 +78,29 @@ examples:
 
         <img src="images/animator/gravity.gif" height="455" style="border:1px solid black"/>
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
+            const win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
 
             // Create an Animator object using the window as the coordinate system
-            var animator = Ti.UI.iOS.createAnimator({referenceView: win});
+            const animator = Ti.UI.iOS.createAnimator({referenceView: win});
 
             // Create a default collision behavior, using the window edges as boundaries
-            var collision = Ti.UI.iOS.createCollisionBehavior();
+            const collision = Ti.UI.iOS.createCollisionBehavior();
 
             // Simulate Earth's gravity
-            var gravity = Ti.UI.iOS.createGravityBehavior({
+            const gravity = Ti.UI.iOS.createGravityBehavior({
                 gravityDirection: {x: 0.0, y: 1.0}
             });
 
-            var WIDTH = Ti.Platform.displayCaps.platformWidth;
-            var HEIGHT = Ti.Platform.displayCaps.platformHeight;
+            const WIDTH = Ti.Platform.displayCaps.platformWidth;
+            const HEIGHT = Ti.Platform.displayCaps.platformHeight;
 
             // Create a bunch of random blocks; add to the window and behaviors
-            var blocks = [];
+            let blocks = [];
             for (let i = 0; i < 20; i++) {
-                var r = Math.round(Math.random() * 255);
-                var g = Math.round(Math.random() * 255);
-                var b = Math.round(Math.random() * 255);
-                var rgb = 'rgb(' + r +"," + g + "," + b + ")";
+                const r = Math.round(Math.random() * 255);
+                const g = Math.round(Math.random() * 255);
+                const b = Math.round(Math.random() * 255);
+                const rgb = 'rgb(' + r +"," + g + "," + b + ")";
 
                 blocks[i] = Ti.UI.createView({
                     width: 25,
@@ -123,7 +123,7 @@ examples:
             });
 
             // Change the gravity vector when the button is clicked
-            var button = Ti.UI.createButton({title: 'Change'});
+            const button = Ti.UI.createButton({title: 'Change'});
             button.addEventListener('click', (e) => {
                 gravity.gravityDirection = {
                     x: (1 - Math.random() * 2),
@@ -133,4 +133,3 @@ examples:
             });
             win.add(button);
             win.open();
-

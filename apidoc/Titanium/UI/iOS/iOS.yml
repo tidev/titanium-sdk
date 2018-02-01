@@ -1900,7 +1900,7 @@ examples:
         default behavior where it slides off screen.  To add a transition animation when the red
         window closes, define a transition animation for the blue window.
 
-            var transition = Ti.UI.iOS.createTransitionAnimation({
+            const transition = Ti.UI.iOS.createTransitionAnimation({
                 duration: 300,
                 // The show transition makes the window opaque and rotates it correctly
                 transitionTo: {
@@ -1916,14 +1916,14 @@ examples:
                 }
             });
 
-            var win2 = Ti.UI.createWindow({
+            const win2 = Ti.UI.createWindow({
                 backgroundColor: 'red',
                 title: 'Red Window',
                 transitionAnimation: transition,
                 opacity: 0,
                 transform: Ti.UI.create2DMatrix().rotate(180)
             });
-            var button2 = Ti.UI.createButton({
+            const button2 = Ti.UI.createButton({
                 title: 'Close Red Window'
             });
             button2.addEventListener('click', () => {
@@ -1935,19 +1935,19 @@ examples:
             });
             win2.add(button2);
 
-            var win1 = Ti.UI.createWindow({
+            const win1 = Ti.UI.createWindow({
                 backgroundColor: 'blue',
                 title: 'Blue Window',
                 // Uncomment to use a transition animation when the blue window is closed
                 // transitionAnimation: transition
             });
-            var button1 = Ti.UI.createButton({title: 'Open Red Window'});
+            const button1 = Ti.UI.createButton({title: 'Open Red Window'});
             button1.addEventListener('click', () => {
                 nav.openWindow(win2);
             });
             win1.add(button1);
 
-            var nav = Ti.UI.iOS.createNavigationWindow({
+            const nav = Ti.UI.iOS.createNavigationWindow({
                 window: win1
             });
             nav.open();

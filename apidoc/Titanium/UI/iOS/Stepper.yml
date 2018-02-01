@@ -145,11 +145,11 @@ events:
 examples:
   - title: Simple Stepper Example
     example: |
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
                 backgroundColor: '#fff'
             });
 
-            var stepper = Ti.UI.iOS.createStepper({
+            const stepper = Ti.UI.iOS.createStepper({
                 tintColor: "green",
                 steps: 3,
                 maximum: 30,

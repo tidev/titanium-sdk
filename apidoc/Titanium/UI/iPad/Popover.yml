@@ -188,26 +188,26 @@ examples:
     example: |
         In this example, we create a simple popover and position it near the button.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            const win = Ti.UI.createWindow({backgroundColor: 'white'});
 
-            var button = Ti.UI.createButton({title: 'Open Popover!'});
+            const button = Ti.UI.createButton({title: 'Open Popover!'});
             button.addEventListener('click', (e) => {
                 popover.show({ view: button });
             })
             win.add(button);
 
-            var rightButton = Ti.UI.createButton({title: 'Robin'});
+            const rightButton = Ti.UI.createButton({title: 'Robin'});
             rightButton.addEventListener('click', (e) => {
                 alert("But green's the color of spring.");
             });
 
-            var contentWindow = Ti.UI.createWindow({
+            const contentWindow = Ti.UI.createWindow({
                 rightNavButton: rightButton,
                 title: 'Kermit'
             });
             contentWindow.add(Ti.UI.createLabel({text: "It's not easy being green."}));
 
-            var popover = Ti.UI.iPad.createPopover({
+            const popover = Ti.UI.iPad.createPopover({
                 backgroundColor: 'green',
                 contentView: Ti.UI.iOS.createNavigationWindow({
                     width: 250,
@@ -233,7 +233,7 @@ examples:
         `app/controllers/index.js`:
 
             function openPopover() {
-                var popover = Alloy.createController('popover').getView();
+                const popover = Alloy.createController('popover').getView();
                 popover.show({view:$.button});
             };
 
@@ -261,7 +261,7 @@ examples:
             };
 
             // Prior to Alloy 1.1.0, the rightNavButton property was set in the controller.
-            // var button = Ti.UI.createButton({title: 'Robin'});
+            // const button = Ti.UI.createButton({title: 'Robin'});
             // button.addEventListener('click', showAlert);
             // $.popover.rightNavButton = button;
 

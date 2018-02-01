@@ -542,11 +542,11 @@ examples:
         
             Ti.WatchSession.activateSession();
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
                 backgroundColor: 'white'
             });
 
-            var eventsArea = Ti.UI.createTextArea({
+            const eventsArea = Ti.UI.createTextArea({
               borderWidth: 2,
               borderColor: '#bbb',
               borderRadius: 5,
@@ -560,7 +560,7 @@ examples:
 
             win.add(eventsArea);
 
-            var imageView = Ti.UI.createImageView ({
+            const imageView = Ti.UI.createImageView ({
                 top: 240,
                 width: 80,
                 height: 80
@@ -568,7 +568,7 @@ examples:
 
             win.add(imageView);
 
-            var statusBtn = Ti.UI.createButton({
+            const statusBtn = Ti.UI.createButton({
                 title: 'status me',
                 top: 40
             });
@@ -584,7 +584,7 @@ examples:
             })
             win.add(statusBtn);
 
-            var sendMsgBtn = Ti.UI.createButton({
+            const sendMsgBtn = Ti.UI.createButton({
                 title: 'send Message to watch',
                 top: 80
             });
@@ -597,7 +597,7 @@ examples:
                 });
             });
 
-            var sendUserInfoBtn = Ti.UI.createButton({
+            const sendUserInfoBtn = Ti.UI.createButton({
                 title: 'send User Info to watch',
                 top: 120
             });
@@ -609,7 +609,7 @@ examples:
                 });
             });
 
-            var sendAppContextBtn = Ti.UI.createButton({
+            const sendAppContextBtn = Ti.UI.createButton({
                 title: 'update app context to watch',
                 top: 160
             });
@@ -621,7 +621,7 @@ examples:
                 });
             });
 
-            var sendFileBtn = Ti.UI.createButton({
+            const sendFileBtn = Ti.UI.createButton({
                 title: 'send File to watch',
                 top: 200
             });
@@ -647,8 +647,8 @@ examples:
 
             Ti.WatchSession.addEventListener('receivefile', (e) => {
                 eventsArea.value += '\nreceivefile ' + '\n' + JSON.stringify(e);
-                var cacheFile = e.data.getFile();
-                var downloadedFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, cacheFile.getName());
+                const cacheFile = e.data.getFile();
+                const downloadedFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, cacheFile.getName());
                 downloadedFile.write(e.data);
                 imageView.setImage(downloadedFile);
             });

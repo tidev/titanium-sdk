@@ -217,7 +217,7 @@ events:
         As of 5.0.0, you can create an event that can prevent accidental closure of the
         app due to hitting the back button to many times.
 
-            var win = Ti.UI.createWindow(
+            const win = Ti.UI.createWindow(
                 { // some code... }
             );
             // more code
@@ -1087,22 +1087,22 @@ properties:
             Create a white window and respond to a click of it to open a red window containing a
             text area. Show the software keyboard automatically as the red window opens.
 
-                var win1 = Ti.UI.createWindow({
+                const win1 = Ti.UI.createWindow({
                   backgroundColor: 'white',
                   title: 'Click window to test'
                 });
 
                 // use bitwise OR to combine two settings for the windowSoftInputMode property
-                var softInput = Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE | Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;
+                const softInput = Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE | Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;
 
                 win1.addEventListener('click', () => {
-                var win2 = Ti.UI.createWindow({
+                const win2 = Ti.UI.createWindow({
                   backgroundColor: 'red',
                   fullscreen: false,
                   windowSoftInputMode: softInput
                 });
 
-                var textArea = Ti.UI.createTextArea({
+                const textArea = Ti.UI.createTextArea({
                   value : 'I am a textarea',
                   height : 200,
                   width : 300,
@@ -1295,7 +1295,7 @@ description: |
     `app/lib/foo.js`:
 
         // For a classic Titanium project, save the file to 'Resources/foo.js'
-        var data = {};
+        let data = {};
         function setData (obj) {
             data = obj;
         }
@@ -1317,14 +1317,14 @@ description: |
 
     `app/controllers/index.js`:
 
-        var foo = require('foo');
-        foo.setData({foobar: 42});
+        const foo = require('foo');
+        foo.setData({ foobar: 42 });
 
         function openWindow () {
-            var win2 = Alloy.createController('win2').getView();
+            const win2 = Alloy.createController('win2').getView();
             // For Alloy projects, you can pass context
-            // to the controller in the Alloy.createController method.
-            // var win2 = Alloy.createController('win2', {foobar: 42}).getView();
+            // to the controller in the Alloy.createController method:
+            // const win2 = Alloy.createController('win2', { foobar: 42 }).getView();
             win2.open();
         }
 
@@ -1340,13 +1340,13 @@ description: |
 
     `app/controllers/win2.js`:
 
-        var foo = require('foo');
+        const foo = require('foo');
         $.label.text = foo.getData().foobar;
 
         // For Alloy projects, you can also pass in context
         // with the Alloy.createController method and retrieve
         // it in the controller code.
-        // var args = arguments[0] || {};
+        // const args = arguments[0] || {};
         // $.label.text = args.foobar;
 
     ### Modal Windows
@@ -1457,7 +1457,7 @@ description: |
         $.index.transform = Titanium.UI.create2DMatrix().scale(0);
         $.index.open();
 
-        var a = Ti.UI.createAnimation({
+        const a = Ti.UI.createAnimation({
             transform : Ti.UI.create2DMatrix().scale(1.1),
             duration : 2000,
         });
@@ -1534,7 +1534,7 @@ description: |
     `app/controllers/index.js`:
 
         function openBlueWindow(e) {
-            var bluewin = Alloy.createController('bluewin').getView();
+            const bluewin = Alloy.createController('bluewin').getView();
             $.index.openWindow(bluewin);
         }
 
@@ -1638,7 +1638,7 @@ description: |
     As an example, you may wish for the window that you are opening to fade in while the window
     you are leaving should fade out:
 
-        var win2 = Ti.UI.createWindow({
+        const win2 = Ti.UI.createWindow({
             fullscreen: false // Makes it heavyweight before Titanium 3.2.0
         });
 
@@ -1672,7 +1672,7 @@ description: |
     For example to transition a title label in window A to a title label in window B.
 
         // Create label in window A with a unique transitionName.
-        var titleInWinA = new Ti.UI.createLabel({
+        const titleInWinA = new Ti.UI.createLabel({
             text:'Top 10 pics from Mars!',
             left:70, top: 6,
             width:200, height: 30,
@@ -1681,7 +1681,7 @@ description: |
         windowA.add(titleInWinA);
 
         // Creating label in window B, note that the same transitionName is used.
-        var titleInWinB = new Ti.UI.createLabel({
+        const titleInWinB = new Ti.UI.createLabel({
             text:'Top 10 pics from Mars!',
             left:50, top: 10,
             width:200, height: 30,
@@ -1712,7 +1712,7 @@ description: |
     To indicate that a particular window should cause an application to exit when the back
     button is pressed, pass `exitOnClose: true` as one of the creation arguments, as shown here:
 
-        var win = Titanium.UI.createWindow({
+        const win = Titanium.UI.createWindow({
           title: 'My Root Window',
           exitOnClose: true
         });
@@ -1726,7 +1726,7 @@ examples:
     example: |
         Create a fullscreen window with a red background.
 
-            var window = Titanium.UI.createWindow({
+            const window = Titanium.UI.createWindow({
                backgroundColor:'red'
             });
             window.open({fullscreen:true});
@@ -1879,7 +1879,7 @@ properties:
     examples:
       - title: Sliding in a new Window
         example: |
-                var win2 = Ti.UI.createWindow({fullscreen:false});
+                const win2 = Ti.UI.createWindow({fullscreen:false});
                 win2.open({
                     activityEnterAnimation: Ti.Android.R.anim.slide_in_left,
                     activityExitAnimation: Ti.Android.R.anim.slide_out_right
@@ -1973,7 +1973,7 @@ examples:
   - title: Simple Example
     example: |
 
-        var win = Titanium.UI.createWindow({
+        const win = Titanium.UI.createWindow({
             title: 'Title',
             barColor: 'yellow',
             titleAttributes:  {
@@ -1982,7 +1982,7 @@ examples:
                 shadow:{color:'gray', offset:{width:1,height:1}}
             }
         });
-        var nav = Titanium.UI.iOS.createNavigationWindow({window: win});
+        const nav = Titanium.UI.iOS.createNavigationWindow({window: win});
         nav.open();
 
 properties:

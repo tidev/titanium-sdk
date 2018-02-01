@@ -256,7 +256,7 @@ examples:
   - title: Simple Search Bar
     example: |
         
-            var search = Titanium.UI.createSearchBar({
+            const search = Titanium.UI.createSearchBar({
             	barColor:'#000', 
             	showCancel:true,
             	height:43,

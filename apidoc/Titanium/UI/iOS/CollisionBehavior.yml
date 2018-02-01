@@ -130,13 +130,13 @@ examples:
 
         <img src="images/animator/collision.gif" height="455" style="border:1px solid black"/>
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
+            const win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
 
             // Create an Animator object using the window as the coordinate system
-            var animator = Ti.UI.iOS.createAnimator({referenceView: win});
+            const animator = Ti.UI.iOS.createAnimator({referenceView: win});
 
             // Create a default collision behavior, using the window edges as boundaries
-            var collision = Ti.UI.iOS.createCollisionBehavior();
+            const collision = Ti.UI.iOS.createCollisionBehavior();
 
             // Listen for collisions
             function report(e) {
@@ -146,20 +146,20 @@ examples:
             collision.addEventListener('boundarycollision', report);
 
             // Simulate Earth's gravity
-            var gravity = Ti.UI.iOS.createGravityBehavior({
+            const gravity = Ti.UI.iOS.createGravityBehavior({
                 gravityDirection: {x: 0.0, y: 1.0}
             });
 
-            var WIDTH = Ti.Platform.displayCaps.platformWidth;
-            var HEIGHT = Ti.Platform.displayCaps.platformHeight;
+            const WIDTH = Ti.Platform.displayCaps.platformWidth;
+            const HEIGHT = Ti.Platform.displayCaps.platformHeight;
 
             // Create a bunch of random blocks; add to the window and behaviors
-            var blocks = [];   
+            let blocks = [];   
             for (let i = 0; i < 25; i++) {
-                var r = Math.round(Math.random() * 255);
-                var g = Math.round(Math.random() * 255);
-                var b = Math.round(Math.random() * 255);
-                var rgb = 'rgb(' + r +"," + g + "," + b + ")";
+                const r = Math.round(Math.random() * 255);
+                const g = Math.round(Math.random() * 255);
+                const b = Math.round(Math.random() * 255);
+                const rgb = 'rgb(' + r +"," + g + "," + b + ")";
 
                 blocks[i] = Ti.UI.createView({
                     width: 25,
@@ -224,4 +224,3 @@ properties:
   - name: bottom
     summary: Bottom inset.
     type: Number
-

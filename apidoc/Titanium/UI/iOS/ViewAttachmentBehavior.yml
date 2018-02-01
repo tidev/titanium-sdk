@@ -61,12 +61,12 @@ examples:
 
         <img src="images/animator/viewattachment.gif" height= 275" style="border:1px solid black"/>
 
-            var win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
+            const win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
 
             // Create an Animator object using the window as the coordinate system
-            var animator = Ti.UI.iOS.createAnimator({referenceView: win});
+            const animator = Ti.UI.iOS.createAnimator({referenceView: win});
 
-            var redBlock = Ti.UI.createView({
+            const redBlock = Ti.UI.createView({
                 backgroundColor: 'red',
                 width: 25,
                 height: 25,
@@ -74,22 +74,22 @@ examples:
                 left: 75
             });
             // Snap the red block so it does not move
-            var redSnap = Ti.UI.iOS.createSnapBehavior({
+            const redSnap = Ti.UI.iOS.createSnapBehavior({
                 snapPoint: {x: 75, y: 10},
                 item: redBlock,
                 damping: 0.0
             });
             animator.addBehavior(redSnap);
 
-            var greenBlock = Ti.UI.createView({
+            const greenBlock = Ti.UI.createView({
                 backgroundColor: 'green',
                 width: 25,
                 height: 25,
                 top: 50,
             });
 
-            var WIDTH = Ti.Platform.displayCaps.platformWidth;
-            var blueBlock = Ti.UI.createView({
+            const WIDTH = Ti.Platform.displayCaps.platformWidth;
+            const blueBlock = Ti.UI.createView({
                 backgroundColor: 'blue',
                 width: 25,
                 height: 25,
@@ -97,7 +97,7 @@ examples:
                 right: 75
             });
             // Snap the blue block so it does not move
-            var blueSnap = Ti.UI.iOS.createSnapBehavior({
+            const blueSnap = Ti.UI.iOS.createSnapBehavior({
                 snapPoint: {x: WIDTH - 75, y: 10},
                 item: blueBlock,
                 damping: 0.0
@@ -105,14 +105,14 @@ examples:
             animator.addBehavior(blueSnap);
 
             // Anchor the green block to the red one when the app starts
-            var anchor = Ti.UI.iOS.createViewAttachmentBehavior({
+            const anchor = Ti.UI.iOS.createViewAttachmentBehavior({
                 anchorItem: redBlock,
                 item: greenBlock
             });
             animator.addBehavior(anchor);
 
             // Simulate Earth's gravity to allow the green block to swing
-            var gravity = Ti.UI.iOS.createGravityBehavior({
+            const gravity = Ti.UI.iOS.createGravityBehavior({
                 gravityDirection: {x: 0.0, y: 1.0}
             });
             gravity.addItem(greenBlock);

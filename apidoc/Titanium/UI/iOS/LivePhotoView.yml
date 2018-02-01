@@ -76,11 +76,11 @@ examples:
     example: |
         The following example shows how to create a simple Ti.UI.iOS.LivePhotoView:
         
-            var window = Ti.UI.createWindow({
+            const window = Ti.UI.createWindow({
                 backgroundColor: "white"
             });
 
-            var btn1 = Ti.UI.createButton({
+            const btn1 = Ti.UI.createButton({
                 title: "Select live photo!",
                 top: 30
             });
@@ -93,10 +93,10 @@ examples:
                 Ti.Media.openPhotoGallery({
                     mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO, Ti.Media.MEDIA_TYPE_LIVEPHOTO],
                     success: (e) => {
-                        var livePhoto = e.livePhoto // Live photo of type Ti.UI.iOS.LivePhoto
+                        const livePhoto = e.livePhoto // Live photo of type Ti.UI.iOS.LivePhoto
 
                         if (livePhoto) {
-                            var livePhotoView = Ti.UI.iOS.createLivePhotoView({
+                            const livePhotoView = Ti.UI.iOS.createLivePhotoView({
                                 livePhoto: livePhoto,
                                 muted: true,
                                 width: 300
@@ -111,7 +111,7 @@ examples:
                                 Ti.API.warn("-- Stop playback --");
                                 Ti.API.warn(e);
                             });
-                         window.add(livePhotoView);
+                            window.add(livePhotoView);
                         }
                     }
                 });

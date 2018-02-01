@@ -195,11 +195,11 @@ methods:
             This example encodes a double-precision floating point value in 8 bytes using the OS byte
             order.
 
-                var buffer = Ti.createBuffer({ length: 8 });
+                const buffer = Ti.createBuffer({ length: 8 });
                 Ti.Codec.encodeNumber({
-                  source: 1.23456789,
-                  dest: buffer,
-                  type: Ti.Codec.TYPE_DOUBLE
+                    source: 1.23456789,
+                    dest: buffer,
+                    type: Ti.Codec.TYPE_DOUBLE
                 });
 
       - title: Encode an Integer Specifying Start Position and Byte Order
@@ -207,7 +207,7 @@ methods:
             This example encodes a 4-byte integer using big endian encoding, and
             writes it to the supplied buffer starting at index position 10.
 
-                var buffer = Ti.createBuffer({ length: 100 });
+                const buffer = Ti.createBuffer({ length: 100 });
                 Ti.Codec.encodeNumber({
                     source: 0x3456789a,
                     dest: buffer,
@@ -249,8 +249,8 @@ methods:
             This sample decodes an 8-byte double-precision floating point number using the
             OS byte order.
 
-                var buffer = // a buffer containing (at least) one 8-byte floating-point number
-                var value = Ti.Codec.decodeNumber({
+                const buffer = ... // a buffer containing (at least) one 8-byte floating-point number
+                const value = Ti.Codec.decodeNumber({
                     source: buffer,
                     type: Ti.Codec.TYPE_DOUBLE
                 });
@@ -260,12 +260,12 @@ methods:
             This sample decodes a 4-byte integer starting at index position 10 in the
             buffer, using big endian encoding.
 
-                var buffer = // a buffer containing a 4-byte integer at position 10.
-                var value = Ti.Codec.decodeNumber({
-                      source: buffer,
-                      position: 10,
-                      type: Ti.Codec.TYPE_INT,
-                      byteOrder: Ti.Codec.BIG_ENDIAN
+                const buffer = ... // a buffer containing a 4-byte integer at position 10.
+                const value = Ti.Codec.decodeNumber({
+                    source: buffer,
+                    position: 10,
+                    type: Ti.Codec.TYPE_INT,
+                    byteOrder: Ti.Codec.BIG_ENDIAN
                 });
 
 
@@ -311,8 +311,8 @@ methods:
             This sample encodes a string using the default character encoding (UTF-8), then trims the
             buffer to the length of the encoded string.
 
-                var buffer = Ti.createBuffer({ length: 1024 });
-                var length = Ti.Codec.encodeString({
+                const buffer = Ti.createBuffer({ length: 1024 });
+                const length = Ti.Codec.encodeString({
                     source: "hello world",
                     dest: buffer
                 });
@@ -323,7 +323,7 @@ methods:
             This sample encodes the first 10 characters of a string using UTF-16 character encoding.
 
                 // (10 * 2) + BOM = 22
-                var buffer = Ti.createBuffer({ length: 22 });
+                const buffer = Ti.createBuffer({ length: 22 });
                 Ti.Codec.encodeString({
                     source: "jack jumped over the candle stick",
                     sourceLength: 10,
@@ -365,17 +365,17 @@ methods:
         example: |
             This sample decodes a string using the default character encoding.
 
-                var buffer = // a buffer containing an encoded string
-                var string = Ti.Codec.decodeString({ source: buffer });
+                const buffer = ... // a buffer containing an encoded string
+                const string = Ti.Codec.decodeString({ source: buffer });
 
       - title: Decode a String with a Specified Character Encoding
         example: |
             This sample decodes a string using the UTF-16 character encoding.
 
-                var buffer = // a buffer containing a UTF-16 encoded string
-                var string = Ti.Codec.decodeString({
-                  source: buffer,
-                  charset: Ti.Codec.CHARSET_UTF16
+                const buffer = ... // a buffer containing a UTF-16 encoded string
+                const string = Ti.Codec.decodeString({
+                    source: buffer,
+                    charset: Ti.Codec.CHARSET_UTF16
                 });
 
 ---

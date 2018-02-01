@@ -95,7 +95,7 @@ examples:
         of `10` and the current value of `0`. Changing the `value` property causes the
         displayed progress bar to update.
 
-            var pb = Ti.UI.createProgressBar({
+            const pb = Ti.UI.createProgressBar({
                 top: 25,
                 width: 250,
                 min: 0,
@@ -106,7 +106,7 @@ examples:
                 font: {fontSize: 14, fontWeight: 'bold'},
                 style: Ti.UI.iOS.ProgressBarStyle.PLAIN,
             });
-            var win = Ti.UI.createWindow({backgroundColor: 'white'});
+            const win = Ti.UI.createWindow({backgroundColor: 'white'});
             win.addEventListener('click', () => {
                 if (pb.value < pb.max) {
                     pb.message = 'Downloading '+ ++pb.value + ' of 10';

@@ -212,11 +212,11 @@ examples:
         Create a standard switch, using default values, and output value property on each `change`
         event.
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
 
-            var basicSwitch = Ti.UI.createSwitch({
+            const basicSwitch = Ti.UI.createSwitch({
               value:true // mandatory property for iOS
             });
             win.add(basicSwitch);
@@ -234,11 +234,11 @@ examples:
         Create a standard (toggle button) switch with a customized title for each on/off state, and
         output value property on each `change` event.
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
 
-            var basicSwitch = Ti.UI.createSwitch({
+            const basicSwitch = Ti.UI.createSwitch({
               style: Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
               titleOn:'Notifications Enabled',
               titleOff:'Notifications Disabled',
@@ -256,11 +256,11 @@ examples:
     example: |
         Create a checkbox switch, and output value property on each `change` event.
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
 
-            var basicSwitch = Ti.UI.createSwitch({
+            const basicSwitch = Ti.UI.createSwitch({
               style: Ti.UI.Android.SWITCH_STYLE_CHECKBOX,
               textAlign:Ti.UI.TEXT_ALIGNMENT_CENTER,
               title:'Notifications',

@@ -78,22 +78,22 @@ examples:
 
         #### app.js
 
-            var searchItems = [];
-            var itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
+            let searchItems = [];
+            const itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
                 itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
                 title:"Titanium Core Spotlight Tutorial",
                 contentDescription:"Tech Example \nOn: " + String.formatDate(new Date(),"short"),
                 keywords:["Mobile","Appcelerator","Titanium"]
             });
 
-            var item = Ti.App.iOS.createSearchableItem({
+            const item = Ti.App.iOS.createSearchableItem({
                 identifier:"my-id",
                 domainIdentifier:"com.mydomain",
                 attributeSet:itemAttr
             });
             searchItems.push(item);
 
-            var indexer = Ti.App.iOS.createSearchableIndex();
+            const indexer = Ti.App.iOS.createSearchableIndex();
 
             indexer.addToDefaultSearchableIndex([searchItems], (e) => {
                 if (e.success) {

@@ -48,7 +48,7 @@ examples:
     example: |
         Create a tabbed bar with 3 items.
         
-            var bb1 = Titanium.UI.iOS.createTabbedBar({
+            const bb1 = Titanium.UI.iOS.createTabbedBar({
             	labels:['One', 'Two', 'Three'],
             	backgroundColor:'#336699',
             	top:50,

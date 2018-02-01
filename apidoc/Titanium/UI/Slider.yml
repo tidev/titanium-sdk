@@ -38,7 +38,7 @@ examples:
         The following sample demonstrates creating a slider and adding a listener to
         handle the change events.
 
-            var slider = Titanium.UI.createSlider({
+            const slider = Titanium.UI.createSlider({
                 top: 50,
                 min: 0,
                 max: 100,
@@ -46,7 +46,7 @@ examples:
                 value: 50
                 });
 
-            var label = Ti.UI.createLabel({
+            const label = Ti.UI.createLabel({
                 text: slider.value,
                 width: Ti.UI.FILL,
                 top: 30,

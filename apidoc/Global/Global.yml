@@ -161,10 +161,10 @@ methods:
         TaskWindow module from any JavaScript file in the project:
 
              // load main window module from ui subdirectory
-             var mainWindow = require('ui/MainWindow');
+             const mainWindow = require('ui/MainWindow');
 
              // load platform-specific task window module
-             var taskWindow = require('ui/TaskWindow');
+             const taskWindow = require('ui/TaskWindow');
 
         For more information, see the official [CommonJS](http://requirejs.org/docs/commonjs.html) website.
 
@@ -206,7 +206,7 @@ methods:
         example: |
             To load a native module with the ID `com.mycompany.module`:
 
-                var module = require('com.mycompany.module');
+                const module = require('com.mycompany.module');
       - title: Require a JavaScript Module
         example: |
             `myModule.js`:
@@ -215,7 +215,7 @@ methods:
 
             `app.js`:
 
-                var myModule = require('myModule');
+                const myModule = require('myModule');
                 alert(myModule.message);
 
   - name: setInterval
@@ -244,8 +244,8 @@ methods:
       - title: Update a label once every second, and stop at 10 seconds
         example: |
 
-                var count = 0;
-                var timer = setInterval(function(){
+                let count = 0;
+                const timer = setInterval(function(){
                     count++;
                     label.text = "count: " + count;
                     if (count == 10) {

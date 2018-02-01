@@ -118,18 +118,18 @@ examples:
         After that, we assign the preview context to a view which will trigger the "peeking" of it. Note, that this
         is independent from the click event of the view itself.
 
-            var actions = [];
-            var win = Ti.UI.createWindow({
+            let actions = [];
+            const win = Ti.UI.createWindow({
                 backgroundColor: "white"
             });
 
             // The view to be previewed while popping.
-            var previewView = Ti.UI.createView({
+            const previewView = Ti.UI.createView({
                 backgroundColor: "blue"
             });
 
             // The window to be opened after popping the preview.
-            var detailWindow = Ti.UI.createWindow({
+            const detailWindow = Ti.UI.createWindow({
                 backgroundColor: "yellow"
             });
 
@@ -138,7 +138,7 @@ examples:
             }));
 
             // The actions to be added to the preview context.
-            var action = Ti.UI.iOS.createPreviewAction({
+            const action = Ti.UI.iOS.createPreviewAction({
                 title: "Preview Action",
                 style: Ti.UI.iOS.PREVIEW_ACTION_STYLE_DEFAULT
             });
@@ -147,7 +147,7 @@ examples:
                 alert("Title: " + e.title + " / Style: " + e.style+" / Index: " + e.index);
             });
 
-            var subAction = Ti.UI.iOS.createPreviewAction({
+            const subAction = Ti.UI.iOS.createPreviewAction({
                 title: "Preview Subaction"
             })
 
@@ -155,7 +155,7 @@ examples:
                 alert("Title: " + e.title + " / Style: " + e.style+" / Subindex: " + e.index);
             });
 
-            var actionGroup = Ti.UI.iOS.createPreviewActionGroup({
+            const actionGroup = Ti.UI.iOS.createPreviewActionGroup({
                 title: "More actions...",
                 style: Ti.UI.iOS.PREVIEW_ACTION_STYLE_DESTRUCTIVE,
                 actions: [subAction]
@@ -165,7 +165,7 @@ examples:
             actions.push(actionGroup);
 
             // Create the preview context
-            var context = Ti.UI.iOS.createPreviewContext({
+            const context = Ti.UI.iOS.createPreviewContext({
                 preview: previewView,
                 actions: actions, // Can have both Ti.UI.iOS.PreviewAction + Ti.UI.iOS.PreviewActionGroup
             	 contentHeight: 300 // When unspecified, we use the available height
@@ -177,7 +177,7 @@ examples:
             });
 
             // Assign the preview context
-            var button = Ti.UI.createButton({
+            const button = Ti.UI.createButton({
                 previewContext: context, // Will be ignored on unsupported devices
                 title : "Open Window!",
                 backgroundColor: "#A6171C",
@@ -191,18 +191,18 @@ examples:
 
   - title: PreviewContext example using a ListView as receiver.
     example: |
-        var actions = [];
-        var win = Ti.UI.createWindow({
+        let actions = [];
+        const win = Ti.UI.createWindow({
             backgroundColor: "white"
         });
 
         // The view to be previewed while popping.
-        var previewView = Ti.UI.createView({
+        const previewView = Ti.UI.createView({
             backgroundColor: "blue"
         });
 
         // The window to be opened after popping the preview.
-        var detailWindow = Ti.UI.createWindow({
+        const detailWindow = Ti.UI.createWindow({
             backgroundColor: "yellow"
         });
 
@@ -211,7 +211,7 @@ examples:
         }));
 
         // The actions to be added to the preview context.
-        var action = Ti.UI.iOS.createPreviewAction({
+        const action = Ti.UI.iOS.createPreviewAction({
             title: "Preview Action",
             style: Ti.UI.iOS.PREVIEW_ACTION_STYLE_DEFAULT
         });
@@ -229,7 +229,7 @@ examples:
         actions.push(action);
 
         // Create the preview context
-        var context = Ti.UI.iOS.createPreviewContext({
+        const context = Ti.UI.iOS.createPreviewContext({
             preview: previewView,
             actions: actions, // Can have both Ti.UI.iOS.PreviewAction + Ti.UI.iOS.PreviewActionGroup
             contentHeight: 300 // When unspecified, we use the available height
@@ -248,19 +248,19 @@ examples:
         });
 
         // Assign the preview context
-        var listView = Ti.UI.createListView({
+        const listView = Ti.UI.createListView({
             previewContext: context, // Will be ignored on unsupported devices
         });
 
-        var section1 = Ti.UI.createListSection({
+        const section1 = Ti.UI.createListSection({
             headerTitle: "Section 1"
         });
 
-        var section2 = Ti.UI.createListSection({
+        const section2 = Ti.UI.createListSection({
             headerTitle: "Section 2"
         });
 
-        var items = [];
+        let items = [];
 
         for (let i = 1; i <= 5; i++) {
             items.push({

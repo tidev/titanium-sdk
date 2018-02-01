@@ -63,12 +63,12 @@ examples:
     example: |
         The following code creates a simple video player to play a local video file.
 
-            var vidWin = Titanium.UI.createWindow({
+            const vidWin = Titanium.UI.createWindow({
                 title : 'Video View Demo',
                 backgroundColor : '#fff'
             });
 
-            var videoPlayer = Titanium.Media.createVideoPlayer({
+            const videoPlayer = Titanium.Media.createVideoPlayer({
                 top : 2,
                 autoplay : true,
                 backgroundColor : 'blue',
@@ -94,15 +94,15 @@ examples:
         control would not be required.
 
             Titanium.UI.setBackgroundColor('#000');
-            var win = Titanium.UI.createWindow({
+            const win = Titanium.UI.createWindow({
                 title : 'Test',
                 backgroundColor : '#fff'
             });
 
             // Change to a valid URL
-            var contentURL = "http://www.example.com/stream.mp4";
+            const contentURL = "http://www.example.com/stream.mp4";
 
-            var openButton = Ti.UI.createButton({
+            const openButton = Ti.UI.createButton({
                 title : "Start Video",
                 top : "0dp",
                 height : "40dp",
@@ -111,7 +111,7 @@ examples:
             });
 
             openButton.addEventListener('click', () => {
-                var activeMovie = Titanium.Media.createVideoPlayer({
+                const activeMovie = Titanium.Media.createVideoPlayer({
                     url : contentURL,
                     backgroundColor : 'blue',
                     mediaControlStyle : Titanium.Media.VIDEO_CONTROL_DEFAULT,
@@ -120,7 +120,7 @@ examples:
                     autoplay : true
                 });
 
-                var closeButton = Ti.UI.createButton({
+                const closeButton = Ti.UI.createButton({
                     title : "Exit Video",
                     top : "0dp",
                     height : "40dp",
@@ -500,7 +500,7 @@ properties:
 
         The following code sample creates a video player with a background image:
 
-            var videoPlayer = Ti.Media.createVideoPlayer({
+            const videoPlayer = Ti.Media.createVideoPlayer({
                 height : 300,
                 width : 300,
                 backgroundView : Ti.UI.createView({
@@ -568,7 +568,7 @@ properties:
 
         On Android, this property must be set at creation time. For example:
 
-            var player = Ti.Media.createVideoPlayer({fullscreen: true});
+            const player = Ti.Media.createVideoPlayer({fullscreen: true});
 
         On Android, setting this value to `true` means that the video will have its own Android Activity
         rather than being embedded as a view.
@@ -662,7 +662,7 @@ properties:
 
         The following code sample creates a video player with a background image:
 
-            var videoPlayer = Ti.Media.createVideoPlayer({
+            const videoPlayer = Ti.Media.createVideoPlayer({
                 height : 300,
                 width : 300,
                 overlayView : Ti.UI.createView({

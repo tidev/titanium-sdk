@@ -46,15 +46,15 @@ examples:
         Creates an AttributedString proxy, adds some attributes to it, and applies them
         to a <Titanium.UI.Label>.
 
-            var win = Titanium.UI.createWindow({
+            const win = Titanium.UI.createWindow({
                 backgroundColor: '#ddd',
             });
 
             win.open();
 
-            var text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
+            const text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
 
-            var attr = Titanium.UI.createAttributedString({
+            const attr = Titanium.UI.createAttributedString({
                 text: text,
                 attributes: [
                     // Underlines text
@@ -93,7 +93,7 @@ examples:
                 ]
             });
 
-            var label = Titanium.UI.createLabel({
+            const label = Titanium.UI.createLabel({
                 left: 20,
                 right: 20,
                 height: Titanium.UI.SIZE,
@@ -105,15 +105,15 @@ examples:
   - title: Adds attributes, one by one.
     example: |
 
-            var win = Titanium.UI.createWindow({
+            const win = Titanium.UI.createWindow({
                 backgroundColor: '#ddd',
             });
 
             win.open();
 
-            var text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
+            const text =  'Bacon ipsum dolor Appcelerator Titanium rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
 
-            var attr = Titanium.UI.createAttributedString({
+            const attr = Titanium.UI.createAttributedString({
                 text: text
             });
 
@@ -123,7 +123,7 @@ examples:
                 range: [0, text.length]
             });
 
-            var label = Titanium.UI.createLabel({
+            const label = Titanium.UI.createLabel({
                 left: 20,
                 right: 20,
                 height: Titanium.UI.SIZE,

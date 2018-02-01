@@ -25,7 +25,7 @@ description: |
     source (S) layer. For example, to use an image as an alpha mask for another image,
     you could use the following code:
 
-        var imageMask = Titanium.UI.createMaskedImage({
+        const imageMask = Titanium.UI.createMaskedImage({
             mask : 'mask.png', // alpha mask
             image : 'demo_image.png', // image to mask
             mode : Titanium.UI.iOS.BLEND_MODE_SOURCE_OUT
@@ -43,7 +43,7 @@ examples:
         The following code excerpt creates a monochrome version of the background image,
         using the luminosity from the background image and the specified `tint` color:
 
-            var imageMask = Titanium.UI.createMaskedImage({
+            const imageMask = Titanium.UI.createMaskedImage({
                 mask : 'demo_image.png', // background image
                 tint: 'red',
                 mode : Titanium.UI.iOS.BLEND_MODE_LUMINOSITY,

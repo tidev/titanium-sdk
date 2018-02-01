@@ -233,8 +233,8 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+                const data = [{ title:'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const table = Ti.UI.createTableView({ data: data });
 
         type: Dictionary<Titanium.UI.TableViewRow>
 
@@ -292,8 +292,8 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+                const data = [{ title:'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const table = Ti.UI.createTableView({ data: data });
 
         type: Dictionary<Titanium.UI.TableViewRow>
       - name: y
@@ -430,8 +430,8 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+                const data = [{ title:'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const table = Ti.UI.createTableView({ data: data });
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -467,8 +467,8 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+                const data = [{ title:'Row 1', hasChild:true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const table = Ti.UI.createTableView({ data: data });
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -550,8 +550,8 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+                const data = [{ title:'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const table = Ti.UI.createTableView({ data: data });
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -613,8 +613,8 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                var data = [{title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1'},];
-                var table = Ti.UI.createTableView({data: data});
+                const data = [{ title:'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const table = Ti.UI.createTableView({ data: data });
         type: Dictionary<Titanium.UI.TableViewRow>
 
       - name: x
@@ -1089,8 +1089,8 @@ properties:
         TableViewRow object, such as `title`.  To search text stored in a different attribute, set the `title`
         property of the TableViewRow object to the property to be searched. For example:
 
-            var label = Ti.UI.createLabel({text: 'Foobar'}),
-            var row = Ti.UI.createTableViewRow(title: label.text);
+            const label = Ti.UI.createLabel({text: 'Foobar'}),
+            const row = Ti.UI.createTableViewRow(title: label.text);
             row.add(label);
 
         On the iOS platform, this property can be set to any property on the TableViewRow object,
@@ -1492,11 +1492,19 @@ examples:
         Create a basic table view.
 
             Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow();
+            const win = Ti.UI.createWindow();
 
-            var tableData = [ {title: 'Apples'}, {title: 'Bananas'}, {title: 'Carrots'}, {title: 'Potatoes'} ];
+            const tableData = [{
+              title: 'Apples'
+            }, {
+              title: 'Bananas'
+            }, {
+              title: 'Carrots'
+            }, {
+              title: 'Potatoes'
+            }];
 
-            var table = Ti.UI.createTableView({
+            const table = Ti.UI.createTableView({
               data: tableData
             });
             win.add(table);
@@ -1508,24 +1516,24 @@ examples:
         before and one after it is rendered. This sample only works on Release 3.0 and later.
 
             Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow();
+            const win = Ti.UI.createWindow();
 
-            var sectionFruit = Ti.UI.createTableViewSection({ headerTitle: 'Fruit' });
+            const sectionFruit = Ti.UI.createTableViewSection({ headerTitle: 'Fruit' });
             sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Apples' }));
             sectionFruit.add(Ti.UI.createTableViewRow({ title: 'Bananas' }));
 
-            var sectionVeg = Ti.UI.createTableViewSection({ headerTitle: 'Vegetables' });
+            const sectionVeg = Ti.UI.createTableViewSection({ headerTitle: 'Vegetables' });
             sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Carrots' }));
             sectionVeg.add(Ti.UI.createTableViewRow({ title: 'Potatoes' }));
 
-            var table = Ti.UI.createTableView({
+            const table = Ti.UI.createTableView({
               data: [sectionFruit, sectionVeg]
             });
 
             win.add(table);
             win.open();
 
-            var sectionFish = Ti.UI.createTableViewSection({ headerTitle: 'Fish' });
+            const sectionFish = Ti.UI.createTableViewSection({ headerTitle: 'Fish' });
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
             sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
 
@@ -1553,7 +1561,7 @@ examples:
             const IMG_BASE = 'images/';
             const defaultFontSize = Ti.Platform.name === 'android' ? 16 : 14;
 
-            var tableData = [];
+            let tableData = [];
 
             for (let i = 1; i <= 20; i++) {
               const row = Ti.UI.createTableViewRow({

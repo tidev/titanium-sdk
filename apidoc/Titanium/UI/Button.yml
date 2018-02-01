@@ -110,7 +110,7 @@ description: |
 
     For example:
 
-        var cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iOS.SystemButton.CANCEL });
+        const cancelButton = Ti.UI.createButton({ systemButton: Ti.UI.iOS.SystemButton.CANCEL });
 
     In Alloy, you can omit the namespace when setting the `systemButton` property:
 
@@ -278,7 +278,7 @@ properties:
     description: |
         In JavaScript:
 
-            var cancelButton = Ti.UI.createButton({
+            const cancelButton = Ti.UI.createButton({
                 systemButton: Ti.UI.iOS.SystemButton.CANCEL
             });
 
@@ -332,7 +332,7 @@ examples:
   - title: Simple Button Example
     example: |
 
-            var button = Titanium.UI.createButton({
+            const button = Titanium.UI.createButton({
                title: 'Hello',
                top: 10,
                width: 100,
