@@ -124,6 +124,9 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setSingleLine();
 			tv.setMaxLines(1);
 		}
+		setOnClickListener(tv);
+		setOnLongClickListener(tv);
+		registerForTouch(tv);
 		tv.addTextChangedListener(this);
 		tv.setOnEditorActionListener(this);
 		tv.setOnFocusChangeListener(this); // TODO refactor to TiUIView?
