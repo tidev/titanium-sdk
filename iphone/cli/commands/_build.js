@@ -5785,52 +5785,50 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					try {
 						this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
 							const originalContents = fs.readFileSync(from).toString();
-							const analyzeOptions = {
-								filename: from,
-								minify: this.minifyJS,
-								transpile: this.transpile,
+							// Populate an initial object to pass in. This won't have modified
+							// contents or symbols populated, which it used to at this point,
+							// but I don't think any plugin relied on that behavior, while
+							// hyperloop would clobber the contents if we didn't do the mods
+							// inside the compile hook.
+							const r = {
+								original: originalContents,
+								contents: originalContents,
+								symbols: []
 							};
-							// generate our transpile target based on tijscore/jscore
-							if (this.useJSCore) {
-								analyzeOptions.targets = { 'ios': this.minSupportedIosSdk }; // if using jscore, target our min ios version
-							} // if not jscore, just transpile everything down (no target)
+							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+								const analyzeOptions = {
+									filename: from,
+									minify: this.minifyJS,
+									transpile: this.transpile,
+								};
+								// generate our transpile target based on tijscore/jscore
+								if (this.useJSCore) {
+									analyzeOptions.targets = { 'ios': this.minSupportedIosSdk }; // if using jscore, target our min ios version
+								} // if not jscore, just transpile everything down (no target)
 
-							// Analyze Ti API usage, possibly also minify/transpile
-							const r = jsanalyze.analyzeJs(originalContents, analyzeOptions);
+								// Analyze Ti API usage, possibly also minify/transpile
+								const modified = jsanalyze.analyzeJs(originalContents, analyzeOptions);
+								const newContents = modified.contents;
 
-							// we want to sort by the "to" filename so that we correctly handle file overwriting
-							this.tiSymbols[to] = r.symbols;
+								// we want to sort by the "to" filename so that we correctly handle file overwriting
+								this.tiSymbols[to] = modified.symbols;
 
-							const dir = path.dirname(to);
-							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+								const dir = path.dirname(to);
+								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-							this.unmarkBuildDirFile(to);
-
-							if (this.minifyJS || this.transpile) {
-								// file contents should change
-								this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-									const exists = fs.existsSync(to);
-									// dest doesn't exist, or new contents differs frome xisting dest file
-									if (!exists || r.contents !== fs.readFileSync(to).toString()) {
-										this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-										exists && fs.unlinkSync(to);
-										fs.writeFileSync(to, r.contents);
-										this.jsFilesChanged = true;
-									} else {
-										this.logger.trace(__('No change, skipping %s', to.cyan));
-									}
-									cb2();
-								})(r, from, to, cb);
-							} else {
-								// no minify/transpile, so contents shouldn't have changed
-								if (this.copyFileSync(from, to)) { // copy file if dest doesn't exist
+								const exists = fs.existsSync(to);
+								// dest doesn't exist, or new contents differs from existing dest file
+								if (!exists || newContents !== fs.readFileSync(to).toString()) {
+									this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+									exists && fs.unlinkSync(to);
+									fs.writeFileSync(to, r.contents);
 									this.jsFilesChanged = true;
 								} else {
-									// no change and dest already exists
 									this.logger.trace(__('No change, skipping %s', to.cyan));
 								}
-								cb();
-							}
+								this.unmarkBuildDirFile(to);
+								cb2();
+							})(r, from, to, cb);
 						})(info.src, info.dest, next);
 					} catch (ex) {
 						ex.message.split('\n').forEach(this.logger.error);
