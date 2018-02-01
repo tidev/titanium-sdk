@@ -503,12 +503,10 @@ examples:
             Ti.UI.setBackgroundColor('white');
             var win = Ti.UI.createWindow({
               title: 'Click window to test',
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false
+              backgroundColor: 'white'
             });
 
-            win.addEventListener('click', function(e) {
+            win.addEventListener('click', (e) => {
               alert('The file has been deleted');
             });
             win.open();
@@ -519,15 +517,13 @@ examples:
         property, which is invoked when the app window is clicked.
 
             Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               title: 'Click window to test',
-              backgroundColor: 'white',
-            exitOnClose: true,
-            fullscreen: false
+              backgroundColor: 'white'
             });
 
-            win.addEventListener('click', function(e) {
-              var dialog = Ti.UI.createAlertDialog({
+            win.addEventListener('click', (e) => {
+              const dialog = Ti.UI.createAlertDialog({
                 message: 'The file has been deleted',
                 ok: 'Okay',
                 title: 'File Deleted'
@@ -542,20 +538,18 @@ examples:
         Output a message to the log when the cancel button is clicked.
 
             Ti.UI.setBackgroundColor('white');
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               title: 'Click window to test',
-              backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false
+              backgroundColor: 'white'
             });
-            win.addEventListener('click', function(e) {
-              var dialog = Ti.UI.createAlertDialog({
+            win.addEventListener('click', (e) => {
+              const dialog = Ti.UI.createAlertDialog({
                 cancel: 1,
                 buttonNames: ['Confirm', 'Cancel', 'Help'],
                 message: 'Would you like to delete the file?',
                 title: 'Delete'
               });
-              dialog.addEventListener('click', function(e) {
+              dialog.addEventListener('click', (e) => {
                 if (e.index === e.source.cancel) {
                   Ti.API.info('The cancel button was clicked');
                 }
@@ -577,13 +571,13 @@ examples:
             var win = Ti.UI.createWindow({
               title: 'Click window to test'
             });
-            win.addEventListener('click', function(e) {
+            win.addEventListener('click', (e) => {
               var dialog = Ti.UI.createAlertDialog({
                 title: 'Enter text',
                 style: Ti.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT,
                 buttonNames: ['OK']
               });
-              dialog.addEventListener('click', function(e) {
+              dialog.addEventListener('click', (e) => {
                 Ti.API.info('e.text: ' + e.text);
               });
               dialog.show();
@@ -597,8 +591,7 @@ examples:
         alertdialog.xml:
 
             <Alloy>
-                <Window id="win" onClick="showDialog" title="Click window to test" backgroundColor="white"
-                    exitOnClose="true" fullscreen="false" >
+                <Window id="win" onClick="showDialog" title="Click window to test" backgroundColor="white">
 
                     <AlertDialog id="dialog" onClick="doClick" title="Delete"
                         message="Would you like to delete the file?" cancel="1">

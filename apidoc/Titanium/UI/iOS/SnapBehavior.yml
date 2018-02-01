@@ -62,13 +62,13 @@ examples:
             animator.addBehavior(snap);
 
             // Snap the block to the point of the click event
-            win.addEventListener('click', function(e){
+            win.addEventListener('click', (e) => {
                 snap.snapPoint = {x: e.x, y: e.y};
                 snap.damping = Math.random();
             });
 
             // Start the animation when the window opens
-            win.addEventListener('open', function(e){
+            win.addEventListener('open', (e) => {
                 animator.startAnimator();
             });
 

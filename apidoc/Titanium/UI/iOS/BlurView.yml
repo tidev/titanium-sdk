@@ -59,7 +59,7 @@ examples:
                 Ti.UI.iOS.BLUR_EFFECT_STYLE_DARK,
             ];
 
-            tabs.addEventListener("click", function(e) {
+            tabs.addEventListener("click", (e) => {
                 blur.setEffect(effects[e.index]);
             });
 

@@ -107,7 +107,7 @@ examples:
                 style: Ti.UI.iOS.ProgressBarStyle.PLAIN,
             });
             var win = Ti.UI.createWindow({backgroundColor: 'white'});
-            win.addEventListener('click', function(){
+            win.addEventListener('click', () => {
                 if (pb.value < pb.max) {
                     pb.message = 'Downloading '+ ++pb.value + ' of 10';
                 }

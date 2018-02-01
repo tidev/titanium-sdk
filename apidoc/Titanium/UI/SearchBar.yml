@@ -42,7 +42,7 @@ description: |
     the search bar and dismiss the onscreen keyboard when the user selects a row, you
     could add code like this to the `click` event handler on your table view:
         
-        myTableView.addEventListener('click', function(e) {
+        myTableView.addEventListener('click', (e) => {
             if (Ti.Platform.name === 'android') {
                 // Clear search bar
                 mySearchBar.value ="";

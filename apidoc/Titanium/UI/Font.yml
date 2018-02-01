@@ -35,7 +35,7 @@ properties:
     summary: Specifies the font family or specific font to use.
     description: |
 
-        This can be the name of a font family (for example, "Helvetica" or "DroidSans") the base
+        This can be the name of a font family (for example, "Arial" or "DroidSans") the base
         name of the font file (for example, "Droid_sans.ttf"), or the font's PostScript name. The
         value you specify also depends on the platform you are targeting.
 

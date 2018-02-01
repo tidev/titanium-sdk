@@ -191,13 +191,13 @@ examples:
             var win = Ti.UI.createWindow({backgroundColor: 'white'});
 
             var button = Ti.UI.createButton({title: 'Open Popover!'});
-            button.addEventListener('click', function(e){
+            button.addEventListener('click', (e) => {
                 popover.show({ view: button });
             })
             win.add(button);
 
             var rightButton = Ti.UI.createButton({title: 'Robin'});
-            rightButton.addEventListener('click', function(e){
+            rightButton.addEventListener('click', (e) => {
                 alert("But green's the color of spring.");
             });
 

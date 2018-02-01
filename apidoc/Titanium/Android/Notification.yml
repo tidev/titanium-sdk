@@ -64,7 +64,7 @@ examples:
         custom alert sound, see [Notification.sound](Titanium.Android.Notification.sound).
 
             // Intent object to launch the application
-            var intent = Ti.Android.createIntent({
+            const intent = Ti.Android.createIntent({
                 action: Ti.Android.ACTION_MAIN,
                 // Substitute the correct class name for your application
                 className: 'com.appcelerator.notificationsample.NotificationsampleActivity',
@@ -75,18 +75,18 @@ examples:
             intent.addCategory(Ti.Android.CATEGORY_LAUNCHER);
 
             // Create a PendingIntent to tie together the Activity and Intent
-            var pending = Titanium.Android.createPendingIntent({
+            const pending = Titanium.Android.createPendingIntent({
                 intent: intent,
                 flags: Titanium.Android.FLAG_UPDATE_CURRENT
             });
 
             // Create the notification
-            var notification = Titanium.Android.createNotification({
-            	// icon is passed as an Android resource ID -- see Ti.App.Android.R.
+            const notification = Titanium.Android.createNotification({
+                // icon is passed as an Android resource ID -- see Ti.App.Android.R.
                 icon: Ti.App.Android.R.drawable.my_icon,
-            	contentTitle: 'Something Happened',
-            	contentText : 'Click to return to the application.',
-            	contentIntent: pending
+            	  contentTitle: 'Something Happened',
+            	  contentText : 'Click to return to the application.',
+            	  contentIntent: pending
             });
 
             // Send the notification.
@@ -96,10 +96,10 @@ examples:
     example: |
         The following example shows how to create bundled notifications.
 
-            var id = 100,
-                groupKey = 'group_key';
+            const id = 100;
+            const groupKey = 'group_key';
 
-            for (var i = 3; i > 0; i--) {
+            for (let i = 3; i > 0; i--) {
                 Ti.Android.NotificationManager.notify(id++,
                     Ti.Android.createNotification({
                         icon: Ti.Android.R.drawable.ic_dialog_info,
@@ -368,11 +368,11 @@ properties:
             // Copy resource file to SD card, and return a native path.
             // Return undefined if we can't copy the file.
             function getOrCopyAudioFile(resourceFilename) {
-                var outFile = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound', 'cricket.wav');
-                var outPath = outFile.nativePath;
+                const outFile = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound', 'cricket.wav');
+                const outPath = outFile.nativePath;
 
                 if (! outFile.exists()) {
-                    var outDir = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound');
+                    let outDir = Ti.Filesystem.getFile(Ti.Filesystem.externalStorageDirectory, 'sound');
                     if (! outDir.isDirectory()) {
                         if (! outDir.createDirectory()) {
                             Ti.API.debug("Failed to create directory.");
@@ -382,7 +382,7 @@ properties:
                     }
                     outDir = null;
 
-                    var inFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'cricket.wav');
+                    let inFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'cricket.wav');
                     try {
                         inFile.copy(outPath);
                     } catch (ex) {
@@ -399,7 +399,7 @@ properties:
 
         Then when creating a notification, specify the sound like this:
 
-            var sound = getOrCopyAudioFile();
+            const sound = getOrCopyAudioFile();
             if (sound) {
                 notification.sound = sound;
             }

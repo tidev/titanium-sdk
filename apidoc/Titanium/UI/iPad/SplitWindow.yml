@@ -91,11 +91,11 @@ examples:
                 masterView: masterNav
             });
 
-            splitWin.addEventListener('visible',function(e){
-                if (e.view == 'detail'){
+            splitWin.addEventListener('visible', (e) => {
+                if (e.view == 'detail') {
                     e.button.title = "Master";
                     detail.leftNavButton = e.button;
-                } else if (e.view == 'master'){
+                } else if (e.view == 'master') {
                     detail.leftNavButton = null;
                 }
             });
@@ -132,11 +132,11 @@ examples:
 
         **controllers/index.js:**
 
-            $.index.addEventListener('visible',function(e){
-                if (e.view == 'detail'){
+            $.index.addEventListener('visible', (e) => {
+                if (e.view == 'detail') {
                     e.button.title = "Master";
                     $.index.detailView.getWindow().leftNavButton = e.button;
-                } else if (e.view == 'master'){
+                } else if (e.view == 'master') {
                     $.index.detailView.getWindow().leftNavButton = null;
                 }
             });

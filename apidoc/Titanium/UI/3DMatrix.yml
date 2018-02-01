@@ -172,7 +172,7 @@ examples:
             });
             win.add(button);
 
-            button.addEventListener('click', function(){
+            button.addEventListener('click', () => {
               var t1 = Ti.UI.create3DMatrix();
               t1 = t1.translate(0, 100, 200);
               t1.m34 = 1.0/-90;

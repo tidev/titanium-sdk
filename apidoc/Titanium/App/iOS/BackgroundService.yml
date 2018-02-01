@@ -56,15 +56,14 @@ examples:
         the service is unregistered and is not invoked again until the application is relaunched.
         
         #### app.js
-            var win1 = Ti.UI.createWindow({  
-              title:'Background Services Example',
-              backgroundColor:'#4186cd',
-              modal:true
+            const win1 = Ti.UI.createWindow({  
+              title: 'Background Services Example',
+              backgroundColor: '#4186cd'
             });
 
             Ti.API.info('Registering background services');
-            var service = Ti.App.iOS.registerBackgroundService({url:'bg-service1.js'});
-            var service2 = Ti.App.iOS.registerBackgroundService({url:'bg-service2.js'});
+            const service = Ti.App.iOS.registerBackgroundService({url:'bg-service1.js'});
+            const service2 = Ti.App.iOS.registerBackgroundService({url:'bg-service2.js'});
             Ti.API.info('*** Press home button to pause application ***');
 
             win1.open();
@@ -74,7 +73,7 @@ examples:
             Ti.API.info('bg-service1: service has been invoked once, and will now be stopped to release it from memory. ');
             Ti.App.currentService.stop();
 
-            var listener = Ti.App.currentService.addEventListener('stop',function(){
+            var listener = Ti.App.currentService.addEventListener('stop', () => {
               Ti.API.info('bg-service1: Although the service has been stopped, it is still registered and will be executed again on next pause');
               Ti.API.info('bg-service1: As all background services are automatically stopped on resume, it is not always necessary to explicitly stop a service');
             });
@@ -83,7 +82,7 @@ examples:
         
             var count = Ti.App.Properties.getInt('bg-svc2-count', 0);
 
-            if (count > 4){
+            if (count > 4) {
               // reset count after 4 invocations
               count = 0;
             }
@@ -94,7 +93,7 @@ examples:
 
             Ti.API.info('bg-service2 has been run ' + count + ' times');
 
-            if (count > 4){
+            if (count > 4) {
               Ti.App.currentService.unregister();
               var finalNotif = Ti.App.iOS.scheduleLocalNotification({
                 alertBody:'bg-service2: As service has been invoked more than 4 times, it has been unregistered and will NOT run again. Relaunch the app to re-register it',
@@ -106,4 +105,3 @@ examples:
                 date:new Date(new Date().getTime() + 1000) // 1 second after pause
               });	
             }
-

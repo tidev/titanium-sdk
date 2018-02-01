@@ -92,7 +92,7 @@ examples:
             function openGallery() {
                 Ti.Media.openPhotoGallery({
                     mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO, Ti.Media.MEDIA_TYPE_LIVEPHOTO],
-                    success: function(e) {
+                    success: (e) => {
                         var livePhoto = e.livePhoto // Live photo of type Ti.UI.iOS.LivePhoto
 
                         if (livePhoto) {
@@ -102,12 +102,12 @@ examples:
                                 width: 300
                             });
 
-                            livePhotoView.addEventListener("start", function(e) {
+                            livePhotoView.addEventListener("start", (e) => {
                                 Ti.API.warn("-- Start playback --");
                                 Ti.API.warn(e);
                             });
 
-                            livePhotoView.addEventListener("stop", function(e) {
+                            livePhotoView.addEventListener("stop", (e) => {
                                 Ti.API.warn("-- Stop playback --");
                                 Ti.API.warn(e);
                             });

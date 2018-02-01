@@ -107,8 +107,8 @@ description: |
     from Titanium SDK 5.4.0. This is used to requests any permission you may need. An example of
     using this is shown below.
 
-        var permissions = ['android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE'];
-        Ti.Android.requestPermissions(permissions, function(e) {
+        const permissions = ['android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE'];
+        Ti.Android.requestPermissions(permissions, (e) => {
             if (e.success) {
                 Ti.API.info("SUCCESS");
             } else {
@@ -156,15 +156,15 @@ methods:
         example: |
             The following example uses an activity chooser to send a plain text message.
 
-                var intent = Ti.Android.createIntent( {
+                const intent = Ti.Android.createIntent({
                     action: Ti.Android.ACTION_SEND,
                     type: 'text/plain'
                 });
-                intent.putExtra(Ti.Android.EXTRA_SUBJECT, "This is the subject.");
-                intent.putExtra(Ti.Android.EXTRA_TEXT, "This is some text to send.")
+                intent.putExtra(Ti.Android.EXTRA_SUBJECT, 'This is the subject.');
+                intent.putExtra(Ti.Android.EXTRA_TEXT, 'This is some text to send.')
 
-                var chooser = Ti.Android.createIntentChooser(intent, "Send Message");
-                var activity = Ti.Android.currentActivity.startActivity(chooser);
+                const chooser = Ti.Android.createIntentChooser(intent, 'Send Message');
+                const activity = Ti.Android.currentActivity.startActivity(chooser);
 
   - name: createPendingIntent
     summary: |

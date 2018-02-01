@@ -24,8 +24,8 @@ examples:
     example: |
         The following example shows how to use the [pump](Titanium.Stream.pump) method.
         
-            var pumpCallback = function(arg) {
-                if(arg.bytesProcessed == -1) {
+            var pumpCallback = (arg) => {
+                if (arg.bytesProcessed == -1) {
                     Ti.API.info("At end of stream.");
                 } else {
                     Ti.API.info(String.format("Received %.0f bytes. Total: %.0f bytes.", 
@@ -530,4 +530,3 @@ properties:
         Otherwise, this value will be -1.
     type: Number
     since: "3.1.0"
-

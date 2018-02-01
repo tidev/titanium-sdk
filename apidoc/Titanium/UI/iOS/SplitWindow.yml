@@ -152,7 +152,7 @@ examples:
 
             **controllers/index.js:**
 
-            $.index.addEventListener('visible',function(e){
+            $.index.addEventListener('visible', (e) => {
               if (e.view === 'detail') {
                 e.button.title = "Master";
                 $.index.detailView.getWindow().leftNavButton = e.button;

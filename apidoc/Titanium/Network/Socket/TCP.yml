@@ -37,14 +37,14 @@ examples:
             
             var socket = Ti.Network.Socket.createTCP({
                 host: 'blog.example.com', port: 80,
-                connected: function (e) {
+                connected: (e) => {
                     Ti.API.info('Socket opened!');
                     Ti.Stream.pump(e.socket, readCallback, 1024, true);
                     Ti.Stream.write(socket, Ti.createBuffer({
                         value: 'GET http://blog.example.com/index.html HTTP/1.1\r\n\r\n'
                     }), writeCallback);
                 },
-                    error: function (e) {
+                    error: (e) => {
                     Ti.API.info('Error (' + e.errorCode + '): ' + e.error);
                 },
             });
@@ -61,7 +61,7 @@ examples:
                     ...
                 }
                 try {
-                    if(e.buffer) {
+                    if (e.buffer) {
                         var received = e.buffer.toString();
                         Ti.API.info('Received: ' + received);
                     } else {
@@ -88,14 +88,14 @@ examples:
             var clientSocket = Ti.Network.Socket.createTCP({
                 host : hostname,
                 port : 40404,
-                connected : function(e) {
+                connected : (e) => {
                     Ti.API.info('Client socket connected!');
                     Ti.Stream.pump(e.socket, pumpCallback, 1024, true);
                     e.socket.write(Ti.createBuffer({
                         value : 'A message from a connecting socket.'
                     }));
                 },
-                error : function(e) {
+                error : (e) => {
                     Ti.API.info('Error (' + e.errorCode + '): ' + e.error);
                 }
             });
@@ -112,7 +112,7 @@ examples:
                     return;
                 }
                 try {
-                    if(e.buffer) {
+                    if (e.buffer) {
                         var received = e.buffer.toString();
                         Ti.API.info('Received: ' + received);
                     } else {
@@ -127,7 +127,7 @@ examples:
             var listenSocket = Ti.Network.Socket.createTCP({
                 host : hostname,
                 port : 40404,
-                accepted : function(e) {
+                accepted : (e) => {
                     // This where you would usually store the newly-connected socket, e.inbound
                     // so it can be used for read / write operations elsewhere in the app.
                     // In this case, we simply send a message then close the socket.
@@ -139,7 +139,7 @@ examples:
                     // close the accepted socket
             
                 },
-                error : function(e) {
+                error : (e) => {
                     Ti.API.error("Socket <" + e.socket + "> encountered error when listening");
                     Ti.API.error(" error code <" + e.errorCode + ">");
                     Ti.API.error(" error description <" + e.error + ">");
@@ -158,7 +158,7 @@ examples:
             
             // Call connect after a short timeout to ensure the listening socket is ready to go.
             Ti.API.info("Setting timer to connect.");
-            setTimeout(function(e)
+            setTimeout((e) =>
             {
                 Ti.API.info("Calling connect on client socket.");
                clientSocket.connect();

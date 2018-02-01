@@ -338,7 +338,7 @@ examples:
                width: 100,
                height: 50
             });
-            button.addEventListener('click',function(e)
+            button.addEventListener('click', (e) =>
             {
                Titanium.API.info("You clicked the button");
             });
@@ -359,6 +359,6 @@ examples:
 
         button.js:
 
-            function doClick(e){
+            function doClick(e) {
                 Titanium.API.info("You clicked the button");
             };

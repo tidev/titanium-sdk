@@ -291,7 +291,7 @@ examples:
     example: |
         This example creates an intent and uses it to launch a new activity.
 
-            var intent = Ti.Android.createIntent({
+            const intent = Ti.Android.createIntent({
                 action: Ti.Android.ACTION_MAIN,
                 url: 'activity1.js'
             });
@@ -303,18 +303,18 @@ examples:
         This example creates an intent to retrieve contact information from the user's
         contacts.
 
-            var intent = Ti.Android.createIntent({
+            const intent = Ti.Android.createIntent({
                 action: Ti.Android.ACTION_GET_CONTENT,
-                type: "vnd.android.cursor.item/phone"
+                type: 'vnd.android.cursor.item/phone'
             });
 
   - title: Pick a Photo from the Photo Gallery
     example: |
         This example creates an intent to pick an image from the photo gallery.
 
-            var intent = Ti.Android.createIntent({
+            const intent = Ti.Android.createIntent({
                 action: Ti.Android.ACTION_PICK,
-                type: "image/*"
+                type: 'image/*'
             });
             intent.addCategory(Ti.Android.CATEGORY_DEFAULT);
 
@@ -349,17 +349,15 @@ examples:
 
         `app.js`:
 
-             var win = Ti.UI.createWindow({
-                 backgroundColor: '#fff',
-                 fullscreen: false,
-                 exitOnClose: true
+             const win = Ti.UI.createWindow({
+                 backgroundColor: '#fff'
              });
-             win.addEventListener('open', function(e) {
-                 var intent = Ti.Android.currentActivity.getIntent();
-                 var iname = Ti.Android.EXTRA_STREAM;
+             win.addEventListener('open', () => {
+                 const intent = Ti.Android.currentActivity.getIntent();
+                 const iname = Ti.Android.EXTRA_STREAM;
                  if (intent && intent.hasExtra(iname)) {
                      // Create ImageView from TiBlob
-                     var blob = intent.getBlobExtra(iname);
+                     const blob = intent.getBlobExtra(iname);
                      win.add(Ti.UI.createImageView({
                          image: blob,
                          height: 300,
@@ -368,8 +366,7 @@ examples:
                          top: 0
                      }));
                  } else {
-                     Ti.API.info('No extra named "' + iname + '" found in Intent');
+                     Ti.API.info(`No extra named "${iname}" found in Intent`);
                  }
              });
              win.open();
-

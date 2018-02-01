@@ -72,24 +72,22 @@ properties:
             click the window to test again. Note that the logged information relates to the UI rather 
             than the physical orientation of the device.
             
-                var win = Ti.UI.createWindow({
+                const win = Ti.UI.createWindow({
                   title: 'Click window to output UI dimensions',
                   backgroundColor: 'white',
-                  orientationModes: [ Titanium.UI.PORTRAIT ], // UI restricted to portrait mode
-                  fullscreen: false,
-                  exitOnClose: true
+                  orientationModes: [ Titanium.UI.PORTRAIT ] // UI restricted to portrait mode
                 });
                 
-                var label = Ti.UI.createLabel({
+                const label = Ti.UI.createLabel({
                   text:'Hello world'
                 });
                 win.add(label);
                 
-                function logDisplayCaps(){
+                function logDisplayCaps() {
                   Ti.API.info('Width x Height: ' + Ti.Platform.displayCaps.platformWidth + ' x ' + Ti.Platform.displayCaps.platformHeight);
                 }
                 
-                win.addEventListener('click',function(e){
+                win.addEventListener('click', (e) => {
                   // as the UI orientation is restricted by orientationModes, this will only ever 
                   // output the dimensions of the UI in portrait mode. For example, 480 x 800 for the 
                   // Android device tested
@@ -121,9 +119,7 @@ properties:
                 var win = Ti.UI.createWindow({
                   title: 'Click window to output UI dimensions',
                   backgroundColor: 'white',
-                  orientationModes: [ Titanium.UI.PORTRAIT ], // UI restricted to portrait mode
-                  fullscreen: false,
-                  exitOnClose: true
+                  orientationModes: [ Titanium.UI.PORTRAIT ] // UI restricted to portrait mode
                 });
                 
                 var label = Ti.UI.createLabel({
@@ -131,11 +127,11 @@ properties:
                 });
                 win.add(label);
                 
-                function logDisplayCaps(){
+                function logDisplayCaps() {
                   Ti.API.info('Width x Height: ' + Ti.Platform.displayCaps.platformWidth + ' x ' + Ti.Platform.displayCaps.platformHeight);
                 }
                 
-                win.addEventListener('click',function(e){
+                win.addEventListener('click', (e) => {
                   // as the UI orientation is restricted by orientationModes, this will only ever 
                   // output the dimensions of the UI in portrait mode. For example, 480 x 800 for the 
                   // Android device tested
@@ -166,10 +162,10 @@ examples:
             Ti.API.info('Ti.Platform.displayCaps.dpi: ' + Ti.Platform.displayCaps.dpi);
             Ti.API.info('Ti.Platform.displayCaps.platformHeight: ' + Ti.Platform.displayCaps.platformHeight);
             Ti.API.info('Ti.Platform.displayCaps.platformWidth: ' + Ti.Platform.displayCaps.platformWidth);
-            if((Ti.Platform.osname === 'iphone')||(Ti.Platform.osname === 'ipad')||(Ti.Platform.osname === 'android')){
+            if ((Ti.Platform.osname === 'iphone')||(Ti.Platform.osname === 'ipad')||(Ti.Platform.osname === 'android')) {
               Ti.API.info('Ti.Platform.displayCaps.logicalDensityFactor: ' + Ti.Platform.displayCaps.logicalDensityFactor);
             }
-            if(Ti.Platform.osname === 'android'){
+            if (Ti.Platform.osname === 'android') {
               Ti.API.info('Ti.Platform.displayCaps.xdpi: ' + Ti.Platform.displayCaps.xdpi);
               Ti.API.info('Ti.Platform.displayCaps.ydpi: ' + Ti.Platform.displayCaps.ydpi);
             }

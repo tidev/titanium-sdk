@@ -47,20 +47,19 @@ examples:
         select a row in each column.
 
             Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow({
-              exitOnClose: true,
+            const win = Ti.UI.createWindow({
               layout: 'vertical'
             });
 
-            var fruit = [ 'Bananas', 'Strawberries', 'Mangos', 'Grapes' ];
-            var color = [ 'red', 'green', 'blue', 'orange' ];
+            const fruit = [ 'Bananas', 'Strawberries', 'Mangos', 'Grapes' ];
+            const color = [ 'red', 'green', 'blue', 'orange' ];
 
-            var column1 = Ti.UI.createPickerColumn();
+            const column1 = Ti.UI.createPickerColumn();
 
-            for(var i=0, ilen=fruit.length; i<ilen; i++){
-              var row = Ti.UI.createPickerRow();
+            for (let i = 0, ilen = fruit.length; i < ilen; i++) {
+              const row = Ti.UI.createPickerRow();
 
-              var label = Ti.UI.createLabel({
+              const label = Ti.UI.createLabel({
                 color:'red',
                 font:{fontSize:20,fontWeight:'bold'},
                 text: fruit[i],
@@ -72,17 +71,17 @@ examples:
               column1.addRow(row);
             }
 
-            var column2 = Ti.UI.createPickerColumn();
+            const column2 = Ti.UI.createPickerColumn();
 
-            for(var i=0, ilen=color.length; i<ilen; i++){
-              var row = Ti.UI.createPickerRow({
+            for (let i = 0, ilen = color.length; i < ilen; i++) {
+              const row = Ti.UI.createPickerRow({
                 title: color[i],
-                font: {fontSize:30}
+                font: { fontSize: 30 }
               });
               column2.addRow(row);
             }
 
-            var picker = Ti.UI.createPicker({
+            const picker = Ti.UI.createPicker({
               top:50,
               columns: [column1, column2],
               selectionIndicator: true
@@ -103,7 +102,7 @@ examples:
         pickerrowexample.xml
 
             <Alloy>
-                <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
+                <Window id="win" backgroundColor="white" layout="vertical">
                     <Picker id="picker" top="50" selectionIndicator="true">
                         <PickerColumn id="column1">
 

@@ -231,7 +231,7 @@ examples:
             });
             win.add(button);
 
-            button.addEventListener('click', function(){
+            button.addEventListener('click', () => {
               var t1 = Ti.UI.create2DMatrix();
               t1 = t1.translate(0, 300);
               var a1 = Ti.UI.createAnimation();

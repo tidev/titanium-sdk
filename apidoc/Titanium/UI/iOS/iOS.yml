@@ -1926,7 +1926,7 @@ examples:
             var button2 = Ti.UI.createButton({
                 title: 'Close Red Window'
             });
-            button2.addEventListener('click', function(){
+            button2.addEventListener('click', () => {
                 nav.closeWindow(win2);
                 // In order to see the blue window again,
                 // need to reverse the transition animation
@@ -1942,7 +1942,7 @@ examples:
                 // transitionAnimation: transition
             });
             var button1 = Ti.UI.createButton({title: 'Open Red Window'});
-            button1.addEventListener('click', function(){
+            button1.addEventListener('click', () => {
                 nav.openWindow(win2);
             });
             win1.add(button1);

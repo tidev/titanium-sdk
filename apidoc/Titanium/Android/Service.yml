@@ -125,9 +125,9 @@ examples:
 
         File: myservice.js:
 
-            var service = Titanium.Android.currentService;
-            var intent = service.intent;
-            var message = intent.getStringExtra("message_to_echo");
+            const service = Titanium.Android.currentService;
+            const intent = service.intent;
+            const message = intent.getStringExtra("message_to_echo");
             Titanium.API.info("Hello World!  I am a Service.  I have this to say: " + message);
 
         Register the service in tiapp.xml:
@@ -143,17 +143,17 @@ examples:
         Code in "regular" Titanium file to launch the service and listen for pause/resume events.
         Code also stops the service after its code runs 3 times.
 
-            var intent = Titanium.Android.createServiceIntent( { url: 'myservice.js' } );
+            const intent = Titanium.Android.createServiceIntent( { url: 'myservice.js' } );
             // Service should run its code every 2 seconds.
             intent.putExtra('interval', 2000);
             // A message that the service should 'echo'
             intent.putExtra('message_to_echo', 'Titanium rocks!');
 
-            var service = Titanium.Android.createService(intent);
-            service.addEventListener('resume', function(e) {
+            const service = Titanium.Android.createService(intent);
+            service.addEventListener('resume', (e) => {
                 Titanium.API.info('Service code resumes, iteration ' + e.iteration);
             });
-            service.addEventListener('pause', function(e) {
+            service.addEventListener('pause', (e) => {
                 Titanium.API.info('Service code pauses, iteration ' + e.iteration);
                 if (e.iteration === 3) {
                     Titanium.API.info('Service code has run 3 times, will now stop it.');
@@ -174,5 +174,3 @@ examples:
             [INFO] [27,5961] Hello World! I am a Service. I have this to say: Titanium rocks!
             [INFO] [16,5980] Service code pauses, iteration 3
             [INFO] [1,5981] Service code has run 3 times, will now stop it.
-
-

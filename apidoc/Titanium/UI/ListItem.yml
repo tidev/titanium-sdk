@@ -341,7 +341,7 @@ examples:
             ];
 
             var data = [];
-            for (var i = 0; i < tasks.length; i++) {
+            for (let i = 0; i < tasks.length; i++) {
                 data.push({ 
                     properties: {
                         itemId: tasks[i].id,
@@ -356,7 +356,7 @@ examples:
             var section = Ti.UI.createListSection();
             section.setItems(data);
             listView.sections = [section];
-            listView.addEventListener('itemclick', function(e) {
+            listView.addEventListener('itemclick', (e) => {
                 var item = section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
@@ -392,7 +392,7 @@ examples:
         index.js
 
             <!-- controllers/index.js -->
-            $.listView.addEventListener('itemclick', function(e) {
+            $.listView.addEventListener('itemclick', (e) => {
                 var item = $.section.getItemAt(e.itemIndex);
                 if (item.properties.accessoryType == Ti.UI.LIST_ACCESSORY_TYPE_NONE) {
                     item.properties.accessoryType = Ti.UI.LIST_ACCESSORY_TYPE_CHECKMARK;
@@ -472,7 +472,7 @@ examples:
             ];
 
             var data = [];
-            for (var i = 0; i < tasks.length; i++) {
+            for (let i = 0; i < tasks.length; i++) {
                 data.push({
                     // Maps to the title component in the template
                     // Sets the text property of the Label component

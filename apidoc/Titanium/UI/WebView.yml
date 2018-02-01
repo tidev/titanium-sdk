@@ -94,7 +94,7 @@ description: |
     that needs to use the entire web view, the following callback resizes the content to use the
     full height of the web view:
 
-        window.onresize= function(){
+        window.onresize= () => {
             document.getElementById("component").style.height = window.innerHeight + 'px';
         };
 
@@ -526,7 +526,7 @@ properties:
                 tab = Ti.UI.createTab({window: win, title: 'Start Page'}),
                 webview = Ti.UI.createWebView({ url:'index.html'});
 
-            webview.onCreateWindow = function(e) {
+            webview.onCreateWindow = (e) => {
                 var newWin = Ti.UI.createWindow(),
                     newWebView = Ti.UI.createWebView(),
                     newTab = Ti.UI.createTab({window: newWin, title: 'New Page'});
@@ -693,10 +693,12 @@ examples:
     example: |
         Create a web view to a remote URL and open the window as modal.
 
-              var webview = Titanium.UI.createWebView({url:'http://www.appcelerator.com'});
-            	var window = Titanium.UI.createWindow();
+              const webview = Ti.UI.createWebView({
+                url:'http://www.appcelerator.com'
+              });
+            	const window = Ti.UI.createWindow();
             	window.add(webview);
-            	window.open({modal:true});
+            	window.open();
 
   - title: Alloy XML Markup
     example: |

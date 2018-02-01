@@ -104,9 +104,9 @@ examples:
             var record;
             var audioPlayer;
 
-            window.addEventListener('open', function(e) {
+            window.addEventListener('open', (e) => {
               if (!Ti.Media.hasAudioRecorderPermissions()) {
-                Ti.Media.requestAudioRecorderPermissions(function(e) {
+                Ti.Media.requestAudioRecorderPermissions((e) => {
                   if (e.success) {
                     window.add(recordStart);
                   }
@@ -116,11 +116,11 @@ examples:
               }
             });
 
-            recordStart.addEventListener('click', function(e) {
+            recordStart.addEventListener('click', (e) => {
               audioRecorder.start();
             });
 
-            recordPause.addEventListener('click', function(e) {
+            recordPause.addEventListener('click', (e) => {
               if (audioRecorder.getPaused()) {
                 recordPause.setTitle('Pause');
                 audioRecorder.resume()
@@ -130,12 +130,12 @@ examples:
               }
             });
 
-            recordStop.addEventListener('click', function(e) {
+            recordStop.addEventListener('click', (e) => {
               record = audioRecorder.stop();
               Ti.API.info(record.getNativePath());
             });
 
-            recordPlay.addEventListener('click', function(e) {
+            recordPlay.addEventListener('click', (e) => {
               audioPlayer = Ti.Media.createAudioPlayer({
                 url: record.getNativePath()
               });

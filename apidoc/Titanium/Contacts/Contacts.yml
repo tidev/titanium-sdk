@@ -349,14 +349,14 @@ examples:
   - title: Request access to the address book
     example: |
 
-        var performAddressBookFunction = function(){...};
-        var addressBookDisallowed = function(){...};
+        const performAddressBookOperation = () => { ... };
+        const addressBookDisallowed = () => { ... };
         if (Ti.Contacts.hasContactsPermissions()) {
-            performAddressBookFunction();
+            performAddressBookOperation();
         } else {
-            Ti.Contacts.requestContactsPermissions(function(e) {
+            Ti.Contacts.requestContactsPermissions((e) => {
                 if (e.success) {
-                    performAddressBookFunction();
+                    performAddressBookOperation();
                 } else {
                     addressBookDisallowed();
                 }
@@ -367,23 +367,25 @@ examples:
     example: |
         Output to the console all properties of all people.
         
-            var singleValue = [
+            const singleValue = [
               'recordId', 'firstName', 'middleName', 'lastName', 'fullName', 'prefix', 'suffix', 
               'nickname', 'firstPhonetic', 'middlePhonetic', 'lastPhonetic', 'organization', 
               'jobTitle', 'department', 'note', 'birthday', 'created', 'modified', 'kind'
             ];
-            var multiValue = [
+            const multiValue = [
               'email', 'address', 'phone', 'instantMessage', 'relatedNames', 'date', 'url'
             ];
-            var people = Ti.Contacts.getAllPeople();
+
+            const people = Ti.Contacts.getAllPeople();
             Ti.API.info('Total contacts: ' + people.length);
-            for (var i=0, ilen=people.length; i<ilen; i++){
+
+            for (let i = 0, ilen = people.length; i < ilen; i++) {
               Ti.API.info('---------------------');
-              var person = people[i];
-              for (var j=0, jlen=singleValue.length; j<jlen; j++){
+              const person = people[i];
+              for (let j = 0, jlen = singleValue.length; j < jlen; j++) {
                 Ti.API.info(singleValue[j] + ': ' + person[singleValue[j]]);
               }
-              for (var j=0, jlen=multiValue.length; j<jlen; j++){
+              for (let j = 0, jlen = multiValue.length; j < jlen; j++) {
                 Ti.API.info(multiValue[j] + ': ' + JSON.stringify(person[multiValue[j]]));
               }
             }
@@ -458,7 +460,7 @@ examples:
             Ti.API.info('Contact saved');
             
             Ti.API.info('Saving contact...');
-            var workAddress1 = {
+            const workAddress1 = {
               'CountryCode': 'us',
               'Street':  '440 N. Bernardo Avenue',
               'City': 'Mountain View',
@@ -481,19 +483,19 @@ examples:
         Listen for the `reload` event to repopulate the contact data
         if it was modified externally, for example, in the iOS Contacts app.
 
-            var win = Ti.UI.createWindow();
-            var table = Ti.UI.createTableView();
+            const win = Ti.UI.createWindow();
+            const table = Ti.UI.createTableView();
 
             // Repopulate contact data
             function reloadContacts() {
-                var contacts = Ti.Contacts.getAllPeople();
-                var data = [];
-                for (var i = 0; i < contacts.length; i++) {
-                    var title = contacts[i].fullName;
+                const contacts = Ti.Contacts.getAllPeople();
+                const data = [];
+                for (let i = 0; i < contacts.length; i++) {
+                    const title = contacts[i].fullName;
                     if (!title || title.length === 0) {
                         title = "(no name)";
                     }
-                    var row = Ti.UI.createTableViewRow({
+                    const row = Ti.UI.createTableViewRow({
                         title: title
                     });
                     data.push(row);
@@ -501,7 +503,7 @@ examples:
                 table.data = data;
             }
 
-            Ti.Contacts.addEventListener('reload', function(e){
+            Ti.Contacts.addEventListener('reload', (e) => {
                 alert('Reloading contacts. Your contacts were changed externally!');
                 reloadContacts();
             });

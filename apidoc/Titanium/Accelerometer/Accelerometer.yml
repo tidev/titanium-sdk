@@ -42,9 +42,8 @@ examples:
         window when the device is moved. On Android, the accelerometer is switched off and on when 
         the application is paused and resumed.
         
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               backgroundColor: 'white',
-              exitOnClose:true,
               layout: 'vertical'
             });
             
@@ -55,21 +54,21 @@ examples:
               top:20, left:10,
               width:300
             };
-            var labelTimestamp = Ti.UI.createLabel(opts);
+            const labelTimestamp = Ti.UI.createLabel(opts);
             win.add(labelTimestamp);
-            var labelx = Ti.UI.createLabel(opts);
+            const labelx = Ti.UI.createLabel(opts);
             win.add(labelx);
-            var labely = Ti.UI.createLabel(opts);
+            const labely = Ti.UI.createLabel(opts);
             win.add(labely);
-            var labelz = Ti.UI.createLabel(opts);
+            const labelz = Ti.UI.createLabel(opts);
             win.add(labelz);
             win.open();
             
-            var accelerometerCallback = function(e) {
-              labelTimestamp.text = 'timestamp: ' + e.timestamp;
-              labelx.text = 'x: ' + e.x;
-              labely.text = 'y: ' + e.y;
-              labelz.text = 'z: ' + e.z;
+            const accelerometerCallback = (event) => {
+              labelTimestamp.text = `timestamp: ${event.timestamp}`;
+              labelx.text = `x: ${event.x}`;
+              labely.text = `y: ${event.y}`;
+              labelz.text = `z: ${event.z}`;
             };
             
             if (Ti.Platform.model === 'Simulator' || Ti.Platform.model.indexOf('sdk') !== -1 ) {
@@ -77,13 +76,13 @@ examples:
             } else {
               Ti.Accelerometer.addEventListener('update', accelerometerCallback);
               if (Ti.Platform.name === 'android') {
-                win.addEventListener("open", function(e) {
-                  win.activity.addEventListener("pause", function() {
-                    Ti.API.info("removing accelerometer callback on pause");
+                win.addEventListener('open', (event) => {
+                  win.activity.addEventListener('pause', () => {
+                    Ti.API.info('removing accelerometer callback on pause');
                     Ti.Accelerometer.removeEventListener('update', accelerometerCallback);
                   });
-                  win.activity.addEventListener("resume", function() {
-                    Ti.API.info("adding accelerometer callback on resume");
+                  win.activity.addEventListener('resume', () => {
+                    Ti.API.info('adding accelerometer callback on resume');
                     Ti.Accelerometer.addEventListener('update', accelerometerCallback);
                   });
                 });

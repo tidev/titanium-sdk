@@ -398,7 +398,7 @@ examples:
 
             var table = Ti.UI.createTableView({ objName: 'table' });
 
-            for (var i = 0; i <= 20; i++){
+            for (let i = 0; i <= 20; i++) {
               var row = Ti.UI.createTableViewRow({
                 className: 'row',
                 objName: 'row',
@@ -438,8 +438,8 @@ examples:
 
             table.setData(tableData);
 
-            table.addEventListener('swipe', function(e){
-              if (e.source && e.source.objName !== 'table'){
+            table.addEventListener('swipe', (e) => {
+              if (e.source && e.source.objName !== 'table') {
                 Ti.API.info('Row swiped: ' + e.source);
                 Ti.API.info('Row swiped: ' + e.source.objName);
                 Ti.API.info('Row ID : ' + e.source.rowID);

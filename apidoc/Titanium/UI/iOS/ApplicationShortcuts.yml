@@ -101,7 +101,7 @@ methods:
 examples:
   - title: Full example (get shortcuts, add shortcuts, remove shortcuts, check shortcuts).
     example: |
-        Ti.App.iOS.addEventListener("shortcutitemclick", function(e){
+        Ti.App.iOS.addEventListener("shortcutitemclick", (e) => {
             Ti.API.info("shortcutitemclick Event Fired");
             Ti.API.info("event payload:" + JSON.stringify(e));
         });
@@ -115,7 +115,7 @@ examples:
         });
         win.add(btn1);
 
-        btn1.addEventListener("click",function(){
+        btn1.addEventListener("click", () => {
             var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
             appShortcuts.addDynamicShortcut({
                 itemtype:"contact_us",
@@ -133,7 +133,7 @@ examples:
         });
         win.add(btn2);
 
-        btn2.addEventListener("click",function(){
+        btn2.addEventListener("click", () => {
             var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
             appShortcuts.removeDynamicShortcut("contact_us");
         });
@@ -143,7 +143,7 @@ examples:
         });
         win.add(btn3);
 
-        btn3.addEventListener("click",function(){
+        btn3.addEventListener("click", () => {
             var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
             var shortcuts = appShortcuts.listDynamicShortcuts();
             Ti.API.info("Dynamic App Shortcut count:" + shortcuts.length);
@@ -155,7 +155,7 @@ examples:
         });
         win.add(btn4);
 
-        btn4.addEventListener("click",function(){
+        btn4.addEventListener("click", () => {
             var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
             var shortcuts = appShortcuts.listStaticShortcuts();
             Ti.API.info("Static App Shortcut count:" + shortcuts.length);
@@ -167,7 +167,7 @@ examples:
         });
         win.add(btn5);
 
-        btn5.addEventListener("click",function(){
+        btn5.addEventListener("click", () => {
             var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
             var exists = appShortcuts.dynamicShortcutExists("contact_us");
             var msg = (exists) ? "Icon exists" : "Sorry isn't there";
@@ -179,7 +179,7 @@ examples:
         });
         win.add(btn6);
 
-        btn6.addEventListener("click",function(){
+        btn6.addEventListener("click", () => {
             var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
             appShortcuts.removeAllDynamicShortcuts();
         });
@@ -189,7 +189,7 @@ examples:
         });
         win.add(btn7);
 
-        btn7.addEventListener("click",function(){
+        btn7.addEventListener("click", () => {
             var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
             var shortcut = appShortcuts.getDynamicShortcut("contact_us");
             alert(shortcut);
@@ -201,7 +201,7 @@ examples:
     example: |
         Example:
 
-            Ti.App.iOS.addEventListener("shortcutitemclick", function(e){
+            Ti.App.iOS.addEventListener("shortcutitemclick", (e) => {
                 Ti.API.info("shortcutitemclick Event Fired");
                 Ti.API.info("person:" + JSON.stringify(e.userInfo.person));
             });
@@ -215,10 +215,10 @@ examples:
             });
             win.add(btn1);
 
-            btn1.addEventListener("click", function() {
-                if(!Ti.Contacts.hasContactsPermissions()) {
-                    Ti.Contacts.requestContactsPermissions(function(e) {
-                        if(e.success) {
+            btn1.addEventListener("click", () => {
+                if (!Ti.Contacts.hasContactsPermissions()) {
+                    Ti.Contacts.requestContactsPermissions((e) => {
+                        if (e.success) {
                             createShortcut();
                         }
                     })
@@ -232,14 +232,14 @@ examples:
             });
             win.add(btn2);
 
-            btn2.addEventListener("click", function(){
+            btn2.addEventListener("click", () => {
                 var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();
                 appShortcuts.removeDynamicShortcut("contact_us");
             });
 
             function createShortcut() {
                 Ti.Contacts.showContacts({
-                    selectedPerson: function(e) {
+                    selectedPerson: (e) => {
                         var person = e.person;
 
                         var appShortcuts = Ti.UI.iOS.createApplicationShortcuts();

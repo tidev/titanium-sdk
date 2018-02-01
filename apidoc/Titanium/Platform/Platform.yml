@@ -232,7 +232,7 @@ properties:
       - title: Testing for a Virtual Device
         example: |
             Determine whether the application is running on a virtual device.
-                if (Ti.Platform.model === 'Simulator' || Ti.Platform.model.indexOf('sdk') !== -1 ){
+                if (Ti.Platform.model === 'Simulator' || Ti.Platform.model.indexOf('sdk') !== -1 ) {
                   alert('Accelerometer does not work on a virtual device');
                 } else {
                   // Add Accelerometer event listener
@@ -297,7 +297,7 @@ examples:
     example: |
         Obtaining battery data when the battery state changes.
 
-            Titanium.Platform.addEventListener('battery', function(e){
+            Titanium.Platform.addEventListener('battery', (e) => {
               Ti.API.info('The battery state has changed to ' + e.state);
               Ti.API.info('The battery level is ' + e.level);
               Ti.API.info('The battery event source is ' + e.source);

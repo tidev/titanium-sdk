@@ -208,7 +208,7 @@ examples:
             var animation = Titanium.UI.createAnimation();
             animation.backgroundColor = 'black';
             animation.duration = 1000;
-            var animationHandler = function() {
+            var animationHandler = () => {
               animation.removeEventListener('complete',animationHandler);
               animation.backgroundColor = 'orange';
               view.animate(animation);
@@ -230,7 +230,7 @@ examples:
             });
             win.add(box);
 
-            box.addEventListener('click', function() {
+            box.addEventListener('click', () => {
               var matrix = Ti.UI.create2DMatrix();
               matrix = matrix.rotate(180);
               matrix = matrix.scale(2, 2);
@@ -290,11 +290,11 @@ examples:
             });
             win.add(button);
 
-            function updateButton(name){
+            function updateButton(name) {
               button.title = 'Animate ' + name;
             }
 
-            button.addEventListener('click', function(){
+            button.addEventListener('click', () => {
               // set new anchorPoint on animation for Android
               a.anchorPoint = animationType[animationTypePointer].anchorPoint;
 
@@ -308,7 +308,7 @@ examples:
               animationTypePointer = animationCount % animationTypeLength;
 
               // animate view, followed by callback to set next button title
-              view.animate(a, function(){
+              view.animate(a, () => {
                 updateButton(animationType[animationTypePointer].name);
               });
             });

@@ -116,7 +116,7 @@ var activityIndicator = Ti.UI.createActivityIndicator({
 });
 
 // On iOS, the activity indicator must be added to a window or view for it to appear
-if (Ti.Platform.name === 'iPhone OS'){
+if (Ti.Platform.name === 'iPhone OS') {
   win2.add(activityIndicator);
 }
 </pre>
@@ -406,14 +406,14 @@ specifying the new
 property to `SHOW_AS_ACTION_ALWAYS`, `SHOW_AS_ACTION_IF_ROOM`,
 `SHOW_AS_ACTION_WITH_TEXT` or `SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW`. For example:
 
-    win1.activity.onCreateOptionsMenu = function(e) {
+    win1.activity.onCreateOptionsMenu = (e) => {
         var menu = e.menu;
         var menuItem = menu.add({
             title : "Item 1",
             icon : "images/random_icon.png",
             showAsAction : Ti.Android.SHOW_AS_ACTION_IF_ROOM
         });
-        menuItem.addEventListener("click", function(e) {
+        menuItem.addEventListener("click", (e) => {
             Ti.API.info("Action Item Clicked!");
         });
     };
@@ -448,9 +448,9 @@ method.
 To receive a callback when the home icon is clicked, set the `ActionBar.onHomeIconItemSelected`
 property to a callback function:
 
-    win.addEventListener("open", function(evt) {
-        var actionBar = win.activity.actionBar;
-        actionBar.onHomeIconItemSelected = function() {
+    win.addEventListener('open', (event) => {
+        const actionBar = win.activity.actionBar;
+        actionBar.onHomeIconItemSelected = () => {
             Ti.API.info("Home clicked!");
         };  
     });
@@ -911,4 +911,3 @@ The following APIs have been removed in Release 3.0.0.
   <tr><td>Titanium.UI.setOrientation</td><td>method</td><td></td></tr>
 <tr>
 </table>
-

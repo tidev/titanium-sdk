@@ -2779,24 +2779,23 @@ examples:
         The following example demonstrates all the color formats, and color names, that are intended
         to be supported by Titanium. See the [description](Titanium.UI) section for details.
 
-            var colorArray = [
+            const colorArray = [
               '#ff00ff', '#f0f', 'rgb(255,0,255)',
               'transparent', '#55ff00ff', '#5f0f', 'rgba(255,0,255,0.3)',
               'aqua', 'black', 'blue', 'brown', 'cyan', 'darkgray', 'fuchsia', 'gray', 'green',
               'lightgray', 'lime', 'magenta', 'maroon', 'navy', 'olive', 'orange', 'pink',
               'purple', 'red', 'silver', 'teal', 'white', 'yellow',
             ];
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               backgroundColor: 'black',
               exitOnClose: true,
               fullscreen: false,
               layout: 'vertical',
               title: 'Color Demo'
             });
-            var rows = [];
-            var row;
-            for (var i=0, ilen = colorArray.length; i < ilen; i++){
-              row = Ti.UI.createTableViewRow({
+            const rows = [];
+            for (let i = 0, ilen = colorArray.length; i < ilen; i++) {
+              const row = Ti.UI.createTableViewRow({
                 color:'black',
                 backgroundColor: colorArray[i],
                 title: colorArray[i],
@@ -2804,7 +2803,7 @@ examples:
               });
               rows.push(row);
             }
-            var table = Ti.UI.createTableView({
+            const table = Ti.UI.createTableView({
               data: rows,
               backgroundColor: 'white'
             });

@@ -807,7 +807,7 @@ examples:
             var button = Ti.UI.createButton({
               title:	'Click to Open Preferences'
             });
-            button.addEventListener('click', function() {
+            button.addEventListener('click', () => {
               Ti.API.info('Current value for editText: ' + Ti.App.Properties.getString('editText'));
               Ti.UI.Android.openPreferences();
             });

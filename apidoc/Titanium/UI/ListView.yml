@@ -1448,12 +1448,12 @@ examples:
             listView.sections = sections;
             var refreshCount = 0;
 
-            function getFormattedDate(){
+            function getFormattedDate() {
                 var date = new Date();
                 return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
             }
  
-            function resetPullHeader(){
+            function resetPullHeader() {
                 actInd.hide();
                 imageArrow.transform=Ti.UI.create2DMatrix();
                 if (refreshCount < 2) {
@@ -1481,7 +1481,7 @@ examples:
                 resetPullHeader();
             }
 
-            function pullListener(e){
+            function pullListener(e) {
                 eventStatus.text = 'EVENT pull FIRED. e.active = '+e.active;
                 if (e.active == false) {
                     var unrotate = Ti.UI.create2DMatrix();
@@ -1498,7 +1498,7 @@ examples:
                 }
             }
 
-            function pullendListener(e){
+            function pullendListener(e) {
                 eventStatus.text = 'EVENT pullend FIRED.';
              
                 if (refreshCount == 0) {
@@ -1509,7 +1509,7 @@ examples:
                 imageArrow.hide();
                 actInd.show();
                 listView.setContentInsets({top:80}, {animated:true});
-                setTimeout(function(){
+                setTimeout(() => {
                     loadTableData();
                 }, 2000);
             }

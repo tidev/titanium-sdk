@@ -183,7 +183,7 @@ description: |
     previous example, or add a listener for the
     [heading](Titanium.Geolocation.heading) event, as shown below:
 
-        var compassHandler = function(e) {
+        var compassHandler = (e) => {
           if (e.success === undefined || e.success) {
             Ti.API.info("Heading: " + e.heading.magneticHeading);
           }

@@ -173,15 +173,15 @@ examples:
 
             // Opens the options menu and when the user clicks on 'Quick Look'
             // the document viewer launches with an animated transition
-            navButton.addEventListener('click', function() {
+            navButton.addEventListener('click', () => {
                 docViewer.show({
-                    view: navButton,
+                    view:navButton,
                     animated: true
                 });
             });
 
             // The document viewer immediately launches without an animation
-            winButton.addEventListener('click', function(){
+            winButton.addEventListener('click', () => {
                 docViewer.show()
             });
 

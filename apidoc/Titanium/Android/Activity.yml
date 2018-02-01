@@ -56,9 +56,9 @@ description: |
     re-intiializes the application. The benefit to this approach is that it avoids a full
     application restart, which occurs with the first option.
 
-            if(Ti.Platform.osname == "android") {
-                var initialLaunchPerformed = false;
-                Ti.Android.currentActivity.onResume = function() {
+            if (Ti.Platform.osname == "android") {
+                let initialLaunchPerformed = false;
+                Ti.Android.currentActivity.onResume = () => {
                     if (!initialLaunchPerformed) {
                         initialLaunchPerformed = true;
                         return;
@@ -446,16 +446,16 @@ examples:
         The following example shows how to start an activity and retrieve a result code
         and optional data intent when the activity ends.
         
-            activity.startActivityForResult(intent, function(e) {
+            activity.startActivityForResult(intent, (event) => {
                 // The request code used to start this Activity
-                var requestCode = e.requestCode;
+                const requestCode = event.requestCode;
                 // The result code returned from the activity 
                 // (https://developer.android.com/reference/android/app/Activity.html#StartingActivities)
-                var resultCode = e.resultCode;
+                var resultCode = event.resultCode;
                 // A Titanium.Android.Intent filled with data returned from the Activity
-                var intent = e.intent;
+                const intent = event.intent;
                 // The Activity the received the result
-                var source = e.source;
+                const source = event.source;
             });
         
 ---
@@ -481,4 +481,3 @@ properties:
         Intent that can contain data returned to the caller. Data can be attached to
         the intent as "extras").
     type: Titanium.Android.Intent
-

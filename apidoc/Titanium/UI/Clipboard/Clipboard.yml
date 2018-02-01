@@ -225,7 +225,7 @@ examples:
                 top: 80
             });
 
-            btn1.addEventListener("click", function() {
+            btn1.addEventListener("click", () => {
             	var localOnly = Ti.UI.CLIPBOARD_OPTION_LOCAL_ONLY;
             	var expirationDate = Ti.UI.CLIPBOARD_OPTION_EXPIRATION_DATE;
 
@@ -242,7 +242,7 @@ examples:
             	});
             });
 
-            btn2.addEventListener("click", function() {
+            btn2.addEventListener("click", () => {
                 alert(Ti.UI.Clipboard.getItems());
             });
 

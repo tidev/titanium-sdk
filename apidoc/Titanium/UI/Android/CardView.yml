@@ -203,7 +203,7 @@ examples:
                 layout: 'vertical'
             });
 
-            for (var i = 0; i <= 20; i++) {
+            for (let i = 0; i <= 20; i++) {
                 var row = createRow(i);
                 scrollView.add(row);
             }

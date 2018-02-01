@@ -195,7 +195,7 @@ examples:
               { name: 'tasks' }
             ];
             
-            for (var i = 0; i < itemData.length; i++) {
+            for (let i = 0; i < itemData.length; i++) {
               var item = Ti.UI.createDashboardItem({
                 badge: itemData[i].badge,
                 image: '/images/dashboard/' + itemData[i].name + '_off.png',
@@ -214,7 +214,7 @@ examples:
             
             var isEditable = false;
             
-            button.addEventListener('click', function(e) {
+            button.addEventListener('click', (e) => {
               if (isEditable) {
                 dashboard.stopEditing();
               } else {
@@ -222,19 +222,19 @@ examples:
               }
             });
             
-            dashboard.addEventListener('edit', function(e) {
+            dashboard.addEventListener('edit', (e) => {
               button.title = 'Done';
               button.style = Ti.UI.iOS.SystemButtonStyle.DONE;
               isEditable = true;
             });
             
-            dashboard.addEventListener('commit', function(e) {
+            dashboard.addEventListener('commit', (e) => {
               button.title = 'Edit';
               button.style = Ti.UI.iOS.SystemButtonStyle.PLAIN;
               isEditable = false;
             });
             
-            dashboard.addEventListener('click', function(e) {
+            dashboard.addEventListener('click', (e) => {
               e.item.badge = 0;
             });
             

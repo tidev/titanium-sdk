@@ -96,8 +96,7 @@ examples:
             Titanium.UI.setBackgroundColor('#000');
             var win = Titanium.UI.createWindow({
                 title : 'Test',
-                backgroundColor : '#fff',
-                exitOnClose : true
+                backgroundColor : '#fff'
             });
 
             // Change to a valid URL
@@ -111,7 +110,7 @@ examples:
                 right : "10dp"
             });
 
-            openButton.addEventListener('click', function() {
+            openButton.addEventListener('click', () => {
                 var activeMovie = Titanium.Media.createVideoPlayer({
                     url : contentURL,
                     backgroundColor : 'blue',
@@ -129,7 +128,7 @@ examples:
                     right : "10dp"
                 });
 
-                closeButton.addEventListener('click', function() {
+                closeButton.addEventListener('click', () => {
                     activeMovie.hide();
                     activeMovie.release();
                     activeMovie = null;

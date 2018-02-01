@@ -175,7 +175,7 @@ examples:
 
             var activityIndicator = Ti.UI.createActivityIndicator({
               color: 'green',
-              font: {fontFamily:'Helvetica Neue', fontSize:26, fontWeight:'bold'},
+              font: { fontSize:26, fontWeight:'bold' },
               message: 'Loading...',
               style: Ti.UI.ActivityIndicatorStyle.DARK,
               top:10,
@@ -189,11 +189,11 @@ examples:
 
             // eventListeners must always be loaded before the event is likely to fire
             // hence, the open() method must be positioned before the window is opened
-            win2.addEventListener('open', function (e) {
+            win2.addEventListener('open', (e) => {
               activityIndicator.show();
               // do some work that takes 6 seconds
               // ie. replace the following setTimeout block with your code
-              setTimeout(function(){
+              setTimeout(() => {
                 e.source.close();
                 activityIndicator.hide();
               }, 6000);
@@ -231,11 +231,11 @@ examples:
 
         win2.js:
 
-            function showIndicator(e){
+            function showIndicator(e) {
                 $.activityIndicator.show();
                 // do some work that takes 6 seconds
                 // ie. replace the following setTimeout block with your code
-                setTimeout(function(){
+                setTimeout(() => {
                     e.source.close();
                     $.activityIndicator.hide();
                 }, 6000);

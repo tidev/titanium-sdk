@@ -204,8 +204,7 @@ examples:
         This example shows how to send a feature event during an application session to indicate 
         some feature that you would like to track was used.
         
-            Titanium.Analytics.featureEvent('app.feature');
+            Ti.Analytics.featureEvent('app.feature');
         
         In this case, the Analytics product would show statistics about how many times the
         'app.feature' event was generated.
-

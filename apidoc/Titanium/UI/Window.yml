@@ -221,7 +221,7 @@ events:
                 { // some code... }
             );
             // more code
-            win.addEventListener("windows:back", function()
+            win.addEventListener("windows:back", () =>
                 { alert("Back pressed"); }
             );
 
@@ -1089,15 +1089,13 @@ properties:
 
                 var win1 = Ti.UI.createWindow({
                   backgroundColor: 'white',
-                  exitOnClose: true,
-                  fullscreen: false,
                   title: 'Click window to test'
                 });
 
                 // use bitwise OR to combine two settings for the windowSoftInputMode property
                 var softInput = Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE | Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;
 
-                win1.addEventListener('click', function(){
+                win1.addEventListener('click', () => {
                 var win2 = Ti.UI.createWindow({
                   backgroundColor: 'red',
                   fullscreen: false,
@@ -1298,7 +1296,7 @@ description: |
 
         // For a classic Titanium project, save the file to 'Resources/foo.js'
         var data = {};
-        function setData (obj){
+        function setData (obj) {
             data = obj;
         }
         function getData () {
@@ -1423,9 +1421,9 @@ description: |
 
     You can create this type of modal window on iPad with the following code snippet:
 
-        var win = Ti.UI.iOS.createNavigationWindow({
+        const win = Ti.UI.iOS.createNavigationWindow({
             window: Ti.UI.createWindow({
-                title: "Modal Window"
+                title: 'Modal Window'
             })
         });
 
@@ -1463,7 +1461,7 @@ description: |
             transform : Ti.UI.create2DMatrix().scale(1.1),
             duration : 2000,
         });
-        a.addEventListener('complete', function() {
+        a.addEventListener('complete', () => {
             $.index.animate({
                 transform: Ti.UI.create2DMatrix(),
                 duration: 200
@@ -1568,7 +1566,7 @@ description: |
 
     `app/controllers/bluewin.js`:
 
-        function closeWindow(){
+        function closeWindow() {
             $.bluewin.close();
         }
 
@@ -1754,7 +1752,7 @@ properties:
         Determines whether to use an animated effect when the window is shown.
     description: |
         On Android, this property supports animated transitions on heavyweight windows
-        except for modal windows (`modal:true`).  See "Android Heavyweight and Lightweight
+        except for modal windows (`modal: true`).  See "Android Heavyweight and Lightweight
         Windows" in the main description of Titanium.UI.Window for more information. The
         transitions are on by default, but you can disable this behavior by setting this value
         to `false`.
@@ -1936,7 +1934,7 @@ properties:
         Determines whether to use an animated effect when the window is closed.
     description: |
         This property supports animated transitions on heavyweight windows
-        except for modal windows (`modal:true`).  See "Android Heavyweight and Lightweight
+        except for modal windows (`modal: true`).  See "Android Heavyweight and Lightweight
         Windows" in the main description of Titanium.UI.Window for more information. The
         transitions are on by default, but you can disable this behavior by setting this value
         to `false`.

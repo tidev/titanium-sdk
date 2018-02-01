@@ -403,20 +403,19 @@ examples:
     example: |
         Create a scroll view with content.
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false,
               title: 'ScrollView Demo'
             });
 
-            var scrollView = Ti.UI.createScrollView({
+            const scrollView = Ti.UI.createScrollView({
               showVerticalScrollIndicator: true,
               showHorizontalScrollIndicator: true,
               height: '80%',
               width: '80%'
             });
-            var view = Ti.UI.createView({
+
+            const view = Ti.UI.createView({
               backgroundColor:'#336699',
               borderRadius: 10,
               top: 10,
@@ -432,23 +431,23 @@ examples:
         rows. This approach can mitigate the native Android issue described in the "TextFields in
         Tables with SOFT_INPUT_ADJUST_PAN" section of <Titanium.UI.TableView>.
 
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               backgroundColor:'white'
             });
 
-            if (Ti.UI.Android){
+            if (Ti.UI.Android) {
               win.windowSoftInputMode = Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;
             }
 
             function createRow(i) {
-              var row = Ti.UI.createView({
+              const row = Ti.UI.createView({
                 backgroundColor: 'white',
                 borderColor: '#bbb',
                 borderWidth: 1,
                 width:'100%', height: 70,
                 top: 0, left: 0
               });
-              var inputTextField = Ti.UI.createTextField({
+              const inputTextField = Ti.UI.createTextField({
                 hintText: 'Enter value ' + i,
                 keyboardType: Ti.UI.KEYBOARD_NUMBERS_PUNCTUATION,
                 top: 10, left: '10%',
@@ -458,18 +457,17 @@ examples:
               return row;
             }
 
-            var scrollView = Ti.UI.createScrollView({
-              bottom:120,
+            const scrollView = Ti.UI.createScrollView({
+              bottom: 120,
               layout: 'vertical'
             });
 
-            for(var i = 0; i <= 20; i++){
-            var row = createRow(i);
-              scrollView.add(row);
+            for (let i = 0; i <= 20; i++) {
+              scrollView.add(createRow(i));
             }
             win.add(scrollView);
 
-            var label = Ti.UI.createLabel({
+            const label = Ti.UI.createLabel({
               backgroundColor:'darkgray',
               text: 'Your advert here',
               textAlign: 'center',
@@ -485,7 +483,7 @@ examples:
        Previous simple scroll view example as an Alloy view.
 
            <Alloy>
-               <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" title="ScrollView Demo">
+               <Window id="win" backgroundColor="white" title="ScrollView Demo">
                    <ScrollView id="scrollView" showVerticalScrollIndicator="true" showHorizontalScrollIndicator="true" height="80%" width="80%">
                        <View id="view" backgroundColor="#336699" borderRadius="10" top="10" height="2000" width="1000" />
                    </ScrollView>

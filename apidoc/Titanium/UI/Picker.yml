@@ -410,7 +410,7 @@ properties:
         `Titanium.UI.createPicker({ nativeSpinner:true });`, or before the picker is added to its parent.
 
         Example as follows:
-            var picker = Ti.UI.createPicker({
+            const picker = Ti.UI.createPicker({
                 type:Ti.UI.PICKER_TYPE_TIME,
                 nativeSpinner: true,
                 format24: false,
@@ -475,7 +475,7 @@ examples:
         `app/views/index.xml`:
 
             <Alloy>
-                <Window id="win" backgroundColor="white" layout="vertical" exitOnClose="true">
+                <Window id="win" backgroundColor="white" layout="vertical">
                     <Picker id="picker" top="50" selectionIndicator="true" useSpinner="true">
                         <PickerColumn id="column1">
                             <PickerRow title="Bananas"/>
@@ -528,16 +528,15 @@ examples:
         Create a one-column, platform-specific style, picker and automatically select a row.
 
             Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow({
-              exitOnClose: true,
+            const win = Ti.UI.createWindow({
               layout: 'vertical'
             });
 
-            var picker = Ti.UI.createPicker({
+            const picker = Ti.UI.createPicker({
               top:50
             });
 
-            var data = [];
+            const data = [];
             data[0]=Ti.UI.createPickerRow({title:'Bananas'});
             data[1]=Ti.UI.createPickerRow({title:'Strawberries'});
             data[2]=Ti.UI.createPickerRow({title:'Mangos'});
@@ -558,33 +557,32 @@ examples:
         each column.
 
             Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow({
-              exitOnClose: true,
+            const win = Ti.UI.createWindow({
               layout: 'vertical'
             });
 
-            var picker = Ti.UI.createPicker({
+            const picker = Ti.UI.createPicker({
               top:50,
               useSpinner: true
             });
             picker.selectionIndicator = true;
 
-            var fruit = [ 'Bananas', 'Strawberries', 'Mangos', 'Grapes' ];
-            var color = [ 'red', 'green', 'blue', 'orange' ];
+            const fruit = [ 'Bananas', 'Strawberries', 'Mangos', 'Grapes' ];
+            const color = [ 'red', 'green', 'blue', 'orange' ];
 
-            var column1 = Ti.UI.createPickerColumn();
+            const column1 = Ti.UI.createPickerColumn();
 
-            for(var i=0, ilen=fruit.length; i<ilen; i++){
-              var row = Ti.UI.createPickerRow({
+            for (let i = 0, ilen = fruit.length; i < ilen; i++) {
+              const row = Ti.UI.createPickerRow({
                 title: fruit[i]
               });
               column1.addRow(row);
             }
 
-            var column2 = Ti.UI.createPickerColumn();
+            const column2 = Ti.UI.createPickerColumn();
 
-            for(var i=0, ilen=color.length; i<ilen; i++){
-              var row = Ti.UI.createPickerRow({ title: color[i] });
+            for (let i = 0, ilen = color.length; i < ilen; i++) {
+              const row = Ti.UI.createPickerRow({ title: color[i] });
               column2.addRow(row);
             }
 
@@ -603,12 +601,11 @@ examples:
         Create a date picker and handle the subsequent user action.
 
             Ti.UI.backgroundColor = 'white';
-            var win = Ti.UI.createWindow({
-              exitOnClose: true,
+            const win = Ti.UI.createWindow({
               layout: 'vertical'
             });
 
-            var picker = Ti.UI.createPicker({
+            const picker = Ti.UI.createPicker({
               type:Ti.UI.PICKER_TYPE_DATE,
               minDate:new Date(2009,0,1),
               maxDate:new Date(2014,11,31),
@@ -619,7 +616,7 @@ examples:
             win.add(picker);
             win.open();
 
-            picker.addEventListener('change',function(e){
+            picker.addEventListener('change', (e) => {
               Ti.API.info("User selected date: " + e.value.toLocaleString());
             });
 
@@ -630,7 +627,7 @@ examples:
 
             Ti.UI.backgroundColor = 'white';
 
-            var picker = Ti.UI.createPicker({
+            const picker = Ti.UI.createPicker({
               type:Ti.UI.PICKER_TYPE_DATE,
               minDate:new Date(2009,0,1),
               maxDate:new Date(2014,11,31),
@@ -639,7 +636,7 @@ examples:
 
             picker.showDatePickerDialog({
               value: new Date(2010,8,1),
-              callback: function(e) {
+              callback: (e) => {
                 if (e.cancel) {
                   Ti.API.info('User canceled dialog');
                 } else {

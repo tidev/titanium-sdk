@@ -573,7 +573,7 @@ examples:
                 top: 40
             });
 
-            statusBtn.addEventListener('click', function(e) {
+            statusBtn.addEventListener('click', (e) => {
                 eventsArea.value += '\nbtn pressed '
                 + '\nwatchOS is supported: ' + Ti.WatchSession.isSupported
                 + '\nwatch is paired: ' + Ti.WatchSession.isPaired
@@ -589,7 +589,7 @@ examples:
                 top: 80
             });
 
-            sendMsgBtn.addEventListener('click', function(e) {
+            sendMsgBtn.addEventListener('click', (e) => {
                 Ti.WatchSession.sendMessage({
                     message: 'Hi',
                     from: 'app',
@@ -602,7 +602,7 @@ examples:
                 top: 120
             });
 
-            sendUserInfoBtn.addEventListener('click', function(e) {
+            sendUserInfoBtn.addEventListener('click', (e) => {
                 Ti.WatchSession.transferUserInfo({
                     data: 'user info from app',
                     created: '2015'
@@ -614,7 +614,7 @@ examples:
                 top: 160
             });
 
-            sendAppContextBtn.addEventListener('click', function(e) {
+            sendAppContextBtn.addEventListener('click', (e) => {
                 Ti.WatchSession.updateApplicationContext({
                     status: 'Application Context from app',
                     updates: 2
@@ -626,7 +626,7 @@ examples:
                 top: 200
             });
 
-            sendFileBtn.addEventListener('click', function(e) {
+            sendFileBtn.addEventListener('click', (e) => {
                 Ti.WatchSession.transferFile({
                     fileURL: '/images/default_app_logo.png',
                     metaData: {
@@ -635,17 +635,17 @@ examples:
                 });
             });
 
-            Ti.WatchSession.addEventListener('receivemessage', function(e) {
+            Ti.WatchSession.addEventListener('receivemessage', (e) => {
                 eventsArea.value += '\nreceivemessage '
                 + '\n' + JSON.stringify(e);
             });
 
-            Ti.WatchSession.addEventListener('receiveuserinfo', function(e) {
+            Ti.WatchSession.addEventListener('receiveuserinfo', (e) => {
                 eventsArea.value += '\nreceiveuserinfo '
                 + '\n' + JSON.stringify(e);
             });
 
-            Ti.WatchSession.addEventListener('receivefile', function(e) {
+            Ti.WatchSession.addEventListener('receivefile', (e) => {
                 eventsArea.value += '\nreceivefile ' + '\n' + JSON.stringify(e);
                 var cacheFile = e.data.getFile();
                 var downloadedFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, cacheFile.getName());
@@ -653,27 +653,27 @@ examples:
                 imageView.setImage(downloadedFile);
             });
 
-            Ti.WatchSession.addEventListener('receiveapplicationcontext', function(e) {
+            Ti.WatchSession.addEventListener('receiveapplicationcontext', (e) => {
                 eventsArea.value += '\nreceiveapplicationcontext '
                 + '\n' + JSON.stringify(e);
             });
 
-            Ti.WatchSession.addEventListener('watchstatechanged', function(e) {
+            Ti.WatchSession.addEventListener('watchstatechanged', (e) => {
                 eventsArea.value += '\nwatchstatechanged '
                 + '\n' + JSON.stringify(e);
             });
 
-            Ti.WatchSession.addEventListener('reachabilitychanged', function(e) {
+            Ti.WatchSession.addEventListener('reachabilitychanged', (e) => {
                 eventsArea.value += '\nreachabilitychanged '
                 + '\n' + JSON.stringify(e);
             });
 
-            Ti.WatchSession.addEventListener('finishfiletransfer', function(e) {
+            Ti.WatchSession.addEventListener('finishfiletransfer', (e) => {
                 eventsArea.value += '\nfinishfiletransfer '
                 + '\n' + JSON.stringify(e);
             });
 
-            Ti.WatchSession.addEventListener('finishuserinfotransfer', function(e) {
+            Ti.WatchSession.addEventListener('finishuserinfotransfer', (e) => {
                 eventsArea.value += '\nfinishuserinfotransfer '
                 + '\n' + JSON.stringify(e);
             });

@@ -166,9 +166,8 @@ examples:
 
         File: updatequicksettings.js:
 
-            var service = Ti.Android.currentService;
-            service.addEventListener('click', function () {
-
+            const service = Ti.Android.currentService;
+            service.addEventListener('click', () => {
               if (service.getState() == Ti.Android.TILE_STATE_ACTIVE) {
                 service.setState(Ti.Android.TILE_STATE_INACTIVE);
                 service.setLabel('Inactive');
@@ -179,7 +178,7 @@ examples:
                 service.setIcon('active.png');
               }
               service.updateTile();
-            }
+            });
 
         Register the service in tiapp.xml:
 

@@ -93,7 +93,7 @@ examples:
             var button = Titanium.UI.createButton({
                 title: 'Open Blue Window'
             });
-            button.addEventListener('click', function(){
+            button.addEventListener('click', () => {
                 win1.openWindow(win3, {animated:true});
             });
 
@@ -101,7 +101,7 @@ examples:
             var button2 = Titanium.UI.createButton({
                 title: 'Close Blue Window'
             });
-            button2.addEventListener('click', function(){
+            button2.addEventListener('click', () => {
                 win1.closeWindow(win3, {animated:false}); //win3.close() will also work!!
             });
 
@@ -141,6 +141,6 @@ examples:
 
         app/controllers/bluewin.js:
 
-            function closeWindow(){
+            function closeWindow() {
                 $.win3.close();
             }

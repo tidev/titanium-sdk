@@ -54,7 +54,7 @@ examples:
                 textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
             });
 
-            slider.addEventListener('change', function(e) {
+            slider.addEventListener('change', (e) => {
                 label.text = String.format('%3.1f', e.value);
             });
 

@@ -788,7 +788,7 @@ examples:
         have been selected in the native Android calendar application.
 
             function showCalendars(calendars) {
-                for (var i = 0; i < calendars.length; i++) {
+                for (let i = 0; i < calendars.length; i++) {
                     Ti.API.info(calendars[i].name);
                 }
             }
@@ -804,23 +804,23 @@ examples:
     example: |
         Creates an event and adds an e-mail reminder for 10 minutes before the event.
         
-            var CALENDAR_TO_USE = 3;
-            var calendar = Ti.Calendar.getCalendarById(CALENDAR_TO_USE);
+            const CALENDAR_TO_USE = 3;
+            const calendar = Ti.Calendar.getCalendarById(CALENDAR_TO_USE);
 
             // Create the event
-            var eventBegins = new Date(2010, 11, 26, 12, 0, 0);
-            var eventEnds = new Date(2010, 11, 26, 14, 0, 0);
-            var details = {
+            const eventBegins = new Date(2010, 11, 26, 12, 0, 0);
+            const eventEnds = new Date(2010, 11, 26, 14, 0, 0);
+            const details = {
                 title: 'Do some stuff',
                 description: "I'm going to do some stuff at this time.",
                 begin: eventBegins,
                 end: eventEnds
             };
 
-            var event = calendar.createEvent(details);
+            const event = calendar.createEvent(details);
 
             // Now add a reminder via e-mail for 10 minutes before the event.
-            var reminderDetails = {
+            const reminderDetails = {
                 minutes: 10,
                 method: Ti.Calendar.METHOD_EMAIL
             };
@@ -832,21 +832,21 @@ examples:
         Create a picker to allow an existing calendar to be selected and, when a button is clicked, 
         generate details of all events in that calendar for the current year .
         
-            var calendars = [];
-            var selectedCalendarName;
-            var selectedid;
-            var pickerData = [];
-            var osname = Ti.Platform.osname;
+            const calendars = [];
+            const selectedCalendarName;
+            const selectedid;
+            const pickerData = [];
+            const osname = Ti.Platform.osname;
             
             //**read events from calendar*******
-            function performCalendarReadFunctions(){
-                var scrollView = Ti.UI.createScrollView({
+            function performCalendarReadFunctions() {
+                const scrollView = Ti.UI.createScrollView({
                   backgroundColor: '#eee',
                   height: 500,
                   top: 20
                 });
             
-                var label = Ti.UI.createLabel({
+                let label = Ti.UI.createLabel({
                   backgroundColor: 'white',
                   text: 'Click on the button to display the events for the selected calendar',
                   textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
@@ -854,31 +854,31 @@ examples:
                 });
                 scrollView.add(label);
             
-                var selectableCalendars = Ti.Calendar.allCalendars;
-                for (var i = 0, ilen = selectableCalendars.length; i < ilen; i++) {
+                const selectableCalendars = Ti.Calendar.allCalendars;
+                for (let i = 0, ilen = selectableCalendars.length; i < ilen; i++) {
                   calendars.push({ name: selectableCalendars[i].name, id: selectableCalendars[i].id });
                   pickerData.push( Ti.UI.createPickerRow({ title: calendars[i].name }) );
-                  if(i === 0){
+                  if (i === 0) {
                     selectedCalendarName = selectableCalendars[i].name;
                     selectedid = selectableCalendars[i].id;
                   }
                 }
                 
-                if(!calendars.length){
+                if (!calendars.length) {
                   label.text = 'No calendars available. Select at least one in the native calendar before using this app';
                 } else {
                   label.text = 'Click button to view calendar events';
                   
-                  var picker = Ti.UI.createPicker({
+                  const picker = Ti.UI.createPicker({
                     top:20
                   });
                   
                   picker.add(pickerData);
                   win.add(picker);
                   
-                  picker.addEventListener('change', function(e){
-                    for (var i = 0, ilen = calendars.length; i < ilen; i++) {
-                      if(calendars[i].name === e.row.title){
+                  picker.addEventListener('change', (e) => {
+                    for (let i = 0, ilen = calendars.length; i < ilen; i++) {
+                      if (calendars[i].name === e.row.title) {
                         selectedCalendarName = calendars[i].name;
                         selectedid = calendars[i].id;
                         Ti.API.info('Selected calendar that we are going to fetch is :: '+ selectedid + ' name:' + selectedCalendarName);
@@ -886,18 +886,18 @@ examples:
                     }
                   });
                   
-                  var button = Ti.UI.createButton({
+                  const button = Ti.UI.createButton({
                     title: 'View events',
                     top: 20
                   });
                   win.add(button);
                   
-                  button.addEventListener('click', function(e){
+                  button.addEventListener('click', (e) => {
                     label.text = 'Generating...';
                     
-                    var currentYear = new Date().getFullYear();
+                    const currentYear = new Date().getFullYear();
                     
-                    var consoleString = '';
+                    const consoleString = '';
                     
                     function print(s) {
                       if (consoleString.length) {
@@ -906,13 +906,13 @@ examples:
                       consoleString = consoleString + s;
                     }
                     
-                    var calendar = Ti.Calendar.getCalendarById(selectedid);
+                    const calendar = Ti.Calendar.getCalendarById(selectedid);
                     Ti.API.info('Calendar was of type' + calendar);
                     Ti.API.info('calendar that we are going to fetch is :: '+ calendar.id + ' name:' + calendar.name);
                     
                     function printReminder(r) {
                         if (osname === 'android') {
-                            var typetext = '[method unknown]';
+                            const typetext = '[method unknown]';
                             if (r.method == Ti.Calendar.METHOD_EMAIL) {
                                 typetext = 'Email';
                             } else if (r.method == Ti.Calendar.METHOD_SMS) {
@@ -941,22 +941,22 @@ examples:
                         print('Event: ' + event.title + '; ' + event.begin + ' ' + event.begin+ '-' + event.end);
                       }
                       
-                      var reminders = event.reminders;
+                      const reminders = event.reminders;
                       if (reminders && reminders.length) {
                           print('There is/are ' + reminders.length + ' reminder(s)');
-                          for (var i = 0; i < reminders.length; i++) {
+                          for (let i = 0; i < reminders.length; i++) {
                               printReminder(reminders[i]);
                           }
                       }
                       print('hasAlarm? ' + event.hasAlarm);
-                      var alerts = event.alerts;
+                      const alerts = event.alerts;
                       if (alerts && alerts.length) {
-                        for (var i = 0; i < alerts.length; i++) {
+                        for (let i = 0; i < alerts.length; i++) {
                           printAlert(alerts[i]);
                         }
                       }
                       
-                      var status = event.status;
+                      const status = event.status;
                       if (status == Ti.Calendar.STATUS_TENTATIVE) {
                         print('This event is tentative');
                       }
@@ -968,11 +968,11 @@ examples:
                       }
                     }
                     
-                    var events = calendar.getEventsInYear(currentYear);
+                    const events = calendar.getEventsInYear(currentYear);
                     if (events && events.length) {
                       print(events.length + ' event(s) in ' + currentYear);
                       print('');
-                      for (var i = 0; i < events.length; i++) {
+                      for (let i = 0; i < events.length; i++) {
                         printEvent(events[i]);
                         print('');
                       }
@@ -988,10 +988,8 @@ examples:
             }
             
             
-            var win = Ti.UI.createWindow({
+            const win = Ti.UI.createWindow({
               backgroundColor: 'white',
-              exitOnClose: true,
-              fullscreen: false,
               layout: 'vertical',
               title: 'Calendar Demo'
             });
@@ -999,7 +997,7 @@ examples:
             if (Ti.Calendar.hasCalendarPermissions()) {
                 performCalendarReadFunctions();
             } else {
-                Ti.Calendar.requestCalendarPermissions(function(e) {
+                Ti.Calendar.requestCalendarPermissions((e) => {
                     if (e.success) {
                         performCalendarReadFunctions();
                     } else {
@@ -1016,127 +1014,137 @@ examples:
         Create a recurring event with alerts.
 
             function printEventDetails(eventID) {
-                Ti.API.info('eventID:' + eventID);
-                var defCalendar = Ti.Calendar.defaultCalendar;
-                var eventFromCalendar = defCalendar.getEventById(eventID);
-                if (eventFromCalendar != null) {
-                    Ti.API.info('Printing event values ::');
-                    Ti.API.info('title : '+ eventFromCalendar.title);
-                    Ti.API.info('notes : ' + eventFromCalendar.notes);
-                    Ti.API.info('location:' + eventFromCalendar.location);
-                    Ti.API.info('allDay ? :' + eventFromCalendar.allDay);
-                    Ti.API.info('status : '+ eventFromCalendar.status);
-                    Ti.API.info('availability : '+ eventFromCalendar.availability);
-                    Ti.API.info('hasAlarm ? : '+ eventFromCalendar.hasAlarm);
-                    Ti.API.info('id : '+ eventFromCalendar.id);
-                    Ti.API.info('isDetached ? : '+ eventFromCalendar.isDetached);
-                    Ti.API.info('begin : '+ eventFromCalendar.begin);
-                    Ti.API.info('end : '+ eventFromCalendar.end);
-                    var eventRule = eventFromCalendar.recurrenceRules;
-                    Ti.API.info("recurrenceRules : " + eventRule);
-                    for (var i = 0; i < eventRule.length; i++) {
-                        Ti.API.info("Rule # "+ i);
-                        Ti.API.info('frequency : ' + eventRule[i].frequency);
-                        Ti.API.info('interval : ' + eventRule[i].interval);
-                        Ti.API.info('daysofTheWeek : ' );
-                        var daysofTheWeek = eventRule[i].daysOfTheWeek; 
-                        for (var j = 0; j < daysofTheWeek.length; j++) {
-                            Ti.API.info('{ dayOfWeek : '+ daysofTheWeek[j].dayOfWeek +'weekNumber : '+daysofTheWeek[j].week +'}, ');
-                        }
-                        Ti.API.info('firstDayOfTheWeek : ' + eventRule[i].firstDayOfTheWeek);
-                        Ti.API.info('daysOfTheMonth : ');
-                        var daysOfTheMonth = eventRule[i].daysOfTheMonth;
-                        for(var j=0;j<daysOfTheMonth.length;j++) {
-                            Ti.API.info(' ' + daysOfTheMonth[j]);
-                        }
-                        Ti.API.info('daysOfTheYear : ');
-                        var daysOfTheYear = eventRule[i].daysOfTheYear;
-                        for(var j=0;i<daysOfTheYear.length;j++) {
-                            Ti.API.info(' ' + daysOfTheYear[j]);
-                        }
-                        Ti.API.info('weeksOfTheYear : ');
-                        var weeksOfTheYear = eventRule[i].weeksOfTheYear;
-                        for(var j=0;j<weeksOfTheYear.length;j++) {
-                            Ti.API.info(' ' + weeksOfTheYear[j]);
-                        }
-                        Ti.API.info('monthsOfTheYear : ');
-                        var monthsOfTheYear = eventRule[i].monthsOfTheYear;
-                        for(var j=0;j<monthsOfTheYear.length;j++) {
-                            Ti.API.info(' ' + monthsOfTheYear[j]);
-                        }
-                        Ti.API.info('daysOfTheYear : ');
-                        var setPositions = eventRule[i].setPositions;
-                        for(var j=0;j<setPositions.length;j++) {
-                            Ti.API.info(' ' + setPositions[j]);
-                        }
-                    };
-                    Ti.API.info('alerts : '+ eventFromCalendar.alerts);
-                    var newAlerts = eventFromCalendar.alerts;
-                    
-                    for(var i=0 ; i < newAlerts.length ; i++) {
-                        Ti.API.info('*****ALert '+ i);
-                        Ti.API.info('absoluteDate :'+ newAlerts[i].absoluteDate);
-                        Ti.API.info('relativeOffset ;' + newAlerts[i].relativeOffset);
-                    }
-               }
+              Ti.API.info('eventID:' + eventID);
+              const defCalendar = Ti.Calendar.defaultCalendar;
+              const eventFromCalendar = defCalendar.getEventById(eventID);
+              if (eventFromCalendar != null) {
+                Ti.API.info('Printing event values ::');
+                Ti.API.info('title : ' + eventFromCalendar.title);
+                Ti.API.info('notes : ' + eventFromCalendar.notes);
+                Ti.API.info('location:' + eventFromCalendar.location);
+                Ti.API.info('allDay ? :' + eventFromCalendar.allDay);
+                Ti.API.info('status : ' + eventFromCalendar.status);
+                Ti.API.info('availability : ' + eventFromCalendar.availability);
+                Ti.API.info('hasAlarm ? : ' + eventFromCalendar.hasAlarm);
+                Ti.API.info('id : ' + eventFromCalendar.id);
+                Ti.API.info('isDetached ? : ' + eventFromCalendar.isDetached);
+                Ti.API.info('begin : ' + eventFromCalendar.begin);
+                Ti.API.info('end : ' + eventFromCalendar.end);
+
+                const eventRule = eventFromCalendar.recurrenceRules;
+                Ti.API.info("recurrenceRules : " + eventRule);
+
+                for (let i = 0; i < eventRule.length; i++) {
+                  Ti.API.info("Rule # " + i);
+                  Ti.API.info('frequency : ' + eventRule[i].frequency);
+                  Ti.API.info('interval : ' + eventRule[i].interval);
+                  Ti.API.info('daysofTheWeek : ');
+                  const daysofTheWeek = eventRule[i].daysOfTheWeek;
+                  for (let j = 0; j < daysofTheWeek.length; j++) {
+                    Ti.API.info('{ dayOfWeek : ' + daysofTheWeek[j].dayOfWeek + 'weekNumber : ' + daysofTheWeek[j].week + '}, ');
+                  }
+                  Ti.API.info('firstDayOfTheWeek : ' + eventRule[i].firstDayOfTheWeek);
+                  Ti.API.info('daysOfTheMonth : ');
+                  const daysOfTheMonth = eventRule[i].daysOfTheMonth;
+                  for (let j = 0; j < daysOfTheMonth.length; j++) {
+                    Ti.API.info(' ' + daysOfTheMonth[j]);
+                  }
+                  Ti.API.info('daysOfTheYear : ');
+                  const daysOfTheYear = eventRule[i].daysOfTheYear;
+                  for (let j = 0; i < daysOfTheYear.length; j++) {
+                    Ti.API.info(' ' + daysOfTheYear[j]);
+                  }
+                  Ti.API.info('weeksOfTheYear : ');
+                  const weeksOfTheYear = eventRule[i].weeksOfTheYear;
+                  for (let j = 0; j < weeksOfTheYear.length; j++) {
+                    Ti.API.info(' ' + weeksOfTheYear[j]);
+                  }
+                  Ti.API.info('monthsOfTheYear : ');
+                  const monthsOfTheYear = eventRule[i].monthsOfTheYear;
+                  for (let j = 0; j < monthsOfTheYear.length; j++) {
+                    Ti.API.info(' ' + monthsOfTheYear[j]);
+                  }
+                  Ti.API.info('daysOfTheYear : ');
+                  const setPositions = eventRule[i].setPositions;
+                  for (let j = 0; j < setPositions.length; j++) {
+                    Ti.API.info(' ' + setPositions[j]);
+                  }
+                };
+                Ti.API.info('alerts : ' + eventFromCalendar.alerts);
+                const newAlerts = eventFromCalendar.alerts;
+
+                for (let i = 0; i < newAlerts.length; i++) {
+                  Ti.API.info('*****ALert ' + i);
+                  Ti.API.info('absoluteDate :' + newAlerts[i].absoluteDate);
+                  Ti.API.info('relativeOffset ;' + newAlerts[i].relativeOffset);
+                }
+              }
             }
-            function performCalendarWriteFunctions(){
-                var defCalendar = Ti.Calendar.defaultCalendar;
-                var date1 = new Date(new Date().getTime() + 3000),
-                    date2 = new Date(new Date().getTime() + 900000);
-                Ti.API.info('Date1 : '+ date1 + 'Date2 : '+ date2);
-                var event1 = defCalendar.createEvent({
-                                    title: 'Sample Event',
-                                    notes: 'This is a test event which has some values assigned to it.',
-                                    location: 'Appcelerator Inc',
-                                    begin: date1,
-                                    end: date2,
-                                    availability: Ti.Calendar.AVAILABILITY_FREE,
-                                    allDay: false,
-                            });
-                var alert1 = event1.createAlert({
-                                    absoluteDate: new Date(new Date().getTime() - (1000*60*20))
-                            });
-                var alert2 = event1.createAlert({
-                    relativeOffset:-(60*15)
-                })
-                var allAlerts = new Array(alert1,alert2);
-                event1.alerts = allAlerts;
-                var newRule = event1.createRecurrenceRule({
-                                    frequency: Ti.Calendar.RECURRENCEFREQUENCY_MONTHLY,
-                                    interval: 1,
-                                    daysOfTheWeek: [{dayOfWeek:1,week:2},{dayOfWeek:2}],
-                                    end: {occurrenceCount:10}
-                            });
-                Ti.API.info('newRule : '+ newRule);
-                event1.recurrenceRules = [newRule];
-                Ti.API.info('Going to save event now');
-                event1.save(Ti.Calendar.SPAN_THISEVENT);
-                Ti.API.info('Done with saving event,\n Now trying to retreive it.');
-                printEventDetails(event1.id);
+
+            function performCalendarWriteFunctions() {
+              const defCalendar = Ti.Calendar.defaultCalendar;
+              const date1 = new Date(new Date().getTime() + 3000),
+                date2 = new Date(new Date().getTime() + 900000);
+              Ti.API.info('Date1 : ' + date1 + 'Date2 : ' + date2);
+              const event1 = defCalendar.createEvent({
+                title: 'Sample Event',
+                notes: 'This is a test event which has some values assigned to it.',
+                location: 'Appcelerator Inc',
+                begin: date1,
+                end: date2,
+                availability: Ti.Calendar.AVAILABILITY_FREE,
+                allDay: false,
+              });
+              const alert1 = event1.createAlert({
+                absoluteDate: new Date(new Date().getTime() - (1000 * 60 * 20))
+              });
+              const alert2 = event1.createAlert({
+                relativeOffset: -(60 * 15)
+              })
+              const allAlerts = new Array(alert1, alert2);
+              event1.alerts = allAlerts;
+              const newRule = event1.createRecurrenceRule({
+                frequency: Ti.Calendar.RECURRENCEFREQUENCY_MONTHLY,
+                interval: 1,
+                daysOfTheWeek: [{
+                  dayOfWeek: 1,
+                  week: 2
+                }, {
+                  dayOfWeek: 2
+                }],
+                end: {
+                  occurrenceCount: 10
+                }
+              });
+              Ti.API.info('newRule : ' + newRule);
+              event1.recurrenceRules = [newRule];
+              Ti.API.info('Going to save event now');
+              event1.save(Ti.Calendar.SPAN_THISEVENT);
+              Ti.API.info('Done with saving event,\n Now trying to retreive it.');
+              printEventDetails(event1.id);
             }
-            var win = Ti.UI.createWindow({
-                                    backgroundColor: 'white',
-                                    title: 'Calendar Demo'
-                        });
-            
-            var label = Ti.UI.createLabel({
-                                    text: 'Check console log',
-                                    height: Ti.UI.size,
-                                    width: Ti.UI.size
-                        });
+            const win = Ti.UI.createWindow({
+              backgroundColor: 'white',
+              title: 'Calendar Demo'
+            });
+
+            let label = Ti.UI.createLabel({
+              text: 'Check console log',
+              height: Ti.UI.size,
+              width: Ti.UI.size
+            });
             win.add(label);
-            
+
             if (Ti.Calendar.hasCalendarPermissions()) {
-                performCalendarReadFunctions();
+              performCalendarReadFunctions();
             } else {
-                Ti.Calendar.requestCalendarPermissions(function(e) {
-                    if (e.success) {
-                        performCalendarReadFunctions();
-                    } else {
-                        alert('Access to calendar is not allowed');
-                    }
-                });
+              Ti.Calendar.requestCalendarPermissions((e) => {
+                if (e.success) {
+                  performCalendarReadFunctions();
+                } else {
+                  alert('Access to calendar is not allowed');
+                }
+              });
             }
 
             win.open();

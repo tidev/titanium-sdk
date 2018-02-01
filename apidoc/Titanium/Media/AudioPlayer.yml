@@ -51,7 +51,7 @@ examples:
                 allowBackground: true
             });
 
-            startStopButton.addEventListener('click',function() {
+            startStopButton.addEventListener('click', () => {
                 // When paused, playing returns false.
                 // If both are false, playback is stopped.
                 if (audioPlayer.playing || audioPlayer.paused) {
@@ -67,7 +67,7 @@ examples:
                 }
             });
 
-            pauseResumeButton.addEventListener('click', function() {
+            pauseResumeButton.addEventListener('click', () => {
                 if (audioPlayer.paused) {
                     audioPlayer.start();
                 } else {
@@ -75,15 +75,15 @@ examples:
                 }
             });
 
-            audioPlayer.addEventListener('progress', function(e) {
+            audioPlayer.addEventListener('progress', (e) => {
                 Ti.API.info('Time Played: ' + Math.round(e.progress) + ' milliseconds');
             });
 
-            audioPlayer.addEventListener('change', function(e) {
+            audioPlayer.addEventListener('change', (e) => {
                 Ti.API.info('State: ' + e.description + ' (' + e.state + ')');
             });
 
-            win.addEventListener('close',function() {
+            win.addEventListener('close', () => {
                 audioPlayer.stop();
                 if (Ti.Platform.osname === 'android')
                 {

@@ -117,13 +117,13 @@ examples:
             animator.addBehavior(push);
 
             // Apply a new push behavior when the item stops
-            animator.addEventListener('pause', function(e){
+            animator.addEventListener('pause', (e) => {
                 push.angle = 2 * Math.PI * Math.random();
                 push.magnitude = Math.random() * 5 + 5;
                 push.active = true;
             });
 
-            animator.addEventListener('resume', function(e){
+            animator.addEventListener('resume', (e) => {
                 Ti.API.info(JSON.stringify(
                     'push force: ' + push.magnitude * 100 + " points/s^2 @ "
                     + (push.angle * 360 / (2 * Math.PI)) + " degrees")
@@ -131,7 +131,7 @@ examples:
             });
 
             // Start the animation when the window opens
-            win.addEventListener('open', function(e){
+            win.addEventListener('open', (e) => {
                 animator.startAnimator();
             });
 

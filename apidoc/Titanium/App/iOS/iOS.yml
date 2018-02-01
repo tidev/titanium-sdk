@@ -184,7 +184,7 @@ methods:
 
         This method should be used as part of the `watchkitextensionrequest` event as shown below.
 
-            Ti.App.iOS.addEventListener("watchkitextensionrequest", function(e) {
+            Ti.App.iOS.addEventListener("watchkitextensionrequest", (e) => {
                 var replyContent = {foo: "bar"};
                 Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
             });
@@ -1055,7 +1055,7 @@ events:
         current event and the `userInfo` property, containing the dictionary passed from the WatchKit extension.  The `handlerID` identifier
         must be passed as the an argument to the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method.
 
-            Ti.App.iOS.addEventListener("watchkitextensionrequest",function(e){
+            Ti.App.iOS.addEventListener("watchkitextensionrequest", (e) => {
                 var replyContent = {foo:"bar"};
                 Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
             });
@@ -1081,7 +1081,7 @@ events:
         your Titanium app the information from the NSUserActivity. When this event is fired you should implement logic within your application to allow the 
         user to pick-up from where they left off on their other device.
 
-            Ti.App.iOS.addEventListener("continueactivity", function(e) {
+            Ti.App.iOS.addEventListener("continueactivity", (e) => {
                 console.log('activityType: '' + e.activityType);
             });
     properties:

@@ -13,14 +13,14 @@ examples:
         // This example will be use image that placed in one of the density-specific folder
         // under `Resources/android/images`
 
-        var bigPictureStyle = Titanium.Android.createBigPictureStyle({
-            bigPicture: "/images/bigPicture.png",
-            bigContentTitle: "Title for big picture",
-            summaryText: "Summary for big picture"
+        const bigPictureStyle = Ti.Android.createBigPictureStyle({
+            bigPicture: 'bigPicture.png',
+            bigContentTitle: 'Title for big picture',
+            summaryText: 'Summary for big picture'
         });
 
         // Create big image style notification
-        var notification = Titanium.Android.createNotification({
+        const notification = Ti.Android.createNotification({
             contentTitle: 'Something Happened',
             contentText : 'Click to return to the application.',
             style: bigPictureStyle,
@@ -28,7 +28,7 @@ examples:
         });
 
         // Send the notification.
-        Titanium.Android.NotificationManager.notify(1, notification);
+        Ti.Android.NotificationManager.notify(1, notification);
 
 since: "5.4.0"
 platforms: [android]

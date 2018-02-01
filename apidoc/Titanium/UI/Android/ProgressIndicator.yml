@@ -133,10 +133,10 @@ examples:
               max: 10
             });
 
-            button.addEventListener('click', function (e) {
+            button.addEventListener('click', (e) => {
               progressIndicator.show();
               var value = 0;
-              setInterval(function(){
+              setInterval(() => {
                 if (value > 10) {
                     return;
                 }
@@ -145,7 +145,7 @@ examples:
               }, 200);
               // do some work that takes 3 seconds
               // ie. replace the following setTimeout block with your code
-              setTimeout(function(){
+              setTimeout(() => {
                 progressIndicator.hide();
               }, 3000);
             });
@@ -175,7 +175,7 @@ examples:
             function showIndicator(e) {
                 $.progressIndicator.show();
                 var value = 0;
-                setInterval(function(){
+                setInterval(() => {
                     if (value > 10) {
                         return;
                     }
@@ -184,7 +184,7 @@ examples:
                 }, 200);
                 // do some work that takes 3 seconds
                 // ie. replace the following setTimeout block with your code
-                setTimeout(function(){
+                setTimeout(() => {
                     $.progressIndicator.hide();
                 }, 3000);
             }

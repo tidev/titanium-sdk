@@ -119,15 +119,15 @@ examples:
             animator.addBehavior(gravity);
 
             // Change the anchor item when clicking either the red or blue block
-            redBlock.addEventListener('click', function(e){
+            redBlock.addEventListener('click', (e) => {
                 anchor.anchorItem = redBlock;
             });
-            blueBlock.addEventListener('click', function(e){
+            blueBlock.addEventListener('click', (e) => {
                 anchor.anchorItem = blueBlock;
             });
             
             // Start the animation when the window opens
-            win.addEventListener('open', function(e){
+            win.addEventListener('open', (e) => {
                 animator.startAnimator();
             });
 

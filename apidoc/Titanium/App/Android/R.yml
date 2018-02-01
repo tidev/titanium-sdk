@@ -12,7 +12,7 @@ description: |
     `platform/android/res/drawable/icon.png` exists in the project, it can be accessed using its 
     integer id, as follows.
     
-        var resid = Titanium.App.Android.R.drawable.icon;
+        const resid = Titanium.App.Android.R.drawable.icon;
 
     To access system-wide resources, rather than application resources, use <Titanium.Android.R> 
     instead.
