@@ -17,7 +17,7 @@ description: |
 extends: Titanium.Proxy
 since: "3.2"
 platforms: [iphone, ipad]
-osver: {ios: {min: "7.0"}}
+osver: { ios: { min: "7.0" } }
 
 properties:
   - name: boundaryIdentifiers
@@ -128,7 +128,7 @@ examples:
         start falling after the window opens.  The item and boundary collisions are reported to the
         console.
 
-        <img src="images/animator/collision.gif" height="455" style="border:1px solid black"/>
+        <img src="images/animator/collision.gif" height="455" style="border: 1px solid black"/>
 
             const win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
 
@@ -188,7 +188,7 @@ name: BoundaryIdentifier
 summary: Dictionary to specify a boundary identifier for <Titanium.UI.iOS.CollisionBehavior.addBoundary>.
 since: "3.2"
 platforms: [iphone, ipad]
-osver: {ios: {min: "7.0"}}
+osver: { ios: { min: "7.0" } }
 properties:
   - name: identifier
     summary: Arbitrary identifier for the boundary
@@ -207,7 +207,7 @@ name: ReferenceInsets
 summary: Dictionary to specify edge insets for <Titanium.UI.iOS.CollisionBehavior.referenceInsets>.
 since: "3.2"
 platforms: [iphone, ipad]
-osver: {ios: {min: "7.0"}}
+osver: { ios: { min: "7.0" } }
 properties:
   - name: top 
     summary: Top inset.

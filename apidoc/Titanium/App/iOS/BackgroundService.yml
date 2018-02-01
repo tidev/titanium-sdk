@@ -62,8 +62,8 @@ examples:
             });
 
             Ti.API.info('Registering background services');
-            const service = Ti.App.iOS.registerBackgroundService({url:'bg-service1.js'});
-            const service2 = Ti.App.iOS.registerBackgroundService({url:'bg-service2.js'});
+            const service = Ti.App.iOS.registerBackgroundService({ url: 'bg-service1.js' });
+            const service2 = Ti.App.iOS.registerBackgroundService({ url: 'bg-service2.js' });
             Ti.API.info('*** Press home button to pause application ***');
 
             win1.open();
@@ -96,12 +96,12 @@ examples:
             if (count > 4) {
               Ti.App.currentService.unregister();
               const finalNotif = Ti.App.iOS.scheduleLocalNotification({
-                alertBody:'bg-service2: As service has been invoked more than 4 times, it has been unregistered and will NOT run again. Relaunch the app to re-register it',
+                alertBody: 'bg-service2: As service has been invoked more than 4 times, it has been unregistered and will NOT run again. Relaunch the app to re-register it',
                 date:new Date(new Date().getTime() + 1000) // 1 second after unregister
               });	
             } else {
               const curNotif = Ti.App.iOS.scheduleLocalNotification({
-                alertBody:'bg-service2: has been invoked ' + count + ' times. It is still registered and will run again when the app is transitioned to the background',
+                alertBody: 'bg-service2: has been invoked ' + count + ' times. It is still registered and will run again when the app is transitioned to the background',
                 date:new Date(new Date().getTime() + 1000) // 1 second after pause
               });	
             }

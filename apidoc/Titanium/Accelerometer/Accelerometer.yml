@@ -48,11 +48,11 @@ examples:
             });
             
             opts = {
-              color:'black',
-              font:{fontSize:20},
-              text:'-',
-              top:20, left:10,
-              width:300
+              color: 'black',
+              font: {fontSize: 20},
+              text: '-',
+              top: 20, left: 10,
+              width: 300
             };
             const labelTimestamp = Ti.UI.createLabel(opts);
             win.add(labelTimestamp);

@@ -142,4 +142,4 @@ properties:
         The iOS simulator ignores this volume setting. This is a known issue
         with Apple's simulator.
     type: Number
-    osver: {ios: {"max": "7.0"}}
+    osver: { ios: {"max": "7.0" } }

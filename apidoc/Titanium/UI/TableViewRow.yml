@@ -384,7 +384,7 @@ examples:
 
             const row = Titanium.UI.createTableViewRow();
             const view = Titanium.UI.createView({
-              backgroundColor:'red',
+              backgroundColor: 'red',
               width: 20, height: 20
             });
             row.add(view);
@@ -407,14 +407,14 @@ examples:
               });
 
               const enabledWrapperView = Ti.UI.createView({
-                backgroundColor:'#008FD5',
+                backgroundColor: '#008FD5',
                 objName: 'enabledWrapperView',
                 rowID: i,
                 width: Ti.UI.FILL, height: '100%'
               });
 
               const disabledWrapperView = Ti.UI.createView({
-                backgroundColor:'#A2E0FF',
+                backgroundColor: '#A2E0FF',
                 objName: 'disabledWrapperView',
                 touchEnabled: false,
                 width: 300, height: '80%'
@@ -422,7 +422,7 @@ examples:
               enabledWrapperView.add(disabledWrapperView);
 
               const label = Ti.UI.createLabel({
-                backgroundColor:'#313F48',
+                backgroundColor: '#313F48',
                 color: 'white',
                 objName: 'label',
                 text: i,

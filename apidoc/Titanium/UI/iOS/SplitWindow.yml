@@ -173,11 +173,10 @@ summary: |
 description: |
     On iOS, use the optional parameter `animated` to animate changes to masterView display mode in portrait orientation. For example
 
-        setShowMasterInPortrait(true, {animated:true})
+        setShowMasterInPortrait(true, {animated: true})
 platforms: [iphone, ipad]
 
 properties:
   - name: animated
     summary: Determines whether the change is animated.
     type: Boolean
-

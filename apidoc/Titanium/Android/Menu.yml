@@ -37,7 +37,7 @@ description: |
     set the `onCreateOptionsMenu` property to the tab group's `open` event listener, and
     then call `invalidateOptionsMenu` to force the changes to take effect.
 
-        tabGroup.addEventListener("open", () => {
+        tabGroup.addEventListener('open', () => {
             const activity = globals.tabs.getActivity();
             activity.onCreateOptionsMenu = (event) => {
                 const menuItem = event.menu.add({

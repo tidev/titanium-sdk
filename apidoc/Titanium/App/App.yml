@@ -103,7 +103,7 @@ description: |
 
         Ti.App.addEventListener('app:myCustomEvent', myHandlerFunction);
 
-    Adding a prefix (like 'app:' in this example) is optional, but can help ensure that
+    Adding a prefix (like 'app: ' in this example) is optional, but can help ensure that
     your custom event names don't conflict with any future Titanium events.
 
     Application-level event listeners can be added and fired from any context, including from inside
@@ -242,7 +242,7 @@ events:
       - name: state
         summary: Proximity state value.
     platforms: [iphone, android]
-    since: {android: "3.3.0"}
+    since: { android: "3.3.0"}
     
   - name: uncaughtException
     summary: Fired when an uncaught JavaScript exception occurs.
@@ -477,7 +477,7 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad, android]
-    since: {android: "3.3.0"}
+    since: { android: "3.3.0"}
     
   - name: proximityState
     summary: |
@@ -490,7 +490,7 @@ properties:
     type: Boolean
     permission: read-only
     platforms: [iphone, android]
-    since: {android: "3.3.0"}
+    since: { android: "3.3.0"}
 
   - name: disableNetworkActivityIndicator
     summary: |

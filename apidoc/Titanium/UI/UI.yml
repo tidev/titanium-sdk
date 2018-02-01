@@ -210,7 +210,7 @@ properties:
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_FOREGROUND_COLOR
@@ -223,7 +223,7 @@ properties:
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_BACKGROUND_COLOR
@@ -236,7 +236,7 @@ properties:
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LIGATURE
@@ -250,7 +250,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LETTERPRESS_STYLE
@@ -264,7 +264,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_KERN
@@ -278,7 +278,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_STYLE
@@ -291,7 +291,7 @@ properties:
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINES_STYLE
@@ -304,7 +304,7 @@ properties:
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_SUPERSCRIPT_STYLE
@@ -337,7 +337,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_STROKE_WIDTH
@@ -352,7 +352,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_SHADOW
@@ -365,7 +365,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION
@@ -378,7 +378,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_TEXT_EFFECT
@@ -392,7 +392,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LINK
@@ -408,7 +408,7 @@ properties:
     type: Number
     platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_BASELINE_OFFSET
@@ -421,7 +421,7 @@ properties:
     type: Number
     platforms: [iphone, ipad, android]
     since: {iphone: "3.6.0", ipad: "3.6.0", android: "7.0.0"}
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_COLOR
@@ -434,7 +434,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_COLOR
@@ -447,7 +447,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_OBLIQUENESS
@@ -460,7 +460,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_EXPANSION
@@ -476,7 +476,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK
@@ -489,7 +489,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
@@ -504,7 +504,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_SINGLE
@@ -519,7 +519,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_THICK
@@ -534,7 +534,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
@@ -549,7 +549,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_SOLID
@@ -564,7 +564,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DOT
@@ -579,7 +579,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH
@@ -594,7 +594,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
@@ -609,7 +609,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
@@ -624,7 +624,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_BY_WORD
@@ -639,7 +639,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
@@ -653,7 +653,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
@@ -667,7 +667,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
@@ -683,7 +683,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
@@ -697,7 +697,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
@@ -711,7 +711,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
@@ -725,7 +725,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING
@@ -739,7 +739,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_CLIPPING
@@ -753,7 +753,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD
@@ -767,7 +767,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE
@@ -781,7 +781,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL
@@ -795,7 +795,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: AUTODETECT_ADDRESS
@@ -805,7 +805,7 @@ properties:
         removed: "6.0.0"
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
-    osver: {ios: {min: "4.0"}}
+    osver: { ios: { min: "4.0" } }
     permission: read-only
     platforms: [iphone, ipad]
 
@@ -826,7 +826,7 @@ properties:
         removed: "6.0.0"
     summary: Converts strings formatted as calendar events into clickable links.
     type: Number
-    osver: {ios: {min: "4.0"}}
+    osver: { ios: { min: "4.0" } }
     permission: read-only
     platforms: [iphone, ipad]
 
@@ -865,7 +865,7 @@ properties:
     type: String
     platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
+    osver: { ios: { min: "11.0"}, android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_PASSWORD
@@ -873,7 +873,7 @@ properties:
     type: String
     platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
+    osver: { ios: { min: "11.0"}, android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_NAME
@@ -881,7 +881,7 @@ properties:
     type: String
     platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { ios: { min: "10.0"}, android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_NAME_PREFIX
@@ -889,7 +889,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_GIVEN_NAME
@@ -897,7 +897,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_MIDDLE_NAME
@@ -905,7 +905,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_FAMILY_NAME
@@ -913,7 +913,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_NAME_SUFFIX
@@ -921,7 +921,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_NICKNAME
@@ -929,7 +929,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_JOB_TITLE
@@ -937,7 +937,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_ORGANIZATION_NAME
@@ -945,7 +945,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_LOCATION
@@ -953,7 +953,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS
@@ -961,7 +961,7 @@ properties:
     type: String
     platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { ios: { min: "10.0"}, android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_LINE1
@@ -969,7 +969,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_LINE2
@@ -977,7 +977,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_CITY
@@ -985,7 +985,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_STATE
@@ -993,7 +993,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_CITY_STATE
@@ -1001,7 +1001,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_SUBLOCALITY
@@ -1009,7 +1009,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_COUNTRY_NAME
@@ -1017,7 +1017,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_POSTAL_CODE
@@ -1025,7 +1025,7 @@ properties:
     type: String
     platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { ios: { min: "10.0"}, android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_PHONE
@@ -1033,7 +1033,7 @@ properties:
     type: String
     platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { ios: { min: "10.0"}, android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_EMAIL
@@ -1041,7 +1041,7 @@ properties:
     type: String
     platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { ios: { min: "10.0"}, android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_URL
@@ -1049,7 +1049,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_NUMBER
@@ -1057,7 +1057,7 @@ properties:
     type: String
     platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { ios: { min: "10.0"}, android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_SECURITY_CODE
@@ -1065,7 +1065,7 @@ properties:
     type: String
     platforms: [android]
     since: "6.3.0"
-    osver: {android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_DATE
@@ -1073,7 +1073,7 @@ properties:
     type: String
     platforms: [android]
     since: "6.3.0"
-    osver: {android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_DAY
@@ -1081,7 +1081,7 @@ properties:
     type: String
     platforms: [android]
     since: "6.3.0"
-    osver: {android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_MONTH
@@ -1089,7 +1089,7 @@ properties:
     type: String
     platforms: [android]
     since: "6.3.0"
-    osver: {android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_YEAR
@@ -1097,7 +1097,7 @@ properties:
     type: String
     platforms: [android]
     since: "6.3.0"
-    osver: {android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOLINK_MAP_ADDRESSES
@@ -1111,7 +1111,7 @@ properties:
             Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
 
     type: Number
-    osver: {ios: {min: "4.0"}}
+    osver: { ios: { min: "4.0" } }
     since: "3.0.0"
     permission: read-only
     platforms: [android, iphone, ipad]
@@ -1135,7 +1135,7 @@ properties:
     summary: Converts strings formatted as calendar events into clickable links.
     description: Use with the <Titanium.UI.TextArea.autoLink> property. Two or more autolink constants can be combined using bitwise or.
     type: Number
-    osver: {ios: {min: "4.0"}}
+    osver: { ios: { min: "4.0" } }
     since: "3.0.0"
     permission: read-only
     platforms: [iphone, ipad]
@@ -2170,7 +2170,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     since: "5.5.0"
 
   - name: CLIPBOARD_OPTION_EXPIRATION_DATE
@@ -2178,7 +2178,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     since: "5.5.0"
 
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
@@ -2235,7 +2235,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "5.2.0"
 
   - name: RETURNKEY_DEFAULT
@@ -2443,7 +2443,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     since: "3.2.0"
 
   - name: TEXT_STYLE_SUBHEADLINE
@@ -2453,7 +2453,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     since: "3.2.0"
 
   - name: TEXT_STYLE_BODY
@@ -2463,7 +2463,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     since: "3.2.0"
 
   - name: TEXT_STYLE_FOOTNOTE
@@ -2473,7 +2473,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     since: "3.2.0"
 
   - name: TEXT_STYLE_CAPTION1
@@ -2483,7 +2483,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     since: "3.2.0"
 
   - name: TEXT_STYLE_CAPTION2
@@ -2493,7 +2493,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     since: "3.2.0"
 
   - name: TEXT_STYLE_CALLOUT
@@ -2503,7 +2503,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE1
@@ -2513,7 +2513,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE2
@@ -2523,7 +2523,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE3
@@ -2533,7 +2533,7 @@ properties:
     type: String
     permission: read-only
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "6.0.0"
 
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
@@ -2796,7 +2796,7 @@ examples:
             const rows = [];
             for (let i = 0, ilen = colorArray.length; i < ilen; i++) {
               const row = Ti.UI.createTableViewRow({
-                color:'black',
+                color: 'black',
                 backgroundColor: colorArray[i],
                 title: colorArray[i],
                 height: 40

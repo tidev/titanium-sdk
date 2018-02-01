@@ -147,9 +147,9 @@ examples:
 
             const win = Ti.UI.createWindow();
 
-            const leftView = Ti.UI.createView({ backgroundColor:'red' });
-            const centerView = Ti.UI.createView({ backgroundColor:'yellow' });
-            const rightView = Ti.UI.createView({ backgroundColor:'orange' });
+            const leftView = Ti.UI.createView({ backgroundColor: 'red' });
+            const centerView = Ti.UI.createView({ backgroundColor: 'yellow' });
+            const rightView = Ti.UI.createView({ backgroundColor: 'orange' });
 
             const drawer = Ti.UI.Android.createDrawerLayout({
                 leftView: leftView,

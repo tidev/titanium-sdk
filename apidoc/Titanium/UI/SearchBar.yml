@@ -257,10 +257,10 @@ examples:
     example: |
         
             const search = Titanium.UI.createSearchBar({
-            	barColor:'#000', 
-            	showCancel:true,
-            	height:43,
-            	top:0,
+            	barColor: '#000', 
+            	showCancel: true,
+            	height: 43,
+            	top: 0,
             });
 
   - title: Alloy XML Markup

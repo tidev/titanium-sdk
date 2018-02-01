@@ -12,7 +12,7 @@ description: |
 
 extends: Titanium.Module
 platforms: [android, iphone, ipad]
-since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
+since: { android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
 events:
@@ -494,7 +494,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+    since: { android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_STATUS_PENDING
     summary: Attendee status is pending.
@@ -508,35 +508,35 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+    since: { android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_STATUS_DECLINED
     summary: Attendee status is declined.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+    since: { android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_STATUS_TENTATIVE
     summary: Attendee status is tentative.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+    since: { android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_STATUS_INVITED
     summary: Attendee status is invited.
     type: Number
     permission: read-only
     platforms: [android]
-    since: {android: "6.2.0"}
+    since: { android: "6.2.0"}
 
   - name: ATTENDEE_STATUS_NONE
     summary: There is no Attendee status.
     type: Number
     permission: read-only
     platforms: [android]
-    since: {android: "6.2.0"}
+    since: { android: "6.2.0"}
 
   - name: ATTENDEE_STATUS_DELEGATED
     summary: Attendee status is delegated.
@@ -634,7 +634,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+    since: { android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_TYPE_PERSON
     summary: Attendee type is person.
@@ -655,21 +655,21 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+    since: { android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: ATTENDEE_TYPE_NONE
     summary: There is not attendee type.
     type: Number
     permission: read-only
     platforms: [android]
-    since: {android: "6.2.0"}
+    since: { android: "6.2.0"}
 
   - name: ATTENDEE_TYPE_REQUIRED
     summary: Attendee type is required.
     type: Number
     permission: read-only
     platforms: [android]
-    since: {android: "6.2.0"}
+    since: { android: "6.2.0"}
 
   - name: ATTENDEE_TYPE_GROUP
     summary: Attendee type is group.
@@ -793,10 +793,10 @@ examples:
                 }
             }
 
-            Ti.API.info('ALL CALENDARS:');
+            Ti.API.info('ALL CALENDARS: ');
             showCalendars(Ti.Calendar.allCalendars);
             if (Ti.Platform.osname === 'android') {
-                Ti.API.info('SELECTABLE CALENDARS:');
+                Ti.API.info('SELECTABLE CALENDARS: ');
                 showCalendars(Ti.Calendar.selectableCalendars);
             }
 
@@ -870,7 +870,7 @@ examples:
                   label.text = 'Click button to view calendar events';
                   
                   const picker = Ti.UI.createPicker({
-                    top:20
+                    top: 20
                   });
                   
                   picker.add(pickerData);
@@ -881,7 +881,7 @@ examples:
                       if (calendars[i].name === e.row.title) {
                         selectedCalendarName = calendars[i].name;
                         selectedid = calendars[i].id;
-                        Ti.API.info('Selected calendar that we are going to fetch is :: '+ selectedid + ' name:' + selectedCalendarName);
+                        Ti.API.info('Selected calendar that we are going to fetch is :: '+ selectedid + ' name: ' + selectedCalendarName);
                       }
                     }
                   });
@@ -908,7 +908,7 @@ examples:
                     
                     const calendar = Ti.Calendar.getCalendarById(selectedid);
                     Ti.API.info('Calendar was of type' + calendar);
-                    Ti.API.info('calendar that we are going to fetch is :: '+ calendar.id + ' name:' + calendar.name);
+                    Ti.API.info('calendar that we are going to fetch is :: '+ calendar.id + ' name: ' + calendar.name);
                     
                     function printReminder(r) {
                         if (osname === 'android') {
@@ -1014,15 +1014,15 @@ examples:
         Create a recurring event with alerts.
 
             function printEventDetails(eventID) {
-              Ti.API.info('eventID:' + eventID);
+              Ti.API.info('eventID: ' + eventID);
               const defCalendar = Ti.Calendar.defaultCalendar;
               const eventFromCalendar = defCalendar.getEventById(eventID);
               if (eventFromCalendar != null) {
-                Ti.API.info('Printing event values ::');
+                Ti.API.info('Printing event values :: ');
                 Ti.API.info('title : ' + eventFromCalendar.title);
                 Ti.API.info('notes : ' + eventFromCalendar.notes);
-                Ti.API.info('location:' + eventFromCalendar.location);
-                Ti.API.info('allDay ? :' + eventFromCalendar.allDay);
+                Ti.API.info('location: ' + eventFromCalendar.location);
+                Ti.API.info('allDay ? : ' + eventFromCalendar.allDay);
                 Ti.API.info('status : ' + eventFromCalendar.status);
                 Ti.API.info('availability : ' + eventFromCalendar.availability);
                 Ti.API.info('hasAlarm ? : ' + eventFromCalendar.hasAlarm);
@@ -1075,7 +1075,7 @@ examples:
 
                 for (let i = 0; i < newAlerts.length; i++) {
                   Ti.API.info('*****ALert ' + i);
-                  Ti.API.info('absoluteDate :' + newAlerts[i].absoluteDate);
+                  Ti.API.info('absoluteDate : ' + newAlerts[i].absoluteDate);
                   Ti.API.info('relativeOffset ;' + newAlerts[i].relativeOffset);
                 }
               }

@@ -110,7 +110,7 @@ methods:
         summary: The authentication factory. This factory must implement the [AuthSchemeFactory](https://developer.android.com/reference/org/apache/http/auth/AuthSchemeFactory.html) interface.
         type: Object
     platforms: [android]
-    since: {android: "3.0.0"}
+    since: { android: "3.0.0"}
     deprecated:
         since: "5.0.0"
         removed: "5.0.0"
@@ -127,7 +127,7 @@ methods:
         summary: X.509 key manager. This key manager must implement the [X509KeyManager](https://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) inteface.
         type: Object
     platforms: [android]
-    since: {android: "3.1.0"}
+    since: { android: "3.1.0"}
     deprecated:
         since: "3.3.0"
         removed: "3.4.0"
@@ -144,7 +144,7 @@ methods:
         summary: X.509 trust manager. This trust manager must implement the [X509TrustManager](https://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) inteface.
         type: Object
     platforms: [android]
-    since: {android: "3.1.0"}
+    since: { android: "3.1.0"}
     deprecated:
         since: "3.3.0"
         removed: "3.4.0"
@@ -347,7 +347,7 @@ properties:
         The file must be writable such as the application data directory or temp directory.
     type: String
     platforms: [android, iphone, ipad]
-    since: {android: 3.4.0}
+    since: { android: 3.4.0}
 
   - name: location
     summary: Absolute URL of the request.
@@ -515,7 +515,7 @@ properties:
         Setting this property disables falling back to lower TLS versions.
     type: Number
     constants: Titanium.Network.TLS_VERSION_*
-    since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    since: { android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
     default: |
         undefined. <Titanium.Network.TLS_VERSION_1_2> for Android 4.1 and later, or iOS 5 and
         later. <Titanium.Network.TLS_VERSION_1_0> for Android 4.0 and earlier, or iOS 4 and earlier.

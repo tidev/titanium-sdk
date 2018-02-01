@@ -102,7 +102,7 @@ examples:
               columns: [column1, column2],
               selectionIndicator: true,
               useSpinner: true, // required in order to use multi-column pickers with Android
-              top:50
+              top: 50
             });
 
             function pickerDefaults(obj) {

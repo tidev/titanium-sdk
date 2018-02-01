@@ -339,7 +339,7 @@ properties:
     type: [String]
     since: "3.3.0"
     default: null
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     platforms: [iphone,ipad]
 
   - name: editButtonTitle
@@ -406,7 +406,7 @@ properties:
         tabs. Furthermore, the inactive tab icons without activeIcon will be tinted this color;
         property is ignored on earlier versions of iOS.
     type: String
-    since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
+    since: { android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
     platforms: [android, iphone, ipad]
 
   - name: tabsTintColor
@@ -453,7 +453,7 @@ properties:
     type: String
     platforms: [iphone, ipad]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {ios: {min: "5.0"}}
+    osver: { ios: { min: "5.0" } }
 
   - name: unselectedItemTintColor
     summary: |
@@ -463,7 +463,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     since: 6.1.0
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     platforms: [iphone, ipad]
 
   - name: shadowImage
@@ -474,7 +474,7 @@ properties:
     type: String
     platforms: [iphone,ipad]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
 
   - name: activeTabIconTint
     summary: Color applied to active tabs icons, as a color name or hex triplet, where the tab's activeIcon was not defined.
@@ -483,7 +483,7 @@ properties:
         On iOS, requires iOS 5.0 or later; ignored on earlier versions.
     type: String
     since: {iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {ios: {min: "5.0"}}
+    osver: { ios: { min: "5.0" } }
     platforms: [iphone, ipad]
 
   - name: tabsBackgroundSelectedColor
@@ -495,14 +495,14 @@ properties:
         precedence if set.
     type: String
     platforms: [android]
-    since: {android: "3.0.0"}
+    since: { android: "3.0.0"}
 
   - name: activeTabBackgroundImage
     summary: Default background image for the active tab.
     type: String
     platforms: [iphone, ipad]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {ios: {min: "5.0"}}
+    osver: { ios: { min: "5.0" } }
 
 examples:
   - title: Alloy XML Markup

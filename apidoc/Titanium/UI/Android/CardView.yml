@@ -180,7 +180,7 @@ examples:
         The following example creates a CardView used in a ScrollView.
 
             const win = Ti.UI.createWindow({
-                backgroundColor:'white',
+                backgroundColor: 'white',
                 title: 'Card Demo'
             });
 
@@ -191,7 +191,7 @@ examples:
                     cardUseCompatPadding: true
                 });
                 const label = Ti.UI.createLabel({
-                    color:'black',
+                    color: 'black',
                     text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
                 });
                 card.add(label);

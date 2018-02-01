@@ -156,7 +156,7 @@ examples:
                 minimum: 0
             });
 
-            stepper.addEventListener("change", (e) => {
+            stepper.addEventListener('change', (e) => {
                 Ti.API.info(e.value);
             });
 

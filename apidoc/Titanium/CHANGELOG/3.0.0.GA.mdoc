@@ -106,13 +106,13 @@ For example, given the sample code for <code>ActivityIndicator</code> in prior r
 <pre>
 var activityIndicator = Ti.UI.createActivityIndicator({
   color: 'green',
-  font: {fontFamily:'Helvetica Neue', fontSize:26, fontWeight:'bold'},
+  font: {fontFamily: 'Helvetica Neue', fontSize: 26, fontWeight: 'bold'},
   message: 'Loading...',
   style:Ti.UI.iPhone.ActivityIndicatorStyle.DARK,
-  top:10,
-  left:10,
-  height:'auto',
-  width:'auto'
+  top: 10,
+  left: 10,
+  height: 'auto',
+  width: 'auto'
 });
 
 // On iOS, the activity indicator must be added to a window or view for it to appear
@@ -126,13 +126,13 @@ This legacy code looks different on iOS and Android and won't work at all on Mob
 <pre>
 var activityIndicator = Ti.UI.createActivityIndicator({
   color: 'green',
-  font: {fontFamily:'Helvetica Neue', fontSize:26, fontWeight:'bold'},
+  font: {fontFamily: 'Helvetica Neue', fontSize: 26, fontWeight: 'bold'},
   message: 'Loading...',
   style: (Ti.Platform.name === 'iPhone OS' ? Ti.UI.iPhone.ActivityIndicatorStyle.DARK : Ti.UI.ActivityIndicatorStyle.DARK),
-  top:10,
-  left:10,
-  height:'auto',
-  width:'auto'
+  top: 10,
+  left: 10,
+  height: 'auto',
+  width: 'auto'
 });
 
 win2.add(activityIndicator);
@@ -413,7 +413,7 @@ property to `SHOW_AS_ACTION_ALWAYS`, `SHOW_AS_ACTION_IF_ROOM`,
             icon : "images/random_icon.png",
             showAsAction : Ti.Android.SHOW_AS_ACTION_IF_ROOM
         });
-        menuItem.addEventListener("click", (e) => {
+        menuItem.addEventListener('click', (e) => {
             Ti.API.info("Action Item Clicked!");
         });
     };

@@ -13,7 +13,7 @@ description: |
 extends: Titanium.UI.View
 platforms: [iphone,ipad]
 since: "5.2.0"
-osver: {ios:{min: "9.1"}}
+osver: { ios: { min: "9.1" } }
 excludes:
     events: [click,dblclick,doubletap,longpress,pinch,postlayout,singletap,swipe,
             touchcancel,touchend,touchmove,touchstart,twofingertap]
@@ -85,7 +85,7 @@ examples:
                 top: 30
             });
 
-            btn1.addEventListener("click", openGallery);
+            btn1.addEventListener('click', openGallery);
             window.add(btn1);
             window.open();
 
@@ -102,12 +102,12 @@ examples:
                                 width: 300
                             });
 
-                            livePhotoView.addEventListener("start", (e) => {
+                            livePhotoView.addEventListener('start', (e) => {
                                 Ti.API.warn("-- Start playback --");
                                 Ti.API.warn(e);
                             });
 
-                            livePhotoView.addEventListener("stop", (e) => {
+                            livePhotoView.addEventListener('stop', (e) => {
                                 Ti.API.warn("-- Stop playback --");
                                 Ti.API.warn(e);
                             });

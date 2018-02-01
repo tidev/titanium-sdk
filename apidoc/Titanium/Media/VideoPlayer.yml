@@ -682,7 +682,7 @@ properties:
     platforms: [iphone, ipad]
     type: Boolean
     default: true
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
 
   - name: playableDuration
     summary: |
@@ -713,7 +713,7 @@ properties:
     type: Number
     constants: Titanium.Media.VIDEO_REPEAT_MODE_*
     default: Titanium.Media.VIDEO_REPEAT_MODE_NONE
-    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
+    since: { android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
 
   - name: scalingMode
     summary: Determines how the content scales to fit the view.
@@ -772,7 +772,7 @@ properties:
     platforms: [iphone, ipad]
     type: Boolean
     default: true
-    osver: {ios: {max: "6.0"}}
+    osver: { ios: {max: "6.0" } }
 
   - name: volume
     summary: |

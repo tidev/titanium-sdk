@@ -203,7 +203,7 @@ examples:
         from red to black to orange over 2 seconds.
 
             const view = Titanium.UI.createView({
-              backgroundColor:'red'
+              backgroundColor: 'red'
             });
             const animation = Titanium.UI.createAnimation();
             animation.backgroundColor = 'black';
@@ -253,11 +253,11 @@ examples:
         Android and the <Titanium.UI.View.anchorPoint> property for iOS.
 
             const animationType = [
-              { name: 'Top Left', anchorPoint: {x:0, y:0} },
-              { name: 'Top Right', anchorPoint: {x:1, y:0} },
-              { name: 'Bottom Left', anchorPoint: {x:0, y:1} },
-              { name: 'Bottom Right', anchorPoint: {x:1, y:1} },
-              { name: 'Center', anchorPoint: {x:0.5, y:0.5} }
+              { name: 'Top Left', anchorPoint: { x: 0, y: 0 } },
+              { name: 'Top Right', anchorPoint: { x: 1, y: 0 } },
+              { name: 'Bottom Left', anchorPoint: { x: 0, y: 1 } },
+              { name: 'Bottom Right', anchorPoint: { x: 1, y: 1 } },
+              { name: 'Center', anchorPoint: { x: 0.5, y: 0.5 } }
             ];
             const animationTypeLength = animationType.length;
             const animationCount = 0;
@@ -277,16 +277,16 @@ examples:
             const win = Ti.UI.createWindow();
 
             const view = Ti.UI.createView({
-              backgroundColor:'#336699',
-              width:100, height:100
+              backgroundColor: '#336699',
+              width: 100, height: 100
             });
             win.add(view);
 
             const button = Ti.UI.createButton({
-              title:'Animate ' + animationType[animationTypePointer].name,
+              title: 'Animate ' + animationType[animationTypePointer].name,
               height: (Ti.UI.Android) ? 80 : 40,
               width: (Ti.UI.Android) ? 300 : 200,
-              top:30
+              top: 30
             });
             win.add(button);
 

@@ -82,7 +82,7 @@ methods:
   - name: hasURLs
     summary: Indicates whether any URLs are stored in the clipboard.
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     platforms: [iphone, ipad]
     returns:
         type: Boolean
@@ -90,7 +90,7 @@ methods:
   - name: hasImages
     summary: Indicates whether any images are stored in the clipboard.
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     platforms: [iphone, ipad]
     returns:
         type: Boolean
@@ -98,7 +98,7 @@ methods:
   - name: hasColors
     summary: Indicates whether any colors are stored in the clipboard.
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     platforms: [iphone, ipad]
     returns:
         type: Boolean
@@ -142,7 +142,7 @@ methods:
             An array of key-value items to add to the clipboard. The key must a valid mime-type
             matching the mime-type of the value.
     since: "5.5.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     platforms: [iphone, ipad]
 
   - name: getItems
@@ -150,7 +150,7 @@ methods:
     returns:
         - type: Array<Dictionary>
     since: "5.5.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     platforms: [iphone, ipad]
 
   - name: remove
@@ -225,7 +225,7 @@ examples:
                 top: 80
             });
 
-            btn1.addEventListener("click", () => {
+            btn1.addEventListener('click', () => {
             	const localOnly = Ti.UI.CLIPBOARD_OPTION_LOCAL_ONLY;
             	const expirationDate = Ti.UI.CLIPBOARD_OPTION_EXPIRATION_DATE;
 
@@ -242,7 +242,7 @@ examples:
             	});
             });
 
-            btn2.addEventListener("click", () => {
+            btn2.addEventListener('click', () => {
                 alert(Ti.UI.Clipboard.getItems());
             });
 

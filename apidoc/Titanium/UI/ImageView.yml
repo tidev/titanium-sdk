@@ -281,7 +281,7 @@ examples:
             Ti.UI.backgroundColor = 'white';
             const win = Ti.UI.createWindow();
             const image = Ti.UI.createImageView({
-              image:'/images/myimage.png'
+              image: '/images/myimage.png'
             });
             win.add(image);
             win.open();
@@ -300,7 +300,7 @@ examples:
 
             const button = Ti.UI.createButton({
                 backgroundImage: '/images/custom-slider-right.png',
-                backgroundSelectedImage:'/images/custom-slider-left.png',
+                backgroundSelectedImage: '/images/custom-slider-left.png',
                 title: 'Click me!',
                 top: 10,
                 width: 300,

@@ -191,7 +191,7 @@ properties:
          to make ranking and filtering decisions. This property only works for devices running Android 5.0 (API 21)
          and greater.
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
+    osver: { android: { min: "5.0" } }
 
   - name: contentIntent
     summary: The `PendingIntent` to execute when the expanded status entry is clicked.
@@ -246,13 +246,13 @@ properties:
     summary: The group key that the notification will belong to.
     type: String
     since: "6.2.0"
-    osver: {android: {min: "5.1"}}
+    osver: { android: { min: "5.1" } }
 
   - name: groupSummary
     summary: Specifies if this is a group summary notification.
     type: Boolean
     since: "6.2.0"
-    osver: {android: {min: "5.1"}}
+    osver: { android: { min: "5.1" } }
 
   - name: icon
     summary:
@@ -320,7 +320,7 @@ properties:
         See Android Reference for the [color](https://developer.android.com/reference/android/app/Notification.html#color) property.
     type: String
     since: "7.0.0"
-    osver: {android: {min: "5.0"}}
+    osver: { android: { min: "5.0" } }
     
   - name: ledARGB
     summary: The color for the LED to blink.
@@ -346,7 +346,7 @@ properties:
     constants: Titanium.Android.PRIORITY_*
     default: undefined but behaves as Titanium.Android.PRIORITY_DEFAULT
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
+    osver: { android: { min: "4.1" } }
 
   - name: sound
     summary: A URL to the sound to play.
@@ -432,7 +432,7 @@ properties:
     constants: Titanium.Android.VISIBILITY_*
     default: undefined but behaves as Titanium.Android.VISIBILITY_PUBLIC
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
+    osver: { android: { min: "5.0" } }
 
   - name: wakeLock
     summary: |

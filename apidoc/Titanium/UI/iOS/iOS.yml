@@ -24,7 +24,7 @@ methods:
     returns:
       - type: Titanium.Proxy
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
 
   - name: createLivePhotoBadge
     summary: |
@@ -40,7 +40,7 @@ methods:
     returns:
       - type: Titanium.Blob
     since: "5.2.0"
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     
 properties:
   - name: LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
@@ -55,7 +55,7 @@ properties:
         <Titanium.UI.Window.largeTitleEnabled> set to `true`.
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
+    osver: { ios: { min: "11.0" } }
     permission: read-only 
 
   - name: LARGE_TITLE_DISPLAY_MODE_ALWAYS
@@ -63,7 +63,7 @@ properties:
     description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
+    osver: { ios: { min: "11.0" } }
     permission: read-only
     
   - name: LARGE_TITLE_DISPLAY_MODE_NEVER
@@ -71,7 +71,7 @@ properties:
     description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
+    osver: { ios: { min: "11.0" } }
     permission: read-only
 
   - name: LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
@@ -83,7 +83,7 @@ properties:
         the badge behavior.
     type: Number
     since: "5.2.0"
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     permission: read-only
     
   - name: LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
@@ -95,7 +95,7 @@ properties:
         the badge behavior.
     type: Number
     since: "5.2.0"
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     permission: read-only
 
   - name: ANIMATION_CURVE_EASE_IN
@@ -154,7 +154,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_FOREGROUND_COLOR
@@ -169,7 +169,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_BACKGROUND_COLOR
@@ -184,7 +184,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LIGATURE
@@ -200,7 +200,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LETTERPRESS_STYLE
@@ -216,7 +216,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_KERN
@@ -232,7 +232,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_STYLE
@@ -247,7 +247,7 @@ properties:
  
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINES_STYLE
@@ -262,7 +262,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_STROKE_COLOR
@@ -277,7 +277,7 @@ properties:
 
         See <Attribute> for more information on type modes.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_STROKE_WIDTH
@@ -294,7 +294,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_SHADOW
@@ -309,7 +309,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION
@@ -324,7 +324,7 @@ properties:
 
         See <Attribute> for more information on type modes.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_TEXT_EFFECT
@@ -340,7 +340,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_LINK
@@ -358,7 +358,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_BASELINE_OFFSET
@@ -373,7 +373,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_COLOR
@@ -388,7 +388,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_COLOR
@@ -403,7 +403,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_OBLIQUENESS
@@ -418,7 +418,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_EXPANSION
@@ -433,7 +433,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
@@ -450,7 +450,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_SINGLE
@@ -467,7 +467,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "6.0"}}
+    osver: { ios: { min: "6.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_THICK
@@ -484,7 +484,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
@@ -501,7 +501,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_SOLID
@@ -518,7 +518,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DOT
@@ -535,7 +535,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH
@@ -552,7 +552,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
@@ -569,7 +569,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
@@ -586,7 +586,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_BY_WORD
@@ -603,7 +603,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
@@ -619,7 +619,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
@@ -635,7 +635,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
@@ -653,7 +653,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
@@ -669,7 +669,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
@@ -685,7 +685,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     permission: read-only
 
   - name: AUTODETECT_ADDRESS
@@ -695,7 +695,7 @@ properties:
         removed: "6.0.0"
     summary: Converts strings formatted as addresses into clickable links.
     type: Number
-    osver: {ios: {min: "4.0"}}
+    osver: { ios: { min: "4.0" } }
     permission: read-only
     platforms: [iphone, ipad]
 
@@ -716,7 +716,7 @@ properties:
         removed: "6.0.0"
     summary: Converts strings formatted as calendar events into clickable links.
     type: Number
-    osver: {ios: {min: "4.0"}}
+    osver: { ios: { min: "4.0" } }
     permission: read-only
     platforms: [iphone, ipad]
 
@@ -982,7 +982,7 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
 
   - name: BLUR_EFFECT_STYLE_LIGHT
     summary: |
@@ -993,7 +993,7 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
 
   - name: BLUR_EFFECT_STYLE_DARK
     summary: |
@@ -1003,7 +1003,7 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
 
   - name: BLUR_EFFECT_STYLE_REGULAR
     summary: |
@@ -1013,7 +1013,7 @@ properties:
     type: Number
     permission: read-only
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
 
   - name: BLUR_EFFECT_STYLE_PROMINENT
     summary: |
@@ -1023,7 +1023,7 @@ properties:
     type: Number
     permission: read-only
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
 
   - name: AD_SIZE_PORTRAIT
     summary: |
@@ -1071,7 +1071,7 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
 
   - name: COLLISION_MODE_BOUNDARY
     summary: |
@@ -1080,7 +1080,7 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
 
   - name: COLLISION_MODE_ITEM
     summary: |
@@ -1088,7 +1088,7 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     
   - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
     summary: Returns the iOS system texture used to render the background on a group table view. 
@@ -1142,7 +1142,7 @@ properties:
     type: String
     permission: read-only
     since: "2.1.0"
-    osver: {ios: {min: "5.0"}}
+    osver: { ios: { min: "5.0" } }
 
   - name: forceTouchSupported
     summary: Determines if the 3D-Touch capability "Force Touch" is supported (`true`) or not (`false`) by the device.
@@ -1150,49 +1150,49 @@ properties:
         Returns `true` if the device supports 3D-Touch (iPhone 6S / iPhone 6S Plus and later) or `false` if not.
     type: Boolean
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_SELECTION
     summary: The feedback type to be used when specifying a selection in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_IMPACT
     summary: The feedback type to be used when specifying an impact in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_NOTIFICATION
     summary: The feedback type to be used when specifying a received notification in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_SUCCESS
     summary: The success notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_WARNING
     summary: The warning notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR
     summary: The error notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT
@@ -1201,7 +1201,7 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM
@@ -1210,7 +1210,7 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY
@@ -1219,7 +1219,7 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     permission: read-only
 
   - name: LIVEPHOTO_PLAYBACK_STYLE_FULL
@@ -1229,7 +1229,7 @@ properties:
     description: This style matches the effect seen when pressing on a photo in the Photos app.
     type: Number
     since: "5.2.0"
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     permission: read-only
 
   - name: LIVEPHOTO_PLAYBACK_STYLE_HINT
@@ -1239,7 +1239,7 @@ properties:
         when an asset contains Live Photo content.
     type: Number
     since: "5.2.0"
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     permission: read-only
 
   - name: MENU_POPUP_ARROW_DIRECTION_UP
@@ -1411,7 +1411,7 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
 
   - name: PUSH_MODE_INSTANTANEOUS
     summary: |
@@ -1419,7 +1419,7 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
 
   - name: PREVIEW_ACTION_STYLE_DEFAULT
     summary: |
@@ -1430,7 +1430,7 @@ properties:
     type: Number
     permission: read-only
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
 
   - name: PREVIEW_ACTION_STYLE_SELECTED
     summary: The selected style for preview actions.
@@ -1440,7 +1440,7 @@ properties:
     type: Number
     permission: read-only
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
 
   - name: PREVIEW_ACTION_STYLE_DESTRUCTIVE
     summary: The destructive style for preview actions.
@@ -1450,7 +1450,7 @@ properties:
     type: Number
     permission: read-only
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
 
   - name: ROW_ACTION_STYLE_DEFAULT
     summary: The default style for <RowActionType>.
@@ -1459,7 +1459,7 @@ properties:
     type: Number
     permission: read-only
     since: "4.1.0"
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
 
   - name: ROW_ACTION_STYLE_DESTRUCTIVE
     summary: The destructive style for <RowActionType>.
@@ -1468,7 +1468,7 @@ properties:
     type: Number
     permission: read-only
     since: "4.1.0"
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
 
   - name: ROW_ACTION_STYLE_NORMAL
     summary: The normal style for <RowActionType>.
@@ -1477,7 +1477,7 @@ properties:
     type: Number
     permission: read-only
     since: "4.1.0"
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
 
   - name: SCROLL_DECELERATION_RATE_FAST
     summary: |
@@ -1612,7 +1612,7 @@ properties:
         An icon for a quick action that lets a user compose new content.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_PLAY
@@ -1621,7 +1621,7 @@ properties:
         An icon for a quick action that plays media.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_PAUSE
@@ -1630,7 +1630,7 @@ properties:
         An icon for a quick action that pauses media playback.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_ADD
@@ -1639,7 +1639,7 @@ properties:
         An icon for a quick action that adds an item.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_LOCATION
@@ -1649,7 +1649,7 @@ properties:
         This should generally only be used as the first title in the index.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_SEARCH
@@ -1658,7 +1658,7 @@ properties:
         An icon for a quick action that accesses the user's current location.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_SHARE
@@ -1667,7 +1667,7 @@ properties:
         An icon for a quick action that offers content sharing.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_PROHIBIT
@@ -1676,7 +1676,7 @@ properties:
         An icon for a quick action that disallows something.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_CONTACT
@@ -1685,7 +1685,7 @@ properties:
         An icon for a quick action that chooses a generic contact.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_HOME
@@ -1694,7 +1694,7 @@ properties:
         An icon for a quick action that indicates home.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_MARK_LOCATION
@@ -1703,7 +1703,7 @@ properties:
         An icon for a quick action that lets a user mark a location.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_FAVORITE
@@ -1712,7 +1712,7 @@ properties:
         An icon for a quick action that lets a user designate a favorite item.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_LOVE
@@ -1721,7 +1721,7 @@ properties:
         An icon for a quick action that lets a user designate a loved item.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_CLOUD
@@ -1730,7 +1730,7 @@ properties:
         An icon for a quick action that offers cloud access.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_INVITATION
@@ -1739,7 +1739,7 @@ properties:
         An icon for a quick action that indicates an invitation.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_CONFIRMATION
@@ -1748,7 +1748,7 @@ properties:
         An icon for a quick action that indicates confirmation.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_MAIL
@@ -1757,7 +1757,7 @@ properties:
         An icon for a quick action that offers use of mail.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_MESSAGE
@@ -1766,7 +1766,7 @@ properties:
         An icon for a quick action that offers use of messaging.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_DATE
@@ -1775,7 +1775,7 @@ properties:
         An icon for a quick action that offers use of a calendar.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_TIME
@@ -1784,7 +1784,7 @@ properties:
         An icon for a quick action that offers use of a clock or timer.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_CAPTURE_PHOTO
@@ -1793,7 +1793,7 @@ properties:
         An icon for a quick action that offers photo capture.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_CAPTURE_VIDEO
@@ -1802,7 +1802,7 @@ properties:
         An icon for a quick action that offers video capture.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_TASK
@@ -1811,7 +1811,7 @@ properties:
         An icon for a quick action that offers task creation.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_TASK_COMPLETED
@@ -1820,7 +1820,7 @@ properties:
         An icon for a quick action that offers task completion.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_ALARM
@@ -1829,7 +1829,7 @@ properties:
         An icon for a quick action that offers creation of an alarm.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_BOOKMARK
@@ -1838,7 +1838,7 @@ properties:
         An icon for a quick action that offers creation of a bookmark.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_SHUFFLE
@@ -1847,7 +1847,7 @@ properties:
         An icon for a quick action that offers shuffle mode.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_AUDIO
@@ -1856,7 +1856,7 @@ properties:
         An icon for a quick action that offers use of audio.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
  
   - name: SHORTCUT_ICON_TYPE_UPDATE
@@ -1865,7 +1865,7 @@ properties:
         An icon for a quick action that offers updating.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
     since: "5.1.0"
 
   - name: appBadge
@@ -1891,7 +1891,7 @@ summary: |
     Only supported on iOS 7 and later.
 platforms: [iphone, ipad]
 since: "3.2.0"
-osver: {ios: {min: "7.0"}}
+osver: { ios: { min: "7.0" } }
 
 examples:
   - title: Simple Example

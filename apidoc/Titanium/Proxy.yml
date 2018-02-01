@@ -67,7 +67,7 @@ methods:
       - name: props
         summary: A dictionary of properties to apply.
         type: Dictionary
-    since: {android: "3.0.0",  iphone: "3.0.0", ipad: "3.0.0"}
+    since: { android: "3.0.0",  iphone: "3.0.0", ipad: "3.0.0"}
 
 properties:
 

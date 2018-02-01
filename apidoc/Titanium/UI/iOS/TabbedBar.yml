@@ -49,12 +49,12 @@ examples:
         Create a tabbed bar with 3 items.
         
             const bb1 = Titanium.UI.iOS.createTabbedBar({
-            	labels:['One', 'Two', 'Three'],
-            	backgroundColor:'#336699',
-            	top:50,
-            	style:Titanium.UI.iOS.SystemButtonStyle.PLAIN,
-            	height:25,
-            	width:200
+            	labels: ['One', 'Two', 'Three'],
+            	backgroundColor: '#336699',
+            	top: 50,
+            	style: Ti.UI.iOS.SystemButtonStyle.PLAIN,
+            	height: 25,
+            	width: 200
             });
             win.add(bb1);
 

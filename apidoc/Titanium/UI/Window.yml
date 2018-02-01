@@ -3,7 +3,7 @@ name: Titanium.UI.Window
 summary: The Window is an empty drawing surface or container.
 extends: Titanium.UI.View
 since: "0.9"
-excludes: { methods:[removeAllChildren] }
+excludes: { methods: [removeAllChildren] }
 
 methods:
 
@@ -20,7 +20,7 @@ methods:
         type: String
     since: "5.2.0"
     platforms: [android]
-    osver: {android: {min: 5.0}}
+    osver: { android: { min: 5.0 } }
 
   - name: close
     summary: Closes the window.
@@ -68,7 +68,7 @@ methods:
         Available from Android 5.0. Use this method to clear all shared elements. This will not remove the views from view hierarchy.
     since: "5.2.0"
     platforms: [android]
-    osver: {android: {min: 5.0}}
+    osver: { android: { min: 5.0 } }
 
   - name: setToolbar
     summary: Sets the array of items to show in the window's toolbar.
@@ -221,7 +221,7 @@ events:
                 { // some code... }
             );
             // more code
-            win.addEventListener("windows:back", () =>
+            win.addEventListener('windows:back', () =>
                 { alert("Back pressed"); }
             );
 
@@ -359,7 +359,7 @@ properties:
         The behavior of this API on iOS has changed from version 3.2.0. Previous versions
         of the SDK created a custom image view and inserted it as a child of the navigation bar.
         The titanium sdk now uses the native call to set the background image of the navigation bar.
-        You can set it to a 1px transparent png to use a combination of `barColor` and `hideShadow:true`.
+        You can set it to a 1px transparent png to use a combination of `barColor` and `hideShadow: true`.
     platforms: [iphone, ipad]
     type: String
 
@@ -400,7 +400,7 @@ properties:
     type: Array<Number>
     constants: Titanium.UI.EXTEND_EDGE_*
     since: 3.1.3
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
 
   - name: flagSecure
     summary: |
@@ -424,7 +424,7 @@ properties:
     platforms: [iphone,ipad]
     type: Boolean
     since: 3.1.3
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
 
   - name: autoAdjustScrollViewInsets
     summary: |
@@ -437,7 +437,7 @@ properties:
     platforms: [iphone,ipad]
     type: Boolean
     since: 3.1.3
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
 
   - name: extendSafeArea
     summary: |
@@ -458,7 +458,7 @@ properties:
     default: true
     since: 6.3.0
     availability: creation
-    osver: {ios: {min: "11.0"}}
+    osver: { ios: { min: "11.0" } }
 
   - name: fullscreen
     summary: Boolean value indicating if the window is fullscreen.
@@ -497,7 +497,7 @@ properties:
     type: Boolean
     default: false
     since: 6.0.0
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
     availability: creation
 
   - name: hidesBarsOnTap
@@ -510,7 +510,7 @@ properties:
     type: Boolean
     default: false
     since: 6.0.0
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
     availability: creation
 
   - name: hidesBarsWhenKeyboardAppears
@@ -522,7 +522,7 @@ properties:
     type: Boolean
     default: false
     since: 6.0.0
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
     availability: creation
 
   - name: largeTitleEnabled
@@ -535,7 +535,7 @@ properties:
     type: String
     since: "6.3.0"
     platforms: [iphone, ipad]
-    osver: {ios: {min: "11.0"}}
+    osver: { ios: { min: "11.0" } }
 
   - name: largeTitleDisplayMode
     summary: The mode to use when displaying the title of the navigation bar.
@@ -551,7 +551,7 @@ properties:
     default: Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
     since: "6.3.0"
     platforms: [iphone, ipad]
-    osver: {ios: {min: "11.0"}}
+    osver: { ios: { min: "11.0" } }
 
   - name: left
     summary: Window's left position, in platform-specific units.
@@ -638,7 +638,7 @@ properties:
     type: [String]
     since: "3.1.3"
     default: null
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     platforms: [iphone,ipad]
 
   - name: opacity
@@ -866,7 +866,7 @@ properties:
     type: Boolean
     since: "7.0.0"
     platforms: [android]
-    osver: {android: {min: "7.0"}}
+    osver: { android: { min: "7.0" } }
 
   - name: swipeToClose
     summary: Boolean value indicating if the user should be able to close a window using a swipe gesture.
@@ -1006,7 +1006,7 @@ properties:
     type: Titanium.Proxy
     since: "3.2.0"
     platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
 
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
@@ -1139,7 +1139,7 @@ properties:
     since: "5.2.0"
     availability: creation
     platforms: [android]
-    osver: {android: {min: 5.0}}
+    osver: { android: { min: 5.0 } }
 
   - name: activityEnterTransition
     summary: The type of transition used when activity is entering.
@@ -1156,7 +1156,7 @@ properties:
     since: "5.2.0"
     availability: creation
     platforms: [android]
-    osver: {android: {min: 5.0}}
+    osver: { android: { min: 5.0 } }
 
   - name: activityReturnTransition
     summary: The type of transition used when returning from a previously started activity.
@@ -1173,7 +1173,7 @@ properties:
     since: "5.2.0"
     availability: creation
     platforms: [android]
-    osver: {android: {min: 5.0}}
+    osver: { android: { min: 5.0 } }
 
   - name: activityReenterTransition
     summary: The type of transition used when reentering to a previously started activity.
@@ -1190,7 +1190,7 @@ properties:
     since: "5.2.0"
     availability: creation
     platforms: [android]
-    osver: {android: {min: 5.0}}
+    osver: { android: { min: 5.0 } }
 
   - name: activitySharedElementExitTransition
     summary: The type of exit transition used when animating shared elements between two activities.
@@ -1206,7 +1206,7 @@ properties:
     since: "5.2.0"
     availability: creation
     platforms: [android]
-    osver: {android: {min: 5.0}}
+    osver: { android: { min: 5.0 } }
 
   - name: activitySharedElementEnterTransition
     summary: The type of enter transition used when animating shared elements between two activities.
@@ -1222,7 +1222,7 @@ properties:
     since: "5.2.0"
     availability: creation
     platforms: [android]
-    osver: {android: {min: 5.0}}
+    osver: { android: { min: 5.0 } }
 
   - name: activitySharedElementReturnTransition
     summary: The type of return transition used when animating shared elements between two activities.
@@ -1238,7 +1238,7 @@ properties:
     since: "5.2.0"
     availability: creation
     platforms: [android]
-    osver: {android: {min: 5.0}}
+    osver: { android: { min: 5.0 } }
 
   - name: activitySharedElementReenterTransition
     summary: The type of reenter transition used when animating shared elements between two activities.
@@ -1254,7 +1254,7 @@ properties:
     since: "5.2.0"
     availability: creation
     platforms: [android]
-    osver: {android: {min: 5.0}}
+    osver: { android: { min: 5.0 } }
 
 
 description: |
@@ -1275,7 +1275,7 @@ description: |
 
     By default, windows occupy the entire screen except for the navigation bar,
     status bar, and in the case of windows contained in tab groups, the tab bar.
-    To take up the entire screen, covering any other UI, specify `fullscreen:true`
+    To take up the entire screen, covering any other UI, specify `fullscreen: true`
     when creating the window.
 
     ### Pass Context Between Windows
@@ -1371,7 +1371,7 @@ description: |
     modal window will blur the background.  On API level 14 and above, the Android OS no longer
     supports the blur effect.
 
-    The combination of `fullscreen:true` and `modal:true` will not work as expected.
+    The combination of `fullscreen: true` and `modal: true` will not work as expected.
     If the background window displays the status bar or action bar, it will be visible behind the modal
     window.
 
@@ -1673,18 +1673,18 @@ description: |
 
         // Create label in window A with a unique transitionName.
         const titleInWinA = new Ti.UI.createLabel({
-            text:'Top 10 pics from Mars!',
-            left:70, top: 6,
-            width:200, height: 30,
+            text: 'Top 10 pics from Mars!',
+            left: 70, top: 6,
+            width: 200, height: 30,
             transitionName: 'title'
         });
         windowA.add(titleInWinA);
 
         // Creating label in window B, note that the same transitionName is used.
         const titleInWinB = new Ti.UI.createLabel({
-            text:'Top 10 pics from Mars!',
-            left:50, top: 10,
-            width:200, height: 30,
+            text: 'Top 10 pics from Mars!',
+            left: 50, top: 10,
+            width: 200, height: 30,
             transitionName: 'title'
         });
 
@@ -1727,9 +1727,9 @@ examples:
         Create a fullscreen window with a red background.
 
             const window = Titanium.UI.createWindow({
-               backgroundColor:'red'
+               backgroundColor: 'red'
             });
-            window.open({fullscreen:true});
+            window.open({ fullscreen: true });
 
   - title: Alloy XML Markup
     example: |
@@ -1879,7 +1879,7 @@ properties:
     examples:
       - title: Sliding in a new Window
         example: |
-                const win2 = Ti.UI.createWindow({fullscreen:false});
+                const win2 = Ti.UI.createWindow({ fullscreen: false });
                 win2.open({
                     activityEnterAnimation: Ti.Android.R.anim.slide_in_left,
                     activityExitAnimation: Ti.Android.R.anim.slide_out_right
@@ -1977,9 +1977,9 @@ examples:
             title: 'Title',
             barColor: 'yellow',
             titleAttributes:  {
-                color:'blue',
-                font: {fontFamily:'Snell Roundhand', fontSize:36},
-                shadow:{color:'gray', offset:{width:1,height:1}}
+                color: 'blue',
+                font: {fontFamily: 'Snell Roundhand', fontSize: 36},
+                shadow: {color: 'gray', offset: { width: 1, height: 1 } }
             }
         });
         const nav = Titanium.UI.iOS.createNavigationWindow({window: win});

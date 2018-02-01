@@ -156,7 +156,7 @@ methods:
         summary: The cookie to add
         type: Titanium.Network.Cookie
     platforms: [android, iphone, ipad]
-    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
+    since: { android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: addSystemCookie
     summary: |
@@ -287,7 +287,7 @@ methods:
     returns:
         type: Array<Titanium.Network.Cookie>
     platforms: [android, iphone, ipad]
-    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
+    since: { android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: getHTTPCookiesForDomain
     summary: |
@@ -301,7 +301,7 @@ methods:
     returns:
         type: Array<Titanium.Network.Cookie>
     platforms: [android, iphone, ipad]
-    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
+    since: { android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: getSystemCookies
     summary: |
@@ -329,7 +329,7 @@ methods:
     summary: |
         Removes all the cookies from the HTTP client cookie store.
     platforms: [android, iphone, ipad]
-    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
+    since: { android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: removeAllSystemCookies
     summary: |
@@ -353,7 +353,7 @@ methods:
         summary: The name of the cookie to remove. It is case-sensitive.
         type: String
     platforms: [android, iphone, ipad]
-    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
+    since: { android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: removeHTTPCookiesForDomain
     summary: |
@@ -365,7 +365,7 @@ methods:
         summary: The domain of the cookie to remove. It is case-insensitive.
         type: String
     platforms: [android, iphone, ipad]
-    since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
+    since: { android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: removeSystemCookie
     summary: |
@@ -643,24 +643,24 @@ properties:
     summary: Constant value specifying TLS version 1.0 for SSL.
     type: Number
     permission: read-only
-    since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    since: { android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
     platforms: [android, iphone, ipad]
 
   - name: TLS_VERSION_1_1
     summary: Constant value specifying TLS version 1.1 for SSL.
     type: Number
     permission: read-only
-    since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    since: { android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
     platforms: [android, iphone, ipad]
-    osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
+    osver: { android: { min: "4.1"}, ios: { min: "5.0" } }
 
   - name: TLS_VERSION_1_2
     summary: Constant value specifying TLS version 1.2 for SSL.
     type: Number
     permission: read-only
-    since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
+    since: { android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
     platforms: [android, iphone, ipad]
-    osver: {android: {min: "4.1"}, ios: {min: "5.0"}}
+    osver: { android: { min: "4.1"}, ios: { min: "5.0" } }
 
   - name: PROGRESS_UNKNOWN
     summary: Constant value specifying that the progress of a download can not be calculated.

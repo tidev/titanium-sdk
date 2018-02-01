@@ -238,9 +238,9 @@ examples:
               });
             }
             
-            Ti.API.info('ALL CALENDARS:');
+            Ti.API.info('ALL CALENDARS: ');
             showCalendars(Ti.Android.Calendar.allCalendars);
-            Ti.API.info('SELECTABLE CALENDARS:');
+            Ti.API.info('SELECTABLE CALENDARS: ');
             showCalendars(Ti.Android.Calendar.selectableCalendars);
         
   - title: Events in a year
@@ -290,7 +290,7 @@ examples:
               label.text = 'Click button to view calendar events';
               
               const picker = Ti.UI.createPicker({
-                top:20
+                top: 20
               });
               
               picker.add(pickerData);

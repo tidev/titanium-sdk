@@ -60,11 +60,11 @@ examples:
               const row = Ti.UI.createPickerRow();
 
               const label = Ti.UI.createLabel({
-                color:'red',
-                font:{fontSize:20,fontWeight:'bold'},
+                color: 'red',
+                font: {fontSize: 20,fontWeight: 'bold'},
                 text: fruit[i],
-                textAlign:'left',
-                width:'126'
+                textAlign: 'left',
+                width: '126'
               });
 
               row.add(label);
@@ -82,7 +82,7 @@ examples:
             }
 
             const picker = Ti.UI.createPicker({
-              top:50,
+              top: 50,
               columns: [column1, column2],
               selectionIndicator: true
             });

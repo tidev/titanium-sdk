@@ -271,7 +271,7 @@ methods:
         type: Callback<RequestCameraAccessResult>
     platforms: [iphone, ipad, android]
     since: "5.1.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
 
   - name: hasPhotoGalleryPermissions
     summary: Returns `true` if the app has photo gallery permissions.
@@ -297,7 +297,7 @@ methods:
         type: Callback<RequestPhotoGalleryAccessResult>
     platforms: [iphone, ipad]
     since: "6.0.0"
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
 
   - name: requestCameraAccess
     deprecated:
@@ -315,7 +315,7 @@ methods:
         type: Callback<RequestCameraAccessResult>
     platforms: [iphone, ipad]
     since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
   - name: takeScreenshot
     summary: Takes a screen shot of the visible UI on the device.
     description: |
@@ -854,14 +854,14 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.4.2"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
   - name: AUDIO_SESSION_PORT_CARAUDIO
     summary: Constant for Input or output via Car Audio. This can be both an input and output port. This is available on iOS7 and later.
     type: String
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.4.2"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
   - name: AUDIO_SPEAKER
     deprecated:
         since: "3.4.2"
@@ -893,19 +893,19 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
-    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
+    since: { android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
   - name: CAMERA_FLASH_OFF
     summary: Constant specifying to never fire the flash.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
-    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
+    since: { android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
   - name: CAMERA_FLASH_ON
     summary: Constant specifying to always fire the flash.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
-    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
+    since: { android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0" }
   - name: CAMERA_FRONT
     summary: Constant specifying the front camera.
     type: Number
@@ -926,28 +926,28 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
   - name: CAMERA_AUTHORIZATION_DENIED
     summary: Constant specifying that app is denied usage of camera. This is available on iOS7 and later.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
     since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
   - name: CAMERA_AUTHORIZATION_RESTRICTED
     summary: Constant specifying that app is restricted from using camera. This is available on iOS7 and later.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
     since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
   - name: CAMERA_AUTHORIZATION_NOT_DETERMINED
     summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
     since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     deprecated:
         since: "5.2.0"
         removed: "7.0.0"
@@ -958,7 +958,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
   - name: DEVICE_BUSY
     summary: Constant for media device busy error.
     type: Number
@@ -973,7 +973,7 @@ properties:
     permission: read-only
     since: "5.2.0"
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
   - name: MEDIA_TYPE_VIDEO
     summary: Media type constant for video media.
     type: String
@@ -1383,13 +1383,13 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
+    since: { android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
   - name: VIDEO_REPEAT_MODE_ONE
     summary: Constant for repeating one video (i.e., the one video will repeat constantly) during playback.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
-    since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
+    since: { android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
   - name: VIDEO_SCALING_ASPECT_FILL
     deprecated:
         since: "7.0.0"
@@ -1596,7 +1596,7 @@ properties:
     type: Number
     constants: Titanium.Media.CAMERA_FLASH_*
     platforms: [android, iphone, ipad]
-    since: {android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0"}
+    since: { android: "3.3.0", iphone: "1.4.0", ipad: "1.4.0"}
     default: Titanium.Media.CAMERA_FLASH_AUTO
   - name: canRecord
     summary: |
@@ -1630,7 +1630,7 @@ properties:
     platforms: [iphone, ipad]
     permission: read-only
     since: "4.0.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
   - name: cameraAuthorization
     summary: |
         Returns the authorization status for the camera.
@@ -1639,7 +1639,7 @@ properties:
     platforms: [iphone, ipad]
     permission: read-only
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
     description: |
@@ -1841,7 +1841,7 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad, android]
-    since: {android: "3.2.0"}
+    since: { android: "3.2.0"}
     description: |
         On Android, this property is considered only if `overlay` is also set. When an
         overlay is not set, the default Android Camera Activity is used, which is only
@@ -2050,7 +2050,7 @@ properties:
         `undefined` if no live photo is selected.
     type: Titanium.UI.iOS.LivePhoto
     since: "5.2.0"
-    osver: {ios: {min: "9.1"}}
+    osver: { ios: { min: "9.1" } }
 
 # Arguably we might need a global Rect pseudotype. For now, define locally
 ---

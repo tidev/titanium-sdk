@@ -153,7 +153,7 @@ methods:
       For example:
 
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
-                  {baseURL:'https://developer.appcelerator.com/'});
+                  { baseURL:'https://developer.appcelerator.com/' });
     parameters:
 
       - name: html
@@ -362,7 +362,7 @@ events:
   - name: blacklisturl
     summary: Fired when a blacklisted URL is stopped.
     platforms: [android, iphone, ipad]
-    since: {android: "6.1.0", iphone: "6.1.0", ipad: "6.1.0"}
+    since: { android: "6.1.0", iphone: "6.1.0", ipad: "6.1.0" }
     properties:
       - name: url
         summary: The URL of the web document that is stopped.
@@ -384,7 +384,7 @@ properties:
     type: Boolean
     default: false
     since: "5.4.0"
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     platforms: [iphone]
 
   - name: blacklistedURLs
@@ -395,7 +395,7 @@ properties:
         the blacklist. Note, this only applies in the links clicked inside the webview. The first website
         that is loaded will not be stopped even if it matches the blacklist.
     type: Array<String>
-    since: {android: "5.4.0", iphone: "6.1.0", ipad: "6.1.0"}
+    since: { android: "5.4.0", iphone: "6.1.0", ipad: "6.1.0" }
     platforms: [android, iphone, ipad]
     availability: creation
 
@@ -491,7 +491,7 @@ properties:
         for the lifetime of the current web view.
     type: Boolean
     default: undefined but behaves as false
-    since: {android: "3.0.0", iphone: "6.0.2", ipad: "6.0.2"}
+    since: { android: "3.0.0", iphone: "6.0.2", ipad: "6.0.2" }
     platforms: [android, iphone, ipad]
 
   - name: loading
@@ -524,7 +524,7 @@ properties:
             const tabGroup = Ti.UI.createTabGroup(),
                 win = Ti.UI.createWindow(),
                 tab = Ti.UI.createTab({window: win, title: 'Start Page'}),
-                webview = Ti.UI.createWebView({ url:'index.html'});
+                webview = Ti.UI.createWebView({ url: 'index.html'});
 
             webview.onCreateWindow = (e) => {
                 const newWin = Ti.UI.createWindow(),
@@ -584,7 +584,7 @@ properties:
     constants: Titanium.UI.Android.WEBVIEW_PLUGINS_*
     platforms: [android]
     since: "1.8.0"
-    osver: {android: {min: "2.2"}}
+    osver: { android: { min: "2.2" } }
     default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
 
   - name: scrollsToTop
@@ -638,7 +638,7 @@ properties:
     type: String
     default: System default user-agent value.
     platforms: [android, iphone, ipad]
-    since: {android: "2.0.0", iphone: "6.1.0", ipad: "6.1.0"}
+    since: { android: "2.0.0", iphone: "6.1.0", ipad: "6.1.0" }
 
   - name: willHandleTouches
     summary: Explicitly specifies if this web view handles touches.
@@ -679,7 +679,7 @@ properties:
     summary: Sets extra request headers for this web view to use on subsequent URL requests.
     description: |
         Setting this property allows you to set custom headers to the URL requests.
-        The parameter will be key-value pairs: `{"Custom-field1":"value1", "Custom-field2":"value2"}`
+        The parameter will be key-value pairs: `{ 'Custom-Field-1': 'value1', 'Custom-Field-2': 'value2' }`
 
         On Android you should avoid Calling `setRequestHeaders()` right after `createWebView()`. Use the `requestHeaders` property
         inside `createWebView()` or put it inside the window `open` event.
@@ -694,7 +694,7 @@ examples:
         Create a web view to a remote URL and open the window as modal.
 
               const webview = Ti.UI.createWebView({
-                url:'http://www.appcelerator.com'
+                url: 'http://www.appcelerator.com'
               });
             	const window = Ti.UI.createWindow();
             	window.add(webview);

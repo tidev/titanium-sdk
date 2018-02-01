@@ -217,7 +217,7 @@ examples:
             });
 
             const basicSwitch = Ti.UI.createSwitch({
-              value:true // mandatory property for iOS
+              value: true // mandatory property for iOS
             });
             win.add(basicSwitch);
 
@@ -240,10 +240,10 @@ examples:
 
             const basicSwitch = Ti.UI.createSwitch({
               style: Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON,
-              titleOn:'Notifications Enabled',
-              titleOff:'Notifications Disabled',
-              value:true,
-              width: 200, height:120
+              titleOn: 'Notifications Enabled',
+              titleOff: 'Notifications Disabled',
+              value: true,
+              width: 200, height: 120
             });
             win.add(basicSwitch);
 
@@ -262,9 +262,9 @@ examples:
 
             const basicSwitch = Ti.UI.createSwitch({
               style: Ti.UI.Android.SWITCH_STYLE_CHECKBOX,
-              textAlign:Ti.UI.TEXT_ALIGNMENT_CENTER,
-              title:'Notifications',
-              value:true,
+              textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
+              title: 'Notifications',
+              value: true,
               width: 300 // necessary for textAlign to be effective
             });
             win.add(basicSwitch);

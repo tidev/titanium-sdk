@@ -302,7 +302,7 @@ properties:
     summary: Button tint color.
     type: String
     platforms: [android,iphone,ipad]
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     since:
         android: 5.4.0
         iphone: 3.1.3

@@ -32,7 +32,7 @@ Support for Android API 4 (1.6) is DEPRECATED as of 1.6.0. It will be removed in
 
 The Android Lifecycle changes in 1.6.0 mean that your Window's URL (and app.js) are executed synchronously as part of the Activity's onCreate().
 Try to keep your initial code light, and don't count on window.open() being synchronous, especially if the window is launching a new Activity.
-Use a listener on the Window's "open" event to ensure that code gets executed after the new Activity has been opened.
+Use a listener on the Window's 'open' event to ensure that code gets executed after the new Activity has been opened.
 
 
 iOS Changes

@@ -105,7 +105,7 @@ methods:
             the platform specific path separator to form the full path.
         type: String
     platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: "5.4.0"
 
   - name: isExternalStoragePresent

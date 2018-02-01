@@ -12,7 +12,7 @@ summary: |
 extends: Titanium.UI.View
 platforms: [iphone,ipad]
 since: "5.4.0"
-osver: {ios:{min: "8.0"}}
+osver: { ios: { min: "8.0" } }
 
 properties:
   - name: effect
@@ -59,7 +59,7 @@ examples:
                 Ti.UI.iOS.BLUR_EFFECT_STYLE_DARK,
             ];
 
-            tabs.addEventListener("click", (e) => {
+            tabs.addEventListener('click', (e) => {
                 blur.setEffect(effects[e.index]);
             });
 

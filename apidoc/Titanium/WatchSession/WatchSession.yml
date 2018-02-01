@@ -13,7 +13,7 @@ properties:
     type: Number
     constants: Titanium.WatchSession.ACTIVATION_STATE_*
     permission: read-only
-    osver: {ios: {min: "9.3"}}
+    osver: { ios: { min: "9.3" } }
     platforms: [iphone]
     since: "5.4.0"
 
@@ -21,7 +21,7 @@ properties:
     summary: The watch is currently not activated.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.3"}}
+    osver: { ios: { min: "9.3" } }
     platforms: [iphone]
     since: "5.4.0"
 
@@ -29,7 +29,7 @@ properties:
     summary: The watch is currently inactive.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.3"}}
+    osver: { ios: { min: "9.3" } }
     platforms: [iphone]
     since: "5.4.0"
 
@@ -37,7 +37,7 @@ properties:
     summary: The watch is currently activated.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.3"}}
+    osver: { ios: { min: "9.3" } }
     platforms: [iphone]
     since: "5.4.0"
 
@@ -45,7 +45,7 @@ properties:
     summary: Returns `true` if there is more content for the session to deliver.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     since: "6.0.0"
     platforms: [iphone]
 
@@ -55,7 +55,7 @@ properties:
         transferring the complicationUserInfo as regular userInfos.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     since: "6.0.0"
     default: 0
     platforms: [iphone]
@@ -64,42 +64,42 @@ properties:
     summary: Returns `true` if the device supports watch connectivity.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     platforms: [iphone]
 
   - name: isPaired
     summary: Returns `true` if the device is paired with a watch.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     platforms: [iphone]
 
   - name: isWatchAppInstalled
     summary: Returns `true` if the accompanying watch app is installed.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     platforms: [iphone]
 
   - name: isComplicationEnabled
     summary: Returns `true` if complication is enabled on the installed watch app.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     platforms: [iphone]
 
   - name: isReachable
     summary: Returns `true` if the watch is currently reachable.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     platforms: [iphone]
 
   - name: isActivated
     summary: Returns `true` if the watch is currently activated.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.3"}}
+    osver: { ios: { min: "9.3" } }
     platforms: [iphone]
     since: "5.4.0"
 
@@ -107,7 +107,7 @@ properties:
     summary: The most recent application context sent to the watch app.
     type: Dictionary
     permission: read-only
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     platforms: [iphone]
 
 methods:
@@ -117,7 +117,7 @@ methods:
     description: |
         Activates the watch session to make the app ready to receive messages from the watch app.
     platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
   - name: sendMessage
     summary: |
         Sends a message to the apple watch.
@@ -140,7 +140,7 @@ methods:
         type: Callback<MessageReply>
         optional: true
     platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
 
   - name: updateApplicationContext
     summary: |
@@ -155,7 +155,7 @@ methods:
         summary: App context to be updated in apple watch.
         type: Dictionary
     platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
   - name: transferUserInfo
     summary: |
         Transfers an user info to the apple watch.
@@ -167,7 +167,7 @@ methods:
         summary: userInfo to be transferred to apple watch.
         type: Dictionary
     platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
   - name: transferFile
     summary: |
         Transfers a file to the apple watch.
@@ -183,7 +183,7 @@ methods:
               * `fileURL` (String) (required): Local filesystem path of file to send to the watch app.
               * `metaData` (Dictionary) (optional): Additional information about the file to send to the watch app.
     platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
   - name: transferCurrentComplication
     summary: |
         Transfers complication data to the watch application.
@@ -195,28 +195,28 @@ methods:
         summary: Complication to be transferred to watch app.
         type: Dictionary
     platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
   - name: cancelAllUserInfoTransfers
     summary: |
         Cancels all incomplete user info and complication transfers to the apple watch.
     description: |
         Cancels all incomplete user info and complication transfers to the apple watch.
     platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
   - name: cancelAllFileTransfers
     summary: |
         Cancels all incomplete file transfers to the apple watch.
     description: |
         Cancels all incomplete file transfers to the apple watch.
     platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
   - name: cancelAllTransfers
     summary: |
         Cancels all incomplete transfers to the apple watch.
     description: |
         Cancels all incomplete transfers to the apple watch, including user info, complication and file.
     platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
 events:
   - name: receivemessage
     summary: |
@@ -414,7 +414,7 @@ events:
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]
     since: "5.4.0"
-    osver: {ios: {min: "9.3"}}
+    osver: { ios: { min: "9.3" } }
   - name: deactivate
     summary: |
         Called when all events for the previously selected watch has occurred. 
@@ -462,7 +462,7 @@ events:
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]
     since: "5.4.0"
-    osver: {ios: {min: "9.3"}}
+    osver: { ios: { min: "9.3" } }
   - name: activationCompleted
     summary: |
         Called when the session has completed activation. If session state is 
@@ -499,7 +499,7 @@ events:
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]
     since: "5.4.0"
-    osver: {ios: {min: "9.3"}}
+    osver: { ios: { min: "9.3" } }
 
 # Callbacks
 ---
@@ -527,7 +527,7 @@ properties:
     type: Number
 since: 5.1.0
 platforms: [iphone]
-osver: {ios: {min: "9.0"}}
+osver: { ios: { min: "9.0" } }
 
 examples:
   - title: Creating a Watch Session
@@ -551,7 +551,7 @@ examples:
               borderColor: '#bbb',
               borderRadius: 5,
               color: '#888',
-              font: {fontSize:16},
+              font: {fontSize: 16},
               textAlign: 'left',
               value: 'This is where we listen for events',
               bottom: 10,

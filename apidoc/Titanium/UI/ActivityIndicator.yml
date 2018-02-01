@@ -175,13 +175,13 @@ examples:
 
             const activityIndicator = Ti.UI.createActivityIndicator({
               color: 'green',
-              font: { fontSize:26, fontWeight:'bold' },
+              font: { fontSize: 26, fontWeight: 'bold' },
               message: 'Loading...',
               style: Ti.UI.ActivityIndicatorStyle.DARK,
-              top:10,
-              left:10,
-              height:Ti.UI.SIZE,
-              width:Ti.UI.SIZE
+              top: 10,
+              left: 10,
+              height: Ti.UI.SIZE,
+              width: Ti.UI.SIZE
             });
 
             // The activity indicator must be added to a window or view for it to appear

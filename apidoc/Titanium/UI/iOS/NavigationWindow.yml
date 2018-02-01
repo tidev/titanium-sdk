@@ -94,7 +94,7 @@ examples:
                 title: 'Open Blue Window'
             });
             button.addEventListener('click', () => {
-                win1.openWindow(win3, {animated:true});
+                win1.openWindow(win3, { animated: true });
             });
 
             win2.add(button);

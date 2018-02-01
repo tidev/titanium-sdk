@@ -123,10 +123,10 @@ examples:
             };
 
             let data = [];
-            data.push(Ti.UI.createTableViewRow({title:'Apple'}));
-            data.push(Ti.UI.createTableViewRow({title:'Banana'}));
-            data.push(Ti.UI.createTableViewRow({title:'Orange'}));
-            data.push(Ti.UI.createTableViewRow({title:'Raspberry'}));
+            data.push(Ti.UI.createTableViewRow({title: 'Apple'}));
+            data.push(Ti.UI.createTableViewRow({title: 'Banana'}));
+            data.push(Ti.UI.createTableViewRow({title: 'Orange'}));
+            data.push(Ti.UI.createTableViewRow({title: 'Raspberry'}));
 
             const tableview = Titanium.UI.createTableView({
                 data: data,
@@ -159,7 +159,7 @@ examples:
             // use action bar search view
             const search = Alloy.createController("searchview").getView();
             $.tableview.search = search;
-            $.win.addEventListener("open", () => {
+            $.win.addEventListener('open', () => {
                 $.win.activity.onCreateOptionsMenu = (e) => {
                     e.menu.add({
                         title: "Table Search",

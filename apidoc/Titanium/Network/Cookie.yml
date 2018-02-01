@@ -436,7 +436,7 @@ description: |
          navigationController.open();
          
 extends: Titanium.Proxy
-since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
+since: { android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
 platforms: [android, iphone, ipad]
 
 methods:
@@ -446,7 +446,7 @@ methods:
         This method checks if the cookie is valid. For a cookie to be valid the minimum
         properties requiered are `name`, `value`, `path` and either `domain` or `originalUrl` (iOS only)
     platforms: [android, iphone, ipad]
-    since: {android: "6.2.0", iphone: "3.3.0", ipad: "3.3.0"}
+    since: { android: "6.2.0", iphone: "3.3.0", ipad: "3.3.0"}
     returns:
         type: Boolean
 

@@ -449,7 +449,7 @@ events:
         Fired when new list items are prefetched. The items are ordered ascending by geometric distance 
         from the list view. Note that this event is only available on iOS 10 and later.
     since: 6.1.0
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     platforms: [iphone, ipad]
     description: |
         Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
@@ -464,7 +464,7 @@ events:
         Fired when list items that previously were considered as candidates for pre-fetching were not 
         actually used. Note that this event is only available on iOS 10 and later
     since: 6.1.0
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     platforms: [iphone, ipad]
     description: |
         Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
@@ -494,7 +494,7 @@ events:
         before the user action.
     platforms: [iphone, ipad]
     since: 5.0.0
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
     properties:
       - name: action
         summary: The [title](RowActionType.title) as defined in the row action object.
@@ -541,7 +541,7 @@ events:
         before the user action.
     platforms: [iphone, ipad]
     since: 4.1.0
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
     properties:
       - name: action
         summary: The [title](RowActionType.title) as defined in the row action object.
@@ -983,14 +983,14 @@ properties:
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge. 
     type: Dictionary
     since: 3.2.0
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     platforms: [iphone, ipad]
 
   - name: separatorStyle
     summary: Separator style constant. 
     type: Number
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
-    since: {android: "5.2.0", iphone: "3.2.0", ipad: "3.2.0"} 
+    since: { android: "5.2.0", iphone: "3.2.0", ipad: "3.2.0"} 
 
     platforms: [iphone, ipad]
 
@@ -1016,14 +1016,14 @@ properties:
         For example:
  
              listView.setTableSeparatorInsets({
-                 left:10,
-                 right:10
+                 left: 10,
+                 right: 10
              });
 
   
     type: Dictionary
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     platforms: [iphone, ipad]
 
   - name: listSeparatorInsets
@@ -1036,14 +1036,14 @@ properties:
         For example:
  
              listView.setListSeparatorInsets({
-                 left:10,
-                 right:10
+                 left: 10,
+                 right: 10
              });
 
   
     type: Dictionary
     since: "5.4.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     platforms: [iphone, ipad]
 
   - name: rowSeparatorInsets
@@ -1056,13 +1056,13 @@ properties:
         For example:
  
              listView.setRowSeparatorInsets({
-                 left:10,
-                 right:10
+                 left: 10,
+                 right: 10
              });
 
     type: Dictionary
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     platforms: [iphone, ipad] 
 
   - name: dimBackgroundForSearch
@@ -1304,22 +1304,22 @@ examples:
         Creates a list with three sections, each with two rows.
         Adds two sections to the table before and one after it is rendered.
 
-            const win = Ti.UI.createWindow({backgroundColor: 'white'});
+            const win = Ti.UI.createWindow({backgroundColor: 'white' });
             const listView = Ti.UI.createListView();
             let sections = [];
 
-            const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
+            const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
             let fruitDataSet = [
-                {properties: { title: 'Apple'}},
-                {properties: { title: 'Banana'}},
+                {properties: { title: 'Apple' } },
+                {properties: { title: 'Banana' } },
             ];
             fruitSection.setItems(fruitDataSet);
             sections.push(fruitSection);
 
-            const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
+            const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
             let vegDataSet = [
-                {properties: { title: 'Carrots'}},
-                {properties: { title: 'Potatoes'}},
+                {properties: { title: 'Carrots' } },
+                {properties: { title: 'Potatoes' } },
             ];
             vegSection.setItems(vegDataSet);
             sections.push(vegSection);
@@ -1328,10 +1328,10 @@ examples:
             win.add(listView);
             win.open();
 
-            const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
+            const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
             let fishDataSet = [
-                {properties: { title: 'Cod'}},
-                {properties: { title: 'Haddock'}},
+                {properties: { title: 'Cod' } },
+                {properties: { title: 'Haddock' } },
             ];
             fishSection.setItems(fishDataSet);
             listView.appendSection(fishSection);
@@ -1340,7 +1340,7 @@ examples:
     example: |
         Modifies the previous example to create a list using an item template to customize the view layout.
 
-            const win = Ti.UI.createWindow({backgroundColor: 'white'});
+            const win = Ti.UI.createWindow({backgroundColor: 'white' });
 
             // Create a custom template that displays an image on the left, 
             // then a title next to it with a subtitle below it.
@@ -1358,7 +1358,7 @@ examples:
                         bindId: 'info',          // Maps to a custom info property of the item data
                         properties: {            // Sets the label properties
                             color: 'black',
-                            font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+                            font: { fontFamily: 'Arial', fontSize: '20dp', fontWeight: 'bold' },
                             left: '60dp', top: 0,
                         }
                     },
@@ -1367,7 +1367,7 @@ examples:
                         bindId: 'es_info',       // Maps to a custom es_info property of the item data
                         properties: {            // Sets the label properties
                             color: 'gray',
-                            font: { fontFamily:'Arial', fontSize: '14dp' },
+                            font: { fontFamily: 'Arial', fontSize: '14dp' },
                             left: '60dp', top: '25dp',
                         }
                     }
@@ -1383,29 +1383,29 @@ examples:
             });
             let sections = [];
 
-            const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas'});
+            const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas' });
             let fruitDataSet = [
                 // the text property of info maps to the text property of the title label
                 // the text property of es_info maps to text property of the subtitle label
                 // the image property of pic maps to the image property of the image view
-                { info: {text: 'Apple'}, es_info: {text: 'Manzana'}, pic: {image: 'apple.png'}},
-                { info: {text: 'Banana'}, es_info: {text: 'Banana'}, pic: {image: 'banana.png'}}
+                { info: { text: 'Apple' }, es_info: { text: 'Manzana' }, pic: { image: 'apple.png' } },
+                { info: { text: 'Banana' }, es_info: { text: 'Banana' }, pic: { image: 'banana.png' } }
             ];
             fruitSection.setItems(fruitDataSet);
             sections.push(fruitSection);
 
-            const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras'});
+            const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras' });
             let vegDataSet = [
-                { info: {text: 'Carrot'}, es_info: {text: 'Zanahoria'}, pic: {image: 'carrot.png'}},
-                { info: {text: 'Potato'}, es_info: {text: 'Patata'}, pic: {image: 'potato.png'}}
+                { info: { text: 'Carrot' }, es_info: { text: 'Zanahoria' }, pic: { image: 'carrot.png' } },
+                { info: { text: 'Potato' }, es_info: { text: 'Patata' }, pic: { image: 'potato.png' } }
             ];
             vegSection.setItems(vegDataSet);
             sections.push(vegSection);
 
-            const grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos'});
+            const grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos' });
             const grainDataSet = [
-                { info: {text: 'Corn'}, es_info: {text: 'Maiz'}, pic: {image: 'corn.png'}},
-                { info: {text: 'Rice'}, es_info: {text: 'Arroz'}, pic: {image: 'rice.png'}}
+                { info: { text: 'Corn' }, es_info: { text: 'Maiz' }, pic: { image: 'corn.png' } },
+                { info: { text: 'Rice' }, es_info: { text: 'Arroz' }, pic: { image: 'rice.png' } }
             ];
             grainSection.setItems(grainDataSet);
             sections.push(grainSection);
@@ -1420,29 +1420,29 @@ examples:
         utilized along with the [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events to
         create a refresh control.
 
-            const win = Ti.UI.createWindow({backgroundColor: 'white'});
-            const listView = Ti.UI.createListView({height:'90%', top:0});
+            const win = Ti.UI.createWindow({ backgroundColor: 'white' });
+            const listView = Ti.UI.createListView({ height: '90%', top: 0 });
             let sections = [];
 
-            const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
+            const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
             const fruitDataSet = [
-                {properties: { title: 'Apple'}},
-                {properties: { title: 'Banana'}},
+                {properties: { title: 'Apple' } },
+                {properties: { title: 'Banana' } },
             ];
             fruitSection.setItems(fruitDataSet);
             sections.push(fruitSection);
 
-            const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
+            const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
             const vegDataSet = [
-                {properties: { title: 'Carrots'}},
-                {properties: { title: 'Potatoes'}},
+                { properties: { title: 'Carrots' } },
+                { properties: { title: 'Potatoes' } },
             ];
             vegSection.setItems(vegDataSet);
 
-            const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
+            const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
             const fishDataSet = [
-                {properties: { title: 'Cod'}},
-                {properties: { title: 'Haddock'}},
+                { properties: { title: 'Cod' } },
+                { properties: { title: 'Haddock' } },
             ];
             fishSection.setItems(fishDataSet);
             listView.sections = sections;
@@ -1450,7 +1450,7 @@ examples:
 
             function getFormattedDate() {
                 const date = new Date();
-                return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes();
+                return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ': ' + date.getMinutes();
             }
  
             function resetPullHeader() {
@@ -1467,7 +1467,7 @@ examples:
                     listView.removeEventListener('pullend', pullendListener);
                     eventStatus.text = 'Removed event listeners.';
                 }
-                listView.setContentInsets({top:0}, {animated:true});
+                listView.setContentInsets({ top: 0 }, { animated: true });
             }
  
             function loadTableData() {
@@ -1484,11 +1484,11 @@ examples:
                 eventStatus.text = 'EVENT pull FIRED. e.active = '+e.active;
                 if (e.active == false) {
                     const unrotate = Ti.UI.create2DMatrix();
-                    imageArrow.animate({transform:unrotate, duration:180});
+                    imageArrow.animate({ transform: unrotate, duration: 180});
                     labelStatus.text = 'Pull down to refresh...';
                 } else {
                     const rotate = Ti.UI.create2DMatrix().rotate(180);
-                    imageArrow.animate({transform:rotate, duration:180});
+                    imageArrow.animate({ transform:rotate, duration: 180});
                     if (refreshCount == 0) {
                         labelStatus.text = 'Release to get Vegetables...';
                     } else {
@@ -1507,54 +1507,59 @@ examples:
                 }
                 imageArrow.hide();
                 actInd.show();
-                listView.setContentInsets({top:80}, {animated:true});
+                listView.setContentInsets({ top: 80}, { animated: true });
                 setTimeout(() => {
                     loadTableData();
                 }, 2000);
             }
 
             const tableHeader = Ti.UI.createView({
-                backgroundColor:'#e2e7ed',
-                width:320, height:80
+                backgroundColor: '#e2e7ed',
+                width: 320, 
+                height: 80
             });
 
             const border = Ti.UI.createView({
-                backgroundColor:'#576c89',
-                bottom:0,
-                height:2
+                backgroundColor: '#576c89',
+                bottom: 0,
+                height: 2
             });
             tableHeader.add(border);
 
             const imageArrow = Ti.UI.createImageView({
-                image:'arrow.png',
-                left:20, bottom:10,
-                width:23, height:60
+                image: 'arrow.png',
+                left: 20, bottom: 10,
+                width: 23, height: 60
             });
             tableHeader.add(imageArrow);
 
             const labelStatus = Ti.UI.createLabel({
-                color:'#576c89',
-                font:{fontSize:13, fontWeight:'bold'},
-                text:'Pull down to refresh...',
-                textAlign:'center',
-                left:55, bottom:30,
-                width:200
+                color: '#576c89',
+                font: {
+                    fontSize: 13, 
+                    fontWeight: 'bold'
+                },
+                text: 'Pull down to refresh...',
+                textAlign: 'center',
+                left: 55, 
+                bottom: 30,
+                width: 200
             });
             tableHeader.add(labelStatus);
 
             const labelLastUpdated = Ti.UI.createLabel({
-                color:'#576c89',
-                font:{fontSize:12},
-                text:'Last Updated: ' + getFormattedDate(),
-                textAlign:'center',
-                left:55, bottom:15,
-                width:200
+                color: '#576c89',
+                font: { fontSize: 12 },
+                text: 'Last Updated: ' + getFormattedDate(),
+                textAlign: 'center',
+                left: 55, bottom: 15,
+                width: 200
             });
             tableHeader.add(labelLastUpdated);
 
             const actInd = Ti.UI.createActivityIndicator({
-                left:20, bottom:13,
-                width:30, height:30
+                left: 20, bottom: 13,
+                width: 30, height: 30
             });
             tableHeader.add(actInd);
             listView.pullView = tableHeader;
@@ -1562,10 +1567,10 @@ examples:
             listView.addEventListener('pullend',pullendListener);
 
             const eventStatus = Ti.UI.createLabel({
-                font:{fontSize:13, fontWeight:'bold'},
+                font: {fontSize: 13, fontWeight: 'bold' },
                 text: 'Event data will show here',
-                bottom:0,
-                height:'10%'
+                bottom: 0,
+                height: '10%'
             })
 
             win.add(listView);
@@ -1627,12 +1632,12 @@ examples:
             },
             "#title" : {
                 color: 'black',
-                font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+                font: { fontFamily: 'Arial', fontSize: '20dp', fontWeight: 'bold' },
                 left: '60dp', top: 0
             },
             "#subtitle" : {
                 color: 'gray',
-                font: { fontFamily:'Arial', fontSize: '14dp' },
+                font: { fontFamily: 'Arial', fontSize: '14dp' },
                 left: '60dp', top: '25dp'
             }
 
@@ -1752,7 +1757,7 @@ description: |
     On iOS, the optional parameters `animated` and `duration` to enable the animation and duration 
     for animation while the content insets are updated. For example
 
-        setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
+        setContentInset({ top: 50 ,bottom: 100 }, { animated: true, duration: 3000 });
 since: 3.2.0
 platforms: [iphone, ipad]
 properties:
@@ -1770,8 +1775,8 @@ summary: The parameter for [setMarker](Titanium.UI.ListView.setMarker) and [addM
 description: |
     Use this in conjunction with [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods. For example:
 
-        setMarker({sectionIndex:5, itemIndex:10});
-        addMarker({sectionIndex:7, itemIndex: 2});
+        setMarker({ sectionIndex: 5, itemIndex: 10 });
+        addMarker({ sectionIndex: 7, itemIndex: 2 });
 since: 3.2.0
 platforms: [iphone, ipad, android]
 properties:
@@ -1790,7 +1795,7 @@ description: |
     `right`, `left`) that the content view is inset from the enclosing scroll view of the list view.
     For example
 
-        setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
+        setContentInset({ top: 50, bottom: 10, right: 10, left: 10 }, { animated:true })
 since: 3.2.0
 platforms: [iphone, ipad]
 properties:

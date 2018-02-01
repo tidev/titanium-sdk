@@ -57,8 +57,7 @@ examples:
                 if (audioPlayer.playing || audioPlayer.paused) {
                     audioPlayer.stop();
                     pauseResumeButton.enabled = false;
-                    if (Ti.Platform.name === 'android')
-                    {
+                    if (Ti.Platform.name === 'android') {
                         audioPlayer.release();
                     }
                 } else {

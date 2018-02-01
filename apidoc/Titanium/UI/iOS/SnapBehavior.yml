@@ -15,7 +15,7 @@ description: |
 extends: Titanium.Proxy
 since: "3.2"
 platforms: [iphone, ipad]
-osver: {ios: {min: "7.0"}}
+osver: { ios: { min: "7.0" } }
 
 properties:
   - name: damping
@@ -41,7 +41,7 @@ examples:
     example: |
         The following example snaps the block to the location of a click on the window.
 
-        <img src="images/animator/snapbehavior.gif" height="455" style="border:1px solid black"/>
+        <img src="images/animator/snapbehavior.gif" height="455" style="border: 1px solid black"/>
 
             const win = Ti.UI.createWindow({backgroundColor: 'white', fullscreen: true});
             

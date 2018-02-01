@@ -33,7 +33,7 @@ description: |
       * [iOS Developer Library: Haptic Feedback](https://developer.apple.com/ios/human-interface-guidelines/interaction/feedback/)
 extends: Titanium.Proxy
 platforms: [iphone]
-osver: {ios: {min: "10.0"}}
+osver: { ios: { min: "10.0" } }
 since: "6.0.0"
 createable: true
 

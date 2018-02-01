@@ -9,7 +9,7 @@ description: |
     See <Titanium.Calendar> for examples of retrieving event information and creating events.
 extends: Titanium.Proxy
 platforms: [android, iphone, ipad]
-since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
+since: { android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
 methods:
@@ -122,7 +122,7 @@ methods:
       - name: rule
         summary: The recurrence rule to be added.
         type: Titanium.Calendar.RecurrenceRule
-    osver: {ios: {min: "5.0"}}
+    osver: { ios: { min: "5.0" } }
     platforms: [iphone, ipad]
 
   - name: removeRecurrenceRule
@@ -131,7 +131,7 @@ methods:
       - name: rule
         summary: The recurrence rule to be removed.
         type: Titanium.Calendar.RecurrenceRule
-    osver: {ios: {min: "5.0"}}
+    osver: { ios: { min: "5.0" } }
     platforms: [iphone, ipad]
 
 properties:
@@ -242,7 +242,7 @@ properties:
   - name: recurrenceRule
     summary: Recurrence rule associated with the event. (Available in iOS 4.0 through iOS 5.1.)
     type: Titanium.Calendar.RecurrenceRule
-    osver: {ios: {max: "5.0"}}
+    osver: { ios: {max: "5.0" } }
     deprecated:
         since: "3.1.3"
         removed: "3.2.0"
@@ -254,9 +254,9 @@ properties:
         On Android, only the first element of the recurrenceRules is taken into account 
         due to the way it handles conditions for recurrence rules.
     type: Array<Titanium.Calendar.RecurrenceRule>
-    osver: {ios: {min: "5.0"}}
+    osver: { ios: { min: "5.0" } }
     platforms: [android, iphone, ipad]
-    since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
+    since: { android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0" }
 
   - name: visibility
     summary: Visibility of this event.

@@ -101,7 +101,7 @@ examples:
             });
             
             const audioRecorder = Ti.Media.createAudioRecorder();
-            let record = null;
+            let record = null;
 
             window.addEventListener('open', (e) => {
               if (!Ti.Media.hasAudioRecorderPermissions()) {

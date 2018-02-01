@@ -21,7 +21,7 @@ description: |
 platforms: [iphone]
 since: "5.1.0"
 extends: Titanium.Proxy
-osver: {ios: {min: "9.0"}}
+osver: { ios: { min: "9.0" } }
 
 properties:
   - name: actions
@@ -143,7 +143,7 @@ examples:
                 style: Ti.UI.iOS.PREVIEW_ACTION_STYLE_DEFAULT
             });
 
-            action.addEventListener("click", (e) => {
+            action.addEventListener('click', (e) => {
                 alert("Title: " + e.title + " / Style: " + e.style+" / Index: " + e.index);
             });
 
@@ -151,7 +151,7 @@ examples:
                 title: "Preview Subaction"
             })
 
-            subAction.addEventListener("click", (e) => {
+            subAction.addEventListener('click', (e) => {
                 alert("Title: " + e.title + " / Style: " + e.style+" / Subindex: " + e.index);
             });
 
@@ -172,7 +172,7 @@ examples:
             });
 
             // Fired after popping the preview
-            context.addEventListener("pop", (e) => {
+            context.addEventListener('pop', (e) => {
                 detailWindow.open();
             });
 
@@ -216,7 +216,7 @@ examples:
             style: Ti.UI.iOS.PREVIEW_ACTION_STYLE_DEFAULT
         });
 
-        action.addEventListener("click", (e) => {
+        action.addEventListener('click', (e) => {
             alert(
                 "Title: " + e.title +
                 "\nStyle: " + e.style +
@@ -237,13 +237,13 @@ examples:
 
         // Fired after peeking the preview
         // Use this event to configure the preview depending on the sectionIndex / itemIndex
-        context.addEventListener("peek", (e) => {
+        context.addEventListener('peek', (e) => {
             Ti.API.warn("sectionIndex: " + e.sectionIndex);
             Ti.API.warn("itemIndex: " + e.itemIndex);
         });
         
         // Fired after popping the preview
-        context.addEventListener("pop", (e) => {
+        context.addEventListener('pop', (e) => {
             detailWindow.open();
         });
 

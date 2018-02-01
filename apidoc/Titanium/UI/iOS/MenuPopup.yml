@@ -74,11 +74,11 @@ examples:
                 items: ["Option 1", "Option 2"]
             });
 
-            menu.addEventListener("click", (e) => {
+            menu.addEventListener('click', (e) => {
                 alert(e);
             });
 
-            button.addEventListener("click", () => {
+            button.addEventListener('click', () => {
                 menu.show({
             	    view: button
                 });

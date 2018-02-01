@@ -160,7 +160,7 @@ properties:
     summary: Makes the label at most this many lines tall.
     platforms: [android, iphone, ipad]
     type: Number
-    since: {android: "4.1.0", iphone: "6.1.0", ipad: "6.1.0"}
+    since: { android: "4.1.0", iphone: "6.1.0", ipad: "6.1.0"}
 
   - name: minimumFontSize
     summary: Minimum font size when the font is sized based on the contents.
@@ -181,7 +181,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     platforms: [android, iphone, ipad]
-    since: {android: "3.2.0"}
+    since: { android: "3.2.0"}
 
   - name: shadowOffset
     summary: Shadow offset of the [text](Titanium.UI.Label.text), as a dictionary with the properties `x` and `y`.
@@ -189,7 +189,7 @@ properties:
         Use in conjunction with [shadowColor](Titanium.UI.Label.shadowColor) and [shadowRadius](Titanium.UI.Label.shadowRadius).
     type: Dictionary
     platforms: [android, iphone, ipad]
-    since: {android: "3.2.0"}
+    since: { android: "3.2.0"}
 
   - name: shadowRadius
     summary: Shadow radius of the [text](Titanium.UI.Label.text).
@@ -267,7 +267,7 @@ events:
         summary: This is false. This event does not bubble
         type: Boolean
     platforms: [iphone,ipad,android]
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     since: {iphone: "3.2.0", ipad: "3.2.0", android: "4.0.0"}
 
 
@@ -285,9 +285,9 @@ examples:
 
             const label1 = Ti.UI.createLabel({
               color: '#900',
-              font: { fontSize:48 },
+              font: { fontSize: 48 },
               shadowColor: '#aaa',
-              shadowOffset: {x:5, y:5},
+              shadowOffset: { x: 5, y: 5 },
               shadowRadius: 3,
               text: 'A simple label',
               textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
@@ -296,7 +296,7 @@ examples:
             });
 
             const label2 = Ti.UI.createLabel({
-              color:'blue',
+              color: 'blue',
               text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
               textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
               top: 30,

@@ -17,7 +17,7 @@ description: |
     the metadata with the SearchableItem object.
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
-osver: {ios: {min: "10.0"}}
+osver: { ios: { min: "10.0" } }
 since: "5.5.0"
 createable: true
 
@@ -27,7 +27,7 @@ properties:
     description: This parameter cannot be null.
     type: String
     availability: creation
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     accessors: false
 
   - name: attributes
@@ -37,7 +37,7 @@ properties:
         the <Titanium.App.iOS.SearchableItemAttributeSet> API. Passing null for this parameter means that the query does not use 
         attributes to find matching items.
     type: Array<String>
-    osver: {ios: {min: "10.0"}}
+    osver: { ios: { min: "10.0" } }
     accessors: false
     
 methods:
@@ -118,7 +118,7 @@ examples:
                 }
             });
 
-            btn.addEventListener("click", () => {
+            btn.addEventListener('click', () => {
                 // An array of found Ti.App.iOS.SearchableItem's
                 const allItems = [];
 
@@ -129,14 +129,14 @@ examples:
                 });
 
                 // The event to be called when a new batch of items is found
-                searchQuery.addEventListener("founditems", (e) => {
+                searchQuery.addEventListener('founditems', (e) => {
                     for (let i = 0; i < e.items.length; i++) {
                         allItems.push(e.items[i]);
                     }
                 });
 
                 // The event to be called when the search-query completes
-                searchQuery.addEventListener("completed", (e) => {
+                searchQuery.addEventListener('completed', (e) => {
                     if (!e.success) {
                         alert(e.error);
                     }

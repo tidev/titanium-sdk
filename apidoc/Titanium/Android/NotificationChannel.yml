@@ -31,7 +31,7 @@ examples:
 
 extends: Titanium.Proxy
 since: "7.0.0"
-osver: {android: {min: "8.0"}}
+osver: { android: { min: "8.0" } }
 platforms: [android]
 
 properties:

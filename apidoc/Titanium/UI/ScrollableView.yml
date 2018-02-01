@@ -234,7 +234,7 @@ properties:
         performance (larger cache) will lead to faster performance, but greater memory usage.
     type: Number
     platforms: [android, iphone, ipad]
-    since: {android: "4.1.0"}
+    since: { android: "4.1.0"}
 
   - name: currentPage
     summary: Index of the active page.
@@ -375,13 +375,13 @@ examples:
 
             const win = Ti.UI.createWindow();
 
-            const view1 = Ti.UI.createView({ backgroundColor:'#123' });
-            const view2 = Ti.UI.createView({ backgroundColor:'#246' });
-            const view3 = Ti.UI.createView({ backgroundColor:'#48b' });
+            const view1 = Ti.UI.createView({ backgroundColor: '#123' });
+            const view2 = Ti.UI.createView({ backgroundColor: '#246' });
+            const view3 = Ti.UI.createView({ backgroundColor: '#48b' });
 
             const scrollableView = Ti.UI.createScrollableView({
-              views:[view1,view2,view3],
-              showPagingControl:true
+              views: [view1,view2,view3],
+              showPagingControl: true
             });
 
             win.add(scrollableView);
@@ -393,26 +393,26 @@ examples:
         scrollable view.
 
             const img1 = Ti.UI.createImageView({
-                image:'http://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/' +
+                image: 'http://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/' +
                 'Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/' +
                 '402px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg'
             });
             const img1Wrapper = Ti.UI.createScrollView({
-                maxZoomScale:4.0,
+                maxZoomScale: 4.0,
             });
             img1Wrapper.add(img1);
 
             const img2 = Ti.UI.createImageView({
-                image:'http://www.nasa.gov/images/content/' +
+                image: 'http://www.nasa.gov/images/content/' +
                 '616903main_rover_comparison1600_1600-1200.jpg'
             });
             const img2Wrapper = Ti.UI.createScrollView({
-                maxZoomScale:4.0,
+                maxZoomScale: 4.0,
             });
             img2Wrapper.add(img2);
             const photosView = Ti.UI.createScrollableView({
-                showPagingControl:true,
-                views:[img1Wrapper, img2Wrapper]
+                showPagingControl: true,
+                views: [img1Wrapper, img2Wrapper]
             });
             win.add(photosView);
 

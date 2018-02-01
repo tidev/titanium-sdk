@@ -79,7 +79,7 @@ examples:
         A basic sample showing the usage of refreshstart event with endRefreshing functionality.
                     
             const win = Ti.UI.createWindow({
-                fullscreen:true
+                fullscreen: true
             });
             const counter = 0;
             function genData() {
@@ -93,10 +93,10 @@ examples:
             const section = Ti.UI.createListSection();
             section.setItems(genData());
             const control = Ti.UI.createRefreshControl({
-                tintColor:'red'
+                tintColor: 'red'
             })
             const listView = Ti.UI.createListView({
-                sections:[section],
+                sections: [section],
                 refreshControl:control
             });
             control.addEventListener('refreshstart', (e) => {

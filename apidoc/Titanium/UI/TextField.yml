@@ -52,7 +52,7 @@ methods:
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad]
     since: 3.0.0
-    osver: {ios: {min: "5.0"}}
+    osver: { ios: { min: "5.0" } }
     parameters:
       - name: start
         summary: Start index for selection. Value ranges from 0 to the text's length.
@@ -203,7 +203,7 @@ properties:
     constants: Titanium.UI.AUTOFILL_TYPE_*
     default: undefined
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { ios: { min: "10.0"}, android: { min: "8.0" } }
     platforms: [iphone, ipad, android]
 
   - name: autoLink
@@ -287,7 +287,7 @@ properties:
     type: Boolean
     default: true
     platforms: [android]
-    since: {android: "6.1.0"}
+    since: { android: "6.1.0"}
 
   - name: hintText
     summary: Hint text to display when the field is empty.
@@ -342,7 +342,7 @@ properties:
   - name: hintType
     summary: Hint type to display on the text field.
     platforms: [android]
-    since: {android: "7.0.0"}
+    since: { android: "7.0.0"}
     description: |
         Setting this to <Titanium.UI.HINT_TYPE_ANIMATED> will use the animated TextInputLayout on Android.
     type: Number
@@ -556,7 +556,7 @@ properties:
     type: Boolean
     default: true
     platforms: [ipad]
-    osver: {ios: {min: "9.0"}}
+    osver: { ios: { min: "9.0" } }
     since: 5.0.0
 
   - name: textAlign
@@ -594,7 +594,7 @@ properties:
         indicates unlimited length.
     default: -1
     type: Number
-    since: {android: "3.0.0"}
+    since: { android: "3.0.0"}
     platforms: [android, iphone]
 
 events:

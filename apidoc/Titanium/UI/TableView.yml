@@ -97,24 +97,24 @@ description: |
     follow their literal meaning, depending on the combination of `editing` and `moving` modes that
     are enabled, a detailed description of the behavior follows.
 
-    With `editing:false` and `moving:true`:
+    With `editing: false` and `moving: true`:
 
     * For red icon delete and swipe delete, inherited and explicit `editable` properties may be set.
     * Inherited `moveable` property is always `true`. Explicit `moveable` property may be set.
 
-    With `editing:true` and `moving:false`:
+    With `editing: true` and `moving: false`:
 
     * For red icon delete and swipe delete, inherited `editable` property is always `true`. Explicit
     `editable` property may be set.
     * Inherited and explicit `moveable` properties may be set.
 
-    With `editing:false` and `moving: false`:
+    With `editing: false` and `moving: false`:
 
     * For red icon delete, inherited and explicit `editable` properties always `false`. For
     swipe delete, inherited and explicit `editable` properties may be set.
     * Inherited `moveable` property is always `false`.
 
-    With `editing:true` and `moving:true`:
+    With `editing: true` and `moving: true`:
 
     * For red icon delete and swipe delete, inherited and explicit `editable` properties may be set.
     * Inherited `moveable` property is always `true`. Explicit `moveable` property may be set.
@@ -151,7 +151,7 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                const data = [{ title:'Row 1', hasChild:true, color:'red', selectedColor:'#fff', special:'special 1' }];
+                const data = [{ title: 'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
                 const table = Ti.UI.createTableView({ data: data });
 
         type: Dictionary<Titanium.UI.TableViewRow>
@@ -233,7 +233,7 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                const data = [{ title:'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const data = [{ title: 'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
                 const table = Ti.UI.createTableView({ data: data });
 
         type: Dictionary<Titanium.UI.TableViewRow>
@@ -292,7 +292,7 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                const data = [{ title:'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const data = [{ title: 'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
                 const table = Ti.UI.createTableView({ data: data });
 
         type: Dictionary<Titanium.UI.TableViewRow>
@@ -430,7 +430,7 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                const data = [{ title:'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const data = [{ title: 'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
                 const table = Ti.UI.createTableView({ data: data });
         type: Dictionary<Titanium.UI.TableViewRow>
 
@@ -467,7 +467,7 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                const data = [{ title:'Row 1', hasChild:true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const data = [{ title: 'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
                 const table = Ti.UI.createTableView({ data: data });
         type: Dictionary<Titanium.UI.TableViewRow>
 
@@ -550,7 +550,7 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                const data = [{ title:'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const data = [{ title: 'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
                 const table = Ti.UI.createTableView({ data: data });
         type: Dictionary<Titanium.UI.TableViewRow>
 
@@ -613,7 +613,7 @@ events:
 
             Here's an example of creating a row implicitly, which is not the recommended way.
 
-                const data = [{ title:'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
+                const data = [{ title: 'Row 1', hasChild: true, color: 'red', selectedColor: '#fff', special: 'special 1' }];
                 const table = Ti.UI.createTableView({ data: data });
         type: Dictionary<Titanium.UI.TableViewRow>
 
@@ -1414,13 +1414,13 @@ properties:
         For example:
 
             tableView1.setSeparatorInsets({
-                left:10,
-                right:10
+                left: 10,
+                right: 10
             });
 
     type: Dictionary
     since: 3.2.0
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     platforms: [iphone, ipad]
 
   - name: tableSeparatorInsets
@@ -1433,14 +1433,14 @@ properties:
         For example:
 
             tableView1.setTableSeparatorInsets({
-                left:10,
-                right:10
+                left: 10,
+                right: 10
             });
 
 
     type: Dictionary
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     platforms: [iphone, ipad]
 
   - name: rowSeparatorInsets
@@ -1453,14 +1453,14 @@ properties:
         For example:
 
             tableView1.setRowSeparatorInsets({
-                left:10,
-                right:10
+                left: 10,
+                right: 10
             });
 
 
     type: Dictionary
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
+    osver: { ios: { min: "7.0" } }
     platforms: [iphone, ipad]
 
   - name: separatorStyle
@@ -1468,7 +1468,7 @@ properties:
     type: Number
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     platforms: [iphone, ipad, android]
-    since: {android: "5.2.0"}
+    since: { android: "5.2.0"}
 
   - name: showVerticalScrollIndicator
     summary: Determines whether this table view displays a vertical scroll indicator.
@@ -1565,50 +1565,50 @@ examples:
 
             for (let i = 1; i <= 20; i++) {
               const row = Ti.UI.createTableViewRow({
-                className:'forumEvent', // used to improve table performance
-                selectedBackgroundColor:'white',
+                className: 'forumEvent', // used to improve table performance
+                selectedBackgroundColor: 'white',
                 rowIndex:i, // custom property, useful for determining the row during events
-                height:110
+                height: 110
               });
 
               const imageAvatar = Ti.UI.createImageView({
                 image: IMG_BASE + 'custom_tableview/user.png',
-                left:10, top:5,
-                width:50, height:50
+                left: 10, top: 5,
+                width: 50, height: 50
               });
               row.add(imageAvatar);
 
               const labelUserName = Ti.UI.createLabel({
-                color:'#576996',
-                font:{fontFamily:'Arial', fontSize:defaultFontSize+6, fontWeight:'bold'},
-                text:'Fred Smith ' + i,
-                left:70, top: 6,
-                width:200, height: 30
+                color: '#576996',
+                font: {fontFamily: 'Arial', fontSize:defaultFontSize+6, fontWeight: 'bold'},
+                text: 'Fred Smith ' + i,
+                left: 70, top: 6,
+                width: 200, height: 30
               });
               row.add(labelUserName);
 
               const labelDetails = Ti.UI.createLabel({
-                color:'#222',
-                font:{fontFamily:'Arial', fontSize:defaultFontSize + 2, fontWeight:'normal'},
-                text:'Replied to post with id ' + randomInt(1000) + '.',
-                left:70, top:44,
-                width:360
+                color: '#222',
+                font: {fontFamily: 'Arial', fontSize:defaultFontSize + 2, fontWeight: 'normal'},
+                text: 'Replied to post with id ' + randomInt(1000) + '.',
+                left: 70, top: 44,
+                width: 360
               });
               row.add(labelDetails);
 
               const imageCalendar = Ti.UI.createImageView({
                 image:IMG_BASE + 'custom_tableview/eventsButton.png',
-                left:70, bottom: 2,
+                left: 70, bottom: 2,
                 width:32, height: 32
               });
               row.add(imageCalendar);
 
               const labelDate = Ti.UI.createLabel({
-                color:'#999',
-                font:{fontFamily:'Arial', fontSize:defaultFontSize, fontWeight:'normal'},
-                text:'on ' + randomInt(30) + ' Nov 2012',
-                left:105, bottom:10,
-                width:200, height:20
+                color: '#999',
+                font: {fontFamily: 'Arial', fontSize:defaultFontSize, fontWeight: 'normal'},
+                text: 'on ' + randomInt(30) + ' Nov 2012',
+                left: 105, bottom: 10,
+                width: 200, height: 20
               });
               row.add(labelDate);
 
@@ -1616,8 +1616,8 @@ examples:
             }
 
             const tableView = Ti.UI.createTableView({
-              backgroundColor:'white',
-              data:tableData
+              backgroundColor: 'white',
+              data: tableData
             });
 
             win.add(tableView);
@@ -1694,7 +1694,7 @@ description: |
     On iOS, the optional parameters `animated` and `duration`to enable the animation and duration
     for animation while the content insets are updated. For example
 
-        setContentInset({top:50,bottom:100}, {animated:true, duration:3000})
+        setContentInset({ top: 50,bottom: 100 }, { animated: true, duration: 3000 })
 since: 2.1.0
 platforms: [iphone, ipad]
 
@@ -1716,7 +1716,7 @@ description: |
     `right`, `left`) that the content view is inset from the enclosing scroll view of the table.
     For example
 
-        setContentInset({top:50,bottom:10,right:10,left:10}, {animated:true})
+        setContentInset({ top: 50, bottom: 10, right: 10, left: 10}, { animated: true })
 since: 2.1.0
 platforms: [iphone, ipad]
 

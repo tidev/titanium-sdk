@@ -71,7 +71,7 @@ description: |
       * <Titanium.UI.iOS.Stepper>
       * <Titanium.UI.iOS.TabbedBar>
 
-    For example, suppose you have a list data item defined as `{foo:{text: 'foobar'}}` and an item
+    For example, suppose you have a list data item defined as `{foo: {text: 'foobar' } }` and an item
     template defined as `{childTemplates: [{type: 'Ti.UI.Label', bindId: 'foo'}]}`.  The `foo`
     property in the list data item binds to the label in the template, which sets the `text`
     property of the label in the template to the `text` property in the list data item.
@@ -211,7 +211,7 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Array<RowActionType>
     since: 4.1.0
-    osver: {ios: {min: "8.0"}}
+    osver: { ios: { min: "8.0" } }
     platforms: [iphone, ipad]
 
   - name: searchableText
@@ -429,7 +429,7 @@ examples:
                         bindId: 'title',         // Maps to a custom title property of the item data
                         properties: {            // Sets the label properties
                             color: 'black',
-                            font: { fontFamily:'Arial', fontSize: '20dp', fontWeight:'bold' },
+                            font: { fontFamily: 'Arial', fontSize: '20dp', fontWeight: 'bold' },
                             left: '60dp', top: 0,
                         },
                     },
@@ -438,7 +438,7 @@ examples:
                         bindId: 'subtitle',      // Maps to a custom subtitle property of the item data
                         properties: {            // Sets the label properties
                             color: 'gray',
-                            font: { fontFamily:'Arial', fontSize: '14dp' },
+                            font: { fontFamily: 'Arial', fontSize: '14dp' },
                             left: '60dp', top: '25dp',
                         }
                     }
@@ -642,7 +642,7 @@ description: |
     [editaction](Titanium.UI.ListView.editaction) event. 
 platforms: [ipad, iphone]
 since: '4.1.0' 
-osver: {ios: {min: "8.0"}}
+osver: { ios: { min: "8.0" } }
 properties:
   - name: title
     type: String

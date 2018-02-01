@@ -19,7 +19,7 @@ description: |
 platforms: [iphone]
 since: "5.1.0"
 extends: Titanium.Proxy
-osver: {ios: {min: "9.0"}}
+osver: { ios: { min: "9.0" } }
 
 properties:
   - name: title
