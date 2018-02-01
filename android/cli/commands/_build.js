@@ -2702,38 +2702,46 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				try {
 					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
-						// Read the original file
 						const originalContents = fs.readFileSync(from).toString();
-						// Analyze Ti API usage, possibly also minify/transpile
-						const r = jsanalyze.analyzeJs(originalContents, {
-							filename: from,
-							minify: this.minifyJS,
-							transpile: this.transpile,
-							targets: {
-								chrome: this.chromeVersion
+						// Populate an initial object to pass in. This won't have modified
+						// contents or symbols populated, which it used to at this point,
+						// but I don't think any plugin relied on that behavior, while
+						// hyperloop would clobber the contents if we didn't do the mods
+						// inside the compile hook.
+						const r = {
+							original: originalContents,
+							contents: originalContents,
+							symbols: []
+						};
+						this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
+							// Read the possibly modified file contents
+							const source = r.contents;
+							// Analyze Ti API usage, possibly also minify/transpile
+							const modified = jsanalyze.analyzeJs(source, {
+								filename: from,
+								minify: this.minifyJS,
+								transpile: this.transpile,
+								targets: {
+									chrome: this.chromeVersion
+								}
+							});
+							const newContents = modified.contents;
+
+							// we want to sort by the "to" filename so that we correctly handle file overwriting
+							this.tiSymbols[to] = modified.symbols;
+
+							const dir = path.dirname(to);
+							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+							if (symlinkFiles && newContents === originalContents) {
+								this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+								copyFile.call(this, from, to, cb2);
+							} else {
+								// TODO If dest file exists and contents match, don't do anything?
+								this.logger.debug(__('Writing modified contents to %s', to.cyan));
+								fs.writeFile(to, newContents, cb2);
 							}
-						});
-						const newContents = r.code;
-
-						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[to] = r.symbols;
-
-						const dir = path.dirname(to);
-						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-						if (symlinkFiles && newContents === originalContents) {
-							copyFile.call(this, from, to, cb);
-						} else if (this.minifyJS || this.transpile) {
-							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-							// FIXME If minify and/or transpile is true, why not wrap the jsanalyze stuff in this hook instead?
-							this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
-								fs.writeFile(to, r.contents, cb2);
-							})(r, from, to, cb);
-						} else {
-							// we've already read in the file, so just write the original contents
-							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-							fs.writeFile(to, newContents, cb);
-						}
+						})(r, from, to, cb);
 					})(from, to, done);
 				} catch (ex) {
 					ex.message.split('\n').forEach(this.logger.error);
