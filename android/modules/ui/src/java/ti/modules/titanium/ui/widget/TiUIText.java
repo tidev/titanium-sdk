@@ -126,8 +126,6 @@ public class TiUIText extends TiUIView
 			tv.setSingleLine();
 			tv.setMaxLines(1);
 		}
-		setOnClickListener(tv);
-		setOnLongClickListener(tv);
 		registerForTouch(tv);
 		tv.addTextChangedListener(this);
 		tv.setOnEditorActionListener(this);
