@@ -15,12 +15,14 @@
 
 const appc = require('node-appc'),
 	async = require('async'),
+	babel = require('babel-core'),
 	bufferEqual = require('buffer-equal'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	CleanCSS = require('clean-css'),
 	crypto = require('crypto'),
 	cyan = require('colors').cyan,
 	DOMParser = require('xmldom').DOMParser,
+	env = require('babel-preset-env'),
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
@@ -43,7 +45,7 @@ const appc = require('node-appc'),
 	parallel = appc.async.parallel,
 	series = appc.async.series,
 	version = appc.version;
-const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + '$)'); // eslint-disable-line security/detect-non-literal-regexp
+const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 
 function iOSBuilder() {
@@ -3177,7 +3179,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			outputPaths: [],
 			runOnlyForDeploymentPostprocessing: 0,
 			shellPath: '/bin/sh',
-			shellScript: '"cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\""',
+			shellScript: '"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\""',
 			showEnvVarsInLog: 0
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -5778,47 +5780,64 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						this.jsFilesToEncrypt.push(file);
 					}
 
-					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-						let r;
-						try {
+					try {
+						this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+							const originalContents = fs.readFileSync(from).toString();
 							// parse the AST
-							r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-						} catch (ex) {
-							ex.message.split('\n').forEach(this.logger.error);
-							this.logger.log();
-							process.exit(1);
-						}
+							const r = jsanalyze.analyzeJs(originalContents, { minify: this.minifyJS, filename: from });
 
-						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[to] = r.symbols;
+							// we want to sort by the "to" filename so that we correctly handle file overwriting
+							this.tiSymbols[to] = r.symbols;
 
-						const dir = path.dirname(to);
-						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-						this.unmarkBuildDirFile(to);
-
-						if (this.minifyJS) {
+							// Now transpile too!
 							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-								const exists = fs.existsSync(to);
-								if (!exists || r.contents !== fs.readFileSync(to).toString()) {
-									this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-									exists && fs.unlinkSync(to);
-									fs.writeFileSync(to, r.contents);
-									this.jsFilesChanged = true;
+								const dir = path.dirname(to);
+								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+								this.unmarkBuildDirFile(to);
+
+								// generate our transpile target based on tijscore/jscore
+								const presets = this.useJSCore ? [[ env, {
+									'targets': {
+										'ios': this.minSupportedIosSdk // if using jscore, target our min ios version
+									}
+								}]] : [ env ]; // if not jscore, just transpile everything down (no target)
+								const result = babel.transform(r.contents, {
+									filename: from,
+									presets: presets
+								});
+								const newContents = result.code;
+
+								// if we didn't change the contents any...
+								if (newContents === originalContents) {
+									if (this.copyFileSync(from, to)) { // copy/symlink if necessary
+										this.jsFilesChanged = true;
+									} else { // possibly no need to copy/change, so we skipped entirely!
+										this.logger.trace(__('No change, skipping %s', to.cyan));
+									}
 								} else {
-									this.logger.trace(__('No change, skipping %s', to.cyan));
+									// contents definitely changed from source file...
+									const exists = fs.existsSync(to);
+									// check if dest file already exists and has same modified contents
+									if (!exists || newContents !== fs.readFileSync(to).toString()) {
+										// dest doesn't exist or it's different, so let's write the new file
+										this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+										exists && fs.unlinkSync(to);
+										fs.writeFileSync(to, newContents);
+										this.jsFilesChanged = true;
+									} else {
+										// so we changed from the source file, but we already wrote teh modified contents before and that didn't change
+										this.logger.trace(__('No change, skipping %s', to.cyan));
+									}
 								}
 								cb2();
 							})(r, from, to, cb);
-						} else {
-							if (this.copyFileSync(from, to)) {
-								this.jsFilesChanged = true;
-							} else {
-								this.logger.trace(__('No change, skipping %s', to.cyan));
-							}
-							cb();
-						}
-					})(info.src, info.dest, next);
+						})(info.src, info.dest, next);
+					} catch (ex) {
+						ex.message.split('\n').forEach(this.logger.error);
+						this.logger.log();
+						process.exit(1);
+					}
 				}.bind(this));
 			}.bind(this), next);
 		},
