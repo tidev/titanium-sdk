@@ -827,8 +827,8 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
           NO);
     } else if ([TiUtils isIOS11OrGreater]) {
       errorMessage = [[NSString alloc] initWithFormat:
-                                           @"The %@, %@ and %@ key must be defined in your tiapp.xml in order to request this permission.",
-                                       kTiGeolocationUsageDescriptionAlwaysAndWhenInUse,
+                                           @"The %@, %@ and %@ (iOS 11+) key must be defined in your tiapp.xml in order to request this permission.",
+                                       kTiGeolocationUsageDescriptionWhenInUse,
                                        kTiGeolocationUsageDescriptionAlways,
                                        kTiGeolocationUsageDescriptionAlwaysAndWhenInUse];
     } else {
