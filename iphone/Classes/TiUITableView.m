@@ -352,6 +352,7 @@
   RELEASE_TO_NIL(filterAttribute);
   RELEASE_TO_NIL(searchResultIndexes);
   RELEASE_TO_NIL(tableHeaderPullView);
+  RELEASE_TO_NIL(_searchedString);
   [searchString release];
 #ifdef USE_TI_UIREFRESHCONTROL
   RELEASE_TO_NIL(_refreshControlProxy);
@@ -436,14 +437,14 @@
     if (TiDimensionIsDip(rowHeight)) {
       [tableview setRowHeight:rowHeight.value];
     } else {
-      //TIMOB-17373 rowHeight on iOS8 is -1. Bug??
+      // TIMOB-17373 rowHeight on iOS8 is -1. Bug??
       [tableview setRowHeight:44];
     }
 
     BOOL initBackGround = YES;
     id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
     if (style == UITableViewStyleGrouped) {
-      //If it is IOS 6 and style is grouped do not call this method unless a backgroundColor is specified
+      //If the style is grouped do not call this method unless a backgroundColor is specified
       initBackGround = (bgInitValue != nil);
     }
     if (initBackGround) {
@@ -1437,7 +1438,7 @@
   if (![searchController isActive]) {
     return;
   }
-  [dimmingView setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+  [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
   UIView *searchSuperView = [searchController.view superview];
@@ -2352,7 +2353,7 @@
 - (void)createDimmingView
 {
   if (dimmingView == nil) {
-    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
     dimmingView.backgroundColor = [UIColor blackColor];
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
@@ -2362,7 +2363,7 @@
 
 - (void)showDimmingView
 {
-  dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
   if (!dimmingView.superview) {
     [self addSubview:dimmingView];
     [self bringSubviewToFront:dimmingView];

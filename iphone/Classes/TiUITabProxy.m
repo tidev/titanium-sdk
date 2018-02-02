@@ -672,12 +672,6 @@
 
 - (void)setActiveIcon:(id)icon
 {
-  if (![UITabBarItem instancesRespondToSelector:
-                         @selector(setFinishedSelectedImage:withFinishedUnselectedImage:)]) {
-    NSLog(@"[WARN] activeIcon is only supported in iOS 5 or above.");
-    return;
-  }
-
   if ([icon isKindOfClass:[NSString class]]) {
     // we might be inside a different context than our tab group and if so, he takes precendence in
     // url resolution
