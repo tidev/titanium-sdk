@@ -126,6 +126,7 @@ public class TiUIText extends TiUIView
 			tv.setSingleLine();
 			tv.setMaxLines(1);
 		}
+		registerForTouch(tv);
 		tv.addTextChangedListener(this);
 		tv.setOnEditorActionListener(this);
 		tv.setOnFocusChangeListener(this); // TODO refactor to TiUIView?
