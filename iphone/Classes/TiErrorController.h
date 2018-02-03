@@ -6,8 +6,8 @@
  */
 
 @interface TiErrorController : UIViewController {
-
   NSString *error;
+  NSString *reason;
   UILabel *disclosureLabel;
   UILabel *messageLabel;
   UIButton *dismissButton;
@@ -16,5 +16,7 @@
 }
 
 - (id)initWithError:(NSString *)error_;
+
+- (id)initWithError:(NSString *)error_ reason:(NSString *)reason_;
 
 @end
