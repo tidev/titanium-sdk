@@ -450,7 +450,7 @@ static NSDictionary *iOS9propertyKeys;
 
 - (ABMultiValueRef)dictionaryToMultiValue:(NSDictionary *)dict type:(ABPropertyType)type
 {
-  ABMutableMultiValueRef multiValue = ABMultiValueCreateMutable(type);
+  ABMultiValueRef multiValue = ABMultiValueCreateMutable(type);
   [(id)multiValue autorelease];
   for (NSString *key in [dict allKeys]) {
     NSString *label = [[TiContactsPerson multiValueLabels] valueForKey:key];
@@ -910,7 +910,7 @@ static NSDictionary *iOS9propertyKeys;
                   location:CODELOCATION];
     }
   }
-  // Alternate birthdays have to be done seperately as it uses NSDict for setting ABRecord instead of MultiValueRef
+  // Alternate birthdays have to be done seperately as it uses NSDict for setting ABRecord instead of MulJSValueRef
   else if ([key isEqualToString:@"alternateBirthday"]) {
     ENSURE_TYPE(value, NSDictionary);
     CFErrorRef error;

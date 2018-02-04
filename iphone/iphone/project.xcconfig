@@ -1,5 +1,3 @@
 TI_VERSION=0.0.0
-JSCORE_LD_FLAGS=-weak_framework JavaScriptCore //Linker flag when USE_JSCORE_FRAMEWORK is defined
-TICORE_LD_FLAGS=-weak-lti_ios_profiler -weak-lti_ios_debugger -weak-lTiCore //Linker flags when USE_JSCORE_FRAMEWORK is undefined
-OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(TICORE_LD_FLAGS)
-OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(TICORE_LD_FLAGS)
+JSCORE_LD_FLAGS=-weak_framework JavaScriptCore
+

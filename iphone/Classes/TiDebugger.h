@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#include "TiToJS.h"
+#import <JavaScriptCore/JavaScriptCore.h>
 
 typedef enum {
   OUT,
@@ -21,8 +21,8 @@ typedef enum {
 #define EXTERN_FUNC extern
 #endif
 
-EXTERN_FUNC void *TiDebuggerCreate(KrollContext *, TiObjectRef);
-EXTERN_FUNC void TiDebuggerDestroy(KrollContext *, TiObjectRef, void *);
+EXTERN_FUNC void *TiDebuggerCreate(KrollContext *, JSObjectRef);
+EXTERN_FUNC void TiDebuggerDestroy(KrollContext *, JSObjectRef, void *);
 EXTERN_FUNC void TiDebuggerStart(NSString *, NSInteger);
 EXTERN_FUNC void TiDebuggerStop();
 EXTERN_FUNC void TiDebuggerBeginScript(KrollContext *, const char *);

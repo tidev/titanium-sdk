@@ -85,16 +85,16 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   return [sharedApp controller];
 }
 
-- (TiContextGroupRef)contextGroup
+- (JSContextGroupRef)contextGroup
 {
   if (contextGroup == nil) {
-    contextGroup = TiContextGroupCreate();
-    TiContextGroupRetain(contextGroup);
+    contextGroup = JSContextGroupCreate();
+    JSContextGroupRetain(contextGroup);
   }
   return contextGroup;
 }
 
-+ (TiContextGroupRef)contextGroup
++ (JSContextGroupRef)contextGroup
 {
   return [sharedApp contextGroup];
 }

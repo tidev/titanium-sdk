@@ -12,7 +12,7 @@
 
 @implementation KrollTimer
 
-- (id)initWithContext:(TiContextRef)context_ function:(TiValueRef)function_ jsThis:(TiObjectRef)jsThis_ duration:(double)duration_ onetime:(BOOL)onetime_ kroll:(KrollContext *)kroll_ timerId:(double)timerId_
+- (id)initWithContext:(JSContextRef)context_ function:(JSValueRef)function_ jsThis:(JSObjectRef)jsThis_ duration:(double)duration_ onetime:(BOOL)onetime_ kroll:(KrollContext *)kroll_ timerId:(double)timerId_
 {
   if (self = [super init]) {
     context = context_; //don't retain
@@ -20,11 +20,11 @@
     duration = duration_;
     stopped = YES;
     timerId = timerId_;
-    jsThis = TiValueToObject(context, jsThis_, NULL);
-    function = TiValueToObject(context, function_, NULL);
+    jsThis = JSValueToObject(context, jsThis_, NULL);
+    function = JSValueToObject(context, function_, NULL);
     condition = [[NSCondition alloc] init];
-    TiValueProtect(context, function);
-    TiValueProtect(context, jsThis);
+    JSValueProtect(context, function);
+    JSValueProtect(context, jsThis);
     kroll = [kroll_ retain];
   }
   return self;
@@ -59,8 +59,8 @@
 - (void)invokeWithCondition:(NSConditionLock *)invokeCond
 {
   [invokeCond lockWhenCondition:0];
-  TiValueRef exception = NULL;
-  TiObjectCallAsFunction(context, function, jsThis, 0, NULL, &exception);
+  JSValueRef exception = NULL;
+  JSObjectCallAsFunction(context, function, jsThis, 0, NULL, &exception);
   if (exception != NULL) {
     id excm = [KrollObject toID:kroll value:exception];
     [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
@@ -127,8 +127,8 @@
   [invokeCond release];
   [date release];
 
-  TiValueUnprotect(context, function);
-  TiValueUnprotect(context, jsThis);
+  JSValueUnprotect(context, function);
+  JSValueUnprotect(context, jsThis);
 
   [self cancel];
 

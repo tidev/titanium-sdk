@@ -11,7 +11,8 @@
 #import "TiEvaluator.h"
 #import "TiModule.h"
 #import "TiProxy.h"
-#import "TiToJS.h"
+
+#import <JavaScriptCore/JavaScriptCore.h>
 #import <Foundation/Foundation.h>
 #include <libkern/OSAtomic.h>
 

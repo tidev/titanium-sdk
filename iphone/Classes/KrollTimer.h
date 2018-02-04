@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollContext.h"
-#import "TiToJS.h"
+#import <JavaScriptCore/JavaScriptCore.h>
 #import <Foundation/Foundation.h>
 
 //
@@ -13,9 +13,9 @@
 //
 @interface KrollTimer : NSObject {
   @private
-  TiContextRef context;
-  TiObjectRef function;
-  TiObjectRef jsThis;
+  JSContextRef context;
+  JSObjectRef function;
+  JSObjectRef jsThis;
   double duration;
   BOOL onetime;
   BOOL stopped;
@@ -24,7 +24,7 @@
   double timerId;
 }
 
-- (id)initWithContext:(TiContextRef)context function:(TiValueRef)function_ jsThis:(TiObjectRef)jsThis duration:(double)duration_ onetime:(BOOL)onetime_ kroll:(KrollContext *)kroll_ timerId:(double)timerId;
+- (id)initWithContext:(JSContextRef)context function:(JSValueRef)function_ jsThis:(JSObjectRef)jsThis duration:(double)duration_ onetime:(BOOL)onetime_ kroll:(KrollContext *)kroll_ timerId:(double)timerId;
 - (void)start;
 - (void)cancel;
 

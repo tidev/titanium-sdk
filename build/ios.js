@@ -43,35 +43,9 @@ IOS.prototype.clean = function (next) {
 	next();
 };
 
-IOS.prototype.fetchLibTiCore = function (next) {
-	const url = 'http://timobile.appcelerator.com.s3.amazonaws.com/libTiCore-' + TI_CORE_VERSION + '.a.gz',
-		dest = path.join(IOS_LIB, 'libTiCore.a'),
-		markerFile = path.join(IOS_LIB, TI_CORE_VERSION.toString() + '.txt');
-
-	// Do we have the latest libTiCore?
-	if (fs.existsSync(dest) && fs.existsSync(markerFile)) {
-		return next();
-	}
-
-	console.log('You don\'t seem to have the appropriate thirdparty files. I\'ll fetch them.');
-	console.log('This could take awhile.. Might want to grab a cup of Joe or make fun of Nolan.');
-
-	downloadURL(url, TI_CORE_INTEGRITY, function (err, file) {
-		if (err) {
-			return next(err);
-		}
-		gunzip(file, dest, function (err) {
-			if (err) {
-				return next(err);
-			}
-			// Place "marker" file
-			fs.writeFile(markerFile, 'DO NOT DELETE THIS FILE', next);
-		});
-	});
-};
-
 IOS.prototype.build = function (next) {
-	this.fetchLibTiCore(next);
+	// no-op (used to fetch TiCore in the past)
+	next();
 };
 
 IOS.prototype.package = function (packager, next) {
@@ -80,7 +54,6 @@ IOS.prototype.package = function (packager, next) {
 	const DEST_IOS = path.join(packager.zipSDKDir, 'iphone');
 
 	async.parallel([
-		this.fetchLibTiCore.bind(this),
 		function (callback) {
 			async.series([
 				function (cb) {
@@ -118,8 +91,7 @@ IOS.prototype.package = function (packager, next) {
 		if (err) {
 			return next(err);
 		}
-		// Ensure we've fetched libTiCore before we copy it
-		copyFiles(IOS_LIB, DEST_IOS, [ 'libTiCore.a' ], next);
+		next();
 	});
 };
 
