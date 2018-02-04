@@ -180,7 +180,7 @@ NSString *JavascriptNameForClass(Class c)
     return [(id<JavascriptClass>)c javascriptClassName];
 
   NSString *className = NSStringFromClass(c);
-  
+
   if ([className hasSuffix:@"Proxy"]) {
     return [className stringByReplacingOccurrencesOfString:@"Proxy" withString:@""];
   }
