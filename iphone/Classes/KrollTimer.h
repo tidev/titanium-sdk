@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollContext.h"
-#import <JavaScriptCore/JavaScriptCore.h>
 #import <Foundation/Foundation.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 
 //
 // KrollTimer is a timer implementation in native that is used by JS land

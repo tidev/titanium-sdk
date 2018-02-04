@@ -14,9 +14,9 @@
 #import "TiConsole.h"
 #import "TiExceptionHandler.h"
 #import "TiHost.h"
-#import <JavaScriptCore/JavaScriptCore.h>
 #import "TiUtils.h"
 #import "TopTiModule.h"
+#import <JavaScriptCore/JavaScriptCore.h>
 #import <libkern/OSAtomic.h>
 
 #ifdef KROLL_COVERAGE

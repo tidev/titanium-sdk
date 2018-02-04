@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollContext.h"
-#import <JavaScriptCore/JavaScriptCore.h>
 #import <Foundation/Foundation.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 
 @class KrollBridge;
 //

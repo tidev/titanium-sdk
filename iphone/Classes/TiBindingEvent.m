@@ -10,8 +10,8 @@
 #import "TiBindingRunLoop.h"
 #import "TiBindingTiValue.h"
 #import "TiExceptionHandler.h"
-#import <JavaScriptCore/JavaScriptCore.h>
 #import "TiUtils.h"
+#import <JavaScriptCore/JavaScriptCore.h>
 #include <libkern/OSAtomic.h>
 
 extern JSStringRef kTiStringLength;

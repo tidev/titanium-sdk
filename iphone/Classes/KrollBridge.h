@@ -12,8 +12,8 @@
 #import "TiModule.h"
 #import "TiProxy.h"
 
-#import <JavaScriptCore/JavaScriptCore.h>
 #import <Foundation/Foundation.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 #include <libkern/OSAtomic.h>
 
 #ifdef KROLL_COVERAGE
