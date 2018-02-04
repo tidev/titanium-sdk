@@ -22,9 +22,6 @@
 #ifdef KROLL_COVERAGE
 #include "KrollCoverage.h"
 #endif
-#ifndef USE_JSCORE_FRAMEWORK
-#import "TiDebugger.h"
-#endif
 extern BOOL const TI_APPLICATION_ANALYTICS;
 extern NSString *const TI_APPLICATION_DEPLOYTYPE;
 extern NSString *const TI_APPLICATION_GUID;
@@ -414,19 +411,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
 
   if (exception == NULL) {
-#ifndef USE_JSCORE_FRAMEWORK
-    if ([[self host] debugMode]) {
-      TiDebuggerBeginScript(context_, urlCString);
-    }
-#endif
-
     TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
-
-#ifndef USE_JSCORE_FRAMEWORK
-    if ([[self host] debugMode]) {
-      TiDebuggerEndScript(context_);
-    }
-#endif
     if (exception == NULL) {
       evaluationError = NO;
     } else {
@@ -910,20 +895,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 - (KrollWrapper *)loadJavascriptText:(NSString *)data fromFile:(NSString *)filename withContext:(KrollContext *)kroll
 {
   NSURL *url_ = [TiHost resourceBasedURL:filename baseURL:NULL];
-#ifndef USE_JSCORE_FRAMEWORK
-  const char *urlCString = [[url_ absoluteString] UTF8String];
-  if ([[self host] debugMode]) {
-    TiDebuggerBeginScript([self krollContext], urlCString);
-  }
-#endif
-
   KrollWrapper *wrapper = [self loadCommonJSModule:data withSourceURL:url_];
-
-#ifndef USE_JSCORE_FRAMEWORK
-  if ([[self host] debugMode]) {
-    TiDebuggerEndScript([self krollContext]);
-  }
-#endif
 
   if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
     @throw [NSException exceptionWithName:@"org.appcelerator.kroll"

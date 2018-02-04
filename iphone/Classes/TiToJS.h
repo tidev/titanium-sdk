@@ -8,8 +8,6 @@
 #ifndef Titanium_TiToJS_h
 #define Titanium_TiToJS_h
 
-#ifdef USE_JSCORE_FRAMEWORK
-
 #import <JavaScriptCore/JavaScriptCore.h>
 
 #define TiCheckScriptSyntax JSCheckScriptSyntax
@@ -117,9 +115,5 @@
 #define kTiPropertyAttributeDontEnum kJSPropertyAttributeDontEnum
 #define kTiPropertyAttributeNone kJSPropertyAttributeNone
 #define kTiPropertyAttributeReadOnly kJSPropertyAttributeReadOnly
-
-#else
-#import "JavaScriptCore/TiCore.h"
-#endif
 
 #endif

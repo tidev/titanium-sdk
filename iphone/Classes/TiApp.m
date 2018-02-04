@@ -22,10 +22,6 @@
 #ifdef KROLL_COVERAGE
 #import "KrollCoverage.h"
 #endif
-#ifndef USE_JSCORE_FRAMEWORK
-#import "TiDebugger.h"
-#import "TiProfiler/TiProfiler.h"
-#endif
 #ifndef DISABLE_TI_LOG_SERVER
 #import "TiLogServer.h"
 #endif
@@ -203,68 +199,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   sessionId = [[TiUtils createUUID] retain];
   TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
-#ifndef USE_JSCORE_FRAMEWORK
-  NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
-  if (filePath != nil) {
-    NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
-    NSString *host = [params objectForKey:@"host"];
-    NSInteger port = [[params objectForKey:@"port"] integerValue];
-    if (([host length] > 0) && ![host isEqualToString:@"__DEBUGGER_HOST__"]) {
-      [self setDebugMode:YES];
-      TiDebuggerStart(host, port);
-    }
-#if !TARGET_IPHONE_SIMULATOR
-    else {
-      NSString *airkey = [params objectForKey:@"airkey"];
-      if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"]) {
-        NSArray *hosts = nil;
-        NSString *hostsString = [params objectForKey:@"hosts"];
-        if (![hostsString isEqualToString:@"__DEBUGGER_HOSTS__"]) {
-          hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-        }
-        TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-          if (host != nil) {
-            [self setDebugMode:YES];
-            TiDebuggerStart(host, port);
-          }
-          [self appBoot];
-        });
-        return;
-      }
-    }
-#endif
-  }
-  filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
-  if (!self.debugMode && filePath != nil) {
-    NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
-    NSString *host = [params objectForKey:@"host"];
-    NSInteger port = [[params objectForKey:@"port"] integerValue];
-    if (([host length] > 0) && ![host isEqualToString:@"__PROFILER_HOST__"]) {
-      [self setProfileMode:YES];
-      TiProfilerStart(host, port);
-    }
-#if !TARGET_IPHONE_SIMULATOR
-    else {
-      NSString *airkey = [params objectForKey:@"airkey"];
-      if (([airkey length] > 0) && ![airkey isEqualToString:@"__PROFILER_AIRKEY__"]) {
-        NSArray *hosts = nil;
-        NSString *hostsString = [params objectForKey:@"hosts"];
-        if (![hostsString isEqualToString:@"__PROFILER_HOSTS__"]) {
-          hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-        }
-        TiProfilerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-          if (host != nil) {
-            [self setProfileMode:YES];
-            TiProfilerStart(host, port);
-          }
-          [self appBoot];
-        });
-        return;
-      }
-    }
-#endif
-  }
-#endif
+
   [self appBoot];
 }
 
@@ -1143,11 +1078,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   RELEASE_TO_NIL(remoteDeviceUUID);
   RELEASE_TO_NIL(remoteNotification);
   RELEASE_TO_NIL(splashScreenImage);
-#ifndef USE_JSCORE_FRAMEWORK
-  if ([self debugMode]) {
-    TiDebuggerStop();
-  }
-#endif
   RELEASE_TO_NIL(backgroundServices);
   RELEASE_TO_NIL(localNotification);
   [super dealloc];

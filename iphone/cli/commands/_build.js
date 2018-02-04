@@ -109,9 +109,6 @@ function iOSBuilder() {
 	// object of all used Titanium symbols, used to determine preprocessor statements, e.g. USE_TI_UIWINDOW
 	this.tiSymbols = {};
 
-	// when true, uses the JavaScriptCore that ships with iOS instead of the original Titanium version
-	this.useJSCore = true;
-
 	// when false, JavaScript will run on its own thread - the Kroll Thread
 	this.runOnMainThread = true;
 
@@ -2380,9 +2377,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS;
 	this.currentBuildManifest.showErrorController          = this.showErrorController;
 
-	// Use native JSCore by default (TIMOB-23136)
-	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
-
 	// Remove this check on 7.0.0
 	if (this.tiapp.ios && (this.tiapp.ios.hasOwnProperty('run-on-main-thread'))) {
 		this.logger.warn(__('run-on-main-thread no longer set in the <ios> section of the tiapp.xml. Use <property name="run-on-main-thread" type="bool">true</property> instead'));
@@ -2391,12 +2385,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('run-on-main-thread') && this.tiapp.properties['run-on-main-thread'].value || false);
 	}
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
-
-	// Deprecate TiJSCore and leave a warning if used anyway
-	if (!this.useJSCore) {
-		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy JavaScriptCore library in favor of the built-in JavaScriptCore.'));
-		this.logger.warn(__('The legacy JavaScriptCore library will be removed in Titanium SDK 8.0.0.'));
-	}
 
 	// Deprecate KrollThread and leave a warning if used anyway
 	if (!this.runOnMainThread) {
@@ -2822,14 +2810,6 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: provisioning profile changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.ppUuid));
 			this.logger.info('  ' + __('Now: %s', this.provisioningProfileUUID));
-			return true;
-		}
-
-		// check if the use JavaScriptCore flag has changed
-		if (this.useJSCore !== manifest.useJSCore) {
-			this.logger.info(__('Forcing rebuild: use JSCore flag changed since last build'));
-			this.logger.info('  ' + __('Was: %s', manifest.useJSCore));
-			this.logger.info('  ' + __('Now: %s', this.useJSCore));
 			return true;
 		}
 
@@ -4274,9 +4254,8 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 			'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
 			'TI_APPID=' + this.tiapp.id,
 			'JSCORE_LD_FLAGS=-weak_framework JavaScriptCore',
-			'TICORE_LD_FLAGS=-weak-lti_ios_profiler -weak-lti_ios_debugger -weak-lTiCore',
-			'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) ' + (this.useJSCore ? '$(JSCORE_LD_FLAGS)' : '$(TICORE_LD_FLAGS)'),
-			'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) ' + (this.useJSCore ? '$(JSCORE_LD_FLAGS)' : '$(TICORE_LD_FLAGS)'),
+			'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(JSCORE_LD_FLAGS)'),
+			'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)'),
 			'OTHER_LDFLAGS[sdk=iphoneos9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
 			'OTHER_LDFLAGS[sdk=iphonesimulator9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
 			'#include "module"'
@@ -5796,12 +5775,12 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 								this.unmarkBuildDirFile(to);
 
-								// generate our transpile target based on tijscore/jscore
-								const presets = this.useJSCore ? [[ env, {
+								// generate our transpile target based on jscore
+								const presets = [[ env, {
 									'targets': {
-										'ios': this.minSupportedIosSdk // if using jscore, target our min ios version
+										'ios': this.minSupportedIosSdk // Target our min ios version
 									}
-								}]] : [ env ]; // if not jscore, just transpile everything down (no target)
+								}]];
 								const result = babel.transform(r.contents, {
 									filename: from,
 									presets: presets
@@ -6168,9 +6147,6 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		if (this.useAutoLayout) {
 			contents += '\n#define TI_USE_AUTOLAYOUT';
 		}
-		if (this.useJSCore) {
-			contents += '\n#define USE_JSCORE_FRAMEWORK';
-		}
 	} else {
 		// build the defines.h file
 		contents = [
@@ -6203,9 +6179,6 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#endif'
 		);
 
-		if (this.useJSCore) {
-			contents.push('#define USE_JSCORE_FRAMEWORK');
-		}
 		if (!this.runOnMainThread) {
 			contents.push('#define TI_USE_KROLL_THREAD');
 		}

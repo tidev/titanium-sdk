@@ -20,11 +20,6 @@
 #import "KrollCoverage.h"
 #endif
 
-#ifndef USE_JSCORE_FRAMEWORK
-#import "TiDebugger.h"
-#import "TiProfiler/TiProfiler.h"
-#endif
-
 static unsigned short KrollContextIdCounter = 0;
 static unsigned short KrollContextCount = 0;
 
@@ -913,13 +908,6 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     [condition lock];
 #endif
     stopped = YES;
-    if (debugger != NULL) {
-      TiObjectRef globalRef = TiContextGetGlobalObject(context);
-#ifndef USE_JSCORE_FRAMEWORK
-      TiDebuggerDestroy(self, globalRef, debugger);
-#endif
-      debugger = NULL;
-    }
 #ifdef TI_USE_KROLL_THREAD
     [condition signal];
     [condition unlock];
@@ -1122,22 +1110,9 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 - (int)forceGarbageCollectNow
 {
-#ifdef USE_JSCORE_FRAMEWORK
   gcrequest = NO;
   loopCount = 0;
-#else
-  NSAutoreleasePool *garbagePool = [[NSAutoreleasePool alloc] init];
-#if CONTEXT_DEBUG == 1
-  NSLog(@"[DEBUG] CONTEXT<%@>: forced garbage collection requested", self);
-#endif
 
-  pthread_mutex_lock(&KrollEntryLock);
-  TiGarbageCollect(context);
-  pthread_mutex_unlock(&KrollEntryLock);
-  gcrequest = NO;
-  loopCount = 0;
-  [garbagePool drain];
-#endif
   return 0;
 }
 
@@ -1158,16 +1133,6 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     appJsContextRef = context;
   }
 
-// TODO: We might want to be smarter than this, and do some KVO on the delegate's
-// 'debugMode' property or something... and start/stop the debugger as necessary.
-#ifndef USE_JSCORE_FRAMEWORK
-  if ([[self delegate] shouldDebugContext]) {
-    debugger = TiDebuggerCreate(self, globalRef);
-  }
-  if ([[self delegate] shouldProfileContext]) {
-    TiProfilerEnable(globalRef, context);
-  }
-#endif
   // we register an empty kroll string that allows us to pluck out this instance
   KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
   TiValueRef krollRef = [KrollObject toValue:self value:kroll];
