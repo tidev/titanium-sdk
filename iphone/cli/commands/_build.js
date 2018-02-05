@@ -5796,6 +5796,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								symbols: []
 							};
 							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+								// Read the possibly modified file contents
+								const source = r.contents;
+								// Analyze Ti API usage, possibly also minify/transpile
 								const analyzeOptions = {
 									filename: from,
 									minify: this.minifyJS,
@@ -5806,8 +5809,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									analyzeOptions.targets = { 'ios': this.minSupportedIosSdk }; // if using jscore, target our min ios version
 								} // if not jscore, just transpile everything down (no target)
 
-								// Analyze Ti API usage, possibly also minify/transpile
-								const modified = jsanalyze.analyzeJs(originalContents, analyzeOptions);
+								const modified = jsanalyze.analyzeJs(source, analyzeOptions);
 								const newContents = modified.contents;
 
 								// we want to sort by the "to" filename so that we correctly handle file overwriting
@@ -5821,7 +5823,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								if (!exists || newContents !== fs.readFileSync(to).toString()) {
 									this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 									exists && fs.unlinkSync(to);
-									fs.writeFileSync(to, r.contents);
+									fs.writeFileSync(to, newContents);
 									this.jsFilesChanged = true;
 								} else {
 									this.logger.trace(__('No change, skipping %s', to.cyan));
