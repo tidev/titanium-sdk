@@ -16,7 +16,7 @@
 - (id)initWithError:(NSString *)error_
 {
   if (self = [super init]) {
-    error = [NSString stringWithFormat:@"⚠️ %@", [error_ retain]];
+    error = [NSString stringWithFormat:@"⚠️ %@", error_];
   }
   return self;
 }
@@ -24,10 +24,10 @@
 - (id)initWithError:(NSString *)error_ reason:(NSString *)reason_
 {
   if (self = [super init]) {
-    error = [NSString stringWithFormat:@"⚠️ %@", [error_ retain]];
+    error = [NSString stringWithFormat:@"⚠️ %@", error_];
 
     if (reason_ != nil) {
-      reason = [NSString stringWithFormat:@"%@", [reason_ retain]];
+      reason = [NSString stringWithFormat:@"%@", reason_];
     }
   }
   return self;
