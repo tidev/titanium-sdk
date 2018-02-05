@@ -715,14 +715,16 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 					AutoFocusCallback focusCallback = new AutoFocusCallback() {
 						public void onAutoFocus(boolean success, Camera camera)
 						{
-							try {
-								camera.takePicture(shutterCallback, null, jpegCallback);
-							} catch (Exception e) {
-								Log.w(TAG, "could not take picture: " + e.toString());
-								takingPicture = false;
-							}
-							if (!success) {
-								Log.w(TAG, "Unable to focus.");
+							if (takingPicture) {
+								try {
+									camera.takePicture(shutterCallback, null, jpegCallback);
+								} catch (Exception e) {
+									Log.w(TAG, "could not take picture: " + e.toString());
+									takingPicture = false;
+								}
+								if (!success) {
+									Log.w(TAG, "Unable to focus.");
+								}
 							}
 							// This is a Hotfix for TIMOB-20260
 							// "cancelAutoFocus" causes the camera to crash on M (probably due to discontinued support of android.hardware.camera)
@@ -730,6 +732,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 							if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
 								camera.cancelAutoFocus();
 							}
+							camera.autoFocus(null);
 						}
 					};
 					camera.autoFocus(focusCallback);
