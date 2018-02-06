@@ -4309,7 +4309,7 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 	const libDir = path.join(this.buildDir, 'lib');
 	fs.existsSync(libDir) || wrench.mkdirSyncRecursive(libDir);
 
-	[ 'libtiverify.a', 'libti_ios_debugger.a', 'libti_ios_profiler.a' ].forEach(function (filename) {
+	[ 'libtiverify.a' ].forEach(function (filename) {
 		const src = path.join(this.platformPath, filename),
 			srcStat = fs.statSync(src),
 			srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),

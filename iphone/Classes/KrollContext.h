@@ -40,7 +40,6 @@
 #endif
   JSGlobalContextRef context;
   NSMutableDictionary *timers;
-  void *debugger;
 
 #ifdef TI_USE_KROLL_THREAD
   NSRecursiveLock *timerLock;
@@ -59,7 +58,6 @@
 - (BOOL)running;
 - (void)gc;
 - (JSGlobalContextRef)context;
-- (void *)debugger;
 - (BOOL)isKJSThread;
 
 #ifdef DEBUG

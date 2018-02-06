@@ -60,9 +60,6 @@ IOS.prototype.package = function (packager, next) {
 					globCopy('**/*.h', path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'include'), cb);
 				},
 				function (cb) {
-					globCopy('**/*.h', path.join(IOS_ROOT, 'headers', 'JavaScriptCore'), path.join(DEST_IOS, 'include', 'JavaScriptCore'), cb);
-				},
-				function (cb) {
 					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'headers', 'iphone', 'templates' ], cb);
 				},
 				// Copy and inject values for special source files
@@ -75,7 +72,7 @@ IOS.prototype.package = function (packager, next) {
 					copyAndModifyFiles(path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'Classes'), [ 'TopTiModule.m', 'TiApp.m' ], subs, cb);
 				}.bind(this),
 				function (cb) {
-					copyFiles(IOS_LIB, DEST_IOS, [ 'libtiverify.a', 'libti_ios_debugger.a', 'libti_ios_profiler.a' ], cb);
+					copyFiles(IOS_LIB, DEST_IOS, [ 'libtiverify.a' ], cb);
 				},
 				// copy iphone/package.json, but replace __VERSION__ with our version!
 				function (cb) {

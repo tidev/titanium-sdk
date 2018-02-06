@@ -789,7 +789,6 @@
 		841CCAD01807395C00C8DB76 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		843FA58217BD4DFF0064E061 /* TiUIiOSNavWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSNavWindow.h; sourceTree = "<group>"; };
 		843FA58317BD4DFF0064E061 /* TiUIiOSNavWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSNavWindow.m; sourceTree = "<group>"; };
-		844812C31A1D49FB00FBE03A /* TiProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiProfiler.h; sourceTree = "<group>"; };
 		844E1F7C14883A3700F5424C /* TiDOMValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMValidator.h; sourceTree = "<group>"; };
 		844E1F7D14883A3700F5424C /* TiDOMValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMValidator.m; sourceTree = "<group>"; };
 		8465E6BB19F8644D008479E6 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
@@ -884,7 +883,6 @@
 		B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkCookieProxy.m; sourceTree = "<group>"; };
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
 		B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTransitionAnimationProxy.m; sourceTree = "<group>"; };
-		B6DFC5CE1A3B8FC200A857B7 /* TiDebugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TiDebugger.h; path = ../Classes/TiDebugger.h; sourceTree = "<group>"; };
 		BB26FC7C19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSNotificationActionProxy.h; sourceTree = "<group>"; };
 		BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSNotificationActionProxy.m; sourceTree = "<group>"; };
 		BB26FC7E19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSNotificationCategoryProxy.h; sourceTree = "<group>"; };
@@ -1104,9 +1102,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
-				B6DFC5CE1A3B8FC200A857B7 /* TiDebugger.h */,
 				DBCFCB791F8261AB00A4CE61 /* SBJSON */,
-				844812C21A1D49FB00FBE03A /* TiProfiler */,
 				312E36BE190B06D9008EAB8D /* APSAnalytics */,
 				B606EF58190B42FB00663EFC /* APSHTTPClient */,
 				242E967211BAD2E30046A0D0 /* AsyncSocket */,
@@ -2156,15 +2152,6 @@
 				823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */,
 			);
 			name = WatchSession;
-			sourceTree = "<group>";
-		};
-		844812C21A1D49FB00FBE03A /* TiProfiler */ = {
-			isa = PBXGroup;
-			children = (
-				844812C31A1D49FB00FBE03A /* TiProfiler.h */,
-			);
-			name = TiProfiler;
-			path = ../Classes/TiProfiler;
 			sourceTree = "<group>";
 		};
 		84A00FED17FB392E00D4BF94 /* Dynamics */ = {

@@ -762,7 +762,6 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 #endif
     stopped = YES;
     KrollContextCount++;
-    debugger = NULL;
 
     WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
 #ifdef TI_USE_KROLL_THREAD
@@ -1425,11 +1424,6 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   [kroll autorelease];
   [pool release];
 #endif
-}
-
-- (void *)debugger
-{
-  return debugger;
 }
 
 @end
