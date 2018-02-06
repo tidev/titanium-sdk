@@ -21,7 +21,7 @@ const __ = appc.i18n(__dirname).__;
 
 exports.run = function run(logger, config, cli, finished) {
 	const projectDir = cli.argv['project-dir'];
-	// Determine the name of the generate moudle assets file
+	// Determine the name of the generate module assets file
 	const moduleId = cli.manifest.moduleid;
 	const moduleIdAsIdentifier = moduleId
 		.replace(/[\s-]/g, '_')
