@@ -551,7 +551,7 @@ AndroidModuleBuilder.prototype.cleanup = function cleanup(next) {
 
 	// remove old module libraries
 	fs.existsSync(this.libsDir) && this.dirWalker(this.libsDir, function (file) {
-		const libExp = new RegExp('lib' + this.manifest.moduleid + '.so$', 'i');
+		const libExp = new RegExp('lib' + this.manifest.moduleid + '.so$', 'i'); // eslint-disable-line security/detect-non-literal-regexp
 		if (libExp.test(file) && fs.existsSync(file)) {
 			this.logger.debug(__('Removing %s', file.cyan));
 			fs.removeSync(file);

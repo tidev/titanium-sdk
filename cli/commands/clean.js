@@ -1,7 +1,7 @@
 /*
  * clean.js: Titanium Mobile CLI clean command
  *
- * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2018, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -14,6 +14,7 @@ const appc = require('node-appc'),
 	ti = require('node-titanium-sdk'),
 	fs = require('fs'),
 	path = require('path'),
+	sprintf = require('sprintf'),
 	wrench = require('wrench'),
 	async = require('async'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml');
