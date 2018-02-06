@@ -8,30 +8,11 @@
 
 #import "TiColor.h"
 #import "TiFile.h"
+#import "TiMediaTypes.h"
 #import "TiViewProxy.h"
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
 #import <MediaPlayer/MediaPlayer.h>
-
-typedef NS_ENUM(NSInteger, VideoTimeOption) {
-  VideoTimeOptionNearestKeyFrame = 0,
-  VideoTimeOptionExact,
-};
-
-typedef NS_ENUM(NSInteger, VideoRepeatMode) {
-  VideoRepeatModeNone = 0,
-  VideoRepeatModeOne,
-};
-
-typedef NS_ENUM(NSInteger, TiVideoPlayerPlaybackState) {
-  TiVideoPlayerPlaybackStateUnknown = -1,
-  TiVideoPlayerPlaybackStateStopped,
-  TiVideoPlayerPlaybackStatePlaying,
-  TiVideoPlayerPlaybackStatePaused,
-  TiVideoPlayerPlaybackStateInterrupted,
-  TiVideoPlayerPlaybackStateSeekingForward, // Not supported so far
-  TiVideoPlayerPlaybackStateSeekingBackward, // Not supported so far
-};
 
 @interface TiMediaVideoPlayerProxy : TiViewProxy {
   @protected
