@@ -90,7 +90,7 @@ static BOOL alertShowing = NO;
         YES);
   } else {
 #ifndef TI_USE_KROLL_THREAD
-    //TIMOB-24349: Force the heap to be GC'd to avoid Ti.UI.AlertDialog references to grow much.
+    // TIMOB-24349: Force the heap to be GC'd to avoid Ti.UI.AlertDialog references to grow
     KrollContext *krollContext = [self.pageContext krollContext];
     [krollContext forceGarbageCollectNow];
 #endif
