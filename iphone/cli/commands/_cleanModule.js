@@ -43,7 +43,7 @@ exports.run = function run(logger, config, cli, finished) {
 			logger.debug(__('Deleting %s', target.cyan));
 			fs.removeSync(target);
 		} else {
-			logger.debug(__('File/Directory does not exist %s', target.cyan));
+			logger.debug(__('File does not exist %s', target.cyan));
 		}
 	});
 
