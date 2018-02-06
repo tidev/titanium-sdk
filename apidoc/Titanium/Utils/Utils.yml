@@ -10,18 +10,19 @@ platforms: [android, iphone, ipad]
 methods:
   - name: base64decode
     summary: Returns the specified data decoded from Base64.
+    description: |
+        The parameter can be a String, Ti.Blob or Ti.File (iOS since 7.0.2 and Android since 3.3.0).
     returns:
         type: Titanium.Blob
     parameters:
       - name: obj
         summary: Data to decode.
-        type: [String, Titanium.Blob]
+        type: [String, Titanium.Blob, Titanium.Filesystem.File]
 
   - name: base64encode
     summary: Returns the specified data encoded to Base64.
     description: |
-        Starting from Titanium 3.3.0, `obj` can be a [File](Titanium.Filesystem.File) object
-        on Android.
+        The parameter can be a String, Ti.Blob or Ti.File (iOS since 7.0.2 and Android since 3.3.0).
     returns:
         type: Titanium.Blob
     parameters:
