@@ -41,8 +41,7 @@
   RELEASE_TO_NIL(centerView);
   RELEASE_TO_NIL(messageLabel);
   RELEASE_TO_NIL(disclosureLabel);
-  RELEASE_TO_NIL(error);
-  RELEASE_TO_NIL(reason);
+
   [super dealloc];
 }
 
