@@ -49,37 +49,54 @@ exports.config = function (logger, config, cli) {
 };
 
 exports.validate = function (logger, config, cli) {
-	var platforms = cli.argv.platforms || cli.argv.platform;
-	if (platforms) {
-		platforms = ti.scrubPlatforms(platforms);
+	// Determine if the project is an app or a module, run appropriate clean command
+	if (cli.argv.type === 'module') {
 
-		if (platforms.bad.length) {
-			logger.error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', platforms.bad.length, platforms.bad.join(', ')) + '\n');
-			logger.log(__('Available platforms for SDK version %s:', ti.manifest.sdkVersion) + '\n');
-			ti.targetPlatforms.forEach(function (p) {
-				logger.log('    ' + p.cyan);
+		// make sure the module manifest is sane
+		ti.validateModuleManifest(logger, cli, cli.manifest);
+
+		return function (finished) {
+			logger.log.init(function () {
+				const result = ti.validatePlatformOptions(logger, config, cli, 'cleanModule');
+				if (result && typeof result === 'function') {
+					result(finished);
+				} else {
+					finished(result);
+				}
 			});
-			logger.log();
-			process.exit(1);
+		};
+
+	} else {
+		let platforms = cli.argv.platforms || cli.argv.platform;
+		if (platforms) {
+			platforms = ti.scrubPlatforms(platforms);
+
+			if (platforms.bad.length) {
+				logger.error(__n('Invalid platform: %%s', 'Invalid platforms: %%s', platforms.bad.length, platforms.bad.join(', ')) + '\n');
+				logger.log(__('Available platforms for SDK version %s:', ti.manifest.sdkVersion) + '\n');
+				ti.targetPlatforms.forEach(function (p) {
+					logger.log('    ' + p.cyan);
+				});
+				logger.log();
+				process.exit(1);
+			}
+
+			cli.argv.platforms = platforms.scrubbed;
+		} else {
+			cli.argv.platforms = null;
 		}
 
-		cli.argv.platforms = platforms.scrubbed;
-	} else {
-		cli.argv.platforms = null;
+		ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
+
+		return function (finished) {
+			ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
+				finished();
+			});
+		};
 	}
-
-	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
-
-	return function (finished) {
-		ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
-			finished();
-		});
-	};
 };
 
 exports.run = function (logger, config, cli) {
-	var buildDir = path.join(cli.argv['project-dir'], 'build');
-
 	function done(err) {
 		if (err) {
 			logger.error(__('Failed to clean project in %s', appc.time.prettyDiff(cli.startTime, Date.now())) + '\n');
@@ -88,70 +105,105 @@ exports.run = function (logger, config, cli) {
 		}
 	}
 
-	if (cli.argv.platforms) {
-		async.series(cli.argv.platforms.map(function (platform) {
-			return function (next) {
-				// scan platform SDK specific clean hooks
-				cli.scanHooks(path.join(__dirname, '..', '..', platform, 'cli', 'hooks'));
-				cli.fireHook('clean.pre', function () {
-					cli.fireHook('clean.' + platform + '.pre', function () {
-						var dir = path.join(buildDir, platform);
-						if (appc.fs.exists(dir)) {
-							logger.debug(__('Deleting %s', dir.cyan));
-							wrench.rmdirSyncRecursive(dir);
-						} else {
-							logger.debug(__('Directory does not exist %s', dir.cyan));
-						}
-						dir = path.join(buildDir, 'build_' + platform + '.log');
-						if (appc.fs.exists(dir)) {
-							logger.debug(__('Deleting %s', dir.cyan));
-							fs.unlinkSync(dir);
-						} else {
-							logger.debug(__('Build log does not exist %s', dir.cyan));
-						}
-						cli.fireHook('clean.' + platform + '.post', function () {
-							cli.fireHook('clean.post', function () {
-								next();
+	if (cli.argv.type === 'module') {
+		const platform = ti.resolvePlatform(cli.argv.platform);
+		const cleanModule = path.join(__dirname, '..', '..', platform, 'cli', 'commands', '_cleanModule.js');
+		if (!fs.existsSync(cleanModule)) {
+			logger.error(__('Unable to find platform specific module clean command') + '\n');
+			logger.log(__('Your SDK installation may be corrupt. You can reinstall it by running \'%s\'.', (cli.argv.$ + ' sdk install --force --default').cyan) + '\n');
+			process.exit(1);
+		}
+
+		// TODO Fire clean.module.pre, clean.module.post hooks?
+		// TODO Iterate over platforms? For multi-platform modules we should handle this...
+		require(cleanModule).run(logger, config, cli, function (err) { // eslint-disable-line security/detect-non-literal-require
+			const delta = appc.time.prettyDiff(cli.startTime, Date.now());
+			if (err) {
+				logger.error(__('An error occurred during clean after %s', delta));
+				if (err instanceof appc.exception) {
+					err.dump(logger.error);
+				} else if (err !== true) {
+					(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
+						logger.error(msg);
+					});
+				}
+				logger.log();
+				logger.log.end();
+				process.exit(1);
+			} else {
+				logger.log.end();
+			}
+
+			done();
+		});
+	} else {
+		const buildDir = path.join(cli.argv['project-dir'], 'build');
+
+		if (cli.argv.platforms) {
+			async.series(cli.argv.platforms.map(function (platform) {
+				return function (next) {
+					// scan platform SDK specific clean hooks
+					cli.scanHooks(path.join(__dirname, '..', '..', platform, 'cli', 'hooks'));
+					cli.fireHook('clean.pre', function () {
+						cli.fireHook('clean.' + platform + '.pre', function () {
+							var dir = path.join(buildDir, platform);
+							if (appc.fs.exists(dir)) {
+								logger.debug(__('Deleting %s', dir.cyan));
+								wrench.rmdirSyncRecursive(dir);
+							} else {
+								logger.debug(__('Directory does not exist %s', dir.cyan));
+							}
+							dir = path.join(buildDir, 'build_' + platform + '.log');
+							if (appc.fs.exists(dir)) {
+								logger.debug(__('Deleting %s', dir.cyan));
+								fs.unlinkSync(dir);
+							} else {
+								logger.debug(__('Build log does not exist %s', dir.cyan));
+							}
+							cli.fireHook('clean.' + platform + '.post', function () {
+								cli.fireHook('clean.post', function () {
+									next();
+								});
 							});
 						});
 					});
-				});
-			};
-		}), done);
-	} else if (appc.fs.exists(buildDir)) {
-		logger.debug(__('Deleting all platform build directories'));
-
-		// scan platform SDK specific clean hooks
-		if (ti.targetPlatforms) {
-			ti.targetPlatforms.forEach(function (platform) {
-				cli.scanHooks(path.join(__dirname, '..', '..', platform, 'cli', 'hooks'));
-			});
-		}
-
-		cli.fireHook('clean.pre', function () {
-			async.series(fs.readdirSync(buildDir).map(function (dir) {
-				return function (next) {
-					var file = path.join(buildDir, dir);
-					cli.fireHook('clean.' + dir + '.pre', function () {
-						logger.debug(__('Deleting %s', file.cyan));
-						if (fs.lstatSync(file).isDirectory()) {
-							wrench.rmdirSyncRecursive(file);
-						} else {
-							fs.unlinkSync(file);
-						}
-						cli.fireHook('clean.' + dir + '.post', function () {
-							next();
-						});
-					});
 				};
-			}), function () {
-				cli.fireHook('clean.post', function () {
-					done();
+			}), done);
+		} else if (appc.fs.exists(buildDir)) {
+			logger.debug(__('Deleting all platform build directories'));
+
+			// scan platform SDK specific clean hooks
+			if (ti.targetPlatforms) {
+				ti.targetPlatforms.forEach(function (platform) {
+					cli.scanHooks(path.join(__dirname, '..', '..', platform, 'cli', 'hooks'));
+				});
+			}
+
+			cli.fireHook('clean.pre', function () {
+				async.series(fs.readdirSync(buildDir).map(function (dir) {
+					return function (next) {
+						var file = path.join(buildDir, dir);
+						cli.fireHook('clean.' + dir + '.pre', function () {
+							logger.debug(__('Deleting %s', file.cyan));
+							if (fs.lstatSync(file).isDirectory()) {
+								wrench.rmdirSyncRecursive(file);
+							} else {
+								fs.unlinkSync(file);
+							}
+							cli.fireHook('clean.' + dir + '.post', function () {
+								next();
+							});
+						});
+					};
+				}), function () {
+					cli.fireHook('clean.post', function () {
+						done();
+					});
 				});
 			});
-		});
-	} else {
-		logger.debug(__('Directory does not exist %s', buildDir.cyan));
-		done();
+		} else {
+			logger.debug(__('Directory does not exist %s', buildDir.cyan));
+			done();
+		}
 	}
 };
