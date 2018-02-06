@@ -24,6 +24,8 @@ import android.app.Activity;
 		"hinttextid",
 		"showCancel",
 		"barColor",
+		TiC.PROPERTY_COLOR,
+		TiC.PROPERTY_HINT_TEXT_COLOR,
 		TiC.PROPERTY_VALUE
 })
 // clang-format on
