@@ -21,8 +21,10 @@
     return arg;
   } else if ([arg isKindOfClass:[TiBlob class]]) {
     return [(TiBlob *)arg text];
+  } else if ([arg isKindOfClass:[TiFile class]]) {
+    return [(TiBlob *)[(TiFile *)arg blob] text];
   }
-  THROW_INVALID_ARG(@"invalid type");
+  THROW_INVALID_ARG(@"Invalid type");
 }
 
 - (NSString *)apiName
@@ -59,7 +61,9 @@
   ENSURE_SINGLE_ARG(args, NSObject);
 
   NSString *str = [[self convertToString:args] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-  NSData *decodedData = [[[NSData alloc] initWithBase64EncodedString:str options:0] autorelease];
+  int padding = (4 - (str.length % 4)) % 4;
+  NSString *paddedStr = [NSString stringWithFormat:@"%s%.*s", [str UTF8String], padding, "=="];
+  NSData *decodedData = [[[NSData alloc] initWithBase64EncodedString:paddedStr options:0] autorelease];
 
   if (decodedData != nil) {
     return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:decodedData mimetype:@"application/octet-stream"] autorelease];
