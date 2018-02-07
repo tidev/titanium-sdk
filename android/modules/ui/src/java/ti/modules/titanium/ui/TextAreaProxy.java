@@ -60,6 +60,7 @@ public class TextAreaProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_VALUE, "");
 		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
 		defaultValues.put(TiC.PROPERTY_FULLSCREEN, true);
+		defaultValues.put(TiC.PROPERTY_EDITABLE, true);
 		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
 	}
 
