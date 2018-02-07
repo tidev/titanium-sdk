@@ -65,7 +65,7 @@ public class TiWebChromeClient extends WebChromeClient
 		super();
 		this.tiWebView = webView;
 	}
-	
+
 	@Override
 	public void onGeolocationPermissionsShowPrompt(String origin, android.webkit.GeolocationPermissions.Callback callback) {
 	     callback.invoke(origin, true, false);
@@ -130,7 +130,7 @@ public class TiWebChromeClient extends WebChromeClient
 
 		return false;
 	}
-	
+
 	@Override
 	public void onExceededDatabaseQuota(String url, String databaseIdentifier, long currentQuota, long estimatedSize, long totalUsedQuota, QuotaUpdater quotaUpdater)
 	{
@@ -253,7 +253,7 @@ public class TiWebChromeClient extends WebChromeClient
 
 	    Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
 	    contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-	    contentSelectionIntent.setType("image/*");
+	    contentSelectionIntent.setType("*/*");
 
 	    Intent[] intentArray = null;
 	    if (takePictureIntent != null) {
@@ -428,4 +428,3 @@ public class TiWebChromeClient extends WebChromeClient
         return imageFile;
     }
 }
-
