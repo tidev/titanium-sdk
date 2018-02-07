@@ -238,7 +238,6 @@ timestamps {
 							sh 'npm prune --production'
 
 							// Scan for Dependency Check and RetireJS warnings
-							def scanFiles = [[path: 'dependency-check-report.xml']]
 							dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
 							dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
 
@@ -247,17 +246,11 @@ timestamps {
 							sh 'npx appc-license > output.csv'
 							archiveArtifacts 'output.csv'
 
-							sh 'npm install -g retire'
-							def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
-							if (retireExitCode != 0) {
-								scanFiles << [path: 'retire.json']
-							}
+							sh 'npm install retire'
+							sh 'npx retire --exitwith 0'
+							step([$class: 'WarningsPublisher', canComputeNew: false, canResolveRelativePaths: false, consoleParsers: [[parserName: 'Node Security Project Vulnerabilities'], [parserName: 'RetireJS']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''])
 
-							// Don't publish to threadfix except for master builds
-							if ('master'.equals(env.BRANCH_NAME) && !scanFiles.isEmpty()) {
-								step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
-							}
-
+							// Don't upload to Threadfix, we do that in a nightly security scan job
 							// re-install dev dependencies for testing later...
 							sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
 						}
