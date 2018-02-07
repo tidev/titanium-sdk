@@ -404,7 +404,7 @@
 - (NSNumber *)homeIndicatorAutoHidden
 {
   if ([TiUtils isIOS11OrGreater] == NO) {
-    NSLog(@"[WARN] This property is available on iOS 11 and above.");
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
     return NUMINT(-1);
   }
   return NUMBOOL([self homeIndicatorAutoHide]);
@@ -413,7 +413,7 @@
 - (void)setHomeIndicatorAutoHidden:(id)arg
 {
   if ([TiUtils isIOS11OrGreater] == NO) {
-    NSLog(@"[WARN] This property is available on iOS 11 and above.");
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
     return;
   }
 
