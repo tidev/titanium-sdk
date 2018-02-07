@@ -233,32 +233,34 @@ timestamps {
 
 				if (isMainlineBranch) {
 					stage('Security') {
-						// Clean up and install only production dependencies
-						sh 'npm prune --production'
+						timeout(25) { // sometimes the upload hangs forever...
+							// Clean up and install only production dependencies
+							sh 'npm prune --production'
 
-						// Scan for Dependency Check and RetireJS warnings
-						def scanFiles = [[path: 'dependency-check-report.xml']]
-						dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
-						dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
+							// Scan for Dependency Check and RetireJS warnings
+							def scanFiles = [[path: 'dependency-check-report.xml']]
+							dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
+							dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
 
-						// Adding appc-license scan, until we can get the output from Dependency Check/Track
-						sh 'npm install appc-license'
-						sh 'npx appc-license > output.csv'
-						archiveArtifacts 'output.csv'
+							// Adding appc-license scan, until we can get the output from Dependency Check/Track
+							sh 'npm install appc-license'
+							sh 'npx appc-license > output.csv'
+							archiveArtifacts 'output.csv'
 
-						sh 'npm install -g retire'
-						def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
-						if (retireExitCode != 0) {
-							scanFiles << [path: 'retire.json']
+							sh 'npm install -g retire'
+							def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
+							if (retireExitCode != 0) {
+								scanFiles << [path: 'retire.json']
+							}
+
+							// Don't publish to threadfix except for master builds
+							if ('master'.equals(env.BRANCH_NAME) && !scanFiles.isEmpty()) {
+								step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
+							}
+
+							// re-install dev dependencies for testing later...
+							sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
 						}
-
-						// Don't publish to threadfix except for master builds
-						if ('master'.equals(env.BRANCH_NAME) && !scanFiles.isEmpty()) {
-							step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
-						}
-
-						// re-install dev dependencies for testing later...
-						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
 					} // end 'Security' stage
 				}
 			} // nodeJs
