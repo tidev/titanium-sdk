@@ -1,7 +1,6 @@
 'use strict';
 
-const exec = require('child_process').exec, // eslint-disable-line security/detect-child-process
-	path = require('path'),
+const path = require('path'),
 	async = require('async'),
 	fs = require('fs-extra'),
 	utils = require('./utils'),
@@ -9,22 +8,9 @@ const exec = require('child_process').exec, // eslint-disable-line security/dete
 	copyAndModifyFile = utils.copyAndModifyFile,
 	copyAndModifyFiles = utils.copyAndModifyFiles,
 	globCopy = utils.globCopy,
-	downloadURL = utils.downloadURL,
 	ROOT_DIR = path.join(__dirname, '..'),
 	IOS_ROOT = path.join(ROOT_DIR, 'iphone'),
-	IOS_LIB = path.join(IOS_ROOT, 'lib'),
-	TI_CORE_VERSION = 24,
-	TI_CORE_INTEGRITY = 'sha512-iTyrzaMs6SfPlyEgO70pg8EW08mn211tjpAI5hAmRHQaZGu1ieuBnT8uEkEYcsO8hdzAFbouqPPEaXWcJH5SLA==';
-
-function gunzip(gzFile, destFile, next) {
-	console.log('Gunzipping ' + gzFile + ' to ' + destFile);
-	exec('gunzip -dc "' + gzFile + '" > "' + destFile + '"', function (err) {
-		if (err) {
-			return next(err);
-		}
-		next();
-	});
-}
+	IOS_LIB = path.join(IOS_ROOT, 'lib');
 
 /**
  * @param {Object} options options object
@@ -60,7 +46,7 @@ IOS.prototype.package = function (packager, next) {
 					globCopy('**/*.h', path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'include'), cb);
 				},
 				function (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'headers', 'iphone', 'templates' ], cb);
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates' ], cb);
 				},
 				// Copy and inject values for special source files
 				function (cb) {
