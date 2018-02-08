@@ -16,7 +16,7 @@ using namespace v8;
 
 namespace titanium {
 
-bool JavaObject::useGlobalRefs = true;
+bool JavaObject::useGlobalRefs = false;
 
 #ifdef TI_DEBUG
 static struct {
@@ -62,8 +62,9 @@ JavaObject::~JavaObject()
 	}
 
 	// Make sure we wipe the persistent, in case we called delete on the proxy and didn't get deleted as a result of the NativeObject WeakCallback
-	if (persistent().IsEmpty())
+	if (persistent().IsEmpty()) {
 		return;
+	}
 	persistent().Reset();
 }
 
@@ -133,6 +134,7 @@ void JavaObject::detach()
 {
 	// WAIT A SECOND V8!!! DON'T KILL MY OBJECT YET! THE JVM MAY STILL WANT IT!
 	persistent().ClearWeak(); // Make JS Strong Again!
+	persistent().MarkActive();
 
 	// if the JVM side is a weak reference or we have no object wrapped, don't do anything else
 	if (isDetached()) {
