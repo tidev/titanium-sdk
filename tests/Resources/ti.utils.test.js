@@ -58,9 +58,16 @@ describe('Titanium.Utils', function () {
 	});
 
 	it('#base64encode(Ti.Blob)', function () {
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt'),
-			contents = f.read();
+		// Simple base64 string
+		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt');
+		var contents = f.read();
 		should(Ti.Utils.base64encode(contents).toString()).eql('SSBhbSBub3QgZW5jb2RlZCB5ZXQu');
+		
+		// Large base64 string
+		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'SplashScreen.png');
+		var contents = f.read();
+		should(Ti.Utils.base64encode(contents)).not.be.null;	
+		should(Ti.Utils.base64encode(contents).text).not.be.null;	
 	});
 
 	// FIXME: base64encode accepts Ti.File as a parameter on iOS/Android, but not on Windows.
