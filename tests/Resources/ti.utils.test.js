@@ -65,7 +65,7 @@ describe('Titanium.Utils', function () {
 	});
 
 	// FIXME: base64encode accepts Ti.File as a parameter on iOS/Android, but not on Windows.
-	it.windowsBroken('#base64encode(Ti.Filesystem.File)', function () {
+	it.androidAndWindowsBroken('#base64encode(Ti.Filesystem.File)', function () {
 		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt');
 		var blob = Ti.Utils.base64encode(f);
 
