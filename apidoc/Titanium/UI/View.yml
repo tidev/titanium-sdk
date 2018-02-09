@@ -1096,8 +1096,8 @@ properties:
 
             colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ]
 
-        Android currently only supports linear gradients. It also ignores backfillStart and backfillEnd
-        treating them as if they are true.
+        Android's linear gradients ignores `backfillStart` and `backfillEnd`, treating them as if
+        they are true. Android's radial gradients ignore the `endPoint` property.
     examples:
       - title: Linear and Radial Gradients
         example: |
@@ -1774,7 +1774,7 @@ properties:
 ---
 name: Gradient
 summary: A simple object defining a color gradient.
-platforms: [iphone, ipad]
+platforms: [android, iphone, ipad]
 since: "1.8.0"
 properties:
   - name: type
@@ -1795,10 +1795,14 @@ properties:
   - name: startRadius
     summary: For a radial gradient, the radius at the `startPoint`.
     type: Number
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
   - name: endRadius
     summary: For a radial gradient, the radius at the `endPoint`.
     type: Number
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
   - name: colors
     summary: |
@@ -1809,15 +1813,19 @@ properties:
 
   - name: backfillStart
     summary: Set to `true` to continue filling with the starting color beyond the `startPoint`.
+    description: On Android, this property is only supported by radial gradients.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
   - name: backfillEnd
     summary: Set to `true` to continue filling with the final color beyond the `endPoint`.
+    description: On Android, this property is only supported by radial gradients.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
 ---
 name: GradientColorRef
@@ -1831,7 +1839,13 @@ properties:
     type: String
 
   - name: offset
-    summary: Offset of this color in the gradient, from 0 (start) to 1 (end).
+    summary: The color's normalized position within the gradient, ranging from 0 (start) to 1 (end).
+    description: |
+        For a linear gradient, the offset ranges between [startPoint](Gradient.startPoint)
+        and [endPoint](Gradient.endPoint).
+
+        For a radial gradient, the offset ranges between [startRadius](Gradient.startRadius)
+        and [endRadius](Gradient.endRadius).
     type: Number
 
 ---
