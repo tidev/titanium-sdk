@@ -1512,6 +1512,9 @@ properties:
         The view's size is `rect.width` x `rect.height`. The view's top-left position relative to
         its parent is (`rect.x` , `rect.y`).
 
+        On Android it will also return `rect.absoluteX` and 'rect.absoluteY' which are relative to
+        the main window.
+
         The correct values will only be available when layout is complete.
         To determine when layout is complete, add a listener for the
         [postlayout](Titanium.UI.View.postlayout) event.
