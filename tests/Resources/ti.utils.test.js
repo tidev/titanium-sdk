@@ -22,9 +22,10 @@ describe('Titanium.Utils', function () {
 	});
 
 	it('#base64decode(String)', function () {
+		var test;
 		// Basic tests
 		should(Ti.Utils.base64decode).be.a.Function;
-		var test = Ti.Utils.base64decode('dGVzdA==');
+		test = Ti.Utils.base64decode('dGVzdA==');
 		should(test).be.a.Object;
 		should(test.apiName).eql('Ti.Blob');
 		should(test.getText()).be.eql('test');
@@ -32,18 +33,18 @@ describe('Titanium.Utils', function () {
 		// Test string without padding
 		should(!Ti.Utils.base64decode('eyJzdWIiOiJ0ZXN0IiwiZW1haWwiOiJ0ZXN0IiwiYXVkIjoidGVzdCIsImp0aSI6ImxvTHM4d2o5aWxBQUtWckNxbzhaMFMiLCJpc3MiOiJodHRwczpcL1wvc3NvLmV4YW1wbGUuY29tIiwiaWF0IjoxNTI2MTY3NDc3LCJleHAiOjE1MjYxNjc0NzcsInBpLnRlc3QiOiJMSTRmMW81Q2pqU2tHU2xTanM0bHlPeVlROCJ9')).not.be.null;
 
-	  // More padding tests 
-	  should(Ti.Utils.base64decode('Zg').text).eql('f');
-	  should(Ti.Utils.base64decode('Zm8').text).eql('fo');
-	  should(Ti.Utils.base64decode('Zm9v').text).eql('foo');
-	  should(Ti.Utils.base64decode('Zm9vYg').text).eql('foob');
-	  should(Ti.Utils.base64decode('Zm9vYmE').text).eql('fooba');
-	  should(Ti.Utils.base64decode('Zm9vYmFy').text).eql('foobar');
+		// More padding tests
+		should(Ti.Utils.base64decode('Zg').text).eql('f');
+		should(Ti.Utils.base64decode('Zm8').text).eql('fo');
+		should(Ti.Utils.base64decode('Zm9v').text).eql('foo');
+		should(Ti.Utils.base64decode('Zm9vYg').text).eql('foob');
+		should(Ti.Utils.base64decode('Zm9vYmE').text).eql('fooba');
+		should(Ti.Utils.base64decode('Zm9vYmFy').text).eql('foobar');
 	});
 
 	// FIXME Windows gives: 'base64decode: attempt to decode a value not in base64 char set'
 	it.windowsBroken('#base64decode(Ti.Blob)', function () {
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/encodedFile.txt'),
+		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/encodedFile.txt'),
 			blob = Ti.Utils.base64decode(f.read());
 		should(blob.toString()).eql('Decoding successful!');
 	});
@@ -58,21 +59,14 @@ describe('Titanium.Utils', function () {
 	});
 
 	it('#base64encode(Ti.Blob)', function () {
-		// Simple base64 string
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt');
-		var contents = f.read();
+		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt'),
+			contents = f.read();
 		should(Ti.Utils.base64encode(contents).toString()).eql('SSBhbSBub3QgZW5jb2RlZCB5ZXQu');
-		
-		// Large base64 string
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'SplashScreen.png');
-		var contents = f.read();
-		should(Ti.Utils.base64encode(contents)).not.be.null;	
-		should(Ti.Utils.base64encode(contents).text).not.be.null;	
 	});
 
 	// FIXME: base64encode accepts Ti.File as a parameter on iOS/Android, but not on Windows.
 	it.windowsBroken('#base64encode(Ti.Filesystem.File)', function () {
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt');
+		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt');
 		var blob = Ti.Utils.base64encode(f);
 
 		// result here is a Ti.Blob
@@ -81,9 +75,9 @@ describe('Titanium.Utils', function () {
 		should(blob.text).eql('SSBhbSBub3QgZW5jb2RlZCB5ZXQu');
 	});
 
-	// FIXME: base64decode accepts Ti.File as a parameter on iOS, but not on Android / Windows.
-	it.androidAndWindowsBroken('#base64decode(Ti.Filesystem.File)', function () {		
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/encodedFile.txt');
+	// FIXME: base64decode accepts Ti.File as a parameter on iOS, but not on Android/Windows.
+	it.androidAndWindowsBroken('#base64decode(Ti.Filesystem.File)', function () {
+		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/encodedFile.txt');
 		var blob = Ti.Utils.base64decode(f);
 
 		// result here is a Ti.Blob
@@ -102,7 +96,7 @@ describe('Titanium.Utils', function () {
 
 	// FIXME Windows gives different md5 hash! Maybe line ending difference?
 	it.windowsBroken('#md5HexDigest(Ti.Blob)', function () {
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/file.txt'),
+		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/file.txt'),
 			contents = f.read(),
 			test;
 		should(Ti.Utils.md5HexDigest).be.a.Function;
@@ -120,7 +114,7 @@ describe('Titanium.Utils', function () {
 	});
 
 	it('#sha1(Ti.Blob)', function () {
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt'),
+		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt'),
 			contents = f.read();
 		should(Ti.Utils.sha1(contents).toString()).eql('ddbb50fb5beea93d1d4913fc22355c84f22d43ed');
 	});
@@ -134,7 +128,7 @@ describe('Titanium.Utils', function () {
 	});
 
 	it('#sha256(Ti.Blob)', function () {
-		var f = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt'),
+		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt'),
 			contents = f.read();
 		should(Ti.Utils.sha256(contents).toString()).eql('9f81cd4f510080f1da92386b391cf2539b21f6363df491b89787e50fbc33b2c3');
 	});
