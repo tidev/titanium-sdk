@@ -8,9 +8,19 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'),
+	utilities = require('./utilities/utilities');
 
 describe('Titanium.Utils', function () {
+	var win;
+
+	afterEach(function () {
+		if (win) {
+			win.close();
+		}
+		win = null;
+	});
+
 	it('exists', function () {
 		should(Ti.Utils).not.be.undefined;
 		should(Ti.Utils).be.an.Object;
@@ -58,14 +68,71 @@ describe('Titanium.Utils', function () {
 		should(test.getText()).be.eql('dGVzdA==');
 	});
 
-	it('#base64encode(Ti.Blob)', function () {
+	it('#base64encode(Ti.Blob#TYPE_FILE)', function () {
 		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt'),
 			contents = f.read();
 		should(Ti.Utils.base64encode(contents).toString()).eql('SSBhbSBub3QgZW5jb2RlZCB5ZXQu');
 	});
 
+	it('#base64encode(Ti.Blob#TYPE_DATA from Ti.UI.View.toImage() async)', function (finish) {
+		var win,
+			label;
+		this.timeout(5000);
+		win = Ti.UI.createWindow();
+		label = Ti.UI.createLabel({ text: 'test' });
+		win.add(label);
+		win.addEventListener('focus', function () {
+			// Get a Ti.Blob from view.toImage()
+			label.toImage(function (blob) {
+				var result;
+				try {
+					if (utilities.isAndroid()) {
+						should(blob.type).eql(2); // Android-specific property, value of 2 indicates TYPE_DATA
+					}
+					result = Ti.Utils.base64encode(blob);
+					// result here is a Ti.Blob
+					should(result).be.a.Object; // Fails here
+					should(result.apiName).eql('Ti.Blob');
+					// should(blob.text).eql('aGVsbG8gd29ybGQ='); // FIXME What sanity check can we do here?
+					finish();
+				} catch (err) {
+					finish(err);
+				}
+			});
+		});
+		win.open();
+	});
+
+	it('#base64encode(Ti.Blob#TYPE_DATA from Ti.Buffer.toBlob())', function () {
+		var blob,
+			buffer = Ti.createBuffer({ value: 'hello world' }); // Easiest way to get a TYPE_DATA Blob is from Ti.Buffer.toBlob()
+		blob = Ti.Utils.base64encode(buffer.toBlob());
+		// result here is a Ti.Blob
+		should(blob).be.a.Object;
+		should(blob.apiName).eql('Ti.Blob');
+		should(blob.text).eql('aGVsbG8gd29ybGQ=');
+	});
+
+	it('#base64encode(Ti.Blob#TYPE_STRING)', function () {
+		// Only way to get a blob of type string is the result of base64encode(String) on Android!
+		var blob,
+			test = Ti.Utils.base64encode('test');
+		should(test).be.a.Object;
+		should(test.apiName).eql('Ti.Blob');
+		if (utilities.isAndroid()) {
+			should(test.type).eql(3); // Android-specific property, value of 3 indicates TYPE_STRING
+		}
+		should(test.getText()).be.eql('dGVzdA==');
+
+		blob = Ti.Utils.base64encode(test);
+		// result here is a Ti.Blob
+		should(blob).be.a.Object;
+		should(blob.apiName).eql('Ti.Blob');
+		should(blob.text).eql('ZEdWemRBPT0=');
+	});
+
 	// FIXME: base64encode accepts Ti.File as a parameter on iOS/Android, but not on Windows.
-	it.androidAndWindowsBroken('#base64encode(Ti.Filesystem.File)', function () {
+	it.windowsBroken('#base64encode(Ti.Filesystem.File)', function () {
 		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/decodedFile.txt');
 		var blob = Ti.Utils.base64encode(f);
 
@@ -75,8 +142,8 @@ describe('Titanium.Utils', function () {
 		should(blob.text).eql('SSBhbSBub3QgZW5jb2RlZCB5ZXQu');
 	});
 
-	// FIXME: base64decode accepts Ti.File as a parameter on iOS, but not on Android/Windows.
-	it.androidAndWindowsBroken('#base64decode(Ti.Filesystem.File)', function () {
+	// FIXME: base64decode accepts Ti.File as a parameter on iOS/Android, but not on Windows.
+	it.windowsBroken('#base64decode(Ti.Filesystem.File)', function () {
 		var f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/encodedFile.txt');
 		var blob = Ti.Utils.base64decode(f);
 

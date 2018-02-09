@@ -51,13 +51,8 @@ public class UtilsModule extends KrollModule
 		if (obj instanceof TiBlob) {
 			return TiBlob.blobFromString(((TiBlob) obj).toBase64());
 		} else if (obj instanceof TiFileProxy) {
-			try {
-				return TiBlob.blobFromStreamBase64(
-					((TiFileProxy) obj).getInputStream(),
-					TiMimeTypeHelper.getMimeType(((TiFileProxy) obj).getBaseFile().nativePath()));
-			} catch (IOException e) {
-				Log.e(TAG, "Problem reading file");
-			}
+			// recursively call base64encode after converting Ti.Filesystem.File to a Ti.Blob wrapping it
+			return base64encode(TiBlob.blobFromFile(((TiFileProxy) obj).getBaseFile()));
 		}
 		String data = convertToString(obj);
 		if (data != null) {
@@ -73,6 +68,10 @@ public class UtilsModule extends KrollModule
 	@Kroll.method
 	public TiBlob base64decode(Object obj)
 	{
+		if (obj instanceof TiFileProxy) {
+			// recursively call base64decode after converting Ti.Filesystem.File to a Ti.Blob wrapping it
+			return base64decode(TiBlob.blobFromFile(((TiFileProxy) obj).getBaseFile()));
+		}
 		String data = convertToString(obj);
 		if (data != null) {
 			try {
