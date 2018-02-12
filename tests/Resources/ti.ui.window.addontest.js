@@ -63,9 +63,6 @@ describe('Titanium.UI.Window', function () {
 				finish(err);
 			}
 		});
-
 		win.open();
-			
 	});
-
 });
