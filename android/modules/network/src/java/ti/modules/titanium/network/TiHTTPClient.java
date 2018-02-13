@@ -631,10 +631,14 @@ public class TiHTTPClient
 	{
 		if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
 			aborted = true;
-			if (client != null) {
-				client.disconnect();
-				client = null;
+
+			try {
+				if (client != null) {
+					client.disconnect();
+				}
+			} catch (Exception ex) {
 			}
+
 			// Fire the disposehandle event if the request is aborted.
 			// And it will dispose the handle of the httpclient in the JS.
 			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
@@ -1306,7 +1310,10 @@ public class TiHTTPClient
 			} catch (Throwable t) {
 				if (client != null) {
 					Log.d(TAG, "clearing the expired and idle connections", Log.DEBUG_MODE);
-					client.disconnect();
+					try {
+						client.disconnect();
+					} catch (Exception ex) {
+					}
 				} else {
 					Log.d(TAG, "client is not valid, unable to clear expired and idle connections");
 				}

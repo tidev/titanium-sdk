@@ -18,7 +18,16 @@ module.exports = function (grunt) {
 	// Project configuration.
 	grunt.initConfig({
 		appcJs: {
-			src: [ 'dangerfile.js', 'Gruntfile.js', 'apidoc/**/*.js', 'build/**/*.js', 'cli/!(locales)/**/*.js', 'android/cli/!(locales)/**/*.js', 'iphone/cli/!(locales)/**/*.js' ]
+			src: [
+				'dangerfile.js',
+				'Gruntfile.js',
+				'apidoc/**/*.js',
+				'build/**/*.js',
+				'cli/!(locales)/**/*.js',
+				'android/cli/!(locales)/**/*.js',
+				'iphone/cli/!(locales)/**/*.js',
+				'tests/Resources/**/*test.js'
+			]
 		},
 		clangFormat: {
 			src: allSrc
