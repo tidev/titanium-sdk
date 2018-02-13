@@ -1824,6 +1824,10 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		// this may have already been called in an option validate() callback
 		this.initTiappSettings();
 
+		// Transpilation details
+		this.transpile = cli.tiapp['transpile'] !== false; // FIXME Does this properly default to true?
+		// this.minSupportedIosSdk holds the target ios version to transpile down to
+
 		// check for blacklisted files in the Resources directory
 		[	path.join(this.projectDir, 'Resources'),
 			path.join(this.projectDir, 'Resources', 'iphone'),
@@ -5778,47 +5782,61 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						this.jsFilesToEncrypt.push(file);
 					}
 
-					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-						let r;
-						try {
-							// parse the AST
-							r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-						} catch (ex) {
-							ex.message.split('\n').forEach(this.logger.error);
-							this.logger.log();
-							process.exit(1);
-						}
-
-						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[to] = r.symbols;
-
-						const dir = path.dirname(to);
-						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-						this.unmarkBuildDirFile(to);
-
-						if (this.minifyJS) {
+					try {
+						this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+							const originalContents = fs.readFileSync(from).toString();
+							// Populate an initial object to pass in. This won't have modified
+							// contents or symbols populated, which it used to at this point,
+							// but I don't think any plugin relied on that behavior, while
+							// hyperloop would clobber the contents if we didn't do the mods
+							// inside the compile hook.
+							const r = {
+								original: originalContents,
+								contents: originalContents,
+								symbols: []
+							};
 							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+								// Read the possibly modified file contents
+								const source = r.contents;
+								// Analyze Ti API usage, possibly also minify/transpile
+								const analyzeOptions = {
+									filename: from,
+									minify: this.minifyJS,
+									transpile: this.transpile,
+								};
+								// generate our transpile target based on tijscore/jscore
+								if (this.useJSCore) {
+									analyzeOptions.targets = { 'ios': this.minSupportedIosSdk }; // if using jscore, target our min ios version
+								} // if not jscore, just transpile everything down (no target)
+
+								const modified = jsanalyze.analyzeJs(source, analyzeOptions);
+								const newContents = modified.contents;
+
+								// we want to sort by the "to" filename so that we correctly handle file overwriting
+								this.tiSymbols[to] = modified.symbols;
+
+								const dir = path.dirname(to);
+								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
 								const exists = fs.existsSync(to);
-								if (!exists || r.contents !== fs.readFileSync(to).toString()) {
+								// dest doesn't exist, or new contents differs from existing dest file
+								if (!exists || newContents !== fs.readFileSync(to).toString()) {
 									this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 									exists && fs.unlinkSync(to);
-									fs.writeFileSync(to, r.contents);
+									fs.writeFileSync(to, newContents);
 									this.jsFilesChanged = true;
 								} else {
 									this.logger.trace(__('No change, skipping %s', to.cyan));
 								}
+								this.unmarkBuildDirFile(to);
 								cb2();
 							})(r, from, to, cb);
-						} else {
-							if (this.copyFileSync(from, to)) {
-								this.jsFilesChanged = true;
-							} else {
-								this.logger.trace(__('No change, skipping %s', to.cyan));
-							}
-							cb();
-						}
-					})(info.src, info.dest, next);
+						})(info.src, info.dest, next);
+					} catch (ex) {
+						ex.message.split('\n').forEach(this.logger.error);
+						this.logger.log();
+						process.exit(1);
+					}
 				}.bind(this));
 			}.bind(this), next);
 		},
