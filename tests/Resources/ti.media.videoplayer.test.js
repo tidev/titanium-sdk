@@ -89,23 +89,23 @@ describe('Titanium.Media.VideoPlayer', function () {
 	});
 
 	it.ios('Close window containing a video player (TIMOB-25574)', function (finish) {
-		var win = Titanium.UI.createWindow();
+		var win = Ti.UI.createWindow();
 
-		var nav = Titanium.UI.iOS.createNavigationWindow({
+		var nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
 
-		var detailWindow = Titanium.UI.createWindow();
+		var detailWindow = Ti.UI.createWindow();
 
-		var videoPlayer = Titanium.Media.createVideoPlayer({
+		var videoPlayer = Ti.Media.createVideoPlayer({
 			url: 'https://www.w3schools.com/html/mov_bbb.mp4',
 			top: 2,
 			autoplay: true,
 			backgroundColor: 'blue',
 			height: 300,
 			width: 300,
-			mediaControlStyle: Titanium.Media.VIDEO_CONTROL_DEFAULT,
-			scalingMode: Titanium.Media.VIDEO_SCALING_ASPECT_FIT
+			mediaControlStyle: Ti.Media.VIDEO_CONTROL_DEFAULT,
+			scalingMode: Ti.Media.VIDEO_SCALING_ASPECT_FIT
 		});
 
 		this.timeout(10000);
