@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * Copyright (c) 2012-2013 Chris Talkington, contributors.
  * {@link https://github.com/ctalkington/node-archiver}
@@ -24,13 +24,11 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	appc = require('node-appc'),
 	archiver = require('archiver'),
 	async = require('async'),
-	babel = require('babel-core'),
 	Builder = require('../lib/base-builder.js'),
 	CleanCSS = require('clean-css'),
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
-	env = require('babel-preset-env'),
 	fields = require('fields'),
 	fs = require('fs'),
 	i18n = require('node-titanium-sdk/lib/i18n'),
@@ -917,6 +915,13 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
+	// Transpilation details
+	this.transpile = cli.tiapp['transpile'] !== false; // FIXME Does this properly default to true?
+	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
+	const v8Version = this.packageJson.v8.version;
+	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
+	this.chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
+
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
 		case 'production':
@@ -1633,13 +1638,9 @@ process.exit(1);
 					for (let dependency of timodule.modules) {
 						if (!dependency.platform || /^android$/.test(dependency.platform)) {
 
-							let missing = true;
-							for (let module of this.nativeLibModules) {
-								if (module.id === dependency.id) {
-									missing = false;
-									break;
-								}
-							}
+							let missing = !this.nativeLibModules.some(function (mod) {
+								return mod.id === dependency.id;
+							});
 							if (missing) {
 								dependency.depended = module;
 
@@ -2701,39 +2702,43 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				try {
 					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
-						// parse the AST
 						const originalContents = fs.readFileSync(from).toString();
-						const r = jsanalyze.analyzeJs(originalContents, { minify: this.minifyJS, filename: from });
-
-						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[to] = r.symbols;
-
-						// Now transpile too!
+						// Populate an initial object to pass in. This won't have modified
+						// contents or symbols populated, which it used to at this point,
+						// but I don't think any plugin relied on that behavior, while
+						// hyperloop would clobber the contents if we didn't do the mods
+						// inside the compile hook.
+						const r = {
+							original: originalContents,
+							contents: originalContents,
+							symbols: []
+						};
 						this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
+							// Read the possibly modified file contents
+							const source = r.contents;
+							// Analyze Ti API usage, possibly also minify/transpile
+							const modified = jsanalyze.analyzeJs(source, {
+								filename: from,
+								minify: this.minifyJS,
+								transpile: this.transpile,
+								targets: {
+									chrome: this.chromeVersion
+								}
+							});
+							const newContents = modified.contents;
+
+							// we want to sort by the "to" filename so that we correctly handle file overwriting
+							this.tiSymbols[to] = modified.symbols;
+
 							const dir = path.dirname(to);
 							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-							// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
-							const v8Version = this.packageJson.v8.version;
-							const found = v8Version.match(V8_STRING_VERSION_REGEXP);
-							const chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
-							const result = babel.transform(r.contents, {
-								filename: from,
-								presets: [
-									[ env, {
-										'targets': {
-											'chrome': chromeVersion,
-										}
-									}]
-								]
-							});
-							const newContents = result.code;
 
-							// If we're able to symlink and the contents didn't change, great let's just symlink
 							if (symlinkFiles && newContents === originalContents) {
+								this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
 								copyFile.call(this, from, to, cb2);
 							} else {
-								// code changed or we can't symlink. Either way, write the file to dest
-								this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+								// TODO If dest file exists and contents match, don't do anything?
+								this.logger.debug(__('Writing modified contents to %s', to.cyan));
 								fs.writeFile(to, newContents, cb2);
 							}
 						})(r, from, to, cb);
