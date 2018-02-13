@@ -4,8 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-(function(kroll) {
-	var TAG = "kroll";
+(function (kroll) {
+	var TAG = 'kroll';
 	var global = this;
 
 	// Works identical to Object.hasOwnProperty, except
@@ -15,8 +15,7 @@
 		return Object.hasOwnProperty.call(object, property);
 	}
 
-	kroll.extend = function(thisObject, otherObject)
-	{
+	kroll.extend = function (thisObject, otherObject) {
 		if (!otherObject) {
 			// extend with what?!  denied!
 			return;
@@ -29,7 +28,7 @@
 		}
 
 		return thisObject;
-	}
+	};
 
 	function startup() {
 		startup.globalVariables();
@@ -52,18 +51,18 @@
 		}
 	}
 
-	startup.globalVariables = function() {
+	startup.globalVariables = function () {
 		global.kroll = kroll;
 		kroll.ScopeVars = ScopeVars;
 		kroll.NativeModule = NativeModule; // So external module bootstrap.js can call NativeModule.require directly.
 
 		NativeModule.require('events');
 		global.Ti = global.Titanium = NativeModule.require('titanium');
-		global.Module = NativeModule.require("module");
+		global.Module = NativeModule.require('module');
 		global.console = NativeModule.require('console'); // Convenience toplevel alias for logging facilities
 	};
 
-	startup.runMain = function(mainModuleID) {
+	startup.runMain = function (mainModuleID) {
 	};
 
 	var runInThisContext = kroll.binding('evals').Script.runInThisContext;
@@ -78,8 +77,8 @@
 	NativeModule._source = kroll.binding('natives');
 	NativeModule._cache = {};
 
-	NativeModule.require = function(id) {
-		if (id == 'native_module') {
+	NativeModule.require = function (id) {
+		if (id === 'native_module') {
 			return NativeModule;
 		}
 
@@ -100,19 +99,19 @@
 		return nativeModule.exports;
 	};
 
-	NativeModule.getCached = function(id) {
+	NativeModule.getCached = function (id) {
 		return NativeModule._cache[id];
-	}
+	};
 
-	NativeModule.exists = function(id) {
+	NativeModule.exists = function (id) {
 		return (id in NativeModule._source);
-	}
+	};
 
-	NativeModule.getSource = function(id) {
+	NativeModule.getSource = function (id) {
 		return NativeModule._source[id];
-	}
+	};
 
-	NativeModule.wrap = function(script) {
+	NativeModule.wrap = function (script) {
 		return NativeModule.wrapper[0] + script + NativeModule.wrapper[1];
 	};
 
@@ -120,7 +119,7 @@
 		'(function (exports, require, module, __filename, __dirname, Titanium, Ti, global, kroll) {',
 		'\n});' ];
 
-	NativeModule.prototype.compile = function() {
+	NativeModule.prototype.compile = function () {
 
 		var source = NativeModule.getSource(this.id);
 		source = NativeModule.wrap(source);
@@ -134,7 +133,7 @@
 		this.loaded = true;
 	};
 
-	NativeModule.prototype.cache = function() {
+	NativeModule.prototype.cache = function () {
 		NativeModule._cache[this.id] = this;
 	};
 

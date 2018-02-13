@@ -10,7 +10,6 @@ package org.appcelerator.kroll;
  * An interface that wraps an external module's bootstrap process
  *
  */
-public interface KrollExternalModule
-{
+public interface KrollExternalModule {
 	public void bootstrap();
 }

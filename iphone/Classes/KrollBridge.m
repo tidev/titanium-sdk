@@ -552,6 +552,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
   prop = TiStringCreateWithCFString((CFStringRef) @"console");
   TiObjectSetProperty(jsContext, globalRef, prop, [KrollObject toValue:kroll value:console], kTiPropertyAttributeNone, NULL);
 
+  // Make the global object itself available under the name "global"
+  TiStringRef globalPropertyName = TiStringCreateWithCFString((CFStringRef) @"global");
+  TiObjectSetProperty(jsContext, globalRef, globalPropertyName, globalRef, kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete, NULL);
+
   //if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
     for (NSString *name in preload) {
@@ -1124,10 +1128,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
     // and if we did, try and load a cached module for this path
     if (pathCache != nil && modules != nil) {
       // We generate a path resolution cache key, first part is the requested module id/path
-      pathCacheKey = [path stringByAppendingString:@"|"];
+      pathCacheKey = [[path stringByAppendingString:@"|"] mutableCopy];
       // If request is not-absolute and we're not at the top-level dir, then append current dir as second part of cache key
       if (workingPath != nil && ![path hasPrefix:@"/"]) {
-        pathCacheKey = [pathCacheKey stringByAppendingString:workingPath];
+        pathCacheKey = [[pathCacheKey stringByAppendingString:workingPath] mutableCopy];
       }
       NSString *resolvedPath = [pathCache objectForKey:pathCacheKey];
       if (resolvedPath != nil) {

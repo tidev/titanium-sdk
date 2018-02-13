@@ -22,13 +22,12 @@
  */
 package kankan.wheel.widget;
 
-
-
 /**
  * Numeric Wheel adapter.
  */
-public class NumericWheelAdapter implements WheelAdapter {
-	
+public class NumericWheelAdapter implements WheelAdapter
+{
+
 	/** The default min value */
 	public static final int DEFAULT_MAX_VALUE = 9;
 
@@ -37,16 +36,17 @@ public class NumericWheelAdapter implements WheelAdapter {
 
 	/** The default max value */
 	private static final int DEFAULT_STEP_VALUE = 1;
-	
+
 	// Values
 	private int minValue;
 	private int maxValue;
 	private int stepValue;
-	
+
 	/**
 	 * Default constructor
 	 */
-	public NumericWheelAdapter() {
+	public NumericWheelAdapter()
+	{
 		this(DEFAULT_MIN_VALUE, DEFAULT_MAX_VALUE, DEFAULT_STEP_VALUE);
 	}
 
@@ -55,7 +55,8 @@ public class NumericWheelAdapter implements WheelAdapter {
 	 * @param minValue the wheel min value
 	 * @param maxValue the wheel maz value
 	 */
-	public NumericWheelAdapter(int minValue, int maxValue) {
+	public NumericWheelAdapter(int minValue, int maxValue)
+	{
 		this(minValue, maxValue, DEFAULT_STEP_VALUE);
 	}
 
@@ -65,15 +66,16 @@ public class NumericWheelAdapter implements WheelAdapter {
 	 * @param maxValue the wheel maz value
 	 * @param stepValue the numeric step value
 	 */
-	public NumericWheelAdapter(int minValue, int maxValue, int stepValue) {
+	public NumericWheelAdapter(int minValue, int maxValue, int stepValue)
+	{
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 		this.stepValue = stepValue;
 	}
-	
-	
+
 	@Override
-	public String getItem(int index) {
+	public String getItem(int index)
+	{
 		if (index >= 0 && index < getItemsCount()) {
 			int actualValue = minValue + index * stepValue;
 			return Integer.toString(actualValue);
@@ -82,13 +84,15 @@ public class NumericWheelAdapter implements WheelAdapter {
 	}
 
 	@Override
-	public int getItemsCount() {
-		int itemCount = ( (maxValue - minValue) / stepValue) + 1;
+	public int getItemsCount()
+	{
+		int itemCount = ((maxValue - minValue) / stepValue) + 1;
 		return itemCount;
 	}
-	
+
 	@Override
-	public int getMaximumLength() {
+	public int getMaximumLength()
+	{
 		int max = Math.max(Math.abs(maxValue), Math.abs(minValue));
 		int maxLen = Integer.toString(max).length();
 		if (minValue < 0) {
@@ -96,24 +100,28 @@ public class NumericWheelAdapter implements WheelAdapter {
 		}
 		return maxLen;
 	}
-	
-	public int getMinValue() {
+
+	public int getMinValue()
+	{
 		return minValue;
 	}
-	
-	public int getMaxValue() {
+
+	public int getMaxValue()
+	{
 		return maxValue;
 	}
-	
-	public int getValue(int index) {
+
+	public int getValue(int index)
+	{
 		int tmpValue = (minValue + index * stepValue);
 		if (tmpValue > maxValue)
 			return maxValue;
 		else
-			return tmpValue;	
+			return tmpValue;
 	}
-	
-	public int getIndex(int value) {
+
+	public int getIndex(int value)
+	{
 		return (value - minValue) / stepValue;
 	}
 	public void setStepValue(int value)

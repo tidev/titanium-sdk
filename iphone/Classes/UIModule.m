@@ -23,9 +23,6 @@
 #ifdef USE_TI_UIANIMATION
 #import "TiAnimation.h"
 #endif
-#ifdef USE_TI_UIIPHONE
-#import "TiUIiPhoneProxy.h"
-#endif
 #ifdef USE_TI_UIIPAD
 #import "TiUIiPadProxy.h"
 #endif
@@ -115,15 +112,7 @@ MAKE_SYSTEM_PROP(RETURNKEY_SEND, UIReturnKeySend);
 MAKE_SYSTEM_PROP(RETURNKEY_YAHOO, UIReturnKeyYahoo);
 MAKE_SYSTEM_PROP(RETURNKEY_DONE, UIReturnKeyDone);
 MAKE_SYSTEM_PROP(RETURNKEY_EMERGENCY_CALL, UIReturnKeyEmergencyCall);
-
-- (NSNumber *)RETURNKEY_CONTINUE
-{
-  if ([TiUtils isIOS9OrGreater] == YES) {
-    return [NSNumber numberWithInt:UIReturnKeyContinue];
-  }
-
-  return UIReturnKeyDefault;
-}
+MAKE_SYSTEM_PROP(RETURNKEY_CONTINUE, UIReturnKeyContinue);
 
 MAKE_SYSTEM_PROP(KEYBOARD_TYPE_DEFAULT, UIKeyboardTypeDefault);
 MAKE_SYSTEM_PROP(KEYBOARD_TYPE_URL, UIKeyboardTypeURL);
@@ -363,18 +352,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 
 #pragma mark iPhone namespace
-
-#ifdef USE_TI_UIIPHONE
-- (id)iPhone
-{
-  if (iphone == nil) {
-    // cache it since it's used alot
-    iphone = [[TiUIiPhoneProxy alloc] _initWithPageContext:[self executionContext]];
-    [self rememberProxy:iphone];
-  }
-  return iphone;
-}
-#endif
 
 #ifdef USE_TI_UIIPAD
 - (id)iPad
@@ -617,6 +594,37 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 {
   return NUMINTEGER(NSLineBreakByTruncatingMiddle);
 }
+#endif
+
+#if defined(USE_TI_UITEXTAREA) || defined(USE_TI_UITEXTFIELD)
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_NAME, UITextContentTypeName);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_NAME_PREFIX, UITextContentTypeNamePrefix);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_GIVEN_NAME, UITextContentTypeGivenName);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_MIDDLE_NAME, UITextContentTypeMiddleName);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_FAMILY_NAME, UITextContentTypeFamilyName);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_NAME_SUFFIX, UITextContentTypeNameSuffix);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_NICKNAME, UITextContentTypeNickname);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_JOB_TITLE, UITextContentTypeJobTitle);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_ORGANIZATION_NAME, UITextContentTypeOrganizationName);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_LOCATION, UITextContentTypeLocation);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_ADDRESS, UITextContentTypeFullStreetAddress);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_ADDRESS_LINE1, UITextContentTypeStreetAddressLine1);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_ADDRESS_LINE2, UITextContentTypeStreetAddressLine2);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_ADDRESS_CITY, UITextContentTypeAddressCity);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_ADDRESS_STATE, UITextContentTypeAddressState);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_ADDRESS_CITY_STATE, UITextContentTypeAddressCityAndState);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_SUBLOCALITY, UITextContentTypeSublocality);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_COUNTRY_NAME, UITextContentTypeCountryName);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_POSTAL_CODE, UITextContentTypePostalCode);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_PHONE, UITextContentTypeTelephoneNumber);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_EMAIL, UITextContentTypeEmailAddress);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_URL, UITextContentTypeURL);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_CARD_NUMBER, UITextContentTypeCreditCardNumber);
+
+#if IS_XCODE_9
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_USERNAME, UITextContentTypeUsername);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
+#endif
 #endif
 
 #ifdef USE_TI_UICLIPBOARD

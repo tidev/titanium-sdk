@@ -51,9 +51,8 @@ public class AnalyticsModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void navEvent(String from, String to,
-		@Kroll.argument(optional=true) String event,
-		@Kroll.argument(optional=true) KrollDict data)
+	public void navEvent(String from, String to, @Kroll.argument(optional = true) String event,
+						 @Kroll.argument(optional = true) KrollDict data)
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
 			// Preserve legacy behavior allowing the argument to be optional. We set it to be an empty string now
@@ -74,14 +73,17 @@ public class AnalyticsModule extends KrollModule
 				analytics.sendAppNavEvent(from, to, event, null);
 			}
 		} else {
-			Log.e(TAG, "Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
+			Log.e(
+				TAG,
+				"Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
 		}
 	}
 
 	@Kroll.method
-	public void filterEvents(Object eventsObj) {
+	public void filterEvents(Object eventsObj)
+	{
 		if (eventsObj instanceof Object[]) {
-			Object[] events = (Object[])eventsObj;
+			Object[] events = (Object[]) eventsObj;
 			String[] temp = new String[events.length];
 			for (int i = 0; i < events.length; ++i) {
 				temp[i] = TiConvert.toString(events[i]);
@@ -93,93 +95,99 @@ public class AnalyticsModule extends KrollModule
 	@Kroll.method
 	public int featureEvent(String event, @Kroll.argument(optional = true) KrollDict data)
 	{
-	    if (TiApplication.getInstance().isAnalyticsEnabled()) {
-	        if (data instanceof HashMap) {
-	            JSONObject jsonData = TiConvert.toJSON(data);
-	            if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
-	                analytics.sendAppFeatureEvent(event, jsonData);
-	                return SUCCESS;
-	            } else {
-	                Log.e(TAG, "Feature event "+ event +" not conforming to recommended usage.");
-	                return JSON_VALIDATION_FAILED;
-	            }
-	        } else if (data != null) {
-	            try {
-	                JSONObject jsonData = new JSONObject(data.toString());
-	                if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
-	                    analytics.sendAppFeatureEvent(event, jsonData);
-	                    return SUCCESS;
-	                } else {
-	                    Log.e(TAG, "Feature event "+ event +" not conforming to recommended usage.");
-	                    return JSON_VALIDATION_FAILED;
-	                }
-	            } catch (JSONException e) {
-	                Log.e(TAG, "Cannot convert data into JSON");
-	                return JSON_VALIDATION_FAILED;
-	            }
-	        } else {
-	            analytics.sendAppFeatureEvent(event, null);
-	            return SUCCESS;
-	        }
-	    } else {
-	        Log.e(TAG, "Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
-	        return ANALYTICS_DISABLED;
-	    }
+		if (TiApplication.getInstance().isAnalyticsEnabled()) {
+			if (data instanceof HashMap) {
+				JSONObject jsonData = TiConvert.toJSON(data);
+				if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
+					analytics.sendAppFeatureEvent(event, jsonData);
+					return SUCCESS;
+				} else {
+					Log.e(TAG, "Feature event " + event + " not conforming to recommended usage.");
+					return JSON_VALIDATION_FAILED;
+				}
+			} else if (data != null) {
+				try {
+					JSONObject jsonData = new JSONObject(data.toString());
+					if (AnalyticsModule.validateJSON(jsonData, 0) == SUCCESS) {
+						analytics.sendAppFeatureEvent(event, jsonData);
+						return SUCCESS;
+					} else {
+						Log.e(TAG, "Feature event " + event + " not conforming to recommended usage.");
+						return JSON_VALIDATION_FAILED;
+					}
+				} catch (JSONException e) {
+					Log.e(TAG, "Cannot convert data into JSON");
+					return JSON_VALIDATION_FAILED;
+				}
+			} else {
+				analytics.sendAppFeatureEvent(event, null);
+				return SUCCESS;
+			}
+		} else {
+			Log.e(
+				TAG,
+				"Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
+			return ANALYTICS_DISABLED;
+		}
 	}
 
-	public static int validateJSON(JSONObject jsonObject, int level) {
+	public static int validateJSON(JSONObject jsonObject, int level)
+	{
 
-	    if (level > MAX_LEVELS) {
-	        Log.w(TAG, "Feature event cannot have more than "+ MAX_LEVELS + " nested JSONs");
-	        return JSON_VALIDATION_FAILED;
-	    }
-	    if (jsonObject == null) {
-	        return JSON_VALIDATION_FAILED;
-	    }
-	    if ((level == 0) & (jsonObject.toString().getBytes().length > MAX_SERLENGTH)) {
-	        Log.w(TAG, "Feature event cannot exceed more than "+ MAX_SERLENGTH + " total serialized bytes");
-	        return JSON_VALIDATION_FAILED;
-	    }
-	    if (jsonObject.length() > MAX_KEYS) {
-	        Log.w(TAG, "Feature event maxium keys should not exceed "+ MAX_KEYS);
-	        return JSON_VALIDATION_FAILED;
-	    }
+		if (level > MAX_LEVELS) {
+			Log.w(TAG, "Feature event cannot have more than " + MAX_LEVELS + " nested JSONs");
+			return JSON_VALIDATION_FAILED;
+		}
+		if (jsonObject == null) {
+			return JSON_VALIDATION_FAILED;
+		}
+		if ((level == 0) & (jsonObject.toString().getBytes().length > MAX_SERLENGTH)) {
+			Log.w(TAG, "Feature event cannot exceed more than " + MAX_SERLENGTH + " total serialized bytes");
+			return JSON_VALIDATION_FAILED;
+		}
+		if (jsonObject.length() > MAX_KEYS) {
+			Log.w(TAG, "Feature event maximum keys should not exceed " + MAX_KEYS);
+			return JSON_VALIDATION_FAILED;
+		}
 
-	    Iterator<String> keys = jsonObject.keys();
+		Iterator<String> keys = jsonObject.keys();
 
-	    while(keys.hasNext()) {
-	        String key = (String)keys.next();
-	        if (key.length() > MAX_KEYLENGTH) {
-	            Log.w(TAG, "Feature event key "+key+" length should not exceed "+MAX_KEYLENGTH+" characters");
-	            return JSON_VALIDATION_FAILED;
-	        }
-	        try {
-	            Object child;
-	            child = jsonObject.get(key);
-	            if (child instanceof JSONObject) {
-	                if (validateJSON(((JSONObject)child), level+1) != SUCCESS){
-	                    return JSON_VALIDATION_FAILED;
-	                }
-	            } else if (jsonObject.get(key) instanceof JSONArray) {
-	                JSONArray jsonArray = (JSONArray) child;
-	                for(int i=0; i< jsonArray.length(); i++) {
-	                    Object o = jsonArray.get(i);
-	                    if (o instanceof JSONObject) {
-	                        if (validateJSON(((JSONObject)o), level+1) != SUCCESS){
-	                            return JSON_VALIDATION_FAILED;
-	                        }
-	                    }
-	                }
-	            }
-	        } catch (JSONException e) {
-	            Log.w(TAG, "Unable to validate JSON: " + e);
-	        }
-	    }
-	    return SUCCESS;
+		while (keys.hasNext()) {
+			String key = (String) keys.next();
+			if (key.length() > MAX_KEYLENGTH) {
+				Log.w(TAG, "Feature event key " + key + " length should not exceed " + MAX_KEYLENGTH + " characters");
+				return JSON_VALIDATION_FAILED;
+			}
+			try {
+				Object child;
+				child = jsonObject.get(key);
+				if (child instanceof JSONObject) {
+					if (validateJSON(((JSONObject) child), level + 1) != SUCCESS) {
+						return JSON_VALIDATION_FAILED;
+					}
+				} else if (jsonObject.get(key) instanceof JSONArray) {
+					JSONArray jsonArray = (JSONArray) child;
+					for (int i = 0; i < jsonArray.length(); i++) {
+						Object o = jsonArray.get(i);
+						if (o instanceof JSONObject) {
+							if (validateJSON(((JSONObject) o), level + 1) != SUCCESS) {
+								return JSON_VALIDATION_FAILED;
+							}
+						}
+					}
+				}
+			} catch (JSONException e) {
+				Log.w(TAG, "Unable to validate JSON: " + e);
+			}
+		}
+		return SUCCESS;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getLastEvent()
+	// clang-format on
 	{
 		if (TiApplication.getInstance().isAnalyticsEnabled()) {
 			TiPlatformHelper platformHelper = TiPlatformHelper.getInstance();
@@ -206,7 +214,9 @@ public class AnalyticsModule extends KrollModule
 				}
 			}
 		} else {
-			Log.e(TAG, "Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
+			Log.e(
+				TAG,
+				"Analytics is disabled.  To enable, please update the <analytics></analytics> node in your tiapp.xml");
 		}
 		return null;
 	}

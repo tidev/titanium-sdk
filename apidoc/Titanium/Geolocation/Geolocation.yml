@@ -79,6 +79,14 @@ description: |
                 </plist>
             </ios>
         </ti:app>
+        
+    For iOS 11 and later, also add the [`NSLocationAlwaysAndWhenInUseUsageDescription`](https://developer.apple.com/documentation/corelocation/choosing_the_authorization_level_for_location_services/request_always_authorization)
+    when planning to request the "Always" permission. Using the above key, you are also able to upgrade your permissions from
+    "When in Use" to "Always", which is the recommended way for managing location permissions in iOS 11 and later.
+    Please also remember to request your desired location-permissions before using any geolocation-related API in 
+    order to receive the best usability and permission-control during the app-lifecycle using <Titanium.Geolocation.hasLocationPermissions>
+    and <Ti.Geolocation.requestLocationPermissions>. Also note that you also need to include the `NSLocationWhenInUseUsageDescription` key 
+    in *any* case when targeting iOS 11 and later. Descriptive error-logs will be thrown if required permissions are missing.
 
     #### Configurating Location Updates on Android
 
@@ -238,7 +246,20 @@ methods:
         In iOS 8, Apple introduced the Info.plist keys `NSLocationWhenInUseUsageDescription` and `NSLocationAlwaysUsageDescription`
         that are used to display an own description while requesting location permissions. In addition to this method, you need to
         include one of these keys (based on how your location updates should behave) or the application will crash if your app does not.
-        Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) for more information.
+        
+        In iOS 11, Apple introduced another Info.plist key `NSLocationAlwaysAndWhenInUseUsageDescription` that allows developers to upgrade
+        their permissions from "When in Use" to "Always". In order to get the best usability for iOS 11 and later, request "When in Use" first
+        and upgrade your location-permissions by requesting "Always" permissions later if required. If this permission-flow is not used, iOS
+        will still ask the user to select between "When in Use", "Always", and "Don't Allow" (primary action) on iOS 11 when asking for "Always" 
+        permissions, which can lead to a higher frequence of denied permissions, so be careful requesting location permissions. 
+        The iOS 11 related upgrade-flow is available in Titanium SDK 6.3.0 and later.
+        
+        Finally, iOS 11 and later will require you to *always* include the `NSLocationWhenInUseUsageDescription` permission and Titanium will throw a
+        descriptive error-log if any required keys are missing.
+
+        More infos:
+          * [Available Info.plist keys](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+          * [Request Always Authorization](https://developer.apple.com/documentation/corelocation/choosing_the_authorization_level_for_location_services/request_always_authorization)
     parameters:
       - name: authorizationType
         summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.
@@ -462,6 +483,9 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+    deprecated:
+        since: "7.0.0"
+        notes: Use <Titanium.Geolocation.AUTHORIZATION_ALWAYS> as advised by Apple.
 
   - name: AUTHORIZATION_DENIED
     summary: |
@@ -562,12 +586,6 @@ properties:
     osver:
         ios:
             min: "4.0"
-
-  - name: ERROR_TIMEOUT
-    summary: Error indicating a timeout.
-    platforms: []
-    type: Number
-    permission: read-only
 
   - name: PROVIDER_GPS
     summary: |

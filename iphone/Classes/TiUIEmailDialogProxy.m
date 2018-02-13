@@ -61,6 +61,12 @@
 
 - (void)open:(id)args
 {
+#if TARGET_IPHONE_SIMULATOR
+  DebugLog(@"[INFO] iOS Simulator does not support sending emails. Use a device instead.");
+  NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
+  [self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"iOS Simulator does not support sending emails. Use a device instead."];
+#else
+
   [self rememberSelf];
   NSDictionary *properties = nil;
   ENSURE_ARG_OR_NIL_AT_INDEX(properties, args, 0, NSDictionary);
@@ -76,13 +82,6 @@
 
   NSString *subject = [TiUtils stringValue:[self valueForUndefinedKey:@"subject"]];
   NSString *message = [TiUtils stringValue:[self valueForUndefinedKey:@"messageBody"]];
-
-#if TARGET_IPHONE_SIMULATOR
-  DebugLog(@"[INFO] iOS Simulator does not support sending emails. Use a device instead.");
-  NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
-  [self fireEvent:@"complete" withObject:event errorCode:MFMailComposeResultFailed message:@"iOS Simulator does not support sending emails. Use a device instead."];
-  return;
-#endif
 
   if (![MFMailComposeViewController canSendMail]) {
     NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(MFMailComposeResultFailed) forKey:@"result"];
@@ -133,6 +132,7 @@
   BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
   [self retain];
   [[TiApp app] showModalController:composer animated:animated];
+#endif
 }
 
 MAKE_SYSTEM_PROP(SENT, MFMailComposeResultSent);

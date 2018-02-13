@@ -20,6 +20,10 @@
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
+#if IS_XCODE_9
+#import "TiUIViewProxy.h"
+#import "TiUIWindowProxy.h"
+#endif
 
 #define IGNORE_IF_NOT_OPENED                      \
   if (!windowOpened || [self viewAttached] == NO) \
@@ -167,10 +171,29 @@ static NSArray *touchEventsArray;
 
 - (void)add:(id)arg
 {
+#if IS_XCODE_9
+  TiUIWindowProxy *windowProxy = nil;
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    windowProxy = (TiUIWindowProxy *)self;
+    if (arg == windowProxy.safeAreaViewProxy) {
+      // If adding the safeAreaViewProxy, it need to be add on window.
+      windowProxy = nil;
+    }
+  }
+#endif
+
   // allow either an array of arrays or an array of single proxy
   if ([arg isKindOfClass:[NSArray class]]) {
     for (id a in arg) {
-      [self add:a];
+#if IS_XCODE_9
+      if (windowProxy.safeAreaViewProxy) {
+        [windowProxy.safeAreaViewProxy add:a];
+      } else {
+#endif
+        [self add:a];
+#if IS_XCODE_9
+      }
+#endif
     }
     return;
   }
@@ -185,6 +208,12 @@ static NSArray *touchEventsArray;
     nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
 #endif
   if ([arg isKindOfClass:[NSDictionary class]]) {
+#if IS_XCODE_9
+    if (windowProxy.safeAreaViewProxy) {
+      [windowProxy.safeAreaViewProxy add:arg];
+      return;
+    }
+#endif
     childView = [arg objectForKey:@"view"];
     position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
   } else if ([arg isKindOfClass:[TiViewProxy class]]) {
@@ -277,6 +306,16 @@ static NSArray *touchEventsArray;
 
 - (void)replaceAt:(id)args
 {
+#if IS_XCODE_9
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    if (windowProxy.safeAreaViewProxy) {
+      [windowProxy.safeAreaViewProxy replaceAt:args];
+      return;
+    }
+  }
+#endif
+
   ENSURE_SINGLE_ARG(args, NSDictionary);
   NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
   NSArray *childrenArray = [self children];
@@ -290,6 +329,16 @@ static NSArray *touchEventsArray;
 
 - (void)remove:(id)arg
 {
+#if IS_XCODE_9
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    if (windowProxy.safeAreaViewProxy) {
+      [windowProxy.safeAreaViewProxy remove:arg];
+      return;
+    }
+  }
+#endif
+
   ENSURE_UI_THREAD_1_ARG(arg);
 
 #ifdef HYPERLOOP
@@ -351,6 +400,16 @@ static NSArray *touchEventsArray;
 
 - (void)removeAllChildren:(id)arg
 {
+#if IS_XCODE_9
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    if (windowProxy.safeAreaViewProxy) {
+      [windowProxy.safeAreaViewProxy removeAllChildren:arg];
+      return;
+    }
+  }
+#endif
+
   ENSURE_UI_THREAD_1_ARG(arg);
   pthread_rwlock_wrlock(&childrenLock);
   NSMutableArray *childrenCopy = [children mutableCopy];
@@ -728,8 +787,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     [blob setMimeType:@"image/png" type:TiBlobTypeImage];
     UIGraphicsEndImageContext();
     if (callback != nil) {
-      NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"blob"];
-      [self _fireEventToListener:@"blob" withObject:event listener:callback thisObject:nil];
+      DebugLog(@"[DEBUG] Since Titanium SDK 7.0.0, the toImage callback returns a single blob on iOS to match the Android / Windows behavior.");
+      DebugLog(@"[DEBUG] Please migrate your code in case you still use the old behavior. This debug-log will be removed in Titanium SDK 8.0.0");
+
+      [callback call:@[ blob ] thisObject:self];
     }
   },
       (callback == nil));
@@ -1089,7 +1150,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
     // If parent has a non absolute layout signal the parent that
     //contents will change else just lay ourselves out
-    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
+    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties] -> layoutStyle))) {
       [parent contentsWillChange];
     } else {
       if (CGRectIsEmpty(sandboxBounds) && (view != nil)) {
@@ -1274,6 +1335,26 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   // for subclasses
 }
 
+- (void)gainFocus
+{
+  NSArray *childProxies = [self children];
+  for (TiViewProxy *thisProxy in childProxies) {
+    if ([thisProxy respondsToSelector:@selector(gainFocus)]) {
+      [(id)thisProxy gainFocus];
+    }
+  }
+}
+
+- (void)resignFocus
+{
+  NSArray *childProxies = [self children];
+  for (TiViewProxy *thisProxy in childProxies) {
+    if ([thisProxy respondsToSelector:@selector(resignFocus)]) {
+      [(id)thisProxy resignFocus];
+    }
+  }
+}
+
 #pragma mark Housecleaning state accessors
 
 - (BOOL)viewHasSuperview:(UIView *)superview
@@ -1427,7 +1508,41 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   allowLayoutUpdate = YES;
   [self processTempProperties:nil];
   allowLayoutUpdate = NO;
+
+#if IS_XCODE_9
+  [self createSafeAreaViewProxyForWindowProperties:properties];
+#endif
 }
+
+#if IS_XCODE_9
+- (void)createSafeAreaViewProxyForWindowProperties:(NSDictionary *)properties
+{
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+    /*
+     Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
+     */
+    TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
+    windowProxy.shouldExtendSafeArea = [TiUtils boolValue:[self valueForUndefinedKey:@"extendSafeArea"] def:YES];
+    if (!windowProxy.safeAreaViewProxy && !windowProxy.shouldExtendSafeArea) {
+      NSMutableDictionary *safeAreaProperties = [NSMutableDictionary dictionary];
+
+      id layout = [self valueForUndefinedKey:@"layout"];
+      if (layout) {
+        safeAreaProperties[@"layout"] = layout;
+      }
+
+      id horizontalWrap = [self valueForUndefinedKey:@"horizontalWrap"];
+      if (horizontalWrap) {
+        safeAreaProperties[@"horizontalWrap"] = horizontalWrap;
+      }
+
+      windowProxy.safeAreaViewProxy = [[[TiUIViewProxy alloc] _initWithPageContext:[self pageContext] args:@[ safeAreaProperties ]] autorelease];
+      [windowProxy processForSafeArea];
+      [self add:windowProxy.safeAreaViewProxy];
+    }
+  }
+}
+#endif
 
 - (void)dealloc
 {
@@ -2067,7 +2182,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   if (windowOpened && [self viewAttached]) {
     CGRect oldFrame = [[self view] frame];
     BOOL relayout = ![self suppressesRelayout];
-    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
+    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties] -> layoutStyle))) {
       //Do not mess up the sandbox in vertical/horizontal layouts
       relayout = NO;
     }
@@ -2198,7 +2313,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
     UIView *parentView = [parent parentViewForChild:self];
     CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
-    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
+    if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties] -> layoutStyle))) {
       sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties, self, sandboxBounds.size, &autoresizeCache);
     } else {
       sizeCache.size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties, self, referenceSize, &autoresizeCache);
@@ -2422,13 +2537,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     CGFloat desiredWidth = MIN([child minimumParentWidthForSize:bounds.size], bounds.size.width);
 
     //TOP + BOTTOM
-    CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
-        + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
+    CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties] -> top, bounds.size.height)
+        + TiDimensionCalculateValue([child layoutProperties] -> bottom, bounds.size.height);
     //LEFT + RIGHT
-    CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
-        + TiDimensionCalculateValue([child layoutProperties]->right, bounds.size.width);
+    CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties] -> left, bounds.size.width)
+        + TiDimensionCalculateValue([child layoutProperties] -> right, bounds.size.width);
 
-    TiDimension constraint = [child layoutProperties]->height;
+    TiDimension constraint = [child layoutProperties] -> height;
 
     if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint)) {
       bounds.size.height = TiDimensionCalculateValue(constraint, bounds.size.height) + offsetV;
@@ -2451,15 +2566,15 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         verticalLayoutBoundary += bounds.size.height;
       }
     } else if (TiDimensionIsUndefined(constraint)) {
-      if (!TiDimensionIsUndefined([child layoutProperties]->top) && !TiDimensionIsUndefined([child layoutProperties]->centerY)) {
-        CGFloat height = 2 * (TiDimensionCalculateValue([child layoutProperties]->centerY, boundingValue) - TiDimensionCalculateValue([child layoutProperties]->top, boundingValue));
+      if (!TiDimensionIsUndefined([child layoutProperties] -> top) && !TiDimensionIsUndefined([child layoutProperties] -> centerY)) {
+        CGFloat height = 2 * (TiDimensionCalculateValue([child layoutProperties] -> centerY, boundingValue) - TiDimensionCalculateValue([child layoutProperties] -> top, boundingValue));
         bounds.size.height = height + offsetV;
         verticalLayoutBoundary += bounds.size.height;
-      } else if (!TiDimensionIsUndefined([child layoutProperties]->top) && !TiDimensionIsUndefined([child layoutProperties]->bottom)) {
+      } else if (!TiDimensionIsUndefined([child layoutProperties] -> top) && !TiDimensionIsUndefined([child layoutProperties] -> bottom)) {
         bounds.size.height = boundingValue;
         verticalLayoutBoundary += bounds.size.height;
-      } else if (!TiDimensionIsUndefined([child layoutProperties]->centerY) && !TiDimensionIsUndefined([child layoutProperties]->bottom)) {
-        CGFloat height = 2 * (boundingValue - TiDimensionCalculateValue([child layoutProperties]->bottom, boundingValue) - TiDimensionCalculateValue([child layoutProperties]->centerY, boundingValue));
+      } else if (!TiDimensionIsUndefined([child layoutProperties] -> centerY) && !TiDimensionIsUndefined([child layoutProperties] -> bottom)) {
+        CGFloat height = 2 * (boundingValue - TiDimensionCalculateValue([child layoutProperties] -> bottom, boundingValue) - TiDimensionCalculateValue([child layoutProperties] -> centerY, boundingValue));
         bounds.size.height = height + offsetV;
         verticalLayoutBoundary += bounds.size.height;
       } else if (followsFillBehavior) {
@@ -2479,13 +2594,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     CGFloat boundingHeight = bounds.size.height - verticalLayoutBoundary;
 
     //LEFT + RIGHT
-    CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
-        + TiDimensionCalculateValue([child layoutProperties]->right, bounds.size.width);
+    CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties] -> left, bounds.size.width)
+        + TiDimensionCalculateValue([child layoutProperties] -> right, bounds.size.width);
     //TOP + BOTTOM
-    CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
-        + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
+    CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties] -> top, bounds.size.height)
+        + TiDimensionCalculateValue([child layoutProperties] -> bottom, bounds.size.height);
 
-    TiDimension constraint = [child layoutProperties]->width;
+    TiDimension constraint = [child layoutProperties] -> width;
 
     CGFloat desiredWidth;
     BOOL recalculateWidth = NO;
@@ -2495,15 +2610,15 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       desiredWidth = TiDimensionCalculateValue(constraint, bounds.size.width) + offsetH;
       isPercent = TiDimensionIsPercent(constraint);
     } else if (TiDimensionIsUndefined(constraint)) {
-      if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->centerX)) {
-        desiredWidth = 2 * (TiDimensionCalculateValue([child layoutProperties]->centerX, boundingWidth) - TiDimensionCalculateValue([child layoutProperties]->left, boundingWidth));
+      if (!TiDimensionIsUndefined([child layoutProperties] -> left) && !TiDimensionIsUndefined([child layoutProperties] -> centerX)) {
+        desiredWidth = 2 * (TiDimensionCalculateValue([child layoutProperties] -> centerX, boundingWidth) - TiDimensionCalculateValue([child layoutProperties] -> left, boundingWidth));
         desiredWidth += offsetH;
-      } else if (!TiDimensionIsUndefined([child layoutProperties]->left) && !TiDimensionIsUndefined([child layoutProperties]->right)) {
+      } else if (!TiDimensionIsUndefined([child layoutProperties] -> left) && !TiDimensionIsUndefined([child layoutProperties] -> right)) {
         recalculateWidth = YES;
         followsFillBehavior = YES;
         desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH, boundingHeight - offsetV)] + offsetH;
-      } else if (!TiDimensionIsUndefined([child layoutProperties]->centerX) && !TiDimensionIsUndefined([child layoutProperties]->right)) {
-        desiredWidth = 2 * (boundingWidth - TiDimensionCalculateValue([child layoutProperties]->right, boundingWidth) - TiDimensionCalculateValue([child layoutProperties]->centerX, boundingWidth));
+      } else if (!TiDimensionIsUndefined([child layoutProperties] -> centerX) && !TiDimensionIsUndefined([child layoutProperties] -> right)) {
+        desiredWidth = 2 * (boundingWidth - TiDimensionCalculateValue([child layoutProperties] -> right, boundingWidth) - TiDimensionCalculateValue([child layoutProperties] -> centerX, boundingWidth));
         desiredWidth += offsetH;
       } else {
         recalculateWidth = YES;
@@ -2520,7 +2635,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       }
     }
     CGFloat desiredHeight;
-    BOOL childIsFixedHeight = TiDimensionIsPercent([child layoutProperties]->height) || TiDimensionIsDip([child layoutProperties]->height);
+    BOOL childIsFixedHeight = TiDimensionIsPercent([child layoutProperties] -> height) || TiDimensionIsDip([child layoutProperties] -> height);
     if (childIsFixedHeight) {
       //For percent width is irrelevant
       desiredHeight = [child minimumParentHeightForSize:CGSizeMake(0, bounds.size.height)];

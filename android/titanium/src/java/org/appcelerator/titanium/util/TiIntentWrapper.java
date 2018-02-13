@@ -30,18 +30,21 @@ public class TiIntentWrapper implements Serializable
 
 	private Intent intent;
 
-	public TiIntentWrapper(Intent intent) {
+	public TiIntentWrapper(Intent intent)
+	{
 		if (intent == null) {
 			//intent = TitaniumApplication.getAppMgr().createDefaultIntent();
 		}
 		this.intent = intent;
 	}
 
-	public static TiIntentWrapper createUsing(Intent prototype) {
+	public static TiIntentWrapper createUsing(Intent prototype)
+	{
 		return createUsing(new TiIntentWrapper(prototype));
 	}
 
-	public static TiIntentWrapper createUsing(TiIntentWrapper prototype) {
+	public static TiIntentWrapper createUsing(TiIntentWrapper prototype)
+	{
 		TiIntentWrapper result = new TiIntentWrapper(new Intent());
 		// Set defaults. Can be overwritten after finished.
 		result.setFullscreen(false);
@@ -51,44 +54,49 @@ public class TiIntentWrapper implements Serializable
 		return result;
 	}
 
-	public static String createActivityName(String name) {
+	public static String createActivityName(String name)
+	{
 		return ACTIVITY_PREFIX + name;
 	}
 
-//	public void updateUsing(TitaniumWindowInfo window)
-//	{
-//		setWindowId(window.getWindowId());
-//		setTitle(window.getWindowTitle());
-//		setData(window.getWindowUrl());
-//		setActivityType(window.getWindowType());
-//		setIconUrl(window.getWindowIconUrl());
-//		setBackgroundColor(window.getBackgroundColor());
-//		setOrientation(window.getWindowOrientation());
-//		setBackgroundImage(window.getWindowBackgroundImage());
-//		setShowActivityOnLoad(window.isWindowShowActivityOnLoad());
-//		//TODO windowsize
-//	}
+	//	public void updateUsing(TitaniumWindowInfo window)
+	//	{
+	//		setWindowId(window.getWindowId());
+	//		setTitle(window.getWindowTitle());
+	//		setData(window.getWindowUrl());
+	//		setActivityType(window.getWindowType());
+	//		setIconUrl(window.getWindowIconUrl());
+	//		setBackgroundColor(window.getBackgroundColor());
+	//		setOrientation(window.getWindowOrientation());
+	//		setBackgroundImage(window.getWindowBackgroundImage());
+	//		setShowActivityOnLoad(window.isWindowShowActivityOnLoad());
+	//		//TODO windowsize
+	//	}
 
-	public Intent getIntent() {
+	public Intent getIntent()
+	{
 		return intent;
 	}
 
-//	public TitaniumAppInfo getAppInfo(Activity activity) {
-//		return ((TitaniumApplication) activity.getApplication()).getAppInfo();
-//	}
-//
-//	public TitaniumWindowInfo getWindowInfo(TitaniumAppInfo appInfo) {
-//		return appInfo.findWindowInfo(getWindowId());
-//	}
+	//	public TitaniumAppInfo getAppInfo(Activity activity) {
+	//		return ((TitaniumApplication) activity.getApplication()).getAppInfo();
+	//	}
+	//
+	//	public TitaniumWindowInfo getWindowInfo(TitaniumAppInfo appInfo) {
+	//		return appInfo.findWindowInfo(getWindowId());
+	//	}
 
-	public String getWindowId() {
+	public String getWindowId()
+	{
 		return intent.getExtras().getString(EXTRA_WINDOW_ID);
 	}
-	public void setWindowId(String id) {
+	public void setWindowId(String id)
+	{
 		intent.putExtra(EXTRA_WINDOW_ID, id);
 	}
 
-	public boolean isFullscreen() {
+	public boolean isFullscreen()
+	{
 		Bundle b = intent.getExtras();
 		if (b != null && b.get(EXTRA_IS_FULLSCREEN) != null) {
 			return b.getBoolean(EXTRA_IS_FULLSCREEN);
@@ -97,11 +105,13 @@ public class TiIntentWrapper implements Serializable
 		}
 	}
 
-	public void setFullscreen(boolean fullscreen) {
+	public void setFullscreen(boolean fullscreen)
+	{
 		intent.putExtra(EXTRA_IS_FULLSCREEN, fullscreen);
 	}
 
-	public boolean isShowActivityOnLoad() {
+	public boolean isShowActivityOnLoad()
+	{
 		Bundle b = intent.getExtras();
 		if (b != null && b.get(EXTRA_SHOW_ACTIVITY_ON_LOAD) != null) {
 			return b.getBoolean(EXTRA_SHOW_ACTIVITY_ON_LOAD);
@@ -110,75 +120,94 @@ public class TiIntentWrapper implements Serializable
 		}
 	}
 
-	public void setShowActivityOnLoad(boolean showActivityOnLoad) {
+	public void setShowActivityOnLoad(boolean showActivityOnLoad)
+	{
 		intent.putExtra(EXTRA_SHOW_ACTIVITY_ON_LOAD, showActivityOnLoad);
 	}
 
-	public String getIconUrl() {
+	public String getIconUrl()
+	{
 		return intent.getExtras().getString(EXTRA_ICON_URL);
 	}
 
-	public void setIconUrl(String iconUrl) {
+	public void setIconUrl(String iconUrl)
+	{
 		intent.putExtra(EXTRA_ICON_URL, iconUrl);
 	}
 
-	public String getActivityType() {
+	public String getActivityType()
+	{
 		return intent.getExtras().getString(EXTRA_ACTIVITY_TYPE);
 	}
 
-	public void setActivityType(String activityType) {
+	public void setActivityType(String activityType)
+	{
 		intent.putExtra(EXTRA_ACTIVITY_TYPE, activityType);
 	}
 
-	public String getTitle() {
+	public String getTitle()
+	{
 		return intent.getExtras().getString(Intent.EXTRA_TITLE);
 	}
 
-	public void setTitle(String title) {
+	public void setTitle(String title)
+	{
 		intent.putExtra(Intent.EXTRA_TITLE, title);
 	}
 
-	public boolean hasBackgroundColor() {
+	public boolean hasBackgroundColor()
+	{
 		return intent.getExtras().containsKey(EXTRA_BACKGROUND_COLOR);
 	}
 
-	public int getBackgroundColor() {
+	public int getBackgroundColor()
+	{
 		return intent.getExtras().getInt(EXTRA_BACKGROUND_COLOR);
 	}
-	public void setBackgroundColor(int color) {
+	public void setBackgroundColor(int color)
+	{
 		intent.putExtra(EXTRA_BACKGROUND_COLOR, color);
 	}
-	public void setBackgroundColor(String colorCode) {
+	public void setBackgroundColor(String colorCode)
+	{
 		intent.putExtra(EXTRA_BACKGROUND_COLOR, TiColorHelper.parseColor(colorCode));
 	}
-	public String getOrientation() {
+	public String getOrientation()
+	{
 		return intent.getExtras().getString(EXTRA_ORIENTATION);
 	}
-	public void setOrientation(String orientation) {
+	public void setOrientation(String orientation)
+	{
 		intent.putExtra(EXTRA_ORIENTATION, orientation);
 	}
 
-	public boolean hasBackgroundImage() {
+	public boolean hasBackgroundImage()
+	{
 		return intent.getExtras().containsKey(EXTRA_BACKGROUND_IMAGE);
 	}
 
-	public String getBackgroundImage() {
+	public String getBackgroundImage()
+	{
 		return intent.getExtras().getString(EXTRA_BACKGROUND_IMAGE);
 	}
 
-	public void setBackgroundImage(String backgroundImage) {
+	public void setBackgroundImage(String backgroundImage)
+	{
 		intent.putExtra(EXTRA_BACKGROUND_IMAGE, backgroundImage);
 	}
 
-	public Uri getData() {
+	public Uri getData()
+	{
 		return intent.getData();
 	}
 
-	public void setData(String url) {
+	public void setData(String url)
+	{
 		intent.setData(Uri.parse(url));
 	}
 
-	public boolean isAutoNamed() {
+	public boolean isAutoNamed()
+	{
 		boolean result = true;
 
 		if (getWindowId() != null) {

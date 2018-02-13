@@ -29,6 +29,8 @@
 
 @interface TiUITableView ()
 @property (nonatomic, copy, readwrite) NSString *searchString;
+@property (nonatomic, copy, readwrite) NSString *searchedString;
+
 - (void)updateSearchResultIndexes;
 - (CGFloat)computeRowWidth;
 @end
@@ -312,6 +314,12 @@
 
 - (void)dealloc
 {
+  if ([searchController isActive]) {
+    searchController.view.hidden = YES;
+    [searchController setActive:NO];
+  }
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+
   if (searchField != nil) {
     [searchField setDelegate:nil];
     RELEASE_TO_NIL(searchField);
@@ -332,16 +340,11 @@
   searchController.searchResultsUpdater = nil;
   searchController.delegate = nil;
   RELEASE_TO_NIL(searchController);
-  RELEASE_TO_NIL(resultViewController);
 
   tableview.delegate = nil;
   tableview.dataSource = nil;
   RELEASE_TO_NIL(tableview);
-
-  _searchTableView.delegate = nil;
-  _searchTableView.dataSource = nil;
-  RELEASE_TO_NIL(_searchTableView);
-
+  RELEASE_TO_NIL(dimmingView);
   RELEASE_TO_NIL(sectionIndex);
   RELEASE_TO_NIL(sectionIndexMap);
   RELEASE_TO_NIL(tableHeaderView);
@@ -349,6 +352,7 @@
   RELEASE_TO_NIL(filterAttribute);
   RELEASE_TO_NIL(searchResultIndexes);
   RELEASE_TO_NIL(tableHeaderPullView);
+  RELEASE_TO_NIL(_searchedString);
   [searchString release];
 #ifdef USE_TI_UIREFRESHCONTROL
   RELEASE_TO_NIL(_refreshControlProxy);
@@ -404,36 +408,9 @@
   [table setOpaque:![[table backgroundColor] isEqual:[UIColor clearColor]]];
 }
 
-- (UITableView *)searchTableView
+- (BOOL)isSearchStarted
 {
-  if (_searchTableView == nil) {
-    id styleObject = [self.proxy valueForKey:@"style"];
-    UITableViewStyle style = [TiUtils intValue:styleObject def:UITableViewStylePlain];
-#ifdef VERBOSE
-    NSLog(@"[DEBUG] Generating a new tableView, and style for %@ is %d", [self.proxy valueForKey:@"style"], style);
-    if (styleObject == nil) {
-      NSLog(@"[WARN] No style object!");
-    }
-#endif
-    _searchTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height) style:style];
-    _searchTableView.delegate = self;
-    _searchTableView.dataSource = self;
-    _searchTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-
-    if (TiDimensionIsDip(rowHeight)) {
-      [_searchTableView setRowHeight:rowHeight.value];
-    } else {
-      //TIMOB-17373 rowHeight on iOS8 is -1. Bug??
-      [_searchTableView setRowHeight:44];
-    }
-
-    [_searchTableView setLayoutMargins:UIEdgeInsetsZero];
-
-    if ([TiUtils isIOS9OrGreater]) {
-      _searchTableView.cellLayoutMarginsFollowReadableWidth = NO;
-    }
-  }
-  return _searchTableView;
+  return ([searchController isActive] && searchResultIndexes);
 }
 
 - (UITableView *)tableView
@@ -452,17 +429,22 @@
     tableview.dataSource = self;
     tableview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
+    // Fixes incorrect heights in iOS 11 as we calculate them internally already
+    tableview.estimatedRowHeight = 0;
+    tableview.estimatedSectionFooterHeight = 0;
+    tableview.estimatedSectionHeaderHeight = 0;
+
     if (TiDimensionIsDip(rowHeight)) {
       [tableview setRowHeight:rowHeight.value];
     } else {
-      //TIMOB-17373 rowHeight on iOS8 is -1. Bug??
+      // TIMOB-17373 rowHeight on iOS8 is -1. Bug??
       [tableview setRowHeight:44];
     }
 
     BOOL initBackGround = YES;
     id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
     if (style == UITableViewStyleGrouped) {
-      //If it is IOS 6 and style is grouped do not call this method unless a backgroundColor is specified
+      //If the style is grouped do not call this method unless a backgroundColor is specified
       initBackGround = (bgInitValue != nil);
     }
     if (initBackGround) {
@@ -585,8 +567,9 @@
       row.parent = section;
     }
   }
-
-  [self reloadDataFromCount:oldCount toCount:newCount animation:animation];
+  if (![self isSearchStarted]) {
+    [self reloadDataFromCount:oldCount toCount:newCount animation:animation];
+  }
 }
 
 //Assertions no longer are needed; we ensure that the sections are not nil.
@@ -682,10 +665,10 @@
     // table reload to the same method. The only time we reloadData, though, is when setting the
     // data, so toggle a flag to indicate what the search should do.
     if (reloadSearch) {
-      [resultViewController.tableView reloadData];
+      [tableview reloadData];
     } else {
-      [resultViewController.tableView reloadSections:[NSIndexSet indexSetWithIndex:0]
-                                    withRowAnimation:UITableViewRowAnimationFade];
+      [[self tableView] reloadSections:[NSIndexSet indexSetWithIndex:0]
+                      withRowAnimation:UITableViewRowAnimationFade];
     }
   } else if (searchHidden) {
     [self hideSearchScreen:nil];
@@ -706,21 +689,27 @@
   switch (action.type) {
   case TiUITableViewActionRowReload: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
-    NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
-    [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+      [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionUpdateRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self updateRow:row];
-    NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
-    [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+      [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionSectionReload: {
-    TiUITableViewSectionProxy *section = action.obj;
-    NSIndexSet *path = [NSIndexSet indexSetWithIndex:section.section];
-    [tableview reloadSections:path withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      TiUITableViewSectionProxy *section = action.obj;
+      NSIndexSet *path = [NSIndexSet indexSetWithIndex:section.section];
+      [tableview reloadSections:path withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionInsertRowBefore: {
@@ -733,8 +722,9 @@
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:NO];
     }
-
-    [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
 
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:YES];
@@ -776,8 +766,9 @@
         [addRows addObject:moveRow];
         [moveRow release];
       }
-
-      [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
+      if (![self isSearchStarted]) {
+        [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
+      }
     }
 
     [sections insertObject:newSection atIndex:newSectionIndex];
@@ -787,7 +778,9 @@
       //Removing the temporarly saved proxy.
       [(TiUITableViewProxy *)[self proxy] forgetProxy:moveRow];
     }
-    [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
+    }
 
     break;
   }
@@ -804,8 +797,9 @@
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:NO];
     }
-
-    [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
 
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:YES];
@@ -840,7 +834,9 @@
       [moveRow release];
     }
     // 1st stage of update: Remove all those nasty old rows.
-    [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
+    if (![self isSearchStarted]) {
+      [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
+    }
 
     // 2nd stage of update: Add in those shiny new rows and update the section.
     [sections insertObject:newSection atIndex:newSectionIndex];
@@ -848,15 +844,18 @@
     for (TiUITableViewRowProxy *moveRow in addRows) {
       [self appendRow:moveRow];
     }
-    [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
-
+    if (![self isSearchStarted]) {
+      [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionDeleteRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self deleteRow:row];
-    NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
-    [tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+      [tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionSetData: {
@@ -867,15 +866,19 @@
   case TiUITableViewActionAppendRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self appendRow:action.obj];
-    NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
-    [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
+      [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
+    }
     break;
   }
   case TiUITableViewActionAppendRowWithSection: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [sections addObject:row.section];
     [self appendRow:action.obj];
-    [tableview insertSections:[NSIndexSet indexSetWithIndex:[sections count] - 1] withRowAnimation:action.animation];
+    if (![self isSearchStarted]) {
+      [tableview insertSections:[NSIndexSet indexSetWithIndex:[sections count] - 1] withRowAnimation:action.animation];
+    }
     break;
   }
   }
@@ -1096,7 +1099,7 @@
     }
 
     BOOL viaSearch = [searchController isActive];
-    UITableView *theTableView = viaSearch ? resultViewController.tableView : [self tableView];
+    UITableView *theTableView = [self tableView];
     CGPoint point = [recognizer locationInView:theTableView];
     CGPoint pointInView = [recognizer locationInView:self];
     NSIndexPath *indexPath = nil;
@@ -1148,7 +1151,7 @@
 - (void)recognizedTap:(UITapGestureRecognizer *)recognizer
 {
   BOOL viaSearch = [searchController isActive];
-  UITableView *theTableView = viaSearch ? resultViewController.tableView : [self tableView];
+  UITableView *theTableView = [self tableView];
   CGPoint point = [recognizer locationInView:theTableView];
   CGPoint pointInView = [recognizer locationInView:self];
   NSIndexPath *indexPath = nil;
@@ -1407,6 +1410,10 @@
       [proxy layoutChildren:NO];
     }
   }
+
+  if ([searchController isActive]) {
+    [self updateSearchControllerFrames];
+  }
 }
 
 - (CGFloat)contentHeightForWidth:(CGFloat)suggestedWidth
@@ -1424,6 +1431,24 @@
   }
 
   return height;
+}
+
+- (void)updateSearchControllerFrames
+{
+  if (![searchController isActive]) {
+    return;
+  }
+  [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+
+  UIView *searchSuperView = [searchController.view superview];
+  searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
+
+  CGFloat width = [searchField view].frame.size.width;
+  UIView *view = searchController.searchBar.superview;
+  view.frame = CGRectMake(0, 0, width, view.frame.size.height);
+  searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
+  [searchField ensureSearchBarHierarchy];
 }
 
 #pragma mark Searchbar-related IBActions
@@ -1523,7 +1548,8 @@
   UIView *searchView = [searchField view];
 
   if (tableHeaderView == nil) {
-    CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, TI_NAVBAR_HEIGHT);
+    CGFloat wrapperHeight = [TiUtils isIOS11OrGreater] ? TI_SEARCHBAR_HEIGHT : TI_NAVBAR_HEIGHT;
+    CGRect wrapperFrame = CGRectMake(0, 0, [tableview bounds].size.width, wrapperHeight);
     tableHeaderView = [[UIView alloc] initWithFrame:wrapperFrame];
     [tableHeaderView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
@@ -1553,9 +1579,15 @@
   [self makeRootViewFirstResponder];
 }
 
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+{
+  self.searchedString = (searchText == nil) ? @"" : searchText;
+}
+
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
   // called when cancel button pressed
+  isSearched = NO;
   [searchBar setText:nil];
   [self setSearchString:nil];
   [self updateSearchResultIndexes];
@@ -1754,7 +1786,6 @@
     [searchField setDelegate:nil];
   }
   RELEASE_TO_NIL(searchField);
-  RELEASE_TO_NIL(resultViewController);
   RELEASE_TO_NIL(searchController);
 
   if (search != nil) {
@@ -1783,11 +1814,9 @@
 - (void)initSearhController
 {
   if (searchController == nil) {
-    resultViewController = [[UITableViewController alloc] init];
-    resultViewController.tableView = [self searchTableView];
-    searchController = [[[UISearchController alloc] initWithSearchResultsController:resultViewController] retain];
+    searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
     searchController.hidesNavigationBarDuringPresentation = NO;
-    searchController.dimsBackgroundDuringPresentation = _dimsBackgroundDuringPresentation;
+    searchController.dimsBackgroundDuringPresentation = NO;
     searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
     searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     searchController.searchBar.placeholder = [[searchField searchBar] placeholder];
@@ -1796,8 +1825,15 @@
     searchController.delegate = self;
     searchController.searchResultsUpdater = self;
 
-    [TiUtils configureController:resultViewController withObject:self.proxy];
     [TiUtils configureController:searchController withObject:self.proxy];
+
+    if (_dimsBackgroundDuringPresentation) {
+      [self createDimmingView];
+    }
+
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
+    [nc addObserver:self selector:@selector(keyboardDidChangeFrame:) name:UIKeyboardDidChangeFrameNotification object:nil];
   }
 }
 
@@ -1805,8 +1841,8 @@
 {
   ENSURE_SINGLE_ARG_OR_NIL(arg, NSNumber);
 
-  if (searchController) {
-    searchController.dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
+  if (searchController && [TiUtils boolValue:arg def:YES]) {
+    [self createDimmingView];
   } else {
     _dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
   }
@@ -2016,7 +2052,7 @@
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
-  if ([searchController isActive] && searchResultIndexes) {
+  if ([self isSearchStarted]) {
     int rowCount = 0;
     for (NSIndexSet *thisSet in searchResultIndexes) {
       rowCount += [thisSet count];
@@ -2034,7 +2070,7 @@
 - (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([searchController isActive] && searchResultIndexes) {
+  if ([self isSearchStarted]) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
@@ -2078,7 +2114,9 @@
     ourTableView.backgroundColor = [UIColor whiteColor];
   }
 
-  RETURN_IF_SEARCH_TABLE_VIEW(1);
+  if ([self isSearchStarted]) {
+    return 1;
+  }
   // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
   NSUInteger result = [(TiUITableViewProxy *)[self proxy] sectionCount];
   return MAX(1, result);
@@ -2289,6 +2327,82 @@
   [[self tableView] deselectRowAtIndexPath:path animated:animated];
 }
 
+- (void)viewResignFocus
+{
+  // As Search controller is presented, we can not open window over it. If any other window get opened above it, we are deactivating Search Controller with saved state if it is activated. And activate Search Controller again when this window get focus in viewGetFocus method.
+
+  if (!hideOnSearch && isSearched && [searchController isActive]) {
+    [searchController setActive:false];
+  } else {
+    isSearched = NO;
+  }
+}
+
+- (void)viewGetFocus
+{
+  if (!hideOnSearch && isSearched && self.searchedString && ![searchController isActive]) {
+    isSearched = NO;
+    searchController.searchBar.text = self.searchedString;
+    [searchController performSelector:@selector(setActive:) withObject:@YES afterDelay:.1];
+    [searchController.searchBar performSelector:@selector(becomeFirstResponder) withObject:nil afterDelay:.2];
+  }
+}
+
+#pragma mark - DimmingView Manage
+
+- (void)createDimmingView
+{
+  if (dimmingView == nil) {
+    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+    dimmingView.backgroundColor = [UIColor blackColor];
+    dimmingView.alpha = .2;
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
+    [dimmingView addGestureRecognizer:tapGesture];
+  }
+}
+
+- (void)showDimmingView
+{
+  dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
+  if (!dimmingView.superview) {
+    [self addSubview:dimmingView];
+    [self bringSubviewToFront:dimmingView];
+  }
+}
+- (void)hideDimmingView
+{
+  [dimmingView removeFromSuperview];
+}
+
+- (void)dismissSearchController
+{
+  [searchController setActive:NO];
+}
+
+- (void)keyboardWillChangeFrame:(NSNotification *)notification
+{
+  NSDictionary *userInfo = [notification userInfo];
+  CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+
+  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+
+  [self keyboardDidShowAtHeight:height];
+}
+
+- (void)keyboardDidChangeFrame:(NSNotification *)notification
+{
+  NSDictionary *userInfo = [notification userInfo];
+  CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+
+  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+
+  [self keyboardDidShowAtHeight:height];
+}
+
 #pragma mark Delegate
 
 - (void)tableView:(UITableView *)ourTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2415,7 +2529,7 @@
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([searchController isActive] && searchResultIndexes) {
+  if ([self isSearchStarted]) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
@@ -2626,6 +2740,11 @@
 
 #pragma mark - UISearchControllerDelegate
 
+- (void)willDismissSearchController:(UISearchController *)searchController
+{
+  [self hideDimmingView];
+}
+
 - (void)didDismissSearchController:(UISearchController *)searchController
 {
   if (viewWillDetach) {
@@ -2637,31 +2756,36 @@
   // Since we clear the searchbar, the search string and indexes can be cleared as well.
   [self setSearchString:nil];
   RELEASE_TO_NIL(searchResultIndexes);
+  RELEASE_TO_NIL(searchControllerPresenter);
+  [searchField ensureSearchBarHierarchy];
 }
 
 - (void)presentSearchController:(UISearchController *)controller
 {
-  id proxy = [(TiViewProxy *)self.proxy parent];
-  while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
-    proxy = [proxy parent];
-  }
-  UIViewController *viewController = nil;
-  if ([proxy isKindOfClass:[TiWindowProxy class]]) {
-    viewController = [proxy windowHoldingController];
-  } else {
-    viewController = [[TiApp app] controller];
-  }
-  viewController.definesPresentationContext = YES;
+  tableContentOffset = [tableview contentOffset];
 
-  [viewController presentViewController:controller
-                               animated:NO
-                             completion:^{
-                               UIView *view = controller.searchBar.superview;
-                               view.frame = CGRectMake(view.frame.origin.x, self.frame.origin.y, view.frame.size.width, view.frame.size.height);
-                               controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-                               resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
+  if (!searchControllerPresenter) {
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+      proxy = [proxy parent];
+    }
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+      searchControllerPresenter = [[proxy windowHoldingController] retain];
+    } else {
+      searchControllerPresenter = [[[TiApp app] controller] retain];
+    }
+  }
+  searchControllerPresenter.definesPresentationContext = YES;
 
-                             }];
+  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
+
+  [searchControllerPresenter presentViewController:controller
+                                          animated:shouldAnimate
+                                        completion:^{
+                                          isSearched = YES;
+                                          [self showDimmingView];
+                                          [self updateSearchControllerFrames];
+                                        }];
 }
 
 #pragma mark - UISearchResultsUpdating
@@ -2669,12 +2793,15 @@
 - (void)updateSearchResultsForSearchController:(UISearchController *)controller
 {
   self.searchString = [controller.searchBar text];
-  [self updateSearchResultIndexes];
-  if (controller.isActive) {
-    [resultViewController.tableView reloadData];
-  } else {
-    [tableview reloadData];
+
+  if (self.searchString.length > 0) {
+    [self hideDimmingView];
+  } else if (controller.isActive) {
+    [self showDimmingView];
   }
+
+  [self updateSearchResultIndexes];
+  [tableview reloadData];
 }
 
 @end
