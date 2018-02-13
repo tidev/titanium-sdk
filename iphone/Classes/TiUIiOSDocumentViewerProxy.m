@@ -23,7 +23,7 @@
 - (UIDocumentInteractionController *)controller
 {
   if (controller == nil) {
-    NSURL *url = [TiUtils toURL:[self valueForUndefinedKey:@"url"] proxy:self];
+    NSURL *url = [self _toURL:[self valueForUndefinedKey:@"url"] proxy:self];
     controller = [[UIDocumentInteractionController interactionControllerWithURL:url] retain];
     controller.delegate = self;
   }
@@ -82,7 +82,7 @@
 - (void)setUrl:(id)value
 {
   ENSURE_TYPE(value, NSString);
-  NSURL *url = [TiUtils toURL:value proxy:self];
+  NSURL *url = [self _toURL:value proxy:self];
   //UIDocumentInteractionController is recommended to be a new instance for every different url
   //instead of having titanium developer create a new instance every time a new document url is loaded
   //we assume that setUrl is called to change doc, so we go ahead and release the controller and create
@@ -110,6 +110,57 @@
     return [controller name];
   }
   return nil;
+}
+
+#pragma mark Utilities
+
+// Workaround for an issue occuring on iOS 11.2+ that causes
+// files from the resources-directory (app-bundle) to not be
+// recognized properly. This method works around this by creating
+// a temporary file that is flushed after the app terminates.
+- (NSURL *)_toURL:(NSString *)object proxy:(TiProxy *)proxy
+{
+  if (![TiUtils isIOSVersionOrGreater:@"11.2"]) {
+    return [TiUtils toURL:object proxy:proxy];
+  }
+
+  // Reference the old URL and file basename
+  NSURL *fileURL = [TiUtils toURL:object proxy:self];
+  NSString *fileName = [[fileURL absoluteString] lastPathComponent];
+
+  // Check if the file already exists in the application-data-directory.
+  // If so, return it.
+  NSString *documentsPath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
+  NSString *file = [documentsPath stringByAppendingPathComponent:fileName];
+
+  if ([[NSFileManager defaultManager] fileExistsAtPath:file]) {
+    return fileURL;
+  }
+
+  // Check if the file already exists in the cache-directory.
+  // If so, return it.
+  NSArray *tmpDirectory = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:NSTemporaryDirectory() error:NULL];
+  for (NSString *file in tmpDirectory) {
+    if ([file isEqualToString:fileName]) {
+      return [NSURL fileURLWithPath:file relativeToURL:[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES]];
+    }
+  }
+
+  // If the file does not exist in the temporary- and application-data-directory,
+  // create it in the temporary directory.
+  NSError *error = nil;
+  NSURL *temporaryURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
+  [[NSFileManager defaultManager] copyItemAtURL:fileURL
+                                          toURL:[temporaryURL URLByAppendingPathComponent:fileName]
+                                          error:&error];
+
+  // In case the file could not be copied, return the old URL and warn the user
+  if (error != nil) {
+    NSLog(@"[ERROR] Could not copy file to temporary directory automatically, copy it manually to work around the Apple iOS 11.2+ bug.");
+    return fileURL;
+  }
+
+  return [temporaryURL URLByAppendingPathComponent:fileName];
 }
 
 #pragma mark Delegates

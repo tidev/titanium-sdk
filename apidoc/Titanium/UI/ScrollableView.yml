@@ -221,17 +221,6 @@ events:
         summary: The currently visible view.
         type: Titanium.UI.View
 
-  - name: dragStart
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.ScrollableView.dragstart> instead.
-    summary: Fired when the scrollable region starts being dragged.
-    description: |
-        A dragging gesture is when a touch remains in contact with the display to physically drag
-        the view, as opposed to it being the result of scrolling momentum.
-    since: "2.1.0"
-    platforms: []
-
   - name: dragEnd
     deprecated:
         since: "3.0.0"
@@ -258,15 +247,6 @@ events:
         summary: The currently visible view.
         type: Titanium.UI.View
     since: '3.0.0'
-
-  - name: dragstart
-    summary: Fired when the scrollable region starts being dragged.
-    description: |
-        A dragging gesture is when a touch remains in contact with the display to physically drag
-        the view, as opposed to it being the result of scrolling momentum.
-    platforms: []
-    since: '3.0.0'
-
 
   - name: dragend
     summary: Fired when the scrolling drag gesture on the view has been completed.
