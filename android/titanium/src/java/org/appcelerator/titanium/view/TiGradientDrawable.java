@@ -186,9 +186,9 @@ public class TiGradientDrawable extends ShapeDrawable
 				this.offsets[1] = 0.0f;
 				this.offsets[2] = 0.0f;
 				if (this.colors.length > 6) {
-					double offset = 1.0 / ((double)this.offsets.length - 5.0);
+					double offset = 1.0 / ((double) this.offsets.length - 5.0);
 					for (int index = 3; index < (this.offsets.length - 3); index++) {
-						this.offsets[index] = this.offsets[index - 1] + (float)offset;
+						this.offsets[index] = this.offsets[index - 1] + (float) offset;
 					}
 				}
 				this.offsets[this.offsets.length - 3] = 1.0f;
@@ -211,7 +211,7 @@ public class TiGradientDrawable extends ShapeDrawable
 				double offset = startPixelRadius / endPixelRadius;
 				double scale = (endPixelRadius - startPixelRadius) / endPixelRadius;
 				for (int index = 0; index < this.offsets.length; index++) {
-					this.offsets[index] = (this.offsets[index] * (float)scale) + (float)offset;
+					this.offsets[index] = (this.offsets[index] * (float) scale) + (float) offset;
 				}
 			}
 
@@ -222,7 +222,7 @@ public class TiGradientDrawable extends ShapeDrawable
 			// - Avoids Google bug where a transparent ring will wrongly appear where 2 color offsets collide.
 			if ((this.offsets.length >= 2) && (endPixelRadius > 0)) {
 				// Calculate the size of 1 pixel as a normalized offset.
-				final float MIN_OFFSET_INCREMENT = (float)(1.0 / endPixelRadius);
+				final float MIN_OFFSET_INCREMENT = (float) (1.0 / endPixelRadius);
 
 				// Shift colliding colors from start to end.
 				float previousOffset = this.offsets[0];
@@ -333,7 +333,7 @@ public class TiGradientDrawable extends ShapeDrawable
 					break;
 				}
 				case RADIAL_GRADIENT: {
-					float endPixelRadius = (float)endRadius.getPixels(view);
+					float endPixelRadius = (float) endRadius.getPixels(view);
 					shader = new RadialGradient(startX, startY, endPixelRadius, colors, offsets, TileMode.CLAMP);
 					break;
 				}
