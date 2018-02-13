@@ -1,25 +1,70 @@
 {
-	"ios": [
-		"https://github.com/appcelerator-modules/ti.urlsession/releases/download/v2.1.0/com.appcelerator.urlSession-iphone-2.1.0.zip",
-		"https://github.com/appcelerator-modules/ti.facebook/releases/download/ios-5.6.0/facebook-iphone-5.6.0.zip",
-		"https://github.com/appcelerator-modules/ti.coremotion/releases/download/v2.0.1/ti.coremotion-iphone-2.0.1.zip",
-		"https://github.com/appcelerator-modules/ti.map/releases/download/ios-3.0.1/ti.map-iphone-3.0.1.zip",
-		"https://github.com/appcelerator-modules/ti.safaridialog/releases/download/iOS-1.1.1/ti.safaridialog-iphone-1.1.1.zip",
-		"https://github.com/appcelerator-modules/ti.touchid/releases/download/ios-2.1.4/ti.touchid-iphone-2.1.4.zip",
-		"https://github.com/appcelerator-modules/titanium-identity/releases/download/ios-1.0.3/ti.identity-iphone-1.0.3.zip"
-	],
-	"android": [
-		"https://github.com/appcelerator-modules/ti.facebook/releases/download/android-7.0.0/facebook-android-7.0.0.zip",
-		"https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-5.0.1.zip",
-		"https://github.com/appcelerator-modules/ti.map/releases/download/android-4.0.0/ti.map-android-4.0.0.zip",
-		"https://github.com/appcelerator-modules/ti.touchid/releases/download/android-3.0.0/ti.touchid-android-3.0.0.zip",
-		"https://github.com/appcelerator-modules/ti.playservices/releases/download/android-11.0.40/ti.playservices-android-11.0.40.zip",
-		"https://github.com/appcelerator-modules/titanium-identity/releases/download/android-2.0.0/ti.identity-android-2.0.0.zip"
-	],
-	"commonjs": [
-		"https://github.com/appcelerator-modules/ti.cloud/releases/download/3.2.11/ti.cloud-commonjs-3.2.11.zip"
-	],
-	"hyperloop": [
-		"https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v3.0.1/hyperloop-3.0.1.zip"
-	]
+	"ios": {
+		"urlSession": {
+			"url": "https://github.com/appcelerator-modules/ti.urlsession/releases/download/v2.1.0/com.appcelerator.urlSession-iphone-2.1.0.zip",
+			"integrity": "sha512-q7IPaAjg8wpQH5lRyABMpZpQT5HxUgbHmdYT91Be0zGFOtqiQ0VUAn396gnp90+dTOnlKVWVsJQ9EyVHwtotCw=="
+		},
+		"facebook": {
+			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/ios-5.7.0/facebook-iphone-5.7.0.zip",
+			"integrity": "sha512-8m2SDG1O9SS6aXynyqOM2xAHd09OvH2V3AJW5kTnOvsxM/3sHXKblnG+b1LbDmvRX4TJbkF+DX9zcixDgM4i2A=="
+		},
+		"ti.coremotion": {
+			"url": "https://github.com/appcelerator-modules/ti.coremotion/releases/download/v2.0.1/ti.coremotion-iphone-2.0.1.zip",
+			"integrity": "sha512-h1wM7mE/cgpk2n1YOYBNMNBQq5ViLxil6+GRnVqSaFB3LY3ubGSZVkZQ5rzC74anLlNXJVpsH/bP98AQ6zzXbA=="
+		},
+		"ti.map": {
+			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/ios-3.0.2/ti.map-iphone-3.0.2.zip",
+			"integrity": "sha512-44NB1WsujEcW5OOsQPCUNY6PTJ31jmLoKFU7vA5V4Iu6vAgy4tEuO1n6Rio1LEa4Is23LMlajjeZW38J4XXn2w=="
+		},
+		"ti.safaridialog": {
+			"url": "https://github.com/appcelerator-modules/ti.safaridialog/releases/download/iOS-1.1.1/ti.safaridialog-iphone-1.1.1.zip",
+			"integrity": "sha512-6g3Qi9RUCl3uf06OnrThm9fpxhcxhtRzyoFRE5PJpenTFN45QYGRZeEQAqgTKcvEB0ardUfGMOyZcA8WoCfWTw=="
+		},
+		"ti.touchid": {
+			"url": "https://github.com/appcelerator-modules/ti.touchid/releases/download/ios-2.1.4/ti.touchid-iphone-2.1.4.zip",
+			"integrity": "sha512-3lJKS4miCleBbX0k4vjNV65MOZ2IPKQSRjUqPpuY0g2Wen14DwVDyphkkgVCG0cXmiVj8BHXp1ATzxwWeKw8yw=="
+		},
+		"ti.identity": {
+			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/ios-1.0.3/ti.identity-iphone-1.0.3.zip",
+			"integrity": "sha512-AoydjJEHAgYmD5O0YbhzmRvofb/zvAeoMUFz5X+oiEay//Y0zsNSLV24IYjmqkZnrt0rvilDrmoUIOwzZjW/ww=="
+		}
+	},
+	"android": {
+		"facebook": {
+			"url": "https://github.com/appcelerator-modules/ti.facebook/releases/download/android-7.1.0/facebook-android-7.1.0.zip",
+			"integrity": "sha512-dS/4gdzlO7UM539AAH8m3Zi67rQKOSQ3wWHm4cuG4vl/F3b+Hm3HgYMUFdw+cBhGuKeYHLMoKwscizwJKg4Rzg=="
+		},
+		"ti.cloudpush": {
+			"url":"https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-5.0.2.zip",
+			"integrity":"sha512-TnKRShMmDepONwA6hWc7yTKaJbiqYFpfNxvlLz9TV/ky8NWkmFejxqaFak3xEB0sVlI7wjmz0msEP7/iw5Zufg=="
+		},
+		"ti.map": {
+			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/android-4.0.0/ti.map-android-4.0.0.zip",
+			"integrity": "sha512-LAaoM/tBsaCux5X79JllOsXIASF8L7bSZs2RT+UwK51pCtSDn5o+WXZ5BS6ivb1ZauqqHul8ibVubf9WRCWB0Q=="
+		},
+		"ti.touchid": {
+			"url": "https://github.com/appcelerator-modules/ti.touchid/releases/download/android-3.0.0/ti.touchid-android-3.0.0.zip",
+			"integrity": "sha512-lYC2D9QRGlQs4+/GEbBPtq0FelbKWPpuoRkihEWyQHHIBxYIy6Ok/paWnIuyvfqwhUD3wGRbhhIKap5LH9e2Zg=="
+		},
+		"ti.playservices": {
+			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/android-11.0.40/ti.playservices-android-11.0.40.zip",
+			"integrity": "sha512-bLhpzOjnmiTWFRjMuFfvqf0ePd1kbTdXLMVZJ+EsPrfn4JmxvkINS9Nu6ivjV+fmH9cBYVjZ5k9nGCeUdqZOlQ=="
+		},
+		"ti.identity": {
+			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/android-2.0.0/ti.identity-android-2.0.0.zip",
+			"integrity": "sha512-IPR1u8XnTXWbugKWwKe2Cg5Km4ayKaQMNWwVVkTDX+HHsgJSomEN18BJwiLr1ClSTHnf8xz8EC8pZbKGEcYAXQ=="
+		}
+	},
+	"commonjs": {
+		"ti.cloud": {
+			"url": "https://github.com/appcelerator-modules/ti.cloud/releases/download/3.2.11/ti.cloud-commonjs-3.2.11.zip",
+			"integrity": "sha512-QL0mbMwNIigmXimPVaBzckIJizQyoMpvAkotqh2FSv9NkqTGhK2DtQ3rKpDTKNgxyRU607brE3grc0L30bRlMQ=="
+		}
+	},
+	"hyperloop": {
+		"hyperloop": {
+			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v3.0.2/hyperloop-3.0.2.zip",
+			"integrity": "sha512-aby+dFA3/d3eX9i1XFCgXTHIAouyI12EB4XXTMA4asun+0jtFSU67kGT1I99sWv+O+Gr8eE5z5Q5c+uVtltFgw=="
+		}
+	}
 }
