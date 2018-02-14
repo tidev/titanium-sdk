@@ -45,7 +45,8 @@ import android.webkit.URLUtil;
 		"endPlaybackTime",
 		"playableDuration",
 		TiC.PROPERTY_VOLUME,
-		TiC.PROPERTY_REPEAT_MODE
+		TiC.PROPERTY_REPEAT_MODE,
+		TiC.PROPERTY_SHOWS_CONTROLS,
 })
 // clang-format on
 public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifecycleEvent
@@ -94,6 +95,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
+		defaultValues.put(TiC.PROPERTY_SHOWS_CONTROLS, true);
 	}
 
 	@Override
