@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * Copyright (c) 2012-2013 Chris Talkington, contributors.
  * {@link https://github.com/ctalkington/node-archiver}
@@ -46,7 +46,8 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	i18nLib = appc.i18n(__dirname),
 	__ = i18nLib.__,
 	__n = i18nLib.__n,
-	version = appc.version;
+	version = appc.version,
+	V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
 function AndroidBuilder() {
 	Builder.apply(this, arguments);
@@ -914,6 +915,13 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
+	// Transpilation details
+	this.transpile = cli.tiapp['transpile'] !== false; // FIXME Does this properly default to true?
+	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
+	const v8Version = this.packageJson.v8.version;
+	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
+	this.chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
+
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
 		case 'production':
@@ -1630,13 +1638,9 @@ process.exit(1);
 					for (let dependency of timodule.modules) {
 						if (!dependency.platform || /^android$/.test(dependency.platform)) {
 
-							let missing = true;
-							for (let module of this.nativeLibModules) {
-								if (module.id === dependency.id) {
-									missing = false;
-									break;
-								}
-							}
+							let missing = !this.nativeLibModules.some(function (mod) {
+								return mod.id === dependency.id;
+							});
 							if (missing) {
 								dependency.depended = module;
 
@@ -1738,6 +1742,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'processTiSymbols',
 		'copyModuleResources',
 		'removeOldFiles',
+		'copyGradleTemplate',
 		'generateJavaFiles',
 		'generateAidl',
 
@@ -2697,28 +2702,46 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				try {
 					this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
-						// parse the AST
-						const r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+						const originalContents = fs.readFileSync(from).toString();
+						// Populate an initial object to pass in. This won't have modified
+						// contents or symbols populated, which it used to at this point,
+						// but I don't think any plugin relied on that behavior, while
+						// hyperloop would clobber the contents if we didn't do the mods
+						// inside the compile hook.
+						const r = {
+							original: originalContents,
+							contents: originalContents,
+							symbols: []
+						};
+						this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
+							// Read the possibly modified file contents
+							const source = r.contents;
+							// Analyze Ti API usage, possibly also minify/transpile
+							const modified = jsanalyze.analyzeJs(source, {
+								filename: from,
+								minify: this.minifyJS,
+								transpile: this.transpile,
+								targets: {
+									chrome: this.chromeVersion
+								}
+							});
+							const newContents = modified.contents;
 
-						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[to] = r.symbols;
+							// we want to sort by the "to" filename so that we correctly handle file overwriting
+							this.tiSymbols[to] = modified.symbols;
 
-						const dir = path.dirname(to);
-						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+							const dir = path.dirname(to);
+							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-						if (this.minifyJS) {
-							this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-
-							this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
-								fs.writeFile(to, r.contents, cb2);
-							})(r, from, to, cb);
-						} else if (symlinkFiles) {
-							copyFile.call(this, from, to, cb);
-						} else {
-							// we've already read in the file, so just write the original contents
-							this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-							fs.writeFile(to, r.contents, cb);
-						}
+							if (symlinkFiles && newContents === originalContents) {
+								this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+								copyFile.call(this, from, to, cb2);
+							} else {
+								// TODO If dest file exists and contents match, don't do anything?
+								this.logger.debug(__('Writing modified contents to %s', to.cyan));
+								fs.writeFile(to, newContents, cb2);
+							}
+						})(r, from, to, cb);
 					})(from, to, done);
 				} catch (ex) {
 					ex.message.split('\n').forEach(this.logger.error);
@@ -3231,6 +3254,23 @@ AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 			}
 		}
 	}, this);
+
+	next();
+};
+
+AndroidBuilder.prototype.copyGradleTemplate = function copyGradleTemplate(next) {
+	// Copy Titanium's ProGuard gradle script to the app's build directory.
+	afs.copyFileSync(path.join(this.templatesDir, 'proguard.gradle'), this.buildDir, { logger: this.logger.debug });
+
+	// Copy the gradle template directory tree to the app's build directory.
+	// Note: The copy function does not copy file permissions. So, we must re-add execute permissions.
+	//       0o755 = User Read/Write/Exec, Group Read/Execute, Others Read/Execute
+	afs.copyDirSyncRecursive(path.join(this.platformPath, 'templates', 'gradle'), this.buildDir, {
+		logger: this.logger.debug,
+		preserve: false
+	});
+	fs.chmodSync(path.join(this.buildDir, 'gradlew'), 0o755);
+	fs.chmodSync(path.join(this.buildDir, 'gradlew.bat'), 0o755);
 
 	next();
 };
@@ -4092,8 +4132,11 @@ AndroidBuilder.prototype.runProguard = function runProguard(next) {
 		});
 
 	proguardHook(
-		this.jdkInfo.executables.java,
-		[ '-jar', this.androidInfo.sdk.proguard, '@' + proguardConfigFile ],
+		path.join(this.buildDir, (process.platform === 'win32') ? 'gradlew.bat' : 'gradlew'),
+		[
+			'-b', path.join(this.buildDir, 'proguard.gradle'),
+			'-Pconfiguration=' + proguardConfigFile
+		],
 		{ cwd: this.buildDir },
 		next
 	);
@@ -4117,13 +4160,15 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				done();
 			}.bind(this));
 		}),
-		injars = [
+		injarsCore = [
 			this.buildBinClassesDir,
 			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
-		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries)),
+		].concat(Object.keys(this.jarLibraries)),
+		injarsAll = injarsCore.slice().concat(Object.keys(this.moduleJars)),
 		shrinkedAndroid = path.join(path.dirname(this.androidInfo.sdk.dx), 'shrinkedAndroid.jar'),
 		baserules = path.join(path.dirname(this.androidInfo.sdk.dx), '..', 'mainDexClasses.rules'),
-		outjar = path.join(this.buildDir, 'mainDexClasses.jar');
+		outjar = path.join(this.buildDir, 'mainDexClasses.jar'),
+		pathArraySeparator = (process.platform === 'win32') ? ';' : ':';
 	let dexArgs = [
 		'-Xmx' + this.dxMaxMemory,
 		'-XX:-UseGCOverheadLimit',
@@ -4141,11 +4186,11 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	}
 
 	if (this.allowDebugging && this.debugPort) {
-		injars.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
+		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
 	}
 
 	if (this.allowProfiling && this.profilerPort) {
-		injars.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
+		injarsAll.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
 	}
 
 	// nuke and create the folder holding all the classes*.dex files
@@ -4157,32 +4202,43 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	// Wipe existing outjar
 	fs.existsSync(outjar) && fs.unlinkSync(outjar);
 
-	// We need to hack multidex for APi level < 21 to generate the list of classes that *need* to go into the first dex file
-	// We skip these intermediate steps if 21+ and eventually just run dexer
+	// Add all Java classes used/declared by the "Application" derived class to main dex file.
+	// We only do this if the min Android OS version supported is less than 5.0.
+	// Note: Android OS versions older than 5.0 (API Level 21) do not natively support multidexed apps.
+	//       So, we have to call Multidex.install() Java method upon app startup for Android 4.x support.
+	//       Since Java runtime attempts to find all classes used by "Application" derived class before
+	//       the app can invoke the Multidex.install() method, we must ensure those classes are in the
+	//       main dex file or else the runtime will fail to link those classes and cause a crash on 4.x.
 	async.series([
 		function (done) {
-			// 'api-level' and 'sdk' properties both seem to hold apiLevel
-			if (this.androidTargetSDK.sdk >= 21) {
+			// Skip the below if the min Android OS version supported is 5.0 or higher.
+			if (this.minSDK >= 21) {
 				return done();
 			}
 
-			// Run: java
-			// -jar $this.androidInfo.sdk.proguard
-			// -injars "${@}"
-			// -dontwarn -forceprocessing
-			// -outjars ${tmpOut}
-			// -libraryjars "${shrinkedAndroidJar}"
-			// -dontoptimize -dontobfuscate -dontpreverify
-			// -include "${baserules}"
-			appc.subprocess.run(this.jdkInfo.executables.java, [
-				'-jar',
-				this.androidInfo.sdk.proguard,
-				'-injars', injars.join(':'),
-				'-dontwarn', '-forceprocessing',
-				'-outjars', outjar,
-				'-libraryjars', shrinkedAndroid,
-				'-dontoptimize', '-dontobfuscate', '-dontpreverify', '-include',
-				baserules
+			// Create a ProGuard config file.
+			let proguardConfig
+					= '-dontoptimize\n'
+					+ '-dontobfuscate\n'
+					+ '-dontpreverify\n'
+					+ '-dontwarn **\n'
+					+ '-libraryjars ' + shrinkedAndroid + '\n';
+			for (let index = 0; index < injarsCore.length; index++) {
+				proguardConfig += '-injars ' + injarsCore[index] + '(!META-INF/**)\n';
+			}
+			proguardConfig += '-outjars ' + outjar + '\n';
+			const mainDexProGuardFilePath = path.join(this.buildDir, 'mainDexProGuard.txt');
+			fs.writeFileSync(mainDexProGuardFilePath, proguardConfig);
+
+			// Run ProGuard via Gradle to create a single JAR of all the main Java classes used by the app.
+			// Note: ProGuard included with the Android SDK is very old (v4.x) and doesn't support loading Java 8 JARs,
+			//       such as the JARs Google provides with Android build-tools v27. Google now acquires the newest
+			//       version of ProGuard via Gradle/Maven, which is kept up to date by the ProGuard maintainers.
+			const gradleAppFileName = (process.platform === 'win32') ? 'gradlew.bat' : 'gradlew';
+			appc.subprocess.run(path.join(this.buildDir, gradleAppFileName), [
+				'-b', path.join(this.buildDir, 'proguard.gradle'),
+				'-Pforceprocessing=true',
+				'-Pconfiguration=' + baserules + pathArraySeparator + mainDexProGuardFilePath
 			], {}, function (code, out, err) {
 				if (code) {
 					this.logger.error(__('Failed to run dexer:'));
@@ -4196,12 +4252,12 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 		}.bind(this),
 		// Run: java -cp $this.androidInfo.sdk.dx com.android.multidex.MainDexListBuilder "$outjar" "$injars"
 		function (done) {
-			// 'api-level' and 'sdk' properties both seem to hold apiLevel
-			if (this.androidTargetSDK.sdk >= 21) {
+			// Skip the below if the min Android OS version supported is 5.0 or higher.
+			if (this.minSDK >= 21) {
 				return done();
 			}
 
-			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injars.join(':') ], {}, function (code, out, err) {
+			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injarsCore.join(pathArraySeparator) ], {}, function (code, out, err) {
 				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
 				if (code) {
 					this.logger.error(__('Failed to run dexer:'));
@@ -4220,7 +4276,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			}.bind(this));
 		}.bind(this),
 		function (done) {
-			dexArgs = dexArgs.concat(injars);
+			dexArgs = dexArgs.concat(injarsAll);
 			dexerHook(this.jdkInfo.executables.java, dexArgs, {}, done);
 		}.bind(this)
 	], next);
