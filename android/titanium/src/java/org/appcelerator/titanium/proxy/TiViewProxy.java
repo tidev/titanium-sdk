@@ -353,14 +353,18 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
 						TiDimension nativeLeft = new TiDimension(position[0], TiDimension.TYPE_LEFT);
 						TiDimension nativeTop = new TiDimension(position[1], TiDimension.TYPE_TOP);
+						TiDimension localLeft = new TiDimension(v.getX(), TiDimension.TYPE_LEFT);
+						TiDimension localTop = new TiDimension(v.getY(), TiDimension.TYPE_TOP);
 
 						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
 						View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
 						if (decorView != null) {
 							d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
 							d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
-							d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
-							d.put(TiC.PROPERTY_Y, nativeTop.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_X, localLeft.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_Y, localTop.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_X_ABSOLUTE, nativeLeft.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_Y_ABSOLUTE, nativeTop.getAsDefault(decorView));
 						}
 					}
 				}
@@ -555,17 +559,17 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
 			}
 
-			Activity activity = getActivity();
+			TiBaseActivity activity = (TiBaseActivity) getActivity();
 			if (activity != null && activity.isDestroyed()) {
-				activity = activity.getParent();
+				activity = (TiBaseActivity) activity.getParent();
 			}
 			if (activity == null || activity.isDestroyed()) {
-				activity = TiApplication.getAppRootOrCurrentActivity();
+				activity = (TiBaseActivity) TiApplication.getAppRootOrCurrentActivity();
 			}
 			view = createView(activity);
 			if (isDecorView) {
 				if (activity != null) {
-					((TiBaseActivity) activity).setViewProxy(view.getProxy());
+					activity.setViewProxy(view.getProxy());
 				} else {
 					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
 				}
