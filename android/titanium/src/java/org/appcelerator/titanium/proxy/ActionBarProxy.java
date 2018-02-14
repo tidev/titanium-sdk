@@ -21,7 +21,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 @SuppressWarnings("deprecation")
-@Kroll.proxy(propertyAccessors = { TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED })
+@Kroll.proxy(propertyAccessors = { TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED, TiC.PROPERTY_CUSTOM_VIEW })
 public class ActionBarProxy extends KrollProxy
 {
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
@@ -270,18 +270,6 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
-	public void setCustomView(TiViewProxy view)
-	{
-		actionBar.setDisplayShowCustomEnabled(true);
-		if (TiApplication.isUIThread()) {
-			handleSetCustomView(view);
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_CUSTOM_VIEW, view);
-			message.sendToTarget();
-		}
-	}
-
 	private void handleSetIcon(String url)
 	{
 		if (actionBar == null) {
@@ -391,9 +379,18 @@ public class ActionBarProxy extends KrollProxy
 		return tfh.loadDrawable(imageUrl.resolve(), false);
 	}
 
-	private void handleSetCustomView(TiViewProxy view)
+	private void handleSetCustomView(Object view)
 	{
-		actionBar.setCustomView(view.getOrCreateView().getNativeView());
+		if (view != null) {
+			if (view instanceof TiViewProxy) {
+				actionBar.setDisplayShowCustomEnabled(true);
+				actionBar.setCustomView(((TiViewProxy) view).getOrCreateView().getNativeView());
+			} else {
+				Log.w(TAG, "Invalid value passed for a custom view. Expected Ti.UI.View or null");
+			}
+		} else {
+			actionBar.setCustomView(null);
+		}
 	}
 
 	@Override
@@ -446,7 +443,7 @@ public class ActionBarProxy extends KrollProxy
 				handlesetHomeButtonEnabled(msg.getData().getBoolean(HOME_BUTTON_ENABLED));
 				return true;
 			case MSG_SET_CUSTOM_VIEW:
-				handleSetCustomView(((TiViewProxy) msg.obj));
+				handleSetCustomView(msg.obj);
 				return true;
 		}
 		return super.handleMessage(msg);
@@ -463,6 +460,14 @@ public class ActionBarProxy extends KrollProxy
 			} else {
 				Message message = getMainHandler().obtainMessage(MSG_SET_HOME_BUTTON_ENABLED, true);
 				message.getData().putBoolean(HOME_BUTTON_ENABLED, true);
+				message.sendToTarget();
+			}
+		}
+		if (TiC.PROPERTY_CUSTOM_VIEW.equals(name)) {
+			if (TiApplication.isUIThread()) {
+				handleSetCustomView(value);
+			} else {
+				Message message = getMainHandler().obtainMessage(MSG_SET_CUSTOM_VIEW, value);
 				message.sendToTarget();
 			}
 		}
