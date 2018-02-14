@@ -10,8 +10,9 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
 
-@Kroll.proxy(parentModule=XMLModule.class)
-public class CharacterDataProxy extends NodeProxy {
+@Kroll.proxy(parentModule = XMLModule.class)
+public class CharacterDataProxy extends NodeProxy
+{
 
 	private CharacterData data;
 	public CharacterDataProxy(CharacterData data)
@@ -21,43 +22,59 @@ public class CharacterDataProxy extends NodeProxy {
 	}
 
 	@Kroll.method
-	public void appendData(String arg) throws DOMException {
+	public void appendData(String arg) throws DOMException
+	{
 		data.appendData(arg);
 	}
 
 	@Kroll.method
-	public void deleteData(int offset, int count) throws DOMException {
+	public void deleteData(int offset, int count) throws DOMException
+	{
 		data.deleteData(offset, count);
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getData() throws DOMException {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getData() throws DOMException
+	// clang-format on
+	{
 		return data.getData();
 	}
 
-	@Kroll.setProperty @Kroll.method
-	public void setData(String data) throws DOMException {
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setData(String data) throws DOMException
+	// clang-format on
+	{
 		this.data.setData(data);
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getLength() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getLength()
+	// clang-format on
+	{
 		return data.getLength();
 	}
 
 	@Kroll.method
-	public void insertData(int offset, String arg) throws DOMException {
+	public void insertData(int offset, String arg) throws DOMException
+	{
 		data.insertData(offset, arg);
 	}
 
 	@Kroll.method
-	public void replaceData(int offset, int count, String arg)
-			throws DOMException {
+	public void replaceData(int offset, int count, String arg) throws DOMException
+	{
 		data.replaceData(offset, count, arg);
 	}
 
 	@Kroll.method
-	public String substringData(int offset, int count) throws DOMException {
+	public String substringData(int offset, int count) throws DOMException
+	{
 		// Android (Harmony) appears to be non-compliant in that if you try
 		// to ask for more than there is, an exception occurs. Spec says to just
 		// return data up to the end. So we adjust count here if needed so as to

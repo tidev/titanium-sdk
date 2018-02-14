@@ -450,8 +450,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   return YES;
 }
 
-#pragma mark
-#pragma mark Background Fetch iOS 7
+#pragma mark Background Fetch
 
 #ifdef USE_TI_FETCH
 
@@ -482,7 +481,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #endif
 
-#pragma mark Remote and Local Notifications iOS 8
+#pragma mark Remote and Local Notifications
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
@@ -695,8 +694,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #endif
 
-#pragma mark
-#pragma mark Background Transfer Service iOS 7
+#pragma mark Background Transfer Service
 
 //Delegate callback for Background Transfer completes.
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
@@ -978,7 +976,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }];
   // Start the long-running task and return immediately.
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-
     // Do the work associated with the task.
     [tiapp beginBackgrounding];
   });

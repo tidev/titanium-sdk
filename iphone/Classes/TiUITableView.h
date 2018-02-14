@@ -43,7 +43,6 @@
 @interface TiUITableView : TiUIView <UISearchResultsUpdating, UISearchControllerDelegate, UIScrollViewDelegate, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, TiScrolling, TiProxyObserver> {
   @private
   UITableView *tableview;
-  UITableView *_searchTableView;
   BOOL moving;
   BOOL editing;
   BOOL searchHidden;
@@ -68,7 +67,8 @@
   BOOL filterCaseInsensitive;
   BOOL allowsSelectionSet;
   UISearchController *searchController;
-  UITableViewController *resultViewController;
+  UIViewController *searchControllerPresenter;
+  UIView *dimmingView;
   BOOL _dimsBackgroundDuringPresentation;
   TiViewProxy *headerViewProxy;
   TiViewProxy *footerViewProxy;
@@ -78,6 +78,8 @@
 #endif
   UIEdgeInsets defaultSeparatorInsets;
   UIEdgeInsets rowSeparatorInsets;
+  CGPoint tableContentOffset;
+  BOOL isSearched;
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;
@@ -103,7 +105,8 @@
 - (void)deselectRow:(id)args;
 - (void)reloadDataFromCount:(NSUInteger)oldCount toCount:(NSUInteger)newCount animation:(UITableViewRowAnimation)animation;
 - (void)refreshSearchControllerUsingReload:(BOOL)reloadSearch;
-
+- (void)viewResignFocus;
+- (void)viewGetFocus;
 @end
 
 #endif

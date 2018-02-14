@@ -143,7 +143,6 @@
       return;
     }
     result = [ourStore eventWithIdentifier:[TiUtils stringValue:arg]];
-
   },
       YES);
   if (result != NULL) {
