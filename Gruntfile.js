@@ -132,6 +132,8 @@ module.exports = function (grunt) {
 	// register tasks
 	grunt.registerTask('format', [ 'clangFormat' ]);
 
+	grunt.registerTask('fixJs', [ 'appcJs:src:lint:fix' ]);
+
 	// register tasks
 	grunt.registerTask('default', [ 'lint' ]);
 };
