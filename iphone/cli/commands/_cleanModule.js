@@ -36,7 +36,7 @@ exports.run = function run(logger, config, cli, finished) {
 	// TODO: Use a glob and delete any version zipfile generated?
 	const moduleVersion = cli.manifest.version;
 	const moduleZipName = [ moduleId, '-iphone-', moduleVersion, '.zip' ].join('');
-	const toDelete = [ 'build', moduleAssetsFile, moduleZipName ];
+	const toDelete = [ 'build', moduleAssetsFile, moduleZipName, 'metadata.json' ];
 	toDelete.forEach((f) => {
 		const target = path.join(projectDir, f);
 		if (appc.fs.exists(target)) {
