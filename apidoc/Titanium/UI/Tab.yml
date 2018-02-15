@@ -169,12 +169,6 @@ properties:
     platforms: [android]
     since: {android: 3.0.0}
 
-  - name: backgroundDisabledColor
-    platforms: []
-
-  - name: backgroundDisabledImage
-    platforms: []
-
   - name: backgroundFocusedColor
     summary: Sets the color of the tab when it is focused.
     description: |
@@ -183,15 +177,6 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     platforms: [android]
     since: {android: 3.0.0}
-
-  - name: backgroundFocusedImage
-    platforms: []
-
-  - name: backgroundImage
-    platforms: []
-
-  - name: backgroundSelectedImage
-    platforms: []
 
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
@@ -298,9 +283,6 @@ properties:
     osver: {ios: {min: "5.0"}}
     platforms: [iphone,ipad]
 
-  - name: touchEnabled
-    platforms: []
-
   - name: window
     summary: Root-level tab window.  All tabs must have at least one root-level tab window.
     type: Titanium.UI.Window
@@ -349,12 +331,6 @@ events:
     summary: Fired when this tab is clicked in the tab group.
     exclude-platforms: [iphone, ipad]
 
-  - name: dblclick
-    platforms: []
-
-  - name: doubletap
-    platforms: []
-
   - name: focus
     summary: Fired when the tab gains focus.
     deprecated:
@@ -393,34 +369,10 @@ events:
         type: Titanium.UI.Tab
     platforms: [android, iphone, ipad]
 
-  - name: longpress
-    platforms: []
-
-  - name: postlayout
-    platforms: []
-
   - name: selected
     summary: Fired when the tab is selected.
     platforms: [android]
     since: "3.6.0"
-
-  - name: singletap
-    platforms: []
-
-  - name: swipe
-    platforms: []
-
-  - name: touchcancel
-    platforms: []
-
-  - name: touchend
-    platforms: []
-
-  - name: touchmove
-    platforms: []
-
-  - name: touchstart
-    platforms: []
 
   - name: unselected
     summary: Fired when the tab is unselected.

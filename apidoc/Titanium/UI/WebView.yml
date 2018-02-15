@@ -599,12 +599,6 @@ properties:
     default: true
     platforms: [iphone,ipad]
     since: 2.0.0
-
-  - name: showScrollbars
-    summary: If `true`, scrollbars are displayed if content is larger than the web view.
-    type: Boolean
-    platforms: []
-    since: "1.8.2"
     default: true
 
   - name: enableZoomControls

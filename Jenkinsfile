@@ -15,8 +15,8 @@ def isMainlineBranch = true // used to determine if we should publish to S3 (and
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json
 
 // Variables we can change
-def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
-def npmVersion = '5.4.1' // We can change this without any changes to Jenkins.
+def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def npmVersion = '5.6.0' // We can change this without any changes to Jenkins.
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
@@ -233,32 +233,27 @@ timestamps {
 
 				if (isMainlineBranch) {
 					stage('Security') {
-						// Clean up and install only production dependencies
-						sh 'npm prune --production'
+						timeout(25) { // sometimes the upload hangs forever...
+							// Clean up and install only production dependencies
+							sh 'npm prune --production'
 
-						// Scan for Dependency Check and RetireJS warnings
-						def scanFiles = [[path: 'dependency-check-report.xml']]
-						dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
-						dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
+							// Scan for Dependency Check and RetireJS warnings
+							dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
+							dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
 
-						// Adding appc-license scan, until we can get the output from Dependency Check/Track
-						sh 'npm install appc-license'
-						sh 'npx appc-license > output.csv'
-						archiveArtifacts 'output.csv'
+							// Adding appc-license scan, until we can get the output from Dependency Check/Track
+							sh 'npm install appc-license'
+							sh 'npx appc-license > output.csv'
+							archiveArtifacts 'output.csv'
 
-						sh 'npm install -g retire'
-						def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
-						if (retireExitCode != 0) {
-							scanFiles << [path: 'retire.json']
+							sh 'npm install retire'
+							sh 'npx retire --exitwith 0'
+							step([$class: 'WarningsPublisher', canComputeNew: false, canResolveRelativePaths: false, consoleParsers: [[parserName: 'Node Security Project Vulnerabilities'], [parserName: 'RetireJS']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''])
+
+							// Don't upload to Threadfix, we do that in a nightly security scan job
+							// re-install dev dependencies for testing later...
+							sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
 						}
-
-						// Don't publish to threadfix except for master builds
-						if ('master'.equals(env.BRANCH_NAME) && !scanFiles.isEmpty()) {
-							step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
-						}
-
-						// re-install dev dependencies for testing later...
-						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
 					} // end 'Security' stage
 				}
 			} // nodeJs
@@ -433,8 +428,17 @@ timestamps {
 				node('osx || linux') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 						unstash 'danger' // this gives us dangerfile.js, package.json, package-lock.json, node_modules/, android java sources for format check
-						unstash 'test-report-ios' // junit.ios.report.xml
-						unstash 'test-report-android' // junit.android.report.xml
+						// ok to not grab crash logs, still run Danger.JS
+						try {
+							unarchive mapping: ['mocha_*.crash': '.'] // unarchive any iOS simulator crashes
+						} catch (e) {}
+						// ok to not grab test results, still run Danger.JS
+						try {
+							unstash 'test-report-ios' // junit.ios.report.xml
+						} catch (e) {}
+						try {
+							unstash 'test-report-android' // junit.android.report.xml
+						} catch (e) {}
 						sh "npm install -g npm@${npmVersion}"
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
@@ -442,7 +446,7 @@ timestamps {
 						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}", "ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}"]) {
 							// FIXME Can't pass along env variables properly, so we cheat and write them as a JSON file we can require
 							sh 'node -p \'JSON.stringify(process.env)\' > env.json'
-							sh 'npx danger'
+							sh returnStatus: true, script: 'npx danger' // Don't fail build if danger fails. We want to retain existign build status.
 						} // withEnv
 					} // nodejs
 					deleteDir()
