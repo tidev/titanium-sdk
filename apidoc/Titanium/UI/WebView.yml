@@ -550,7 +550,7 @@ properties:
         callback will determine if the link will be navigated.
     type: Callback<Boolean>
     platforms: [android]
-    since: "7.0.0"
+    since: "7.1.0"
     properties:
       - name: url
         summary: The url of the link.
