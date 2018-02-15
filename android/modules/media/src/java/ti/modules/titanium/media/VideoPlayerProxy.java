@@ -32,6 +32,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.webkit.URLUtil;
 
 // clang-format off
 @Kroll.proxy(creatableInModule = MediaModule.class,
@@ -808,15 +809,11 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 			cancelAllThumbnailImageRequests();
 			mTiThumbnailRetriever = new TiThumbnailRetriever();
 			String url = TiConvert.toString(getProperty(TiC.PROPERTY_URL));
-			if (url.startsWith("file://")) {
-				mTiThumbnailRetriever.setUri(
-					Uri.parse(this.resolveUrl(null, TiConvert.toString(this.getProperty(TiC.PROPERTY_URL)))));
-			} else {
-				String path = url.contains(":") ? new TitaniumBlob(url).getNativePath() : resolveUrl(null, url);
-				Uri uri = Uri.parse(path);
-				mTiThumbnailRetriever.setUri(uri);
+			if (!URLUtil.isValidUrl(url)) {
+				url = resolveUrl(null, url);
 			}
-
+			Uri uri = Uri.parse(url);
+			mTiThumbnailRetriever.setUri(uri);
 			mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option),
 											createThumbnailResponseHandler(callback));
 		}
