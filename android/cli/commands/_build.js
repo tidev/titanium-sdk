@@ -4217,7 +4217,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			}
 
 			// Double quotes given path and escapes double quote characters in file/directory names.
-			const quotePath = function quotePath(filePath) {
+			function quotePath(filePath) {
 				if (!filePath) {
 					return '""';
 				}
@@ -4225,7 +4225,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 					filePath = filePath.replace(/"/g, '\\"');
 				}
 				return '"' + filePath + '"';
-			};
+			}
 
 			// Create a ProGuard config file.
 			let proguardConfig
