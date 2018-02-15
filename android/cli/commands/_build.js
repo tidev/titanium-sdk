@@ -4217,7 +4217,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			}
 
 			// Double quotes given path and escapes double quote characters in file/directory names.
-			const quotePath = function (filePath) {
+			const quotePath = function quotePath(filePath) {
 				if (!filePath) {
 					return '""';
 				}
