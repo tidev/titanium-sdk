@@ -49,6 +49,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	private final double defaultMinUpdateTime = 0;
 
 	private LocationProviderListener providerListener;
+	private Object locationCallback;
 
 	public interface LocationProviderListener {
 		public abstract void onLocationChanged(Location location);
@@ -97,6 +98,17 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 		setProperty(TiC.PROPERTY_MIN_UPDATE_TIME, minUpdateTime);
 
 		this.providerListener = providerListener;
+	}
+
+	/**
+	 * @see FusedLocationProvider.createLocationCallback
+	 */
+	public Object getLocationCallback()
+	{
+		if (locationCallback == null && FusedLocationProvider.hasPlayServices()) {
+			locationCallback = FusedLocationProvider.createLocationCallback(providerListener, getName());
+		}
+		return locationCallback;
 	}
 
 	/**
@@ -158,7 +170,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	/**
 	 * Returns the name associated with this provider
 	 * 
-	 * @return			name associated with this provider
+	 * @return name associated with this provider
 	 */
 	@Kroll.getProperty
 	public String getName()
@@ -176,7 +188,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	/**
 	 * Sets the name associated with this provider
 	 * 
-	 * @param			name to associate with this provider
+	 * @param value name to associate with this provider
 	 */
 	@Kroll.setProperty
 	public void setName(String value)
@@ -187,7 +199,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	/**
 	 * Returns the minimum update distance associated with this provider
 	 * 
-	 * @return			minimum update distance for this provider
+	 * @return value minimum update distance for this provider
 	 */
 	@Kroll.getProperty
 	public double getMinUpdateDistance()
@@ -205,7 +217,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	/**
 	 * Sets the minimum update distance associated with this provider
 	 * 
-	 * @param			minimum update distance to associate with this provider
+	 * @param value minimum update distance to associate with this provider
 	 */
 	@Kroll.setProperty
 	public void setMinUpdateDistance(double value)
@@ -217,7 +229,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	/**
 	 * Returns the minimum update time associated with this provider
 	 * 
-	 * @return			minimum update time for this provider
+	 * @return value minimum update time for this provider
 	 */
 	@Kroll.getProperty
 	public double getMinUpdateTime()
@@ -235,7 +247,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	/**
 	 * Sets the minimum update time associated with this provider
 	 * 
-	 * @param			minimum update time to associate with this provider
+	 * @param value minimum update time to associate with this provider
 	 */
 	@Kroll.setProperty
 	public void setMinUpdateTime(double value)
