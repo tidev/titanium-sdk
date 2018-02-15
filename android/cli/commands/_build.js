@@ -3265,7 +3265,7 @@ AndroidBuilder.prototype.copyGradleTemplate = function copyGradleTemplate(next) 
 	async.series([
 		function (done) {
 			// Fetch proxy server information, if configured.
-			appc.subprocess.run('appc', ['-q', 'config', 'get', 'proxyServer'], { shell: true, windowsHide: true }, function (code, out, err) {
+			appc.subprocess.run('appc', [ '-q', 'config', 'get', 'proxyServer' ], { shell: true, windowsHide: true }, function (code, out) {
 				if (!code && out && (out.length > 0)) {
 					try {
 						proxyUrl = url.parse(out.trim());
