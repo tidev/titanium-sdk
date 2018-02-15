@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.HashMap;
 
+import android.os.Build;
 import android.text.TextUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -53,6 +54,10 @@ public class TiUIButton extends TiUIView
 		defaultColor = btn.getCurrentTextColor();
 		btn.setEllipsize(TextUtils.TruncateAt.MIDDLE);
 		btn.setMaxLines(1);
+		// Fixed for TIMOB-20363. Buttons inside views appear on top of all other children
+		if (Build.VERSION.SDK_INT >= 21) {
+			btn.setStateListAnimator(null);
+		}
 		setNativeView(btn);
 	}
 
