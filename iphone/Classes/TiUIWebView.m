@@ -420,9 +420,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)setZoomLevel_:(id)value
 {
-    ENSURE_TYPE(value, NSNumber);
+  ENSURE_TYPE(value, NSNumber);
 
-    [[self webview] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.zoom = %@;", value]];
+  [[self webview] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.zoom = %@;", value]];
 }
 
 - (void)setHtml_:(NSString *)content withObject:(id)property
