@@ -60,7 +60,7 @@
     [searchView setDelegate:nil];
     RELEASE_TO_NIL(searchView);
   }
-  searchView = searchBar;
+  searchView = [searchBar retain];
   [searchView setDelegate:self];
   [self addSubview:searchView];
 }

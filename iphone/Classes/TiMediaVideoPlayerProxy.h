@@ -8,20 +8,11 @@
 
 #import "TiColor.h"
 #import "TiFile.h"
+#import "TiMediaTypes.h"
 #import "TiViewProxy.h"
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
 #import <MediaPlayer/MediaPlayer.h>
-
-typedef NS_ENUM(NSInteger, VideoTimeOption) {
-  VideoTimeOptionNearestKeyFrame = 0,
-  VideoTimeOptionExact,
-};
-
-typedef NS_ENUM(NSInteger, VideoRepeatMode) {
-  VideoRepeatModeNone = 0,
-  VideoRepeatModeOne,
-};
 
 @interface TiMediaVideoPlayerProxy : TiViewProxy {
   @protected
@@ -47,12 +38,11 @@ typedef NS_ENUM(NSInteger, VideoRepeatMode) {
   // We need some internal way whether or not to check if it's OK to create a view - this is it.
   BOOL reallyAttached;
 
-  // Need to preserve status bar frame information when entering/exiting fullscreen to properly re-render
-  // views when exiting it.
-  BOOL statusBarWasHidden;
-
   // Have to track loading in the proxy in addition to the view, in case we load before the view should be rendered
   BOOL loaded;
+
+  // Track the playback state for parity
+  TiVideoPlayerPlaybackState _playbackState;
 }
 
 @property (nonatomic, readwrite, assign) id url;
