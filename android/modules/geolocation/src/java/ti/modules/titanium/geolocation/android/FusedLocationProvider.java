@@ -47,11 +47,11 @@ public class FusedLocationProvider
 	private final GeolocationModule geolocationModule;
 
 	/**
-     * Constructor
-     * @param context: context to be used when accessing Google APIs
-     * @param geolocationModule: reference of the geolocation module to obtain accuracy when
-     *                           registering the location provider.
-     */
+	 * Constructor
+	 * @param context: context to be used when accessing Google APIs
+	 * @param geolocationModule: reference of the geolocation module to obtain accuracy when
+	 *					         registering the location provider.
+	 */
 	public FusedLocationProvider(Context context, GeolocationModule geolocationModule)
 	{
 		this.geolocationModule = geolocationModule;
@@ -62,9 +62,9 @@ public class FusedLocationProvider
 	}
 
 	/**
-     * hasPlayServices
-     * @return do we have access to Google Play Services APIs?
-     */
+	 * hasPlayServices
+	 * @return do we have access to Google Play Services APIs?
+	 */
 	public static boolean hasPlayServices()
 	{
 		try {
@@ -76,31 +76,31 @@ public class FusedLocationProvider
 	}
 
 	/**
-     * registerLocationProvider
-     * Use our PlayServices abstraction class to register a location provider
-     * @param locationProvider: location provider proxy used when registering
-     */
+	 * registerLocationProvider
+	 * Use our PlayServices abstraction class to register a location provider
+	 * @param locationProvider: location provider proxy used when registering
+	 */
 	public void registerLocationProvider(final LocationProviderProxy locationProvider)
 	{
 		PlayServices.registerLocationProvider(locationProvider, geolocationModule);
 	}
 
 	/**
-     * unregisterLocationProvider
-     * Use our PlayServices abstraction class to unregister a location provider
-     * @param locationProvider: location provider proxy used when un-registering
-     */
+	 * unregisterLocationProvider
+	 * Use our PlayServices abstraction class to unregister a location provider
+	 * @param locationProvider: location provider proxy used when un-registering
+	 */
 	public void unregisterLocationProvider(LocationProviderProxy locationProvider)
 	{
 		PlayServices.unregisterLocationProvider(locationProvider);
 	}
 
 	/**
-     * Use our PlayServices abstraction class to create a location callback
-     * @param providerListener: the listener that will receive location and state events
-     * @param providerName: the name of the provider
-     * @return location callback
-     */
+	 * Use our PlayServices abstraction class to create a location callback
+	 * @param providerListener: the listener that will receive location and state events
+	 * @param providerName: the name of the provider
+	 * @return location callback
+	 */
 	public static Object createLocationCallback(final LocationProviderListener providerListener,
 												final String providerName)
 	{
@@ -108,9 +108,9 @@ public class FusedLocationProvider
 	}
 
 	/**
-     * PlayServices is used to abstract the Google Play Services APIs in a static class, preventing
-     * NoClassDefFound errors during runtime.
-     */
+	 * PlayServices is used to abstract the Google Play Services APIs in a static class, preventing
+	 * NoClassDefFound errors during runtime.
+	 */
 	private static abstract class PlayServices
 	{
 
