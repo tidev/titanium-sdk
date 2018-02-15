@@ -130,6 +130,8 @@ module.exports = function (grunt) {
 	// register tasks
 	grunt.registerTask('format', [ 'clangFormat:android', 'clangFormat:ios' ]);
 
+	grunt.registerTask('fixJs', [ 'appcJs:src:lint:fix' ]);
+
 	// register tasks
 	grunt.registerTask('default', [ 'lint' ]);
 };
