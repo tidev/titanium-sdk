@@ -17,12 +17,12 @@ describe('Titanium.UI.TableView', function () {
 	beforeEach(function () {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
-		})
+		});
 	});
 
 	afterEach(function () {
 		win.close();
-	})
+	});
 
 	it('Ti.UI.TableView', function () {
 		should(Ti.UI.TableView).not.be.undefined;
@@ -141,12 +141,10 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Also crashes Android, with no stack trace or errors in logcat
 	it.android('insertRowAfter', function (finish) {
 		var tableView = Ti.UI.createTableView({
-				data: [ { title:'Red' } ]
-			});
+			data: [{ title:'Red' }]
+		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.an.Object;
@@ -165,7 +163,6 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rows[2].title).be.eql('White');
 				finish();
 			} catch (err) {
-				console.log('Da da da da da da datman!');
 				finish(err);
 			}
 		});
@@ -188,7 +185,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
 
 			try {
 				should(tableView.sectionCount).be.eql(1);
@@ -208,7 +204,6 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rows[2].title).be.eql('White');
 				finish();
 			} catch (err) {
-				console.log('Da da da da da da datman!');
 				finish(err);
 			}
 		});
@@ -221,12 +216,10 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Crashes Android as well
 	it.android('insertRowBefore', function (finish) {
 		var tableView = Ti.UI.createTableView({
-				data: [ { title:'Red' }, { title:'White' } ]
-			});
+			data: [{ title:'Red' }, { title:'White' }]
+		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.an.Object;
@@ -264,8 +257,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.an.Object;
@@ -293,12 +284,10 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Crashes on Android too
 	it.android('add row', function (finish) {
 		var tableView = Ti.UI.createTableView({
-				data: [ { title:'Red' } ]
-			});
+			data: [{ title:'Red' }]
+		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.an.Object;
@@ -329,19 +318,17 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Occasionally crashes Android as well
 	it.android('add rows', function (finish) {
 		var tableView = Ti.UI.createTableView({
-				data: [ { title:'Red' } ]
-			});
+			data: [{ title:'Red' }]
+		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.an.Object;
 				should(tableView.sections[0].rowCount).be.eql(1);
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 
-				tableView.appendRow([ { title: 'White' }, { title: 'Purple' } ]);
+				tableView.appendRow([{ title: 'White' }, { title: 'Purple' }]);
 				should(tableView.sections[0].rowCount).be.eql(3);
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('White');
@@ -377,8 +364,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.an.Object;
@@ -417,8 +402,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.an.Object;
@@ -457,8 +440,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.an.Object;
@@ -505,8 +486,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.an.Object;
@@ -545,8 +524,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sections[0].rowCount).be.eql(3);
 				tableView.updateRow(1, Ti.UI.createTableViewRow({ title: 'Green' }));
@@ -586,8 +563,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.eql(section_0);
@@ -636,8 +611,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(2);
 				should(tableView.sections[0]).be.eql(section_0);
@@ -696,8 +669,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				tableView.updateSection(1, section_2);
 
@@ -758,8 +729,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(2);
 				should(tableView.sections[0]).be.eql(section_0);
@@ -800,7 +769,8 @@ describe('Titanium.UI.TableView', function () {
 	Logs from Android:
 
 	[ERROR] TableViewProxy: (main) [24953,24953] Unable to create table view row proxy for object, likely an error in the type of the object passed in...
-	[WARN]  W/System.err: java.lang.NullPointerException: Attempt to invoke virtual method 'void ti.modules.titanium.ui.TableViewRowProxy.setParent(org.appcelerator.titanium.proxy.TiViewProxy)' on a null object reference
+	[WARN]  W/System.err: java.lang.NullPointerException: Attempt to invoke virtual method 'void ti.modules.titanium.ui.TableViewRowProxy.setParent(org.appcelerator.titanium.proxy.TiViewProxy)'
+							 on a null object reference
 	[WARN]  W/System.err: 	at ti.modules.titanium.ui.TableViewSectionProxy.insertRowAt(TableViewSectionProxy.java:104)
 	[WARN]  W/System.err: 	at ti.modules.titanium.ui.TableViewProxy.handleInsertRowBefore(TableViewProxy.java:445)
 	[WARN]  W/System.err: 	at ti.modules.titanium.ui.TableViewProxy.insertSectionBefore(TableViewProxy.java:462)
@@ -818,7 +788,8 @@ describe('Titanium.UI.TableView', function () {
 	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
 	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
 
-	[ERROR] TiApplication: java.lang.RuntimeException: Unable to destroy activity {com.appcelerator.testApp.testing/org.appcelerator.titanium.TiActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'void ti.modules.titanium.ui.TableViewRowProxy.releaseViews()' on a null object reference
+	[ERROR] TiApplication: java.lang.RuntimeException: Unable to destroy activity {com.appcelerator.testApp.testing/org.appcelerator.titanium.TiActivity}: java.lang.NullPointerException: 
+	Attempt to invoke virtual method 'void ti.modules.titanium.ui.TableViewRowProxy.releaseViews()' on a null object reference
 	[ERROR] TiApplication: 	at android.app.ActivityThread.performDestroyActivity(ActivityThread.java:3831)
 	[ERROR] TiApplication: 	at android.app.ActivityThread.handleDestroyActivity(ActivityThread.java:3849)
 	[ERROR] TiApplication: 	at android.app.ActivityThread.-wrap5(ActivityThread.java)
@@ -868,8 +839,6 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
-			var error;
-
 			try {
 				should(tableView.sectionCount).be.eql(2);
 				should(tableView.sections[0]).be.eql(section_0);
@@ -950,35 +919,35 @@ describe('Titanium.UI.TableView', function () {
 			}
 		}
 	});
-  
-  it.ios('Delete row (Search Active)', function (finish) {
+
+	it.ios('Delete row (Search Active)', function () {
 		var section_0,
 			searchBar,
-			tableView,
-			isFocused;
+			tableView;
+
 		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
 		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
 		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
 		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
 
-		searchBar = Titanium.UI.createSearchBar({showCancel:true});
+		searchBar = Ti.UI.createSearchBar({ showCancel:true });
 		tableView = Ti.UI.createTableView({
 			data: [ section_0 ],
 			search: searchBar
 		});
-		
+
 		win.addEventListener('focus', function () {
 			var error;
 
 			try {
 				searchBar.setValue('e');
-  				searchBar.focus();
+				searchBar.focus();
 				should(tableView.sections[0].rowCount).be.eql(3);
 				tableView.deleteRow(0);
 				should(tableView.sections[0].rowCount).be.eql(2);
 			} catch (err) {
 				error = err;
-			}				
+			}
 		});
 
 		win.add(tableView);
