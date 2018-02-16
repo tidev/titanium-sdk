@@ -452,10 +452,11 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return enabled;
 	}
 
-	@Kroll
-		.method
-		@Kroll.getProperty
-		public float getZoomLevel()
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getZoomLevel()
+	// clang-format on
 	{
 		TiUIView v = peekView();
 		if (v != null) {
@@ -465,10 +466,11 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll
-		.method
-		@Kroll.setProperty
-		public void setZoomLevel(float value)
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setZoomLevel(float value)
+	// clang-format on
 	{
 		setProperty(TiC.PROPERTY_ZOOM_LEVEL, value);
 
