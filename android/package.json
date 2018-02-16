@@ -13,10 +13,15 @@
 	"maintainers": [
 		"Chris Barber <cbarber@appcelerator.com>"
 	],
+	"architectures": ["arm64-v8a", "armeabi-v7a", "x86"],
+	"v8": {
+		"version": "6.2.414.36",
+		"mode": "release"
+	},
 	"minSDKVersion": "16",
 	"compileSDKVersion": "26",
 	"vendorDependencies": {
-		"android sdk": "25.x",
+		"android sdk": ">=23.x <=25.x",
 		"android build tools": "26.x",
 		"android platform tools": "26.x",
 		"android tools": "<=26.x",

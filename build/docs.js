@@ -26,7 +26,8 @@ Documentation.prototype.generateParityReport = function (next) {
 	if (this.hasWindows) {
 		args = args.concat([
 			'-a', path.join(ROOT_DIR, 'windows', 'doc', 'Titanium'),
-			'-a', path.join(ROOT_DIR, 'windows', 'doc', 'WindowsOnly')
+			'-a', path.join(ROOT_DIR, 'windows', 'doc', 'WindowsOnly'),
+			'-a', path.join(ROOT_DIR, 'windows', 'doc', 'Modules')
 		]);
 	}
 

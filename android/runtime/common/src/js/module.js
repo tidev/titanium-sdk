@@ -631,5 +631,5 @@ Module.prototype.filenameExists = function (filename) {
 		fileIndex = JSON.parse(json);
 	}
 
-	return filename in fileIndex;
+	return fileIndex && filename in fileIndex;
 };

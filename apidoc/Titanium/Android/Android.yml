@@ -2240,7 +2240,7 @@ properties:
   - name: NAVIGATION_MODE_STANDARD
     summary: Standard Action Bar navigation mode
     description: |
-        Use with the <Titanium.Android.ActionBar.navigationMode> property.
+        Use with the <Titanium.Android.ActionBar.navigationMode> property. Note: NAVIGATION_MODE_STANDARD has been deprecated in API level 21 and up.
     type: Number
     permission: read-only
     since: "3.2.0"
@@ -2248,7 +2248,7 @@ properties:
   - name: NAVIGATION_MODE_TABS
     summary: Action Bar tab navigation mode
     description: |
-        Use with the <Titanium.Android.ActionBar.navigationMode> property.
+        Use with the <Titanium.Android.ActionBar.navigationMode> property. Note: NAVIGATION_MODE_TABS has been deprecated in API level 21 and up.
     type: Number
     permission: read-only
     since: "3.2.0"
@@ -2323,6 +2323,55 @@ properties:
     summary: The URI scheme used for intent URIs.
     type: Number
     permission: read-only
+
+  - name: IMPORTANCE_DEFAULT
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_HIGH
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_LOW
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_MAX
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_MIN
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_NONE
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
+
+  - name: IMPORTANCE_UNSPECIFIED
+    summary: |
+        Used with [NotificationChannel](Titanium.Android.NotificationChannel) to specify an importance level.
+    type: Number
+    permission: read-only
+    since: "7.0.0"
 
   - name: currentActivity
     summary: Activity of the active context.

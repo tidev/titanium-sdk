@@ -600,13 +600,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/map/src/java/ti/modules/titanium/map/ViewProxy.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="307">
-          <caret line="82" column="17" lean-forward="false" selection-start-line="82" selection-start-column="17" selection-end-line="82" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/modules/locale/src/java/ti/modules/titanium/locale/LocaleModule.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="307">

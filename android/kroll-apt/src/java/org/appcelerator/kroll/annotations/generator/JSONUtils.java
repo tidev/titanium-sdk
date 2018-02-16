@@ -32,21 +32,22 @@ public class JSONUtils
 		return (Map<Object, Object>) map.get(name);
 	}
 
-	public Map<String, Object> getStringMap(Map<? extends Object, Object> map, String name) {
+	public Map<String, Object> getStringMap(Map<? extends Object, Object> map, String name)
+	{
 		return (Map<String, Object>) map.get(name);
 	}
 
-	public Map<Object, Object> getOrCreateMap(Map<Object,Object> map, String name)
+	public Map<Object, Object> getOrCreateMap(Map<Object, Object> map, String name)
 	{
-		Map<Object,Object> subMap = (Map<Object,Object>) map.get(name);
+		Map<Object, Object> subMap = (Map<Object, Object>) map.get(name);
 		if (subMap == null) {
-			subMap = new HashMap<Object,Object>();
+			subMap = new HashMap<Object, Object>();
 			map.put(name, subMap);
 		}
 		return subMap;
 	}
 
-	public List<Object> getOrCreateList(Map<Object,Object> map, String name)
+	public List<Object> getOrCreateList(Map<Object, Object> map, String name)
 	{
 		List<Object> list = (List<Object>) map.get(name);
 		if (list == null) {
@@ -56,7 +57,7 @@ public class JSONUtils
 		return list;
 	}
 
-	public void appendUnique(Map<Object,Object> parent, String arrayName, Object value)
+	public void appendUnique(Map<Object, Object> parent, String arrayName, Object value)
 	{
 		appendUnique(getOrCreateList(parent, arrayName), value);
 	}
@@ -71,13 +72,14 @@ public class JSONUtils
 				break;
 			}
 		}
-		
+
 		if (!found) {
 			list.add(value);
 		}
 	}
 
-	public void appendUniqueObject(Map<Object,Object> parent, String arrayName, Object key, Map<? extends Object, Object> value)
+	public void appendUniqueObject(Map<Object, Object> parent, String arrayName, Object key,
+								   Map<? extends Object, Object> value)
 	{
 		appendUniqueObject(getOrCreateList(parent, arrayName), key, value);
 	}
@@ -88,7 +90,7 @@ public class JSONUtils
 		for (int i = 0; i < list.size(); i++) {
 			Object v = list.get(i);
 			if (v instanceof Map) {
-				Map<Object,Object> map = (Map<Object,Object>) v;
+				Map<Object, Object> map = (Map<Object, Object>) v;
 				Object mapValue = map.get(key);
 				if (mapValue != null && value.get(key).equals(mapValue)) {
 					found = true;
@@ -96,30 +98,30 @@ public class JSONUtils
 				}
 			}
 		}
-		
+
 		if (!found) {
 			list.add(value);
 		}
 	}
 
-	public void updateObjectFromAnnotation(Map<Object,Object> object, AnnotationMirror annotation)
+	public void updateObjectFromAnnotation(Map<Object, Object> object, AnnotationMirror annotation)
 	{
 		updateObjectFromAnnotationParams(object, annUtils.getAnnotationParams(annotation));
 	}
 
-	public void updateObjectFromAnnotationParams(Map<Object,Object> object, HashMap<String, Object> params)
+	public void updateObjectFromAnnotationParams(Map<Object, Object> object, HashMap<String, Object> params)
 	{
 		for (String key : params.keySet()) {
 			Object value = params.get(key);
 			if (object.containsKey(key)) {
 				Object currentValue = object.get(key);
 				if (currentValue instanceof List && value instanceof List) {
-					List<Object> currentList = (List<Object>)currentValue;
+					List<Object> currentList = (List<Object>) currentValue;
 					for (int i = 0; i < currentList.size(); i++) {
-						appendUnique(currentList, ((List<Object>)value).get(i));
+						appendUnique(currentList, ((List<Object>) value).get(i));
 					}
 				} else if (value instanceof Class<?>) {
-					object.put(key, ((Class<?>)value).getName());
+					object.put(key, ((Class<?>) value).getName());
 				} else {
 					object.put(key, value);
 				}

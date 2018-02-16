@@ -7,7 +7,6 @@
 #ifdef USE_TI_YAHOO
 
 #import "YahooModule.h"
-#include "Base64Transcoder.h"
 #import "TiApp.h"
 #include <CommonCrypto/CommonHMAC.h>
 
@@ -123,20 +122,14 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
   NSData *secretData = [key_ dataUsingEncoding:NSUTF8StringEncoding];
   NSData *clearTextData = [data_ dataUsingEncoding:NSUTF8StringEncoding];
 
-  uint8_t digest[CC_SHA1_DIGEST_LENGTH] = { 0 };
+  const char *cKey = [secretData cStringUsingEncoding:NSASCIIStringEncoding];
+  const char *cData = [clearTextData cStringUsingEncoding:NSASCIIStringEncoding];
+  unsigned char cHMAC[CC_SHA1_DIGEST_LENGTH];
 
-  CCHmacContext hmacContext;
-  CCHmacInit(&hmacContext, kCCHmacAlgSHA1, secretData.bytes, secretData.length);
-  CCHmacUpdate(&hmacContext, clearTextData.bytes, clearTextData.length);
-  CCHmacFinal(&hmacContext, digest);
+  CCHmac(kCCHmacAlgSHA1, cKey, strlen(cKey), cData, strlen(cData), cHMAC);
+  NSData *HMAC = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
 
-  //Base64 Encoding
-  char base64Result[32];
-  size_t theResultLength = 32;
-  Base64EncodeData(digest, CC_SHA1_DIGEST_LENGTH, base64Result, &theResultLength);
-  NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-
-  return [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
+  return [[HMAC base64EncodedStringWithOptions:0] autorelease];
 }
 #endif
 

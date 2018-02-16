@@ -9,8 +9,9 @@ package ti.modules.titanium.xml;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.Notation;
 
-@Kroll.proxy(parentModule=XMLModule.class)
-public class NotationProxy extends NodeProxy {
+@Kroll.proxy(parentModule = XMLModule.class)
+public class NotationProxy extends NodeProxy
+{
 
 	private Notation notation;
 
@@ -20,13 +21,21 @@ public class NotationProxy extends NodeProxy {
 		this.notation = notation;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getPublicId() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getPublicId()
+	// clang-format on
+	{
 		return notation.getPublicId();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getSystemId() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getSystemId()
+	// clang-format on
+	{
 		return notation.getSystemId();
 	}
 
