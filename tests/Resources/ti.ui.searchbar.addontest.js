@@ -19,7 +19,7 @@ describe('Titanium.UI.SearchBar', function () {
 		}
 		win = null;
 	});
-	
+
 	// TODO: Expose Windows as well
 	// We have in in Ti.UI.Android.SearchView for Android, but need more parity here
 	it.windowsMissing('.hintTextColor', function () {
@@ -34,7 +34,7 @@ describe('Titanium.UI.SearchBar', function () {
 		should(searchBar.hintTextColor).eql('blue');
 		should(searchBar.getHintTextColor()).eql('blue');
 	});
-	
+
 	// TODO: Expose Windows as well
 	it.windowsMissing('.color', function () {
 		var searchBar = Ti.UI.createSearchBar({
