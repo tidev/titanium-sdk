@@ -792,7 +792,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
   for (TiUITableViewSectionProxy *section in newSections) {
     if (![section isKindOfClass:sectionClass]) {
       NSString *exceptionDetail = [NSString stringWithFormat:
-                                                @"section %d expected: %@, was: %@",
+                                                @"Section %d expected: %@, was: %@",
                                             sectionIndex, sectionClass, [section class]];
       [self throwException:TiExceptionInvalidType subreason:exceptionDetail location:CODELOCATION];
     }
