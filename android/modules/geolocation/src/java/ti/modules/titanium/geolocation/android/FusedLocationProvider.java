@@ -44,6 +44,8 @@ public class FusedLocationProvider
 
 	private static final String TAG = "FusedLocationProvider";
 
+	public static final String PROVIDER = "fused";
+
 	private final GeolocationModule geolocationModule;
 
 	/**
