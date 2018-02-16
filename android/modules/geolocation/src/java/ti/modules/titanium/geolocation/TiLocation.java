@@ -95,26 +95,25 @@ public class TiLocation implements Handler.Callback
 
 	public boolean getLocationServicesEnabled()
 	{
+		// Fetch all enabled location providers.
 		List<String> providerNames = locationManager.getProviders(true);
-
-		if (providerNames == null || providerNames.size() == 0)
+		if ((providerNames == null) || (providerNames.size() <= 0)) {
 			return false;
+		}
 
+		// Log all providers currently enabled.
 		if (Log.isDebugModeEnabled()) {
 			Log.i(TAG, "Enabled location provider count: " + providerNames.size());
-
 			for (String providerName : providerNames) {
 				Log.i(TAG, providerName + " service available");
 			}
 		}
 
-		//TIMOB-23135	Android: Ti.Geolocation.locationServicesEnabled returns false, but works
-		for (String providerName : providerNames) {
-			if (providerName.equals(LocationManager.GPS_PROVIDER) || providerName.equals(LocationManager.NETWORK_PROVIDER)) {
-				return true;
-			}
-		}
-		return false;
+		// Only return true if location can be obtained via GPS or WiFi/Cellular.
+		// Ignore "passive" provider and "test" providers.
+		boolean isEnabled = providerNames.contains(LocationManager.GPS_PROVIDER);
+		isEnabled |= providerNames.contains(LocationManager.NETWORK_PROVIDER);
+		return isEnabled;
 	}
 
 	public Location getLastKnownLocation()
