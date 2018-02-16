@@ -1910,7 +1910,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
     NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
     resultImage = [[ImageLoader sharedLoader] loadImmediateImage:bgURL];
     if (resultImage == nil) {
-      resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL];
+      resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL withRequestHeaders:[proxy valueForKey:@"requestHeaders"]];
     }
     if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
       // special case where we're asking for Default.png and it's in Bundle not path

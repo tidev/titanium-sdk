@@ -358,7 +358,7 @@ DEFINE_EXCEPTIONS
   NSURL *theurl = [TiUtils toURL:[images objectAtIndex:position] proxy:self.proxy];
   UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl];
   if (theimage == nil) {
-    theimage = [[ImageLoader sharedLoader] loadRemote:theurl];
+    theimage = [[ImageLoader sharedLoader] loadRemote:theurl withRequestHeaders:[[self proxy] valueForKey:@"requestHeaders"]];
   }
   if (theimage == nil) {
     NSLog(@"[ERROR] couldn't load imageview image: %@ at position: %d", theurl, position);
