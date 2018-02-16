@@ -598,7 +598,7 @@ const CFOptionFlags writeStreamEventFlags = kCFStreamEventCanAcceptBytes | kCFSt
     NSUInteger length = (stripTerminator) ? [arg length] : [arg length] + 1;
     data = [NSData dataWithBytes:[arg UTF8String] length:length];
   } else {
-    NSString *errorStr = [NSString stringWithFormat:@"expected: %@ or %@, was: %@", [TiBlob class], [NSString class], [arg class]];
+    NSString *errorStr = [NSString stringWithFormat:@"Expected: %@ or %@, was: %@", [TiBlob class], [NSString class], [arg class]];
     THROW_INVALID_ARG(errorStr)
   }
 

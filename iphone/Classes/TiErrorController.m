@@ -16,7 +16,19 @@
 - (id)initWithError:(NSString *)error_
 {
   if (self = [super init]) {
-    error = [error_ retain];
+    error = [NSString stringWithFormat:@"⚠️ %@", error_];
+  }
+  return self;
+}
+
+- (id)initWithError:(NSString *)error_ reason:(NSString *)reason_
+{
+  if (self = [super init]) {
+    error = [NSString stringWithFormat:@"⚠️ %@", error_];
+
+    if (reason_ != nil) {
+      reason = [NSString stringWithFormat:@"%@", reason_];
+    }
   }
   return self;
 }
@@ -29,7 +41,7 @@
   RELEASE_TO_NIL(centerView);
   RELEASE_TO_NIL(messageLabel);
   RELEASE_TO_NIL(disclosureLabel);
-  RELEASE_TO_NIL(error);
+
   [super dealloc];
 }
 
@@ -43,7 +55,7 @@
   [super loadView];
   self.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
   UIView *view = [self view];
-  [view setBackgroundColor:[UIColor redColor]];
+  [view setBackgroundColor:[UIColor colorWithRed:202.0f / 255.0f green:33.0f / 255.0f blue:39.0f / 255.0f alpha:1.0f]];
 
   RELEASE_TO_NIL(titleLabel)
   RELEASE_TO_NIL(messageLabel)
@@ -53,17 +65,19 @@
   RELEASE_TO_NIL(disclosureLabel)
 
   dismissButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-  dismissButton.backgroundColor = [UIColor whiteColor];
   dismissButton.translatesAutoresizingMaskIntoConstraints = NO;
-  [dismissButton setTitle:NSLocalizedString(@"Dismiss", @"Dismiss") forState:UIControlStateNormal];
+  dismissButton.layer.cornerRadius = 4;
+  dismissButton.backgroundColor = [UIColor whiteColor];
+  dismissButton.tintColor = view.backgroundColor;
+  [dismissButton setTitle:@"Dismiss" forState:UIControlStateNormal];
 
   disclosureLabel = [[UILabel alloc] init];
   disclosureLabel.backgroundColor = [UIColor clearColor];
   disclosureLabel.font = [UIFont boldSystemFontOfSize:14];
   disclosureLabel.numberOfLines = 0;
-  disclosureLabel.shadowOffset = CGSizeMake(0.0, -1.0);
-  disclosureLabel.text = NSLocalizedString(@"Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!", @"Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!");
+  disclosureLabel.text = @"Error messages will only be displayed during development. When your app is packaged for final distribution, no error screen will appear. Test your code!";
   disclosureLabel.textColor = [UIColor blackColor];
+  disclosureLabel.textAlignment = NSTextAlignmentCenter;
   disclosureLabel.translatesAutoresizingMaskIntoConstraints = NO;
 
   centerView = [[UIView alloc] init];
@@ -72,9 +86,7 @@
   titleLabel = [[UILabel alloc] init];
   titleLabel.backgroundColor = [UIColor clearColor];
   titleLabel.font = [UIFont boldSystemFontOfSize:32];
-  titleLabel.shadowColor = [UIColor darkGrayColor];
-  titleLabel.shadowOffset = CGSizeMake(2.0, 1.0);
-  titleLabel.text = NSLocalizedString(@"Application Error", @"Application Error");
+  titleLabel.text = @"Application Error";
   titleLabel.textAlignment = NSTextAlignmentCenter;
   titleLabel.textColor = [UIColor greenColor];
   titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
@@ -83,9 +95,7 @@
   messageLabel.backgroundColor = [UIColor clearColor];
   messageLabel.font = [UIFont boldSystemFontOfSize:20];
   messageLabel.numberOfLines = 0;
-  messageLabel.shadowColor = [UIColor blackColor];
-  messageLabel.shadowOffset = CGSizeMake(0.0, -1.0);
-  messageLabel.text = error;
+  messageLabel.text = reason ? [NSString stringWithFormat:@"%@\n\n%@", error, reason] : error;
   messageLabel.textAlignment = NSTextAlignmentCenter;
   messageLabel.textColor = [UIColor whiteColor];
   messageLabel.translatesAutoresizingMaskIntoConstraints = NO;
