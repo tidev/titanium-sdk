@@ -1268,7 +1268,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (NSTextAlignment)textAlignmentValue:(id)alignment
 {
-  NSTextAlignment align = NSTextAlignmentNatural; // Default for iOS 6+
+  NSTextAlignment align = NSTextAlignmentNatural;
 
   if ([alignment isKindOfClass:[NSString class]]) {
     if ([alignment isEqualToString:@"left"]) {

@@ -7,6 +7,7 @@ package <%= appid %>;
 
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 
+import org.appcelerator.kroll.KrollExternalModule;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollRuntime;
@@ -14,6 +15,8 @@ import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiRootActivity;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,16 +36,42 @@ public final class <%= classname %>Application extends TiApplication
 		postAppInfo();
 
 <% if (encryptJS) { %>
-	    KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
+		KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
 <% } %>
 
 		V8Runtime runtime = new V8Runtime();
 
 <% customModules.forEach(function (module) { %>
-		runtime.addExternalModule("<%- module.manifest.moduleid %>", <%- module.manifest.moduleid %>.<%- module.apiName %>Bootstrap.class);
-	<% if (module.isNativeJsModule) { %>
-		runtime.addExternalCommonJsModule("<%- module.manifest.moduleid %>", <%- module.manifest.moduleid %>.CommonJsSourceProvider.class);
-	<% } %>
+		{
+			String className = "<%- module.manifest.moduleid %>.<%- module.apiName %>Bootstrap";
+			try {
+				runtime.addExternalModule(
+						"<%- module.manifest.moduleid %>",
+						(Class<KrollExternalModule>) Class.forName(className));
+			} catch (Throwable ex) {
+				Log.e(TAG, "Failed to add external module: " + className);
+				if ((ex instanceof RuntimeException) == false) {
+					ex = new RuntimeException(ex);
+				}
+				throw (RuntimeException) ex;
+			}
+		}
+		<% if (module.isNativeJsModule) { %>
+		{
+			String className = "<%- module.manifest.moduleid %>.CommonJsSourceProvider";
+			try {
+				runtime.addExternalCommonJsModule(
+						"<%- module.manifest.moduleid %>",
+						(Class<KrollExternalModule>) Class.forName(className));
+			} catch (Throwable ex) {
+				Log.e(TAG, "Failed to add external CommonJS module: " + className);
+				if ((ex instanceof RuntimeException) == false) {
+					ex = new RuntimeException(ex);
+				}
+				throw (RuntimeException) ex;
+			}
+		}
+		<% } %>
 <% }); %>
 
 		KrollRuntime.init(this, runtime);
@@ -51,7 +80,24 @@ public final class <%= classname %>Application extends TiApplication
 
 <% appModules.forEach(function (module) { %>
 	<% if (module['on_app_create']) { %>
-		<%- module['class_name'] %>.<%- module['on_app_create'] %>(this);
+		{
+			String className = "<%- module['class_name'] %>";
+			String methodName = "<%- module['on_app_create'] %>";
+			try {
+				Class moduleClass = Class.forName(className);
+				Method moduleMethod = moduleClass.getMethod(methodName, TiApplication.class);
+				moduleMethod.invoke(null, this);
+			} catch (Throwable ex) {
+				Log.e(TAG, "Error invoking: " + className + "." + methodName + "()");
+				if ((ex instanceof InvocationTargetException) && (ex.getCause() != null)) {
+					ex = ex.getCause();
+				}
+				if ((ex instanceof RuntimeException) == false) {
+					ex = new RuntimeException(ex);
+				}
+				throw (RuntimeException) ex;
+			}
+		}
 	<% } %>
 <% }); %>
 
@@ -60,7 +106,24 @@ public final class <%= classname %>Application extends TiApplication
 		KrollModuleInfo moduleInfo;
 	<% customModules.forEach(function (module) { %>
 		<% if (module.onAppCreate) { %>
-		<%- module.className %>.<%- module.onAppCreate %>(this);
+		{
+			String className = "<%- module.className %>";
+			String methodName = "<%- module.onAppCreate %>";
+			try {
+				Class moduleClass = Class.forName(className);
+				Method moduleMethod = moduleClass.getMethod(methodName, TiApplication.class);
+				moduleMethod.invoke(null, this);
+			} catch (Throwable ex) {
+				Log.e(TAG, "Error invoking: " + className + "." + methodName + "()");
+				if ((ex instanceof InvocationTargetException) && (ex.getCause() != null)) {
+					ex = ex.getCause();
+				}
+				if ((ex instanceof RuntimeException) == false) {
+					ex = new RuntimeException(ex);
+				}
+				throw (RuntimeException) ex;
+			}
+		}
 		<% } %>
 
 		moduleInfo = new KrollModuleInfo(

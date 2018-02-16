@@ -10,17 +10,6 @@ const path = require('path'),
 	copyAndModifyFile = utils.copyAndModifyFile,
 	globCopy = utils.globCopy;
 
-function readProperties(filepath) {
-	var contents = fs.readFileSync(filepath).toString().replace(/\r\n/g, '\n'),
-		regexp = /^([^=]+)\s*=\s*(.+)$/gm,
-		matches,
-		result = {};
-	while ((matches = regexp.exec(contents))) {
-		result[matches[1]] = matches[2];
-	}
-	return result;
-}
-
 /**
  * @param {Object} options options object
  * @param {String} options.androidSdk path to the Android SDK to build with
@@ -89,8 +78,8 @@ Android.prototype.package = function (packager, next) {
 			globCopy('**/*.h', path.join(ANDROID_ROOT, 'runtime', 'v8', 'generated'), path.join(ANDROID_DEST, 'native', 'include'), cb);
 		},
 		function (cb) {
-			const v8Props = readProperties(path.join(ANDROID_ROOT, 'build', 'libv8.properties')),
-				src = path.join(DIST_ANDROID, 'libv8', v8Props['libv8.version'], v8Props['libv8.mode'], 'include');
+			const v8Props = require(path.join(ANDROID_ROOT, 'package.json')).v8, // eslint-disable-line security/detect-non-literal-require
+				src = path.join(DIST_ANDROID, 'libv8', v8Props.version, v8Props.mode, 'include');
 			globCopy('**/*.h', src, path.join(ANDROID_DEST, 'native', 'include'), cb);
 		},
 		// add js2c.py for js -> C embedding
