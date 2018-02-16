@@ -63,7 +63,8 @@ public class TiUIWebView extends TiUIView
 	private boolean isLocalHTML = false;
 	private boolean disableContextMenu = false;
 	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
-	private float zoomLevel = TiApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics().density;
+	private float zoomLevel =
+		TiApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics().density;
 	private float initScale = zoomLevel;
 
 	private static Enum<?> enumPluginStateOff;
@@ -479,241 +480,240 @@ public class TiUIWebView extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ZOOM_LEVEL)) {
-			zoomBy(getWebView(), TiConvert.toFloat(d,TiC.PROPERTY_ZOOM_LEVEL));
+			zoomBy(getWebView(), TiConvert.toFloat(d, TiC.PROPERTY_ZOOM_LEVEL));
 
-		if (d.containsKey(TiC.PROPERTY_USER_AGENT)) {
-			((WebViewProxy) getProxy()).setUserAgent(d.getString(TiC.PROPERTY_USER_AGENT));
-
-		}
-	}
-
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{
-		if (TiC.PROPERTY_URL.equals(key)) {
-			setUrl(TiConvert.toString(newValue));
-		} else if (TiC.PROPERTY_HTML.equals(key)) {
-			setHtml(TiConvert.toString(newValue));
-		} else if (TiC.PROPERTY_DATA.equals(key)) {
-			if (newValue instanceof TiBlob) {
-				setData((TiBlob) newValue);
+			if (d.containsKey(TiC.PROPERTY_USER_AGENT)) {
+				((WebViewProxy) getProxy()).setUserAgent(d.getString(TiC.PROPERTY_USER_AGENT));
 			}
-		} else if (TiC.PROPERTY_SCALES_PAGE_TO_FIT.equals(key)) {
-			WebSettings settings = getWebView().getSettings();
-			settings.setLoadWithOverviewMode(TiConvert.toBoolean(newValue));
-		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
-			if (Build.VERSION.SDK_INT >= 9) {
-				nativeView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+		}
+
+		@Override
+		public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+		{
+			if (TiC.PROPERTY_URL.equals(key)) {
+				setUrl(TiConvert.toString(newValue));
+			} else if (TiC.PROPERTY_HTML.equals(key)) {
+				setHtml(TiConvert.toString(newValue));
+			} else if (TiC.PROPERTY_DATA.equals(key)) {
+				if (newValue instanceof TiBlob) {
+					setData((TiBlob) newValue);
+				}
+			} else if (TiC.PROPERTY_SCALES_PAGE_TO_FIT.equals(key)) {
+				WebSettings settings = getWebView().getSettings();
+				settings.setLoadWithOverviewMode(TiConvert.toBoolean(newValue));
+			} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
+				if (Build.VERSION.SDK_INT >= 9) {
+					nativeView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+				}
+			} else if (TiC.PROPERTY_CACHE_MODE.equals(key)) {
+				getWebView().getSettings().setCacheMode(TiConvert.toInt(newValue));
+			} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
+				WebSettings settings = getWebView().getSettings();
+				settings.setLightTouchEnabled(TiConvert.toBoolean(newValue));
+			} else if (TiC.PROPERTY_REQUEST_HEADERS.equals(key)) {
+				if (newValue instanceof HashMap) {
+					setRequestHeaders((HashMap) newValue);
+				}
+			} else if (TiC.PROPERTY_DISABLE_CONTEXT_MENU.equals(key)) {
+				disableContextMenu = TiConvert.toBoolean(newValue);
+			} else if (TiC.PROPERTY_ZOOM_LEVEL.equals(key)) {
+				zoomBy(getWebView(), TiConvert.toFloat(newValue, 1.0f));
+			} else if (TiC.PROPERTY_USER_AGENT.equals(key)) {
+				((WebViewProxy) getProxy()).setUserAgent(TiConvert.toString(newValue));
+			} else {
+				super.propertyChanged(key, oldValue, newValue, proxy);
 			}
-		} else if (TiC.PROPERTY_CACHE_MODE.equals(key)) {
-			getWebView().getSettings().setCacheMode(TiConvert.toInt(newValue));
-		} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
-			WebSettings settings = getWebView().getSettings();
-			settings.setLightTouchEnabled(TiConvert.toBoolean(newValue));
-		} else if (TiC.PROPERTY_REQUEST_HEADERS.equals(key)) {
-			if (newValue instanceof HashMap) {
-				setRequestHeaders((HashMap) newValue);
+
+			// If TiUIView's propertyChanged ended up making a TiBackgroundDrawable
+			// for the background, we must set the WebView background color to transparent
+			// in order to see any of it.
+			boolean isBgRelated =
+				(key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX) || key.startsWith(TiC.PROPERTY_BORDER_PREFIX));
+			if (isBgRelated && nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
+				nativeView.setBackgroundColor(Color.TRANSPARENT);
 			}
-		} else if (TiC.PROPERTY_DISABLE_CONTEXT_MENU.equals(key)) {
-			disableContextMenu = TiConvert.toBoolean(newValue);
-		} else if (TiC.PROPERTY_ZOOM_LEVEL.equals(key)) {
-			zoomBy(getWebView(), TiConvert.toFloat(newValue, 1.0f));
-		} else if (TiC.PROPERTY_USER_AGENT.equals(key)) {
-			((WebViewProxy) getProxy()).setUserAgent(TiConvert.toString(newValue));
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 
-		// If TiUIView's propertyChanged ended up making a TiBackgroundDrawable
-		// for the background, we must set the WebView background color to transparent
-		// in order to see any of it.
-		boolean isBgRelated =
-			(key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX) || key.startsWith(TiC.PROPERTY_BORDER_PREFIX));
-		if (isBgRelated && nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
-			nativeView.setBackgroundColor(Color.TRANSPARENT);
-		}
-	}
+		private void zoomBy(WebView webView, float scale)
+		{
+			if (Build.VERSION.SDK_INT >= 21 && webView != null) {
+				if (scale <= 0.0f) {
+					scale = 0.01f;
+				} else if (scale >= 100.0f) {
+					scale = 100.0f;
+				}
 
-	private void zoomBy(WebView webView, float scale)
-	{
-		if (Build.VERSION.SDK_INT >= 21 && webView != null) {
-			if (scale <= 0.0f) {
-				scale = 0.01f;
-			} else if (scale >= 100.0f) {
-				scale = 100.0f;
+				float targetVal = (initScale * scale) / zoomLevel;
+				webView.zoomBy(targetVal);
 			}
-			
-			float targetVal = (initScale * scale)  / zoomLevel;
-			webView.zoomBy(targetVal);
-		}
-	}
-
-	public void zoomBy(float scale)
-	{
-		zoomBy(getWebView(), scale);
-	}
-
-	public float getZoomLevel()
-	{
-		return zoomLevel;
-	}
-
-	public void setZoomLevel(float value)
-	{
-		zoomLevel = value;
-	}
-
-	private boolean mightBeHtml(String url)
-	{
-		String mime = TiMimeTypeHelper.getMimeType(url);
-		if (mime.equals("text/html")) {
-			return true;
-		} else if (mime.equals("application/xhtml+xml")) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public void setUrl(String url)
-	{
-		reloadMethod = reloadTypes.URL;
-		reloadData = url;
-		String finalUrl = url;
-		Uri uri = Uri.parse(finalUrl);
-		boolean originalUrlHasScheme = (uri.getScheme() != null);
-
-		if (!originalUrlHasScheme) {
-			finalUrl = getProxy().resolveUrl(null, finalUrl);
 		}
 
-		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
-			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
-			if (tiFile != null) {
-				StringBuilder out = new StringBuilder();
-				InputStream fis = null;
-				try {
-					fis = tiFile.getInputStream();
-					InputStreamReader reader = new InputStreamReader(fis, "utf-8");
-					BufferedReader breader = new BufferedReader(reader);
-					String line = breader.readLine();
-					while (line != null) {
-						if (!bindingCodeInjected) {
-							int pos = line.indexOf("<html");
-							if (pos >= 0) {
-								int posEnd = line.indexOf(">", pos);
-								if (posEnd > pos) {
-									out.append(line.substring(pos, posEnd + 1));
-									out.append(TiWebViewBinding.SCRIPT_TAG_INJECTION_CODE);
-									if ((posEnd + 1) < line.length()) {
-										out.append(line.substring(posEnd + 1));
+		public void zoomBy(float scale)
+		{
+			zoomBy(getWebView(), scale);
+		}
+
+		public float getZoomLevel()
+		{
+			return zoomLevel;
+		}
+
+		public void setZoomLevel(float value)
+		{
+			zoomLevel = value;
+		}
+
+		private boolean mightBeHtml(String url)
+		{
+			String mime = TiMimeTypeHelper.getMimeType(url);
+			if (mime.equals("text/html")) {
+				return true;
+			} else if (mime.equals("application/xhtml+xml")) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		public void setUrl(String url)
+		{
+			reloadMethod = reloadTypes.URL;
+			reloadData = url;
+			String finalUrl = url;
+			Uri uri = Uri.parse(finalUrl);
+			boolean originalUrlHasScheme = (uri.getScheme() != null);
+
+			if (!originalUrlHasScheme) {
+				finalUrl = getProxy().resolveUrl(null, finalUrl);
+			}
+
+			if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
+				TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
+				if (tiFile != null) {
+					StringBuilder out = new StringBuilder();
+					InputStream fis = null;
+					try {
+						fis = tiFile.getInputStream();
+						InputStreamReader reader = new InputStreamReader(fis, "utf-8");
+						BufferedReader breader = new BufferedReader(reader);
+						String line = breader.readLine();
+						while (line != null) {
+							if (!bindingCodeInjected) {
+								int pos = line.indexOf("<html");
+								if (pos >= 0) {
+									int posEnd = line.indexOf(">", pos);
+									if (posEnd > pos) {
+										out.append(line.substring(pos, posEnd + 1));
+										out.append(TiWebViewBinding.SCRIPT_TAG_INJECTION_CODE);
+										if ((posEnd + 1) < line.length()) {
+											out.append(line.substring(posEnd + 1));
+										}
+										out.append("\n");
+										bindingCodeInjected = true;
+										line = breader.readLine();
+										continue;
 									}
-									out.append("\n");
-									bindingCodeInjected = true;
-									line = breader.readLine();
-									continue;
 								}
 							}
+							out.append(line);
+							out.append("\n");
+							line = breader.readLine();
 						}
-						out.append(line);
-						out.append("\n");
-						line = breader.readLine();
-					}
-					setHtmlInternal(out.toString(), (originalUrlHasScheme ? url : finalUrl),
-									"text/html"); // keep app:// etc. intact in case
-												  // html in file contains links
-												  // to JS that use app:// etc.
-					return;
-				} catch (IOException ioe) {
-					Log.e(TAG,
-						  "Problem reading from " + url + ": " + ioe.getMessage()
-							  + ". Will let WebView try loading it directly.",
-						  ioe);
-				} finally {
-					if (fis != null) {
-						try {
-							fis.close();
-						} catch (IOException e) {
-							Log.w(TAG, "Problem closing stream: " + e.getMessage(), e);
+						setHtmlInternal(out.toString(), (originalUrlHasScheme ? url : finalUrl),
+										"text/html"); // keep app:// etc. intact in case
+													  // html in file contains links
+													  // to JS that use app:// etc.
+						return;
+					} catch (IOException ioe) {
+						Log.e(TAG,
+							  "Problem reading from " + url + ": " + ioe.getMessage()
+								  + ". Will let WebView try loading it directly.",
+							  ioe);
+					} finally {
+						if (fis != null) {
+							try {
+								fis.close();
+							} catch (IOException e) {
+								Log.w(TAG, "Problem closing stream: " + e.getMessage(), e);
+							}
 						}
 					}
 				}
 			}
+
+			Log.d(TAG, "WebView will load " + url + " directly without code injection.", Log.DEBUG_MODE);
+			// iOS parity: for whatever reason, when a remote url is used, the iOS implementation
+			// explicitly sets the native webview's setScalesPageToFit to YES if the
+			// Ti scalesPageToFit property has _not_ been set.
+			if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
+				getWebView().getSettings().setLoadWithOverviewMode(true);
+			}
+			isLocalHTML = false;
+			if (extraHeaders.size() > 0) {
+				getWebView().loadUrl(finalUrl, extraHeaders);
+			} else {
+				getWebView().loadUrl(finalUrl);
+			}
 		}
 
-		Log.d(TAG, "WebView will load " + url + " directly without code injection.", Log.DEBUG_MODE);
-		// iOS parity: for whatever reason, when a remote url is used, the iOS implementation
-		// explicitly sets the native webview's setScalesPageToFit to YES if the
-		// Ti scalesPageToFit property has _not_ been set.
-		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
-			getWebView().getSettings().setLoadWithOverviewMode(true);
-		}
-		isLocalHTML = false;
-		if (extraHeaders.size() > 0) {
-			getWebView().loadUrl(finalUrl, extraHeaders);
-		} else {
-			getWebView().loadUrl(finalUrl);
-		}
-	}
-
-	public void changeProxyUrl(String url)
-	{
-		getProxy().setProperty("url", url);
-		if (!TiC.URL_ANDROID_ASSET_RESOURCES.equals(url)) {
-			reloadMethod = reloadTypes.URL;
-			reloadData = url;
-		}
-	}
-
-	public String getUrl()
-	{
-		return getWebView().getUrl();
-	}
-
-	private static final char escapeChars[] = new char[] { '%', '#', '\'', '?' };
-
-	private String escapeContent(String content)
-	{
-		// The Android WebView has a known bug
-		// where it forgets to escape certain characters
-		// when it creates a data:// URL in the loadData() method
-		// http://code.google.com/p/android/issues/detail?id=1733
-		for (char escapeChar : escapeChars) {
-			String regex = "\\" + escapeChar;
-			content = content.replaceAll(regex, "%" + Integer.toHexString(escapeChar));
-		}
-		return content;
-	}
-
-	public void setHtml(String html)
-	{
-		reloadMethod = reloadTypes.HTML;
-		reloadData = null;
-		setHtmlInternal(html, TiC.URL_ANDROID_ASSET_RESOURCES, "text/html");
-	}
-
-	public void setHtml(String html, HashMap<String, Object> d)
-	{
-		if (d == null) {
-			setHtml(html);
-			return;
+		public void changeProxyUrl(String url)
+		{
+			getProxy().setProperty("url", url);
+			if (!TiC.URL_ANDROID_ASSET_RESOURCES.equals(url)) {
+				reloadMethod = reloadTypes.URL;
+				reloadData = url;
+			}
 		}
 
-		reloadMethod = reloadTypes.HTML;
-		reloadData = d;
-		String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
-		String mimeType = "text/html";
-		if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
-			baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
-		}
-		if (d.containsKey(TiC.PROPERTY_MIMETYPE)) {
-			mimeType = TiConvert.toString(d.get(TiC.PROPERTY_MIMETYPE));
+		public String getUrl()
+		{
+			return getWebView().getUrl();
 		}
 
-		setHtmlInternal(html, baseUrl, mimeType);
-	}
+		private static final char escapeChars[] = new char[] { '%', '#', '\'', '?' };
 
-	/**
+		private String escapeContent(String content)
+		{
+			// The Android WebView has a known bug
+			// where it forgets to escape certain characters
+			// when it creates a data:// URL in the loadData() method
+			// http://code.google.com/p/android/issues/detail?id=1733
+			for (char escapeChar : escapeChars) {
+				String regex = "\\" + escapeChar;
+				content = content.replaceAll(regex, "%" + Integer.toHexString(escapeChar));
+			}
+			return content;
+		}
+
+		public void setHtml(String html)
+		{
+			reloadMethod = reloadTypes.HTML;
+			reloadData = null;
+			setHtmlInternal(html, TiC.URL_ANDROID_ASSET_RESOURCES, "text/html");
+		}
+
+		public void setHtml(String html, HashMap<String, Object> d)
+		{
+			if (d == null) {
+				setHtml(html);
+				return;
+			}
+
+			reloadMethod = reloadTypes.HTML;
+			reloadData = d;
+			String baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
+			String mimeType = "text/html";
+			if (d.containsKey(TiC.PROPERTY_BASE_URL_WEBVIEW)) {
+				baseUrl = TiConvert.toString(d.get(TiC.PROPERTY_BASE_URL_WEBVIEW));
+			}
+			if (d.containsKey(TiC.PROPERTY_MIMETYPE)) {
+				mimeType = TiConvert.toString(d.get(TiC.PROPERTY_MIMETYPE));
+			}
+
+			setHtmlInternal(html, baseUrl, mimeType);
+		}
+
+		/**
 	 * Loads HTML content into the web view.  Note that the "historyUrl" property 
 	 * must be set to non null in order for the web view history to work correctly 
 	 * when working with local files (IE:  goBack() and goForward() will not work if 
@@ -723,285 +723,287 @@ public class TiUIWebView extends TiUIView
 	 * @param baseUrl				url to associate with the data being loaded
 	 * @param mimeType			mime type of the data being loaded
 	 */
-	private void setHtmlInternal(String html, String baseUrl, String mimeType)
-	{
-		// iOS parity: for whatever reason, when html is set directly, the iOS implementation
-		// explicitly sets the native webview's setScalesPageToFit to NO if the
-		// Ti scalesPageToFit property has _not_ been set.
+		private void setHtmlInternal(String html, String baseUrl, String mimeType)
+		{
+			// iOS parity: for whatever reason, when html is set directly, the iOS implementation
+			// explicitly sets the native webview's setScalesPageToFit to NO if the
+			// Ti scalesPageToFit property has _not_ been set.
 
-		WebView webView = getWebView();
-		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
-			webView.getSettings().setLoadWithOverviewMode(false);
-		}
-		boolean enableJavascriptInjection = true;
-		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
-			enableJavascriptInjection =
-				TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
-		}
-		// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
-		isLocalHTML = true;
-		enableJavascriptInjection = (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection);
+			WebView webView = getWebView();
+			if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
+				webView.getSettings().setLoadWithOverviewMode(false);
+			}
+			boolean enableJavascriptInjection = true;
+			if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
+				enableJavascriptInjection =
+					TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+			}
+			// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
+			isLocalHTML = true;
+			enableJavascriptInjection = (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection);
 
-		if (!enableJavascriptInjection) {
-			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
-			return;
-		}
-
-		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
-			// Our injection code is in there already, go ahead and show.
-			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
-			return;
-		}
-
-		int tagStart = html.indexOf("<html");
-		int tagEnd = -1;
-		if (tagStart >= 0) {
-			tagEnd = html.indexOf(">", tagStart + 1);
-
-			if (tagEnd > tagStart) {
-				StringBuilder sb = new StringBuilder(html.length() + 2500);
-				sb.append(html.substring(0, tagEnd + 1));
-				sb.append(TiWebViewBinding.SCRIPT_TAG_INJECTION_CODE);
-				if ((tagEnd + 1) < html.length()) {
-					sb.append(html.substring(tagEnd + 1));
-				}
-				webView.loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", baseUrl);
-				bindingCodeInjected = true;
+			if (!enableJavascriptInjection) {
+				webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
 				return;
 			}
-		}
 
-		webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
-	}
-
-	public void setData(TiBlob blob)
-	{
-		reloadMethod = reloadTypes.DATA;
-		reloadData = blob;
-		String mimeType = "text/html";
-
-		// iOS parity: for whatever reason, in setData, the iOS implementation
-		// explicitly sets the native webview's setScalesPageToFit to YES if the
-		// Ti scalesPageToFit property has _not_ been set.
-		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
-			getWebView().getSettings().setLoadWithOverviewMode(true);
-		}
-
-		if (blob.getType() == TiBlob.TYPE_FILE) {
-			String fullPath = blob.getNativePath();
-			if (fullPath != null) {
-				setUrl(fullPath);
+			if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
+				// Our injection code is in there already, go ahead and show.
+				webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
 				return;
 			}
-		}
 
-		if (blob.getMimeType() != null) {
-			mimeType = blob.getMimeType();
-		}
-		if (TiMimeTypeHelper.isBinaryMimeType(mimeType)) {
-			getWebView().loadData(blob.toBase64(), mimeType, "base64");
-		} else {
-			getWebView().loadData(escapeContent(new String(blob.getBytes())), mimeType, "utf-8");
-		}
-	}
+			int tagStart = html.indexOf("<html");
+			int tagEnd = -1;
+			if (tagStart >= 0) {
+				tagEnd = html.indexOf(">", tagStart + 1);
 
-	public String getJSValue(String expression)
-	{
-		return client.getBinding().getJSValue(expression);
-	}
-
-	public void setBasicAuthentication(String username, String password)
-	{
-		client.setBasicAuthentication(username, password);
-	}
-
-	public void destroyWebViewBinding()
-	{
-		client.getBinding().destroy();
-	}
-
-	public void setPluginState(int pluginState)
-	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			TiWebView webView = (TiWebView) getNativeView();
-			WebSettings webSettings = webView.getSettings();
-			if (webView != null) {
-				try {
-					switch (pluginState) {
-						case PLUGIN_STATE_OFF:
-							internalSetPluginState.invoke(webSettings, enumPluginStateOff);
-							break;
-						case PLUGIN_STATE_ON:
-							internalSetPluginState.invoke(webSettings, enumPluginStateOn);
-							break;
-						case PLUGIN_STATE_ON_DEMAND:
-							internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
-							break;
-						default:
-							Log.w(TAG, "Not a valid plugin state. Ignoring setPluginState request");
+				if (tagEnd > tagStart) {
+					StringBuilder sb = new StringBuilder(html.length() + 2500);
+					sb.append(html.substring(0, tagEnd + 1));
+					sb.append(TiWebViewBinding.SCRIPT_TAG_INJECTION_CODE);
+					if ((tagEnd + 1) < html.length()) {
+						sb.append(html.substring(tagEnd + 1));
 					}
-				} catch (InvocationTargetException e) {
-					Log.e(TAG, "Method not supported", e);
-				} catch (IllegalAccessException e) {
-					Log.e(TAG, "Illegal Access", e);
+					webView.loadDataWithBaseURL(baseUrl, sb.toString(), mimeType, "utf-8", baseUrl);
+					bindingCodeInjected = true;
+					return;
+				}
+			}
+
+			webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
+		}
+
+		public void setData(TiBlob blob)
+		{
+			reloadMethod = reloadTypes.DATA;
+			reloadData = blob;
+			String mimeType = "text/html";
+
+			// iOS parity: for whatever reason, in setData, the iOS implementation
+			// explicitly sets the native webview's setScalesPageToFit to YES if the
+			// Ti scalesPageToFit property has _not_ been set.
+			if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
+				getWebView().getSettings().setLoadWithOverviewMode(true);
+			}
+
+			if (blob.getType() == TiBlob.TYPE_FILE) {
+				String fullPath = blob.getNativePath();
+				if (fullPath != null) {
+					setUrl(fullPath);
+					return;
+				}
+			}
+
+			if (blob.getMimeType() != null) {
+				mimeType = blob.getMimeType();
+			}
+			if (TiMimeTypeHelper.isBinaryMimeType(mimeType)) {
+				getWebView().loadData(blob.toBase64(), mimeType, "base64");
+			} else {
+				getWebView().loadData(escapeContent(new String(blob.getBytes())), mimeType, "utf-8");
+			}
+		}
+
+		public String getJSValue(String expression)
+		{
+			return client.getBinding().getJSValue(expression);
+		}
+
+		public void setBasicAuthentication(String username, String password)
+		{
+			client.setBasicAuthentication(username, password);
+		}
+
+		public void destroyWebViewBinding()
+		{
+			client.getBinding().destroy();
+		}
+
+		public void setPluginState(int pluginState)
+		{
+			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+				TiWebView webView = (TiWebView) getNativeView();
+				WebSettings webSettings = webView.getSettings();
+				if (webView != null) {
+					try {
+						switch (pluginState) {
+							case PLUGIN_STATE_OFF:
+								internalSetPluginState.invoke(webSettings, enumPluginStateOff);
+								break;
+							case PLUGIN_STATE_ON:
+								internalSetPluginState.invoke(webSettings, enumPluginStateOn);
+								break;
+							case PLUGIN_STATE_ON_DEMAND:
+								internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
+								break;
+							default:
+								Log.w(TAG, "Not a valid plugin state. Ignoring setPluginState request");
+						}
+					} catch (InvocationTargetException e) {
+						Log.e(TAG, "Method not supported", e);
+					} catch (IllegalAccessException e) {
+						Log.e(TAG, "Illegal Access", e);
+					}
 				}
 			}
 		}
-	}
 
-	public void pauseWebView()
-	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			View v = getNativeView();
-			if (v != null) {
-				try {
-					internalWebViewPause.invoke(v);
-				} catch (InvocationTargetException e) {
-					Log.e(TAG, "Method not supported", e);
-				} catch (IllegalAccessException e) {
-					Log.e(TAG, "Illegal Access", e);
+		public void pauseWebView()
+		{
+			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+				View v = getNativeView();
+				if (v != null) {
+					try {
+						internalWebViewPause.invoke(v);
+					} catch (InvocationTargetException e) {
+						Log.e(TAG, "Method not supported", e);
+					} catch (IllegalAccessException e) {
+						Log.e(TAG, "Illegal Access", e);
+					}
 				}
 			}
 		}
-	}
 
-	public void resumeWebView()
-	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			View v = getNativeView();
-			if (v != null) {
-				try {
-					internalWebViewResume.invoke(v);
-				} catch (InvocationTargetException e) {
-					Log.e(TAG, "Method not supported", e);
-				} catch (IllegalAccessException e) {
-					Log.e(TAG, "Illegal Access", e);
+		public void resumeWebView()
+		{
+			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
+				View v = getNativeView();
+				if (v != null) {
+					try {
+						internalWebViewResume.invoke(v);
+					} catch (InvocationTargetException e) {
+						Log.e(TAG, "Method not supported", e);
+					} catch (IllegalAccessException e) {
+						Log.e(TAG, "Illegal Access", e);
+					}
 				}
 			}
 		}
-	}
 
-	public void setEnableZoomControls(boolean enabled)
-	{
-		getWebView().getSettings().setSupportZoom(enabled);
-		getWebView().getSettings().setBuiltInZoomControls(enabled);
-	}
-
-	public void setUserAgentString(String userAgentString)
-	{
-		WebView currWebView = getWebView();
-		if (currWebView != null) {
-			hasSetUserAgent = true;
-			currWebView.getSettings().setUserAgentString(userAgentString);
+		public void setEnableZoomControls(boolean enabled)
+		{
+			getWebView().getSettings().setSupportZoom(enabled);
+			getWebView().getSettings().setBuiltInZoomControls(enabled);
 		}
-	}
 
-	public String getUserAgentString()
-	{
-		WebView currWebView = getWebView();
-		return (currWebView != null) ? currWebView.getSettings().getUserAgentString() : "";
-	}
-
-	public void setRequestHeaders(HashMap items)
-	{
-		Map<String, String> map = items;
-		for (Map.Entry<String, String> item : map.entrySet()) {
-			extraHeaders.put(item.getKey().toString(), item.getValue().toString());
+		public void setUserAgentString(String userAgentString)
+		{
+			WebView currWebView = getWebView();
+			if (currWebView != null) {
+				hasSetUserAgent = true;
+				currWebView.getSettings().setUserAgentString(userAgentString);
+			}
 		}
-	}
 
-	public HashMap getRequestHeaders()
-	{
-		return extraHeaders;
-	}
+		public String getUserAgentString()
+		{
+			WebView currWebView = getWebView();
+			return (currWebView != null) ? currWebView.getSettings().getUserAgentString() : "";
+		}
 
-	public boolean canGoBack()
-	{
-		return getWebView().canGoBack();
-	}
+		public void setRequestHeaders(HashMap items)
+		{
+			Map<String, String> map = items;
+			for (Map.Entry<String, String> item : map.entrySet()) {
+				extraHeaders.put(item.getKey().toString(), item.getValue().toString());
+			}
+		}
 
-	public boolean canGoForward()
-	{
-		return getWebView().canGoForward();
-	}
+		public HashMap getRequestHeaders()
+		{
+			return extraHeaders;
+		}
 
-	public void goBack()
-	{
-		getWebView().goBack();
-	}
+		public boolean canGoBack()
+		{
+			return getWebView().canGoBack();
+		}
 
-	public void goForward()
-	{
-		getWebView().goForward();
-	}
+		public boolean canGoForward()
+		{
+			return getWebView().canGoForward();
+		}
 
-	public void reload()
-	{
-		switch (reloadMethod) {
-			case DATA:
-				if (reloadData != null && reloadData instanceof TiBlob) {
-					setData((TiBlob) reloadData);
-				} else {
-					Log.d(TAG, "reloadMethod points to data but reloadData is null or of wrong type. Calling default",
-						  Log.DEBUG_MODE);
+		public void goBack()
+		{
+			getWebView().goBack();
+		}
+
+		public void goForward()
+		{
+			getWebView().goForward();
+		}
+
+		public void reload()
+		{
+			switch (reloadMethod) {
+				case DATA:
+					if (reloadData != null && reloadData instanceof TiBlob) {
+						setData((TiBlob) reloadData);
+					} else {
+						Log.d(TAG,
+							  "reloadMethod points to data but reloadData is null or of wrong type. Calling default",
+							  Log.DEBUG_MODE);
+						getWebView().reload();
+					}
+					break;
+
+				case HTML:
+					if (reloadData == null || (reloadData instanceof HashMap<?, ?>) ) {
+						setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)),
+								(HashMap<String, Object>) reloadData);
+					} else {
+						Log.d(TAG, "reloadMethod points to html but reloadData is of wrong type. Calling default",
+							  Log.DEBUG_MODE);
+						getWebView().reload();
+					}
+					break;
+
+				case URL:
+					if (reloadData != null && reloadData instanceof String) {
+						setUrl((String) reloadData);
+					} else {
+						Log.d(TAG,
+							  "reloadMethod points to url but reloadData is null or of wrong type. Calling default",
+							  Log.DEBUG_MODE);
+						getWebView().reload();
+					}
+					break;
+
+				default:
 					getWebView().reload();
-				}
-				break;
+			}
+		}
 
-			case HTML:
-				if (reloadData == null || (reloadData instanceof HashMap<?, ?>) ) {
-					setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)),
-							(HashMap<String, Object>) reloadData);
-				} else {
-					Log.d(TAG, "reloadMethod points to html but reloadData is of wrong type. Calling default",
-						  Log.DEBUG_MODE);
-					getWebView().reload();
-				}
-				break;
+		public void stopLoading()
+		{
+			getWebView().stopLoading();
+		}
 
-			case URL:
-				if (reloadData != null && reloadData instanceof String) {
-					setUrl((String) reloadData);
-				} else {
-					Log.d(TAG, "reloadMethod points to url but reloadData is null or of wrong type. Calling default",
-						  Log.DEBUG_MODE);
-					getWebView().reload();
-				}
-				break;
+		public boolean shouldInjectBindingCode()
+		{
+			return isLocalHTML && !bindingCodeInjected;
+		}
 
-			default:
-				getWebView().reload();
+		public void setBindingCodeInjected(boolean injected)
+		{
+			bindingCodeInjected = injected;
+			initScale = getZoomLevel();
+		}
+
+		public boolean interceptOnBackPressed()
+		{
+			return chromeClient.interceptOnBackPressed();
+		}
+
+		@Override
+		protected void disableHWAcceleration()
+		{
+			if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
+				super.disableHWAcceleration();
+			} else {
+				Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
+			}
 		}
 	}
-
-	public void stopLoading()
-	{
-		getWebView().stopLoading();
-	}
-
-	public boolean shouldInjectBindingCode()
-	{
-		return isLocalHTML && !bindingCodeInjected;
-	}
-
-	public void setBindingCodeInjected(boolean injected)
-	{
-		bindingCodeInjected = injected;
-		initScale = getZoomLevel();
-	}
-
-	public boolean interceptOnBackPressed()
-	{
-		return chromeClient.interceptOnBackPressed();
-	}
-
-	@Override
-	protected void disableHWAcceleration()
-	{
-		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
-			super.disableHWAcceleration();
-		} else {
-			Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
-		}
-	}
-}
