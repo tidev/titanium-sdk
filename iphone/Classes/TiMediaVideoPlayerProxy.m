@@ -134,6 +134,14 @@ NSArray *moviePlayerKeys = nil;
 {
   [self addNotificationObserver];
   [self setValuesForKeysWithDictionary:loadProperties];
+
+  // TIMOB-25566: Video controls need to be handled manually as they can
+  // cause issues if the URL is set after creation
+  id showControls = [self valueForKey:@"showControls"];
+  if (showControls != nil) {
+    [self setShowsControls:showControls];
+  }
+
   // we need this code below since the player can be realized before loading
   // properties in certain cases and when we go to create it again after setting
   // url we will need to set the new controller to the already created view
@@ -469,7 +477,10 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)setShowsControls:(NSNumber *)value
 {
-  [movie setShowsPlaybackControls:[TiUtils boolValue:value def:YES]];
+  [self replaceValue:value forKey:@"showControls" notification:NO];
+  if (movie != nil) {
+    [movie setShowsPlaybackControls:[TiUtils boolValue:value def:YES]];
+  }
 }
 
 - (void)cancelAllThumbnailImageRequests:(id)value
