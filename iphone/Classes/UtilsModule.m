@@ -21,8 +21,10 @@
     return arg;
   } else if ([arg isKindOfClass:[TiBlob class]]) {
     return [(TiBlob *)arg text];
+  } else if ([arg isKindOfClass:[TiFile class]]) {
+    return [(TiBlob *)[(TiFile *)arg blob] text];
   }
-  THROW_INVALID_ARG(@"invalid type");
+  THROW_INVALID_ARG(@"Invalid type");
 }
 
 - (NSString *)apiName
@@ -58,18 +60,10 @@
 {
   ENSURE_SINGLE_ARG(args, NSObject);
 
-  NSMutableString *str = [[NSMutableString alloc] initWithString:[[self convertToString:args]
-                                                                     stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
-  // Fill padding for backwards compatibility
-  while ([str length] % 4 != 0) {
-    [str appendString:@"="];
-  }
-
-  if ([str rangeOfString:@"="].length > 2) {
-    NSLog(@"[WARN] The Base64 string seems to have an invalid padding, please make sure to pass a valid value!");
-  }
-
-  NSData *decodedData = [[[NSData alloc] initWithBase64EncodedString:str options:0] autorelease];
+  NSString *str = [[self convertToString:args] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+  int padding = (4 - (str.length % 4)) % 4;
+  NSString *paddedStr = [NSString stringWithFormat:@"%s%.*s", [str UTF8String], padding, "=="];
+  NSData *decodedData = [[[NSData alloc] initWithBase64EncodedString:paddedStr options:0] autorelease];
 
   if (decodedData != nil) {
     return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:decodedData mimetype:@"application/octet-stream"] autorelease];
