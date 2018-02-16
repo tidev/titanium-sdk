@@ -148,12 +148,12 @@
   [self replaceValue:newRadius forKey:@"endRadius" notification:NO];
 }
 
-- (NSNumber *)endRadius
+- (id)endRadius
 {
   return [self valueForUndefinedKey:@"endRadius"];
 }
 
-- (NSNumber *)startRadius
+- (id)startRadius
 {
   return [self valueForUndefinedKey:@"startRadius"];
 }
