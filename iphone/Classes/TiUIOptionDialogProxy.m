@@ -47,7 +47,16 @@
     return;
   }
 
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
+#ifndef TI_USE_KROLL_THREAD
+  // TIMOB-24349: Force the heap to be GC'd to avoid Ti.UI.OptionDialog references to grow
+  KrollContext *krollContext = [self.pageContext krollContext];
+  [krollContext forceGarbageCollectNow];
+#endif
+
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(suspended:)
+                                               name:kTiSuspendNotification
+                                             object:nil];
 
   showDialog = YES;
   NSMutableArray *options = [self valueForKey:@"options"];
