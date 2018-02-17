@@ -97,6 +97,22 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	}
 
 	/**
+	 * Called when set text programmatically. Add setSection to move cursor to the last position.
+	 * The method is added for TIMOB-25655 Set textfield value by coding will make cursor to the beginning of textfield
+	 * @param text New text value to be set
+	 * @param type TextView.BufferType - characteristics of the text such as static, styleable, or editable.
+	 */
+	@Override
+	public void setText(CharSequence text, BufferType type)
+	{
+		// Update the field's text.
+		super.setText(text, type);
+
+		// Move the cursor to the end of the field. (Matches iOS' behavior.)
+		setSelection(length());
+	}
+
+	/**
 	 * Called when key input has been received, but before it has been processed by the IME.
 	 * @param keyCode Unique integer ID of the key that was pressed/released.
 	 * @param event Provides additional key event details.

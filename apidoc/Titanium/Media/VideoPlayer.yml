@@ -792,10 +792,10 @@ properties:
         Clients can set this property to NO when they don't want to have any playback controls on top of 
         the visual content (e.g. for a game splash screen). This property should not be used to temporarily
          change the visibility of the playback controls since it will create or destroy UI elements.    
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
     type: Boolean
     default: true
-    since: "7.0.0"
+    since: {android: "7.1.0", iphone: "7.0.0", ipad: "7.0.0"}
 
   - name: sourceType
     deprecated:
