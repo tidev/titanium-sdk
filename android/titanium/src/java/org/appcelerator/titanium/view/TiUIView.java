@@ -1355,7 +1355,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (gradientProperties != null) {
 			try {
 				gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
-			} catch (Exception e) {
+			} catch (Exception ex) {
+				String message = ex.getMessage();
+				if (message == null) {
+					message = "Unknown";
+				}
+				Log.e(TAG, "Failed to create '" + TiC.PROPERTY_BACKGROUND_GRADIENT + "'. Reason: " + message);
 			}
 		}
 

@@ -53,14 +53,18 @@ public class TiGradientDrawable extends ShapeDrawable
 		this.view = view;
 
 		// Determine which type of gradient is being used.
-		// Supported types are 'linear' and 'radial'.
-		String type = properties.optString("type", "linear");
-		if (type.equals("linear")) {
-			gradientType = GradientType.LINEAR_GRADIENT;
-		} else if (type.equals("radial")) {
-			gradientType = GradientType.RADIAL_GRADIENT;
-		} else {
-			throw new IllegalArgumentException("Invalid gradient type. Must be linear or radial.");
+		{
+			final String LINEAR_STRING_ID = "linear";
+			final String RADIAL_STRING_ID = "radial";
+			String type = properties.optString("type", LINEAR_STRING_ID);
+			if (type.equals(LINEAR_STRING_ID)) {
+				gradientType = GradientType.LINEAR_GRADIENT;
+			} else if (type.equals(RADIAL_STRING_ID)) {
+				gradientType = GradientType.RADIAL_GRADIENT;
+			} else {
+				throw new IllegalArgumentException("Invalid gradient type. Must be '" + LINEAR_STRING_ID + "' or '"
+												   + RADIAL_STRING_ID + "'.");
+			}
 		}
 
 		// Load the 'startPoint' property which defines the start of the gradient.
@@ -293,7 +297,7 @@ public class TiGradientDrawable extends ShapeDrawable
 					if (this.offsets == null) {
 						this.offsets = new float[colors.length];
 					}
-					float offset = TiConvert.toFloat(colorRefObject, "offset", -1);
+					float offset = TiConvert.toFloat(colorRefObject, OFFSET_KEY, -1);
 					if (offset < 0.0f) {
 						offset = 0.0f;
 					} else if (offset > 1.0f) {
