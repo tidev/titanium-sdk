@@ -12,12 +12,12 @@ var should = require('./utilities/assertions');
 
 describe('Titanium.Network.HTTPClient', function () {
 	it.ios('basic-auth success', function (finish) {
-		var xhr;
+		var xhr, attempts;
 		this.timeout(6e4);
 		xhr = Ti.Network.createHTTPClient({
 			username: 'user',
 			password: 'passwd'
-		}),
+		});
 		attempts = 3;
 		xhr.setTimeout(6e4);
 
@@ -58,7 +58,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onerror = function () {
 			// This request should fail as password is wrong.
 			finish();
-    	};
+		};
 
 		xhr.open('GET', 'http://httpbin.org/basic-auth/user/passwd');
 		xhr.send();
