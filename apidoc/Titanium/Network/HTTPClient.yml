@@ -19,13 +19,12 @@ description: |
     The `HTTPClient` callbacks operate somewhat differently from other
     Titanium callbacks, in accordance with the XMLHttpRequest specification.
 
-    When the callbacks are invoked, the `this` value is set to either the
-    original `HTTPClient` object itself, or a response object that holds all
+    When the callbacks are invoked, it returns a response object `source` that holds all
     of the response-related properties defined for the `HTTPClient` object. So the
     callbacks can use code like this to access the response values:
 
-        httpResponse = this.responseText;
-        status = this.status;
+        httpResponse = e.source.responseText;
+        status = e.source.status;
 
     #### Content-Type Header
 
@@ -195,14 +194,14 @@ methods:
         To send array data, specify each array element individually as a property of the object.
         For example, normally, you specify an array in an object as:
 
-            const payload = { myArray: [1, 2, 3] };
+            const payload = { myArray: [ 1, 2, 3 ] };
 
         Instead, for the HTTP client to encode the data correctly, you need to send the data as:
 
             const payload = {
-                "myArray[0]" : 1,
-                "myArray[1]" : 2,
-                "myArray[2]" : 3
+              'myArray[0]': 1,
+              'myArray[1]': 2,
+              'myArray[2]': 3
             };
 
         On iOS, you can specify a synchronous request when you call `open` by passing `false` for
@@ -380,8 +379,8 @@ properties:
     description: |
         Must be set before calling `open`.
 
-        To access response data and headers, access the `HTTPClient` object itself (accessible as
-        `this` during the callback, or the `source` property of the callback event).
+        To access response data and headers, access the `HTTPClient` object itself
+        (accessible as the `source` property of the callback event).
     type: Callback<SuccessResponse>
 
   - name: onreadystatechange
@@ -391,7 +390,7 @@ properties:
     description: |
         Must be set before calling `open`.
 
-        When the callback is invoked, `this.readyState` is set to one of the
+        When the callback is invoked, <Titanium.Network.HTTPClient.readyState> is set to one of the
         `Titanium.Network.HTTPClient` ready-state constants,
         [OPENED](Titanium.Network.HTTPClient.OPENED),
         [HEADERS_RECEIVED](Titanium.Network.HTTPClient.HEADERS_RECEIVED),
@@ -545,11 +544,11 @@ examples:
     example: |
         The following code excerpt does a simple GET request and logs the response text.
 
-             const url = "http://www.appcelerator.com";
+             const url = 'http://www.appcelerator.com';
              const client = Ti.Network.createHTTPClient({
                  // function called when the response data is available
                  onload : (e) => {
-                     Ti.API.info("Received text: " + this.responseText);
+                     Ti.API.info(`Received text: ${e.source.responseText}`);
                      alert('success');
                  },
                  // function called when an error occurs, including a timeout
@@ -560,7 +559,7 @@ examples:
                  timeout : 5000  // in milliseconds
              });
              // Prepare the connection.
-             client.open("GET", url);
+             client.open('GET', url);
              // Send the request.
              client.send();
 

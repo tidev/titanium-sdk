@@ -57,7 +57,7 @@ description: |
     A global method `alert()` is aliased to this object, and can be invoked with a single message.
     For example
 
-        alert('this is a message');
+        alert('This is a message');
 
     This will generate an alert with a title of "Alert" and an "OK" button.
 
