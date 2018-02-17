@@ -86,5 +86,5 @@ describe('Titanium.Utils', function () {
 		});
 
 	  Ti.App.fireEvent('test1', { obj: validObject });
-	}):
+	});
 });
