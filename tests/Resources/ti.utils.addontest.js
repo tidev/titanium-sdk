@@ -83,6 +83,7 @@ describe('Titanium.Utils', function () {
 			var arr = e.arr;
 			should(arr).be.an.Array;
 			// TODO: Write more tests
+			finish();
 		});
 
 		Ti.App.fireEvent('test1', { obj: validObject });
