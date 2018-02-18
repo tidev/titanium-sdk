@@ -2093,8 +2093,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (BOOL)isSupportedFragment:(id)fragment
 {
   return ([fragment isKindOfClass:[NSDictionary class]] || [fragment isKindOfClass:[NSArray class]] ||
-          [fragment isKindOfClass:[NSString class]] || [fragment isKindOfClass:[NSNumber class]] ||
-          [fragment isKindOfClass:[NSDate class]] || [fragment isKindOfClass:[NSNull class]] || fragment == nil);
+      [fragment isKindOfClass:[NSString class]] || [fragment isKindOfClass:[NSNumber class]] ||
+      [fragment isKindOfClass:[NSDate class]] || [fragment isKindOfClass:[NSNull class]] || fragment == nil);
 }
 
 @end
