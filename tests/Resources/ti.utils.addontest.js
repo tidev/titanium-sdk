@@ -47,7 +47,7 @@ describe('Titanium.Utils', function () {
 			var obj = e.obj;
 
 			should(obj).be.an.Object;
-			should(obj.null).be.null;
+			should(obj.nl).be.null;
 			should(obj.num).eql(123);
 			should(obj.str).eql('tirocks');
 			should(obj.arr).be.an.Array;
