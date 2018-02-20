@@ -266,21 +266,18 @@ describe('Titanium.UI.Picker', function () {
 		var type2 = [];
 		var pickerType = Ti.UI.createPicker();
 
-		this.timeout(3000);
-
 		type2[0] = Ti.UI.createPickerRow({ title: 'Row 1' });
 		type2[1] = Ti.UI.createPickerRow({ title: 'Row 2' });
 
 		win.add(pickerType);
-		setTimeout(loadTypes, 1000);
+		pickerType.addEventListener('postlayout', loadTypes);
 		pickerType.selectionIndicator = true;
 		pickerType.addEventListener('change', pickerChange);
 
 		function loadTypes() {
+			pickerType.removeEventListener('postlayout', loadTypes);
 			pickerType.add(type2);
-			setTimeout(function () {
-				pickerType.setSelectedRow(0, 1);
-			}, 500);
+			pickerType.setSelectedRow(0, 1);
 		}
 
 		function pickerChange() {
