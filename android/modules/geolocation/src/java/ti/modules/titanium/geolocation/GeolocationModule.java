@@ -184,6 +184,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	private static final double SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE = 60000;
 	private static final double SIMPLE_LOCATION_GPS_MIN_AGE_RULE = 30000;
 
+	private Context context;
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
 	private boolean sentAnalytics = false;
@@ -213,7 +214,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	{
 		super("geolocation");
 
-		Context context = TiApplication.getInstance().getRootOrCurrentActivity();
+		context = TiApplication.getInstance().getRootOrCurrentActivity();
 
 		fusedLocationProvider = new FusedLocationProvider(context, this);
 
@@ -718,7 +719,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			return;
 		}
 
-		if (FusedLocationProvider.hasPlayServices()) {
+		if (FusedLocationProvider.hasPlayServices(context)) {
 			fusedLocationProvider.registerLocationProvider(locationProvider);
 		} else {
 			String provider = TiConvert.toString(locationProvider.getProperty(TiC.PROPERTY_NAME));
@@ -740,7 +741,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@SuppressLint("MissingPermission")
 	public void unregisterLocationProvider(LocationProviderProxy locationProvider)
 	{
-		if (FusedLocationProvider.hasPlayServices()) {
+		if (FusedLocationProvider.hasPlayServices(context)) {
 			fusedLocationProvider.unregisterLocationProvider(locationProvider);
 		} else {
 			tiLocation.locationManager.removeUpdates(locationProvider);

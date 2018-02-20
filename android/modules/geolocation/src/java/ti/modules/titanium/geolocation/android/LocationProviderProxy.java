@@ -105,7 +105,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 */
 	public Object getLocationCallback()
 	{
-		if (locationCallback == null && FusedLocationProvider.hasPlayServices()) {
+		if (locationCallback == null && FusedLocationProvider.hasPlayServices(getActivity())) {
 			locationCallback = FusedLocationProvider.createLocationCallback(providerListener, getName());
 		}
 		return locationCallback;

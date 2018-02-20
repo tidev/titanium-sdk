@@ -58,7 +58,7 @@ public class FusedLocationProvider
 	{
 		this.geolocationModule = geolocationModule;
 
-		if (hasPlayServices()) {
+		if (hasPlayServices(context)) {
 			PlayServices.init(context, geolocationModule);
 		}
 	}
@@ -67,14 +67,17 @@ public class FusedLocationProvider
 	 * hasPlayServices
 	 * @return do we have access to Google Play Services APIs?
 	 */
-	public static boolean hasPlayServices()
+	public static boolean hasPlayServices(Context context)
 	{
+		if (!PlayServices.useFusedLocation) {
+			return false;
+		}
 		try {
 			Class.forName("com.google.android.gms.common.GoogleApiAvailability");
 		} catch (ClassNotFoundException e) {
 			return false;
 		}
-		return PlayServices.validVersion();
+		return PlayServices.validVersion() && PlayServices.available(context);
 	}
 
 	/**
@@ -117,7 +120,6 @@ public class FusedLocationProvider
 	{
 
 		private static int googleApiCode;
-		private static int googleApiVersion;
 		private static GoogleApiClient googleApiClient;
 		private static FusedLocationProviderClient fusedLocationClient;
 		private static boolean useFusedLocation = true;
@@ -127,52 +129,64 @@ public class FusedLocationProvider
 
 		public static void init(Context context, final GeolocationModule geolocationModule)
 		{
-			googleApiCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
-			if (googleApiCode == ConnectionResult.SUCCESS) {
+			// requires Google Play Services 11.0.0+ or later
+			if (googleApiClient == null) {
+				googleApiClient = new GoogleApiClient.Builder(context)
+									  .addApi(LocationServices.API)
+									  .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+										  @Override
+										  public void onConnected(@Nullable Bundle bundle)
+										  {
+											  processFusedLocationQueue(geolocationModule);
+										  }
 
-				// requires Google Play Services 11.0.0+ or later
-				if (googleApiClient == null) {
-					googleApiClient =
-						new GoogleApiClient.Builder(context)
-							.addApi(LocationServices.API)
-							.addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-								@Override
-								public void onConnected(@Nullable Bundle bundle)
-								{
-									processFusedLocationQueue(geolocationModule);
-								}
+										  @Override
+										  public void onConnectionSuspended(int i)
+										  {
+											  Log.e(TAG, "Google Play Services connection suspended!");
+											  useFusedLocation = false;
+											  processFusedLocationQueue(geolocationModule);
+										  }
+									  })
+									  .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+										  @Override
+										  public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
+										  {
+											  Log.e(TAG, "Google Play Services connection failed!");
+											  useFusedLocation = false;
+											  processFusedLocationQueue(geolocationModule);
+										  }
+									  })
+									  .build();
 
-								@Override
-								public void onConnectionSuspended(int i)
-								{
-									Log.e(TAG, "Google Play Services connection suspended!");
-									useFusedLocation = false;
-									processFusedLocationQueue(geolocationModule);
-								}
-							})
-							.addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
-								@Override
-								public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
-								{
-									Log.e(TAG, "Google Play Services connection failed!");
-									useFusedLocation = false;
-									processFusedLocationQueue(geolocationModule);
-								}
-							})
-							.build();
+				googleApiClient.connect();
 
-					googleApiClient.connect();
-
-					if (fusedLocationClient == null) {
-						fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
-					}
+				if (fusedLocationClient == null) {
+					fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
 				}
 			}
 		}
 
 		public static boolean validVersion()
 		{
-			return GoogleApiAvailability.GOOGLE_PLAY_SERVICES_VERSION_CODE >= 11000000;
+			if (GoogleApiAvailability.GOOGLE_PLAY_SERVICES_VERSION_CODE >= 11000000) {
+				return true;
+			}
+
+			useFusedLocation = false;
+			return false;
+		}
+
+		public static boolean available(Context context)
+		{
+			googleApiCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+			if (googleApiCode == ConnectionResult.SUCCESS) {
+				return true;
+			}
+
+			Log.w(TAG, "Google Play Services is not available");
+			useFusedLocation = false;
+			return false;
 		}
 
 		@SuppressLint("MissingPermission")
