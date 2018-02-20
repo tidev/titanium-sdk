@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "7.1.0",
+  "version": "7.2.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4",
@@ -40,7 +40,7 @@
     "markdown": "0.5.0",
     "moment": "2.18.1",
     "node-appc": "0.2.43",
-    "node-titanium-sdk": "^0.4.8",
+    "node-titanium-sdk": "^0.4.9",
     "node-uuid": "1.4.8",
     "pngjs": "3.0.1",
     "request": "2.81.0",
