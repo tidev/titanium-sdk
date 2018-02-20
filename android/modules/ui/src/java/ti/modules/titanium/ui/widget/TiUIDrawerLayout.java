@@ -164,34 +164,6 @@ public class TiUIDrawerLayout extends TiUIView
 		}
 	}
 
-	private class DrawerListener implements DrawerLayout.DrawerListener
-	{
-
-		@Override
-		public void onDrawerClosed(View drawerView)
-		{
-			drawerClosedEvent(drawerView);
-		}
-
-		@Override
-		public void onDrawerOpened(View drawerView)
-		{
-			drawerOpenedEvent(drawerView);
-		}
-
-		@Override
-		public void onDrawerSlide(View drawerView, float slideOffset)
-		{
-			drawerSlideEvent(drawerView, slideOffset);
-		}
-
-		@Override
-		public void onDrawerStateChanged(int state)
-		{
-			drawerStateChangedEvent(state);
-		}
-	}
-
 	public void toggleLeft()
 	{
 		if (layout.isDrawerOpen(Gravity.START)) {
@@ -254,12 +226,13 @@ public class TiUIDrawerLayout extends TiUIView
 	{
 
 		final AppCompatActivity activity = (AppCompatActivity) proxy.getActivity();
-		if (activity != null && activity.getSupportActionBar() == null) {
+		if (activity == null) {
 			return;
 		}
-
-		activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		activity.getSupportActionBar().setHomeButtonEnabled(true);
+		if (activity.getSupportActionBar() != null) {
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			activity.getSupportActionBar().setHomeButtonEnabled(true);
+		}
 
 		drawerToggle = new ActionBarDrawerToggle(activity, layout, id_drawer_open_string, id_drawer_close_string) {
 			@Override
