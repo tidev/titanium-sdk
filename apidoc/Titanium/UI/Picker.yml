@@ -78,7 +78,9 @@ methods:
 
   - name: setSelectedRow
     summary: Selects a column's row.
-    description: On iOS, this method must be called after the picker is rendered.
+    description: |
+        On iOS, this method must be called after the picker is rendered.
+        On Android, the picker has a default value of 0 for both column and row index.
     parameters:
       - name: column
         summary: A column index.
