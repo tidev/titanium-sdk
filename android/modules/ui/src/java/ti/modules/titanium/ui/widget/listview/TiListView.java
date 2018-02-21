@@ -900,9 +900,6 @@ public class TiListView extends TiUIView implements OnSearchChangeListener
 		}
 		this.sections.clear();
 
-		// TIMOB-25693: remove reference from properties
-		getProxy().getProperties().remove(TiC.PROPERTY_SECTIONS);
-
 		for (int i = 0; i < sections.length; i++) {
 			processSection(sections[i], -1);
 		}
