@@ -333,7 +333,7 @@ describe('Titanium.UI.ImageView', function () {
 	// Currently pointing towards an external url with BA
 	// TODO: Switch to URL hosted especially for this test
 	// when available
-	it('Image view with request headers', function (finish) {
+	it.android('Image view with request headers', function (finish) {
 		var win = Ti.UI.createWindow({
 			backgroundColor: '#fff'
 		});
