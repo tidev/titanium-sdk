@@ -179,9 +179,12 @@ public class FusedLocationProvider
 
 		public static boolean available(Context context)
 		{
-			googleApiCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
-			if (googleApiCode == ConnectionResult.SUCCESS) {
-				return true;
+			GoogleApiAvailability availability = GoogleApiAvailability.getInstance();
+			if (availability != null) {
+				googleApiCode = availability.isGooglePlayServicesAvailable(context);
+				if (googleApiCode == ConnectionResult.SUCCESS) {
+					return true;
+				}
 			}
 
 			Log.w(TAG, "Google Play Services is not available");

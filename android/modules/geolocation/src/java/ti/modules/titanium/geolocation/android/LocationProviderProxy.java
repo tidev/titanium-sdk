@@ -9,6 +9,7 @@ package ti.modules.titanium.geolocation.android;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -105,7 +106,8 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 	 */
 	public Object getLocationCallback()
 	{
-		if (locationCallback == null && FusedLocationProvider.hasPlayServices(getActivity())) {
+		if (locationCallback == null
+			&& FusedLocationProvider.hasPlayServices(TiApplication.getAppRootOrCurrentActivity())) {
 			locationCallback = FusedLocationProvider.createLocationCallback(providerListener, getName());
 		}
 		return locationCallback;
