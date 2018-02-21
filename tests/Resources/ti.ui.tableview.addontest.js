@@ -951,7 +951,7 @@ describe('Titanium.UI.TableView', function () {
 
 		win.add(tableView);
 		win.open();
-  });
+	});
 
 	it('set and clear data', function (finish) {
 		var data_a = [
@@ -979,5 +979,5 @@ describe('Titanium.UI.TableView', function () {
 		}
 		finish(error);
 	});
-  
+
 });
