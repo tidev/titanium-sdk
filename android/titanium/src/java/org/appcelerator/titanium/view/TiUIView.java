@@ -1278,9 +1278,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				remove(child);
 			}
 			children.clear();
+			children = null;
 		}
-		children = null;
-		proxy = null;
+		if (proxy != null) {
+			proxy.getProperties().clear();
+			proxy = null;
+		}
 		layoutParams = null;
 	}
 

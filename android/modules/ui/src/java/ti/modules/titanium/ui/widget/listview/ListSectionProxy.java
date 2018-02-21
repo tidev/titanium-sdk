@@ -1089,6 +1089,16 @@ public class ListSectionProxy extends ViewProxy
 	public void releaseViews()
 	{
 		listView = null;
+
+		if (listItemData != null) {
+			listItemData.clear();
+			listItemData = null;
+		}
+
+		if (itemProperties != null) {
+			itemProperties.clear();
+			itemProperties = null;
+		}
 	}
 
 	@Override
