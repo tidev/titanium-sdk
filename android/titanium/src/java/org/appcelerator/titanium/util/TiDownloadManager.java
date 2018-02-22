@@ -61,7 +61,7 @@ public class TiDownloadManager implements Handler.Callback
 		download(uri, listener, null);
 	}
 
-	public void download(URI uri, TiDownloadListener listener, KrollDict requestHeaders)
+	public void download(URI uri, TiDownloadListener listener, HashMap requestHeaders)
 	{
 		if (TiResponseCache.peek(uri)) {
 			sendMessage(uri, MSG_FIRE_DOWNLOAD_FINISHED);
@@ -86,7 +86,7 @@ public class TiDownloadManager implements Handler.Callback
 		startDownload(uri, listener, null);
 	}
 
-	protected void startDownload(URI uri, TiDownloadListener listener, KrollDict requestHeaders)
+	protected void startDownload(URI uri, TiDownloadListener listener, HashMap requestHeaders)
 	{
 		String hash = DigestUtils.shaHex(uri.toString());
 		ArrayList<SoftReference<TiDownloadListener>> listenerList = null;
@@ -145,14 +145,14 @@ public class TiDownloadManager implements Handler.Callback
 	protected class DownloadJob implements Runnable
 	{
 		protected URI uri;
-		protected KrollDict headersDictionary = null;
+		protected HashMap<String, String> headersDictionary = null;
 
 		public DownloadJob(URI uri)
 		{
 			this.uri = uri;
 		}
 
-		public DownloadJob(URI uri, KrollDict headersDictionary)
+		public DownloadJob(URI uri, HashMap headersDictionary)
 		{
 			this.uri = uri;
 			this.headersDictionary = headersDictionary;
@@ -167,7 +167,7 @@ public class TiDownloadManager implements Handler.Callback
 				// assign headers if there are any
 				if (this.headersDictionary != null) {
 					for (String key : headersDictionary.keySet()) {
-						urlConnection.addRequestProperty(key, headersDictionary.getString(key));
+						urlConnection.addRequestProperty(key, headersDictionary.get(key));
 					}
 				}
 				InputStream stream = urlConnection.getInputStream();
