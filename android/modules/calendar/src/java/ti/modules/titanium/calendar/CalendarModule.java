@@ -57,10 +57,14 @@ public class CalendarModule extends KrollModule
 	public static final int STATE_SCHEDULED = AlertProxy.STATE_SCHEDULED;
 
 	//region recurrence frequency
-	@Kroll.constant public static final int RECURRENCEFREQUENCY_DAILY = 0;
-	@Kroll.constant public static final int RECURRENCEFREQUENCY_WEEKLY = 1;
-	@Kroll.constant public static final int RECURRENCEFREQUENCY_MONTHLY = 2;
-	@Kroll.constant public static final int RECURRENCEFREQUENCY_YEARLY = 3;
+	@Kroll.constant
+	public static final int RECURRENCEFREQUENCY_DAILY = 0;
+	@Kroll.constant
+	public static final int RECURRENCEFREQUENCY_WEEKLY = 1;
+	@Kroll.constant
+	public static final int RECURRENCEFREQUENCY_MONTHLY = 2;
+	@Kroll.constant
+	public static final int RECURRENCEFREQUENCY_YEARLY = 3;
 	//endregion
 
 	//region attendee relationships

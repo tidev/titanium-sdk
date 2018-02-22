@@ -1493,12 +1493,12 @@ public class TiC
 	 */
 	public static final String PROPERTY_ENABLE_VIBRATION = "enableVibration";
 
-  /**
+	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_END = "end";
 
-  /**
+	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_END_PLAYBACK_TIME = "endPlaybackTime";

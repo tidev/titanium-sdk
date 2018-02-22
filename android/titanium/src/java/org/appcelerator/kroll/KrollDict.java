@@ -170,8 +170,9 @@ public class KrollDict extends HashMap<String, Object>
 		return TiConvert.toStringArray((Object[]) get(key));
 	}
 
-	public int[] getIntArray(String key) {
-		return TiConvert.toIntArray((Object[])get(key));
+	public int[] getIntArray(String key)
+	{
+		return TiConvert.toIntArray((Object[]) get(key));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -188,11 +189,11 @@ public class KrollDict extends HashMap<String, Object>
 	}
 
 	public KrollDict[] getKrollDictArray(String key)
-  {
+	{
 		String[] value = getStringArray(key);
 		KrollDict[] result = new KrollDict[value.length];
 		int index = 0;
-		for (String record: value) {
+		for (String record : value) {
 			try {
 				result[index++] = new KrollDict(new JSONObject(record));
 			} catch (JSONException e) {
@@ -204,7 +205,7 @@ public class KrollDict extends HashMap<String, Object>
 	}
 
 	public boolean isNull(String key)
-  {
+	{
 		return (get(key) == null);
 	}
 

@@ -25,7 +25,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Kroll.proxy
-public class RecurrenceRuleProxy extends KrollProxy {
+public class RecurrenceRuleProxy extends KrollProxy
+{
 
 	private static final String TAG = "RecurrenceRule";
 
@@ -45,13 +46,13 @@ public class RecurrenceRuleProxy extends KrollProxy {
 	//region values that can be set from a Creation Dictionary
 	private TiRecurrenceFrequencyType frequency;
 	private Integer interval = 1;
-	private int[] daysOfTheMonth = new int[]{};
-	private int[] daysOfTheYear = new int[]{};
-	private int[] monthsOfTheYear = new int[]{};
-	private int[] weeksOfTheYear = new int[]{};
+	private int[] daysOfTheMonth = new int[] {};
+	private int[] daysOfTheYear = new int[] {};
+	private int[] monthsOfTheYear = new int[] {};
+	private int[] weeksOfTheYear = new int[] {};
 	private String calendarID;
 	private KrollDict endDictionary = new KrollDict();
-	private KrollDict[] daysOfTheWeek = new KrollDict[]{};
+	private KrollDict[] daysOfTheWeek = new KrollDict[] {};
 	//endregion
 
 	// Map matching days of the week constants from Titanium docs with their String counterparts in RRULE column.
@@ -69,7 +70,8 @@ public class RecurrenceRuleProxy extends KrollProxy {
 	}
 
 	// Constructor for creating a recurrence rule from a Kroll creation dictionary.
-	public RecurrenceRuleProxy(KrollDict creationDictionary) {
+	public RecurrenceRuleProxy(KrollDict creationDictionary)
+	{
 		if (creationDictionary.containsKey(TiC.PROPERTY_CALENDAR_ID)) {
 			this.calendarID = TiConvert.toString(creationDictionary.get(TiC.PROPERTY_CALENDAR_ID));
 		}
@@ -86,9 +88,11 @@ public class RecurrenceRuleProxy extends KrollProxy {
 			this.endDictionary = (KrollDict) creationDictionary.getKrollDict(TiC.PROPERTY_END);
 		}
 		if (creationDictionary.containsKey(TiC.PROPERTY_FREQUENCY)) {
-			this.frequency = TiRecurrenceFrequencyType.fromTiIntId(TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_FREQUENCY)));
+			this.frequency =
+				TiRecurrenceFrequencyType.fromTiIntId(TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_FREQUENCY)));
 		}
-		if (creationDictionary.containsKey(TiC.PROPERTY_INTERVAL) && TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_INTERVAL)) > 0) {
+		if (creationDictionary.containsKey(TiC.PROPERTY_INTERVAL)
+			&& TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_INTERVAL)) > 0) {
 			this.interval = TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_INTERVAL));
 		} else {
 			Log.e(TAG, "Interval must be greater than 0.\n");
@@ -102,7 +106,8 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		}
 	}
 
-	public String generateRRULEString() {
+	public String generateRRULEString()
+	{
 		StringBuilder finalRRule = new StringBuilder();
 		// Handle frequency.
 		if (this.frequency != null) {
@@ -117,7 +122,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 				case WEEKLY:
 					StringBuilder weeklyRecurrencesString = new StringBuilder("BYDAY=");
 					int commaIndex = 0;
-					for (KrollDict dict: this.daysOfTheWeek) {
+					for (KrollDict dict : this.daysOfTheWeek) {
 						weeklyRecurrencesString.append(dict.get(this.dayOfWeekKey).toString());
 						if (commaIndex < this.daysOfTheWeek.length) {
 							weeklyRecurrencesString.append(",");
@@ -133,7 +138,8 @@ public class RecurrenceRuleProxy extends KrollProxy {
 					if (this.daysOfTheWeek.length > 0) {
 						monthlyReccurencesString.append(this.daysOfTheWeek[0].getInt(this.weekNumberKey));
 						// Potentially add week start (Sunday or Monday) different from the default one.
-						monthlyReccurencesString.append(this.weekdaysMap.keySet().toArray()[this.daysOfTheWeek[0].getInt(this.weekNumberKey)]);
+						monthlyReccurencesString.append(
+							this.weekdaysMap.keySet().toArray()[this.daysOfTheWeek[0].getInt(this.weekNumberKey)]);
 					} else {
 						// Case in which we do not have items in daysOfTheWeek array.
 						monthlyReccurencesString.append(String.valueOf(this.daysOfTheMonth[0]));
@@ -144,7 +150,7 @@ public class RecurrenceRuleProxy extends KrollProxy {
 				case YEARLY:
 					break;
 			} // end of switch
- 		}
+		}
 		// Handle interval.
 		if (this.interval != null) {
 			finalRRule.append("INTERVAL=" + String.valueOf(this.interval));
@@ -157,16 +163,17 @@ public class RecurrenceRuleProxy extends KrollProxy {
 			finalRRule.append("UNTIL=" + String.valueOf(this.endDictionary.get(this.until)));
 			finalRRule.append(";");
 		} else if (this.endDictionary.containsKey(this.count)) {
-				// End rule is with occurrence count.
-				finalRRule.append("COUNT=" + String.valueOf(this.endDictionary.get(this.count)));
-				finalRRule.append(";");
-			}
+			// End rule is with occurrence count.
+			finalRRule.append("COUNT=" + String.valueOf(this.endDictionary.get(this.count)));
+			finalRRule.append(";");
+		}
 
 		return finalRRule.toString();
 	}
 
 	// Constructor for getting a recurrence rule from the Calendar.
-	public RecurrenceRuleProxy(String nativeRRule, int calendarID, Date begin) {
+	public RecurrenceRuleProxy(String nativeRRule, int calendarID, Date begin)
+	{
 		// Only create a proxy if we have a valid recurrence rule.
 		if (nativeRRule != null && !nativeRRule.equals("")) {
 			this.eventBegin = begin;
@@ -178,7 +185,8 @@ public class RecurrenceRuleProxy extends KrollProxy {
 	}
 
 	//region Methods for converting native to Kroll values
-	private void fillFrequencyFields() {
+	private void fillFrequencyFields()
+	{
 		//reused variables in different cases
 		String days;
 		String byDay;
@@ -188,28 +196,29 @@ public class RecurrenceRuleProxy extends KrollProxy {
 					Calendar cal = Calendar.getInstance();
 					cal.setTime(this.eventBegin);
 					//weeksOfTheYear
-					this.weeksOfTheYear = new int[]{cal.get(Calendar.WEEK_OF_YEAR)};
+					this.weeksOfTheYear = new int[] { cal.get(Calendar.WEEK_OF_YEAR) };
 					//monthsOfTheYear
-					this.monthsOfTheYear = new int[]{cal.get(Calendar.MONTH)};
+					this.monthsOfTheYear = new int[] { cal.get(Calendar.MONTH) };
 					days = matchExpression(".*(BYYEARDAY=[0-9]*).*", 10);
 					if (days != null) {
 						//daysOfTheYear
-						this.daysOfTheYear = new int[]{Integer.valueOf(days)};
+						this.daysOfTheYear = new int[] { Integer.valueOf(days) };
 					}
 					break;
 				case MONTHLY:
 					//daysOfTheMonth
 					days = matchExpression(".*(BYMONTHDAY=(-)*[0-9]*).*", 11);
 					if (days != null) {
-						this.daysOfTheMonth = new int[]{Integer.valueOf(days)};
+						this.daysOfTheMonth = new int[] { Integer.valueOf(days) };
 					}
 					//daysOfTheWeek
 					byDay = matchExpression(".*(BYDAY=[,0-9A-Z]*).*", 6);
 					if (byDay != null) {
 						KrollDict daysOfTheWeekDictionary = new KrollDict();
-						daysOfTheWeekDictionary.put(this.dayOfWeekKey, this.weekdaysMap.get(byDay.substring(byDay.length() - 2)));
+						daysOfTheWeekDictionary.put(this.dayOfWeekKey,
+													this.weekdaysMap.get(byDay.substring(byDay.length() - 2)));
 						daysOfTheWeekDictionary.put(this.weekNumberKey, byDay.substring(0, byDay.length() - 2));
-						this.daysOfTheWeek = new KrollDict[]{daysOfTheWeekDictionary};
+						this.daysOfTheWeek = new KrollDict[] { daysOfTheWeekDictionary };
 					}
 					break;
 				case WEEKLY:
@@ -230,7 +239,8 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		}
 	}
 
-	private void calculateEnd() {
+	private void calculateEnd()
+	{
 		// Check for until specific date condition.
 		String date = matchExpression(".*(UNTIL=[0-9A-Z]*).*", 6);
 		SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -249,7 +259,8 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		}
 	}
 
-	private void calculateInterval() {
+	private void calculateInterval()
+	{
 		String interval = matchExpression(".*(INTERVAL=[0-9]*).*", 9);
 		if (interval != null) {
 			this.interval = Integer.valueOf(interval);
@@ -258,54 +269,81 @@ public class RecurrenceRuleProxy extends KrollProxy {
 	//endregion
 
 	//region kroll proxy methods
-	@Kroll.getProperty @Kroll.method
-	public String getCalendarID() {
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public String getCalendarID()
+	{
 		return this.calendarID;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int[] getDaysOfTheMonth() {
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public int[] getDaysOfTheMonth()
+	{
 		return this.daysOfTheMonth;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public KrollDict[] getDaysOfTheWeek() {
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public KrollDict[] getDaysOfTheWeek()
+	{
 		return this.daysOfTheWeek;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int[] getDaysOfTheYear() {
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public int[] getDaysOfTheYear()
+	{
 		return this.daysOfTheYear;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public KrollDict getEnd() {
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public KrollDict getEnd()
+	{
 		return this.endDictionary;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getFrequency() {
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public int getFrequency()
+	{
 		return this.frequency.toTiIntId();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getInterval() {
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public int getInterval()
+	{
 		return this.interval;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int[] monthsOfTheYear() {
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public int[] monthsOfTheYear()
+	{
 		return this.monthsOfTheYear;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int[] getWeeksOfTheYear() {
+	@Kroll
+		.getProperty
+		@Kroll.method
+		public int[] getWeeksOfTheYear()
+	{
 		return this.weeksOfTheYear;
 	}
 	//endregion
 
-
-	private void parseRecurrenceRule(String rrule, int calendarID) {
+	private void parseRecurrenceRule(String rrule, int calendarID)
+	{
 		if (rrule == null) {
 			return;
 		}
@@ -322,7 +360,8 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		}
 	}
 
-	private String matchExpression(String regEx, int length) {
+	private String matchExpression(String regEx, int length)
+	{
 		Pattern pattern = Pattern.compile(regEx);
 		Matcher matcher = pattern.matcher(this.rRule);
 		if (matcher.matches()) {
@@ -331,5 +370,3 @@ public class RecurrenceRuleProxy extends KrollProxy {
 		return null;
 	}
 }
-
-
