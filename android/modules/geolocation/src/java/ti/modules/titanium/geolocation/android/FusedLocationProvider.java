@@ -69,15 +69,17 @@ public class FusedLocationProvider
 	 */
 	public static boolean hasPlayServices(Context context)
 	{
-		if (!PlayServices.useFusedLocation) {
-			return false;
-		}
 		try {
+			if (!PlayServices.useFusedLocation) {
+				return false;
+			}
 			Class.forName("com.google.android.gms.common.GoogleApiAvailability");
-		} catch (ClassNotFoundException e) {
-			return false;
+
+			return PlayServices.validVersion() && PlayServices.available(context);
+		} catch (Exception e) {
+			// do nothing...
 		}
-		return PlayServices.validVersion() && PlayServices.available(context);
+		return false;
 	}
 
 	/**
