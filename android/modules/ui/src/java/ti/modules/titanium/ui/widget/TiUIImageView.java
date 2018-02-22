@@ -83,6 +83,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private static final int STOP = 10003;
 	private static final int SET_TINT = 10004;
 
+	private HashMap requestHeaders = null;
+
 	// This handles the memory cache of images.
 	private TiImageLruCache mMemoryCache = TiImageLruCache.getInstance();
 
@@ -105,7 +107,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					// via the "old way" (not relying on cache).
 					TiDrawableReference tempDrawableReference =
 						TiDrawableReference.fromUrl(imageViewProxy, uri.toString());
-					tempDrawableReference.setNetworkURLHeaders(proxy.getProperty(TiC.PROPERTY_REQUEST_HEADERS));
+					//tempDrawableReference.setNetworkURLHeaders(proxy.getProperty(TiC.PROPERTY_REQUEST_HEADERS));
 					TiLoadImageManager.getInstance().load(tempDrawableReference, loadImageListener);
 				}
 			}
@@ -737,7 +739,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 
 			if (imageref.isNetworkUrl()) {
-				imageref.setNetworkURLHeaders(proxy.getProperty(TiC.PROPERTY_REQUEST_HEADERS));
+				if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_REQUEST_HEADERS)) {
+					requestHeaders = (HashMap) proxy.getProperty(TiC.PROPERTY_REQUEST_HEADERS);
+				}
 				boolean isCachedInDisk = false;
 				URI uri = null;
 				try {
@@ -752,9 +756,9 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 				// Check if the image is not cached in disc and the uri is valid.
 				if (!isCachedInDisk && uri != null) {
-					if (imageref.getNetworkURLHeaders() != null) {
+					if (requestHeaders != null) {
 						TiDownloadManager.getInstance().download(uri, downloadListener,
-																 imageref.getNetworkURLHeaders());
+																 requestHeaders);
 					} else {
 						TiDownloadManager.getInstance().download(uri, downloadListener);
 					}

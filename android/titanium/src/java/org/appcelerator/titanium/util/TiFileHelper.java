@@ -186,12 +186,11 @@ public class TiFileHelper implements Handler.Callback
 					Log.e(TAG, "Unknown section identifier: " + section);
 				}
 			} else if (URLUtil.isNetworkUrl(path)) {
-				NetworkURLwithProperties networkRequest = new NetworkURLwithProperties(path, requestProperties);
 				if (TiApplication.isUIThread()) {
 					is = (InputStream) TiMessenger.sendBlockingRuntimeMessage(
-						getRuntimeHandler().obtainMessage(MSG_NETWORK_URL), networkRequest);
+						getRuntimeHandler().obtainMessage(MSG_NETWORK_URL), path);
 				} else {
-					is = handleNetworkURL(networkRequest);
+					is = handleNetworkURL(path);
 				}
 			} else if (path.startsWith(RESOURCE_ROOT_ASSETS)) {
 				int len = "file:///android_asset/".length();
@@ -237,11 +236,11 @@ public class TiFileHelper implements Handler.Callback
 		return is;
 	}
 
-	private InputStream handleNetworkURL(NetworkURLwithProperties networkRequest) throws IOException
+	private InputStream handleNetworkURL(String path) throws IOException
 	{
 		InputStream is = null;
 		try {
-			URI uri = new URI(networkRequest.getUrl());
+			URI uri = new URI(path);
 			if (TiResponseCache.peek(uri)) {
 				InputStream stream = TiResponseCache.openCachedStream(uri);
 				if (stream != null) {
@@ -253,11 +252,8 @@ public class TiFileHelper implements Handler.Callback
 			uriException.printStackTrace();
 		}
 
-		URL u = new URL(networkRequest.getUrl());
+		URL u = new URL(path);
 		URLConnection connection = u.openConnection();
-		for (String key : networkRequest.getNetworkProperties().keySet()) {
-			connection.setRequestProperty(key, networkRequest.getNetworkProperties().getString(key));
-		}
 		InputStream lis = connection.getInputStream();
 		ByteArrayOutputStream bos = null;
 		try {
@@ -273,7 +269,7 @@ public class TiFileHelper implements Handler.Callback
 
 		} catch (IOException e) {
 
-			Log.e(TAG, "Problem pulling image data from " + networkRequest.getUrl(), e);
+			Log.e(TAG, "Problem pulling image data from " + path, e);
 			throw e;
 		} finally {
 			if (lis != null) {
@@ -316,8 +312,8 @@ public class TiFileHelper implements Handler.Callback
 	/**
 	 * This method creates a Drawable given the bitmap's path, and converts it to a NinePatch Drawable
 	 * if checkForNinePatch param is true.
-	 * @param path  the path/url of the Drawable 
-	 * @param report  this is not being used. 
+	 * @param path  the path/url of the Drawable
+	 * @param report  this is not being used.
 	 * @param checkForNinePatch  a boolean to determine whether the returning Drawable is a NinePatch Drawable.
 	 * @param densityScaled  a boolean to determine whether the returning Drawable is scaled based on device density.
 	 * @return  a Drawable instance.
@@ -793,47 +789,12 @@ public class TiFileHelper implements Handler.Callback
 			case MSG_NETWORK_URL:
 				AsyncResult result = (AsyncResult) msg.obj;
 				try {
-					result.setResult(handleNetworkURL((((NetworkURLwithProperties) result.getArg()))));
+					result.setResult(handleNetworkURL((((String) result.getArg()))));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				return true;
 		}
 		return false;
-	}
-
-	// Class to pass network call URL together with required properties.
-	private class NetworkURLwithProperties
-	{
-		private String url;
-		private KrollDict networkProperties;
-
-		public NetworkURLwithProperties(String url, KrollDict networkProperties)
-		{
-			this.url = url;
-			if (networkProperties != null) {
-				this.networkProperties = networkProperties;
-			}
-		}
-
-		public String getUrl()
-		{
-			return url;
-		}
-
-		public void setUrl(String url)
-		{
-			this.url = url;
-		}
-
-		public KrollDict getNetworkProperties()
-		{
-			return networkProperties;
-		}
-
-		public void setNetworkProperties(KrollDict networkProperties)
-		{
-			this.networkProperties = networkProperties;
-		}
 	}
 }
