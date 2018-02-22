@@ -757,8 +757,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				// Check if the image is not cached in disc and the uri is valid.
 				if (!isCachedInDisk && uri != null) {
 					if (requestHeaders != null) {
-						TiDownloadManager.getInstance().download(uri, downloadListener,
-																 requestHeaders);
+						TiDownloadManager.getInstance().download(uri, downloadListener, requestHeaders);
 					} else {
 						TiDownloadManager.getInstance().download(uri, downloadListener);
 					}
