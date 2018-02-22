@@ -13,6 +13,8 @@ var should = require('./utilities/assertions');
 describe('Titanium.UI.TableView', function () {
 	var win;
 
+	this.timeout(5000);
+
 	beforeEach(function () {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
