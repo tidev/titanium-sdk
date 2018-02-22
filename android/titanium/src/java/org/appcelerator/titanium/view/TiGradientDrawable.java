@@ -346,8 +346,8 @@ public class TiGradientDrawable extends ShapeDrawable
 						shader = new RadialGradient(startX, startY, endPixelRadius, colors, offsets, TileMode.CLAMP);
 					} else {
 						// Radius is too small and we're not back-filling. So, create a transparent shader.
-						shader = new LinearGradient(
-							0, 0, width, height, Color.TRANSPARENT, Color.TRANSPARENT, TileMode.CLAMP);
+						shader = new LinearGradient(0, 0, width, height, Color.TRANSPARENT, Color.TRANSPARENT,
+													TileMode.CLAMP);
 					}
 					break;
 				}
