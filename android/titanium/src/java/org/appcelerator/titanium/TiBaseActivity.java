@@ -78,10 +78,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 {
 	private static final String TAG = "TiBaseActivity";
 
-	private final String customToolbarExceptionMessage = "Trying to use Toolbar as ActionBar without disabling the default ActionBar in the used theme.\n" +
-																"Set 'windowActionBar' to false in your theme in order to do that. The following bundled themes:\n" +
-																"[Theme.Titanium, Theme.AppCompat.Translucent.NoTitleBar, Theme.AppCompat.NoTitleBar] are with\n" +
-																"disabled default ActionBar. You could use one of them.";
+	private final String customToolbarExceptionMessage =
+		"Trying to use Toolbar as ActionBar without disabling the default ActionBar in the used theme.\n"
+		+ "Set 'windowActionBar' to false in your theme in order to do that. The following bundled themes:\n"
+		+ "[Theme.Titanium, Theme.AppCompat.Translucent.NoTitleBar, Theme.AppCompat.NoTitleBar] are with\n"
+		+ "disabled default ActionBar. You could use one of them.";
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
