@@ -17,9 +17,9 @@ typedef NS_ENUM(NSInteger, APSRequestError) {
 @class APSHTTPRequest;
 @class APSHTTPPostForm;
 
-@protocol APSConnectionDelegate <NSURLConnectionDelegate, NSURLSessionDelegate, NSURLSessionDataDelegate>
+@protocol APSConnectionDelegate <NSURLSessionDelegate, NSURLSessionDataDelegate>
 @optional
--(BOOL)willHandleChallenge:(NSURLAuthenticationChallenge *)challenge forConnection:(NSURLConnection *)connection;
+-(BOOL)willHandleChallenge:(NSURLAuthenticationChallenge *)challenge forSession:(NSURLSession *)session;
 @end
 
 @protocol APSHTTPRequestDelegate <NSObject>
