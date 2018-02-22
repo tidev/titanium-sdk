@@ -383,7 +383,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	</target>
 
 	<target name="build.kroll.v8.so" depends="generate.kroll.v8.bindings,copy.kroll.v8.jars">
-		<condition property="ndk.build.args" value="" else="-j8">
+		<condition property="ndk.build.args" value="" else="-j1">
 			<os family="windows"/>
 		</condition>
 		<property name="kroll.v8.build.x86" value=""/>
