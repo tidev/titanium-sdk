@@ -948,7 +948,6 @@ describe('Titanium.UI.TableView', function () {
 		}
 	});
 
-
 	it.ios('Delete row (Search Active)', function () {
 		var section_0,
 			searchBar,
