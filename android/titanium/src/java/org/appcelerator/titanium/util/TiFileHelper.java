@@ -151,11 +151,6 @@ public class TiFileHelper implements Handler.Callback
 
 	public InputStream openInputStream(String path, boolean report) throws IOException
 	{
-		return openInputStream(path, report, null);
-	}
-
-	public InputStream openInputStream(String path, boolean report, KrollDict requestProperties) throws IOException
-	{
 		InputStream is = null;
 
 		Context context = softContext.get();
