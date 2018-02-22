@@ -338,7 +338,17 @@ public class TiGradientDrawable extends ShapeDrawable
 				}
 				case RADIAL_GRADIENT: {
 					float endPixelRadius = (float) endRadius.getPixels(view);
-					shader = new RadialGradient(startX, startY, endPixelRadius, colors, offsets, TileMode.CLAMP);
+					if ((endPixelRadius >= 1.0f) || isBackFillingEnd) {
+						// Create a radial/circular gradient shader.
+						// Note: RadialGradient will throw an exception if given a radius less than 1 pixel.
+						//       In this case, bump it up to 1 pixel and back-fill with last color.
+						endPixelRadius = Math.max(endPixelRadius, 1.0f);
+						shader = new RadialGradient(startX, startY, endPixelRadius, colors, offsets, TileMode.CLAMP);
+					} else {
+						// Radius is too small and we're not back-filling. So, create a transparent shader.
+						shader = new LinearGradient(
+							0, 0, width, height, Color.TRANSPARENT, Color.TRANSPARENT, TileMode.CLAMP);
+					}
 					break;
 				}
 				default: {
