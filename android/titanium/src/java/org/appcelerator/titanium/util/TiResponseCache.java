@@ -311,6 +311,7 @@ public class TiResponseCache extends ResponseCache
 	@Override
 	public CacheResponse get(URI uri, String rqstMethod, Map<String, List<String>> rqstHeaders) throws IOException
 	{
+
 		if (uri == null || cacheDir == null) {
 			return null;
 		}
@@ -409,6 +410,7 @@ public class TiResponseCache extends ResponseCache
 	@Override
 	public CacheRequest put(URI uri, URLConnection conn) throws IOException
 	{
+
 		if (cacheDir == null || uri == null) {
 			return null;
 		}
