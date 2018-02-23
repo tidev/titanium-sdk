@@ -1867,7 +1867,7 @@ properties:
 ---
 name: AnimationOption
 summary: Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
-since: 5.1.0
+since: "5.1.0"
 platforms: [android]
 properties:
   - name: animated
