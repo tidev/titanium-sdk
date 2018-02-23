@@ -811,7 +811,7 @@ properties:
 
         On Android OS 2.2 and above, there is a new,  "passive" location provider that is enabled
         at all times, even when the user disables both the GPS and Network location providers.
-        Therefore, this method always returns `true` on these devices.
+        Therefore, this method returns `true` on these devices if only there is GPS or network provider available.
     type: Boolean
     permission: read-only
 
