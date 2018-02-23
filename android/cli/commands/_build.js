@@ -4216,17 +4216,28 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				return done();
 			}
 
+			// Double quotes given path and escapes double quote characters in file/directory names.
+			function quotePath(filePath) {
+				if (!filePath) {
+					return '""';
+				}
+				if (process.platform !== 'win32') {
+					filePath = filePath.replace(/"/g, '\\"');
+				}
+				return '"' + filePath + '"';
+			}
+
 			// Create a ProGuard config file.
 			let proguardConfig
 					= '-dontoptimize\n'
 					+ '-dontobfuscate\n'
 					+ '-dontpreverify\n'
 					+ '-dontwarn **\n'
-					+ '-libraryjars ' + shrinkedAndroid + '\n';
+					+ '-libraryjars ' + quotePath(shrinkedAndroid) + '\n';
 			for (let index = 0; index < injarsCore.length; index++) {
-				proguardConfig += '-injars ' + injarsCore[index] + '(!META-INF/**)\n';
+				proguardConfig += '-injars ' + quotePath(injarsCore[index]) + '(!META-INF/**)\n';
 			}
-			proguardConfig += '-outjars ' + outjar + '\n';
+			proguardConfig += '-outjars ' + quotePath(outjar) + '\n';
 			const mainDexProGuardFilePath = path.join(this.buildDir, 'mainDexProGuard.txt');
 			fs.writeFileSync(mainDexProGuardFilePath, proguardConfig);
 
@@ -4235,11 +4246,11 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			//       such as the JARs Google provides with Android build-tools v27. Google now acquires the newest
 			//       version of ProGuard via Gradle/Maven, which is kept up to date by the ProGuard maintainers.
 			const gradleAppFileName = (process.platform === 'win32') ? 'gradlew.bat' : 'gradlew';
-			appc.subprocess.run(path.join(this.buildDir, gradleAppFileName), [
-				'-b', path.join(this.buildDir, 'proguard.gradle'),
+			appc.subprocess.run(quotePath(path.join(this.buildDir, gradleAppFileName)), [
+				'-b', quotePath(path.join(this.buildDir, 'proguard.gradle')),
 				'-Pforceprocessing=true',
-				'-Pconfiguration=' + baserules + pathArraySeparator + mainDexProGuardFilePath
-			], {}, function (code, out, err) {
+				'-Pconfiguration=' + quotePath(baserules) + pathArraySeparator + quotePath(mainDexProGuardFilePath)
+			], { shell: true, windowsHide: true }, function (code, out, err) {
 				if (code) {
 					this.logger.error(__('Failed to run dexer:'));
 					this.logger.error();

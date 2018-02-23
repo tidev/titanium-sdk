@@ -263,7 +263,7 @@ public class TiWebChromeClient extends WebChromeClient
 
 		Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
 		contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-		contentSelectionIntent.setType("image/*");
+		contentSelectionIntent.setType("*/*");
 
 		Intent[] intentArray = null;
 		if (takePictureIntent != null) {
