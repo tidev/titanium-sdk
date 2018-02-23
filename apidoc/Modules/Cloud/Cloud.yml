@@ -221,19 +221,19 @@ methods:
             So to use this feature by default, you will need to get api.cloud.appcelerator.der by simply executing these 
             2 commands:
 
-            echo -n | openssl s_client -connect api.cloud.appcelerator.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > api.cloud.appcelerator.com.crt
-            openssl x509 -in api.cloud.appcelerator.com.crt -outform der -out api.cloud.appcelerator.com.der
+                echo -n | openssl s_client -connect api.cloud.appcelerator.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > api.cloud.appcelerator.com.crt
+                openssl x509 -in api.cloud.appcelerator.com.crt -outform der -out api.cloud.appcelerator.com.der
 
             For virtual private cloud (VPC) deployments, you can specify a different URL.
             After generating the X509 certifcate file in der format, you have to place it in the Resources folder in your titanium project.
             Before making any Cloud request, it is important to create security manager first, as shown:
 
-            Cloud.createX509CertificatePinningSecurityManager([
-                {
-                    url: "https://api.cloud.appcelerator.com",
-                    serverCertificate: "api.cloud.appcelerator.com.der"
-                }
-            ]);
+                Cloud.createX509CertificatePinningSecurityManager([
+                    {
+                        url: "https://api.cloud.appcelerator.com",
+                        serverCertificate: "api.cloud.appcelerator.com.der"
+                    }
+                ]);
 
     parameters:
       - name: params
