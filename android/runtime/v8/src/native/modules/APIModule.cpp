@@ -61,10 +61,19 @@ void APIModule::Initialize(Local<Object> target, Local<Context> context)
 	SetProtoMethod(isolate, constructor, "log", log);
 	SetProtoMethod(isolate, constructor, "getApiName", APIModule::getApiName);
 
+	// these are documented but non-functional
+	SetProtoMethod(isolate, constructor, "getBubbleParent", APIModule::undefined);
+	SetProtoMethod(isolate, constructor, "getLifecycleContainer", APIModule::undefined);
+	SetProtoMethod(isolate, constructor, "setBubbleParent", APIModule::undefined);
+	SetProtoMethod(isolate, constructor, "setLifecycleContainer", APIModule::undefined);
+
 	// Add an "apiName" property to instances, which delegates to APIModule::getter_apiName
 	// TODO Use a constant here?
 	Local<ObjectTemplate> instanceTemplate = constructor->InstanceTemplate();
 	instanceTemplate->SetAccessor(NEW_SYMBOL(isolate, "apiName"), APIModule::getter_apiName);
+	
+	instanceTemplate->SetAccessor(NEW_SYMBOL(isolate, "bubbleParent"), APIModule::getter_undefined);
+	instanceTemplate->SetAccessor(NEW_SYMBOL(isolate, "lifecycleContainer"), APIModule::getter_undefined);
 
 	// Expose a method for terminating the application for the debugger.
 	// Debugger will send an evaluation request calling this method
@@ -253,6 +262,11 @@ void APIModule::getter_apiName(Local<Name> name, const PropertyCallbackInfo<Valu
 	args.GetReturnValue().Set(STRING_NEW(args.GetIsolate(), "Ti.API"));
 }
 
+void APIModule::getter_undefined(Local<Name> name, const PropertyCallbackInfo<Value>& args)
+{
+	args.GetReturnValue().Set(Undefined(args.GetIsolate()));
+}
+
 void APIModule::terminate(const FunctionCallbackInfo<Value>& args)
 {
 	kill(getpid(), 9);
@@ -261,6 +275,11 @@ void APIModule::terminate(const FunctionCallbackInfo<Value>& args)
 void APIModule::debugBreak(const FunctionCallbackInfo<Value>& args)
 {
 	Debug::DebugBreak(args.GetIsolate());
+}
+
+void APIModule::undefined(const FunctionCallbackInfo<Value>& args)
+{
+	args.GetReturnValue().Set(Undefined(args.GetIsolate()));
 }
 
 void APIModule::Dispose(Isolate* isolate)
