@@ -35,7 +35,6 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 
-
 public class TiUIScrollView extends TiUIView
 {
 	public static final int TYPE_VERTICAL = 0;
@@ -50,7 +49,6 @@ public class TiUIScrollView extends TiUIView
 	private boolean isScrolling = false;
 	private boolean isTouching = false;
 
-
 	public class TiScrollViewLayout extends TiCompositeLayout
 	{
 		private static final int AUTO = Integer.MAX_VALUE;
@@ -59,13 +57,14 @@ public class TiUIScrollView extends TiUIView
 		private boolean canCancelEvents = true;
 		private GestureDetector gestureDetector;
 		private boolean wasMeasured;
-		
+
 		public TiScrollViewLayout(Context context, LayoutArrangement arrangement)
 		{
 			super(context, arrangement, proxy);
 			gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
 				@Override
-				public void onLongPress(MotionEvent e) {
+				public void onLongPress(MotionEvent e)
+				{
 					if (proxy.hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
 						fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
 					}
@@ -73,7 +72,8 @@ public class TiUIScrollView extends TiUIView
 			});
 			setOnTouchListener(new OnTouchListener() {
 				@Override
-				public boolean onTouch(View v, MotionEvent event) {
+				public boolean onTouch(View v, MotionEvent event)
+				{
 					return gestureDetector.onTouchEvent(event);
 				}
 			});
@@ -312,7 +312,7 @@ public class TiUIScrollView extends TiUIView
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
 	}
-	
+
 	// same code, different super-classes
 	private class TiVerticalScrollView extends NestedScrollView
 	{
@@ -335,8 +335,8 @@ public class TiUIScrollView extends TiUIView
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 
 			layout = new TiScrollViewLayout(context, arrangement);
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.MATCH_PARENT);
+			FrameLayout.LayoutParams params =
+				new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
 		}
@@ -347,7 +347,8 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		@Override
-		public boolean onTouchEvent(MotionEvent event) {
+		public boolean onTouchEvent(MotionEvent event)
+		{
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
@@ -371,7 +372,8 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		@Override
-		public boolean onInterceptTouchEvent(MotionEvent event) {
+		public boolean onInterceptTouchEvent(MotionEvent event)
+		{
 			if (mScrollingEnabled) {
 				return super.onInterceptTouchEvent(event);
 			}
@@ -391,8 +393,7 @@ public class TiUIScrollView extends TiUIView
 		 * @param dyUnconsumed Vertical distance in pixels that this view is being requested to scroll by.
 		 */
 		@Override
-		public void onNestedScroll(
-			View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
+		public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
 		{
 			if (mScrollingEnabled) {
 				super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
@@ -407,7 +408,6 @@ public class TiUIScrollView extends TiUIView
 				scrollTo(offsetX, offsetY);
 				setInitialOffset = true;
 			}
-
 		}
 
 		@Override
@@ -416,7 +416,7 @@ public class TiUIScrollView extends TiUIView
 			super.onScrollChanged(l, t, oldl, oldt);
 			if (!isScrolling && isTouching) {
 				isScrolling = true;
-				KrollDict data = new KrollDict();			
+				KrollDict data = new KrollDict();
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
 			KrollDict data = new KrollDict();
@@ -434,10 +434,10 @@ public class TiUIScrollView extends TiUIView
 
 			// Store this view's new size, minus the padding.
 			// Must be assigned before calling onMeasure() below.
-			layout.setParentContentWidth(
-					MeasureSpec.getSize(widthMeasureSpec) - (getPaddingLeft() + getPaddingRight()));
-			layout.setParentContentHeight(
-					MeasureSpec.getSize(heightMeasureSpec) - (getPaddingTop() + getPaddingBottom()));
+			layout.setParentContentWidth(MeasureSpec.getSize(widthMeasureSpec)
+										 - (getPaddingLeft() + getPaddingRight()));
+			layout.setParentContentHeight(MeasureSpec.getSize(heightMeasureSpec)
+										  - (getPaddingTop() + getPaddingBottom()));
 
 			// If the scroll view container has a fixed size (ie: not using AT_MOST/WRAP_CONTENT),
 			// then set up the scrollable content area to be at least the size of the container.
@@ -456,8 +456,8 @@ public class TiUIScrollView extends TiUIView
 				final View child = getChildAt(0);
 				int height = getMeasuredHeight();
 				final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
-				int childWidthMeasureSpec = getChildMeasureSpec(
-						widthMeasureSpec, getPaddingLeft() + getPaddingRight(), lp.width);
+				int childWidthMeasureSpec =
+					getChildMeasureSpec(widthMeasureSpec, getPaddingLeft() + getPaddingRight(), lp.width);
 				height -= getPaddingTop();
 				height -= getPaddingBottom();
 				int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
@@ -477,8 +477,8 @@ public class TiUIScrollView extends TiUIView
 			setScrollContainer(true);
 
 			layout = new TiScrollViewLayout(context, arrangement);
-			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.MATCH_PARENT);
+			FrameLayout.LayoutParams params =
+				new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 			layout.setLayoutParams(params);
 			super.addView(layout, params);
 		}
@@ -489,7 +489,8 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		@Override
-		public boolean onTouchEvent(MotionEvent event) {
+		public boolean onTouchEvent(MotionEvent event)
+		{
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
@@ -511,9 +512,10 @@ public class TiUIScrollView extends TiUIView
 				return false;
 			}
 		}
-		
+
 		@Override
-		public boolean onInterceptTouchEvent(MotionEvent event) {
+		public boolean onInterceptTouchEvent(MotionEvent event)
+		{
 			if (mScrollingEnabled) {
 				return super.onInterceptTouchEvent(event);
 			}
@@ -529,7 +531,6 @@ public class TiUIScrollView extends TiUIView
 				scrollTo(offsetX, offsetY);
 				setInitialOffset = true;
 			}
-
 		}
 
 		@Override
@@ -556,10 +557,10 @@ public class TiUIScrollView extends TiUIView
 
 			// Store this view's new size, minus the padding.
 			// Must be assigned before calling onMeasure() below.
-			layout.setParentContentWidth(
-					MeasureSpec.getSize(widthMeasureSpec) - (getPaddingLeft() + getPaddingRight()));
-			layout.setParentContentHeight(
-					MeasureSpec.getSize(heightMeasureSpec) - (getPaddingTop() + getPaddingBottom()));
+			layout.setParentContentWidth(MeasureSpec.getSize(widthMeasureSpec)
+										 - (getPaddingLeft() + getPaddingRight()));
+			layout.setParentContentHeight(MeasureSpec.getSize(heightMeasureSpec)
+										  - (getPaddingTop() + getPaddingBottom()));
 
 			// If the scroll view container has a fixed size (ie: not using AT_MOST/WRAP_CONTENT),
 			// then set up the scrollable content area to be at least the size of the container.
@@ -578,8 +579,8 @@ public class TiUIScrollView extends TiUIView
 				final View child = getChildAt(0);
 				int width = getMeasuredWidth();
 				final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
-				int childHeightMeasureSpec = getChildMeasureSpec(
-						heightMeasureSpec, getPaddingTop() + getPaddingBottom(), lp.height);
+				int childHeightMeasureSpec =
+					getChildMeasureSpec(heightMeasureSpec, getPaddingTop() + getPaddingBottom(), lp.height);
 				width -= getPaddingLeft();
 				width -= getPaddingRight();
 				int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
@@ -602,7 +603,7 @@ public class TiUIScrollView extends TiUIView
 		// If a refresh control is currently assigned, then detach it.
 		View nativeView = getNativeView();
 		if (nativeView instanceof TiSwipeRefreshLayout) {
-			RefreshControlProxy.unassignFrom((TiSwipeRefreshLayout)nativeView);
+			RefreshControlProxy.unassignFrom((TiSwipeRefreshLayout) nativeView);
 		}
 
 		// Release scroll view reference.
@@ -657,9 +658,9 @@ public class TiUIScrollView extends TiUIView
 			View nativeView = getNativeView();
 			if (nativeView instanceof TiSwipeRefreshLayout) {
 				if (newValue == null) {
-					RefreshControlProxy.unassignFrom((TiSwipeRefreshLayout)nativeView);
+					RefreshControlProxy.unassignFrom((TiSwipeRefreshLayout) nativeView);
 				} else if (newValue instanceof RefreshControlProxy) {
-					((RefreshControlProxy)newValue).assignTo((TiSwipeRefreshLayout)nativeView);
+					((RefreshControlProxy) newValue).assignTo((TiSwipeRefreshLayout) nativeView);
 				} else {
 					Log.e(TAG, "Invalid value assigned to property '" + key + "'. Must be of type 'RefreshControl'.");
 				}
@@ -704,7 +705,7 @@ public class TiUIScrollView extends TiUIView
 
 		int type = TYPE_VERTICAL;
 		boolean deduced = false;
-		
+
 		if (d.containsKey(TiC.PROPERTY_WIDTH) && d.containsKey(TiC.PROPERTY_CONTENT_WIDTH)) {
 			Object width = d.get(TiC.PROPERTY_WIDTH);
 			Object contentWidth = d.get(TiC.PROPERTY_CONTENT_WIDTH);
@@ -712,7 +713,6 @@ public class TiUIScrollView extends TiUIView
 				type = TYPE_VERTICAL;
 				deduced = true;
 			}
-			
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HEIGHT) && d.containsKey(TiC.PROPERTY_CONTENT_HEIGHT)) {
@@ -733,7 +733,7 @@ public class TiUIScrollView extends TiUIView
 				type = TYPE_HORIZONTAL;
 			} else {
 				Log.w(TAG, "scrollType value '" + TiConvert.toString(scrollType)
-					+ "' is invalid. Only 'vertical' and 'horizontal' are supported.");
+							   + "' is invalid. Only 'vertical' and 'horizontal' are supported.");
 			}
 		} else if (!deduced && type == TYPE_VERTICAL) {
 			Log.w(
@@ -746,7 +746,8 @@ public class TiUIScrollView extends TiUIView
 		TiScrollViewLayout scrollViewLayout;
 		if (d.containsKey(TiC.PROPERTY_LAYOUT) && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_VERTICAL)) {
 			arrangement = LayoutArrangement.VERTICAL;
-		} else if (d.containsKey(TiC.PROPERTY_LAYOUT) && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_HORIZONTAL)) {
+		} else if (d.containsKey(TiC.PROPERTY_LAYOUT)
+				   && d.getString(TiC.PROPERTY_LAYOUT).equals(TiC.LAYOUT_HORIZONTAL)) {
 			arrangement = LayoutArrangement.HORIZONTAL;
 		}
 
@@ -764,25 +765,27 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_CAN_CANCEL_EVENTS)) {
-			((TiScrollViewLayout) scrollViewLayout).setCanCancelEvents(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_CANCEL_EVENTS));
+			((TiScrollViewLayout) scrollViewLayout)
+				.setCanCancelEvents(TiConvert.toBoolean(d, TiC.PROPERTY_CAN_CANCEL_EVENTS));
 		}
 
-		boolean autoContentWidth = (scrollViewLayout.getContentProperty(TiC.PROPERTY_CONTENT_WIDTH) == TiScrollViewLayout.AUTO);
+		boolean autoContentWidth =
+			(scrollViewLayout.getContentProperty(TiC.PROPERTY_CONTENT_WIDTH) == TiScrollViewLayout.AUTO);
 		boolean wrap = !autoContentWidth;
 		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP) && wrap) {
 			wrap = TiConvert.toBoolean(d, TiC.PROPERTY_HORIZONTAL_WRAP, true);
 		}
 		scrollViewLayout.setEnableHorizontalWrap(wrap);
-		
+
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
 			if (Build.VERSION.SDK_INT >= 9) {
-				this.scrollView.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+				this.scrollView.setOverScrollMode(
+					TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 			}
 		}
 
 		// Set up the swipe refresh layout container which wraps the scroll view.
-		TiSwipeRefreshLayout swipeRefreshLayout = new TiSwipeRefreshLayout(getProxy().getActivity())
-		{
+		TiSwipeRefreshLayout swipeRefreshLayout = new TiSwipeRefreshLayout(getProxy().getActivity()) {
 			@Override
 			public void setClickable(boolean value)
 			{
@@ -824,7 +827,7 @@ public class TiUIScrollView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_REFRESH_CONTROL)) {
 			Object object = d.get(TiC.PROPERTY_REFRESH_CONTROL);
 			if (object instanceof RefreshControlProxy) {
-				((RefreshControlProxy)object).assignTo(swipeRefreshLayout);
+				((RefreshControlProxy) object).assignTo(swipeRefreshLayout);
 			}
 		}
 		setNativeView(swipeRefreshLayout);
@@ -845,7 +848,7 @@ public class TiUIScrollView extends TiUIView
 		}
 		return null;
 	}
-	
+
 	public void setScrollingEnabled(Object value)
 	{
 		try {
@@ -876,7 +879,7 @@ public class TiUIScrollView extends TiUIView
 		// Note: This works-around a bug in Google's NestedScrollView where attempting to
 		//       smooth scrolls will move to a totally different position or opposite directions.
 		if (smoothScroll && (view instanceof TiVerticalScrollView)) {
-			if (((TiVerticalScrollView)view).getScrollY() > 0) {
+			if (((TiVerticalScrollView) view).getScrollY() > 0) {
 				smoothScroll = false;
 			}
 		}
@@ -884,9 +887,9 @@ public class TiUIScrollView extends TiUIView
 		// Scroll to the given position.
 		if (smoothScroll) {
 			if (view instanceof TiHorizontalScrollView) {
-				((TiHorizontalScrollView)view).smoothScrollTo(x, y);
+				((TiHorizontalScrollView) view).smoothScrollTo(x, y);
 			} else if (view instanceof TiVerticalScrollView) {
-				((TiVerticalScrollView)view).smoothScrollTo(x, y);
+				((TiVerticalScrollView) view).smoothScrollTo(x, y);
 			}
 		} else {
 			view.scrollTo(x, y);
@@ -898,9 +901,9 @@ public class TiUIScrollView extends TiUIView
 	{
 		View view = this.scrollView;
 		if (view instanceof TiHorizontalScrollView) {
-			((TiHorizontalScrollView)view).fullScroll(View.FOCUS_RIGHT);
+			((TiHorizontalScrollView) view).fullScroll(View.FOCUS_RIGHT);
 		} else if (view instanceof TiVerticalScrollView) {
-			((TiVerticalScrollView)view).fullScroll(View.FOCUS_DOWN);
+			((TiVerticalScrollView) view).fullScroll(View.FOCUS_DOWN);
 		}
 	}
 
@@ -909,16 +912,16 @@ public class TiUIScrollView extends TiUIView
 		View view = this.scrollView;
 		if (view instanceof TiHorizontalScrollView) {
 			// Scroll to the left-most side of the horizontal scroll view.
-			((TiHorizontalScrollView)view).fullScroll(View.FOCUS_LEFT);
+			((TiHorizontalScrollView) view).fullScroll(View.FOCUS_LEFT);
 		} else if (view instanceof TiVerticalScrollView) {
 			// Scroll to the top of the vertical scroll view.
 			// Note: There is a bug in Google's NestedScrollView where smooth scrolling to top fails
 			//       and can scroll down instead. We must work-around it by temporarily disabling it.
-			TiVerticalScrollView verticalScrollView = (TiVerticalScrollView)view;
+			TiVerticalScrollView verticalScrollView = (TiVerticalScrollView) view;
 			boolean wasEnabled = verticalScrollView.isSmoothScrollingEnabled();
 			verticalScrollView.setSmoothScrollingEnabled(false);
 			try {
-				((TiVerticalScrollView)view).fullScroll(View.FOCUS_UP);
+				((TiVerticalScrollView) view).fullScroll(View.FOCUS_UP);
 			} finally {
 				verticalScrollView.setSmoothScrollingEnabled(wasEnabled);
 			}

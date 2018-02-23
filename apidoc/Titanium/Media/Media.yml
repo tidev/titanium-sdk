@@ -1358,11 +1358,19 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: "7.0.0"
+        removed: "7.0.0"
+        notes: "This constant has been removed on iOS by using the official Apple AVPlayer that does not expose this functionality so far."
   - name: VIDEO_PLAYBACK_STATE_SEEKING_FORWARD
     summary: Video playback is seeking forward.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: "7.0.0"
+        removed: "7.0.0"
+        notes: "This constant has been removed on iOS by using the official Apple AVPlayer that does not expose this functionality so far."
   - name: VIDEO_PLAYBACK_STATE_STOPPED
     summary: Video playback is stopped.
     type: Number

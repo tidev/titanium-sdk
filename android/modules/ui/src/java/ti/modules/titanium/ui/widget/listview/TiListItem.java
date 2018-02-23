@@ -21,23 +21,27 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
-public class TiListItem extends TiUIView {
+public class TiListItem extends TiUIView
+{
 
 	View listItemLayout;
-	public TiListItem(TiViewProxy proxy) {
+	public TiListItem(TiViewProxy proxy)
+	{
 		super(proxy);
 	}
 
-	public TiListItem(TiViewProxy proxy, LayoutParams p, View v, View item_layout) {
+	public TiListItem(TiViewProxy proxy, LayoutParams p, View v, View item_layout)
+	{
 		super(proxy);
 		layoutParams = p;
 		listItemLayout = item_layout;
-		setNativeView(v);	
+		setNativeView(v);
 		registerForTouch(v);
 		v.setFocusable(false);
 	}
-	
-	public void processProperties(KrollDict d) {
+
+	public void processProperties(KrollDict d)
+	{
 		if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
 			d.remove(TiC.PROPERTY_LAYOUT);
 		}
@@ -54,11 +58,12 @@ public class TiListItem extends TiUIView {
 		super.processProperties(d);
 	}
 
-	private void handleAccessory(int accessory) {
-		
+	private void handleAccessory(int accessory)
+	{
+
 		ImageView accessoryImage = (ImageView) listItemLayout.findViewById(TiListView.accessory);
 
-		switch(accessory) {
+		switch (accessory) {
 
 			case UIModule.LIST_ACCESSORY_TYPE_CHECKMARK:
 				accessoryImage.setImageResource(TiListView.isCheck);
@@ -70,16 +75,15 @@ public class TiListItem extends TiUIView {
 			case UIModule.LIST_ACCESSORY_TYPE_DISCLOSURE:
 				accessoryImage.setImageResource(TiListView.disclosure);
 				break;
-	
+
 			default:
 				accessoryImage.setImageResource(0);
 		}
 	}
-	
+
 	protected void setOnClickListener(View view)
 	{
-		view.setOnClickListener(new OnClickListener()
-		{
+		view.setOnClickListener(new OnClickListener() {
 			public void onClick(View view)
 			{
 				KrollDict data = dictFromEvent(lastUpEvent);
@@ -88,9 +92,10 @@ public class TiListItem extends TiUIView {
 			}
 		});
 	}
-	
-	protected void handleFireItemClick (KrollDict data) {
-		TiViewProxy listViewProxy = ((ListItemProxy)proxy).getListProxy();
+
+	protected void handleFireItemClick(KrollDict data)
+	{
+		TiViewProxy listViewProxy = ((ListItemProxy) proxy).getListProxy();
 		if (listViewProxy != null) {
 			TiUIView listView = listViewProxy.peekView();
 			if (listView != null) {
@@ -105,12 +110,12 @@ public class TiListItem extends TiUIView {
 			}
 		}
 	}
-	
-	public void release() {
+
+	public void release()
+	{
 		if (listItemLayout != null) {
 			listItemLayout = null;
 		}
 		super.release();
 	}
-	
 }

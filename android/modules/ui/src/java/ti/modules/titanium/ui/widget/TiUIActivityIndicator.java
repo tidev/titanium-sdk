@@ -81,7 +81,7 @@ public class TiUIActivityIndicator extends TiUIView
 	{
 		super.processProperties(d);
 
-		LinearLayout view = (LinearLayout)getNativeView();
+		LinearLayout view = (LinearLayout) getNativeView();
 		if (view == null) {
 			return;
 		}
@@ -99,7 +99,8 @@ public class TiUIActivityIndicator extends TiUIView
 			label.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
 		}
 		if (d.containsKey(TiC.PROPERTY_INDICATOR_COLOR)) {
-			progress.getIndeterminateDrawable().setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_INDICATOR_COLOR), android.graphics.PorterDuff.Mode.SRC_IN);
+			progress.getIndeterminateDrawable().setColorFilter(TiConvert.toColor(d, TiC.PROPERTY_INDICATOR_COLOR),
+															   android.graphics.PorterDuff.Mode.SRC_IN);
 		}
 
 		view.invalidate();
@@ -121,7 +122,8 @@ public class TiUIActivityIndicator extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			label.setTextColor(TiConvert.toColor((String) newValue));
 		} else if (key.equals(TiC.PROPERTY_INDICATOR_COLOR)) {
-			progress.getIndeterminateDrawable().setColorFilter(TiConvert.toColor((String) newValue), android.graphics.PorterDuff.Mode.SRC_IN);
+			progress.getIndeterminateDrawable().setColorFilter(TiConvert.toColor((String) newValue),
+															   android.graphics.PorterDuff.Mode.SRC_IN);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -169,7 +171,7 @@ public class TiUIActivityIndicator extends TiUIView
 			Log.w(TAG, "Invalid value \"" + style + "\" for style.");
 			return;
 		}
-		LinearLayout view = (LinearLayout)getNativeView();
+		LinearLayout view = (LinearLayout) getNativeView();
 
 		view.removeAllViews();
 		progress = new ProgressBar(TiApplication.getAppCurrentActivity(), null, style);

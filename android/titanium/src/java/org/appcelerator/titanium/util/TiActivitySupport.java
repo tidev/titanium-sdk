@@ -16,8 +16,7 @@ import android.os.Bundle;
  * it ends, it returns the number that was selected. You can launch the activity by calling {@link #launchActivityForResult(Intent, int, TiActivityResultHandler)}.
  * The result will come back through {@link TiActivityResultHandler#onResult(android.app.Activity, int, int, Intent)} method.
  */
-public interface TiActivitySupport
-{
+public interface TiActivitySupport {
 	/**
 	 * Launches an activity for which you would like a result when it finishes. When this activity exits,
 	 * {@link TiActivityResultHandler#onResult(android.app.Activity, int, int, Intent)} method will be invoked.
@@ -28,7 +27,7 @@ public interface TiActivitySupport
 	 * @module.api
 	 */
 	public void launchActivityForResult(Intent intent, int code, TiActivityResultHandler handler);
-	
+
 	/**
 	 * Like {@link TiActivitySupport#launchActivityForResult(Intent, int, TiActivityResultHandler)} but 
 	 * allowing you to use a IntentSender to describe the activity to be started.
@@ -44,8 +43,10 @@ public interface TiActivitySupport
 	 * @param handler the callback handler.
 	 * @module.api
 	 */
-	public void launchIntentSenderForResult(IntentSender intent, int requestCode, Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags, Bundle options, TiActivityResultHandler resultHandler);
-	
+	public void launchIntentSenderForResult(IntentSender intent, int requestCode, Intent fillInIntent, int flagsMask,
+											int flagsValues, int extraFlags, Bundle options,
+											TiActivityResultHandler resultHandler);
+
 	/**
 	 * @return a code that represents the launched activity. This must be unique to differentiate launched activities that 
 	 * use the same callback handler.

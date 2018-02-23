@@ -181,6 +181,11 @@
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
+  if ([TiUtils isIOSVersionOrGreater:@"11.2"]) {
+    navigationController.navigationBar.tintAdjustmentMode = UIViewTintAdjustmentModeNormal;
+    navigationController.navigationBar.tintAdjustmentMode = UIViewTintAdjustmentModeAutomatic;
+  }
+
   if (!transitionWithGesture) {
     transitionIsAnimating = YES;
   }

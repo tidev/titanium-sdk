@@ -201,21 +201,18 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
   [self replaceValue:value forKey:@"keyboardToolbar" notification:YES];
 
   if (value == nil) {
-    //TODO: Should we remove these gracefully?
-    [keyboardTiView removeFromSuperview];
-    [keyboardUIToolbar removeFromSuperview];
     for (TiProxy *proxy in keyboardToolbarItems) {
       [self forgetProxy:proxy];
     }
     RELEASE_TO_NIL(keyboardTiView);
     RELEASE_TO_NIL(keyboardToolbarItems);
     [keyboardUIToolbar setItems:nil];
+    [(UITextField *)[(TiUITextWidget *)[self view] textWidgetView] setInputAccessoryView:nil];
+    [[(TiUITextWidget *)[self view] textWidgetView] reloadInputViews];
     return;
   }
 
   if ([value isKindOfClass:[NSArray class]]) {
-    //TODO: Should we remove these gracefully?
-    [keyboardTiView removeFromSuperview];
     RELEASE_TO_NIL(keyboardTiView);
 
     // TODO: Check for proxies
@@ -228,7 +225,9 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
     if (keyboardUIToolbar != nil) {
       [self updateUIToolbar];
     }
-    //TODO: If we have focus while this happens, we need to signal an update.
+    [[self keyboardAccessoryView] setBounds:CGRectMake(0, 0, 0, [self keyboardAccessoryHeight])];
+    [(UITextField *)[(TiUITextWidget *)[self view] textWidgetView] setInputAccessoryView:[self keyboardAccessoryView]];
+    [[(TiUITextWidget *)[self view] textWidgetView] reloadInputViews];
     return;
   }
 
@@ -237,9 +236,6 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
     if (valueView == keyboardTiView) { //Nothing to do here.
       return;
     }
-    //TODO: Should we remove these gracefully?
-    [keyboardTiView removeFromSuperview];
-    [keyboardUIToolbar removeFromSuperview];
     RELEASE_TO_NIL(keyboardTiView);
     for (TiProxy *proxy in keyboardToolbarItems) {
       [self forgetProxy:proxy];
@@ -248,7 +244,9 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
     [keyboardUIToolbar setItems:nil];
 
     keyboardTiView = [valueView retain];
-    //TODO: If we have focus while this happens, we need to signal an update.
+    [keyboardTiView setBounds:CGRectMake(0, 0, 0, [self keyboardAccessoryHeight])];
+    [(UITextField *)[(TiUITextWidget *)[self view] textWidgetView] setInputAccessoryView:keyboardTiView];
+    [[(TiUITextWidget *)[self view] textWidgetView] reloadInputViews];
   }
 }
 

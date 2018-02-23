@@ -111,11 +111,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected String[] filteredAnalyticsEvents;
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
-	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
+	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners =
+		new ArrayList<ActivityTransitionListener>();
 	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
 
-	public static interface ActivityTransitionListener
-	{
+	public static interface ActivityTransitionListener {
 		public void onActivityTransition(boolean state);
 	}
 
@@ -135,7 +135,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		for (int i = 0; i < activityTransitionListeners.size(); ++i) {
 			activityTransitionListeners.get(i).onActivityTransition(state);
 		}
-
 	}
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
@@ -231,7 +230,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		Activity currentActivity = getAppCurrentActivity();
 		if (currentActivity instanceof TiBaseActivity) {
-			return ((TiBaseActivity)currentActivity).isInForeground();
+			return ((TiBaseActivity) currentActivity).isInForeground();
 		}
 		return false;
 	}
@@ -281,7 +280,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 			// Skip and remove any activities which are dead or in the process of finishing.
 			if (activity == null || activity.isFinishing()) {
-				activityStack.remove(activityStackSize -1);
+				activityStack.remove(activityStackSize - 1);
 				continue;
 			}
 
@@ -337,7 +336,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
-	public void loadAppProperties() {
+	public void loadAppProperties()
+	{
 		// Load the JSON file:
 		String appPropertiesString = KrollAssetHelper.readAsset("Resources/_app_props_.json");
 		if (appPropertiesString != null) {
@@ -350,7 +350,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	@Override
-	protected void attachBaseContext(Context base) {
+	protected void attachBaseContext(Context base)
+	{
 		super.attachBaseContext(base);
 		MultiDex.install(this);
 	}
@@ -363,11 +364,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-			public void uncaughtException(Thread t, Throwable e) {
+			public void uncaughtException(Thread t, Throwable e)
+			{
 				if (isAnalyticsEnabled()) {
-					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
-					Log.e(TAG, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
-					TiPlatformHelper.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
+					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash;
+					Log.e(TAG,
+						  "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium "
+							  + tiVer,
+						  e);
+					TiPlatformHelper.getInstance().postAnalyticsEvent(
+						TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
 				}
 				defaultHandler.uncaughtException(t, e);
 			}
@@ -394,7 +400,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	@Override
-	public void onLowMemory ()
+	public void onLowMemory()
 	{
 		// Release all the cached images
 		TiBlobLruCache.getInstance().evictAll();
@@ -472,8 +478,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private File getRemoteCacheDir()
 	{
 		File cacheDir = new File(tempFileHelper.getTempDirectory(), "remote-cache");
-		if (!cacheDir.exists())
-		{
+		if (!cacheDir.exists()) {
 			cacheDir.mkdirs();
 			tempFileHelper.excludeFileOnCleanup(cacheDir);
 		}
@@ -488,8 +493,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		// calculate the display density
 		DisplayMetrics dm = new DisplayMetrics();
 		rootActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-		switch(dm.densityDpi)
-		{
+		switch (dm.densityDpi) {
 			case DisplayMetrics.DENSITY_HIGH: {
 				density = "high";
 				break;
@@ -536,7 +540,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
 	{
-		synchronized (this) {
+		synchronized (this)
+		{
 			Activity currentActivity = getCurrentActivity();
 			if (currentActivity == null || callingActivity == currentActivity) {
 				this.currentActivity = new WeakReference<Activity>(newValue);
@@ -669,7 +674,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			if (eventName.equals(currentName)) {
 				return true;
 			}
-
 		}
 		return false;
 	}
@@ -748,8 +752,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public boolean isCoverageEnabled()
 	{
-		if (!getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION))
-		{
+		if (!getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
 			return getAppProperties().getBool(TiApplication.PROPERTY_ENABLE_COVERAGE, false);
 		}
 		return false;
@@ -759,7 +762,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		Log.w(TAG, "Scheduling application restart");
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
+			Log.d(TAG,
+				  "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
 			(new Exception()).printStackTrace();
 		}
 		this.restartPending = true;
@@ -823,8 +827,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	private void startExternalStorageMonitor()
 	{
-		externalStorageReceiver = new BroadcastReceiver()
-		{
+		externalStorageReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent)
 			{

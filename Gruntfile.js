@@ -6,15 +6,31 @@ const async = require('async'),
 module.exports = function (grunt) {
 
 	const iosSrc = [ 'iphone/Classes/*.h', 'iphone/Classes/*.m' ];
-	const androidSrc = [ 'android/runtime/v8/src/**/*.java' ];
+	const androidSrc = [
+		'android/build/src/**/*.java',
+		'android/kroll-apt/src/**/*.java',
+		'android/modules/*/src/**/*.java',
+		'android/runtime/*/src/**/*.java',
+		'android/titanium/src/**/*.java'
+	];
+	const allSrc = iosSrc.concat(androidSrc);
 
 	// Project configuration.
 	grunt.initConfig({
 		appcJs: {
-			src: [ 'dangerfile.js', 'Gruntfile.js', 'apidoc/**/*.js', 'build/**/*.js', 'cli/!(locales)/**/*.js', 'android/cli/!(locales)/**/*.js', 'iphone/cli/!(locales)/**/*.js' ]
+			src: [
+				'dangerfile.js',
+				'Gruntfile.js',
+				'apidoc/**/*.js',
+				'build/**/*.js',
+				'cli/!(locales)/**/*.js',
+				'android/cli/!(locales)/**/*.js',
+				'iphone/cli/!(locales)/**/*.js',
+				'tests/Resources/**/*test.js'
+			]
 		},
 		clangFormat: {
-			src: iosSrc
+			src: allSrc
 		},
 		ios_format: {
 			src: iosSrc
