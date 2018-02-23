@@ -59,7 +59,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   return nil;
 }
 
-@interface LocalProtocolHandler : NSURLProtocol
+@interface LocalProtocolHandler : NSURLProtocol {
+}
++ (void)setMutableRequest:(NSURLRequest *)request;
+
 @end
 
 @implementation TiUIWebView
@@ -755,6 +758,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     }
     if ([scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
       [NSURLProtocol setProperty:[self titaniumInjection] forKey:kContentInjection inRequest:(NSMutableURLRequest *)request];
+      [LocalProtocolHandler setMutableRequest:request];
     }
     return YES;
   }
@@ -930,6 +934,15 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 @end
 
 @implementation LocalProtocolHandler
+static NSURLRequest *_mutableRequest = nil;
+
++ (void)setMutableRequest:(NSURLRequest *)request
+{
+  if (_mutableRequest) {
+    [_mutableRequest release];
+  }
+  _mutableRequest = [request retain];
+}
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
@@ -938,7 +951,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-  return request;
+  return _mutableRequest ?: request;
 }
 
 + (BOOL)requestIsCacheEquivalent:(NSURLRequest *)a toRequest:(NSURLRequest *)b
