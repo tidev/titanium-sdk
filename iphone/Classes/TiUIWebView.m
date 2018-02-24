@@ -702,6 +702,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
   NSURL *newUrl = [request URL];
+  [LocalProtocolHandler setMutableRequest:nil];
 
   if (blacklistedURLs && blacklistedURLs.count > 0) {
     NSString *urlAbsoluteString = [newUrl absoluteString];
