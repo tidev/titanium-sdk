@@ -55,7 +55,7 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	);
 
 	logger.log(styleHeading(__('Android NDK')) + '\n'
-		+ +'  ' + rpad(__('NDK Path'))           + ' = ' + styleValue(data.ndk && data.ndk.path || __('not found')) + '\n'
+		+ '  ' + rpad(__('NDK Path'))           + ' = ' + styleValue(data.ndk && data.ndk.path || __('not found')) + '\n'
 		+ '  ' + rpad(__('NDK Version'))        + ' = ' + styleValue(data.ndk && data.ndk.version || __('not found')) + '\n'
 	);
 
