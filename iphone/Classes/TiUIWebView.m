@@ -61,7 +61,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 @interface LocalProtocolHandler : NSURLProtocol {
 }
-+ (void)setMutableRequest:(NSURLRequest *)request;
++ (void)setContentInjection:(NSString *)contentInjection;
 
 @end
 
@@ -757,8 +757,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
       reloadMethod = @selector(setUrl_:);
     }
     if ([scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
-      [NSURLProtocol setProperty:[self titaniumInjection] forKey:kContentInjection inRequest:(NSMutableURLRequest *)request];
-      [LocalProtocolHandler setMutableRequest:request];
+      [LocalProtocolHandler setContentInjection:[self titaniumInjection]];
     }
     return YES;
   }
@@ -934,14 +933,20 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 @end
 
 @implementation LocalProtocolHandler
-static NSURLRequest *_mutableRequest = nil;
+static NSString *_contentInjection = nil;
 
-+ (void)setMutableRequest:(NSURLRequest *)request
++ (void)setContentInjection:(NSString *)contentInjection
 {
-  if (_mutableRequest) {
-    [_mutableRequest release];
+  if (_contentInjection != nil) {
+    RELEASE_TO_NIL(_contentInjection);
   }
-  _mutableRequest = [request retain];
+  _contentInjection = [contentInjection retain];
+}
+
+- (void)dealloc
+{
+  RELEASE_TO_NIL(_contentInjection);
+  [super dealloc];
 }
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
@@ -951,7 +956,10 @@ static NSURLRequest *_mutableRequest = nil;
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-  return _mutableRequest ?: request;
+  // TIMOB-25762: iOS 11.3 breaks NSURLProtocol properties, so we need to set it here instead of inside the webview
+  [NSURLProtocol setProperty:_contentInjection forKey:@"kContentInjection" inRequest:(NSMutableURLRequest *)request];
+
+  return request;
 }
 
 + (BOOL)requestIsCacheEquivalent:(NSURLRequest *)a toRequest:(NSURLRequest *)b
