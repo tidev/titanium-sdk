@@ -18,7 +18,7 @@ def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json
 def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
 def npmVersion = '5.7.1' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
 
-def unitTests(os, nodeVersion, testSuiteBranch) {
+def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 	return {
 		def labels = 'git && osx'
 		if ('ios'.equals(os)) {
@@ -262,8 +262,8 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': unitTests('android', nodeVersion, targetBranch),
-				'iOS unit tests': unitTests('ios', nodeVersion, targetBranch),
+				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch),
+				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch),
 				failFast: true
 			)
 		}
@@ -439,7 +439,7 @@ timestamps {
 						try {
 							unstash 'test-report-android' // junit.android.report.xml
 						} catch (e) {}
-						sh "npm install -g npm@${npmVersion}"
+						ensureNPM(npmVersion)
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
 						// See https://github.com/danger/danger-js/issues/379
