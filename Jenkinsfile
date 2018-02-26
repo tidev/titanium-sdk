@@ -52,38 +52,40 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 				unstash 'override-tests'
 				sh 'cp -R tests/ titanium-mobile-mocha-suite'
 				// Now run the unit test suite
-				dir('titanium-mobile-mocha-suite/scripts') {
+				dir('titanium-mobile-mocha-suite') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 						ensureNPM(npmVersion)
 						sh 'npm ci'
-						try {
-							sh "node test.js -b ../../${zipName} -p ${os}"
-						} catch (e) {
-							if ('ios'.equals(os)) {
-								// Gather the crash report(s)
-								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
-								sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
-								archiveArtifacts 'mocha_*.crash'
-								sh 'rm -f mocha_*.crash'
-							} else {
-								// FIXME gather crash reports/tombstones for Android?
-							}
-							throw e
-						} finally {
-							// Kill the emulators!
-							if ('android'.equals(os)) {
-								sh 'adb shell am force-stop com.appcelerator.testApp.testing'
-								sh 'adb uninstall com.appcelerator.testApp.testing'
-								sh 'killall -9 emulator || echo ""'
-								sh 'killall -9 emulator64-arm || echo ""'
-								sh 'killall -9 emulator64-x86 || echo ""'
-							}
-						}
-					}
-					// save the junit reports as artifacts explicitly so danger.js can use them later
-					stash includes: 'junit.*.xml', name: "test-report-${os}"
-					junit 'junit.*.xml'
-				}
+						dir('scripts') {
+							try {
+								sh "node test.js -b ../../${zipName} -p ${os}"
+							} catch (e) {
+								if ('ios'.equals(os)) {
+									// Gather the crash report(s)
+									def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+									sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
+									archiveArtifacts 'mocha_*.crash'
+									sh 'rm -f mocha_*.crash'
+								} else {
+									// FIXME gather crash reports/tombstones for Android?
+								}
+								throw e
+							} finally {
+								// Kill the emulators!
+								if ('android'.equals(os)) {
+									sh 'adb shell am force-stop com.appcelerator.testApp.testing'
+									sh 'adb uninstall com.appcelerator.testApp.testing'
+									sh 'killall -9 emulator || echo ""'
+									sh 'killall -9 emulator64-arm || echo ""'
+									sh 'killall -9 emulator64-x86 || echo ""'
+								} // if
+							} // finally
+							// save the junit reports as artifacts explicitly so danger.js can use them later
+							stash includes: 'junit.*.xml', name: "test-report-${os}"
+							junit 'junit.*.xml'
+						} // dir('scripts')
+					} // nodejs
+				} // dir('titanium-mobile-mocha-suite')
 			} // timeout
 		}
 	}
