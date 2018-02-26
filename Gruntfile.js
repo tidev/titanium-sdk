@@ -13,7 +13,6 @@ module.exports = function (grunt) {
 		'android/runtime/*/src/**/*.java',
 		'android/titanium/src/**/*.java'
 	];
-	const allSrc = iosSrc.concat(androidSrc);
 
 	// Project configuration.
 	grunt.initConfig({
@@ -30,13 +29,12 @@ module.exports = function (grunt) {
 			]
 		},
 		clangFormat: {
-			src: allSrc
+			android: { src: androidSrc },
+			ios: { src: iosSrc }
 		},
-		ios_format: {
-			src: iosSrc
-		},
-		android_format: {
-			src: androidSrc
+		checkFormat: {
+			android: { src: androidSrc },
+			ios: { src: iosSrc }
 		}
 	});
 
@@ -117,8 +115,8 @@ module.exports = function (grunt) {
 		});
 	}
 
-	grunt.registerMultiTask('ios_format', 'Validates the iOS source code formatting.', validateFormatting);
-	grunt.registerMultiTask('android_format', 'Validates the Android source code formatting.', validateFormatting);
+	grunt.registerMultiTask('checkFormat', 'Validates the source code formatting.', validateFormatting);
+	// grunt.registerMultiTask('android_format', 'Validates the Android source code formatting.', validateFormatting);
 
 	// Load grunt plugins for modules
 	grunt.loadNpmTasks('grunt-mocha-test');
@@ -127,10 +125,10 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
 	// register tasks
-	grunt.registerTask('lint', [ 'appcJs', 'ios_format', 'android_format', 'validate_docs' ]);
+	grunt.registerTask('lint', [ 'appcJs', 'checkFormat:ios', 'checkFormat:android', 'validate_docs' ]);
 
 	// register tasks
-	grunt.registerTask('format', [ 'clangFormat' ]);
+	grunt.registerTask('format', [ 'clangFormat:android', 'clangFormat:ios' ]);
 
 	// register tasks
 	grunt.registerTask('default', [ 'lint' ]);
