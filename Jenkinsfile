@@ -16,7 +16,7 @@ def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json
 
 // Variables we can change
 def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
-def npmVersion = '5.6.0' // We can change this without any changes to Jenkins.
+def npmVersion = '5.7.1' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
 
 def unitTests(os, nodeVersion, testSuiteBranch) {
 	return {
@@ -54,7 +54,7 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 				// Now run the unit test suite
 				dir('titanium-mobile-mocha-suite/scripts') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						sh 'npm install .'
+						sh 'npm ci'
 						try {
 							sh "node test.js -b ../../${zipName} -p ${os}"
 						} catch (e) {
@@ -147,7 +147,7 @@ timestamps {
 					// Install dependencies
 					timeout(5) {
 						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
-						sh 'npm install'
+						sh 'npm ci'
 					}
 					// Run npm test, but record output in a file and check for failure of command by checking output
 					if (fileExists('npm_test.log')) {
