@@ -288,7 +288,9 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
+			disableChangeEvent = true;
 			tv.setText(TiConvert.toString(newValue));
+			disableChangeEvent = false;
 		} else if (key.equals(TiC.PROPERTY_MAX_LENGTH)) {
 			maxLength = TiConvert.toInt(newValue);
 			//truncate if current text exceeds max length
@@ -826,10 +828,13 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		Bundle bundleText =
 			AttributedStringProxy.toSpannableInBundle(attrString, TiApplication.getAppCurrentActivity());
 		if (bundleText.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			boolean wasDisabled = disableChangeEvent;
+			disableChangeEvent = true;
 			tv.setText((Spannable) bundleText.getCharSequence(TiC.PROPERTY_ATTRIBUTED_STRING));
 			if (bundleText.getBoolean(TiC.PROPERTY_HAS_LINK, false)) {
 				tv.setMovementMethod(LinkMovementMethod.getInstance());
 			}
+			disableChangeEvent = wasDisabled;
 		}
 	}
 
