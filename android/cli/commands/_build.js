@@ -916,7 +916,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// Transpilation details
-	this.transpile = cli.tiapp['transpile'] !== false; // FIXME Does this properly default to true?
+	this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
 	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
 	const v8Version = this.packageJson.v8.version;
 	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
