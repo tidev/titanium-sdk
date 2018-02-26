@@ -28,7 +28,7 @@ import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Instances;
 
 // Columns and value constants taken from android.provider.Calendar in the android source base
-@Kroll.proxy(parentModule = CalendarModule.class)
+@Kroll.proxy(parentModule = CalendarModule.class, propertyAccessors = { TiC.PROPERTY_RECURRENCE_RULES })
 public class EventProxy extends KrollProxy
 {
 	public static final String TAG = "EventProxy";
@@ -48,7 +48,7 @@ public class EventProxy extends KrollProxy
 	protected int status, visibility;
 	protected KrollDict extendedProperties = new KrollDict();
 
-	protected String recurrenceRule, recurrenceDate, recurrenceExceptionRule, recurrenceExceptionDate;
+	protected String recurrenceDate, recurrenceExceptionRule, recurrenceExceptionDate;
 	protected Date lastDate;
 
 	public EventProxy()
@@ -97,11 +97,11 @@ public class EventProxy extends KrollProxy
 			visibility = "visibility";
 		}
 
-		Cursor eventCursor =
-			contentResolver.query(builder.build(),
-								  new String[] { "event_id", "title", "description", "eventLocation", "begin", "end",
-												 "allDay", "hasAlarm", "eventStatus", visibility },
-								  query, queryArgs, "startDay ASC, startMinute ASC");
+		Cursor eventCursor = contentResolver.query(builder.build(),
+												   new String[] { "event_id", "title", "description", "eventLocation",
+																  "begin", "end", "allDay", "hasAlarm", "eventStatus",
+																  visibility, Events.RRULE, Events.CALENDAR_ID },
+												   query, queryArgs, "startDay ASC, startMinute ASC");
 
 		if (eventCursor == null) {
 			Log.w(TAG, "Unable to get any results when pulling events by date range");
@@ -121,13 +121,38 @@ public class EventProxy extends KrollProxy
 			event.hasAlarm = !eventCursor.getString(7).equals("0");
 			event.status = eventCursor.getInt(8);
 			event.visibility = eventCursor.getInt(9);
-
+			// Guarding against Cursor implementations which would throw an exception
+			// instead of returning null if no recurrence rule is added to the event
+			String recurrenceRule = null;
+			try {
+				recurrenceRule = eventCursor.getString(10);
+			} catch (Exception e) {
+				Log.w(TAG, "Trying to get a recurrence rule for an event without one.");
+				e.printStackTrace();
+			}
+			event.setRecurrenceRules(recurrenceRule, eventCursor.getInt(11));
 			events.add(event);
 		}
 
 		eventCursor.close();
 
 		return events;
+	}
+
+	@Kroll.method
+	public void save()
+	{
+		// Currently only saving added recurrenceRules.
+		String ruleToSave =
+			((RecurrenceRuleProxy) ((Object[]) getProperty(TiC.PROPERTY_RECURRENCE_RULES))[0]).generateRRULEString();
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(Events.RRULE, ruleToSave);
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		try {
+			contentResolver.update(Events.CONTENT_URI, contentValues, Events._ID + "=?", new String[] { id });
+		} catch (IllegalArgumentException e) {
+			Log.e(TAG, "Invalid event recurrence rule.");
+		}
 	}
 
 	public static ArrayList<EventProxy> queryEvents(Uri uri, String query, String[] queryArgs, String orderBy)
@@ -336,6 +361,12 @@ public class EventProxy extends KrollProxy
 		return ReminderProxy.createReminder(this, minutes, method);
 	}
 
+	@Kroll.method
+	RecurrenceRuleProxy createRecurrenceRule(KrollDict data)
+	{
+		return new RecurrenceRuleProxy(data);
+	}
+
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
@@ -461,13 +492,13 @@ public class EventProxy extends KrollProxy
 		return visibility;
 	}
 
-	// clang-format off
-	@Kroll.method
-	@Kroll.getProperty
-	public String getRecurrenceRule()
-	// clang-format on
+	public void setRecurrenceRules(String rrule, int calendarID)
 	{
-		return recurrenceRule;
+		RecurrenceRuleProxy[] result = new RecurrenceRuleProxy[] {};
+		if (rrule != null) {
+			result = new RecurrenceRuleProxy[] { new RecurrenceRuleProxy(rrule, calendarID, begin) };
+		}
+		setProperty(TiC.PROPERTY_RECURRENCE_RULES, result);
 	}
 
 	// clang-format off
