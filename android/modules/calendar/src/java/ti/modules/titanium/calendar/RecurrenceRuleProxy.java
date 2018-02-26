@@ -91,6 +91,9 @@ public class RecurrenceRuleProxy extends KrollProxy
 			this.frequency =
 				TiRecurrenceFrequencyType.fromTiIntId(TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_FREQUENCY)));
 		}
+		if (this.frequency == null) {
+			this.frequency = TiRecurrenceFrequencyType.DAILY;
+		}
 		if (creationDictionary.containsKey(TiC.PROPERTY_INTERVAL)
 			&& TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_INTERVAL)) > 0) {
 			this.interval = TiConvert.toInt(creationDictionary.get(TiC.PROPERTY_INTERVAL));
@@ -111,7 +114,7 @@ public class RecurrenceRuleProxy extends KrollProxy
 		StringBuilder finalRRule = new StringBuilder();
 		// Handle frequency.
 		if (this.frequency != null) {
-			String frequencyPart = "FREQ=" + frequency.toRfcStringId() + "asd";
+			String frequencyPart = "FREQ=" + frequency.toRfcStringId();
 			finalRRule.append(frequencyPart);
 			finalRRule.append(";");
 			// Handle frequency specific rules in different context.
@@ -133,14 +136,16 @@ public class RecurrenceRuleProxy extends KrollProxy
 					break;
 				// Case for monthly recurring events.
 				case MONTHLY:
-					StringBuilder monthlyReccurencesString = new StringBuilder("BYMONTHDAY=");
+					StringBuilder monthlyReccurencesString = new StringBuilder();
 					// daysOfTheWeek dictionary is with highest priority.
 					if (this.daysOfTheWeek.length > 0) {
+						monthlyReccurencesString.append("BYDAY=");
 						monthlyReccurencesString.append(this.daysOfTheWeek[0].getInt(this.weekNumberKey));
 						// Potentially add week start (Sunday or Monday) different from the default one.
 						monthlyReccurencesString.append(
 							this.weekdaysMap.keySet().toArray()[this.daysOfTheWeek[0].getInt(this.weekNumberKey)]);
 					} else {
+						monthlyReccurencesString.append("BYMONTHDAY=");
 						// Case in which we do not have items in daysOfTheWeek array.
 						monthlyReccurencesString.append(String.valueOf(this.daysOfTheMonth[0]));
 					}
@@ -269,74 +274,83 @@ public class RecurrenceRuleProxy extends KrollProxy
 	//endregion
 
 	//region kroll proxy methods
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public String getCalendarID()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public String getCalendarID()
+	// clang-format on
 	{
 		return this.calendarID;
 	}
 
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public int[] getDaysOfTheMonth()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public int[] getDaysOfTheMonth()
+	// clang-format on
 	{
 		return this.daysOfTheMonth;
 	}
 
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public KrollDict[] getDaysOfTheWeek()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public KrollDict[] getDaysOfTheWeek()
+	// clang-format on
 	{
 		return this.daysOfTheWeek;
 	}
 
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public int[] getDaysOfTheYear()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public int[] getDaysOfTheYear()
+	// clang-format on
 	{
 		return this.daysOfTheYear;
 	}
 
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public KrollDict getEnd()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public KrollDict getEnd()
+	// clang-format on
 	{
 		return this.endDictionary;
 	}
 
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public int getFrequency()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public int getFrequency()
+	// clang-format on
 	{
 		return this.frequency.toTiIntId();
 	}
 
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public int getInterval()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public int getInterval()
+	// clang-format on
 	{
 		return this.interval;
 	}
 
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public int[] monthsOfTheYear()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public int[] monthsOfTheYear()
+	// clang-format on
 	{
 		return this.monthsOfTheYear;
 	}
 
-	@Kroll
-		.getProperty
-		@Kroll.method
-		public int[] getWeeksOfTheYear()
+	// clang-format off
+	@Kroll.getProperty
+	@Kroll.method
+	public int[] getWeeksOfTheYear()
+	// clang-format on
 	{
 		return this.weeksOfTheYear;
 	}
@@ -355,8 +369,10 @@ public class RecurrenceRuleProxy extends KrollProxy
 
 		// Set the frequency in constructor, because it is required for other properties.
 		String frequency = matchExpression(".*(FREQ=[A-Z]*).*", 5);
-		if (frequency != null) {
-			this.frequency = null;
+		if (frequency == null) {
+			this.frequency = TiRecurrenceFrequencyType.DAILY;
+		} else {
+			this.frequency = TiRecurrenceFrequencyType.fromRfcStringId(frequency);
 		}
 	}
 

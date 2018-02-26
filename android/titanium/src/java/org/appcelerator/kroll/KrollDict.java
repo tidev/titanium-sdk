@@ -194,12 +194,14 @@ public class KrollDict extends HashMap<String, Object>
 		KrollDict[] result = new KrollDict[value.length];
 		int index = 0;
 		for (String record : value) {
+			KrollDict dictionary = null;
 			try {
-				result[index++] = new KrollDict(new JSONObject(record));
+				dictionary = new KrollDict(new JSONObject(record));
 			} catch (JSONException e) {
 				e.printStackTrace();
 				Log.w(TAG, "Unable to parse dictionary.");
 			}
+			result[index++] = dictionary;
 		}
 		return result;
 	}
