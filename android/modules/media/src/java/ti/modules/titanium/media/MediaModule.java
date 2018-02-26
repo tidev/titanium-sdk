@@ -8,6 +8,7 @@ package ti.modules.titanium.media;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -22,6 +23,7 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -176,6 +178,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static String extension = ".jpg";
+	private TiTempFileHelper tempFileHelper;
 
 	private static class ApiLevel16
 	{
@@ -194,6 +197,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public MediaModule()
 	{
 		super();
+		tempFileHelper = new TiTempFileHelper(TiApplication.getInstance());
 	}
 
 	@Kroll.method
@@ -871,7 +875,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 					if (!saveToPhotoGallery) {
 						//Create a file in the internal data directory and delete the original file
 						try {
-							File dataFile = TiFileFactory.createDataFile("tia", extension);
+							File dataFile = tempFileHelper.createTempFile("tia", extension);
 							copyFile(imageFile, dataFile);
 							imageFile.delete();
 							imageFile = dataFile;
@@ -896,6 +900,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 					try {
 						TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
 						TiBlob theBlob = TiBlob.blobFromFile(theFile);
+						if (!saveToPhotoGallery) {
+							TiFileHelper.getInstance().destroyOnExit(imageFile);
+						}
 						KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
 						if (successCallback != null) {
 							successCallback.callAsync(getKrollObject(), response);
