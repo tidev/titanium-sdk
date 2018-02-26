@@ -164,15 +164,26 @@ public class TiGradientDrawable extends ShapeDrawable
 				this.offsets = new float[] { 0.0f, 1.0f };
 			}
 
-			// Add 2 colors to the front and 2 to the back for the fill color handling.
-			// - First/last color is the back-fill color before/after the start/end radius respectively.
-			// - 2nd to first/last color is the inner-fill color after/before the start/end radius,
-			//   which is needed if not given a 0.0 or 1.0 offset and fills the circle to its edges.
+			// If start radius is zero, then make sure to fill circle's center pixel with the starting color.
+			// Note: Avoids an issue where circle's center pixel will be transparent since the below will
+			//       insert a transparent color to the front of the array if back-filling is disabled.
+			if (startPixelRadius < 1.0) {
+				this.isBackFillingStart = true;
+			}
+
+			// Add 3 colors to the front and 2 to the back for the fill color handling.
+			// - 1st/2nd colors are used to back-fill before start radius. 1st color is set to circle's center.
+			// - 3rd color does an inner-fill to circle's edge in case first offset given is set greater than 0.0.
+			// - 2nd-to-last color does an inner-fill to circle's edge in case last offset given is less than 1.0.
+			// - Last color is used to back-fill after the end radius. (Google auto back-fills with last color.)
+			// Note: Android 4.2-4.4 has a bug where it shows scrambled graphics when back-filling with start color.
+			//       So, we work-around this by injecting 1st color to center of circle as described above.
 			{
-				int[] newColorArray = new int[this.colors.length + 4];
+				int[] newColorArray = new int[this.colors.length + 5];
 				newColorArray[0] = this.isBackFillingStart ? this.colors[0] : Color.TRANSPARENT;
-				newColorArray[1] = this.colors[0];
-				System.arraycopy(this.colors, 0, newColorArray, 2, this.colors.length);
+				newColorArray[1] = newColorArray[0];
+				newColorArray[2] = this.colors[0];
+				System.arraycopy(this.colors, 0, newColorArray, 3, this.colors.length);
 				newColorArray[newColorArray.length - 2] = this.colors[this.colors.length - 1];
 				int outerFillColor = Color.TRANSPARENT;
 				if (this.isBackFillingEnd) {
@@ -189,9 +200,10 @@ public class TiGradientDrawable extends ShapeDrawable
 				this.offsets[0] = 0.0f;
 				this.offsets[1] = 0.0f;
 				this.offsets[2] = 0.0f;
-				if (this.colors.length > 6) {
-					double offset = 1.0 / ((double) this.offsets.length - 5.0);
-					for (int index = 3; index < (this.offsets.length - 3); index++) {
+				this.offsets[3] = 0.0f;
+				if (this.colors.length > 7) {
+					double offset = 1.0 / ((double) this.offsets.length - 6.0);
+					for (int index = 4; index < (this.offsets.length - 3); index++) {
 						this.offsets[index] = this.offsets[index - 1] + (float) offset;
 					}
 				}
@@ -199,10 +211,11 @@ public class TiGradientDrawable extends ShapeDrawable
 				this.offsets[this.offsets.length - 2] = 1.0f;
 				this.offsets[this.offsets.length - 1] = 1.0f;
 			} else {
-				float[] newOffsetArray = new float[this.offsets.length + 4];
+				float[] newOffsetArray = new float[this.offsets.length + 5];
 				newOffsetArray[0] = 0.0f;
 				newOffsetArray[1] = 0.0f;
-				System.arraycopy(this.offsets, 0, newOffsetArray, 2, this.offsets.length);
+				newOffsetArray[2] = 0.0f;
+				System.arraycopy(this.offsets, 0, newOffsetArray, 3, this.offsets.length);
 				newOffsetArray[newOffsetArray.length - 2] = 1.0f;
 				newOffsetArray[newOffsetArray.length - 1] = 1.0f;
 				this.offsets = newOffsetArray;
@@ -211,10 +224,11 @@ public class TiGradientDrawable extends ShapeDrawable
 			// If given a start radius, convert offsets to be normalized based on center of circle
 			// (how Android handles it), instead of basing it from start radius (how iOS handles it).
 			// Ex: If given { startRadius: 100, endRadius: 200 }, an offset of 0.0 would be converted to 0.5.
+			// Note: Do not convert 1st color offset. It must always be 0.0, which is the circle's center.
 			if (startPixelRadius > 0.0) {
 				double offset = startPixelRadius / endPixelRadius;
 				double scale = (endPixelRadius - startPixelRadius) / endPixelRadius;
-				for (int index = 0; index < this.offsets.length; index++) {
+				for (int index = 1; index < this.offsets.length; index++) {
 					this.offsets[index] = (this.offsets[index] * (float) scale) + (float) offset;
 				}
 			}
@@ -225,22 +239,20 @@ public class TiGradientDrawable extends ShapeDrawable
 			// - Allows back-fill color to work since it may collide with circle's starting/ending color.
 			// - Avoids Google bug where a transparent ring will wrongly appear where 2 color offsets collide.
 			if ((this.offsets.length >= 2) && (endPixelRadius > 0)) {
-				// Calculate the size of 1 pixel as a normalized offset.
-				final float MIN_OFFSET_INCREMENT = (float) (1.0 / endPixelRadius);
+				// Calculate the min distance between normalized offsets needed to show all colors.
+				// Ideally, this should be a 1 pixel distance, but we may not be able to do this due to precision.
+				// Note: Worst case, floating point precision is 1/255, which we should never exceed. Happens when:
+				//       - HW acceleration is enabled, but shader on GPU is limited to "lowp" 1 byte floats.
+				//       - HW acceleration is disabled. (Google is using 1 byte fixed point integer math.)
+				final float MIN_OFFSET_INCREMENT = 1.0f / Math.min((float) endPixelRadius, 255.0f);
 
 				// Shift colliding colors from start to end.
 				float previousOffset = this.offsets[0];
 				for (int index = 1; index < this.offsets.length; index++) {
 					float nextOffset = this.offsets[index];
 					if ((nextOffset - previousOffset) < MIN_OFFSET_INCREMENT) {
-						if ((index == 1) && (previousOffset >= MIN_OFFSET_INCREMENT)) {
-							// Shift 1st color offset down 1 pixel since there is room.
-							this.offsets[0] = Math.max(previousOffset - MIN_OFFSET_INCREMENT, 0.0f);
-						} else {
-							// Shift color offset up 1 pixel.
-							nextOffset = Math.min(previousOffset + MIN_OFFSET_INCREMENT, 1.0f);
-							this.offsets[index] = nextOffset;
-						}
+						nextOffset = Math.min(previousOffset + MIN_OFFSET_INCREMENT, 1.0f);
+						this.offsets[index] = nextOffset;
 					}
 					previousOffset = nextOffset;
 				}
