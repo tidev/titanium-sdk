@@ -16,9 +16,9 @@ def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json
 
 // Variables we can change
 def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
-def npmVersion = '5.6.0' // We can change this without any changes to Jenkins.
+def npmVersion = '5.7.1' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
 
-def unitTests(os, nodeVersion, testSuiteBranch) {
+def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 	return {
 		def labels = 'git && osx'
 		if ('ios'.equals(os)) {
@@ -52,37 +52,40 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 				unstash 'override-tests'
 				sh 'cp -R tests/ titanium-mobile-mocha-suite'
 				// Now run the unit test suite
-				dir('titanium-mobile-mocha-suite/scripts') {
+				dir('titanium-mobile-mocha-suite') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						sh 'npm install .'
-						try {
-							sh "node test.js -b ../../${zipName} -p ${os}"
-						} catch (e) {
-							if ('ios'.equals(os)) {
-								// Gather the crash report(s)
-								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
-								sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
-								archiveArtifacts 'mocha_*.crash'
-								sh 'rm -f mocha_*.crash'
-							} else {
-								// FIXME gather crash reports/tombstones for Android?
-							}
-							throw e
-						} finally {
-							// Kill the emulators!
-							if ('android'.equals(os)) {
-								sh 'adb shell am force-stop com.appcelerator.testApp.testing'
-								sh 'adb uninstall com.appcelerator.testApp.testing'
-								sh 'killall -9 emulator || echo ""'
-								sh 'killall -9 emulator64-arm || echo ""'
-								sh 'killall -9 emulator64-x86 || echo ""'
-							}
-						}
-					}
-					// save the junit reports as artifacts explicitly so danger.js can use them later
-					stash includes: 'junit.*.xml', name: "test-report-${os}"
-					junit 'junit.*.xml'
-				}
+						ensureNPM(npmVersion)
+						sh 'npm ci'
+						dir('scripts') {
+							try {
+								sh "node test.js -b ../../${zipName} -p ${os}"
+							} catch (e) {
+								if ('ios'.equals(os)) {
+									// Gather the crash report(s)
+									def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+									sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
+									archiveArtifacts 'mocha_*.crash'
+									sh 'rm -f mocha_*.crash'
+								} else {
+									// FIXME gather crash reports/tombstones for Android?
+								}
+								throw e
+							} finally {
+								// Kill the emulators!
+								if ('android'.equals(os)) {
+									sh 'adb shell am force-stop com.appcelerator.testApp.testing'
+									sh 'adb uninstall com.appcelerator.testApp.testing'
+									sh 'killall -9 emulator || echo ""'
+									sh 'killall -9 emulator64-arm || echo ""'
+									sh 'killall -9 emulator64-x86 || echo ""'
+								} // if
+							} // finally
+							// save the junit reports as artifacts explicitly so danger.js can use them later
+							stash includes: 'junit.*.xml', name: "test-report-${os}"
+							junit 'junit.*.xml'
+						} // dir('scripts')
+					} // nodejs
+				} // dir('titanium-mobile-mocha-suite')
 			} // timeout
 		}
 	}
@@ -141,13 +144,12 @@ timestamps {
 			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 
 				stage('Lint') {
-					// NPM 5.2.0 had a bug that broke pruning to production, but latest npm 5.4.1 works well
-					sh "npm install -g npm@${npmVersion}"
+					ensureNPM(npmVersion)
 
 					// Install dependencies
 					timeout(5) {
 						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
-						sh 'npm install'
+						sh 'npm ci'
 					}
 					// Run npm test, but record output in a file and check for failure of command by checking output
 					if (fileExists('npm_test.log')) {
@@ -262,8 +264,8 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': unitTests('android', nodeVersion, targetBranch),
-				'iOS unit tests': unitTests('ios', nodeVersion, targetBranch),
+				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch),
+				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch),
 				failFast: true
 			)
 		}
@@ -439,7 +441,7 @@ timestamps {
 						try {
 							unstash 'test-report-android' // junit.android.report.xml
 						} catch (e) {}
-						sh "npm install -g npm@${npmVersion}"
+						ensureNPM(npmVersion)
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
 						// See https://github.com/danger/danger-js/issues/379

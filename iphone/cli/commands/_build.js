@@ -1825,7 +1825,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		this.initTiappSettings();
 
 		// Transpilation details
-		this.transpile = cli.tiapp['transpile'] !== false; // FIXME Does this properly default to true?
+		this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
 
 		// check for blacklisted files in the Resources directory
