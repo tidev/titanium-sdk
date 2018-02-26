@@ -54,6 +54,7 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 				// Now run the unit test suite
 				dir('titanium-mobile-mocha-suite/scripts') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+						ensureNPM(npmVersion)
 						sh 'npm ci'
 						try {
 							sh "node test.js -b ../../${zipName} -p ${os}"
@@ -141,8 +142,7 @@ timestamps {
 			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 
 				stage('Lint') {
-					// NPM 5.2.0 had a bug that broke pruning to production, but latest npm 5.4.1 works well
-					sh "npm install -g npm@${npmVersion}"
+					ensureNPM(npmVersion)
 
 					// Install dependencies
 					timeout(5) {
