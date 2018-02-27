@@ -1278,8 +1278,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				remove(child);
 			}
 			children.clear();
+			children = null;
 		}
-		children = null;
 		proxy = null;
 		layoutParams = null;
 	}
@@ -1355,13 +1355,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (gradientProperties != null) {
 			try {
 				gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
-				if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
-					// TODO: Remove this once we support radial gradients.
-					Log.w(TAG, "Android does not support radial gradients.");
-					gradientDrawable = null;
+			} catch (Exception ex) {
+				String message = ex.getMessage();
+				if (message == null) {
+					message = "Unknown";
 				}
-			} catch (IllegalArgumentException e) {
-				gradientDrawable = null;
+				Log.e(TAG, "Failed to create '" + TiC.PROPERTY_BACKGROUND_GRADIENT + "'. Reason: " + message);
 			}
 		}
 
