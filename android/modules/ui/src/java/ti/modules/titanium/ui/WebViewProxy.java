@@ -6,9 +6,22 @@
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.webkit.ValueCallback;
+import android.webkit.WebView;
+
 import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -22,10 +35,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
-import android.app.Activity;
-import android.os.Handler;
-import android.os.Message;
-import android.webkit.WebView;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -98,7 +107,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	}
 
 	@Kroll.method
-	public Object evalJS(String code)
+	public Object evalJS(String code, @Kroll.argument(optional = true) KrollFunction callback)
 	{
 		// If the view doesn't even exist yet,
 		// or if it once did exist but doesn't anymore
@@ -110,7 +119,88 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			Log.w(TAG, "WebView not available, returning null for evalJS result.");
 			return null;
 		}
+		if (callback != null) {
+			// When on Android 19+ we can use the builtin evalAsync method!
+			if (Build.VERSION.SDK_INT >= 19) {
+				final KrollFunction theCallback = callback;
+				view.getWebView().evaluateJavascript(code, new ValueCallback<String>() {
+					public void onReceiveValue(String value) {
+						theCallback.callAsync(getKrollObject(), new Object[] { value });
+					}
+				});
+			} else {
+				// Just do our sync eval in a separate Thread.
+				Thread clientThread = new Thread(new EvalJSRunnable(view, getKrollObject(), code, callback), "TiWebViewProxy-" + System.currentTimeMillis());
+				clientThread.setPriority(Thread.MIN_PRIORITY);
+				clientThread.start();
+			}
+			return null;
+		}
+
+		if (KrollRuntime.getInstance().getKrollApplication().runOnMainThread()) {
+			Log.w(TAG, "Synchronous evalJS is not available when running on the main thread. Please supply an additional callback function argument to be invoked with the result as it's only parameter, to be called when the result is available.");
+			// FIXME This just times out on main thread! I don't know how else to get this to work...
+			// EvalJSSyncRunnable future = new EvalJSSyncRunnable(view, code);
+			// Thread clientThread = new Thread(future, "TiWebViewProxy-" + System.currentTimeMillis());
+			// clientThread.setPriority(Thread.MIN_PRIORITY);
+			// clientThread.start();
+			// try {
+			// 	return future.get(3500, TimeUnit.MILLISECONDS);
+			// } catch (Exception e) {
+			// 	Log.e(TAG, "Failed to evalJS", e);
+			// }
+			return null;
+		}
+
 		return view.getJSValue(code);
+	}
+
+	private class EvalJSSyncCallable implements Callable<String>
+	{
+		private final TiUIWebView view;
+		private final String code;
+
+		public EvalJSSyncCallable(TiUIWebView view, String code)
+		{
+			this.view = view;
+			this.code = code;
+		}
+
+		public String call()
+		{
+			return view.getJSValue(code);
+		}
+	}
+
+	private class EvalJSSyncRunnable extends FutureTask<String>
+	{
+
+		public EvalJSSyncRunnable(TiUIWebView view, String code)
+		{
+			super(new EvalJSSyncCallable(view, code));
+		}
+	}
+
+	private class EvalJSRunnable implements Runnable
+	{
+		private final TiUIWebView view;
+		private final KrollObject krollObject;
+		private final String code;
+		private final KrollFunction callback;
+
+		public EvalJSRunnable(TiUIWebView view, KrollObject krollObject, String code, KrollFunction callback)
+		{
+			this.view = view;
+			this.krollObject = krollObject;
+			this.code = code;
+			this.callback = callback;
+		}
+
+		public void run()
+		{
+			String result = view.getJSValue(code);
+			callback.callAsync(krollObject, new Object[] { result });
+		}
 	}
 
 	// clang-format off
