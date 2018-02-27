@@ -58,14 +58,9 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	@Override
 	public void initRuntime()
 	{
-		boolean useGlobalRefs = true;
+		boolean useGlobalRefs = false;
 		KrollApplication application = getKrollApplication();
 		TiDeployData deployData = application.getDeployData();
-
-		if (isEmulator()) {
-			Log.d(TAG, "Emulator detected, storing global references in a global Map", Log.DEBUG_MODE);
-			useGlobalRefs = false;
-		}
 
 		if (!libLoaded) {
 			System.loadLibrary("c++_shared");
