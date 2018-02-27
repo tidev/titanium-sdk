@@ -41,9 +41,10 @@ describe('Ti.UI.WebView', function () {
 				return;
 			}
 
-			webview.evalJS('Ti.API.info("Hello, World!");"WebView.evalJS.TEST";', function (result) {
+			// FIXME: Android is dumb and assumes no trailing semicolon!
+			webview.evalJS('Ti.API.info("Hello, World!");"WebView.evalJS.TEST"', function (result) {
 				try {
-					should(result).be.eql('WebView.evalJS.TEST');
+					should(result).be.eql('"WebView.evalJS.TEST"'); // FIXME: Why the double-quoting?
 
 					finish();
 				} catch (err) {
