@@ -334,7 +334,8 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
-	private void setModelDirtyIfNecessary() {
+	private void setModelDirtyIfNecessary()
+	{
 		TiUITableView nativeTableViewReference = ((TiUITableView) peekView());
 		if (nativeTableViewReference != null) {
 			nativeTableViewReference.setModelDirty();
