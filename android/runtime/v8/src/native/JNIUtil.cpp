@@ -88,7 +88,8 @@ jmethodID JNIUtil::v8FunctionInitMethod = NULL;
 jmethodID JNIUtil::referenceTableCreateReferenceMethod = NULL;
 jmethodID JNIUtil::referenceTableDestroyReferenceMethod = NULL;
 jmethodID JNIUtil::referenceTableMakeWeakReferenceMethod = NULL;
-jmethodID JNIUtil::referenceTableClearWeakReferenceMethod = NULL;
+jmethodID JNIUtil::referenceTableMakeSoftReferenceMethod = NULL;
+jmethodID JNIUtil::referenceTableClearReferenceMethod = NULL;
 jmethodID JNIUtil::referenceTableGetReferenceMethod = NULL;
 
 jint JNIUtil::krollRuntimeDontIntercept = -1;
@@ -366,7 +367,8 @@ void JNIUtil::initCache()
 	referenceTableCreateReferenceMethod = getMethodID(referenceTableClass, "createReference", "(Ljava/lang/Object;)J", true);
 	referenceTableDestroyReferenceMethod = getMethodID(referenceTableClass, "destroyReference", "(J)V", true);
 	referenceTableMakeWeakReferenceMethod = getMethodID(referenceTableClass, "makeWeakReference", "(J)V", true);
-	referenceTableClearWeakReferenceMethod = getMethodID(referenceTableClass, "clearWeakReference", "(J)Ljava/lang/Object;", true);
+	referenceTableMakeSoftReferenceMethod = getMethodID(referenceTableClass, "makeSoftReference", "(J)V", true);
+	referenceTableClearReferenceMethod = getMethodID(referenceTableClass, "clearReference", "(J)Ljava/lang/Object;", true);
 	referenceTableGetReferenceMethod = getMethodID(referenceTableClass, "getReference", "(J)Ljava/lang/Object;", true);
 
 	jfieldID dontInterceptField = env->GetStaticFieldID(krollRuntimeClass, "DONT_INTERCEPT", "I");
