@@ -53,7 +53,6 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
-import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
@@ -61,11 +60,9 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Surface;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -80,6 +77,12 @@ import com.appcelerator.aps.APSAnalytics;
 public abstract class TiBaseActivity extends AppCompatActivity implements TiActivitySupport /*, ITiWindowHandler*/
 {
 	private static final String TAG = "TiBaseActivity";
+
+	private final String customToolbarExceptionMessage =
+		"Trying to use Toolbar as ActionBar without disabling the default ActionBar in the used theme.\n"
+		+ "Set 'windowActionBar' to false in your theme in order to do that. The following bundled themes:\n"
+		+ "[Theme.Titanium, Theme.AppCompat.Translucent.NoTitleBar, Theme.AppCompat.NoTitleBar] are with\n"
+		+ "disabled default ActionBar. You could use one of them.";
 
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
@@ -710,9 +713,20 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private void setCustomActionBar()
 	{
 		if (activityProxy.hasProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)) {
-			this.setSupportActionBar(
-				((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR))
-					 .getToolbarInstance()));
+			try {
+				this.setSupportActionBar(
+					((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR))
+						 .getToolbarInstance()));
+			} catch (RuntimeException e) {
+				Log.e(
+					TAG,
+					"Attempting to use Toolbar as ActionBar without disabling the default ActionBar in the current theme.\n"
+						+ "You must set 'windowActionBar' to false in your current theme. Or use one of the following themes:\n"
+						+ " - Theme.Titanium\n - Theme.AppCompat.Translucent.NoTitleBar\n - Theme.AppCompat.NoTitleBar\n"
+						+ "Which have ActionBar disabled by default.");
+				TiApplication.terminateActivityStack();
+				finish();
+			}
 		}
 	}
 
