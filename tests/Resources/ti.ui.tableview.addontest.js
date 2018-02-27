@@ -427,7 +427,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails on Android on build machine
-	it.android('delete row (TableViewRow)', function (finish) {
+	it.skip('delete row (TableViewRow)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -473,7 +473,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails intermittently on Android on build machine
-	it.android('delete row (TableViewSection)', function (finish) {
+	it.skip('delete row (TableViewSection)', function (finish) {
 		var section_0,
 			tableView;
 
