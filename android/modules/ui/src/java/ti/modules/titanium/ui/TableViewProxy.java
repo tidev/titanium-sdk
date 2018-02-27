@@ -281,10 +281,7 @@ public class TableViewProxy extends TiViewProxy
 			}
 		}
 
-		TiUITableView nativeTableViewReference = ((TiUITableView) peekView());
-		if (nativeTableViewReference != null) {
-			nativeTableViewReference.setModelDirty();
-		}
+		setModelDirtyIfNecessary();
 		updateView();
 	}
 
@@ -337,17 +334,22 @@ public class TableViewProxy extends TiViewProxy
 		}
 	}
 
+	private void setModelDirtyIfNecessary() {
+		TiUITableView nativeTableViewReference = ((TiUITableView) peekView());
+		if (nativeTableViewReference != null) {
+			nativeTableViewReference.setModelDirty();
+		}
+	}
+
 	private void handleDeleteRow(Object row) throws IllegalStateException
 	{
-		TiUITableView nativeTableViewReference = ((TiUITableView) peekView());
+
 		if (row instanceof Integer) {
 			int index = (Integer) row;
 			RowResult rr = new RowResult();
 			if (locateIndex(index, rr)) {
 				rr.section.removeRowAt(rr.rowIndexInSection);
-				if (nativeTableViewReference != null) {
-					nativeTableViewReference.setModelDirty();
-				}
+				setModelDirtyIfNecessary();
 				updateView();
 			} else {
 				Log.e(TAG, "Unable to delete row. Index out of range. Non-existent row at " + index);
@@ -357,10 +359,7 @@ public class TableViewProxy extends TiViewProxy
 			TiViewProxy section = rowProxy.getParent();
 			if (section instanceof TableViewSectionProxy) {
 				((TableViewSectionProxy) section).remove(rowProxy);
-
-				if (nativeTableViewReference != null) {
-					nativeTableViewReference.setModelDirty();
-				}
+				setModelDirtyIfNecessary();
 				updateView();
 			} else {
 				Log.e(TAG, "Unable to delete row. The row is not added to the table yet.");
@@ -523,10 +522,7 @@ public class TableViewProxy extends TiViewProxy
 			// TODO check for section
 			TableViewRowProxy rowProxy = rowProxyFor(data);
 			rr.section.insertRowAt(rr.rowIndexInSection + 1, rowProxy);
-			TiUITableView nativeTableViewReference = ((TiUITableView) peekView());
-			if (nativeTableViewReference != null) {
-				nativeTableViewReference.setModelDirty();
-			}
+			setModelDirtyIfNecessary();
 			updateView();
 		} else {
 			throw new IllegalStateException("Index out of range. Non-existent row at " + index);
@@ -857,10 +853,7 @@ public class TableViewProxy extends TiViewProxy
 	public void updateView()
 	{
 		if (TiApplication.isUIThread()) {
-			TiUITableView nativeTableViewReference = ((TiUITableView) peekView());
-			if (nativeTableViewReference != null) {
-				nativeTableViewReference.updateView();
-			}
+			setModelDirtyIfNecessary();
 			return;
 		}
 
