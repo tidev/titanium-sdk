@@ -124,13 +124,15 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			if (Build.VERSION.SDK_INT >= 19) {
 				final KrollFunction theCallback = callback;
 				view.getWebView().evaluateJavascript(code, new ValueCallback<String>() {
-					public void onReceiveValue(String value) {
+					public void onReceiveValue(String value)
+					{
 						theCallback.callAsync(getKrollObject(), new Object[] { value });
 					}
 				});
 			} else {
 				// Just do our sync eval in a separate Thread.
-				Thread clientThread = new Thread(new EvalJSRunnable(view, getKrollObject(), code, callback), "TiWebViewProxy-" + System.currentTimeMillis());
+				Thread clientThread = new Thread(new EvalJSRunnable(view, getKrollObject(), code, callback),
+												 "TiWebViewProxy-" + System.currentTimeMillis());
 				clientThread.setPriority(Thread.MIN_PRIORITY);
 				clientThread.start();
 			}
@@ -138,7 +140,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 
 		if (KrollRuntime.getInstance().getKrollApplication().runOnMainThread()) {
-			Log.w(TAG, "Synchronous evalJS is not available when running on the main thread. Please supply an additional callback function argument to be invoked with the result as it's only parameter, to be called when the result is available.");
+			Log.w(
+				TAG,
+				"Synchronous evalJS is not available when running on the main thread. Please supply an additional callback function argument to be invoked with the result as it's only parameter, to be called when the result is available.");
 			// FIXME This just times out on main thread! I don't know how else to get this to work...
 			// EvalJSSyncRunnable future = new EvalJSSyncRunnable(view, code);
 			// Thread clientThread = new Thread(future, "TiWebViewProxy-" + System.currentTimeMillis());
