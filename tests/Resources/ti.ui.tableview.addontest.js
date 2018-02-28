@@ -142,7 +142,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Also crashes Android, with no stack trace or errors in logcat
 	it.android('insertRowAfter', function (finish) {
 		var tableView = Ti.UI.createTableView({
-			data: [{ title:'Red' }]
+			data: [{ title: 'Red' }]
 		});
 
 		win.addEventListener('open', function () {
@@ -217,7 +217,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Crashes Android as well
 	it.android('insertRowBefore', function (finish) {
 		var tableView = Ti.UI.createTableView({
-			data: [{ title:'Red' }, { title:'White' }]
+			data: [{ title: 'Red' }, { title: 'White' }]
 		});
 
 		win.addEventListener('open', function () {
@@ -285,7 +285,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Crashes on Android too
 	it.android('add row', function (finish) {
 		var tableView = Ti.UI.createTableView({
-			data: [{ title:'Red' }]
+			data: [{ title: 'Red' }]
 		});
 
 		win.addEventListener('open', function () {
@@ -319,7 +319,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Occasionally crashes Android as well
 	it.android('add rows', function (finish) {
 		var tableView = Ti.UI.createTableView({
-			data: [{ title:'Red' }]
+			data: [{ title: 'Red' }]
 		});
 
 		win.addEventListener('open', function () {
@@ -789,7 +789,7 @@ describe('Titanium.UI.TableView', function () {
 	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
 	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
 
-	[ERROR] TiApplication: java.lang.RuntimeException: Unable to destroy activity {com.appcelerator.testApp.testing/org.appcelerator.titanium.TiActivity}: java.lang.NullPointerException: 
+	[ERROR] TiApplication: java.lang.RuntimeException: Unable to destroy activity {com.appcelerator.testApp.testing/org.appcelerator.titanium.TiActivity}: java.lang.NullPointerException:
 	Attempt to invoke virtual method 'void ti.modules.titanium.ui.TableViewRowProxy.releaseViews()' on a null object reference
 	[ERROR] TiApplication: 	at android.app.ActivityThread.performDestroyActivity(ActivityThread.java:3831)
 	[ERROR] TiApplication: 	at android.app.ActivityThread.handleDestroyActivity(ActivityThread.java:3849)
@@ -893,7 +893,7 @@ describe('Titanium.UI.TableView', function () {
 		this.timeout(6e4); // minute
 
 		vAnswerTable = Ti.UI.createTableView({
-			data: [ Ti.UI.createTableViewRow({ title:'Loading...' }) ],
+			data: [ Ti.UI.createTableViewRow({ title: 'Loading...' }) ],
 		});
 
 		for (i = 0; i < numOfQuestions; i++) {
@@ -931,7 +931,7 @@ describe('Titanium.UI.TableView', function () {
 		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
 		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
 
-		searchBar = Ti.UI.createSearchBar({ showCancel:true });
+		searchBar = Ti.UI.createSearchBar({ showCancel: true });
 		tableView = Ti.UI.createTableView({
 			data: [ section_0 ],
 			search: searchBar
