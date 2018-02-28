@@ -1346,6 +1346,7 @@ public class TiHTTPClient
 				}
 				connected = false;
 				setResponseText(result);
+				requestPending = false;
 
 				if (!aborted) {
 					setReadyState(READY_STATE_DONE);
@@ -1380,7 +1381,6 @@ public class TiHTTPClient
 
 				client = null;
 				clientThread = null;
-				requestPending = false;
 				// Fire the disposehandle event if the request is finished successfully or the errors occur.
 				// And it will dispose the handle of the httpclient in the JS.
 				proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
