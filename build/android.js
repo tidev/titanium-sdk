@@ -67,7 +67,7 @@ Android.prototype.package = function (packager, next) {
 		},
 		// copy android/package.json, but replace __VERSION__ with our version!
 		function (cb) {
-			copyAndModifyFile(ANDROID_ROOT, ANDROID_DEST, 'package.json', { '__VERSION__': this.sdkVersion }, cb);
+			copyAndModifyFile(ANDROID_ROOT, ANDROID_DEST, 'package.json', { __VERSION__: this.sdkVersion }, cb);
 		}.bind(this),
 		// include headers for v8 3rd party module building
 		function (cb) {

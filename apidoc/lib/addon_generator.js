@@ -76,7 +76,7 @@ function exportAPIs(api, type) {
  */
 exports.exportData = function exportJSON(apis) {
 	let annotatedClass = {};
-	const rv = { '__copyList': [] };
+	const rv = { __copyList: [] };
 	doc = apis;
 
 	common.log(common.LOG_INFO, 'Annotating YAML-specific attributes...');
