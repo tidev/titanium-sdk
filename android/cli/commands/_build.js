@@ -69,8 +69,8 @@ function AndroidBuilder() {
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
 
 	this.deployTypes = {
-		'emulator': 'development',
-		'device': 'test',
+		emulator: 'development',
+		device: 'test',
 		'dist-playstore': 'production'
 	};
 
@@ -263,7 +263,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 		cli.createHook('build.android.config', this, function (callback) {
 			const conf = {
 				flags: {
-					'launch': {
+					launch: {
 						desc: __('disable launching the app after installing'),
 						default: true,
 						hideDefault: true,
@@ -271,7 +271,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					}
 				},
 				options: {
-					'alias': {
+					alias: {
 						abbr: 'L',
 						desc: __('the alias for the keystore'),
 						hint: 'alias',
@@ -678,7 +678,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							});
 						}
 					},
-					'keystore': {
+					keystore: {
 						abbr: 'K',
 						callback: function () {
 							_t.conf.options['alias'].required = true;
@@ -861,7 +861,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							});
 						}
 					},
-					'target': {
+					target: {
 						abbr: 'T',
 						callback: function (value) {
 							// as soon as we know the target, toggle required options for validation
@@ -880,7 +880,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						required: true,
 						values: _t.targets
 					},
-					'sigalg': {
+					sigalg: {
 						desc: __('the type of a digital signature algorithm. only used when overriding keystore signing algorithm'),
 						hint: __('signing'),
 						order: 170,
@@ -917,7 +917,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// Transpilation details
-	this.transpile = cli.tiapp['transpile'] !== false; // FIXME Does this properly default to true?
+	this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
 	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
 	const v8Version = this.packageJson.v8.version;
 	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
@@ -2815,7 +2815,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			const opts = {
 					env: appc.util.mix({}, process.env, {
 						// we force the JAVA_HOME so that titaniumprep doesn't complain
-						'JAVA_HOME': this.jdkInfo.home
+						JAVA_HOME: this.jdkInfo.home
 					})
 				},
 				fatal = function fatal(err) {
@@ -3030,11 +3030,11 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
 	function createModuleDescriptor(namespace) {
 		var results = {
-				'api_name': '',
-				'class_name': '',
-				'bindings': tiNamespaces[namespace],
-				'external_child_modules': [],
-				'on_app_create': null
+				api_name: '',
+				class_name: '',
+				bindings: tiNamespaces[namespace],
+				external_child_modules: [],
+				on_app_create: null
 			},
 			moduleBindingKeys = Object.keys(moduleBindings),
 			len = moduleBindingKeys.length,
@@ -3601,7 +3601,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		},
 
 		tiNamespacePermissions = {
-			'geolocation': geoPermissions
+			geolocation: geoPermissions
 		},
 
 		tiMethodPermissions = {
@@ -3637,28 +3637,28 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 		tiMethodActivities = {
 			'Map.createView': {
-				'activity': {
-					'name': 'ti.modules.titanium.map.TiMapActivity',
-					'configChanges': [ 'keyboardHidden', 'orientation' ],
-					'launchMode': 'singleTask'
+				activity: {
+					name: 'ti.modules.titanium.map.TiMapActivity',
+					configChanges: [ 'keyboardHidden', 'orientation' ],
+					launchMode: 'singleTask'
 				},
 				'uses-library': {
-					'name': 'com.google.android.maps'
+					name: 'com.google.android.maps'
 				}
 			},
 			'Media.createVideoPlayer': {
-				'activity': {
-					'name': 'ti.modules.titanium.media.TiVideoActivity',
-					'configChanges': [ 'keyboardHidden', 'orientation' ],
-					'theme': '@style/Theme.AppCompat.Fullscreen',
-					'launchMode': 'singleTask'
+				activity: {
+					name: 'ti.modules.titanium.media.TiVideoActivity',
+					configChanges: [ 'keyboardHidden', 'orientation' ],
+					theme: '@style/Theme.AppCompat.Fullscreen',
+					launchMode: 'singleTask'
 				}
 			},
 			'Media.showCamera': {
-				'activity': {
-					'name': 'ti.modules.titanium.media.TiCameraActivity',
-					'configChanges': [ 'keyboardHidden', 'orientation' ],
-					'theme': '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
+				activity: {
+					name: 'ti.modules.titanium.media.TiCameraActivity',
+					configChanges: [ 'keyboardHidden', 'orientation' ],
+					theme: '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
 				}
 			}
 		},
@@ -4266,17 +4266,28 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				return done();
 			}
 
+			// Double quotes given path and escapes double quote characters in file/directory names.
+			function quotePath(filePath) {
+				if (!filePath) {
+					return '""';
+				}
+				if (process.platform !== 'win32') {
+					filePath = filePath.replace(/"/g, '\\"');
+				}
+				return '"' + filePath + '"';
+			}
+
 			// Create a ProGuard config file.
 			let proguardConfig
 					= '-dontoptimize\n'
 					+ '-dontobfuscate\n'
 					+ '-dontpreverify\n'
 					+ '-dontwarn **\n'
-					+ '-libraryjars ' + shrinkedAndroid + '\n';
+					+ '-libraryjars ' + quotePath(shrinkedAndroid) + '\n';
 			for (let index = 0; index < injarsCore.length; index++) {
-				proguardConfig += '-injars ' + injarsCore[index] + '(!META-INF/**)\n';
+				proguardConfig += '-injars ' + quotePath(injarsCore[index]) + '(!META-INF/**)\n';
 			}
-			proguardConfig += '-outjars ' + outjar + '\n';
+			proguardConfig += '-outjars ' + quotePath(outjar) + '\n';
 			const mainDexProGuardFilePath = path.join(this.buildDir, 'mainDexProGuard.txt');
 			fs.writeFileSync(mainDexProGuardFilePath, proguardConfig);
 
@@ -4285,11 +4296,11 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			//       such as the JARs Google provides with Android build-tools v27. Google now acquires the newest
 			//       version of ProGuard via Gradle/Maven, which is kept up to date by the ProGuard maintainers.
 			const gradleAppFileName = (process.platform === 'win32') ? 'gradlew.bat' : 'gradlew';
-			appc.subprocess.run(path.join(this.buildDir, gradleAppFileName), [
-				'-b', path.join(this.buildDir, 'proguard.gradle'),
+			appc.subprocess.run(quotePath(path.join(this.buildDir, gradleAppFileName)), [
+				'-b', quotePath(path.join(this.buildDir, 'proguard.gradle')),
 				'-Pforceprocessing=true',
-				'-Pconfiguration=' + baserules + pathArraySeparator + mainDexProGuardFilePath
-			], {}, function (code, out, err) {
+				'-Pconfiguration=' + quotePath(baserules) + pathArraySeparator + quotePath(mainDexProGuardFilePath)
+			], { shell: true, windowsHide: true }, function (code, out, err) {
 				if (code) {
 					this.logger.error(__('Failed to run dexer:'));
 					this.logger.error();

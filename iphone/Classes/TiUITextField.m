@@ -405,11 +405,8 @@
 
 - (void)setHintTextColor_:(id)value
 {
-  id hintText = [[self proxy] valueForUndefinedKey:@"hintText"];
+  id hintText = [[self proxy] valueForUndefinedKey:@"hintText"] ?: @"";
 
-  if (!hintText) {
-    hintText = @"";
-  }
   NSAttributedString *placeHolder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
   [(TiTextField *)[self textWidgetView] setAttributedPlaceholder:placeHolder];
   RELEASE_TO_NIL(placeHolder);
