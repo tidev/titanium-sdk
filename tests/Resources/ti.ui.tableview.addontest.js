@@ -467,7 +467,7 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0 ]
 		});
 
-		win.addEventListener('open', function () {
+		tableView.addEventListener('postlayout', function () {
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.an.Object;
@@ -514,7 +514,7 @@ describe('Titanium.UI.TableView', function () {
 			data: [ section_0 ]
 		});
 
-		win.addEventListener('open', function () {
+		tableView.addEventListener('postlayout', function () {
 			try {
 				should(tableView.sectionCount).be.eql(1);
 				should(tableView.sections[0]).be.an.Object;
