@@ -97,7 +97,7 @@ describe('Titanium.UI.TableView', function () {
 	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
 	[WARN]  W/System.err: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
 	 */
-	it.skip('createTableView', function () {
+	it.android('createTableView', function () {
 		var section_0,
 			section_1,
 			tableView;
@@ -167,7 +167,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Also crashes Android, with no stack trace or errors in logcat
-	it.skip('insertRowAfter', function (finish) {
+	it.android('insertRowAfter', function (finish) {
 		var tableView = Ti.UI.createTableView({
 			data: [{ title:'Red' }]
 		});
@@ -201,7 +201,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME This crashes the app entirely on iOS. Open a JIRA ticket!
 	// FIXME Crashes on Android as well.
-	it.skip('insertRowAfter (TableViewRow)', function (finish) {
+	it.android('insertRowAfter (TableViewRow)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -242,7 +242,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes Android as well
-	it.skip('insertRowBefore', function (finish) {
+	it.android('insertRowBefore', function (finish) {
 		var tableView = Ti.UI.createTableView({
 			data: [{ title:'Red' }, { title:'White' }]
 		});
@@ -272,7 +272,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes Android as well
-	it.skip('insertRowBefore (TableViewRow)', function (finish) {
+	it.android('insertRowBefore (TableViewRow)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -310,7 +310,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes on Android too
-	it.skip('add row', function (finish) {
+	it.android('add row', function (finish) {
 		var tableView = Ti.UI.createTableView({
 			data: [{ title:'Red' }]
 		});
@@ -344,7 +344,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Occasionally crashes Android as well
-	it.skip('add rows', function (finish) {
+	it.android('add rows', function (finish) {
 		var tableView = Ti.UI.createTableView({
 			data: [{ title:'Red' }]
 		});
@@ -380,7 +380,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Crashes on Android too
-	it.skip('add row (TableViewRow)', function (finish) {
+	it.android('add row (TableViewRow)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -418,7 +418,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails intermittently on Android build machine
-	it.skip('add row (TableViewSection)', function (finish) {
+	it.android('add row (TableViewSection)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -454,7 +454,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails on Android on build machine
-	it.skip('delete row (TableViewRow)', function (finish) {
+	it.android('delete row (TableViewRow)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -501,7 +501,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails intermittently on Android on build machine
 
-	it.skip('delete row (TableViewSection)', function (finish) {
+	it.android('delete row (TableViewSection)', function (finish) {
 		var section_0,
 			tableView;
 
@@ -539,7 +539,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME get working on iOS
 	// FIXME Fails on Android on build machine
-	it.skip('update row', function (finish) {
+	it.android('update row', function (finish) {
 		var section_0,
 			tableView;
 
@@ -572,7 +572,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails intermittently on Android build machine
-	it.skip('append section', function (finish) {
+	it.android('append section', function (finish) {
 		var section_0,
 			section_1,
 			tableView;
@@ -620,7 +620,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME intermittently fails on Android build machine - I think due to test timeout
-	it.skip('delete section', function (finish) {
+	it.android('delete section', function (finish) {
 		var section_0,
 			section_1,
 			tableView;
@@ -672,7 +672,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME Fails on Android on build machine
-	it.skip('update section', function (finish) {
+	it.android('update section', function (finish) {
 		var section_0,
 			section_1,
 			section_2,
@@ -732,7 +732,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
 	// FIXME intermittently fails on Android build machine (timeout?)
-	it.skip('insertSectionAfter', function (finish) {
+	it.android('insertSectionAfter', function (finish) {
 		var section_0,
 			section_1,
 			section_2,
@@ -842,7 +842,7 @@ describe('Titanium.UI.TableView', function () {
 	[ERROR] TiApplication: 	... 9 more
 
 	 */
-	it.skip('insertSectionBefore', function (finish) {
+	it.android('insertSectionBefore', function (finish) {
 		var section_0,
 			section_1,
 			section_2,
