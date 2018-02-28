@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* eslint no-template-curly-in-string: "off" */
 'use strict';
 
 const AndroidManifest = require('../lib/AndroidManifest'),
@@ -43,34 +44,34 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'application': {
-					'allowTaskReparenting': false,
-					'allowBackup': true,
-					'backupAgent': '.MyBackupAgent',
-					'debuggable': false,
-					'description': 'this is a test',
-					'enabled': true,
-					'hasCode': true,
-					'hardwareAccelerated': false,
-					'icon': '@drawable/icon',
-					'killAfterRestore': true,
-					'largeHeap': false,
-					'label': 'test',
-					'logo': '@drawable/logo',
-					'manageSpaceActivity': '.TestActivity',
-					'name': 'test',
-					'permission': 'testPermission',
-					'persistent': true,
-					'process': 'test',
-					'restoreAnyVersion': false,
-					'requiredAccountType': 'com.google',
-					'restrictedAccountType': 'com.google',
-					'supportsRtl': false,
-					'taskAffinity': 'test',
-					'testOnly': false,
-					'theme': 'testTheme',
-					'uiOptions': 'none',
-					'vmSafeMode': false
+				application: {
+					allowTaskReparenting: false,
+					allowBackup: true,
+					backupAgent: '.MyBackupAgent',
+					debuggable: false,
+					description: 'this is a test',
+					enabled: true,
+					hasCode: true,
+					hardwareAccelerated: false,
+					icon: '@drawable/icon',
+					killAfterRestore: true,
+					largeHeap: false,
+					label: 'test',
+					logo: '@drawable/logo',
+					manageSpaceActivity: '.TestActivity',
+					name: 'test',
+					permission: 'testPermission',
+					persistent: true,
+					process: 'test',
+					restoreAnyVersion: false,
+					requiredAccountType: 'com.google',
+					restrictedAccountType: 'com.google',
+					supportsRtl: false,
+					taskAffinity: 'test',
+					testOnly: false,
+					theme: 'testTheme',
+					uiOptions: 'none',
+					vmSafeMode: false
 				}
 			});
 		});
@@ -134,59 +135,59 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'application': {
-					'activity': {
-						'TestActivity1': {
-							'allowTaskReparenting': false,
-							'alwaysRetainTaskState': false,
-							'clearTaskOnLaunch': false,
-							'configChanges': [ 'mcc', 'mnc', 'locale', 'touchscreen', 'keyboard', 'keyboardHidden', 'navigation', 'screenLayout', 'fontScale', 'uiMode', 'orientation', 'screenSize', 'smallestScreenSize' ],
-							'enabled': true,
-							'excludeFromRecents': false,
-							'exported': true,
-							'finishOnTaskLaunch': false,
-							'hardwareAccelerated': false,
-							'icon': '@drawable/icon',
-							'label': 'Test Activity 1',
-							'launchMode': 'standard',
-							'multiprocess': false,
-							'name': 'TestActivity1',
-							'noHistory': false,
-							'parentActivityName': 'com.example.myfirstapp.MainActivity',
-							'permission': 'somePermission',
-							'process': 'someProcess',
-							'screenOrientation': 'landscape',
-							'stateNotNeeded': false,
-							'taskAffinity': 'testAffinity',
-							'theme': 'mytheme',
-							'uiOptions': 'none',
-							'windowSoftInputMode': [ 'stateVisible', 'adjustResize' ]
+				application: {
+					activity: {
+						TestActivity1: {
+							allowTaskReparenting: false,
+							alwaysRetainTaskState: false,
+							clearTaskOnLaunch: false,
+							configChanges: [ 'mcc', 'mnc', 'locale', 'touchscreen', 'keyboard', 'keyboardHidden', 'navigation', 'screenLayout', 'fontScale', 'uiMode', 'orientation', 'screenSize', 'smallestScreenSize' ],
+							enabled: true,
+							excludeFromRecents: false,
+							exported: true,
+							finishOnTaskLaunch: false,
+							hardwareAccelerated: false,
+							icon: '@drawable/icon',
+							label: 'Test Activity 1',
+							launchMode: 'standard',
+							multiprocess: false,
+							name: 'TestActivity1',
+							noHistory: false,
+							parentActivityName: 'com.example.myfirstapp.MainActivity',
+							permission: 'somePermission',
+							process: 'someProcess',
+							screenOrientation: 'landscape',
+							stateNotNeeded: false,
+							taskAffinity: 'testAffinity',
+							theme: 'mytheme',
+							uiOptions: 'none',
+							windowSoftInputMode: [ 'stateVisible', 'adjustResize' ]
 						},
-						'TestActivity2': {
-							'allowTaskReparenting': false,
-							'alwaysRetainTaskState': false,
-							'clearTaskOnLaunch': false,
-							'configChanges': [ 'mcc', 'mnc', 'locale', 'touchscreen', 'keyboard', 'keyboardHidden', 'navigation', 'screenLayout', 'fontScale', 'uiMode', 'orientation', 'screenSize', 'smallestScreenSize' ],
-							'enabled': true,
-							'excludeFromRecents': false,
-							'exported': true,
-							'finishOnTaskLaunch': false,
-							'hardwareAccelerated': false,
-							'icon': '@drawable/icon',
-							'label': 'Test Activity 2',
-							'launchMode': 'standard',
-							'multiprocess': false,
-							'name': 'TestActivity2',
-							'noHistory': false,
-							'parentActivityName': 'com.example.myfirstapp.MainActivity',
-							'permission': 'somePermission',
-							'process': 'someProcess',
-							'screenOrientation': 'landscape',
-							'stateNotNeeded': false,
-							'taskAffinity': 'testAffinity',
-							'theme': 'mytheme',
-							'uiOptions': 'none',
-							'windowSoftInputMode': [ 'stateVisible', 'adjustResize' ]
+						TestActivity2: {
+							allowTaskReparenting: false,
+							alwaysRetainTaskState: false,
+							clearTaskOnLaunch: false,
+							configChanges: [ 'mcc', 'mnc', 'locale', 'touchscreen', 'keyboard', 'keyboardHidden', 'navigation', 'screenLayout', 'fontScale', 'uiMode', 'orientation', 'screenSize', 'smallestScreenSize' ],
+							enabled: true,
+							excludeFromRecents: false,
+							exported: true,
+							finishOnTaskLaunch: false,
+							hardwareAccelerated: false,
+							icon: '@drawable/icon',
+							label: 'Test Activity 2',
+							launchMode: 'standard',
+							multiprocess: false,
+							name: 'TestActivity2',
+							noHistory: false,
+							parentActivityName: 'com.example.myfirstapp.MainActivity',
+							permission: 'somePermission',
+							process: 'someProcess',
+							screenOrientation: 'landscape',
+							stateNotNeeded: false,
+							taskAffinity: 'testAffinity',
+							theme: 'mytheme',
+							uiOptions: 'none',
+							windowSoftInputMode: [ 'stateVisible', 'adjustResize' ]
 						}
 					}
 				}
@@ -316,44 +317,44 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'application': {
-					'activity': {
-						'TestActivity1': {
-							'name': 'TestActivity1',
+				application: {
+					activity: {
+						TestActivity1: {
+							name: 'TestActivity1',
 							'intent-filter': [
 								{
-									'icon': '@drawable/icon',
-									'label': 'testFilter',
-									'priority': 123,
-									'action': [ 'android.intent.action.MAIN' ],
-									'category': [ 'android.intent.category.LAUNCHER' ]
+									icon: '@drawable/icon',
+									label: 'testFilter',
+									priority: 123,
+									action: [ 'android.intent.action.MAIN' ],
+									category: [ 'android.intent.category.LAUNCHER' ]
 								},
 								{
-									'action': [ 'android.intent.action.VIEW', 'android.intent.action.EDIT', 'android.intent.action.PICK' ],
-									'category': [ 'android.intent.category.DEFAULT' ],
-									'data': [
-										{ 'mimeType': 'vnd.android.cursor.dir/vnd.google.note' }
+									action: [ 'android.intent.action.VIEW', 'android.intent.action.EDIT', 'android.intent.action.PICK' ],
+									category: [ 'android.intent.category.DEFAULT' ],
+									data: [
+										{ mimeType: 'vnd.android.cursor.dir/vnd.google.note' }
 									]
 								},
 								{
-									'action': [ 'android.intent.action.GET_CONTENT' ],
-									'category': [ 'android.intent.category.DEFAULT' ],
-									'data': [
-										{ 'mimeType': 'vnd.android.cursor.item/vnd.google.note' }
+									action: [ 'android.intent.action.GET_CONTENT' ],
+									category: [ 'android.intent.category.DEFAULT' ],
+									data: [
+										{ mimeType: 'vnd.android.cursor.item/vnd.google.note' }
 									]
 								},
 								{
-									'action': [ 'android.intent.action.SEND', 'android.intent.action.SEND_MULTIPLE' ],
-									'category': [ 'android.intent.category.DEFAULT' ],
-									'data': [
-										{ 'mimeType': 'application/vnd.google.panorama360+jpg' },
-										{ 'mimeType': 'image/*' },
-										{ 'mimeType': 'video/*' }
+									action: [ 'android.intent.action.SEND', 'android.intent.action.SEND_MULTIPLE' ],
+									category: [ 'android.intent.category.DEFAULT' ],
+									data: [
+										{ mimeType: 'application/vnd.google.panorama360+jpg' },
+										{ mimeType: 'image/*' },
+										{ mimeType: 'video/*' }
 									]
 								},
 								{
-									'action': [ 'android.intent.action.VIEW' ],
-									'category': [ 'android.intent.category.DEFAULT', 'android.intent.category.BROWSABLE' ]
+									action: [ 'android.intent.action.VIEW' ],
+									category: [ 'android.intent.category.DEFAULT', 'android.intent.category.BROWSABLE' ]
 								}
 							]
 						}
@@ -501,18 +502,18 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'application': {
-					'activity': {
-						'testactivity': {
-							'name': 'testactivity',
+				application: {
+					activity: {
+						testactivity: {
+							name: 'testactivity',
 							'meta-data': {
-								'zooVal': {
-									'name': 'zooVal',
-									'value': '@string/kangaroo'
+								zooVal: {
+									name: 'zooVal',
+									value: '@string/kangaroo'
 								},
-								'zooRes': {
-									'name': 'zooRes',
-									'resource': '@string/kangaroo'
+								zooRes: {
+									name: 'zooRes',
+									resource: '@string/kangaroo'
 								}
 							}
 						}
@@ -577,15 +578,15 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'application': {
+				application: {
 					'meta-data': {
-						'zooVal': {
-							'name': 'zooVal',
-							'value': '@string/kangaroo'
+						zooVal: {
+							name: 'zooVal',
+							value: '@string/kangaroo'
 						},
-						'zooRes': {
-							'name': 'zooRes',
-							'resource': '@string/kangaroo'
+						zooRes: {
+							name: 'zooRes',
+							resource: '@string/kangaroo'
 						}
 					}
 				}
@@ -637,39 +638,39 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'application': {
-					'provider': {
-						'testprovider1': {
-							'authorities': 'com.example.provider.cartoonprovider',
-							'enabled': true,
-							'exported': false,
-							'grantUriPermissions': false,
-							'icon': '@drawable/icon',
-							'initOrder': 1,
-							'label': 'test provider 1',
-							'multiprocess': false,
-							'name': 'testprovider1',
-							'permission': 'testPermission',
-							'process': 'testProcess',
-							'readPermission': 'somePermission',
-							'syncable': false,
-							'writePermission': 'somePermission'
+				application: {
+					provider: {
+						testprovider1: {
+							authorities: 'com.example.provider.cartoonprovider',
+							enabled: true,
+							exported: false,
+							grantUriPermissions: false,
+							icon: '@drawable/icon',
+							initOrder: 1,
+							label: 'test provider 1',
+							multiprocess: false,
+							name: 'testprovider1',
+							permission: 'testPermission',
+							process: 'testProcess',
+							readPermission: 'somePermission',
+							syncable: false,
+							writePermission: 'somePermission'
 						},
-						'testprovider2': {
-							'authorities': 'com.example.provider.cartoonprovider',
-							'enabled': true,
-							'exported': false,
-							'grantUriPermissions': false,
-							'icon': '@drawable/icon',
-							'initOrder': 2,
-							'label': 'test provider 2',
-							'multiprocess': false,
-							'name': 'testprovider2',
-							'permission': 'testPermission',
-							'process': 'testProcess',
-							'readPermission': 'somePermission',
-							'syncable': false,
-							'writePermission': 'somePermission'
+						testprovider2: {
+							authorities: 'com.example.provider.cartoonprovider',
+							enabled: true,
+							exported: false,
+							grantUriPermissions: false,
+							icon: '@drawable/icon',
+							initOrder: 2,
+							label: 'test provider 2',
+							multiprocess: false,
+							name: 'testprovider2',
+							permission: 'testPermission',
+							process: 'testProcess',
+							readPermission: 'somePermission',
+							syncable: false,
+							writePermission: 'somePermission'
 						}
 					}
 				}
@@ -745,20 +746,20 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'application': {
-					'provider': {
-						'testprovider': {
-							'name': 'testprovider',
+				application: {
+					provider: {
+						testprovider: {
+							name: 'testprovider',
 							'grant-uri-permission': [
 								{
-									'path': '/test',
-									'pathPattern': '.*',
-									'pathPrefix': 'ti'
+									path: '/test',
+									pathPattern: '.*',
+									pathPrefix: 'ti'
 								},
 								{
-									'path': '/sample',
-									'pathPattern': '.*',
-									'pathPrefix': 'test_'
+									path: '/sample',
+									pathPattern: '.*',
+									pathPrefix: 'test_'
 								}
 							]
 						}
@@ -821,18 +822,18 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'application': {
-					'provider': {
-						'testprovider': {
-							'name': 'testprovider',
+				application: {
+					provider: {
+						testprovider: {
+							name: 'testprovider',
 							'meta-data': {
-								'zooVal': {
-									'name': 'zooVal',
-									'value': '@string/kangaroo'
+								zooVal: {
+									name: 'zooVal',
+									value: '@string/kangaroo'
 								},
-								'zooRes': {
-									'name': 'zooRes',
-									'resource': '@string/kangaroo'
+								zooRes: {
+									name: 'zooRes',
+									resource: '@string/kangaroo'
 								}
 							}
 						}
@@ -893,26 +894,26 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'application': {
-					'provider': {
-						'testprovider': {
-							'name': 'testprovider',
+				application: {
+					provider: {
+						testprovider: {
+							name: 'testprovider',
 							'path-permission': [
 								{
-									'path': '/test',
-									'pathPrefix': 'ti_',
-									'pathPattern': '.*',
-									'permission': 'somePermission',
-									'readPermission': 'somePermission',
-									'writePermission': 'somePermission'
+									path: '/test',
+									pathPrefix: 'ti_',
+									pathPattern: '.*',
+									permission: 'somePermission',
+									readPermission: 'somePermission',
+									writePermission: 'somePermission'
 								},
 								{
-									'path': '/sample',
-									'pathPrefix': 'test_',
-									'pathPattern': '.*',
-									'permission': 'somePermission',
-									'readPermission': 'somePermission',
-									'writePermission': 'somePermission'
+									path: '/sample',
+									pathPrefix: 'test_',
+									pathPattern: '.*',
+									permission: 'somePermission',
+									readPermission: 'somePermission',
+									writePermission: 'somePermission'
 								}
 							]
 						}
@@ -989,13 +990,13 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'application': {
+				application: {
 					'uses-library': {
-						'lib1': {
+						lib1: {
 							name: 'lib1',
 							required: true
 						},
-						'lib2': {
+						lib2: {
 							name: 'lib2',
 							required: false
 						}
@@ -1051,36 +1052,36 @@ describe('AndroidManifest', function () {
 			am.should.eql({
 				'compatible-screens': [
 					{
-						'screenSize': 'small',
-						'screenDensity': 'ldpi'
+						screenSize: 'small',
+						screenDensity: 'ldpi'
 					},
 					{
-						'screenSize': 'small',
-						'screenDensity': 'mdpi'
+						screenSize: 'small',
+						screenDensity: 'mdpi'
 					},
 					{
-						'screenSize': 'small',
-						'screenDensity': 'hdpi'
+						screenSize: 'small',
+						screenDensity: 'hdpi'
 					},
 					{
-						'screenSize': 'small',
-						'screenDensity': 'xhdpi'
+						screenSize: 'small',
+						screenDensity: 'xhdpi'
 					},
 					{
-						'screenSize': 'normal',
-						'screenDensity': 'ldpi'
+						screenSize: 'normal',
+						screenDensity: 'ldpi'
 					},
 					{
-						'screenSize': 'normal',
-						'screenDensity': 'mdpi'
+						screenSize: 'normal',
+						screenDensity: 'mdpi'
 					},
 					{
-						'screenSize': 'normal',
-						'screenDensity': 'hdpi'
+						screenSize: 'normal',
+						screenDensity: 'hdpi'
 					},
 					{
-						'screenSize': 'normal',
-						'screenDensity': 'xhdpi'
+						screenSize: 'normal',
+						screenDensity: 'xhdpi'
 					}
 				]
 			});
@@ -1497,15 +1498,15 @@ describe('AndroidManifest', function () {
 		it('should match object', function () {
 			am.should.eql({
 				'supports-screens': {
-					'anyDensity': false,
-					'resizeable': true,
-					'smallScreens': true,
-					'normalScreens': true,
-					'largeScreens': true,
-					'xlargeScreens': true,
-					'requiresSmallestWidthDp': 320,
-					'compatibleWidthLimitDp': 480,
-					'largestWidthLimitDp': 2048
+					anyDensity: false,
+					resizeable: true,
+					smallScreens: true,
+					normalScreens: true,
+					largeScreens: true,
+					xlargeScreens: true,
+					requiresSmallestWidthDp: 320,
+					compatibleWidthLimitDp: 480,
+					largestWidthLimitDp: 2048
 				}
 			});
 		});
@@ -1772,7 +1773,7 @@ describe('AndroidManifest', function () {
 			am.should.eql({
 				__attr__: {
 					'xmlns:android': 'http://schemas.android.com/apk/res/android',
-					'package': 'com.appcelerator.testapp',
+					package: 'com.appcelerator.testapp',
 					'android:versionCode': 1,
 					'android:versionName': '1.0'
 				},
@@ -2698,9 +2699,9 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'__attr__': {
+				__attr__: {
 					'xmlns:android': 'http://schemas.android.com/apk/res/android',
-					'package': 'com.example.android.apis'
+					package: 'com.example.android.apis'
 				},
 				'uses-permission': [
 					'android.permission.READ_CONTACTS',
@@ -2717,39 +2718,39 @@ describe('AndroidManifest', function () {
 					'android.permission.CAMERA'
 				],
 				'uses-sdk': {
-					'minSdkVersion': 4,
-					'targetSdkVersion': 17
+					minSdkVersion: 4,
+					targetSdkVersion: 17
 				},
 				'uses-feature': [
 					{
-						'name': 'android.hardware.camera'
+						name: 'android.hardware.camera'
 					},
 					{
-						'name': 'android.hardware.camera.autofocus',
-						'required': false
+						name: 'android.hardware.camera.autofocus',
+						required: false
 					}
 				],
-				'application': {
-					'name': 'ApiDemosApplication',
-					'label': '@string/activity_sample_code',
-					'icon': '@drawable/app_sample_code',
-					'hardwareAccelerated': true,
-					'supportsRtl': true,
+				application: {
+					name: 'ApiDemosApplication',
+					label: '@string/activity_sample_code',
+					icon: '@drawable/app_sample_code',
+					hardwareAccelerated: true,
+					supportsRtl: true,
 					'uses-library': {
 						'com.example.will.never.exist': {
-							'name': 'com.example.will.never.exist',
-							'required': false
+							name: 'com.example.will.never.exist',
+							required: false
 						}
 					},
-					'activity': {
-						'ApiDemos': {
-							'name': 'ApiDemos',
+					activity: {
+						ApiDemos: {
+							name: 'ApiDemos',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.DEFAULT',
 										'android.intent.category.LAUNCHER'
 									]
@@ -2757,1441 +2758,1441 @@ describe('AndroidManifest', function () {
 							]
 						},
 						'.app.HelloWorld': {
-							'name': '.app.HelloWorld',
-							'label': '@string/activity_hello_world',
+							name: '.app.HelloWorld',
+							label: '@string/activity_hello_world',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.DialogActivity': {
-							'name': '.app.DialogActivity',
-							'label': '@string/activity_dialog',
-							'theme': '@android:style/Theme.Holo.Dialog',
+							name: '.app.DialogActivity',
+							label: '@string/activity_dialog',
+							theme: '@android:style/Theme.Holo.Dialog',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.CustomDialogActivity': {
-							'name': '.app.CustomDialogActivity',
-							'label': '@string/activity_custom_dialog',
-							'theme': '@style/Theme.CustomDialog',
+							name: '.app.CustomDialogActivity',
+							label: '@string/activity_custom_dialog',
+							theme: '@style/Theme.CustomDialog',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.OverscanActivity': {
-							'name': '.app.OverscanActivity',
-							'label': '@string/activity_overscan',
-							'theme': '@android:style/Theme.Holo.NoActionBar.Overscan',
-							'enabled': '@bool/atLeastJellyBeanMR2',
+							name: '.app.OverscanActivity',
+							label: '@string/activity_overscan',
+							theme: '@android:style/Theme.Holo.NoActionBar.Overscan',
+							enabled: '@bool/atLeastJellyBeanMR2',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.QuickContactsDemo': {
-							'name': '.app.QuickContactsDemo',
-							'label': '@string/quick_contacts_demo',
+							name: '.app.QuickContactsDemo',
+							label: '@string/quick_contacts_demo',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.WallpaperActivity': {
-							'name': '.app.WallpaperActivity',
-							'label': '@string/activity_wallpaper',
-							'theme': '@style/Theme.Wallpaper',
+							name: '.app.WallpaperActivity',
+							label: '@string/activity_wallpaper',
+							theme: '@style/Theme.Wallpaper',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.TranslucentActivity': {
-							'name': '.app.TranslucentActivity',
-							'label': '@string/activity_translucent',
-							'theme': '@style/Theme.Translucent',
+							name: '.app.TranslucentActivity',
+							label: '@string/activity_translucent',
+							theme: '@style/Theme.Translucent',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.TranslucentBlurActivity': {
-							'name': '.app.TranslucentBlurActivity',
-							'label': '@string/activity_translucent_blur',
-							'theme': '@style/Theme.Transparent',
+							name: '.app.TranslucentBlurActivity',
+							label: '@string/activity_translucent_blur',
+							theme: '@style/Theme.Transparent',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.Animation': {
-							'name': '.app.Animation',
-							'label': '@string/activity_animation',
+							name: '.app.Animation',
+							label: '@string/activity_animation',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.SaveRestoreState': {
-							'name': '.app.SaveRestoreState',
-							'label': '@string/activity_save_restore',
-							'windowSoftInputMode': [
+							name: '.app.SaveRestoreState',
+							label: '@string/activity_save_restore',
+							windowSoftInputMode: [
 								'stateVisible',
 								'adjustResize'
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.PersistentState': {
-							'name': '.app.PersistentState',
-							'label': '@string/activity_persistent',
-							'windowSoftInputMode': [
+							name: '.app.PersistentState',
+							label: '@string/activity_persistent',
+							windowSoftInputMode: [
 								'stateVisible',
 								'adjustResize'
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ActivityRecreate': {
-							'name': '.app.ActivityRecreate',
-							'label': '@string/activity_recreate',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.ActivityRecreate',
+							label: '@string/activity_recreate',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FinishAffinity': {
-							'name': '.app.FinishAffinity',
-							'label': '@string/activity_finish_affinity',
-							'taskAffinity': ':finishing',
-							'enabled': '@bool/atLeastJellyBean',
+							name: '.app.FinishAffinity',
+							label: '@string/activity_finish_affinity',
+							taskAffinity: ':finishing',
+							enabled: '@bool/atLeastJellyBean',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.SoftInputModes': {
-							'name': '.app.SoftInputModes',
-							'label': '@string/soft_input_modes',
+							name: '.app.SoftInputModes',
+							label: '@string/soft_input_modes',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ReceiveResult': {
-							'name': '.app.ReceiveResult',
-							'label': '@string/activity_receive_result',
+							name: '.app.ReceiveResult',
+							label: '@string/activity_receive_result',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.SendResult': {
-							'name': '.app.SendResult',
-							'theme': '@style/ThemeDialogWhenLarge'
+							name: '.app.SendResult',
+							theme: '@style/ThemeDialogWhenLarge'
 						},
 						'.app.Forwarding': {
-							'name': '.app.Forwarding',
-							'label': '@string/activity_forwarding',
+							name: '.app.Forwarding',
+							label: '@string/activity_forwarding',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ForwardTarget': {
-							'name': '.app.ForwardTarget'
+							name: '.app.ForwardTarget'
 						},
 						'.app.RedirectEnter': {
-							'name': '.app.RedirectEnter',
-							'label': '@string/activity_redirect',
+							name: '.app.RedirectEnter',
+							label: '@string/activity_redirect',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.RedirectMain': {
-							'name': '.app.RedirectMain'
+							name: '.app.RedirectMain'
 						},
 						'.app.RedirectGetter': {
-							'name': '.app.RedirectGetter'
+							name: '.app.RedirectGetter'
 						},
 						'.app.CustomTitle': {
-							'name': '.app.CustomTitle',
-							'label': '@string/activity_custom_title',
-							'windowSoftInputMode': [
+							name: '.app.CustomTitle',
+							label: '@string/activity_custom_title',
+							windowSoftInputMode: [
 								'stateVisible',
 								'adjustPan'
 							],
-							'theme': '@android:style/Theme',
+							theme: '@android:style/Theme',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ReorderOnLaunch': {
-							'name': '.app.ReorderOnLaunch',
-							'label': '@string/activity_reorder',
+							name: '.app.ReorderOnLaunch',
+							label: '@string/activity_reorder',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.RotationAnimation': {
-							'name': '.app.RotationAnimation',
-							'label': '@string/activity_rotation_animation',
+							name: '.app.RotationAnimation',
+							label: '@string/activity_rotation_animation',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ReorderTwo': {
-							'name': '.app.ReorderTwo'
+							name: '.app.ReorderTwo'
 						},
 						'.app.ReorderThree': {
-							'name': '.app.ReorderThree'
+							name: '.app.ReorderThree'
 						},
 						'.app.ReorderFour': {
-							'name': '.app.ReorderFour'
+							name: '.app.ReorderFour'
 						},
 						'.app.SetWallpaperActivity': {
-							'name': '.app.SetWallpaperActivity',
-							'label': '@string/activity_setwallpaper',
+							name: '.app.SetWallpaperActivity',
+							label: '@string/activity_setwallpaper',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ScreenOrientation': {
-							'name': '.app.ScreenOrientation',
-							'label': '@string/activity_screen_orientation',
+							name: '.app.ScreenOrientation',
+							label: '@string/activity_screen_orientation',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.PresentationActivity': {
-							'name': '.app.PresentationActivity',
-							'label': '@string/activity_presentation',
+							name: '.app.PresentationActivity',
+							label: '@string/activity_presentation',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.PresentationWithMediaRouterActivity': {
-							'name': '.app.PresentationWithMediaRouterActivity',
-							'label': '@string/activity_presentation_with_media_router',
+							name: '.app.PresentationWithMediaRouterActivity',
+							label: '@string/activity_presentation_with_media_router',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.SecureWindowActivity': {
-							'name': '.app.SecureWindowActivity',
-							'label': '@string/activity_secure_window',
+							name: '.app.SecureWindowActivity',
+							label: '@string/activity_secure_window',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.SecureDialogActivity': {
-							'name': '.app.SecureDialogActivity',
-							'label': '@string/activity_secure_dialog',
+							name: '.app.SecureDialogActivity',
+							label: '@string/activity_secure_dialog',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.SecureSurfaceViewActivity': {
-							'name': '.app.SecureSurfaceViewActivity',
-							'label': '@string/activity_secure_surface_view',
+							name: '.app.SecureSurfaceViewActivity',
+							label: '@string/activity_secure_surface_view',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentAlertDialog': {
-							'name': '.app.FragmentAlertDialog',
-							'label': '@string/fragment_alert_dialog',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentAlertDialog',
+							label: '@string/fragment_alert_dialog',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentArguments': {
-							'name': '.app.FragmentArguments',
-							'label': '@string/fragment_arguments',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentArguments',
+							label: '@string/fragment_arguments',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentCustomAnimations': {
-							'name': '.app.FragmentCustomAnimations',
-							'label': '@string/fragment_custom_animations',
-							'enabled': '@bool/atLeastHoneycombMR2',
+							name: '.app.FragmentCustomAnimations',
+							label: '@string/fragment_custom_animations',
+							enabled: '@bool/atLeastHoneycombMR2',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentHideShow': {
-							'name': '.app.FragmentHideShow',
-							'label': '@string/fragment_hide_show',
-							'windowSoftInputMode': [
+							name: '.app.FragmentHideShow',
+							label: '@string/fragment_hide_show',
+							windowSoftInputMode: [
 								'stateUnchanged'
 							],
-							'enabled': '@bool/atLeastHoneycomb',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentContextMenu': {
-							'name': '.app.FragmentContextMenu',
-							'label': '@string/fragment_context_menu',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentContextMenu',
+							label: '@string/fragment_context_menu',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentDialog': {
-							'name': '.app.FragmentDialog',
-							'label': '@string/fragment_dialog',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentDialog',
+							label: '@string/fragment_dialog',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentDialogOrActivity': {
-							'name': '.app.FragmentDialogOrActivity',
-							'label': '@string/fragment_dialog_or_activity',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentDialogOrActivity',
+							label: '@string/fragment_dialog_or_activity',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentLayout': {
-							'name': '.app.FragmentLayout',
-							'label': '@string/fragment_layout',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentLayout',
+							label: '@string/fragment_layout',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentLayout$DetailsActivity': {
-							'name': '.app.FragmentLayout$DetailsActivity',
-							'enabled': '@bool/atLeastHoneycomb'
+							name: '.app.FragmentLayout$DetailsActivity',
+							enabled: '@bool/atLeastHoneycomb'
 						},
 						'.app.FragmentListArray': {
-							'name': '.app.FragmentListArray',
-							'label': '@string/fragment_list_array',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentListArray',
+							label: '@string/fragment_list_array',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentMenu': {
-							'name': '.app.FragmentMenu',
-							'label': '@string/fragment_menu',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentMenu',
+							label: '@string/fragment_menu',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentNestingTabs': {
-							'name': '.app.FragmentNestingTabs',
-							'label': '@string/fragment_nesting_tabs',
-							'enabled': '@bool/atLeastJellyBeanMR1',
+							name: '.app.FragmentNestingTabs',
+							label: '@string/fragment_nesting_tabs',
+							enabled: '@bool/atLeastJellyBeanMR1',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentRetainInstance': {
-							'name': '.app.FragmentRetainInstance',
-							'label': '@string/fragment_retain_instance',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentRetainInstance',
+							label: '@string/fragment_retain_instance',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentReceiveResult': {
-							'name': '.app.FragmentReceiveResult',
-							'label': '@string/fragment_receive_result',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentReceiveResult',
+							label: '@string/fragment_receive_result',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentStack': {
-							'name': '.app.FragmentStack',
-							'label': '@string/fragment_stack',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentStack',
+							label: '@string/fragment_stack',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.FragmentTabs': {
-							'name': '.app.FragmentTabs',
-							'label': '@string/fragment_tabs',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.FragmentTabs',
+							label: '@string/fragment_tabs',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.LoaderCursor': {
-							'name': '.app.LoaderCursor',
-							'label': '@string/loader_cursor',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.LoaderCursor',
+							label: '@string/loader_cursor',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.LoaderCustom': {
-							'name': '.app.LoaderCustom',
-							'label': '@string/loader_custom',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.LoaderCustom',
+							label: '@string/loader_custom',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.LoaderThrottle': {
-							'name': '.app.LoaderThrottle',
-							'label': '@string/loader_throttle',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.LoaderThrottle',
+							label: '@string/loader_throttle',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.LoaderRetained': {
-							'name': '.app.LoaderRetained',
-							'label': '@string/loader_retained',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.LoaderRetained',
+							label: '@string/loader_retained',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.Intents': {
-							'name': '.app.Intents',
-							'label': '@string/activity_intents',
+							name: '.app.Intents',
+							label: '@string/activity_intents',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.IntentActivityFlags': {
-							'name': '.app.IntentActivityFlags',
-							'label': '@string/activity_intent_activity_flags',
+							name: '.app.IntentActivityFlags',
+							label: '@string/activity_intent_activity_flags',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.LocalServiceActivities$Controller': {
-							'name': '.app.LocalServiceActivities$Controller',
-							'label': '@string/activity_local_service_controller',
-							'launchMode': 'singleTop',
+							name: '.app.LocalServiceActivities$Controller',
+							label: '@string/activity_local_service_controller',
+							launchMode: 'singleTop',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.LocalServiceActivities$Binding': {
-							'name': '.app.LocalServiceActivities$Binding',
-							'label': '@string/activity_local_service_binding',
+							name: '.app.LocalServiceActivities$Binding',
+							label: '@string/activity_local_service_binding',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.MessengerServiceActivities$Binding': {
-							'name': '.app.MessengerServiceActivities$Binding',
-							'label': '@string/activity_messenger_service_binding',
+							name: '.app.MessengerServiceActivities$Binding',
+							label: '@string/activity_messenger_service_binding',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.RemoteService$Controller': {
-							'name': '.app.RemoteService$Controller',
-							'label': '@string/activity_remote_service_controller',
-							'launchMode': 'singleTop',
+							name: '.app.RemoteService$Controller',
+							label: '@string/activity_remote_service_controller',
+							launchMode: 'singleTop',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.RemoteService$Binding': {
-							'name': '.app.RemoteService$Binding',
-							'label': '@string/activity_remote_service_binding',
+							name: '.app.RemoteService$Binding',
+							label: '@string/activity_remote_service_binding',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.RemoteService$BindingOptions': {
-							'name': '.app.RemoteService$BindingOptions',
-							'label': '@string/activity_remote_service_binding_options',
+							name: '.app.RemoteService$BindingOptions',
+							label: '@string/activity_remote_service_binding_options',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ServiceStartArguments$Controller': {
-							'name': '.app.ServiceStartArguments$Controller',
-							'label': '@string/activity_service_start_arguments_controller',
-							'launchMode': 'singleTop',
+							name: '.app.ServiceStartArguments$Controller',
+							label: '@string/activity_service_start_arguments_controller',
+							launchMode: 'singleTop',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ForegroundService$Controller': {
-							'name': '.app.ForegroundService$Controller',
-							'label': '@string/activity_foreground_service_controller',
-							'launchMode': 'singleTop',
+							name: '.app.ForegroundService$Controller',
+							label: '@string/activity_foreground_service_controller',
+							launchMode: 'singleTop',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.IsolatedService$Controller': {
-							'name': '.app.IsolatedService$Controller',
-							'label': '@string/activity_isolated_service_controller',
-							'launchMode': 'singleTop',
-							'enabled': '@bool/atLeastJellyBean',
+							name: '.app.IsolatedService$Controller',
+							label: '@string/activity_isolated_service_controller',
+							launchMode: 'singleTop',
+							enabled: '@bool/atLeastJellyBean',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.AlarmController': {
-							'name': '.app.AlarmController',
-							'label': '@string/activity_alarm_controller',
+							name: '.app.AlarmController',
+							label: '@string/activity_alarm_controller',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.AlarmService': {
-							'name': '.app.AlarmService',
-							'label': '@string/activity_alarm_service',
+							name: '.app.AlarmService',
+							label: '@string/activity_alarm_service',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.accessibility.ClockBackActivity': {
-							'name': '.accessibility.ClockBackActivity',
-							'label': '@string/accessibility_service',
+							name: '.accessibility.ClockBackActivity',
+							label: '@string/accessibility_service',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.accessibility.TaskListActivity': {
-							'name': '.accessibility.TaskListActivity',
-							'label': '@string/accessibility_query_window',
-							'enabled': '@bool/atLeastIceCreamSandwich',
+							name: '.accessibility.TaskListActivity',
+							label: '@string/accessibility_query_window',
+							enabled: '@bool/atLeastIceCreamSandwich',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.accessibility.CustomViewAccessibilityActivity': {
-							'name': '.accessibility.CustomViewAccessibilityActivity',
-							'label': '@string/accessibility_custom_view',
-							'enabled': '@bool/atLeastIceCreamSandwich',
+							name: '.accessibility.CustomViewAccessibilityActivity',
+							label: '@string/accessibility_custom_view',
+							enabled: '@bool/atLeastIceCreamSandwich',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.LocalSample': {
-							'name': '.app.LocalSample',
-							'label': '@string/activity_local_sample',
+							name: '.app.LocalSample',
+							label: '@string/activity_local_sample',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									]
 								}
 							]
 						},
 						'.app.ContactsFilter': {
-							'name': '.app.ContactsFilter',
-							'label': '@string/activity_contacts_filter',
+							name: '.app.ContactsFilter',
+							label: '@string/activity_contacts_filter',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									]
 								}
 							]
 						},
 						'.app.NotifyWithText': {
-							'name': '.app.NotifyWithText',
-							'label': 'App/Notification/NotifyWithText',
+							name: '.app.NotifyWithText',
+							label: 'App/Notification/NotifyWithText',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.IncomingMessage': {
-							'name': '.app.IncomingMessage',
-							'label': 'App/Notification/IncomingMessage',
+							name: '.app.IncomingMessage',
+							label: 'App/Notification/IncomingMessage',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.IncomingMessageView': {
-							'name': '.app.IncomingMessageView',
-							'label': 'App/Notification/IncomingMessageView'
+							name: '.app.IncomingMessageView',
+							label: 'App/Notification/IncomingMessageView'
 						},
 						'.app.IncomingMessageInterstitial': {
-							'name': '.app.IncomingMessageInterstitial',
-							'label': 'You have messages',
-							'theme': '@style/ThemeHoloDialog',
-							'launchMode': 'singleTask',
-							'taskAffinity': '',
-							'excludeFromRecents': true
+							name: '.app.IncomingMessageInterstitial',
+							label: 'You have messages',
+							theme: '@style/ThemeHoloDialog',
+							launchMode: 'singleTask',
+							taskAffinity: '',
+							excludeFromRecents: true
 						},
 						'.app.NotificationDisplay': {
-							'name': '.app.NotificationDisplay',
-							'theme': '@style/Theme.Transparent',
-							'taskAffinity': '',
-							'excludeFromRecents': true,
-							'noHistory': true
+							name: '.app.NotificationDisplay',
+							theme: '@style/Theme.Transparent',
+							taskAffinity: '',
+							excludeFromRecents: true,
+							noHistory: true
 						},
 						'.app.StatusBarNotifications': {
-							'name': '.app.StatusBarNotifications',
-							'label': 'App/Notification/Status Bar',
-							'launchMode': 'singleTop',
+							name: '.app.StatusBarNotifications',
+							label: 'App/Notification/Status Bar',
+							launchMode: 'singleTop',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.NotifyingController': {
-							'name': '.app.NotifyingController',
-							'label': 'App/Notification/Notifying Service Controller',
+							name: '.app.NotifyingController',
+							label: 'App/Notification/Notifying Service Controller',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.AlertDialogSamples': {
-							'name': '.app.AlertDialogSamples',
-							'label': '@string/activity_alert_dialog',
+							name: '.app.AlertDialogSamples',
+							label: '@string/activity_alert_dialog',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.SearchInvoke': {
-							'name': '.app.SearchInvoke',
-							'label': '@string/search_invoke',
+							name: '.app.SearchInvoke',
+							label: '@string/search_invoke',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							],
 							'meta-data': {
 								'android.app.default_searchable': {
-									'name': 'android.app.default_searchable',
-									'value': '.app.SearchQueryResults'
+									name: 'android.app.default_searchable',
+									value: '.app.SearchQueryResults'
 								}
 							}
 						},
 						'.app.SearchQueryResults': {
-							'name': '.app.SearchQueryResults',
-							'label': '@string/search_query_results',
+							name: '.app.SearchQueryResults',
+							label: '@string/search_query_results',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								},
 								{
-									'action': [
+									action: [
 										'android.intent.action.SEARCH'
 									],
-									'category': [
+									category: [
 										'android.intent.category.DEFAULT'
 									]
 								}
 							],
 							'meta-data': {
 								'android.app.searchable': {
-									'name': 'android.app.searchable',
-									'resource': '@xml/searchable'
+									name: 'android.app.searchable',
+									resource: '@xml/searchable'
 								}
 							}
 						},
 						'.app.LauncherShortcuts': {
-							'name': '.app.LauncherShortcuts',
-							'label': '@string/shortcuts',
+							name: '.app.LauncherShortcuts',
+							label: '@string/shortcuts',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.MenuInflateFromXml': {
-							'name': '.app.MenuInflateFromXml',
-							'label': '@string/menu_from_xml_title',
+							name: '.app.MenuInflateFromXml',
+							label: '@string/menu_from_xml_title',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.DeviceAdminSample': {
-							'name': '.app.DeviceAdminSample',
-							'label': '@string/activity_sample_device_admin',
+							name: '.app.DeviceAdminSample',
+							label: '@string/activity_sample_device_admin',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.VoiceRecognition': {
-							'name': '.app.VoiceRecognition',
-							'label': '@string/voice_recognition',
+							name: '.app.VoiceRecognition',
+							label: '@string/voice_recognition',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.TextToSpeechActivity': {
-							'name': '.app.TextToSpeechActivity',
-							'label': '@string/text_to_speech',
+							name: '.app.TextToSpeechActivity',
+							label: '@string/text_to_speech',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ActionBarMechanics': {
-							'name': '.app.ActionBarMechanics',
-							'label': '@string/action_bar_mechanics',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.ActionBarMechanics',
+							label: '@string/action_bar_mechanics',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ActionBarUsage': {
-							'name': '.app.ActionBarUsage',
-							'label': '@string/action_bar_usage',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.ActionBarUsage',
+							label: '@string/action_bar_usage',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ActionBarDisplayOptions': {
-							'name': '.app.ActionBarDisplayOptions',
-							'label': '@string/action_bar_display_options',
-							'logo': '@drawable/apidemo_androidlogo',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.ActionBarDisplayOptions',
+							label: '@string/action_bar_display_options',
+							logo: '@drawable/apidemo_androidlogo',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ActionBarTabs': {
-							'name': '.app.ActionBarTabs',
-							'label': '@string/action_bar_tabs',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.app.ActionBarTabs',
+							label: '@string/action_bar_tabs',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ActionBarSettingsActionProviderActivity': {
-							'name': '.app.ActionBarSettingsActionProviderActivity',
-							'label': '@string/action_bar_settings_action_provider',
-							'enabled': '@bool/atLeastIceCreamSandwich',
+							name: '.app.ActionBarSettingsActionProviderActivity',
+							label: '@string/action_bar_settings_action_provider',
+							enabled: '@bool/atLeastIceCreamSandwich',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.app.ActionBarShareActionProviderActivity': {
-							'name': '.app.ActionBarShareActionProviderActivity',
-							'label': '@string/action_bar_share_action_provider',
-							'enabled': '@bool/atLeastIceCreamSandwich',
+							name: '.app.ActionBarShareActionProviderActivity',
+							label: '@string/action_bar_share_action_provider',
+							enabled: '@bool/atLeastIceCreamSandwich',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.accessibility.AccessibilityNodeProviderActivity': {
-							'name': '.accessibility.AccessibilityNodeProviderActivity',
-							'label': '@string/accessibility_node_provider',
-							'enabled': '@bool/atLeastIceCreamSandwich',
+							name: '.accessibility.AccessibilityNodeProviderActivity',
+							label: '@string/accessibility_node_provider',
+							enabled: '@bool/atLeastIceCreamSandwich',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.preference.FragmentPreferences': {
-							'name': '.preference.FragmentPreferences',
-							'label': '@string/fragment_preferences',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.preference.FragmentPreferences',
+							label: '@string/fragment_preferences',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.preference.PreferenceWithHeaders': {
-							'name': '.preference.PreferenceWithHeaders',
-							'label': '@string/preference_with_headers',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.preference.PreferenceWithHeaders',
+							label: '@string/preference_with_headers',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.preference.PreferencesFromXml': {
-							'name': '.preference.PreferencesFromXml',
-							'label': '@string/preferences_from_xml',
+							name: '.preference.PreferencesFromXml',
+							label: '@string/preferences_from_xml',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.preference.PreferencesFromCode': {
-							'name': '.preference.PreferencesFromCode',
-							'label': '@string/preferences_from_code',
+							name: '.preference.PreferencesFromCode',
+							label: '@string/preferences_from_code',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.preference.AdvancedPreferences': {
-							'name': '.preference.AdvancedPreferences',
-							'label': '@string/advanced_preferences',
+							name: '.preference.AdvancedPreferences',
+							label: '@string/advanced_preferences',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.preference.LaunchingPreferences': {
-							'name': '.preference.LaunchingPreferences',
-							'label': '@string/launching_preferences',
+							name: '.preference.LaunchingPreferences',
+							label: '@string/launching_preferences',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.preference.PreferenceDependencies': {
-							'name': '.preference.PreferenceDependencies',
-							'label': '@string/preference_dependencies',
+							name: '.preference.PreferenceDependencies',
+							label: '@string/preference_dependencies',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.preference.DefaultValues': {
-							'name': '.preference.DefaultValues',
-							'label': '@string/default_values',
+							name: '.preference.DefaultValues',
+							label: '@string/default_values',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.preference.SwitchPreference': {
-							'name': '.preference.SwitchPreference',
-							'label': '@string/switch_preference',
-							'enabled': '@bool/atLeastIceCreamSandwich',
+							name: '.preference.SwitchPreference',
+							label: '@string/switch_preference',
+							enabled: '@bool/atLeastIceCreamSandwich',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.content.ClipboardSample': {
-							'name': '.content.ClipboardSample',
-							'label': '@string/activity_clipboard',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.content.ClipboardSample',
+							label: '@string/activity_clipboard',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.content.ExternalStorage': {
-							'name': '.content.ExternalStorage',
-							'label': '@string/activity_external_storage',
+							name: '.content.ExternalStorage',
+							label: '@string/activity_external_storage',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE',
 										'android.intent.category.EMBED'
 									]
@@ -4199,14 +4200,14 @@ describe('AndroidManifest', function () {
 							]
 						},
 						'.content.StyledText': {
-							'name': '.content.StyledText',
-							'label': '@string/activity_styled_text',
+							name: '.content.StyledText',
+							label: '@string/activity_styled_text',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE',
 										'android.intent.category.EMBED'
 									]
@@ -4214,14 +4215,14 @@ describe('AndroidManifest', function () {
 							]
 						},
 						'.content.ResourcesLayoutReference': {
-							'name': '.content.ResourcesLayoutReference',
-							'label': '@string/activity_resources_layout_reference',
+							name: '.content.ResourcesLayoutReference',
+							label: '@string/activity_resources_layout_reference',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE',
 										'android.intent.category.EMBED'
 									]
@@ -4229,15 +4230,15 @@ describe('AndroidManifest', function () {
 							]
 						},
 						'.content.ResourcesWidthAndHeight': {
-							'name': '.content.ResourcesWidthAndHeight',
-							'label': '@string/activity_resources_width_and_height',
-							'enabled': '@bool/atLeastHoneycombMR2',
+							name: '.content.ResourcesWidthAndHeight',
+							label: '@string/activity_resources_width_and_height',
+							enabled: '@bool/atLeastHoneycombMR2',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE',
 										'android.intent.category.EMBED'
 									]
@@ -4245,15 +4246,15 @@ describe('AndroidManifest', function () {
 							]
 						},
 						'.content.ResourcesSmallestWidth': {
-							'name': '.content.ResourcesSmallestWidth',
-							'label': '@string/activity_resources_smallest_width',
-							'enabled': '@bool/atLeastHoneycombMR2',
+							name: '.content.ResourcesSmallestWidth',
+							label: '@string/activity_resources_smallest_width',
+							enabled: '@bool/atLeastHoneycombMR2',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE',
 										'android.intent.category.EMBED'
 									]
@@ -4261,14 +4262,14 @@ describe('AndroidManifest', function () {
 							]
 						},
 						'.content.ReadAsset': {
-							'name': '.content.ReadAsset',
-							'label': '@string/activity_read_asset',
+							name: '.content.ReadAsset',
+							label: '@string/activity_read_asset',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE',
 										'android.intent.category.EMBED'
 									]
@@ -4276,2313 +4277,2313 @@ describe('AndroidManifest', function () {
 							]
 						},
 						'.content.ResourcesSample': {
-							'name': '.content.ResourcesSample',
-							'label': '@string/activity_resources',
+							name: '.content.ResourcesSample',
+							label: '@string/activity_resources',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.content.PickContact': {
-							'name': '.content.PickContact',
-							'label': '@string/activity_pick_contact',
+							name: '.content.PickContact',
+							label: '@string/activity_pick_contact',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.content.ChangedContacts': {
-							'name': '.content.ChangedContacts',
-							'label': '@string/activity_changed_contact',
+							name: '.content.ChangedContacts',
+							label: '@string/activity_changed_contact',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.content.InstallApk': {
-							'name': '.content.InstallApk',
-							'label': '@string/activity_install_apk',
-							'enabled': '@bool/atLeastHoneycombMR2',
+							name: '.content.InstallApk',
+							label: '@string/activity_install_apk',
+							enabled: '@bool/atLeastHoneycombMR2',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.os.MorseCode': {
-							'name': '.os.MorseCode',
-							'label': 'OS/Morse Code',
+							name: '.os.MorseCode',
+							label: 'OS/Morse Code',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.os.Sensors': {
-							'name': '.os.Sensors',
-							'label': 'OS/Sensors',
+							name: '.os.Sensors',
+							label: 'OS/Sensors',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.os.TriggerSensors': {
-							'name': '.os.TriggerSensors',
-							'label': 'OS/TriggerSensors',
+							name: '.os.TriggerSensors',
+							label: 'OS/TriggerSensors',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.os.RotationVectorDemo': {
-							'name': '.os.RotationVectorDemo',
-							'label': 'OS/Rotation Vector',
-							'screenOrientation': 'nosensor',
+							name: '.os.RotationVectorDemo',
+							label: 'OS/Rotation Vector',
+							screenOrientation: 'nosensor',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.os.SmsMessagingDemo': {
-							'name': '.os.SmsMessagingDemo',
-							'label': 'OS/SMS Messaging',
+							name: '.os.SmsMessagingDemo',
+							label: 'OS/SMS Messaging',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.os.SmsReceivedDialog': {
-							'name': '.os.SmsReceivedDialog',
-							'theme': '@android:style/Theme.Translucent.NoTitleBar',
-							'launchMode': 'singleInstance'
+							name: '.os.SmsReceivedDialog',
+							theme: '@android:style/Theme.Translucent.NoTitleBar',
+							launchMode: 'singleInstance'
 						},
 						'.animation.AnimationLoading': {
-							'name': '.animation.AnimationLoading',
-							'label': 'Animation/Loading',
-							'hardwareAccelerated': false,
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.AnimationLoading',
+							label: 'Animation/Loading',
+							hardwareAccelerated: false,
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.AnimationCloning': {
-							'name': '.animation.AnimationCloning',
-							'label': 'Animation/Cloning',
-							'hardwareAccelerated': false,
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.AnimationCloning',
+							label: 'Animation/Cloning',
+							hardwareAccelerated: false,
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.AnimationSeeking': {
-							'name': '.animation.AnimationSeeking',
-							'label': 'Animation/Seeking',
-							'hardwareAccelerated': false,
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.AnimationSeeking',
+							label: 'Animation/Seeking',
+							hardwareAccelerated: false,
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.AnimatorEvents': {
-							'name': '.animation.AnimatorEvents',
-							'label': 'Animation/Events',
-							'hardwareAccelerated': false,
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.AnimatorEvents',
+							label: 'Animation/Events',
+							hardwareAccelerated: false,
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.BouncingBalls': {
-							'name': '.animation.BouncingBalls',
-							'label': 'Animation/Bouncing Balls',
-							'hardwareAccelerated': false,
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.BouncingBalls',
+							label: 'Animation/Bouncing Balls',
+							hardwareAccelerated: false,
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.CustomEvaluator': {
-							'name': '.animation.CustomEvaluator',
-							'label': 'Animation/Custom Evaluator',
-							'hardwareAccelerated': false,
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.CustomEvaluator',
+							label: 'Animation/Custom Evaluator',
+							hardwareAccelerated: false,
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.ListFlipper': {
-							'name': '.animation.ListFlipper',
-							'label': 'Animation/View Flip',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.ListFlipper',
+							label: 'Animation/View Flip',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.ReversingAnimation': {
-							'name': '.animation.ReversingAnimation',
-							'label': 'Animation/Reversing',
-							'hardwareAccelerated': false,
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.ReversingAnimation',
+							label: 'Animation/Reversing',
+							hardwareAccelerated: false,
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.MultiPropertyAnimation': {
-							'name': '.animation.MultiPropertyAnimation',
-							'label': 'Animation/Multiple Properties',
-							'hardwareAccelerated': false,
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.MultiPropertyAnimation',
+							label: 'Animation/Multiple Properties',
+							hardwareAccelerated: false,
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.LayoutAnimations': {
-							'name': '.animation.LayoutAnimations',
-							'label': 'Animation/Layout Animations',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.LayoutAnimations',
+							label: 'Animation/Layout Animations',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.LayoutAnimationsHideShow': {
-							'name': '.animation.LayoutAnimationsHideShow',
-							'label': 'Animation/Hide-Show Animations',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.LayoutAnimationsHideShow',
+							label: 'Animation/Hide-Show Animations',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.LayoutAnimationsByDefault': {
-							'name': '.animation.LayoutAnimationsByDefault',
-							'label': 'Animation/Default Layout Animations',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.animation.LayoutAnimationsByDefault',
+							label: 'Animation/Default Layout Animations',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.animation.Transition3d': {
-							'name': '.animation.Transition3d',
-							'label': 'Views/Animation/3D Transition',
+							name: '.animation.Transition3d',
+							label: 'Views/Animation/3D Transition',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TextClockDemo': {
-							'name': '.view.TextClockDemo',
-							'label': 'Views/TextClock',
+							name: '.view.TextClockDemo',
+							label: 'Views/TextClock',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ChronometerDemo': {
-							'name': '.view.ChronometerDemo',
-							'label': 'Views/Chronometer',
+							name: '.view.ChronometerDemo',
+							label: 'Views/Chronometer',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.WebView1': {
-							'name': '.view.WebView1',
-							'label': 'Views/WebView',
+							name: '.view.WebView1',
+							label: 'Views/WebView',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.RelativeLayout1': {
-							'name': '.view.RelativeLayout1',
-							'label': 'Views/Layouts/RelativeLayout/1. Vertical',
+							name: '.view.RelativeLayout1',
+							label: 'Views/Layouts/RelativeLayout/1. Vertical',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.RelativeLayout2': {
-							'name': '.view.RelativeLayout2',
-							'label': 'Views/Layouts/RelativeLayout/2. Simple Form',
+							name: '.view.RelativeLayout2',
+							label: 'Views/Layouts/RelativeLayout/2. Simple Form',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LinearLayout1': {
-							'name': '.view.LinearLayout1',
-							'label': 'Views/Layouts/LinearLayout/01. Vertical',
+							name: '.view.LinearLayout1',
+							label: 'Views/Layouts/LinearLayout/01. Vertical',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LinearLayout2': {
-							'name': '.view.LinearLayout2',
-							'label': 'Views/Layouts/LinearLayout/02. Vertical (Fill Screen)',
+							name: '.view.LinearLayout2',
+							label: 'Views/Layouts/LinearLayout/02. Vertical (Fill Screen)',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LinearLayout3': {
-							'name': '.view.LinearLayout3',
-							'label': 'Views/Layouts/LinearLayout/03. Vertical (Padded)',
+							name: '.view.LinearLayout3',
+							label: 'Views/Layouts/LinearLayout/03. Vertical (Padded)',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LinearLayout4': {
-							'name': '.view.LinearLayout4',
-							'label': 'Views/Layouts/LinearLayout/04. Horizontal',
+							name: '.view.LinearLayout4',
+							label: 'Views/Layouts/LinearLayout/04. Horizontal',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LinearLayout5': {
-							'name': '.view.LinearLayout5',
-							'label': 'Views/Layouts/LinearLayout/05. Simple Form',
+							name: '.view.LinearLayout5',
+							label: 'Views/Layouts/LinearLayout/05. Simple Form',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LinearLayout6': {
-							'name': '.view.LinearLayout6',
-							'label': 'Views/Layouts/LinearLayout/06. Uniform Size',
+							name: '.view.LinearLayout6',
+							label: 'Views/Layouts/LinearLayout/06. Uniform Size',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LinearLayout7': {
-							'name': '.view.LinearLayout7',
-							'label': 'Views/Layouts/LinearLayout/07. Fill Parent',
+							name: '.view.LinearLayout7',
+							label: 'Views/Layouts/LinearLayout/07. Fill Parent',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LinearLayout8': {
-							'name': '.view.LinearLayout8',
-							'label': 'Views/Layouts/LinearLayout/08. Gravity',
+							name: '.view.LinearLayout8',
+							label: 'Views/Layouts/LinearLayout/08. Gravity',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LinearLayout9': {
-							'name': '.view.LinearLayout9',
-							'label': 'Views/Layouts/LinearLayout/09. Layout Weight',
+							name: '.view.LinearLayout9',
+							label: 'Views/Layouts/LinearLayout/09. Layout Weight',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LinearLayout10': {
-							'name': '.view.LinearLayout10',
-							'label': 'Views/Layouts/LinearLayout/10. Background Image',
+							name: '.view.LinearLayout10',
+							label: 'Views/Layouts/LinearLayout/10. Background Image',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.CustomLayoutActivity': {
-							'name': '.view.CustomLayoutActivity',
-							'label': 'Views/Layouts/CustomLayout',
+							name: '.view.CustomLayoutActivity',
+							label: 'Views/Layouts/CustomLayout',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.RadioGroup1': {
-							'name': '.view.RadioGroup1',
-							'label': 'Views/Radio Group',
+							name: '.view.RadioGroup1',
+							label: 'Views/Radio Group',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ScrollView1': {
-							'name': '.view.ScrollView1',
-							'label': 'Views/Layouts/ScrollView/1. Short',
+							name: '.view.ScrollView1',
+							label: 'Views/Layouts/ScrollView/1. Short',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ScrollView2': {
-							'name': '.view.ScrollView2',
-							'label': 'Views/Layouts/ScrollView/2. Long',
+							name: '.view.ScrollView2',
+							label: 'Views/Layouts/ScrollView/2. Long',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.HorizontalScrollView1': {
-							'name': '.view.HorizontalScrollView1',
-							'label': 'Views/Layouts/HorizontalScrollView',
+							name: '.view.HorizontalScrollView1',
+							label: 'Views/Layouts/HorizontalScrollView',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Tabs1': {
-							'name': '.view.Tabs1',
-							'label': 'Views/Tabs/1. Content By Id',
+							name: '.view.Tabs1',
+							label: 'Views/Tabs/1. Content By Id',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Tabs2': {
-							'name': '.view.Tabs2',
-							'label': 'Views/Tabs/2. Content By Factory',
+							name: '.view.Tabs2',
+							label: 'Views/Tabs/2. Content By Factory',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Tabs3': {
-							'name': '.view.Tabs3',
-							'label': 'Views/Tabs/3. Content By Intent',
+							name: '.view.Tabs3',
+							label: 'Views/Tabs/3. Content By Intent',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Tabs4': {
-							'name': '.view.Tabs4',
-							'label': 'Views/Tabs/4. Non Holo theme',
-							'theme': '@android:style/Theme',
+							name: '.view.Tabs4',
+							label: 'Views/Tabs/4. Non Holo theme',
+							theme: '@android:style/Theme',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Tabs5': {
-							'name': '.view.Tabs5',
-							'label': 'Views/Tabs/5. Scrollable',
+							name: '.view.Tabs5',
+							label: 'Views/Tabs/5. Scrollable',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Tabs6': {
-							'name': '.view.Tabs6',
-							'label': 'Views/Tabs/6. Right aligned',
+							name: '.view.Tabs6',
+							label: 'Views/Tabs/6. Right aligned',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.InternalSelectionScroll': {
-							'name': '.view.InternalSelectionScroll',
-							'label': 'Views/Layouts/ScrollView/3. Internal Selection',
+							name: '.view.InternalSelectionScroll',
+							label: 'Views/Layouts/ScrollView/3. Internal Selection',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout1': {
-							'name': '.view.TableLayout1',
-							'label': 'Views/Layouts/TableLayout/01. Basic',
+							name: '.view.TableLayout1',
+							label: 'Views/Layouts/TableLayout/01. Basic',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout2': {
-							'name': '.view.TableLayout2',
-							'label': 'Views/Layouts/TableLayout/02. Empty Cells',
+							name: '.view.TableLayout2',
+							label: 'Views/Layouts/TableLayout/02. Empty Cells',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout3': {
-							'name': '.view.TableLayout3',
-							'label': 'Views/Layouts/TableLayout/03. Long Content',
+							name: '.view.TableLayout3',
+							label: 'Views/Layouts/TableLayout/03. Long Content',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout4': {
-							'name': '.view.TableLayout4',
-							'label': 'Views/Layouts/TableLayout/04. Stretchable',
+							name: '.view.TableLayout4',
+							label: 'Views/Layouts/TableLayout/04. Stretchable',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout5': {
-							'name': '.view.TableLayout5',
-							'label': 'Views/Layouts/TableLayout/05. Spanning and Stretchable',
+							name: '.view.TableLayout5',
+							label: 'Views/Layouts/TableLayout/05. Spanning and Stretchable',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout6': {
-							'name': '.view.TableLayout6',
-							'label': 'Views/Layouts/TableLayout/06. More Spanning and Stretchable',
+							name: '.view.TableLayout6',
+							label: 'Views/Layouts/TableLayout/06. More Spanning and Stretchable',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout7': {
-							'name': '.view.TableLayout7',
-							'label': 'Views/Layouts/TableLayout/07. Column Collapse',
+							name: '.view.TableLayout7',
+							label: 'Views/Layouts/TableLayout/07. Column Collapse',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout8': {
-							'name': '.view.TableLayout8',
-							'label': 'Views/Layouts/TableLayout/08. Toggle Stretch',
+							name: '.view.TableLayout8',
+							label: 'Views/Layouts/TableLayout/08. Toggle Stretch',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout9': {
-							'name': '.view.TableLayout9',
-							'label': 'Views/Layouts/TableLayout/09. Toggle Shrink',
+							name: '.view.TableLayout9',
+							label: 'Views/Layouts/TableLayout/09. Toggle Shrink',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout10': {
-							'name': '.view.TableLayout10',
-							'label': 'Views/Layouts/TableLayout/10. Simple Form',
+							name: '.view.TableLayout10',
+							label: 'Views/Layouts/TableLayout/10. Simple Form',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout11': {
-							'name': '.view.TableLayout11',
-							'label': 'Views/Layouts/TableLayout/11. Gravity',
+							name: '.view.TableLayout11',
+							label: 'Views/Layouts/TableLayout/11. Gravity',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TableLayout12': {
-							'name': '.view.TableLayout12',
-							'label': 'Views/Layouts/TableLayout/12. Cell Spanning',
+							name: '.view.TableLayout12',
+							label: 'Views/Layouts/TableLayout/12. Cell Spanning',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.GridLayout1': {
-							'name': '.view.GridLayout1',
-							'label': 'Views/Layouts/GridLayout/1. Simple Form',
+							name: '.view.GridLayout1',
+							label: 'Views/Layouts/GridLayout/1. Simple Form',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.GridLayout2': {
-							'name': '.view.GridLayout2',
-							'label': 'Views/Layouts/GridLayout/2. Form (XML)',
+							name: '.view.GridLayout2',
+							label: 'Views/Layouts/GridLayout/2. Form (XML)',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.GridLayout3': {
-							'name': '.view.GridLayout3',
-							'label': 'Views/Layouts/GridLayout/3. Form (Java)',
+							name: '.view.GridLayout3',
+							label: 'Views/Layouts/GridLayout/3. Form (Java)',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Baseline1': {
-							'name': '.view.Baseline1',
-							'label': 'Views/Layouts/Baseline/1. Top',
+							name: '.view.Baseline1',
+							label: 'Views/Layouts/Baseline/1. Top',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Baseline2': {
-							'name': '.view.Baseline2',
-							'label': 'Views/Layouts/Baseline/2. Bottom',
+							name: '.view.Baseline2',
+							label: 'Views/Layouts/Baseline/2. Bottom',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Baseline3': {
-							'name': '.view.Baseline3',
-							'label': 'Views/Layouts/Baseline/3. Center',
+							name: '.view.Baseline3',
+							label: 'Views/Layouts/Baseline/3. Center',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Baseline4': {
-							'name': '.view.Baseline4',
-							'label': 'Views/Layouts/Baseline/4. Everywhere',
+							name: '.view.Baseline4',
+							label: 'Views/Layouts/Baseline/4. Everywhere',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Baseline6': {
-							'name': '.view.Baseline6',
-							'label': 'Views/Layouts/Baseline/5. Multi-line',
+							name: '.view.Baseline6',
+							label: 'Views/Layouts/Baseline/5. Multi-line',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Baseline7': {
-							'name': '.view.Baseline7',
-							'label': 'Views/Layouts/Baseline/6. Relative',
+							name: '.view.Baseline7',
+							label: 'Views/Layouts/Baseline/6. Relative',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.BaselineNested1': {
-							'name': '.view.BaselineNested1',
-							'label': 'Views/Layouts/Baseline/Nested Example 1',
+							name: '.view.BaselineNested1',
+							label: 'Views/Layouts/Baseline/Nested Example 1',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.BaselineNested2': {
-							'name': '.view.BaselineNested2',
-							'label': 'Views/Layouts/Baseline/Nested Example 2',
+							name: '.view.BaselineNested2',
+							label: 'Views/Layouts/Baseline/Nested Example 2',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.BaselineNested3': {
-							'name': '.view.BaselineNested3',
-							'label': 'Views/Layouts/Baseline/Nested Example 3',
+							name: '.view.BaselineNested3',
+							label: 'Views/Layouts/Baseline/Nested Example 3',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ScrollBar1': {
-							'name': '.view.ScrollBar1',
-							'label': 'Views/ScrollBars/1. Basic',
+							name: '.view.ScrollBar1',
+							label: 'Views/ScrollBars/1. Basic',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ScrollBar2': {
-							'name': '.view.ScrollBar2',
-							'label': 'Views/ScrollBars/2. Fancy',
+							name: '.view.ScrollBar2',
+							label: 'Views/ScrollBars/2. Fancy',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ScrollBar3': {
-							'name': '.view.ScrollBar3',
-							'label': 'Views/ScrollBars/3. Style',
+							name: '.view.ScrollBar3',
+							label: 'Views/ScrollBars/3. Style',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Visibility1': {
-							'name': '.view.Visibility1',
-							'label': 'Views/Visibility',
+							name: '.view.Visibility1',
+							label: 'Views/Visibility',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List1': {
-							'name': '.view.List1',
-							'label': 'Views/Lists/01. Array',
+							name: '.view.List1',
+							label: 'Views/Lists/01. Array',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List2': {
-							'name': '.view.List2',
-							'label': 'Views/Lists/02. Cursor (People)',
+							name: '.view.List2',
+							label: 'Views/Lists/02. Cursor (People)',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List3': {
-							'name': '.view.List3',
-							'label': 'Views/Lists/03. Cursor (Phones)',
+							name: '.view.List3',
+							label: 'Views/Lists/03. Cursor (Phones)',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List4': {
-							'name': '.view.List4',
-							'label': 'Views/Lists/04. ListAdapter',
+							name: '.view.List4',
+							label: 'Views/Lists/04. ListAdapter',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List5': {
-							'name': '.view.List5',
-							'label': 'Views/Lists/05. Separators',
+							name: '.view.List5',
+							label: 'Views/Lists/05. Separators',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List6': {
-							'name': '.view.List6',
-							'label': 'Views/Lists/06. ListAdapter Collapsed',
+							name: '.view.List6',
+							label: 'Views/Lists/06. ListAdapter Collapsed',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List7': {
-							'name': '.view.List7',
-							'label': 'Views/Lists/07. Cursor (Phones)',
+							name: '.view.List7',
+							label: 'Views/Lists/07. Cursor (Phones)',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List8': {
-							'name': '.view.List8',
-							'label': 'Views/Lists/08. Photos',
+							name: '.view.List8',
+							label: 'Views/Lists/08. Photos',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List9': {
-							'name': '.view.List9',
-							'label': 'Views/Lists/09. Array (Overlay)',
+							name: '.view.List9',
+							label: 'Views/Lists/09. Array (Overlay)',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List10': {
-							'name': '.view.List10',
-							'label': 'Views/Lists/10. Single choice list',
+							name: '.view.List10',
+							label: 'Views/Lists/10. Single choice list',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List11': {
-							'name': '.view.List11',
-							'label': 'Views/Lists/11. Multiple choice list',
+							name: '.view.List11',
+							label: 'Views/Lists/11. Multiple choice list',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List12': {
-							'name': '.view.List12',
-							'label': 'Views/Lists/12. Transcript',
+							name: '.view.List12',
+							label: 'Views/Lists/12. Transcript',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List13': {
-							'name': '.view.List13',
-							'label': 'Views/Lists/13. Slow Adapter',
+							name: '.view.List13',
+							label: 'Views/Lists/13. Slow Adapter',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List14': {
-							'name': '.view.List14',
-							'label': 'Views/Lists/14. Efficient Adapter',
+							name: '.view.List14',
+							label: 'Views/Lists/14. Efficient Adapter',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List15': {
-							'name': '.view.List15',
-							'label': 'Views/Lists/15. Selection Mode',
+							name: '.view.List15',
+							label: 'Views/Lists/15. Selection Mode',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List16': {
-							'name': '.view.List16',
-							'label': 'Views/Lists/16. Border selection mode',
+							name: '.view.List16',
+							label: 'Views/Lists/16. Border selection mode',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.List17': {
-							'name': '.view.List17',
-							'label': 'Views/Lists/17. Activate items',
+							name: '.view.List17',
+							label: 'Views/Lists/17. Activate items',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ExpandableList1': {
-							'name': '.view.ExpandableList1',
-							'label': 'Views/Expandable Lists/1. Custom Adapter',
+							name: '.view.ExpandableList1',
+							label: 'Views/Expandable Lists/1. Custom Adapter',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ExpandableList2': {
-							'name': '.view.ExpandableList2',
-							'label': 'Views/Expandable Lists/2. Cursor (People)',
+							name: '.view.ExpandableList2',
+							label: 'Views/Expandable Lists/2. Cursor (People)',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ExpandableList3': {
-							'name': '.view.ExpandableList3',
-							'label': 'Views/Expandable Lists/3. Simple Adapter',
+							name: '.view.ExpandableList3',
+							label: 'Views/Expandable Lists/3. Simple Adapter',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.CustomView1': {
-							'name': '.view.CustomView1',
-							'label': 'Views/Custom',
-							'theme': '@android:style/Theme.Light',
+							name: '.view.CustomView1',
+							label: 'Views/Custom',
+							theme: '@android:style/Theme.Light',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Gallery1': {
-							'name': '.view.Gallery1',
-							'label': 'Views/Gallery/1. Photos',
+							name: '.view.Gallery1',
+							label: 'Views/Gallery/1. Photos',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Gallery2': {
-							'name': '.view.Gallery2',
-							'label': 'Views/Gallery/2. People',
+							name: '.view.Gallery2',
+							label: 'Views/Gallery/2. People',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Spinner1': {
-							'name': '.view.Spinner1',
-							'label': 'Views/Spinner',
+							name: '.view.Spinner1',
+							label: 'Views/Spinner',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Grid1': {
-							'name': '.view.Grid1',
-							'label': 'Views/Grid/1. Icon Grid',
+							name: '.view.Grid1',
+							label: 'Views/Grid/1. Icon Grid',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Grid2': {
-							'name': '.view.Grid2',
-							'label': 'Views/Grid/2. Photo Grid',
+							name: '.view.Grid2',
+							label: 'Views/Grid/2. Photo Grid',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Grid3': {
-							'name': '.view.Grid3',
-							'label': 'Views/Grid/3. Selection Mode',
+							name: '.view.Grid3',
+							label: 'Views/Grid/3. Selection Mode',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ImageView1': {
-							'name': '.view.ImageView1',
-							'label': 'Views/ImageView',
+							name: '.view.ImageView1',
+							label: 'Views/ImageView',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ImageSwitcher1': {
-							'name': '.view.ImageSwitcher1',
-							'label': 'Views/ImageSwitcher',
+							name: '.view.ImageSwitcher1',
+							label: 'Views/ImageSwitcher',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.TextSwitcher1': {
-							'name': '.view.TextSwitcher1',
-							'label': 'Views/TextSwitcher',
+							name: '.view.TextSwitcher1',
+							label: 'Views/TextSwitcher',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ImageButton1': {
-							'name': '.view.ImageButton1',
-							'label': 'Views/ImageButton',
+							name: '.view.ImageButton1',
+							label: 'Views/ImageButton',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Animation1': {
-							'name': '.view.Animation1',
-							'label': 'Views/Animation/Shake',
+							name: '.view.Animation1',
+							label: 'Views/Animation/Shake',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Animation2': {
-							'name': '.view.Animation2',
-							'label': 'Views/Animation/Push',
+							name: '.view.Animation2',
+							label: 'Views/Animation/Push',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Animation3': {
-							'name': '.view.Animation3',
-							'label': 'Views/Animation/Interpolators',
+							name: '.view.Animation3',
+							label: 'Views/Animation/Interpolators',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LayoutAnimation1': {
-							'name': '.view.LayoutAnimation1',
-							'label': 'Views/Layout Animation/1. Grid Fade',
+							name: '.view.LayoutAnimation1',
+							label: 'Views/Layout Animation/1. Grid Fade',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LayoutAnimation2': {
-							'name': '.view.LayoutAnimation2',
-							'label': 'Views/Layout Animation/2. List Cascade',
+							name: '.view.LayoutAnimation2',
+							label: 'Views/Layout Animation/2. List Cascade',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LayoutAnimation3': {
-							'name': '.view.LayoutAnimation3',
-							'label': 'Views/Layout Animation/3. Reverse Order',
+							name: '.view.LayoutAnimation3',
+							label: 'Views/Layout Animation/3. Reverse Order',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LayoutAnimation4': {
-							'name': '.view.LayoutAnimation4',
-							'label': 'Views/Layout Animation/4. Randomize',
+							name: '.view.LayoutAnimation4',
+							label: 'Views/Layout Animation/4. Randomize',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LayoutAnimation5': {
-							'name': '.view.LayoutAnimation5',
-							'label': 'Views/Layout Animation/5. Grid Direction',
+							name: '.view.LayoutAnimation5',
+							label: 'Views/Layout Animation/5. Grid Direction',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LayoutAnimation6': {
-							'name': '.view.LayoutAnimation6',
-							'label': 'Views/Layout Animation/6. Wave Scale',
+							name: '.view.LayoutAnimation6',
+							label: 'Views/Layout Animation/6. Wave Scale',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.LayoutAnimation7': {
-							'name': '.view.LayoutAnimation7',
-							'label': 'Views/Layout Animation/7. Nested Animations',
+							name: '.view.LayoutAnimation7',
+							label: 'Views/Layout Animation/7. Nested Animations',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Controls1': {
-							'name': '.view.Controls1',
-							'label': 'Views/Controls/1. Light Theme',
-							'theme': '@android:style/Theme.Light',
+							name: '.view.Controls1',
+							label: 'Views/Controls/1. Light Theme',
+							theme: '@android:style/Theme.Light',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Controls2': {
-							'name': '.view.Controls2',
-							'label': 'Views/Controls/2. Dark Theme',
-							'theme': '@android:style/Theme',
+							name: '.view.Controls2',
+							label: 'Views/Controls/2. Dark Theme',
+							theme: '@android:style/Theme',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Controls3': {
-							'name': '.view.Controls3',
-							'label': 'Views/Controls/3. Holo Light Theme',
-							'theme': '@android:style/Theme.Holo.Light',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.view.Controls3',
+							label: 'Views/Controls/3. Holo Light Theme',
+							theme: '@android:style/Theme.Holo.Light',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Controls4': {
-							'name': '.view.Controls4',
-							'label': 'Views/Controls/4. Holo Dark Theme',
-							'theme': '@android:style/Theme.Holo',
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.view.Controls4',
+							label: 'Views/Controls/4. Holo Dark Theme',
+							theme: '@android:style/Theme.Holo',
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Controls5': {
-							'name': '.view.Controls5',
-							'label': 'Views/Controls/5. Custom Theme',
-							'theme': '@style/CustomTheme',
+							name: '.view.Controls5',
+							label: 'Views/Controls/5. Custom Theme',
+							theme: '@style/CustomTheme',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Controls6': {
-							'name': '.view.Controls6',
-							'label': 'Views/Controls/6. Holo or Old Theme',
-							'theme': '@style/ThemeHolo',
+							name: '.view.Controls6',
+							label: 'Views/Controls/6. Holo or Old Theme',
+							theme: '@style/ThemeHolo',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Buttons1': {
-							'name': '.view.Buttons1',
-							'label': 'Views/Buttons',
+							name: '.view.Buttons1',
+							label: 'Views/Buttons',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.AutoComplete1': {
-							'name': '.view.AutoComplete1',
-							'label': 'Views/Auto Complete/1. Screen Top',
+							name: '.view.AutoComplete1',
+							label: 'Views/Auto Complete/1. Screen Top',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.AutoComplete2': {
-							'name': '.view.AutoComplete2',
-							'label': 'Views/Auto Complete/2. Screen Bottom',
+							name: '.view.AutoComplete2',
+							label: 'Views/Auto Complete/2. Screen Bottom',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.AutoComplete3': {
-							'name': '.view.AutoComplete3',
-							'label': 'Views/Auto Complete/3. Scroll',
+							name: '.view.AutoComplete3',
+							label: 'Views/Auto Complete/3. Scroll',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.AutoComplete4': {
-							'name': '.view.AutoComplete4',
-							'label': 'Views/Auto Complete/4. Contacts',
+							name: '.view.AutoComplete4',
+							label: 'Views/Auto Complete/4. Contacts',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.AutoComplete5': {
-							'name': '.view.AutoComplete5',
-							'label': 'Views/Auto Complete/5. Contacts with Hint',
+							name: '.view.AutoComplete5',
+							label: 'Views/Auto Complete/5. Contacts with Hint',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.AutoComplete6': {
-							'name': '.view.AutoComplete6',
-							'label': 'Views/Auto Complete/6. Multiple items',
+							name: '.view.AutoComplete6',
+							label: 'Views/Auto Complete/6. Multiple items',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ProgressBar1': {
-							'name': '.view.ProgressBar1',
-							'label': 'Views/Progress Bar/1. Incremental',
+							name: '.view.ProgressBar1',
+							label: 'Views/Progress Bar/1. Incremental',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ProgressBar2': {
-							'name': '.view.ProgressBar2',
-							'label': 'Views/Progress Bar/2. Smooth',
+							name: '.view.ProgressBar2',
+							label: 'Views/Progress Bar/2. Smooth',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ProgressBar3': {
-							'name': '.view.ProgressBar3',
-							'label': 'Views/Progress Bar/3. Dialogs',
+							name: '.view.ProgressBar3',
+							label: 'Views/Progress Bar/3. Dialogs',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ProgressBar4': {
-							'name': '.view.ProgressBar4',
-							'label': 'Views/Progress Bar/4. In Title Bar',
+							name: '.view.ProgressBar4',
+							label: 'Views/Progress Bar/4. In Title Bar',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.SeekBar1': {
-							'name': '.view.SeekBar1',
-							'label': 'Views/Seek Bar',
+							name: '.view.SeekBar1',
+							label: 'Views/Seek Bar',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.RatingBar1': {
-							'name': '.view.RatingBar1',
-							'label': 'Views/Rating Bar',
+							name: '.view.RatingBar1',
+							label: 'Views/Rating Bar',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Focus1': {
-							'name': '.view.Focus1',
-							'label': 'Views/Focus/1. Vertical',
+							name: '.view.Focus1',
+							label: 'Views/Focus/1. Vertical',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Focus2': {
-							'name': '.view.Focus2',
-							'label': 'Views/Focus/2. Horizontal',
+							name: '.view.Focus2',
+							label: 'Views/Focus/2. Horizontal',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Focus3': {
-							'name': '.view.Focus3',
-							'label': 'Views/Focus/3. Circular',
+							name: '.view.Focus3',
+							label: 'Views/Focus/3. Circular',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.InternalSelectionFocus': {
-							'name': '.view.InternalSelectionFocus',
-							'label': 'Views/Focus/4. Internal Selection',
+							name: '.view.InternalSelectionFocus',
+							label: 'Views/Focus/4. Internal Selection',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Focus5': {
-							'name': '.view.Focus5',
-							'label': 'Views/Focus/5. Sequential (Tab Order)',
+							name: '.view.Focus5',
+							label: 'Views/Focus/5. Sequential (Tab Order)',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.WindowFocusObserver': {
-							'name': '.view.WindowFocusObserver',
-							'label': 'Views/Focus/6. Window Focus Observer',
+							name: '.view.WindowFocusObserver',
+							label: 'Views/Focus/6. Window Focus Observer',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.DateWidgets1': {
-							'name': '.view.DateWidgets1',
-							'label': 'Views/Date Widgets/1. Dialog',
+							name: '.view.DateWidgets1',
+							label: 'Views/Date Widgets/1. Dialog',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.DateWidgets2': {
-							'name': '.view.DateWidgets2',
-							'label': 'Views/Date Widgets/2. Inline',
+							name: '.view.DateWidgets2',
+							label: 'Views/Date Widgets/2. Inline',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.PopupMenu1': {
-							'name': '.view.PopupMenu1',
-							'label': 'Views/Popup Menu',
+							name: '.view.PopupMenu1',
+							label: 'Views/Popup Menu',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.SearchViewActionBar': {
-							'name': '.view.SearchViewActionBar',
-							'label': 'Views/Search View/Action Bar',
-							'theme': '@android:style/Theme.Holo',
+							name: '.view.SearchViewActionBar',
+							label: 'Views/Search View/Action Bar',
+							theme: '@android:style/Theme.Holo',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							],
 							'meta-data': {
 								'android.app.default_searchable': {
-									'name': 'android.app.default_searchable',
-									'value': '.app.SearchQueryResults'
+									name: 'android.app.default_searchable',
+									value: '.app.SearchQueryResults'
 								}
 							}
 						},
 						'.view.SearchViewAlwaysVisible': {
-							'name': '.view.SearchViewAlwaysVisible',
-							'label': 'Views/Search View/Always Expanded',
-							'theme': '@android:style/Theme.Holo',
+							name: '.view.SearchViewAlwaysVisible',
+							label: 'Views/Search View/Always Expanded',
+							theme: '@android:style/Theme.Holo',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							],
 							'meta-data': {
 								'android.app.default_searchable': {
-									'name': 'android.app.default_searchable',
-									'value': '.app.SearchQueryResults'
+									name: 'android.app.default_searchable',
+									value: '.app.SearchQueryResults'
 								}
 							}
 						},
 						'.view.SearchViewFilterMode': {
-							'name': '.view.SearchViewFilterMode',
-							'label': 'Views/Search View/Filter',
-							'theme': '@android:style/Theme.Holo',
+							name: '.view.SearchViewFilterMode',
+							label: 'Views/Search View/Filter',
+							theme: '@android:style/Theme.Holo',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.RotatingButton': {
-							'name': '.view.RotatingButton',
-							'label': 'Views/Rotating Button',
+							name: '.view.RotatingButton',
+							label: 'Views/Rotating Button',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.SecureView': {
-							'name': '.view.SecureView',
-							'label': 'Views/Secure View',
+							name: '.view.SecureView',
+							label: 'Views/Secure View',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.SplitTouchView': {
-							'name': '.view.SplitTouchView',
-							'label': 'Views/Splitting Touches across Views',
+							name: '.view.SplitTouchView',
+							label: 'Views/Splitting Touches across Views',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.DragAndDropDemo': {
-							'name': '.view.DragAndDropDemo',
-							'label': 'Views/Drag and Drop',
-							'hardwareAccelerated': false,
-							'enabled': '@bool/atLeastHoneycomb',
+							name: '.view.DragAndDropDemo',
+							label: 'Views/Drag and Drop',
+							hardwareAccelerated: false,
+							enabled: '@bool/atLeastHoneycomb',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.GameControllerInput': {
-							'name': '.view.GameControllerInput',
-							'label': 'Views/Game Controller Input',
+							name: '.view.GameControllerInput',
+							label: 'Views/Game Controller Input',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Hover': {
-							'name': '.view.Hover',
-							'label': 'Views/Hover Events',
+							name: '.view.Hover',
+							label: 'Views/Hover Events',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.SystemUIModes': {
-							'name': '.view.SystemUIModes',
-							'label': 'Views/System UI Visibility/System UI Modes',
-							'uiOptions': 'splitActionBarWhenNarrow',
-							'enabled': '@bool/atLeastJellyBeanMR2',
+							name: '.view.SystemUIModes',
+							label: 'Views/System UI Visibility/System UI Modes',
+							uiOptions: 'splitActionBarWhenNarrow',
+							enabled: '@bool/atLeastJellyBeanMR2',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.SystemUIModesOverlay': {
-							'name': '.view.SystemUIModesOverlay',
-							'label': 'Views/System UI Visibility/System UI Modes Overlay',
-							'uiOptions': 'splitActionBarWhenNarrow',
-							'enabled': '@bool/atLeastJellyBean',
+							name: '.view.SystemUIModesOverlay',
+							label: 'Views/System UI Visibility/System UI Modes Overlay',
+							uiOptions: 'splitActionBarWhenNarrow',
+							enabled: '@bool/atLeastJellyBean',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.ContentBrowserActivity': {
-							'name': '.view.ContentBrowserActivity',
-							'label': 'Views/System UI Visibility/Content Browser',
-							'theme': '@android:style/Theme.Holo.Light.DarkActionBar',
-							'uiOptions': 'splitActionBarWhenNarrow',
-							'enabled': '@bool/atLeastJellyBean',
+							name: '.view.ContentBrowserActivity',
+							label: 'Views/System UI Visibility/Content Browser',
+							theme: '@android:style/Theme.Holo.Light.DarkActionBar',
+							uiOptions: 'splitActionBarWhenNarrow',
+							enabled: '@bool/atLeastJellyBean',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.VideoPlayerActivity': {
-							'name': '.view.VideoPlayerActivity',
-							'label': 'Views/System UI Visibility/Video Player',
-							'theme': '@android:style/Theme.Holo',
-							'uiOptions': 'splitActionBarWhenNarrow',
-							'enabled': '@bool/atLeastJellyBean',
+							name: '.view.VideoPlayerActivity',
+							label: 'Views/System UI Visibility/Video Player',
+							theme: '@android:style/Theme.Holo',
+							uiOptions: 'splitActionBarWhenNarrow',
+							enabled: '@bool/atLeastJellyBean',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.view.Switches': {
-							'name': '.view.Switches',
-							'label': 'Views/Switches',
+							name: '.view.Switches',
+							label: 'Views/Switches',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.kube.Kube': {
-							'name': '.graphics.kube.Kube',
-							'label': 'Graphics/OpenGL ES/Kube',
-							'configChanges': [
+							name: '.graphics.kube.Kube',
+							label: 'Graphics/OpenGL ES/Kube',
+							configChanges: [
 								'keyboardHidden',
 								'orientation',
 								'screenLayout',
@@ -6591,49 +6592,49 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.Compass': {
-							'name': '.graphics.Compass',
-							'label': 'Graphics/Compass',
+							name: '.graphics.Compass',
+							label: 'Graphics/Compass',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.CameraPreview': {
-							'name': '.graphics.CameraPreview',
-							'label': 'Graphics/CameraPreview',
-							'screenOrientation': 'landscape',
+							name: '.graphics.CameraPreview',
+							label: 'Graphics/CameraPreview',
+							screenOrientation: 'landscape',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.CompressedTextureActivity': {
-							'name': '.graphics.CompressedTextureActivity',
-							'label': 'Graphics/OpenGL ES/Compressed Texture',
-							'theme': '@android:style/Theme.NoTitleBar',
-							'configChanges': [
+							name: '.graphics.CompressedTextureActivity',
+							label: 'Graphics/OpenGL ES/Compressed Texture',
+							theme: '@android:style/Theme.NoTitleBar',
+							configChanges: [
 								'keyboardHidden',
 								'orientation',
 								'screenLayout',
@@ -6642,20 +6643,20 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.CubeMapActivity': {
-							'name': '.graphics.CubeMapActivity',
-							'label': 'Graphics/OpenGL ES/Cube Map',
-							'theme': '@android:style/Theme.NoTitleBar',
-							'configChanges': [
+							name: '.graphics.CubeMapActivity',
+							label: 'Graphics/OpenGL ES/Cube Map',
+							theme: '@android:style/Theme.NoTitleBar',
+							configChanges: [
 								'keyboardHidden',
 								'orientation',
 								'screenLayout',
@@ -6664,20 +6665,20 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.FrameBufferObjectActivity': {
-							'name': '.graphics.FrameBufferObjectActivity',
-							'label': 'Graphics/OpenGL ES/Frame Buffer Object',
-							'theme': '@android:style/Theme.NoTitleBar',
-							'configChanges': [
+							name: '.graphics.FrameBufferObjectActivity',
+							label: 'Graphics/OpenGL ES/Frame Buffer Object',
+							theme: '@android:style/Theme.NoTitleBar',
+							configChanges: [
 								'keyboardHidden',
 								'orientation',
 								'screenLayout',
@@ -6686,20 +6687,20 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.GLSurfaceViewActivity': {
-							'name': '.graphics.GLSurfaceViewActivity',
-							'label': 'Graphics/OpenGL ES/GLSurfaceView',
-							'theme': '@android:style/Theme.NoTitleBar',
-							'configChanges': [
+							name: '.graphics.GLSurfaceViewActivity',
+							label: 'Graphics/OpenGL ES/GLSurfaceView',
+							theme: '@android:style/Theme.NoTitleBar',
+							configChanges: [
 								'keyboardHidden',
 								'orientation',
 								'screenLayout',
@@ -6708,20 +6709,20 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.GLES20Activity': {
-							'name': '.graphics.GLES20Activity',
-							'label': 'Graphics/OpenGL ES/OpenGL ES 2.0',
-							'theme': '@android:style/Theme.NoTitleBar',
-							'configChanges': [
+							name: '.graphics.GLES20Activity',
+							label: 'Graphics/OpenGL ES/OpenGL ES 2.0',
+							theme: '@android:style/Theme.NoTitleBar',
+							configChanges: [
 								'keyboardHidden',
 								'orientation',
 								'screenLayout',
@@ -6730,19 +6731,19 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.MatrixPaletteActivity': {
-							'name': '.graphics.MatrixPaletteActivity',
-							'label': 'Graphics/OpenGL ES/Matrix Palette Skinning',
-							'configChanges': [
+							name: '.graphics.MatrixPaletteActivity',
+							label: 'Graphics/OpenGL ES/Matrix Palette Skinning',
+							configChanges: [
 								'keyboardHidden',
 								'orientation',
 								'screenLayout',
@@ -6751,20 +6752,20 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.TranslucentGLSurfaceViewActivity': {
-							'name': '.graphics.TranslucentGLSurfaceViewActivity',
-							'label': 'Graphics/OpenGL ES/Translucent GLSurfaceView',
-							'theme': '@style/Theme.Translucent',
-							'configChanges': [
+							name: '.graphics.TranslucentGLSurfaceViewActivity',
+							label: 'Graphics/OpenGL ES/Translucent GLSurfaceView',
+							theme: '@style/Theme.Translucent',
+							configChanges: [
 								'keyboardHidden',
 								'orientation',
 								'screenLayout',
@@ -6773,20 +6774,20 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.TriangleActivity': {
-							'name': '.graphics.TriangleActivity',
-							'label': 'Graphics/OpenGL ES/Textured Triangle',
-							'theme': '@android:style/Theme.Holo.Dialog',
-							'configChanges': [
+							name: '.graphics.TriangleActivity',
+							label: 'Graphics/OpenGL ES/Textured Triangle',
+							theme: '@android:style/Theme.Holo.Dialog',
+							configChanges: [
 								'keyboardHidden',
 								'orientation',
 								'screenLayout',
@@ -6795,20 +6796,20 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.spritetext.SpriteTextActivity': {
-							'name': '.graphics.spritetext.SpriteTextActivity',
-							'label': 'Graphics/OpenGL ES/Sprite Text',
-							'theme': '@android:style/Theme.NoTitleBar',
-							'configChanges': [
+							name: '.graphics.spritetext.SpriteTextActivity',
+							label: 'Graphics/OpenGL ES/Sprite Text',
+							theme: '@android:style/Theme.NoTitleBar',
+							configChanges: [
 								'keyboardHidden',
 								'orientation',
 								'screenLayout',
@@ -6817,20 +6818,20 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.TouchRotateActivity': {
-							'name': '.graphics.TouchRotateActivity',
-							'label': 'Graphics/OpenGL ES/Touch Rotate',
-							'theme': '@android:style/Theme.NoTitleBar',
-							'configChanges': [
+							name: '.graphics.TouchRotateActivity',
+							label: 'Graphics/OpenGL ES/Touch Rotate',
+							theme: '@android:style/Theme.NoTitleBar',
+							configChanges: [
 								'keyboardHidden',
 								'orientation',
 								'screenLayout',
@@ -6839,433 +6840,433 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.PolyToPoly': {
-							'name': '.graphics.PolyToPoly',
-							'label': 'Graphics/PolyToPoly',
+							name: '.graphics.PolyToPoly',
+							label: 'Graphics/PolyToPoly',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.ScaleToFit': {
-							'name': '.graphics.ScaleToFit',
-							'label': 'Graphics/ScaleToFit',
+							name: '.graphics.ScaleToFit',
+							label: 'Graphics/ScaleToFit',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.RoundRects': {
-							'name': '.graphics.RoundRects',
-							'label': 'Graphics/RoundRects',
+							name: '.graphics.RoundRects',
+							label: 'Graphics/RoundRects',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.ShapeDrawable1': {
-							'name': '.graphics.ShapeDrawable1',
-							'label': 'Graphics/Drawable/ShapeDrawable',
+							name: '.graphics.ShapeDrawable1',
+							label: 'Graphics/Drawable/ShapeDrawable',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.SurfaceViewOverlay': {
-							'name': '.graphics.SurfaceViewOverlay',
-							'label': 'Graphics/SurfaceView Overlay',
+							name: '.graphics.SurfaceViewOverlay',
+							label: 'Graphics/SurfaceView Overlay',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.WindowSurface': {
-							'name': '.graphics.WindowSurface',
-							'label': 'Graphics/Surface Window',
+							name: '.graphics.WindowSurface',
+							label: 'Graphics/Surface Window',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.TextAlign': {
-							'hardwareAccelerated': false,
-							'name': '.graphics.TextAlign',
-							'label': 'Graphics/Text Align',
+							hardwareAccelerated: false,
+							name: '.graphics.TextAlign',
+							label: 'Graphics/Text Align',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.Arcs': {
-							'name': '.graphics.Arcs',
-							'label': 'Graphics/Arcs',
+							name: '.graphics.Arcs',
+							label: 'Graphics/Arcs',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.Patterns': {
-							'name': '.graphics.Patterns',
-							'label': 'Graphics/Patterns',
+							name: '.graphics.Patterns',
+							label: 'Graphics/Patterns',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.Clipping': {
-							'hardwareAccelerated': false,
-							'name': '.graphics.Clipping',
-							'label': 'Graphics/Clipping',
+							hardwareAccelerated: false,
+							name: '.graphics.Clipping',
+							label: 'Graphics/Clipping',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.Layers': {
-							'name': '.graphics.Layers',
-							'label': 'Graphics/Layers',
+							name: '.graphics.Layers',
+							label: 'Graphics/Layers',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.UnicodeChart': {
-							'hardwareAccelerated': false,
-							'name': '.graphics.UnicodeChart',
-							'label': 'Graphics/UnicodeChart',
+							hardwareAccelerated: false,
+							name: '.graphics.UnicodeChart',
+							label: 'Graphics/UnicodeChart',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.PathFillTypes': {
-							'name': '.graphics.PathFillTypes',
-							'label': 'Graphics/PathFillTypes',
+							name: '.graphics.PathFillTypes',
+							label: 'Graphics/PathFillTypes',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.Pictures': {
-							'hardwareAccelerated': false,
-							'name': '.graphics.Pictures',
-							'label': 'Graphics/Pictures',
+							hardwareAccelerated: false,
+							name: '.graphics.Pictures',
+							label: 'Graphics/Pictures',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.Vertices': {
-							'hardwareAccelerated': false,
-							'name': '.graphics.Vertices',
-							'label': 'Graphics/Vertices',
+							hardwareAccelerated: false,
+							name: '.graphics.Vertices',
+							label: 'Graphics/Vertices',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.AnimateDrawables': {
-							'name': '.graphics.AnimateDrawables',
-							'label': 'Graphics/AnimateDrawables',
+							name: '.graphics.AnimateDrawables',
+							label: 'Graphics/AnimateDrawables',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.SensorTest': {
-							'name': '.graphics.SensorTest',
-							'label': 'Graphics/SensorTest',
+							name: '.graphics.SensorTest',
+							label: 'Graphics/SensorTest',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.AlphaBitmap': {
-							'name': '.graphics.AlphaBitmap',
-							'label': 'Graphics/AlphaBitmap',
+							name: '.graphics.AlphaBitmap',
+							label: 'Graphics/AlphaBitmap',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.Regions': {
-							'name': '.graphics.Regions',
-							'label': 'Graphics/Regions',
+							name: '.graphics.Regions',
+							label: 'Graphics/Regions',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.Sweep': {
-							'name': '.graphics.Sweep',
-							'label': 'Graphics/Sweep',
+							name: '.graphics.Sweep',
+							label: 'Graphics/Sweep',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.BitmapMesh': {
-							'name': '.graphics.BitmapMesh',
-							'label': 'Graphics/BitmapMesh',
+							name: '.graphics.BitmapMesh',
+							label: 'Graphics/BitmapMesh',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.MeasureText': {
-							'name': '.graphics.MeasureText',
-							'label': 'Graphics/MeasureText',
+							name: '.graphics.MeasureText',
+							label: 'Graphics/MeasureText',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.Typefaces': {
-							'name': '.graphics.Typefaces',
-							'label': 'Graphics/Typefaces',
+							name: '.graphics.Typefaces',
+							label: 'Graphics/Typefaces',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.FingerPaint': {
-							'name': '.graphics.FingerPaint',
-							'label': 'Graphics/FingerPaint',
+							name: '.graphics.FingerPaint',
+							label: 'Graphics/FingerPaint',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.ColorMatrixSample': {
-							'name': '.graphics.ColorMatrixSample',
-							'label': 'Graphics/ColorMatrix',
+							name: '.graphics.ColorMatrixSample',
+							label: 'Graphics/ColorMatrix',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.BitmapDecode': {
-							'hardwareAccelerated': false,
-							'name': '.graphics.BitmapDecode',
-							'label': 'Graphics/BitmapDecode',
+							hardwareAccelerated: false,
+							name: '.graphics.BitmapDecode',
+							label: 'Graphics/BitmapDecode',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.ColorFilters': {
-							'name': '.graphics.ColorFilters',
-							'label': 'Graphics/ColorFilters',
+							name: '.graphics.ColorFilters',
+							label: 'Graphics/ColorFilters',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.CreateBitmap': {
-							'name': '.graphics.CreateBitmap',
-							'label': 'Graphics/CreateBitmap',
+							name: '.graphics.CreateBitmap',
+							label: 'Graphics/CreateBitmap',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.DrawPoints': {
-							'hardwareAccelerated': false,
-							'name': '.graphics.DrawPoints',
-							'label': 'Graphics/Points',
+							hardwareAccelerated: false,
+							name: '.graphics.DrawPoints',
+							label: 'Graphics/Points',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.TouchPaint': {
-							'name': '.graphics.TouchPaint',
-							'label': 'Graphics/Touch Paint',
-							'theme': '@style/Theme.Black',
-							'configChanges': [
+							name: '.graphics.TouchPaint',
+							label: 'Graphics/Touch Paint',
+							theme: '@style/Theme.Black',
+							configChanges: [
 								'keyboard',
 								'keyboardHidden',
 								'navigation',
@@ -7276,317 +7277,317 @@ describe('AndroidManifest', function () {
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.BitmapPixels': {
-							'name': '.graphics.BitmapPixels',
-							'label': 'Graphics/BitmapPixels',
+							name: '.graphics.BitmapPixels',
+							label: 'Graphics/BitmapPixels',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.Xfermodes': {
-							'name': '.graphics.Xfermodes',
-							'label': 'Graphics/Xfermodes',
+							name: '.graphics.Xfermodes',
+							label: 'Graphics/Xfermodes',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.PathEffects': {
-							'name': '.graphics.PathEffects',
-							'label': 'Graphics/PathEffects',
+							name: '.graphics.PathEffects',
+							label: 'Graphics/PathEffects',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.GradientDrawable1': {
-							'name': '.graphics.GradientDrawable1',
-							'label': 'Graphics/Drawable/GradientDrawable',
+							name: '.graphics.GradientDrawable1',
+							label: 'Graphics/Drawable/GradientDrawable',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.PurgeableBitmap': {
-							'name': '.graphics.PurgeableBitmap',
-							'label': 'Graphics/PurgeableBitmap/NonPurgeable',
+							name: '.graphics.PurgeableBitmap',
+							label: 'Graphics/PurgeableBitmap/NonPurgeable',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.graphics.DensityActivity': {
-							'name': '.graphics.DensityActivity',
-							'label': 'Graphics/Density',
+							name: '.graphics.DensityActivity',
+							label: 'Graphics/Density',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.media.MediaPlayerDemo': {
-							'name': '.media.MediaPlayerDemo',
-							'label': 'Media/MediaPlayer',
+							name: '.media.MediaPlayerDemo',
+							label: 'Media/MediaPlayer',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.media.MediaPlayerDemo_Audio': {
-							'name': '.media.MediaPlayerDemo_Audio',
-							'label': 'Media/MediaPlayer',
+							name: '.media.MediaPlayerDemo_Audio',
+							label: 'Media/MediaPlayer',
 							'intent-filter': [
 								{
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.media.MediaPlayerDemo_Video': {
-							'name': '.media.MediaPlayerDemo_Video',
-							'label': 'Media/MediaPlayer',
+							name: '.media.MediaPlayerDemo_Video',
+							label: 'Media/MediaPlayer',
 							'intent-filter': [
 								{
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.media.VideoViewDemo': {
-							'name': '.media.VideoViewDemo',
-							'label': 'Media/VideoView',
+							name: '.media.VideoViewDemo',
+							label: 'Media/VideoView',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.media.AudioFxDemo': {
-							'name': '.media.AudioFxDemo',
-							'label': 'Media/AudioFx',
+							name: '.media.AudioFxDemo',
+							label: 'Media/AudioFx',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.appwidget.ExampleAppWidgetConfigure': {
-							'name': '.appwidget.ExampleAppWidgetConfigure',
+							name: '.appwidget.ExampleAppWidgetConfigure',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.appwidget.action.APPWIDGET_CONFIGURE'
 									]
 								}
 							]
 						},
 						'.text.Link': {
-							'name': '.text.Link',
-							'label': 'Text/Linkify',
+							name: '.text.Link',
+							label: 'Text/Linkify',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.text.Marquee': {
-							'name': '.text.Marquee',
-							'label': 'Text/Marquee',
+							name: '.text.Marquee',
+							label: 'Text/Marquee',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.text.LogTextBox1': {
-							'name': '.text.LogTextBox1',
-							'label': 'Text/LogTextBox',
+							name: '.text.LogTextBox1',
+							label: 'Text/LogTextBox',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.nfc.ForegroundDispatch': {
-							'name': '.nfc.ForegroundDispatch',
-							'label': 'NFC/ForegroundDispatch',
+							name: '.nfc.ForegroundDispatch',
+							label: 'NFC/ForegroundDispatch',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.nfc.TechFilter': {
-							'name': '.nfc.TechFilter',
-							'label': 'NFC/TechFilter',
+							name: '.nfc.TechFilter',
+							label: 'NFC/TechFilter',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								},
 								{
-									'action': [
+									action: [
 										'android.nfc.action.TECH_DISCOVERED'
 									]
 								}
 							],
 							'meta-data': {
 								'android.nfc.action.TECH_DISCOVERED': {
-									'name': 'android.nfc.action.TECH_DISCOVERED',
-									'resource': '@xml/filter_nfc'
+									name: 'android.nfc.action.TECH_DISCOVERED',
+									resource: '@xml/filter_nfc'
 								}
 							}
 						},
 						'.nfc.ForegroundNdefPush': {
-							'name': '.nfc.ForegroundNdefPush',
-							'label': 'NFC/ForegroundNdefPush',
+							name: '.nfc.ForegroundNdefPush',
+							label: 'NFC/ForegroundNdefPush',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						},
 						'.security.KeyStoreUsage': {
-							'name': '.security.KeyStoreUsage',
-							'label': 'Security/KeyStore',
-							'windowSoftInputMode': [
+							name: '.security.KeyStoreUsage',
+							label: 'Security/KeyStore',
+							windowSoftInputMode: [
 								'adjustPan'
 							],
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
 							]
 						}
 					},
-					'provider': {
+					provider: {
 						'.app.LoaderThrottle$SimpleProvider': {
-							'name': '.app.LoaderThrottle$SimpleProvider',
-							'authorities': 'com.example.android.apis.app.LoaderThrottle',
-							'enabled': '@bool/atLeastHoneycomb'
+							name: '.app.LoaderThrottle$SimpleProvider',
+							authorities: 'com.example.android.apis.app.LoaderThrottle',
+							enabled: '@bool/atLeastHoneycomb'
 						},
 						'.app.SearchSuggestionSampleProvider': {
-							'name': '.app.SearchSuggestionSampleProvider',
-							'authorities': 'com.example.android.apis.SuggestionProvider'
+							name: '.app.SearchSuggestionSampleProvider',
+							authorities: 'com.example.android.apis.SuggestionProvider'
 						},
 						'.content.FileProvider': {
-							'name': '.content.FileProvider',
-							'authorities': 'com.example.android.apis.content.FileProvider',
-							'enabled': '@bool/atLeastHoneycombMR2'
+							name: '.content.FileProvider',
+							authorities: 'com.example.android.apis.content.FileProvider',
+							enabled: '@bool/atLeastHoneycombMR2'
 						}
 					},
-					'service': {
+					service: {
 						'.app.LocalService': {
-							'name': '.app.LocalService',
-							'stopWithTask': true
+							name: '.app.LocalService',
+							stopWithTask: true
 						},
 						'.app.MessengerService': {
-							'name': '.app.MessengerService',
-							'process': ':remote'
+							name: '.app.MessengerService',
+							process: ':remote'
 						},
 						'.app.RemoteService': {
-							'name': '.app.RemoteService',
-							'process': ':remote',
+							name: '.app.RemoteService',
+							process: ':remote',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'com.example.android.apis.app.IRemoteService',
 										'com.example.android.apis.app.ISecondary',
 										'com.example.android.apis.app.REMOTE_SERVICE'
@@ -7595,131 +7596,131 @@ describe('AndroidManifest', function () {
 							]
 						},
 						'.app.ServiceStartArguments': {
-							'name': '.app.ServiceStartArguments'
+							name: '.app.ServiceStartArguments'
 						},
 						'.app.ForegroundService': {
-							'name': '.app.ForegroundService'
+							name: '.app.ForegroundService'
 						},
 						'.app.IsolatedService': {
-							'name': '.app.IsolatedService',
-							'isolatedProcess': true,
-							'enabled': '@bool/atLeastJellyBean'
+							name: '.app.IsolatedService',
+							isolatedProcess: true,
+							enabled: '@bool/atLeastJellyBean'
 						},
 						'.app.IsolatedService2': {
-							'name': '.app.IsolatedService2',
-							'isolatedProcess': true,
-							'enabled': '@bool/atLeastJellyBean'
+							name: '.app.IsolatedService2',
+							isolatedProcess: true,
+							enabled: '@bool/atLeastJellyBean'
 						},
 						'.app.AlarmService_Service': {
-							'name': '.app.AlarmService_Service',
-							'process': ':remote'
+							name: '.app.AlarmService_Service',
+							process: ':remote'
 						},
 						'.accessibility.ClockBackService': {
-							'name': '.accessibility.ClockBackService',
-							'label': '@string/accessibility_service_label',
-							'permission': 'android.permission.BIND_ACCESSIBILITY_SERVICE',
+							name: '.accessibility.ClockBackService',
+							label: '@string/accessibility_service_label',
+							permission: 'android.permission.BIND_ACCESSIBILITY_SERVICE',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.accessibilityservice.AccessibilityService'
 									]
 								}
 							]
 						},
 						'.accessibility.TaskBackService': {
-							'name': '.accessibility.TaskBackService',
-							'label': '@string/accessibility_query_window_label',
-							'enabled': '@bool/atLeastIceCreamSandwich',
-							'permission': 'android.permission.BIND_ACCESSIBILITY_SERVICE',
+							name: '.accessibility.TaskBackService',
+							label: '@string/accessibility_query_window_label',
+							enabled: '@bool/atLeastIceCreamSandwich',
+							permission: 'android.permission.BIND_ACCESSIBILITY_SERVICE',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.accessibilityservice.AccessibilityService'
 									]
 								}
 							],
 							'meta-data': {
 								'android.accessibilityservice': {
-									'name': 'android.accessibilityservice',
-									'resource': '@xml/taskbackconfig'
+									name: 'android.accessibilityservice',
+									resource: '@xml/taskbackconfig'
 								}
 							}
 						},
 						'.app.NotifyingService': {
-							'name': '.app.NotifyingService'
+							name: '.app.NotifyingService'
 						}
 					},
-					'receiver': {
+					receiver: {
 						'.app.OneShotAlarm': {
-							'name': '.app.OneShotAlarm',
-							'process': ':remote'
+							name: '.app.OneShotAlarm',
+							process: ':remote'
 						},
 						'.app.RepeatingAlarm': {
-							'name': '.app.RepeatingAlarm',
-							'process': ':remote'
+							name: '.app.RepeatingAlarm',
+							process: ':remote'
 						},
 						'.app.DeviceAdminSample$DeviceAdminSampleReceiver': {
-							'name': '.app.DeviceAdminSample$DeviceAdminSampleReceiver',
-							'label': '@string/sample_device_admin',
-							'description': '@string/sample_device_admin_description',
-							'permission': 'android.permission.BIND_DEVICE_ADMIN',
+							name: '.app.DeviceAdminSample$DeviceAdminSampleReceiver',
+							label: '@string/sample_device_admin',
+							description: '@string/sample_device_admin_description',
+							permission: 'android.permission.BIND_DEVICE_ADMIN',
 							'meta-data': {
 								'android.app.device_admin': {
-									'name': 'android.app.device_admin',
-									'resource': '@xml/device_admin_sample'
+									name: 'android.app.device_admin',
+									resource: '@xml/device_admin_sample'
 								}
 							},
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.app.action.DEVICE_ADMIN_ENABLED'
 									]
 								}
 							]
 						},
 						'.app.AppUpdateReceiver': {
-							'name': '.app.AppUpdateReceiver',
+							name: '.app.AppUpdateReceiver',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MY_PACKAGE_REPLACED'
 									]
 								}
 							]
 						},
 						'.os.SmsMessageReceiver': {
-							'name': '.os.SmsMessageReceiver',
-							'enabled': false,
+							name: '.os.SmsMessageReceiver',
+							enabled: false,
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.provider.Telephony.SMS_RECEIVED'
 									]
 								}
 							]
 						},
 						'.appwidget.ExampleAppWidgetProvider': {
-							'name': '.appwidget.ExampleAppWidgetProvider',
+							name: '.appwidget.ExampleAppWidgetProvider',
 							'meta-data': {
 								'android.appwidget.provider': {
-									'name': 'android.appwidget.provider',
-									'resource': '@xml/appwidget_provider'
+									name: 'android.appwidget.provider',
+									resource: '@xml/appwidget_provider'
 								}
 							},
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.appwidget.action.APPWIDGET_UPDATE'
 									]
 								}
 							]
 						},
 						'.appwidget.ExampleBroadcastReceiver': {
-							'name': '.appwidget.ExampleBroadcastReceiver',
-							'enabled': false,
+							name: '.appwidget.ExampleBroadcastReceiver',
+							enabled: false,
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.ACTION_TIMEZONE_CHANGED',
 										'android.intent.ACTION_TIME'
 									]
@@ -7729,30 +7730,30 @@ describe('AndroidManifest', function () {
 					},
 					'activity-alias': {
 						'.app.CreateShortcuts': {
-							'name': '.app.CreateShortcuts',
-							'targetActivity': '.app.LauncherShortcuts',
-							'label': '@string/sample_shortcuts',
+							name: '.app.CreateShortcuts',
+							targetActivity: '.app.LauncherShortcuts',
+							label: '@string/sample_shortcuts',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.CREATE_SHORTCUT'
 									],
-									'category': [
+									category: [
 										'android.intent.category.DEFAULT'
 									]
 								}
 							]
 						},
-						'Purgeable': {
-							'targetActivity': '.graphics.PurgeableBitmap',
-							'name': 'Purgeable',
-							'label': 'Graphics/PurgeableBitmap/Purgeable',
+						Purgeable: {
+							targetActivity: '.graphics.PurgeableBitmap',
+							name: 'Purgeable',
+							label: 'Graphics/PurgeableBitmap/Purgeable',
 							'intent-filter': [
 								{
-									'action': [
+									action: [
 										'android.intent.action.MAIN'
 									],
-									'category': [
+									category: [
 										'android.intent.category.SAMPLE_CODE'
 									]
 								}
@@ -7760,11 +7761,11 @@ describe('AndroidManifest', function () {
 						}
 					}
 				},
-				'instrumentation': {
+				instrumentation: {
 					'.app.LocalSampleInstrumentation': {
-						'name': '.app.LocalSampleInstrumentation',
-						'targetPackage': 'com.example.android.apis',
-						'label': 'Local Sample'
+						name: '.app.LocalSampleInstrumentation',
+						targetPackage: 'com.example.android.apis',
+						label: 'Local Sample'
 					}
 				}
 			});
@@ -14919,34 +14920,34 @@ describe('AndroidManifest', function () {
 
 		it('should match object', function () {
 			am.should.eql({
-				'application': {
-					'allowTaskReparenting': false,
-					'allowBackup': true,
-					'backupAgent': '.MyBackupAgent',
-					'debuggable': true,
-					'description': 'this is a test',
-					'enabled': true,
-					'hasCode': true,
-					'hardwareAccelerated': true,
-					'icon': '@drawable/icon',
-					'killAfterRestore': true,
-					'largeHeap': false,
-					'label': 'test',
-					'logo': '@drawable/logo',
-					'manageSpaceActivity': '.TestActivity',
-					'name': 'test',
-					'permission': 'testPermission',
-					'persistent': true,
-					'process': 'test',
-					'restoreAnyVersion': false,
-					'requiredAccountType': 'com.google',
-					'restrictedAccountType': 'com.google',
-					'supportsRtl': false,
-					'taskAffinity': 'test',
-					'testOnly': false,
-					'theme': 'testTheme',
-					'uiOptions': 'none',
-					'vmSafeMode': false
+				application: {
+					allowTaskReparenting: false,
+					allowBackup: true,
+					backupAgent: '.MyBackupAgent',
+					debuggable: true,
+					description: 'this is a test',
+					enabled: true,
+					hasCode: true,
+					hardwareAccelerated: true,
+					icon: '@drawable/icon',
+					killAfterRestore: true,
+					largeHeap: false,
+					label: 'test',
+					logo: '@drawable/logo',
+					manageSpaceActivity: '.TestActivity',
+					name: 'test',
+					permission: 'testPermission',
+					persistent: true,
+					process: 'test',
+					restoreAnyVersion: false,
+					requiredAccountType: 'com.google',
+					restrictedAccountType: 'com.google',
+					supportsRtl: false,
+					taskAffinity: 'test',
+					testOnly: false,
+					theme: 'testTheme',
+					uiOptions: 'none',
+					vmSafeMode: false
 				}
 			});
 		});

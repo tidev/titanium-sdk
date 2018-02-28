@@ -44,8 +44,8 @@ exports.detect = function (types, config, next) {
 		}
 
 		results.devices.unshift({
-			'udid': 'itunes',
-			'name': 'iTunes Sync'
+			udid: 'itunes',
+			name: 'iTunes Sync'
 		});
 
 		results.tisdk = path.basename((function scan(dir) {
