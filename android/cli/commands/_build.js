@@ -39,6 +39,7 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	SymbolWriter = require('appc-aar-tools').SymbolWriter,
 	ti = require('node-titanium-sdk'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
+	url = require('url'),
 	util = require('util'),
 	wrench = require('wrench'),
 
@@ -3259,20 +3260,69 @@ AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 };
 
 AndroidBuilder.prototype.copyGradleTemplate = function copyGradleTemplate(next) {
-	// Copy Titanium's ProGuard gradle script to the app's build directory.
-	afs.copyFileSync(path.join(this.templatesDir, 'proguard.gradle'), this.buildDir, { logger: this.logger.debug });
+	let proxyUrl;
 
-	// Copy the gradle template directory tree to the app's build directory.
-	// Note: The copy function does not copy file permissions. So, we must re-add execute permissions.
-	//       0o755 = User Read/Write/Exec, Group Read/Execute, Others Read/Execute
-	afs.copyDirSyncRecursive(path.join(this.platformPath, 'templates', 'gradle'), this.buildDir, {
-		logger: this.logger.debug,
-		preserve: false
-	});
-	fs.chmodSync(path.join(this.buildDir, 'gradlew'), 0o755);
-	fs.chmodSync(path.join(this.buildDir, 'gradlew.bat'), 0o755);
+	async.series([
+		function (done) {
+			// Fetch proxy server information, if configured.
+			appc.subprocess.run('appc', [ '-q', 'config', 'get', 'proxyServer' ], { shell: true, windowsHide: true }, function (code, out) {
+				if (!code && out && (out.length > 0)) {
+					try {
+						proxyUrl = url.parse(out.trim());
+					} catch (ex) {
+						this.logger.warn('Failed to parse configured "proxerServer" URL. Reason: ' + ex.message);
+					}
+				}
+				done();
+			}.bind(this));
+		}.bind(this),
+		function (done) {
+			// Copy Titanium's ProGuard gradle script to the app's build directory.
+			afs.copyFileSync(path.join(this.templatesDir, 'proguard.gradle'), this.buildDir, { logger: this.logger.debug });
 
-	next();
+			// Copy the gradle template directory tree to the app's build directory.
+			// Note: The copy function does not copy file permissions. So, we must re-add execute permissions.
+			//       0o755 = User Read/Write/Exec, Group Read/Execute, Others Read/Execute
+			afs.copyDirSyncRecursive(path.join(this.platformPath, 'templates', 'gradle'), this.buildDir, {
+				logger: this.logger.debug,
+				preserve: false
+			});
+			fs.chmodSync(path.join(this.buildDir, 'gradlew'), 0o755);
+			fs.chmodSync(path.join(this.buildDir, 'gradlew.bat'), 0o755);
+
+			// Set up a "gradle.properties" file in the build directory.
+			let propertyArray = [];
+			const propertiesFilePath = path.join(this.buildDir, 'gradle.properties');
+			if (proxyUrl) {
+				if (proxyUrl.hostname) {
+					propertyArray.push('systemProp.http.proxyHost=' + proxyUrl.hostname);
+					propertyArray.push('systemProp.https.proxyHost=' + proxyUrl.hostname);
+				}
+				if (proxyUrl.port) {
+					propertyArray.push('systemProp.http.proxyPort=' + proxyUrl.port);
+					propertyArray.push('systemProp.https.proxyPort=' + proxyUrl.port);
+				}
+				if (proxyUrl.auth) {
+					const authArray = proxyUrl.auth.split(':');
+					propertyArray.push('systemProp.http.proxyUser=' + authArray[0]);
+					propertyArray.push('systemProp.https.proxyUser=' + authArray[0]);
+					if (authArray.length > 1) {
+						propertyArray.push('systemProp.http.proxyPassword=' + authArray[1]);
+						propertyArray.push('systemProp.https.proxyPassword=' + authArray[1]);
+					}
+				}
+			}
+			propertyArray.push('');
+			try {
+				fs.writeFileSync(propertiesFilePath, propertyArray.join('\n'));
+			} catch (ex) {
+				this.logger.error('Failed to generate project\'s "gradle.properties" file.\n- Reason:' + ex.message);
+				this.logger.log();
+				process.exit(1);
+			}
+			done();
+		}.bind(this),
+	], next);
 };
 
 AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
