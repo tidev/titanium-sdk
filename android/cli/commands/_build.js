@@ -68,8 +68,8 @@ function AndroidBuilder() {
 	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
 
 	this.deployTypes = {
-		'emulator': 'development',
-		'device': 'test',
+		emulator: 'development',
+		device: 'test',
 		'dist-playstore': 'production'
 	};
 
@@ -262,7 +262,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 		cli.createHook('build.android.config', this, function (callback) {
 			const conf = {
 				flags: {
-					'launch': {
+					launch: {
 						desc: __('disable launching the app after installing'),
 						default: true,
 						hideDefault: true,
@@ -270,7 +270,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					}
 				},
 				options: {
-					'alias': {
+					alias: {
 						abbr: 'L',
 						desc: __('the alias for the keystore'),
 						hint: 'alias',
@@ -677,7 +677,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							});
 						}
 					},
-					'keystore': {
+					keystore: {
 						abbr: 'K',
 						callback: function () {
 							_t.conf.options['alias'].required = true;
@@ -860,7 +860,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							});
 						}
 					},
-					'target': {
+					target: {
 						abbr: 'T',
 						callback: function (value) {
 							// as soon as we know the target, toggle required options for validation
@@ -879,7 +879,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						required: true,
 						values: _t.targets
 					},
-					'sigalg': {
+					sigalg: {
 						desc: __('the type of a digital signature algorithm. only used when overriding keystore signing algorithm'),
 						hint: __('signing'),
 						order: 170,
@@ -2814,7 +2814,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			const opts = {
 					env: appc.util.mix({}, process.env, {
 						// we force the JAVA_HOME so that titaniumprep doesn't complain
-						'JAVA_HOME': this.jdkInfo.home
+						JAVA_HOME: this.jdkInfo.home
 					})
 				},
 				fatal = function fatal(err) {
@@ -3029,11 +3029,11 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
 	function createModuleDescriptor(namespace) {
 		var results = {
-				'api_name': '',
-				'class_name': '',
-				'bindings': tiNamespaces[namespace],
-				'external_child_modules': [],
-				'on_app_create': null
+				api_name: '',
+				class_name: '',
+				bindings: tiNamespaces[namespace],
+				external_child_modules: [],
+				on_app_create: null
 			},
 			moduleBindingKeys = Object.keys(moduleBindings),
 			len = moduleBindingKeys.length,
@@ -3551,7 +3551,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		},
 
 		tiNamespacePermissions = {
-			'geolocation': geoPermissions
+			geolocation: geoPermissions
 		},
 
 		tiMethodPermissions = {
@@ -3587,28 +3587,28 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 		tiMethodActivities = {
 			'Map.createView': {
-				'activity': {
-					'name': 'ti.modules.titanium.map.TiMapActivity',
-					'configChanges': [ 'keyboardHidden', 'orientation' ],
-					'launchMode': 'singleTask'
+				activity: {
+					name: 'ti.modules.titanium.map.TiMapActivity',
+					configChanges: [ 'keyboardHidden', 'orientation' ],
+					launchMode: 'singleTask'
 				},
 				'uses-library': {
-					'name': 'com.google.android.maps'
+					name: 'com.google.android.maps'
 				}
 			},
 			'Media.createVideoPlayer': {
-				'activity': {
-					'name': 'ti.modules.titanium.media.TiVideoActivity',
-					'configChanges': [ 'keyboardHidden', 'orientation' ],
-					'theme': '@style/Theme.AppCompat.Fullscreen',
-					'launchMode': 'singleTask'
+				activity: {
+					name: 'ti.modules.titanium.media.TiVideoActivity',
+					configChanges: [ 'keyboardHidden', 'orientation' ],
+					theme: '@style/Theme.AppCompat.Fullscreen',
+					launchMode: 'singleTask'
 				}
 			},
 			'Media.showCamera': {
-				'activity': {
-					'name': 'ti.modules.titanium.media.TiCameraActivity',
-					'configChanges': [ 'keyboardHidden', 'orientation' ],
-					'theme': '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
+				activity: {
+					name: 'ti.modules.titanium.media.TiCameraActivity',
+					configChanges: [ 'keyboardHidden', 'orientation' ],
+					theme: '@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen'
 				}
 			}
 		},
