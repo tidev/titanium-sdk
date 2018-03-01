@@ -39,6 +39,7 @@ const ADB = require('node-titanium-sdk/lib/adb'),
 	SymbolWriter = require('appc-aar-tools').SymbolWriter,
 	ti = require('node-titanium-sdk'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
+	url = require('url'),
 	util = require('util'),
 	wrench = require('wrench'),
 
@@ -916,7 +917,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.dxMaxIdxNumber = cli.tiapp.properties['android.dx.maxIdxNumber'] && cli.tiapp.properties['android.dx.maxIdxNumber'].value || config.get('android.dx.maxIdxNumber', '65536');
 
 	// Transpilation details
-	this.transpile = cli.tiapp['transpile'] !== false; // FIXME Does this properly default to true?
+	this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
 	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
 	const v8Version = this.packageJson.v8.version;
 	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
@@ -3259,20 +3260,69 @@ AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 };
 
 AndroidBuilder.prototype.copyGradleTemplate = function copyGradleTemplate(next) {
-	// Copy Titanium's ProGuard gradle script to the app's build directory.
-	afs.copyFileSync(path.join(this.templatesDir, 'proguard.gradle'), this.buildDir, { logger: this.logger.debug });
+	let proxyUrl;
 
-	// Copy the gradle template directory tree to the app's build directory.
-	// Note: The copy function does not copy file permissions. So, we must re-add execute permissions.
-	//       0o755 = User Read/Write/Exec, Group Read/Execute, Others Read/Execute
-	afs.copyDirSyncRecursive(path.join(this.platformPath, 'templates', 'gradle'), this.buildDir, {
-		logger: this.logger.debug,
-		preserve: false
-	});
-	fs.chmodSync(path.join(this.buildDir, 'gradlew'), 0o755);
-	fs.chmodSync(path.join(this.buildDir, 'gradlew.bat'), 0o755);
+	async.series([
+		function (done) {
+			// Fetch proxy server information, if configured.
+			appc.subprocess.run('appc', [ '-q', 'config', 'get', 'proxyServer' ], { shell: true, windowsHide: true }, function (code, out) {
+				if (!code && out && (out.length > 0)) {
+					try {
+						proxyUrl = url.parse(out.trim());
+					} catch (ex) {
+						this.logger.warn('Failed to parse configured "proxerServer" URL. Reason: ' + ex.message);
+					}
+				}
+				done();
+			}.bind(this));
+		}.bind(this),
+		function (done) {
+			// Copy Titanium's ProGuard gradle script to the app's build directory.
+			afs.copyFileSync(path.join(this.templatesDir, 'proguard.gradle'), this.buildDir, { logger: this.logger.debug });
 
-	next();
+			// Copy the gradle template directory tree to the app's build directory.
+			// Note: The copy function does not copy file permissions. So, we must re-add execute permissions.
+			//       0o755 = User Read/Write/Exec, Group Read/Execute, Others Read/Execute
+			afs.copyDirSyncRecursive(path.join(this.platformPath, 'templates', 'gradle'), this.buildDir, {
+				logger: this.logger.debug,
+				preserve: false
+			});
+			fs.chmodSync(path.join(this.buildDir, 'gradlew'), 0o755);
+			fs.chmodSync(path.join(this.buildDir, 'gradlew.bat'), 0o755);
+
+			// Set up a "gradle.properties" file in the build directory.
+			let propertyArray = [];
+			const propertiesFilePath = path.join(this.buildDir, 'gradle.properties');
+			if (proxyUrl) {
+				if (proxyUrl.hostname) {
+					propertyArray.push('systemProp.http.proxyHost=' + proxyUrl.hostname);
+					propertyArray.push('systemProp.https.proxyHost=' + proxyUrl.hostname);
+				}
+				if (proxyUrl.port) {
+					propertyArray.push('systemProp.http.proxyPort=' + proxyUrl.port);
+					propertyArray.push('systemProp.https.proxyPort=' + proxyUrl.port);
+				}
+				if (proxyUrl.auth) {
+					const authArray = proxyUrl.auth.split(':');
+					propertyArray.push('systemProp.http.proxyUser=' + authArray[0]);
+					propertyArray.push('systemProp.https.proxyUser=' + authArray[0]);
+					if (authArray.length > 1) {
+						propertyArray.push('systemProp.http.proxyPassword=' + authArray[1]);
+						propertyArray.push('systemProp.https.proxyPassword=' + authArray[1]);
+					}
+				}
+			}
+			propertyArray.push('');
+			try {
+				fs.writeFileSync(propertiesFilePath, propertyArray.join('\n'));
+			} catch (ex) {
+				this.logger.error('Failed to generate project\'s "gradle.properties" file.\n- Reason:' + ex.message);
+				this.logger.log();
+				process.exit(1);
+			}
+			done();
+		}.bind(this),
+	], next);
 };
 
 AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
@@ -4216,17 +4266,28 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				return done();
 			}
 
+			// Double quotes given path and escapes double quote characters in file/directory names.
+			function quotePath(filePath) {
+				if (!filePath) {
+					return '""';
+				}
+				if (process.platform !== 'win32') {
+					filePath = filePath.replace(/"/g, '\\"');
+				}
+				return '"' + filePath + '"';
+			}
+
 			// Create a ProGuard config file.
 			let proguardConfig
 					= '-dontoptimize\n'
 					+ '-dontobfuscate\n'
 					+ '-dontpreverify\n'
 					+ '-dontwarn **\n'
-					+ '-libraryjars ' + shrinkedAndroid + '\n';
+					+ '-libraryjars ' + quotePath(shrinkedAndroid) + '\n';
 			for (let index = 0; index < injarsCore.length; index++) {
-				proguardConfig += '-injars ' + injarsCore[index] + '(!META-INF/**)\n';
+				proguardConfig += '-injars ' + quotePath(injarsCore[index]) + '(!META-INF/**)\n';
 			}
-			proguardConfig += '-outjars ' + outjar + '\n';
+			proguardConfig += '-outjars ' + quotePath(outjar) + '\n';
 			const mainDexProGuardFilePath = path.join(this.buildDir, 'mainDexProGuard.txt');
 			fs.writeFileSync(mainDexProGuardFilePath, proguardConfig);
 
@@ -4235,11 +4296,11 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			//       such as the JARs Google provides with Android build-tools v27. Google now acquires the newest
 			//       version of ProGuard via Gradle/Maven, which is kept up to date by the ProGuard maintainers.
 			const gradleAppFileName = (process.platform === 'win32') ? 'gradlew.bat' : 'gradlew';
-			appc.subprocess.run(path.join(this.buildDir, gradleAppFileName), [
-				'-b', path.join(this.buildDir, 'proguard.gradle'),
+			appc.subprocess.run(quotePath(path.join(this.buildDir, gradleAppFileName)), [
+				'-b', quotePath(path.join(this.buildDir, 'proguard.gradle')),
 				'-Pforceprocessing=true',
-				'-Pconfiguration=' + baserules + pathArraySeparator + mainDexProGuardFilePath
-			], {}, function (code, out, err) {
+				'-Pconfiguration=' + quotePath(baserules) + pathArraySeparator + quotePath(mainDexProGuardFilePath)
+			], { shell: true, windowsHide: true }, function (code, out, err) {
 				if (code) {
 					this.logger.error(__('Failed to run dexer:'));
 					this.logger.error();
