@@ -263,9 +263,10 @@ describe.only('requireJS', function () {
 			{ filename: 'undefined', expected: 0 },
 			{ filename: '0', expected: 0 }
 		];
-		for (var obj in files ) {
+		for (var obj in files) {
 			var result;
 			should.doesNotThrow(
+				// eslint-disable-next-line no-loop-func
 				function () {
 					result = require('./fixtures/' + obj.filename);
 				}
