@@ -144,7 +144,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Also crashes Android, with no stack trace or errors in logcat
 	it.androidAndIosBroken('insertRowAfter', function (finish) {
 		var tableView = Ti.UI.createTableView({
-			data: [ { title:'Red' } ]
+			data: [{ title:'Red' }]
 		});
 
 		win = Ti.UI.createWindow({
@@ -236,7 +236,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Crashes Android as well
 	it.androidAndIosBroken('insertRowBefore', function (finish) {
 		var tableView = Ti.UI.createTableView({
-			data: [ { title:'Red' }, { title:'White' } ]
+			data: [{ title:'Red' }, { title:'White' }]
 		});
 
 		win = Ti.UI.createWindow({
@@ -320,7 +320,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Crashes on Android too
 	it.androidAndIosBroken('add row', function (finish) {
 		var tableView = Ti.UI.createTableView({
-			data: [ { title:'Red' } ]
+			data: [{ title:'Red' }]
 		});
 
 		win = Ti.UI.createWindow({
@@ -363,7 +363,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME Occasionally crashes Android as well
 	it.androidAndIosBroken('add rows', function (finish) {
 		var tableView = Ti.UI.createTableView({
-			data: [ { title:'Red' } ]
+			data: [{ title:'Red' }]
 		});
 
 		win = Ti.UI.createWindow({
@@ -381,7 +381,7 @@ describe('Titanium.UI.TableView', function () {
 				should(tableView.sections[0].rowCount).be.eql(1);
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 
-				tableView.appendRow([ { title: 'White' }, { title: 'Purple' } ]);
+				tableView.appendRow([{ title: 'White' }, { title: 'Purple' }]);
 				should(tableView.sections[0].rowCount).be.eql(3);
 				should(tableView.sections[0].rows[0].title).be.eql('Red');
 				should(tableView.sections[0].rows[1].title).be.eql('White');
