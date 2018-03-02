@@ -376,7 +376,7 @@ void JNIUtil::initCache()
 
 	krollInvocationInitMethod = getMethodID(krollInvocationClass, "<init>", "(Ljava/lang/String;)V", false);
 	krollExceptionInitMethod = getMethodID(krollExceptionClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;)V", false);
-	krollObjectProxySupportField = getFieldID(krollObjectClass, "proxySupport", "Lorg/appcelerator/kroll/KrollProxySupport;");
+	krollObjectProxySupportField = getFieldID(krollObjectClass, "proxySupport", "Ljava/lang/ref/WeakReference;");
 	krollObjectSetHasListenersForEventTypeMethod = getMethodID(krollObjectClass, "setHasListenersForEventType",
 		"(Ljava/lang/String;Z)V");
 	krollObjectOnEventFiredMethod = getMethodID(krollObjectClass, "onEventFired", "(Ljava/lang/String;Ljava/lang/Object;)V");
