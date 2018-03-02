@@ -322,10 +322,15 @@ public class TiAnimationBuilder
 		}
 
 		if (backgroundColor != null) {
+			View bgView = view;
+			if (view instanceof TiBorderWrapperView) {
+				// get inner view to animate the backgroundColor, not the TiborderWrapperView
+				bgView = ((TiBorderWrapperView)view).getChildAt(0);
+			}
 			TiBackgroundColorWrapper bgWrap = TiBackgroundColorWrapper.wrap(view);
 			int currentBackgroundColor = bgWrap.getBackgroundColor();
 			ObjectAnimator bgAnimator =
-				ObjectAnimator.ofInt(view, "backgroundColor", currentBackgroundColor, backgroundColor);
+				ObjectAnimator.ofInt(bgView, "backgroundColor", currentBackgroundColor, backgroundColor);
 			bgAnimator.setEvaluator(new ArgbEvaluator());
 			addAnimator(animators, bgAnimator);
 		}
