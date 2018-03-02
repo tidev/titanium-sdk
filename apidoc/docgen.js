@@ -51,7 +51,7 @@ var common = require('./lib/common.js'),
  * @returns {Object} Object containing all API members for the class
  */
 function getInheritedAPIs (api) {
-	var inheritedAPIs = { 'events': [], 'methods': [], 'properties': [] },
+	var inheritedAPIs = { events: [], methods: [], properties: [] },
 		removeAPIs = [],
 		copyAPIs = [],
 		matches = [],
@@ -325,37 +325,37 @@ function generateAccessors(apis, className) {
 		// Generate getter
 		if (!('permission' in api && api.permission === 'write-only') && !api.name.match(common.REGEXP_CONSTANTS)) {
 			rv.push({
-				'name': 'get' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
-				'summary': 'Gets the value of the <' + className + '.' + api.name + '> property.',
-				'deprecated' : api.deprecated || null,
-				'platforms': api.platforms,
-				'since': api.since,
-				'returns': { 'type': api.type, '__subtype': 'return' },
-				'__accessor': true,
-				'__hide' : api.__hide || false,
-				'__inherits': api.__inherits || null,
-				'__subtype': 'method'
+				name: 'get' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
+				summary: 'Gets the value of the <' + className + '.' + api.name + '> property.',
+				deprecated: api.deprecated || null,
+				platforms: api.platforms,
+				since: api.since,
+				returns: { type: api.type, __subtype: 'return' },
+				__accessor: true,
+				__hide: api.__hide || false,
+				__inherits: api.__inherits || null,
+				__subtype: 'method'
 			});
 		}
 
 		// Generate setter
 		if (!('permission' in api && api.permission === 'read-only')) {
 			rv.push({
-				'name': 'set' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
-				'summary': 'Sets the value of the <' + className + '.' + api.name + '> property.',
-				'deprecated' : api.deprecated || null,
-				'platforms': api.platforms,
-				'since': api.since,
-				'parameters': [{
-					'name': api.name,
-					'summary': 'New value for the property.',
-					'type': api.type,
-					'__subtype': 'parameter'
-				}],
-				'__accessor': true,
-				'__hide' : api.__hide || false,
-				'__inherits': api.__inherits || null,
-				'__subtype': 'method'
+				name: 'set' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
+				summary: 'Sets the value of the <' + className + '.' + api.name + '> property.',
+				deprecated: api.deprecated || null,
+				platforms: api.platforms,
+				since: api.since,
+				parameters: [ {
+					name: api.name,
+					summary: 'New value for the property.',
+					type: api.type,
+					__subtype: 'parameter'
+				} ],
+				__accessor: true,
+				__hide: api.__hide || false,
+				__inherits: api.__inherits || null,
+				__subtype: 'method'
 			});
 		}
 	});
@@ -437,21 +437,21 @@ function processAPIs (api) {
 			}
 			if (matches.length === 0) {
 				const createMethod = {
-					'name': methodName,
-					'summary': 'Creates and returns an instance of <' + name + '>.\n',
-					'deprecated': api.deprecated || null,
-					'since': api.since,
-					'platforms': api.platforms,
-					'returns': { 'type': name, '__subtype': 'return' },
-					'parameters': [{
-						'name': 'parameters',
-						'summary': 'Properties to set on a new object, including any defined by <' + name + '> except those marked not-creation or read-only.\n',
-						'type': 'Dictionary<' + name + '>',
-						'optional': true,
-						'__subtype': 'parameter'
-					}],
-					'__creator': true,
-					'__subtype': 'method'
+					name: methodName,
+					summary: 'Creates and returns an instance of <' + name + '>.\n',
+					deprecated: api.deprecated || null,
+					since: api.since,
+					platforms: api.platforms,
+					returns: { type: name, __subtype: 'return' },
+					parameters: [ {
+						name: 'parameters',
+						summary: 'Properties to set on a new object, including any defined by <' + name + '> except those marked not-creation or read-only.\n',
+						type: 'Dictionary<' + name + '>',
+						optional: true,
+						__subtype: 'parameter'
+					} ],
+					__creator: true,
+					__subtype: 'method'
 				};
 				api.__creatable = true;
 				if ('methods' in doc[cls]) {
