@@ -40,6 +40,12 @@ public class ImageViewProxy extends ViewProxy
 		return new TiUIImageView(this);
 	}
 
+	@Override
+	public TiBlob toImage()
+	{
+		return this.toBlob();
+	}
+
 	private TiUIImageView getImageView()
 	{
 		return (TiUIImageView) getOrCreateView();
