@@ -1119,7 +1119,7 @@ properties:
                         startPoint: { x: 50, y: 50 },
                         endPoint: { x: 50, y: 50 },
                         colors: [ 'red', 'blue'],
-                        startRadius: 90,
+                        startRadius: 50,
                         endRadius: 0,
                         backfillStart: true
                     }
