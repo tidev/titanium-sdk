@@ -25,6 +25,7 @@ function join(args) {
 	}).join(' ');
 }
 
+var times = {};
 exports.log = function () {
 	Titanium.API.info(join(arguments));
 };
@@ -43,4 +44,28 @@ exports.error = function () {
 
 exports.debug = function () {
 	Titanium.API.debug(join(arguments));
+};
+
+exports.time = function (label) {
+	if (times[label]) {
+		exports.warn('Label ' + label + ' already exists');
+		return;
+	}
+	if (!label) {
+		label = 'default';
+	}
+	times[label] = Date.now();
+};
+
+exports.timeEnd = function (label) {
+	if (!label) {
+		label = 'default';
+	}
+	var startTime = times[label];
+	if (!startTime) {
+		exports.warn('Label ' + label + ' does not exist');
+		return;
+	}
+	var duration = Date.now() - startTime;
+	exports.log(label + ': ' + duration + 'ms');
 };
