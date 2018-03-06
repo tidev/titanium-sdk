@@ -1214,8 +1214,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (options.containsKey(TiC.EVENT_ERROR)) {
 			errorCallback = (KrollFunction) options.get(TiC.EVENT_ERROR);
 		}
-		if (options.containsKey("image")) {
-			image = (TiBlob) options.get("image");
+		if (options.containsKey(TiC.PROPERTY_IMAGE)) {
+			image = (TiBlob) options.get(TiC.PROPERTY_IMAGE);
 		}
 
 		if (image == null) {
@@ -1223,8 +1223,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				errorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, "Missing image property"));
 			}
 		}
-
-		TiBaseFile f = (TiBaseFile) image.getData();
 
 		final KrollFunction fSuccessCallback = successCallback;
 		final KrollFunction fErrorCallback = errorCallback;
@@ -1237,7 +1235,14 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		TiIntentWrapper previewIntent = new TiIntentWrapper(intent);
 		String mimeType = image.getMimeType();
-		Uri imageUri = TiFileProvider.createUriFrom(f.getNativeFile());
+		Uri imageUri = null;
+
+		if (image.getNativePath() == null) {
+			imageUri = TiFileProvider.createUriFrom(
+				TiFileHelper.getInstance().getTempFileFromInputStream(image.getInputStream(), null, true));
+		} else {
+			imageUri = TiFileProvider.createUriFrom(image.getFile().getBaseFile().getNativeFile());
+		}
 
 		if (mimeType != null && mimeType.length() > 0) {
 			intent.setDataAndType(imageUri, mimeType);
