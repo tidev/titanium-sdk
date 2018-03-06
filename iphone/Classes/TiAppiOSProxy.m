@@ -201,6 +201,10 @@
 
 - (void)didHandleURL:(NSNotification *)info
 {
+  if (![self _hasListeners:@"handleurl"]) {
+    return;
+  }
+
   [self fireEvent:@"handleurl"
        withObject:@{
          @"launchOptions" : [info userInfo]
