@@ -42,29 +42,14 @@ description: |
     "Button with Nine-patch Background Image" example for a demonstration.
 extends: Titanium.UI.View
 since: "0.9"
-
+excludes:
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 methods:
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to an `ImageView` is not supported on all platforms.
-
-        If you need to add views on top of this object, consider using
-        another view as a container for both this object and the views you want
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
   - name: pause
     summary: Pauses a running animation. Use `resume` method to continue.
     description:  This method only works if multiple images are specified.
     platforms: [android, iphone, ipad]
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.ImageView.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
 
   - name: resume
     summary: Resumes an animation from a `pause` state.
