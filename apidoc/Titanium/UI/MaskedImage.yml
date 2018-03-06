@@ -37,6 +37,9 @@ description: |
 
     Use the <Titanium.UI.createMaskedImage> method to create a masked image view.
 extends: Titanium.UI.View
+excludes:
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 platforms: [iphone,ipad]
 examples: 
   - title: Luminosity Blend Mode

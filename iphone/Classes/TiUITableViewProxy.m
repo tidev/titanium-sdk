@@ -1112,6 +1112,12 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
   },
       NO);
 }
+
+- (void)add:(id)arg
+{
+  NSLog(@"[ERROR] Cannot add sub-views to table views. Use \"appendRow\" or \"appendSection\" instead.");
+}
+
 @end
 
 #endif
