@@ -48,7 +48,7 @@ exports.debug = function () {
 
 exports.time = function (label) {
 	if (times[label]) {
-		exports.warn('Label ' + label + ' already exists');
+		exports.warn('Label "' + label + '" already exists');
 		return;
 	}
 	if (!label) {
@@ -63,7 +63,7 @@ exports.timeEnd = function (label) {
 	}
 	var startTime = times[label];
 	if (!startTime) {
-		exports.warn('Label ' + label + ' does not exist');
+		exports.warn('Label "' + label + '" does not exist');
 		return;
 	}
 	var duration = Date.now() - startTime;
