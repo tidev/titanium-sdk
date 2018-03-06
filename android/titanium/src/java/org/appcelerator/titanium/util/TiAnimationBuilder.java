@@ -323,8 +323,8 @@ public class TiAnimationBuilder
 
 		if (backgroundColor != null) {
 			View bgView = view;
-			if (view instanceof TiBorderWrapperView) {
-				// get inner view to animate the backgroundColor, not the TiborderWrapperView
+			if (view instanceof TiBorderWrapperView && ((TiBorderWrapperView) view).getChildCount() > 0) {
+				// set backgroundColor on the child view and not TiBorderWrapperView itself
 				bgView = ((TiBorderWrapperView) view).getChildAt(0);
 			}
 			TiBackgroundColorWrapper bgWrap = TiBackgroundColorWrapper.wrap(view);
