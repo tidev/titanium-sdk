@@ -719,7 +719,6 @@ public class TableViewProxy extends TiViewProxy
 	{
 		if (data != null) {
 			processData(data);
-			getTableView().setModelDirty();
 			updateView();
 		}
 	}
