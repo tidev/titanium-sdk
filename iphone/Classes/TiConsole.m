@@ -14,12 +14,16 @@
   [self logMessage:args severity:@"info"];
 }
 
-- (void)time:(NSArray *)args
+- (void)time:(id)label
 {
+  ENSURE_SINGLE_ARG_OR_NIL(label, NSString);
+  if (label == nil) {
+    label = @"default";
+  }
+
   if (!_times) {
     _times = [[NSMutableDictionary alloc] init];
   }
-  NSString *label = [args componentsJoinedByString:@""] ?: @"default";
   if ([_times objectForKey:label] != nil) {
     NSString *logMessage = [NSString stringWithFormat:@"Label \"%@\" already exists", label];
     [self logMessage:[logMessage componentsSeparatedByString:@" "] severity:@"warn"];
@@ -28,9 +32,12 @@
   [_times setObject:[NSDate date] forKey:label];
 }
 
-- (void)timeEnd:(NSArray *)args
+- (void)timeEnd:(id)label
 {
-  NSString *label = [args componentsJoinedByString:@""] ?: @"default";
+  ENSURE_SINGLE_ARG_OR_NIL(label, NSString);
+  if (label == nil) {
+    label = @"default";
+  }
   NSDate *startTime = _times[label];
   if (startTime == nil) {
     NSString *logMessage = [NSString stringWithFormat:@"Label \"%@\" does not exist", label];
