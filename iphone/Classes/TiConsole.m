@@ -47,6 +47,7 @@
   double duration = [startTime timeIntervalSinceNow] * -1000;
   NSString *logMessage = [NSString stringWithFormat:@"%@: %0.fms", label, duration];
   [self logMessage:[logMessage componentsSeparatedByString:@" "] severity:@"info"];
+  [_times removeObjectForKey:label];
 }
 
 - (void)dealloc

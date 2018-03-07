@@ -68,4 +68,5 @@ exports.timeEnd = function (label) {
 	}
 	var duration = Date.now() - startTime;
 	exports.log(label + ': ' + duration + 'ms');
+	delete times[label];
 };
