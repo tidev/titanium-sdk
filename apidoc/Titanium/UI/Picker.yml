@@ -42,7 +42,7 @@ excludes:
         anchorPoint,backgroundDisabledColor,backgroundDisabledImage,backgroundFocusedColor,children
         backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,backgroundRepeat,
         backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,center,enabled,layout,tintColor,zIndex]
-    methods: [add, remove, removeAllChildren, replaceAt]
+    methods: [remove, removeAllChildren, replaceAt]
 since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
