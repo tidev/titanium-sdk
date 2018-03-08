@@ -1113,6 +1113,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	{
 		String[] parts = { path };
 		TiBlob imageData;
+
 		// Workaround for TIMOB-19910. Image is in the Google Photos cloud and not on device.
 		if (path.startsWith("content://com.google.android.apps.photos.contentprovider")) {
 			ParcelFileDescriptor parcelFileDescriptor;
@@ -1125,14 +1126,14 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				parcelFileDescriptor.close();
 				imageData = TiBlob.blobFromImage(image);
 			} catch (FileNotFoundException e) {
-				imageData = createImageData(parts, MIME_IMAGE);
+				imageData = createImageData(parts, null);
 			} catch (IOException e) {
-				imageData = createImageData(parts, MIME_IMAGE);
+				imageData = createImageData(parts, null);
 			}
 		} else {
-			imageData = createImageData(parts, MIME_IMAGE);
+			imageData = createImageData(parts, null);
 		}
-		return createDictForImage(imageData, MIME_IMAGE);
+		return createDictForImage(imageData, null);
 	}
 
 	public static TiBlob createImageData(String[] parts, String mimeType)
