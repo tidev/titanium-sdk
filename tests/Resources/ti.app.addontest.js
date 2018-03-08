@@ -11,11 +11,11 @@
 
 describe('Titanium.App', function () {
 	it.ios('Multiple global event listeners (TIMOB-25836)', function (finish) {
-		var functionA = function (arg) {
+		function functionA () {
 			Ti.App.removeEventListener('TestCheckNetwork', functionA);
 		};
 
-		var functionB = function (arg) {
+		function functionB () {
 			Ti.App.removeEventListener('TestCheckNetwork', functionB);
 			finish();
 		};
