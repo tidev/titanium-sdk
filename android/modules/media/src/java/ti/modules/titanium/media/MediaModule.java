@@ -180,6 +180,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	private static String extension = ".jpg";
 	private TiTempFileHelper tempFileHelper;
 
+	private static final String MIME_IMAGE = "image/*";
+
 	private static class ApiLevel16
 	{
 		private ApiLevel16()
@@ -1002,7 +1004,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
 		galleryIntent.getIntent().setAction(Intent.ACTION_GET_CONTENT);
-		galleryIntent.getIntent().setType("image/*");
+		galleryIntent.getIntent().setType(MIME_IMAGE);
 		galleryIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
 		galleryIntent.setWindowId(TiIntentWrapper.createActivityName("GALLERY"));
 
@@ -1123,14 +1125,14 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				parcelFileDescriptor.close();
 				imageData = TiBlob.blobFromImage(image);
 			} catch (FileNotFoundException e) {
-				imageData = createImageData(parts, null);
+				imageData = createImageData(parts, MIME_IMAGE);
 			} catch (IOException e) {
-				imageData = createImageData(parts, null);
+				imageData = createImageData(parts, MIME_IMAGE);
 			}
 		} else {
-			imageData = createImageData(parts, null);
+			imageData = createImageData(parts, MIME_IMAGE);
 		}
-		return createDictForImage(imageData, null);
+		return createDictForImage(imageData, MIME_IMAGE);
 	}
 
 	public static TiBlob createImageData(String[] parts, String mimeType)
@@ -1190,7 +1192,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		cropRect.put("height", height);
 		d.put("cropRect", cropRect);
 		d.put("mediaType", mediaType);
-		d.put("media", TiBlob.blobFromData(data, "image/png"));
+		d.put("media", TiBlob.blobFromData(data, MIME_IMAGE));
 
 		return d;
 	}
