@@ -429,7 +429,7 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
     deprecated:
-        since: {android: "2.0.0"}
+        since: "2.0.0"
 
   - name: ACCURACY_HUNDRED_METERS
     summary: |
@@ -442,7 +442,7 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
     deprecated:
-        since: {android: "2.0.0"}
+        since: "2.0.0"
 
   - name: ACCURACY_KILOMETER
     summary: |
@@ -455,7 +455,7 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
     deprecated:
-        since: {android: "2.0.0"}
+        since: "2.0.0"
 
   - name: ACCURACY_NEAREST_TEN_METERS
     summary: |
@@ -468,7 +468,7 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
     deprecated:
-        since: {android: "2.0.0"}
+        since: "2.0.0"
 
   - name: ACCURACY_THREE_KILOMETERS
     summary: |
@@ -481,7 +481,7 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
     deprecated:
-        since: {android: "2.0.0"}
+        since: "2.0.0"
 
   - name: ACCURACY_HIGH
     summary: |
