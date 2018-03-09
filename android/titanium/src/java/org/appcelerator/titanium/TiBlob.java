@@ -514,7 +514,6 @@ public class TiBlob extends KrollProxy
 			return null;
 		}
 		if (this.type != TYPE_FILE) {
-			Log.w(TAG, "getNativePath not supported for non-file blob types.");
 			return null;
 		} else if (!(data instanceof TiBaseFile)) {
 			Log.w(TAG, "getNativePath unable to return value: underlying data is not file, rather "
