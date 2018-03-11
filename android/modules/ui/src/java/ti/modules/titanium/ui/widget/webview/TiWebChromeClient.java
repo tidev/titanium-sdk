@@ -43,6 +43,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebStorage.QuotaUpdater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
+import android.webkit.PermissionRequest;
 
 @SuppressWarnings("deprecation")
 public class TiWebChromeClient extends WebChromeClient
@@ -85,6 +86,14 @@ public class TiWebChromeClient extends WebChromeClient
 				break;
 		}
 		return true;
+	}
+
+	@Override
+	public void onPermissionRequest(final PermissionRequest request) {
+		TiViewProxy proxy = tiWebView.getProxy();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			request.grant(request.getResources());
+		}
 	}
 
 	public boolean onJsAlert(WebView view, String url, String message, final android.webkit.JsResult result)
