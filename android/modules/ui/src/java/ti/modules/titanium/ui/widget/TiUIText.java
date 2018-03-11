@@ -248,6 +248,15 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
 			}
 		}
+
+		if (d.containsKey(TiC.PROPERTY_LINES)) {
+			if (!field) tv.setLines(TiConvert.toInt(d, TiC.PROPERTY_LINES));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_MAX_LINES)) {
+			if (!field) tv.setMaxLines(TiConvert.toInt(d, TiC.PROPERTY_MAX_LINES));
+		}
+
 		disableChangeEvent = false;
 	}
 
@@ -367,6 +376,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			if (!TiConvert.toBoolean(newValue, true)) {
 				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
 			}
+		} else if (key.equals(TiC.PROPERTY_LINES)) {
+			if (!field) tv.setLines(TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_MAX_LINES)) {
+			if (!field) tv.setMaxLines(TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
