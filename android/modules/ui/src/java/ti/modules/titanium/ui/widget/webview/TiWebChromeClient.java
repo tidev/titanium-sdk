@@ -89,7 +89,8 @@ public class TiWebChromeClient extends WebChromeClient
 	}
 
 	@Override
-	public void onPermissionRequest(final PermissionRequest request) {
+	public void onPermissionRequest(final PermissionRequest request)
+	{
 		TiViewProxy proxy = tiWebView.getProxy();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			request.grant(request.getResources());
