@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+var times = {};
 function join(args) {
 	// Handle null / undefined args up front since we can't slice them
 	if (typeof args === 'undefined') {
@@ -25,7 +26,6 @@ function join(args) {
 	}).join(' ');
 }
 
-var times = {};
 exports.log = function () {
 	Titanium.API.info(join(arguments));
 };
