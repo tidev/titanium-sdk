@@ -42,6 +42,9 @@
 		</plist>
 	</ios>
 	<android xmlns:android="http://schemas.android.com/apk/res/android">
+        <manifest>
+			<uses-sdk android:minSdkVersion="16" android:targetSdkVersion="27"/>
+		</manifest>
 	</android>
 	<modules>
 	</modules>
