@@ -57,7 +57,7 @@
     "commander": "*",
     "danger": "^2.0.3",
     "grunt": "^1.0.1",
-    "grunt-appc-js": "^2.0.1",
+    "grunt-appc-js": "^2.1.0",
     "grunt-clang-format": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",

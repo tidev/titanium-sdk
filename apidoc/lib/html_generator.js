@@ -230,7 +230,7 @@ function exportExamples(api) {
 				code = code.replace(/<p>/g, '').replace(/<\/p>/g, '');
 				code = '<pre><code>' + code + '</code></pre>';
 			}
-			rv.push({ 'title': example.title, 'code': code });
+			rv.push({ title: example.title, code: code });
 		});
 	}
 	return rv;
@@ -301,8 +301,8 @@ function exportParent(api) {
 	const cls = api.name.substring(0, api.name.lastIndexOf('.'));
 	if (cls !== '' && assert(doc, cls)) {
 		return {
-			'name': cls,
-			'filename': exportClassFilename(doc[cls].name)
+			name: cls,
+			filename: exportClassFilename(doc[cls].name)
 		};
 	}
 	return null;
@@ -321,7 +321,7 @@ function exportPlatforms(api) {
 	for (const key in api.since) {
 		rv.push({
 			name: key,
-			'pretty_name': common.PRETTY_PLATFORM[key],
+			pretty_name: common.PRETTY_PLATFORM[key],
 			since: api.since[key]
 		});
 	}
@@ -437,7 +437,7 @@ function exportType(api) {
 function exportUserAgents(api) {
 	const rv = [];
 	for (const platform in api.since) {
-		rv.push({ 'platform': platform });
+		rv.push({ platform: platform });
 	}
 	return rv;
 }
@@ -510,10 +510,10 @@ function exportAPIs(api, type) {
  */
 exports.exportData = function exportHTML(apis) {
 	const rv = {
-		'proxy': [],
-		'event': [],
-		'method': [],
-		'property': []
+		proxy: [],
+		event: [],
+		method: [],
+		property: []
 	};
 	doc = apis;
 
