@@ -12,6 +12,12 @@
       <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-vector-drawable.jar!/" />
       <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-core-ui.jar!/" />
       <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-support-fragment.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-arch-core-common.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-arch-core-runtime.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-arch-lifecycle-common.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-arch-lifecycle-livedata-core.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-arch-lifecycle-viewmodel.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-arch-lifecycle-runtime.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
