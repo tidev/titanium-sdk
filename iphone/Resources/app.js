@@ -10,9 +10,13 @@ var win = Ti.UI.createWindow({
     backgroundColor: '#fff'
 });
 
-var table = Ti.UI.createTableView();
-table.add(Ti.UI.createView({backgroundColor: 'red'}));
-alert(table.children);
+var btn = Ti.UI.createButton({
+    title: 'Trigger'
+});
 
-win.add(table);
+btn.addEventListener('click', function() {
+    Ti.API.info('Hello world!');
+});
+
+win.add(btn);
 win.open();
