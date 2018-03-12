@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Stack;
 import java.util.concurrent.Semaphore;
@@ -89,6 +90,7 @@ public class TiWebViewBinding
 	private TiReturn tiReturn;
 	private WebView webView;
 	private boolean interfacesAdded = false;
+	private boolean isEventFiringSuspended = false;
 
 	public TiWebViewBinding(WebView webView)
 	{
@@ -107,6 +109,40 @@ public class TiWebViewBinding
 			webView.addJavascriptInterface(tiReturn, "_TiReturn");
 			interfacesAdded = true;
 		}
+	}
+
+	/**
+	 * Prevents HTML JavaScript method Ti.App.fireEvent() from firing events immediately.
+	 * Will queue the events instead and fire them once the resumeEventFiring() method has been called.
+	 * <p>
+	 * This method is intended to be called by the WebViewClient.onPageStarting() method since
+	 * Titanium's evalJS() method can't communicate back to the HTML until the page has finished loading.
+	 */
+	public void suspendEventFiring()
+	{
+		this.isEventFiringSuspended = true;
+	}
+
+	/**
+	 * Allows HTML JavaScript method Ti.App.fireEvent() to fire immediately.
+	 * All events queued while suspended by suspendEventFiring() will be immediately fired once resumed.
+	 * <p>
+	 * This method is intended to be called by the WebViewClient.onPageFinished() method.
+	 */
+	public void resumeEventFiring()
+	{
+		this.isEventFiringSuspended = false;
+		appBinding.fireQueuedEvents();
+	}
+
+	/**
+	 * Determines if the HTML's Ti.App.fireEvent() calls are currently suspended and their events queued.
+	 * Event firing is suspended if method suspendEventFiring() has been called.
+	 * @return Returns true if event firing is suspended. Returns false if events will be fired immediately.
+	 */
+	public boolean isEventFiringSuspended()
+	{
+		return this.isEventFiringSuspended;
 	}
 
 	public void destroy()
@@ -217,29 +253,66 @@ public class TiWebViewBinding
 		}
 	}
 
+	private static class Event
+	{
+		public String name;
+		public KrollDict properties;
+	}
+
 	@SuppressWarnings("unused")
 	private class AppBinding
 	{
 		private KrollModule module;
-		private HashMap<String, Integer> appListeners = new HashMap<String, Integer>();
+		private HashMap<String, Integer> appListeners = new HashMap<>();
+		private ArrayDeque<Event> eventQueue = new ArrayDeque<>();
 		private int counter = 0;
 		private String code = null;
+
 		public AppBinding()
 		{
 			module = TiApplication.getInstance().getModuleByName("App");
 		}
 
 		@JavascriptInterface
-		public void fireEvent(String event, String json)
+		public void fireEvent(String eventName, String json)
 		{
 			try {
-				KrollDict dict = new KrollDict();
+				// Parse event properties from given JSON and store to event object.
+				Event event = new Event();
+				event.name = eventName;
+				event.properties = new KrollDict();
 				if (json != null && !json.equals("undefined")) {
-					dict = new KrollDict(new JSONObject(json));
+					event.properties = new KrollDict(new JSONObject(json));
 				}
-				module.fireEvent(event, dict);
+
+				// Queue event and fire it, if ready.
+				synchronized (this)
+				{
+					this.eventQueue.push(event);
+				}
+				fireQueuedEvents();
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing event JSON", e);
+			}
+		}
+
+		public void fireQueuedEvents()
+		{
+			while (true) {
+				// Pop the next event from the queue, but only if event firing is not suspended.
+				Event event = null;
+				synchronized (this)
+				{
+					if (!isEventFiringSuspended) {
+						event = this.eventQueue.poll();
+					}
+				}
+				if (event == null) {
+					break;
+				}
+
+				// Fire the event.
+				module.fireEvent(event.name, event.properties);
 			}
 		}
 

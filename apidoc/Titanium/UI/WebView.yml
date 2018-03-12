@@ -177,7 +177,7 @@ methods:
 
   - name: evalJS
     summary: |
-        Evaluates a JavaScript expression inside the context of the web view and
+        Blocking call which evaluates a JavaScript expression inside the context of the web view and
         optionally, returns a result.
     description: |
         The JavaScript expression must be passed in as a string. If you are passing in any objects,
@@ -193,6 +193,9 @@ methods:
         call returns the empty string:
 
             myWebView.evalJS('return document.title');
+
+        The `evalJS` method must be called after the web view [load](Titanium.UI.WebView.load) event
+        has been received or else the call may fail.
     returns:
         type: String
     parameters:

@@ -70,6 +70,10 @@ public class TiWebViewClient extends WebViewClient
 			}
 		}
 		webView.setBindingCodeInjected(false);
+
+		// Resume event firing triggered by HTML's Ti.App.fireEvent() calls.
+		// All events that were queued while suspended will be fired immediately by this call.
+		this.binding.resumeEventFiring();
 	}
 
 	public TiWebViewBinding getBinding()
@@ -81,10 +85,17 @@ public class TiWebViewClient extends WebViewClient
 	public void onPageStarted(WebView view, String url, Bitmap favicon)
 	{
 		super.onPageStarted(view, url, favicon);
+
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
 		if (proxy == null || webView.hasSetUserAgent) {
 			return;
 		}
+
+		// Suspend and queue all events fired by the web page's Ti.App.fireEvent() JavaScript calls.
+		// We do this because we can't communicate back to web page via evalJS() until page finishes loading.
+		this.binding.suspendEventFiring();
+
+		// Fire a Titanium "beforeload" event.
 		KrollDict data = new KrollDict();
 		data.put("url", url);
 		proxy.fireEvent("beforeload", data);
