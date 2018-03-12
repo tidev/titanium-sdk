@@ -180,6 +180,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	private static String extension = ".jpg";
 	private TiTempFileHelper tempFileHelper;
 
+	private static final String MIME_IMAGE = "image/*";
+
 	private static class ApiLevel16
 	{
 		private ApiLevel16()
@@ -1002,7 +1004,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
 		galleryIntent.getIntent().setAction(Intent.ACTION_GET_CONTENT);
-		galleryIntent.getIntent().setType("image/*");
+		galleryIntent.getIntent().setType(MIME_IMAGE);
 		galleryIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
 		galleryIntent.setWindowId(TiIntentWrapper.createActivityName("GALLERY"));
 
@@ -1111,6 +1113,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	{
 		String[] parts = { path };
 		TiBlob imageData;
+
 		// Workaround for TIMOB-19910. Image is in the Google Photos cloud and not on device.
 		if (path.startsWith("content://com.google.android.apps.photos.contentprovider")) {
 			ParcelFileDescriptor parcelFileDescriptor;
@@ -1190,7 +1193,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		cropRect.put("height", height);
 		d.put("cropRect", cropRect);
 		d.put("mediaType", mediaType);
-		d.put("media", TiBlob.blobFromData(data, "image/png"));
+		d.put("media", TiBlob.blobFromData(data, MIME_IMAGE));
 
 		return d;
 	}
