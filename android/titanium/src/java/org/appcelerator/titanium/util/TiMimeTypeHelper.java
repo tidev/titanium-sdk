@@ -8,24 +8,30 @@ package org.appcelerator.titanium.util;
 
 import java.util.HashMap;
 
+import android.net.Uri;
 import android.webkit.MimeTypeMap;
+
+import org.appcelerator.titanium.TiApplication;
 
 public class TiMimeTypeHelper
 {
 	public static final String MIME_TYPE_JAVASCRIPT = "text/javascript";
 	public static final String MIME_TYPE_HTML = "text/html";
 	public static final HashMap<String, String> EXTRA_MIMETYPES = new HashMap<String, String>();
-	static {
+	static
+	{
 		EXTRA_MIMETYPES.put("js", MIME_TYPE_JAVASCRIPT);
 		EXTRA_MIMETYPES.put("html", MIME_TYPE_HTML);
 		EXTRA_MIMETYPES.put("htm", MIME_TYPE_HTML);
 	}
-	
-	public static String getMimeType(String url) {
+
+	public static String getMimeType(String url)
+	{
 		return getMimeType(url, "application/octet-stream");
 	}
-	
-	public static String getMimeTypeFromFileExtension(String extension, String defaultType) {
+
+	public static String getMimeTypeFromFileExtension(String extension, String defaultType)
+	{
 		MimeTypeMap mtm = MimeTypeMap.getSingleton();
 		String mimetype = defaultType;
 
@@ -43,13 +49,22 @@ public class TiMimeTypeHelper
 
 		return mimetype;
 	}
-	
-	public static String getFileExtensionFromUrl(String url) {
+
+	public static String getFileExtensionFromUrl(String url)
+	{
 		return MimeTypeMap.getFileExtensionFromUrl(url);
 	}
 
 	public static String getMimeType(String url, String defaultType)
 	{
+		// attempt to obtain mime-type from content provider
+		if (url.startsWith("content://")) {
+			final String mimeType = TiApplication.getInstance().getContentResolver().getType(Uri.parse(url));
+			if (mimeType != null) {
+				return mimeType;
+			}
+		}
+
 		String extension = "";
 		int pos = url.lastIndexOf('.');
 		if (pos > 0) {
@@ -57,7 +72,7 @@ public class TiMimeTypeHelper
 		}
 		return getMimeTypeFromFileExtension(extension, defaultType);
 	}
-	
+
 	public static String getFileExtensionFromMimeType(String mimeType, String defaultExtension)
 	{
 		String result = defaultExtension;
@@ -71,28 +86,24 @@ public class TiMimeTypeHelper
 				}
 			}
 		}
-		
+
 		return result;
 	}
-	
-	public static boolean isBinaryMimeType(String mimeType) {
+
+	public static boolean isBinaryMimeType(String mimeType)
+	{
 		if (mimeType != null) {
 			String parts[] = mimeType.split(";");
 			mimeType = parts[0];
-			
-			if (mimeType.startsWith("application/") && !mimeType.endsWith("xml"))
-			{
+
+			if (mimeType.startsWith("application/") && !mimeType.endsWith("xml")) {
 				return true;
-			}
-			else if (mimeType.startsWith("image/") && !mimeType.endsWith("xml"))
-			{
+			} else if (mimeType.startsWith("image/") && !mimeType.endsWith("xml")) {
 				return true;
-			}
-			else if (mimeType.startsWith("audio/") || mimeType.startsWith("video/")) 
-			{
+			} else if (mimeType.startsWith("audio/") || mimeType.startsWith("video/")) {
 				return true;
-			}
-			else return false;
+			} else
+				return false;
 		}
 		return false;
 	}

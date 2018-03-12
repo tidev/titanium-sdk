@@ -93,64 +93,70 @@ public class TiUIHelper
 	private static final String TAG = "TiUIHelper";
 	private static final String customFontPath = "Resources/fonts";
 
-	public static final int PORTRAIT = 1;
-	public static final int UPSIDE_PORTRAIT = 2;
-	public static final int LANDSCAPE_LEFT = 3;
-	public static final int LANDSCAPE_RIGHT = 4;
-	public static final int FACE_UP = 5;
-	public static final int FACE_DOWN = 6;
-	public static final int UNKNOWN = 7;
 	public static final Pattern SIZED_VALUE = Pattern.compile("([0-9]*\\.?[0-9]+)\\W*(px|dp|dip|sp|sip|mm|pt|in)?");
 	public static final String MIME_TYPE_PNG = "image/png";
 
 	private static Method overridePendingTransition;
 	private static Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<String, String>());
-	private static Map<String, Typeface> mCustomTypeFaces = Collections.synchronizedMap(new HashMap<String, Typeface>());
-	
-	public static OnClickListener createDoNothingListener() {
+	private static Map<String, Typeface> mCustomTypeFaces =
+		Collections.synchronizedMap(new HashMap<String, Typeface>());
+
+	public static OnClickListener createDoNothingListener()
+	{
 		return new OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(DialogInterface dialog, int which)
+			{
 				// Do nothing
 			}
 		};
 	}
 
-	public static OnClickListener createKillListener() {
+	public static OnClickListener createKillListener()
+	{
 		return new OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
+			public void onClick(DialogInterface dialog, int which)
+			{
 				Process.killProcess(Process.myPid());
 			}
 		};
 	}
 
-	public static OnClickListener createFinishListener(final Activity me) {
-		return new OnClickListener(){
-			public void onClick(DialogInterface dialog, int which) {
+	public static OnClickListener createFinishListener(final Activity me)
+	{
+		return new OnClickListener() {
+			public void onClick(DialogInterface dialog, int which)
+			{
 				me.finish();
 			}
 		};
 	}
 
-	public static void doKillOrContinueDialog(Context context, String title, String message, OnClickListener positiveListener, OnClickListener negativeListener) {
+	public static void doKillOrContinueDialog(Context context, String title, String message,
+											  OnClickListener positiveListener, OnClickListener negativeListener)
+	{
 		if (positiveListener == null) {
 			positiveListener = createDoNothingListener();
 		}
 		if (negativeListener == null) {
 			negativeListener = createKillListener();
 		}
-		
-		new AlertDialog.Builder(context).setTitle(title).setMessage(message)
+
+		new AlertDialog.Builder(context)
+			.setTitle(title)
+			.setMessage(message)
 			.setPositiveButton("Continue", positiveListener)
 			.setNegativeButton("Kill", negativeListener)
-			.setCancelable(false).create().show();
+			.setCancelable(false)
+			.create()
+			.show();
 	}
-	
+
 	public static void linkifyIfEnabled(TextView tv, Object autoLink)
-	{ 
+	{
 		if (autoLink != null) {
 			//Default to Ti.UI.AUTOLINK_NONE
-			boolean success = Linkify.addLinks(tv, TiConvert.toInt(autoLink, 16));
-			if (!success && tv.getText() instanceof Spanned) {
+			boolean success = Linkify.addLinks(tv, TiConvert.toInt(autoLink, 0) & Linkify.ALL);
+			if (success && tv.getText() instanceof Spanned) {
 				tv.setMovementMethod(LinkMovementMethod.getInstance());
 			}
 		}
@@ -195,16 +201,19 @@ public class TiUIHelper
 	 * @param message  the dialog's message.
 	 * @param listener the click listener for click events.
 	 */
-	public static void doOkDialog(final String title, final String message, OnClickListener listener) {
+	public static void doOkDialog(final String title, final String message, OnClickListener listener)
+	{
 		if (listener == null) {
 			listener = new OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					Activity ownerActivity = ((AlertDialog)dialog).getOwnerActivity();
+				public void onClick(DialogInterface dialog, int which)
+				{
+					Activity ownerActivity = ((AlertDialog) dialog).getOwnerActivity();
 					//if activity is not finishing, remove dialog to free memory
 					if (ownerActivity != null && !ownerActivity.isFinishing()) {
-						((TiBaseActivity)ownerActivity).removeDialog((AlertDialog) dialog);
+						((TiBaseActivity) ownerActivity).removeDialog((AlertDialog) dialog);
 					}
-				}};
+				}
+			};
 		}
 		final OnClickListener fListener = listener;
 		waitForCurrentActivity(new CurrentActivityListener() {
@@ -213,18 +222,20 @@ public class TiUIHelper
 			{
 				//add dialog to activity for cleaning up purposes
 				if (!activity.isFinishing()) {
-					AlertDialog dialog = new AlertDialog.Builder(activity).setTitle(title).setMessage(message)
-							.setPositiveButton(android.R.string.ok, fListener)
-							.setCancelable(false).create();
+					AlertDialog dialog = new AlertDialog.Builder(activity)
+											 .setTitle(title)
+											 .setMessage(message)
+											 .setPositiveButton(android.R.string.ok, fListener)
+											 .setCancelable(false)
+											 .create();
 					if (activity instanceof TiBaseActivity) {
 						TiBaseActivity baseActivity = (TiBaseActivity) activity;
-						baseActivity.addDialog(baseActivity.new DialogWrapper(dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
+						baseActivity.addDialog(baseActivity.new DialogWrapper(
+							dialog, true, new WeakReference<TiBaseActivity>(baseActivity)));
 						dialog.setOwnerActivity(activity);
 					}
 					dialog.show();
-
 				}
-
 			}
 		});
 	}
@@ -249,7 +260,8 @@ public class TiUIHelper
 		return style;
 	}
 
-	public static int getSizeUnits(String size) {
+	public static int getSizeUnits(String size)
+	{
 		int units = TypedValue.COMPLEX_UNIT_PX;
 		String unitString = null;
 
@@ -289,7 +301,8 @@ public class TiUIHelper
 		return units;
 	}
 
-	public static float getSize(String size) {
+	public static float getSize(String size)
+	{
 		float value = 15.0f;
 		if (size != null) {
 			Matcher m = SIZED_VALUE.matcher(size.trim());
@@ -300,8 +313,9 @@ public class TiUIHelper
 
 		return value;
 	}
-	
-	public static float getRawSize(int unit, float size, Context context) {
+
+	public static float getRawSize(int unit, float size, Context context)
+	{
 		Resources r;
 		if (context != null) {
 			r = context.getResources();
@@ -310,22 +324,25 @@ public class TiUIHelper
 		}
 		return TypedValue.applyDimension(unit, size, r.getDisplayMetrics());
 	}
-	
-	public static float getRawDIPSize(float size, Context context) {
+
+	public static float getRawDIPSize(float size, Context context)
+	{
 		return getRawSize(TypedValue.COMPLEX_UNIT_DIP, size, context);
 	}
-	
-	public static float getRawSize(String size, Context context) {
+
+	public static float getRawSize(String size, Context context)
+	{
 		return getRawSize(getSizeUnits(size), getSize(size), context);
 	}
 
-	public static void styleText(TextView tv, HashMap<String, Object> d) {
-	
+	public static void styleText(TextView tv, HashMap<String, Object> d)
+	{
+
 		if (d == null) {
 			TiUIHelper.styleText(tv, null, null, null);
 			return;
 		}
-		
+
 		String fontSize = null;
 		String fontWeight = null;
 		String fontFamily = null;
@@ -390,8 +407,10 @@ public class TiUIHelper
 					loadedTf = loadTypeface(context, fontFamily);
 				}
 				if (loadedTf == null) {
-					Log.w(TAG, "Unsupported font: '" + fontFamily
-						+ "' supported fonts are 'monospace', 'serif', 'sans-serif'.", Log.DEBUG_MODE);
+					Log.w(TAG,
+						  "Unsupported font: '" + fontFamily
+							  + "' supported fonts are 'monospace', 'serif', 'sans-serif'.",
+						  Log.DEBUG_MODE);
 				} else {
 					tf = loadedTf;
 				}
@@ -399,7 +418,8 @@ public class TiUIHelper
 		}
 		return tf;
 	}
-	public static Typeface toTypeface(String fontFamily) {
+	public static Typeface toTypeface(String fontFamily)
+	{
 		return toTypeface(null, fontFamily);
 	}
 
@@ -415,9 +435,11 @@ public class TiUIHelper
 		try {
 			String[] fontFiles = mgr.list(customFontPath);
 			for (String f : fontFiles) {
-				if (f.toLowerCase().equals(fontFamily.toLowerCase()) || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
+				if (f.toLowerCase().equals(fontFamily.toLowerCase())
+					|| f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
 					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
-					synchronized(mCustomTypeFaces) {
+					synchronized (mCustomTypeFaces)
+					{
 						mCustomTypeFaces.put(fontFamily, tf);
 					}
 					return tf;
@@ -431,7 +453,8 @@ public class TiUIHelper
 		return null;
 	}
 
-	public static String getDefaultFontSize(Context context) {
+	public static String getDefaultFontSize(Context context)
+	{
 		String size = "15.0px";
 		TextView tv = new TextView(context);
 		if (tv != null) {
@@ -442,7 +465,8 @@ public class TiUIHelper
 		return size;
 	}
 
-	public static String getDefaultFontWeight(Context context) {
+	public static String getDefaultFontWeight(Context context)
+	{
 		String style = "normal";
 		TextView tv = new TextView(context);
 		if (tv != null) {
@@ -455,17 +479,17 @@ public class TiUIHelper
 		return style;
 	}
 
-	public static void setAlignment(TextView tv, String textAlign, String verticalAlign) 
+	public static void setAlignment(TextView tv, String textAlign, String verticalAlign)
 	{
 		int gravity = Gravity.NO_GRAVITY;
-		
+
 		if (textAlign != null) {
 			if ("left".equals(textAlign)) {
-				 gravity |= Gravity.LEFT;
+				gravity |= Gravity.LEFT;
 			} else if ("center".equals(textAlign)) {
-				gravity |=  Gravity.CENTER_HORIZONTAL;
+				gravity |= Gravity.CENTER_HORIZONTAL;
 			} else if ("right".equals(textAlign)) {
-				gravity |=  Gravity.RIGHT;
+				gravity |= Gravity.RIGHT;
 			} else {
 				Log.w(TAG, "Unsupported horizontal alignment: " + textAlign);
 			}
@@ -473,36 +497,37 @@ public class TiUIHelper
 			// Nothing has been set - let's set if something was set previously
 			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
 			Log.w(TAG,
-				"No alignment set - old horizontal align was: " + (tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK),
-				Log.DEBUG_MODE);
-			
+				  "No alignment set - old horizontal align was: " + (tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK),
+				  Log.DEBUG_MODE);
+
 			if ((tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
 				// Something was set before - so let's use it
 				gravity |= tv.getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK;
 			}
 		}
-		
+
 		if (verticalAlign != null) {
 			if ("top".equals(verticalAlign)) {
 				gravity |= Gravity.TOP;
 			} else if ("middle".equals(verticalAlign)) {
-				gravity |= Gravity.CENTER_VERTICAL;			
+				gravity |= Gravity.CENTER_VERTICAL;
 			} else if ("bottom".equals(verticalAlign)) {
-				gravity |= Gravity.BOTTOM;			
+				gravity |= Gravity.BOTTOM;
 			} else {
 				Log.w(TAG, "Unsupported vertical alignment: " + verticalAlign);
 			}
 		} else {
 			// Nothing has been set - let's set if something was set previously
 			// You can do this with shortcut syntax - but long term maint of code is easier if it's explicit
-			Log.w(TAG, "No alignment set - old vertical align was: " + (tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK),
-				Log.DEBUG_MODE);
+			Log.w(TAG,
+				  "No alignment set - old vertical align was: " + (tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK),
+				  Log.DEBUG_MODE);
 			if ((tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK) != Gravity.NO_GRAVITY) {
 				// Something was set before - so let's use it
 				gravity |= tv.getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
-			}			
+			}
 		}
-		
+
 		tv.setGravity(gravity);
 	}
 
@@ -510,7 +535,7 @@ public class TiUIHelper
 	public static final int FONT_FAMILY_POSITION = 1;
 	public static final int FONT_WEIGHT_POSITION = 2;
 	public static final int FONT_STYLE_POSITION = 3;
-	
+
 	public static String[] getFontProperties(KrollDict fontProps)
 	{
 		boolean bFontSet = false;
@@ -565,13 +590,15 @@ public class TiUIHelper
 		}
 		return fontProperties;
 	}
-	public static void setTextViewDIPPadding(TextView textView, int horizontalPadding, int verticalPadding) {
-		int rawHPadding = (int)getRawDIPSize(horizontalPadding, textView.getContext());
-		int rawVPadding = (int)getRawDIPSize(verticalPadding, textView.getContext());
+	public static void setTextViewDIPPadding(TextView textView, int horizontalPadding, int verticalPadding)
+	{
+		int rawHPadding = (int) getRawDIPSize(horizontalPadding, textView.getContext());
+		int rawVPadding = (int) getRawDIPSize(verticalPadding, textView.getContext());
 		textView.setPadding(rawHPadding, rawVPadding, rawHPadding, rawVPadding);
 	}
 
-	public static Drawable buildBackgroundDrawable(String color, String image, boolean tileImage, Drawable gradientDrawable)
+	public static Drawable buildBackgroundDrawable(String color, String image, boolean tileImage,
+												   Drawable gradientDrawable)
 	{
 		Drawable imageDrawable = null;
 		if (image != null) {
@@ -581,7 +608,8 @@ public class TiUIHelper
 		return buildBackgroundDrawable(color, imageDrawable, tileImage, gradientDrawable);
 	}
 
-	public static Drawable buildBackgroundDrawable(String color, Drawable imageDrawable, boolean tileImage, Drawable gradientDrawable)
+	public static Drawable buildBackgroundDrawable(String color, Drawable imageDrawable, boolean tileImage,
+												   Drawable gradientDrawable)
 	{
 		// Create an array of the layers that will compose this background.
 		// Note that the order in which the layers is important to get the
@@ -613,47 +641,33 @@ public class TiUIHelper
 		return new LayerDrawable(layers.toArray(new Drawable[layers.size()]));
 	}
 
-	private static final int[] BACKGROUND_DEFAULT_STATE_1 = {
-		android.R.attr.state_window_focused,
-		android.R.attr.state_enabled
-	};
-	private static final int[] BACKGROUND_DEFAULT_STATE_2 = {
-		android.R.attr.state_enabled
-	};
-	private static final int[] BACKGROUND_SELECTED_STATE = {
-		android.R.attr.state_window_focused,
-		android.R.attr.state_enabled,
-		android.R.attr.state_pressed
-	};
-	private static final int[] BACKGROUND_FOCUSED_STATE = {
-		android.R.attr.state_focused,
-		android.R.attr.state_window_focused,
-		android.R.attr.state_enabled
-	};
-	private static final int[] BACKGROUND_DISABLED_STATE = {
-		-android.R.attr.state_enabled
-	};
+	private static final int[] BACKGROUND_DEFAULT_STATE_1 = { android.R.attr.state_window_focused,
+															  android.R.attr.state_enabled };
+	private static final int[] BACKGROUND_DEFAULT_STATE_2 = { android.R.attr.state_enabled };
+	private static final int[] BACKGROUND_SELECTED_STATE = { android.R.attr.state_window_focused,
+															 android.R.attr.state_enabled,
+															 android.R.attr.state_pressed };
+	private static final int[] BACKGROUND_FOCUSED_STATE = { android.R.attr.state_focused,
+															android.R.attr.state_window_focused,
+															android.R.attr.state_enabled };
+	private static final int[] BACKGROUND_DISABLED_STATE = { -android.R.attr.state_enabled };
 
-	public static StateListDrawable buildBackgroundDrawable(
-		String image,
-		boolean tileImage,
-		String color,
-		String selectedImage,
-		String selectedColor,
-		String disabledImage,
-		String disabledColor,
-		String focusedImage,
-		String focusedColor,
-		Drawable gradientDrawable)
+	public static StateListDrawable buildBackgroundDrawable(String image, boolean tileImage, String color,
+															String selectedImage, String selectedColor,
+															String disabledImage, String disabledColor,
+															String focusedImage, String focusedColor,
+															Drawable gradientDrawable)
 	{
 		// Anonymous class used by this method to load image drawables.
 		// Supports drawable caching to prevent the same image file from being decoded twice.
-		class ImageDrawableLoader {
+		class ImageDrawableLoader
+		{
 			/** Hash table used to cache loaded drawables by their image file paths. */
 			private HashMap<String, Drawable> imagePathDrawableMap;
 
 			/** Creates a new image drawable loader. */
-			public ImageDrawableLoader() {
+			public ImageDrawableLoader()
+			{
 				this.imagePathDrawableMap = new HashMap<String, Drawable>(4);
 			}
 
@@ -664,7 +678,8 @@ public class TiUIHelper
 			 *         <p>
 			 *         Returns null if failed to load the image or if given a null argument.
 			 */
-			Drawable load(String filePath) {
+			Drawable load(String filePath)
+			{
 				// Validate image file path.
 				if ((filePath == null) || (filePath.length() <= 0)) {
 					return null;
@@ -680,8 +695,7 @@ public class TiUIHelper
 						// Image was successfully loaded. Add it to the cache.
 						this.imagePathDrawableMap.put(filePath, drawable);
 					}
-				}
-				else {
+				} else {
 					// Given image was loaded before. Create a new drawable using the last cached version.
 					// Note: The new drawable will share the cached drawable's bitmap, which avoids decoding the
 					//       same image twice. This is a huge performance and memory optimization.
@@ -702,15 +716,18 @@ public class TiUIHelper
 
 		// Create the layered drawable objects for the the UI object's different states.
 		StateListDrawable sld = new StateListDrawable();
-		Drawable bgSelectedDrawable = buildBackgroundDrawable(selectedColor, selectedImageDrawable, tileImage, gradientDrawable);
+		Drawable bgSelectedDrawable =
+			buildBackgroundDrawable(selectedColor, selectedImageDrawable, tileImage, gradientDrawable);
 		if (bgSelectedDrawable != null) {
 			sld.addState(BACKGROUND_SELECTED_STATE, bgSelectedDrawable);
 		}
-		Drawable bgFocusedDrawable = buildBackgroundDrawable(focusedColor, focusedImageDrawable, tileImage, gradientDrawable);
+		Drawable bgFocusedDrawable =
+			buildBackgroundDrawable(focusedColor, focusedImageDrawable, tileImage, gradientDrawable);
 		if (bgFocusedDrawable != null) {
 			sld.addState(BACKGROUND_FOCUSED_STATE, bgFocusedDrawable);
 		}
-		Drawable bgDisabledDrawable = buildBackgroundDrawable(disabledColor, disabledImageDrawable, tileImage, gradientDrawable);
+		Drawable bgDisabledDrawable =
+			buildBackgroundDrawable(disabledColor, disabledImageDrawable, tileImage, gradientDrawable);
 		if (bgDisabledDrawable != null) {
 			sld.addState(BACKGROUND_DISABLED_STATE, bgDisabledDrawable);
 		}
@@ -767,12 +784,13 @@ public class TiUIHelper
 
 			// maybe move this out to a separate method once other refactor regarding "getWidth", etc is done
 			if (view.getWidth() == 0 && proxyDict != null && proxyDict.containsKey(TiC.PROPERTY_WIDTH)) {
-				TiDimension widthDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH), TiDimension.TYPE_WIDTH);
+				TiDimension widthDimension =
+					new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH), TiDimension.TYPE_WIDTH);
 				width = widthDimension.getAsPixels(view);
 			}
 			if (view.getHeight() == 0 && proxyDict != null && proxyDict.containsKey(TiC.PROPERTY_HEIGHT)) {
-				TiDimension heightDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT),
-					TiDimension.TYPE_HEIGHT);
+				TiDimension heightDimension =
+					new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT), TiDimension.TYPE_HEIGHT);
 				height = heightDimension.getAsPixels(view);
 			}
 
@@ -836,7 +854,7 @@ public class TiUIHelper
 		}
 		return b;
 	}
-	
+
 	/**
 	 * Creates and returns a density scaled Bitmap from an InputStream.
 	 * @param stream an InputStream to read bitmap data.
@@ -862,31 +880,31 @@ public class TiUIHelper
 		}
 		return b;
 	}
-	
+
 	private static String getResourceKeyForImage(String url)
 	{
 		if (resourceImageKeys.containsKey(url)) {
 			return resourceImageKeys.get(url);
 		}
-		
+
 		Pattern pattern = Pattern.compile("^.*/Resources/images/(.*$)");
 		Matcher matcher = pattern.matcher(url);
 		if (!matcher.matches()) {
 			return null;
 		}
-		
+
 		String chopped = matcher.group(1);
 		if (chopped == null) {
 			return null;
 		}
-		
+
 		chopped = chopped.toLowerCase();
 		String forHash = chopped;
 		if (forHash.endsWith(".9.png")) {
 			forHash = forHash.replace(".9.png", ".png");
 		}
 		String withoutExtension = chopped;
-		
+
 		if (chopped.matches("^.*\\..*$")) {
 			if (chopped.endsWith(".9.png")) {
 				withoutExtension = chopped.substring(0, chopped.lastIndexOf(".9.png"));
@@ -894,35 +912,35 @@ public class TiUIHelper
 				withoutExtension = chopped.substring(0, chopped.lastIndexOf('.'));
 			}
 		}
-		
+
 		String cleanedWithoutExtension = withoutExtension.replaceAll("[^a-z0-9_]", "_");
 		StringBuilder result = new StringBuilder(100);
-		result.append(cleanedWithoutExtension.substring(0, Math.min(cleanedWithoutExtension.length(), 80))) ;
+		result.append(cleanedWithoutExtension.substring(0, Math.min(cleanedWithoutExtension.length(), 80)));
 		result.append("_");
 		result.append(DigestUtils.md5Hex(forHash).substring(0, 10));
 		String sResult = result.toString();
 		resourceImageKeys.put(url, sResult);
 		return sResult;
 	}
-	
+
 	public static int getResourceId(String url)
 	{
 		if (!url.contains("Resources/images/")) {
 			return 0;
 		}
-		
+
 		String key = getResourceKeyForImage(url);
 		if (key == null) {
 			return 0;
 		}
-		
+
 		try {
 			return TiRHelper.getResource("drawable." + key, false);
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			return 0;
 		}
 	}
-	
+
 	/**
 	 * Creates and returns a bitmap from its url.
 	 * @param url the bitmap url.
@@ -938,7 +956,7 @@ public class TiUIHelper
 			return getResourceBitmap(id);
 		}
 	}
-	
+
 	/**
 	 * Creates and returns a bitmap for the specified resource ID.
 	 * @param res_id the bitmap id.
@@ -950,7 +968,7 @@ public class TiUIHelper
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inPurgeable = true;
 		opts.inInputShareable = true;
-		
+
 		Bitmap bitmap = null;
 		try {
 			bitmap = BitmapFactory.decodeResource(TiApplication.getInstance().getResources(), res_id, opts);
@@ -980,10 +998,10 @@ public class TiUIHelper
 		if (id == 0) {
 			return null;
 		}
-		
+
 		return getResourceDrawable(id);
 	}
-	
+
 	public static Drawable getResourceDrawable(int res_id)
 	{
 		return TiApplication.getInstance().getResources().getDrawable(res_id);
@@ -992,41 +1010,42 @@ public class TiUIHelper
 	public static Drawable getResourceDrawable(Object path)
 	{
 		Drawable d = null;
-		
+
 		try {
-	
+
 			if (path instanceof String) {
 				TiUrl imageUrl = new TiUrl((String) path);
 				TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
 				d = tfh.loadDrawable(imageUrl.resolve(), false);
 			} else {
-				d = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), path).getDrawable();
+				d = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), path)
+						.getDrawable();
 			}
 		} catch (Exception e) {
-			Log.w(TAG, "Could not load drawable "+e.getMessage(), Log.DEBUG_MODE);
+			Log.w(TAG, "Could not load drawable " + e.getMessage(), Log.DEBUG_MODE);
 			d = null;
 		}
 		return d;
 	}
 
-	public static void overridePendingTransition(Activity activity) 
+	public static void overridePendingTransition(Activity activity)
 	{
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {
 			return;
 		}
-		
+
 		if (overridePendingTransition == null) {
 			try {
-				overridePendingTransition = Activity.class.getMethod("overridePendingTransition", Integer.TYPE, Integer.TYPE);
+				overridePendingTransition =
+					Activity.class.getMethod("overridePendingTransition", Integer.TYPE, Integer.TYPE);
 			} catch (NoSuchMethodException e) {
 				Log.w(TAG, "Activity.overridePendingTransition() not found");
 			}
-			
 		}
-		
+
 		if (overridePendingTransition != null) {
 			try {
-				overridePendingTransition.invoke(activity, new Object[]{0,0});
+				overridePendingTransition.invoke(activity, new Object[] { 0, 0 });
 			} catch (InvocationTargetException e) {
 				Log.e(TAG, "Called incorrectly: " + e.getMessage());
 			} catch (IllegalAccessException e) {
@@ -1034,39 +1053,44 @@ public class TiUIHelper
 			}
 		}
 	}
-	
-	public static ColorFilter createColorFilterForOpacity(float opacity) {
+
+	public static ColorFilter createColorFilterForOpacity(float opacity)
+	{
 		// 5x4 identity color matrix + fade the alpha to achieve opacity
+		// clang-format off
 		float[] matrix = {
 			1, 0, 0, 0, 0,
 			0, 1, 0, 0, 0,
 			0, 0, 1, 0, 0,
 			0, 0, 0, opacity, 0
 		};
-		
+		// clang-format on
+
 		return new ColorMatrixColorFilter(new ColorMatrix(matrix));
 	}
-	
-	public static void setDrawableOpacity(Drawable drawable, float opacity) {
+
+	public static void setDrawableOpacity(Drawable drawable, float opacity)
+	{
 		if (drawable instanceof ColorDrawable || drawable instanceof TiBackgroundDrawable) {
 			drawable.setAlpha(Math.round(opacity * 255));
 		} else if (drawable != null) {
 			drawable.setColorFilter(createColorFilterForOpacity(opacity));
 		}
 	}
-	
-	public static void setPaintOpacity(Paint paint, float opacity) {
+
+	public static void setPaintOpacity(Paint paint, float opacity)
+	{
 		paint.setColorFilter(createColorFilterForOpacity(opacity));
 	}
 
-	public static void requestSoftInputChange(KrollProxy proxy, View view) 
+	public static void requestSoftInputChange(KrollProxy proxy, View view)
 	{
 		if (proxy == null) {
 			return;
 		}
-		
+
 		int focusState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
-		
+
 		if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
 			focusState = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS));
 		}
@@ -1081,26 +1105,28 @@ public class TiUIHelper
 			}
 		}
 	}
-	
+
 	/**
 	 * Shows/hides the soft keyboard.
 	 * @param view the current focused view.
 	 * @param show whether to show soft keyboard.
 	 */
-	public static void showSoftKeyboard(View view, boolean show) 
+	public static void showSoftKeyboard(View view, boolean show)
 	{
 		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
 
 		if (imm != null) {
-			boolean useForce = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
-			String model = TiPlatformHelper.getInstance().getModel(); 
+			boolean useForce =
+				(Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
+			String model = TiPlatformHelper.getInstance().getModel();
 			if (model != null && model.toLowerCase().startsWith("droid")) {
 				useForce = true;
 			}
 			if (show) {
 				imm.showSoftInput(view, useForce ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT);
 			} else {
-				imm.hideSoftInputFromWindow(view.getWindowToken(), useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
+				imm.hideSoftInputFromWindow(view.getWindowToken(),
+											useForce ? 0 : InputMethodManager.HIDE_IMPLICIT_ONLY);
 			}
 		}
 	}
@@ -1112,8 +1138,7 @@ public class TiUIHelper
 	 */
 	public static void runUiDelayed(final Runnable runnable)
 	{
-		(new AsyncTask<Void, Void, Void>()
-		{
+		(new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(Void... arg0)
 			{
@@ -1128,7 +1153,8 @@ public class TiUIHelper
 				Handler handler = new Handler(Looper.getMainLooper());
 				handler.post(runnable);
 			}
-		}).execute();
+		})
+			.execute();
 	}
 
 	/**
@@ -1160,8 +1186,8 @@ public class TiUIHelper
 	 */
 	public static Uri getRedirectUri(Uri mUri) throws MalformedURLException, IOException
 	{
-		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB &&
-				("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme()))) {
+		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB
+			&& ("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme()))) {
 			// Media player doesn't handle redirects, try to follow them
 			// here. (Redirects work fine without this in ICS.)
 			while (true) {

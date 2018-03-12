@@ -5,18 +5,18 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <UIKit/UIKit.h>
 #import "TiControllerProtocols.h"
+#import <UIKit/UIKit.h>
 
 @interface TiViewController : UIViewController {
 
-    TiViewProxy* _proxy;
-    TiOrientationFlags _supportedOrientations;
+  TiViewProxy *_proxy;
+  TiOrientationFlags _supportedOrientations;
 }
 
-@property(nonatomic,retain) NSArray *previewActions;
+@property (nonatomic, retain) NSArray *previewActions;
 
--(id)initWithViewProxy:(TiViewProxy*)window;
--(TiViewProxy*) proxy;
+- (id)initWithViewProxy:(TiViewProxy *)window;
+- (TiViewProxy *)proxy;
 
 @end

@@ -29,7 +29,7 @@ properties:
 
   - name: ANNOTATION_DRAG_STATE_NONE
     summary: |
-        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event
         to indicate that the annotation is not being dragged.
     type: Number
     permission: read-only
@@ -38,7 +38,7 @@ properties:
 
   - name: ANNOTATION_DRAG_STATE_START
     summary: |
-        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event
         to indicate that the user started dragging the annotation.
     type: Number
     permission: read-only
@@ -47,7 +47,7 @@ properties:
 
   - name: ANNOTATION_DRAG_STATE_DRAG
     summary: |
-        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event
         to indicate that the user moved the annotation.
     type: Number
     permission: read-only
@@ -56,7 +56,7 @@ properties:
 
   - name: ANNOTATION_DRAG_STATE_CANCEL
     summary: |
-        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event
         to indicate that the user canceled the drag action.
     type: Number
     permission: read-only
@@ -65,7 +65,7 @@ properties:
 
   - name: ANNOTATION_DRAG_STATE_END
     summary: |
-        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event 
+        Used in the [pinchangedragstate](Titanium.Map.View.pinchangedragstate) event
         to indicate that the user finished moving the annotation.
     type: Number
     permission: read-only
@@ -74,29 +74,29 @@ properties:
 
   - name: ANNOTATION_GREEN
     summary: |
-        Color constant used to set a map annotation to green via the 
+        Color constant used to set a map annotation to green via the
         <Titanium.Map.Annotation.pincolor> property.
     type: Number
     permission: read-only
-    
+
   - name: ANNOTATION_PURPLE
     summary: |
-        Color constant used to set a map annotation to purple via the 
+        Color constant used to set a map annotation to purple via the
         <Titanium.Map.Annotation.pincolor> property.
     type: Number
     permission: read-only
-    
+
   - name: ANNOTATION_RED
     summary: |
-        Color constant used to set a map annotation to red via the 
+        Color constant used to set a map annotation to red via the
         <Titanium.Map.Annotation.pincolor> property.
     type: Number
     permission: read-only
-    
+
   - name: HYBRID_TYPE
     summary: Used with [mapType](Titanium.Map.View.mapType) to display a satellite image of the area with road and road name information layered on top.
     description: |
-        On Android, `HYBRID_TYPE` produces a road map that looks like 
+        On Android, `HYBRID_TYPE` produces a road map that looks like
         [STANDARD_TYPE](Titanium.Map.STANDARD_TYPE), and does not include a satellite
         image. This is a known issue
         ([TIMOB-9673](https://jira.appcelerator.org/browse/TIMOB-9673)).
@@ -106,43 +106,36 @@ properties:
     type: Number
     permission: read-only
 
-    
+
   - name: SATELLITE_TYPE
     summary: Used with [mapType](Titanium.Map.View.mapType) to display satellite imagery of the area.
     description: |
         The Android Google Maps API does not support displaying satellite imagery
-        _without_ roads and names, so specifying `SATELLITE_TYPE` on Android produces 
+        _without_ roads and names, so specifying `SATELLITE_TYPE` on Android produces
         the same results as [HYBRID_TYPE](Titanium.Map.HYBRID_TYPE) on other platforms.
     type: Number
     permission: read-only
 
-    
+
   - name: STANDARD_TYPE
     summary: Used with [mapType](Titanium.Map.View.mapType) to display a street map that shows the position of all roads and some road names.
     type: Number
     permission: read-only
 
-    
-  - name: TERRAIN_TYPE
-    summary: Used with [mapType](Titanium.Map.View.mapType) to display the terrain that shows the position of all roads and some road names.
-    type: Number
-    permission: read-only
-    platforms: [mobileweb]
-    
 examples:
   - title: Map Example
     example: |
-        This is a basic map example that places a custom annotation on the map, and 
-        listens for click events on the annotation. 
+        This is a basic map example that places a custom annotation on the map, and
+        listens for click events on the annotation.
 
         In this example, a custom property (`myid`) is added to the annotation object.
         While adding custom members to a Titanium object is not generally recommended,
         in this case it provides a mechanism for uniquely identifying an annotation. This
-        can be useful, for example, if the annotations are dynamically generated 
+        can be useful, for example, if the annotations are dynamically generated
         and it is not practical to identify them by title.
 
             var win = Titanium.UI.createWindow();
-        
+
             var mountainView = Titanium.Map.createAnnotation({
                 latitude:37.390749,
                 longitude:-122.081651,
@@ -153,7 +146,7 @@ examples:
                 leftButton: '../images/appcelerator_small.png',
                 myid:1 // Custom property to uniquely identify this annotation.
             });
-            
+
             var mapview = Titanium.Map.createView({
                 mapType: Titanium.Map.STANDARD_TYPE,
                 region: {latitude:37.390749, longitude:-122.081651,
@@ -163,7 +156,7 @@ examples:
                 userLocation:true,
                 annotations:[mountainView]
             });
-            
+
             win.add(mapview);
             // Handle click events on any annotations on this map.
             mapview.addEventListener('click', function(evt) {
@@ -244,4 +237,3 @@ examples:
             $.mapview.region = {latitude:37.390749, longitude:-122.081651, latitudeDelta:0.01, longitudeDelta:0.01};
 
             $.win.open
-

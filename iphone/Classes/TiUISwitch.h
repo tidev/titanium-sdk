@@ -6,15 +6,14 @@
  */
 #import "TiUIView.h"
 
-
-@interface TiUISwitch : TiUIView<LayoutAutosizing> {
-@private
-	UISwitch *switchView;
-	BOOL firstInit;
-	BOOL animated;
+@interface TiUISwitch : TiUIView <LayoutAutosizing> {
+  @private
+  UISwitch *switchView;
+  BOOL firstInit;
+  BOOL animated;
 }
 
-- (NSNumber*)value;
+- (NSNumber *)value;
 
 - (IBAction)switchChanged:(id)sender;
 

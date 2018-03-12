@@ -12,9 +12,9 @@ methods:
     summary: Returns true if the cookie is valid.
     description: |
         This method checks if the cookie is valid. For a cookie to be valid the minimum
-        properties requiered are `name`, `value`, `path` and either `domain` or `originalUrl`
-    platforms: [iphone, ipad]
-    since: "3.3.0"
+        properties requiered are `name`, `value`, `path` and either `domain` or `originalUrl` (iOS only)
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "3.3.0", ipad: "3.3.0"}
     returns:
         type: Boolean
 

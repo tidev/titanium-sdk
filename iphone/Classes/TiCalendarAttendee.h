@@ -6,14 +6,14 @@
  */
 
 #ifdef USE_TI_CALENDAR
-#import "TiProxy.h"
 #import "CalendarModule.h"
+#import "TiProxy.h"
 
 @interface TiCalendarAttendee : TiProxy {
-    EKParticipant* participant;
+  EKParticipant *participant;
 }
 
--(id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant*)participant_;
+- (id)_initWithPageContext:(id<TiEvaluator>)context participant:(EKParticipant *)participant_;
 
 @end
 
