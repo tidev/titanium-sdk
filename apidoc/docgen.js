@@ -990,6 +990,9 @@ formats.forEach(function (format) {
 		case 'solr' :
 			render = JSON.stringify(exportData, null, '    ');
 			output += 'api_solr.json';
+		case 'typescript':
+			render = exportData;
+			output += 'index.d.ts';
 	}
 
 	if (!~[ 'addon' ].indexOf(format)) {

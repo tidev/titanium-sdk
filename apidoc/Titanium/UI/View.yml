@@ -737,6 +737,7 @@ methods:
       - name: callback
         summary: Function to be invoked upon completion of the animation.
         type: Callback<Object>
+        optional: true
 
   - name: finishLayout
     since: "2.0.0"
