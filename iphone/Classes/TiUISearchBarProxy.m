@@ -89,6 +89,15 @@
 
   // In UISearchController searchbar is readonly. We have to replace that search bar with existing search bar of proxy.
   [(TiUISearchBar *)[self view] setSearchBar:searchBar];
+
+  // Set search bar properties to new search bar
+  NSDictionary *properties = [self allProperties];
+  for (NSString *key in properties.allKeys) {
+    SEL selector = SetterForKrollProperty(key);
+    if ([(TiUISearchBar *)[self view] respondsToSelector:selector]) {
+      [(TiUISearchBar *)[self view] performSelector:selector withObject:[properties objectForKey:key]];
+    }
+  }
 }
 
 - (void)ensureSearchBarHierarchy

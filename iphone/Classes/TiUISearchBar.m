@@ -63,56 +63,6 @@
   searchView = [searchBar retain];
   [searchView setDelegate:self];
   [self addSubview:searchView];
-  [self configureSearchBarWithSearchBarProperty];
-}
-
-- (void)configureSearchBarWithSearchBarProperty
-{
-  if ([self.proxy valueForUndefinedKey:@"value"]) {
-    [self setValue_:[self.proxy valueForUndefinedKey:@"value"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"showBookmark"]) {
-    [self setShowBookmark_:[self.proxy valueForUndefinedKey:@"showBookmark"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"showCancel"]) {
-    [self setShowCancel_:[self.proxy valueForUndefinedKey:@"showCancel"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"hintText"]) {
-    [self setHintText_:[self.proxy valueForUndefinedKey:@"hintText"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"hintTextColor"]) {
-    [self setHintTextColor_:[self.proxy valueForUndefinedKey:@"hintTextColor"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"color"]) {
-    [self setColor_:[self.proxy valueForUndefinedKey:@"color"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"keyboardType"]) {
-    [self setKeyboardType_:[self.proxy valueForUndefinedKey:@"keyboardType"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"keyboardAppearance"]) {
-    [self setKeyboardAppearance_:[self.proxy valueForUndefinedKey:@"keyboardAppearance"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"prompt"]) {
-    [self setPrompt_:[self.proxy valueForUndefinedKey:@"prompt"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"autocorrect"]) {
-    [self setAutocorrect_:[self.proxy valueForUndefinedKey:@"autocorrect"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"autocapitalization"]) {
-    [self setAutocapitalization_:[self.proxy valueForUndefinedKey:@"autocapitalization"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"tintColor"]) {
-    [self setTintColor_:[self.proxy valueForUndefinedKey:@"tintColor"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"barColor"]) {
-    [self setBarColor_:[self.proxy valueForUndefinedKey:@"barColor"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"style"]) {
-    [self setStyle_:[self.proxy valueForUndefinedKey:@"style"]];
-  }
-  if ([self.proxy valueForUndefinedKey:@"backgroundImage"]) {
-    [self setBackgroundImage_:[self.proxy valueForUndefinedKey:@"backgroundImage"]];
-  }
 }
 
 - (id)accessibilityElement
