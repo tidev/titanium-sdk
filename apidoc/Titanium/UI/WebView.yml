@@ -543,6 +543,19 @@ properties:
     platforms: [android]
     since: "2.1.0"
 
+  - name: onLink
+    summary: Fired before navigating to a link.
+    description: |
+        Android only. The callback will be called before navigating to the link. The Boolean return value of the
+        callback will determine if the link will be navigated.
+    type: Callback<Boolean>
+    platforms: [android]
+    since: "7.1.0"
+    properties:
+      - name: url
+        summary: The url of the link.
+        type: String
+
   - name: overScrollMode
     summary: Determines the behavior when the user overscrolls the view.
     type: Number
