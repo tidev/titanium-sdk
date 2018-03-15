@@ -97,6 +97,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private String buildVersion = "", buildTimestamp = "", buildHash = "";
 	private String defaultUnit;
 	private TiResponseCache responseCache;
+	private BroadcastReceiver localeReceiver;
 	private BroadcastReceiver externalStorageReceiver;
 	private AccessibilityManager accessibilityManager = null;
 	private boolean forceFinishRootActivity = false;
@@ -381,6 +382,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	@Override
 	public void onTerminate()
 	{
+		stopLocaleMonitor();
 		stopExternalStorageMonitor();
 		accessibilityManager = null;
 		super.onTerminate();
@@ -447,6 +449,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiConfig.DEBUG = TiConfig.LOGD = appProperties.getBool("ti.android.debug", false);
 		USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
 
+		startLocaleMonitor();
 		startExternalStorageMonitor();
 
 		// Register the default cache handler
@@ -803,6 +806,24 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean isDebuggerEnabled()
 	{
 		return getDeployData().isDebuggerEnabled();
+	}
+
+	private void startLocaleMonitor()
+	{
+		localeReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent)
+			{
+				TiApplication.getInstance().scheduleRestart(0);
+			}
+		};
+
+		registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+	}
+
+	private void stopLocaleMonitor()
+	{
+		unregisterReceiver(localeReceiver);
 	}
 
 	private void startExternalStorageMonitor()
