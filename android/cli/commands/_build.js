@@ -2740,6 +2740,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							} else {
 								// TODO If dest file exists and contents match, don't do anything?
 								this.logger.debug(__('Writing modified contents to %s', to.cyan));
+								// if it exists, wipe it first, as it may be a symlink back to the original, and updating that would be BAD.
+								// See TIMOB-25875
+								fs.existsSync(to) && fs.unlinkSync(to);
 								fs.writeFile(to, newContents, cb2);
 							}
 						})(r, from, to, cb);
