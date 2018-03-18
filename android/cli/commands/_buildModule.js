@@ -1104,7 +1104,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		let js = '';
 		if (('_dependencies' in node) && (node['_dependencies'].length) > 0) {
 			node['_dependencies'].forEach(function (dependency, index) {
-				js += ejs.render(JS_DEPENDENCY, { 'name': dependency, 'index': index });
+				js += ejs.render(JS_DEPENDENCY, { name: dependency, index: index });
 			});
 		}
 
@@ -1141,11 +1141,11 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			Object.keys(proxyMap.dynamicProperties).forEach(function (dp) {
 				const dpMap = proxyMap.dynamicProperties[dp];
 				if (dpMap.getHasInvocation) {
-					invocationAPIs.push({ 'apiName': dpMap.getMethodName });
+					invocationAPIs.push({ apiName: dpMap.getMethodName });
 				}
 
 				if (dpMap.setHasInvocation) {
-					invocationAPIs.push({ 'apiName': dpMap.setHasInvocation });
+					invocationAPIs.push({ apiName: dpMap.setHasInvocation });
 				}
 			});
 		}
@@ -1159,7 +1159,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				decl = 'return';
 			}
 
-			js += ejs.render(JS_LAZY_GET, { 'decl': decl, 'className': className, 'api': apiName, 'namespace': namespace });
+			js += ejs.render(JS_LAZY_GET, { decl: decl, className: className, api: apiName, namespace: namespace });
 		}
 
 		let childJS = '';
@@ -1170,7 +1170,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 					childNamespace = childAPI;
 				}
 
-				childJS += ejs.render(JS_GETTER, { 'varname': varName, 'child': childAPI });
+				childJS += ejs.render(JS_GETTER, { varname: varName, child: childAPI });
 				childJS += processNode(node[childAPI], childNamespace, indent + 1);
 				childJS += JS_CLOSE_GETTER;
 			}
@@ -1178,15 +1178,15 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 
 		if (hasChildren) {
 			js += '\tif (!("__propertiesDefined__" in ' + varName + ')) {';
-			js += ejs.render(JS_DEFINE_PROPERTIES, { 'varname': varName, 'properties': childJS });
+			js += ejs.render(JS_DEFINE_PROPERTIES, { varname: varName, properties: childJS });
 		}
 
 		if (hasCreateProxies) {
 			const createProxies = bindingJson.modules[className].createProxies;
 			createProxies.forEach(function (create) {
 				const accessor = '["' + create.name + '"]';
-				invocationAPIs.push({ 'apiName': 'create' + create.name });
-				js += ejs.render(JS_CREATE, { 'name': varName, 'type': create.name, 'accessor': accessor });
+				invocationAPIs.push({ apiName: 'create' + create.name });
+				js += ejs.render(JS_CREATE, { name: varName, type: create.name, accessor: accessor });
 			});
 		}
 
@@ -1201,14 +1201,14 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 					topLevelNames = proxyMap.topLevelMethods[method];
 
 				topLevelNames.forEach(function (name) {
-					globalsJS += ejs.render(JS_DEFINE_TOP_LEVEL, { 'name': name, 'mapping': method, 'namespace': ns });
+					globalsJS += ejs.render(JS_DEFINE_TOP_LEVEL, { name: name, mapping: method, namespace: ns });
 				});
 
 			});
 		}
 
 		invocationAPIs.forEach(function (api) {
-			invocationJS += ejs.render(JS_INVOCATION_API, { 'moduleNamespace': moduleName, 'namespace': namespace, 'api': api['apiName'] });
+			invocationJS += ejs.render(JS_INVOCATION_API, { moduleNamespace: moduleName, namespace: namespace, api: api['apiName'] });
 		});
 
 		if (needsReturn) {
@@ -1229,7 +1229,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 
 					if (api !== moduleName && !(api in tree)) {
 						tree[api] = {
-							'_dependencies': []
+							_dependencies: []
 						};
 						tree = tree[api];
 					}
@@ -1266,18 +1266,18 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			var bootstrapJS = processNode(apiTree, '', 0);
 
 			var bootstrapContext = {
-				'globalsJS': globalsJS,
-				'invocationJS': invocationJS,
-				'bootstrapJS': bootstrapJS,
-				'modulesWithCreate': modulesWithCreate,
-				'moduleClass': apiTree['_className'],
-				'moduleName': moduleName
+				globalsJS: globalsJS,
+				invocationJS: invocationJS,
+				bootstrapJS: bootstrapJS,
+				modulesWithCreate: modulesWithCreate,
+				moduleClass: apiTree['_className'],
+				moduleName: moduleName
 			};
 
 			var bindingsContext = {
-				'headers': headers,
-				'bindings': initTable,
-				'moduleName': fileNamePrefix
+				headers: headers,
+				bindings: initTable,
+				moduleName: fileNamePrefix
 			};
 
 			fs.writeFileSync(
@@ -1296,9 +1296,9 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		function (cb) {
 
 			const nativeContext = {
-				'moduleId': this.manifest.moduleid,
-				'className': fileNamePrefix,
-				'jniPackage': this.manifest.moduleid.replace(/\./g, '_')
+				moduleId: this.manifest.moduleid,
+				className: fileNamePrefix,
+				jniPackage: this.manifest.moduleid.replace(/\./g, '_')
 			};
 
 			const boostrapPathJava = path.join(this.buildGenJavaDir, this.moduleIdSubDir);
@@ -1378,7 +1378,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 				}
 
 				fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
-				fs.writeFileSync(this.metaDataFile, JSON.stringify({ 'exports': this.metaData }));
+				fs.writeFileSync(this.metaDataFile, JSON.stringify({ exports: this.metaData }));
 
 				done();
 			}.bind(this));
@@ -1477,7 +1477,7 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 		opts = {
 			env: appc.util.mix({}, process.env, {
 				// we force the JAVA_HOME so that titaniumprep doesn't complain
-				'JAVA_HOME': this.jdkInfo.home
+				JAVA_HOME: this.jdkInfo.home
 			})
 		},
 		fatal = function fatal(err) {
