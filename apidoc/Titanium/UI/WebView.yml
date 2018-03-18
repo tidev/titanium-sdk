@@ -387,6 +387,18 @@ properties:
     osver: {ios: {min: "9.0"}}
     platforms: [iphone]
 
+  - name: allowWebPermission
+    summary: |
+        A Boolean value that determines whether the website grants WebRTC permissions (e.g. accesss the camera).
+    description: |
+        If you set the value to `true` you allow a website to access the phones resources e.g. like access the
+        camera or microphone. You still have to grant the normal phone permissions and add `<uses-permission>`
+        to tiapp.xml.
+    type: Boolean
+    default: false
+    since: "7.2.0"
+    platforms: [android]
+
   - name: blacklistedURLs
     summary: |
         An array of url strings to blacklist.
