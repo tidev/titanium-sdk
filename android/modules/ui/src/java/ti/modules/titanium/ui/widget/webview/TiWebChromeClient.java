@@ -92,7 +92,10 @@ public class TiWebChromeClient extends WebChromeClient
 	public void onPermissionRequest(final PermissionRequest request)
 	{
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			request.grant(request.getResources());
+			TiViewProxy proxy = tiWebView.getProxy();
+			if (proxy.getProperty(TiC.PROPERTY_ALLOW_WEB_PERMISSION)) {
+				request.grant(request.getResources());
+			}
 		}
 	}
 
