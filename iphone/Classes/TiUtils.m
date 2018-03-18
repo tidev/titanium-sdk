@@ -736,12 +736,7 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   UIImage *imageCopy = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 
-// TIMOB-24206: Handle different JSCore GC-behavior
-#if !defined(TI_USE_KROLL_THREAD) && defined(USE_JSCORE_FRAMEWORK)
-  return [imageCopy autorelease];
-#else
   return imageCopy;
-#endif
 }
 
 + (NSURL *)checkFor2XImage:(NSURL *)url

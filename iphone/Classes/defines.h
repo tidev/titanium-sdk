@@ -6,6 +6,7 @@
 //
 
 // MODULES
+#define USE_JSCORE_FRAMEWORK
 
 #define USE_TI_STREAM
 #define USE_TI_CODEC
