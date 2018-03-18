@@ -11,7 +11,11 @@ description: |
     <Titanium.UI.TableView.headerPullView> and <Titanium.UI.ListView.pullView> properties.
     
     Use the <Titanium.UI.createRefreshControl> method to create a RefreshControl.
-
+    
+    **Important iOS 10+ Note**: If you use the RefreshControl inside a <Titanium.UI.Window> that has the `largeTitleEnabled` property
+    set to `true`, you also need to set the `extendEdges` property to either `[Ti.UI.EXTEND_EDGE_TOP]` or `[Ti.UI.EXTEND_EDGE_ALL]`
+    in order to prevent a flickering of the refresh spinner. In Titanium SDK 8+, the `extendEdges` property will be set to `[Ti.UI.EXTEND_EDGE_ALL]`
+    by default to match the native behavior.
 
 extends: Titanium.Proxy
 since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
