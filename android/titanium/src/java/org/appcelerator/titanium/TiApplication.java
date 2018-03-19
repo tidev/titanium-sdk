@@ -192,7 +192,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		WeakReference<Activity> activityRef;
 		Activity currentActivity;
 
-		for (int i = activityStack.size() - 1; i >= 0; i--) {
+		for (int i = activityStack.size() - 1; i > 0; i--) {
 			// We need to check the stack size here again. Since we call finish(), that could potentially
 			// change the activity stack while we are looping through them. TIMOB-12487
 			if (i < activityStack.size()) {
@@ -201,11 +201,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 					currentActivity = activityRef.get();
 					if (currentActivity != null && !currentActivity.isFinishing()) {
 						currentActivity.finish();
+						activityStack.remove(activityRef);
 					}
 				}
 			}
 		}
-		activityStack.clear();
 	}
 
 	public boolean activityStackHasLaunchActivity()
