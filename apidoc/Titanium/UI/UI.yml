@@ -2724,14 +2724,14 @@ properties:
     summary: The returnKeyEvent has been send by the Action button on the software keyboard.
     type: Number
     platforms: [android]
-    since: "7.2.0"
+    since: "7.1.1"
     permission: read-only
 
   - name: RETURN_KEY_TYPE_CARTRIDGE_RETURN
     summary: The returnKeyEvent has been send by the New Line\Cartridge Return button on the software keyboard.
     type: Number
     platforms: [android]
-    since: "7.2.0"
+    since: "7.1.1"
     permission: read-only
 
   - name: backgroundColor
