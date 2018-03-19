@@ -633,7 +633,7 @@ events:
         summary: Constant indication whether the event is from New line or Action key.
         type: Number
         platforms: [android]
-        since: "7.2.0"
+        since: "7.1.1"
         constants: Titanium.UI.RETURN_KEY_TYPE_*
 
 examples:
