@@ -605,7 +605,6 @@ DEFINE_EXCEPTIONS
   if (backgroundRepeat) {
     [self renderRepeatedBackground:bgImage];
   } else {
-    RELEASE_TO_NIL([self backgroundImageLayer].contents);
     [self backgroundImageLayer].contents = (id)bgImage.CGImage;
     if (bgImage != nil) {
       [self backgroundImageLayer].contentsScale = [bgImage scale];
