@@ -14,17 +14,17 @@ describe('Titanium.UI.ListView', function () {
 		var window, nav, control, listView;
 
 		window = Ti.UI.createWindow({
-		  title: 'Hello World',
-		  largeTitleEnabled: true,
-		  extendEdges: [ Ti.UI.EXTEND_EDGE_ALL ]
-        });
+			title: 'Hello World',
+			largeTitleEnabled: true,
+			extendEdges: [ Ti.UI.EXTEND_EDGE_ALL ]
+		});
 
 		window.addEventListener('open', function () {
-		    control.beginRefreshing();
+			control.beginRefreshing();
 		});
 
 		nav = Ti.UI.iOS.createNavigationWindow({
-		    window: window
+			window: window
 		});
 
 		control = Ti.UI.createRefreshControl();
@@ -40,7 +40,7 @@ describe('Titanium.UI.ListView', function () {
 		});
 
 		control.addEventListener('refreshend', function () {
-		    finish();
+			finish();
 		});
 
 		window.add(listView);
@@ -53,13 +53,13 @@ describe('Titanium.UI.ListView', function () {
 		window = Ti.UI.createWindow();
 
 		window.addEventListener('open', function () {
-            control.beginRefreshing();
+			control.beginRefreshing();
 		});
 
 		control = Ti.UI.createRefreshControl();
 
 		listView = Ti.UI.createListView({
-            refreshControl: control
+			refreshControl: control
 		});
 
 		control.addEventListener('refreshstart', function () {
