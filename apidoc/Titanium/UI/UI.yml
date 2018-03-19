@@ -2721,14 +2721,14 @@ properties:
     permission: read-only
 
   - name: RETURN_KEY_TYPE_ACTION
-    summary: The returnKeyEvent has been send by the Action button on the software keyboard.
+    summary: The [return](Ti.UI.TextField.return) event has been send by the action button on the software keyboard.
     type: Number
     platforms: [android]
     since: "7.1.1"
     permission: read-only
 
   - name: RETURN_KEY_TYPE_CARTRIDGE_RETURN
-    summary: The returnKeyEvent has been send by the New Line\Cartridge Return button on the software keyboard.
+    summary: The [return](Ti.UI.TextField.return) event has been send by the new line- or cartridge return button on the software keyboard.
     type: Number
     platforms: [android]
     since: "7.1.1"

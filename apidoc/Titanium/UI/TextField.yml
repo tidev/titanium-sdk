@@ -630,7 +630,7 @@ events:
         summary: Value of this text area.
         type: String
       - name: button
-        summary: Constant indication whether the event is from New line or Action key.
+        summary: Constant indicating whether the event is from new line- or action key.
         type: Number
         platforms: [android]
         since: "7.1.1"
