@@ -74,10 +74,11 @@ public class FusedLocationProvider
 		}
 		try {
 			Class.forName("com.google.android.gms.common.GoogleApiAvailability");
-		} catch (ClassNotFoundException e) {
-			return false;
+			return PlayServices.validVersion() && PlayServices.available(context);
+		} catch (Exception e) {
+			PlayServices.useFusedLocation = false;
 		}
-		return PlayServices.validVersion() && PlayServices.available(context);
+		return false;
 	}
 
 	/**
