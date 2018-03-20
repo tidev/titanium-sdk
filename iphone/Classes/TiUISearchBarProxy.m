@@ -112,7 +112,7 @@
 
 - (NSString *)value
 {
-  return  [[self searchBar] text];
+  return [[self searchBar] text];
 }
 
 - (NSNumber *)showBookmark
@@ -142,12 +142,12 @@
 
 - (NSNumber *)keyboardType
 {
-  return  NUMINT([[self searchBar] keyboardType]);
+  return NUMINT([[self searchBar] keyboardType]);
 }
 
 - (NSNumber *)keyboardAppearance
 {
-  return  NUMINT([[self searchBar] keyboardAppearance]);
+  return NUMINT([[self searchBar] keyboardAppearance]);
 }
 
 - (NSString *)prompt
