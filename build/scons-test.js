@@ -17,6 +17,7 @@ program
 	.option('-C, --device-id [id]', 'Titanium device id to run the unit tests on. Only valid when there is a target provided')
 	.option('-T, --target [target]', 'Titanium platform target to run the unit tests on. Only valid when there is a single platform provided')
 	.option('-s, --skip-sdk-install', 'Skip the SDK installation step')
+	.option('-b, --branch [branch]', 'Which branch of the test suite to use', 'master')
 	.parse(process.argv);
 
 let platforms = program.args;
@@ -44,9 +45,10 @@ if (!program.skipSdkInstall && !fs.existsSync(zipfile)) {
  * SDK zipfile in dist against the supplied platforms.
  *
  * @param  {String[]}   platforms [description]
+ * @param  {String}   branch [description]
  * @param  {Function} next      [description]
  */
-function runTests(platforms, next) {
+function runTests(platforms, branch, next) {
 	async.series([
 		function (cb) {
 			// If we have a clone of the tests locally, wipe it...
@@ -56,7 +58,7 @@ function runTests(platforms, next) {
 			}
 			// clone the common test suite shallow
 			// FIXME Determine the correct branch of the suite to clone like we do in the Jenkinsfile
-			exec('git clone --depth 1 https://github.com/appcelerator/titanium-mobile-mocha-suite.git', { cwd: path.join(__dirname, '..') }, cb);
+			exec('git clone --depth 1 https://github.com/appcelerator/titanium-mobile-mocha-suite.git -b ' + branch, { cwd: path.join(__dirname, '..') }, cb);
 		},
 		function (cb) {
 			// Make sure it's dependencies are installed
@@ -88,7 +90,7 @@ function runTests(platforms, next) {
 	], next);
 }
 
-runTests(platforms, function (err) {
+runTests(platforms, program.branch, function (err) {
 	if (err) {
 		console.error(err.toString());
 		process.exit(1);
