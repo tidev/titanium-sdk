@@ -44,20 +44,6 @@ function isConstantsOnlyProxy(typeInfo) {
 	return false;
 }
 
-function hasAllProxyMembers(typeInfo) {
-	function hasAllMembers(members) {
-		return members.every(proxyMemberNode => {
-			if (proxyMemberNode.optional) {
-				return true;
-			}
-
-			return typeInfo.properties.some(typeProperty => proxyMemberNode.name === typeProperty.name);
-		});
-	}
-
-	return hasAllMembers(proxyInterface.properties) && hasAllMembers(proxyInterface.methods);
-}
-
 class DocsParser {
 	constructor(apis) {
 		this.titaniumNamespace = null;
