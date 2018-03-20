@@ -108,6 +108,85 @@
   return TiDimensionAutoSize;
 }
 
+#pragma mark getters
+
+- (NSString *)value
+{
+  return  [[self searchBar] text];
+}
+
+- (NSNumber *)showBookmark
+{
+  return NUMBOOL([[self searchBar] showsBookmarkButton]);
+}
+
+- (NSNumber *)showCancel
+{
+  return NUMBOOL([[self searchBar] showsCancelButton]);
+}
+
+- (NSString *)hintText
+{
+  return [[self searchBar] placeholder];
+}
+
+- (id)hintTextColor
+{
+  return [self valueForUndefinedKey:@"hintTextColor"];
+}
+
+- (id)color
+{
+  return [self valueForUndefinedKey:@"color"];
+}
+
+- (NSNumber *)keyboardType
+{
+  return  NUMINT([[self searchBar] keyboardType]);
+}
+
+- (NSNumber *)keyboardAppearance
+{
+  return  NUMINT([[self searchBar] keyboardAppearance]);
+}
+
+- (NSString *)prompt
+{
+  return [[self searchBar] prompt];
+}
+
+- (NSNumber *)autocorrect
+{
+  UITextAutocorrectionType autocorrectionType = [[self searchBar] autocorrectionType];
+  if (autocorrectionType == UITextAutocorrectionTypeYes) {
+    return NUMBOOL(YES);
+  } else if (autocorrectionType == UITextAutocorrectionTypeNo) {
+    return NUMBOOL(NO);
+  } else {
+    return nil;
+  }
+}
+
+- (NSNumber *)autocapitalization
+{
+  return NUMINT([[self searchBar] autocapitalizationType]);
+}
+
+- (id)tintColor
+{
+  return [self valueForUndefinedKey:@"tintColor"];
+}
+
+- (id)barColor
+{
+  return [self valueForUndefinedKey:@"barColor"];
+}
+
+- (NSNumber *)style
+{
+  return NUMINT([[self searchBar] searchBarStyle]);
+}
+
 USE_VIEW_FOR_CONTENT_HEIGHT
 @end
 
