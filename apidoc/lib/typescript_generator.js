@@ -6,7 +6,7 @@
 const invalidTypeMap = {
 	'2DMatrix': 'Matrix2D',
 	'3DMatrix': 'Matrix3D',
-	'Dictionary': 'any'
+	Dictionary: 'any'
 };
 let parser = null;
 
