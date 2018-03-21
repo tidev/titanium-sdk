@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-var times = {};
+const times = new Map();
 function join(args) {
 	// Handle null / undefined args up front since we can't slice them
 	if (typeof args === 'undefined') {
@@ -46,27 +46,23 @@ exports.debug = function () {
 	Titanium.API.debug(join(arguments));
 };
 
-exports.time = function (label) {
-	if (times[label]) {
-		exports.warn('Label "' + label + '" already exists');
+exports.time = function (label = 'default') {
+	label = `${label}`;
+	if (times.has(label)) {
+		exports.warn(`Label ${label}" already exists`);
 		return;
 	}
-	if (!label) {
-		label = 'default';
-	}
-	times[label] = Date.now();
+	times.set(label, Date.now());
 };
 
-exports.timeEnd = function (label) {
-	if (!label) {
-		label = 'default';
-	}
-	var startTime = times[label];
+exports.timeEnd = function (label = 'default') {
+	label = `${label}`;
+	const startTime = times.get(label);
 	if (!startTime) {
-		exports.warn('Label "' + label + '" does not exist');
+		exports.warn(`Label "${label}" does not exist`);
 		return;
 	}
-	var duration = Date.now() - startTime;
-	exports.log(label + ': ' + duration + 'ms');
-	delete times[label];
+	const duration = Date.now() - startTime;
+	exports.log(`${label}: ${duration}ms`);
+	times.delete(label);
 };
