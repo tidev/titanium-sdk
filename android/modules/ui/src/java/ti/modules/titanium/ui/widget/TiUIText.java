@@ -53,7 +53,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_ACTION;
-import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_CARTRIDGE_RETURN;
+import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_NEW_LINE;
 
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
 {
@@ -410,7 +410,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			String value = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_VALUE));
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_VALUE, value);
-			data.put(TiC.PROPERTY_BUTTON, RETURN_KEY_TYPE_CARTRIDGE_RETURN);
+			// TODO: Enable this once we have it on iOS as well.
+			//data.put(TiC.PROPERTY_BUTTON, RETURN_KEY_TYPE_NEW_LINE);
 			fireEvent(TiC.EVENT_RETURN, data);
 		}
 		/**
@@ -523,13 +524,15 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			return true;
 		}
 
-		data.put(TiC.PROPERTY_BUTTON, RETURN_KEY_TYPE_ACTION);
+		// TODO: Enable this once we have it on iOS as well.
+		//data.put(TiC.PROPERTY_BUTTON, RETURN_KEY_TYPE_ACTION);
+
 		// Check whether we a dealing with text area or text field. Multiline TextViews in Landscape
-		// orientation for phones have separate buttons for IME_ACTION and cartridge return.
+		// orientation for phones have separate buttons for IME_ACTION and new line.
 		// And because of that we skip the firing of a RETURN event from this call in favor of the
 		// one from onTextChanged. The event carries a property to determine whether it was fired
-		// from the IME_ACTION button or the cartridge return one.
-		if (tv.getMaxLines() == 1) {
+		// from the IME_ACTION button or the new line one.
+		if (field) {
 			fireEvent(TiC.EVENT_RETURN, data);
 			// Since IME_ACTION_NEXT and IME_ACTION_DONE take care of consuming the second call to
 			// onEditorAction we do not consume it for either of them.
@@ -543,8 +546,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				fireEvent(TiC.EVENT_RETURN, data);
 				return true;
 			}
-			// Cartridge return is treated immediately as KeyEvent, so we let the system propagate it
-			// to onTextChange where the JS event is loaded with the property that with was a cartridge return.
+			// New line is treated immediately as KeyEvent, so we let the system propagate it
+			// to onTextChange where the JS event is loaded with the property that with was a new line.
 			return false;
 		}
 	}
