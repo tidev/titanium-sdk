@@ -514,7 +514,6 @@ public class TiBlob extends KrollProxy
 			return null;
 		}
 		if (this.type != TYPE_FILE) {
-			Log.w(TAG, "getNativePath not supported for non-file blob types.");
 			return null;
 		} else if (!(data instanceof TiBaseFile)) {
 			Log.w(TAG, "getNativePath unable to return value: underlying data is not file, rather "
@@ -1069,6 +1068,18 @@ public class TiBlob extends KrollProxy
 			Log.e(TAG, "Unable to get the image with transparent border. Unknown exception: " + t.getMessage(), t);
 			return null;
 		}
+	}
+
+	@Override
+	public void release()
+	{
+		if (data != null) {
+			data = null;
+		}
+		if (image != null) {
+			image = null;
+		}
+		super.release();
 	}
 
 	@Override

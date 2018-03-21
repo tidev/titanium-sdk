@@ -67,8 +67,10 @@ public abstract class KrollObject implements Handler.Callback
 	public void setHasListenersForEventType(String event, boolean hasListeners)
 	{
 		hasListenersForEventType.put(event, hasListeners);
-		if (proxySupport != null && proxySupport.get() != null) {
-			proxySupport.get().onHasListenersChanged(event, hasListeners);
+
+		KrollProxySupport proxy = (proxySupport != null) ? proxySupport.get() : null;
+		if (proxy != null) {
+			proxy.onHasListenersChanged(event, hasListeners);
 		}
 	}
 
@@ -79,8 +81,9 @@ public abstract class KrollObject implements Handler.Callback
 	 */
 	public void onEventFired(String event, Object data)
 	{
-		if (proxySupport != null && proxySupport.get() != null) {
-			proxySupport.get().onEventFired(event, data);
+		KrollProxySupport proxy = (proxySupport != null) ? proxySupport.get() : null;
+		if (proxy != null) {
+			proxy.onEventFired(event, data);
 		}
 	}
 
