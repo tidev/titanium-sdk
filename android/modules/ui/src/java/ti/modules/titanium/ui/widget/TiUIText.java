@@ -527,7 +527,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		// TODO: Enable this once we have it on iOS as well.
 		//data.put(TiC.PROPERTY_BUTTON, RETURN_KEY_TYPE_ACTION);
 
-		// Check whether we a dealing with text area or text field. Multiline TextViews in Landscape
+		// Check whether we are dealing with text area or text field. Multiline TextViews in Landscape
 		// orientation for phones have separate buttons for IME_ACTION and new line.
 		// And because of that we skip the firing of a RETURN event from this call in favor of the
 		// one from onTextChanged. The event carries a property to determine whether it was fired
