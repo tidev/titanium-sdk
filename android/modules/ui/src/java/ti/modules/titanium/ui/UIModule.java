@@ -43,7 +43,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int RETURN_KEY_TYPE_ACTION = 0;
 	@Kroll.constant
-	public static final int RETURN_KEY_TYPE_CARTRIDGE_RETURN = 1;
+	public static final int RETURN_KEY_TYPE_NEW_LINE = 1;
 	@Kroll.constant
 	public static final int RETURNKEY_GO = 0;
 	@Kroll.constant
