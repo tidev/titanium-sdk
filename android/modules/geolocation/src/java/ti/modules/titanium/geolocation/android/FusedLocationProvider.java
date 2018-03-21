@@ -48,6 +48,8 @@ public class FusedLocationProvider
 
 	private final GeolocationModule geolocationModule;
 
+	private static boolean useFusedLocation = true;
+
 	/**
 	 * Constructor
 	 * @param context: context to be used when accessing Google APIs
@@ -69,14 +71,14 @@ public class FusedLocationProvider
 	 */
 	public static boolean hasPlayServices(Context context)
 	{
-		if (!PlayServices.useFusedLocation) {
+		if (!useFusedLocation) {
 			return false;
 		}
 		try {
 			Class.forName("com.google.android.gms.common.GoogleApiAvailability");
 			return PlayServices.validVersion() && PlayServices.available(context);
 		} catch (Exception e) {
-			PlayServices.useFusedLocation = false;
+			useFusedLocation = false;
 		}
 		return false;
 	}
@@ -123,7 +125,6 @@ public class FusedLocationProvider
 		private static int googleApiCode;
 		private static GoogleApiClient googleApiClient;
 		private static FusedLocationProviderClient fusedLocationClient;
-		private static boolean useFusedLocation = true;
 
 		private static ArrayList<LocationProviderProxy> fusedLocationQueue = new ArrayList<>();
 		private static ArrayList<LocationProviderProxy> fusedLocationProviders = new ArrayList<>();
