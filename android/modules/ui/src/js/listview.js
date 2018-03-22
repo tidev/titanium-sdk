@@ -80,13 +80,28 @@ exports.bootstrap = function(Titanium) {
 	
 	//convert name of UI elements into a constructor function.
 	//I.e: lookup("Titanium.UI.Label") returns Titanium.UI.createLabel function
-	function lookup(name) {
-		var lastDotIndex = name.lastIndexOf('.');
-		var proxy = eval(name.substring(0, lastDotIndex));
-		if (typeof(proxy) == undefined) return;
+	function lookup(namespace) {
 
-		var proxyName = name.slice(lastDotIndex + 1);
-		return proxy['create' + proxyName];
+		// handle Titanium widgets
+		if (/^(Ti|Titanium)/.test(namespace)) {
+			const namespaceIndex = namespace.lastIndexOf('.'),
+				  proxyName = namespace.slice(namespaceIndex + 1),
+				  parentNamespace = namespace.substring(0, namespaceIndex),
+				  parentProxy = eval(parentNamespace);
+	
+			if (parentProxy) {
+				return parentProxy['create' + proxyName];
+			}
+	
+		// handle Alloy widgets
+		} else {
+			const widget = '/alloy/widgets/' + namespace + '/controllers/widget',
+				  hasWidget = Ti.Filesystem.getFile(widget).exists();
+	
+			if (hasWidget) {
+				return new (require(widget));
+			}
+		}
 	}
 
 	//overwrite list view constructor function with our own.
