@@ -13,25 +13,32 @@ module.exports = function (grunt) {
 		'android/runtime/*/src/**/*.java',
 		'android/titanium/src/**/*.java'
 	];
-	const allSrc = iosSrc.concat(androidSrc);
 
 	// Project configuration.
 	grunt.initConfig({
 		appcJs: {
-			src: [ 'dangerfile.js', 'Gruntfile.js', 'apidoc/**/*.js', 'build/**/*.js', 'cli/!(locales)/**/*.js', 'android/cli/!(locales)/**/*.js', 'iphone/cli/!(locales)/**/*.js' ]
+			src: [
+				'dangerfile.js',
+				'Gruntfile.js',
+				'apidoc/**/*.js',
+				'build/**/*.js',
+				'cli/!(locales)/**/*.js',
+				'android/cli/!(locales)/**/*.js',
+				'iphone/cli/!(locales)/**/*.js',
+				'tests/Resources/**/*test.js'
+			]
 		},
 		clangFormat: {
-			src: allSrc
+			android: { src: androidSrc },
+			ios: { src: iosSrc }
 		},
-		ios_format: {
-			src: iosSrc
-		},
-		android_format: {
-			src: androidSrc
+		checkFormat: {
+			android: { src: androidSrc },
+			ios: { src: iosSrc }
 		}
 	});
 
-	grunt.registerTask('validate_docs', 'Validates the docs.', function () {
+	grunt.registerTask('validate:docs', 'Validates the docs.', function () {
 		const done = this.async();
 		const fork = require('child_process').fork, // eslint-disable-line security/detect-child-process
 			path = require('path'),
@@ -108,8 +115,7 @@ module.exports = function (grunt) {
 		});
 	}
 
-	grunt.registerMultiTask('ios_format', 'Validates the iOS source code formatting.', validateFormatting);
-	grunt.registerMultiTask('android_format', 'Validates the Android source code formatting.', validateFormatting);
+	grunt.registerMultiTask('checkFormat', 'Validates the source code formatting.', validateFormatting);
 
 	// Load grunt plugins for modules
 	grunt.loadNpmTasks('grunt-mocha-test');
@@ -117,12 +123,15 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-clang-format');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
-	// register tasks
-	grunt.registerTask('lint', [ 'appcJs', 'ios_format', 'android_format', 'validate_docs' ]);
+	// linting: run eslint against js, standard appc checks, check ios/android format via clang, run doc validation script
+	grunt.registerTask('lint', [ 'appcJs', 'checkFormat:ios', 'checkFormat:android', 'validate:docs' ]);
 
-	// register tasks
-	grunt.registerTask('format', [ 'clangFormat' ]);
+	// Tasks for formatting the source code according to our clang/eslint rules
+	grunt.registerTask('format:js', [ 'appcJs:src:lint:fix' ]);
+	grunt.registerTask('format:android', [ 'clangFormat:android' ]);
+	grunt.registerTask('format:ios', [ 'clangFormat:ios' ]);
+	grunt.registerTask('format', [ 'format:android', 'format:ios', 'format:js' ]);
 
-	// register tasks
+	// By default, run linting
 	grunt.registerTask('default', [ 'lint' ]);
 };

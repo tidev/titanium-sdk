@@ -207,8 +207,8 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
     RELEASE_TO_NIL(keyboardTiView);
     RELEASE_TO_NIL(keyboardToolbarItems);
     [keyboardUIToolbar setItems:nil];
-    [[self.view textWidgetView] setInputAccessoryView:nil];
-    [[self.view textWidgetView] reloadInputViews];
+    [(UITextField *)[(TiUITextWidget *)[self view] textWidgetView] setInputAccessoryView:nil];
+    [[(TiUITextWidget *)[self view] textWidgetView] reloadInputViews];
     return;
   }
 
@@ -226,8 +226,8 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
       [self updateUIToolbar];
     }
     [[self keyboardAccessoryView] setBounds:CGRectMake(0, 0, 0, [self keyboardAccessoryHeight])];
-    [[self.view textWidgetView] setInputAccessoryView:[self keyboardAccessoryView]];
-    [[self.view textWidgetView] reloadInputViews];
+    [(UITextField *)[(TiUITextWidget *)[self view] textWidgetView] setInputAccessoryView:[self keyboardAccessoryView]];
+    [[(TiUITextWidget *)[self view] textWidgetView] reloadInputViews];
     return;
   }
 
@@ -245,8 +245,8 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 
     keyboardTiView = [valueView retain];
     [keyboardTiView setBounds:CGRectMake(0, 0, 0, [self keyboardAccessoryHeight])];
-    [[self.view textWidgetView] setInputAccessoryView:keyboardTiView];
-    [[self.view textWidgetView] reloadInputViews];
+    [(UITextField *)[(TiUITextWidget *)[self view] textWidgetView] setInputAccessoryView:keyboardTiView];
+    [[(TiUITextWidget *)[self view] textWidgetView] reloadInputViews];
   }
 }
 

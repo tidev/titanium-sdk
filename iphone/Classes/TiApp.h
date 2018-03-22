@@ -51,12 +51,14 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
   NSString *userAgent;
   NSString *remoteDeviceUUID;
 
-  id remoteNotificationDelegate;
   NSDictionary *remoteNotification;
   NSMutableDictionary *pendingCompletionHandlers;
   NSMutableDictionary *pendingReplyHandlers;
   NSMutableDictionary *backgroundTransferCompletionHandlers;
   NSMutableDictionary *queuedBootEvents;
+  NSMutableDictionary<NSString *, NSSet<id> *> *_queuedApplicationSelectors;
+  NSMutableSet<id> *_applicationDelegates;
+
   BOOL appBooted;
 
   NSString *sessionId;
@@ -76,8 +78,6 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  Convenience method to access the application's primary window
  */
 @property (nonatomic, retain) IBOutlet UIWindow *window;
-
-@property (nonatomic, assign) id remoteNotificationDelegate;
 
 @property (nonatomic, readonly) NSMutableDictionary *pendingCompletionHandlers;
 @property (nonatomic, readonly) NSMutableDictionary *backgroundTransferCompletionHandlers;
@@ -129,6 +129,10 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 - (UIView *)topMostView;
 
 - (void)attachXHRBridgeIfRequired;
+
+- (void)registerApplicationDelegate:(id)applicationDelegate;
+
+- (void)unregisterApplicationDelegate:(id)applicationDelegate;
 
 /**
  Returns application launch options

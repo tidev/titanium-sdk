@@ -51,7 +51,16 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 		jsObject = proxy->handle(V8Runtime::v8_isolate);
 	} else {
 		LOGE(TAG, "!!! Attempting to set a property on a Java object with no/deleted Proxy on C++ side! Attempting to revive it from Java object.");
-		jobject proxySupport = env->GetObjectField(object, JNIUtil::krollObjectProxySupportField);
+
+		jobject proxySupportField = env->GetObjectField(object, JNIUtil::krollObjectProxySupportField);
+		if (!proxySupportField) {
+			return;
+		}
+		static jmethodID getMethodID = NULL;
+		if (!getMethodID) {
+			getMethodID = env->GetMethodID(env->FindClass("java/lang/ref/WeakReference"), "get", "()Ljava/lang/Object;");
+		}
+		jobject proxySupport = (jobject)env->CallObjectMethodA(proxySupportField, getMethodID, NULL);
 		if (!proxySupport) {
 			return;
 		}
@@ -151,7 +160,15 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 		jsObject = proxy->handle(V8Runtime::v8_isolate);
 	} else {
 		LOGE(TAG, "!!! Attempting to call a property on a Java object with no/deleted Proxy on C++ side! Attempting to revive it from Java object.");
-		jobject proxySupport = env->GetObjectField(javaObject, JNIUtil::krollObjectProxySupportField);
+		jobject proxySupportField = env->GetObjectField(javaObject, JNIUtil::krollObjectProxySupportField);
+		if (!proxySupportField) {
+			return JNIUtil::undefinedObject;
+		}
+		static jmethodID getMethodID = NULL;
+		if (!getMethodID) {
+			getMethodID = env->GetMethodID(env->FindClass("java/lang/ref/WeakReference"), "get", "()Ljava/lang/Object;");
+		}
+		jobject proxySupport = (jobject)env->CallObjectMethodA(proxySupportField, getMethodID, NULL);
 		if (proxySupport) {
 			jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, proxySupport).As<Object>();
 		}
