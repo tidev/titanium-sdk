@@ -137,7 +137,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   return queuedBootEvents;
 }
 
-- (NSMutableDictionary<NSString *, NSSet<id> *> *)queuedApplicationSelectors
+- (NSMutableDictionary<NSString *, NSOrderedSet<id> *> *)queuedApplicationSelectors
 {
   if (_queuedApplicationSelectors == nil) {
     _queuedApplicationSelectors = [[[NSMutableDictionary alloc] init] retain];
@@ -428,7 +428,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   BOOL allowsCustomKeyboard = [TiUtils boolValue:[[TiApp tiAppProperties] objectForKey:@"allow-custom-keyboards"] def:YES];
 
   [self tryToInvokeSelector:@selector(application:shouldAllowExtensionPointIdentifier:)
-              withArguments:[NSSet setWithObjects:application, extensionPointIdentifier, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, extensionPointIdentifier, nil]];
 
   if ([extensionPointIdentifier isEqualToString:UIApplicationKeyboardExtensionPointIdentifier] && !allowsCustomKeyboard) {
     return NO;
@@ -490,7 +490,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 
   [self tryToInvokeSelector:@selector(application:didFinishLaunchingWithOptions:)
-              withArguments:[NSSet setWithObjects:application, launchOptions_, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, launchOptions_, nil]];
 
   [self launchToUrl];
   [self boot];
@@ -502,7 +502,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *, id> *)options
 {
   [self tryToInvokeSelector:@selector(application:openURL:options:)
-              withArguments:[NSSet setWithObjects:app, url, options, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:app, url, options, nil]];
 
   [launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
   [launchOptions setObject:[url absoluteString] forKey:@"url"];
@@ -519,7 +519,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
   [self tryToInvokeSelector:@selector(application:sourceApplication:annotation:)
-              withArguments:[NSSet setWithObjects:application, sourceApplication, annotation, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, sourceApplication, annotation, nil]];
 
   [launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
   [launchOptions setObject:[url absoluteString] forKey:@"url"];
@@ -539,7 +539,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
   [self tryToInvokeSelector:@selector(application:performFetchWithCompletionHandler:)
-              withArguments:[NSSet setWithObjects:application, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, completionHandler, nil]];
 
   //Only for simulator builds
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
@@ -571,7 +571,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
   [self tryToInvokeSelector:@selector(application:didRegisterUserNotificationSettings:)
-              withArguments:[NSSet setWithObjects:application, notificationSettings, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, notificationSettings, nil]];
 
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification
                                                       object:self
@@ -612,7 +612,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 
   [self tryToInvokeSelector:@selector(application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:)
-              withArguments:[NSSet setWithObjects:application, identifier, notification, responseInfo, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, notification, responseInfo, completionHandler, nil]];
 
   [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
 }
@@ -621,7 +621,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
 {
   [self tryToInvokeSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)
-              withArguments:[NSSet setWithObjects:application, identifier, userInfo, responseInfo, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, userInfo, responseInfo, completionHandler, nil]];
 
   [self handleRemoteNotificationWithIdentifier:identifier
                                    andUserInfo:userInfo
@@ -633,7 +633,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler
 {
   [self tryToInvokeSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:completionHandler:)
-              withArguments:[NSSet setWithObjects:application, identifier, userInfo, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, userInfo, completionHandler, nil]];
 
   [self handleRemoteNotificationWithIdentifier:identifier
                                    andUserInfo:userInfo
@@ -664,7 +664,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 
   [self tryToInvokeSelector:@selector(application:handleWatchKitExtensionRequest:reply:)
-              withArguments:[NSSet setWithObjects:application, userInfo, reply, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, reply, nil]];
 
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiWatchKitExtensionRequest object:self userInfo:dic];
 }
@@ -690,21 +690,24 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #pragma mark Helper Methods
 
-- (void)invokeSelector:(SEL)selector withArguments:(NSSet<id> *)arguments onDelegate:(id)delegate
+- (void)invokeSelector:(SEL)selector withArguments:(NSOrderedSet<id> *)arguments onDelegate:(id)delegate
 {
   NSArray *keys = [NSStringFromSelector(selector) componentsSeparatedByString:@":"];
   NSMutableDictionary *output = [NSMutableDictionary dictionaryWithCapacity:[arguments count]];
 
-  NSInteger i = 0;
+  NSInteger index = 2; // Index 0 and 1 are reserved for the invocation internals ("self" and "_cmd")
+  NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[delegate methodSignatureForSelector:selector]];
+  [inv setSelector:selector];
+  [inv setTarget:delegate];
+
   for (id obj in arguments) {
-    [output setObject:obj forKey:[keys objectAtIndex:i]];
-    i++;
+    [inv setArgument:&(obj)atIndex:index++];
   }
 
-  [delegate performSelector:selector withObject:output];
+  [inv invoke];
 }
 
-- (void)tryToInvokeSelector:(SEL)selector withArguments:(NSSet<id> *)arguments
+- (void)tryToInvokeSelector:(SEL)selector withArguments:(NSOrderedSet<id> *)arguments
 {
   NSString *selectorString = NSStringFromSelector(selector);
 
@@ -820,7 +823,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 
   [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:)
-              withArguments:[NSSet setWithObjects:application, userInfo, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, completionHandler, nil]];
 
   //This only here for Simulator builds.
 
@@ -866,7 +869,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [backgroundTransferCompletionHandlers setObject:[[completionHandler copy] autorelease] forKey:key];
 
   [self tryToInvokeSelector:@selector(application:handleEventsForBackgroundURLSession:completionHandler:)
-              withArguments:[NSSet setWithObjects:application, identifier, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, completionHandler, nil]];
 
   NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionId",
                                                    key, @"handlerId", nil];
@@ -1007,7 +1010,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)applicationWillTerminate:(UIApplication *)application
 {
   [self tryToInvokeSelector:@selector(applicationWillTerminate:)
-              withArguments:[NSSet setWithObject:application]];
+              withArguments:[NSOrderedSet orderedSetWithObject:application]];
 
   NSNotificationCenter *theNotificationCenter = [NSNotificationCenter defaultCenter];
   _willTerminate = YES;
@@ -1057,7 +1060,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
 {
   [self tryToInvokeSelector:@selector(applicationDidReceiveMemoryWarning:)
-              withArguments:[NSSet setWithObject:application]];
+              withArguments:[NSOrderedSet orderedSetWithObject:application]];
 
   applicationInMemoryPanic = YES;
   [Webcolor flushCache];
@@ -1073,7 +1076,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)applicationWillResignActive:(UIApplication *)application
 {
   [self tryToInvokeSelector:@selector(applicationWillResignActive:)
-              withArguments:[NSSet setWithObject:application]];
+              withArguments:[NSOrderedSet orderedSetWithObject:application]];
 
   if ([self forceSplashAsSnapshot]) {
 #ifdef LAUNCHSCREEN_STORYBOARD
@@ -1101,7 +1104,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
   [self tryToInvokeSelector:@selector(applicationDidBecomeActive:)
-              withArguments:[NSSet setWithObject:application]];
+              withArguments:[NSOrderedSet orderedSetWithObject:application]];
 
   // We should think about placing this inside "applicationWillBecomeActive" instead to make
   // the UI re-useable again more quickly
@@ -1128,7 +1131,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
   [self tryToInvokeSelector:@selector(applicationDidEnterBackground:)
-              withArguments:[NSSet setWithObject:application]];
+              withArguments:[NSOrderedSet orderedSetWithObject:application]];
 
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
 
@@ -1162,7 +1165,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
   [self tryToInvokeSelector:@selector(applicationWillEnterForeground:)
-              withArguments:[NSSet setWithObject:application]];
+              withArguments:[NSOrderedSet orderedSetWithObject:application]];
 
   [self flushCompletionHandlerQueue];
   [sessionId release];
@@ -1214,7 +1217,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
 
   [self tryToInvokeSelector:@selector(application:continueUserActivity:restorationHandler:)
-              withArguments:[NSSet setWithObjects:application, userActivity, restorationHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, userActivity, restorationHandler, nil]];
 
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
@@ -1239,7 +1242,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [self generateNotification:userInfo];
 
   [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:)
-              withArguments:[NSSet setWithObjects:application, userInfo, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, nil]];
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
@@ -1264,13 +1267,13 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 
   [self tryToInvokeSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)
-              withArguments:[NSSet setWithObjects:application, deviceToken, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, deviceToken, nil]];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
   [self tryToInvokeSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)
-              withArguments:[NSSet setWithObjects:application, error, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, error, nil]];
 }
 
 #endif
@@ -1395,7 +1398,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   localNotification = [[[self class] dictionaryWithLocalNotification:notification] retain];
 
   [self tryToInvokeSelector:@selector(application:didReceiveLocalNotification:)
-              withArguments:[NSSet setWithObjects:application, notification, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, notification, nil]];
 
   [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotification completionHandler:nil];
 }
@@ -1468,7 +1471,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                completionHandler:(void (^)(BOOL succeeded))completionHandler
 {
   [self tryToInvokeSelector:@selector(application:performActionForShortcutItem:completionHandler:)
-              withArguments:[NSSet setWithObjects:application, shortcutItem, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, shortcutItem, completionHandler, nil]];
 
   BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem queueToBootIfNotLaunched:NO];
   completionHandler(handledShortCutItem);
