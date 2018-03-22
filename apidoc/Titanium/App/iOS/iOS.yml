@@ -311,7 +311,7 @@ properties:
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_NOT_DETERMINED
     summary: |
-        The user has not yet made a choice regarding whether the application may post 
+        The user has not yet made a choice regarding whether the application may post
         user notifications.
     description: |
         Use to check the `authorizationStatus` attribute received in
@@ -319,7 +319,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED
     summary: The application is authorized to post user notifications.
@@ -329,7 +329,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED
     summary: The application is not authorized to post user notifications.
@@ -339,7 +339,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: USER_NOTIFICATION_SETTING_NOT_SUPPORTED
     summary: The application does not support this notification type.
@@ -349,7 +349,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: USER_NOTIFICATION_SETTING_ENABLED
     summary: The notification setting is turned on.
@@ -359,7 +359,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: USER_NOTIFICATION_SETTING_DISABLED
     summary: The notification setting is turned off.
@@ -369,7 +369,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_NONE
     summary: No banner or alert dialog is presented when the notification is received.
@@ -379,7 +379,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_ALERT
     summary: A alert dialog is presented when the notification is received.
@@ -389,7 +389,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_BANNER
     summary: A banner is presented when the notification is received.
@@ -399,7 +399,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: UTTYPE_TEXT
     summary: |
@@ -669,7 +669,7 @@ properties:
     type: UserNotificationSettings
     permission: read-only
     deprecated:
-        since: "7.1.0"
+        since: "7.2.0"
         notes: Use <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings> instead.
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
@@ -755,7 +755,7 @@ events:
         type: Dictionary
 
       - name: inBackground
-        summary: Boolean indicating if notification was received while app was in background (since Titanium SDK 6.2.0). 
+        summary: Boolean indicating if notification was received while app was in background (since Titanium SDK 6.2.0).
         type: Boolean
 
   - name: localnotificationaction
@@ -807,7 +807,7 @@ events:
         type: Dictionary
 
       - name: inBackground
-        summary: Boolean indicating if notification was received while app was in background (since Titanium SDK 6.2.0). 
+        summary: Boolean indicating if notification was received while app was in background (since Titanium SDK 6.2.0).
         type: Boolean
 
   - name: remotenotificationaction
@@ -889,9 +889,9 @@ events:
         The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
         current event. This identifier should be passed as the argument to the
         [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
-        
+
         You can send extra information with a silent push using extra:
-        
+
             {
               aps: {
                 'content-available': 1
@@ -900,9 +900,9 @@ events:
                 foo: 'bar'
               }
             }
-            
+
         In the event handler for <code>silentpush</code>, your code may look something like this:
-        
+
             {
               "handlerId": "SilentPush-1415976886.375816",
               "aps": {
@@ -979,7 +979,7 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: | 
+        summary: |
             The `urlSession` session identifier. If it does not exist, this property is not provided.
             This property is available since Titanium Mobile 5.4.0.GA.
         type: String
@@ -1012,7 +1012,7 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: | 
+        summary: |
             The `urlSession` session identifier. If it does not exist, this property is not provided.
             This property is available since Titanium Mobile 5.4.0.GA.
         type: String
@@ -1045,7 +1045,7 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: | 
+        summary: |
             The `urlSession` session identifier. If it does not exist, this property is not provided.
             This property is available since Titanium Mobile 5.4.0.GA.
         type: String
@@ -1072,7 +1072,7 @@ events:
         type: Number
 
       - name: sessionIdentifier
-        summary: | 
+        summary: |
             The `urlSession` session identifier. If it does not exist, this property is not provided.
             This property is available since Titanium Mobile 5.4.0.GA.
         type: String
@@ -1112,7 +1112,7 @@ events:
         this method.
     properties:
       - name: sessionIdentifier
-        summary: | 
+        summary: |
             The `urlSession` session identifier. If it does not exist, this property is not provided.
             This property is available since Titanium Mobile 5.4.0.GA.
         type: String
@@ -1171,9 +1171,9 @@ events:
   - name: continueactivity
     summary: Fired when iOS continueactivity calls `continueUserActivity`.
     description: |
-        Add this event if your Titanium application if you are responding to an iOS Handoff or Core Spotlight `continueUserActivity` request. This event will 
-        fire when a user taps on the handoff icon or the Core Spotlight search item.  Your Titanium application will be opened in the background and provides 
-        your Titanium app the information from the NSUserActivity. When this event is fired you should implement logic within your application to allow the 
+        Add this event if your Titanium application if you are responding to an iOS Handoff or Core Spotlight `continueUserActivity` request. This event will
+        fire when a user taps on the handoff icon or the Core Spotlight search item.  Your Titanium application will be opened in the background and provides
+        your Titanium app the information from the NSUserActivity. When this event is fired you should implement logic within your application to allow the
         user to pick-up from where they left off on their other device.
 
             Ti.App.iOS.addEventListener("continueactivity", function(e) {
@@ -1187,7 +1187,7 @@ events:
       - name: searchableItemActivityIdentifier
         summary: |
             With field will contain the searchable Unique Identifier if the continueactivity is fired from a Core Spotlight searh result.
-        type: String        
+        type: String
       - name: title
         summary: |
             The optional title provided to the user activity or search item.
@@ -1198,7 +1198,7 @@ events:
         type: String
       - name: userInfo
         summary: |
-            The optional userInfo provided to the user activity.  The userInfo is a custom dictionary and can contain any information needed 
+            The optional userInfo provided to the user activity.  The userInfo is a custom dictionary and can contain any information needed
             to create your handoff or Core Spotlight session.
         type: Dictionary
     platforms: [iphone, ipad]
@@ -1222,7 +1222,7 @@ events:
 
       - name: userInfo
         summary: The payload passed by the application shortcut.
-        type: Dictionary        
+        type: Dictionary
     platforms: [iphone]
     osver: {ios: {min: "9.0"}}
     since: '5.1.0'
@@ -1251,10 +1251,10 @@ properties:
   - name: identifier
     summary: The notification identifier.
     description: |
-        This property is required in iOS 10 and later and will fallback 
+        This property is required in iOS 10 and later and will fallback
         to "notification" if not set.
     optional: false
-    since: "7.1.0"
+    since: "7.2.0"
     type: String
 
   - name: alertAction
@@ -1274,14 +1274,14 @@ properties:
     type: String
     optional: true
     osver: {ios: {min: "8.2"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: alertSubtitle
     summary: Alert subtitle to display.
     type: String
     optional: true
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: alertLaunchImage
     summary: Image to display instead of `Default.png` when launching the application.
@@ -1293,7 +1293,7 @@ properties:
     type: Array<UserNotificationAttachment>
     optional: true
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: badge
     summary: Application badge value.
@@ -1334,25 +1334,25 @@ properties:
     optional: true
 
   - name: region
-    summary: | 
+    summary: |
         Region the notification will be triggered in. Allowed parameter are:
-        
+
         - `latitude`: Latitude of the location center, in decimal degrees (required).
         - `longitude`: Longitude of the location center, in decimal degrees (required).
         - `triggersOnce`: Whether or not the notification will only fire once (optional, default: true).
     type: Dictionary
     optional: true
     osver: {ios: {min: "8.0"}}
-    since: "7.1.0"
-    
+    since: "7.2.0"
+
 ---
 name: UserNotificationAttachment
 summary: |
-    Provide at least the property `identifier` and `url` property to identify a local  
+    Provide at least the property `identifier` and `url` property to identify a local
     image, sound or video. If your media is invalid, the API will throw an error log and
     skip the invalid attachment.
-since: "7.1.0"
-platforms: [iphone, ipad]    
+since: "7.2.0"
+platforms: [iphone, ipad]
 osver: {ios: {min: "10.0"}}
 
 properties:
@@ -1364,7 +1364,7 @@ properties:
   - name: url
     type: String
     summary: |
-        The URL to the attachment's data. If you have obtained this attachment from 
+        The URL to the attachment's data. If you have obtained this attachment from
         the notification-center then the URL will be security-scoped.
     optional: false
   - name: options
@@ -1377,9 +1377,9 @@ properties:
 ---
 name: LaunchOptionsType
 summary: |
-    Dictionary object of parameters used to identify an incoming URL that is handled 
+    Dictionary object of parameters used to identify an incoming URL that is handled
     by the application.
-since: "6.0.0"    
+since: "6.0.0"
 platforms: [iphone, ipad]
 properties:
   - name: source
@@ -1388,7 +1388,7 @@ properties:
   - name: url
     summary: The url that was triggered by the application or service.
     type: String
-        
+
 ---
 name: UserNotificationSettings
 summary: |

@@ -82,7 +82,7 @@
   if ([TiUtils isIOS10OrGreater]) {
     return; // Not available on iOS 10+
   }
-    
+
   [(UIMutableUserNotificationAction *)[self notificationAction] setActivationMode:[TiUtils intValue:value]];
 }
 

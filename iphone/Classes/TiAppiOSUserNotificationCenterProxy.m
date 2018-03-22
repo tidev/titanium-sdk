@@ -99,7 +99,6 @@
       }
 
       [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-
         // Loop through current notification requests
         for (UNNotificationRequest *request in requests) {
 
@@ -145,7 +144,6 @@
       }
 
       [center getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-
         // Loop through current notification requests
         for (UNNotificationRequest *request in requests) {
 

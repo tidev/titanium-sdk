@@ -7,42 +7,42 @@ summary: |
 extends: Titanium.Module
 platforms: [iphone, ipad]
 osver: {ios: {min: "8.0"}}
-since: "7.1.0"
+since: "7.2.0"
 
 methods:
   - name: getPendingNotifications
     summary: Fetches the pending notifications asynchronously.
     parameters:
       - name: callback
-        summary: | 
-            The function that is being called after the notifications 
+        summary: |
+            The function that is being called after the notifications
             have been fetched.
         type: Callback<UserNotificationCallbackResponse>
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: getDeliveredNotifications
     summary: Fetches the delivered notifications asynchronously.
     parameters:
       - name: callback
-        summary: | 
-            The function that is being called after the notifications 
+        summary: |
+            The function that is being called after the notifications
             have been fetched.
         type: Callback<UserNotificationCallbackResponse>
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: removePendingNotifications
-    summary: | 
+    summary: |
         Removes the specified pending notifications to prevent them from being triggered.
         If no notifications are specified, all pending notifications will be removed.
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: removeDeliveredNotifications
-    summary: | 
+    summary: |
         Removes the specified delivered notifications from the notification-center.
         If no notifications are specified, all delivered notifications will be removed.
     osver: {ios: {min: "10.0"}}
-    since: "7.1.0"
+    since: "7.2.0"
 
   - name: requestUserNotificationSettings
     summary: |
@@ -51,8 +51,8 @@ methods:
     parameters:
       - name: callback
         summary: The callback invoked when requesting user notification settings.
-        type: Callback<UserNotificationSettings>
-    since: "7.1.0"
+        type: Callback<GetUserNotificationSettings>
+    since: "7.2.0"
 
 ---
 name: UserNotificationCallbackResponse
@@ -60,7 +60,7 @@ summary: |
     Response when receiving pending or local notifications
     in <Titanium.App.iOS.NotificationCenter.getPendingNotifications> and
     <Titanium.App.iOS.NotificationCenter.getDeliveredNotifications>.
-since: "7.1.0"
+since: "7.2.0"
 properties:
   - name: notifications
     type: Array<UserNotificationDictionary>
@@ -69,11 +69,11 @@ properties:
 ---
 name: UserNotificationDictionary
 summary: |
-    Dictionary of notification data used in the array of `notifications` 
-    when receiving pending or local notifications in 
+    Dictionary of notification data used in the array of `notifications`
+    when receiving pending or local notifications in
     <Titanium.App.iOS.NotificationCenter.getPendingNotifications> and
     <Titanium.App.iOS.NotificationCenter.getDeliveredNotifications>.
-since: "7.1.0"
+since: "7.2.0"
 properties:
   - name: alertTitle
     summary: Title of the notification.
@@ -127,10 +127,10 @@ properties:
   - name: identifier
     summary: The notification identifier.
     description: |
-        This property is required in iOS 10 and later and will fallback 
+        This property is required in iOS 10 and later and will fallback
         to "notification" if not set.
     optional: false
-    since: "7.1.0"
+    since: "7.2.0"
     type: String
 
   - name: region
@@ -145,7 +145,7 @@ properties:
     osver: {ios: {min: "10.0"}}
 
 ---
-name: UserNotificationSettings
+name: GetUserNotificationSettings
 summary: |
     Dictionary object of parameters used to register the application with local notifications using
     the <Titanium.App.iOS.registerUserNotificationSettings> method.
@@ -154,7 +154,7 @@ platforms: [iphone, ipad]
 properties:
   - name: types
     summary: Notification types to use.
-    description: | 
+    description: |
         Only available in iOS < 10. iOS 10 and later returns notification settings more detailed,
         check the other attributes for more information.
     type: Array<Number>
@@ -163,12 +163,12 @@ properties:
   - name: categories
     summary: Set of categories of user notification actions required by the applicaiton to use.
     type: Array<Titanium.App.iOS.UserNotificationCategory>
-    description: | 
+    description: |
         Only available in iOS < 10. iOS 10 and later returns notification settings more detailed,
         check the other attributes for more information.
 
   - name: authorizationStatus
-    summary: The current authorization status for using notifications. 
+    summary: The current authorization status for using notifications.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_AUTHORIZATION_STATUS_*]
     osver: {ios: {min: "10.0"}}
