@@ -1354,9 +1354,7 @@ summary: |
 since: "7.2.0"
 platforms: [iphone, ipad]
 osver: {ios: {min: "10.0"}}
-
 properties:
-
   - name: identifier
     type: String
     summary: The identifier of this attachment.
@@ -1371,7 +1369,11 @@ properties:
     type: Dictionary
     summary: An additional dictionary of options to provide.
     description: |
-        Allowed options can be found in the [Apple docs](https://developer.apple.com/reference/usernotifications/1974189-usernotifications_constants).
+        Allowed options are:
+          * `typeHint` - File type hint (String)
+          * `clipping` - Clipping enabled or not (Boolean)
+          * `thumbnailHidden` - Thumbnail hidden or not (Boolean)
+          * `thumbnailTime` - Video frame in milliseconds (Number)
     optional: true
 
 ---

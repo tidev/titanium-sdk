@@ -56,31 +56,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)appBoot;
 @end
 
-@interface TiUserNotificationExtention : UNNotificationServiceExtension
-
-@end
-
-@implementation TiUserNotificationExtention
-
-- (void)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler
-{
-  NSMutableDictionary *userInfo = [NSMutableDictionary dictionaryWithDictionary:[[request content] userInfo]];
-  UNMutableNotificationContent *content = [(UNMutableNotificationContent *)[request content] copy];
-
-  [userInfo setObject:@YES forKey:@"isRemoteNotification"];
-  [content setUserInfo:userInfo];
-
-  contentHandler(content);
-  RELEASE_TO_NIL(content);
-}
-
-- (void)serviceExtensionTimeWillExpire
-{
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteExtentionWillExpire object:self userInfo:nil];
-}
-
-@end
-
 @implementation TiApp
 
 - (void)clearMemoryPanic

@@ -512,6 +512,35 @@
   }
 }
 
+- (NSDictionary *)formatNotificationAttachmentOptions:(NSDictionary *)options
+{
+  if (!options) {
+    return nil;
+  }
+
+  NSMutableDictionary *result = [NSMutableDictionary dictionary];
+
+  // We could use the raw string values here, but want to be future proof in case Apple
+  // renames them. Also, some require customc casting, like NSDictionary -> CGRect
+  for (NSString *key in options) {
+    if ([key isEqualToString:@"typeHint"]) {
+      result[UNNotificationAttachmentOptionsTypeHintKey] = options[key];
+    } else if ([key isEqualToString:@"clipping"]) {
+      ENSURE_TYPE(options[key], NSDictionary);
+      CGRect rect = [TiUtils rectValue:options[key]];
+      result[UNNotificationAttachmentOptionsThumbnailClippingRectKey] = CFBridgingRelease(CGRectCreateDictionaryRepresentation(rect));
+    } else if ([key isEqualToString:@"thumbnailHidden"]) {
+      result[UNNotificationAttachmentOptionsThumbnailHiddenKey] = NUMBOOL(options[key]);
+    } else if ([key isEqualToString:@"thumbnailTime"]) {
+      result[UNNotificationAttachmentOptionsThumbnailTimeKey] = @([TiUtils doubleValue:options[key]] / 1000); // Convert milli-seconds to seconds
+    } else {
+      DebugLog(@"[ERROR] Unknown key \"%@\" provided for attachment options! Skipping ...");
+    }
+  }
+
+  return result;
+}
+
 - (NSDictionary *)formatUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
 {
   if (![NSThread isMainThread]) {
@@ -663,7 +692,7 @@
 
         UNNotificationAttachment *_attachment = [UNNotificationAttachment attachmentWithIdentifier:_identifier
                                                                                                URL:[TiUtils toURL:_url proxy:self]
-                                                                                           options:_options
+                                                                                           options:[[self formatNotificationAttachmentOptions:_options] retain]
                                                                                              error:&error];
         if (error != nil) {
           DebugLog(@"[ERROR] Attachment with the identifier = \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
