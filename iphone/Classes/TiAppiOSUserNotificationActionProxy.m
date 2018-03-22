@@ -46,7 +46,9 @@
         options |= UNNotificationActionOptionAuthenticationRequired;
       }
 
-      if (behavior && [TiUtils intValue:behavior def:0] == UIUserNotificationActionBehaviorTextInput) {
+      // Important: The UNNoticationAction class is creation-only, so the manual setters are only
+      // for the iOS < 10 UIUserNotificationAction
+      if (behavior && [TiUtils intValue:behavior def:UIUserNotificationActionBehaviorDefault] == UIUserNotificationActionBehaviorTextInput) {
         _notificationAction = [[UNTextInputNotificationAction actionWithIdentifier:identifier
                                                                              title:title
                                                                            options:options
@@ -75,19 +77,9 @@
 
 #pragma mark Public API's
 
-- (void)setIdentifier:(id)value
-{
-  [[self notificationAction] setIdentifier:value];
-}
-
-- (void)setTitle:(id)value
-{
-  [[self notificationAction] setTitle:value];
-}
-
 - (void)setActivationMode:(id)value
 {
-  if (![TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOS10OrGreater]) {
     return; // Not available on iOS 10+
   }
     
@@ -96,7 +88,7 @@
 
 - (void)setBehavior:(id)value
 {
-  if (![TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOS10OrGreater]) {
     return; // Not available on iOS 10+
   }
 
@@ -105,7 +97,7 @@
 
 - (void)setDestructive:(id)value
 {
-  if (![TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOS10OrGreater]) {
     return; // Not available on iOS 10+
   }
 
@@ -114,7 +106,7 @@
 
 - (void)setAuthenticationRequired:(id)value
 {
-  if (![TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOS10OrGreater]) {
     return; // Not available on iOS 10+
   }
 
