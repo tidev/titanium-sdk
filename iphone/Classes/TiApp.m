@@ -676,7 +676,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [inv setTarget:delegate];
 
   for (id obj in arguments) {
-    [inv setArgument:&(obj)atIndex:index++];
+    [inv setArgument:&(obj) atIndex:index++];
   }
 
   [inv invoke];
@@ -797,7 +797,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     [self application:application didReceiveRemoteNotification:userInfo];
   }
 
-  [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:)
+  [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, completionHandler, nil]];
 
   //This only here for Simulator builds.
