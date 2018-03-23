@@ -605,6 +605,10 @@
     UNNotificationTrigger *trigger;
 
     if (date) {
+      // Handle time intervals as well (backwards compatibility)
+      if ([date isKindOfClass:[NSNumber class]]) {
+        date = [NSDate dateWithTimeIntervalSince1970:[TiUtils doubleValue:date] / 1000];
+      }
       NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
 
       // Per default, use all components and don't repeat
