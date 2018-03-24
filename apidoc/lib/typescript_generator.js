@@ -6,7 +6,8 @@
 const invalidTypeMap = {
 	'2DMatrix': 'Matrix2D',
 	'3DMatrix': 'Matrix3D',
-	Dictionary: 'any'
+	Dictionary: 'any',
+	Object: 'any'
 };
 let parser = null;
 
@@ -44,14 +45,58 @@ function isConstantsOnlyProxy(typeInfo) {
 	return false;
 }
 
+function canExtend(typeInfo, interfaceNode) {
+	if (!interfaceNode) {
+		return false;
+	}
+
+	if (typeInfo.name === interfaceNode.fullyQualifiedName) {
+		return false;
+	}
+
+	function hasAllMembers(typeMembers, interfaceMembers) {
+		return interfaceMembers.every(interfaceMemberNode => {
+			if (interfaceMemberNode.optional) {
+				return true;
+			}
+
+			return typeMembers.some(typeMember => interfaceMemberNode.name === typeMember.name);
+		});
+	}
+
+	return hasAllMembers(typeInfo.properties, interfaceNode.properties) && hasAllMembers(typeInfo.methods, interfaceNode.methods);
+}
+
+function removeMembers(typeInfo, interfaceNode) {
+	function filterMembers(typeMembers, interfaceMembers) {
+		return typeMembers.filter(memberInfo => !interfaceMembers.some(interfaceMember => interfaceMember.name === memberInfo.name));
+	}
+
+	typeInfo.properties = filterMembers(typeInfo.properties, interfaceNode.properties);
+	typeInfo.methods = filterMembers(typeInfo.methods, interfaceNode.methods);
+}
+
+/**
+ * Parses the prepared API type docs and creates a syntax tree that can be used
+ * to generate a TypeScript type definition file.
+ */
 class DocsParser {
+	/**
+	 * Constructs a new docs parser
+	 *
+	 * @param {Object} apis Hash map of Titanium type names and their definition.
+	 */
 	constructor(apis) {
 		this.titaniumNamespace = null;
 		this.proxyInterface = null;
+		this.viewInterface = null;
 		this.apis = apis;
 		this.tree = new EmulatedSyntaxTree();
 	}
 
+	/**
+	 * Parses all Titanium types and generates the emulated TypeScript syntax tree.
+	 */
 	parse() {
 		this.titaniumNamespace = new NamespaceNode(this.apis['Titanium']);
 		this.tree.addNode(this.titaniumNamespace);
@@ -59,6 +104,12 @@ class DocsParser {
 		this.proxyInterface = new InterfaceNode(this.apis['Titanium.Proxy']);
 		this.titaniumNamespace.addInterface(this.proxyInterface);
 		delete this.apis['Titanium.Proxy'];
+		const uiNamespace = new NamespaceNode(this.apis['Titanium.UI']);
+		this.tree.registerNamespace(uiNamespace.fullyQualifiedName, uiNamespace);
+		this.titaniumNamespace.addNamespace(uiNamespace);
+		delete this.apis['Titanium.UI'];
+		this.viewInterface = new InterfaceNode(this.apis['Titanium.UI.View']);
+		uiNamespace.addInterface(this.viewInterface);
 
 		for (const fullyQualifiedTypeName in this.apis) {
 			const typeInfo = this.apis[fullyQualifiedTypeName];
@@ -76,7 +127,7 @@ class DocsParser {
 				continue;
 			}
 
-			const parentNamespace = this.findOrCreateParentNamespace(namespaceParts);
+			const parentNamespace = this.findOrCreateNamespace(namespaceParts);
 			if (this.isInterface(typeInfo)) {
 				const interfaceNode = new InterfaceNode(typeInfo);
 				if (parentNamespace) {
@@ -98,7 +149,14 @@ class DocsParser {
 		}
 	}
 
-	findOrCreateParentNamespace(namespaceParts) {
+	/**
+	 * Finds or creates a namespace node via the given namespace name parts.
+	 *
+	 * @param {Array<String>} namespaceParts Namespace name splitted with dot as delimiter
+	 * @return {NamespaceNode}
+	 * @throws Error
+	 */
+	findOrCreateNamespace(namespaceParts) {
 		if (namespaceParts.length === 0) {
 			return null;
 		}
@@ -128,17 +186,21 @@ class DocsParser {
 		}
 
 		if (!parentNamespace) {
-			throw new Error(`Couldn't create parent namespace path up to ${parentNamespaceName}.`);
+			throw new Error(`Couldn't create namespace path up to ${parentNamespaceName}.`);
 		}
 
 		return parentNamespace;
 	}
 
 	/**
-	 * Returns true if the given API should be rendered as an interface
+	 * Returns true if the given API type should be rendered as a TypeScript interface.
 	 *
-	 * @param {Object} typeInfo API doc object
-	 * @return {Boolean}
+	 * To be considered as TypeScript interface a type must either one of the
+	 * subtypes proxy (but not a constants only proxy), pseudo or view OR is a
+	 * module which is blacklisted from being rendered as namespace.
+	 *
+	 * @param {Object} typeInfo Parsed API type info from YAML docs.
+	 * @return {Boolean} True if the API type is considered an interface in TypeScript, false if not.
 	 */
 	isInterface(typeInfo) {
 		const validSubtypes = [
@@ -146,7 +208,7 @@ class DocsParser {
 			'pseudo',
 			'view'
 		];
-		// List of modules that need to be generated as an interface instead of a namespace
+		// List of modules that need to be generated as an interface instead of a namespace.
 		const namespaceBlacklist = [
 			'Titanium.App.iOS.UserDefaults',
 		];
@@ -155,11 +217,23 @@ class DocsParser {
 			|| namespaceBlacklist.indexOf(typeInfo.name) !== -1;
 	}
 
+	/**
+	 * Returns true if the given API type should be rendered as a TypeScript namespace.
+	 *
+	 * To be considered as a TypeScript namespace, a type must be of the subtype
+	 * module OR be a constatns only proxy.
+	 *
+	 * @param {Object} typeInfo Parsed API type info from YAML docs.
+	 * @return {Boolean} True if the API type is considered a namespace in TypeScript, false if not.
+	 */
 	isNamespace(typeInfo) {
 		return typeInfo.__subtype === 'module' || isConstantsOnlyProxy(typeInfo);
 	}
 }
 
+/**
+ * A very basic representation of a TypeScript syntax tree.
+ */
 class EmulatedSyntaxTree {
 	constructor() {
 		this.nodes = [];
@@ -186,30 +260,59 @@ class EmulatedSyntaxTree {
 	}
 }
 
+/**
+ * Generates the Titanium TypeScript definition from the simplified TypeScript
+ * syntax tree using the global template.
+ *
+ * @see https://www.typescriptlang.org/docs/handbook/declaration-files/templates/global-d-ts.html
+ */
 class GlobalTemplateWriter {
+	/**
+	 * Constructs a new global template writer.
+	 */
 	constructor() {
 		this.output = '';
 	}
 
+	/**
+	 * Generates the complete Titanium TypeScript type definition as a sstring and
+	 * writes it to the output property.
+	 *
+	 * @param {EmulatedSyntaxTree} tree The simplified TypeScript syntax tree to generated the definitions from
+	 */
 	generateTitaniumDefinition(tree) {
 		this.writeHeader();
 		this.writeTiShorthand();
 		this.writeNodes(tree.nodes);
 	}
 
+	/**
+	 * Writes the type definition header required by DefinitelyTyped.
+	 *
+	 * @todo Automatically update the Titanium version string.
+	 */
 	writeHeader() {
 		this.output += '// Type definitions for Titanium 7.1\n';
 		this.output += '// Project: https://github.com/appcelerator/titanium_mobile\n';
 		this.output += '// Definitions by: Axway Appcelerator <https://github.com/appcelerator>\n';
+		this.output += '//                 Jan Vennemann <https://github.com/janvennemann>\n';
 		this.output += '// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped\n';
 		this.output += '// TypeScript Version: 2.6\n';
 		this.output += '\n';
 	}
 
+	/**
+	 * Writes the "Ti" shorthand alias for the global Titanium namespace.
+	 */
 	writeTiShorthand() {
 		this.output += 'declare const Ti: typeof Titanium;\n';
 	}
 
+	/**
+	 * Renders all nodes from the synatx tree and adds them to the output.
+	 *
+	 * @param {MemberNode} nodes Syntax tree node to render and write
+	 */
 	writeNodes(nodes) {
 		for (const node of nodes) {
 			if (node instanceof NamespaceNode) {
@@ -220,6 +323,12 @@ class GlobalTemplateWriter {
 		}
 	}
 
+	/**
+	 * Renders and writes a namespace node to the output.
+	 *
+	 * @param {NamespaceNode} namespaceNode Namesapce node to write out
+	 * @param {Number} nestingLevel Current nesting level for indentation
+	 */
 	writeNamespaceNode(namespaceNode, nestingLevel) {
 		this.output += '\n';
 		this.output += this.generateJsDoc(namespaceNode, nestingLevel);
@@ -239,9 +348,15 @@ class GlobalTemplateWriter {
 		this.output += `${this.indent(nestingLevel)}}\n`;
 	}
 
+	/**
+	 * Renders and writes a interface node to the output.
+	 *
+	 * @param {InterfaceNode} interfaceNode Interface node to write out
+	 * @param {Number} nestingLevel Current nesting level for indentation
+	 */
 	writeInterfaceNode(interfaceNode, nestingLevel) {
 		this.output += this.generateJsDoc(interfaceNode, nestingLevel);
-		this.output += `${this.indent(nestingLevel)}interface ${interfaceNode.name} {\n`;
+		this.output += `${this.indent(nestingLevel)}interface ${interfaceNode.name} ${interfaceNode.extends ? 'extends ' + interfaceNode.extends + ' ' : ''}{\n`;
 		if (interfaceNode.properties.length > 0) {
 			interfaceNode.properties.forEach(propertyNode => this.writePropertyNode(propertyNode, nestingLevel + 1));
 		}
@@ -251,28 +366,59 @@ class GlobalTemplateWriter {
 		this.output += `${this.indent(nestingLevel)}}\n\n`;
 	}
 
+	/**
+	 * Renders and writes a variable node to the output.
+	 *
+	 * @param {VariableNode} variableNode Variable node to write out
+	 * @param {Number} nestingLevel Current nesting level for indentation
+	 */
 	writeVariableNode(variableNode, nestingLevel) {
 		this.output += this.generateJsDoc(variableNode, nestingLevel);
 		this.output += `${this.indent(nestingLevel)}${variableNode.isConstant ? 'const' : 'let'} ${variableNode.name}: ${this.normalizeType(variableNode.type)};\n\n`;
 	}
 
+	/**
+	 * Renders and writes a variable node as a property to the output.
+	 *
+	 * @param {VariableNode} propertyNode Variable node to write out
+	 * @param {Number} nestingLevel Current nesting level for indentation
+	 */
 	writePropertyNode(propertyNode, nestingLevel) {
 		this.output += this.generateJsDoc(propertyNode, nestingLevel);
 		this.output += `${this.indent(nestingLevel)}${propertyNode.isConstant ? 'readonly ' : ''}${propertyNode.name}${propertyNode.optional ? '?' : ''}: ${this.normalizeType(propertyNode.type)};\n\n`;
 	}
 
+	/**
+	 * Renders and writes a function node to the output.
+	 *
+	 * @param {FunctionNode} functionNode Function node to write out
+	 * @param {Number} nestingLevel Current nesting level for indentation
+	 */
 	writeFunctionNode(functionNode, nestingLevel) {
 		this.output += this.generateJsDoc(functionNode, nestingLevel);
 		const parametersString = this.prepareParameters(functionNode.parameters);
 		this.output += `${this.indent(nestingLevel)}function ${functionNode.name}(${parametersString}): ${this.normalizeType(functionNode.returnType)};\n\n`;
 	}
 
+	/**
+	 * Renders and writes a function node as a method to the output.
+	 *
+	 * @param {FunctionNode} functionNode Function node to write out
+	 * @param {Number} nestingLevel Current nesting level for indentation
+	 */
 	writeMethodNode(functionNode, nestingLevel) {
 		this.output += this.generateJsDoc(functionNode, nestingLevel);
 		const parametersString = this.prepareParameters(functionNode.parameters);
 		this.output += `${this.indent(nestingLevel)}${functionNode.name}${functionNode.optional ? '?' : ''}(${parametersString}): ${this.normalizeType(functionNode.returnType)};\n\n`;
 	}
 
+	/**
+	 * Generates the JSDoc comment for the given node.
+	 *
+	 * @param {Object} node The node to generte the comment for
+	 * @param {Number} nestingLevel Current nesting level for indentation
+	 * @return {Stirng} JSDoc comment
+	 */
 	generateJsDoc(node, nestingLevel) {
 		let jsDoc = `${this.indent(nestingLevel)}/**\n`;
 		let summary = node.summary.replace(/\s?\n/g, `\n${this.indent(nestingLevel)} * `);
@@ -289,13 +435,14 @@ class GlobalTemplateWriter {
 		return ''.padStart(nestingLevel, '\t');
 	}
 
-	normalizeType(docType) {
+	normalizeType(docType, usageHint) {
 		if (!docType) {
 			return 'any';
 		}
 
 		if (Array.isArray(docType)) {
-			return docType.map(typeName => this.normalizeType(typeName)).join(' | ');
+			const normalizedTypes = docType.map(typeName => this.normalizeType(typeName));
+			return normalizedTypes.indexOf('any') !== -1 ? 'any' : normalizedTypes.join(' | ');
 		}
 
 		if (docType.indexOf('<') !== -1) {
@@ -304,7 +451,13 @@ class GlobalTemplateWriter {
 			const baseType = matches[1];
 			const subTypes = matches[2].split(',').map(type => this.normalizeType(type));
 			if (baseType === 'Array') {
-				return `${subTypes}[]`;
+				return subTypes.map(typeName => {
+					if (usageHint === 'parameter') {
+						return `ReadonlyArray<${typeName}>`;
+					} else {
+						return `${typeName}[]`;
+					}
+				}).join(' | ');
 			} else if (baseType === 'Callback') {
 				return `(${subTypes.map((type, index) => `param${index}: ${type}`).join(', ')}) => any`;
 			} else if (baseType === 'Dictionary') {
@@ -350,11 +503,11 @@ class GlobalTemplateWriter {
 
 	prepareParameterString(paramNode) {
 		this.normalizeParameter(paramNode);
-		let parameter = paramNode.name;
+		let parameter = paramNode.rest ? '...' + paramNode.name : paramNode.name;
 		if (paramNode.optional) {
 			parameter += '?';
 		}
-		parameter += `: ${this.normalizeType(paramNode.type)}`;
+		parameter += `: ${this.normalizeType(paramNode.type, 'parameter')}`;
 
 		return parameter;
 	}
@@ -367,11 +520,13 @@ class VariableNode {
 		this.summary = variableDoc.summary ? variableDoc.summary.trim() : '';
 		this.isConstant = variableDoc.permission === 'read-only';
 		this.optional = variableDoc.optional;
+		this.rest = variableDoc.rest || false;
 	}
 }
 
 class FunctionNode {
 	constructor(functionDoc) {
+		this.definition = functionDoc;
 		this.name = functionDoc.name;
 		if (functionDoc.returns) {
 			if (Array.isArray(functionDoc.returns)) {
@@ -393,6 +548,12 @@ class FunctionNode {
 			return;
 		}
 
+		// Allow rest parameters on Ti.Filesystem.getFile
+		if (this.definition.__inherits === 'Titanium.Filesystem' && this.definition.name === 'getFile') {
+			this.parameters = [ new VariableNode({ name: 'paths', type: 'Array<string>', rest: true }) ];
+			return;
+		}
+
 		let hasOptional = false;
 		this.parameters = parameters.map(paramDoc => {
 			if (!hasOptional && paramDoc.optional) {
@@ -401,6 +562,14 @@ class FunctionNode {
 
 			if (hasOptional && !paramDoc.optional) {
 				paramDoc.optional = true;
+			}
+
+			// Due to our "special" inheritance, we cannot use a View as a type, use any instead.
+			// @todo Find a common "baseView" type?
+			if (paramDoc.type === 'Titanium.UI.View') {
+				paramDoc.type = 'any';
+			} else if (paramDoc.type === 'Array<Titanium.UI.View>') {
+				paramDoc.type = 'any[]';
 			}
 
 			return new VariableNode(paramDoc);
@@ -434,12 +603,16 @@ class MemberNode {
 		});
 
 		this.properties = properties.map(propertyDoc => {
+			// Make all properties of global interfaces optional by default
 			if (this.fullyQualifiedName.indexOf('.') === -1 && propertyDoc.optional === undefined) {
 				propertyDoc.optional = true;
 			}
+
+			// Some iOS views do not have this property, so mark it as optional.
 			if (this.fullyQualifiedName === 'Titanium.Proxy' && propertyDoc.name === 'lifecycleContainer') {
 				propertyDoc.optional = true;
 			}
+
 			return new VariableNode(propertyDoc);
 		});
 	}
@@ -449,10 +622,15 @@ class MemberNode {
 			return;
 		}
 
-		methods = methods.filter(methodDoc => {
+		let filteredMethods = [];
+		methods.forEach(methodDoc => {
+			if (methodDoc.__hide) {
+				return;
+			}
+
 			// Filter out removed fieldCount method (@todo check against version in "removed" property)
 			if (this.fullyQualifiedName === 'Titanium.Database.ResultSet' && methodDoc.name === 'fieldCount') {
-				return false;
+				return;
 			}
 
 			// Filter out create functions for constant only proxies
@@ -460,24 +638,72 @@ class MemberNode {
 				const returnType  = methodDoc.returns;
 				const returnTypeName = Array.isArray(returnType) ? returnType[0].type : returnType.type;
 				const returnTypeDoc = parser.apis[returnTypeName];
-				if (!returnTypeDoc) {
-					// if there is no doc info its probably a built-in type
-					return true;
+				if (returnTypeDoc && isConstantsOnlyProxy(returnTypeDoc)) {
+					return;
 				}
-
-				return !isConstantsOnlyProxy(returnTypeDoc);
 			}
 
-			return !methodDoc.__hide;
+			// Generate overloads if required and add them instead of the original method
+			const overloads = this.generateMethodOverloadsIfRequired(methodDoc);
+			if (overloads.length > 0) {
+				filteredMethods = filteredMethods.concat(overloads);
+			} else {
+				filteredMethods.push(methodDoc);
+			}
 		});
 
-		this.methods = methods.map(methodDoc => {
+		this.methods = filteredMethods.map(methodDoc => {
 			if (this.fullyQualifiedName === 'Titanium.Proxy' && /LifecycleContainer$/.test(methodDoc.name)) {
 				methodDoc.optional = true;
 			}
 
 			return new FunctionNode(methodDoc);
 		});
+	}
+
+	/**
+	 * Generates overload method definitions for methods which have parameter
+	 * definitions that are not compatible with union types.
+	 *
+	 * Currently only handles one case where a parameter can be passed as both a
+	 * single value and as an array, e.g. Ti.UI.View, Array<Ti.UI.View>
+	 *
+	 * @param {Object} methodDoc Method defintions as parsed from YAML files
+	 * @return {Array<Object>} List of overload method defintions
+	 */
+	generateMethodOverloadsIfRequired(methodDoc) {
+		const parameters = methodDoc.parameters;
+		if (!parameters) {
+			return [];
+		}
+
+		const originalMethodDocJsonString = JSON.stringify(methodDoc);
+		const dictionaryTypePattern = /Dictionary<.*>/;
+		let methodOverloads = [];
+		for (let i = 0; i < parameters.length; i++) {
+			const parameter = parameters[i];
+			if (!Array.isArray(parameter.type)) {
+				continue;
+			}
+
+			let parameterOverloads = [];
+			for (let type of parameter.type) {
+				if (dictionaryTypePattern.test(type)) {
+					const anyOverloadDoc = JSON.parse(originalMethodDocJsonString);
+					anyOverloadDoc.parameters[i].type = 'any';
+					parameterOverloads = [ anyOverloadDoc ];
+					break;
+				}
+
+				const newOverloadDoc = JSON.parse(originalMethodDocJsonString);
+				newOverloadDoc.parameters[i].type = type;
+				parameterOverloads.push(newOverloadDoc);
+			}
+
+			methodOverloads = methodOverloads.concat(parameterOverloads);
+		}
+
+		return methodOverloads;
 	}
 }
 
@@ -521,6 +747,15 @@ class InterfaceNode extends MemberNode {
 			this.name = invalidTypeMap[this.name];
 		}
 		this.summary = typeDoc.summary.trim();
+
+		if (canExtend(typeDoc, parser.proxyInterface)) {
+			removeMembers(typeDoc, parser.proxyInterface);
+			this.extends = 'Titanium.Proxy';
+		}
+		if (canExtend(typeDoc, parser.viewInterface)) {
+			removeMembers(typeDoc, parser.viewInterface);
+			this.extends = 'Titanium.UI.View';
+		}
 
 		this.parseProperties(typeDoc.properties);
 		this.parseMethods(typeDoc.methods);
