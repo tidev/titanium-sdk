@@ -86,7 +86,7 @@ const modifiedApiDocs = modified.filter(function (p) {
 	return p.startsWith('apidoc/');
 });
 if (modifiedApiDocs.length > 0) {
-	labels.push(Label.DOCS);
+	labels.add(Label.DOCS);
 }
 
 // Check PR author to see if it's community, etc

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -676,7 +676,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [inv setTarget:delegate];
 
   for (id obj in arguments) {
+    // clang-format off
     [inv setArgument:&(obj) atIndex:index++];
+    // clang-format on
   }
 
   [inv invoke];
@@ -967,7 +969,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   CGFloat timeLeft = [[UIApplication sharedApplication] backgroundTimeRemaining] - 1.0;
   /*
 	 *	In the extreme edge case of having come back to the app while
-	 *	it's still waiting for Kroll Processing, 
+	 *	it's still waiting for Kroll Processing,
 	 *	backgroundTimeRemaining becomes undefined, and so we have
 	 *	to limit the time left to a sane number in that case.
 	 *	The other reason for the timeLeft limit is to not starve
