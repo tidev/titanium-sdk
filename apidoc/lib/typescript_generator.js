@@ -507,7 +507,7 @@ class GlobalTemplateWriter {
 		if (paramNode.optional) {
 			parameter += '?';
 		}
-		parameter += `: ${this.normalizeType(paramNode.type, 'parameter')}`;
+		parameter += `: ${this.normalizeType(paramNode.type, paramNode.rest ? null : 'parameter')}`;
 
 		return parameter;
 	}
