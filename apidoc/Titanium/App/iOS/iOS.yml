@@ -314,7 +314,7 @@ properties:
         The user has not yet made a choice regarding whether the application may post
         user notifications.
     description: |
-        Use to check the `authorizationStatus` attribute received in
+        Used to check the `authorizationStatus` attribute received in
         <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
@@ -324,7 +324,7 @@ properties:
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED
     summary: The application is authorized to post user notifications.
     description: |
-        Use to check the `authorizationStatus` attribute received in
+        Used to check the `authorizationStatus` attribute received in
         <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
@@ -334,7 +334,7 @@ properties:
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED
     summary: The application is not authorized to post user notifications.
     description: |
-        Use to check the `authorizationStatus` attribute received in
+        Used to check the `authorizationStatus` attribute received in
         <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
@@ -344,7 +344,7 @@ properties:
   - name: USER_NOTIFICATION_SETTING_NOT_SUPPORTED
     summary: The application does not support this notification type.
     description: |
-        Use to check application-wide enabled notification settings received in
+        Used to check application-wide enabled notification settings received in
         <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
@@ -354,7 +354,7 @@ properties:
   - name: USER_NOTIFICATION_SETTING_ENABLED
     summary: The notification setting is turned on.
     description: |
-        Use to check application-wide enabled notification settings received in
+        Used to check application-wide enabled notification settings received in
         <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
@@ -364,7 +364,7 @@ properties:
   - name: USER_NOTIFICATION_SETTING_DISABLED
     summary: The notification setting is turned off.
     description: |
-        Use to check application-wide enabled notification settings received in
+        Used to check application-wide enabled notification settings received in
         <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
@@ -374,7 +374,7 @@ properties:
   - name: USER_NOTIFICATION_ALERT_STYLE_NONE
     summary: No banner or alert dialog is presented when the notification is received.
     description: |
-        Use to check the `alertStyle` attribute received in
+        Used to check the `alertStyle` attribute received in
         <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
@@ -384,7 +384,7 @@ properties:
   - name: USER_NOTIFICATION_ALERT_STYLE_ALERT
     summary: A alert dialog is presented when the notification is received.
     description: |
-        Use to check the `alertStyle` attribute received in
+        Used to check the `alertStyle` attribute received in
         <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
@@ -394,11 +394,56 @@ properties:
   - name: USER_NOTIFICATION_ALERT_STYLE_BANNER
     summary: A banner is presented when the notification is received.
     description: |
-        Use to check the `alertStyle` attribute received in
+        Used to check the `alertStyle` attribute received in
         <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
+    since: "7.2.0"
+
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_NONE
+    summary: No options.
+    description: |
+        Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.2.0"
+
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_CUSTOM_DISMISS_ACTION
+    summary: Send dismiss actions to the UNUserNotificationCenter object's delegate for handling.
+    description: |
+        Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.2.0"
+
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_ALLOW_IN_CARPLAY
+    summary: Allow CarPlay to display notifications of this type.
+    description: |
+        Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "10.0"}}
+    since: "7.2.0"
+
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_TITLE
+    summary: Show the notification's title, even if the user has disabled notification previews for the app.
+    description: |
+        Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "11.0"}}
+    since: "7.2.0"
+
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_SUBTITLE
+    summary: Show the notification's subtitle, even if the user has disabled notification previews for the app.
+    description: |
+        Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "11.0"}}
     since: "7.2.0"
 
   - name: UTTYPE_TEXT
@@ -743,7 +788,7 @@ events:
         type: Date
 
       - name: sound
-        summary: Path to the sound file configured to play when the notification was fired.
+        summary: Name of the sound file configured to play when the notification was fired.
         type: String
 
       - name: timezone

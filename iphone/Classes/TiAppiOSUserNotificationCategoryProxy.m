@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,10 +28,12 @@
 {
   if (_notificationCategory == nil) {
 
-    id identifier = [properties valueForKey:@"identifier"];
-    id actionsForDefaultContext = [properties valueForKey:@"actionsForDefaultContext"];
-    id actionsForMinimalContext = [properties valueForKey:@"actionsForMinimalContext"];
-    id intentIdentifiers = [properties valueForKey:@"intentIdentifiers"];
+    NSString *identifier = [properties valueForKey:@"identifier"];
+    NSArray *actionsForDefaultContext = [properties valueForKey:@"actionsForDefaultContext"];
+    NSArray *actionsForMinimalContext = [properties valueForKey:@"actionsForMinimalContext"];
+    NSArray *intentIdentifiers = [properties valueForKey:@"intentIdentifiers"] ?: @[];
+    NSString *hiddenPreviewsBodyPlaceholder = [properties valueForKey:@"hiddenPreviewsBodyPlaceholder"];
+    UNNotificationCategoryOptions options = [self categoryOptionsFromArray:[properties valueForKey:@"options"] ?: @[]];
 
     NSMutableArray *defaultActions = [NSMutableArray new];
     NSMutableArray *minimalActions = [NSMutableArray new];
@@ -52,12 +54,24 @@
       }
     }
 
+    // For iOS 10+, use the UserNotifications framerwork
     if ([TiUtils isIOS10OrGreater]) {
-      _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
-                                                                      actions:defaultActions
-                                                            intentIdentifiers:intentIdentifiers ?: @[]
-                                                                      options:UNNotificationCategoryOptionCustomDismissAction] retain];
+      // For iOS 11+, use the "hiddenPreviewsBodyPlaceholder" constructor
+      if (hiddenPreviewsBodyPlaceholder != nil && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
+        _notificationCategory = [UNNotificationCategory categoryWithIdentifier:identifier
+                                                                       actions:defaultActions
+                                                             intentIdentifiers:intentIdentifiers
+                                                 hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
+                                                                       options:options];
+      } else {
+        // For iOS < 11, use the default constructor
+        _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
+                                                                        actions:defaultActions
+                                                              intentIdentifiers:intentIdentifiers
+                                                                        options:options] retain];
+      }
     } else {
+      // For iOS < 10, use the old constructor
       _notificationCategory = [UIMutableUserNotificationCategory new];
 
       [_notificationCategory setIdentifier:identifier];
@@ -80,6 +94,19 @@
 - (NSString *)identifier
 {
   return [[self notificationCategory] identifier];
+}
+
+#pragma mark Helper
+
+- (UNNotificationCategoryOptions)categoryOptionsFromArray:(NSArray *)array
+{
+  UNNotificationCategoryOptions options = UNNotificationCategoryOptionNone;
+
+  for (id option in array) {
+    options |= [TiUtils intValue:option];
+  }
+
+  return options;
 }
 
 @end

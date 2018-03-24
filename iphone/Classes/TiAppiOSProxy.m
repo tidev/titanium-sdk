@@ -1083,6 +1083,51 @@
   return NUMINT(0);
 }
 
+- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_NONE
+{
+  if ([TiUtils isIOS10OrGreater]) {
+    return NUMINT(UNNotificationCategoryOptionNone);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_CUSTOM_DISMISS_ACTION
+{
+  if ([TiUtils isIOS10OrGreater]) {
+    return NUMINT(UNNotificationCategoryOptionCustomDismissAction);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_ALLOW_IN_CARPLAY
+{
+  if ([TiUtils isIOS10OrGreater]) {
+    return NUMINT(UNNotificationCategoryOptionAllowInCarPlay);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_TITLE
+{
+  if ([TiUtils isIOS10OrGreater]) {
+    return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowTitle);
+  }
+
+  return NUMINT(0);
+}
+
+- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_SUBTITLE
+{
+  if ([TiUtils isIOS10OrGreater]) {
+    return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowSubtitle);
+  }
+
+  return NUMINT(0);
+}
+
 #pragma mark UTI Text Type Constants
 - (CFStringRef)UTTYPE_TEXT
 {

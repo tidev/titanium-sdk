@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -174,16 +174,21 @@
   if ([TiUtils isIOS10OrGreater]) {
     TiThreadPerformOnMainThread(^{
       [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
-        NSDictionary *propertiesDict = @{
-          @"authorizationStatus" : NUMINTEGER([settings authorizationStatus]),
-          @"soundSetting" : NUMINTEGER([settings soundSetting]),
-          @"badgeSetting" : NUMINTEGER([settings badgeSetting]),
-          @"alertSetting" : NUMINTEGER([settings alertSetting]),
-          @"notificationCenterSetting" : NUMINTEGER([settings notificationCenterSetting]),
-          @"lockScreenSetting" : NUMINTEGER([settings lockScreenSetting]),
-          @"carPlaySetting" : NUMINTEGER([settings carPlaySetting]),
-          @"alertStyle" : NUMINTEGER([settings alertStyle])
-        };
+        NSMutableDictionary *propertiesDict = [@{
+          @"authorizationStatus" : @([settings authorizationStatus]),
+          @"soundSetting" : @([settings soundSetting]),
+          @"badgeSetting" : @([settings badgeSetting]),
+          @"alertSetting" : @([settings alertSetting]),
+          @"notificationCenterSetting" : @([settings notificationCenterSetting]),
+          @"lockScreenSetting" : @([settings lockScreenSetting]),
+          @"carPlaySetting" : @([settings carPlaySetting]),
+          @"alertStyle" : @([settings alertStyle])
+        } mutableCopy];
+#if IS_XCODE_9
+        if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+          propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
+        }
+#endif
         NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
         [callback call:invocationArray thisObject:self];
