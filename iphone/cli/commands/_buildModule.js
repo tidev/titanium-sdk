@@ -569,6 +569,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 
 	try {
 		// if the zip file is there, remove it
+		fs.ensureDirSync(this.distDir);
 		fs.existsSync(moduleZipFullPath) && fs.unlinkSync(moduleZipFullPath);
 		const zipStream = fs.createWriteStream(moduleZipFullPath);
 		zipStream.on('close', function () {
