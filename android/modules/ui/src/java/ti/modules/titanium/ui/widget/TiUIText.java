@@ -518,7 +518,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			return true;
 		}
 
-		if (field) {
+		if (this.field) {
 			fireEvent(TiC.EVENT_RETURN, data);
 			// Since IME_ACTION_NEXT and IME_ACTION_DONE take care of consuming the second call to
 			// onEditorAction we do not consume it for either of them.
