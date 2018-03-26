@@ -887,7 +887,7 @@ formats.forEach(function (format) {
 	switch (format) {
 		case 'addon':
 
-			output += 'addon/';
+			output = pathMod.join(outputPath, 'addon');
 			if (!fs.existsSync(output)) {
 				fs.mkdirSync(output);
 			}
@@ -925,7 +925,7 @@ formats.forEach(function (format) {
 
 			let copyCommand;
 
-			output += '/apidoc/';
+			output = pathMod.join(outputPath, 'apidoc');
 			if (!fs.existsSync(output)) {
 				fs.mkdirSync(output);
 			}
@@ -967,29 +967,29 @@ formats.forEach(function (format) {
 				templateStr = fs.readFileSync(templatePath + 'htmlejs/index.html', 'utf8');
 				render = ejs.render(templateStr, { data: exportData, assert: common.assertObjectKey, css: cssFile });
 			}
-			output += 'index.html';
+			output  = pathMod.join(outputPath, 'index.html');
 			break;
 		case 'jsca' :
 			render = JSON.stringify(exportData, null, '    ');
-			output += 'api.jsca';
+			output  = pathMod.join(outputPath, 'api.jsca');
 			break;
 		case 'json' :
 			render = JSON.stringify(exportData, null, '    ');
-			output += 'api.json';
+			output = pathMod.join(outputPath, 'api.json');
 			break;
 		case 'jsduck' :
 			templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
 			render = ejs.render(templateStr, { doc: exportData });
-			output += 'titanium.js';
+			output = pathMod.join(outputPath, 'titanium.js');
 			break;
 		case 'parity' :
 			templateStr = fs.readFileSync(templatePath + 'parity.ejs', 'utf8');
 			render = ejs.render(templateStr, { apis: exportData });
-			output += 'parity.html';
+			output = pathMod.join(outputPath, 'parity.html');
 			break;
 		case 'solr' :
 			render = JSON.stringify(exportData, null, '    ');
-			output += 'api_solr.json';
+			output = pathMod.join(outputPath, 'api_solr.json');
 	}
 
 	if (!~[ 'addon' ].indexOf(format)) {
