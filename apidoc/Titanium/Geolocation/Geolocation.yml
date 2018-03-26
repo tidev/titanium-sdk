@@ -85,7 +85,7 @@ description: |
     "When in Use" to "Always", which is the recommended way for managing location permissions in iOS 11 and later.
     Please also remember to request your desired location-permissions before using any geolocation-related API in 
     order to receive the best usability and permission-control during the app-lifecycle using <Titanium.Geolocation.hasLocationPermissions>
-    and <Ti.Geolocation.requestLocationPermissions>. Also note that you also need to include the `NSLocationWhenInUseUsageDescription` key 
+    and <Titanium.Geolocation.requestLocationPermissions>. Also note that you also need to include the `NSLocationWhenInUseUsageDescription` key 
     in *any* case when targeting iOS 11 and later. Descriptive error-logs will be thrown if required permissions are missing.
 
     #### Configurating Location Updates on Android
