@@ -621,10 +621,6 @@ events:
 
   - name: return
     summary: Fired when the return key is pressed on the keyboard.
-    description: |
-            Since in Landscape mode Android provides both the New Line and the Action type
-            buttons as return keys the 'button' property in the event is used to distinguish from
-            which key has the event been fired.
     properties:
       - name: value
         summary: Value of this text area.
