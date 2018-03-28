@@ -3,7 +3,10 @@
 
 const async = require('async'),
 	utils = require('./utils'),
-	modules = require('../support/module/packaged/modules.json');
+	fs = require('fs-extra'),
+	path = require('path'),
+	modulesPath = path.join('../support/module/packaged/modules.json'),
+	modules = require(modulesPath);
 
 const platforms = Object.keys(modules);
 async.map(platforms, (platform, platformNext) => {
@@ -36,5 +39,23 @@ async.map(platforms, (platform, platformNext) => {
 	}
 	// Merge the platforms array into a single object
 	const merged = Object.assign({}, ...results);
-	console.log(JSON.stringify(merged));
+	const formattedJSON = JSON.stringify(merged, null, '\t');
+
+	console.log('\nUpdating modules.json ...');
+	
+	// Guard against user errors
+	if (!fs.existsSync(modulesPath)) {
+		console.error('The modules.json does not exist, aborting ...');
+		return;
+	}
+
+	// Write updated modules.json to filesystem
+	fs.writeFile(modulesPath, formattedJSON, err => {
+		if (err) {
+			console.error(`Could not update modules.json. Error: ${err}`);
+			return;
+		}
+
+		console.log('Successfully updated modules.json!');
+	});
 });
