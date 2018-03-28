@@ -2747,7 +2747,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 									fs.writeFile(to, newContents, cb2);
 								}
 							} catch (err) {
-								cb2(err); // surface parse/transform issues up callback stack!
+								err.message.split('\n').forEach(this.logger.error);
+								if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
+									this.logger.log(err.codeFrame);
+								}
+								this.logger.log();
+								process.exit(1);
 							}
 						})(r, from, to, cb);
 					})(from, to, done);
