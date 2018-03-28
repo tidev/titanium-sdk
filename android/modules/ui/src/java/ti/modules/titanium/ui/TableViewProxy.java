@@ -886,6 +886,7 @@ public class TableViewProxy extends TiViewProxy
 		Object asyncResult = null;
 		switch (msg.what) {
 			case MSG_UPDATE_VIEW:
+				setModelDirtyIfNecessary();
 				result = (AsyncResult) msg.obj;
 				if (tableNativeViewCreated) {
 					tableNativeView.updateView();
