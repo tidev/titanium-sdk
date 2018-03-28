@@ -1088,6 +1088,7 @@ properties:
 
             { x: 30, y: 30 }
         Or:
+        
             { x: '50%', y: '50%' }
 
         When specifying multiple colors, you can specify an *offset* value for each color, defining
@@ -1365,47 +1366,47 @@ properties:
             <th>Scenario</th><th>Behavior</th>
             </tr>
             <tr>
-            <td>`height` & `top` specified</td><td>Child positioned `top` unit from
-            parent's top, using specified `height`;
-            any `center.y` and `bottom` values are ignored.</td>
+            <td><code>height</code> & <code>top</code> specified</td><td>Child positioned <code>top</code> unit from
+            parent's top, using specified <code>height</code>;
+            any <code>center.y</code> and <code>bottom</code> values are ignored.</td>
             </tr>
             <tr>
-            <td>`height` & `center.y` specified</td><td>Child positioned with center at
-            `center.y`, using specified `height`; any `bottom` value is ignored.</td>
+            <td><code>height</code> & <code>center.y</code> specified</td><td>Child positioned with center at
+            <code>center.y</code>, using specified <code>height</code>; any <code>bottom</code> value is ignored.</td>
             </tr>
             <tr>
-            <td>`height` & `bottom` specified</td><td>Child positioned `bottom` units from
-            parent's bottom, using specified `height`.</td>
+            <td><code>height</code> & <code>bottom</code> specified</td><td>Child positioned <code>bottom</code> units from
+            parent's bottom, using specified <code>height</code>.</td>
             </tr>
             <tr>
-            <td>`top` & `center.y` specified</td><td>Child positioned with top edge `top` units from
-            parent's top and center at `center.y`. Height is determined implicitly;
-            any `bottom` value is ignored.</td>
+            <td><code>top</code> & <code>center.y</code> specified</td><td>Child positioned with top edge <code>top</code> units from
+            parent's top and center at <code>center.y</code>. Height is determined implicitly;
+            any <code>bottom</code> value is ignored.</td>
             </tr>
             <tr>
-            <td>`top` & `bottom` specified</td><td>Child positioned with top edge `top` units from
-            parent's top and bottom edge `bottom` units from parent's bottom. Height is determined
+            <td><code>top</code> & <code>bottom</code> specified</td><td>Child positioned with top edge <code>top</code> units from
+            parent's top and bottom edge <code>bottom</code> units from parent's bottom. Height is determined
             implicitly. </td>
             </tr>
             <tr>
-            <td>Only `top` specified</td><td>Child positioned `top` units from parent's
+            <td>Only <code>top</code> specified</td><td>Child positioned <code>top</code> units from parent's
             top, and uses the default height calculation for the view type.</td>
             </tr>
             <tr>
-            <td>`center.y` and `bottom` specified</td><td>Child positioned with center at
-            `center.y` and bottom edge `bottom` units from parent's bottom. Height is determined
+            <td><code>center.y</code> and <code>bottom</code> specified</td><td>Child positioned with center at
+            <code>center.y</code> and bottom edge <code>bottom</code> units from parent's bottom. Height is determined
             implicitly.</td>
             </tr>
             <tr>
-            <td>Only `center.y` specified</td><td>Child positioned with center at
-            `center.y`, and uses the default height calculation for the view type.</td>
+            <td>Only <code>center.y</code> specified</td><td>Child positioned with center at
+            <code>center.y</code>, and uses the default height calculation for the view type.</td>
             </tr>
             <tr>
-            <td>Only `bottom` specified</td><td>Child positioned with bottom edge `bottom`
+            <td>Only <code>bottom</code> specified</td><td>Child positioned with bottom edge <code>bottom</code>
             units from parent's bottom, and uses the default height calculation for the view type.</td>
             </tr>
             <tr>
-            <td>`height`, `top`, `center.y`, and `bottom` unspecified</td><td>Child
+            <td><code>height</code>, <code>top</code>, <code>center.y</code>, and <code>bottom</code> unspecified</td><td>Child
             centered vertically in the parent and uses the default height calculation
             for the child view type.</td>
             </tr>
