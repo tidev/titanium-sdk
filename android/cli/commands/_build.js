@@ -2718,32 +2718,36 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							// Read the possibly modified file contents
 							const source = r.contents;
 							// Analyze Ti API usage, possibly also minify/transpile
-							const modified = jsanalyze.analyzeJs(source, {
-								filename: from,
-								minify: this.minifyJS,
-								transpile: this.transpile,
-								targets: {
-									chrome: this.chromeVersion
+							try {
+								const modified = jsanalyze.analyzeJs(source, {
+									filename: from,
+									minify: this.minifyJS,
+									transpile: this.transpile,
+									targets: {
+										chrome: this.chromeVersion
+									}
+								});
+								const newContents = modified.contents;
+
+								// we want to sort by the "to" filename so that we correctly handle file overwriting
+								this.tiSymbols[to] = modified.symbols;
+
+								const dir = path.dirname(to);
+								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+								if (symlinkFiles && newContents === originalContents) {
+									this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+									copyFile.call(this, from, to, cb2);
+								} else {
+									// TODO If dest file exists and contents match, don't do anything?
+									this.logger.debug(__('Writing modified contents to %s', to.cyan));
+									// if it exists, wipe it first, as it may be a symlink back to the original, and updating that would be BAD.
+									// See TIMOB-25875
+									fs.existsSync(to) && fs.unlinkSync(to);
+									fs.writeFile(to, newContents, cb2);
 								}
-							});
-							const newContents = modified.contents;
-
-							// we want to sort by the "to" filename so that we correctly handle file overwriting
-							this.tiSymbols[to] = modified.symbols;
-
-							const dir = path.dirname(to);
-							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-							if (symlinkFiles && newContents === originalContents) {
-								this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-								copyFile.call(this, from, to, cb2);
-							} else {
-								// TODO If dest file exists and contents match, don't do anything?
-								this.logger.debug(__('Writing modified contents to %s', to.cyan));
-								// if it exists, wipe it first, as it may be a symlink back to the original, and updating that would be BAD.
-								// See TIMOB-25875
-								fs.existsSync(to) && fs.unlinkSync(to);
-								fs.writeFile(to, newContents, cb2);
+							} catch (err) {
+								cb2(err); // surface parse/transform issues up callback stack!
 							}
 						})(r, from, to, cb);
 					})(from, to, done);
