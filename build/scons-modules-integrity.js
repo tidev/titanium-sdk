@@ -42,7 +42,7 @@ async.map(platforms, (platform, platformNext) => {
 	const formattedJSON = JSON.stringify(merged, null, '\t');
 
 	console.log('\nUpdating modules.json ...');
-	
+
 	// Guard against user errors
 	if (!fs.existsSync(modulesPath)) {
 		console.error('The modules.json does not exist, aborting ...');
