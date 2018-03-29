@@ -30,12 +30,12 @@ exports.bootstrap = function(Titanium) {
 	function processTemplate(properties) {
 	   	var cellProxy = Titanium.UI.createListItem();
 		properties.tiProxy = cellProxy;
-    	var events = properties.events;
-    	addEventListeners(events, cellProxy);
+		var events = properties.events;
+		addEventListeners(events, cellProxy);
 	}
 
-    //Recursive function that process childTemplates and append corresponding proxies to
-    //property 'tiProxy'. I.e: type: "Titanium.UI.Label" -> tiProxy: LabelProxy object
+	//Recursive function that process childTemplates and append corresponding proxies to
+	//property 'tiProxy'. I.e: type: "Titanium.UI.Label" -> tiProxy: LabelProxy object
 	function processChildTemplates(properties) {
 		if (!properties.hasOwnProperty('childTemplates')) return;
 		
@@ -95,11 +95,12 @@ exports.bootstrap = function(Titanium) {
 	
 		// handle Alloy widgets
 		} else {
-			const widget = '/alloy/widgets/' + namespace + '/controllers/widget',
-				  hasWidget = Ti.Filesystem.getFile(widget).exists();
-	
-			if (hasWidget) {
-				return new (require(widget));
+			const widget = Module.main.require('/alloy/widgets/' + namespace + '/controllers/widget');
+			if (widget) {
+				return function (parameters) {
+					const obj = new widget(parameters);
+					return obj.getView();
+				};
 			}
 		}
 	}
