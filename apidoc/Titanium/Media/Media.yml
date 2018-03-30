@@ -138,6 +138,8 @@ methods:
         take the photo. You must then control the camera explicitly, using
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
         methods.
+        
+        Note: You can only use one or the other (video or photo) types in the array.
 
         #### iOS Platform Notes
 
