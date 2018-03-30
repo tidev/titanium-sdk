@@ -162,6 +162,8 @@ public class TiListViewTemplate
 				parent.addChild(item);
 			}
 			dataItems.put(id, item);
+
+			props = viewProxy.getProperties();
 		}
 
 		if (properties.containsKey(TiC.PROPERTY_PROPERTIES)) {
