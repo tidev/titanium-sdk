@@ -75,13 +75,13 @@ describe('Titanium.Media.AudioPlayer', function () {
 		should(Ti.Media).have.constant('AUDIO_STATE_WAITING_FOR_QUEUE').which.is.a.Number;
 	});
 
-	it('basic' function () {
+	it('basic', function () {
 		should(audioPlayer.url).be.a.String;
 		should(audioPlayer.getUrl).be.a.Function;
 		should(audioPlayer.setUrl).be.a.Function;		
 	});
 	
-	it('methods' function () {
+	it('methods', function () {
 		should(audioPlayer.start).be.a.Function;
 		should(audioPlayer.restart).be.a.Function;
 		should(audioPlayer.pause).be.a.Function;
