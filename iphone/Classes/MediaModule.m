@@ -16,7 +16,6 @@
 #import "TiMediaAudioSession.h"
 #import "TiMediaItem.h"
 #import "TiMediaMusicPlayer.h"
-#import "TiMediaTypes.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 

@@ -38,4 +38,19 @@ typedef enum {
   RecordPaused = 2
 } RecorderState;
 
+#pragma mark AudioPlayer
+
+typedef NS_ENUM(NSInteger, TiAudioPlayerState) {
+  TiAudioPlayerStateBuffering = 0,
+  TiAudioPlayerStateInitialized,
+  TiAudioPlayerStatePaused,
+  TiAudioPlayerStatePlaying,
+  TiAudioPlayerStateStartingFileThread,
+  TiAudioPlayerStateStopped,
+  TiAudioPlayerStateStopping,
+  TiAudioPlayerStateWaitingForData, // Unused
+  TiAudioPlayerStateWaitingForQueueToStart,
+  TiAudioPlayerStateFlushingEOF, // Unused
+};
+
 #endif /* TiMediaTypes_h */

@@ -11,6 +11,7 @@
 
 #import "TiMediaAudioPlayerProxy.h"
 #import "TiMediaAudioSession.h"
+#import "TiMediaTypes.h"
 #import "TiUtils.h"
 
 @implementation TiMediaAudioPlayerProxy
