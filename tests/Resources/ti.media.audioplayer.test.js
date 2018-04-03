@@ -39,7 +39,7 @@ describe('Titanium.Media.AudioPlayer', function () {
 	});
 
 	// constants
-	it.('STATE_BUFFERING', function () {
+	it('STATE_BUFFERING', function () {
 		should(Ti.Media).have.constant('AUDIO_STATE_BUFFERING').which.is.a.Number;
 	});
 
@@ -79,7 +79,7 @@ describe('Titanium.Media.AudioPlayer', function () {
 		should(audioPlayer.url).be.a.String;
 		should(audioPlayer.getUrl).be.a.Function;
 		should(audioPlayer.setUrl).be.a.Function;		
-  });
+	});
 	
 	it('methods' function () {
 		should(audioPlayer.start).be.a.Function;
