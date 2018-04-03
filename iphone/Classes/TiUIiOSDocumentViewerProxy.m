@@ -128,8 +128,7 @@
   NSURL *fileURL = [TiUtils toURL:object proxy:self];
   NSString *fileName = [[fileURL absoluteString] lastPathComponent];
 
-  // Check if the file already exists in the application-data-directory.
-  // If so, return it.
+  // If the original (!) file already exists in the application-data-directory, return it!
   NSString *documentsPath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
   NSString *file = [documentsPath stringByAppendingPathComponent:fileName];
 
@@ -141,6 +140,12 @@
   NSString *generatedFileName = [NSString stringWithFormat:@"tmp-%@", fileName];
   NSError *error = nil;
   NSURL *fixedURL = [NSURL fileURLWithPath:documentsPath isDirectory:YES];
+
+  // If the generated (!) file already exists in the application-data-directory, return it as well!
+  if ([[NSFileManager defaultManager] fileExistsAtPath:fixedURL.path]) {
+    return fileURL;
+  }
+
   [[NSFileManager defaultManager] copyItemAtURL:fileURL
                                           toURL:[fixedURL URLByAppendingPathComponent:generatedFileName]
                                           error:&error];
@@ -148,6 +153,7 @@
   // In case the file could not be copied, return the old URL and warn the user
   if (error != nil) {
     NSLog(@"[ERROR] Could not copy file to application data directory automatically, please copy it manually to work around the Apple iOS 11.2+ bug.");
+    NSLog(@"[ERROR] %@", error.localizedDescription);
     return fileURL;
   }
 
