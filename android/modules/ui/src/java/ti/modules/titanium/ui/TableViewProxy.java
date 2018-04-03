@@ -211,7 +211,6 @@ public class TableViewProxy extends TiViewProxy
 		}
 		if (sectionProxy != null) {
 			sectionProxy.updateRowAt(rowIndex, rowProxy);
-			getTableView().setModelDirty();
 			updateView();
 		} else {
 			Log.e(TAG, "Unable to update row. Non-existent row: " + row);
@@ -238,7 +237,6 @@ public class TableViewProxy extends TiViewProxy
 					oldSection.setParent(null);
 				}
 			}
-			getTableView().setModelDirty();
 			updateView();
 		} catch (IndexOutOfBoundsException e) {
 			Log.e(TAG, "Unable to update section. Index out of range. Non-existent section at " + index);
@@ -284,7 +282,6 @@ public class TableViewProxy extends TiViewProxy
 			}
 		}
 
-		setModelDirtyIfNecessary();
 		updateView();
 	}
 
@@ -318,7 +315,6 @@ public class TableViewProxy extends TiViewProxy
 			}
 		}
 
-		getTableView().setModelDirty();
 		updateView();
 	}
 
@@ -353,7 +349,6 @@ public class TableViewProxy extends TiViewProxy
 			RowResult rr = new RowResult();
 			if (locateIndex(index, rr)) {
 				rr.section.removeRowAt(rr.rowIndexInSection);
-				setModelDirtyIfNecessary();
 				updateView();
 			} else {
 				Log.e(TAG, "Unable to delete row. Index out of range. Non-existent row at " + index);
@@ -363,7 +358,6 @@ public class TableViewProxy extends TiViewProxy
 			TiViewProxy section = rowProxy.getParent();
 			if (section instanceof TableViewSectionProxy) {
 				((TableViewSectionProxy) section).remove(rowProxy);
-				setModelDirtyIfNecessary();
 				updateView();
 			} else {
 				Log.e(TAG, "Unable to delete row. The row is not added to the table yet.");
@@ -398,7 +392,6 @@ public class TableViewProxy extends TiViewProxy
 			if (section.getParent() == this) {
 				section.setParent(null);
 			}
-			getTableView().setModelDirty();
 			updateView();
 		} catch (IndexOutOfBoundsException e) {
 			throw new IllegalStateException("Unable to delete section. Index out of range. Non-existent section at "
@@ -464,7 +457,7 @@ public class TableViewProxy extends TiViewProxy
 			Object[] args = { rowProxyFor(data) };
 			processData(args);
 		}
-		getTableView().setModelDirty();
+
 		updateView();
 	}
 
@@ -495,7 +488,6 @@ public class TableViewProxy extends TiViewProxy
 			ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
 			currentSections.add(index, sectionProxy);
 			sectionProxy.setParent(this);
-			getTableView().setModelDirty();
 			updateView();
 		} catch (IndexOutOfBoundsException e) {
 			throw new IllegalStateException("Unable to insert section. Index out of range. Non-existent row at "
@@ -526,7 +518,6 @@ public class TableViewProxy extends TiViewProxy
 			// TODO check for section
 			TableViewRowProxy rowProxy = rowProxyFor(data);
 			rr.section.insertRowAt(rr.rowIndexInSection + 1, rowProxy);
-			setModelDirtyIfNecessary();
 			updateView();
 		} else {
 			throw new IllegalStateException("Index out of range. Non-existent row at " + index);
@@ -565,7 +556,6 @@ public class TableViewProxy extends TiViewProxy
 			ArrayList<TableViewSectionProxy> currentSections = getSectionsArray();
 			currentSections.add(index + 1, sectionProxy);
 			sectionProxy.setParent(this);
-			getTableView().setModelDirty();
 			updateView();
 		} catch (IndexOutOfBoundsException e) {
 			throw new IllegalStateException("Unable to insert section. Index out of range. Non-existent row at "
@@ -722,7 +712,6 @@ public class TableViewProxy extends TiViewProxy
 	{
 		if (data != null) {
 			processData(data);
-			getTableView().setModelDirty();
 			updateView();
 		}
 	}
@@ -900,6 +889,7 @@ public class TableViewProxy extends TiViewProxy
 		Object asyncResult = null;
 		switch (msg.what) {
 			case MSG_UPDATE_VIEW:
+				setModelDirtyIfNecessary();
 				result = (AsyncResult) msg.obj;
 				if (tableNativeViewCreated) {
 					tableNativeView.updateView();

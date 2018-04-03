@@ -68,6 +68,7 @@ public class TiUITableView
 	public void setModelDirty()
 	{
 		tableView.getTableViewModel().setDirty();
+		getTableView().dataSetChanged();
 	}
 
 	public TableViewModel getModel()
