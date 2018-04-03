@@ -6,6 +6,7 @@
  */
 #ifdef USE_TI_MEDIAAUDIOPLAYER
 
+#import "TiMediaTypes.h"
 #import "TiProxy.h"
 
 @class AVPlayer;
