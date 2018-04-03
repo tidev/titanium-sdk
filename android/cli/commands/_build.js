@@ -4225,7 +4225,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 	let dexArgs = [
 		'-Xmx' + this.dxMaxMemory,
 		'-XX:-UseGCOverheadLimit',
-		'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
+		'-classpath', this.androidInfo.sdk.platformTools.path,
 		'-jar', this.androidInfo.sdk.dx,
 		'--dex', '--multi-dex',
 		'--set-max-idx-number=' + this.dxMaxIdxNumber,
