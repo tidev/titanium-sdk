@@ -379,8 +379,10 @@
 
   // Buffering
   [[[self player] currentItem] addObserver:self forKeyPath:@"playbackBufferEmpty" options:NSKeyValueObservingOptionNew context:nil];
-  [[[self player] currentItem] addObserver:self forKeyPath:@"playbackLikelyToKeepUp" options:NSKeyValueObservingOptionNew context:nil];
   [[[self player] currentItem] addObserver:self forKeyPath:@"playbackBufferFull" options:NSKeyValueObservingOptionNew context:nil];
+
+  // Timed metadata
+  [[[self player] currentItem] addObserver:self forKeyPath:@"timedMetadata" options:NSKeyValueObservingOptionNew context:nil];
 }
 
 - (void)removeNotificationObserver
@@ -397,32 +399,31 @@
   [nc removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
 
   [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferEmpty"];
-  [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
   [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferFull"];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
 {
-  if (object != [self player]) {
-    return;
-  }
-
   if ([TiUtils isIOS10OrGreater]) {
-    if ([keyPath isEqualToString:@"timeControlStatus"]) {
+    if (object == _player && [keyPath isEqualToString:@"timeControlStatus"]) {
       [self handleTimeControlStatusNotification:nil];
     }
   } else {
-    if ([keyPath isEqualToString:@"rate"]) {
+    if (object == _player && [keyPath isEqualToString:@"rate"]) {
       [self handlePlaybackStateChangeNotification:nil];
     }
   }
 
-  if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
+  if (object == _player.currentItem && [keyPath isEqualToString:@"playbackBufferEmpty"]) {
     _state = TiAudioPlayerStateBuffering;
   }
 
-  if ([keyPath isEqualToString:@"playbackBufferFull"] || [keyPath isEqualToString:@"playbackBufferFull"]) {
+  if (object == _player.currentItem && [keyPath isEqualToString:@"playbackBufferFull"]) {
     _state = TiAudioPlayerStateWaitingForQueueToStart;
+  }
+
+  if (object == _player.currentItem && [keyPath isEqualToString:@"timedMetadata"]) {
+    [self handleTimedMetadataNotification:_player.currentItem];
   }
 }
 
@@ -492,6 +493,26 @@
   if ([self _hasListeners:@"error"]) {
     [self fireEvent:@"error" withObject:@{ @"error" : error.localizedDescription }];
   }
+}
+
+- (void)handleTimedMetadataNotification:(AVPlayerItem *)playerItem
+{
+  if (![self _hasListeners:@"metadata"]) {
+    return;
+  }
+
+  NSMutableArray *result = [NSMutableArray arrayWithCapacity:playerItem.timedMetadata.count];
+
+  for (AVMetadataItem *metadata in playerItem.timedMetadata) {
+    [result addObject:@{
+      @"key" : metadata.key,
+      @"keySpace" : metadata.keySpace,
+      @"value" : metadata.value,
+      @"extraAttributes" : metadata.extraAttributes
+    }];
+  }
+
+  [self fireEvent:@"metadata" withObject:@{ @"items" : result }];
 }
 
 - (void)handlePlayerCompleteNotification:(NSNotification *)note
