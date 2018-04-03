@@ -370,6 +370,7 @@ properties:
         returnes a <Titanium.Filesystem.File> reference for parity wih Android and Windows.
     type: Titanium.Filesystem.File
     permission: read-only
+    since: { iphone: "7.2.0", ipad: "7.2.0", android: "0.9" }
     platforms: [android, iphone, ipad]
 
   - name: readonly
@@ -377,6 +378,7 @@ properties:
         `true` if the file identified by this object is read-only.
     type: Boolean
     permission: read-only
+    since: { iphone: "7.2.0", ipad: "7.2.0", android: "0.9" }
     platforms: [android, iphone, ipad]
 
   - name: size
