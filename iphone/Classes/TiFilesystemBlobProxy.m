@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,23 +15,31 @@
 
 @implementation TiFilesystemBlobProxy
 
-- (id)initWithURL:(NSURL *)url data:(NSData *)data
+- (id)initWithURL:(NSURL *)url_ data:(NSData *)data_
 {
-  if (self = [super initWithPath:[url path]]) {
-    _url = url;
-    _data = data;
+  if (self = [super initWithPath:[url_ path]]) {
+    url = [url_ retain];
+    data = [data_ retain];
   }
   return self;
 }
 
+- (void)dealloc
+{
+  RELEASE_TO_NIL(url);
+  RELEASE_TO_NIL(data);
+  [super dealloc];
+}
+
 - (NSString *)apiName
 {
+  //Should we return Ti.FileSystem.Blob?
   return @"Ti.Filesystem.File";
 }
 
 - (id)nativePath
 {
-  return [[NSURL fileURLWithPath:_path] absoluteString];
+  return [[NSURL fileURLWithPath:path] absoluteString];
 }
 
 - (id)exists:(id)args
@@ -121,8 +129,8 @@ FILENOOP(setHidden
 
 - (id)read:(id)args
 {
-  NSString *mimetype = [Mimetypes mimeTypeForExtension:[[_url path] lastPathComponent]];
-  return [[TiBlob alloc] _initWithPageContext:[self pageContext] andData:_data mimetype:mimetype];
+  NSString *mimetype = [Mimetypes mimeTypeForExtension:[[url path] lastPathComponent]];
+  return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:data mimetype:mimetype] autorelease];
 }
 
 - (id)append:(id)args
@@ -137,7 +145,7 @@ FILENOOP(setHidden
 
 - (id)extension:(id)args
 {
-  return [_path pathExtension];
+  return [path pathExtension];
 }
 
 - (id)getParent:(id)args
@@ -147,7 +155,7 @@ FILENOOP(setHidden
 
 - (id)name
 {
-  return [_path lastPathComponent];
+  return [path lastPathComponent];
 }
 
 - (id)resolve:(id)args
@@ -157,7 +165,7 @@ FILENOOP(setHidden
 
 - (id)description
 {
-  return _path;
+  return path;
 }
 
 @end
