@@ -149,7 +149,7 @@ typedef enum {
 
 /**
  Changes to image rotation, so the image is facing up.
- @param Image The image to be rotated.
+ @param image The image to be rotated.
  @return The rotated image.
  */
 + (UIImage *)adjustRotation:(UIImage *)image;
@@ -325,7 +325,7 @@ typedef enum {
 
 /**
  Converts a native color value into the string-color.
- @param value The input value of a UIColor type.
+ @param color The input value of a UIColor type.
  @return The string-representation of the value.
  */
 + (NSString *)hexColorValue:(UIColor *)color;

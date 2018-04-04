@@ -57,7 +57,7 @@ typedef enum {
 /**
  Initialize the proxy context and the blob with an image.
  @param context The proxy context
- @param image The image
+ @param image_ The image
  */
 - (id)_initWithPageContext:(id<TiEvaluator>)context andImage:(UIImage *)image_;
 
@@ -72,7 +72,7 @@ typedef enum {
 /**
  Initialize the proxy context and the blob with contents of a file.
  @param context The proxy context
- @param path The path to the file.
+ @param path_ The path to the file.
  */
 - (id)_initWithPageContext:(id<TiEvaluator>)context andFile:(NSString *)path_;
 

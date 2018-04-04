@@ -72,7 +72,7 @@ extern NSString * const APSDeployTypeProduction;
 /**
  * Enables Analytics with a given app-key and deploy-type.
  * @param appKey The APSAnalytics app-key.
- * @param deployTime The deploy-type of the application.
+ * @param deployType The deploy-type of the application.
  */
 -(void)enableWithAppKey:(NSString *)appKey andDeployType:(NSString *)deployType;
 
