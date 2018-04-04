@@ -8,8 +8,9 @@
 
 #import "TiDatabaseProxy.h"
 #import "TiDatabaseResultSetProxy.h"
-#import "TiFilesystemFileProxy.h"
-#import "TiUtils.h"
+
+#import <TitaniumKit/TiFilesystemFileProxy.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiDatabaseProxy
 
@@ -258,6 +259,7 @@
 {
   return name;
 }
+
 - (TiFilesystemFileProxy *)file
 {
   return [[[TiFilesystemFileProxy alloc] initWithFile:[self dbPath:name]] autorelease];

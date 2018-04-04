@@ -7,10 +7,11 @@
 
 #ifdef USE_TI_NETWORK
 
-#import "APSHTTPClient.h"
-#import "TiBlob.h"
+#import <TitaniumKit/APSHTTPClient.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiProxy.h>
+
 #import "TiDOMDocumentProxy.h"
-#import "TiProxy.h"
 
 @protocol SecurityManagerProtocol <NSObject>
 @required

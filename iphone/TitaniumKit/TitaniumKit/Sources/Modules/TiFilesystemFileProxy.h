@@ -5,9 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_FILESYSTEM) || defined(USE_TI_DATABASE) || defined(USE_TI_MEDIA)
-
-#import "TiFile.h"
+#import <TitaniumKit/TiFile.h>
 
 @class TiFilesystemFileStreamProxy;
 
@@ -31,5 +29,3 @@
 @property (nonatomic, readonly) id hidden;
 
 @end
-
-#endif

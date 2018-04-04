@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UICANVAS
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @class TiUICanvasViewContextProxy;
 

@@ -6,7 +6,7 @@
  */
 
 #import "TiStylesheet.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 #define DEBUG_STYLESHEETS 0
 

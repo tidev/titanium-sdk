@@ -6,9 +6,9 @@
  */
 
 #import "TiErrorController.h"
-#import "TiApp.h"
-#import "TiBase.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUtils.h>
 #import <QuartzCore/QuartzCore.h>
 
 @implementation TiErrorController

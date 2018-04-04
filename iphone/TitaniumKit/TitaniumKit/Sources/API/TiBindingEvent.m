@@ -11,7 +11,7 @@
 #import "TiBindingTiValue.h"
 #import "TiExceptionHandler.h"
 #include "TiToJS.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #include <libkern/OSAtomic.h>
 
 extern TiStringRef kTiStringLength;

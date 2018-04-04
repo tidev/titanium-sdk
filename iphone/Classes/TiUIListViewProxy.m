@@ -8,7 +8,7 @@
 
 #import "TiUIListViewProxy.h"
 #import "TiUIListView.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #import "TiViewTemplate.h"
 
 @interface TiUIListViewProxy ()

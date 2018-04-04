@@ -6,19 +6,20 @@
  */
 #ifdef USE_TI_MEDIA
 
-#import "MediaModule.h"
-#import "Mimetypes.h"
-#import "SCListener.h"
-#import "Ti2DMatrix.h"
-#import "TiApp.h"
-#import "TiBlob.h"
-#import "TiFile.h"
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/Ti2DMatrix.h>
+
 #import "TiMediaAudioSession.h"
 #import "TiMediaItem.h"
 #import "TiMediaMusicPlayer.h"
 #import "TiMediaTypes.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
+#import "MediaModule.h"
+#import "SCListener.h"
 
 #import <AudioToolbox/AudioToolbox.h>
 #if IS_XCODE_8

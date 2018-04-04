@@ -5,13 +5,17 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiConsole.h"
+#import <TitaniumKit/Bridge.h>
+#import <Foundation/Foundation.h>
 
-@implementation TiConsole
+@class XHRBridge;
 
-- (void)log:(NSArray *)args
-{
-  [self logMessage:args severity:@"info"];
-}
+@interface AppProtocolHandler : NSURLProtocol
+
++ (void)registerSpecialProtocol;
+
+@end
+
+@interface XHRBridge : Bridge
 
 @end

@@ -7,7 +7,7 @@
 #ifdef USE_TI_UILISTVIEW
 
 #import "TiUIListViewProxy.h"
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 #if IS_XCODE_8
 // Add support for iOS 10 table-view prefetching

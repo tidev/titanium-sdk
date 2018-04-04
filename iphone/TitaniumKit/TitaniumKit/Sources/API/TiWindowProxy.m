@@ -6,9 +6,9 @@
  */
 
 #import "TiWindowProxy.h"
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 #import "TiErrorController.h"
-#import "TiUIWindow.h"
+#import <TitaniumKit/TiUIWindow.h>
 #import "TiUIWindowProxy.h"
 
 @interface TiWindowProxy (Private)
@@ -31,12 +31,11 @@
         YES);
   }
 
-#ifdef USE_TI_UIIOSTRANSITIONANIMATION
   if (transitionProxy != nil) {
     [self forgetProxy:transitionProxy];
     RELEASE_TO_NIL(transitionProxy)
   }
-#endif
+
   [super dealloc];
 }
 
@@ -855,7 +854,7 @@
     [self windowDidClose];
   }
 }
-#ifdef USE_TI_UIIOSTRANSITIONANIMATION
+
 - (TiUIiOSTransitionAnimationProxy *)transitionAnimation
 {
   return transitionProxy;
@@ -871,7 +870,6 @@
   transitionProxy = [args retain];
   [self rememberProxy:transitionProxy];
 }
-#endif
 
 #if IS_XCODE_9
 - (void)processForSafeArea

@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
 #import <MediaPlayer/MediaPlayer.h>

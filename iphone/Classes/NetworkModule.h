@@ -6,9 +6,10 @@
  */
 #ifdef USE_TI_NETWORK
 
-#import "KrollCallback.h"
+#import <TitaniumKit/KrollCallback.h>
+#import <TitaniumKit/TiModule.h>
+
 #import "Reachability.h"
-#import "TiModule.h"
 
 typedef enum {
   READ_MODE = 1,

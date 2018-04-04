@@ -7,7 +7,7 @@
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
 #import "TIDOMCharacterDataProxy.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiDOMTextNodeProxy : TiDOMCharacterDataProxy {
   @private

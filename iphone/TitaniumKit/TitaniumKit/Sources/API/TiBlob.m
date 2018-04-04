@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiBlob.h"
+#import <TitaniumKit/TiBlob.h>
 #import "Mimetypes.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #import "UIImage+Alpha.h"
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"

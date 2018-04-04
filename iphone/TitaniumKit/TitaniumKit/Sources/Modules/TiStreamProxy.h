@@ -6,9 +6,9 @@
  */
 
 #import "KrollCallback.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 #import "TiBuffer.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 #import <Foundation/Foundation.h>
 
 // This is meant to be a largely "virtual" class which defines the following behaviors:

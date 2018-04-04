@@ -7,7 +7,7 @@
 #ifdef USE_TI_YAHOO
 
 #import "YahooModule.h"
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 #include <CommonCrypto/CommonHMAC.h>
 
 #ifdef YQL_OAUTH

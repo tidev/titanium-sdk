@@ -8,7 +8,7 @@
 #import "ListenerEntry.h"
 #import "TiColor.h"
 #import "TiPoint.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 #import <QuartzCore/QuartzCore.h>
 
 @class TiViewProxy;

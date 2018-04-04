@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UILISTVIEW
 #import "TiUIListView.h"
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 #import "TiRootViewController.h"
 #import "TiUILabelProxy.h"
 #import "TiUIListItem.h"
@@ -17,7 +17,7 @@
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
-#import "ImageLoader.h"
+#import <TitaniumKit/ImageLoader.h>
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;

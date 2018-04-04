@@ -12,10 +12,6 @@
 #import "KrollObject.h"
 #import <objc/runtime.h>
 
-#ifdef KROLL_COVERAGE
-#import "KrollCoverage.h"
-#endif
-
 /*
  *	Since TiStringRefs are not tied to any particular context, and are
  *	immutable, they are threadsafe and more importantly, ones that are in
@@ -210,11 +206,8 @@ TiValueRef TiBindingTiValueFromProxy(TiContextRef jsContext, TiProxy *obj)
   }
 
   DebugLog(@"[WARN] Generating a new TiObject for KrollObject %@ because the contexts %@ and its context %@ differed.", obj, context, ourBridge);
-#ifdef KROLL_COVERAGE
-  KrollObject *o = [[[KrollCoverageObject alloc] initWithTarget:obj context:context] autorelease];
-#else
   KrollObject *o = [[[KrollObject alloc] initWithTarget:obj context:context] autorelease];
-#endif
+
   return TiObjectMake(jsContext, KrollObjectClassRef, o);
 }
 

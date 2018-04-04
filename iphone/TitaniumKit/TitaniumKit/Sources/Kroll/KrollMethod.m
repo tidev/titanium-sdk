@@ -11,11 +11,7 @@
 
 #import "KrollBridge.h"
 
-#ifdef KROLL_COVERAGE
-#import "KrollCoverage.h"
-#endif
-
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 
 TiClassRef KrollMethodClassRef = NULL;
 

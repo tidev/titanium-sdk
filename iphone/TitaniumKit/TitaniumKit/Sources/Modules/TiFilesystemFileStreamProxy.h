@@ -5,8 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_FILESYSTEM) || defined(USE_TI_DATABASE) || defined(USE_TI_MEDIA)
-
 #import "TiStreamProxy.h"
 
 @interface TiFilesystemFileStreamProxy : TiStreamProxy <TiStreamInternal> {
@@ -17,5 +15,3 @@
 }
 
 @end
-
-#endif

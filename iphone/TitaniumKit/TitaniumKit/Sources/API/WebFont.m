@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "WebFont.h"
-#import "TiBase.h"
-#import "TiUtils.h"
+#import <TitaniumKit/Webfont.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation WebFont
 

@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiDimension.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiUtils.h>
 #import <UIKit/UIKit.h>
 
 @protocol LayoutAutosizing

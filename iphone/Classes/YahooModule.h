@@ -6,9 +6,9 @@
  */
 #ifdef USE_TI_YAHOO
 
-#import "APSHTTPClient.h"
-#import "KrollCallback.h"
-#import "TiModule.h"
+#import <TitaniumKit/APSHTTPClient.h>
+#import <TitaniumKit/KrollCallback.h>
+#import <TitaniumKit/TiModule.h>
 
 @interface YahooModule : TiModule {
   @private

@@ -4,9 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
-#import "TiDimension.h"
+#import <TitaniumKit/TiDimension.h>
 #import "TiPoint.h"
 
 #import <CoreGraphics/CoreGraphics.h>

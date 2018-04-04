@@ -15,11 +15,7 @@
 #import "TiExceptionHandler.h"
 #import <objc/runtime.h>
 
-#ifdef KROLL_COVERAGE
-#import "KrollCoverage.h"
-#endif
-
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 
 TiClassRef KrollObjectClassRef = NULL;
 TiClassRef JSObjectClassRef = NULL;
@@ -467,11 +463,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 //
 + (TiValueRef)create:(id)object context:(KrollContext *)context
 {
-#ifdef KROLL_COVERAGE
-  KrollObject *ko = [[[KrollCoverageObject alloc] initWithTarget:object context:context] autorelease];
-#else
   KrollObject *ko = [[[KrollObject alloc] initWithTarget:object context:context] autorelease];
-#endif
   return [ko jsobject];
 }
 
@@ -519,22 +511,12 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 {
   if ([result isKindOfClass:[KrollMethodDelegate class]]) {
     int argcount = [result args] ? 1 : 0;
-#ifdef KROLL_COVERAGE
-    return [[[KrollCoverageMethod alloc] initWithTarget:[result target]
-                                               selector:[result selector]
-                                               argcount:argcount
-                                                   type:KrollMethodInvoke
-                                                   name:key
-                                                context:[self context]
-                                                 parent:self] autorelease];
-#else
     return [[[KrollMethod alloc] initWithTarget:[result target]
                                        selector:[result selector]
                                        argcount:argcount
                                            type:KrollMethodInvoke
                                            name:key
                                         context:[self context]] autorelease];
-#endif
   } else if ([result isKindOfClass:[KrollPropertyDelegate class]]) {
     KrollPropertyDelegate *d = (KrollPropertyDelegate *)result;
     return [[d target] performSelector:[d selector]];
@@ -562,11 +544,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
     SEL selector;
 
     NSString *propertyKey = [self _propertyGetterSetterKey:key];
-#ifdef KROLL_COVERAGE
-    KrollMethod *result = [[KrollCoverageMethod alloc] initWithTarget:target context:[self context] parent:self];
-#else
     KrollMethod *result = [[KrollMethod alloc] initWithTarget:target context:[self context]];
-#endif
     [result setArgcount:1];
     [result setPropertyKey:propertyKey];
     [result setType:KrollMethodSetter];
@@ -595,11 +573,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
     return [result autorelease]; // we simply return a method delegator  against the target to set the property directly on the target
   } else if ([key hasPrefix:@"get"]) {
-#ifdef KROLL_COVERAGE
-    KrollMethod *result = [[KrollCoverageMethod alloc] initWithTarget:target context:[self context] parent:self];
-#else
     KrollMethod *result = [[KrollMethod alloc] initWithTarget:target context:[self context]];
-#endif
     NSString *propertyKey = [self _propertyGetterSetterKey:key];
     [result setPropertyKey:propertyKey];
     [result setArgcount:1];
@@ -651,22 +625,12 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
       SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:", key]);
       if ([target respondsToSelector:selector]) {
-#ifdef KROLL_COVERAGE
-        return [[[KrollCoverageMethod alloc] initWithTarget:target
-                                                   selector:selector
-                                                   argcount:1
-                                                       type:KrollMethodInvoke
-                                                       name:nil
-                                                    context:[self context]
-                                                     parent:self] autorelease];
-#else
         return [[[KrollMethod alloc] initWithTarget:target
                                            selector:selector
                                            argcount:1
                                                type:KrollMethodInvoke
                                                name:nil
                                             context:[self context]] autorelease];
-#endif
       }
       // Special handling for className due to conflict with NSObject private API
       if ([key isEqualToString:@"className"]) {
@@ -675,10 +639,6 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
       // attempt a function that has no args (basically a non-property property)
       selector = NSSelectorFromString([NSString stringWithFormat:@"%@", key]);
       if ([target respondsToSelector:selector]) {
-#ifdef KROLL_COVERAGE
-        id<KrollCoverage> cSelf = (id<KrollCoverage>)self;
-        [cSelf increment:key coverageType:COVERAGE_TYPE_GET apiType:API_TYPE_PROPERTY];
-#endif
         return [target performSelector:selector];
       }
       id result = [target valueForKey:key];
@@ -689,30 +649,15 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
       if ([key hasPrefix:@"create"]) {
         SEL selector = @selector(createProxy:forName:context:);
         if ([target respondsToSelector:selector]) {
-#ifdef KROLL_COVERAGE
-          return [[[KrollCoverageMethod alloc] initWithTarget:target
-                                                     selector:selector
-                                                     argcount:2
-                                                         type:KrollMethodFactory
-                                                         name:key
-                                                      context:[self context]
-                                                       parent:self] autorelease];
-#else
           return [[[KrollMethod alloc] initWithTarget:target
                                              selector:selector
                                              argcount:2
                                                  type:KrollMethodFactory
                                                  name:key
                                               context:[self context]] autorelease];
-#endif
         }
       }
     } else {
-#ifdef KROLL_COVERAGE
-      id<KrollCoverage> cSelf = (id<KrollCoverage>)self;
-      [cSelf increment:key coverageType:COVERAGE_TYPE_GET apiType:API_TYPE_PROPERTY];
-#endif
-
       NSString *attributes = [NSString stringWithCString:property_getAttributes(p) encoding:NSUTF8StringEncoding];
       SEL selector = NSSelectorFromString([NSString stringWithCString:property_getName(p) encoding:NSUTF8StringEncoding]);
 
@@ -857,10 +802,6 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
     } else {
       [target setValue:value forKey:key];
     }
-#ifdef KROLL_COVERAGE
-    id<KrollCoverage> cSelf = (id<KrollCoverage>)self;
-    [cSelf increment:key coverageType:COVERAGE_TYPE_SET apiType:API_TYPE_PROPERTY];
-#endif
   }
   @finally {
     if (executionSet) {

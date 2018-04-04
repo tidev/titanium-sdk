@@ -6,7 +6,7 @@
  */
 
 #include <stdbool.h>
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @import Foundation;
 

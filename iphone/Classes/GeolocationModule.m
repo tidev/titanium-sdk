@@ -10,7 +10,7 @@
 #import "APSAnalytics.h"
 #import "AnalyticsModule.h"
 #import "NSData+Additions.h"
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 #import "TiEvaluator.h"
 
 #import <sys/utsname.h>

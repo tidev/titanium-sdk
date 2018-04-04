@@ -9,7 +9,7 @@
 
 #import "WatchSessionModule.h"
 #import "TiEvaluator.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @interface WatchMessageCallback : NSObject {
   id<TiEvaluator> context;

@@ -7,8 +7,8 @@
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 
 #import "AFOpenFlow/AFOpenFlowView.h"
-#import "ImageLoader.h"
-#import "TiUIView.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUIiOSCoverFlowView : TiUIView <AFOpenFlowViewDataSource, AFOpenFlowViewDelegate, ImageLoaderDelegate> {
   @private

@@ -7,7 +7,7 @@
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
 #import "TIDOMCharacterDataProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #include <limits.h>
 #include <string.h>
 

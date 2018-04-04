@@ -10,8 +10,8 @@
 #import "TiColor.h"
 #import "TiToolbar.h"
 #import "TiToolbarButton.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 @implementation TiUIToolbar
 

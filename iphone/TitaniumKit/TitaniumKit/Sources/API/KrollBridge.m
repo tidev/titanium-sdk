@@ -10,18 +10,14 @@
 #import "KrollCallback.h"
 #import "KrollContext.h"
 #import "KrollObject.h"
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 #import "TiConsole.h"
 #import "TiExceptionHandler.h"
 #import "TiHost.h"
 #import "TiToJS.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #import "TopTiModule.h"
 #import <libkern/OSAtomic.h>
-
-#ifdef KROLL_COVERAGE
-#include "KrollCoverage.h"
-#endif
 
 NSString *TitaniumModuleRequireFormat = @"(function(exports){"
                                          "var __OXP=exports;var module={'exports':exports};var __dirname=\"%@\";var __filename=\"%@\";%@;\n"
@@ -647,11 +643,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     return nil;
   }
 
-#ifdef KROLL_COVERAGE
-  ourKrollObject = [[KrollCoverageObject alloc] initWithTarget:proxy context:context];
-#else
   ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
-#endif
 
   [self registerProxy:proxy
           krollObject:ourKrollObject];

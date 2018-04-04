@@ -7,21 +7,18 @@
 #include <stdio.h>
 
 #import "ApplicationDefaults.h"
-#import "ImageLoader.h"
+#import <TitaniumKit/ImageLoader.h>
 #import "Mimetypes.h"
 #import "NSData+Additions.h"
-#import "TiApp.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
-#import "Webcolor.h"
+#import <TitaniumKit/Webcolor.h>
 #import <AVFoundation/AVFoundation.h>
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
-#ifdef KROLL_COVERAGE
-#import "KrollCoverage.h"
-#endif
 #ifndef DISABLE_TI_LOG_SERVER
 #import "TiLogServer.h"
 #endif
@@ -162,14 +159,13 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   UIWindow *currentKeyWindow_ = [[UIApplication sharedApplication] keyWindow];
   return [[currentKeyWindow_ subviews] lastObject];
 }
+
 - (void)attachXHRBridgeIfRequired
 {
-#ifdef USE_TI_UIWEBVIEW
   if (xhrBridge == nil) {
     xhrBridge = [[XHRBridge alloc] initWithHost:self];
     [xhrBridge boot:self url:nil preload:nil];
   }
-#endif
 }
 
 - (void)registerApplicationDelegate:(id)applicationDelegate
@@ -872,13 +868,8 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
   NSCondition *condition = [[NSCondition alloc] init];
 
-#ifdef USE_TI_UIWEBVIEW
   [xhrBridge shutdown:nil];
-#endif
 
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject releaseCoverage];
-#endif
   //These shutdowns return immediately, yes, but the main will still run the close that's in their queue.
   [kjsBridge shutdown:condition];
 
@@ -899,9 +890,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
   RELEASE_TO_NIL(condition);
   RELEASE_TO_NIL(kjsBridge);
-#ifdef USE_TI_UIWEBVIEW
   RELEASE_TO_NIL(xhrBridge);
-#endif
   RELEASE_TO_NIL(remoteNotification);
   RELEASE_TO_NIL(pendingCompletionHandlers);
   RELEASE_TO_NIL(backgroundTransferCompletionHandlers);
@@ -916,9 +905,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   applicationInMemoryPanic = YES;
   [Webcolor flushCache];
 // don't worry about KrollBridge since he's already listening
-#ifdef USE_TI_UIWEBVIEW
   [xhrBridge gc];
-#endif
   [self performSelector:@selector(clearMemoryPanic)
              withObject:nil
              afterDelay:0.0];
@@ -942,11 +929,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   // suspend any image loading
   [[ImageLoader sharedLoader] suspend];
-  [kjsBridge gc];
 
-#ifdef USE_TI_UIWEBVIEW
+  [kjsBridge gc];
   [xhrBridge gc];
-#endif
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -1031,7 +1016,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #pragma mark Handoff Delegates
 
-#ifdef USE_TI_APPIOS
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
       restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
 {
@@ -1072,7 +1056,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   return YES;
 }
-#endif
 
 #pragma mark Push Notification Delegates
 
@@ -1158,9 +1141,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)dealloc
 {
   RELEASE_TO_NIL(kjsBridge);
-#ifdef USE_TI_UIWEBVIEW
   RELEASE_TO_NIL(xhrBridge);
-#endif
   RELEASE_TO_NIL(loadView);
   RELEASE_TO_NIL(window);
   RELEASE_TO_NIL(launchOptions);

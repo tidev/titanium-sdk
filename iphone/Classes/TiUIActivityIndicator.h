@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UIACTIVITYINDICATOR
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @class WebFont;
 @interface TiUIActivityIndicator : TiUIView <LayoutAutosizing> {

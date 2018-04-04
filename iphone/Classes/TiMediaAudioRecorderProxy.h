@@ -6,9 +6,9 @@
  */
 #ifdef USE_TI_MEDIAAUDIORECORDER
 
-#import "TiFile.h"
+#import <TitaniumKit/TiFile.h>
 #import "TiMediaTypes.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 #import <AVFoundation/AVAudioRecorder.h>
 
 @interface TiMediaAudioRecorderProxy : TiProxy <AVAudioRecorderDelegate> {

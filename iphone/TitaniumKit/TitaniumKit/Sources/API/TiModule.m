@@ -8,9 +8,9 @@
 
 #import "KrollBridge.h"
 #import "TiHost.h"
-#import "TiModule.h"
-#import "TiProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiModule.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiModule
 

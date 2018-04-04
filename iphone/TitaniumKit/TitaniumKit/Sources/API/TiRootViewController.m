@@ -6,10 +6,10 @@
  */
 
 #import "TiRootViewController.h"
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 #import "TiErrorController.h"
 #import "TiLayoutQueue.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #ifdef FORCE_WITH_MODAL
 @interface ForcingController : UIViewController {

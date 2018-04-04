@@ -8,7 +8,7 @@
 
 #import "TiUIiOSTableViewCellSelectionStyleProxy.h"
 
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIiOSTableViewCellSelectionStyleProxy
 

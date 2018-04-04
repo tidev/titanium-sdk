@@ -6,7 +6,8 @@
  */
 
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-#import "TiWindowProxy.h"
+
+#import <TitaniumKit/TiWindowProxy.h>
 
 @interface TiUIiOSNavWindowProxy : TiWindowProxy <UINavigationControllerDelegate, UIGestureRecognizerDelegate, TiOrientationController, TiTab> {
   @private
@@ -20,4 +21,5 @@
 //Private API
 - (void)setFrame:(CGRect)bounds;
 @end
+
 #endif

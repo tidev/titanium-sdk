@@ -4,21 +4,18 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiUIView.h"
-#import "ImageLoader.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiUIView.h>
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiViewProxy.h>
+
+#import "UIImage+Resize.h"
 #import "TiColor.h"
 #import "TiRect.h"
-#import "TiUtils.h"
-#ifdef USE_TI_UI2DMATRIX
 #import "Ti2DMatrix.h"
-#endif
-#ifdef USE_TI_UI3DMATRIX
 #import "Ti3DMatrix.h"
-#endif
-#import "TiApp.h"
-#import "TiViewProxy.h"
-#import "UIImage+Resize.h"
 
 void InsetScrollViewForKeyboard(UIScrollView *scrollView, CGFloat keyboardTop, CGFloat minimumContentHeight)
 {
@@ -439,18 +436,14 @@ DEFINE_EXCEPTIONS
 }
 - (void)updateTransform
 {
-#ifdef USE_TI_UI2DMATRIX
   if ([transformMatrix isKindOfClass:[Ti2DMatrix class]]) {
     self.transform = CGAffineTransformConcat(virtualParentTransform, [(Ti2DMatrix *)transformMatrix matrix]);
     return;
   }
-#endif
-#ifdef USE_TI_UI3DMATRIX
   if ([transformMatrix isKindOfClass:[Ti3DMatrix class]]) {
     self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform), [(Ti3DMatrix *)transformMatrix matrix]);
     return;
   }
-#endif
   self.transform = virtualParentTransform;
 }
 

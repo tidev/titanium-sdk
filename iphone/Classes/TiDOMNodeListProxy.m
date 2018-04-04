@@ -8,7 +8,7 @@
 
 #import "TiDOMNodeListProxy.h"
 #import "TiDOMNodeProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiDOMNodeListProxy
 

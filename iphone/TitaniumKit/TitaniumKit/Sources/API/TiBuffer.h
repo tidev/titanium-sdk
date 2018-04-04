@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiBlob.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiProxy.h>
 #import <Foundation/Foundation.h>
 
 // TODO: Support array-style access of bytes

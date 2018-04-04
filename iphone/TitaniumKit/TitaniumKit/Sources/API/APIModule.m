@@ -5,10 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "APIModule.h"
-#import "TiApp.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
 #import "TiExceptionHandler.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation APIModule
 

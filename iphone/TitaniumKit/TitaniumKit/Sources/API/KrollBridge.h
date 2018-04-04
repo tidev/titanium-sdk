@@ -9,18 +9,13 @@
 #import "KrollContext.h"
 #import "KrollObject.h"
 #import "TiEvaluator.h"
-#import "TiModule.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiModule.h>
+#import <TitaniumKit/TiProxy.h>
 #import "TiToJS.h"
 #import <Foundation/Foundation.h>
 #include <libkern/OSAtomic.h>
 
-#ifdef KROLL_COVERAGE
-#import "KrollCoverage.h"
-@interface TitaniumObject : KrollCoverageObject {
-#else
 @interface TitaniumObject : KrollObject {
-#endif
   @private
   NSMutableDictionary *modules;
   TiHost *host;

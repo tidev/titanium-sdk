@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_MEDIASYSTEMALERT
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 #import <AudioToolbox/AudioServices.h>
 
 @interface TiMediaSystemAlertProxy : TiProxy {

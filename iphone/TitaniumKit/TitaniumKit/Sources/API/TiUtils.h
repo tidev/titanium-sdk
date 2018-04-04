@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiDimension.h"
+#import <TitaniumKit/TiDimension.h>
 
 @class TiProxy;
 @class TiColor;
@@ -22,8 +22,8 @@
  */
 #import "TiBuffer.h"
 #import "TiColor.h"
-#import "TiFile.h"
-#import "WebFont.h"
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/Webfont.h>
 
 typedef enum {
   BAD_DEST_OFFSET = -1,

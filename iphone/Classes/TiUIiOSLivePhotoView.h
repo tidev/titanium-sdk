@@ -6,7 +6,7 @@
  */
 
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 #import "TiUIiOSLivePhoto.h"
 #import <PhotosUI/PhotosUI.h>
 

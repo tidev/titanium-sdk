@@ -7,12 +7,13 @@
 
 #ifdef USE_TI_NETWORK
 
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUtils.h>
+
 #import "TiNetworkHTTPClientProxy.h"
-#import "Mimetypes.h"
 #import "NetworkModule.h"
-#import "TiApp.h"
-#import "TiBase.h"
-#import "TiUtils.h"
 
 #define TI_HTTP_REQUEST_PROGRESS_INTERVAL 0.03f
 

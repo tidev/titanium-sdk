@@ -4,8 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiDimension.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiProxy.h>
 
 /**
  The class for point proxy.

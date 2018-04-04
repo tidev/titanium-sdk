@@ -6,7 +6,7 @@
  */
 
 #import "TiStreamProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 @implementation TiStreamProxy
 
 #pragma mark Public API : Functions

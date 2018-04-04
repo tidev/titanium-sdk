@@ -6,7 +6,7 @@
  */
 
 #import "TiBuffer.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 NSArray *bufferKeySequence = nil;
 

@@ -5,12 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_FILESYSTEM) || defined(USE_TI_DATABASE) || defined(USE_TI_MEDIA)
-
 #import "TiFilesystemFileStreamProxy.h"
 #import "TiFilesystemFileProxy.h"
 #import "TiStreamProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @interface TiFilesystemFileStreamProxy (Private)
 
@@ -393,5 +391,3 @@
 }
 
 @end
-
-#endif

@@ -6,9 +6,9 @@
  */
 
 #import "TiColor.h"
-#import "TiBase.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 //TODO: Move all of Webcolor into TiColor.
 
 @implementation TiColor

@@ -6,7 +6,7 @@
  */
 
 #import "OperationQueue.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 OperationQueue *sharedQueue = nil;
 

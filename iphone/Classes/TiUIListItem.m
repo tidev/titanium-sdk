@@ -7,11 +7,11 @@
 #ifdef USE_TI_UILISTVIEW
 
 #import "TiUIListItem.h"
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/Webcolor.h>
 #ifdef USE_TI_UIACTIVITYINDICATOR
 #import "TiUIActivityIndicator.h"
 #endif

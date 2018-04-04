@@ -7,7 +7,7 @@
 
 #import "Bridge.h"
 #import "TiEvaluator.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 #import "TiStylesheet.h"
 
 @interface TiHost : NSObject {

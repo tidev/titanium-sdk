@@ -6,8 +6,8 @@
  */
 
 #import "TiLocale.h"
-#import "TiBase.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiLocale
 

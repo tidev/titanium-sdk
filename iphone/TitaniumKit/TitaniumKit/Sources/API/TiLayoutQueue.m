@@ -8,7 +8,7 @@
 #ifndef TI_USE_AUTOLAYOUT
 
 #import "TiLayoutQueue.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 #import <CoreFoundation/CoreFoundation.h>
 #import <pthread.h>
 

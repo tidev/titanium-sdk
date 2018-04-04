@@ -10,7 +10,7 @@
 #import "TiLayoutDimension.h"
 #else
 
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 #include <math.h>
 
 #define INCH_IN_CM 2.54

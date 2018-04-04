@@ -6,8 +6,8 @@
  */
 
 #import "TiHost.h"
-#import "TiModule.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiModule.h>
+#import <TitaniumKit/TiProxy.h>
 
 #ifdef DEBUG
 #define DEBUG_EVENTS 0

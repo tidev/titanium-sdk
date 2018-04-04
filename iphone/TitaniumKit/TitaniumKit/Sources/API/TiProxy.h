@@ -11,7 +11,7 @@
 #import <pthread.h>
 
 #ifndef TI_BASE_H
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 #endif
 
 @class KrollBridge;

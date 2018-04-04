@@ -6,14 +6,10 @@
  */
 #import "TopTiModule.h"
 #import "KrollBridge.h"
-#import "TiApp.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
 #import "TiBuffer.h"
-#import "TiUtils.h"
-
-#ifdef KROLL_COVERAGE
-#include "KrollCoverage.h"
-#endif
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TopTiModule
 
@@ -152,12 +148,7 @@
 
 - (NSDictionary *)dumpCoverage:(id)unused_
 {
-#ifdef KROLL_COVERAGE
-  NSDictionary *coverage = [KrollCoverageObject dumpCoverage];
-  return coverage;
-#else
   return [NSDictionary dictionary];
-#endif
 }
 
 @end

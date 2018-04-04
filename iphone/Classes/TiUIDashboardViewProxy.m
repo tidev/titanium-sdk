@@ -12,7 +12,7 @@
 #import "LauncherView.h"
 #import "TiUIDashboardItemProxy.h"
 #import "TiUIDashboardView.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 NSArray *dashboardKeySequence;
 

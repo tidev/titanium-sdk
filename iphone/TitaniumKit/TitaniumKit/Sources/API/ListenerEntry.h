@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiEvaluator.h"
-#import "TiModule.h"
+#import <TitaniumKit/TiModule.h>
 
 @interface ListenerEntry : NSObject {
   @private

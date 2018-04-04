@@ -7,19 +7,19 @@
 #import <CommonCrypto/CommonDigest.h>
 #import <QuartzCore/QuartzCore.h>
 
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiBase.h"
-#import "TiBlob.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiBlob.h>
 #import "TiColor.h"
-#import "TiDimension.h"
+#import <TitaniumKit/TiDimension.h>
 #import "TiExceptionHandler.h"
-#import "TiFile.h"
+#import <TitaniumKit/TiFile.h>
 #import "TiHost.h"
 #import "TiPoint.h"
-#import "TiProxy.h"
-#import "TiUtils.h"
-#import "WebFont.h"
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webfont.h>
 
 // for checking version
 #import <sys/utsname.h>

@@ -5,10 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "ImageLoader.h"
+#import <TitaniumKit/ImageLoader.h>
 #import "OperationQueue.h"
-#import "TiApp.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
 #import "UIImage+Resize.h"
 #import <CommonCrypto/CommonDigest.h>
 

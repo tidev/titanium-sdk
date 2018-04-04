@@ -7,7 +7,7 @@
 #import "LayoutConstraint.h"
 #import "TiAnimation.h"
 #import "TiGradient.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 #ifdef TI_USE_AUTOLAYOUT
 #import "TiLayoutView.h"
 #endif

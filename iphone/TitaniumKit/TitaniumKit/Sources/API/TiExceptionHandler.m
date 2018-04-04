@@ -6,8 +6,8 @@
  */
 
 #import "TiExceptionHandler.h"
-#import "TiApp.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
 #include <execinfo.h>
 
 static void TiUncaughtExceptionHandler(NSException *exception);

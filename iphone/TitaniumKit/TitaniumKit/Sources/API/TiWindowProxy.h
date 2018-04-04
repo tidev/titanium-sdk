@@ -4,13 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
+#import <TitaniumKit/TiViewProxy.h>
+
 #import "TiTab.h"
 #import "TiViewController.h"
-#import "TiViewProxy.h"
-
-#ifdef USE_TI_UIIOSTRANSITIONANIMATION
 #import "TiUIiOSTransitionAnimationProxy.h"
-#endif
 
 @interface TiWindowProxy : TiViewProxy <TiWindowProtocol, TiAnimationDelegate> {
   @protected
@@ -28,9 +27,7 @@
   TiAnimation *openAnimation;
   TiAnimation *closeAnimation;
   UIView *animatedOver;
-#ifdef USE_TI_UIIOSTRANSITIONANIMATION
   TiUIiOSTransitionAnimationProxy *transitionProxy;
-#endif
 }
 
 @property (nonatomic, readwrite, assign) TiViewProxy<TiTab> *tab;
@@ -43,7 +40,6 @@
 
 - (UIViewController *)windowHoldingController;
 
-#ifdef USE_TI_UIIOSTRANSITIONANIMATION
 - (TiUIiOSTransitionAnimationProxy *)transitionAnimation;
-#endif
+
 @end

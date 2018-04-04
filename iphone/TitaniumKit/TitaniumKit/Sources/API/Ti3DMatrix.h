@@ -4,10 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiProxy.h"
 
-#ifdef USE_TI_UI3DMATRIX
-
+#import <TitaniumKit/TiProxy.h>
 #import <QuartzCore/QuartzCore.h>
 
 @interface Ti3DMatrix : TiProxy {
@@ -43,5 +41,3 @@
 @property (nonatomic, readwrite, retain) NSNumber *m44;
 
 @end
-
-#endif

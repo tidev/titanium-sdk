@@ -6,12 +6,13 @@
  */
 #ifdef USE_TI_MEDIA
 
-#import "KrollCallback.h"
+#import <TitaniumKit/KrollCallback.h>
+#import <TitaniumKit/TiModule.h>
+#import <TitaniumKit/TiViewProxy.h>
+
 #import "MediaPlayer/MediaPlayer.h"
 #import "TiMediaAudioSession.h"
 #import "TiMediaMusicPlayer.h"
-#import "TiModule.h"
-#import "TiViewProxy.h"
 
 @interface MediaModule : TiModule <
                              UINavigationControllerDelegate,

@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_PLATFORM
 
-#import "TiModule.h"
+#import <TitaniumKit/TiModule.h>
 #import "TiPlatformDisplayCaps.h"
 
 @interface PlatformModule : TiModule {

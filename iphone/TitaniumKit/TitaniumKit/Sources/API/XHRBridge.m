@@ -4,15 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIWEBVIEW
+
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiHost.h>
+#import <TitaniumKit/TiModule.h>
+#import <TitaniumKit/TiProxy.h>
 
 #import "XHRBridge.h"
-#import "Mimetypes.h"
 #import "SBJSON.h"
-#import "TiBase.h"
-#import "TiHost.h"
-#import "TiModule.h"
-#import "TiProxy.h"
 
 static XHRBridge *xhrBridge = nil;
 
@@ -181,5 +181,3 @@ static XHRBridge *xhrBridge = nil;
 }
 
 @end
-
-#endif

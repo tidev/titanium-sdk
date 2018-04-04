@@ -6,7 +6,7 @@
  */
 
 #import "TiRect.h"
-#import "TiDimension.h"
+#import <TitaniumKit/TiDimension.h>
 
 @implementation TiRect
 

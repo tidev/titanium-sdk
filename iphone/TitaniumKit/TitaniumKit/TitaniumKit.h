@@ -14,9 +14,10 @@ FOUNDATION_EXPORT double TitaniumKitVersionNumber;
 //! Project version string for TitaniumKit.
 FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 
+#import <TitaniumKit/APIModule.h>
+#import <TitaniumKit/TiComplexValue.h>
 #import <TitaniumKit/APSAnalytics.h>
 #import <TitaniumKit/APSHTTPClient.h>
-#import <TitaniumKit/Base64Transcoder.h>
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/NSData+Additions.h>
@@ -47,6 +48,7 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/TiUIiOSTransitionAnimationProxy.h>
 #import <TitaniumKit/WebColor.h>
 #import <TitaniumKit/WebFont.h>
+#import <TitaniumKit/XHRBridge.h>
 
 #define TISDK_VERSION_STRING @"8.0.0"
 

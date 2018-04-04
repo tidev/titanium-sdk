@@ -6,10 +6,11 @@
  */
 #ifdef USE_TI_UISCROLLVIEW
 
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiWindowProxy.h>
+
 #import "TiUIScrollView.h"
 #import "TiUIScrollViewProxy.h"
-#import "TiUtils.h"
-#import "TiWindowProxy.h"
 
 @implementation TiUIScrollViewImpl
 

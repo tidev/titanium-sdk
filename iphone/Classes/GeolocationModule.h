@@ -8,7 +8,7 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "APSHTTPClient.h"
-#import "TiModule.h"
+#import <TitaniumKit/TiModule.h>
 #import <CoreLocation/CoreLocation.h>
 
 NSString *const kTiGeolocationUsageDescriptionWhenInUse = @"NSLocationWhenInUseUsageDescription";

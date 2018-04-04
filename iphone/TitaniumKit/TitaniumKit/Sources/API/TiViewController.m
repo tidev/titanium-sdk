@@ -6,7 +6,7 @@
  */
 
 #import "TiViewController.h"
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 
 @implementation TiViewController
 

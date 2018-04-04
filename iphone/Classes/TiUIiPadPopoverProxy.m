@@ -7,8 +7,8 @@
 #ifdef USE_TI_UIIPADPOPOVER
 
 #import "TiUIiPadPopoverProxy.h"
-#import "TiApp.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
 #import "TiWindowProxy.h"
 #import <libkern/OSAtomic.h>
 

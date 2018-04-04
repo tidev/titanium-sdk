@@ -8,16 +8,12 @@
 #import "KrollCallback.h"
 #import "KrollObject.h"
 #import "KrollTimer.h"
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 #import "TiLocale.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #import "TiExceptionHandler.h"
 #include <pthread.h>
-
-#ifdef KROLL_COVERAGE
-#import "KrollCoverage.h"
-#endif
 
 static unsigned short KrollContextCount = 0;
 
@@ -170,11 +166,6 @@ static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValu
 static TiValueRef ClearTimerCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
 {
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject incrementTopLevelFunctionCall:TOP_LEVEL
-                                                name:@"clearTimer"];
-#endif
-
   if (argCount != 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
@@ -187,12 +178,7 @@ static TiValueRef ClearTimerCallback(TiContextRef jsContext, TiObjectRef jsFunct
 static TiValueRef SetIntervalCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
 {
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject incrementTopLevelFunctionCall:TOP_LEVEL
-                                                name:@"setInterval"];
-#endif
-
-  //NOTE: function can be either Function or String object type
+  // NOTE: function can be either Function or String object type
   if (argCount != 2) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
@@ -206,11 +192,6 @@ static TiValueRef SetIntervalCallback(TiContextRef jsContext, TiObjectRef jsFunc
 static TiValueRef SetTimeoutCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
 {
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject incrementTopLevelFunctionCall:TOP_LEVEL
-                                                name:@"setTimeout"];
-#endif
-
   if (argCount != 2) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
@@ -224,12 +205,6 @@ static TiValueRef SetTimeoutCallback(TiContextRef jsContext, TiObjectRef jsFunct
 static TiValueRef CommonJSRequireCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
 {
-
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject incrementTopLevelFunctionCall:TOP_LEVEL
-                                                name:@"require"];
-#endif
-
   if (argCount != 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
@@ -248,11 +223,6 @@ static TiValueRef CommonJSRequireCallback(TiContextRef jsContext, TiObjectRef js
 static TiValueRef LCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
 {
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject incrementTopLevelFunctionCall:TOP_LEVEL
-                                                name:@"L"];
-#endif
-
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
@@ -272,11 +242,6 @@ static TiValueRef LCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiOb
 static TiValueRef AlertCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
 {
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject incrementTopLevelFunctionCall:TOP_LEVEL
-                                                name:@"alert"];
-#endif
-
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
@@ -294,11 +259,6 @@ static TiValueRef AlertCallback(TiContextRef jsContext, TiObjectRef jsFunction, 
 static TiValueRef StringFormatCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
 {
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject incrementTopLevelFunctionCall:@"String"
-                                                name:@"format"];
-#endif
-
   if (argCount < 2) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
@@ -430,11 +390,6 @@ static TiValueRef StringFormatCallback(TiContextRef jsContext, TiObjectRef jsFun
 static TiValueRef StringFormatDateCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
 {
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject incrementTopLevelFunctionCall:@"String"
-                                                name:@"formatDate"];
-#endif
-
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
@@ -469,11 +424,6 @@ static TiValueRef StringFormatDateCallback(TiContextRef jsContext, TiObjectRef j
 static TiValueRef StringFormatTimeCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
 {
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject incrementTopLevelFunctionCall:@"String"
-                                                name:@"formatTime"];
-#endif
-
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
@@ -506,11 +456,6 @@ static TiValueRef StringFormatTimeCallback(TiContextRef jsContext, TiObjectRef j
 static TiValueRef StringFormatCurrencyCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
 {
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject incrementTopLevelFunctionCall:@"String"
-                                                name:@"formatCurrency"];
-#endif
-
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
@@ -531,11 +476,6 @@ static TiValueRef StringFormatCurrencyCallback(TiContextRef jsContext, TiObjectR
 static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
     const TiValueRef args[], TiValueRef *exception)
 {
-#ifdef KROLL_COVERAGE
-  [KrollCoverageObject incrementTopLevelFunctionCall:@"String"
-                                                name:@"formatDecimal"];
-#endif
-
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }

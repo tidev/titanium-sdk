@@ -4,11 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
-#import "TiApp.h"
+
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/TiWindowProxy.h>
+
 #import "TiPreviewingDelegate.h"
-#import "TiViewProxy.h"
-#import "TiWindowProxy.h"
 
 @interface TiUIiOSPreviewContextProxy : TiViewProxy
 

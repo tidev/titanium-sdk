@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @interface TiUISwitch : TiUIView <LayoutAutosizing> {
   @private

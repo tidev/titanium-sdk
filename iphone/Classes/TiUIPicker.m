@@ -9,7 +9,7 @@
 #import "TiUIPicker.h"
 #import "TiUIPickerColumnProxy.h"
 #import "TiUIPickerRowProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #define DEFAULT_ROW_HEIGHT 40
 #define DEFAULT_COLUMN_PADDING 30

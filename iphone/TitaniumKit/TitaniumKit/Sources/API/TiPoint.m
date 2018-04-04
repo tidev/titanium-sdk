@@ -6,7 +6,7 @@
  */
 
 #import "TiPoint.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiPoint
 @synthesize xDimension, yDimension;

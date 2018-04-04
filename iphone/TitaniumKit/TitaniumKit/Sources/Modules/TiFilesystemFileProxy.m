@@ -5,13 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_FILESYSTEM) || defined(USE_TI_DATABASE) || defined(USE_TI_MEDIA)
-
 #import "TiFilesystemFileProxy.h"
-#import "TiBase.h"
-#import "TiBlob.h"
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiBlob.h>
 #import "TiFilesystemFileStreamProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #include <sys/xattr.h>
 
 #define FILE_TOSTR(x) \
@@ -520,5 +518,3 @@ FILENOOP(setHidden
 }
 
 @end
-
-#endif

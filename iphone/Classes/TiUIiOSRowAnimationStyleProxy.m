@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIIOSROWANIMATIONSTYLE
 
 #import "TiUIiOSRowAnimationStyleProxy.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 @implementation TiUIiOSRowAnimationStyleProxy
 

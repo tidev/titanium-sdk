@@ -14,9 +14,9 @@
 #import "TiBindingEvent.h"
 #import "TiComplexValue.h"
 #import "TiHost.h"
-#import "TiModule.h"
-#import "TiProxy.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiModule.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 #include <libkern/OSAtomic.h>
 

@@ -4,11 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIOSTRANSITIONANIMATION
 
 #import "TiUIiOSTransitionAnimationProxy.h"
 #import "TiViewController.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @implementation TiUIiOSTransitionAnimationProxy
 
@@ -203,4 +202,3 @@
 }
 
 @end
-#endif

@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIDASHBOARDVIEW
 
 #import "LauncherItem.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUIDashboardItemProxy : TiViewProxy {
   @private

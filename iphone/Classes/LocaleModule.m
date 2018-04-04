@@ -7,7 +7,7 @@
 
 #import "LocaleModule.h"
 #import "TiLocale.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation LocaleModule
 

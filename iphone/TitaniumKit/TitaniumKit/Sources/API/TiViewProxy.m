@@ -5,14 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 #import "LayoutConstraint.h"
-#import "TiApp.h"
-#import "TiBlob.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
 #import "TiLayoutQueue.h"
 #import "TiLocale.h"
 #import "TiStylesheet.h"
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 #import "TiWindowProxy.h"
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>

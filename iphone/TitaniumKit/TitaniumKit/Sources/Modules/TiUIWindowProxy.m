@@ -6,12 +6,12 @@
  */
 
 #import "TiUIWindowProxy.h"
-#import "ImageLoader.h"
-#import "TiApp.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
 #import "TiComplexValue.h"
 #import "TiLayoutQueue.h"
 #import "TiUIViewProxy.h"
-#import "Webcolor.h"
+#import <TitaniumKit/Webcolor.h>
 
 // this is how long we should wait on the new JS context to be loaded
 // holding the UI thread before we return during an window open. we

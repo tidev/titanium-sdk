@@ -4,9 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UI3DMATRIX
+
 #import "Ti3DMatrix.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 @implementation Ti3DMatrix
 
@@ -133,5 +133,3 @@ MAKE_PROP(44)
 }
 
 @end
-
-#endif

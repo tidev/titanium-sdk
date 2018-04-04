@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiEvaluator.h"
-#import "TiProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
 
 @class TiHost;
 

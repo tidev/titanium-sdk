@@ -13,7 +13,7 @@
 #endif
 #endif
 
-#import "APSHTTPRequest.h"
-#import "APSHTTPResponse.h"
-#import "APSHTTPPostForm.h"
-#import "APSHTTPHelper.h"
+#import <TitaniumKit/APSHTTPRequest.h>
+#import <TitaniumKit/APSHTTPResponse.h>
+#import <TitaniumKit/APSHTTPPostForm.h>
+#import <TitaniumKit/APSHTTPHelper.h>
