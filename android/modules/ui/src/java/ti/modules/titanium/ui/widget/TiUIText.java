@@ -523,19 +523,17 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			return true;
 		}
 
-		// TODO: Enable this once we have it on iOS as well.
-		//data.put(TiC.PROPERTY_BUTTON, RETURN_KEY_TYPE_ACTION);
-
 		// Check whether we are dealing with text area or text field. Multiline TextViews in Landscape
 		// orientation for phones have separate buttons for IME_ACTION and new line.
 		// And because of that we skip the firing of a RETURN event from this call in favor of the
 		// one from onTextChanged. The event carries a property to determine whether it was fired
 		// from the IME_ACTION button or the new line one.
-		if (field) {
+		if (this.field) {
 			fireEvent(TiC.EVENT_RETURN, data);
 			// Since IME_ACTION_NEXT and IME_ACTION_DONE take care of consuming the second call to
 			// onEditorAction we do not consume it for either of them.
-			return (!(actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE));
+			return (!(actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE
+					  || (keyEvent != null)));
 		} else {
 			// After clicking the IME_ACTION button we get two calls of onEditorAction.
 			// The second call of onEditorAction is treated as a KeyPress event and gives the
@@ -545,6 +543,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				fireEvent(TiC.EVENT_RETURN, data);
 				return true;
 			}
+
 			// new line is treated immediately as KeyEvent, so we let the system propagate it
 			// to onTextChange where the JS event is loaded with the property that with was a new line.
 			return false;
