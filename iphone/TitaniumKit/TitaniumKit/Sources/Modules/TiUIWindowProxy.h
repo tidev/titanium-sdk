@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIWINDOW
 
 #import "KrollBridge.h"
 #import "TiUIView.h"
@@ -33,5 +32,3 @@
 @property (nonatomic) BOOL shouldExtendSafeArea;
 #endif
 @end
-
-#endif

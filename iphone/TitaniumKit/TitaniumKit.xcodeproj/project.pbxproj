@@ -987,6 +987,7 @@
 					"$(PROJECT_DIR)/TitaniumKit/Sources/APSHTTPClient",
 					"$(PROJECT_DIR)/TitaniumKit/lib",
 				);
+				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.TitaniumKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1017,6 +1018,7 @@
 					"$(PROJECT_DIR)/TitaniumKit/Sources/APSHTTPClient",
 					"$(PROJECT_DIR)/TitaniumKit/lib",
 				);
+				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.TitaniumKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";

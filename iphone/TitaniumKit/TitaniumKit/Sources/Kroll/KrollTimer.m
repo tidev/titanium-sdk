@@ -103,15 +103,12 @@
     [date release];
     date = [[NSDate alloc] initWithTimeIntervalSinceNow:duration / 1000];
 
-#ifndef TI_USE_KROLL_THREAD
     if (![NSThread isMainThread]) {
       TiThreadPerformOnMainThread(^{
         [kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
       },
           NO);
-    } else
-#endif
-    {
+    } else {
       // push the invocation to happen on the context thread
       [kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
     }

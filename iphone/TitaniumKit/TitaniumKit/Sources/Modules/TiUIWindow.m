@@ -28,7 +28,8 @@
   [super frameSizeChanged:frame bounds:bounds];
 
   //Need the delay so that we get the right navbar bounds
-  TiProxy *windowProxy = [self proxy];
+  TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)[self proxy];
+
   if ([windowProxy respondsToSelector:@selector(willChangeSize)]) {
     [(id)windowProxy willChangeSize];
   }

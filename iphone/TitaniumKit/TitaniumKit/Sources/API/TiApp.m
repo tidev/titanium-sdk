@@ -63,13 +63,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 @synthesize appBooted;
 @synthesize userAgent;
 
-#ifdef TI_USE_KROLL_THREAD
-+ (void)initialize
-{
-  TiThreadInitalize();
-}
-#endif
-
 + (TiApp *)app
 {
   return sharedApp;
@@ -574,9 +567,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)invokeSelector:(SEL)selector withArguments:(NSOrderedSet<id> *)arguments onDelegate:(id)delegate
 {
-  NSArray *keys = [NSStringFromSelector(selector) componentsSeparatedByString:@":"];
-  NSMutableDictionary *output = [NSMutableDictionary dictionaryWithCapacity:[arguments count]];
-
   NSInteger index = 2; // Index 0 and 1 are reserved for the invocation internals ("self" and "_cmd")
   NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[delegate methodSignatureForSelector:selector]];
   [inv setSelector:selector];
@@ -871,27 +861,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #pragma mark
 
-#ifdef TI_USE_KROLL_THREAD
-- (void)waitForKrollProcessing
-{
-  CGFloat timeLeft = [[UIApplication sharedApplication] backgroundTimeRemaining] - 1.0;
-  /*
-	 *	In the extreme edge case of having come back to the app while
-	 *	it's still waiting for Kroll Processing,
-	 *	backgroundTimeRemaining becomes undefined, and so we have
-	 *	to limit the time left to a sane number in that case.
-	 *	The other reason for the timeLeft limit is to not starve
-	 *	possible later calls for waitForKrollProcessing.
-	 */
-  if (timeLeft > 3.0) {
-    timeLeft = 3.0;
-  } else if (timeLeft < 0.0) {
-    return;
-  }
-  TiThreadProcessPendingMainThreadBlocks(timeLeft, NO, nil);
-}
-#endif
-
 - (void)applicationWillTerminate:(UIApplication *)application
 {
   [self tryToInvokeSelector:@selector(applicationWillTerminate:)
@@ -928,9 +897,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   //This will shut down the modules.
   [theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
-#ifdef TI_USE_KROLL_THREAD
-  [self waitForKrollProcessing];
-#endif
   RELEASE_TO_NIL(condition);
   RELEASE_TO_NIL(kjsBridge);
 #ifdef USE_TI_UIWEBVIEW
@@ -980,9 +946,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #ifdef USE_TI_UIWEBVIEW
   [xhrBridge gc];
-#endif
-#ifdef TI_USE_KROLL_THREAD
-  [self waitForKrollProcessing];
 #endif
 }
 
@@ -1042,9 +1005,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     // Do the work associated with the task.
     [tiapp beginBackgrounding];
   });
-#ifdef TI_USE_KROLL_THREAD
-  [self waitForKrollProcessing];
-#endif
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application

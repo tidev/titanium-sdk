@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIWINDOW
 
 #import "TiUIWindowProxy.h"
 #import "ImageLoader.h"
@@ -103,17 +102,12 @@
         YES);
   }
 
-#ifdef TI_USE_KROLL_THREAD
-  TiThreadRemoveFromSuperviewOnMainThread(barImageView, NO);
-  TiThreadReleaseOnMainThread(barImageView, NO);
-  barImageView = nil;
-#else
   TiThreadPerformOnMainThread(^{
     [barImageView removeFromSuperview];
     RELEASE_TO_NIL(barImageView);
   },
       YES);
-#endif
+
   if (context != nil) {
     [context shutdown:nil];
     RELEASE_TO_NIL(context);
@@ -1098,5 +1092,3 @@
 #endif
 
 @end
-
-#endif

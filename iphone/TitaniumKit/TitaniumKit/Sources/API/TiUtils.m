@@ -1475,7 +1475,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
   UIColor *result = [color _color];
   // TODO: Return nil for the appropriate colors once Apple fixes how the 'cancel' button
   // is displayed on nil-color bars.
-  if ((result == [UIColor clearColor])) {
+  if (result == [UIColor clearColor]) {
     return nil;
   }
   return result;
@@ -1486,7 +1486,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
   UIColor *result = [color _color];
   // TODO: Return UIBarStyleBlack for the appropriate colors once Apple fixes how the 'cancel' button
   // is displayed on nil-color bars.
-  if ((result == [UIColor clearColor])) {
+  if (result == [UIColor clearColor]) {
     return UIBarStyleBlack;
   }
   return UIBarStyleDefault;

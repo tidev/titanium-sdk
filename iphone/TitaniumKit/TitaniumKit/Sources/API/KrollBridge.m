@@ -1276,15 +1276,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
   signed long bridgeCount = CFSetGetCount(krollBridgeRegistry);
   KrollBridge *registryObjects[bridgeCount];
   CFSetGetValues(krollBridgeRegistry, (const void **)registryObjects);
-  for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++) {
-#ifdef TI_USE_KROLL_THREAD
-    KrollBridge *currentBridge = registryObjects[currentBridgeIndex];
-    if ([[[currentBridge krollContext] threadName] isEqualToString:threadName]) {
-      result = [[currentBridge retain] autorelease];
-      break;
-    }
-#endif
-  }
   OSSpinLockUnlock(&krollBridgeRegistryLock);
 
   return result;

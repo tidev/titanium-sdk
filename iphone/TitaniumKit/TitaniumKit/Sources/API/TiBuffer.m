@@ -192,6 +192,8 @@ NSArray *bufferKeySequence = nil;
 //ignore leak, Xcode getting confused over the function name
 #ifndef __clang_analyzer__
   return NUMUINTEGER(replacement.length);
+#else
+  return 0;
 #endif
 }
 

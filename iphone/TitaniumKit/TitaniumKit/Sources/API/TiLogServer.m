@@ -195,7 +195,7 @@ static void trySetNonBlocking(int socket, const char *type)
 
 @implementation TiLogServer
 
-static int counter = 0;
+__unused static int counter = 0;
 
 /**
  * Writes the log message to all active connections. If there are no active

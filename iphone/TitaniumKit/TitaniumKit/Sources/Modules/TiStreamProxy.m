@@ -137,13 +137,13 @@
 - (NSNumber *)isReadable:(id)_void
 {
   [self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@", NSStringFromSelector(_cmd)] location:CODELOCATION];
-  return -1;
+  return @(-1);
 }
 
 - (NSNumber *)isWritable:(id)_void
 {
   [self throwException:@"Incomplete stream implementation" subreason:[NSString stringWithFormat:@"Missing %@", NSStringFromSelector(_cmd)] location:CODELOCATION];
-  return -1;
+  return @(-1);
 }
 
 - (void)close:(id)_void
