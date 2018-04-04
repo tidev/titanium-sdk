@@ -45,6 +45,16 @@ function isConstantsOnlyProxy(typeInfo) {
 	return false;
 }
 
+/**
+ * Checks if a type can safely be extended from an already existing interface.
+ *
+ * A type can be extended from another type when it contains all of its
+ * properties and methods.
+ *
+ * @param {Object} typeInfo Type info of the type that should be checked if it can extend another type
+ * @param {InterfaceNode} interfaceNode Node of the type that should be extended
+ * @return {Boolean} True if the type can extend the given interface, false if not
+ */
 function canExtend(typeInfo, interfaceNode) {
 	if (!interfaceNode) {
 		return false;
@@ -67,6 +77,13 @@ function canExtend(typeInfo, interfaceNode) {
 	return hasAllMembers(typeInfo.properties, interfaceNode.properties) && hasAllMembers(typeInfo.methods, interfaceNode.methods);
 }
 
+/**
+ * Removes all memebers of the first type info object that are also present in
+ * the given interface node.
+ *
+ * @param {Object} typeInfo Type info object whos members should be removed
+ * @param {InterfaceNode} interfaceNode Reference interface node
+ */
 function removeMembers(typeInfo, interfaceNode) {
 	function filterMembers(typeMembers, interfaceMembers) {
 		return typeMembers.filter(memberInfo => !interfaceMembers.some(interfaceMember => interfaceMember.name === memberInfo.name));
@@ -431,10 +448,23 @@ class GlobalTemplateWriter {
 		return jsDoc;
 	}
 
+	/**
+	 * Creates a tab based indentation. The depth is based on the given nesting level.
+	 *
+	 * @param {Number} nestingLevel Nesting level inside the syntax tree
+	 * @return {String} A string containing tabs equal the amount of the given nesting level
+	 */
 	indent(nestingLevel) {
 		return ''.padStart(nestingLevel, '\t');
 	}
 
+	/**
+	 * Normalizes a given type so it can be safely used in TypeScript.
+	 *
+	 * @param {Object} docType Type definition
+	 * @param {String} usageHint A string with a hint where this type is used (null or 'parameter')
+	 * @return {String} A normalized representation of the type for usage in TypeScript
+	 */
 	normalizeType(docType, usageHint) {
 		if (!docType) {
 			return 'any';
@@ -491,16 +521,37 @@ class GlobalTemplateWriter {
 		}
 	}
 
+	/**
+	 * Normalized a parameter definition.
+	 *
+	 * Currenlty only replaces a parameter's name from default to defaultValue
+	 * since default is a reversed keyword in TypeScript.
+	 *
+	 * @param {Object} paramNode Parameter definition
+	 */
 	normalizeParameter(paramNode) {
 		if (paramNode.name === 'default') {
 			paramNode.name = 'defaultValue';
 		}
 	}
 
+	/**
+	 * Pepares a list of parameters by normalizing the parameter name and its type
+	 * and concatenates each parameter to a comma separated list.
+	 *
+	 * @param {Array<Object>} parameters List of parameter definitions
+	 * @return {String} Comma separated list of parameters, ready to be used between the braces of a function definition.
+	 */
 	prepareParameters(parameters) {
 		return parameters.map(paramNode => this.prepareParameterString(paramNode)).join(', ');
 	}
 
+	/**
+	 * Prepares a single parameter string of the given parameter definition.
+	 *
+	 * @param {Object} paramNode Parameter definition
+	 * @return {String} Parameter string in the form: <name>[?]: [...]<type>
+	 */
 	prepareParameterString(paramNode) {
 		this.normalizeParameter(paramNode);
 		let parameter = paramNode.rest ? '...' + paramNode.name : paramNode.name;
@@ -513,6 +564,11 @@ class GlobalTemplateWriter {
 	}
 }
 
+/**
+ * A node that represents a variable.
+ *
+ * Used for variables in namespaces and properties in interfaces.
+ */
 class VariableNode {
 	constructor(variableDoc) {
 		this.name = variableDoc.name;
@@ -524,6 +580,11 @@ class VariableNode {
 	}
 }
 
+/**
+ * A node that represents a function.
+ *
+ * Used for funtions in namespaces and methods in interfaces.
+ */
 class FunctionNode {
 	constructor(functionDoc) {
 		this.definition = functionDoc;
@@ -577,6 +638,10 @@ class FunctionNode {
 	}
 }
 
+/**
+ * Representation of a node in the AST that has memebers (used as a base for
+ * namesapce and interface nodes).
+ */
 class MemberNode {
 	constructor() {
 		this.properties = [];
