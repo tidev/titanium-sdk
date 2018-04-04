@@ -97,7 +97,6 @@
 		DB15FCAD1F0A86D400A82C45 /* TiLogServer.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCAB1F0A86D400A82C45 /* TiLogServer.m */; };
 		DB15FCB01F0A86E600A82C45 /* TiBindingTiValue.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCAE1F0A86E600A82C45 /* TiBindingTiValue.h */; };
 		DB15FCB11F0A86E600A82C45 /* TiBindingTiValue.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCAF1F0A86E600A82C45 /* TiBindingTiValue.m */; };
-		DB15FCB51F0A871D00A82C45 /* libti_ios_debugger.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB15FCB41F0A871D00A82C45 /* libti_ios_debugger.a */; };
 		DB15FCB81F0A874F00A82C45 /* TopTiModule.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCB61F0A874F00A82C45 /* TopTiModule.h */; };
 		DB15FCB91F0A874F00A82C45 /* TopTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCB71F0A874F00A82C45 /* TopTiModule.m */; };
 		DB15FCBC1F0A875E00A82C45 /* ApplicationMods.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCBA1F0A875E00A82C45 /* ApplicationMods.h */; };
@@ -114,20 +113,12 @@
 		DB15FCD11F0A87C100A82C45 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCCF1F0A87C100A82C45 /* NSData+Additions.m */; };
 		DB15FCD41F0A87DE00A82C45 /* ApplicationDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCD21F0A87DE00A82C45 /* ApplicationDefaults.h */; };
 		DB15FCD51F0A87DE00A82C45 /* ApplicationDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCD31F0A87DE00A82C45 /* ApplicationDefaults.m */; };
-		DB15FCDE1F0A882500A82C45 /* APSHTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCD71F0A882500A82C45 /* APSHTTPClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DB15FCDF1F0A882500A82C45 /* APSHTTPHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCD81F0A882500A82C45 /* APSHTTPHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DB15FCE01F0A882500A82C45 /* APSHTTPPostForm.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCD91F0A882500A82C45 /* APSHTTPPostForm.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DB15FCE11F0A882500A82C45 /* APSHTTPRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCDA1F0A882500A82C45 /* APSHTTPRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DB15FCE21F0A882500A82C45 /* APSHTTPResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCDB1F0A882500A82C45 /* APSHTTPResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DB15FCE71F0A883400A82C45 /* APSAnalytics.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCE51F0A883400A82C45 /* APSAnalytics.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FCEF1F0A885600A82C45 /* OperationQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCED1F0A885600A82C45 /* OperationQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FCF01F0A885600A82C45 /* OperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCEE1F0A885600A82C45 /* OperationQueue.m */; };
 		DB15FCF71F0A889100A82C45 /* TiLayoutQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCF51F0A889100A82C45 /* TiLayoutQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FCF81F0A889100A82C45 /* TiLayoutQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCF61F0A889100A82C45 /* TiLayoutQueue.m */; };
 		DB15FCFB1F0A88B100A82C45 /* TiLocale.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCF91F0A88B100A82C45 /* TiLocale.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FCFC1F0A88B100A82C45 /* TiLocale.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCFA1F0A88B100A82C45 /* TiLocale.m */; };
-		DB15FCFF1F0A88C700A82C45 /* TiProfiler.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCFE1F0A88C700A82C45 /* TiProfiler.h */; };
-		DB15FD011F0A88D900A82C45 /* libti_ios_profiler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB15FD001F0A88D900A82C45 /* libti_ios_profiler.a */; };
 		DB15FD061F0A892500A82C45 /* Ti2DMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FD021F0A892500A82C45 /* Ti2DMatrix.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FD071F0A892500A82C45 /* Ti2DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FD031F0A892500A82C45 /* Ti2DMatrix.m */; };
 		DB15FD081F0A892500A82C45 /* Ti3DMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FD041F0A892500A82C45 /* Ti3DMatrix.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -177,7 +168,13 @@
 		DB258DAD1F097697000D0D8D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB258DAC1F097697000D0D8D /* Foundation.framework */; };
 		DB258DB81F09770C000D0D8D /* TiUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DB258DB61F09770C000D0D8D /* TiUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB258DB91F09770C000D0D8D /* TiUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DB258DB71F09770C000D0D8D /* TiUtils.m */; };
-		DB258E3E1F097EA5000D0D8D /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DB258E3D1F097EA5000D0D8D /* libsqlite3.dylib */; };
+		DB3908592075221D00AE31EC /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = DB3908582075221D00AE31EC /* libsqlite3.tbd */; };
+		DB3908652075228900AE31EC /* APSAnalytics.h in Headers */ = {isa = PBXBuildFile; fileRef = DB39085F2075228900AE31EC /* APSAnalytics.h */; };
+		DB3908662075228900AE31EC /* APSHTTPResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = DB3908602075228900AE31EC /* APSHTTPResponse.h */; };
+		DB3908672075228900AE31EC /* APSHTTPRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = DB3908612075228900AE31EC /* APSHTTPRequest.h */; };
+		DB3908682075228900AE31EC /* APSHTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = DB3908622075228900AE31EC /* APSHTTPClient.h */; };
+		DB3908692075228900AE31EC /* APSHTTPHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = DB3908632075228900AE31EC /* APSHTTPHelper.h */; };
+		DB39086A2075228900AE31EC /* APSHTTPPostForm.h in Headers */ = {isa = PBXBuildFile; fileRef = DB3908642075228900AE31EC /* APSHTTPPostForm.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -255,7 +252,6 @@
 		DB15FCAB1F0A86D400A82C45 /* TiLogServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLogServer.m; sourceTree = "<group>"; };
 		DB15FCAE1F0A86E600A82C45 /* TiBindingTiValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBindingTiValue.h; sourceTree = "<group>"; };
 		DB15FCAF1F0A86E600A82C45 /* TiBindingTiValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBindingTiValue.m; sourceTree = "<group>"; };
-		DB15FCB41F0A871D00A82C45 /* libti_ios_debugger.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libti_ios_debugger.a; path = TitaniumKit/lib/libti_ios_debugger.a; sourceTree = "<group>"; };
 		DB15FCB61F0A874F00A82C45 /* TopTiModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TopTiModule.h; sourceTree = "<group>"; };
 		DB15FCB71F0A874F00A82C45 /* TopTiModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TopTiModule.m; sourceTree = "<group>"; };
 		DB15FCBA1F0A875E00A82C45 /* ApplicationMods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApplicationMods.h; sourceTree = "<group>"; };
@@ -272,20 +268,12 @@
 		DB15FCCF1F0A87C100A82C45 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Additions.m"; sourceTree = "<group>"; };
 		DB15FCD21F0A87DE00A82C45 /* ApplicationDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApplicationDefaults.h; sourceTree = "<group>"; };
 		DB15FCD31F0A87DE00A82C45 /* ApplicationDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ApplicationDefaults.m; sourceTree = "<group>"; };
-		DB15FCD71F0A882500A82C45 /* APSHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPClient.h; sourceTree = "<group>"; };
-		DB15FCD81F0A882500A82C45 /* APSHTTPHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPHelper.h; sourceTree = "<group>"; };
-		DB15FCD91F0A882500A82C45 /* APSHTTPPostForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPPostForm.h; sourceTree = "<group>"; };
-		DB15FCDA1F0A882500A82C45 /* APSHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPRequest.h; sourceTree = "<group>"; };
-		DB15FCDB1F0A882500A82C45 /* APSHTTPResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPResponse.h; sourceTree = "<group>"; };
-		DB15FCE51F0A883400A82C45 /* APSAnalytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSAnalytics.h; sourceTree = "<group>"; };
 		DB15FCED1F0A885600A82C45 /* OperationQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OperationQueue.h; sourceTree = "<group>"; };
 		DB15FCEE1F0A885600A82C45 /* OperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OperationQueue.m; sourceTree = "<group>"; };
 		DB15FCF51F0A889100A82C45 /* TiLayoutQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLayoutQueue.h; sourceTree = "<group>"; };
 		DB15FCF61F0A889100A82C45 /* TiLayoutQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLayoutQueue.m; sourceTree = "<group>"; };
 		DB15FCF91F0A88B100A82C45 /* TiLocale.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLocale.h; sourceTree = "<group>"; };
 		DB15FCFA1F0A88B100A82C45 /* TiLocale.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLocale.m; sourceTree = "<group>"; };
-		DB15FCFE1F0A88C700A82C45 /* TiProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiProfiler.h; sourceTree = "<group>"; };
-		DB15FD001F0A88D900A82C45 /* libti_ios_profiler.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libti_ios_profiler.a; path = TitaniumKit/lib/libti_ios_profiler.a; sourceTree = "<group>"; };
 		DB15FD021F0A892500A82C45 /* Ti2DMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ti2DMatrix.h; sourceTree = "<group>"; };
 		DB15FD031F0A892500A82C45 /* Ti2DMatrix.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Ti2DMatrix.m; sourceTree = "<group>"; };
 		DB15FD041F0A892500A82C45 /* Ti3DMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ti3DMatrix.h; sourceTree = "<group>"; };
@@ -337,7 +325,13 @@
 		DB258DAC1F097697000D0D8D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		DB258DB61F09770C000D0D8D /* TiUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUtils.h; sourceTree = "<group>"; };
 		DB258DB71F09770C000D0D8D /* TiUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUtils.m; sourceTree = "<group>"; };
-		DB258E3D1F097EA5000D0D8D /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = ../../../usr/lib/libsqlite3.dylib; sourceTree = "<group>"; };
+		DB3908582075221D00AE31EC /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		DB39085F2075228900AE31EC /* APSAnalytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSAnalytics.h; sourceTree = "<group>"; };
+		DB3908602075228900AE31EC /* APSHTTPResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPResponse.h; sourceTree = "<group>"; };
+		DB3908612075228900AE31EC /* APSHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPRequest.h; sourceTree = "<group>"; };
+		DB3908622075228900AE31EC /* APSHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPClient.h; sourceTree = "<group>"; };
+		DB3908632075228900AE31EC /* APSHTTPHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPHelper.h; sourceTree = "<group>"; };
+		DB3908642075228900AE31EC /* APSHTTPPostForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPPostForm.h; sourceTree = "<group>"; };
 		DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSAnalytics.a; path = TitaniumKit/lib/libAPSAnalytics.a; sourceTree = "<group>"; };
 		DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = TitaniumKit/lib/libAPSHTTPClient.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -347,11 +341,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DB258E3E1F097EA5000D0D8D /* libsqlite3.dylib in Frameworks */,
 				DB258DAD1F097697000D0D8D /* Foundation.framework in Frameworks */,
 				DB258DAB1F097692000D0D8D /* JavaScriptCore.framework in Frameworks */,
-				DB15FD011F0A88D900A82C45 /* libti_ios_profiler.a in Frameworks */,
-				DB15FCB51F0A871D00A82C45 /* libti_ios_debugger.a in Frameworks */,
+				DB3908592075221D00AE31EC /* libsqlite3.tbd in Frameworks */,
 				4AF8DEEB1F0C27D6006270E1 /* libAPSAnalytics.a in Frameworks */,
 				4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */,
 			);
@@ -380,37 +372,6 @@
 			);
 			name = Modules;
 			path = Sources/Modules;
-			sourceTree = "<group>";
-		};
-		DB15FCD61F0A882500A82C45 /* APSHTTPClient */ = {
-			isa = PBXGroup;
-			children = (
-				DB15FCD71F0A882500A82C45 /* APSHTTPClient.h */,
-				DB15FCD81F0A882500A82C45 /* APSHTTPHelper.h */,
-				DB15FCD91F0A882500A82C45 /* APSHTTPPostForm.h */,
-				DB15FCDA1F0A882500A82C45 /* APSHTTPRequest.h */,
-				DB15FCDB1F0A882500A82C45 /* APSHTTPResponse.h */,
-			);
-			name = APSHTTPClient;
-			path = Sources/APSHTTPClient;
-			sourceTree = "<group>";
-		};
-		DB15FCE41F0A883400A82C45 /* APSAnalytics */ = {
-			isa = PBXGroup;
-			children = (
-				DB15FCE51F0A883400A82C45 /* APSAnalytics.h */,
-			);
-			name = APSAnalytics;
-			path = Sources/APSAnalytics;
-			sourceTree = "<group>";
-		};
-		DB15FCFD1F0A88C700A82C45 /* TiProfiler */ = {
-			isa = PBXGroup;
-			children = (
-				DB15FCFE1F0A88C700A82C45 /* TiProfiler.h */,
-			);
-			name = TiProfiler;
-			path = Sources/TiProfiler;
 			sourceTree = "<group>";
 		};
 		DB258CC31F09757E000D0D8D = {
@@ -443,9 +404,7 @@
 		DB258CD81F0975CD000D0D8D /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				DB15FCFD1F0A88C700A82C45 /* TiProfiler */,
-				DB15FCE41F0A883400A82C45 /* APSAnalytics */,
-				DB15FCD61F0A882500A82C45 /* APSHTTPClient */,
+				DB39085B2075228900AE31EC /* Libraries */,
 				DB258D181F097680000D0D8D /* API */,
 				DB258CDA1F0975F7000D0D8D /* Kroll */,
 				DB15FC8D1F0A85EE00A82C45 /* Modules */,
@@ -600,15 +559,43 @@
 		DB258DA91F097691000D0D8D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DB3908582075221D00AE31EC /* libsqlite3.tbd */,
 				DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */,
 				DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */,
-				DB15FD001F0A88D900A82C45 /* libti_ios_profiler.a */,
-				DB15FCB41F0A871D00A82C45 /* libti_ios_debugger.a */,
-				DB258E3D1F097EA5000D0D8D /* libsqlite3.dylib */,
 				DB258DAC1F097697000D0D8D /* Foundation.framework */,
 				DB258DAA1F097692000D0D8D /* JavaScriptCore.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DB39085B2075228900AE31EC /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				DB39085C2075228900AE31EC /* APSAnalytics */,
+				DB39085D2075228900AE31EC /* APSHTTPClient */,
+			);
+			name = Libraries;
+			path = Sources/Libraries;
+			sourceTree = "<group>";
+		};
+		DB39085C2075228900AE31EC /* APSAnalytics */ = {
+			isa = PBXGroup;
+			children = (
+				DB39085F2075228900AE31EC /* APSAnalytics.h */,
+			);
+			path = APSAnalytics;
+			sourceTree = "<group>";
+		};
+		DB39085D2075228900AE31EC /* APSHTTPClient */ = {
+			isa = PBXGroup;
+			children = (
+				DB3908602075228900AE31EC /* APSHTTPResponse.h */,
+				DB3908612075228900AE31EC /* APSHTTPRequest.h */,
+				DB3908622075228900AE31EC /* APSHTTPClient.h */,
+				DB3908632075228900AE31EC /* APSHTTPHelper.h */,
+				DB3908642075228900AE31EC /* APSHTTPPostForm.h */,
+			);
+			path = APSHTTPClient;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -621,11 +608,14 @@
 				DB15FBF41F0A80FA00A82C45 /* TiPublicAPI.h in Headers */,
 				DB15FC6F1F0A84FD00A82C45 /* TiBlob.h in Headers */,
 				DB15FC731F0A850E00A82C45 /* Mimetypes.h in Headers */,
+				DB3908662075228900AE31EC /* APSHTTPResponse.h in Headers */,
 				DB258D611F097680000D0D8D /* Bridge.h in Headers */,
+				DB3908682075228900AE31EC /* APSHTTPClient.h in Headers */,
 				DB258D631F097680000D0D8D /* KrollBridge.h in Headers */,
 				DB15FC501F0A848B00A82C45 /* TiEvaluator.h in Headers */,
 				DB15FD0F1F0A895400A82C45 /* TiTab.h in Headers */,
 				DB15FC981F0A862000A82C45 /* TiPoint.h in Headers */,
+				DB3908652075228900AE31EC /* APSAnalytics.h in Headers */,
 				DB15FD201F0A8A5E00A82C45 /* TiComplexValue.h in Headers */,
 				DB15FC3F1F0A833100A82C45 /* KrollPropertyDelegate.h in Headers */,
 				DB15FC671F0A84E000A82C45 /* TiStylesheet.h in Headers */,
@@ -642,7 +632,6 @@
 				DB15FCFB1F0A88B100A82C45 /* TiLocale.h in Headers */,
 				DB15FCC41F0A877D00A82C45 /* APIModule.h in Headers */,
 				DB15FC331F0A833100A82C45 /* KrollCallback.h in Headers */,
-				DB15FCE21F0A882500A82C45 /* APSHTTPResponse.h in Headers */,
 				DB15FCBC1F0A875E00A82C45 /* ApplicationMods.h in Headers */,
 				DB15FC531F0A849D00A82C45 /* TiBindingRunLoop.h in Headers */,
 				DB15FC901F0A85EE00A82C45 /* TiFilesystemFileProxy.h in Headers */,
@@ -653,24 +642,23 @@
 				DB15FC941F0A860600A82C45 /* TiAnimation.h in Headers */,
 				DB15FC8B1F0A859800A82C45 /* UIImage+RoundedCorner.h in Headers */,
 				DB15FCA01F0A863B00A82C45 /* LayoutConstraint.h in Headers */,
-				DB15FCFF1F0A88C700A82C45 /* TiProfiler.h in Headers */,
 				DB15FD061F0A892500A82C45 /* Ti2DMatrix.h in Headers */,
 				DB15FD1C1F0A89A400A82C45 /* TiUIWindowProxy.h in Headers */,
 				DB258DA11F097680000D0D8D /* TiViewProxy.h in Headers */,
 				DB15FC491F0A83A700A82C45 /* WebFont.h in Headers */,
+				DB3908692075228900AE31EC /* APSHTTPHelper.h in Headers */,
 				DB15FC371F0A833100A82C45 /* KrollCoverage.h in Headers */,
 				DB15FCEF1F0A885600A82C45 /* OperationQueue.h in Headers */,
 				DB15FD301F0A948B00A82C45 /* TiUIiOSTransitionAnimationProxy.h in Headers */,
 				DB258D8C1F097680000D0D8D /* TiProxy.h in Headers */,
-				DB15FCDF1F0A882500A82C45 /* APSHTTPHelper.h in Headers */,
 				DB15FD111F0A896800A82C45 /* TiTabGroup.h in Headers */,
 				DB15FCA41F0A864A00A82C45 /* TiGradient.h in Headers */,
 				DB15FC571F0A84B700A82C45 /* TiFile.h in Headers */,
 				DB15FC9C1F0A862D00A82C45 /* ListenerEntry.h in Headers */,
 				DB15FC771F0A851A00A82C45 /* TiRootViewController.h in Headers */,
+				DB3908672075228900AE31EC /* APSHTTPRequest.h in Headers */,
 				DB15FD0C1F0A894000A82C45 /* TiWindowProxy.h in Headers */,
 				DB258DB81F09770C000D0D8D /* TiUtils.h in Headers */,
-				DB15FCE01F0A882500A82C45 /* APSHTTPPostForm.h in Headers */,
 				DB15FC351F0A833100A82C45 /* KrollContext.h in Headers */,
 				DB258D9D1F097680000D0D8D /* TiUIView.h in Headers */,
 				DB15FD2C1F0A93EF00A82C45 /* TiStreamProxy.h in Headers */,
@@ -684,19 +672,17 @@
 				DB15FC411F0A833100A82C45 /* KrollTimer.h in Headers */,
 				DB15FC3D1F0A833100A82C45 /* KrollObject.h in Headers */,
 				DB15FCA81F0A866300A82C45 /* TiRect.h in Headers */,
-				DB15FCE11F0A882500A82C45 /* APSHTTPRequest.h in Headers */,
 				DB15FD281F0A93A900A82C45 /* TiFilesystemFileStreamProxy.h in Headers */,
 				DB15FC891F0A859800A82C45 /* TiExceptionHandler.h in Headers */,
 				DB15FCB81F0A874F00A82C45 /* TopTiModule.h in Headers */,
 				DB15FC3B1F0A833100A82C45 /* KrollMethodDelegate.h in Headers */,
 				DB15FC391F0A833100A82C45 /* KrollMethod.h in Headers */,
 				DB258CD21F09757E000D0D8D /* TitaniumKit.h in Headers */,
-				DB15FCDE1F0A882500A82C45 /* APSHTTPClient.h in Headers */,
-				DB15FCE71F0A883400A82C45 /* APSAnalytics.h in Headers */,
 				DB15FCF71F0A889100A82C45 /* TiLayoutQueue.h in Headers */,
 				DB15FCCC1F0A87A400A82C45 /* TiErrorController.h in Headers */,
 				DB15FC5F1F0A84C900A82C45 /* Webcolor.h in Headers */,
 				DB258D9A1F097680000D0D8D /* TiToJS.h in Headers */,
+				DB39086A2075228900AE31EC /* APSHTTPPostForm.h in Headers */,
 				DB258DA31F097680000D0D8D /* TiViewTemplate.h in Headers */,
 				DB15FCD41F0A87DE00A82C45 /* ApplicationDefaults.h in Headers */,
 				DB15FD1A1F0A89A400A82C45 /* TiUIWindow.h in Headers */,
@@ -983,8 +969,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TitaniumKit",
-					"$(PROJECT_DIR)/TitaniumKit/Sources/APSAnalytics",
-					"$(PROJECT_DIR)/TitaniumKit/Sources/APSHTTPClient",
+					"$(PROJECT_DIR)/TitaniumKit/Sources/Libraries/APSAnalytics",
+					"$(PROJECT_DIR)/TitaniumKit/Sources/Libraries/APSHTTPClient",
 					"$(PROJECT_DIR)/TitaniumKit/lib",
 				);
 				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
@@ -1014,8 +1000,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TitaniumKit",
-					"$(PROJECT_DIR)/TitaniumKit/Sources/APSAnalytics",
-					"$(PROJECT_DIR)/TitaniumKit/Sources/APSHTTPClient",
+					"$(PROJECT_DIR)/TitaniumKit/Sources/Libraries/APSAnalytics",
+					"$(PROJECT_DIR)/TitaniumKit/Sources/Libraries/APSHTTPClient",
 					"$(PROJECT_DIR)/TitaniumKit/lib",
 				);
 				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
