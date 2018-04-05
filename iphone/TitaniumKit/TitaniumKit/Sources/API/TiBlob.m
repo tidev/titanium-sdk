@@ -255,13 +255,9 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	 *	TODO: What is expected behavior when path is valid but there's no file?
 	 *	TODO: Should file property require explicit use of filesystem module?
 	 */
-#ifdef USE_TI_FILESYSTEM
   if (path != nil) {
     return [[[TiFilesystemFileProxy alloc] initWithFile:path] autorelease];
   }
-#else
-  NSLog(@"[FATAL] Blob.file property requested but the Filesystem module was never requested.")
-#endif
   return nil;
 }
 
