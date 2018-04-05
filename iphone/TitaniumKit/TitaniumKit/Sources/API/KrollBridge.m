@@ -17,6 +17,7 @@
 #import "TopTiModule.h"
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiSharedConfig.h>
 #import <libkern/OSAtomic.h>
 
 NSString *TitaniumModuleRequireFormat = @"(function(exports){"
@@ -53,14 +54,18 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
     [self addModule:@"API" module:api];
 
     //  FIXME: Move to shared config
-    //    if (TI_APPLICATION_ANALYTICS) {
-    //      APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
-    //      if (TI_APPLICATION_BUILD_TYPE != nil || (TI_APPLICATION_BUILD_TYPE.length > 0)) {
-    //        [sharedAnalytics performSelector:@selector(setBuildType:) withObject:TI_APPLICATION_BUILD_TYPE];
-    //      }
-    //      [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@", [module performSelector:@selector(version)]]];
-    //      [sharedAnalytics enableWithAppKey:TI_APPLICATION_GUID andDeployType:TI_APPLICATION_DEPLOYTYPE];
-    //    }
+    if ([[TiSharedConfig defaultConfig] isAnalyticsEnabled]) {
+      APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
+      NSString *buildType = [[TiSharedConfig defaultConfig] applicationBuildType];
+      NSString *deployType = [[TiSharedConfig defaultConfig] applicationDeployType];
+      NSString *guid = [[TiSharedConfig defaultConfig] applicationGUID];
+
+      if (buildType != nil || (buildType.length > 0)) {
+        [sharedAnalytics performSelector:@selector(setBuildType:) withObject:buildType];
+      }
+      [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@", [module performSelector:@selector(version)]]];
+      [sharedAnalytics enableWithAppKey:guid andDeployType:deployType];
+    }
   }
   return self;
 }

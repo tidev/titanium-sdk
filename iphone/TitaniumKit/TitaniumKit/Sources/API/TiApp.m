@@ -18,6 +18,7 @@
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBase.h>
 #import <TitaniumKit/Webcolor.h>
+#import <TitaniumKit/TiSharedConfig.h>
 #import <libkern/OSAtomic.h>
 #ifndef DISABLE_TI_LOG_SERVER
 #import "TiLogServer.h"
@@ -218,7 +219,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)boot
 {
   // FIXME: Move to shared config
-  // DebugLog(@"[INFO] %@/%@ (%s.__GITHASH__)", TI_APPLICATION_NAME, TI_APPLICATION_VERSION, TI_VERSION_STR);
+  DebugLog(@"[INFO] %@/%@ (%s.__GITHASH__)", [[TiSharedConfig defaultConfig] applicationName], [[TiSharedConfig defaultConfig] applicationVersion], TI_VERSION_STR);
 
   sessionId = [[TiUtils createUUID] retain];
   TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
@@ -1109,11 +1110,10 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 //TODO: this should be compiled out in production mode
 - (void)showModalError:(NSString *)message
 {
-  //  FIXME: Move to shared config. Where is this currently set?
-  //  if (TI_APPLICATION_SHOW_ERROR_CONTROLLER == NO) {
-  //    NSLog(@"[ERROR] Application received error: %@", message);
-  //    return;
-  //  }
+  if ([[TiSharedConfig defaultConfig] showErrorController] == NO) {
+    NSLog(@"[ERROR] Application received error: %@", message);
+    return;
+  }
   ENSURE_UI_THREAD(showModalError, message);
   TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
   [self showModalController:error animated:YES];

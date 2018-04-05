@@ -8,6 +8,7 @@
 #import "TiHost.h"
 #import <TitaniumKit/TiModule.h>
 #import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiSharedConfig.h>
 
 #ifdef DEBUG
 #define DEBUG_EVENTS 0
@@ -20,18 +21,18 @@
 + (NSString *)resourcePath
 {
   NSString *resourcePath = [[NSBundle mainBundle] bundlePath];
+  NSString *resourcesDir = [[TiSharedConfig defaultConfig] applicationResourcesDirectory];
 
-// FIXME: Move to shared config
-//#if TARGET_IPHONE_SIMULATOR
-//  if (TI_APPLICATION_RESOURCE_DIR != nil && ![TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]) {
-//    // if the .local file exists and we're in the simulator, then force load from resources bundle
-//    NSString *localFilePath = [resourcePath stringByAppendingPathComponent:@".local"];
-//    if (![[NSFileManager defaultManager] fileExistsAtPath:localFilePath]) {
-//      // we use our app resource directory
-//      resourcePath = TI_APPLICATION_RESOURCE_DIR;
-//    }
-//  }
-//#endif
+#if TARGET_IPHONE_SIMULATOR
+  if (resourcesDir != nil && ![resourcesDir isEqualToString:@""]) {
+    // if the .local file exists and we're in the simulator, then force load from resources bundle
+    NSString *localFilePath = [resourcePath stringByAppendingPathComponent:@".local"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:localFilePath]) {
+      // we use our app resource directory
+      resourcePath = resourcesDir;
+    }
+  }
+#endif
 
   return resourcePath;
 }
@@ -79,10 +80,7 @@
 
 - (NSString *)appID
 {
-  return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIdentifier"];
-
-//  FIXME: May use shared config?
-//  return TI_APPLICATION_ID;
+  return [[TiSharedConfig defaultConfig] applicationID];
 }
 
 - (NSURL *)baseURL

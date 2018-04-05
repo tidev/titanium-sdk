@@ -20,6 +20,7 @@
 #import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webfont.h>
+#import <TitaniumKit/TiSharedConfig.h>
 
 // for checking version
 #import <sys/utsname.h>
@@ -1412,6 +1413,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (NSData *)loadAppResource:(NSURL *)url
 {
   BOOL app = [[url scheme] hasPrefix:@"app"];
+  NSString *resourcesDirectory = [[TiSharedConfig defaultConfig] applicationResourcesDirectory];
+
   if ([url isFileURL] || app) {
     BOOL leadingSlashRemoved = NO;
     NSString *urlstring = [[url standardizedURL] path];
@@ -1433,21 +1436,20 @@ If the new path starts with / and the base url is app://..., we have to massage 
       appurlstr = [@"/" stringByAppendingString:appurlstr];
     }
     
-    //  FIXME: Move to shared config
-//    if (TI_APPLICATION_RESOURCE_DIR != nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""] == NO) {
-//      if ([appurlstr hasPrefix:TI_APPLICATION_RESOURCE_DIR]) {
-//        if ([[NSFileManager defaultManager] fileExistsAtPath:appurlstr]) {
-//          return [NSData dataWithContentsOfFile:appurlstr];
-//        }
-//      }
-//      // this path is only taken during a simulator build
-//      // in this path, we will attempt to load resources directly from the
-//      // app's Resources directory to speed up round-trips
-//      NSString *filepath = [TI_APPLICATION_RESOURCE_DIR stringByAppendingPathComponent:appurlstr];
-//      if ([[NSFileManager defaultManager] fileExistsAtPath:filepath]) {
-//        return [NSData dataWithContentsOfFile:filepath];
-//      }
-//    }
+    if (resourcesDirectory != nil && [resourcesDirectory isEqualToString:@""] == NO) {
+      if ([appurlstr hasPrefix:resourcesDirectory]) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:appurlstr]) {
+          return [NSData dataWithContentsOfFile:appurlstr];
+        }
+      }
+      // this path is only taken during a simulator build
+      // in this path, we will attempt to load resources directly from the
+      // app's Resources directory to speed up round-trips
+      NSString *filepath = [resourcesDirectory stringByAppendingPathComponent:appurlstr];
+      if ([[NSFileManager defaultManager] fileExistsAtPath:filepath]) {
+        return [NSData dataWithContentsOfFile:filepath];
+      }
+    }
 #endif
     static id AppRouter;
     if (AppRouter == nil) {
