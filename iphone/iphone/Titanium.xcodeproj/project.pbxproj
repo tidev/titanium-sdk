@@ -249,6 +249,8 @@
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DB0D54951F3B4A3D00E2B771 /* TiUIToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */; };
 		DB15964A2075246300292B19 /* TitaniumKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB3908712075242600AE31EC /* TitaniumKit.framework */; };
+		DB24E04820766FE50033B2B1 /* TestModule.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB24E04520766FCC0033B2B1 /* TestModule.framework */; };
+		DB24E04920766FE50033B2B1 /* TestModule.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DB24E04520766FCC0033B2B1 /* TestModule.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DB5813F1207601D300CA1437 /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB5813EF207601D300CA1437 /* libAPSHTTPClient.a */; };
 		DB5813F2207601D300CA1437 /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB5813F0207601D300CA1437 /* libAPSAnalytics.a */; };
 		DB90749F1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */; };
@@ -256,6 +258,34 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		DB24E02720765BE30033B2B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DB39086B2075242500AE31EC /* TitaniumKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = DB258CCC1F09757E000D0D8D;
+			remoteInfo = TitaniumKit;
+		};
+		DB24E04420766FCC0033B2B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DB24E04020766FCC0033B2B1 /* TestModule.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DB52E22A1E9CCD7000AAAEE0;
+			remoteInfo = TestModule;
+		};
+		DB24E04620766FD00033B2B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DB24E04020766FCC0033B2B1 /* TestModule.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = DB52E2291E9CCD7000AAAEE0;
+			remoteInfo = TestModule;
+		};
+		DB24E04A20766FE50033B2B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DB24E04020766FCC0033B2B1 /* TestModule.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = DB52E2291E9CCD7000AAAEE0;
+			remoteInfo = TestModule;
+		};
 		DB3908702075242600AE31EC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DB39086B2075242500AE31EC /* TitaniumKit.xcodeproj */;
@@ -263,14 +293,21 @@
 			remoteGlobalIDString = DB258CCD1F09757E000D0D8D;
 			remoteInfo = TitaniumKit;
 		};
-		DB5813ED2075FF1300CA1437 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = DB39086B2075242500AE31EC /* TitaniumKit.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = DB258CCC1F09757E000D0D8D;
-			remoteInfo = TitaniumKit;
-		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DB24E02C20765DC60033B2B1 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DB24E04920766FE50033B2B1 /* TestModule.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0BF933881CA0948D0091C7EC /* TiUIiOSStepper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSStepper.h; sourceTree = "<group>"; };
@@ -746,6 +783,8 @@
 		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
 		DB0D54931F3B4A3D00E2B771 /* TiUIToolbarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIToolbarProxy.h; sourceTree = "<group>"; };
 		DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIToolbarProxy.m; sourceTree = "<group>"; };
+		DB24E02420765BAC0033B2B1 /* TestModule.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = TestModule.framework; path = ../lib/TestModule.framework; sourceTree = "<group>"; };
+		DB24E04020766FCC0033B2B1 /* TestModule.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TestModule.xcodeproj; path = ../TestModule/TestModule.xcodeproj; sourceTree = "<group>"; };
 		DB3246B32028AAE3006CADFC /* TiMediaTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiMediaTypes.h; sourceTree = "<group>"; };
 		DB39086B2075242500AE31EC /* TitaniumKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TitaniumKit.xcodeproj; path = ../TitaniumKit/TitaniumKit.xcodeproj; sourceTree = "<group>"; };
 		DB5813EF207601D300CA1437 /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = ../lib/libAPSHTTPClient.a; sourceTree = "<group>"; };
@@ -778,6 +817,7 @@
 				24CA8C82111167B60084E2DE /* MessageUI.framework in Frameworks */,
 				24CA8C84111167B60084E2DE /* MobileCoreServices.framework in Frameworks */,
 				24CA8C86111167B60084E2DE /* OpenGLES.framework in Frameworks */,
+				DB24E04820766FE50033B2B1 /* TestModule.framework in Frameworks */,
 				24CA8C88111167B60084E2DE /* QuartzCore.framework in Frameworks */,
 				24CA8C8A111167B60084E2DE /* SystemConfiguration.framework in Frameworks */,
 				24CA8C90111167B60084E2DE /* libz.dylib in Frameworks */,
@@ -1644,6 +1684,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				DB24E04020766FCC0033B2B1 /* TestModule.xcodeproj */,
 				DB39086B2075242500AE31EC /* TitaniumKit.xcodeproj */,
 				24CA8902111160BE0084E2DE /* Classes */,
 				24CA8903111160C30084E2DE /* Thirdparty */,
@@ -1684,6 +1725,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DB24E02420765BAC0033B2B1 /* TestModule.framework */,
 				DB5813F0207601D300CA1437 /* libAPSAnalytics.a */,
 				DB5813EF207601D300CA1437 /* libAPSHTTPClient.a */,
 				8465E6BB19F8644D008479E6 /* CoreMedia.framework */,
@@ -2008,6 +2050,14 @@
 			name = Toolbar;
 			sourceTree = "<group>";
 		};
+		DB24E04120766FCC0033B2B1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DB24E04520766FCC0033B2B1 /* TestModule.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		DB39086C2075242500AE31EC /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -2034,11 +2084,14 @@
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
 				838159D01B7A9632002EE811 /* Resources */,
+				DB24E02C20765DC60033B2B1 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				DB5813EE2075FF1300CA1437 /* PBXTargetDependency */,
+				DB24E04720766FD00033B2B1 /* PBXTargetDependency */,
+				DB24E02820765BE30033B2B1 /* PBXTargetDependency */,
+				DB24E04B20766FE50033B2B1 /* PBXTargetDependency */,
 			);
 			name = Titanium;
 			productName = Titanium;
@@ -2084,6 +2137,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = DB24E04120766FCC0033B2B1 /* Products */;
+					ProjectRef = DB24E04020766FCC0033B2B1 /* TestModule.xcodeproj */;
+				},
+				{
 					ProductGroup = DB39086C2075242500AE31EC /* Products */;
 					ProjectRef = DB39086B2075242500AE31EC /* TitaniumKit.xcodeproj */;
 				},
@@ -2096,6 +2153,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		DB24E04520766FCC0033B2B1 /* TestModule.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = TestModule.framework;
+			remoteRef = DB24E04420766FCC0033B2B1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		DB3908712075242600AE31EC /* TitaniumKit.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -2360,10 +2424,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		DB5813EE2075FF1300CA1437 /* PBXTargetDependency */ = {
+		DB24E02820765BE30033B2B1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = TitaniumKit;
-			targetProxy = DB5813ED2075FF1300CA1437 /* PBXContainerItemProxy */;
+			targetProxy = DB24E02720765BE30033B2B1 /* PBXContainerItemProxy */;
+		};
+		DB24E04720766FD00033B2B1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = TestModule;
+			targetProxy = DB24E04620766FD00033B2B1 /* PBXContainerItemProxy */;
+		};
+		DB24E04B20766FE50033B2B1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = TestModule;
+			targetProxy = DB24E04A20766FE50033B2B1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2381,6 +2455,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2391,6 +2466,7 @@
 				INFOPLIST_FILE = Titanium.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
@@ -2419,6 +2495,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
@@ -2426,6 +2503,7 @@
 				INFOPLIST_FILE = Titanium.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",

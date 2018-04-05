@@ -1,0 +1,2 @@
+
+OTHER_LDFLAGS=$(inherited) -framework HomeKit
