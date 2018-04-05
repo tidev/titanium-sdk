@@ -28,8 +28,8 @@
  */
 
 #import "SBJSON.h"
-#import <TitaniumKit/TiBase.h>
 #import "TiHost.h"
+#import <TitaniumKit/TiBase.h>
 #import <TitaniumKit/TiProxy.h>
 
 NSString *SBJSONErrorDomain = @"org.brautaset.JSON.ErrorDomain";

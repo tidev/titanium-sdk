@@ -6,9 +6,9 @@
  */
 #import "TopTiModule.h"
 #import "KrollBridge.h"
+#import "TiBuffer.h"
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBase.h>
-#import "TiBuffer.h"
 #import <TitaniumKit/TiUtils.h>
 
 @implementation TopTiModule

@@ -10,8 +10,8 @@
 #import "TiUITabGroupProxy.h"
 #import "TiUITabProxy.h"
 
-#import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiColor.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUITabGroup
 

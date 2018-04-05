@@ -7,9 +7,9 @@
 #if defined(USE_TI_UIIOSTOOLBAR) || defined(USE_TI_UITOOLBAR)
 
 #import "TiUIToolbar.h"
+#import "TiToolbarButton.h"
 #import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiToolbar.h>
-#import "TiToolbarButton.h"
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
 

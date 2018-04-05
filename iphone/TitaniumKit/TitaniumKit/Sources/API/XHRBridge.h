@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/Bridge.h>
 #import <Foundation/Foundation.h>
+#import <TitaniumKit/Bridge.h>
 
 @class XHRBridge;
 

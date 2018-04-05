@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/TiProxy.h>
 #import <QuartzCore/QuartzCore.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface Ti3DMatrix : TiProxy {
   @protected

@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/TiBase.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
 #ifndef DISABLE_TI_LOG_SERVER
 #import "TiLogServer.h"
 #endif

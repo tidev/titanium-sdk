@@ -5,16 +5,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/TiViewProxy.h>
 #import "LayoutConstraint.h"
-#import <TitaniumKit/TiApp.h>
-#import <TitaniumKit/TiBlob.h>
 #import "TiLayoutQueue.h"
 #import "TiLocale.h"
 #import "TiStylesheet.h"
-#import <TitaniumKit/TiUIView.h>
 #import "TiWindowProxy.h"
 #import <QuartzCore/QuartzCore.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUIView.h>
+#import <TitaniumKit/TiViewProxy.h>
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
 #if IS_XCODE_9
@@ -1364,7 +1364,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     NSLog(@"[WARN] 3DTouch is not available on this device.");
     return;
   }
-  
+
   Class TiUIiOSPreviewContextProxy = NSClassFromString(@"TiUIiOSPreviewContextProxy");
 
   ENSURE_TYPE(context, TiUIiOSPreviewContextProxy);

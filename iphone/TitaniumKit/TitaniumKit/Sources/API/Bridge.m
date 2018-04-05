@@ -6,8 +6,8 @@
  */
 #import "Bridge.h"
 #import "TiHost.h"
-#import <TitaniumKit/TiModule.h>
 #import <Foundation/Foundation.h>
+#import <TitaniumKit/TiModule.h>
 
 @implementation Bridge
 

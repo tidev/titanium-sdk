@@ -6,9 +6,9 @@
  */
 
 #import "KrollBridge.h"
+#import "TiWindowProxy.h"
 #import <TitaniumKit/TiUIView.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import "TiWindowProxy.h"
 
 //TODO: we probably should split this ViewProxy into a a separate TiUIView like normal
 

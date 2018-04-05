@@ -8,8 +8,8 @@
 #import <TitaniumKit/TiViewProxy.h>
 
 #import "TiTab.h"
-#import "TiViewController.h"
 #import "TiUIiOSTransitionAnimationProxy.h"
+#import "TiViewController.h"
 
 @interface TiWindowProxy : TiViewProxy <TiWindowProtocol, TiAnimationDelegate> {
   @protected

@@ -6,10 +6,10 @@
  */
 
 #import "KrollCallback.h"
-#import <TitaniumKit/TiBase.h>
 #import "TiBuffer.h"
-#import <TitaniumKit/TiProxy.h>
 #import <Foundation/Foundation.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiProxy.h>
 
 // This is meant to be a largely "virtual" class which defines the following behaviors:
 // 1. Interprets read()/write() calls to the appropriate interal function

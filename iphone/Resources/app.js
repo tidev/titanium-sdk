@@ -5,6 +5,8 @@
  * Change the below code to fit your use-case. By default, it included a button
  * to trigger a log that is displayed in the Xcode console.
  */
+ 
+var test = require('ti.test');
 
 var win = Ti.UI.createWindow({
     backgroundColor: '#fff'
@@ -15,7 +17,7 @@ var btn = Ti.UI.createButton({
 });
 
 btn.addEventListener('click', function() {
-    Ti.API.info('Hello world!');
+    alert(test.tryThis());
 });
 
 win.add(btn);

@@ -9,10 +9,10 @@
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBase.h>
-#import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
 
 #import "TiUIEmailDialogProxy.h"
 

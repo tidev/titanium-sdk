@@ -14,10 +14,10 @@
 #import <AVFoundation/AVAudioSession.h>
 #endif
 
-#import <TitaniumKit/TiBlob.h>
-#import <TitaniumKit/TiFile.h>
 #import "TiMediaAudioSession.h"
 #import "TiMediaSoundProxy.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
 #import <TitaniumKit/TiUtils.h>
 
 @implementation TiMediaSoundProxy

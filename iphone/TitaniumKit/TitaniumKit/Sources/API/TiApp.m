@@ -7,17 +7,17 @@
 #include <stdio.h>
 
 #import "ApplicationDefaults.h"
-#import <TitaniumKit/ImageLoader.h>
 #import "Mimetypes.h"
 #import "NSData+Additions.h"
-#import <TitaniumKit/TiApp.h>
-#import <TitaniumKit/TiBase.h>
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
-#import <TitaniumKit/Webcolor.h>
 #import <AVFoundation/AVFoundation.h>
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <QuartzCore/QuartzCore.h>
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/Webcolor.h>
 #import <libkern/OSAtomic.h>
 #ifndef DISABLE_TI_LOG_SERVER
 #import "TiLogServer.h"
@@ -904,7 +904,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   applicationInMemoryPanic = YES;
   [Webcolor flushCache];
-// don't worry about KrollBridge since he's already listening
+  // don't worry about KrollBridge since he's already listening
   [xhrBridge gc];
   [self performSelector:@selector(clearMemoryPanic)
              withObject:nil
@@ -1109,11 +1109,11 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 //TODO: this should be compiled out in production mode
 - (void)showModalError:(NSString *)message
 {
-//  FIXME: Move to shared config. Where is this currently set?
-//  if (TI_APPLICATION_SHOW_ERROR_CONTROLLER == NO) {
-//    NSLog(@"[ERROR] Application received error: %@", message);
-//    return;
-//  }
+  //  FIXME: Move to shared config. Where is this currently set?
+  //  if (TI_APPLICATION_SHOW_ERROR_CONTROLLER == NO) {
+  //    NSLog(@"[ERROR] Application received error: %@", message);
+  //    return;
+  //  }
   ENSURE_UI_THREAD(showModalError, message);
   TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
   [self showModalController:error animated:YES];

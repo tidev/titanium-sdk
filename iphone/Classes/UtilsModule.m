@@ -7,11 +7,11 @@
 #ifdef USE_TI_UTILS
 
 #import "UtilsModule.h"
+#import <CommonCrypto/CommonDigest.h>
+#import <CommonCrypto/CommonHMAC.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiFile.h>
 #import <TitaniumKit/TiUtils.h>
-#import <CommonCrypto/CommonDigest.h>
-#import <CommonCrypto/CommonHMAC.h>
 
 @implementation UtilsModule
 

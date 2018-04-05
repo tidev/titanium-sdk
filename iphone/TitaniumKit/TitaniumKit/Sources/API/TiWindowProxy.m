@@ -6,10 +6,10 @@
  */
 
 #import "TiWindowProxy.h"
-#import <TitaniumKit/TiApp.h>
 #import "TiErrorController.h"
-#import <TitaniumKit/TiUIWindow.h>
 #import "TiUIWindowProxy.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUIWindow.h>
 
 @interface TiWindowProxy (Private)
 - (void)openOnUIThread:(id)args;

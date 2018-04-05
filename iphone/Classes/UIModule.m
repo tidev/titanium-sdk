@@ -8,10 +8,10 @@
 
 #ifdef USE_TI_UI
 
-#import <TitaniumKit/TiDimension.h>
-#import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
 

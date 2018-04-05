@@ -4,18 +4,18 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <TitaniumKit/TiUIView.h>
 #import <TitaniumKit/ImageLoader.h>
-#import <TitaniumKit/TiBase.h>
-#import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiUIView.h>
+#import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
 
-#import "UIImage+Resize.h"
-#import "TiColor.h"
-#import "TiRect.h"
 #import "Ti2DMatrix.h"
 #import "Ti3DMatrix.h"
+#import "TiColor.h"
+#import "TiRect.h"
+#import "UIImage+Resize.h"
 
 void InsetScrollViewForKeyboard(UIScrollView *scrollView, CGFloat keyboardTop, CGFloat minimumContentHeight)
 {

@@ -12,8 +12,8 @@
 #import <TitaniumKit/TiBase.h>
 #import <TitaniumKit/TiUtils.h>
 
-#import "TiNetworkHTTPClientProxy.h"
 #import "NetworkModule.h"
+#import "TiNetworkHTTPClientProxy.h"
 
 #define TI_HTTP_REQUEST_PROGRESS_INTERVAL 0.03f
 

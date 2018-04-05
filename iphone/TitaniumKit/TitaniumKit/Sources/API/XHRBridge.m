@@ -11,8 +11,8 @@
 #import <TitaniumKit/TiModule.h>
 #import <TitaniumKit/TiProxy.h>
 
-#import "XHRBridge.h"
 #import "SBJSON.h"
+#import "XHRBridge.h"
 
 static XHRBridge *xhrBridge = nil;
 

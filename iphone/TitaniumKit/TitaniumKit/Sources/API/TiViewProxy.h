@@ -4,10 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <TitaniumKit/TiProxy.h>
 #import "TiRect.h"
-#import <TitaniumKit/TiUIView.h>
 #import "TiViewTemplate.h"
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUIView.h>
 #import <pthread.h>
 
 /**

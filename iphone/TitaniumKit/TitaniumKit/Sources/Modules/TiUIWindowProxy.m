@@ -6,11 +6,11 @@
  */
 
 #import "TiUIWindowProxy.h"
-#import <TitaniumKit/ImageLoader.h>
-#import <TitaniumKit/TiApp.h>
 #import "TiComplexValue.h"
 #import "TiLayoutQueue.h"
 #import "TiUIViewProxy.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/Webcolor.h>
 
 // this is how long we should wait on the new JS context to be loaded

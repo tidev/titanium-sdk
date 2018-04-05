@@ -9,9 +9,9 @@
 
 #import "KrollBridge.h"
 #import "TiHost.h"
-#import "XHRBridge.h"
 #import "TiRootViewController.h"
 #import "TiToJS.h"
+#import "XHRBridge.h"
 
 extern BOOL applicationInMemoryPanic;
 

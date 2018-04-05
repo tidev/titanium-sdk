@@ -622,8 +622,8 @@ extern NSString *const kTiExceptionLocation;
 #define REACHABILITY_20_API 1
 #endif
 
-#include "TiThreading.h"
 #include "TiPublicAPI.h"
+#include "TiThreading.h"
 
 /**
  *	TiThreadPerformOnMainThread should replace all Titanium instances of

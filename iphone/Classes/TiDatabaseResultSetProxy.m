@@ -8,8 +8,8 @@
 
 #import "TiDatabaseResultSetProxy.h"
 #import "DatabaseModule.h"
-#import <TitaniumKit/TiBlob.h>
 #import "TiDatabaseProxy.h"
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 
 @implementation TiDatabaseResultSetProxy

@@ -7,9 +7,9 @@
 #ifdef USE_TI_NETWORK
 
 #import "NetworkModule.h"
+#import <Foundation/Foundation.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiProxy.h>
-#import <Foundation/Foundation.h>
 
 @interface TiNetworkTCPSocketProxy : TiProxy {
   CFSocketRef socket;

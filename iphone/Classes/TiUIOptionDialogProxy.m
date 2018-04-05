@@ -9,8 +9,8 @@
 #import "TiUIOptionDialogProxy.h"
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiTab.h>
-#import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiToolbar.h>
+#import <TitaniumKit/TiUtils.h>
 
 #import "TiToolbarButton.h"
 

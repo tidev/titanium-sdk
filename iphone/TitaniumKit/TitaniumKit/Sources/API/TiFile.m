@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/TiFile.h>
 #import <TitaniumKit/TiBase.h>
 #import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
 
 @implementation TiFile
 

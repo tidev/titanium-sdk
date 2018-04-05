@@ -11,8 +11,8 @@
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiFile.h>
 
-#import "TiUIImageViewProxy.h"
 #import "TiUIImageView.h"
+#import "TiUIImageViewProxy.h"
 
 #define DEBUG_IMAGEVIEW
 #define DEFAULT_IMAGEVIEW_INTERVAL 200

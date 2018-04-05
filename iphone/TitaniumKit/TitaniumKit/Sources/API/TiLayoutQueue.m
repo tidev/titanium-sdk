@@ -8,8 +8,8 @@
 #ifndef TI_USE_AUTOLAYOUT
 
 #import "TiLayoutQueue.h"
-#import <TitaniumKit/TiViewProxy.h>
 #import <CoreFoundation/CoreFoundation.h>
+#import <TitaniumKit/TiViewProxy.h>
 #import <pthread.h>
 
 #define LAYOUT_TIMER_INTERVAL 0.05

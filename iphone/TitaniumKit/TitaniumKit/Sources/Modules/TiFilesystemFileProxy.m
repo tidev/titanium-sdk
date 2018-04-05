@@ -6,9 +6,9 @@
  */
 
 #import "TiFilesystemFileProxy.h"
+#import "TiFilesystemFileStreamProxy.h"
 #import <TitaniumKit/TiBase.h>
 #import <TitaniumKit/TiBlob.h>
-#import "TiFilesystemFileStreamProxy.h"
 #import <TitaniumKit/TiUtils.h>
 #include <sys/xattr.h>
 

@@ -9,15 +9,15 @@
 #import "TiUITableView.h"
 #import "TiUITableViewProxy.h"
 
-#import <TitaniumKit/TiWindowProxy.h>
-#import <TitaniumKit/TiLayoutQueue.h>
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiLayoutQueue.h>
 #import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import <TitaniumKit/Webfont.h>
+#import <TitaniumKit/TiWindowProxy.h>
 #import <TitaniumKit/Webcolor.h>
+#import <TitaniumKit/Webfont.h>
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 29.0
 #define GROUPED_MARGIN_WIDTH 18.0

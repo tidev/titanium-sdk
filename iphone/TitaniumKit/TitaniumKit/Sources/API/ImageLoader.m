@@ -5,12 +5,12 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/ImageLoader.h>
 #import "OperationQueue.h"
-#import <TitaniumKit/TiApp.h>
-#import <TitaniumKit/TiUtils.h>
 #import "UIImage+Resize.h"
 #import <CommonCrypto/CommonDigest.h>
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiUtils.h>
 
 //#define DEBUG_IMAGE_CACHE
 

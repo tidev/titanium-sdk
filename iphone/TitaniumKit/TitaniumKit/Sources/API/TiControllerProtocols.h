@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/TiViewProxy.h>
 #import <Foundation/Foundation.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 /**
  Protocol for orientation controller.

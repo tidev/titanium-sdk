@@ -7,8 +7,8 @@
 
 #ifndef TI_USE_AUTOLAYOUT
 
-#import <TitaniumKit/TiDimension.h>
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiDimension.h>
 #import <TitaniumKit/TiUtils.h>
 
 const TiDimension TiDimensionZero = { TiDimensionTypeDip, 0 };

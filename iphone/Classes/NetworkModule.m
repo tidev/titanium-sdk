@@ -8,10 +8,10 @@
 
 #import "NetworkModule.h"
 #import "Reachability.h"
-#import <TitaniumKit/TiApp.h>
-#import <TitaniumKit/TiBlob.h>
 #import "TiNetworkCookieProxy.h"
 #import "TiNetworkSocketProxy.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 
 NSString *const INADDR_ANY_token = @"INADDR_ANY";

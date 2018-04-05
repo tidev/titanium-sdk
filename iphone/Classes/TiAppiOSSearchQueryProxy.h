@@ -6,8 +6,8 @@
  */
 #if IS_XCODE_8
 #ifdef USE_TI_APPIOSSEARCHQUERY
-#import <TitaniumKit/TiProxy.h>
 #import <CoreSpotlight/CoreSpotlight.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiAppiOSSearchQueryProxy : TiProxy {
   CSSearchQuery *query;

@@ -10,10 +10,10 @@
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiHost.h>
 #import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
-#import <TitaniumKit/TiHost.h>
 
 #import "TiUIWebView.h"
 #import "TiUIWebViewProxy.h"

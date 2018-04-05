@@ -10,8 +10,8 @@
 #import <TitaniumKit/TiHost.h>
 #import <TitaniumKit/TiUtils.h>
 
-#import "TiUIWebViewProxy.h"
 #import "TiUIWebView.h"
+#import "TiUIWebViewProxy.h"
 
 @implementation TiUIWebViewProxy
 

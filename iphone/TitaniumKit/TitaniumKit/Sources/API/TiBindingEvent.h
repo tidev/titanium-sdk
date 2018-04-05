@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#include <stdbool.h>
 #import <TitaniumKit/TiProxy.h>
+#include <stdbool.h>
 
 @import Foundation;
 

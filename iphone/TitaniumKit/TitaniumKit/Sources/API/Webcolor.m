@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/Webcolor.h>
 #import <TitaniumKit/TiBase.h>
 #import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 
 NSString *const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND = @"scrollview_textured";
 NSString *const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND = @"view_flipside";

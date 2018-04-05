@@ -9,8 +9,8 @@
 #import "TiUIActivityIndicator.h"
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import <TitaniumKit/Webfont.h>
 #import <TitaniumKit/Webcolor.h>
+#import <TitaniumKit/Webfont.h>
 
 @implementation TiUIActivityIndicator
 

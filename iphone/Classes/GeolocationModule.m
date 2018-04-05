@@ -11,8 +11,8 @@
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiEvaluator.h>
 
-#import "GeolocationModule.h"
 #import "AnalyticsModule.h"
+#import "GeolocationModule.h"
 
 #import <sys/utsname.h>
 
