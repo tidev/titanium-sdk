@@ -60,7 +60,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	return nil;
 }
 
-@interface LocalProtocolHandler : NSURLProtocol
+@interface LocalProtocolHandler : NSURLProtocol {
+}
++ (void)setContentInjection:(NSString *)contentInjection;
+
 @end
  
 @implementation TiUIWebView
@@ -703,7 +706,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			reloadMethod = @selector(setUrl_:);
 		}
 		if ([scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
-			[NSURLProtocol setProperty:[self titaniumInjection] forKey:kContentInjection inRequest:(NSMutableURLRequest *)request];
+      			[LocalProtocolHandler setContentInjection:[self titaniumInjection]];
 		}
 		return YES;
 	}
@@ -836,20 +839,38 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 @end
 
 @implementation LocalProtocolHandler
+static NSString *_contentInjection = nil;
+
++ (void)setContentInjection:(NSString *)contentInjection
+{
+  if (_contentInjection != nil) {
+    RELEASE_TO_NIL(_contentInjection);
+  }
+  _contentInjection = [contentInjection retain];
+}
+
+- (void)dealloc
+{
+  RELEASE_TO_NIL(_contentInjection);
+  [super dealloc];
+}
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
-	return [request.URL.scheme isEqualToString:@"file"];
+  return [request.URL.scheme isEqualToString:@"file"];
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
-	return request;
+  // TIMOB-25762: iOS 11.3 breaks NSURLProtocol properties, so we need to set it here instead of inside the webview
+  [NSURLProtocol setProperty:_contentInjection forKey:@"kContentInjection" inRequest:(NSMutableURLRequest *)request];
+
+  return request;
 }
 
 + (BOOL)requestIsCacheEquivalent:(NSURLRequest *)a toRequest:(NSURLRequest *)b
 {
-	return NO;
+  return NO;
 }
 
 - (void)startLoading
