@@ -26,6 +26,7 @@
 #import "TiLogServer.h"
 #import <TitaniumKit/TiBase.h>
 #import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiSharedConfig.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 
@@ -241,18 +242,15 @@ __unused static int counter = 0;
   if (headers == nil) {
     __unused NSString *version = [NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding];
     
-// FIXME: Move to shared config
-//    NSDictionary *map = [[NSDictionary alloc] initWithObjectsAndKeys:
-//                                                  TI_APPLICATION_NAME, @"name",
-//                                              TI_APPLICATION_ID, @"appId",
-//                                              TI_APPLICATION_VERSION, @"version",
-//                                              TI_APPLICATION_DEPLOYTYPE, @"deployType",
-//                                              TI_APPLICATION_GUID, @"guid",
-//                                              version, @"tiSDKVersion",
-//                                              @"__GITHASH__", @"githash",
-//                                              nil];
-//
-    NSDictionary *map = [NSDictionary new];
+    NSDictionary *map = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                              [[TiSharedConfig defaultConfig] applicationName], @"name",
+                                              [[TiSharedConfig defaultConfig] applicationID], @"appId",
+                                              [[TiSharedConfig defaultConfig] applicationVersion], @"version",
+                                              [[TiSharedConfig defaultConfig] applicationDeployType], @"deployType",
+                                              [[TiSharedConfig defaultConfig] applicationGUID], @"guid",
+                                              version, @"tiSDKVersion",
+                                              @"__GITHASH__", @"githash",
+                                              nil];
 
     headers = [[[[TiUtils jsonStringify:map] stringByAppendingString:@"\r\n"] dataUsingEncoding:NSUTF8StringEncoding] retain];
 

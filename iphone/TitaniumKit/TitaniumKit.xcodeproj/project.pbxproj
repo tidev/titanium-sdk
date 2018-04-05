@@ -147,6 +147,8 @@
 		DB15FD311F0A948B00A82C45 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FD2F1F0A948B00A82C45 /* TiUIiOSTransitionAnimationProxy.m */; };
 		DB15FD341F0A95C500A82C45 /* TiUIViewProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FD321F0A95C500A82C45 /* TiUIViewProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FD351F0A95C500A82C45 /* TiUIViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FD331F0A95C500A82C45 /* TiUIViewProxy.m */; };
+		DB24E0502076824C0033B2B1 /* TiSharedConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = DB24E04E2076824C0033B2B1 /* TiSharedConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DB24E0512076824C0033B2B1 /* TiSharedConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = DB24E04F2076824C0033B2B1 /* TiSharedConfig.m */; };
 		DB258CD21F09757E000D0D8D /* TitaniumKit.h in Headers */ = {isa = PBXBuildFile; fileRef = DB258CD01F09757E000D0D8D /* TitaniumKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB258D611F097680000D0D8D /* Bridge.h in Headers */ = {isa = PBXBuildFile; fileRef = DB258D191F097680000D0D8D /* Bridge.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB258D621F097680000D0D8D /* Bridge.m in Sources */ = {isa = PBXBuildFile; fileRef = DB258D1A1F097680000D0D8D /* Bridge.m */; };
@@ -305,6 +307,8 @@
 		DB15FD2F1F0A948B00A82C45 /* TiUIiOSTransitionAnimationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTransitionAnimationProxy.m; sourceTree = "<group>"; };
 		DB15FD321F0A95C500A82C45 /* TiUIViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIViewProxy.h; sourceTree = "<group>"; };
 		DB15FD331F0A95C500A82C45 /* TiUIViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIViewProxy.m; sourceTree = "<group>"; };
+		DB24E04E2076824C0033B2B1 /* TiSharedConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiSharedConfig.h; sourceTree = "<group>"; };
+		DB24E04F2076824C0033B2B1 /* TiSharedConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiSharedConfig.m; sourceTree = "<group>"; };
 		DB258CCD1F09757E000D0D8D /* TitaniumKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TitaniumKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DB258CD01F09757E000D0D8D /* TitaniumKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TitaniumKit.h; sourceTree = "<group>"; };
 		DB258CD11F09757E000D0D8D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -615,6 +619,8 @@
 			isa = PBXGroup;
 			children = (
 				DB5813E62075FCF200CA1437 /* TiDefines.h */,
+				DB24E04E2076824C0033B2B1 /* TiSharedConfig.h */,
+				DB24E04F2076824C0033B2B1 /* TiSharedConfig.m */,
 			);
 			path = Misc;
 			sourceTree = "<group>";
@@ -694,6 +700,7 @@
 				DB15FD201F0A8A5E00A82C45 /* TiComplexValue.h in Headers */,
 				DB15965E2075458A00292B19 /* XHRBridge.h in Headers */,
 				DB5813E72075FCF200CA1437 /* TiDefines.h in Headers */,
+				DB24E0502076824C0033B2B1 /* TiSharedConfig.h in Headers */,
 				DB15FC3D1F0A833100A82C45 /* KrollObject.h in Headers */,
 				DB15FCA81F0A866300A82C45 /* TiRect.h in Headers */,
 				DB15FD281F0A93A900A82C45 /* TiFilesystemFileStreamProxy.h in Headers */,
@@ -854,6 +861,7 @@
 				DB15FCCD1F0A87A400A82C45 /* TiErrorController.m in Sources */,
 				DB15FC601F0A84C900A82C45 /* Webcolor.m in Sources */,
 				DB15FC8A1F0A859800A82C45 /* TiExceptionHandler.m in Sources */,
+				DB24E0512076824C0033B2B1 /* TiSharedConfig.m in Sources */,
 				DB15FC951F0A860600A82C45 /* TiAnimation.m in Sources */,
 				DB15FC341F0A833100A82C45 /* KrollCallback.m in Sources */,
 				DB15FCA91F0A866300A82C45 /* TiRect.m in Sources */,
@@ -985,6 +993,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_UNDECLARED_SELECTOR = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				INFOPLIST_FILE = TitaniumKit/Info.plist;
