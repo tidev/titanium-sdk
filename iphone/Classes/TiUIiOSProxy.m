@@ -25,7 +25,7 @@
 #endif
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
-#import "TiUIiOSTransitionAnimationProxy.h"
+#import <TitaniumKit/TiUIiOSTransitionAnimationProxy.h>
 #endif
 
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW

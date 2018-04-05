@@ -14,6 +14,7 @@ FOUNDATION_EXPORT double TitaniumKitVersionNumber;
 //! Project version string for TitaniumKit.
 FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 
+#import <TitaniumKit/TiDefines.h>
 #import <TitaniumKit/APIModule.h>
 #import <TitaniumKit/TiComplexValue.h>
 #import <TitaniumKit/APSAnalytics.h>

@@ -10,7 +10,7 @@
 #import "TiBindingRunLoop.h"
 #import "TiBindingTiValue.h"
 #import "TiExceptionHandler.h"
-#include "TiToJS.h"
+#include <TitaniumKit/TiToJS.h>
 #import <TitaniumKit/TiUtils.h>
 #include <libkern/OSAtomic.h>
 

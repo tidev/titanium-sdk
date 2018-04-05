@@ -249,6 +249,8 @@
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		DB0D54951F3B4A3D00E2B771 /* TiUIToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */; };
 		DB15964A2075246300292B19 /* TitaniumKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB3908712075242600AE31EC /* TitaniumKit.framework */; };
+		DB5813F1207601D300CA1437 /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB5813EF207601D300CA1437 /* libAPSHTTPClient.a */; };
+		DB5813F2207601D300CA1437 /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB5813F0207601D300CA1437 /* libAPSAnalytics.a */; };
 		DB90749F1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */; };
 		EF0ADD1A143FA0CD00977386 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD19143FA0CD00977386 /* GeolocationModule.m */; };
 /* End PBXBuildFile section */
@@ -261,7 +263,7 @@
 			remoteGlobalIDString = DB258CCD1F09757E000D0D8D;
 			remoteInfo = TitaniumKit;
 		};
-		DB3908722075243300AE31EC /* PBXContainerItemProxy */ = {
+		DB5813ED2075FF1300CA1437 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DB39086B2075242500AE31EC /* TitaniumKit.xcodeproj */;
 			proxyType = 1;
@@ -746,6 +748,8 @@
 		DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIToolbarProxy.m; sourceTree = "<group>"; };
 		DB3246B32028AAE3006CADFC /* TiMediaTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiMediaTypes.h; sourceTree = "<group>"; };
 		DB39086B2075242500AE31EC /* TitaniumKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TitaniumKit.xcodeproj; path = ../TitaniumKit/TitaniumKit.xcodeproj; sourceTree = "<group>"; };
+		DB5813EF207601D300CA1437 /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = ../lib/libAPSHTTPClient.a; sourceTree = "<group>"; };
+		DB5813F0207601D300CA1437 /* libAPSAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSAnalytics.a; path = ../lib/libAPSAnalytics.a; sourceTree = "<group>"; };
 		DB90749D1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSFeedbackGeneratorProxy.h; sourceTree = "<group>"; };
 		DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSFeedbackGeneratorProxy.m; sourceTree = "<group>"; };
 		EF0ADD19143FA0CD00977386 /* GeolocationModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeolocationModule.m; sourceTree = "<group>"; };
@@ -781,6 +785,8 @@
 				24CA8CF4111168AE0084E2DE /* MediaPlayer.framework in Frameworks */,
 				24CA8CFB111168C30084E2DE /* AVFoundation.framework in Frameworks */,
 				DB15964A2075246300292B19 /* TitaniumKit.framework in Frameworks */,
+				DB5813F1207601D300CA1437 /* libAPSHTTPClient.a in Frameworks */,
+				DB5813F2207601D300CA1437 /* libAPSAnalytics.a in Frameworks */,
 				24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */,
 				24D5C75911E6364F00F097E2 /* libtiverify.a in Frameworks */,
 			);
@@ -1678,6 +1684,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DB5813F0207601D300CA1437 /* libAPSAnalytics.a */,
+				DB5813EF207601D300CA1437 /* libAPSHTTPClient.a */,
 				8465E6BB19F8644D008479E6 /* CoreMedia.framework */,
 				84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */,
 				B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */,
@@ -2030,7 +2038,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				DB3908732075243300AE31EC /* PBXTargetDependency */,
+				DB5813EE2075FF1300CA1437 /* PBXTargetDependency */,
 			);
 			name = Titanium;
 			productName = Titanium;
@@ -2352,10 +2360,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		DB3908732075243300AE31EC /* PBXTargetDependency */ = {
+		DB5813EE2075FF1300CA1437 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = TitaniumKit;
-			targetProxy = DB3908722075243300AE31EC /* PBXContainerItemProxy */;
+			targetProxy = DB5813ED2075FF1300CA1437 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2386,13 +2394,13 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/../Classes/APSAnalytics\"",
-					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
+					"\"$(SRCROOT)/../TitaniumKit/TitaniumKit/lib\"",
 				);
 				OTHER_CFLAGS = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "$(ARCHS_STANDARD)";
 				WARNING_CFLAGS = "-Wno-arc-performSelector-leaks";
 			};
 			name = Debug;
@@ -2421,13 +2429,13 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/../Classes/APSAnalytics\"",
-					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
+					"\"$(SRCROOT)/../TitaniumKit/TitaniumKit/lib\"",
 				);
 				OTHER_CFLAGS = "-DNDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "$(ARCHS_STANDARD)";
 				WARNING_CFLAGS = "-Wno-arc-performSelector-leaks";
 			};
 			name = Release;

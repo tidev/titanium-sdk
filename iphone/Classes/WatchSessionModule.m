@@ -8,7 +8,7 @@
 #ifdef USE_TI_WATCHSESSION
 
 #import "WatchSessionModule.h"
-#import "TiEvaluator.h"
+#import <TitaniumKit/TiEvaluator.h>
 #import <TitaniumKit/TiUtils.h>
 
 @interface WatchMessageCallback : NSObject {

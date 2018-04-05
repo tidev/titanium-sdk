@@ -31,8 +31,9 @@
 
 #import "LauncherItem.h"
 #import "LauncherButton.h"
+
 #import <TitaniumKit/TiUIView.h>
-#import "TiUIViewProxy.h"
+#import <TitaniumKit/TiUIViewProxy.h>
 
 @implementation LauncherItem
 

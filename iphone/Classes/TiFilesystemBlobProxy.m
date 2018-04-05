@@ -9,7 +9,7 @@
 #ifdef USE_TI_FILESYSTEM
 #import <TitaniumKit/TiBase.h>
 
-#import "Mimetypes.h"
+#import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 

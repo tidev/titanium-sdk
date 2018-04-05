@@ -177,6 +177,7 @@
 		DB3908682075228900AE31EC /* APSHTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = DB3908622075228900AE31EC /* APSHTTPClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB3908692075228900AE31EC /* APSHTTPHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = DB3908632075228900AE31EC /* APSHTTPHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB39086A2075228900AE31EC /* APSHTTPPostForm.h in Headers */ = {isa = PBXBuildFile; fileRef = DB3908642075228900AE31EC /* APSHTTPPostForm.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DB5813E72075FCF200CA1437 /* TiDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = DB5813E62075FCF200CA1437 /* TiDefines.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -336,6 +337,9 @@
 		DB3908622075228900AE31EC /* APSHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPClient.h; sourceTree = "<group>"; };
 		DB3908632075228900AE31EC /* APSHTTPHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPHelper.h; sourceTree = "<group>"; };
 		DB3908642075228900AE31EC /* APSHTTPPostForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPPostForm.h; sourceTree = "<group>"; };
+		DB5813E62075FCF200CA1437 /* TiDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiDefines.h; sourceTree = "<group>"; };
+		DB5813E82075FDC600CA1437 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		DB5813E92075FDF600CA1437 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSAnalytics.a; path = TitaniumKit/lib/libAPSAnalytics.a; sourceTree = "<group>"; };
 		DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = TitaniumKit/lib/libAPSHTTPClient.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -408,6 +412,7 @@
 		DB258CD81F0975CD000D0D8D /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				DB5813E52075FCE300CA1437 /* Misc */,
 				DB39085B2075228900AE31EC /* Libraries */,
 				DB258D181F097680000D0D8D /* API */,
 				DB258CDA1F0975F7000D0D8D /* Kroll */,
@@ -565,9 +570,9 @@
 		DB258DA91F097691000D0D8D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				DB3908582075221D00AE31EC /* libsqlite3.tbd */,
 				DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */,
 				DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */,
+				DB3908582075221D00AE31EC /* libsqlite3.tbd */,
 				DB258DAC1F097697000D0D8D /* Foundation.framework */,
 				DB258DAA1F097692000D0D8D /* JavaScriptCore.framework */,
 			);
@@ -588,6 +593,7 @@
 			isa = PBXGroup;
 			children = (
 				DB39085F2075228900AE31EC /* APSAnalytics.h */,
+				DB5813E82075FDC600CA1437 /* module.modulemap */,
 			);
 			path = APSAnalytics;
 			sourceTree = "<group>";
@@ -600,8 +606,17 @@
 				DB3908622075228900AE31EC /* APSHTTPClient.h */,
 				DB3908632075228900AE31EC /* APSHTTPHelper.h */,
 				DB3908642075228900AE31EC /* APSHTTPPostForm.h */,
+				DB5813E92075FDF600CA1437 /* module.modulemap */,
 			);
 			path = APSHTTPClient;
+			sourceTree = "<group>";
+		};
+		DB5813E52075FCE300CA1437 /* Misc */ = {
+			isa = PBXGroup;
+			children = (
+				DB5813E62075FCF200CA1437 /* TiDefines.h */,
+			);
+			path = Misc;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -678,6 +693,7 @@
 				DB15FC411F0A833100A82C45 /* KrollTimer.h in Headers */,
 				DB15FD201F0A8A5E00A82C45 /* TiComplexValue.h in Headers */,
 				DB15965E2075458A00292B19 /* XHRBridge.h in Headers */,
+				DB5813E72075FCF200CA1437 /* TiDefines.h in Headers */,
 				DB15FC3D1F0A833100A82C45 /* KrollObject.h in Headers */,
 				DB15FCA81F0A866300A82C45 /* TiRect.h in Headers */,
 				DB15FD281F0A93A900A82C45 /* TiFilesystemFileStreamProxy.h in Headers */,
@@ -961,7 +977,7 @@
 		DB258CD61F09757E000D0D8D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -987,13 +1003,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.TitaniumKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				VALID_ARCHS = "$(ARCHS_STANDARD)";
 			};
 			name = Debug;
 		};
 		DB258CD71F09757E000D0D8D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
+				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -1019,6 +1036,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.TitaniumKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				VALID_ARCHS = "$(ARCHS_STANDARD)";
 			};
 			name = Release;
 		};
