@@ -1,0 +1,43 @@
+<Window #window backgroundColor="#fafafa">
+    <VerticalLayout>
+        <View height="300">
+            <View #gradient [backgroundGradient]="skyGradient" top="-40" height="260" width="120%"></View>
+            <HorizontalLayout top="0">
+                <View width="50%">
+                    <ImageView #imageView image="images/angular.png" width="180" right="0"></ImageView>
+                </View>
+                <View width="50%">
+                    <Label color="white" [font]="{ fontSize: 32 }" top="100" left="10">Now on Titanium</Label>
+                </View>
+            </HorizontalLayout>
+        </View>
+        <View height="200">
+            <View *platform="'ios'" backgroundColor="white" top="5" left="40" right="40" bottom="5" borderRadius="4" viewShadowColor="#5510141f" [viewShadowOffset]="{x: 0, y: 2}" viewShadowRadius="2">
+                <VerticalLayout top="10" left="10" right="10" bottom="10">
+                    <Label top="5" [font]="{ fontSize: 18, fontWeight: 'bold' }" color="#1976d2" textAlign="center">{{ cardTitle }}</Label>
+                    <Label top="15" color="black">{{ cardText }}</Label>
+                </VerticalLayout>
+            </View>
+            <View *platform="'android'">
+                <CardView padding="10" top="5" left="40" right="40" bottom="5" borderRadius="4">
+                    <VerticalLayout>
+                        <Label top="5" [font]="{ fontSize: 18, fontWeight: 'bold' }" color="#1976d2" textAlign="center">{{ cardTitle }}</Label>
+                        <Label top="15" color="black">{{ cardText }}</Label>
+                    </VerticalLayout>
+                </CardView>
+            </View>
+        </View>
+        <View>
+        <Button #demoButton
+          title="Tap me!"
+          (click)="increaseTapCount()"
+          bottom="40"
+          height="40"
+          width="150"
+          backgroundColor="#1976d2"
+          color="white"
+          borderRadius="20">
+        </Button>
+      </View>
+    </VerticalLayout>
+</Window>
