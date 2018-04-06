@@ -475,7 +475,7 @@ public class TiUIScrollView extends TiUIView
 		private TiScrollViewLayout layout;
 		private NestedScrollingChildHelper nestedScrollingChildHelper;
 
-		protected TiHorizontalScrollView(Context context, LayoutArrangement arrangement)
+		public TiHorizontalScrollView(Context context, LayoutArrangement arrangement)
 		{
 			super(context);
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
