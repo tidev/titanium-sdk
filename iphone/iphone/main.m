@@ -27,8 +27,8 @@ NSString * const TI_APPLICATION_BUILD_TYPE = nil;
 
 int main(int argc, char *argv[]) {
   // Make config available to TitaniumKit
-  // TODO: Is this really a good solution? We should get rid of preprocessor statements all together
-  // and inject these values via placeholders, like we do with __GITHASH__.
+  // TODO: Get rid of preprocessor statements all together and
+  // inject these values via placeholders, like we do with __GITHASH__.
   [[TiSharedConfig defaultConfig] setApplicationName:TI_APPLICATION_NAME];
   [[TiSharedConfig defaultConfig] setApplicationID:TI_APPLICATION_ID];
   [[TiSharedConfig defaultConfig] setApplicationVersion:TI_APPLICATION_VERSION];
