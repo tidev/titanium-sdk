@@ -17,11 +17,6 @@ description: |
 
     * `PLAIN`. Default style for `ButtonBar` and `TabbedBar`.
     * `BORDERED`. Creates a bar like the `PLAIN` bar, but with a heavier border.
-    * `BAR`. Creates a more compact bar with
-            translucent buttons that allow the bar's background color to show through.
-
-    If you want the background color or background gradient of the button bar itself 
-    to show through, the style must be set to <Titanium.UI.iOS.SystemButtonStyle.BAR>.
 
     Note that you cannot style individual buttons in a button bar. If you want to give a
     distinct visual style to individual buttons, to use an icon and text on the same button,
@@ -97,7 +92,7 @@ examples:
             	labels:['One', 'Two', 'Three'],
             	backgroundColor:'#336699',
             	top:50,
-            	style:Titanium.UI.iOS.SystemButtonStyle.BAR,
+            	style:Titanium.UI.iOS.SystemButtonStyle.PLAIN,
             	height:25,
             	width:200
             });
