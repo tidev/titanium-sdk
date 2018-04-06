@@ -160,7 +160,6 @@
 		DB258D891F097680000D0D8D /* TiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB258D411F097680000D0D8D /* TiModule.m */; };
 		DB258D8C1F097680000D0D8D /* TiProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = DB258D441F097680000D0D8D /* TiProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB258D8D1F097680000D0D8D /* TiProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB258D451F097680000D0D8D /* TiProxy.m */; };
-		DB258D9A1F097680000D0D8D /* TiToJS.h in Headers */ = {isa = PBXBuildFile; fileRef = DB258D521F097680000D0D8D /* TiToJS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB258D9B1F097680000D0D8D /* TiToolbar.h in Headers */ = {isa = PBXBuildFile; fileRef = DB258D531F097680000D0D8D /* TiToolbar.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB258D9D1F097680000D0D8D /* TiUIView.h in Headers */ = {isa = PBXBuildFile; fileRef = DB258D551F097680000D0D8D /* TiUIView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB258D9E1F097680000D0D8D /* TiUIView.m in Sources */ = {isa = PBXBuildFile; fileRef = DB258D561F097680000D0D8D /* TiUIView.m */; };
@@ -322,7 +321,6 @@
 		DB258D411F097680000D0D8D /* TiModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiModule.m; sourceTree = "<group>"; };
 		DB258D441F097680000D0D8D /* TiProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiProxy.h; sourceTree = "<group>"; };
 		DB258D451F097680000D0D8D /* TiProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiProxy.m; sourceTree = "<group>"; };
-		DB258D521F097680000D0D8D /* TiToJS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToJS.h; sourceTree = "<group>"; };
 		DB258D531F097680000D0D8D /* TiToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbar.h; sourceTree = "<group>"; };
 		DB258D551F097680000D0D8D /* TiUIView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIView.h; sourceTree = "<group>"; };
 		DB258D561F097680000D0D8D /* TiUIView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIView.m; sourceTree = "<group>"; };
@@ -558,7 +556,6 @@
 				DB15FC481F0A83A700A82C45 /* WebFont.m */,
 				DB258D441F097680000D0D8D /* TiProxy.h */,
 				DB258D451F097680000D0D8D /* TiProxy.m */,
-				DB258D521F097680000D0D8D /* TiToJS.h */,
 				DB258D531F097680000D0D8D /* TiToolbar.h */,
 				DB258D551F097680000D0D8D /* TiUIView.h */,
 				DB258D561F097680000D0D8D /* TiUIView.m */,
@@ -712,7 +709,6 @@
 				DB15FCF71F0A889100A82C45 /* TiLayoutQueue.h in Headers */,
 				DB15FCCC1F0A87A400A82C45 /* TiErrorController.h in Headers */,
 				DB15FC5F1F0A84C900A82C45 /* Webcolor.h in Headers */,
-				DB258D9A1F097680000D0D8D /* TiToJS.h in Headers */,
 				DB258DA31F097680000D0D8D /* TiViewTemplate.h in Headers */,
 				DB15FCD41F0A87DE00A82C45 /* ApplicationDefaults.h in Headers */,
 				DB15FD1A1F0A89A400A82C45 /* TiUIWindow.h in Headers */,

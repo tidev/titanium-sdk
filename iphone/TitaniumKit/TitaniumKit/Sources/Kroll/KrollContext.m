@@ -21,12 +21,12 @@ static pthread_mutex_t KrollEntryLock;
 
 @implementation KrollUnprotectOperation
 
-- (id)initWithContext:(TiContextRef)newContext withJsobject:(TiObjectRef)newFirst
+- (id)initWithContext:(JSContextRef)newContext withJsobject:(JSObjectRef)newFirst
 {
   return [self initWithContext:newContext withJsobject:newFirst andJsobject:NULL];
 }
 
-- (id)initWithContext:(TiContextRef)newContext withJsobject:(TiObjectRef)newFirst andJsobject:(TiObjectRef)newSecond
+- (id)initWithContext:(JSContextRef)newContext withJsobject:(JSObjectRef)newFirst andJsobject:(JSObjectRef)newSecond
 {
   self = [super init];
   if (self != nil) {
@@ -39,9 +39,9 @@ static pthread_mutex_t KrollEntryLock;
 
 - (void)main
 {
-  TiValueUnprotect(jsContext, firstObject);
+  JSValueUnprotect(jsContext, firstObject);
   if (secondObject != NULL) {
-    TiValueUnprotect(jsContext, secondObject);
+    JSValueUnprotect(jsContext, secondObject);
   }
 }
 
@@ -108,33 +108,33 @@ static pthread_mutex_t KrollEntryLock;
 
 @end
 
-TiContextRef appJsContextRef = NULL;
+JSContextRef appJsContextRef = NULL;
 KrollContext *appJsKrollContext = nil;
 
-KrollContext *GetKrollContext(TiContextRef context)
+KrollContext *GetKrollContext(JSContextRef context)
 {
   if (context == appJsContextRef) {
     return appJsKrollContext;
   }
   static const char *krollNS = "Kroll";
-  TiGlobalContextRef globalContext = TiContextGetGlobalContext(context);
-  TiObjectRef global = TiContextGetGlobalObject(globalContext);
-  TiStringRef string = TiStringCreateWithUTF8CString(krollNS);
-  TiValueRef value = TiObjectGetProperty(globalContext, global, string, NULL);
-  KrollContext *ctx = (KrollContext *)TiObjectGetPrivate(TiValueToObject(globalContext, value, NULL));
-  TiStringRelease(string);
+  JSGlobalContextRef globalContext = JSContextGetGlobalContext(context);
+  JSObjectRef global = JSContextGetGlobalObject(globalContext);
+  JSStringRef string = JSStringCreateWithUTF8CString(krollNS);
+  JSValueRef value = JSObjectGetProperty(globalContext, global, string, NULL);
+  KrollContext *ctx = (KrollContext *)JSObjectGetPrivate(JSValueToObject(globalContext, value, NULL));
+  JSStringRelease(string);
   return ctx;
 }
 
-TiValueRef ThrowException(TiContextRef ctx, NSString *message, TiValueRef *exception)
+JSValueRef ThrowException(JSContextRef ctx, NSString *message, JSValueRef *exception)
 {
-  TiStringRef jsString = TiStringCreateWithCFString((CFStringRef)message);
-  *exception = TiValueMakeString(ctx, jsString);
-  TiStringRelease(jsString);
-  return TiValueMakeUndefined(ctx);
+  JSStringRef jsString = JSStringCreateWithCFString((CFStringRef)message);
+  *exception = JSValueMakeString(ctx, jsString);
+  JSStringRelease(jsString);
+  return JSValueMakeUndefined(ctx);
 }
 
-static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValueRef fnRef, TiObjectRef jsThis, TiValueRef durationRef, BOOL onetime)
+static JSValueRef MakeTimer(JSContextRef context, JSObjectRef jsFunction, JSValueRef fnRef, JSObjectRef jsThis, JSValueRef durationRef, BOOL onetime)
 {
   static dispatch_once_t timerInitializer;
   static NSLock *timerIDLock = nil;
@@ -149,61 +149,61 @@ static TiValueRef MakeTimer(TiContextRef context, TiObjectRef jsFunction, TiValu
   [timerIDLock unlock];
 
   KrollContext *ctx = GetKrollContext(context);
-  TiGlobalContextRef globalContext = TiContextGetGlobalContext(context);
-  TiValueRef exception = NULL;
-  double duration = TiValueToNumber(context, durationRef, &exception);
+  JSGlobalContextRef globalContext = JSContextGetGlobalContext(context);
+  JSValueRef exception = NULL;
+  double duration = JSValueToNumber(context, durationRef, &exception);
   if (exception != NULL) {
     DebugLog(@"[ERROR] Conversion of timer duration to number failed.");
-    return TiValueMakeUndefined(context);
+    return JSValueMakeUndefined(context);
   }
   KrollTimer *timer = [[KrollTimer alloc] initWithContext:globalContext function:fnRef jsThis:jsThis duration:duration onetime:onetime kroll:ctx timerId:timerID];
   [ctx registerTimer:timer timerId:timerID];
   [timer start];
   [timer release];
-  return TiValueMakeNumber(context, timerID);
+  return JSValueMakeNumber(context, timerID);
 }
 
-static TiValueRef ClearTimerCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
-    const TiValueRef args[], TiValueRef *exception)
+static JSValueRef ClearTimerCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
+    const JSValueRef args[], JSValueRef *exception)
 {
   if (argCount != 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
 
   KrollContext *ctx = GetKrollContext(jsContext);
-  [ctx unregisterTimer:TiValueToNumber(jsContext, args[0], NULL)];
+  [ctx unregisterTimer:JSValueToNumber(jsContext, args[0], NULL)];
 
-  return TiValueMakeUndefined(jsContext);
+  return JSValueMakeUndefined(jsContext);
 }
-static TiValueRef SetIntervalCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
-    const TiValueRef args[], TiValueRef *exception)
+static JSValueRef SetIntervalCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
+    const JSValueRef args[], JSValueRef *exception)
 {
   // NOTE: function can be either Function or String object type
   if (argCount != 2) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
 
-  TiValueRef fnRef = args[0];
-  TiValueRef durationRef = args[1];
+  JSValueRef fnRef = args[0];
+  JSValueRef durationRef = args[1];
 
   return MakeTimer(jsContext, jsFunction, fnRef, jsThis, durationRef, NO);
 }
 
-static TiValueRef SetTimeoutCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
-    const TiValueRef args[], TiValueRef *exception)
+static JSValueRef SetTimeoutCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
+    const JSValueRef args[], JSValueRef *exception)
 {
   if (argCount != 2) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
   }
 
-  TiValueRef fnRef = args[0];
-  TiValueRef durationRef = args[1];
+  JSValueRef fnRef = args[0];
+  JSValueRef durationRef = args[1];
 
   return MakeTimer(jsContext, jsFunction, fnRef, jsThis, durationRef, YES);
 }
 
-static TiValueRef CommonJSRequireCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
-    const TiValueRef args[], TiValueRef *exception)
+static JSValueRef CommonJSRequireCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
+    const JSValueRef args[], JSValueRef *exception)
 {
   if (argCount != 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
@@ -220,8 +220,8 @@ static TiValueRef CommonJSRequireCallback(TiContextRef jsContext, TiObjectRef js
   }
 }
 
-static TiValueRef LCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
-    const TiValueRef args[], TiValueRef *exception)
+static JSValueRef LCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
+    const JSValueRef args[], JSValueRef *exception)
 {
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
@@ -239,8 +239,8 @@ static TiValueRef LCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiOb
   }
 }
 
-static TiValueRef AlertCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
-    const TiValueRef args[], TiValueRef *exception)
+static JSValueRef AlertCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
+    const JSValueRef args[], JSValueRef *exception)
 {
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
@@ -253,11 +253,11 @@ static TiValueRef AlertCallback(TiContextRef jsContext, TiObjectRef jsFunction, 
   [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:nil]];
   [[TiApp app] showModalController:alert animated:YES];
 
-  return TiValueMakeUndefined(jsContext);
+  return JSValueMakeUndefined(jsContext);
 }
 
-static TiValueRef StringFormatCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
-    const TiValueRef args[], TiValueRef *exception)
+static JSValueRef StringFormatCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
+    const JSValueRef args[], JSValueRef *exception)
 {
   if (argCount < 2) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
@@ -297,15 +297,15 @@ static TiValueRef StringFormatCallback(TiContextRef jsContext, TiObjectRef jsFun
   @try {
     for (size_t x = 1; (x < argCount) && (x <= formatCount); x++) {
       NSString *theFormat = [formatArray objectAtIndex:(x - 1)];
-      TiValueRef valueRef = args[x];
-      if (TiValueIsString(jsContext, valueRef) || TiValueIsObject(jsContext, valueRef)) {
+      JSValueRef valueRef = args[x];
+      if (JSValueIsString(jsContext, valueRef) || JSValueIsObject(jsContext, valueRef)) {
         id theResult = [KrollObject toID:ctx value:valueRef];
         [result appendString:[NSString stringWithFormat:theFormat, theResult]];
-      } else if (TiValueIsNumber(jsContext, valueRef)) {
-        double theResult = TiValueToNumber(jsContext, valueRef, NULL);
+      } else if (JSValueIsNumber(jsContext, valueRef)) {
+        double theResult = JSValueToNumber(jsContext, valueRef, NULL);
         [result appendString:[NSString stringWithFormat:theFormat, theResult]];
-      } else if (TiValueIsBoolean(jsContext, valueRef)) {
-        bool theResult = TiValueToBoolean(jsContext, valueRef);
+      } else if (JSValueIsBoolean(jsContext, valueRef)) {
+        bool theResult = JSValueToBoolean(jsContext, valueRef);
         [result appendString:[NSString stringWithFormat:theFormat, theResult]];
       }
       lastArgIndex = x;
@@ -314,7 +314,7 @@ static TiValueRef StringFormatCallback(TiContextRef jsContext, TiObjectRef jsFun
       // Append any remaining format components
       [result appendString:[[formatArray subarrayWithRange:NSMakeRange(lastArgIndex, formatCount - lastArgIndex)] componentsJoinedByString:@""]];
     }
-    TiValueRef value = [KrollObject toValue:ctx value:result];
+    JSValueRef value = [KrollObject toValue:ctx value:result];
     [result release];
     return value;
 
@@ -351,32 +351,32 @@ static TiValueRef StringFormatCallback(TiContextRef jsContext, TiObjectRef jsFun
     int size = 0;
     // we have to walk each type to detect the right size and alignment
     for (size_t x = 1; x < argCount; x++) {
-      TiValueRef valueRef = args[x];
-      if (TiValueIsString(jsContext, valueRef) || TiValueIsObject(jsContext, valueRef)) {
+      JSValueRef valueRef = args[x];
+      if (JSValueIsString(jsContext, valueRef) || JSValueIsObject(jsContext, valueRef)) {
         size += sizeof(id);
-      } else if (TiValueIsNumber(jsContext, valueRef)) {
+      } else if (JSValueIsNumber(jsContext, valueRef)) {
         size += sizeof(double);
-      } else if (TiValueIsBoolean(jsContext, valueRef)) {
+      } else if (JSValueIsBoolean(jsContext, valueRef)) {
         size += sizeof(bool);
       }
     }
     void *argList = malloc(size);
     void *bm = argList; // copy pointer since we move the other forward
     for (size_t x = 1; x < argCount; x++) {
-      TiValueRef valueRef = args[x];
-      if (TiValueIsString(jsContext, valueRef) || TiValueIsObject(jsContext, valueRef)) {
+      JSValueRef valueRef = args[x];
+      if (JSValueIsString(jsContext, valueRef) || JSValueIsObject(jsContext, valueRef)) {
         (*(id *)argList) = [KrollObject toID:ctx value:valueRef];
         argList += sizeof(id);
-      } else if (TiValueIsNumber(jsContext, valueRef)) {
-        (*(double *)argList) = TiValueToNumber(jsContext, valueRef, NULL);
+      } else if (JSValueIsNumber(jsContext, valueRef)) {
+        (*(double *)argList) = JSValueToNumber(jsContext, valueRef, NULL);
         argList += sizeof(double);
-      } else if (TiValueIsBoolean(jsContext, valueRef)) {
-        (*(bool *)argList) = TiValueToBoolean(jsContext, valueRef);
+      } else if (JSValueIsBoolean(jsContext, valueRef)) {
+        (*(bool *)argList) = JSValueToBoolean(jsContext, valueRef);
         argList += sizeof(bool);
       }
     }
     NSString *result = [[NSString alloc] initWithFormat:format arguments:bm];
-    TiValueRef value = [KrollObject toValue:ctx value:result];
+    JSValueRef value = [KrollObject toValue:ctx value:result];
     free(bm);
     [result release];
     return value;
@@ -387,8 +387,8 @@ static TiValueRef StringFormatCallback(TiContextRef jsContext, TiObjectRef jsFun
 #endif
 }
 
-static TiValueRef StringFormatDateCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
-    const TiValueRef args[], TiValueRef *exception)
+static JSValueRef StringFormatDateCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
+    const JSValueRef args[], JSValueRef *exception)
 {
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
@@ -413,7 +413,7 @@ static TiValueRef StringFormatDateCallback(TiContextRef jsContext, TiObjectRef j
 
   @try {
     NSString *result = [NSDateFormatter localizedStringFromDate:date dateStyle:style timeStyle:NSDateFormatterNoStyle];
-    TiValueRef value = [KrollObject toValue:ctx value:result];
+    JSValueRef value = [KrollObject toValue:ctx value:result];
     return value;
   }
   @catch (NSException *e) {
@@ -421,8 +421,8 @@ static TiValueRef StringFormatDateCallback(TiContextRef jsContext, TiObjectRef j
   }
 }
 
-static TiValueRef StringFormatTimeCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
-    const TiValueRef args[], TiValueRef *exception)
+static JSValueRef StringFormatTimeCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
+    const JSValueRef args[], JSValueRef *exception)
 {
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
@@ -445,7 +445,7 @@ static TiValueRef StringFormatTimeCallback(TiContextRef jsContext, TiObjectRef j
 
   @try {
     NSString *result = [NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterNoStyle timeStyle:style];
-    TiValueRef value = [KrollObject toValue:ctx value:result];
+    JSValueRef value = [KrollObject toValue:ctx value:result];
     return value;
   }
   @catch (NSException *e) {
@@ -453,8 +453,8 @@ static TiValueRef StringFormatTimeCallback(TiContextRef jsContext, TiObjectRef j
   }
 }
 
-static TiValueRef StringFormatCurrencyCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
-    const TiValueRef args[], TiValueRef *exception)
+static JSValueRef StringFormatCurrencyCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
+    const JSValueRef args[], JSValueRef *exception)
 {
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
@@ -465,7 +465,7 @@ static TiValueRef StringFormatCurrencyCallback(TiContextRef jsContext, TiObjectR
 
   @try {
     NSString *result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterCurrencyStyle];
-    TiValueRef value = [KrollObject toValue:ctx value:result];
+    JSValueRef value = [KrollObject toValue:ctx value:result];
     return value;
   }
   @catch (NSException *e) {
@@ -473,8 +473,8 @@ static TiValueRef StringFormatCurrencyCallback(TiContextRef jsContext, TiObjectR
   }
 }
 
-static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRef jsFunction, TiObjectRef jsThis, size_t argCount,
-    const TiValueRef args[], TiValueRef *exception)
+static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
+    const JSValueRef args[], JSValueRef *exception)
 {
   if (argCount < 1) {
     return ThrowException(jsContext, @"invalid number of arguments", exception);
@@ -522,7 +522,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
     result = [formatter stringFromNumber:number];
 
-    TiValueRef value = [KrollObject toValue:ctx value:result];
+    JSValueRef value = [KrollObject toValue:ctx value:result];
     return value;
   }
   @catch (NSException *e) {
@@ -560,21 +560,21 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   [super dealloc];
 }
 
-- (TiValueRef)jsInvokeInContext:(KrollContext *)context exception:(TiValueRef *)exceptionPointer
+- (JSValueRef)jsInvokeInContext:(KrollContext *)context exception:(JSValueRef *)exceptionPointer
 {
   pthread_mutex_lock(&KrollEntryLock);
-  TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef)code);
-  TiStringRef jsURL = NULL;
+  JSStringRef jsCode = JSStringCreateWithCFString((CFStringRef)code);
+  JSStringRef jsURL = NULL;
   if (sourceURL != nil) {
-    jsURL = TiStringCreateWithUTF8CString([[sourceURL absoluteString] UTF8String]);
+    jsURL = JSStringCreateWithUTF8CString([[sourceURL absoluteString] UTF8String]);
   }
-  TiObjectRef global = TiContextGetGlobalObject([context context]);
+  JSObjectRef global = JSContextGetGlobalObject([context context]);
 
-  TiValueRef result = TiEvalScript([context context], jsCode, global, jsURL, (int)startingLineNo, exceptionPointer);
+  JSValueRef result = JSEvaluateScript([context context], jsCode, global, jsURL, (int)startingLineNo, exceptionPointer);
 
-  TiStringRelease(jsCode);
+  JSStringRelease(jsCode);
   if (jsURL != NULL) {
-    TiStringRelease(jsURL);
+    JSStringRelease(jsURL);
   }
   pthread_mutex_unlock(&KrollEntryLock);
 
@@ -584,7 +584,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 - (void)invoke:(KrollContext *)context
 {
   pthread_mutex_lock(&KrollEntryLock);
-  TiValueRef exception = NULL;
+  JSValueRef exception = NULL;
   [self jsInvokeInContext:context exception:&exception];
 
   if (exception != NULL) {
@@ -599,8 +599,8 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 - (id)invokeWithResult:(KrollContext *)context
 {
   pthread_mutex_lock(&KrollEntryLock);
-  TiValueRef exception = NULL;
-  TiValueRef result = [self jsInvokeInContext:context exception:&exception];
+  JSValueRef exception = NULL;
+  JSValueRef result = [self jsInvokeInContext:context exception:&exception];
 
   if (exception != NULL) {
     id excm = [KrollObject toID:context value:exception];
@@ -785,7 +785,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   return stopped == NO;
 }
 
-- (TiGlobalContextRef)context
+- (JSGlobalContextRef)context
 {
   return context;
 }
@@ -854,19 +854,19 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   pthread_mutex_unlock(&KrollEntryLock);
 }
 
-- (void)bindCallback:(NSString *)name callback:(TiObjectCallAsFunctionCallback)fn
+- (void)bindCallback:(NSString *)name callback:(JSObjectCallAsFunctionCallback)fn
 {
   // create the invoker bridge
-  TiStringRef invokerFnName = TiStringCreateWithCFString((CFStringRef)name);
-  TiValueRef invoker = TiObjectMakeFunctionWithCallback(context, invokerFnName, fn);
+  JSStringRef invokerFnName = JSStringCreateWithCFString((CFStringRef)name);
+  JSValueRef invoker = JSObjectMakeFunctionWithCallback(context, invokerFnName, fn);
   if (invoker) {
-    TiObjectRef global = TiContextGetGlobalObject(context);
-    TiObjectSetProperty(context, global,
+    JSObjectRef global = JSContextGetGlobalObject(context);
+    JSObjectSetProperty(context, global,
         invokerFnName, invoker,
-        kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,
+        kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
         NULL);
   }
-  TiStringRelease(invokerFnName);
+  JSStringRelease(invokerFnName);
 }
 
 - (void)gc
@@ -888,8 +888,8 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 - (void)main
 {
   pthread_mutex_lock(&KrollEntryLock);
-  context = TiGlobalContextCreate(NULL);
-  TiObjectRef globalRef = TiContextGetGlobalObject(context);
+  context = JSGlobalContextCreate(NULL);
+  JSObjectRef globalRef = JSContextGetGlobalObject(context);
 
   if (appJsKrollContext == nil) {
     appJsKrollContext = self;
@@ -898,16 +898,16 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
   // we register an empty kroll string that allows us to pluck out this instance
   KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
-  TiValueRef krollRef = [KrollObject toValue:self value:kroll];
-  TiStringRef prop = TiStringCreateWithUTF8CString("Kroll");
-  TiObjectSetProperty(context, globalRef, prop, krollRef,
-      kTiPropertyAttributeDontDelete | kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly,
+  JSValueRef krollRef = [KrollObject toValue:self value:kroll];
+  JSStringRef prop = JSStringCreateWithUTF8CString("Kroll");
+  JSObjectSetProperty(context, globalRef, prop, krollRef,
+      kJSPropertyAttributeDontDelete | kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly,
       NULL);
-  TiObjectRef krollObj = TiValueToObject(context, krollRef, NULL);
-  bool set = TiObjectSetPrivate(krollObj, self);
+  JSObjectRef krollObj = JSValueToObject(context, krollRef, NULL);
+  bool set = JSObjectSetPrivate(krollObj, self);
   assert(set);
   [kroll release];
-  TiStringRelease(prop);
+  JSStringRelease(prop);
 
   [self bindCallback:@"setTimeout" callback:&SetTimeoutCallback];
   [self bindCallback:@"setInterval" callback:&SetIntervalCallback];
@@ -917,64 +917,64 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   [self bindCallback:@"L" callback:&LCallback];
   [self bindCallback:@"alert" callback:&AlertCallback];
 
-  prop = TiStringCreateWithUTF8CString("String");
+  prop = JSStringCreateWithUTF8CString("String");
 
   // create a special method -- String.format -- that will act as a string formatter
-  TiStringRef formatName = TiStringCreateWithUTF8CString("format");
-  TiValueRef invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatCallback);
-  TiValueRef stringValueRef = TiObjectGetProperty(context, globalRef, prop, NULL);
-  TiObjectRef stringRef = TiValueToObject(context, stringValueRef, NULL);
-  TiObjectSetProperty(context, stringRef,
+  JSStringRef formatName = JSStringCreateWithUTF8CString("format");
+  JSValueRef invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatCallback);
+  JSValueRef stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
+  JSObjectRef stringRef = JSValueToObject(context, stringValueRef, NULL);
+  JSObjectSetProperty(context, stringRef,
       formatName, invoker,
-      kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,
+      kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
       NULL);
-  TiStringRelease(formatName);
+  JSStringRelease(formatName);
 
   // create a special method -- String.formatDate -- that will act as a date formatter
-  formatName = TiStringCreateWithUTF8CString("formatDate");
-  invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatDateCallback);
-  stringValueRef = TiObjectGetProperty(context, globalRef, prop, NULL);
-  stringRef = TiValueToObject(context, stringValueRef, NULL);
-  TiObjectSetProperty(context, stringRef,
+  formatName = JSStringCreateWithUTF8CString("formatDate");
+  invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatDateCallback);
+  stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
+  stringRef = JSValueToObject(context, stringValueRef, NULL);
+  JSObjectSetProperty(context, stringRef,
       formatName, invoker,
-      kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,
+      kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
       NULL);
-  TiStringRelease(formatName);
+  JSStringRelease(formatName);
 
   // create a special method -- String.formatTime -- that will act as a time formatter
-  formatName = TiStringCreateWithUTF8CString("formatTime");
-  invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatTimeCallback);
-  stringValueRef = TiObjectGetProperty(context, globalRef, prop, NULL);
-  stringRef = TiValueToObject(context, stringValueRef, NULL);
-  TiObjectSetProperty(context, stringRef,
+  formatName = JSStringCreateWithUTF8CString("formatTime");
+  invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatTimeCallback);
+  stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
+  stringRef = JSValueToObject(context, stringValueRef, NULL);
+  JSObjectSetProperty(context, stringRef,
       formatName, invoker,
-      kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,
+      kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
       NULL);
-  TiStringRelease(formatName);
+  JSStringRelease(formatName);
 
   // create a special method -- String.formatDecimal -- that will act as a decimal formatter
-  formatName = TiStringCreateWithUTF8CString("formatDecimal");
-  invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatDecimalCallback);
-  stringValueRef = TiObjectGetProperty(context, globalRef, prop, NULL);
-  stringRef = TiValueToObject(context, stringValueRef, NULL);
-  TiObjectSetProperty(context, stringRef,
+  formatName = JSStringCreateWithUTF8CString("formatDecimal");
+  invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatDecimalCallback);
+  stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
+  stringRef = JSValueToObject(context, stringValueRef, NULL);
+  JSObjectSetProperty(context, stringRef,
       formatName, invoker,
-      kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,
+      kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
       NULL);
-  TiStringRelease(formatName);
+  JSStringRelease(formatName);
 
   // create a special method -- String.formatCurrency -- that will act as a currency formatter
-  formatName = TiStringCreateWithUTF8CString("formatCurrency");
-  invoker = TiObjectMakeFunctionWithCallback(context, formatName, &StringFormatCurrencyCallback);
-  stringValueRef = TiObjectGetProperty(context, globalRef, prop, NULL);
-  stringRef = TiValueToObject(context, stringValueRef, NULL);
-  TiObjectSetProperty(context, stringRef,
+  formatName = JSStringCreateWithUTF8CString("formatCurrency");
+  invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatCurrencyCallback);
+  stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
+  stringRef = JSValueToObject(context, stringValueRef, NULL);
+  JSObjectSetProperty(context, stringRef,
       formatName, invoker,
-      kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,
+      kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
       NULL);
-  TiStringRelease(formatName);
+  JSStringRelease(formatName);
 
-  TiStringRelease(prop);
+  JSStringRelease(prop);
 
   if (delegate != nil && [delegate respondsToSelector:@selector(willStartNewContext:)]) {
     [delegate performSelector:@selector(willStartNewContext:) withObject:self];

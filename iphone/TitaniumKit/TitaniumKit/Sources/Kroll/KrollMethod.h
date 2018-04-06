@@ -7,7 +7,7 @@
 #import "KrollContext.h"
 #import "KrollObject.h"
 
-extern TiClassRef KrollMethodClassRef;
+extern JSClassRef KrollMethodClassRef;
 
 typedef enum KrollMethodType {
   KrollMethodSetter = 0x01,
