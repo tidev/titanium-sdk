@@ -6,8 +6,8 @@ var tabGroup = Ti.UI.createTabGroup();
 /**
  * Add the two created tabs to the tabGroup object.
  */
-tabGroup.addTab(createTab("Tab 1", "I am Window 1", "assets/images/tab1.png"));
-tabGroup.addTab(createTab("Tab 2", "I am Window 2", "assets/images/tab2.png"));
+tabGroup.addTab(createTab('Tab 1', 'I am Window 1', 'assets/images/tab1.png'));
+tabGroup.addTab(createTab('Tab 2', 'I am Window 2', 'assets/images/tab2.png'));
 
 /**
  * Open the tabGroup
@@ -29,7 +29,7 @@ function createTab(title, message, icon) {
 
     var label = Ti.UI.createLabel({
         text: message,
-        color: "#333",
+        color: '#333',
         font: {
             fontSize: 20
         }
