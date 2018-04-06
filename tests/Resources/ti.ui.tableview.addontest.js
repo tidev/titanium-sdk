@@ -1,54 +1,48 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
 /* global Ti */
-/* eslint no-unused-expressions: "off" */
+/* eslint no-unused-expressions: 'off' */
 'use strict';
-var should = require('./utilities/assertions');
 
 describe('Titanium.UI.TableView', function () {
-	var win;
+	var win,
+		didFocus = false;
 
 	this.timeout(5000);
 
 	beforeEach(function () {
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
+		didFocus = false;
 	});
 
 	afterEach(function () {
-		win.close();
+		if (win) {
+			win.close();
+		}
+		win = null;
 	});
 
-	it('set and clear data', function (finish) {
-		var data_a = [
-				{ title: 'Square', backgroundSelectedColor: 'red' },
-				{ title: 'Circle', backgroundSelectedColor: 'blue' },
-				{ title: 'Triangle', backgroundSelectedColor: 'purple' }
-			],
-			data_b = [
-				{ title: 'Red', backgroundSelectedColor: 'red' },
-				{ title: 'Green', backgroundSelectedColor: 'green' },
-				{ title: 'Blue', backgroundSelectedColor: 'blue' }
-			],
-			tv = Ti.UI.createTableView(),
-			error;
+	it('appendSection and appendRow (TIMOB-25936)', function (finish) {
+		win = Ti.UI.createWindow({ backgroundColor: '#f00' });
+		var table = Ti.UI.createTableView();
 
-		try {
-			tv.data = [];
-			tv.setData(data_a);
-			tv.data = [];
-			tv.setData(data_b);
-			tv.data = [];
-			tv.setData(data_a);
-		} catch (e) {
-			error = e;
+		for (var i = 0; i < 2; ++i) {
+			table.appendSection(Ti.UI.createTableViewSection({ headerTitle: 'Header ' + i, className: 'Header' }));
+			for (var j = 0; j < 3; j++) {
+				table.appendRow(Ti.UI.createTableViewRow({ title: 'Row ' + j, className: 'Row' }));
+			}
 		}
-		finish(error);
+
+		win.addEventListener('open', function () {
+			didFocus = true;
+			finish();
+		});
+
+		win.add(table);
+		win.open();
 	});
 });
