@@ -675,7 +675,7 @@ properties:
         Callback function that overrides the default behavior when the user presses the **Back**
         button.
     description: |
-        This was separated from the <Ti.UI.Window.androidback> event. You need to define this
+        This was separated from the <Titanium.UI.Window.androidback> event. You need to define this
         callback if you explicitly want to override the back button behavior.
     type: Callback<Object>
     platforms: [android]
