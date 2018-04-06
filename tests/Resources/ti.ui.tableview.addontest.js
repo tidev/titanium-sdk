@@ -8,7 +8,6 @@
 /* global Ti */
 /* eslint no-unused-expressions: 'off' */
 'use strict';
-var should = require('./utilities/assertions');
 
 describe('Titanium.UI.TableView', function () {
 	var win,
@@ -30,15 +29,16 @@ describe('Titanium.UI.TableView', function () {
 	it('appendSection and appendRow (TIMOB-25936)', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: '#f00' });
 		var table = Ti.UI.createTableView();
-		 
+
 		for (var i = 0; i < 2; ++i) {
 			table.appendSection(Ti.UI.createTableViewSection({ headerTitle: 'Header ' + i, className: 'Header' }));
-		    for (var j = 0; j < 3; j++) {
-		    	table.appendRow(Ti.UI.createTableViewRow({ title: 'Row ' + j, className: 'Row' }));
-		    }
+			for (var j = 0; j < 3; j++) {
+				table.appendRow(Ti.UI.createTableViewRow({ title: 'Row ' + j, className: 'Row' }));
+			}
 		}
 
-		win.addEventListener('open', function() {
+		win.addEventListener('open', function () {
+			didFocus = true;
 			finish();
 		});
 
