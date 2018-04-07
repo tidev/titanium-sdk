@@ -44,7 +44,7 @@ IOS.prototype.package = function (packager, next) {
 		function (callback) {
 			async.series([
 				function (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates' ], cb);
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates', 'TitaniumKit' ], cb);
 				},
 				// Copy and inject build meta data into the main.m (used by TitaniumKit)
 				function (cb) {

@@ -4325,7 +4325,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		modules: this.modules
 	};
 
-	[ 'Classes' ].forEach(function (dir) {
+	[ 'Classes', 'TitaniumKit' ].forEach(function (dir) {
 		this.copyDirSync(path.join(this.platformPath, dir), path.join(this.buildDir, dir), {
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: /^(defines\.h|bridge\.txt|libTitanium\.a|\.gitignore|\.npmignore|\.cvsignore|\.DS_Store|\._.*|[Tt]humbs.db|\.vspscc|\.vssscc|\.sublime-project|\.sublime-workspace|\.project|\.tmproj)$/, // eslint-disable-line max-len
