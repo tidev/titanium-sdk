@@ -21,6 +21,9 @@ NSString *const TI_APPLICATION_GUID = @"__APP_GUID__";
 BOOL const TI_APPLICATION_ANALYTICS = __APP_ANALYTICS__;
 BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER = __SHOW_ERROR_CONTROLLER__;
 NSString *const TI_APPLICATION_BUILD_TYPE = @"__APP_DEPLOY_TYPE__";
+NSString * const TI_APPLICATION_SDK_VERSION = @"__SDK_VERSION__";
+NSString * const TI_APPLICATION_BUILD_HASH = @"__BUILD_HASH__";
+NSString * const TI_APPLICATION_BUILD_DATE = @"__BUILD_DATE__";
 
 #ifdef TARGET_IPHONE_SIMULATOR
 NSString *const TI_APPLICATION_RESOURCE_DIR = @"__APP_RESOURCE_DIR__";
@@ -29,8 +32,6 @@ NSString *const TI_APPLICATION_RESOURCE_DIR = @"__APP_RESOURCE_DIR__";
 int main(int argc, char *argv[])
 {
   // Make config available to TitaniumKit
-  // TODO: Get rid of preprocessor statements all together and
-  // inject these values via placeholders, like we do with __GITHASH__.
   [[TiSharedConfig defaultConfig] setApplicationName:TI_APPLICATION_NAME];
   [[TiSharedConfig defaultConfig] setApplicationID:TI_APPLICATION_ID];
   [[TiSharedConfig defaultConfig] setApplicationVersion:TI_APPLICATION_VERSION];
@@ -40,6 +41,9 @@ int main(int argc, char *argv[])
   [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
   [[TiSharedConfig defaultConfig] setAnalyticsEnabled:TI_APPLICATION_ANALYTICS];
   [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
+  [[TiSharedConfig defaultConfig] setBuildHash:TI_APPLICATION_BUILD_HASH];
+  [[TiSharedConfig defaultConfig] setBuildDate:TI_APPLICATION_BUILD_DATE];
+  [[TiSharedConfig defaultConfig] setSdkVersion:TI_APPLICATION_SDK_VERSION];
 
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 

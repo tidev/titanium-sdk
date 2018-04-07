@@ -23,6 +23,12 @@
 
 @property (nonatomic, strong) NSString *applicationBuildType;
 
+@property (nonatomic, strong) NSString *buildHash;
+
+@property (nonatomic, strong) NSString *buildDate;
+
+@property (nonatomic, strong) NSString *sdkVersion;
+
 @property (nonatomic, assign, getter=isAnalyticsEnabled) BOOL analyticsEnabled;
 
 @property (nonatomic, assign) BOOL showErrorController;

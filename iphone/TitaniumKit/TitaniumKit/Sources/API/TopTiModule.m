@@ -10,22 +10,23 @@
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBase.h>
 #import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiSharedConfig.h>
 
 @implementation TopTiModule
 
 - (id)version
 {
-  return @"__VERSION__";
+  return [[TiSharedConfig defaultConfig] sdkVersion];
 }
 
 - (id)buildDate
 {
-  return @"__TIMESTAMP__";
+  return [[TiSharedConfig defaultConfig] buildDate];
 }
 
 - (id)buildHash
 {
-  return @"__GITHASH__";
+  return [[TiSharedConfig defaultConfig] buildHash];
 }
 
 + (BOOL)shouldRegisterOnInit

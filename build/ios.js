@@ -9,22 +9,9 @@ const exec = require('child_process').exec, // eslint-disable-line security/dete
 	copyAndModifyFile = utils.copyAndModifyFile,
 	copyAndModifyFiles = utils.copyAndModifyFiles,
 	globCopy = utils.globCopy,
-	downloadURL = utils.downloadURL,
 	ROOT_DIR = path.join(__dirname, '..'),
 	IOS_ROOT = path.join(ROOT_DIR, 'iphone'),
-	IOS_LIB = path.join(IOS_ROOT, 'lib'),
-	TI_CORE_VERSION = 24,
-	TI_CORE_INTEGRITY = 'sha512-iTyrzaMs6SfPlyEgO70pg8EW08mn211tjpAI5hAmRHQaZGu1ieuBnT8uEkEYcsO8hdzAFbouqPPEaXWcJH5SLA==';
-
-function gunzip(gzFile, destFile, next) {
-	console.log('Gunzipping ' + gzFile + ' to ' + destFile);
-	exec('gunzip -dc "' + gzFile + '" > "' + destFile + '"', function (err) {
-		if (err) {
-			return next(err);
-		}
-		next();
-	});
-}
+	IOS_LIB = path.join(IOS_ROOT, 'lib');
 
 /**
  * @param {Object} options options object
@@ -57,24 +44,28 @@ IOS.prototype.package = function (packager, next) {
 		function (callback) {
 			async.series([
 				function (cb) {
-					globCopy('**/*.h', path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'include'), cb);
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates' ], cb);
 				},
-				function (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'headers', 'iphone', 'templates' ], cb);
-				},
-				// Copy and inject values for special source files
+				// Copy and inject build meta data into the main.m (used by TitaniumKit)
 				function (cb) {
 					const subs = {
-						__VERSION__: this.sdkVersion,
-						__TIMESTAMP__: this.timestamp,
-						__GITHASH__: this.gitHash
+						__SDK_VERSION__:  this.sdkVersion,
+						__BUILD_HASH__:  this.timestamp,
+						__BUILD_DATE__:  this.gitHash,
 					};
-					copyAndModifyFiles(path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'Classes'), [ 'TopTiModule.m', 'TiApp.m' ], subs, cb);
+					const dest = path.join(DEST_IOS, 'main.m');
+					const contents = fs.readFileSync(path.join(DEST_IOS, 'main.m')).toString().replace(/(__.+?__)/g, function (match, key) {
+						const s = subs.hasOwnProperty(key) ? subs[key] : key;
+						return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
+					});
+					fs.writeFileSync(dest, contents);
+					cb();
 				}.bind(this),
+				// Copy Ti.Verify
 				function (cb) {
 					copyFiles(IOS_LIB, DEST_IOS, [ 'libtiverify.a' ], cb);
 				},
-				// copy iphone/package.json, but replace __VERSION__ with our version!
+				// Copy iphone/package.json, but replace __VERSION__ with our version!
 				function (cb) {
 					copyAndModifyFile(IOS_ROOT, DEST_IOS, 'package.json', { __VERSION__: this.sdkVersion }, cb);
 				}.bind(this),

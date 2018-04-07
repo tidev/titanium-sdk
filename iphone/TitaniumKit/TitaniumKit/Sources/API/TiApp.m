@@ -17,8 +17,8 @@
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBase.h>
-#import <TitaniumKit/Webcolor.h>
 #import <TitaniumKit/TiSharedConfig.h>
+#import <TitaniumKit/Webcolor.h>
 #import <libkern/OSAtomic.h>
 #ifndef DISABLE_TI_LOG_SERVER
 #import "TiLogServer.h"
@@ -218,8 +218,11 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)boot
 {
-  // FIXME: Move to shared config
-  DebugLog(@"[INFO] %@/%@ (%s.__GITHASH__)", [[TiSharedConfig defaultConfig] applicationName], [[TiSharedConfig defaultConfig] applicationVersion], TI_VERSION_STR);
+  DebugLog(@"[INFO] %@/%@ (%s.%@)",
+      [[TiSharedConfig defaultConfig] applicationName],
+      [[TiSharedConfig defaultConfig] applicationVersion],
+      TI_VERSION_STR,
+      [[TiSharedConfig defaultConfig] sdkVersion]);
 
   sessionId = [[TiUtils createUUID] retain];
   TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];

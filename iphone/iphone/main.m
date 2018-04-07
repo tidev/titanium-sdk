@@ -14,9 +14,9 @@
 NSString * const TI_APPLICATION_DEPLOYTYPE = @"development";
 NSString * const TI_APPLICATION_ID = @"com.appcelerator.kitchensink.xcode";
 NSString * const TI_APPLICATION_PUBLISHER = @"Appcelerator";
-NSString * const TI_APPLICATION_URL = @"http://www.appcelerator.com";
-NSString * const TI_APPLICATION_NAME = @"Kitchen Sink (XCode)";
-NSString * const TI_APPLICATION_VERSION = @"1.0";
+NSString * const TI_APPLICATION_URL = @"https://appcelerator.com";
+NSString * const TI_APPLICATION_NAME = @"Kitchen Sink (Xcode)";
+NSString * const TI_APPLICATION_VERSION = @"1.0.0";
 NSString * const TI_APPLICATION_DESCRIPTION = @"Kitchen Sink from XCode";
 NSString * const TI_APPLICATION_COPYRIGHT = @"Appcelerator";
 NSString * const TI_APPLICATION_GUID = @"25FE4B6E-7DA9-4344-B55B-25195570860F";
@@ -24,11 +24,12 @@ BOOL const TI_APPLICATION_ANALYTICS = YES;
 BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER = YES;
 NSString * const TI_APPLICATION_RESOURCE_DIR = nil;
 NSString * const TI_APPLICATION_BUILD_TYPE = nil;
+NSString * const TI_APPLICATION_SDK_VERSION = @"8.0.0";
+NSString * const TI_APPLICATION_BUILD_HASH = @"df92fbf";
+NSString * const TI_APPLICATION_BUILD_DATE = @"3/14/2018 20:46";
 
 int main(int argc, char *argv[]) {
   // Make config available to TitaniumKit
-  // TODO: Get rid of preprocessor statements all together and
-  // inject these values via placeholders, like we do with __GITHASH__.
   [[TiSharedConfig defaultConfig] setApplicationName:TI_APPLICATION_NAME];
   [[TiSharedConfig defaultConfig] setApplicationID:TI_APPLICATION_ID];
   [[TiSharedConfig defaultConfig] setApplicationVersion:TI_APPLICATION_VERSION];
@@ -38,6 +39,9 @@ int main(int argc, char *argv[]) {
   [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
   [[TiSharedConfig defaultConfig] setAnalyticsEnabled:TI_APPLICATION_ANALYTICS];
   [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
+  [[TiSharedConfig defaultConfig] setBuildHash:TI_APPLICATION_BUILD_HASH];
+  [[TiSharedConfig defaultConfig] setBuildDate:TI_APPLICATION_BUILD_DATE];
+  [[TiSharedConfig defaultConfig] setSdkVersion:TI_APPLICATION_SDK_VERSION];
 
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
   int retVal = UIApplicationMain(argc, argv, nil, @"TiApp");

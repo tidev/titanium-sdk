@@ -239,17 +239,15 @@ __unused static int counter = 0;
     connections = [[NSMutableArray alloc] init];
   }
 
-  if (headers == nil) {
-    __unused NSString *version = [NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding];
-    
+  if (headers == nil) {    
     NSDictionary *map = [[NSDictionary alloc] initWithObjectsAndKeys:
                                               [[TiSharedConfig defaultConfig] applicationName], @"name",
                                               [[TiSharedConfig defaultConfig] applicationID], @"appId",
                                               [[TiSharedConfig defaultConfig] applicationVersion], @"version",
                                               [[TiSharedConfig defaultConfig] applicationDeployType], @"deployType",
                                               [[TiSharedConfig defaultConfig] applicationGUID], @"guid",
-                                              version, @"tiSDKVersion",
-                                              @"__GITHASH__", @"githash",
+                                              [[TiSharedConfig defaultConfig] sdkVersion], @"tiSDKVersion",
+                                              [[TiSharedConfig defaultConfig] buildHash], @"githash",
                                               nil];
 
     headers = [[[[TiUtils jsonStringify:map] stringByAppendingString:@"\r\n"] dataUsingEncoding:NSUTF8StringEncoding] retain];

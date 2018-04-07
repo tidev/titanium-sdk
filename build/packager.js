@@ -133,13 +133,11 @@ Packager.prototype.generateManifestJSON = function (next) {
  */
 Packager.prototype.zipIOS = function (next) {
 	const IOS = require('./ios');
-	// FIXME Pass along the version/gitHash/options!
 	new IOS({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
 };
 
 Packager.prototype.zipWindows = function (next) {
 	const Windows = require('./windows');
-	// FIXME Pass along the version/gitHash/options!
 	new Windows({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
 };
 
