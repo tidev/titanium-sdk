@@ -139,9 +139,7 @@
 
 - (void)dealloc
 {
-#if IS_XCODE_9
   self.safeAreaViewProxy = nil;
-#endif
   RELEASE_TO_NIL(barImageView);
   [super dealloc];
 }
@@ -243,11 +241,10 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-#if IS_XCODE_9
   [self performSelector:@selector(processForSafeArea)
              withObject:nil
              afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-#endif
+
   [super viewWillTransitionToSize:size
         withTransitionCoordinator:coordinator];
   [self willChangeSize];
@@ -374,11 +371,9 @@
   }
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
-#if IS_XCODE_9
     if ([TiUtils isIOS11OrGreater] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
       [[[controller navigationController] navigationBar] setLargeTitleTextAttributes:theAttributes];
     }
-#endif
     [[[controller navigationController] navigationBar] setTitleTextAttributes:theAttributes];
   }
 }
@@ -626,9 +621,7 @@
   TiThreadPerformOnMainThread(^{
     if (controller != nil) {
       [controller setHidesBottomBarWhenPushed:[TiUtils boolValue:value]];
-#if IS_XCODE_9
       [self processForSafeArea];
-#endif
     }
   },
       NO);
@@ -811,7 +804,6 @@
 
 - (void)setLargeTitleEnabled:(id)value
 {
-#if IS_XCODE_9
   ENSURE_UI_THREAD(setLargeTitleEnabled, value);
   ENSURE_TYPE_OR_NIL(value, NSNumber);
 
@@ -820,12 +812,10 @@
   if ([TiUtils isIOS11OrGreater] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [[[controller navigationController] navigationBar] setPrefersLargeTitles:[TiUtils boolValue:value def:NO]];
   }
-#endif
 }
 
 - (void)setLargeTitleDisplayMode:(id)value
 {
-#if IS_XCODE_9
   ENSURE_UI_THREAD(setLargeTitleDisplayMode, value);
   ENSURE_TYPE_OR_NIL(value, NSNumber);
 
@@ -834,7 +824,6 @@
   if ([TiUtils isIOS11OrGreater] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [[controller navigationItem] setLargeTitleDisplayMode:[TiUtils intValue:value def:UINavigationItemLargeTitleDisplayModeAutomatic]];
   }
-#endif
 }
 
 - (void)setTitlePrompt:(NSString *)title_
@@ -977,8 +966,6 @@
   }
 }
 
-#if IS_XCODE_9
-
 - (TiViewProxy *)safeAreaView
 {
   return self.safeAreaViewProxy;
@@ -1089,6 +1076,5 @@
   edgeInsets.top = safeAreaInset.top;
   return edgeInsets;
 }
-#endif
 
 @end

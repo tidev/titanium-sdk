@@ -160,11 +160,9 @@
 @property (nonatomic, readonly) NSNumber *BLUR_EFFECT_STYLE_DARK;
 #endif
 
-#if IS_XCODE_9
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_AUTOMATIC;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_ALWAYS;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_NEVER;
-#endif
 
 /**
     Checks the force touch capibility of the current device.
@@ -230,10 +228,8 @@
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 - (id)createApplicationShortcuts:(id)args;
 #endif
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 - (id)createFeedbackGenerator:(id)args;
-#endif
 #endif
 
 @end

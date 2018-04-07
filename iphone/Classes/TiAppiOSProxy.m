@@ -20,10 +20,8 @@
 #import "TiAppiOSUserActivityProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
 
-#if IS_XCODE_8
 #ifdef USE_TI_APPIOSSEARCHQUERY
 #import "TiAppiOSSearchQueryProxy.h"
-#endif
 #endif
 
 #import <CoreLocation/CLCircularRegion.h>
@@ -279,7 +277,6 @@
 }
 #endif
 
-#if IS_XCODE_8
 #ifdef USE_TI_APPIOSSEARCHQUERY
 - (id)createSearchQuery:(id)args
 {
@@ -300,7 +297,6 @@
 
   return [[[TiAppiOSSearchQueryProxy alloc] _initWithPageContext:[self pageContext] andArguments:args] autorelease];
 }
-#endif
 #endif
 
 #ifdef USE_TI_APPIOSUSERACTIVITY

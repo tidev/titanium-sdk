@@ -15,12 +15,11 @@
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUIView.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import <libkern/OSAtomic.h>
-#import <pthread.h>
-#if IS_XCODE_9
 #import "TiUIViewProxy.h"
 #import "TiUIWindowProxy.h"
-#endif
+
+#import <libkern/OSAtomic.h>
+#import <pthread.h>
 
 #define IGNORE_IF_NOT_OPENED                      \
   if (!windowOpened || [self viewAttached] == NO) \
@@ -168,7 +167,6 @@ static NSArray *touchEventsArray;
 
 - (void)add:(id)arg
 {
-#if IS_XCODE_9
   TiUIWindowProxy *windowProxy = nil;
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
     windowProxy = (TiUIWindowProxy *)self;
@@ -177,20 +175,15 @@ static NSArray *touchEventsArray;
       windowProxy = nil;
     }
   }
-#endif
 
   // allow either an array of arrays or an array of single proxy
   if ([arg isKindOfClass:[NSArray class]]) {
     for (id a in arg) {
-#if IS_XCODE_9
       if (windowProxy.safeAreaViewProxy) {
         [windowProxy.safeAreaViewProxy add:a];
       } else {
-#endif
         [self add:a];
-#if IS_XCODE_9
       }
-#endif
     }
     return;
   }
@@ -205,12 +198,10 @@ static NSArray *touchEventsArray;
     nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
 #endif
   if ([arg isKindOfClass:[NSDictionary class]]) {
-#if IS_XCODE_9
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy add:arg];
       return;
     }
-#endif
     childView = [arg objectForKey:@"view"];
     position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
   } else if ([arg isKindOfClass:[TiViewProxy class]]) {
@@ -280,7 +271,6 @@ static NSArray *touchEventsArray;
 
 - (void)replaceAt:(id)args
 {
-#if IS_XCODE_9
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
@@ -288,7 +278,6 @@ static NSArray *touchEventsArray;
       return;
     }
   }
-#endif
 
   ENSURE_SINGLE_ARG(args, NSDictionary);
   NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
@@ -303,7 +292,6 @@ static NSArray *touchEventsArray;
 
 - (void)remove:(id)arg
 {
-#if IS_XCODE_9
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
@@ -311,7 +299,6 @@ static NSArray *touchEventsArray;
       return;
     }
   }
-#endif
 
   ENSURE_UI_THREAD_1_ARG(arg);
 
@@ -374,7 +361,6 @@ static NSArray *touchEventsArray;
 
 - (void)removeAllChildren:(id)arg
 {
-#if IS_XCODE_9
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
@@ -382,7 +368,6 @@ static NSArray *touchEventsArray;
       return;
     }
   }
-#endif
 
   ENSURE_UI_THREAD_1_ARG(arg);
   pthread_rwlock_wrlock(&childrenLock);
@@ -1483,12 +1468,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   [self processTempProperties:nil];
   allowLayoutUpdate = NO;
 
-#if IS_XCODE_9
   [self createSafeAreaViewProxyForWindowProperties:properties];
-#endif
 }
 
-#if IS_XCODE_9
 - (void)createSafeAreaViewProxyForWindowProperties:(NSDictionary *)properties
 {
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
@@ -1516,7 +1498,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     }
   }
 }
-#endif
 
 - (void)dealloc
 {

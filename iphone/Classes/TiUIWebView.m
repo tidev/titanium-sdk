@@ -148,11 +148,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     webview.contentMode = UIViewContentModeRedraw;
     webview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 
-#if IS_XCODE_9
     if ([TiUtils isIOS11OrGreater]) {
       webview.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     }
-#endif
 
     [self addSubview:webview];
 
