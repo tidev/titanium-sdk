@@ -4,7 +4,7 @@
 #
 version: 1.0.0
 apiversion: 3
-architectures: i386 x86_64
+architectures: armv7 arm64 i386 x86_64
 description: A Swift based test module
 author: Hans Knoechel
 license: MIT

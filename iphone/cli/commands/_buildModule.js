@@ -458,13 +458,17 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 	// Create a build for the device
 	xcodebuildHook(this.xcodeEnv.executables.xcodebuild, [
 		'-configuration', 'Release',
-		'-sdk', 'iphoneos'
+		'-sdk', 'iphoneos',
+		'ONLY_ACTIVE_ARCH=NO',
+		'clean', 'build'
 	], opts, 'xcode-dist', done);
 
 	// Create a build for the simulator
 	xcodebuildHook(this.xcodeEnv.executables.xcodebuild, [
 		'-configuration', 'Release',
-		'-sdk', 'iphonesimulator'
+		'-sdk', 'iphonesimulator',
+		'ONLY_ACTIVE_ARCH=NO',
+		'clean', 'build'
 	], opts, 'xcode-sim', done);
 };
 
@@ -528,7 +532,7 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 		args.push(
 			'-create',
 			'-output',
-			universalFrameworkFile
+			path.join(universalFrameworkFile, this.moduleName)
 		);
 
 		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
@@ -591,10 +595,8 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 			process.exit(1);
 		}
 
-		// TODO: Do we really need to remove arm64 and armv7 in 8.0.0?
-		if (buildArchs.indexOf('arm64') === -1 && buildArchs.indexOf('x86_64') === -1) {
+		if (buildArchs.indexOf('arm64') === -1) {
 			this.logger.warn(__('The module is missing 64-bit support.'));
-			this.logger.warn(buildArchs);
 		}
 
 		next();
