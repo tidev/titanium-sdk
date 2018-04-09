@@ -48,6 +48,7 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.moduleName    = cli.manifest.name;
 	this.moduleVersion = cli.manifest.version;
 	this.moduleGuid    = cli.manifest.guid;
+	this.isFramework   = this.manifest.apiversion >= 3 && fs.existsSync(path.join(this.manifest.name, this.manifest.name + '.swift'));
 
 	this.buildOnly     = cli.argv['build-only'];
 	this.xcodeEnv      = null;
@@ -183,6 +184,7 @@ iOSModuleBuilder.prototype.loginfo = function loginfo() {
 	this.logger.debug(__('Titanium SDK iOS directory: %s', this.platformPath.cyan));
 	this.logger.info(__('Project directory: %s', this.projectDir.cyan));
 	this.logger.info(__('Module ID: %s', this.moduleId.cyan));
+	this.logger.info(__('Module Type: ' + (this.isFramework ? 'Framework (Swift)' : 'Static Library (Objective-C)')));
 };
 
 iOSModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {

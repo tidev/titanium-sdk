@@ -13,3 +13,5 @@ FOUNDATION_EXPORT double TestModuleVersionNumber;
 
 //! Project version string for TestModule.
 FOUNDATION_EXPORT const unsigned char TestModuleVersionString[];
+
+#import <TestModule/TiTestModuleAssets.h>

@@ -1,0 +1,14 @@
+.DS_Store
+build
+dist
+metadata.json
+
+*.pyc
+*~.nib/
+*.pbxuser
+*.perspective
+*.perspectivev3
+*.xcworkspace/
+xcuserdata
+*.xcuserstate
+*.xcuserdata*
