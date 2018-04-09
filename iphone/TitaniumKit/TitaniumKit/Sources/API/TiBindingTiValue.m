@@ -63,7 +63,8 @@ NSDictionary *TiBindingTiValueToNSDictionary(JSContextRef jsContext, JSValueRef 
   return [dict autorelease];
 }
 
-BOOL JSValueIsArray(JSContextRef js_context_ref, JSValueRef js_value_ref)
+// TODO: Remove once we drop iOS 8 support
+BOOL TiJSValueIsArray(JSContextRef js_context_ref, JSValueRef js_value_ref)
 {
   JSStringRef property_name = JSStringCreateWithUTF8CString("Array");
   JSObjectRef js_object_ref = (JSObjectRef)JSObjectGetProperty(js_context_ref, JSContextGetGlobalObject(js_context_ref), property_name, NULL);
@@ -71,7 +72,9 @@ BOOL JSValueIsArray(JSContextRef js_context_ref, JSValueRef js_value_ref)
   BOOL isArray = JSValueIsInstanceOfConstructor(js_context_ref, js_value_ref, js_object_ref, NULL);
   return isArray;
 }
-BOOL JSValueIsDate(JSContextRef js_context_ref, JSValueRef js_value_ref)
+
+// TODO: Remove once we drop iOS 8 support
+BOOL TiJSValueIsDate(JSContextRef js_context_ref, JSValueRef js_value_ref)
 {
   JSStringRef property_name = JSStringCreateWithUTF8CString("Date");
   JSObjectRef js_object_ref = (JSObjectRef)JSObjectGetProperty(js_context_ref, JSContextGetGlobalObject(js_context_ref), property_name, NULL);
@@ -135,7 +138,7 @@ NSObject *TiBindingTiValueToNSObject(JSContextRef jsContext, JSValueRef objRef)
       }
     }
 #endif
-    if (JSValueIsArray(jsContext, obj)) {
+    if (TiJSValueIsArray(jsContext, obj)) {
       JSValueRef length = JSObjectGetProperty(jsContext, obj, kTiStringLength, NULL);
       double len = JSValueToNumber(jsContext, length, NULL);
       NSMutableArray *resultArray = [[NSMutableArray alloc] initWithCapacity:len];
@@ -151,7 +154,7 @@ NSObject *TiBindingTiValueToNSObject(JSContextRef jsContext, JSValueRef objRef)
       }
       return [resultArray autorelease];
     }
-    if (JSValueIsDate(jsContext, obj)) {
+    if (TiJSValueIsDate(jsContext, obj)) {
       JSValueRef fn = JSObjectGetProperty(jsContext, obj, kTiStringGetTime, NULL);
       JSObjectRef fnObj = JSValueToObject(jsContext, fn, NULL);
       JSValueRef resultDate = JSObjectCallAsFunction(jsContext, fnObj, obj, 0, NULL, NULL);

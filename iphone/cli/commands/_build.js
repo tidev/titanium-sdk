@@ -2851,12 +2851,16 @@ iOSBuilder.prototype.generateXcodeUuid = function generateXcodeUuid(xcodeProject
 iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	this.logger.info(__('Creating Xcode project'));
 
-	const appName = this.tiapp.name,
-		scrubbedAppName = appName.replace(/[-\W]/g, '_'),
-		srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj'),
-		contents = fs.readFileSync(srcFile).toString(),
-		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
-		relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
+	const appName = this.tiapp.name;
+	const scrubbedAppName = appName.replace(/[-\W]/g, '_');
+	const srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj');
+	const xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'));
+	const relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
+
+	let contents = fs.readFileSync(srcFile).toString();
+
+	// Fix up TitaniumKit paths. Maybe place it differently on the long-tearm?
+	contents = contents.replace(/..\/TitaniumKit\//g, 'TitaniumKit/'); // Replace ../TitaniumKit/ with TitaniumKit/
 
 	xcodeProject.hash = xcodeParser.parse(contents);
 	const xobjs = xcodeProject.hash.project.objects;

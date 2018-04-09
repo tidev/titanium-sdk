@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_MEDIASOUND
 
-#import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVFAudio.h>
+#import <AudioToolbox/AudioToolbox.h>
 
 #import "TiMediaAudioSession.h"
 #import "TiMediaSoundProxy.h"

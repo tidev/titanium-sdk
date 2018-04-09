@@ -21,12 +21,12 @@
 #import "TiMediaMusicPlayer.h"
 #import "TiMediaTypes.h"
 
-#import <AudioToolbox/AudioToolbox.h>
-#import <AVFoundation/AVFAudio.h>
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetExportSession.h>
+#import <AVFoundation/AVFAudio.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AVFoundation/AVMediaFormat.h>
+#import <AudioToolbox/AudioToolbox.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <Photos/Photos.h>

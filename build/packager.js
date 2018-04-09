@@ -268,7 +268,7 @@ Packager.prototype.package = function (next) {
 			fs.copy(path.join(this.outputDir, 'api.jsca'), path.join(this.zipSDKDir, 'api.jsca'), cb);
 		}.bind(this),
 		function (cb) {
-			console.log('Copying meta files');
+			console.log('Copying SDK files');
 			// Copy some root files, cli/, templates/, node_modules minus .bin sub-dir
 			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'node_modules', 'templates' ], cb);
 		}.bind(this),
