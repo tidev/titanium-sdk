@@ -12,3 +12,4 @@ metadata.json
 xcuserdata
 *.xcuserstate
 *.xcuserdata*
+*-iphone-*.zip
