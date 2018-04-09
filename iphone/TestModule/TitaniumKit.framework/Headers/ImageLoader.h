@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "APSHTTPClient.h"
-#import <TitaniumKit/TiDimension.h>
 #import <Foundation/Foundation.h>
+#import <TitaniumKit/TiDimension.h>
 #import <UIKit/UIKit.h>
 
 typedef enum {

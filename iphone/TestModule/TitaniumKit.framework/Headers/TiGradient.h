@@ -6,8 +6,8 @@
  */
 #import <TitaniumKit/TiProxy.h>
 
-#import <TitaniumKit/TiDimension.h>
 #import "TiPoint.h"
+#import <TitaniumKit/TiDimension.h>
 
 #import <CoreGraphics/CoreGraphics.h>
 #import <QuartzCore/QuartzCore.h>

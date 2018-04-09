@@ -6,9 +6,9 @@
  */
 
 #import "KrollBridge.h"
+#import "TiWindowProxy.h"
 #import <TitaniumKit/TiUIView.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import "TiWindowProxy.h"
 
 //TODO: we probably should split this ViewProxy into a a separate TiUIView like normal
 
@@ -23,12 +23,11 @@
   id latch;
 }
 
+@property (nonatomic, assign) TiViewProxy *safeAreaViewProxy;
+@property (nonatomic) BOOL shouldExtendSafeArea;
+
 - (void)refreshBackButton;
 - (void)updateNavBar;
 - (void)boot:(BOOL)timeout args:(id)args;
 
-#if IS_XCODE_9
-@property (nonatomic, assign) TiViewProxy *safeAreaViewProxy;
-@property (nonatomic) BOOL shouldExtendSafeArea;
-#endif
 @end

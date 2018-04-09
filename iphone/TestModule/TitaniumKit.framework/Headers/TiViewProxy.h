@@ -4,10 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <TitaniumKit/TiProxy.h>
 #import "TiRect.h"
-#import <TitaniumKit/TiUIView.h>
 #import "TiViewTemplate.h"
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUIView.h>
 #import <pthread.h>
 
 /**
@@ -102,10 +102,7 @@ enum {
 #endif
   int vzIndex;
   BOOL hidden; //This is the boolean version of ![TiUtils boolValue:visible def:yes]
-      //And has nothing to do with whether or not it's onscreen or
-#if IS_XCODE_9
   BOOL safeAreaProxyAdded;
-#endif
 
 #pragma mark Parent/Children relationships
   TiViewProxy *parent;

@@ -8,8 +8,8 @@
 #import <TitaniumKit/TiViewProxy.h>
 
 #import "TiTab.h"
-#import "TiViewController.h"
 #import "TiUIiOSTransitionAnimationProxy.h"
+#import "TiViewController.h"
 
 @interface TiWindowProxy : TiViewProxy <TiWindowProtocol, TiAnimationDelegate> {
   @protected
@@ -32,11 +32,10 @@
 
 @property (nonatomic, readwrite, assign) TiViewProxy<TiTab> *tab;
 @property (nonatomic, readonly) TiProxy *tabGroup;
-#if IS_XCODE_9
 @property (nonatomic) BOOL isMasterWindow;
 @property (nonatomic) BOOL isDetailWindow;
+
 - (void)processForSafeArea;
-#endif
 
 - (UIViewController *)windowHoldingController;
 

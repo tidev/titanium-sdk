@@ -7,8 +7,8 @@
 
 #import "Bridge.h"
 #import "TiEvaluator.h"
-#import <TitaniumKit/TiProxy.h>
 #import "TiStylesheet.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiHost : NSObject {
   NSMutableDictionary *modules;

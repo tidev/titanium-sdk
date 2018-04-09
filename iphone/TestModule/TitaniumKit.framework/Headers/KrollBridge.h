@@ -9,10 +9,10 @@
 #import "KrollContext.h"
 #import "KrollObject.h"
 #import "TiEvaluator.h"
+#import <Foundation/Foundation.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 #import <TitaniumKit/TiModule.h>
 #import <TitaniumKit/TiProxy.h>
-#import "TiToJS.h"
-#import <Foundation/Foundation.h>
 #include <libkern/OSAtomic.h>
 
 @interface TitaniumObject : KrollObject {

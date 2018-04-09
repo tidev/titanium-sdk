@@ -5,13 +5,13 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import <JavaScriptCore/JavaScriptCore.h>
 #import <UIKit/UIKit.h>
 
 #import "KrollBridge.h"
 #import "TiHost.h"
-#import "XHRBridge.h"
 #import "TiRootViewController.h"
-#import "TiToJS.h"
+#import "XHRBridge.h"
 
 extern BOOL applicationInMemoryPanic;
 
@@ -32,7 +32,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
   UIImageView *splashScreenImage;
   BOOL loaded;
 
-  TiContextGroupRef contextGroup;
+  JSContextGroupRef contextGroup;
   KrollBridge *kjsBridge;
   XHRBridge *xhrBridge;
 
@@ -96,7 +96,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  */
 @property (nonatomic, retain) TiRootViewController *controller;
 
-@property (nonatomic, readonly) TiContextGroupRef contextGroup;
+@property (nonatomic, readonly) JSContextGroupRef contextGroup;
 
 @property (nonatomic, readonly) BOOL willTerminate;
 /**
@@ -116,7 +116,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  */
 + (TiRootViewController *)controller;
 
-+ (TiContextGroupRef)contextGroup;
++ (JSContextGroupRef)contextGroup;
 
 - (BOOL)windowIsKeyWindow;
 
