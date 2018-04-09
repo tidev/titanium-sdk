@@ -567,7 +567,7 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 };
 
 iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
-	const args = [ '-info', path.join(this.projectDir, 'build', this.isFramework ? this.moduleName + '.framework/' + this.moduleName : 'lib' + moduleId + '.a') ];
+	const args = [ '-info', path.join(this.projectDir, 'build', this.isFramework ? this.moduleName + '.framework/' + this.moduleName : 'lib' + this.moduleId + '.a') ];
 
 	this.logger.info(__('Verifying universal library'));
 	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
