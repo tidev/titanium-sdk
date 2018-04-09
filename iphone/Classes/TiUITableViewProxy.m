@@ -947,7 +947,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     }
                               forceReload:NO];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)deleteSection:(id)args
@@ -988,7 +988,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     }
                               forceReload:NO];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)insertSection:(TiUITableViewSectionProxy *)section atIndex:(int)sectionIndex withOptions:(id)options
@@ -1111,7 +1111,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     }
                               forceReload:NO];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 @end
 
