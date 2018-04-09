@@ -20,6 +20,8 @@ description: |
 
     CardView does not support <Titanium.UI.View.backgroundImage>, <Titanium.UI.View.borderColor>, or <Titanium.UI.View.backgroundGradient>.
 extends: Titanium.UI.View
+excludes:
+    properties: [backgroundImage, backgroundRepeat, borderColor, backgroundGradient]
 since: "5.1.0"
 platforms: [android]
 

@@ -39,7 +39,7 @@ description: |
     
     **Note for iOS 11.2 and later**
     Apple introduced a regression in iOS 11.2 that forces **all** files to be in the application data
-    directory or temporary directory. We handle this workaround for you in Titanium SDK 7.0.2+, but you
+    directory. We handle this workaround for you in Titanium SDK 7.0.2+, but you
     can also work around it without an SDK update. Here is an example:
       
         var fileName = 'example.pdf';
@@ -48,7 +48,7 @@ description: |
         // reference it. It will be removed from filesystem once the app closes.
         // Read more here: http://nshipster.com/nstemporarydirectory/
         if (isiOS11_2()) {
-          fileName = fileInTemporaryDirectory(fileName);
+          fileName = fileInApplicationDataDirectory(fileName);
         }
         
         var docViewer = Ti.UI.iOS.createDocumentViewer({
@@ -66,7 +66,7 @@ description: |
         // Create a temporary file with the contents of the old file
         // Expects the file to be in the resources directory. If you receive the file 
         // from an API-call, receive pass the Ti.Blob/Ti.File/text to "write" directly.
-        function fileInTemporaryDirectory(fileName) {
+        function fileInApplicationDataDirectory(fileName) {
           var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, fileName);
           
           if (!file.exists()) {
@@ -74,11 +74,11 @@ description: |
             return;
           }
           
-          var newFile = Titanium.Filesystem.getFile(Ti.Filesystem.tempDirectory, fileName);
+          var newFile = Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, fileName);
           newFile.createFile();
           
           if (!newFile.exists()) {
-            alert('New file could not be created in temporary directory!');
+            alert('New file could not be created in application data directory!');
             return;
           }
           
