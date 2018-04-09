@@ -19,7 +19,13 @@ exports.init = (logger, config, cli) => {
 
 		logger.info('Installing Angular project dependencies');
 		let errorOutput = '';
-		const child = spawn('npm', [ 'i' ], { cwd: path.dirname(packageJsonPath) });
+		let npmExecutable = 'npm';
+		const spawnOptions = { cwd: path.dirname(packageJsonPath) };
+		if (process.platform === 'win32') {
+			spawnOptions.shell = true;
+			npmExecutable += '.cmd';
+		}
+		const child = spawn(npmExecutable, [ 'i' ], spawnOptions);
 		child.on('close', code => {
 			if (code !== 0) {
 				logger.error(errorOutput);
