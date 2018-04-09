@@ -59,7 +59,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   return nil;
 }
 
-@interface LocalProtocolHandler : NSURLProtocol
+@interface LocalProtocolHandler : NSURLProtocol {
+}
++ (void)setContentInjection:(NSString *)contentInjection;
+
 @end
 
 @implementation TiUIWebView
@@ -315,19 +318,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (UIScrollView *)scrollview
 {
-  UIWebView *webView = [self webview];
-  if ([webView respondsToSelector:@selector(scrollView)]) {
-    // as of iOS 5.0, we can return the scroll view
-    return [webView scrollView];
-  } else {
-    // in earlier versions, we need to find the scroll view
-    for (id subview in [webView subviews]) {
-      if ([subview isKindOfClass:[UIScrollView class]]) {
-        return (UIScrollView *)subview;
-      }
-    }
-  }
-  return nil;
+  return [[self webview] scrollView];
 }
 
 #pragma mark Public APIs
@@ -766,7 +757,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
       reloadMethod = @selector(setUrl_:);
     }
     if ([scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
-      [NSURLProtocol setProperty:[self titaniumInjection] forKey:kContentInjection inRequest:(NSMutableURLRequest *)request];
+      [LocalProtocolHandler setContentInjection:[self titaniumInjection]];
     }
     return YES;
   }
@@ -942,6 +933,21 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 @end
 
 @implementation LocalProtocolHandler
+static NSString *_contentInjection = nil;
+
++ (void)setContentInjection:(NSString *)contentInjection
+{
+  if (_contentInjection != nil) {
+    RELEASE_TO_NIL(_contentInjection);
+  }
+  _contentInjection = [contentInjection retain];
+}
+
+- (void)dealloc
+{
+  RELEASE_TO_NIL(_contentInjection);
+  [super dealloc];
+}
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
@@ -950,6 +956,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
+  // TIMOB-25762: iOS 11.3 breaks NSURLProtocol properties, so we need to set it here instead of inside the webview
+  [NSURLProtocol setProperty:_contentInjection forKey:@"kContentInjection" inRequest:(NSMutableURLRequest *)request];
+
   return request;
 }
 

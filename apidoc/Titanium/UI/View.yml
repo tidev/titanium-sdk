@@ -1088,6 +1088,7 @@ properties:
 
             { x: 30, y: 30 }
         Or:
+        
             { x: '50%', y: '50%' }
 
         When specifying multiple colors, you can specify an *offset* value for each color, defining
@@ -1096,8 +1097,8 @@ properties:
 
             colors: [ { color: 'red', offset: 0.0}, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ]
 
-        Android currently only supports linear gradients. It also ignores backfillStart and backfillEnd
-        treating them as if they are true.
+        Android's linear gradients ignores `backfillStart` and `backfillEnd`, treating them as if
+        they are true. Android's radial gradients ignore the `endPoint` property.
     examples:
       - title: Linear and Radial Gradients
         example: |
@@ -1119,7 +1120,7 @@ properties:
                         startPoint: { x: 50, y: 50 },
                         endPoint: { x: 50, y: 50 },
                         colors: [ 'red', 'blue'],
-                        startRadius: '90%',
+                        startRadius: 50,
                         endRadius: 0,
                         backfillStart: true
                     }
@@ -1220,7 +1221,7 @@ properties:
   - name: borderWidth
     summary: Border width of the view.
     description: |
-        If [borderColor](Ti.UI.View.borderColor) is set without [borderWidth](Ti.UI.View.borderWidth), this value
+        If [borderColor](Titanium.UI.View.borderColor) is set without [borderWidth](Titanium.UI.View.borderWidth), this value
         will be changed to 1 of the unit declared as 'ti.ui.defaultunit' in tiapp.xml descriptor.
     type: Number
     default: 0
@@ -1365,47 +1366,47 @@ properties:
             <th>Scenario</th><th>Behavior</th>
             </tr>
             <tr>
-            <td>`height` & `top` specified</td><td>Child positioned `top` unit from
-            parent's top, using specified `height`;
-            any `center.y` and `bottom` values are ignored.</td>
+            <td><code>height</code> & <code>top</code> specified</td><td>Child positioned <code>top</code> unit from
+            parent's top, using specified <code>height</code>;
+            any <code>center.y</code> and <code>bottom</code> values are ignored.</td>
             </tr>
             <tr>
-            <td>`height` & `center.y` specified</td><td>Child positioned with center at
-            `center.y`, using specified `height`; any `bottom` value is ignored.</td>
+            <td><code>height</code> & <code>center.y</code> specified</td><td>Child positioned with center at
+            <code>center.y</code>, using specified <code>height</code>; any <code>bottom</code> value is ignored.</td>
             </tr>
             <tr>
-            <td>`height` & `bottom` specified</td><td>Child positioned `bottom` units from
-            parent's bottom, using specified `height`.</td>
+            <td><code>height</code> & <code>bottom</code> specified</td><td>Child positioned <code>bottom</code> units from
+            parent's bottom, using specified <code>height</code>.</td>
             </tr>
             <tr>
-            <td>`top` & `center.y` specified</td><td>Child positioned with top edge `top` units from
-            parent's top and center at `center.y`. Height is determined implicitly;
-            any `bottom` value is ignored.</td>
+            <td><code>top</code> & <code>center.y</code> specified</td><td>Child positioned with top edge <code>top</code> units from
+            parent's top and center at <code>center.y</code>. Height is determined implicitly;
+            any <code>bottom</code> value is ignored.</td>
             </tr>
             <tr>
-            <td>`top` & `bottom` specified</td><td>Child positioned with top edge `top` units from
-            parent's top and bottom edge `bottom` units from parent's bottom. Height is determined
+            <td><code>top</code> & <code>bottom</code> specified</td><td>Child positioned with top edge <code>top</code> units from
+            parent's top and bottom edge <code>bottom</code> units from parent's bottom. Height is determined
             implicitly. </td>
             </tr>
             <tr>
-            <td>Only `top` specified</td><td>Child positioned `top` units from parent's
+            <td>Only <code>top</code> specified</td><td>Child positioned <code>top</code> units from parent's
             top, and uses the default height calculation for the view type.</td>
             </tr>
             <tr>
-            <td>`center.y` and `bottom` specified</td><td>Child positioned with center at
-            `center.y` and bottom edge `bottom` units from parent's bottom. Height is determined
+            <td><code>center.y</code> and <code>bottom</code> specified</td><td>Child positioned with center at
+            <code>center.y</code> and bottom edge <code>bottom</code> units from parent's bottom. Height is determined
             implicitly.</td>
             </tr>
             <tr>
-            <td>Only `center.y` specified</td><td>Child positioned with center at
-            `center.y`, and uses the default height calculation for the view type.</td>
+            <td>Only <code>center.y</code> specified</td><td>Child positioned with center at
+            <code>center.y</code>, and uses the default height calculation for the view type.</td>
             </tr>
             <tr>
-            <td>Only `bottom` specified</td><td>Child positioned with bottom edge `bottom`
+            <td>Only <code>bottom</code> specified</td><td>Child positioned with bottom edge <code>bottom</code>
             units from parent's bottom, and uses the default height calculation for the view type.</td>
             </tr>
             <tr>
-            <td>`height`, `top`, `center.y`, and `bottom` unspecified</td><td>Child
+            <td><code>height</code>, <code>top</code>, <code>center.y</code>, and <code>bottom</code> unspecified</td><td>Child
             centered vertically in the parent and uses the default height calculation
             for the child view type.</td>
             </tr>
@@ -1511,6 +1512,9 @@ properties:
 
         The view's size is `rect.width` x `rect.height`. The view's top-left position relative to
         its parent is (`rect.x` , `rect.y`).
+
+        On Android it will also return `rect.absoluteX` and 'rect.absoluteY' which are relative to
+        the main window.
 
         The correct values will only be available when layout is complete.
         To determine when layout is complete, add a listener for the
@@ -1774,7 +1778,7 @@ properties:
 ---
 name: Gradient
 summary: A simple object defining a color gradient.
-platforms: [iphone, ipad]
+platforms: [android, iphone, ipad]
 since: "1.8.0"
 properties:
   - name: type
@@ -1795,10 +1799,14 @@ properties:
   - name: startRadius
     summary: For a radial gradient, the radius at the `startPoint`.
     type: Number
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
   - name: endRadius
     summary: For a radial gradient, the radius at the `endPoint`.
     type: Number
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
   - name: colors
     summary: |
@@ -1809,15 +1817,19 @@ properties:
 
   - name: backfillStart
     summary: Set to `true` to continue filling with the starting color beyond the `startPoint`.
+    description: On Android, this property is only supported by radial gradients.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
   - name: backfillEnd
     summary: Set to `true` to continue filling with the final color beyond the `endPoint`.
+    description: On Android, this property is only supported by radial gradients.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
 
 ---
 name: GradientColorRef
@@ -1831,7 +1843,13 @@ properties:
     type: String
 
   - name: offset
-    summary: Offset of this color in the gradient, from 0 (start) to 1 (end).
+    summary: The color's normalized position within the gradient, ranging from 0 (start) to 1 (end).
+    description: |
+        For a linear gradient, the offset ranges between [startPoint](Gradient.startPoint)
+        and [endPoint](Gradient.endPoint).
+
+        For a radial gradient, the offset ranges between [startRadius](Gradient.startRadius)
+        and [endRadius](Gradient.endRadius).
     type: Number
 
 ---
@@ -1864,7 +1882,7 @@ properties:
 ---
 name: AnimationOption
 summary: Optional parameter to enable animation to [hide](Titanium.UI.View.hide) and [show](Titanium.UI.View.show).
-since: 5.1.0
+since: "5.1.0"
 platforms: [android]
 properties:
   - name: animated

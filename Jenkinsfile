@@ -15,10 +15,10 @@ def isMainlineBranch = true // used to determine if we should publish to S3 (and
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json
 
 // Variables we can change
-def nodeVersion = '6.10.3' // NOTE that changing this requires we set up the desired version on jenkins master first!
-def npmVersion = '5.4.1' // We can change this without any changes to Jenkins.
+def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def npmVersion = '5.7.1' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
 
-def unitTests(os, nodeVersion, testSuiteBranch) {
+def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 	return {
 		def labels = 'git && osx'
 		if ('ios'.equals(os)) {
@@ -52,35 +52,40 @@ def unitTests(os, nodeVersion, testSuiteBranch) {
 				unstash 'override-tests'
 				sh 'cp -R tests/ titanium-mobile-mocha-suite'
 				// Now run the unit test suite
-				dir('titanium-mobile-mocha-suite/scripts') {
+				dir('titanium-mobile-mocha-suite') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						sh 'npm install .'
-						try {
-							sh "node test.js -b ../../${zipName} -p ${os}"
-						} catch (e) {
-							if ('ios'.equals(os)) {
-								// Gather the crash report(s)
-								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
-								sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
-								archiveArtifacts 'mocha_*.crash'
-								sh 'rm -f mocha_*.crash'
-							} else {
-								// FIXME gather crash reports/tombstones for Android?
-							}
-							throw e
-						} finally {
-							// Kill the emulators!
-							if ('android'.equals(os)) {
-								sh 'killall -9 emulator || echo ""'
-								sh 'killall -9 emulator64-arm || echo ""'
-								sh 'killall -9 emulator64-x86 || echo ""'
-							}
-						}
-					}
-					// save the junit reports as artifacts explicitly so danger.js can use them later
-					stash includes: 'junit.*.xml', name: "test-report-${os}"
-					junit 'junit.*.xml'
-				}
+						ensureNPM(npmVersion)
+						sh 'npm ci'
+						dir('scripts') {
+							try {
+								sh "node test.js -b ../../${zipName} -p ${os}"
+							} catch (e) {
+								if ('ios'.equals(os)) {
+									// Gather the crash report(s)
+									def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+									sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
+									archiveArtifacts 'mocha_*.crash'
+									sh 'rm -f mocha_*.crash'
+								} else {
+									// FIXME gather crash reports/tombstones for Android?
+								}
+								throw e
+							} finally {
+								// Kill the emulators!
+								if ('android'.equals(os)) {
+									sh 'adb shell am force-stop com.appcelerator.testApp.testing'
+									sh 'adb uninstall com.appcelerator.testApp.testing'
+									sh 'killall -9 emulator || echo ""'
+									sh 'killall -9 emulator64-arm || echo ""'
+									sh 'killall -9 emulator64-x86 || echo ""'
+								} // if
+							} // finally
+							// save the junit reports as artifacts explicitly so danger.js can use them later
+							stash includes: 'junit.*.xml', name: "test-report-${os}"
+							junit 'junit.*.xml'
+						} // dir('scripts')
+					} // nodejs
+				} // dir('titanium-mobile-mocha-suite')
 			} // timeout
 		}
 	}
@@ -139,13 +144,12 @@ timestamps {
 			nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 
 				stage('Lint') {
-					// NPM 5.2.0 had a bug that broke pruning to production, but latest npm 5.4.1 works well
-					sh "npm install -g npm@${npmVersion}"
+					ensureNPM(npmVersion)
 
 					// Install dependencies
 					timeout(5) {
 						// FIXME Do we need to do anything special to make sure we get os-specific modules only on that OS's build/zip?
-						sh 'npm install'
+						sh 'npm ci'
 					}
 					// Run npm test, but record output in a file and check for failure of command by checking output
 					if (fileExists('npm_test.log')) {
@@ -231,32 +235,25 @@ timestamps {
 
 				if (isMainlineBranch) {
 					stage('Security') {
-						// Clean up and install only production dependencies
-						sh 'npm prune --production'
+						timeout(25) { // sometimes the upload hangs forever...
+							// Clean up and install only production dependencies
+							sh 'npm ci --production'
 
-						// Scan for Dependency Check and RetireJS warnings
-						def scanFiles = [[path: 'dependency-check-report.xml']]
-						dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
-						dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
+							// Scan for Dependency Check and RetireJS warnings
+							dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
+							dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
 
-						// Adding appc-license scan, until we can get the output from Dependency Check/Track
-						sh 'npm install appc-license'
-						sh 'npx appc-license > output.csv'
-						archiveArtifacts 'output.csv'
+							// Adding appc-license scan, until we can get the output from Dependency Check/Track
+							sh 'npx appc-license > output.csv'
+							archiveArtifacts 'output.csv'
 
-						sh 'npm install -g retire'
-						def retireExitCode = sh(returnStatus: true, script: 'retire --outputformat json --outputpath ./retire.json')
-						if (retireExitCode != 0) {
-							scanFiles << [path: 'retire.json']
+							sh 'npx retire --exitwith 0'
+							step([$class: 'WarningsPublisher', canComputeNew: false, canResolveRelativePaths: false, consoleParsers: [[parserName: 'Node Security Project Vulnerabilities'], [parserName: 'RetireJS']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''])
+
+							// Don't upload to Threadfix, we do that in a nightly security scan job
+							// re-install dev dependencies for testing later...
+							sh(returnStatus: true, script: 'npm ci') // ignore PEERINVALID grunt issue for now
 						}
-
-						// Don't publish to threadfix except for master builds
-						if ('master'.equals(env.BRANCH_NAME) && !scanFiles.isEmpty()) {
-							step([$class: 'ThreadFixPublisher', appId: '136', scanFiles: scanFiles])
-						}
-
-						// re-install dev dependencies for testing later...
-						sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
 					} // end 'Security' stage
 				}
 			} // nodeJs
@@ -265,8 +262,8 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': unitTests('android', nodeVersion, targetBranch),
-				'iOS unit tests': unitTests('ios', nodeVersion, targetBranch),
+				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch),
+				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch),
 				failFast: true
 			)
 		}
@@ -431,16 +428,25 @@ timestamps {
 				node('osx || linux') {
 					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 						unstash 'danger' // this gives us dangerfile.js, package.json, package-lock.json, node_modules/, android java sources for format check
-						unstash 'test-report-ios' // junit.ios.report.xml
-						unstash 'test-report-android' // junit.android.report.xml
-						sh "npm install -g npm@${npmVersion}"
+						// ok to not grab crash logs, still run Danger.JS
+						try {
+							unarchive mapping: ['mocha_*.crash': '.'] // unarchive any iOS simulator crashes
+						} catch (e) {}
+						// ok to not grab test results, still run Danger.JS
+						try {
+							unstash 'test-report-ios' // junit.ios.report.xml
+						} catch (e) {}
+						try {
+							unstash 'test-report-android' // junit.android.report.xml
+						} catch (e) {}
+						ensureNPM(npmVersion)
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
 						// We use Github branch source plugin implicitly through pipeline job
 						// See https://github.com/danger/danger-js/issues/379
 						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}", "ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}"]) {
 							// FIXME Can't pass along env variables properly, so we cheat and write them as a JSON file we can require
 							sh 'node -p \'JSON.stringify(process.env)\' > env.json'
-							sh 'npx danger'
+							sh returnStatus: true, script: 'npx danger' // Don't fail build if danger fails. We want to retain existign build status.
 						} // withEnv
 					} // nodejs
 					deleteDir()
