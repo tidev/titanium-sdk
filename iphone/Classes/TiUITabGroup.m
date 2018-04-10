@@ -387,7 +387,9 @@ DEFINE_EXCEPTIONS
 - (void)setUnselectedItemTintColor_:(id)value
 {
   ENSURE_TYPE_OR_NIL(value, NSString);
-  [[controller tabBar] setUnselectedItemTintColor:[[TiUtils colorValue:value] color]];
+  if ([[controller appearance] respondsToSelector:@selector(setUnselectedItemTintColor:)]) {
+    [[controller tabBar] setUnselectedItemTintColor:[[TiUtils colorValue:value] color]];
+  }
 }
 #endif
 
