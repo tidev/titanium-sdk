@@ -387,9 +387,13 @@ DEFINE_EXCEPTIONS
 - (void)setUnselectedItemTintColor_:(id)value
 {
   ENSURE_TYPE_OR_NIL(value, NSString);
-  if ([[controller appearance] respondsToSelector:@selector(setUnselectedItemTintColor:)]) {
-    [[controller tabBar] setUnselectedItemTintColor:[[TiUtils colorValue:value] color]];
+
+  if (![TiUtils isIOS10OrGreater]) {
+    NSLog(@"[ERROR] The 'unselectedItemTintColor' property is only available on iOS 10 and later.");
+    return;
   }
+
+  [[controller tabBar] setUnselectedItemTintColor:[[TiUtils colorValue:value] color]];
 }
 #endif
 
