@@ -17,6 +17,9 @@ description: |
     See also:
 
     * [iOS Developer Library: Adopting 3D Touch on iPhone](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/Adopting3DTouchOniPhone/3DTouchAPIs.html)
+    
+    Note: previewContext is not supported for [TableView](Titanium.UI.TableView) as the peek event will not contain the 
+    required sectionIndex, itemIndex, and itemId needed to update the preview.
 
 platforms: [iphone]
 since: "5.1.0"
