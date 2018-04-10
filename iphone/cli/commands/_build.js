@@ -2142,7 +2142,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								}
 
 								if (!module.libFile) {
-									this.logger.error(__('Module "%s" v%s is missing main file: %s, package.json with "main" entry, index.js, or index.json', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
+									this.logger.error(__('Module "%s" (%s) is missing main file: %s, package.json with "main" entry, index.js, or index.json', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
 									process.exit(1);
 								}
 							}
@@ -2151,15 +2151,31 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 						} else {
 							module.native = true;
 
-							module.libName = 'lib' + module.id.toLowerCase() + '.a';
-							module.libFile = path.join(module.modulePath, module.libName);
+							// Try to load native module as static library (Obj-C)
+							if (fs.existsSync(path.join(module.modulePath, 'lib' + module.id.toLowerCase() + '.a'))) {
+								module.libName = 'lib' + module.id.toLowerCase() + '.a';
+								module.libFile = path.join(module.modulePath, module.libName);
+								module.isFramework = false;
 
-							if (!fs.existsSync(module.libFile)) {
-								this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
+								// For Obj-C static libraries, use the .a library or hashing
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
+
+								// Try to load native module as framework (Swift)
+							} else if (fs.existsSync(path.join(module.modulePath, module.manifest.name + '.framework'))) {
+								module.libName = module.manifest.name + '.framework';
+								module.libFile = path.join(module.modulePath, module.libName);
+								module.isFramework = true;
+
+								// For Swift frameworks, use the binary inside the .framework for hashing
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, module.manifest.name))));
+
+								// Else - fail
+							} else {
+								this.logger.error(__('Module %s (%s) is missing library or framework file.', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
+								this.logger.error(__('Please validate that your module has been packaged correctly and try it again.'));
 								process.exit(1);
 							}
 
-							nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
 							this.nativeLibModules.push(module);
 						}
 
@@ -2856,9 +2872,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	const srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj');
 	const xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'));
 	const relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
-
+	
 	let contents = fs.readFileSync(srcFile).toString();
-
+		
 	// Fix up TitaniumKit paths. Maybe place it differently on the long-tearm?
 	contents = contents.replace(/..\/TitaniumKit\//g, 'TitaniumKit/'); // Replace ../TitaniumKit/ with TitaniumKit/
 
@@ -3203,16 +3219,17 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	if (this.nativeLibModules.length) {
 		this.logger.trace(__n('Adding %%d native module library', 'Adding %%d native module libraries', this.nativeLibModules.length === 1 ? 1 : 2, this.nativeLibModules.length));
 		this.nativeLibModules.forEach(function (lib) {
+			const isFramework = lib.isFramework;
 			const fileRefUuid = this.generateXcodeUuid(xcodeProject),
 				buildFileUuid = this.generateXcodeUuid(xcodeProject);
 
 			// add the file reference
 			xobjs.PBXFileReference[fileRefUuid] = {
 				isa: 'PBXFileReference',
-				lastKnownFileType: 'archive.ar',
+				lastKnownFileType: isFramework ? 'wrapper.framework' : 'archive.ar',
 				name: lib.libName,
 				path: '"' + lib.libFile + '"',
-				sourceTree: '"<absolute>"'
+				sourceTree: isFramework ? 'BUILT_PRODUCTS_DIR' : '"<absolute>"'
 			};
 			xobjs.PBXFileReference[fileRefUuid + '_comment'] = lib.libName;
 
@@ -3236,11 +3253,22 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				comment: lib.libName + ' in Frameworks'
 			});
 
-			// add the library to the search paths
+			// add the library / framework to the dedicated search paths
 			xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 				var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
-				buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
+
+				// Use LIBRARY_SEARCH_PATHS for libraries and FRAMEWORK_SEARCH_PATHS for frameworks
+				if (isFramework) {
+					// This returns a String by default, because the Xcode template is empty
+					// We need to map it to an array. Not sure if this is the correct way to handle it
+					if (!buildSettings.FRAMEWORK_SEARCH_PATHS || typeof buildSettings.FRAMEWORK_SEARCH_PATHS !== 'object') {
+						buildSettings.FRAMEWORK_SEARCH_PATHS = ['"$(inherited)"'];
+					}
+					buildSettings.FRAMEWORK_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
+				} else {
+					buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
+					buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
+				}
 			});
 		}, this);
 	} else {
