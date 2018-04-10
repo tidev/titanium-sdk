@@ -1487,6 +1487,9 @@ properties:
 
         Note: This property can only be used on devices running iOS9 or later and supporting 3D-Touch.
         It is ignored on older devices and can manually be checked using <Titanium.UI.iOS.forceTouchSupported>.
+        
+        Note: previewContext is not supported for TableView as the peek event will not contain the
+        required sectionIndex, itemIndex, and itemId needed to update the preview.
     platforms: [iphone]
     since: "5.1.0"
     type: Titanium.UI.iOS.PreviewContext
