@@ -1273,12 +1273,27 @@ properties:
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
         
         One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
         [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
         [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
         [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
     since: "5.4.0"
+
+  - name: MODAL_PRESENTATION_OVER_CURRENT_CONTEXT
+    summary: View presented over its parent window.
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+        and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
+    type: Number
+    since: "7.2.0"
     
   - name: MODAL_PRESENTATION_FORMSHEET
     summary: |
@@ -1292,6 +1307,7 @@ properties:
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
         
         One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
         [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
         [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
         [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
@@ -1306,6 +1322,7 @@ properties:
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
         
         One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
         [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
         [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
         [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
@@ -1326,6 +1343,7 @@ properties:
         Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
         
         One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_OVER_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT),
         [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
         [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
         [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 

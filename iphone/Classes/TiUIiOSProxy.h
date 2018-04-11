@@ -147,6 +147,7 @@
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_CURRENT_CONTEXT;
+@property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_OVER_CURRENT_CONTEXT;
 
 @property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_COVER_VERTICAL;
 @property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL;
