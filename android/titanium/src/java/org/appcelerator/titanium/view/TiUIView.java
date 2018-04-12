@@ -1376,7 +1376,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					bg, TiConvert.toBoolean(d, TiC.PROPERTY_BACKGROUND_REPEAT, false), bgColor, bgSelected,
 					bgSelectedColor, bgDisabled, bgDisabledColor, bgFocused, bgFocusedColor, gradientDrawable);
 
-				background.setBackgroundDrawable(bgDrawable);
+				nativeView.setBackgroundDrawable(bgDrawable);
 			}
 		}
 	}
