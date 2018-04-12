@@ -75,12 +75,14 @@ public class TiSwipeRefreshLayout extends SwipeRefreshLayout
 	@Override
 	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 	{
-		// If height mode not set to "exactly", then change height to match view's tallest child.
+		// If size mode not set to "exactly", then change width/height to match largest child view.
 		// Note: We need to do this since Google's "SwipeRefreshLayout" class ignores the
-		//       WRAP_CONTENT setting and will fill the height of the parent view instead.
+		//       WRAP_CONTENT setting and will fill the parent view instead.
+		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-		if (heightMode != MeasureSpec.EXACTLY) {
-			// Determine the min height needed to fit this view's tallest child view.
+		if ((widthMode != MeasureSpec.EXACTLY) || (heightMode != MeasureSpec.EXACTLY)) {
+			// Determine how large this view wants to be based on its child views.
+			int minWidth = 0;
 			int minHeight = 0;
 			for (int index = getChildCount() - 1; index >= 0; index--) {
 				// Fetch the next child.
@@ -94,24 +96,38 @@ public class TiSwipeRefreshLayout extends SwipeRefreshLayout
 					continue;
 				}
 
-				// Determine the height of the child.
+				// Determine the size of the child.
 				child.measure(widthMeasureSpec, heightMeasureSpec);
+				int childWidth = child.getMeasuredWidth();
+				childWidth += child.getPaddingLeft() + child.getPaddingRight();
 				int childHeight = child.getMeasuredHeight();
 				childHeight += child.getPaddingTop() + child.getPaddingBottom();
 
-				// Store the child's height if it's the tallest so far.
+				// Store the child's width/height if it's the largest so far.
+				minWidth = Math.max(minWidth, childWidth);
 				minHeight = Math.max(minHeight, childHeight);
 			}
 
-			// Make sure we're not exceeding the suggested min height assigned to this view.
+			// Make sure we're not exceeding the suggested min width/height assigned to this view.
+			minWidth = Math.max(minWidth, getSuggestedMinimumWidth());
 			minHeight = Math.max(minHeight, getSuggestedMinimumHeight());
 
-			// Update this view's given height spec to match the tallest child view, but only if:
-			// - Height mode is UNSPECIFIED. (View can be any height it wants.)
-			// - Height mode is AT_MOST and the min height is less than given height.
-			if ((heightMode == MeasureSpec.UNSPECIFIED) || (minHeight < MeasureSpec.getSize(heightMeasureSpec))) {
-				heightMode = MeasureSpec.AT_MOST;
-				heightMeasureSpec = MeasureSpec.makeMeasureSpec(minHeight, heightMode);
+			// Update this view's given width/height spec to match the size of child view, but only if:
+			// - Mode is UNSPECIFIED. (View can be any size it wants. Can occur in ScrollViews.)
+			// - Mode is AT_MOST and child size is less than given size. (Makes WRAP_CONTENT work.)
+			if (widthMode != MeasureSpec.EXACTLY) {
+				int containerWidth = MeasureSpec.getSize(widthMeasureSpec);
+				if ((widthMode == MeasureSpec.UNSPECIFIED) || (minWidth < containerWidth)) {
+					widthMode = MeasureSpec.AT_MOST;
+					widthMeasureSpec = MeasureSpec.makeMeasureSpec(minWidth, widthMode);
+				}
+			}
+			if (heightMode != MeasureSpec.EXACTLY) {
+				int containerHeight = MeasureSpec.getSize(heightMeasureSpec);
+				if ((heightMode == MeasureSpec.UNSPECIFIED) || (minHeight < containerHeight)) {
+					heightMode = MeasureSpec.AT_MOST;
+					heightMeasureSpec = MeasureSpec.makeMeasureSpec(minHeight, heightMode);
+				}
 			}
 		}
 
