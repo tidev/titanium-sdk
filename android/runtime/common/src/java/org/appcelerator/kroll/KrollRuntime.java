@@ -543,6 +543,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	public abstract void doDispose();
 	public abstract void doRunModule(String source, String filename, KrollProxySupport activityProxy);
 	public abstract Object doEvalString(String source, String filename);
+	public abstract String getStackTrace();
 
 	public abstract String getRuntimeName();
 	public abstract void initRuntime();

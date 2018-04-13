@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <cstring>
+#include <sstream>
 
 #include <v8.h>
 
@@ -14,32 +15,31 @@
 #include "AndroidUtil.h"
 #include "TypeConverter.h"
 
+#include "V8Runtime.h"
+
 namespace titanium {
 using namespace v8;
 
 #define TAG "V8Util"
 
 // DEPRECATED: Use v8::String::Utf8Value. Remove in SDK 8.0
-Utf8Value::Utf8Value(v8::Local<v8::Value> value)
-    : length_(0), str_(str_st_) {
-  if (value.IsEmpty())
-    return;
+Utf8Value::Utf8Value(v8::Local<v8::Value> value) : length_(0), str_(str_st_)
+{
+	if (value.IsEmpty()) return;
 
-  v8::Local<v8::String> string = value->ToString();
-  if (string.IsEmpty())
-    return;
+	v8::Local<v8::String> string = value->ToString();
+	if (string.IsEmpty()) return;
 
-  // Allocate enough space to include the null terminator
-  size_t len = (3 * string->Length()) + 1;
-  if (len > sizeof(str_st_)) {
-    str_ = static_cast<char*>(malloc(len));
-    //CHECK_NE(str_, nullptr);
-  }
+	// Allocate enough space to include the null terminator
+	size_t len = (3 * string->Length()) + 1;
+	if (len > sizeof(str_st_)) {
+		str_ = static_cast<char*>(malloc(len));
+		//CHECK_NE(str_, nullptr);
+	}
 
-  const int flags =
-      v8::String::NO_NULL_TERMINATION | v8::String::REPLACE_INVALID_UTF8;
-  length_ = string->WriteUtf8(str_, len, 0, flags);
-  str_[length_] = '\0';
+	const int flags = v8::String::NO_NULL_TERMINATION | v8::String::REPLACE_INVALID_UTF8;
+	length_ = string->WriteUtf8(str_, len, 0, flags);
+	str_[length_] = '\0';
 }
 
 Local<Value> V8Util::executeString(Isolate* isolate, Local<String> source, Local<Value> filename)
@@ -148,6 +148,8 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 
 	Local<Message> message = tryCatch.Message();
 
+	V8Runtime::exceptionStackTrace.Reset(isolate, message->GetStackTrace());
+
 	jstring title = env->NewStringUTF("Runtime Error");
 	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, message->Get());
 	jstring resourceName = TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
@@ -233,6 +235,27 @@ void V8Util::dispose()
 	nameSymbol.Reset();
 	messageSymbol.Reset();
 	isNaNFunction.Reset();
+}
+
+std::string V8Util::stackTraceString(Local<StackTrace> frames) {
+	std::stringstream stack;
+
+	for (int i = 0, count = frames->GetFrameCount(); i < count; i++) {
+		v8::Local<v8::StackFrame> frame = frames->GetFrame(i);
+
+		v8::String::Utf8Value jsFunctionName(frame->GetFunctionName());
+		std::string functionName = std::string(*jsFunctionName, jsFunctionName.length());
+
+		v8::String::Utf8Value jsScriptName(frame->GetScriptName());
+		std::string scriptName = std::string(*jsScriptName, jsScriptName.length());
+
+		stack << "   at " << functionName << "(" << scriptName << ":" << frame->GetLineNumber() << ":" << frame->GetColumn() << ")" << std::endl;
+	}
+
+	if (!stack.str().empty()) {
+		return stack.str();
+	}
+	return NULL;
 }
 
 }
