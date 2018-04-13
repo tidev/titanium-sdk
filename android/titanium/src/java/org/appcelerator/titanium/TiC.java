@@ -2008,6 +2008,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LOCALE = "locale";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOCATION = "location";
 
 	/**
