@@ -8,11 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		DB24E03C20766AC90033B2B1 /* <%- moduleIdAsIdentifier %>ExampleProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB24E03B20766AC90033B2B1 /* <%- moduleIdAsIdentifier %>ExampleProxy.swift */; };
-		DB34CDE0207B998A005F8E8C /* Ti<%- moduleName %>Assets.m in Sources */ = {isa = PBXBuildFile; fileRef = DB34CDDE207B998A005F8E8C /* Ti<%- moduleName %>Assets.m */; };
-		DB34CDE1207B998A005F8E8C /* Ti<%- moduleName %>Assets.h in Headers */ = {isa = PBXBuildFile; fileRef = DB34CDDF207B998A005F8E8C /* Ti<%- moduleName %>Assets.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DB34CDE0207B998A005F8E8C /* <%- moduleIdAsIdentifier %>ModuleAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = DB34CDDE207B998A005F8E8C /* <%- moduleIdAsIdentifier %>ModuleAssets.m */; };
+		DB34CDE1207B998A005F8E8C /* <%- moduleIdAsIdentifier %>ModuleAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = DB34CDDF207B998A005F8E8C /* <%- moduleIdAsIdentifier %>ModuleAssets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB34CDE6207B9EBD005F8E8C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB34CDE5207B9EBD005F8E8C /* Foundation.framework */; };
 		DB52E2401E9CCF8D00AAAEE0 /* <%- moduleIdAsIdentifier %>_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = DB52E23F1E9CCF8D00AAAEE0 /* <%- moduleIdAsIdentifier %>_Prefix.pch */; };
-		DB52E2431E9CD0F800AAAEE0 /* Ti<%- moduleName %>.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB52E2421E9CD0F800AAAEE0 /* Ti<%- moduleName %>.swift */; };
+		DB52E2431E9CD0F800AAAEE0 /* <%- moduleIdAsIdentifier %>Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB52E2421E9CD0F800AAAEE0 /* <%- moduleIdAsIdentifier %>Module.swift */; };
 		DB75E5161E9CD59000809B2D /* <%- moduleName %>.h in Headers */ = {isa = PBXBuildFile; fileRef = DB75E5151E9CD58100809B2D /* <%- moduleName %>.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DBB66221208481A800EAD6D9 /* TitaniumKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DBB6621E2084819D00EAD6D9 /* TitaniumKit.framework */; };
 /* End PBXBuildFile section */
@@ -36,14 +36,14 @@
 
 /* Begin PBXFileReference section */
 		DB24E03B20766AC90033B2B1 /* <%- moduleIdAsIdentifier %>ExampleProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = <%- moduleIdAsIdentifier %>ExampleProxy.swift; path = Classes/<%- moduleIdAsIdentifier %>ExampleProxy.swift; sourceTree = "<group>"; };
-		DB34CDDE207B998A005F8E8C /* Ti<%- moduleName %>Assets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Ti<%- moduleName %>Assets.m; path = Classes/Ti<%- moduleName %>Assets.m; sourceTree = SOURCE_ROOT; };
-		DB34CDDF207B998A005F8E8C /* Ti<%- moduleName %>Assets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Ti<%- moduleName %>Assets.h; path = Classes/Ti<%- moduleName %>Assets.h; sourceTree = SOURCE_ROOT; };
+		DB34CDDE207B998A005F8E8C /* <%- moduleIdAsIdentifier %>ModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = <%- moduleIdAsIdentifier %>ModuleAssets.m; path = Classes/<%- moduleIdAsIdentifier %>ModuleAssets.m; sourceTree = SOURCE_ROOT; };
+		DB34CDDF207B998A005F8E8C /* <%- moduleIdAsIdentifier %>ModuleAssets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = <%- moduleIdAsIdentifier %>ModuleAssets.h; path = Classes/<%- moduleIdAsIdentifier %>ModuleAssets.h; sourceTree = SOURCE_ROOT; };
 		DB34CDE5207B9EBD005F8E8C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		DB52E22A1E9CCD7000AAAEE0 /* <%- moduleName %>.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = <%- moduleName %>.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DB52E22E1E9CCD7000AAAEE0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DB52E23F1E9CCF8D00AAAEE0 /* <%- moduleIdAsIdentifier %>_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = <%- moduleIdAsIdentifier %>_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		DB52E2411E9CD09900AAAEE0 /* titanium.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = titanium.xcconfig; sourceTree = "<group>"; };
-		DB52E2421E9CD0F800AAAEE0 /* Ti<%- moduleName %>.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Ti<%- moduleName %>.swift; path = Classes/Ti<%- moduleName %>.swift; sourceTree = "<group>"; };
+		DB52E2421E9CD0F800AAAEE0 /* <%- moduleIdAsIdentifier %>Module.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = <%- moduleIdAsIdentifier %>Module.swift; path = Classes/<%- moduleIdAsIdentifier %>Module.swift; sourceTree = "<group>"; };
 		DB75E5151E9CD58100809B2D /* <%- moduleName %>.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = <%- moduleName %>.h; path = Classes/<%- moduleName %>.h; sourceTree = "<group>"; };
 		DBB662182084819D00EAD6D9 /* TitaniumKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TitaniumKit.xcodeproj; path = "<%- tisdkPath %>/iphone/TitaniumKit/TitaniumKit.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -65,8 +65,8 @@
 			isa = PBXGroup;
 			children = (
 				DB52E2411E9CD09900AAAEE0 /* titanium.xcconfig */,
-				DB34CDDF207B998A005F8E8C /* Ti<%- moduleName %>Assets.h */,
-				DB34CDDE207B998A005F8E8C /* Ti<%- moduleName %>Assets.m */,
+				DB34CDDF207B998A005F8E8C /* <%- moduleIdAsIdentifier %>ModuleAssets.h */,
+				DB34CDDE207B998A005F8E8C /* <%- moduleIdAsIdentifier %>ModuleAssets.m */,
 				DB75E5151E9CD58100809B2D /* <%- moduleName %>.h */,
 				DB52E23F1E9CCF8D00AAAEE0 /* <%- moduleIdAsIdentifier %>_Prefix.pch */,
 				DB52E22E1E9CCD7000AAAEE0 /* Info.plist */,
@@ -77,7 +77,7 @@
 		DB258CA51F0964F6000D0D8D /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				DB52E2421E9CD0F800AAAEE0 /* Ti<%- moduleName %>.swift */,
+				DB52E2421E9CD0F800AAAEE0 /* <%- moduleIdAsIdentifier %>Module.swift */,
 				DB24E03B20766AC90033B2B1 /* <%- moduleIdAsIdentifier %>ExampleProxy.swift */,
 			);
 			name = Sources;
@@ -134,7 +134,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DB75E5161E9CD59000809B2D /* <%- moduleName %>.h in Headers */,
-				DB34CDE1207B998A005F8E8C /* Ti<%- moduleName %>Assets.h in Headers */,
+				DB34CDE1207B998A005F8E8C /* <%- moduleIdAsIdentifier %>ModuleAssets.h in Headers */,
 				DB52E2401E9CCF8D00AAAEE0 /* <%- moduleIdAsIdentifier %>_Prefix.pch in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -225,8 +225,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				DB24E03C20766AC90033B2B1 /* <%- moduleIdAsIdentifier %>ExampleProxy.swift in Sources */,
-				DB34CDE0207B998A005F8E8C /* Ti<%- moduleName %>Assets.m in Sources */,
-				DB52E2431E9CD0F800AAAEE0 /* Ti<%- moduleName %>.swift in Sources */,
+				DB34CDE0207B998A005F8E8C /* <%- moduleIdAsIdentifier %>ModuleAssets.m in Sources */,
+				DB52E2431E9CD0F800AAAEE0 /* <%- moduleIdAsIdentifier %>Module.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
