@@ -52,7 +52,7 @@ examples:
             	labels:['One', 'Two', 'Three'],
             	backgroundColor:'#336699',
             	top:50,
-            	style:Titanium.UI.iOS.SystemButtonStyle.BAR,
+            	style:Titanium.UI.iOS.SystemButtonStyle.PLAIN,
             	height:25,
             	width:200
             });
