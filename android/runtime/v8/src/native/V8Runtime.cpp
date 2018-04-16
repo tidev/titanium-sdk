@@ -38,6 +38,7 @@ Persistent<Object> V8Runtime::krollGlobalObject;
 Persistent<Array> V8Runtime::moduleContexts;
 Persistent<Object> V8Runtime::moduleObject;
 Persistent<Function> V8Runtime::runModuleFunction;
+Persistent<StackTrace> V8Runtime::exceptionStackTrace;
 
 jobject V8Runtime::javaInstance;
 Platform* V8Runtime::platform = nullptr;
