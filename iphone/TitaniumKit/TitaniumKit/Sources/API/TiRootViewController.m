@@ -7,7 +7,6 @@
 
 #import "TiRootViewController.h"
 #import "TiErrorController.h"
-#import "TiLayoutQueue.h"
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiUtils.h>
 

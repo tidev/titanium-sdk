@@ -342,8 +342,8 @@
 		DB5813E62075FCF200CA1437 /* TiDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiDefines.h; sourceTree = "<group>"; };
 		DB5813E82075FDC600CA1437 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		DB5813E92075FDF600CA1437 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
-		DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSAnalytics.a; path = TitaniumKit/lib/libAPSAnalytics.a; sourceTree = "<group>"; };
-		DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = TitaniumKit/lib/libAPSHTTPClient.a; sourceTree = "<group>"; };
+		DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSAnalytics.a; path = TitaniumKit/Libraries/APSAnalytics/libAPSAnalytics.a; sourceTree = "<group>"; };
+		DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = TitaniumKit/Libraries/APSHTTPClient/libAPSHTTPClient.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -404,6 +404,7 @@
 		DB258CCF1F09757E000D0D8D /* TitaniumKit */ = {
 			isa = PBXGroup;
 			children = (
+				DB39085B2075228900AE31EC /* Libraries */,
 				DB258CD81F0975CD000D0D8D /* Sources */,
 				DB258CD01F09757E000D0D8D /* TitaniumKit.h */,
 				DB258CD11F09757E000D0D8D /* Info.plist */,
@@ -415,7 +416,6 @@
 			isa = PBXGroup;
 			children = (
 				DB5813E52075FCE300CA1437 /* Misc */,
-				DB39085B2075228900AE31EC /* Libraries */,
 				DB258D181F097680000D0D8D /* API */,
 				DB258CDA1F0975F7000D0D8D /* Kroll */,
 				DB15FC8D1F0A85EE00A82C45 /* Modules */,
@@ -586,8 +586,7 @@
 				DB39085C2075228900AE31EC /* APSAnalytics */,
 				DB39085D2075228900AE31EC /* APSHTTPClient */,
 			);
-			name = Libraries;
-			path = Sources/Libraries;
+			path = Libraries;
 			sourceTree = "<group>";
 		};
 		DB39085C2075228900AE31EC /* APSAnalytics */ = {
@@ -619,7 +618,8 @@
 				DB24E04E2076824C0033B2B1 /* TiSharedConfig.h */,
 				DB24E04F2076824C0033B2B1 /* TiSharedConfig.m */,
 			);
-			path = Misc;
+			name = Misc;
+			path = Sources/Misc;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1000,9 +1000,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TitaniumKit",
-					"$(PROJECT_DIR)/TitaniumKit/Sources/Libraries/APSAnalytics",
-					"$(PROJECT_DIR)/TitaniumKit/Sources/Libraries/APSHTTPClient",
-					"$(PROJECT_DIR)/TitaniumKit/lib",
+					"$(PROJECT_DIR)/TitaniumKit/Libraries/APSAnalytics",
+					"$(PROJECT_DIR)/TitaniumKit/Libraries/APSHTTPClient",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
@@ -1035,9 +1034,8 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TitaniumKit",
-					"$(PROJECT_DIR)/TitaniumKit/Sources/Libraries/APSAnalytics",
-					"$(PROJECT_DIR)/TitaniumKit/Sources/Libraries/APSHTTPClient",
-					"$(PROJECT_DIR)/TitaniumKit/lib",
+					"$(PROJECT_DIR)/TitaniumKit/Libraries/APSAnalytics",
+					"$(PROJECT_DIR)/TitaniumKit/Libraries/APSHTTPClient",
 				);
 				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
 				OTHER_LDFLAGS = "";

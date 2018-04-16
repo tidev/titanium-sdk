@@ -7,15 +7,18 @@
 
 #ifndef TI_USE_AUTOLAYOUT
 
+#ifndef TI_LAYOUT_QUEUE
+#define TI_LAYOUT_QUEUE
+
 #import <Foundation/Foundation.h>
+#import "TiBase.h"
 
 @class TiViewProxy;
 
 /**
  Layout queue utility class.
  */
-@interface TiLayoutQueue : NSObject {
-}
+@interface TiLayoutQueue : NSObject
 
 /**
  Adds view proxy to the layout queue.
@@ -30,6 +33,9 @@
 + (void)layoutProxy:(TiViewProxy *)thisProxy;
 
 + (void)resetQueue;
+
 @end
+
+#endif
 
 #endif

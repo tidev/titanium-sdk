@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollBridge.h"
-#import "APSAnalytics.h"
 #import "ApplicationMods.h"
 #import "KrollCallback.h"
 #import "KrollContext.h"
@@ -15,6 +14,7 @@
 #import "TiHost.h"
 #import "TopTiModule.h"
 #import <JavaScriptCore/JavaScriptCore.h>
+#import <TitaniumKit/APSAnalytics.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiSharedConfig.h>

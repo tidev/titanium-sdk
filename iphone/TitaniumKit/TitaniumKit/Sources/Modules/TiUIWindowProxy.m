@@ -7,7 +7,6 @@
 
 #import "TiUIWindowProxy.h"
 #import "TiComplexValue.h"
-#import "TiLayoutQueue.h"
 #import "TiUIViewProxy.h"
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
