@@ -2365,7 +2365,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/../TitaniumKit/TitaniumKit/lib\"",
+					"\"$(SRCROOT)/../TitaniumKit/TitaniumKit/Libraries\"",
 				);
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = (
@@ -2408,7 +2408,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/../TitaniumKit/TitaniumKit/lib\"",
+					"\"$(SRCROOT)/../TitaniumKit/TitaniumKit/Libraries\"",
 				);
 				OTHER_CFLAGS = "-DNDEBUG";
 				OTHER_LDFLAGS = (
