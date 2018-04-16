@@ -1,0 +1,5 @@
+platform :ios, '8.0'
+
+target 'Titanium' do
+  pod 'TitaniumKit', :path => '../../' # uses the TitaniumKit.podspec
+end
