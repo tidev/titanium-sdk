@@ -133,11 +133,13 @@ methods:
 
         #### Android Platform Notes
 
-        To suppress the default controls, set `autohide` to `false` and then set the
+        * To suppress the default controls, set `autohide` to `false` and then set the
         `overlay` property to a view that contains a control (such as a button) to
         take the photo. You must then control the camera explicitly, using
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
         methods.
+        * Setting `saveToPhotoGallery` to `false` is not guaranteed to work with all camera apps. If this setting is desired, then you should use Titanium's internal camera overlay instead.
+        * You can only use one or the other (video or photo) types in the array.
 
         #### iOS Platform Notes
 
