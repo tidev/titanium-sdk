@@ -13,7 +13,6 @@ const github = danger.github;
 const Label = {
 	NEEDS_JIRA: 'needs jira 🚨',
 	NEEDS_TESTS: 'needs tests 🚨',
-	NEEDS_CLA: 'needs cla 🚨',
 	NO_TESTS: 'no tests',
 	IOS: 'ios',
 	ANDROID: 'android',
@@ -86,18 +85,16 @@ const modifiedApiDocs = modified.filter(function (p) {
 	return p.startsWith('apidoc/');
 });
 if (modifiedApiDocs.length > 0) {
-	labels.push(Label.DOCS);
+	labels.add(Label.DOCS);
 }
 
 // Check PR author to see if it's community, etc
 if (github.pr.author_association === 'FIRST_TIMER') {
 	labels.add(Label.COMMUNITY);
-	labels.add(Label.NEEDS_CLA);
 	// Thank them profusely! This is their first ever github commit!
 	message(`:rocket: Wow, ${github.pr.user.login}, your first contribution to GitHub and it's to help us make Titanium better! You rock! :guitar:`);
 } else if (github.pr.author_association === 'FIRST_TIME_CONTRIBUTOR') {
 	labels.add(Label.COMMUNITY);
-	labels.add(Label.NEEDS_CLA);
 	// Thank them, this is their first contribution to this repo!
 	message(`:confetti_ball: Welcome to the Titanium SDK community, ${github.pr.user.login}! Thank you so much for your PR, you're helping us make Titanium better. :gift:`);
 } else if (github.pr.author_association === 'CONTRIBUTOR') {
