@@ -9,16 +9,4 @@
 
 @implementation ___FILEBASENAMEASIDENTIFIER___
 
--(void)dealloc
-{
-	[super dealloc];
-}
-
-#pragma mark Internal Memory Management
-
--(void)didReceiveMemoryWarning:(NSNotification*)notification
-{
-	[super didReceiveMemoryWarning:notification];
-}
-
 @end
