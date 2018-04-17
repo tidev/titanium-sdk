@@ -677,6 +677,13 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (settings.containsKey("title")) {
 			dialog.setTitle(TiConvert.toString(settings, "title"));
 		}
+		dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+			@Override
+			public void onShow(DialogInterface dialog)
+			{
+				fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
+			}
+		});
 		dialog.show();
 		if (settings.containsKey("okButtonTitle")) {
 			dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));
