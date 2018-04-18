@@ -9,7 +9,6 @@ package org.appcelerator.titanium;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollExceptionHandler;
 import org.appcelerator.kroll.KrollRuntime;
@@ -47,6 +46,14 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
 
+	private static final String ERROR_TITLE = "title";
+	private static final String ERROR_MESSAGE = "message";
+	private static final String ERROR_SOURCENAME = "sourceName";
+	private static final String ERROR_LINE = "line";
+	private static final String ERROR_LINESOURCE = "lineSource";
+	private static final String ERROR_LINEOFFSET = "lineOffset";
+	private static final String ERROR_STACK = "stack";
+
 	private static final String fill(int count)
 	{
 		char[] string = new char[count];
@@ -54,19 +61,43 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		return new String(string);
 	}
 
-	private static String getError(KrollDict error)
+	public static final KrollDict getErrorDict(ExceptionMessage error)
 	{
-		String message = new String();
-		message += error.getString("sourceName") + ":" + error.getString("line") + "\n";
-		if (error.containsKeyAndNotNull("lineSource")) {
-			message += error.getString("lineSource") + "\n";
-			message += fill(Integer.parseInt(error.getString("lineOffset")) - 1) + "^\n";
+		final KrollDict dict = new KrollDict();
+		dict.put(ERROR_TITLE, error.title);
+		dict.put(ERROR_MESSAGE, error.message);
+		dict.put(ERROR_SOURCENAME, error.sourceName);
+		dict.put(ERROR_LINE, error.line);
+		dict.put(ERROR_LINESOURCE, error.lineSource);
+		dict.put(ERROR_LINEOFFSET, error.lineOffset);
+		dict.put(ERROR_STACK, KrollRuntime.getInstance().getStackTrace());
+		return dict;
+	}
+
+	public static String getError(KrollDict error)
+	{
+		String output = new String();
+
+		final String sourceName = error.getString(ERROR_SOURCENAME);
+		final int line = error.getInt(ERROR_LINE);
+		final String lineSource = error.getString(ERROR_LINESOURCE);
+		final int lineOffset = error.getInt(ERROR_LINEOFFSET);
+		final String stack = error.getString(ERROR_STACK);
+		final String message = error.getString(ERROR_MESSAGE);
+
+		if (sourceName != null) {
+			output += sourceName + ":" + line + "\n";
 		}
-		message += error.getString("message") + "\n";
-		if (error.containsKeyAndNotNull("stack")) {
-			message += error.getString("stack");
+		if (lineSource != null) {
+			output += lineSource + "\n";
+			output += fill(lineOffset - 1) + "^\n";
 		}
-		return message;
+		if (stack != null) {
+			output += stack + "\n";
+		}
+		output += message + "\n";
+
+		return output;
 	}
 
 	public TiExceptionHandler()
@@ -85,26 +116,18 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 	protected static void handleOpenErrorDialog(final ExceptionMessage error)
 	{
-		TiApplication tiApp = TiApplication.getInstance();
+		final TiApplication tiApp = TiApplication.getInstance();
 		if (tiApp == null) {
 			return;
 		}
 
-		Activity activity = tiApp.getRootOrCurrentActivity();
+		final Activity activity = tiApp.getRootOrCurrentActivity();
 		if (activity == null || activity.isFinishing()) {
 			return;
 		}
 
-		final KrollDict dict = new KrollDict();
-		dict.put("title", error.title);
-		dict.put("message", error.message);
-		dict.put("sourceName", error.sourceName);
-		dict.put("line", error.line);
-		dict.put("lineSource", error.lineSource);
-		dict.put("lineOffset", error.lineOffset);
-		dict.put("stack", KrollRuntime.getInstance().getStackTrace());
+		final KrollDict dict = getErrorDict(error);
 		tiApp.fireAppEvent("uncaughtException", dict);
-
 		Log.e(TAG, getError(dict));
 
 		if (tiApp.getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
@@ -127,7 +150,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 	protected static void createDialog(final KrollDict error)
 	{
-		final KrollApplication tiApp = KrollRuntime.getInstance().getKrollApplication();
+		final TiApplication tiApp = TiApplication.getInstance();
 		if (tiApp == null) {
 			return;
 		}
@@ -181,7 +204,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		final AlertDialog dialog = builder.create();
 		dialog.show();
 
-		Window window = ((Activity) context).getWindow();
+		final Window window = ((Activity) context).getWindow();
 		Rect displayRect = new Rect();
 		window.getDecorView().getWindowVisibleDisplayFrame(displayRect);
 		dialog.getWindow().setLayout(displayRect.width(), (int) (displayRect.height() * 0.95));
