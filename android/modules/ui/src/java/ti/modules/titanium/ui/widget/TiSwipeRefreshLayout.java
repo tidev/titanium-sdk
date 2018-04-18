@@ -8,8 +8,9 @@ package ti.modules.titanium.ui.widget;
 
 import android.content.Context;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.view.View;
 import android.view.View.MeasureSpec;
+import android.view.View;
+import android.view.ViewParent;
 
 /**
  * View group used to display a refresh progress indicator when the user swipes down.
@@ -32,6 +33,29 @@ public class TiSwipeRefreshLayout extends SwipeRefreshLayout
 	public TiSwipeRefreshLayout(Context context)
 	{
 		super(context);
+	}
+
+	/**
+	 * Enables or disables touch interception for this view and all parent views.
+	 * <p>
+	 * Disabling prevents the onInterceptTouchEvent() method from getting called, which is used by
+	 * a parent ScrollView or ListView to scroll the container when touch-dragging a child view.
+	 * @param value Set true to disable touch interception in this view and all parent views. Set false to re-enable.
+	 */
+	@Override
+	public void requestDisallowInterceptTouchEvent(boolean value)
+	{
+		// Enable/disable touch interception for this view.
+		super.requestDisallowInterceptTouchEvent(value);
+
+		// Google's "SwipeRefreshLayout" ignores above method call if child view does not support nested scrolling,
+		// which is the case for horizontal scrolling views such as HorizontalScrollView and TextInputLayout.
+		// We need parent vertical scrolling to be disallowed while scrolling these views horizontally.
+		// Work-Around: Send request to the SwipeRefreshLayout's parent ourselves since it might not do it.
+		ViewParent parentView = getParent();
+		if (parentView != null) {
+			parentView.requestDisallowInterceptTouchEvent(value);
+		}
 	}
 
 	/**
