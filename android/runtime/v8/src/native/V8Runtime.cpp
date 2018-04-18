@@ -469,15 +469,19 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 
 JNIEXPORT jstring JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeStackTrace(JNIEnv *env, jobject self)
 {
-	v8::Local<v8::StackTrace> frames = v8::StackTrace::CurrentStackTrace(V8Runtime::v8_isolate, 10);
-	if (!frames->GetFrameCount()) {
+	HandleScope scope(V8Runtime::v8_isolate);
+
+	Local<StackTrace> frames = StackTrace::CurrentStackTrace(V8Runtime::v8_isolate, 10);
+	if (frames.IsEmpty() || !frames->GetFrameCount()) {
 		frames = V8Runtime::exceptionStackTrace.Get(V8Runtime::v8_isolate);
 	}
-
-	std::string stack = V8Util::stackTraceString(frames);
-	if (!stack.empty()) {
-		return env->NewStringUTF(stack.c_str());
+	if (!frames.IsEmpty()) {
+		std::string stack = V8Util::stackTraceString(frames);
+		if (!stack.empty()) {
+			return env->NewStringUTF(stack.c_str());
+		}
 	}
+
 	return NULL;
 }
 

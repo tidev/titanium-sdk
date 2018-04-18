@@ -238,6 +238,10 @@ void V8Util::dispose()
 }
 
 std::string V8Util::stackTraceString(Local<StackTrace> frames) {
+	if (frames.IsEmpty()) {
+		return NULL;
+	}
+
 	std::stringstream stack;
 
 	for (int i = 0, count = frames->GetFrameCount(); i < count; i++) {
