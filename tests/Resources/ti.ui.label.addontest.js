@@ -16,13 +16,13 @@ describe('Titanium.UI.Label', function () {
 			text: 'this is some text',
 			textAlign: 'left',
 			font: {
-				fontSize: '36dp'
+				fontSize: 36
 			},
 			color: 'black',
 			wordWrap: false,
 			ellipsize: false,
-			minimumFontSize: '28dp',
-			height: '50dp'
+			minimumFontSize: 28,
+			height: 50
 		});
 		should(label.minimumFontSize).be.a.Number;
 		should(label.getMinimumFontSize).be.a.Function;
