@@ -22,8 +22,8 @@ describe('Titanium.UI.Label', function () {
         	color : 'black',
         	wordWrap : false,
         	ellipsize : false,
-        	minimumFontSize : '28dp'
-        	height : '50dp',
+        	minimumFontSize : '28dp',
+        	height : '50dp'
 		});
 		should(label.minimumFontSize).be.a.Number;
 		should(label.getMinimumFontSize).be.a.Function;
