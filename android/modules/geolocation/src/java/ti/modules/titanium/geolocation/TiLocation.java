@@ -23,7 +23,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,7 +53,6 @@ public class TiLocation implements Handler.Callback
 	private String appGuid;
 	private String sessionId;
 	private String countryCode;
-	private long lastAnalyticsTimestamp = 0;
 	private List<String> knownProviders;
 	private Handler runtimeHandler;
 
@@ -66,9 +64,9 @@ public class TiLocation implements Handler.Callback
 	{
 		locationManager = (LocationManager) TiApplication.getInstance().getSystemService(Context.LOCATION_SERVICE);
 		knownProviders = locationManager.getAllProviders();
-		mobileId = TiPlatformHelper.getInstance().getMobileId();
+		mobileId = APSAnalytics.getInstance().getMachineId();
 		appGuid = TiApplication.getInstance().getAppInfo().getGUID();
-		sessionId = TiPlatformHelper.getInstance().getSessionId();
+		sessionId = APSAnalytics.getInstance().getCurrentSessionId();
 		countryCode = Locale.getDefault().getCountry();
 		runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}
