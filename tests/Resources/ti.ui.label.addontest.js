@@ -9,21 +9,20 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.Label', function () {
 	it.ios('minimumFontSize', function () {
 		var label = Ti.UI.createLabel({
 			text: 'this is some text',
-			textAlign : 'left',
-        	font : {
-            	fontSize : '36dp'
-        	},
-        	color : 'black',
-        	wordWrap : false,
-        	ellipsize : false,
-        	minimumFontSize : '28dp',
-        	height : '50dp'
+			textAlign: 'left',
+			font: {
+				fontSize: '36dp'
+			},
+			color: 'black',
+			wordWrap: false,
+			ellipsize: false,
+			minimumFontSize: '28dp',
+			height: '50dp'
 		});
 		should(label.minimumFontSize).be.a.Number;
 		should(label.getMinimumFontSize).be.a.Function;
@@ -33,5 +32,4 @@ describe('Titanium.UI.Label', function () {
 		should(label.minimumFontSize).eql(22);
 		should(label.getMinimumFontSize()).eql(22);
 	});
-
 });
