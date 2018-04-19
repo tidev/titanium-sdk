@@ -6540,7 +6540,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 				TMPDIR: process.env.TMPDIR,
 				HOME: process.env.HOME,
 				PATH: process.env.PATH,
-				TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/'
+				TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? https://www.axway.com/en/career'
 			}
 		},
 		next
