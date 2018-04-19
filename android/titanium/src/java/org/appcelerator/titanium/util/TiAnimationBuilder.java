@@ -360,7 +360,7 @@ public class TiAnimationBuilder
 				for (Operation operation : operations) {
 					if (operation.anchorX != Ti2DMatrix.DEFAULT_ANCHOR_VALUE
 						|| operation.anchorY != Ti2DMatrix.DEFAULT_ANCHOR_VALUE) {
-						setAnchor(w, h, operation.anchorX, operation.anchorY);
+						setAnchor(w, h, anchorX, anchorY);
 					}
 					switch (operation.type) {
 						case Operation.TYPE_ROTATE:
