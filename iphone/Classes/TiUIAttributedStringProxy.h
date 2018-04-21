@@ -6,7 +6,7 @@
  */
 
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiUIAttributedStringProxy : TiProxy {
   NSMutableAttributedString *_attributedString;

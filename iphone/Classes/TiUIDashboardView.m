@@ -6,14 +6,15 @@
  */
 #ifdef USE_TI_UIDASHBOARDVIEW
 
-#import "TiUIDashboardView.h"
+#import <TitaniumKit/TiRect.h>
+#import <TitaniumKit/TiUtils.h>
+
 #import "LauncherButton.h"
 #import "LauncherItem.h"
 #import "LauncherView.h"
-#import "TiRect.h"
 #import "TiUIDashboardItemProxy.h"
+#import "TiUIDashboardView.h"
 #import "TiUIDashboardViewProxy.h"
-#import "TiUtils.h"
 
 static const NSInteger kDashboardViewDefaultRowCount = 3;
 static const NSInteger kDashboardViewDefaultColumnCount = 3;

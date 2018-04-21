@@ -6,7 +6,7 @@
  */
 #if defined(USE_TI_UIIOSTABLEVIEWSCROLLPOSITION) || defined(USE_TI_UIIOSLISTVIEWSCROLLPOSITION)
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiUIiOSTableViewScrollPositionProxy : TiProxy {
 

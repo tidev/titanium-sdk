@@ -12,7 +12,7 @@
 #import "TiDOMNodeListProxy.h"
 #import "TiDOMNodeProxy.h"
 #import "TiDOMValidator.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiDOMElementProxy
 

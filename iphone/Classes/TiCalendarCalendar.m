@@ -8,11 +8,11 @@
 
 #import "TiCalendarCalendar.h"
 #import "CalendarModule.h"
-#import "TiBlob.h"
 #import "TiCalendarAlert.h"
 #import "TiCalendarEvent.h"
 #import "TiCalendarRecurrenceRule.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUtils.h>
 
 #pragma mark -
 @implementation TiCalendarCalendar

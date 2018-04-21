@@ -7,7 +7,7 @@
 #ifdef USE_TI_MEDIAAUDIOPLAYER
 
 #import "AudioStreamer/AudioStreamer.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiMediaAudioPlayerProxy : TiProxy <AudioStreamerDelegate> {
   @private

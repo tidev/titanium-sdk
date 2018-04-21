@@ -7,11 +7,11 @@
 #import "TiFilesystemBlobProxy.h"
 
 #ifdef USE_TI_FILESYSTEM
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
-#import "Mimetypes.h"
-#import "TiBlob.h"
-#import "TiUtils.h"
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiFilesystemBlobProxy
 

@@ -6,31 +6,27 @@
  */
 #ifdef USE_TI_MEDIA
 
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/Ti2DMatrix.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+
 #import "MediaModule.h"
-#import "Mimetypes.h"
 #import "SCListener.h"
-#import "Ti2DMatrix.h"
-#import "TiApp.h"
-#import "TiBlob.h"
-#import "TiFile.h"
 #import "TiMediaAudioSession.h"
 #import "TiMediaItem.h"
 #import "TiMediaMusicPlayer.h"
 #import "TiMediaTypes.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
 
-#import <AudioToolbox/AudioToolbox.h>
-#if IS_XCODE_8
-#import <AVFoundation/AVFAudio.h>
-#else
-#import <AVFoundation/AVAudioPlayer.h>
-#import <AVFoundation/AVAudioSession.h>
-#endif
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetExportSession.h>
+#import <AVFoundation/AVFAudio.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AVFoundation/AVMediaFormat.h>
+#import <AudioToolbox/AudioToolbox.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <Photos/Photos.h>

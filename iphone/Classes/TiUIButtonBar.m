@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiUIButtonBar.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/Webcolor.h>
 
 @implementation TiUIButtonBar
 

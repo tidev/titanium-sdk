@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UIIOSANIMATIONSTYLE
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiUIiOSAnimationStyleProxy : TiProxy {
 }

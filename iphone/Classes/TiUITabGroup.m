@@ -7,10 +7,11 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabGroup.h"
-#import "TiColor.h"
 #import "TiUITabGroupProxy.h"
 #import "TiUITabProxy.h"
-#import "TiUtils.h"
+
+#import <TitaniumKit/TiColor.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUITabGroup
 
@@ -383,7 +384,6 @@ DEFINE_EXCEPTIONS
   [[controller tabBar] setTintColor:[[TiUtils colorValue:value] color]];
 }
 
-#if IS_XCODE_8
 - (void)setUnselectedItemTintColor_:(id)value
 {
   ENSURE_TYPE_OR_NIL(value, NSString);
@@ -395,7 +395,6 @@ DEFINE_EXCEPTIONS
 
   [[controller tabBar] setUnselectedItemTintColor:[[TiUtils colorValue:value] color]];
 }
-#endif
 
 - (void)setTabsTranslucent_:(id)value
 {

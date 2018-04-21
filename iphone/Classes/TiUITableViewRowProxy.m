@@ -7,15 +7,15 @@
 #ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableViewRowProxy.h"
-#import "ImageLoader.h"
-#import "TiLayoutQueue.h"
 #import "TiSelectedCellbackgroundView.h"
 #import "TiUITableView.h"
 #import "TiUITableViewAction.h"
 #import "TiUITableViewSectionProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiLayoutQueue.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/Webcolor.h>
 #import <libkern/OSAtomic.h>
 
 NSString *const defaultRowTableClass = @"_default_";

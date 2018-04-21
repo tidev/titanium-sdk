@@ -8,8 +8,8 @@
 
 #import "TiUIListViewProxy.h"
 #import "TiUIListView.h"
-#import "TiUtils.h"
-#import "TiViewTemplate.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewTemplate.h>
 
 @interface TiUIListViewProxy ()
 @property (nonatomic, readwrite) TiUIListView *listView;

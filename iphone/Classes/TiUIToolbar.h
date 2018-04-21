@@ -6,7 +6,7 @@
  */
 
 #if defined(USE_TI_UIIOSTOOLBAR) || defined(USE_TI_UITOOLBAR)
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 @protocol TiToolbarLayoutDelegate
 - (NSInteger)positionForBar:(id)bar;

@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_UIEMAILDIALOG
 
-#import "TiProxy.h"
 #import <MessageUI/MessageUI.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiUIEmailDialogProxy : TiProxy <MFMailComposeViewControllerDelegate> {
   NSMutableArray *attachments;

@@ -6,14 +6,15 @@
  */
 #ifdef USE_TI_UIEMAILDIALOG
 
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiColor.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiUtils.h>
+
 #import "TiUIEmailDialogProxy.h"
-#import "Mimetypes.h"
-#import "TiApp.h"
-#import "TiBase.h"
-#import "TiBlob.h"
-#import "TiColor.h"
-#import "TiFile.h"
-#import "TiUtils.h"
 
 @implementation TiUIEmailDialogProxy
 

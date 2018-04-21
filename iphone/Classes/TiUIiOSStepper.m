@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIIOSSTEPPER
 #import "TiUIiOSStepper.h"
 #import "TiUIiOSStepperProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIiOSStepper
 

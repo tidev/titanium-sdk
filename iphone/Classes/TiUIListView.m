@@ -6,18 +6,19 @@
  */
 #ifdef USE_TI_UILISTVIEW
 #import "TiUIListView.h"
-#import "TiApp.h"
-#import "TiRootViewController.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiRootViewController.h>
+
 #import "TiUILabelProxy.h"
 #import "TiUIListItem.h"
 #import "TiUIListItemProxy.h"
 #import "TiUIListSectionProxy.h"
 #import "TiUISearchBarProxy.h"
-#import "TiUIWindowProxy.h"
+#import <TitaniumKit/TiUIWindowProxy.h>
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
-#import "ImageLoader.h"
+#import <TitaniumKit/ImageLoader.h>
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
@@ -113,11 +114,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
 
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     _tableView.prefetchDataSource = nil;
   }
-#endif
 
   [_tableView release];
   [_templates release];
@@ -214,11 +213,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _tableView.estimatedSectionFooterHeight = 0;
     _tableView.estimatedSectionHeaderHeight = 0;
 
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
       _tableView.prefetchDataSource = self;
     }
-#endif
 
     if (TiDimensionIsDip(_rowHeight)) {
       [_tableView setRowHeight:_rowHeight.value];
@@ -1541,7 +1538,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 #pragma mark - UITableViewDataSourcePrefetching
 
-#if IS_XCODE_8
 - (void)tableView:(UITableView *)tableView prefetchRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths
 {
   NSString *eventName = @"prefetch";
@@ -1575,7 +1571,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [self.proxy fireEvent:eventName withObject:@{ @"prefetchedItems" : cells }];
   RELEASE_TO_NIL(cells);
 }
-#endif
 
 - (NSDictionary *)listItemFromIndexPath:(NSIndexPath *)indexPath
 {

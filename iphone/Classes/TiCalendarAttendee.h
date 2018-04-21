@@ -7,7 +7,7 @@
 
 #ifdef USE_TI_CALENDAR
 #import "CalendarModule.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiCalendarAttendee : TiProxy {
   EKParticipant *participant;

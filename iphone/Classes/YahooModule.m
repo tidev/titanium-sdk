@@ -7,8 +7,8 @@
 #ifdef USE_TI_YAHOO
 
 #import "YahooModule.h"
-#import "TiApp.h"
 #include <CommonCrypto/CommonHMAC.h>
+#import <TitaniumKit/TiApp.h>
 
 #ifdef YQL_OAUTH
 const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/yql?format=json";

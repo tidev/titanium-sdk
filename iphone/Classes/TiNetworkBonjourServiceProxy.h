@@ -9,9 +9,9 @@
 #ifdef USE_TI_NETWORK
 
 #import "TiNetworkTCPSocketProxy.h"
-#import "TiProxy.h"
 #import <Foundation/Foundation.h>
 #import <Foundation/NSNetServices.h>
+#import <TitaniumKit/TiProxy.h>
 
 // NSNetService Delegate
 @interface TiNetworkBonjourServiceProxy : TiProxy <NSNetServiceDelegate> {

@@ -4,24 +4,29 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 #ifdef USE_TI_UI
 
-#import "TiDimension.h"
-#import "TiProxy.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
+
 #import "UIModule.h"
 
 #ifdef USE_TI_UI2DMATRIX
-#import "Ti2DMatrix.h"
+#import <TitaniumKit/Ti2DMatrix.h>
 #endif
 
 #ifdef USE_TI_UI3DMATRIX
-#import "Ti3DMatrix.h"
+#import <TitaniumKit/Ti3DMatrix.h>
 #endif
 
 #ifdef USE_TI_UIANIMATION
-#import "TiAnimation.h"
+#import <TitaniumKit/TiAnimation.h>
 #endif
 #ifdef USE_TI_UIIPAD
 #import "TiUIiPadProxy.h"
@@ -38,11 +43,6 @@
 #ifdef USE_TI_UITOOLBAR
 #import "TiUIToolbarProxy.h"
 #endif
-
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
 
 @implementation UIModule
 
@@ -620,20 +620,15 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_PHONE, UITextContentTypeTelephoneNumber);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_EMAIL, UITextContentTypeEmailAddress);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_URL, UITextContentTypeURL);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_CARD_NUMBER, UITextContentTypeCreditCardNumber);
-
-#if IS_XCODE_9
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_USERNAME, UITextContentTypeUsername);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
-#endif
 #endif
 
 #ifdef USE_TI_UICLIPBOARD
 - (NSString *)CLIPBOARD_OPTION_LOCAL_ONLY
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return UIPasteboardOptionLocalOnly;
-#endif
   } else {
     return @"";
   }
@@ -641,9 +636,7 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
 - (NSString *)CLIPBOARD_OPTION_EXPIRATION_DATE
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return UIPasteboardOptionExpirationDate;
-#endif
   } else {
     return @"";
   }

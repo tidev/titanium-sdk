@@ -6,12 +6,13 @@
  */
 #ifdef USE_TI_GEOLOCATION
 
-#import "GeolocationModule.h"
-#import "APSAnalytics.h"
+#import <TitaniumKit/APSAnalytics.h>
+#import <TitaniumKit/NSData+Additions.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiEvaluator.h>
+
 #import "AnalyticsModule.h"
-#import "NSData+Additions.h"
-#import "TiApp.h"
-#import "TiEvaluator.h"
+#import "GeolocationModule.h"
 
 #import <sys/utsname.h>
 

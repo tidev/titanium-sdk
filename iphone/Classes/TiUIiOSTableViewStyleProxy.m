@@ -6,7 +6,7 @@
  */
 #if defined(USE_TI_UIIOSTABLEVIEWSTYLE) || defined(USE_TI_UIIOSLISTVIEWSTYLE)
 #import "TiUIiOSTableViewStyleProxy.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 
 @implementation TiUIiOSTableViewStyleProxy
 

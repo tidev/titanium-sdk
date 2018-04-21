@@ -6,13 +6,15 @@
  */
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 
-#import "TiColor.h"
-#import "TiFile.h"
-#import "TiMediaTypes.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiColor.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiViewProxy.h>
+
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
 #import <MediaPlayer/MediaPlayer.h>
+
+#import "TiMediaTypes.h"
 
 @interface TiMediaVideoPlayerProxy : TiViewProxy {
   @protected

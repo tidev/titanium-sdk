@@ -7,11 +7,12 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabProxy.h"
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiProxy.h"
 #import "TiUITabGroupProxy.h"
-#import "TiUtils.h"
+
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
 
 //NOTE: this proxy is a little different than normal Proxy/View pattern
 //since it's not really backed by a view in the normal way.  It's given
@@ -244,9 +245,7 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
 
-#if IS_XCODE_9
   [window processForSafeArea];
-#endif
 
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
@@ -368,9 +367,8 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-#if IS_XCODE_9
   [theWindow processForSafeArea];
-#endif
+
   if (theWindow == rootWindow) {
     //This is probably too late for the root view controller.
     //Figure out how to call open before this callback
@@ -499,9 +497,7 @@
 
   UIViewController *rootController = [rootWindow hostingController];
   id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
-#if IS_XCODE_8
   id badgeColor = [self valueForKey:@"badgeColor"];
-#endif
   id iconInsets = [self valueForKey:@"iconInsets"];
   id icon = [self valueForKey:@"icon"];
 
@@ -511,11 +507,9 @@
     UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
     [newItem setBadgeValue:badgeValue];
 
-#if IS_XCODE_8
     if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
       [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
-#endif
 
     [rootController setTabBarItem:newItem];
     [newItem release];
@@ -581,11 +575,9 @@
     }
   }
 
-#if IS_XCODE_8
   if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
     [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
-#endif
 
   [ourItem setBadgeValue:badgeValue];
   [rootController setTabBarItem:ourItem];

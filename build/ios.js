@@ -9,22 +9,9 @@ const exec = require('child_process').exec, // eslint-disable-line security/dete
 	copyAndModifyFile = utils.copyAndModifyFile,
 	copyAndModifyFiles = utils.copyAndModifyFiles,
 	globCopy = utils.globCopy,
-	downloadURL = utils.downloadURL,
 	ROOT_DIR = path.join(__dirname, '..'),
 	IOS_ROOT = path.join(ROOT_DIR, 'iphone'),
-	IOS_LIB = path.join(IOS_ROOT, 'lib'),
-	TI_CORE_VERSION = 24,
-	TI_CORE_INTEGRITY = 'sha512-iTyrzaMs6SfPlyEgO70pg8EW08mn211tjpAI5hAmRHQaZGu1ieuBnT8uEkEYcsO8hdzAFbouqPPEaXWcJH5SLA==';
-
-function gunzip(gzFile, destFile, next) {
-	console.log('Gunzipping ' + gzFile + ' to ' + destFile);
-	exec('gunzip -dc "' + gzFile + '" > "' + destFile + '"', function (err) {
-		if (err) {
-			return next(err);
-		}
-		next();
-	});
-}
+	IOS_LIB = path.join(IOS_ROOT, 'lib');
 
 /**
  * @param {Object} options options object
@@ -43,35 +30,9 @@ IOS.prototype.clean = function (next) {
 	next();
 };
 
-IOS.prototype.fetchLibTiCore = function (next) {
-	const url = 'http://timobile.appcelerator.com.s3.amazonaws.com/libTiCore-' + TI_CORE_VERSION + '.a.gz',
-		dest = path.join(IOS_LIB, 'libTiCore.a'),
-		markerFile = path.join(IOS_LIB, TI_CORE_VERSION.toString() + '.txt');
-
-	// Do we have the latest libTiCore?
-	if (fs.existsSync(dest) && fs.existsSync(markerFile)) {
-		return next();
-	}
-
-	console.log('You don\'t seem to have the appropriate thirdparty files. I\'ll fetch them.');
-	console.log('This could take awhile.. Might want to grab a cup of Joe or make fun of Nolan.');
-
-	downloadURL(url, TI_CORE_INTEGRITY, function (err, file) {
-		if (err) {
-			return next(err);
-		}
-		gunzip(file, dest, function (err) {
-			if (err) {
-				return next(err);
-			}
-			// Place "marker" file
-			fs.writeFile(markerFile, 'DO NOT DELETE THIS FILE', next);
-		});
-	});
-};
-
 IOS.prototype.build = function (next) {
-	this.fetchLibTiCore(next);
+	// no-op. Used to fetch TiCore but we (finally) removed it in favor of the native JavaScriptCore
+	next();
 };
 
 IOS.prototype.package = function (packager, next) {
@@ -80,31 +41,31 @@ IOS.prototype.package = function (packager, next) {
 	const DEST_IOS = path.join(packager.zipSDKDir, 'iphone');
 
 	async.parallel([
-		this.fetchLibTiCore.bind(this),
 		function (callback) {
 			async.series([
 				function (cb) {
-					globCopy('**/*.h', path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'include'), cb);
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates', 'TitaniumKit' ], cb);
 				},
-				function (cb) {
-					globCopy('**/*.h', path.join(IOS_ROOT, 'headers', 'JavaScriptCore'), path.join(DEST_IOS, 'include', 'JavaScriptCore'), cb);
-				},
-				function (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'headers', 'iphone', 'templates' ], cb);
-				},
-				// Copy and inject values for special source files
+				// Copy and inject build meta data into the main.m (used by TitaniumKit)
 				function (cb) {
 					const subs = {
-						__VERSION__: this.sdkVersion,
-						__TIMESTAMP__: this.timestamp,
-						__GITHASH__: this.gitHash
+						__SDK_VERSION__:  this.sdkVersion,
+						__BUILD_HASH__:  this.timestamp,
+						__BUILD_DATE__:  this.gitHash,
 					};
-					copyAndModifyFiles(path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'Classes'), [ 'TopTiModule.m', 'TiApp.m' ], subs, cb);
+					const dest = path.join(DEST_IOS, 'main.m');
+					const contents = fs.readFileSync(path.join(DEST_IOS, 'main.m')).toString().replace(/(__.+?__)/g, function (match, key) {
+						const s = subs.hasOwnProperty(key) ? subs[key] : key;
+						return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
+					});
+					fs.writeFileSync(dest, contents);
+					cb();
 				}.bind(this),
+				// Copy Ti.Verify
 				function (cb) {
-					copyFiles(IOS_LIB, DEST_IOS, [ 'libtiverify.a', 'libti_ios_debugger.a', 'libti_ios_profiler.a' ], cb);
+					copyFiles(IOS_LIB, DEST_IOS, [ 'libtiverify.a' ], cb);
 				},
-				// copy iphone/package.json, but replace __VERSION__ with our version!
+				// Copy iphone/package.json, but replace __VERSION__ with our version!
 				function (cb) {
 					copyAndModifyFile(IOS_ROOT, DEST_IOS, 'package.json', { __VERSION__: this.sdkVersion }, cb);
 				}.bind(this),
@@ -118,8 +79,7 @@ IOS.prototype.package = function (packager, next) {
 		if (err) {
 			return next(err);
 		}
-		// Ensure we've fetched libTiCore before we copy it
-		copyFiles(IOS_LIB, DEST_IOS, [ 'libTiCore.a' ], next);
+		next();
 	});
 };
 

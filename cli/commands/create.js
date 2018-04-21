@@ -151,7 +151,7 @@ CreateCommand.prototype.run = function run(logger, config, cli, finished) {
 
 	// load the project type lib
 	logger.info(__('Creating %s project', type.cyan));
-
+	
 	appc.async.series(this, [
 		function (next) {
 			cli.emit([

@@ -19,7 +19,7 @@
  */
 
 #include "TiNetworkCookieProxy.h"
-#include "TiUtils.h"
+#include <TitaniumKit/TiUtils.h>
 
 @implementation TiNetworkCookieProxy
 

@@ -9,7 +9,7 @@
 #import "TiUIButtonProxy.h"
 #import "TiUIButton.h"
 #import "TiUINavBarButton.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIButtonProxy
 

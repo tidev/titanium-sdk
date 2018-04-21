@@ -15,7 +15,7 @@
 
 #import "GDataXMLNode.h"
 #import "TiDOMElementProxy.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiDOMNamedNodeMapProxy : TiProxy {
   @private

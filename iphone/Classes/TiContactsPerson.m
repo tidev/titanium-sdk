@@ -8,8 +8,8 @@
 
 #import "TiContactsPerson.h"
 #import "ContactsModule.h"
-#import "TiBlob.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiUtils.h>
 
 static NSDictionary *contactProperties;
 static NSDictionary *multiValueProperties;

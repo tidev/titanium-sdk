@@ -6,10 +6,11 @@
  */
 #ifdef USE_TI_UIBUTTON
 
-#import "TiToolbar.h"
+#import <TitaniumKit/TiToolbar.h>
+#import <TitaniumKit/TiViewProxy.h>
+
 #import "TiToolbarButton.h"
 #import "TiUINavBarButton.h"
-#import "TiViewProxy.h"
 
 @interface TiUIButtonProxy : TiViewProxy <TiToolbarButton> {
   @private

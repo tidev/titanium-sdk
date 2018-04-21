@@ -6,8 +6,8 @@
  */
 
 #import "TiUIiOSProxy.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 #ifdef USE_TI_UIIOS
 
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
@@ -25,7 +25,7 @@
 #endif
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
-#import "TiUIiOSTransitionAnimationProxy.h"
+#import <TitaniumKit/TiUIiOSTransitionAnimationProxy.h>
 #endif
 
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
@@ -93,10 +93,8 @@
 #import "TiUIiOSStepperProxy.h"
 #endif
 
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 #import "TiUIiOSFeedbackGeneratorProxy.h"
-#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -430,21 +428,19 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 - (id)BLUR_EFFECT_STYLE_REGULAR
 {
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     return NUMINTEGER(UIBlurEffectStyleRegular);
   }
-#endif
+
   return [NSNull null];
 }
 
 - (id)BLUR_EFFECT_STYLE_PROMINENT
 {
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     return NUMINTEGER(UIBlurEffectStyleProminent);
   }
-#endif
+
   return [NSNull null];
 }
 #endif
@@ -779,9 +775,7 @@ MAKE_SYSTEM_PROP(MODAL_PRESENTATION_PAGESHEET, UIModalPresentationPageSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FORMSHEET, UIModalPresentationFormSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT, UIModalPresentationCurrentContext);
 
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
-
 - (id)createFeedbackGenerator:(id)args
 {
   return [[[TiUIiOSFeedbackGeneratorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
@@ -799,13 +793,10 @@ MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT, UIImpactFeedbackStyleLig
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM, UIImpactFeedbackStyleMedium);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY, UIImpactFeedbackStyleHeavy);
 #endif
-#endif
 
-#if IS_XCODE_9
 MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_AUTOMATIC, UINavigationItemLargeTitleDisplayModeAutomatic);
 MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_ALWAYS, UINavigationItemLargeTitleDisplayModeAlways);
 MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_NEVER, UINavigationItemLargeTitleDisplayModeNever);
-#endif
 
 @end
 #endif

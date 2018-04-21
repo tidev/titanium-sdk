@@ -7,7 +7,7 @@
 
 #ifdef USE_TI_WATCHSESSION
 
-#import "TiModule.h"
+#import <TitaniumKit/TiModule.h>
 #import <WatchConnectivity/WatchConnectivity.h>
 
 @interface WatchSessionModule : TiModule <WCSessionDelegate> {

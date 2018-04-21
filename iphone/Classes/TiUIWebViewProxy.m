@@ -6,11 +6,12 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import "TiUIWebViewProxy.h"
-#import "TiBlob.h"
-#import "TiHost.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiHost.h>
+#import <TitaniumKit/TiUtils.h>
+
 #import "TiUIWebView.h"
-#import "TiUtils.h"
+#import "TiUIWebViewProxy.h"
 
 @implementation TiUIWebViewProxy
 
