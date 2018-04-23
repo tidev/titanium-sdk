@@ -85,7 +85,7 @@ description: |
     "When in Use" to "Always", which is the recommended way for managing location permissions in iOS 11 and later.
     Please also remember to request your desired location-permissions before using any geolocation-related API in 
     order to receive the best usability and permission-control during the app-lifecycle using <Titanium.Geolocation.hasLocationPermissions>
-    and <Ti.Geolocation.requestLocationPermissions>. Also note that you also need to include the `NSLocationWhenInUseUsageDescription` key 
+    and <Titanium.Geolocation.requestLocationPermissions>. Also note that you also need to include the `NSLocationWhenInUseUsageDescription` key 
     in *any* case when targeting iOS 11 and later. Descriptive error-logs will be thrown if required permissions are missing.
 
     #### Configurating Location Updates on Android
@@ -137,6 +137,39 @@ description: |
         You can also specifying a desired update frequency using the
         [frequency](Titanium.Geolocation.frequency) property. The `preferredProvider`
         and `frequency` properties are not used in any other mode.
+
+    As of Titanium SDK 7.1.0 and later, including `ti.playservices` will allow Google Play Services to be used by
+    default to obtain location information. This means the provider passed into [createLocationProvider](Titanium.Geolocation.Android.createLocationProvider) will
+    be ignored, as Google Play Services will select the best provider based on current device conditions.
+    If Google Play Services is not available it will fallback to previous behaviour of using Android location APIs.
+
+    To retrieve location events:
+
+        var win = Ti.UI.createWindow({ backgroundColor: 'gray' });
+
+        Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;
+
+        function getLocation() {
+            Ti.Geolocation.addEventListener('location', function(e) {
+                alert(JSON.stringify(e, null, 2));
+            });
+        }
+
+        win.addEventListener('open', function() {
+            if (Ti.Geolocation.hasLocationPermissions()){
+                getLocation();
+             } else {
+                Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_ALWAYS, function(e) {
+                    if (e.success) {
+                        getLocation();
+                    } else {
+                        alert('could not obtain location permissions');
+                    }
+                });
+            }
+        });
+
+        win.open();
 
     #### Using the Compass
 
@@ -395,6 +428,8 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: {android: "2.0.0"}
 
   - name: ACCURACY_HUNDRED_METERS
     summary: |
@@ -406,6 +441,8 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: {android: "2.0.0"}
 
   - name: ACCURACY_KILOMETER
     summary: |
@@ -417,6 +454,8 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: {android: "2.0.0"}
 
   - name: ACCURACY_NEAREST_TEN_METERS
     summary: |
@@ -428,6 +467,8 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: {android: "2.0.0"}
 
   - name: ACCURACY_THREE_KILOMETERS
     summary: |
@@ -439,6 +480,8 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: {android: "2.0.0"}
 
   - name: ACCURACY_HIGH
     summary: |
@@ -768,7 +811,7 @@ properties:
 
         On Android OS 2.2 and above, there is a new,  "passive" location provider that is enabled
         at all times, even when the user disables both the GPS and Network location providers.
-        Therefore, this method always returns `true` on these devices.
+        Therefore, this method returns `true` on these devices if only there is GPS or network provider available.
     type: Boolean
     permission: read-only
 

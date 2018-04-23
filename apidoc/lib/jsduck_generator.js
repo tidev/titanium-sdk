@@ -221,7 +221,7 @@ function exportType(api) {
 		}
 		types.forEach(function (type) {
 			if (type.indexOf('Array') === 0) {
-				rv.push(exportType({ 'type': type.slice(type.indexOf('<') + 1, type.lastIndexOf('>')) }) + '[]');
+				rv.push(exportType({ type: type.slice(type.indexOf('<') + 1, type.lastIndexOf('>')) }) + '[]');
 			} else {
 				rv.push(type);
 			}
@@ -295,9 +295,9 @@ function exportReturns(api) {
 			}
 		});
 		if (constants.length) {
-			summary += exportConstants({ 'constants': constants });
+			summary += exportConstants({ constants: constants });
 		}
-		rv = '{' + exportType({ 'type': types }) + '}' + summary;
+		rv = '{' + exportType({ type: types }) + '}' + summary;
 	}
 	return rv;
 

@@ -52,6 +52,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_ACTION;
+import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_NEW_LINE;
+
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
 {
 	private static final String TAG = "TiUIText";
@@ -288,7 +291,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
+			//TIMOB-17210 Android: A textfield change listener is wrongly triggered also if the value is programmatically set before creation
+			disableChangeEvent = true;
 			tv.setText(TiConvert.toString(newValue));
+			disableChangeEvent = false;
 		} else if (key.equals(TiC.PROPERTY_MAX_LENGTH)) {
 			maxLength = TiConvert.toInt(newValue);
 			//truncate if current text exceeds max length
@@ -404,6 +410,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			String value = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_VALUE));
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_VALUE, value);
+			// TODO: Enable this once we have it on iOS as well.
+			//data.put(TiC.PROPERTY_BUTTON, RETURN_KEY_TYPE_NEW_LINE);
 			fireEvent(TiC.EVENT_RETURN, data);
 		}
 		/**
@@ -516,15 +524,33 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			return true;
 		}
 
-		//This is to prevent 'return' event from being fired twice when return key is hit. In other words, when return key is clicked,
-		//this callback is triggered twice (except for keys that are mapped to EditorInfo.IME_ACTION_NEXT or EditorInfo.IME_ACTION_DONE). The first check is to deal with those keys - filter out
-		//one of the two callbacks, and the next checks deal with 'Next' and 'Done' callbacks, respectively.
-		//Refer to TiUIText.handleReturnKeyType(int) for a list of return keys that are mapped to EditorInfo.IME_ACTION_NEXT and EditorInfo.IME_ACTION_DONE.
-		if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
-			fireEvent(TiC.EVENT_RETURN, data);
-		}
+		// TODO: Enable this once we have it on iOS as well.
+		//data.put(TiC.PROPERTY_BUTTON, RETURN_KEY_TYPE_ACTION);
 
-		return false;
+		// Check whether we are dealing with text area or text field. Multiline TextViews in Landscape
+		// orientation for phones have separate buttons for IME_ACTION and new line.
+		// And because of that we skip the firing of a RETURN event from this call in favor of the
+		// one from onTextChanged. The event carries a property to determine whether it was fired
+		// from the IME_ACTION button or the new line one.
+		if (this.field) {
+			fireEvent(TiC.EVENT_RETURN, data);
+			// Since IME_ACTION_NEXT and IME_ACTION_DONE take care of consuming the second call to
+			// onEditorAction we do not consume it for either of them.
+			return (!(actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE
+					  || (keyEvent != null)));
+		} else {
+			// After clicking the IME_ACTION button we get two calls of onEditorAction.
+			// The second call of onEditorAction is treated as a KeyPress event and gives the
+			// keyEvent for that as the third parameter. If it is 'null' that's the first call -
+			// fire the JS event and consume the event to prevent the duplicate call.
+			if (keyEvent == null) {
+				fireEvent(TiC.EVENT_RETURN, data);
+				return true;
+			}
+			// New line is treated immediately as KeyEvent, so we let the system propagate it
+			// to onTextChange where the JS event is loaded with the property that with was a new line.
+			return false;
+		}
 	}
 
 	public void handleTextAlign(String textAlign, String verticalAlign)
@@ -826,10 +852,14 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		Bundle bundleText =
 			AttributedStringProxy.toSpannableInBundle(attrString, TiApplication.getAppCurrentActivity());
 		if (bundleText.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			//TIMOB-17210 Android: A textfield change listener is wrongly triggered also if the value is programmatically set before creation
+			boolean wasDisabled = disableChangeEvent;
+			disableChangeEvent = true;
 			tv.setText((Spannable) bundleText.getCharSequence(TiC.PROPERTY_ATTRIBUTED_STRING));
 			if (bundleText.getBoolean(TiC.PROPERTY_HAS_LINK, false)) {
 				tv.setMovementMethod(LinkMovementMethod.getInstance());
 			}
+			disableChangeEvent = wasDisabled;
 		}
 	}
 

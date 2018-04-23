@@ -140,7 +140,8 @@ public:
 	static jmethodID referenceTableCreateReferenceMethod;
 	static jmethodID referenceTableDestroyReferenceMethod;
 	static jmethodID referenceTableMakeWeakReferenceMethod;
-	static jmethodID referenceTableClearWeakReferenceMethod;
+	static jmethodID referenceTableMakeSoftReferenceMethod;
+	static jmethodID referenceTableClearReferenceMethod;
 	static jmethodID referenceTableGetReferenceMethod;
 
 	static jint krollRuntimeDontIntercept;
