@@ -84,7 +84,10 @@ public class TiUICardView extends TiUIView
 	public TiUICardViewLayout getLayout()
 	{
 		View nativeView = getNativeView();
-		return ((TiCardView) nativeView).layout;
+		if (nativeView != null) {
+			return ((TiCardView) nativeView).layout;
+		}
+		return null;
 	}
 
 	@Override
