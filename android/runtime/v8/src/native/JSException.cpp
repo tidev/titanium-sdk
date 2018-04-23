@@ -42,6 +42,8 @@ Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable jav
 	const char* messagePtr = env->GetStringUTFChars(javaMessage, NULL);
 	std::stringstream message;
 	message << messagePtr;
+	env->ReleaseStringUTFChars(javaMessage, messagePtr);
+	env->DeleteLocalRef(javaMessage);
 
 	jobjectArray frames = (jobjectArray) env->CallObjectMethod(javaException, JNIUtil::throwableGetStackTraceMethod);
 	jsize frames_length = env->GetArrayLength(frames);
@@ -57,8 +59,6 @@ Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable jav
 	}
 	message << std::endl;
 
-	env->ReleaseStringUTFChars(javaMessage, messagePtr);
-	env->DeleteLocalRef(javaMessage);
 	if (deleteRef) {
 		env->DeleteLocalRef(javaException);
 	}
