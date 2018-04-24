@@ -8,16 +8,28 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 
-describe('Titanium', function () {
-	it.android('validate exception stack trace output', function () {
+describe('Error', function () {
+	it.android('JS error thrown', function () {
 		var e = {};
 
 		try {
 			Ti.API.info(e.test.crash);
+			should.fail('Expected to throw exception');
 		} catch (ex) {
-			ex.toString().includes('Cannot read property \'crash\' of undefined').should.be.true();
+			ex.message.should.equal('Cannot read property \'crash\' of undefined');
+		}
+	});
+
+	it.android('Java exception surfaced', function () {
+		try {
+			Ti.Geolocation.accuracy = null;
+			should.fail('Expected to throw exception');
+		} catch (ex) {
+			ex.message.should.equal('Unable to convert null'); // message property is undefined now, so this will fail
+			// stack property is also undefined so this will fail
+			ex.stack.should.containEql('org.appcelerator.titanium.util.TiConvert.toInt(TiConvert.java:'); // points to Java code in stack
 		}
 	});
 });

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,7 @@
 
 #include "JNIUtil.h"
 #include "TypeConverter.h"
+#include "V8Util.h"
 
 #include "JSException.h"
 
@@ -39,12 +40,20 @@ Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable jav
 	if (!javaMessage) {
 		return THROW(isolate, "Java Exception occurred");
 	}
-	const char* messagePtr = env->GetStringUTFChars(javaMessage, NULL);
-	std::stringstream message;
-	message << messagePtr;
-	env->ReleaseStringUTFChars(javaMessage, messagePtr);
-	env->DeleteLocalRef(javaMessage);
 
+	Local<Context> context = isolate->GetCurrentContext();
+
+	// Grab the top-level error message
+	Local<Value> jsMessage = TypeConverter::javaStringToJsString(isolate, env, javaMessage);
+	env->DeleteLocalRef(javaMessage);
+	// Create a JS Error holding this message
+	// We use .As<String> here because we know that the return value of TypeConverter::javaStringToJsString
+	// must be a String. Only other variant is Null when the javaMessage is null, which we already checked for above.
+	// We use .As<Object> on Error because an Error is an Object.
+	Local<Object> error = Exception::Error(jsMessage.As<String>()).As<Object>();
+
+	// Now loop through the java stack and generate a JS String from the result and assign to Local<String> stack
+	std::stringstream stackStream;
 	jobjectArray frames = (jobjectArray) env->CallObjectMethod(javaException, JNIUtil::throwableGetStackTraceMethod);
 	jsize frames_length = env->GetArrayLength(frames);
 	for (int i = 0; i < (frames_length > MAX_STACK ? MAX_STACK : frames_length); i++) {
@@ -52,18 +61,22 @@ Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable jav
 		jstring javaStack = (jstring) env->CallObjectMethod(frame, JNIUtil::stackTraceElementToStringMethod);
 
 		const char* stackPtr = env->GetStringUTFChars(javaStack, NULL);
-		message << std::endl << "    " << stackPtr;
+	 	stackStream << std::endl << "    " << stackPtr;
 
 		env->ReleaseStringUTFChars(javaStack, stackPtr);
 		env->DeleteLocalRef(javaStack);
 	}
-	message << std::endl;
-
 	if (deleteRef) {
 		env->DeleteLocalRef(javaException);
 	}
+	stackStream << std::endl;
+	Local<String> stack = String::NewFromUtf8(isolate, stackStream.str().c_str());
 
-	return isolate->ThrowException(String::NewFromUtf8(isolate, message.str().c_str()));
+	// Now explicitly assign our properly generated stacktrace
+	error->Set(context, STRING_NEW(isolate, "stack"), stack);
+
+	// throw it
+	return isolate->ThrowException(error);
 }
 
 }
