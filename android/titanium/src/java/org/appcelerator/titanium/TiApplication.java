@@ -375,14 +375,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 					javaStack += "\n    " + frame.toString();
 				}
 
-				// construct exception message
-				String message = e.getMessage();
-				if (!javaStack.isEmpty()) {
-					message += javaStack;
-				}
-
 				// throw exception as KrollException
-				KrollRuntime.dispatchException("Runtime Error", message, null, 0, null, 0);
+				KrollRuntime.dispatchException("Runtime Error", e.getMessage(), null, 0, null, 0, javaStack);
 			}
 		});
 

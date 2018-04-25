@@ -52,7 +52,8 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static final String ERROR_LINE = "line";
 	private static final String ERROR_LINESOURCE = "lineSource";
 	private static final String ERROR_LINEOFFSET = "lineOffset";
-	private static final String ERROR_STACK = "stack";
+	private static final String ERROR_JS_STACK = "javascriptStack";
+	private static final String ERROR_JAVA_STACK = "javaStack";
 
 	private static final String fill(int count)
 	{
@@ -70,7 +71,8 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		dict.put(ERROR_LINE, error.line);
 		dict.put(ERROR_LINESOURCE, error.lineSource);
 		dict.put(ERROR_LINEOFFSET, error.lineOffset);
-		dict.put(ERROR_STACK, KrollRuntime.getInstance().getStackTrace());
+		dict.put(ERROR_JS_STACK, KrollRuntime.getInstance().getStackTrace());
+		dict.put(ERROR_JAVA_STACK, error.stack);
 		return dict;
 	}
 
@@ -82,7 +84,8 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		final int line = error.getInt(ERROR_LINE);
 		final String lineSource = error.getString(ERROR_LINESOURCE);
 		final int lineOffset = error.getInt(ERROR_LINEOFFSET);
-		final String stack = error.getString(ERROR_STACK);
+		final String jsStack = error.getString(ERROR_JS_STACK);
+		final String javaStack = error.getString(ERROR_JAVA_STACK);
 		final String message = error.getString(ERROR_MESSAGE);
 
 		if (sourceName != null) {
@@ -92,10 +95,13 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			output += lineSource + "\n";
 			output += fill(lineOffset - 1) + "^\n";
 		}
-		if (stack != null) {
-			output += stack + "\n";
-		}
 		output += message + "\n";
+		if (jsStack != null) {
+			output += jsStack;
+		}
+		if (javaStack != null) {
+			output += javaStack;
+		}
 
 		return output;
 	}

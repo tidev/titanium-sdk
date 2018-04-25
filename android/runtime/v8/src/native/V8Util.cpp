@@ -146,7 +146,9 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		return;
 	}
 
+	Local<Context> context = isolate->GetCurrentContext();
 	Local<Message> message = tryCatch.Message();
+	Local<Value> stack = tryCatch.Exception().As<Object>()->Get(context, STRING_NEW(isolate, "stack")).ToLocalChecked();
 
 	V8Runtime::exceptionStackTrace.Reset(isolate, message->GetStackTrace());
 
@@ -154,6 +156,7 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, message->Get());
 	jstring resourceName = TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
 	jstring sourceLine = TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine());
+	jstring javaStack = TypeConverter::jsValueToJavaString(isolate, env, stack);
 
 	env->CallStaticVoidMethod(
 		JNIUtil::krollRuntimeClass,
@@ -163,12 +166,14 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		resourceName,
 		message->GetLineNumber(),
 		sourceLine,
-		message->GetEndColumn());
+		message->GetEndColumn(),
+		javaStack);
 
 	env->DeleteLocalRef(title);
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
 	env->DeleteLocalRef(sourceLine);
+	env->DeleteLocalRef(javaStack);
 }
 
 static int uncaughtExceptionCounter = 0;
@@ -253,7 +258,7 @@ std::string V8Util::stackTraceString(Local<StackTrace> frames) {
 		v8::String::Utf8Value jsScriptName(frame->GetScriptName());
 		std::string scriptName = std::string(*jsScriptName, jsScriptName.length());
 
-		stack << "   at " << functionName << "(" << scriptName << ":" << frame->GetLineNumber() << ":" << frame->GetColumn() << ")" << std::endl;
+		stack << "    at " << functionName << "(" << scriptName << ":" << frame->GetLineNumber() << ":" << frame->GetColumn() << ")" << std::endl;
 	}
 
 	if (!stack.str().empty()) {
