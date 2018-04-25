@@ -10,7 +10,6 @@
 'use strict';
 
 describe('Titanium.UI.Button', function () {
-	var win;
 
 	this.timeout(5000);
 
@@ -19,27 +18,28 @@ describe('Titanium.UI.Button', function () {
 
 		text = 'Titanium rocks!';
 		attr = Ti.UI.createAttributedString({
-      text: text,
-      attributes: [
-        // Remove underline
-        {
-          type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
-          value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE,
-          range: [ 0, text.length ]
-        }
-      ]
-    });
-    button = Ti.UI.createButton({ attributedString: attr });
-
-    should(button.attributedString).be.an.Object;
-    should(button.attributedString.text).be.a.String;
-    should(button.attributedString.text).eql('Titanium rocks!');
-    should(button.attributedString.attributes).be.an.Array;
-    should(button.attributedString.attributes[0].type).eql(Ti.UI.ATTRIBUTE_UNDERLINES_STYLE);
-    should(button.attributedString.attributes[0].value).eql(Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE);
-    should(button.attributedString.attributes[0].range[0]).eql(0);
-    should(button.attributedString.attributes[0].range[1]).eql(text.length);
+			text: text,
+			attributes: [
+				// Remove underline
+				{
+					type: Ti.UI.ATTRIBUTE_UNDERLINES_STYLE,
+					value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE,
+					range: [ 0, text.length ]
+				}
+			]
+		});
 		
-    finish();
+		button = Ti.UI.createButton({ attributedString: attr });
+		
+		should(button.attributedString).be.an.Object;
+		should(button.attributedString.text).be.a.String;
+		should(button.attributedString.text).eql('Titanium rocks!');
+		should(button.attributedString.attributes).be.an.Array;
+		should(button.attributedString.attributes[0].type).eql(Ti.UI.ATTRIBUTE_UNDERLINES_STYLE);
+		should(button.attributedString.attributes[0].value).eql(Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE);
+		should(button.attributedString.attributes[0].range[0]).eql(0);
+		should(button.attributedString.attributes[0].range[1]).eql(text.length);
+		
+		finish();
 	});
 });
