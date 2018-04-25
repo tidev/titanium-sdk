@@ -38,7 +38,6 @@ Persistent<Object> V8Runtime::krollGlobalObject;
 Persistent<Array> V8Runtime::moduleContexts;
 Persistent<Object> V8Runtime::moduleObject;
 Persistent<Function> V8Runtime::runModuleFunction;
-Persistent<StackTrace> V8Runtime::exceptionStackTrace;
 
 jobject V8Runtime::javaInstance;
 Platform* V8Runtime::platform = nullptr;
@@ -433,7 +432,6 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	V8Util::dispose();
 	ProxyFactory::dispose();
 
-	V8Runtime::exceptionStackTrace.Reset();
 	V8Runtime::moduleObject.Reset();
 	V8Runtime::runModuleFunction.Reset();
 	V8Runtime::krollGlobalObject.Reset();
@@ -465,24 +463,6 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	//V8::Dispose();
 	//V8::ShutdownPlatform();
 	//delete V8Runtime::platform;
-}
-
-JNIEXPORT jstring JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeStackTrace(JNIEnv *env, jobject self)
-{
-	HandleScope scope(V8Runtime::v8_isolate);
-
-	Local<StackTrace> frames = StackTrace::CurrentStackTrace(V8Runtime::v8_isolate, 10);
-	if (frames.IsEmpty() || !frames->GetFrameCount()) {
-		frames = V8Runtime::exceptionStackTrace.Get(V8Runtime::v8_isolate);
-	}
-	if (!frames.IsEmpty()) {
-		std::string stack = V8Util::stackTraceString(frames);
-		if (!stack.empty()) {
-			return env->NewStringUTF(stack.c_str());
-		}
-	}
-
-	return NULL;
 }
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved)

@@ -166,12 +166,6 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	@Override
-	public String getStackTrace()
-	{
-		return nativeStackTrace();
-	}
-
-	@Override
 	public void doDispose()
 	{
 		TiDeployData deployData = getKrollApplication().getDeployData();
@@ -245,6 +239,4 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private native void nativeDispose();
 
 	private native void nativeAddExternalCommonJsModule(String moduleName, KrollSourceCodeProvider sourceProvider);
-
-	private native String nativeStackTrace();
 }

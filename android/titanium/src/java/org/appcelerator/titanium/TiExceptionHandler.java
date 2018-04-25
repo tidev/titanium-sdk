@@ -53,6 +53,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static final String ERROR_LINESOURCE = "lineSource";
 	private static final String ERROR_LINEOFFSET = "lineOffset";
 	private static final String ERROR_STACK = "stack";
+	private static final String ERROR_NATIVE_STACK = "nativeStack";
 
 	private static final String fill(int count)
 	{
@@ -70,7 +71,9 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		dict.put(ERROR_LINE, error.line);
 		dict.put(ERROR_LINESOURCE, error.lineSource);
 		dict.put(ERROR_LINEOFFSET, error.lineOffset);
-		dict.put(ERROR_STACK, KrollRuntime.getInstance().getStackTrace());
+		dict.put(ERROR_STACK, error.stack);
+		dict.put(ERROR_NATIVE_STACK, error.nativeStack);
+		// dict.put(ERROR_STACK, KrollRuntime.getInstance().getStackTrace());
 		return dict;
 	}
 
@@ -83,6 +86,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		final String lineSource = error.getString(ERROR_LINESOURCE);
 		final int lineOffset = error.getInt(ERROR_LINEOFFSET);
 		final String stack = error.getString(ERROR_STACK);
+		final String nativeStack = error.getString(ERROR_NATIVE_STACK);
 		final String message = error.getString(ERROR_MESSAGE);
 
 		if (sourceName != null) {
@@ -94,8 +98,12 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		}
 		if (stack != null) {
 			output += stack + "\n";
+		} else {
+			output += message + "\n";
 		}
-		output += message + "\n";
+		if (nativeStack != null) {
+			output += "\n" + nativeStack + "\n";
+		}
 
 		return output;
 	}

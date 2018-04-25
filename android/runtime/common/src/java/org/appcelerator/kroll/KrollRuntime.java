@@ -518,7 +518,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	public static void dispatchException(final String title, final String message, final String sourceName,
-										 final int line, final String lineSource, final int lineOffset)
+										 final int line, final String lineSource, final int lineOffset, final String jsStack, final String nativeStack)
 	{
 		if (instance != null) {
 			HashMap<String, KrollExceptionHandler> handlers = instance.exceptionHandlers;
@@ -529,21 +529,20 @@ public abstract class KrollRuntime implements Handler.Callback
 					currentHandler = handlers.get(key);
 					if (currentHandler != null) {
 						currentHandler.handleException(
-							new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset));
+							new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset, jsStack, nativeStack));
 					}
 				}
 			}
 
 			// Handle exception with defaultExceptionHandler
 			instance.primaryExceptionHandler.handleException(
-				new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset));
+				new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset, jsStack, nativeStack));
 		}
 	}
 
 	public abstract void doDispose();
 	public abstract void doRunModule(String source, String filename, KrollProxySupport activityProxy);
 	public abstract Object doEvalString(String source, String filename);
-	public abstract String getStackTrace();
 
 	public abstract String getRuntimeName();
 	public abstract void initRuntime();

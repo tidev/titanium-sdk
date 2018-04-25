@@ -61,7 +61,7 @@ Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable jav
 		jstring javaStack = (jstring) env->CallObjectMethod(frame, JNIUtil::stackTraceElementToStringMethod);
 
 		const char* stackPtr = env->GetStringUTFChars(javaStack, NULL);
-	 	stackStream << std::endl << "    " << stackPtr;
+		stackStream << std::endl << "    " << stackPtr;
 
 		env->ReleaseStringUTFChars(javaStack, stackPtr);
 		env->DeleteLocalRef(javaStack);
@@ -72,8 +72,8 @@ Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable jav
 	stackStream << std::endl;
 	Local<String> stack = String::NewFromUtf8(isolate, stackStream.str().c_str());
 
-	// Now explicitly assign our properly generated stacktrace
-	error->Set(context, STRING_NEW(isolate, "stack"), stack);
+	// Now explicitly assign our properly generated java stacktrace
+	error->Set(context, STRING_NEW(isolate, "nativeStack"), stack);
 
 	// throw it
 	return isolate->ThrowException(error);

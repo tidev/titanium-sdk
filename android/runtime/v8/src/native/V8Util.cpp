@@ -15,8 +15,6 @@
 #include "AndroidUtil.h"
 #include "TypeConverter.h"
 
-#include "V8Runtime.h"
-
 namespace titanium {
 using namespace v8;
 
@@ -146,14 +144,44 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		return;
 	}
 
-	Local<Message> message = tryCatch.Message();
+	HandleScope scope(isolate);
 
-	V8Runtime::exceptionStackTrace.Reset(isolate, message->GetStackTrace());
+	Local<Message> message = tryCatch.Message();
+	Local<Value> exception = tryCatch.Exception();
+
+	// If the exception is a thrown Error object, try and grab teh stack and nativeStack properties as-is
+	Local<Value> stack;
+	Local<Value> nativeStack;
+	if (!exception.IsEmpty() && exception->IsObject()) {
+		Local<Object> error = exception.As<Object>();
+		stack = error->Get(STRING_NEW(isolate, "stack"));
+		nativeStack = error->Get(STRING_NEW(isolate, "nativeStack"));
+	}
+
+	bool hasNativeStack = !nativeStack.IsEmpty() && !nativeStack->IsNullOrUndefined();
+	bool hasJSStack = !stack.IsEmpty() && !stack->IsNullOrUndefined();
+
+	// If the stack is empty, can we construct it on the fly here?
+	if (!hasJSStack) {
+		Local<StackTrace> frames = message->GetStackTrace();
+		if (frames.IsEmpty() || !frames->GetFrameCount()) {
+			frames = StackTrace::CurrentStackTrace(isolate, 10);
+		}
+		if (!frames.IsEmpty()) {
+			std::string stackString = V8Util::stackTraceString(frames);
+			if (!stackString.empty()) {
+				stack = String::NewFromUtf8(isolate, stackString.c_str()).As<Value>();
+				hasJSStack = true;
+			}
+		}
+	}
 
 	jstring title = env->NewStringUTF("Runtime Error");
 	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, message->Get());
 	jstring resourceName = TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
 	jstring sourceLine = TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine());
+	jstring stackAsJString = hasJSStack ? TypeConverter::jsValueToJavaString(isolate, env, stack) : NULL;
+	jstring nativeStackAsJString = hasNativeStack ? TypeConverter::jsValueToJavaString(isolate, env, nativeStack) : NULL;
 
 	env->CallStaticVoidMethod(
 		JNIUtil::krollRuntimeClass,
@@ -163,12 +191,21 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		resourceName,
 		message->GetLineNumber(),
 		sourceLine,
-		message->GetEndColumn());
+		message->GetEndColumn(),
+		stackAsJString,
+		nativeStackAsJString
+	);
 
 	env->DeleteLocalRef(title);
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
 	env->DeleteLocalRef(sourceLine);
+	if (hasJSStack) {
+		env->DeleteLocalRef(stackAsJString);
+	}
+	if (hasNativeStack) {
+		env->DeleteLocalRef(nativeStackAsJString);
+	}
 }
 
 static int uncaughtExceptionCounter = 0;
