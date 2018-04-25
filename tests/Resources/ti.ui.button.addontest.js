@@ -28,9 +28,9 @@ describe('Titanium.UI.Button', function () {
 				}
 			]
 		});
-		
+
 		button = Ti.UI.createButton({ attributedString: attr });
-		
+
 		should(button.attributedString).be.an.Object;
 		should(button.attributedString.text).be.a.String;
 		should(button.attributedString.text).eql('Titanium rocks!');
@@ -39,7 +39,7 @@ describe('Titanium.UI.Button', function () {
 		should(button.attributedString.attributes[0].value).eql(Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE);
 		should(button.attributedString.attributes[0].range[0]).eql(0);
 		should(button.attributedString.attributes[0].range[1]).eql(text.length);
-		
+
 		finish();
 	});
 });
