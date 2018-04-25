@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.lang.CharSequence;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
@@ -26,7 +27,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.Spannable;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.support.v7.widget.AppCompatButton;
@@ -205,10 +205,15 @@ public class TiUIButton extends TiUIView
 	private void setAttributedStringText(AttributedStringProxy attrString)
 	{
 		AppCompatButton btn = (AppCompatButton) getNativeView();
-		Bundle bundleText =
-			AttributedStringProxy.toSpannableInBundle(attrString, TiApplication.getAppCurrentActivity());
-		if (bundleText.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-			btn.setText((Spannable) bundleText.getCharSequence(TiC.PROPERTY_ATTRIBUTED_STRING));
+		
+		if (btn == null) {
+			return;
 		}
+
+		CharSequence text = AttributedStringProxy.toSpannable(attrString, TiApplication.getAppCurrentActivity());
+		if (text == null) {
+			text = "";
+		}
+		btn.setText(text);
 	}
 }
