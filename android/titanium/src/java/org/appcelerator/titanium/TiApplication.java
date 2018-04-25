@@ -369,14 +369,17 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			{
 
 				// obtain java stack trace
-				String javaStack = "";
+				String javaStack = null;
 				StackTraceElement[] frames = e.getCause() != null ? e.getCause().getStackTrace() : e.getStackTrace();
-				for (StackTraceElement frame : frames) {
-					javaStack += "\n    " + frame.toString();
+				if (frames != null && frames.length > 0) {
+					javaStack = "";
+					for (StackTraceElement frame : frames) {
+						javaStack += "\n    " + frame.toString();
+					}
 				}
 
 				// throw exception as KrollException
-				KrollRuntime.dispatchException("Runtime Error", e.getMessage(), null, 0, null, 0, javaStack);
+				KrollRuntime.dispatchException("Runtime Error", e.getMessage(), null, 0, null, 0, null, javaStack);
 			}
 		});
 

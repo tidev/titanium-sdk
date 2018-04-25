@@ -71,8 +71,8 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		dict.put(ERROR_LINE, error.line);
 		dict.put(ERROR_LINESOURCE, error.lineSource);
 		dict.put(ERROR_LINEOFFSET, error.lineOffset);
-		dict.put(ERROR_JS_STACK, KrollRuntime.getInstance().getStackTrace());
-		dict.put(ERROR_JAVA_STACK, error.stack);
+		dict.put(ERROR_JS_STACK, error.jsStack);
+		dict.put(ERROR_JAVA_STACK, error.javaStack);
 		return dict;
 	}
 

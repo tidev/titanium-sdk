@@ -15,8 +15,6 @@
 #include "AndroidUtil.h"
 #include "TypeConverter.h"
 
-#include "V8Runtime.h"
-
 namespace titanium {
 using namespace v8;
 
@@ -146,17 +144,41 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		return;
 	}
 
+	HandleScope scope(isolate);
+
 	Local<Context> context = isolate->GetCurrentContext();
 	Local<Message> message = tryCatch.Message();
-	Local<Value> stack = tryCatch.Exception().As<Object>()->Get(context, STRING_NEW(isolate, "stack")).ToLocalChecked();
+	Local<Value> exception = tryCatch.Exception();
 
-	V8Runtime::exceptionStackTrace.Reset(isolate, message->GetStackTrace());
+	Local<Value> jsStack;
+	Local<Value> javaStack;
+
+	if (exception->IsObject()) {
+		Local<Object> error = exception.As<Object>();
+		jsStack = exception.As<Object>()->Get(STRING_NEW(isolate, "stack"));
+		javaStack = exception.As<Object>()->Get(STRING_NEW(isolate, "javaStack"));
+	}
+
+	// obtain javascript stack trace
+	if (jsStack->IsNullOrUndefined() || jsStack.IsEmpty()) {
+		Local<StackTrace> frames = message->GetStackTrace();
+		if (frames.IsEmpty() || !frames->GetFrameCount()) {
+			frames = StackTrace::CurrentStackTrace(isolate, 10);
+		}
+		if (!frames.IsEmpty()) {
+			std::string stackString = V8Util::stackTraceString(frames);
+			if (!stackString.empty()) {
+				jsStack = String::NewFromUtf8(isolate, stackString.c_str()).As<Value>();
+			}
+		}
+	}
 
 	jstring title = env->NewStringUTF("Runtime Error");
 	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, message->Get());
 	jstring resourceName = TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
 	jstring sourceLine = TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine());
-	jstring javaStack = TypeConverter::jsValueToJavaString(isolate, env, stack);
+	jstring jsStackString = TypeConverter::jsValueToJavaString(isolate, env, jsStack);
+	jstring javaStackString = TypeConverter::jsValueToJavaString(isolate, env, javaStack);
 
 	env->CallStaticVoidMethod(
 		JNIUtil::krollRuntimeClass,
@@ -167,13 +189,15 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		message->GetLineNumber(),
 		sourceLine,
 		message->GetEndColumn(),
-		javaStack);
+		jsStackString,
+		javaStackString);
 
 	env->DeleteLocalRef(title);
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
 	env->DeleteLocalRef(sourceLine);
-	env->DeleteLocalRef(javaStack);
+	env->DeleteLocalRef(jsStackString);
+	env->DeleteLocalRef(javaStackString);
 }
 
 static int uncaughtExceptionCounter = 0;

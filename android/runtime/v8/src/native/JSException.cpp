@@ -44,13 +44,13 @@ Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable jav
 	Local<Context> context = isolate->GetCurrentContext();
 
 	// Grab the top-level error message
-	Local<Value> jsMessage = TypeConverter::javaStringToJsString(isolate, env, javaMessage);
+	Local<Value> message = TypeConverter::javaStringToJsString(isolate, env, javaMessage);
 	env->DeleteLocalRef(javaMessage);
 	// Create a JS Error holding this message
 	// We use .As<String> here because we know that the return value of TypeConverter::javaStringToJsString
 	// must be a String. Only other variant is Null when the javaMessage is null, which we already checked for above.
 	// We use .As<Object> on Error because an Error is an Object.
-	Local<Object> error = Exception::Error(jsMessage.As<String>()).As<Object>();
+	Local<Object> error = Exception::Error(message.As<String>()).As<Object>();
 
 	// Now loop through the java stack and generate a JS String from the result and assign to Local<String> stack
 	std::stringstream stackStream;
@@ -61,7 +61,7 @@ Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable jav
 		jstring javaStack = (jstring) env->CallObjectMethod(frame, JNIUtil::stackTraceElementToStringMethod);
 
 		const char* stackPtr = env->GetStringUTFChars(javaStack, NULL);
-	 	stackStream << std::endl << "    " << stackPtr;
+		stackStream << std::endl << "    " << stackPtr;
 
 		env->ReleaseStringUTFChars(javaStack, stackPtr);
 		env->DeleteLocalRef(javaStack);
@@ -70,10 +70,10 @@ Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable jav
 		env->DeleteLocalRef(javaException);
 	}
 	stackStream << std::endl;
-	Local<String> stack = String::NewFromUtf8(isolate, stackStream.str().c_str());
 
 	// Now explicitly assign our properly generated stacktrace
-	error->Set(context, STRING_NEW(isolate, "stack"), stack);
+	Local<String> javaStack = String::NewFromUtf8(isolate, stackStream.str().c_str());
+	error->Set(context, STRING_NEW(isolate, "javaStack"), javaStack);
 
 	// throw it
 	return isolate->ThrowException(error);

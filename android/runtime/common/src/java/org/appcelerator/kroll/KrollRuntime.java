@@ -519,13 +519,13 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public static void dispatchException(final String title, final String message, final String sourceName,
 										 final int line, final String lineSource, final int lineOffset,
-										 final String stack)
+										 final String jsStack, final String javaStack)
 	{
 		if (instance != null) {
 			HashMap<String, KrollExceptionHandler> handlers = instance.exceptionHandlers;
 			KrollExceptionHandler currentHandler;
 			ExceptionMessage exceptionMessage =
-				new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset, stack);
+				new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset, jsStack, javaStack);
 
 			if (!handlers.isEmpty()) {
 				for (String key : handlers.keySet()) {
@@ -544,7 +544,6 @@ public abstract class KrollRuntime implements Handler.Callback
 	public abstract void doDispose();
 	public abstract void doRunModule(String source, String filename, KrollProxySupport activityProxy);
 	public abstract Object doEvalString(String source, String filename);
-	public abstract String getStackTrace();
 
 	public abstract String getRuntimeName();
 	public abstract void initRuntime();
