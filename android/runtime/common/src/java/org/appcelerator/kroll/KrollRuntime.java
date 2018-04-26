@@ -518,7 +518,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	public static void dispatchException(final String title, final String message, final String sourceName,
-										 final int line, final String lineSource, final int lineOffset, final String jsStack, final String nativeStack)
+										 final int line, final String lineSource, final int lineOffset,
+										 final String jsStack, final String nativeStack)
 	{
 		if (instance != null) {
 			HashMap<String, KrollExceptionHandler> handlers = instance.exceptionHandlers;
@@ -528,8 +529,8 @@ public abstract class KrollRuntime implements Handler.Callback
 				for (String key : handlers.keySet()) {
 					currentHandler = handlers.get(key);
 					if (currentHandler != null) {
-						currentHandler.handleException(
-							new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset, jsStack, nativeStack));
+						currentHandler.handleException(new ExceptionMessage(
+							title, message, sourceName, line, lineSource, lineOffset, jsStack, nativeStack));
 					}
 				}
 			}

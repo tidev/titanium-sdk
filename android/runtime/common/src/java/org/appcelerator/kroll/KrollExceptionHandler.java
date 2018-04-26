@@ -44,7 +44,8 @@ public interface KrollExceptionHandler {
 		}
 
 		public ExceptionMessage(final String title, final String message, final String sourceName, final int line,
-								final String lineSource, final int lineOffset, final String jsStack, final String javaStack)
+								final String lineSource, final int lineOffset, final String jsStack,
+								final String javaStack)
 		{
 			this.title = title;
 			this.message = message;
