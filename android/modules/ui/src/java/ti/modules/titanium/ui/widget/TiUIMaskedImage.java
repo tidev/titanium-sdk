@@ -42,7 +42,6 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.UIModule;
 
-
 /** Titanium "MaskedImage" view controller used to blend an image or tint color with a mask. */
 public class TiUIMaskedImage extends TiUIView
 {
@@ -54,7 +53,6 @@ public class TiUIMaskedImage extends TiUIView
 	 * Set to null when view's release() method has been called.
 	 */
 	private TiUIMaskedImage.MaskedDrawable maskedDrawable;
-
 
 	public TiUIMaskedImage(final TiViewProxy proxy)
 	{
@@ -433,7 +431,6 @@ public class TiUIMaskedImage extends TiUIView
 		View view = getNativeView();
 		return (view instanceof ImageView) ? (ImageView) view : null;
 	}
-
 
 	/**
 	 * Custom drawable used to render an image or tint color to a mask.
@@ -1166,7 +1163,7 @@ public class TiUIMaskedImage extends TiUIView
 				return false;
 			}
 			if (Build.VERSION.SDK_INT < 18) {
-				return false;	// Versions older than Android 4.3 have a HW acceleration bug with this handler.
+				return false; // Versions older than Android 4.3 have a HW acceleration bug with this handler.
 			}
 			if ((maskedDrawable.getMaskDrawable() instanceof BitmapDrawable) == false) {
 				return false;
