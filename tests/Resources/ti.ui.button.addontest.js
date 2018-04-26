@@ -11,8 +11,6 @@
 
 describe('Titanium.UI.Button', function () {
 
-	this.timeout(5000);
-
 	it('attributedString', function (finish) {
 		var button, attr, text;
 
