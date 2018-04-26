@@ -73,7 +73,7 @@ Local<Value> JSException::fromJavaException(v8::Isolate* isolate, jthrowable jav
 
 	// Now explicitly assign our properly generated stacktrace
 	Local<String> javaStack = String::NewFromUtf8(isolate, stackStream.str().c_str());
-	error->Set(context, STRING_NEW(isolate, "javaStack"), javaStack);
+	error->Set(context, STRING_NEW(isolate, "nativeStack"), javaStack);
 
 	// throw it
 	return isolate->ThrowException(error);

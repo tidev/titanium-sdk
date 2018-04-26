@@ -155,8 +155,8 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 
 	if (exception->IsObject()) {
 		Local<Object> error = exception.As<Object>();
-		jsStack = exception.As<Object>()->Get(STRING_NEW(isolate, "stack"));
-		javaStack = exception.As<Object>()->Get(STRING_NEW(isolate, "javaStack"));
+		jsStack = error->Get(context, STRING_NEW(isolate, "stack")).ToLocalChecked();
+		javaStack = error->Get(context, STRING_NEW(isolate, "nativeStack")).ToLocalChecked();
 	}
 
 	// obtain javascript stack trace

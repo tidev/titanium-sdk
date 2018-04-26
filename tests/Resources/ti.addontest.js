@@ -24,7 +24,7 @@ describe('Error', function () {
 			ex.should.have.property('stack');
 			ex.stack.should.containEql('TypeError: Cannot read property \'crash\' of undefined');
 			// does not have java stack trace
-			ex.should.not.have.property('javaStack');
+			ex.should.not.have.property('nativeStack');
 		}
 	});
 
@@ -39,8 +39,8 @@ describe('Error', function () {
 			ex.should.have.property('stack');
 			ex.stack.should.containEql('Error: Unable to convert null'); // TODO Verify app.js in stack?
 			// has special javaStack property for java stacktrace
-			ex.should.have.property('javaStack');
-			ex.javaStack.should.containEql('org.appcelerator.titanium.util.TiConvert.toInt(TiConvert.java:'); // points to Java code in stack
+			ex.should.have.property('nativeStack');
+			ex.nativeStack.should.containEql('org.appcelerator.titanium.util.TiConvert.toInt(TiConvert.java:'); // points to Java code in stack
 		}
 	});
 
@@ -51,7 +51,7 @@ describe('Error', function () {
 			ex.should.equal('this is my error string');
 			ex.should.not.have.property('message');
 			ex.should.not.have.property('stack');
-			ex.should.not.have.property('javaStack');
+			ex.should.not.have.property('nativeStack');
 		}
 	});
 });
