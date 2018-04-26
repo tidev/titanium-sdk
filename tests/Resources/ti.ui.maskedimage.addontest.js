@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+'use strict';
 var should = require('./utilities/assertions');
 
 describe.windowsMissing('Titanium.UI.MaskedImage', function () {
@@ -12,7 +13,7 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 
 	afterEach(function (finish) {
 		if (win) {
-			win.addEventListener("close", function () {
+			win.addEventListener('close', function () {
 				finish();
 			});
 			win.close();
@@ -28,17 +29,13 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 
 	it('apiName', function () {
 		var view = Ti.UI.createMaskedImage();
+		should(view).be.a.Object;
 		should(view).have.readOnlyProperty('apiName').which.is.a.String;
 		should(view.apiName).be.eql('Ti.UI.MaskedImage');
 	});
 
 	it('createMaskedImage', function () {
-		should(Ti.UI.createMaskedImage).not.be.undefined;
-		should(Ti.UI.createMaskedImage).be.a.Function;
-		var view = Ti.UI.createMaskedImage({});
-		should(view).be.a.Object;
-		should(view.apiName).be.a.String;
-		should(view.apiName).be.eql('Ti.UI.MaskedImage');
+		var view = Ti.UI.createMaskedImage();
 		should(view.mode).be.eql(Ti.UI.BLEND_MODE_SOURCE_IN);
 		view.mode = Ti.UI.BLEND_MODE_DESTINATION_IN;
 		should(view.mode).be.eql(Ti.UI.BLEND_MODE_DESTINATION_IN);
