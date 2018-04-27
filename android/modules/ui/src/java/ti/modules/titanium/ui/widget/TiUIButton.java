@@ -205,7 +205,7 @@ public class TiUIButton extends TiUIView
 	private void setAttributedStringText(AttributedStringProxy attrString)
 	{
 		AppCompatButton btn = (AppCompatButton) getNativeView();
-		
+
 		if (btn == null) {
 			return;
 		}
@@ -214,6 +214,7 @@ public class TiUIButton extends TiUIView
 		if (text == null) {
 			text = "";
 		}
+
 		btn.setText(text);
 	}
 }
