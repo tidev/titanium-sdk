@@ -46,8 +46,20 @@ Simply run `titanium build --platform <name of platform> --build-type production
 You can omit the --dir option if your working directory is in the module's project directory.
 
 
+LINTING YOUR CODE
+-----------------
+
+You can use `clang` to lint your code. A default Axway linting style is included inside the module main folder.
+Run `clang-format -style=file -i SRC_FILE` in the module root to lint the `SRC_FILE`.
+
+
 INSTALL YOUR MODULE
 -------------------
+
+To use your module locally inside an app you can copy the zip file into the app root folder and compile your app.
+The file will automatically be extracted and copied into the correct `modules/` folder.
+
+If you want to use your module globally in all your apps you have to do the following:
 
 Mac OS X
 --------
