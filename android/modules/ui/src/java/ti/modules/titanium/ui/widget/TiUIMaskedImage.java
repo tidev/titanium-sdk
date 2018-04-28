@@ -58,6 +58,10 @@ public class TiUIMaskedImage extends TiUIView
 	{
 		super(proxy);
 
+		// Set the default width/height to "Ti.UI.FILL". (Matches iOS' behavior.)
+		getLayoutParams().autoFillsWidth = true;
+		getLayoutParams().autoFillsHeight = true;
+
 		// Create the masked drawable.
 		this.maskedDrawable = new TiUIMaskedImage.MaskedDrawable();
 
@@ -396,10 +400,12 @@ public class TiUIMaskedImage extends TiUIView
 	private void updateMaskTintWith(Object value)
 	{
 		if (this.maskedDrawable != null) {
-			if (value != null) {
-				int color = TiConvert.toColor(TiConvert.toString(value));
+			if (value instanceof String) {
+				int color = TiConvert.toColor((String) value);
 				this.maskedDrawable.setTintColor(color);
 				this.maskedDrawable.setTintingEnabled(true);
+			} else if (value != null) {
+				Log.w(TAG, "MaskedImage 'tint' property must be set to a string.");
 			} else {
 				this.maskedDrawable.setTintingEnabled(false);
 			}
@@ -413,9 +419,11 @@ public class TiUIMaskedImage extends TiUIView
 	private void updateTintColorFilterWith(Object value)
 	{
 		if (this.maskedDrawable != null) {
-			if (value != null) {
-				int color = TiConvert.toColor(TiConvert.toString(value));
+			if (value instanceof String) {
+				int color = TiConvert.toColor((String) value);
 				this.maskedDrawable.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
+			} else if (value != null) {
+				Log.w(TAG, "MaskedImage 'tintColor' property must be set to a string.");
 			} else {
 				this.maskedDrawable.clearColorFilter();
 			}
@@ -632,21 +640,23 @@ public class TiUIMaskedImage extends TiUIView
 		@Override
 		public int getIntrinsicWidth()
 		{
-			// Use mask size if tinting. Use image size if not tinting.
-			int maskSize = (this.maskDrawable != null) ? this.maskDrawable.getIntrinsicWidth() : -1;
-			int imageSize = (this.imageDrawable != null) ? this.imageDrawable.getIntrinsicWidth() : -1;
-			boolean hasImage = (this.imageDrawable != null);
-			return (this.isTintingEnabled || !hasImage) ? maskSize : imageSize;
+			if (this.imageDrawable != null) {
+				return this.imageDrawable.getIntrinsicWidth();
+			} else if (this.maskDrawable != null) {
+				return this.maskDrawable.getIntrinsicWidth();
+			}
+			return -1;
 		}
 
 		@Override
 		public int getIntrinsicHeight()
 		{
-			// Use mask size if tinting. Use image size if not tinting.
-			int maskSize = (this.maskDrawable != null) ? this.maskDrawable.getIntrinsicHeight() : -1;
-			int imageSize = (this.imageDrawable != null) ? this.imageDrawable.getIntrinsicHeight() : -1;
-			boolean hasImage = (this.imageDrawable != null);
-			return (this.isTintingEnabled || !hasImage) ? maskSize : imageSize;
+			if (this.imageDrawable != null) {
+				return this.imageDrawable.getIntrinsicHeight();
+			} else if (this.maskDrawable != null) {
+				return this.maskDrawable.getIntrinsicHeight();
+			}
+			return -1;
 		}
 
 		@Override
@@ -735,11 +745,17 @@ public class TiUIMaskedImage extends TiUIView
 
 		private void onSettingsChanged()
 		{
-			// If we're currently using the more expensive fallback mask handler,
-			// see if the newest settings allow us to use the more optimized handlers.
-			if (this.maskHandler instanceof FallbackMaskHandler) {
-				if (FastTintMaskHandler.canDraw(this) || FastImageMaskHandler.canDraw(this)) {
+			// Check if the last created mask handler needs to be replaced.
+			if (this.maskHandler != null) {
+				if (this.maskHandler.canDraw() == false) {
+					// The current mask handler can't draw with the newest settings.
 					this.maskHandler = null;
+				} else if (this.maskHandler instanceof FallbackMaskHandler) {
+					// Fallback mask handler supports all settings.
+					// Check if we can switch to a more optimized handler using newest settings.
+					if (FastTintMaskHandler.canDraw(this) || FastImageMaskHandler.canDraw(this)) {
+						this.maskHandler = null;
+					}
 				}
 			}
 
@@ -849,8 +865,7 @@ public class TiUIMaskedImage extends TiUIView
 		@Override
 		public boolean drawTo(Canvas canvas)
 		{
-			boolean isNewComposeShaderNeeded = false;
-			boolean isResizeNeeded = false;
+			boolean wasUpdated = false;
 
 			// Validate.
 			if (canvas == null) {
@@ -867,7 +882,7 @@ public class TiUIMaskedImage extends TiUIView
 					return false;
 				}
 				this.maskShader = new BitmapShader(maskBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-				isResizeNeeded = true;
+				wasUpdated = true;
 			}
 
 			// Create tint shader, if not done already.
@@ -877,16 +892,16 @@ public class TiUIMaskedImage extends TiUIView
 				}
 				int color = getMaskedDrawable().getTintColor();
 				this.tintShader = new LinearGradient(0, 0, 0, 0, color, color, Shader.TileMode.CLAMP);
-				isResizeNeeded = true;
+				wasUpdated = true;
 			}
 
 			// Update the sizes of the above shaders, if needed.
-			if (isResizeNeeded) {
+			if (wasUpdated) {
 				onBoundsChanged();
 			}
 
 			// Create a new "compose" shader (if needed) which merges the bitmap and tint shaders.
-			if (isNewComposeShaderNeeded || (getPaint().getShader() == null)) {
+			if (wasUpdated || (getPaint().getShader() == null)) {
 				PorterDuff.Mode blendMode = getMaskedDrawable().getBlendMode();
 				getPaint().setShader(new ComposeShader(this.maskShader, this.tintShader, blendMode));
 			}
@@ -965,6 +980,9 @@ public class TiUIMaskedImage extends TiUIView
 			if ((maskedDrawable.getMaskDrawable() instanceof BitmapDrawable) == false) {
 				return false;
 			}
+			if (maskedDrawable.getImageDrawable() != null) {
+				return false;
+			}
 			return true;
 		}
 	}
@@ -1013,19 +1031,17 @@ public class TiUIMaskedImage extends TiUIView
 				} else if (blendMode == PorterDuff.Mode.DST_IN) {
 					bitmap = getBitmapFrom(getMaskedDrawable().getImageDrawable());
 				}
+				if ((Build.VERSION.SDK_INT == 19) || (Build.VERSION.SDK_INT == 20)) {
+					// Android 4.4 has a bug where if bitmap byte width does not fit a 4 byte packing alignment,
+					// then mask will appear skewed. Resizing bitmap doesn't work. So, give up if this happens.
+					if ((bitmap != null) && ((bitmap.getWidth() % 4) != 0)) {
+						bitmap = null;
+					}
+				}
 				if (bitmap != null) {
 					try {
-						// If mask is not an 8-bit grayscale bitmap, then convert it into one.
 						if (bitmap.getConfig() != Bitmap.Config.ALPHA_8) {
 							bitmap = bitmap.extractAlpha();
-						}
-
-						// Android 4.4 has a bug where if bitmap byte width does not fit a 4 byte packing alignment,
-						// then mask will appear skewed. Resizing bitmap doesn't work. So, give up if this happens.
-						if ((Build.VERSION.SDK_INT == 19) || (Build.VERSION.SDK_INT == 20)) {
-							if ((bitmap.getWidth() % 4) != 0) {
-								bitmap = null;
-							}
 						}
 					} catch (Exception ex) {
 						Log.w(TAG, "Failed to convert mask to an 8-bit grayscale bitmap.");
@@ -1165,6 +1181,9 @@ public class TiUIMaskedImage extends TiUIView
 			if (Build.VERSION.SDK_INT < 18) {
 				return false; // Versions older than Android 4.3 have a HW acceleration bug with this handler.
 			}
+			if (maskedDrawable.isTintingEnabled()) {
+				return false;
+			}
 			if ((maskedDrawable.getMaskDrawable() instanceof BitmapDrawable) == false) {
 				return false;
 			}
@@ -1283,14 +1302,10 @@ public class TiUIMaskedImage extends TiUIView
 					bufferedPaint.setXfermode(new PorterDuffXfermode(getMaskedDrawable().getBlendMode()));
 				}
 
-				// Blend the assigned tint color or image with the above maks. (Tint takes priority.)
+				// Blend the assigned image with the above mask.
 				Drawable imageDrawable = getMaskedDrawable().getImageDrawable();
 				Bitmap imageBitmap = getBitmapFrom(imageDrawable);
-				if (getMaskedDrawable().isTintingEnabled()) {
-					// Draw the tint color over the mask with the given blend mode.
-					bufferedPaint.setColor(getMaskedDrawable().getTintColor());
-					bufferedCanvas.drawRect(targetBounds, bufferedPaint);
-				} else if (imageBitmap != null) {
+				if (imageBitmap != null) {
 					// Draw the image drawable's bitmap ourselves with given blend mode. (Most optmized.)
 					bufferedCanvas.drawBitmap(imageBitmap, null, targetBounds, bufferedPaint);
 				} else if (imageDrawable != null) {
@@ -1303,6 +1318,12 @@ public class TiUIMaskedImage extends TiUIView
 						bufferedCanvas.restore();
 					} catch (Exception ex) {
 					}
+				}
+
+				// Blend the assigned tint color over the last draw mask and/or image. (Must be done last.)
+				if (getMaskedDrawable().isTintingEnabled()) {
+					bufferedPaint.setColor(getMaskedDrawable().getTintColor());
+					bufferedCanvas.drawRect(targetBounds, bufferedPaint);
 				}
 
 				// Store the blended bitmap so that we can re-use it for future draws.
@@ -1337,6 +1358,12 @@ public class TiUIMaskedImage extends TiUIView
 				return false;
 			}
 			return true;
+		}
+
+		@Override
+		public void onBlendModeChanged()
+		{
+			this.blendedBitmap = null;
 		}
 
 		@Override
