@@ -27,6 +27,17 @@
   THROW_INVALID_ARG(@"Invalid type");
 }
 
+- (NSData *)convertToData:(id)arg
+{
+  if ([arg isKindOfClass:[TiBlob class]]) {
+    return [(TiBlob *)arg data];
+  } else if ([arg isKindOfClass:[TiFile class]]) {
+    // Support TiFile with possibly binary data by converting to TiBlob and recursing
+    return [self convertToData:[(TiFile *)arg blob]];
+  }
+  return [[self convertToString:arg] dataUsingEncoding:NSUTF8StringEncoding];
+}
+
 - (NSString *)apiName
 {
   return @"Ti.Utils";
@@ -37,16 +48,8 @@
 - (TiBlob *)base64encode:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSObject);
-  NSData *data;
-
-  if ([args isKindOfClass:[TiBlob class]]) {
-    data = [(TiBlob *)args data];
-  } else {
-    data = [[self convertToString:args] dataUsingEncoding:NSUTF8StringEncoding];
-  }
-
+  NSData *data = [self convertToData:args];
   NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
-
   if (base64Encoded != nil) {
     return [[[TiBlob alloc] _initWithPageContext:[self pageContext]
                                          andData:[base64Encoded dataUsingEncoding:NSUTF8StringEncoding]
@@ -76,34 +79,29 @@
 {
   ENSURE_SINGLE_ARG(args, NSObject);
 
-  NSData *data = nil;
-  NSString *nstr = [self convertToString:args];
-  if (nstr) {
-    const char *s = [nstr UTF8String];
-    data = [NSData dataWithBytes:s length:strlen(s)];
-  } else if ([args respondsToSelector:@selector(data)]) {
-    data = [args data];
-  }
+  NSData *data = [self convertToData:args];
   return [TiUtils md5:data];
 }
 
 - (id)sha1:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSObject);
-  NSString *nstr = [self convertToString:args];
-  const char *cStr = [nstr UTF8String];
+
+  NSData *data = [self convertToData:args];
+
   unsigned char result[CC_SHA1_DIGEST_LENGTH];
-  CC_SHA1(cStr, (CC_LONG)[nstr lengthOfBytesUsingEncoding:NSUTF8StringEncoding], result);
+  CC_SHA1([data bytes], [data length], result);
   return [TiUtils convertToHex:(unsigned char *)&result length:CC_SHA1_DIGEST_LENGTH];
 }
 
 - (id)sha256:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSObject);
-  NSString *nstr = [self convertToString:args];
-  const char *cStr = [nstr UTF8String];
+
+  NSData *data = [self convertToData:args];
+
   unsigned char result[CC_SHA256_DIGEST_LENGTH];
-  CC_SHA256(cStr, (CC_LONG)[nstr lengthOfBytesUsingEncoding:NSUTF8StringEncoding], result);
+  CC_SHA256([data bytes], [data length], result);
   return [TiUtils convertToHex:(unsigned char *)&result length:CC_SHA256_DIGEST_LENGTH];
 }
 

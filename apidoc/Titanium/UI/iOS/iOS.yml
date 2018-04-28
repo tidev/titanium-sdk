@@ -1521,7 +1521,7 @@ properties:
 
   - name: SEARCH_BAR_STYLE_PROMINENT
     summary: |
-        Use with <Titanium.UI.Searchbar.style> to change the search bar style.
+        Use with <Titanium.UI.SearchBar.style> to change the search bar style.
     description: |
         The search bar has a translucent background, and the search field is opaque.
     type: Number
@@ -1530,7 +1530,7 @@ properties:
   
   - name: SEARCH_BAR_STYLE_MINIMAL
     summary: |
-        Use with <Titanium.UI.Searchbar.style> to change the search bar style.
+        Use with <Titanium.UI.SearchBar.style> to change the search bar style.
     description: |
         The search bar has no background, and the search field is translucent.
     type: Number

@@ -1,39 +1,48 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
 /* global Ti */
-/* eslint no-unused-expressions: "off" */
+/* eslint no-unused-expressions: 'off' */
 'use strict';
 
-describe('Ti.UI.TableView', function () {
-	it('set and clear data', function (finish) {
-		var data_a = [
-				{ title: 'Square', backgroundSelectedColor: 'red' },
-				{ title: 'Circle', backgroundSelectedColor: 'blue' },
-				{ title: 'Triangle', backgroundSelectedColor: 'purple' }
-			],
-			data_b = [
-				{ title: 'Red', backgroundSelectedColor: 'red' },
-				{ title: 'Green', backgroundSelectedColor: 'green' },
-				{ title: 'Blue', backgroundSelectedColor: 'blue' }
-			],
-			tv = Ti.UI.createTableView(),
-			error;
+describe('Titanium.UI.TableView', function () {
+	var win,
+		didFocus = false;
 
-		try {
-			tv.data = [];
-			tv.setData(data_a);
-			tv.data = [];
-			tv.setData(data_b);
-			tv.data = [];
-			tv.setData(data_a);
-		} catch (e) {
-			error = e;
+	this.timeout(5000);
+
+	beforeEach(function () {
+		didFocus = false;
+	});
+
+	afterEach(function () {
+		if (win) {
+			win.close();
 		}
-		finish(error);
+		win = null;
+	});
+
+	it('appendSection and appendRow (TIMOB-25936)', function (finish) {
+		win = Ti.UI.createWindow({ backgroundColor: '#f00' });
+		var table = Ti.UI.createTableView();
+
+		for (var i = 0; i < 2; ++i) {
+			table.appendSection(Ti.UI.createTableViewSection({ headerTitle: 'Header ' + i, className: 'Header' }));
+			for (var j = 0; j < 3; j++) {
+				table.appendRow(Ti.UI.createTableViewRow({ title: 'Row ' + j, className: 'Row' }));
+			}
+		}
+
+		win.addEventListener('open', function () {
+			didFocus = true;
+			finish();
+		});
+
+		win.add(table);
+		win.open();
 	});
 });
