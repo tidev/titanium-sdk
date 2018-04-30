@@ -159,6 +159,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public void setActivity(Activity activity)
 	{
+		// our proxy must always be associated with a valid activity
+		if (activity == null) {
+			initActivity(TiApplication.getAppRootOrCurrentActivity());
+			return;
+		}
 		this.activity = new WeakReference<Activity>(activity);
 	}
 
@@ -169,15 +174,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
 	/**
-	 * @return the activity associated with this proxy. It can be null.
+	 * @return the activity associated with this proxy.
 	 * @module.api
 	 */
 	public Activity getActivity()
 	{
-		if (activity == null) {
-			return null;
+		// our proxy must always be associated with a valid activity
+		if (this.activity == null) {
+			initActivity(TiApplication.getAppRootOrCurrentActivity());
 		}
-		return activity.get();
+		return this.activity.get();
 	}
 
 	/**
