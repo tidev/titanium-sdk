@@ -737,6 +737,7 @@ methods:
       - name: callback
         summary: Function to be invoked upon completion of the animation.
         type: Callback<Object>
+        optional: true
 
   - name: finishLayout
     since: "2.0.0"
@@ -1088,7 +1089,7 @@ properties:
 
             { x: 30, y: 30 }
         Or:
-        
+
             { x: '50%', y: '50%' }
 
         When specifying multiple colors, you can specify an *offset* value for each color, defining
@@ -1769,11 +1770,11 @@ since: "1.8.0"
 platforms: [android, iphone, ipad]
 properties:
   - name: x
-    type: Number
+    type: [Number, String]
     summary: The x-axis coordinate of this point.
 
   - name: y
-    type: Number
+    type: [Number, String]
     summary: The y-axis coordinate of this point.
 ---
 name: Gradient
