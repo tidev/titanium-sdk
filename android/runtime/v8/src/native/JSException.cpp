@@ -16,8 +16,6 @@
 
 #include "JSException.h"
 
-#define MAX_STACK 10
-
 using namespace v8;
 
 namespace titanium {

@@ -153,17 +153,18 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 	Local<Value> jsStack;
 	Local<Value> javaStack;
 
+	// obtain javascript and java stack traces
 	if (exception->IsObject()) {
 		Local<Object> error = exception.As<Object>();
-		jsStack = error->Get(context, STRING_NEW(isolate, "stack")).ToLocalChecked();
-		javaStack = error->Get(context, STRING_NEW(isolate, "nativeStack")).ToLocalChecked();
+		jsStack = error->Get(context, STRING_NEW(isolate, "stack")).FromMaybe(Undefined(isolate).As<Value>());
+		javaStack = error->Get(context, STRING_NEW(isolate, "nativeStack")).FromMaybe(Undefined(isolate).As<Value>());
 	}
 
-	// obtain javascript stack trace
-	if (jsStack->IsNullOrUndefined() || jsStack.IsEmpty()) {
+	// javascript stack trace not provided? obtain current javascript stack trace
+	if (jsStack.IsEmpty() || jsStack->IsNullOrUndefined()) {
 		Local<StackTrace> frames = message->GetStackTrace();
 		if (frames.IsEmpty() || !frames->GetFrameCount()) {
-			frames = StackTrace::CurrentStackTrace(isolate, 10);
+			frames = StackTrace::CurrentStackTrace(isolate, MAX_STACK);
 		}
 		if (!frames.IsEmpty()) {
 			std::string stackString = V8Util::stackTraceString(frames);
