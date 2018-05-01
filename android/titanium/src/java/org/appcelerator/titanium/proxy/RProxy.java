@@ -23,7 +23,7 @@ public class RProxy extends KrollProxy
 
 	private static final String[] RESOURCE_TYPES = { "anim",    "animator",     "array",    "attr",     "bool",
 													 "color",   "dimen",        "drawable", "fraction", "id",
-													 "integer", "interpolator", "layout",   "menu",     "mimap",
+													 "integer", "interpolator", "layout",   "menu",     "mipmap",
 													 "plurals", "raw",          "string",   "style",    "styleable",
 													 "xml" };
 
