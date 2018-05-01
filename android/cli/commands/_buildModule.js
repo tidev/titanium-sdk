@@ -551,7 +551,7 @@ AndroidModuleBuilder.prototype.cleanup = function cleanup(next) {
 
 	// remove old module libraries
 	fs.existsSync(this.libsDir) && this.dirWalker(this.libsDir, function (file) {
-		const libExp = new RegExp('lib' + this.manifest.moduleid + '.so$', 'i');
+		const libExp = new RegExp('lib' + this.manifest.moduleid + '.so$', 'i'); // eslint-disable-line security/detect-non-literal-regexp
 		if (libExp.test(file) && fs.existsSync(file)) {
 			this.logger.debug(__('Removing %s', file.cyan));
 			fs.removeSync(file);
@@ -1324,11 +1324,13 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 	const jsFilesToEncrypt = this.jsFilesToEncrypt = [];
 
-	this.dirWalker(this.assetsDir, function (file) {
-		if (path.extname(file) === '.js') {
-			jsFilesToEncrypt.push(path.relative(this.assetsDir, file));
-		}
-	}.bind(this));
+	if (fs.existsSync(this.assetsDir)) {
+		this.dirWalker(this.assetsDir, function (file) {
+			if (path.extname(file) === '.js') {
+				jsFilesToEncrypt.push(path.relative(this.assetsDir, file));
+			}
+		}.bind(this));
+	}
 
 	if (!jsFilesToEncrypt.length) {
 		// nothing to encrypt, continue
@@ -1844,11 +1846,13 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 			const excludeRegex = new RegExp('.*\\' + path.sep + 'R\\.class$|.*\\' + path.sep + 'R\\$(.*)\\.class$', 'i'); // eslint-disable-line security/detect-non-literal-regexp
 
 			const assetsParentDir = path.join(this.assetsDir, '..');
-			this.dirWalker(this.assetsDir, function (file) {
-				if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
-					moduleJarArchive.append(fs.createReadStream(file), { name: path.relative(assetsParentDir, file) });
-				}
-			});
+			if (fs.existsSync(this.assetsDir)) {
+				this.dirWalker(this.assetsDir, function (file) {
+					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
+						moduleJarArchive.append(fs.createReadStream(file), { name: path.relative(assetsParentDir, file) });
+					}
+				});
+			}
 
 			/**
 			 * @param  {string} file file path
@@ -1958,11 +1962,13 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				}
 
 				// 6. assets folder, not including js files
-				this.dirWalker(this.assetsDir, function (file) {
-					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
-						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
-					}
-				}.bind(this));
+				if (fs.existsSync(this.assetsDir)) {
+					this.dirWalker(this.assetsDir, function (file) {
+						if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
+							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
+						}
+					}.bind(this));
+				}
 
 				// 7. libs folder, only architectures defined in manifest
 				this.dirWalker(this.libsDir, function (file) {
