@@ -35,8 +35,8 @@
 			"integrity": "sha512-dS/4gdzlO7UM539AAH8m3Zi67rQKOSQ3wWHm4cuG4vl/F3b+Hm3HgYMUFdw+cBhGuKeYHLMoKwscizwJKg4Rzg=="
 		},
 		"ti.cloudpush": {
-			"url":"https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-5.0.2.zip",
-			"integrity":"sha512-TnKRShMmDepONwA6hWc7yTKaJbiqYFpfNxvlLz9TV/ky8NWkmFejxqaFak3xEB0sVlI7wjmz0msEP7/iw5Zufg=="
+			"url": "https://s3.amazonaws.com/timobile.appcelerator.com/modules/ti.cloudpush-android-5.1.0.zip",
+			"integrity": "sha512-8ptNqnHY6kk4QjY7jrjvtOvPoxWpZeqLfbFNSMkY+aUfDPykpcw1UvC00pcfNMO3NbceZ3Csdulub96t1R492w=="
 		},
 		"ti.map": {
 			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/android-4.1.1/ti.map-android-4.1.1.zip",
@@ -63,8 +63,8 @@
 	},
 	"hyperloop": {
 		"hyperloop": {
-			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v3.0.3/hyperloop-3.0.3.zip",
-			"integrity": "sha512-vp/Cq9U+FeWPT4GlB4dovoitFWgKxwjss4x1MXp6k9VDy2lPZmV5/z2laN6HpvE9KfClmBBI9/A5iiQMaVsOfQ=="
+			"url": "https://github.com/appcelerator-modules/hyperloop-builds/releases/download/v3.0.5/hyperloop-3.0.5.zip",
+			"integrity": "sha512-hXUzZIEs7IBnD5f7rBzEULhl1+0oJN1gJyi+2SpVds7jXjJ5MxblWkTQYjJAcEr1NdBpA70m0w5nLncDQU6avQ=="
 		}
 	}
 }

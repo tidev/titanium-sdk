@@ -74,7 +74,6 @@ properties:
     default: Undefined. Behaves as if set to false.
     platforms: [iphone, ipad, android]
     availability: creation
-    platforms: [iphone, ipad, android]
     accessors: false
     
   - name: translucent

@@ -1356,6 +1356,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DAY_BEFORE_MONTH = "dayBeforeMonth";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DECODE_RETRIES = "decodeRetries";
 
 	/**
@@ -2008,6 +2013,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LOCALE = "locale";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOCATION = "location";
 
 	/**
@@ -2203,6 +2213,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NUMBER = "number";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NUMERIC_MONTHS = "numericMonths";
 
 	/**
 	 * @module.api
