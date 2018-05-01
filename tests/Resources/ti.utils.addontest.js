@@ -19,7 +19,7 @@ describe('Titanium.Utils', function () {
 			nl: null,
 			num: 123,
 			str: 'tirocks',
-			arr: [ null, 123, 'tirocks', { num: 123, str: 'tirocks' }],
+			arr: [ null, 123, 'tirocks', { num: 123, str: 'tirocks' } ],
 			obj: {
 				nl: null,
 				num: 321,
@@ -27,21 +27,21 @@ describe('Titanium.Utils', function () {
 			}
 		};
 
-		validArray = [ null, 123, 'tirocks', { nl: null, num: 123, str: 'tirocks' }, [ null, 123, 'tirocks', { num: 123, str: 'tirocks' }]];
+		validArray = [ null, 123, 'tirocks', { nl: null, num: 123, str: 'tirocks' }, [ null, 123, 'tirocks', { num: 123, str: 'tirocks' } ] ];
 
 		invalidObject = {
 			tiGesture: Ti.Gesture,
 			proxy: Ti.UI.createLabel({ text: 'Whoops' }),
 			num: 123,
 			str: 'tirocks',
-			arr: [ 123, 'tirocks', { num: 123, str: 'tirocks' }],
+			arr: [ 123, 'tirocks', { num: 123, str: 'tirocks' } ],
 			obj: {
 				num: 321,
 				str: 'skcorit'
 			}
 		};
 
-		invalidArray = [ Ti.Gesture, Ti.UI.createLabel({ text: 'Whoops' }), 123, 'tirocks', { num: 123, str: 'tirocks' }, [ 123, 'tirocks', { num: 123, str: 'tirocks' }]];
+		invalidArray = [ Ti.Gesture, Ti.UI.createLabel({ text: 'Whoops' }), 123, 'tirocks', { num: 123, str: 'tirocks' }, [ 123, 'tirocks', { num: 123, str: 'tirocks' } ] ];
 
 		Ti.App.addEventListener('test1', function (e) {
 			var obj = e.obj;
