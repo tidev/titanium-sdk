@@ -11,7 +11,7 @@
 var should = require('./utilities/assertions'),
 	utilities = require('./utilities/utilities');
 
-describe.only('Titanium.Filesystem.File', function () {
+describe('Titanium.Filesystem.File', function () {
 	it('apiName', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		should(file).have.readOnlyProperty('apiName').which.is.a.String;
