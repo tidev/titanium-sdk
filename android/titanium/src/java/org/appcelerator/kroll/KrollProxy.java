@@ -180,7 +180,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	public Activity getActivity()
 	{
 		// our proxy must always be associated with a valid activity
-		if (this.activity == null) {
+		if (this.activity == null || this.activity.get() == null) {
 			initActivity(TiApplication.getAppRootOrCurrentActivity());
 		}
 		return this.activity.get();
