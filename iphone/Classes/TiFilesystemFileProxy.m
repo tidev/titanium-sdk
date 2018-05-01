@@ -168,7 +168,7 @@ FILENOOP(setHidden
 {
   BOOL result = NO;
   if (![fm fileExistsAtPath:path]) {
-    BOOL recurse = args != nil && [args count] > 0 ? [TiUtils boolValue:[args objectAtIndex:0]] : NO;
+    BOOL recurse = args != nil && [args count] > 0 ? [TiUtils boolValue:[args objectAtIndex:0]] : YES;
     result = [fm createDirectoryAtPath:path withIntermediateDirectories:recurse attributes:nil error:nil];
   }
   return NUMBOOL(result);
@@ -195,6 +195,25 @@ FILENOOP(setHidden
   NSArray *payload = [NSArray arrayWithObjects:[self path], mode, nil];
 
   return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
+}
+
+- (id)copy:(id)args
+{
+  ENSURE_TYPE(args, NSArray);
+  NSError *error = nil;
+  NSString *dest = [self _grabFirstArgumentAsFileName_:args];
+
+  if (![dest isAbsolutePath]) {
+    NSString *subpath = [path stringByDeletingLastPathComponent];
+    dest = [subpath stringByAppendingPathComponent:dest];
+  }
+
+  BOOL result = [fm copyItemAtPath:path toPath:dest error:&error];
+  if (error != nil) {
+    NSLog(@"[ERROR] Could not copy: %@", error.localizedDescription);
+    return @NO;
+  }
+  return NUMBOOL(result);
 }
 
 - (id)createFile:(id)args
