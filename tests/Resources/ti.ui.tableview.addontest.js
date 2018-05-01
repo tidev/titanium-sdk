@@ -10,14 +10,9 @@
 'use strict';
 
 describe('Titanium.UI.TableView', function () {
-	var win,
-		didFocus = false;
+	var win;
 
 	this.timeout(5000);
-
-	beforeEach(function () {
-		didFocus = false;
-	});
 
 	afterEach(function () {
 		if (win) {
@@ -38,7 +33,6 @@ describe('Titanium.UI.TableView', function () {
 		}
 
 		win.addEventListener('open', function () {
-			didFocus = true;
 			finish();
 		});
 

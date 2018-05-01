@@ -27,7 +27,7 @@ describe('requireJS', function () {
 			should.doesNotThrow(
 				// eslint-disable-next-line no-loop-func
 				function () {
-					result = require('./fixtures/' + obj.filename);
+					result = require('./fixtures/' + obj.filename); // eslint-disable-line security/detect-non-literal-require
 				}
 			);
 			if (obj.filename === 'nan') {
