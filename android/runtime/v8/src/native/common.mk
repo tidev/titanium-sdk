@@ -46,6 +46,19 @@ LDLIBS += -Wl,--exclude-libs=libv8_nosnapshot
 LDLIBS += -Wl,--exclude-libs=libv8_builtins_generators
 LDLIBS += -Wl,--exclude-libs=libv8_builtins_setup
 
+# tune for common architectures
+ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
+	CFLAGS += -mtune=cortex-a53
+endif
+ifeq ($(TARGET_ARCH_ABI),x86)
+	CFLAGS += -mtune=atom
+	LDLIBS += -Wl,--icf=all
+endif
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+	CFLAGS += -mtune=cortex-a7
+	LDLIBS += -Wl,--icf=all
+endif
+
 ABS_SRC_FILES := \
 	$(wildcard $(LOCAL_PATH)/*.cpp) \
 	$(wildcard $(LOCAL_PATH)/modules/*.cpp)
