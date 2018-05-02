@@ -5809,27 +5809,37 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									analyzeOptions.targets = { ios: this.minSupportedIosSdk }; // if using jscore, target our min ios version
 								} // if not jscore, just transpile everything down (no target)
 
-								const modified = jsanalyze.analyzeJs(source, analyzeOptions);
-								const newContents = modified.contents;
+								try {
+									const modified = jsanalyze.analyzeJs(source, analyzeOptions);
+									const newContents = modified.contents;
 
-								// we want to sort by the "to" filename so that we correctly handle file overwriting
-								this.tiSymbols[to] = modified.symbols;
+									// we want to sort by the "to" filename so that we correctly handle file overwriting
+									this.tiSymbols[to] = modified.symbols;
 
-								const dir = path.dirname(to);
-								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+									const dir = path.dirname(to);
+									fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-								const exists = fs.existsSync(to);
-								// dest doesn't exist, or new contents differs from existing dest file
-								if (!exists || newContents !== fs.readFileSync(to).toString()) {
-									this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-									exists && fs.unlinkSync(to);
-									fs.writeFileSync(to, newContents);
-									this.jsFilesChanged = true;
-								} else {
-									this.logger.trace(__('No change, skipping %s', to.cyan));
+									const exists = fs.existsSync(to);
+									// dest doesn't exist, or new contents differs from existing dest file
+									if (!exists || newContents !== fs.readFileSync(to).toString()) {
+										this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+										exists && fs.unlinkSync(to);
+										fs.writeFileSync(to, newContents);
+										this.jsFilesChanged = true;
+									} else {
+										this.logger.trace(__('No change, skipping %s', to.cyan));
+									}
+									cb2();
+								} catch (err) {
+									err.message.split('\n').forEach(this.logger.error);
+									if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
+										this.logger.log(err.codeFrame);
+									}
+									this.logger.log();
+									process.exit(1);
+								} finally {
+									this.unmarkBuildDirFile(to);
 								}
-								this.unmarkBuildDirFile(to);
-								cb2();
 							})(r, from, to, cb);
 						})(info.src, info.dest, next);
 					} catch (ex) {
