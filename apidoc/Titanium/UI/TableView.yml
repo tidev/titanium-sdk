@@ -1365,7 +1365,7 @@ properties:
     summary: If `true`, the tableview can be scrolled.
     type: Boolean
     default: true
-    since: { android: 7.1.0, iphone: 0.8, ipad: 0.8 }
+    since: { android: 7.2.0, iphone: 0.8, ipad: 0.8 }
     platforms: [android, iphone, ipad]
 
   - name: scrollIndicatorStyle
