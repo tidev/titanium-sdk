@@ -229,15 +229,17 @@ public class RecurrenceRuleProxy extends KrollProxy
 				case WEEKLY:
 					//daysOfTheWeek
 					byDay = matchExpression(".*(BYDAY=[,0-9A-Z]*).*", 6);
-					// Split the days from result.
-					String[] daysArray = byDay.split(",");
-					this.daysOfTheWeek = new KrollDict[daysArray.length];
-					for (int i = 0; i < this.daysOfTheWeek.length; i++) {
-						KrollDict daysOfTheWeekDictionary = new KrollDict();
-						daysOfTheWeekDictionary.put(this.dayOfWeekKey, this.weekdaysMap.get(daysArray[i]));
-						// In the context of a weekly recurrence week number is irrelevant.
-						daysOfTheWeekDictionary.put(this.weekNumberKey, 0);
-						this.daysOfTheWeek[i] = daysOfTheWeekDictionary;
+					if (byDay != null) {
+						// Split the days from result.
+						String[] daysArray = byDay.split(",");
+						this.daysOfTheWeek = new KrollDict[daysArray.length];
+						for (int i = 0; i < this.daysOfTheWeek.length; i++) {
+							KrollDict daysOfTheWeekDictionary = new KrollDict();
+							daysOfTheWeekDictionary.put(this.dayOfWeekKey, this.weekdaysMap.get(daysArray[i]));
+							// In the context of a weekly recurrence week number is irrelevant.
+							daysOfTheWeekDictionary.put(this.weekNumberKey, 0);
+							this.daysOfTheWeek[i] = daysOfTheWeekDictionary;
+						}
 					}
 					break;
 			}
