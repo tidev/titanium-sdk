@@ -77,12 +77,12 @@ describe('Titanium.Filesystem.File', function () {
 	});
 
 	// Check if parent exists and returns File
-	// Intentionally skip on iOS, property doesn't exist: https://jira.appcelerator.org/browse/TIMOB-23495
-	it.iosMissing('parent', function () {
+	it('parent', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		// parent may be null if at root?
 		// should(file.parent).be.ok; // not null or undefined. should(file).not.be.null causes a stack overflow somehow.
 		should(file).have.a.readOnlyProperty('parent');
+		// TODO: Test that we get back another file proxy?
 	});
 
 	// Check if size exists and returns number
