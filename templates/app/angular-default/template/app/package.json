@@ -1,0 +1,33 @@
+{
+    "name": "__PROJECT_NAME__",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/main.ts",
+    "scripts": {
+        "test": "echo 'No tests specified'"
+    },
+    "private": true,
+    "dependencies": {
+        "@angular/common": "^5.2.0",
+        "@angular/compiler": "^5.2.0",
+        "@angular/compiler-cli": "^5.2.0",
+        "@angular/core": "^5.2.0",
+        "@angular/platform-browser": "^5.2.0",
+        "@angular/platform-browser-dynamic": "^5.2.0",
+        "@angular/router": "^5.2.0",
+        "reflect-metadata": "^0.1.10",
+        "rxjs": "^5.5.0",
+        "titanium-angular": "^0.1.0",
+        "typescript": "^2.6.0",
+        "zone.js": "^0.8.18"
+    },
+    "devDependencies": {
+        "@ngtools/webpack": "^1.9.3",
+        "@types/titanium": "^7.1.0",
+        "clean-webpack-plugin": "^0.1.18",
+        "copy-webpack-plugin": "^4.3.1",
+        "raw-loader": "^0.5.1",
+        "webpack": "^3.10.0",
+        "webpack-dev-titanium": "^0.1.0"
+    }
+}
