@@ -22,7 +22,6 @@
 - (id)initWithFile:(NSString *)path_
 {
   if (self = [super init]) {
-    fm = [[NSFileManager alloc] init];
     path = [path_ retain];
   }
   return self;
@@ -30,7 +29,6 @@
 
 - (void)dealloc
 {
-  RELEASE_TO_NIL(fm);
   RELEASE_TO_NIL(path);
   [super dealloc];
 }
@@ -45,15 +43,15 @@
   return [[NSURL fileURLWithPath:path] absoluteString];
 }
 
-- (NSNumber *)exists:(id)args
+- (NSNumber *)exists:(id)unused
 {
-  return NUMBOOL([fm fileExistsAtPath:path]);
+  return NUMBOOL([[NSFileManager defaultManager] fileExistsAtPath:path]);
 }
 
 - (NSNumber *)readonly
 {
   NSError *error = nil;
-  NSDictionary *resultDict = [fm attributesOfItemAtPath:path error:&error];
+  NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
   if (error != nil) {
     [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
   }
@@ -69,7 +67,7 @@
 - (NSNumber *)createTimestamp:(id)unused
 {
   NSError *error = nil;
-  NSDictionary *resultDict = [fm attributesOfItemAtPath:path error:&error];
+  NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
   if (error != nil) {
     [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
   }
@@ -90,7 +88,7 @@
 - (NSNumber *)modificationTimestamp:(id)unused
 {
   NSError *error = nil;
-  NSDictionary *resultDict = [fm attributesOfItemAtPath:path error:&error];
+  NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
   if (error != nil) {
     [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
   }
@@ -101,7 +99,7 @@
 - (NSNumber *)symbolicLink
 {
   NSError *error = nil;
-  NSDictionary *resultDict = [fm attributesOfItemAtPath:path error:&error];
+  NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
   if (error != nil) {
     [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
   }
@@ -133,26 +131,28 @@ FILENOOP(setHidden
 - (NSArray *)getDirectoryListing:(id)args
 {
   NSError *error = nil;
-  NSArray *resultArray = [fm contentsOfDirectoryAtPath:path error:&error];
+  NSArray *resultArray = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:&error];
   if (error != nil) {
-    //TODO: what should be do?
+    NSLog(@"[ERROR] Could not receive directory listing: %@", error.localizedDescription);
   }
   return resultArray;
 }
 
-- (NSNumber *)spaceAvailable:(id)args
+- (NSNumber *)spaceAvailable:(id)unused
 {
   NSError *error = nil;
-  NSDictionary *resultDict = [fm attributesOfFileSystemForPath:path error:&error];
-  if (error != nil)
-    return NUMBOOL(NO);
+  NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfFileSystemForPath:path error:&error];
+  if (error != nil) {
+    NSLog(@"[ERROR] Could not receive available space: %@", error.localizedDescription);
+    return @(0.0);
+  }
   return [resultDict objectForKey:NSFileSystemFreeSize];
 }
 
 - (NSString *)getProtectionKey:(id)args
 {
   NSError *error = nil;
-  NSDictionary *resultDict = [fm attributesOfItemAtPath:path error:&error];
+  NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
   if (error != nil) {
     NSLog(@"[ERROR] Error getting protection key: %@", [TiUtils messageFromError:error]);
     return nil;
@@ -164,7 +164,7 @@ FILENOOP(setHidden
 {
   ENSURE_SINGLE_ARG(args, NSString);
   NSError *error = nil;
-  [fm setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:args, NSFileProtectionKey, nil] ofItemAtPath:path error:&error];
+  [[NSFileManager defaultManager] setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:args, NSFileProtectionKey, nil] ofItemAtPath:path error:&error];
   if (error != nil) {
     NSLog(@"[ERROR] Error setting protection key: %@", [TiUtils messageFromError:error]);
     return NUMBOOL(NO);
@@ -175,23 +175,29 @@ FILENOOP(setHidden
 - (NSNumber *)createDirectory:(id)args
 {
   BOOL result = NO;
-  if (![fm fileExistsAtPath:path]) {
+  if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+    NSError *error = nil;
     BOOL recurse = args != nil && [args count] > 0 ? [TiUtils boolValue:[args objectAtIndex:0]] : YES;
-    result = [fm createDirectoryAtPath:path withIntermediateDirectories:recurse attributes:nil error:nil];
+    result = [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:recurse attributes:nil error:nil];
+    if (error != nil) {
+      NSLog(@"[ERROR] Cannot create directory: %@", error.localizedDescription);
+      return NUMBOOL(NO);
+    }
   }
+
   return NUMBOOL(result);
 }
 
 - (NSNumber *)isFile:(id)unused
 {
   BOOL isDirectory;
-  return NUMBOOL([fm fileExistsAtPath:path isDirectory:&isDirectory] && !isDirectory);
+  return NUMBOOL([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory] && !isDirectory);
 }
 
 - (NSNumber *)isDirectory:(id)unused
 {
   BOOL isDirectory;
-  return NUMBOOL([fm fileExistsAtPath:path isDirectory:&isDirectory] && isDirectory);
+  return NUMBOOL([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory] && isDirectory);
 }
 
 - (TiFilesystemFileStreamProxy *)open:(id)args
@@ -216,10 +222,10 @@ FILENOOP(setHidden
     dest = [subpath stringByAppendingPathComponent:dest];
   }
 
-  BOOL result = [fm copyItemAtPath:path toPath:dest error:&error];
+  BOOL result = [[NSFileManager defaultManager] copyItemAtPath:path toPath:dest error:&error];
   if (error != nil) {
     NSLog(@"[ERROR] Could not copy: %@", error.localizedDescription);
-    return @NO;
+    return NUMBOOL(NO);
   }
   return NUMBOOL(result);
 }
@@ -227,13 +233,22 @@ FILENOOP(setHidden
 - (NSNumber *)createFile:(id)args
 {
   BOOL result = NO;
-  if (![fm fileExistsAtPath:path]) {
+  if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
     BOOL shouldCreate = args != nil && [args count] > 0 ? [TiUtils boolValue:[args objectAtIndex:0]] : NO;
     if (shouldCreate) {
-      [fm createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:nil];
-      //We don't care if this fails.
+      NSError *error = nil;
+      [[NSFileManager defaultManager] createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error];
+      if (error != nil) {
+        NSLog(@"[ERROR] Could not create file: %@", error.localizedDescription);
+        return NUMBOOL(NO);
+      }
     }
-    result = [[NSData data] writeToFile:path options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:nil];
+    NSError *error = nil;
+    result = [[NSData data] writeToFile:path options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&error];
+    if (error != nil) {
+      NSLog(@"[ERROR] Could not write file: %@", error.localizedDescription);
+      return NUMBOOL(NO);
+    }
   }
   return NUMBOOL(result);
 }
@@ -242,20 +257,25 @@ FILENOOP(setHidden
 {
   BOOL result = NO;
   BOOL isDirectory = NO;
-  BOOL exists = [fm fileExistsAtPath:path isDirectory:&isDirectory];
+  BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
   if (exists && isDirectory) {
     NSError *error = nil;
     BOOL shouldDelete = args != nil && [args count] > 0 ? [TiUtils boolValue:[args objectAtIndex:0]] : NO;
     if (!shouldDelete) {
-      NSArray *remainers = [fm contentsOfDirectoryAtPath:path error:&error];
+      NSArray *remainers = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:&error];
       if (error == nil) {
         if ([remainers count] == 0) {
           shouldDelete = YES;
         }
+      } else {
+        NSLog(@"[ERROR] Could not receive contents to delete: %@", error.localizedDescription);
       }
     }
     if (shouldDelete) {
-      result = [fm removeItemAtPath:path error:&error];
+      result = [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
+      if (error != nil) {
+        NSLog(@"[ERROR] Could not delete directory: %@", error.localizedDescription);
+      }
     }
   }
   return NUMBOOL(result);
@@ -265,9 +285,14 @@ FILENOOP(setHidden
 {
   BOOL result = NO;
   BOOL isDirectory = YES;
-  BOOL exists = [fm fileExistsAtPath:path isDirectory:&isDirectory];
+  BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
   if (exists && !isDirectory) {
-    result = [fm removeItemAtPath:path error:nil];
+    NSError *error = nil;
+    result = [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+    if (error != nil) {
+      NSLog(@"[ERROR] Could not delete file: %@", error.localizedDescription);
+      return NUMBOOL(NO);
+    }
   }
   return NUMBOOL(result);
 }
@@ -281,14 +306,12 @@ FILENOOP(setHidden
     file = [fileUrl path];
   }
   NSString *dest = [file stringByStandardizingPath];
-
   return dest;
 }
 
 - (NSNumber *)move:(id)args
 {
   ENSURE_TYPE(args, NSArray);
-  NSError *error = nil;
   NSString *dest = [self _grabFirstArgumentAsFileName_:args];
 
   if (![dest isAbsolutePath]) {
@@ -296,7 +319,12 @@ FILENOOP(setHidden
     dest = [subpath stringByAppendingPathComponent:dest];
   }
 
-  BOOL result = [fm moveItemAtPath:path toPath:dest error:&error];
+  NSError *error = nil;
+  BOOL result = [[NSFileManager defaultManager] moveItemAtPath:path toPath:dest error:&error];
+  if (error != nil) {
+    NSLog(@"[ERROR] Could not move: %@", error.localizedDescription);
+    return NUMBOOL(NO);
+  }
   return NUMBOOL(result);
 }
 
@@ -319,7 +347,7 @@ FILENOOP(setHidden
 
 - (TiBlob *)read:(id)args
 {
-  BOOL exists = [fm fileExistsAtPath:path];
+  BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
   if (!exists)
     return nil;
   return [[[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:path] autorelease];
@@ -359,7 +387,7 @@ FILENOOP(setHidden
       return NUMBOOL(NO);
     }
 
-    if (![fm fileExistsAtPath:path]) {
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
       //create the file if it doesn't exist already
       NSError *writeError = nil;
       [data writeToFile:path options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&writeError];
@@ -407,14 +435,14 @@ FILENOOP(setHidden
   }
   if ([arg isKindOfClass:[TiBlob class]]) {
     TiBlob *blob = (TiBlob *)arg;
-    return NUMBOOL([blob writeTo:path error:nil]);
+    return @([blob writeTo:path error:nil]);
   } else if ([arg isKindOfClass:[TiFile class]]) {
     TiFile *file = (TiFile *)arg;
     [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
     NSError *error = nil;
     [[NSFileManager defaultManager] copyItemAtPath:[file path] toPath:path error:&error];
     if (error != nil) {
-      NSLog(@"[ERROR] error writing file: %@ to: %@. Error: %@", [file path], path, error);
+      NSLog(@"[ERROR] Could not write file %@ -> %@. Error: %@", [file path], path, error);
     }
     return NUMBOOL(error == nil);
   }
@@ -464,11 +492,10 @@ FILENOOP(setHidden
   NSString *tempDir = NSTemporaryDirectory();
   NSError *error = nil;
 
-  NSFileManager *fm = [NSFileManager defaultManager];
-  if (![fm fileExistsAtPath:tempDir]) {
-    [fm createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error];
+  if (![[NSFileManager defaultManager] fileExistsAtPath:tempDir]) {
+    [[NSFileManager defaultManager] createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error];
     if (error != nil) {
-      //TODO: ?
+      NSLog(@"[ERROR] Could not create temporary %@ or directory: %@", isDirectory ? @"directory" : @"file", error.localizedDescription);
       return nil;
     }
   }
@@ -478,16 +505,16 @@ FILENOOP(setHidden
   do {
     resultPath = [tempDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%X", timestamp]];
     timestamp++;
-  } while ([fm fileExistsAtPath:resultPath]);
+  } while ([[NSFileManager defaultManager] fileExistsAtPath:resultPath]);
 
   if (isDirectory) {
-    [fm createDirectoryAtPath:resultPath withIntermediateDirectories:NO attributes:nil error:&error];
+    [[NSFileManager defaultManager] createDirectoryAtPath:resultPath withIntermediateDirectories:NO attributes:nil error:&error];
   } else {
     [[NSData data] writeToFile:resultPath options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&error];
   }
 
   if (error != nil) {
-    //TODO: ?
+    NSLog(@"[ERROR] Could not write temporary %@ or directory: %@", isDirectory ? @"directory" : @"file", error.localizedDescription);
     return nil;
   }
 
@@ -508,7 +535,7 @@ FILENOOP(setHidden
     return NUMBOOL(YES);
   }
 
-  // A value of @FALSE means backup, so:
+  // A value of @NO means backup, so:
   return NUMBOOL([isExcluded isEqualToNumber:@YES] ? NO : YES);
 }
 
@@ -526,6 +553,9 @@ FILENOOP(setHidden
 
   NSError *error = nil;
   NSArray *folderContent = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[folder path] error:&error];
+  if (error != nil) {
+    NSLog(@"[ERROR] Could not configure remote backup: %@", error.localizedDescription);
+  }
 
   for (NSString *item in folderContent) {
     [self addSkipBackupAttributeToFolder:[NSURL fileURLWithPath:[folder.path stringByAppendingPathComponent:item]] withFlag:flag];
@@ -535,7 +565,7 @@ FILENOOP(setHidden
 - (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL withFlag:(BOOL)flag
 {
   NSError *error = nil;
-  BOOL success = [URL setResourceValue:[NSNumber numberWithBool:flag]
+  BOOL success = [URL setResourceValue:@(flag)
                                 forKey:NSURLIsExcludedFromBackupKey
                                  error:&error];
 

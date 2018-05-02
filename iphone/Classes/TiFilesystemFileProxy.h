@@ -12,8 +12,6 @@
 @class TiFilesystemFileStreamProxy;
 
 @interface TiFilesystemFileProxy : TiFile {
-  @private
-  NSFileManager *fm;
 }
 
 - (id)initWithFile:(NSString *)path;
