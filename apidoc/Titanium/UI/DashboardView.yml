@@ -68,8 +68,6 @@ events:
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
-    deprecated:
-        since: "3.0.0"
         
   - name: dragStart
     deprecated:
@@ -80,8 +78,6 @@ events:
       - name: item
         summary: Item that was dragged.
         type: Titanium.UI.DashboardItem
-    deprecated:
-        since: "3.0.0"
         
   - name: dragend
     summary: Fired when an item finishes being dragged in edit mode.
