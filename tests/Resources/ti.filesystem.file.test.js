@@ -143,8 +143,7 @@ describe('Titanium.Filesystem.File', function () {
 	});
 
 	// createTimestamp should return number
-	// FIXME Get working on IOS // on iOS we get Date/String
-	it.iosBroken('#createTimestamp()', function () {
+	it('#createTimestamp()', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		var create_date = file.createTimestamp();
 		should(create_date).be.a.Number; // iOS returns a Date (or maybe a string in iso date format?) Docs say Number
@@ -156,8 +155,7 @@ describe('Titanium.Filesystem.File', function () {
 	});
 
 	// modificationTimestamp should return number
-	// FIXME Get working on IOS // on iOS we get Date/String
-	it.iosBroken('#modificationTimestamp()', function () {
+	it('#modificationTimestamp()', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		var mod_date = file.modificationTimestamp();
 		should(mod_date).be.a.Number; // iOS returns a Date (or maybe a string in iso date format?) Docs say Number

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -40,57 +40,65 @@
   return @"Ti.Filesystem.File";
 }
 
-- (id)nativePath
+- (NSString *)nativePath
 {
   return [[NSURL fileURLWithPath:path] absoluteString];
 }
 
-- (id)exists:(id)args
+- (NSNumber *)exists:(id)args
 {
   return NUMBOOL([fm fileExistsAtPath:path]);
 }
 
-#define FILEATTR(propName, attrKey, throwError)                                                              \
-  -(id)propName                                                                                              \
-  {                                                                                                          \
-    NSError *error = nil;                                                                                    \
-    NSDictionary *resultDict = [fm attributesOfItemAtPath:path error:&error];                                \
-    if ((throwError) && error != nil) {                                                                      \
-      [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION]; \
-    }                                                                                                        \
-    return [resultDict objectForKey:attrKey];                                                                \
-  }
-
-FILEATTR(readonly, NSFileImmutable, NO)
-FILEATTR(modificationTimestamp, NSFileModificationDate, YES);
-
-- (id)createTimestamp
+- (NSNumber *)readonly
 {
   NSError *error = nil;
   NSDictionary *resultDict = [fm attributesOfItemAtPath:path error:&error];
-  if ((YES) && error != nil) {
+  if (error != nil) {
+    [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
+  }
+  return [resultDict objectForKey:NSFileImmutable];
+}
+
+- (NSNumber *)createTimestamp
+{
+  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp", @"7.2.0", @"Filesystem.File.createTimestamp()");
+  return [self createTimestamp:nil];
+}
+
+- (NSNumber *)createTimestamp:(id)unused
+{
+  NSError *error = nil;
+  NSDictionary *resultDict = [fm attributesOfItemAtPath:path error:&error];
+  if (error != nil) {
     [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
   }
   // Have to do this one up special because of 3.x bug where NSFileCreationDate is sometimes undefined
-  id result = [resultDict objectForKey:NSFileCreationDate];
+  NSDate *result = [resultDict objectForKey:NSFileCreationDate];
   if (result == nil) {
     result = [resultDict objectForKey:NSFileModificationDate];
   }
-  return result;
+  return @([result timeIntervalSince1970]);
 }
 
-//TODO: Should this be a method or a property? Until then, do both.
-- (id)createTimestamp:(id)args
+- (NSNumber *)modificationTimestamp
 {
-  return [self createTimestamp];
+  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp", @"7.2.0", @"Filesystem.File.modificationTimestamp()");
+  return [self modificationTimestamp:nil];
 }
 
-- (id)modificationTimestamp:(id)args
+- (NSNumber *)modificationTimestamp:(id)unused
 {
-  return [self modificationTimestamp];
+  NSError *error = nil;
+  NSDictionary *resultDict = [fm attributesOfItemAtPath:path error:&error];
+  if (error != nil) {
+    [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
+  }
+  NSDate *result = [resultDict objectForKey:NSFileModificationDate];
+  return @([result timeIntervalSince1970]);
 }
 
-- (id)symbolicLink
+- (NSNumber *)symbolicLink
 {
   NSError *error = nil;
   NSDictionary *resultDict = [fm attributesOfItemAtPath:path error:&error];
@@ -102,13 +110,13 @@ FILEATTR(modificationTimestamp, NSFileModificationDate, YES);
   return NUMBOOL([fileType isEqualToString:NSFileTypeSymbolicLink]);
 }
 
-- (id)writable
+- (NSNumber *)writable
 {
   return NUMBOOL(![[self readonly] boolValue]);
 }
 
 #define FILENOOP(name)  \
-  -(id)name             \
+  -(NSNumber *)name     \
   {                     \
     return NUMBOOL(NO); \
   }
@@ -122,7 +130,7 @@ FILENOOP(setExecutable
 FILENOOP(setHidden
          : (id)x);
 
-- (id)getDirectoryListing:(id)args
+- (NSArray *)getDirectoryListing:(id)args
 {
   NSError *error = nil;
   NSArray *resultArray = [fm contentsOfDirectoryAtPath:path error:&error];
@@ -132,7 +140,7 @@ FILENOOP(setHidden
   return resultArray;
 }
 
-- (id)spaceAvailable:(id)args
+- (NSNumber *)spaceAvailable:(id)args
 {
   NSError *error = nil;
   NSDictionary *resultDict = [fm attributesOfFileSystemForPath:path error:&error];
@@ -164,7 +172,7 @@ FILENOOP(setHidden
   return NUMBOOL(YES);
 }
 
-- (id)createDirectory:(id)args
+- (NSNumber *)createDirectory:(id)args
 {
   BOOL result = NO;
   if (![fm fileExistsAtPath:path]) {
@@ -174,13 +182,13 @@ FILENOOP(setHidden
   return NUMBOOL(result);
 }
 
-- (id)isFile:(id)unused
+- (NSNumber *)isFile:(id)unused
 {
   BOOL isDirectory;
   return NUMBOOL([fm fileExistsAtPath:path isDirectory:&isDirectory] && !isDirectory);
 }
 
-- (id)isDirectory:(id)unused
+- (NSNumber *)isDirectory:(id)unused
 {
   BOOL isDirectory;
   return NUMBOOL([fm fileExistsAtPath:path isDirectory:&isDirectory] && isDirectory);
@@ -197,7 +205,7 @@ FILENOOP(setHidden
   return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
 }
 
-- (id)copy:(id)args
+- (NSNumber *)copy:(id)args
 {
   ENSURE_TYPE(args, NSArray);
   NSError *error = nil;
@@ -216,7 +224,7 @@ FILENOOP(setHidden
   return NUMBOOL(result);
 }
 
-- (id)createFile:(id)args
+- (NSNumber *)createFile:(id)args
 {
   BOOL result = NO;
   if (![fm fileExistsAtPath:path]) {
@@ -230,7 +238,7 @@ FILENOOP(setHidden
   return NUMBOOL(result);
 }
 
-- (id)deleteDirectory:(id)args
+- (NSNumber *)deleteDirectory:(id)args
 {
   BOOL result = NO;
   BOOL isDirectory = NO;
@@ -253,7 +261,7 @@ FILENOOP(setHidden
   return NUMBOOL(result);
 }
 
-- (id)deleteFile:(id)args
+- (NSNumber *)deleteFile:(id)args
 {
   BOOL result = NO;
   BOOL isDirectory = YES;
@@ -277,7 +285,7 @@ FILENOOP(setHidden
   return dest;
 }
 
-- (id)move:(id)args
+- (NSNumber *)move:(id)args
 {
   ENSURE_TYPE(args, NSArray);
   NSError *error = nil;
@@ -292,7 +300,7 @@ FILENOOP(setHidden
   return NUMBOOL(result);
 }
 
-- (id)rename:(id)args
+- (NSNumber *)rename:(id)args
 {
   ENSURE_TYPE(args, NSArray);
   NSString *dest = [self _grabFirstArgumentAsFileName_:args];
@@ -309,7 +317,7 @@ FILENOOP(setHidden
   return [self move:args];
 }
 
-- (id)read:(id)args
+- (TiBlob *)read:(id)args
 {
   BOOL exists = [fm fileExistsAtPath:path];
   if (!exists)
@@ -317,7 +325,7 @@ FILENOOP(setHidden
   return [[[TiBlob alloc] _initWithPageContext:[self executionContext] andFile:path] autorelease];
 }
 
-- (id)append:(id)args
+- (NSNumber *)append:(id)args
 {
   ENSURE_TYPE(args, NSArray);
   id arg = [args objectAtIndex:0];
@@ -376,7 +384,7 @@ FILENOOP(setHidden
   return NUMBOOL(NO);
 }
 
-- (id)write:(id)args
+- (NSNumber *)write:(id)args
 {
   ENSURE_TYPE(args, NSArray);
   id arg = [args objectAtIndex:0];
@@ -420,7 +428,7 @@ FILENOOP(setHidden
   return NUMBOOL(err == nil);
 }
 
-- (id)extension:(id)args
+- (NSString *)extension:(id)args
 {
   return [path pathExtension];
 }
@@ -436,22 +444,22 @@ FILENOOP(setHidden
   return [[[TiFilesystemFileProxy alloc] initWithFile:[path stringByDeletingLastPathComponent]] autorelease];
 }
 
-- (id)name
+- (NSString *)name
 {
   return [path lastPathComponent];
 }
 
-- (id)resolve:(id)args
+- (NSString *)resolve:(id)args
 {
   return path;
 }
 
-- (id)description
+- (NSString *)description
 {
   return path;
 }
 
-+ (id)makeTemp:(BOOL)isDirectory
++ (TiFilesystemFileProxy *)makeTemp:(BOOL)isDirectory
 {
   NSString *tempDir = NSTemporaryDirectory();
   NSError *error = nil;
