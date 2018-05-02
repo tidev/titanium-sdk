@@ -37,10 +37,8 @@ public class CustomDatePicker extends DatePicker
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
 		super.onLayout(changed, left, top, right, bottom);
-		if (this.proxy != null) {
-			if (changed) {
-				TiUIHelper.firePostLayoutEvent(this.proxy);
-			}
+		if (this.proxy != null && changed) {
+			TiUIHelper.firePostLayoutEvent(this.proxy);
 		} else {
 			Log.w("Picker", "Proxy not assigned to a native view!");
 		}
