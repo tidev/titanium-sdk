@@ -46,9 +46,6 @@ module.exports = function (grunt) {
 
 		const validate = fork(path.join(apidoc, 'validate'), [], { cwd: apidoc, silent: true });
 		let output = '';
-		validate.stdout.on('data', function (data) {
-			output += data;
-		});
 
 		validate.stderr.on('data', function (data) {
 			output += data;
