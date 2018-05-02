@@ -112,8 +112,8 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 			this.maxDate = maxDateCalendar.getTime();
 			picker.setMaxDate(maxDateCalendar.getTimeInMillis());
 		}
-		if (d.containsKey("minuteInterval")) {
-			int mi = d.getInt("minuteInterval");
+		if (d.containsKey(TiC.PROPERTY_MINUTE_INTERVAL)) {
+			int mi = d.getInt(TiC.PROPERTY_MINUTE_INTERVAL);
 			if (mi >= 1 && mi <= 30 && mi % 60 == 0) {
 				this.minuteInterval = mi;
 			}
@@ -124,7 +124,7 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 		suppressChangeEvent = false;
 
 		if (!valueExistsInProxy) {
-			proxy.setProperty("value", calendar.getTime());
+			proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
 		}
 
 		//iPhone ignores both values if max <= min
@@ -146,6 +146,10 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 		}
 		if (key.equals(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
 			setCalendarView(TiConvert.toBoolean(newValue));
+		} else if (TiC.PROPERTY_MIN_DATE.equals(key)) {
+			((DatePicker) getNativeView()).setMinDate(TiConvert.toDate(newValue).getTime());
+		} else if (TiC.PROPERTY_MAX_DATE.equals(key)) {
+			((DatePicker) getNativeView()).setMaxDate(TiConvert.toDate(newValue).getTime());
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}

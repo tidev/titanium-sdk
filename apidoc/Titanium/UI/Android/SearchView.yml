@@ -63,6 +63,14 @@ properties:
     type: String
     default: no hint text
 
+  - name: hintTextColor
+    summary: Color of hint text that displays when field is empty.
+    description: |
+        Color of hint text that displays when field is empty.
+    type: String
+    default: Default Android theme's hint text color.
+    since: 7.1.0
+
   - name: value
     summary: Value of the search view.
     description: |

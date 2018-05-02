@@ -48,6 +48,12 @@ methods:
     returns:
         type: Titanium.Android.NotificationChannel
 
+  - name: areNotificationsEnabled
+    summary: Returns whether showing notifications is enabled for the application.
+    returns:
+        type: Boolean
+    since: "7.1.0"
+
 properties:
 
   - name: DEFAULT_ALL

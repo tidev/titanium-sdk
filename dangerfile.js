@@ -11,17 +11,16 @@ const JIRARegexp = /https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/;
 const github = danger.github;
 // Currently used PR-labels
 const Label = {
-	NEEDS_JIRA: 'needs jira',
-	NEEDS_TESTS: 'needs tests',
+	NEEDS_JIRA: 'needs jira 🚨',
+	NEEDS_TESTS: 'needs tests 🚨',
 	NO_TESTS: 'no tests',
-	NEEDS_CLA: 'needs cla',
 	IOS: 'ios',
 	ANDROID: 'android',
-	COMMUNITY: 'community',
-	DOCS: 'docs'
+	COMMUNITY: 'community 🔥',
+	DOCS: 'docs 📔'
 };
 // Array to gather up the labels we want to auto-apply to the PR
-const labels = [];
+const labels = new Set();
 
 // To spit out the raw data we can use:
 // markdown(JSON.stringify(danger));
@@ -46,7 +45,7 @@ if (fs.existsSync('./npm_test.log')) {
 const body = github.pr.body;
 const hasJIRALink = body.match(JIRARegexp);
 if (!hasJIRALink) {
-	labels.push(Label.NEEDS_JIRA);
+	labels.add(Label.NEEDS_JIRA);
 	warn('There is no linked JIRA ticket in the PR body. Please include the URL of the relevant JIRA ticket. If you need to, you may file a ticket on ' + danger.utils.href('https://jira.appcelerator.org/secure/CreateIssue!default.jspa', 'JIRA'));
 } else {
 	// If it has the "needs jira" label, remove it since we do have one linked
@@ -76,32 +75,30 @@ const modifiedIOSFiles = modified.filter(function (p) {
 
 // Auto-assign android/ios labels
 if (modifiedAndroidFiles.length > 0) {
-	labels.push(Label.ANDROID);
+	labels.add(Label.ANDROID);
 }
 if (modifiedIOSFiles.length > 0) {
-	labels.push(Label.IOS);
+	labels.add(Label.IOS);
 }
 // Check if apidoc was modified and apply 'docs' label?
 const modifiedApiDocs = modified.filter(function (p) {
 	return p.startsWith('apidoc/');
 });
 if (modifiedApiDocs.length > 0) {
-	labels.push(Label.DOCS);
+	labels.add(Label.DOCS);
 }
 
 // Check PR author to see if it's community, etc
 if (github.pr.author_association === 'FIRST_TIMER') {
-	labels.push(Label.COMMUNITY);
-	labels.push(Label.NEEDS_CLA);
+	labels.add(Label.COMMUNITY);
 	// Thank them profusely! This is their first ever github commit!
 	message(`:rocket: Wow, ${github.pr.user.login}, your first contribution to GitHub and it's to help us make Titanium better! You rock! :guitar:`);
 } else if (github.pr.author_association === 'FIRST_TIME_CONTRIBUTOR') {
-	labels.push(Label.COMMUNITY);
-	labels.push(Label.NEEDS_CLA);
+	labels.add(Label.COMMUNITY);
 	// Thank them, this is their first contribution to this repo!
 	message(`:confetti_ball: Welcome to the Titanium SDK community, ${github.pr.user.login}! Thank you so much for your PR, you're helping us make Titanium better. :gift:`);
 } else if (github.pr.author_association === 'CONTRIBUTOR') {
-	labels.push(Label.COMMUNITY);
+	labels.add(Label.COMMUNITY);
 	// Be nice, this is a community member who has landed PRs before!
 	message(`:tada: Another contribution from our awesome community member, ${github.pr.user.login}! Thanks again for helping us make Titanium SDK better. :thumbsup:`);
 }
@@ -118,7 +115,7 @@ const hasNoTestsLabel = github.issue.labels.some(function (label) {
 // If we changed android/iOS source, but didn't change tests and didn't use the 'no tests' label
 // fail the PR
 if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
-	labels.push(Label.NEEDS_TESTS);
+	labels.add(Label.NEEDS_TESTS);
 	const testDocLink = github.utils.fileLinks([ 'README.md#unit-tests' ]);
 	fail(`:microscope: There are library changes, but no changes to the unit tests. That's OK as long as you're refactoring existing code, but will require an admin to merge this PR. Please see ${testDocLink} for docs on unit testing.`); // eslint-disable-line max-len
 } else {
