@@ -89,7 +89,7 @@ description: |
         
     Read more about the issue in [TIMOB-25680](https://jira.appcelerator.org/browse/TIMOB-25680).
 
-extends: Titanium.UI.View
+extends: Titanium.Proxy
 platforms: [iphone,ipad]
 since: "2.1.1"
 

@@ -19,7 +19,8 @@ description: |
         <SearchView ns="Ti.UI.Android" platform="android"/>
 
 extends: Titanium.UI.View
-excludes: { methods: [ add ] }
+excludes:
+    methods: [add]
 since: "3.0.2"
 platforms: [android]
 methods:
