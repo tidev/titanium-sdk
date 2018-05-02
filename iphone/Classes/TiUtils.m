@@ -1957,6 +1957,13 @@ If the new path starts with / and the base url is app://..., we have to massage 
     return nil;
   }
 
+  // TIMOB-25785: Try to repair invalid JSON objects for backwards
+  // compatibility. Eventually remove later once developers are sensitized
+  if (![NSJSONSerialization isValidJSONObject:value]) {
+    DebugLog(@"[WARN] Cannot serialize object, trying to repair ...");
+    value = [TiUtils stripInvalidJSONPayload:value];
+  }
+
   NSData *jsonData = [NSJSONSerialization dataWithJSONObject:value
                                                      options:kNilOptions
                                                        error:error];
@@ -2045,6 +2052,49 @@ If the new path starts with / and the base url is app://..., we have to massage 
   UIGraphicsEndImageContext();
 
   return image;
+}
+
++ (id)stripInvalidJSONPayload:(id)jsonPayload
+{
+  if ([jsonPayload isKindOfClass:[NSDictionary class]]) {
+    NSMutableDictionary *result = [NSMutableDictionary new];
+    for (NSString *key in [jsonPayload allKeys]) {
+      id value = [jsonPayload valueForKey:key];
+      if ([value isKindOfClass:[NSArray class]] || [value isKindOfClass:[NSDictionary class]]) {
+        value = [TiUtils stripInvalidJSONPayload:value];
+      }
+      if ([self isSupportedFragment:value]) {
+        [result setObject:value forKey:key];
+      } else {
+        DebugLog(@"[WARN] Found invalid attribute \"%@\" that cannot be serialized, skipping it ...", key)
+      }
+    }
+    return result;
+  } else if ([jsonPayload isKindOfClass:[NSArray class]]) {
+    NSMutableArray *result = [NSMutableArray new];
+    for (id value in [jsonPayload allObjects]) {
+      if ([value isKindOfClass:[NSArray class]] || [value isKindOfClass:[NSDictionary class]]) {
+        value = [TiUtils stripInvalidJSONPayload:value];
+      }
+      if ([self isSupportedFragment:value]) {
+        [result addObject:value];
+      } else {
+        DebugLog(@"[WARN] Found invalid value \"%@\" that cannot be serialized, skipping it ...", value);
+      }
+    }
+    return result;
+  } else {
+    DebugLog(@"[ERROR] Unhandled JSON type: %@", NSStringFromClass([jsonPayload class]));
+  }
+
+  return jsonPayload;
+}
+
++ (BOOL)isSupportedFragment:(id)fragment
+{
+  return ([fragment isKindOfClass:[NSDictionary class]] || [fragment isKindOfClass:[NSArray class]] ||
+      [fragment isKindOfClass:[NSString class]] || [fragment isKindOfClass:[NSNumber class]] ||
+      [fragment isKindOfClass:[NSDate class]] || [fragment isKindOfClass:[NSNull class]] || fragment == nil);
 }
 
 @end
