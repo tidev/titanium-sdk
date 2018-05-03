@@ -119,14 +119,14 @@ void V8Runtime::bootstrap(Local<Context> context)
 	Isolate* isolate = context->GetIsolate();
 	EventEmitter::initTemplate(context);
 
-	Local<Object> global = Object::New(isolate);
-	krollGlobalObject.Reset(isolate, global);
+	Local<Object> kroll = Object::New(isolate);
+	krollGlobalObject.Reset(isolate, kroll);
 	Local<Array> mc = Array::New(isolate);
 	moduleContexts.Reset(isolate, mc);
 
-	KrollBindings::initFunctions(global, context);
+	KrollBindings::initFunctions(kroll, context);
 
-	SetMethod(isolate, global, "log", krollLog);
+	SetMethod(isolate, kroll, "log", krollLog);
 	// Move this into the EventEmitter::initTemplate call?
 	Local<FunctionTemplate> eect = Local<FunctionTemplate>::New(isolate, EventEmitter::constructorTemplate);
 	{
@@ -137,12 +137,12 @@ void V8Runtime::bootstrap(Local<Context> context)
 			titanium::V8Util::fatalException(isolate, tryCatch);
 			return;
 		}
-		global->Set(NEW_SYMBOL(isolate, "EventEmitter"), eventEmitterConstructor);
+		kroll->Set(NEW_SYMBOL(isolate, "EventEmitter"), eventEmitterConstructor);
 	}
 
-	global->Set(NEW_SYMBOL(isolate, "runtime"), STRING_NEW(isolate, "v8"));
-	global->Set(NEW_SYMBOL(isolate, "DBG"), v8::Boolean::New(isolate, V8Runtime::DBG));
-	global->Set(NEW_SYMBOL(isolate, "moduleContexts"), mc);
+	kroll->Set(NEW_SYMBOL(isolate, "runtime"), STRING_NEW(isolate, "v8"));
+	kroll->Set(NEW_SYMBOL(isolate, "DBG"), v8::Boolean::New(isolate, V8Runtime::DBG));
+	kroll->Set(NEW_SYMBOL(isolate, "moduleContexts"), mc);
 
 	LOG_TIMER(TAG, "Executing kroll.js");
 
@@ -157,9 +157,16 @@ void V8Runtime::bootstrap(Local<Context> context)
 		V8Util::reportException(isolate, tryCatch, true);
 	}
 
+	// Add a reference to the global object
+	Local<Object> global = context->Global();
+
+	// Expose the global object as a property on itself
+	// (Allows you to set stuff on `global` from anywhere in JavaScript.)
+	global->Set(NEW_SYMBOL(isolate, "global"), global);
+
 	Local<Function> mainFunction = result.As<Function>();
-	Local<Value> args[] = { global };
-	mainFunction->Call(context, context->Global(), 1, args);
+	Local<Value> args[] = { kroll };
+	mainFunction->Call(context, global, 1, args);
 
 	if (tryCatch.HasCaught()) {
 		V8Util::reportException(isolate, tryCatch, true);
@@ -339,8 +346,7 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nati
 
 	// TODO Pump the message loop/queues until it's empty?
 	// while (v8::platform::PumpMessageLoop(V8Runtime::platform, V8Runtime:v8_isolate)) continue;
-    // v8::platform::RunIdleTasks(g_platform, isolate,
-    //                            50.0 / base::Time::kMillisecondsPerSecond);
+	// v8::platform::RunIdleTasks(g_platform, isolate, 50.0 / base::Time::kMillisecondsPerSecond);
 
 	// FIXME What is a good value to use here? We're basically giving it 100 ms to run right now
 	double deadline_in_s = V8Runtime::platform->MonotonicallyIncreasingTime() + 0.1;

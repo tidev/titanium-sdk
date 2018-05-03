@@ -17,7 +17,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-
 /**
  * ListView which allows "NestedScrollingChild" views to be scrolled within this view
  * on a system older than API Level 21 (aka: Android 5.0).
@@ -34,7 +33,6 @@ public abstract class TiNestedListView extends ListView implements NestedScrolli
 	 * Set false to disable touch scrolls but allow programmatic scrolling.
 	 */
 	private boolean isTouchScrollable = true;
-
 
 	/** Creates a new list view. */
 	protected TiNestedListView(Context context)
@@ -139,13 +137,11 @@ public abstract class TiNestedListView extends ListView implements NestedScrolli
 		// happen if put into a ScrollView. This prevents WRAP_CONTENT from working (will have 0 height).
 		// Work-around: Use a height spec set to at-most the maximum view size allowed.
 		if (View.MeasureSpec.getMode(heightMeasureSpec) == View.MeasureSpec.UNSPECIFIED) {
-			final int MAX_VIEW_SIZE = 1073741823;   // Max is documented in "View.MeasureSpec" class.
-			heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(
-					MAX_VIEW_SIZE, View.MeasureSpec.AT_MOST);
+			final int MAX_VIEW_SIZE = 1073741823; // Max is documented in "View.MeasureSpec" class.
+			heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(MAX_VIEW_SIZE, View.MeasureSpec.AT_MOST);
 		}
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
-
 
 	/** Creates a new list view. */
 	public static TiNestedListView createUsing(Context context)
@@ -166,8 +162,7 @@ public abstract class TiNestedListView extends ListView implements NestedScrolli
 	}
 
 	/** Creates a new list view. */
-	public static TiNestedListView createUsing(
-		Context context, AttributeSet attributeSet, int defaultStyleAttributes)
+	public static TiNestedListView createUsing(Context context, AttributeSet attributeSet, int defaultStyleAttributes)
 	{
 		if (Build.VERSION.SDK_INT >= 21) {
 			return new ApiLevel21.NestedListView(context, attributeSet, defaultStyleAttributes);
@@ -175,19 +170,19 @@ public abstract class TiNestedListView extends ListView implements NestedScrolli
 		return new ApiLevel16.NestedListView(context, attributeSet, defaultStyleAttributes);
 	}
 
-
 	/** Provides access to API Level 16 features. */
 	private static class ApiLevel16
 	{
 		/** Constructor made private to prevent instances from being made. */
-		private ApiLevel16() {}
+		private ApiLevel16()
+		{
+		}
 
 		/** ListView which provides NestedScrollingChild support on Android 4.x. */
 		public static class NestedListView extends TiNestedListView
 		{
 			/** Helper object used to handle nested scrolling within a cooperating NestedScrollingChild view. */
 			private NestedScrollingParentHelper nestedParentHelper;
-
 
 			/** Creates a new list view. */
 			public NestedListView(Context context)
@@ -327,8 +322,7 @@ public abstract class TiNestedListView extends ListView implements NestedScrolli
 			 * The y-axis distance in pixels the child is requesting this parent view to scroll by.
 			 */
 			@Override
-			public void onNestedScroll(
-				View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
+			public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
 			{
 				// Block nested scrolls if touch scrolling is disabled.
 				if (isTouchScrollable() == false) {
@@ -396,7 +390,9 @@ public abstract class TiNestedListView extends ListView implements NestedScrolli
 	private static class ApiLevel19
 	{
 		/** Constructor made private to prevent instances from being made. */
-		private ApiLevel19() {}
+		private ApiLevel19()
+		{
+		}
 
 		/**
 		 * Calls the given ListView class' scrollListBy() method.
@@ -415,7 +411,9 @@ public abstract class TiNestedListView extends ListView implements NestedScrolli
 	private static class ApiLevel21
 	{
 		/** Constructor made private to prevent instances from being made. */
-		private ApiLevel21() {}
+		private ApiLevel21()
+		{
+		}
 
 		/**
 		 * ListView which uses Google's implementation of the NestedScrollingParent and
@@ -455,11 +453,12 @@ public abstract class TiNestedListView extends ListView implements NestedScrolli
 			 * The y-axis distance in pixels the child is requesting this parent view to scroll by.
 			 */
 			@Override
-			public void onNestedScroll(
-				View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
+			public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
 			{
 				if (isTouchScrollable()) {
 					super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+				} else {
+					dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, null);
 				}
 			}
 		}

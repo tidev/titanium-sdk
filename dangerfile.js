@@ -1,4 +1,4 @@
-/* global danger, fail, warn, markdown, message, schedule */
+/* global danger, fail, warn, markdown, message */
 'use strict';
 // requires
 const fs = require('fs-extra');
@@ -11,19 +11,16 @@ const JIRARegexp = /https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/;
 const github = danger.github;
 // Currently used PR-labels
 const Label = {
-	NEEDS_JIRA: 'needs jira',
-	NEEDS_TESTS: 'needs tests',
+	NEEDS_JIRA: 'needs jira 🚨',
+	NEEDS_TESTS: 'needs tests 🚨',
 	NO_TESTS: 'no tests',
-	NEEDS_CLA: 'needs cla',
 	IOS: 'ios',
 	ANDROID: 'android',
-	COMMUNITY: 'community',
-	DOCS: 'docs'
+	COMMUNITY: 'community 🔥',
+	DOCS: 'docs 📔'
 };
 // Array to gather up the labels we want to auto-apply to the PR
-const labels = [];
-// Store the current directory so we can join it with file paths from PR metadata
-const CURRENT_DIR = path.resolve(__dirname);
+const labels = new Set();
 
 // To spit out the raw data we can use:
 // markdown(JSON.stringify(danger));
@@ -48,7 +45,7 @@ if (fs.existsSync('./npm_test.log')) {
 const body = github.pr.body;
 const hasJIRALink = body.match(JIRARegexp);
 if (!hasJIRALink) {
-	labels.push(Label.NEEDS_JIRA);
+	labels.add(Label.NEEDS_JIRA);
 	warn('There is no linked JIRA ticket in the PR body. Please include the URL of the relevant JIRA ticket. If you need to, you may file a ticket on ' + danger.utils.href('https://jira.appcelerator.org/secure/CreateIssue!default.jspa', 'JIRA'));
 } else {
 	// If it has the "needs jira" label, remove it since we do have one linked
@@ -76,85 +73,32 @@ const modifiedIOSFiles = modified.filter(function (p) {
 	return p.startsWith('iphone/Classes/') && (p.endsWith('.h') || p.endsWith('.m'));
 });
 
-function validateFormatting(files) {
-	const clangFormat = require('clang-format');
-	const fork = require('child_process').fork; // eslint-disable-line security/detect-child-process
-	const async = require('async');
-	const EXEC_LIMIT = 10;
-
-	schedule(done => {
-		const errors = [];
-		async.mapLimit(files, EXEC_LIMIT, function (filepath, cb) {
-			let stdout = '';
-			let stderr = '';
-			const fullpath = path.join(CURRENT_DIR, filepath);
-
-			const proc = fork(clangFormat.location, [ '-output-replacements-xml', fullpath ], { silent: true, cwd: CURRENT_DIR });
-			// Not sure why but this fails. Likely some weirdness with running under danger process?
-			// const proc = clangFormat.spawnClangFormat([ '-output-replacements-xml', path.join(__dirname, filepath) ], function () {}, 'pipe');
-			proc.stdout.on('data', function (data) {
-				stdout += data.toString();
-			});
-			proc.stderr.on('data', function (data) {
-				stderr += data.toString();
-			});
-			proc.on('close', function (exit) {
-				if (exit) {
-					const msg = `Failed to check formatting of ${fullpath}. Exit code: ${exit}, stdout: ${stdout}, stderr: ${stderr}`;
-					return cb(new Error(msg));
-				}
-
-				const modified = stdout.replace(/\r?\n/g, '');
-				if (modified !== '<?xml version=\'1.0\'?><replacements xml:space=\'preserve\' incomplete_format=\'false\'></replacements>') {
-					// Record failure, because formatting is bad.
-					// TODO Get the correctly formatted source? Give more details on the bad sections?
-					errors.push(filepath);
-				}
-				cb();
-			});
-		}, function (err) {
-			if (err) {
-				fail(err.toString());
-			}
-			if (errors.length > 0) {
-				fail(`:memo: Formatting reported as incorrect on the following files:\n- ${errors.join('\n- ')}\nYou can fix the formatting by running: \`npx clang-format -style=file -i <filepath>\``);
-				// Add note about running npx clang-format -style=file -i <filepath> for each?
-			}
-			done();
-		});
-	});
-}
-
 // Auto-assign android/ios labels
 if (modifiedAndroidFiles.length > 0) {
-	labels.push(Label.ANDROID);
-	// validate formatting of the modified android source files!
-	validateFormatting(modifiedAndroidFiles);
+	labels.add(Label.ANDROID);
 }
 if (modifiedIOSFiles.length > 0) {
-	labels.push(Label.IOS);
+	labels.add(Label.IOS);
 }
 // Check if apidoc was modified and apply 'docs' label?
 const modifiedApiDocs = modified.filter(function (p) {
 	return p.startsWith('apidoc/');
 });
 if (modifiedApiDocs.length > 0) {
-	labels.push(Label.DOCS);
+	labels.add(Label.DOCS);
 }
 
 // Check PR author to see if it's community, etc
 if (github.pr.author_association === 'FIRST_TIMER') {
-	labels.push(Label.COMMUNITY);
-	labels.push(Label.NEEDS_CLA);
+	labels.add(Label.COMMUNITY);
 	// Thank them profusely! This is their first ever github commit!
 	message(`:rocket: Wow, ${github.pr.user.login}, your first contribution to GitHub and it's to help us make Titanium better! You rock! :guitar:`);
 } else if (github.pr.author_association === 'FIRST_TIME_CONTRIBUTOR') {
-	labels.push(Label.COMMUNITY);
-	labels.push(Label.NEEDS_CLA);
+	labels.add(Label.COMMUNITY);
 	// Thank them, this is their first contribution to this repo!
 	message(`:confetti_ball: Welcome to the Titanium SDK community, ${github.pr.user.login}! Thank you so much for your PR, you're helping us make Titanium better. :gift:`);
 } else if (github.pr.author_association === 'CONTRIBUTOR') {
-	labels.push(Label.COMMUNITY);
+	labels.add(Label.COMMUNITY);
 	// Be nice, this is a community member who has landed PRs before!
 	message(`:tada: Another contribution from our awesome community member, ${github.pr.user.login}! Thanks again for helping us make Titanium SDK better. :thumbsup:`);
 }
@@ -171,7 +115,7 @@ const hasNoTestsLabel = github.issue.labels.some(function (label) {
 // If we changed android/iOS source, but didn't change tests and didn't use the 'no tests' label
 // fail the PR
 if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
-	labels.push(Label.NEEDS_TESTS);
+	labels.add(Label.NEEDS_TESTS);
 	const testDocLink = github.utils.fileLinks([ 'README.md#unit-tests' ]);
 	fail(`:microscope: There are library changes, but no changes to the unit tests. That's OK as long as you're refactoring existing code, but will require an admin to merge this PR. Please see ${testDocLink} for docs on unit testing.`); // eslint-disable-line max-len
 } else {
@@ -187,6 +131,16 @@ if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
 // Now apply our labels
 github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: labels });
 
+// Check for iOS crash file
+const crashFiles = fs.readdirSync(__dirname).filter(function (p) {
+	return p.startsWith('mocha_') && p.endsWith('.crash');
+});
+if (crashFiles.length > 0) {
+	const crashLink = danger.utils.href(`${ENV.BUILD_URL}artifact/${crashFiles[0]}`, 'the crash log');
+	fail(`Test suite crashed on iOS simulator. Please see ${crashLink} for more details.`);
+}
+
+// Report test failures
 function gatherFailedTestcases(reportPath) {
 	if (!fs.existsSync(reportPath)) {
 		return [];
@@ -227,7 +181,7 @@ if (failures_and_errors.length !== 0) {
 	});
 	attributes.push('Error');
 
-	// TODO Include stderr/stdout, or full test stack too?
+	// TODO Include stderr/stdout too?
 	// Create the headers
 	message += '| ' + attributes.join(' | ') + ' |\n';
 	message += '| ' + attributes.map(function () {
@@ -242,11 +196,11 @@ if (failures_and_errors.length !== 0) {
 		// push error/failure message too
 		const errors = test.getElementsByTagName('error');
 		if (errors.length !== 0) {
-			row_values.push(errors.item(0).getAttribute('message'));
+			row_values.push(errors.item(0).getAttribute('message') + errors.item(0).getAttribute('stack'));
 		} else {
 			const failures = test.getElementsByTagName('failure');
 			if (failures.length !== 0) {
-				row_values.push(failures.item(0).getAttribute('message'));
+				row_values.push(failures.item(0).getAttribute('message') + failures.item(0).getAttribute('stack'));
 			} else {
 				row_values.push(''); // This shouldn't ever happen
 			}
