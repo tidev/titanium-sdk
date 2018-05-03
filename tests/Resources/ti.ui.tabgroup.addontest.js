@@ -42,7 +42,7 @@ describe('Titanium.UI.TabGroup', function () {
 		var win = Ti.UI.createWindow();
 
 		tabGroup = Ti.UI.createTabGroup({
-			allowUserCustomization:true
+			allowUserCustomization: true
 		});
 		tab = Ti.UI.createTab({
 			title: 'Tab',
@@ -60,11 +60,11 @@ describe('Titanium.UI.TabGroup', function () {
 		var win = Ti.UI.createWindow();
 
 		tabGroup = Ti.UI.createTabGroup({
-			tabsTranslucent:true
+			tabsTranslucent: true
 		});
 		tab = Ti.UI.createTab({
 			title: 'Tab',
-			window: win 
+			window: win
 		});
 
 		tabGroup.addTab(tab);
