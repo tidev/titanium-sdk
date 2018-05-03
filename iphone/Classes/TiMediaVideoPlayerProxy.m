@@ -129,7 +129,6 @@ NSArray *moviePlayerKeys = nil;
   }
 }
 
-// Used to avoid duplicate code in Brightcove module; makes things easier to maintain.
 - (void)configurePlayer
 {
   [self addNotificationObserver];
@@ -142,11 +141,6 @@ NSArray *moviePlayerKeys = nil;
     TiMediaVideoPlayer *vp = (TiMediaVideoPlayer *)[self view];
     [vp setMovie:movie];
   }
-}
-
-- (AVPlayerViewController *)player
-{
-  return movie;
 }
 
 - (AVPlayerViewController *)ensurePlayer
@@ -470,6 +464,8 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)setShowsControls:(NSNumber *)value
 {
+  ENSURE_UI_THREAD(setShowsControls, value);
+
   if (movie != nil) {
     [movie setShowsPlaybackControls:[TiUtils boolValue:value def:YES]];
   } else {
