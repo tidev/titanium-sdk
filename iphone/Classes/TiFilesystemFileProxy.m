@@ -568,7 +568,7 @@ FILENOOP(setHidden
 - (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL withFlag:(BOOL)flag
 {
   NSError *error = nil;
-  BOOL success = [URL setResourceValue:@(flag)]
+  BOOL success = [URL setResourceValue:@(flag)
                                 forKey:NSURLIsExcludedFromBackupKey
                                  error:&error];
 
