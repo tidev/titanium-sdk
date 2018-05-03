@@ -2105,24 +2105,4 @@ If the new path starts with / and the base url is app://..., we have to massage 
       [fragment isKindOfClass:[NSDate class]] || [fragment isKindOfClass:[NSNull class]] || fragment == nil);
 }
 
-+ (NSString*)stackFromException:(TiContextRef)context exception:(TiValueRef)exception
-{
-  TiObjectRef exceptionObj = TiValueToObject(context, exception, NULL);
-  TiStringRef stackProperty = TiStringCreateWithUTF8CString("stack");
-  TiValueRef stackValue = JSObjectGetProperty(context, exceptionObj, stackProperty, NULL);
-  TiStringRelease(stackProperty);
-  TiStringRef stackString = TiValueToStringCopy(context, stackValue, NULL);
-  NSString* stack = (NSString*) TiStringCopyCFString(kCFAllocatorDefault, stackString);
-  TiStringRelease(stackString);
-  
-  // lets re-format the stack similar to node.js
-  stack = [stack stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"file://%@", [[NSBundle mainBundle] bundlePath]] withString:@"("];
-  stack = [stack stringByReplacingOccurrencesOfString:@"\n" withString:@")\n    at "];
-  stack = [stack stringByReplacingOccurrencesOfString:@"])" withString:@"]"];
-  stack = [stack stringByReplacingOccurrencesOfString:@"@(" withString:@"("];
-  stack = [NSString stringWithFormat:@"    at %@)", stack];
-
-  return stack;
-}
-
 @end

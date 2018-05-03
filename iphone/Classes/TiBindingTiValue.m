@@ -53,13 +53,30 @@ NSDictionary *TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef 
 
   // if this looks like a JS Error object, get the message
   if ([dict objectForKey:@"line"] != nil && [dict objectForKey:@"column"] != nil) {
-    TiStringRef prop = TiStringCreateWithUTF8CString("message");
-    TiValueRef val = TiObjectGetProperty(jsContext, obj, prop, NULL);
-    id value = TiBindingTiValueToNSObject(jsContext, val);
-    if (value && ![value isEqual:[NSNull null]]) {
-      [dict setObject:value forKey:@"message"];
+    TiStringRef messageKeyRef = TiStringCreateWithUTF8CString("message");
+    TiStringRef stackKeyRef = TiStringCreateWithUTF8CString("stack");
+    TiValueRef messageRef = TiObjectGetProperty(jsContext, obj, messageKeyRef, NULL);
+    TiValueRef stackRef = TiObjectGetProperty(jsContext, obj, stackKeyRef, NULL);
+      
+    id message = TiBindingTiValueToNSObject(jsContext, messageRef);
+    if (message && ![message isEqual:[NSNull null]]) {
+        [dict setObject:message forKey:@"message"];
     }
-    TiStringRelease(prop);
+    TiStringRelease(messageKeyRef);
+      
+    id stack = TiBindingTiValueToNSObject(jsContext, stackRef);
+    if (stack && ![stack isEqual:[NSNull null]]) {
+        
+        // lets re-format the stack similar to node.js
+        stack = [stack stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"file://%@", [[NSBundle mainBundle] bundlePath]] withString:@"("];
+        stack = [stack stringByReplacingOccurrencesOfString:@"\n" withString:@")\n    at "];
+        stack = [stack stringByReplacingOccurrencesOfString:@"])" withString:@"]"];
+        stack = [stack stringByReplacingOccurrencesOfString:@"@(" withString:@"("];
+        stack = [NSString stringWithFormat:@"    at %@)", stack];
+        
+        [dict setObject:stack forKey:@"stack"];
+    }
+    TiStringRelease(stackKeyRef);
   }
 
   TiPropertyNameArrayRelease(props);
