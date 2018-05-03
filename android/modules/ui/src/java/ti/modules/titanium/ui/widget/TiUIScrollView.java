@@ -25,6 +25,8 @@ import ti.modules.titanium.ui.RefreshControlProxy;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
+import android.support.v4.view.NestedScrollingChild;
+import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.widget.NestedScrollView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -397,6 +399,8 @@ public class TiUIScrollView extends TiUIView
 		{
 			if (mScrollingEnabled) {
 				super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+			} else {
+				dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, null);
 			}
 		}
 
@@ -466,15 +470,24 @@ public class TiUIScrollView extends TiUIView
 		}
 	}
 
-	private class TiHorizontalScrollView extends HorizontalScrollView
+	private class TiHorizontalScrollView extends HorizontalScrollView implements NestedScrollingChild
 	{
 		private TiScrollViewLayout layout;
+		private NestedScrollingChildHelper nestedScrollingChildHelper;
 
 		public TiHorizontalScrollView(Context context, LayoutArrangement arrangement)
 		{
 			super(context);
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 			setScrollContainer(true);
+
+			// Set up nested scrolling. Improves "SwipeRefreshLayout" touch interception handling.
+			// Note: On Android 5.0 and above, all views support nested child scrolling. We just need to enable it.
+			//       The "NestedScrollingChildHelper" is only needed for older Android OS versions.
+			if (Build.VERSION.SDK_INT < 21) {
+				this.nestedScrollingChildHelper = new NestedScrollingChildHelper(this);
+			}
+			setNestedScrollingEnabled(true);
 
 			layout = new TiScrollViewLayout(context, arrangement);
 			FrameLayout.LayoutParams params =
@@ -585,6 +598,91 @@ public class TiUIScrollView extends TiUIView
 				width -= getPaddingRight();
 				int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
 				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+			}
+		}
+
+		@Override
+		public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed)
+		{
+			if (this.nestedScrollingChildHelper != null) {
+				return this.nestedScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+			}
+			return super.dispatchNestedFling(velocityX, velocityY, consumed);
+		}
+
+		@Override
+		public boolean dispatchNestedPreFling(float velocityX, float velocityY)
+		{
+			if (this.nestedScrollingChildHelper != null) {
+				return this.nestedScrollingChildHelper.dispatchNestedPreFling(velocityX, velocityY);
+			}
+			return super.dispatchNestedPreFling(velocityX, velocityY);
+		}
+
+		@Override
+		public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow)
+		{
+			if (this.nestedScrollingChildHelper != null) {
+				return this.nestedScrollingChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+			}
+			return super.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+		}
+
+		@Override
+		public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
+											int[] offsetInWindow)
+		{
+			if (this.nestedScrollingChildHelper != null) {
+				return this.nestedScrollingChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed,
+																			dyUnconsumed, offsetInWindow);
+			}
+			return super.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
+		}
+
+		@Override
+		public boolean hasNestedScrollingParent()
+		{
+			if (this.nestedScrollingChildHelper != null) {
+				return this.nestedScrollingChildHelper.hasNestedScrollingParent();
+			}
+			return super.hasNestedScrollingParent();
+		}
+
+		@Override
+		public boolean isNestedScrollingEnabled()
+		{
+			if (this.nestedScrollingChildHelper != null) {
+				return this.nestedScrollingChildHelper.isNestedScrollingEnabled();
+			}
+			return super.isNestedScrollingEnabled();
+		}
+
+		@Override
+		public void setNestedScrollingEnabled(boolean enabled)
+		{
+			if (this.nestedScrollingChildHelper != null) {
+				this.nestedScrollingChildHelper.setNestedScrollingEnabled(enabled);
+			} else {
+				super.setNestedScrollingEnabled(enabled);
+			}
+		}
+
+		@Override
+		public boolean startNestedScroll(int axes)
+		{
+			if (this.nestedScrollingChildHelper != null) {
+				return this.nestedScrollingChildHelper.startNestedScroll(axes);
+			}
+			return super.startNestedScroll(axes);
+		}
+
+		@Override
+		public void stopNestedScroll()
+		{
+			if (this.nestedScrollingChildHelper != null) {
+				this.nestedScrollingChildHelper.stopNestedScroll();
+			} else {
+				super.stopNestedScroll();
 			}
 		}
 	}

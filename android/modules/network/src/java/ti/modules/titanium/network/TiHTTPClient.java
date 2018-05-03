@@ -895,14 +895,7 @@ public class TiHTTPClient
 				String mimeType = blob.getMimeType();
 				File tmpFile =
 					File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
-				if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
-					FileOutputStream fos = new FileOutputStream(tmpFile);
-					TiBaseFile.copyStream(blob.getInputStream(),
-										  new Base64OutputStream(fos, android.util.Base64.DEFAULT));
-					fos.close();
-				} else {
-					createFileFromBlob(blob, tmpFile);
-				}
+				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);
 
