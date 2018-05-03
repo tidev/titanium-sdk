@@ -80,6 +80,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 @synthesize message = _message;
 @synthesize sourceURL = _sourceURL;
 @synthesize lineNo = _lineNo;
+@synthesize column = _column;
 @synthesize dictionaryValue = _dictionaryValue;
 @synthesize backtrace = _backtrace;
 
@@ -105,6 +106,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
   self = [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
   if (self) {
+    _column = [[dictionary objectForKey:@"column"] integerValue];
     _backtrace = [[[dictionary objectForKey:@"backtrace"] description] copy];
     if (_backtrace == nil) {
       _backtrace = [[[dictionary objectForKey:@"stack"] description] copy];
@@ -126,7 +128,12 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (NSString *)description
 {
   if (self.sourceURL != nil) {
-    return [NSString stringWithFormat:@"%@ at %@ (line %ld)", self.message, [self.sourceURL lastPathComponent], (long)self.lineNo];
+    NSString* source = [NSString stringWithContentsOfFile:[[NSURL URLWithString:self.sourceURL] path] encoding:NSUTF8StringEncoding error:NULL];
+    NSArray* lines = [sourceString componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    NSString* line = [lines objectAtIndex:self.lineNo - 1];
+    NSString* linePointer = [@"" stringByPaddingToLength:self.column withString:@" " startingAtIndex:0];
+
+    return [NSString stringWithFormat:@"/%@:%ld\n%@\n%@^\n%@\n%@", [self.sourceURL lastPathComponent], (long)self.lineNo, line, linePointer, self.message, self.backtrace];
   } else {
     return [NSString stringWithFormat:@"%@", self.message];
   }

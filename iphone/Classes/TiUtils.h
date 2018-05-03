@@ -734,4 +734,6 @@ typedef enum {
  */
 + (UIImage *)imageWithColor:(UIColor *)color;
 
++ (NSString*)stackFromException:(TiContextRef)context exception:(TiValueRef)exception;
+
 @end

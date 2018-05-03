@@ -266,6 +266,7 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void *payload)
         TiObjectCallAsFunction(context, (TiObjectRef)currentCallback, (TiObjectRef)eventTargetRef, 1, (TiValueRef *)&eventObjectRef, &exception);
         if (exception != NULL) {
           id excm = TiBindingTiValueToNSObject(context, exception);
+          [excm setValue:[TiUtils stackFromException:context exception:exception] forKey:@"backtrace"];
           [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
         }
 #ifndef TI_USE_KROLL_THREAD

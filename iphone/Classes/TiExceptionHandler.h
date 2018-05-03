@@ -25,6 +25,11 @@
 @property (nonatomic, readonly) NSInteger lineNo;
 
 /**
+ * Returns line column where error happened.
+ */
+@property (nonatomic, readonly) NSInteger column;
+
+/**
  * Returns error related message
  */
 @property (nonatomic, readonly) NSString *message;
