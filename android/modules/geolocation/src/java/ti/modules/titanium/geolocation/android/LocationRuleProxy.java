@@ -89,7 +89,8 @@ public class LocationRuleProxy extends KrollProxy
 	{
 		String provider = TiConvert.toString(properties.get(TiC.PROPERTY_PROVIDER));
 		if (provider != null) {
-			if (!(provider.equals(newLocation.getProvider()))) {
+			String newProvider = newLocation.getProvider();
+			if (!newProvider.equals(FusedLocationProvider.PROVIDER) && !provider.equals(newProvider)) {
 				return false;
 			}
 		}

@@ -95,9 +95,9 @@ IOS.prototype.package = function (packager, next) {
 				// Copy and inject values for special source files
 				function (cb) {
 					const subs = {
-						'__VERSION__': this.sdkVersion,
-						'__TIMESTAMP__': this.timestamp,
-						'__GITHASH__': this.gitHash
+						__VERSION__: this.sdkVersion,
+						__TIMESTAMP__: this.timestamp,
+						__GITHASH__: this.gitHash
 					};
 					copyAndModifyFiles(path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'Classes'), [ 'TopTiModule.m', 'TiApp.m' ], subs, cb);
 				}.bind(this),
@@ -106,7 +106,7 @@ IOS.prototype.package = function (packager, next) {
 				},
 				// copy iphone/package.json, but replace __VERSION__ with our version!
 				function (cb) {
-					copyAndModifyFile(IOS_ROOT, DEST_IOS, 'package.json', { '__VERSION__': this.sdkVersion }, cb);
+					copyAndModifyFile(IOS_ROOT, DEST_IOS, 'package.json', { __VERSION__: this.sdkVersion }, cb);
 				}.bind(this),
 				// Copy iphone/Resources/modules/<name>/* to this.zipSDKDir/iphone/modules/<name>/images
 				function (cb) {
