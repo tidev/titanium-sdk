@@ -54,11 +54,8 @@ public class TitaniumBlob extends TiBaseFile
 		}
 
 		// Get ready to fetch URL's description, path, and file size via content provider.
-		String[] projection = {
-			MediaStore.Images.ImageColumns.DISPLAY_NAME,
-			MediaStore.Images.ImageColumns.DATA,
-			MediaStore.Images.ImageColumns.SIZE
-		};
+		String[] projection = { MediaStore.Images.ImageColumns.DISPLAY_NAME, MediaStore.Images.ImageColumns.DATA,
+								MediaStore.Images.ImageColumns.SIZE };
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
 		// First, attempt to fetch an absolute path to the file, if publicly available.
@@ -89,8 +86,7 @@ public class TitaniumBlob extends TiBaseFile
 		} else if (url.startsWith("content://com.android.providers.downloads.documents")) {
 			// This was a file downloaded from the Google cloud.
 			String id = DocumentsContract.getDocumentId(Uri.parse(url));
-			Uri uri = ContentUris.withAppendedId(
-					Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+			Uri uri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 			try (Cursor cursor = contentResolver.query(uri, projection, null, null, null)) {
 				if ((cursor != null) && cursor.moveToNext()) {
 					this.name = getStringFrom(cursor, 0);

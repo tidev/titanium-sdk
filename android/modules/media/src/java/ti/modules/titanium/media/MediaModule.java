@@ -1036,8 +1036,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (isSelectingPhoto && isSelectingVideo) {
 			galleryIntent.getIntent().setType("*/*");
 			if (Build.VERSION.SDK_INT >= 19) {
-				galleryIntent.getIntent().putExtra(
-						Intent.EXTRA_MIME_TYPES, new String[] { "image/*", "video/*" });
+				galleryIntent.getIntent().putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "image/*", "video/*" });
 			}
 			MediaModule.mediaType = MEDIA_TYPE_PHOTO;
 		} else if (isSelectingVideo) {
@@ -1139,9 +1138,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 								String message = "Invalid file types were selected";
 								Log.e(TAG, message);
 								if (fErrorCallback != null) {
-									fErrorCallback.callAsync(
-											getKrollObject(),
-											createErrorResponse(UNKNOWN_ERROR, message));
+									fErrorCallback.callAsync(getKrollObject(),
+															 createErrorResponse(UNKNOWN_ERROR, message));
 								}
 							}
 						} else {
@@ -1224,7 +1222,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			ParcelFileDescriptor parcelFileDescriptor;
 			Bitmap image;
 			try {
-				parcelFileDescriptor = TiApplication.getInstance().getContentResolver().openFileDescriptor(Uri.parse(path), "r");
+				parcelFileDescriptor =
+					TiApplication.getInstance().getContentResolver().openFileDescriptor(Uri.parse(path), "r");
 				FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
 				image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
 				parcelFileDescriptor.close();
@@ -1306,11 +1305,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 							retriever.setDataSource(path);
 						}
 						width = TiConvert.toInt(
-								retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH),
-								width);
+							retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH), width);
 						height = TiConvert.toInt(
-								retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT),
-								height);
+							retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT), height);
 					} catch (Exception ex) {
 						Log.e(TAG, "Failed to acquire dimensions for video: " + path, ex);
 					} finally {
