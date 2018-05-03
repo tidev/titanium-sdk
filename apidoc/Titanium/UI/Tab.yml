@@ -75,6 +75,7 @@ methods:
             Identical to the `options` parameter to [Window.open](Titanium.UI.Window.open).
             iOS only supports the **animated** parameter.
         type: Object
+        optional: true
 
   - name: close
     summary: Closes the top-level window for this tab.
