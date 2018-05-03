@@ -134,14 +134,14 @@ describe('Titanium.Media.VideoPlayer', function () {
 				showsControls: false
 			});
 
-			detailWindow.addEventListener('open', function() {
-				setTimeout(function() {
+			detailWindow.addEventListener('open', function () {
+				setTimeout(function () {
 					detailWindow.close();
 				}, 2000);
 			});
 
-			detailWindow.addEventListener('close', function() {
-				setTimeout(function() {
+			detailWindow.addEventListener('close', function () {
+				setTimeout(function () {
 					finish(); // We are done!
 				}, 2000);
 			});
