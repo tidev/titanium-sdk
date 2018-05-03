@@ -1993,7 +1993,7 @@ properties:
     constants: Titanium.Media.MEDIA_TYPE_*
     default: Only photo and video allowed.
     platforms: [android, iphone, ipad]
-    since: { android: "7.1.0", iphone: "0.8", ipad: "0.8" }
+    since: { android: "7.2.0", iphone: "0.8", ipad: "0.8" }
   - name: popoverView
     summary: View to position the photo gallery popover on top of.
     type: Titanium.UI.View
