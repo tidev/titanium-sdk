@@ -35,13 +35,13 @@
 {
   [super loadView];
   self.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-  
-  UIScrollView* view = [[[NSBundle mainBundle] loadNibNamed:@"ErrorScreen" owner:self options:nil] objectAtIndex:0];
+
+  UIScrollView *view = [[[NSBundle mainBundle] loadNibNamed:@"ErrorScreen" owner:self options:nil] objectAtIndex:0];
   self.view = view;
 
-  UITextView* text = (UITextView*)[self.view viewWithTag:1];
+  UITextView *text = (UITextView *)[self.view viewWithTag:1];
   [text setText:error];
-  
+
   // re-size for scroll
   text.contentSize = [text sizeThatFits:CGSizeMake(FLT_MAX, FLT_MAX)];
   text.frame = CGRectMake(text.frame.origin.x, text.frame.origin.y, text.contentSize.width, text.contentSize.height);

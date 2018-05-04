@@ -32,7 +32,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)reportException:(NSException *)exception
 {
-  NSArray* stackTrace = [exception callStackSymbols];
+  NSArray *stackTrace = [exception callStackSymbols];
   NSString *message = [NSString stringWithFormat:
                                     @"[ERROR] The application has crashed with an uncaught exception '%@'.\nReason:\n%@\nStack trace:\n\n%@\n",
                                 exception.name, exception.reason, [stackTrace componentsJoinedByString:@"\n"]];
@@ -130,10 +130,10 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (NSString *)description
 {
   if (self.sourceURL != nil) {
-    NSString* source = [NSString stringWithContentsOfFile:[[NSURL URLWithString:self.sourceURL] path] encoding:NSUTF8StringEncoding error:NULL];
-    NSArray* lines = [sourceString componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-    NSString* line = [lines objectAtIndex:self.lineNo - 1];
-    NSString* linePointer = [@"" stringByPaddingToLength:self.column withString:@" " startingAtIndex:0];
+    NSString *source = [NSString stringWithContentsOfFile:[[NSURL URLWithString:self.sourceURL] path] encoding:NSUTF8StringEncoding error:NULL];
+    NSArray *lines = [source componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    NSString *line = [lines objectAtIndex:self.lineNo - 1];
+    NSString *linePointer = [@"" stringByPaddingToLength:self.column withString:@" " startingAtIndex:0];
 
     return [NSString stringWithFormat:@"/%@:%ld\n%@\n%@^\n%@\n%@", [self.sourceURL lastPathComponent], (long)self.lineNo, line, linePointer, self.message, self.backtrace];
   } else {

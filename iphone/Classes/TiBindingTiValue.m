@@ -57,24 +57,24 @@ NSDictionary *TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef 
     TiStringRef stackKeyRef = TiStringCreateWithUTF8CString("stack");
     TiValueRef messageRef = TiObjectGetProperty(jsContext, obj, messageKeyRef, NULL);
     TiValueRef stackRef = TiObjectGetProperty(jsContext, obj, stackKeyRef, NULL);
-      
+
     id message = TiBindingTiValueToNSObject(jsContext, messageRef);
     if (message && ![message isEqual:[NSNull null]]) {
-        [dict setObject:message forKey:@"message"];
+      [dict setObject:message forKey:@"message"];
     }
     TiStringRelease(messageKeyRef);
-      
+
     id stack = TiBindingTiValueToNSObject(jsContext, stackRef);
     if (stack && ![stack isEqual:[NSNull null]]) {
-        
-        // lets re-format the stack similar to node.js
-        stack = [stack stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"file://%@", [[NSBundle mainBundle] bundlePath]] withString:@"("];
-        stack = [stack stringByReplacingOccurrencesOfString:@"\n" withString:@")\n    at "];
-        stack = [stack stringByReplacingOccurrencesOfString:@"])" withString:@"]"];
-        stack = [stack stringByReplacingOccurrencesOfString:@"@(" withString:@"("];
-        stack = [NSString stringWithFormat:@"    at %@)", stack];
-        
-        [dict setObject:stack forKey:@"stack"];
+
+      // lets re-format the stack similar to node.js
+      stack = [stack stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"file://%@", [[NSBundle mainBundle] bundlePath]] withString:@"("];
+      stack = [stack stringByReplacingOccurrencesOfString:@"\n" withString:@")\n    at "];
+      stack = [stack stringByReplacingOccurrencesOfString:@"])" withString:@"]"];
+      stack = [stack stringByReplacingOccurrencesOfString:@"@(" withString:@"("];
+      stack = [NSString stringWithFormat:@"    at %@)", stack];
+
+      [dict setObject:stack forKey:@"stack"];
     }
     TiStringRelease(stackKeyRef);
   }
