@@ -1346,7 +1346,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
   if (address6) {
     theSocket6 = [self newAcceptSocketForAddress:address6 autoaccept:autoaccept error:errPtr];
 
-// Note: The iPhone doesn't currently support IPv6
+    // Note: The iPhone doesn't currently support IPv6
 
 #if !TARGET_OS_IPHONE
     if (theSocket6 == NULL)
@@ -3620,7 +3620,7 @@ Failed:
     // The buffer is owned by the caller.
     // Only trim the buffer if we had to increase its size.
 
-    if ([theCurrentRead->buffer length] > theCurrentRead->originalBufferLength) {
+    if ([theCurrentRead->buffer length] > theCurrentRead -> originalBufferLength) {
       NSUInteger readSize = theCurrentRead->startOffset + theCurrentRead->bytesDone;
       NSUInteger origSize = theCurrentRead->originalBufferLength;
 

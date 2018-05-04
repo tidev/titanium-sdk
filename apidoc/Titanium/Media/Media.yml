@@ -133,11 +133,13 @@ methods:
 
         #### Android Platform Notes
 
-        To suppress the default controls, set `autohide` to `false` and then set the
+        * To suppress the default controls, set `autohide` to `false` and then set the
         `overlay` property to a view that contains a control (such as a button) to
         take the photo. You must then control the camera explicitly, using
         the [takePicture](Titanium.Media.takePicture) and [hideCamera](Titanium.Media.hideCamera)
         methods.
+        * Setting `saveToPhotoGallery` to `false` is not guaranteed to work with all camera apps. If this setting is desired, then you should use Titanium's internal camera overlay instead.
+        * You can only use one or the other (video or photo) types in the array.
 
         #### iOS Platform Notes
 
@@ -948,6 +950,7 @@ properties:
     osver: {ios: {min: "7.0"}}
     deprecated:
         since: "5.2.0"
+        removed: "7.0.0"
         notes: Use <Titanium.Media.CAMERA_AUTHORIZATION_UNKNOWN> instead.
   - name: CAMERA_AUTHORIZATION_UNKNOWN
     summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
@@ -1176,6 +1179,10 @@ properties:
     type: Number
     permission: read-only
   - name: VIDEO_CONTROL_DEFAULT
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Constant for default video controls.
     description: |
         Used in conjunction with the
@@ -1184,6 +1191,10 @@ properties:
     type: Number
     permission: read-only
   - name: VIDEO_CONTROL_EMBEDDED
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Constant for video controls for an embedded view.
     description: |
         Used in conjunction with the
@@ -1196,6 +1207,10 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_CONTROL_FULLSCREEN
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Constant for fullscreen video controls.
     description: |
         Used in conjunction with the
@@ -1265,17 +1280,30 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+  - name: VIDEO_LOAD_STATE_FAILED
+    summary: Indicates that the player can no longer play media items because of an error.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
   - name: VIDEO_LOAD_STATE_PLAYABLE
     summary: Current media is playable.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_LOAD_STATE_PLAYTHROUGH_OK
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Playback will be automatically started in this state when `autoplay` is true.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_LOAD_STATE_STALLED
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Playback will be automatically paused in this state, if started.
     type: Number
     permission: read-only
@@ -1286,16 +1314,28 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_MEDIA_TYPE_AUDIO
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: A audio type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_MEDIA_TYPE_NONE
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: An unknown type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_MEDIA_TYPE_VIDEO
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: A video type of media in the movie returned by <Titanium.Media.VideoPlayer> `mediaTypes` property.
     type: Number
     permission: read-only
@@ -1320,11 +1360,19 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: "7.0.0"
+        removed: "7.0.0"
+        notes: "This constant has been removed on iOS by using the official Apple AVPlayer that does not expose this functionality so far."
   - name: VIDEO_PLAYBACK_STATE_SEEKING_FORWARD
     summary: Video playback is seeking forward.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad]
+    deprecated:
+        since: "7.0.0"
+        removed: "7.0.0"
+        notes: "This constant has been removed on iOS by using the official Apple AVPlayer that does not expose this functionality so far."
   - name: VIDEO_PLAYBACK_STATE_STOPPED
     summary: Video playback is stopped.
     type: Number
@@ -1343,6 +1391,10 @@ properties:
     platforms: [android, iphone, ipad]
     since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
   - name: VIDEO_SCALING_ASPECT_FILL
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Scale video to fill the screen, clipping edges if necessary.
     description: |
         Video is scaled until the video fills the entire screen. Content at the edges
@@ -1352,6 +1404,10 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_SCALING_ASPECT_FIT
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Scale video to fit the screen, letterboxing if necessary.
     description: |
         Video is scaled until the larger dimension fits on the screen exactly. In the
@@ -1361,6 +1417,10 @@ properties:
     permission: read-only
 
   - name: VIDEO_SCALING_MODE_FILL
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Video is scaled until both dimensions fit the screen exactly, stretching if necessary.
     description: |
         The aspect ratio of the video is not preserved.
@@ -1368,23 +1428,57 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
   - name: VIDEO_SCALING_NONE
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Video scaling is disabled.
     type: Number
     permission: read-only
+  - name: VIDEO_SCALING_RESIZE
+    summary: Specifies that the video should be stretched to fill the bounds of layer.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "7.0.0"
+  - name: VIDEO_SCALING_RESIZE_ASPECT
+    summary: Specifies that the player should preserve the aspect ratio of video and fit the video within the bounds of layer.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "7.0.0"
+  - name: VIDEO_SCALING_RESIZE_ASPECT_FILL
+    summary: Specifies that the player should preserve the aspect ratio of video and fill the bounds of layer.
+    type: String
+    permission: read-only
+    platforms: [iphone, ipad]
+    since: "7.0.0"
 
   - name: VIDEO_SOURCE_TYPE_FILE
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Video source type is a file.
     description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_SOURCE_TYPE_STREAMING
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Video source type is a remote stream.
     description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: VIDEO_SOURCE_TYPE_UNKNOWN
+    deprecated:
+        since: "7.0.0"
+        notes: This property has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
+        removed: "7.0.0"
     summary: Video source type is unknown.
     description: Related to the `sourceType` property of <Titanium.Media.VideoPlayer>
     type: Number

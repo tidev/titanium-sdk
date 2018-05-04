@@ -145,7 +145,6 @@
       return;
     }
     result = [ourStore eventWithIdentifier:[TiUtils stringValue:arg]];
-
   },
       YES);
   if (result != NULL) {
@@ -184,6 +183,8 @@
   
   DEPRECATED_REPLACED(@"Calendar.getEventsInDate(date)", @"7.0.0", @"Calendar.getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
 
+  DEPRECATED_REPLACED(@"Calendar.getEventsInDate(date)", @"7.0.0", @"Calendar.getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
+
   NSDateComponents *comps = [[NSDateComponents alloc] init];
   NSTimeInterval secondsPerDay = 24 * 60 * 60;
 
@@ -216,7 +217,6 @@
   DEPRECATED_REPLACED(@"Calendar.getEventsInMonth(year, month)", @"7.0.0", @"Calendar.getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
 
   NSInteger month = [TiUtils intValue:[args objectAtIndex:1]];
-
   NSDateComponents *comps = [[NSDateComponents alloc] init];
 
   [comps setDay:1];

@@ -36,21 +36,20 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 
 	private boolean libLoaded = false;
 
-	private HashMap<String, Class<? extends KrollExternalModule>> externalModules = new HashMap<String, Class<? extends KrollExternalModule>>();
-	private static HashMap<String, KrollSourceCodeProvider>
-		externalCommonJsModules = new HashMap<String, KrollSourceCodeProvider>();
+	private HashMap<String, Class<? extends KrollExternalModule>> externalModules =
+		new HashMap<String, Class<? extends KrollExternalModule>>();
+	private static HashMap<String, KrollSourceCodeProvider> externalCommonJsModules =
+		new HashMap<String, KrollSourceCodeProvider>();
 
 	private ArrayList<String> loadedLibs = new ArrayList<String>();
 	private AtomicBoolean shouldGC = new AtomicBoolean(false);
 	private long lastV8Idle;
 
-	public static boolean isEmulator() {
-		return "goldfish".equals(Build.HARDWARE)
-			|| Build.FINGERPRINT.startsWith("generic")
-			|| Build.FINGERPRINT.startsWith("unknown")
-			|| Build.MODEL.contains("google_sdk")
-			|| Build.MODEL.contains("Emulator")
-			|| Build.MODEL.contains("Android SDK built for x86")
+	public static boolean isEmulator()
+	{
+		return "goldfish".equals(Build.HARDWARE) || Build.FINGERPRINT.startsWith("generic")
+			|| Build.FINGERPRINT.startsWith("unknown") || Build.MODEL.contains("google_sdk")
+			|| Build.MODEL.contains("Emulator") || Build.MODEL.contains("Android SDK built for x86")
 			|| Build.MANUFACTURER.contains("Genymotion")
 			|| (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
 			|| "google_sdk".equals(Build.PRODUCT);
@@ -59,24 +58,16 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	@Override
 	public void initRuntime()
 	{
-		boolean useGlobalRefs = true;
+		boolean useGlobalRefs = false;
 		KrollApplication application = getKrollApplication();
 		TiDeployData deployData = application.getDeployData();
-
-		if (isEmulator()) {
-			Log.d(TAG, "Emulator detected, storing global references in a global Map", Log.DEBUG_MODE);
-			useGlobalRefs = false;
-		}
 
 		if (!libLoaded) {
 			System.loadLibrary("c++_shared");
 			System.loadLibrary("kroll-v8");
 
 			// TIMOB-16810 Add a delay to allow symbols to load before calling nativeInit (For HTC One Devices)
-			List<String> devices = Arrays.asList(
-					"htc one",
-					"optimus l5"
-					);
+			List<String> devices = Arrays.asList("htc one", "optimus l5");
 			for (String model : devices) {
 				if (Build.MODEL.toLowerCase(Locale.ENGLISH).contains(model)) {
 					try {
@@ -170,7 +161,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private void loadExternalCommonJsModules()
 	{
 		for (String moduleName : externalCommonJsModules.keySet()) {
-			nativeAddExternalCommonJsModule(moduleName,externalCommonJsModules.get(moduleName));
+			nativeAddExternalCommonJsModule(moduleName, externalCommonJsModules.get(moduleName));
 		}
 	}
 
@@ -238,9 +229,14 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 
 	// JNI method prototypes
 	private native void nativeInit(boolean useGlobalRefs, JSDebugger jsDebugger, boolean DBG, boolean profilerEnabled);
+
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
+
 	private native Object nativeEvalString(String source, String filename);
+
 	private native boolean nativeIdle();
+
 	private native void nativeDispose();
+
 	private native void nativeAddExternalCommonJsModule(String moduleName, KrollSourceCodeProvider sourceProvider);
 }

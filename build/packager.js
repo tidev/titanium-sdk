@@ -1,17 +1,17 @@
 'use strict';
 
-const path = require('path'),
-	os = require('os'),
-	exec = require('child_process').exec, // eslint-disable-line security/detect-child-process
-	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
-	async = require('async'),
-	fs = require('fs-extra'),
-	utils = require('./utils'),
-	copyFile = utils.copyFile,
-	copyFiles = utils.copyFiles,
-	downloadURL = utils.downloadURL,
-	ROOT_DIR = path.join(__dirname, '..'),
-	SUPPORT_DIR = path.join(ROOT_DIR, 'support');
+const path = require('path');
+const os = require('os');
+const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
+const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
+const async = require('async');
+const fs = require('fs-extra');
+const utils = require('./utils');
+const copyFile = utils.copyFile;
+const copyFiles = utils.copyFiles;
+const downloadURL = utils.downloadURL;
+const ROOT_DIR = path.join(__dirname, '..');
+const SUPPORT_DIR = path.join(ROOT_DIR, 'support');
 
 /**
  * Given a folder we'd like to zip up and the destination filename, this will zip up the directory contents.
@@ -94,9 +94,9 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 	this.timestamp = '' + (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + (date.getUTCFullYear()) + ' ' + leftpad(date.getUTCHours(), 2, '0') + ':' + leftpad(date.getUTCMinutes(), 2, '0');
 	this.zipFile = path.join(this.outputDir, 'mobilesdk-' + this.versionTag + '-' + this.targetOS + '.zip');
 	this.packagers = {
-		'android': this.zipAndroid.bind(this),
-		'ios': this.zipIOS.bind(this),
-		'windows': this.zipWindows.bind(this)
+		android: this.zipAndroid.bind(this),
+		ios: this.zipIOS.bind(this),
+		windows: this.zipWindows.bind(this)
 	};
 	// Location where we build up the zip file contents
 	this.zipDir = path.join(this.outputDir, 'ziptmp');
@@ -189,21 +189,25 @@ Packager.prototype.includePackagedModules = function (next) {
 	// that will download the all-in-one distribution.
 	supportedPlatforms = supportedPlatforms.concat([ 'hyperloop' ]);
 
-	let urls = []; // urls of module zips to grab
+	let modules = []; // module objects holding url/integrity
 	// Read modules.json, grab the object for each supportedPlatform
 	const contents = fs.readFileSync(path.join(SUPPORT_DIR, 'module', 'packaged', 'modules.json')).toString(),
 		modulesJSON = JSON.parse(contents);
 	for (let x = 0; x < supportedPlatforms.length; x++) {
-		const newModuleURLS = modulesJSON[supportedPlatforms[x]];
-		urls = urls.concat(newModuleURLS || []);
+		const modulesForPlatform = modulesJSON[supportedPlatforms[x]];
+		if (modulesForPlatform) {
+			modules = modules.concat(Object.values(modulesForPlatform));
+		}
 	}
+	// remove duplicates
+	modules = Array.from(new Set(modules));
 
 	// Fetch the listed modules from URLs...
 	const outDir = this.zipDir,
 		zipFiles = [];
-	async.each(urls, function (url, cb) {
+	async.each(modules, function (moduleObject, cb) {
 		// FIXME Don't show progress bars, because they clobber each other
-		downloadURL(url, function (err, file) {
+		downloadURL(moduleObject.url, moduleObject.integrity, function (err, file) {
 			if (err) {
 				return cb(err);
 			}

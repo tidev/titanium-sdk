@@ -7,7 +7,6 @@
 #ifdef USE_TI_UTILS
 
 #import "UtilsModule.h"
-#import "Base64Transcoder.h"
 #import "TiBlob.h"
 #import "TiFile.h"
 #import "TiUtils.h"
@@ -22,8 +21,21 @@
     return arg;
   } else if ([arg isKindOfClass:[TiBlob class]]) {
     return [(TiBlob *)arg text];
+  } else if ([arg isKindOfClass:[TiFile class]]) {
+    return [(TiBlob *)[(TiFile *)arg blob] text];
   }
-  THROW_INVALID_ARG(@"invalid type");
+  THROW_INVALID_ARG(@"Invalid type");
+}
+
+- (NSData *)convertToData:(id)arg
+{
+  if ([arg isKindOfClass:[TiBlob class]]) {
+    return [(TiBlob *)arg data];
+  } else if ([arg isKindOfClass:[TiFile class]]) {
+    // Support TiFile with possibly binary data by converting to TiBlob and recursing
+    return [self convertToData:[(TiFile *)arg blob]];
+  }
+  return [[self convertToString:arg] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (NSString *)apiName
@@ -36,27 +48,14 @@
 - (TiBlob *)base64encode:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSObject);
-  const char *data;
-  size_t len;
-
-  if ([args isKindOfClass:[TiBlob class]]) {
-    NSData *blobData = [(TiBlob *)args data];
-    data = (char *)[blobData bytes];
-    len = [blobData length];
-  } else {
-    NSString *str = [self convertToString:args];
-    data = (char *)[str UTF8String];
-    len = [str length];
+  NSData *data = [self convertToData:args];
+  NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
+  if (base64Encoded != nil) {
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext]
+                                         andData:[base64Encoded dataUsingEncoding:NSUTF8StringEncoding]
+                                        mimetype:@"application/octet-stream"] autorelease];
   }
 
-  char *base64Result;
-  size_t theResultLength;
-  bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
-  if (result) {
-    NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-    free(base64Result);
-    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:theData mimetype:@"application/octet-stream"] autorelease];
-  }
   return nil;
 }
 
@@ -64,29 +63,15 @@
 {
   ENSURE_SINGLE_ARG(args, NSObject);
 
-  NSString *str = [self convertToString:args];
+  NSString *str = [[self convertToString:args] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+  int padding = (4 - (str.length % 4)) % 4;
+  NSString *paddedStr = [NSString stringWithFormat:@"%s%.*s", [str UTF8String], padding, "=="];
+  NSData *decodedData = [[[NSData alloc] initWithBase64EncodedString:paddedStr options:0] autorelease];
 
-  const char *data = [str UTF8String];
-  size_t len = [str length];
-
-  size_t outsize = TI_EstimateBas64DecodedDataSize(len);
-  char *base64Result = NULL;
-  if (len > 0) {
-    base64Result = malloc(sizeof(char) * outsize);
+  if (decodedData != nil) {
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:decodedData mimetype:@"application/octet-stream"] autorelease];
   }
 
-  if (base64Result == NULL) {
-    return nil;
-  }
-
-  size_t theResultLength = outsize;
-  bool result = TI_Base64DecodeData(data, len, base64Result, &theResultLength);
-  if (result) {
-    NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-    free(base64Result);
-    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:theData mimetype:@"application/octet-stream"] autorelease];
-  }
-  free(base64Result);
   return nil;
 }
 
@@ -94,34 +79,29 @@
 {
   ENSURE_SINGLE_ARG(args, NSObject);
 
-  NSData *data = nil;
-  NSString *nstr = [self convertToString:args];
-  if (nstr) {
-    const char *s = [nstr UTF8String];
-    data = [NSData dataWithBytes:s length:strlen(s)];
-  } else if ([args respondsToSelector:@selector(data)]) {
-    data = [args data];
-  }
+  NSData *data = [self convertToData:args];
   return [TiUtils md5:data];
 }
 
 - (id)sha1:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSObject);
-  NSString *nstr = [self convertToString:args];
-  const char *cStr = [nstr UTF8String];
+
+  NSData *data = [self convertToData:args];
+
   unsigned char result[CC_SHA1_DIGEST_LENGTH];
-  CC_SHA1(cStr, (CC_LONG)[nstr lengthOfBytesUsingEncoding:NSUTF8StringEncoding], result);
+  CC_SHA1([data bytes], [data length], result);
   return [TiUtils convertToHex:(unsigned char *)&result length:CC_SHA1_DIGEST_LENGTH];
 }
 
 - (id)sha256:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSObject);
-  NSString *nstr = [self convertToString:args];
-  const char *cStr = [nstr UTF8String];
+
+  NSData *data = [self convertToData:args];
+
   unsigned char result[CC_SHA256_DIGEST_LENGTH];
-  CC_SHA256(cStr, (CC_LONG)[nstr lengthOfBytesUsingEncoding:NSUTF8StringEncoding], result);
+  CC_SHA256([data bytes], [data length], result);
   return [TiUtils convertToHex:(unsigned char *)&result length:CC_SHA256_DIGEST_LENGTH];
 }
 

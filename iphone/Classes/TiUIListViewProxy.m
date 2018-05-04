@@ -56,6 +56,16 @@
   [super windowWillClose];
 }
 
+- (void)gainFocus
+{
+  [[self listView] viewGetFocus];
+}
+
+- (void)resignFocus
+{
+  [[self listView] viewResignFocus];
+}
+
 - (void)dealloc
 {
   [_operationQueue release];
@@ -510,7 +520,7 @@
 
 - (NSMutableArray *)selectedItems
 {
-  NSMutableArray *result = [[NSMutableArray alloc] init];
+  NSMutableArray *result = [NSMutableArray array];
   NSArray *selectedRows = [[self.listView tableView] indexPathsForSelectedRows];
 
   if (selectedRows != nil) {
@@ -531,6 +541,7 @@
           [eventObject setObject:itemId forKey:@"itemId"];
         }
         [result addObject:eventObject];
+        [eventObject release];
       }
     },
         YES);

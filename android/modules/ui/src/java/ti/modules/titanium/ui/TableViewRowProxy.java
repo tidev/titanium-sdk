@@ -25,19 +25,20 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
 import android.os.Message;
-
-@Kroll.proxy(creatableInModule=UIModule.class,
-propertyAccessors = {
-	TiC.PROPERTY_HAS_CHECK,
-	TiC.PROPERTY_HAS_CHILD,
-	TiC.PROPERTY_CLASS_NAME,
-	TiC.PROPERTY_LAYOUT,
-	TiC.PROPERTY_LEFT_IMAGE,
-	TiC.PROPERTY_RIGHT_IMAGE,
-	TiC.PROPERTY_TITLE,
-	TiC.PROPERTY_HEADER,
-	TiC.PROPERTY_FOOTER
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_HAS_CHECK,
+		TiC.PROPERTY_HAS_CHILD,
+		TiC.PROPERTY_CLASS_NAME,
+		TiC.PROPERTY_LAYOUT,
+		TiC.PROPERTY_LEFT_IMAGE,
+		TiC.PROPERTY_RIGHT_IMAGE,
+		TiC.PROPERTY_TITLE,
+		TiC.PROPERTY_HEADER,
+		TiC.PROPERTY_FOOTER
 })
+// clang-format on
 public class TableViewRowProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewRowProxy";
@@ -125,7 +126,8 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	@Override
-	public void add(Object args) {
+	public void add(Object args)
+	{
 		if (args == null) {
 			Log.e(TAG, "Add called with a null child");
 			return;

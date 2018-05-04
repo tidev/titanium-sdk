@@ -73,6 +73,20 @@
 
 - (void)setSearchBar:(UISearchBar *)searchBar
 {
+  // We need to manually handle this property as it will be overwritten
+  // by the search controller otherwise (TIMOB-10368)
+  if ([self valueForKey:@"color"] != nil) {
+    UIView *searchContainerView = [[searchBar subviews] firstObject];
+    UIColor *color = [TiUtils colorValue:[self valueForKey:@"color"]].color;
+
+    [[searchContainerView subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+      if ([obj isKindOfClass:[UITextField class]]) {
+        [(UITextField *)obj setTextColor:color];
+        *stop = YES;
+      }
+    }];
+  }
+
   // In UISearchController searchbar is readonly. We have to replace that search bar with existing search bar of proxy.
   [(TiUISearchBar *)[self view] setSearchBar:searchBar];
 }
@@ -84,8 +98,8 @@
     UISearchBar *searchBar = [self searchBar];
     if ([searchBar superview] != view) {
       [view addSubview:searchBar];
-      [searchBar setFrame:[view bounds]];
     }
+    [searchBar setFrame:[view bounds]];
   }
 }
 
