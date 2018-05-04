@@ -67,7 +67,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)handleUncaughtException:(NSException *)exception
 {
-  [[TiApp app] showModalError:[[exception callStackSymbols] componentsJoinedByString:@"\n"]];
+  [[TiApp app] showModalError:[NSString stringWithFormat:@"%@\n    %@", exception.reason, [[exception callStackSymbols] componentsJoinedByString:@"\n    "]]];
 }
 
 - (void)handleScriptError:(TiScriptError *)error
@@ -170,8 +170,8 @@ static void TiUncaughtExceptionHandler(NSException *exception)
   }
 
   // exceptions on seperate threads can cause the application to terminate
-  // lets prevent that from happening for 30s
+  // if we let the thread continue
   if (![NSThread isMainThread]) {
-    [NSThread sleepForTimeInterval:30];
+    [NSThread exit];
   }
 }
