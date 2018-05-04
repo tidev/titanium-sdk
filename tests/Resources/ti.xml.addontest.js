@@ -10,8 +10,11 @@
 'use strict';
 var should = require('./utilities/assertions');
 
-describe('Titanium.API', function () {
-	it.android('TIMOB-25757', function () {
-		should.not.exist(Ti.API.bubbleParent);
+describe.windowsDesktopBroken('Titanium.XML', function () {
+	it.ios('parseString (invalid xml)', function () {
+		should(Ti.XML.parseString).be.a.Function;
+		should(function () {
+			var xml = Ti.XML.parseString('invalid XML');
+		}).throw();
 	});
 });
