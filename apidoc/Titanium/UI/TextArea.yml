@@ -368,7 +368,7 @@ properties:
 
   - name: lines
     summary: Number of lines tall the text area height will be, if set.
-    description: Sets the height of the text are by line height. Set to -1 to respect the view's height property instead.
+    description: Sets the height of the text area by line height. Set to -1 to respect the view's height property instead.
     default: 1
     type: Number
     since: {android: "7.2.0"}
