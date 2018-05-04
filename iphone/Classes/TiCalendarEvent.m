@@ -250,12 +250,12 @@
     NSLog(@"[ERROR] Please either provide a dictionary of arguments or a String identifier", NSStringFromClass([args class]));
     return nil;
   }
-  
+
   // New in 7.0.0: Handle a String argument as well
   if ([args isKindOfClass:[NSString class]]) {
     return [self _createRecurrenceRuleFromString:args];
   }
-  
+
   EKRecurrenceFrequency frequency = EKRecurrenceFrequencyDaily;
   NSInteger interval = 0;
   NSMutableArray *daysOfTheWeek = [[[NSMutableArray alloc] init] autorelease],
@@ -534,23 +534,22 @@
 
 #pragma mark Internal
 
-
 - (TiCalendarRecurrenceRule *)_createRecurrenceRuleFromString:(NSString *)rfc2445String
 {
   // The following code is copied from: https://github.com/jochenschoellig/RRULE-to-EKRecurrenceRule
   // Thanks to @jochenschoellig
-  
+
   // If the date formatter isn't already set up, create it and cache it for reuse.
   NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
   NSLocale *enUSPOSIXLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
-  
+
   [dateFormatter setLocale:enUSPOSIXLocale];
   [dateFormatter setDateFormat:@"yyyyMMdd'T'HHmmss'Z'"];
   [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-  
+
   // Begin parsing
   NSArray *components = [rfc2445String.uppercaseString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@";="]];
-  
+
   EKRecurrenceFrequency frequency = EKRecurrenceFrequencyDaily;
   NSInteger interval = 1;
   NSMutableArray *daysOfTheWeek = nil;
@@ -560,14 +559,14 @@
   NSMutableArray *weeksOfTheYear = nil;
   NSMutableArray *setPositions = nil;
   EKRecurrenceEnd *recurrenceEnd = nil;
-  
+
   for (int i = 0; i < components.count; i++) {
     NSString *component = [components objectAtIndex:i];
-    
+
     // Frequency
     if ([component isEqualToString:@"FREQ"]) {
       NSString *frequencyString = [components objectAtIndex:++i];
-      
+
       if ([frequencyString isEqualToString:@"DAILY"]) {
         frequency = EKRecurrenceFrequencyDaily;
       } else if ([frequencyString isEqualToString:@"WEEKLY"]) {
@@ -578,12 +577,12 @@
         frequency = EKRecurrenceFrequencyYearly;
       }
     }
-    
+
     // Interval
     if ([component isEqualToString:@"INTERVAL"]) {
       interval = [[components objectAtIndex:++i] intValue];
     }
-    
+
     // Days of the week
     if ([component isEqualToString:@"BYDAY"]) {
       daysOfTheWeek = [NSMutableArray array];
@@ -591,7 +590,7 @@
       for (NSString *dayString in dayStrings) {
         NSInteger dayOfWeek = 0;
         NSInteger weekNumber = 0;
-        
+
         // Parse the day of the week
         if ([dayString rangeOfString:@"SU"].location != NSNotFound) {
           dayOfWeek = EKSunday;
@@ -611,11 +610,11 @@
 
         // Parse the week number
         weekNumber = [[dayString substringToIndex:dayString.length - 2] intValue];
-        
+
         [daysOfTheWeek addObject:[EKRecurrenceDayOfWeek dayOfWeek:dayOfWeek weekNumber:weekNumber]];
       }
     }
-    
+
     // Days of the month
     if ([component isEqualToString:@"BYMONTHDAY"]) {
       daysOfTheMonth = [NSMutableArray array];
@@ -624,7 +623,7 @@
         [daysOfTheMonth addObject:[NSNumber numberWithInt:dayString.intValue]];
       }
     }
-    
+
     // Months of the year
     if ([component isEqualToString:@"BYMONTH"]) {
       monthsOfTheYear = [NSMutableArray array];
@@ -633,7 +632,7 @@
         [monthsOfTheYear addObject:[NSNumber numberWithInt:monthString.intValue]];
       }
     }
-    
+
     // Weeks of the year
     if ([component isEqualToString:@"BYWEEKNO"]) {
       weeksOfTheYear = [NSMutableArray array];
@@ -642,7 +641,7 @@
         [weeksOfTheYear addObject:[NSNumber numberWithInt:weekString.intValue]];
       }
     }
-    
+
     // Days of the year
     if ([component isEqualToString:@"BYYEARDAY"]) {
       daysOfTheYear = [NSMutableArray array];
@@ -651,7 +650,7 @@
         [daysOfTheYear addObject:[NSNumber numberWithInt:dayString.intValue]];
       }
     }
-    
+
     // Set positions
     if ([component isEqualToString:@"BYSETPOS"]) {
       setPositions = [NSMutableArray array];
@@ -660,7 +659,7 @@
         [setPositions addObject:[NSNumber numberWithInt:potitionString.intValue]];
       }
     }
-    
+
     // RecurrenceEnd
     if ([component isEqualToString:@"COUNT"]) {
       NSUInteger occurenceCount = [[components objectAtIndex:++i] intValue];
@@ -670,7 +669,7 @@
       recurrenceEnd = [EKRecurrenceEnd recurrenceEndWithEndDate:endDate];
     }
   }
-  
+
   EKRecurrenceRule *rule = [[EKRecurrenceRule alloc] initRecurrenceWithFrequency:frequency
                                                                         interval:interval
                                                                    daysOfTheWeek:daysOfTheWeek
@@ -686,7 +685,7 @@
                 location:CODELOCATION];
     return nil;
   }
-  
+
   TiCalendarRecurrenceRule *recurrenceRule = [[[TiCalendarRecurrenceRule alloc] _initWithPageContext:[self executionContext] rule:rule] autorelease];
   return recurrenceRule;
 }

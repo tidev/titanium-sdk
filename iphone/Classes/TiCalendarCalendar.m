@@ -180,7 +180,7 @@
 - (NSArray *)getEventsInDate:(id)arg
 {
   ENSURE_ARG_COUNT(arg, 3);
-  
+
   DEPRECATED_REPLACED(@"Calendar.getEventsInDate(date)", @"7.0.0", @"Calendar.getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
 
   DEPRECATED_REPLACED(@"Calendar.getEventsInDate(date)", @"7.0.0", @"Calendar.getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
