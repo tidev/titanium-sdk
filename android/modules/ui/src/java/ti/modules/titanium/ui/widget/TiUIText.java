@@ -89,6 +89,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	private int maxLength = -1;
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
+	private int viewHeightInLines;
+	private int maxLines = Integer.MAX_VALUE;
 
 	protected TiUIEditText tv;
 	protected TextInputLayout textInputLayout;
@@ -250,14 +252,36 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		if (d.containsKey(TiC.PROPERTY_LINES)) {
-			if (!field) tv.setLines(TiConvert.toInt(d, TiC.PROPERTY_LINES));
+			if (!field) {
+				this.viewHeightInLines = TiConvert.toInt(d.get(TiC.PROPERTY_LINES), 0);
+				updateTextField();
+			}
 		}
 
 		if (d.containsKey(TiC.PROPERTY_MAX_LINES)) {
-			if (!field) tv.setMaxLines(TiConvert.toInt(d, TiC.PROPERTY_MAX_LINES));
+			if (!field) {
+				int value = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LINES), Integer.MAX_VALUE);
+				if (value < 1) {
+					value = Integer.MAX_VALUE;
+				}
+				this.maxLines = value;
+				updateTextField();
+			}
 		}
 
 		disableChangeEvent = false;
+	}
+
+	private void updateTextField()
+	{
+		if (!field) {
+			if (this.viewHeightInLines > 0) {
+				tv.setLines(this.viewHeightInLines);
+			} else {
+				tv.setMinLines(0);
+			}
+			tv.setMaxLines((this.maxLines > 0) ? this.maxLines : 1);
+		}
 	}
 
 	private void setTextPadding(HashMap<String, Object> d)
@@ -377,9 +401,19 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
 			}
 		} else if (key.equals(TiC.PROPERTY_LINES)) {
-			if (!field) tv.setLines(TiConvert.toInt(newValue));
+			if (!field) {
+				this.viewHeightInLines = TiConvert.toInt(newValue, 0);
+				updateTextField();
+			}
 		} else if (key.equals(TiC.PROPERTY_MAX_LINES)) {
-			if (!field) tv.setMaxLines(TiConvert.toInt(newValue));
+			if (!field) {
+				int value = TiConvert.toInt(newValue, Integer.MAX_VALUE);
+				if (value < 1) {
+					value = Integer.MAX_VALUE;
+				}
+				this.maxLines = value;
+				updateTextField();
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

@@ -60,7 +60,7 @@ public class TextAreaProxy extends TiViewProxy
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_VALUE, "");
-		defaultValues.put(TiC.PROPERTY_LINES, 1);
+		defaultValues.put(TiC.PROPERTY_LINES, -1);
 		defaultValues.put(TiC.PROPERTY_MAX_LINES, -1);
 		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
 		defaultValues.put(TiC.PROPERTY_FULLSCREEN, true);

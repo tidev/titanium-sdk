@@ -367,8 +367,8 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: lines
-    summary: Line count of text field input.
-    description: Sets the initial size of lines that the field will have at start.
+    summary: Number of lines tall the text area height will be, if set.
+    description: Sets the height of the text are by line height. Set to -1 to respect the view's height property instead.
     default: 1
     type: Number
     since: {android: "7.2.0"}
