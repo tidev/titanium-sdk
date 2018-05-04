@@ -66,7 +66,7 @@
  * @param exception An original NSException object
  * @param stackTrace An array of strings containing stack trace description
  */
-- (void)handleUncaughtException:(NSException *)exception withStackTrace:(NSArray *)stackTrace;
+- (void)handleUncaughtException:(NSException *)exception;
 - (void)handleScriptError:(TiScriptError *)error;
 
 @end

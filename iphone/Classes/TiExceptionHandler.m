@@ -30,8 +30,9 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
   return defaultExceptionHandler;
 }
 
-- (void)reportException:(NSException *)exception withStackTrace:(NSArray *)stackTrace
+- (void)reportException:(NSException *)exception
 {
+  NSArray* stackTrace = [exception callStackSymbols];
   NSString *message = [NSString stringWithFormat:
                                     @"[ERROR] The application has crashed with an uncaught exception '%@'.\nReason:\n%@\nStack trace:\n\n%@\n",
                                 exception.name, exception.reason, [stackTrace componentsJoinedByString:@"\n"]];
@@ -40,7 +41,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
   if (currentDelegate == nil) {
     currentDelegate = self;
   }
-  [currentDelegate handleUncaughtException:exception withStackTrace:stackTrace];
+  [currentDelegate handleUncaughtException:exception];
 }
 
 - (void)reportScriptError:(TiScriptError *)scriptError
@@ -64,8 +65,9 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 #pragma mark - TiExceptionHandlerDelegate
 
-- (void)handleUncaughtException:(NSException *)exception withStackTrace:(NSArray *)stackTrace
+- (void)handleUncaughtException:(NSException *)exception
 {
+  [[TiApp app] showModalError:[[exception callStackSymbols] componentsJoinedByString:@"\n"]];
 }
 
 - (void)handleScriptError:(TiScriptError *)error
@@ -160,28 +162,16 @@ static void TiUncaughtExceptionHandler(NSException *exception)
   }
   insideException = YES;
 
-  NSArray *callStackArray = [exception callStackReturnAddresses];
-  int frameCount = (int)[callStackArray count];
-  void *backtraceFrames[frameCount];
-
-  for (int i = 0; i < frameCount; ++i) {
-    backtraceFrames[i] = (void *)[[callStackArray objectAtIndex:i] unsignedIntegerValue];
-  }
-  char **frameStrings = backtrace_symbols(&backtraceFrames[0], frameCount);
-
-  NSMutableArray *stack = [[NSMutableArray alloc] initWithCapacity:frameCount];
-  if (frameStrings != NULL) {
-    for (int i = 0; (i < frameCount) && (frameStrings[i] != NULL); ++i) {
-      [stack addObject:[NSString stringWithCString:frameStrings[i] encoding:NSASCIIStringEncoding]];
-    }
-    free(frameStrings);
-  }
-
-  [[TiExceptionHandler defaultExceptionHandler] reportException:exception withStackTrace:[[stack copy] autorelease]];
-  [stack release];
+  [[TiExceptionHandler defaultExceptionHandler] reportException:exception];
 
   insideException = NO;
   if (prevUncaughtExceptionHandler != NULL) {
     prevUncaughtExceptionHandler(exception);
+  }
+
+  // exceptions on seperate threads can cause the application to terminate
+  // lets prevent that from happening for 30s
+  if (![NSThread isMainThread]) {
+    [NSThread sleepForTimeInterval:30];
   }
 }
