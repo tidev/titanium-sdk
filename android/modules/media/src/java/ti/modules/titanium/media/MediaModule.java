@@ -1361,6 +1361,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.method
 	public void previewImage(KrollDict options)
 	{
+		Log.d(TAG, "openPhotoGallery called", Log.DEBUG_MODE);
+
 		Activity activity = TiApplication.getAppCurrentActivity();
 		if (activity == null) {
 			Log.w(TAG, "Unable to get current activity for previewImage.", Log.DEBUG_MODE);
@@ -1368,53 +1370,81 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 
 		KrollFunction successCallback = null;
-		KrollFunction errorCallback = null;
-		TiBlob image = null;
-
 		if (options.containsKey(TiC.PROPERTY_SUCCESS)) {
 			successCallback = (KrollFunction) options.get(TiC.PROPERTY_SUCCESS);
 		}
+		final KrollFunction fSuccessCallback = successCallback;
+
+		KrollFunction errorCallback = null;
 		if (options.containsKey(TiC.EVENT_ERROR)) {
 			errorCallback = (KrollFunction) options.get(TiC.EVENT_ERROR);
 		}
-		if (options.containsKey(TiC.PROPERTY_IMAGE)) {
-			image = (TiBlob) options.get(TiC.PROPERTY_IMAGE);
-		}
+		final KrollFunction fErrorCallback = errorCallback;
 
-		if (image == null) {
-			if (errorCallback != null) {
-				errorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, "Missing image property"));
+		TiBlob imageBlob = null;
+		if (options.containsKey(TiC.PROPERTY_IMAGE)) {
+			String errorMessage = null;
+			Object value = options.get(TiC.PROPERTY_IMAGE);
+			if (value instanceof TiBlob) {
+				imageBlob = (TiBlob) value;
+			} else if (value != null) {
+				errorMessage = "The image property must be of type blob";
+			} else {
+				errorMessage = "Missing image property";
+			}
+			if (errorMessage != null) {
+				Log.w(TAG, errorMessage);
+				if (errorCallback != null) {
+					errorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, errorMessage));
+				}
+				return;
 			}
 		}
 
-		final KrollFunction fSuccessCallback = successCallback;
-		final KrollFunction fErrorCallback = errorCallback;
-
-		Log.d(TAG, "openPhotoGallery called", Log.DEBUG_MODE);
-
-		TiActivitySupport activitySupport = (TiActivitySupport) activity;
+		Uri imageUri = null;
+		if (imageBlob.getType() == TiBlob.TYPE_FILE) {
+			TiFileProxy fileProxy = imageBlob.getFile();
+			if (fileProxy != null) {
+				File file = fileProxy.getBaseFile().getNativeFile();
+				if (file != null) {
+					imageUri = TiFileProvider.createUriFrom(file);
+				} else {
+					String path = fileProxy.getNativePath();
+					if ((path != null) && path.startsWith("content:")) {
+						imageUri = Uri.parse(path);
+					}
+				}
+			}
+		}
+		if (imageUri == null) {
+			try (InputStream stream = imageBlob.getInputStream()) {
+				imageUri = TiFileProvider.createUriFrom(
+					TiFileHelper.getInstance().getTempFileFromInputStream(stream, null, true));
+			} catch (Exception ex) {
+			}
+		}
+		if (imageUri == null) {
+			String errorMessage = "Failed to create URI from given 'image' blob";
+			Log.w(TAG, errorMessage);
+			if (errorCallback != null) {
+				errorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, errorMessage));
+			}
+			return;
+		}
 
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		TiIntentWrapper previewIntent = new TiIntentWrapper(intent);
-		String mimeType = image.getMimeType();
-		Uri imageUri = null;
-
-		if (image.getNativePath() == null) {
-			imageUri = TiFileProvider.createUriFrom(
-				TiFileHelper.getInstance().getTempFileFromInputStream(image.getInputStream(), null, true));
-		} else {
-			imageUri = TiFileProvider.createUriFrom(image.getFile().getBaseFile().getNativeFile());
-		}
-
-		if (mimeType != null && mimeType.length() > 0) {
-			intent.setDataAndType(imageUri, mimeType);
-		} else {
+		String mimeType = imageBlob.getMimeType();
+		if ((mimeType == null) || mimeType.isEmpty()) {
 			intent.setData(imageUri);
+		} else {
+			intent.setDataAndType(imageUri, mimeType);
 		}
 
+		TiIntentWrapper previewIntent = new TiIntentWrapper(intent);
 		previewIntent.setWindowId(TiIntentWrapper.createActivityName("PREVIEW"));
 
+		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 		final int code = activitySupport.getUniqueResultCode();
 		activitySupport.launchActivityForResult(intent, code, new TiActivityResultHandler() {
 			public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
@@ -1422,7 +1452,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				if (requestCode != code) {
 					return;
 				}
-				Log.e(TAG, "OnResult called: " + resultCode);
+				Log.i(TAG, "OnResult called: " + resultCode);
 				if (fSuccessCallback != null) {
 					KrollDict response = new KrollDict();
 					response.putCodeAndMessage(NO_ERROR, null);
