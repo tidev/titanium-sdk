@@ -309,7 +309,7 @@ public class DrawerLayoutProxy extends TiViewProxy
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-	public HashMap getDrawerLockMode() 
+	public HashMap getDrawerLockMode()
 	// clang-format on
 	{
 		HashMap<String, Object> options = new HashMap<String, Object>(2);
@@ -317,7 +317,8 @@ public class DrawerLayoutProxy extends TiViewProxy
 		options.put(TiC.PROPERTY_GRAVITY, GRAVITY_BOTH);
 		if (hasProperty(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
 			if (getProperty(TiC.PROPERTY_DRAWER_LOCK_MODE) instanceof HashMap) {
-				HashMap<String, Object> drawerParams = (HashMap<String, Object>) getProperty(TiC.PROPERTY_DRAWER_LOCK_MODE);
+				HashMap<String, Object> drawerParams =
+					(HashMap<String, Object>) getProperty(TiC.PROPERTY_DRAWER_LOCK_MODE);
 				options.put(TiC.PROPERTY_LOCK_MODE, (Integer) drawerParams.get(TiC.PROPERTY_LOCK_MODE));
 				options.put(TiC.PROPERTY_GRAVITY, (Integer) drawerParams.get(TiC.PROPERTY_GRAVITY));
 			} else {

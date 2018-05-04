@@ -559,7 +559,8 @@ public class TiUIDrawerLayout extends TiUIView
 		}
 	}
 
-	private void setDrawerLockMode(Object param){
+	private void setDrawerLockMode(Object param)
+	{
 		// reset first
 		layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 		if (param instanceof HashMap) {
@@ -569,7 +570,8 @@ public class TiUIDrawerLayout extends TiUIView
 				layout.setDrawerLockMode(drawerParams.getInt(TiC.PROPERTY_LOCK_MODE));
 			} else {
 				// set value for custom gravity
-				layout.setDrawerLockMode(drawerParams.getInt(TiC.PROPERTY_LOCK_MODE), drawerParams.getInt(TiC.PROPERTY_GRAVITY));
+				layout.setDrawerLockMode(drawerParams.getInt(TiC.PROPERTY_LOCK_MODE),
+										 drawerParams.getInt(TiC.PROPERTY_GRAVITY));
 			}
 		} else {
 			layout.setDrawerLockMode(TiConvert.toInt(param));
