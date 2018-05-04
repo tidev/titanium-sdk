@@ -1417,6 +1417,7 @@ public class TiAnimationBuilder
 
 	private void setAnchor(int width, int height, float thisAnchorX, float thisAnchorY)
 	{
+		final float EPSILON = Math.ulp(1.0f);
 		float pivotX = 0, pivotY = 0;
 
 		if (thisAnchorX != Ti2DMatrix.DEFAULT_ANCHOR_VALUE) {
@@ -1429,11 +1430,11 @@ public class TiAnimationBuilder
 
 		// Passing 0 as both X and Y parameters for a view's pivot point
 		// results in setting the point in the view's center for APIs 16
-		// to 19. This is why we add one for both paramters if this is the
+		// to 19. This is why we add EPSILON for both parameters if this is the
 		// case.
 		if (PRE_LOLLIPOP && thisAnchorX == 0 && thisAnchorY == 0) {
-			pivotX++;
-			pivotY++;
+			pivotX += EPSILON;
+			pivotY += EPSILON;
 		}
 
 		setViewPivotHC(pivotX, pivotY);
