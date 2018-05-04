@@ -91,11 +91,6 @@ describe('Titanium.Media.VideoPlayer', function () {
 		should(player.endPlaybackTime).be.a.Number;
 	});
 
-	it.ios('moviePlayerStatus', function () {
-		var player = Ti.Media.createVideoPlayer();
-		should(player).have.readOnlyProperty('moviePlayerStatus').which.is.a.Number;
-	});
-
 	it.ios('showsControls', function () {
 		var player = Ti.Media.createVideoPlayer();
 		should(player).have.readOnlyProperty('showsControls').which.is.a.Number;
