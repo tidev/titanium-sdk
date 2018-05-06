@@ -713,7 +713,7 @@ public class TiHTTPClient
 	public String getResponseHeader(String getHeaderName)
 	{
 		String result = "";
-		if (!responseHeaders.isEmpty()) {
+		if (responseHeaders != null && !responseHeaders.isEmpty()) {
 			boolean firstPass = true;
 			StringBuilder sb = new StringBuilder(256);
 			Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
