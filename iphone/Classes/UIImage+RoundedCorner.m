@@ -40,19 +40,21 @@
 
   CGFloat scale = MAX(image.scale, 1.0f);
   NSUInteger scaledBorderSize = borderSize * scale;
+  CGFloat scaledWidth = image.size.width * scale;
+  CGFloat scaledHeight = image.size.height * scale;
 
-  // Build a context that's the same dimensions as the new size
+  // Build a context that's the same dimensions as the new size (width + double border, height + double border)
   CGContextRef context = CGBitmapContextCreate(NULL,
-      image.size.width * scale,
-      image.size.height * scale,
+      scaledWidth + 2 * scaledBorderSize,
+      scaledHeight + 2 * scaledBorderSize,
       CGImageGetBitsPerComponent(image.CGImage),
       0,
       CGImageGetColorSpace(image.CGImage),
       CGImageGetBitmapInfo(image.CGImage));
 
-  // Create a clipping path with rounded cornersq
+  // Create a clipping path with rounded corners
   CGContextBeginPath(context);
-  [self addRoundedRectToPath:CGRectMake(scaledBorderSize, scaledBorderSize, image.size.width * scale - borderSize * 2, image.size.height * scale - borderSize * 2)
+  [self addRoundedRectToPath:CGRectMake(scaledBorderSize, scaledBorderSize, scaledWidth, scaledHeight)
                      context:context
                    ovalWidth:cornerSize * scale
                   ovalHeight:cornerSize * scale];
@@ -60,7 +62,7 @@
   CGContextClip(context);
 
   // Draw the image to the context; the clipping path will make anything outside the rounded rect transparent
-  CGContextDrawImage(context, CGRectMake(0, 0, image.size.width * scale, image.size.height * scale), image.CGImage);
+  CGContextDrawImage(context, CGRectMake(scaledBorderSize, scaledBorderSize, scaledWidth, scaledHeight), image.CGImage);
 
   // Create a CGImage from the context
   CGImageRef clippedImage = CGBitmapContextCreateImage(context);
