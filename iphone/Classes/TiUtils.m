@@ -18,6 +18,7 @@
 #import "TiHost.h"
 #import "TiPoint.h"
 #import "TiProxy.h"
+#import "TiUIView.h"
 #import "TiUtils.h"
 #import "WebFont.h"
 
@@ -1392,6 +1393,11 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
   [view setBounds:newBounds];
   [view setCenter:newCenter];
+}
+
++ (void)applyConstraintToView:(TiUIView *)view forProxy:(TiViewProxy *)proxy withBounds:(CGRect)bounds
+{
+  ApplyConstraintToViewWithBounds([proxy layoutProperties], view, bounds);
 }
 
 + (CGRect)viewPositionRect:(UIView *)view
