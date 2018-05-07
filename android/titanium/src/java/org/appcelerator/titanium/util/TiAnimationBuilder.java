@@ -21,6 +21,7 @@ import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.Ti2DMatrix.Operation;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiBackgroundColorWrapper;
+import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
