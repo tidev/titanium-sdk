@@ -20,7 +20,7 @@
 // which causes CGBitmapContextCreate calls to return NULL
 // see https://github.com/kean/Nuke/issues/35
 // (or set environmnet variable CGBITMAP_CONTEXT_LOG_ERRORS to '1' to have table of valid combinatiosn spit out)
-+ (UIImage *) normalize:(UIImage *)image
++ (UIImage *)normalize:(UIImage *)image
 {
   CGFloat scale = MAX(image.scale, 1.0f);
   CGSize size = CGSizeMake(round(image.size.width * scale), round(image.size.height * scale));

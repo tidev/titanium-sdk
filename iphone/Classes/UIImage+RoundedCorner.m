@@ -3,8 +3,8 @@
 // Free for personal or commercial use, with or without modification.
 // No warranty is expressed or implied.
 
-#import "UIImage+RoundedCorner.h"
 #import "UIImage+Alpha.h"
+#import "UIImage+RoundedCorner.h"
 
 @implementation UIImageRoundedCorner
 
@@ -38,7 +38,7 @@
   // If the image does not have an alpha layer, add one
   UIImage *image = [UIImageAlpha imageWithAlpha:image_];
 
-  CGFloat scale = MAX(image.scale,1.0f);
+  CGFloat scale = MAX(image.scale, 1.0f);
   NSUInteger scaledBorderSize = borderSize * scale;
 
   // Build a context that's the same dimensions as the new size
@@ -54,8 +54,8 @@
   CGContextBeginPath(context);
   [self addRoundedRectToPath:CGRectMake(scaledBorderSize, scaledBorderSize, image.size.width * scale - borderSize * 2, image.size.height * scale - borderSize * 2)
                      context:context
-                   ovalWidth:cornerSize*scale
-                  ovalHeight:cornerSize*scale];
+                   ovalWidth:cornerSize * scale
+                  ovalHeight:cornerSize * scale];
   CGContextClosePath(context);
   CGContextClip(context);
 
