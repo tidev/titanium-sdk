@@ -480,6 +480,20 @@ public class TiBlob extends KrollProxy
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
+	public int getSize()
+	// clang-format on
+	{
+		// if it's an image, return number of pixels (width * height)
+		if (width != 0) {
+			return width * height;
+		}
+		// Return number of bytes!
+		return getLength();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getHeight()
 	// clang-format on
 	{

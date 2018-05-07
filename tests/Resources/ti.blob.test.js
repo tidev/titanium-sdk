@@ -120,6 +120,7 @@ describe.only('Titanium.Blob', function () {
 			var blob = Ti.Filesystem.getFile('app.js').read();
 			should(blob.size).be.a.Number;
 			should(blob.size).be.above(0);
+			should(blob.size).be.eql(blob.length); // size and length should be the same for non-images
 			// TODO Test that it's read-only
 		});
 
@@ -127,12 +128,11 @@ describe.only('Titanium.Blob', function () {
 		it.windowsBroken('returns pixel count for image (PNG)', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
 			should(blob.size).be.a.Number;
-			should(blob.size).be.eql(22500); // 150 * 150 (width * height)
+			should(blob.size).equal(blob.width * blob.height);
 			// TODO Test that it's read-only
 		});
 	});
 
-	// FIXME Get working for iOS - I think app thinning is getting rid of Logo.png
 	describe('.width', function () {
 		it('returns pixel count for PNG', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
@@ -149,7 +149,6 @@ describe.only('Titanium.Blob', function () {
 		});
 	});
 
-	// FIXME Get working for iOS - I think app thinning is getting rid of Logo.png
 	describe('.height', function () {
 		it('returns pixel count for PNG', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
@@ -176,7 +175,31 @@ describe.only('Titanium.Blob', function () {
 
 	// TODO Test file property is null for non-file backed Blobs!
 
-	// FIXME Get working for iOS - I think app thinning is getting rid of Logo.png
+	describe.windowsMissing('#imageAsCompressed()', function () {
+		it('is a Function', function () {
+			var blob = Ti.Filesystem.getFile('Logo.png').read();
+			should(blob.imageAsCompressed).be.a.Function;
+		});
+
+		it('with PNG', function () {
+			var blob = Ti.Filesystem.getFile('Logo.png').read();
+			var b = blob.imageAsCompressed(0.5);
+			should(b).be.an.Object;
+			// width and height should remain the same
+			should(b.width).be.eql(blob.width);
+			should(b.height).be.eql(blob.height);
+			// Ideally, the byte size should drop - though that's not guranteed!
+			// should(b.length).be.below(blob.length);
+			// becomes a JPEG, so I guess we could test mimeType?
+		});
+
+		it('with non-image (JS file) returns null', function () {
+			var blob = Ti.Filesystem.getFile('app.js').read();
+			var b = blob.imageAsCompressed(0.5);
+			should(b).not.exist;
+		});
+	});
+
 	describe('#imageAsCropped()', function () {
 		it('is a Function', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
@@ -198,10 +221,10 @@ describe.only('Titanium.Blob', function () {
 		});
 	});
 
-	// FIXME Get working for iOS - I think app thinning is getting rid of Logo.png
 	describe('#imageAsResized()', function () {
 		it('is a Function', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
+			should(blob.imageAsResized).be.a.Function;
 		});
 
 		it('with PNG', function () {
@@ -227,8 +250,9 @@ describe.only('Titanium.Blob', function () {
 
 		it('with PNG', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
-			var b = blob.imageAsThumbnail(50);
+			var b = blob.imageAsThumbnail(50); // FIXME How does it determine if you mean width or height here? Should test with a non-square image!
 			should(b).be.an.Object;
+			// Does this mean by default the image should grow by 2 pixels height and width? Or that the expected width/height should include the border?
 			should(b.width).be.eql(50); // FIXME iOS gives 52! iOS assumes default border of 1 pixel! What about Android?
 			should(b.height).be.eql(50);
 		});
@@ -240,7 +264,6 @@ describe.only('Titanium.Blob', function () {
 		});
 	});
 
-	// FIXME Get working for iOS - I think app thinning is getting rid of Logo.png
 	describe('#imageWithAlpha()', function () {
 		it('is a Function', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
@@ -263,7 +286,6 @@ describe.only('Titanium.Blob', function () {
 		});
 	});
 
-	// FIXME Get working for iOS - I think app thinning is getting rid of Logo.png
 	describe('#imageWithRoundedCorner()', function () {
 		it('is a Function', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
@@ -275,7 +297,11 @@ describe.only('Titanium.Blob', function () {
 			var cornerSize = 4;
 			var b = blob.imageWithRoundedCorner(cornerSize);
 			should(b).be.an.Object;
-			// FIXME Should this stay the same size?
+			// iOS retains the same size, but rounds the corners and does the transparent border (so stays 150px)
+			// FIXME Android grows the image by 2 pixels width and height for a default border of 1px.
+			// Loking at the generated image, I see a 1 px transparent border around the image
+			// Which is right?
+			// #imageWithTransparentBorder increases the size by 2 * border on both platforms
 			should(b.width).be.eql(blob.width);
 			should(b.height).be.eql(blob.height);
 		});
@@ -287,7 +313,6 @@ describe.only('Titanium.Blob', function () {
 		});
 	});
 
-	// FIXME Get working for iOS - I think app thinning is getting rid of Logo.png
 	describe('#imageWithTransparentBorder()', function () {
 		it('is a Function', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
