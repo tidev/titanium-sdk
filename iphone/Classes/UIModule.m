@@ -504,7 +504,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_COLOR, AttributeNameUnderlineColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
 MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
-MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak); // deprecated
 
 - (NSNumber *)ATTRIBUTE_UNDERLINE_STYLE_NONE
 {
@@ -593,6 +593,26 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 - (NSNumber *)ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE
 {
   return NUMINTEGER(NSLineBreakByTruncatingMiddle);
+}
+- (NSNumber *)ATTRIBUTE_TEXT_ALIGNMENT_LEFT
+{
+  return NUMINTEGER(NSTextAlignmentLeft);
+}
+- (NSNumber *)ATTRIBUTE_TEXT_ALIGNMENT_RIGHT
+{
+  return NUMINTEGER(NSTextAlignmentRight);
+}
+- (NSNumber *)ATTRIBUTE_TEXT_ALIGNMENT_CENTER
+{
+  return NUMINTEGER(NSTextAlignmentCenter);
+}
+- (NSNumber *)ATTRIBUTE_TEXT_ALIGNMENT_JUSTIFIED
+{
+  return NUMINTEGER(NSTextAlignmentJustified);
+}
+- (NSNumber *)ATTRIBUTE_TEXT_ALIGNMENT_NATURAL
+{
+  return NUMINTEGER(NSTextAlignmentNatural);
 }
 #endif
 
