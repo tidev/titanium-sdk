@@ -8,8 +8,7 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+var should = require('./utilities/assertions');
 
 describe.only('Titanium.Blob', function () {
 	var win;
@@ -50,17 +49,18 @@ describe.only('Titanium.Blob', function () {
 				// should(blob.getText()).equal(null); // FIXME 'blob.getText is not a function' on iOS
 				// should(blob.text).equal(null); // FIXME this is undefined on iOS, docs say it should be null
 				should(blob.text).not.exist;
-				Ti.API.info(blob.width);
+
 				should(blob.width).be.a.Number; // FIXME Undefined on iOS
 				should(blob.width).be.above(0); // 0 on Windows
+
 				should(blob.height).be.a.Number;
 				should(blob.height).be.above(0);
+
 				should(blob.length).be.a.Number;
-				// FIXME Parity issue, no size property on Android
-				if (!utilities.isAndroid()) {
-					should(blob.size).be.a.Number;
-					should(blob.size).equal(blob.width * blob.height);
-				}
+
+				should(blob.size).be.a.Number;
+				should(blob.size).equal(blob.width * blob.height);
+
 				finish();
 			});
 		});
@@ -191,6 +191,7 @@ describe.only('Titanium.Blob', function () {
 			// Ideally, the byte size should drop - though that's not guranteed!
 			// should(b.length).be.below(blob.length);
 			// becomes a JPEG, so I guess we could test mimeType?
+			should(b.mimeType).be.eql('image/jpeg');
 		});
 
 		it('with non-image (JS file) returns null', function () {
@@ -248,13 +249,15 @@ describe.only('Titanium.Blob', function () {
 			should(blob.imageAsThumbnail).be.a.Function;
 		});
 
-		it('with PNG', function () {
+		it('with PNG generates an image with desired size plus a default 1px border around that', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
-			var b = blob.imageAsThumbnail(50); // FIXME How does it determine if you mean width or height here? Should test with a non-square image!
+			var thumbnailSize = 50;
+			var b = blob.imageAsThumbnail(thumbnailSize);
+			var borderSize = 1; // defaults to a border of 1 when unspecified
 			should(b).be.an.Object;
-			// Does this mean by default the image should grow by 2 pixels height and width? Or that the expected width/height should include the border?
-			should(b.width).be.eql(50); // FIXME iOS gives 52! iOS assumes default border of 1 pixel! What about Android?
-			should(b.height).be.eql(50);
+			// iOS and Android apply border around the image, so full size is thumbnailSize + 2*border
+			should(b.width).be.eql(thumbnailSize + (2 * borderSize));
+			should(b.height).be.eql(thumbnailSize + (2 * borderSize));
 		});
 
 		it('with non-image (JS file) returns null', function () {
@@ -292,18 +295,14 @@ describe.only('Titanium.Blob', function () {
 			should(blob.imageWithRoundedCorner).be.a.Function;
 		});
 
-		it('with PNG', function () {
+		it('with PNG generates rounded corner image with an additional default border of 1', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
 			var cornerSize = 4;
+			var borderSize = 1; // defaults to 1 when unspecified
 			var b = blob.imageWithRoundedCorner(cornerSize);
 			should(b).be.an.Object;
-			// iOS retains the same size, but rounds the corners and does the transparent border (so stays 150px)
-			// FIXME Android grows the image by 2 pixels width and height for a default border of 1px.
-			// Loking at the generated image, I see a 1 px transparent border around the image
-			// Which is right?
-			// #imageWithTransparentBorder increases the size by 2 * border on both platforms
-			should(b.width).be.eql(blob.width);
-			should(b.height).be.eql(blob.height);
+			should(b.width).be.eql(blob.width + (2 * borderSize));
+			should(b.height).be.eql(blob.height + (2 * borderSize));
 		});
 
 		it('with non-image (JS file) returns null', function () {
@@ -319,13 +318,13 @@ describe.only('Titanium.Blob', function () {
 			should(blob.imageWithTransparentBorder).be.a.Function;
 		});
 
-		it('with PNG', function () {
+		it('with PNG adds border around original image', function () {
 			var blob = Ti.Filesystem.getFile('Logo.png').read();
 			var borderSize = 5;
 			var b = blob.imageWithTransparentBorder(borderSize);
 			should(b).be.an.Object;
-			should(b.width).be.eql(blob.width + (borderSize * 2)); // border on each side
-			should(b.height).be.eql(blob.height + (borderSize * 2)); // border on top+bottom
+			should(b.width).be.eql(blob.width + (2 * borderSize)); // border on each side
+			should(b.height).be.eql(blob.height + (2 * borderSize)); // border on top+bottom
 		});
 
 		it('with non-image (JS file) returns null', function () {

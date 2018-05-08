@@ -848,9 +848,9 @@ public class TiBlob extends KrollProxy
 
 		int thumbnailSize = size.intValue();
 
-		float border = 1f;
+		int border = 1;
 		if (borderSize != null) {
-			border = borderSize.floatValue();
+			border = borderSize.intValue();
 		}
 		float radius = 0f;
 		if (cornerRadius != null) {
@@ -860,7 +860,7 @@ public class TiBlob extends KrollProxy
 		String nativePath = getNativePath();
 		String key = null;
 		if (nativePath != null) {
-			key = getNativePath() + "_imageAsThumbnail_" + rotation + "_" + thumbnailSize + "_" + Float.toString(border)
+			key = getNativePath() + "_imageAsThumbnail_" + rotation + "_" + thumbnailSize + "_" + Integer.toString(border)
 				  + "_" + Float.toString(radius);
 			Bitmap bitmap = mMemoryCache.get(key);
 			if (bitmap != null) {
@@ -880,8 +880,16 @@ public class TiBlob extends KrollProxy
 				img = null;
 			}
 
-			if (border == 0 && radius == 0) {
-				imageFinal = imageThumbnail;
+			if (radius == 0) {
+				if (border == 0) {
+					imageFinal = imageThumbnail;
+				} else {
+					imageFinal = TiImageHelper.imageWithTransparentBorder(imageThumbnail, border);
+					if (imageThumbnail != image && imageThumbnail != imageFinal) {
+						imageThumbnail.recycle();
+						imageThumbnail = null;
+					}
+				}
 			} else {
 				imageFinal = TiImageHelper.imageWithRoundedCorner(imageThumbnail, radius, border);
 				if (imageThumbnail != image && imageThumbnail != imageFinal) {
@@ -891,6 +899,7 @@ public class TiBlob extends KrollProxy
 			}
 
 			if (rotation != 0) {
+				Log.w(TAG, "Rotating: " + rotation);
 				imageFinal = TiImageHelper.rotateImage(imageFinal, rotation);
 			}
 			if (key != null) {
