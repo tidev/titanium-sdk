@@ -75,7 +75,7 @@ describe('Titanium.Blob', function () {
 		// TODO Test that it's read-only
 	});
 
-	describe.only('#append()', function () {
+	describe('#append()', function () {
 		it('is a Function', function () {
 			var blob = Ti.Filesystem.getFile('app.js').read();
 			should(blob.append).be.a.Function;
@@ -83,7 +83,8 @@ describe('Titanium.Blob', function () {
 
 		it('appends two files together', function () {
 			var appJsBlob = Ti.Filesystem.getFile('app.js').read();
-			var thisFile = Ti.Filesystem.getFile(__filename).read();
+			// FIXME Use __filename? That returns '/ti.blob.test.js' on iOS, which getFile doesn't handle correctly
+			var thisFile = Ti.Filesystem.getFile('ti.blob.test.js').read();
 			var originalLength = appJsBlob.length;
 			var originalText = appJsBlob.text;
 			var thisFileText = thisFile.text;
