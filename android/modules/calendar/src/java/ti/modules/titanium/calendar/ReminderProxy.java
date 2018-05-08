@@ -18,8 +18,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
-@Kroll.proxy(parentModule=CalendarModule.class)
-public class ReminderProxy extends KrollProxy {
+@Kroll.proxy(parentModule = CalendarModule.class)
+public class ReminderProxy extends KrollProxy
+{
 
 	public static final int METHOD_DEFAULT = 0;
 	public static final int METHOD_ALERT = 1;
@@ -49,7 +50,7 @@ public class ReminderProxy extends KrollProxy {
 		Uri uri = Uri.parse(getRemindersUri());
 
 		Cursor reminderCursor = contentResolver.query(uri, new String[] { "_id", "minutes", "method" }, "event_id = ?",
-			new String[] { event.getId() }, null);
+													  new String[] { event.getId() }, null);
 
 		while (reminderCursor.moveToNext()) {
 			ReminderProxy reminder = new ReminderProxy();
@@ -78,8 +79,10 @@ public class ReminderProxy extends KrollProxy {
 		eventValues.put("event_id", event.getId());
 
 		Uri reminderUri = contentResolver.insert(Uri.parse(getRemindersUri()), eventValues);
-		Log.d("TiEvents", "created reminder with uri: " + reminderUri + ", minutes: " + minutes + ", method: " + method
-			+ ", event_id: " + event.getId(), Log.DEBUG_MODE);
+		Log.d("TiEvents",
+			  "created reminder with uri: " + reminderUri + ", minutes: " + minutes + ", method: " + method
+				  + ", event_id: " + event.getId(),
+			  Log.DEBUG_MODE);
 
 		String eventId = reminderUri.getLastPathSegment();
 		ReminderProxy reminder = new ReminderProxy();
@@ -90,20 +93,29 @@ public class ReminderProxy extends KrollProxy {
 		return reminder;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getId()
+	// clang-format on
 	{
 		return id;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getMinutes()
+	// clang-format on
 	{
 		return minutes;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getMethod()
+	// clang-format on
 	{
 		return method;
 	}

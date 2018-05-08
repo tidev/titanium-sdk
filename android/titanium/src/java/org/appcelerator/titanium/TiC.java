@@ -21,17 +21,15 @@ public class TiC
 	public static final int PERMISSION_CODE_CAMERA = 101;
 	public static final int PERMISSION_CODE_CONTACTS = 102;
 	public static final int PERMISSION_CODE_EXTERNAL_STORAGE = 103;
-	public static final int PERMISSION_CODE_LOCATION= 104;
+	public static final int PERMISSION_CODE_LOCATION = 104;
 	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
 	public static final int PERMISSION_CODE_MICROPHONE = 106;
-
 
 	public static final String PERMISSION_CALENDAR = "calendar";
 	public static final String PERMISSION_CAMERA = "camera";
 	public static final String PERMISSION_CONTACTS = "contacts";
 	public static final String PERMISSION_EXTERNAL_STORAGE = "externalstorage";
 	public static final String PERMISSION_LOCATION = "location";
-
 
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
@@ -379,6 +377,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_REASON = "reason";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_RECURRENCE_RULES = "recurrenceRules";
 
 	/**
 	 * @module.api
@@ -959,12 +962,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_FEEDBACK = "touchFeedback";
-	
+
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -1093,7 +1096,37 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_MONTH = "daysOfTheMonth";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_WEEK = "daysOfTheWeek";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_YEAR = "daysOfTheYear";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_ID = "calendarID";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_MONTHS_OF_THE_YEAR = "monthsOfTheYear";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CALENDAR_VIEW_SHOWN = "calendarViewShown";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_WEEKS_OF_THE_YEAR = "weeksOfTheYear";
 
 	/**
 	 * @module.api
@@ -1323,6 +1356,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DAY_BEFORE_MONTH = "dayBeforeMonth";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DECODE_RETRIES = "decodeRetries";
 
 	/**
@@ -1463,6 +1501,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_END = "end";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_END_PLAYBACK_TIME = "endPlaybackTime";
 
 	/**
@@ -1525,7 +1568,6 @@ public class TiC
 	 */
 	public static final String PROPERTY_FLAGS = "flags";
 
-
 	/**
 	 * @module.api
 	 */
@@ -1570,7 +1612,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONT_SIZE = "font-size";
-		
+
 	/**
 	 * @module.api
 	 */
@@ -1712,7 +1754,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HINT_TEXT = "hintText";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -1768,7 +1810,6 @@ public class TiC
 	 */
 	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
 
-
 	/**
 	 * @module.api
 	 */
@@ -1818,6 +1859,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_INTENT = "intent";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_INTERVAL = "interval";
 
 	/**
 	 * @module.api
@@ -1967,6 +2013,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LOCALE = "locale";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOCATION = "location";
 
 	/**
@@ -2087,12 +2138,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MIN_AGE = "minAge";
-	
+
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -2107,7 +2158,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MINIMUM_FONT_SIZE = "minimumFontSize";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -2162,6 +2213,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NUMBER = "number";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NUMERIC_MONTHS = "numericMonths";
 
 	/**
 	 * @module.api
@@ -2713,6 +2769,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHOWS_CONTROLS = "showsControls";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR = "showHorizontalScrollIndicator";
 
 	/**
@@ -2849,7 +2910,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SUMMARY_TEXT = "summaryText";
-	
+
 	/**
 	 @module.api
 	 */
@@ -2997,6 +3058,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TOOLBAR = "toolbar";
 
 	/**
 	 * @module.api
@@ -3210,7 +3276,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_X_ABSOLUTE = "absoluteX";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_Y = "y";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_Y_ABSOLUTE = "absoluteY";
 
 	/**
 	 * @module.api
@@ -3241,6 +3317,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CUSTOM = "custom";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CUSTOM_VIEW = "customView";
 
 	/**
 	 * @module.api

@@ -23,11 +23,13 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIScrollableView;
 import android.app.Activity;
 import android.os.Message;
-
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
-	TiC.PROPERTY_SHOW_PAGING_CONTROL,
-	TiC.PROPERTY_OVER_SCROLL_MODE
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_SHOW_PAGING_CONTROL,
+		TiC.PROPERTY_OVER_SCROLL_MODE
 })
+// clang-format on
 public class ScrollableViewProxy extends TiViewProxy
 {
 	private static final String TAG = "TiScrollableView";
@@ -72,7 +74,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		boolean handled = false;
 
-		switch(msg.what) {
+		switch (msg.what) {
 			case MSG_HIDE_PAGER:
 				getView().hidePager();
 				handled = true;
@@ -114,7 +116,8 @@ public class ScrollableViewProxy extends TiViewProxy
 					getView().addView((TiViewProxy) view);
 					handled = true;
 				} else if (view != null) {
-					Log.w(TAG, "addView() ignored. Expected a Titanium view object, got " + view.getClass().getSimpleName());
+					Log.w(TAG,
+						  "addView() ignored. Expected a Titanium view object, got " + view.getClass().getSimpleName());
 				}
 				holder.setResult(null);
 				break;
@@ -126,9 +129,10 @@ public class ScrollableViewProxy extends TiViewProxy
 				if (arg instanceof TiViewProxy || arg instanceof Object[]) {
 					getView().insertViewsAt(insertIndex, arg);
 					handled = true;
-				}
-				else if (arg != null) {
-					Log.w(TAG, "insertViewsAt() ignored. Expected a Titanium view object or a Titanium views array, got " + arg.getClass().getSimpleName());
+				} else if (arg != null) {
+					Log.w(TAG,
+						  "insertViewsAt() ignored. Expected a Titanium view object or a Titanium views array, got "
+							  + arg.getClass().getSimpleName());
 				}
 				holder.setResult(null);
 				break;
@@ -140,7 +144,8 @@ public class ScrollableViewProxy extends TiViewProxy
 					getView().removeView((TiViewProxy) view);
 					handled = true;
 				} else if (view != null) {
-					Log.w(TAG, "removeView() ignored. Expected a Titanium view object, got " + view.getClass().getSimpleName());
+					Log.w(TAG, "removeView() ignored. Expected a Titanium view object, got "
+								   + view.getClass().getSimpleName());
 				}
 				holder.setResult(null);
 				break;
@@ -157,15 +162,21 @@ public class ScrollableViewProxy extends TiViewProxy
 		return handled;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public Object getViews()
+	// clang-format on
 	{
 		List<TiViewProxy> list = new ArrayList<TiViewProxy>();
 		return getView().getViews().toArray(new TiViewProxy[list.size()]);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setViews(Object viewsObject)
+	// clang-format on
 	{
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_VIEWS), viewsObject);
 	}
@@ -179,7 +190,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void insertViewsAt(int insertIndex, Object viewObject)
 	{
-		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_INSERT_VIEWS_AT, insertIndex, 0), viewObject);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_INSERT_VIEWS_AT, insertIndex, 0),
+											viewObject);
 	}
 
 	@Kroll.method
@@ -191,7 +203,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void scrollToView(Object view)
 	{
-		if (inScroll.get()) return;
+		if (inScroll.get())
+			return;
 
 		getMainHandler().obtainMessage(MSG_SCROLL_TO, view).sendToTarget();
 	}
@@ -199,7 +212,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void movePrevious()
 	{
-		if (inScroll.get()) return;
+		if (inScroll.get())
+			return;
 
 		getMainHandler().removeMessages(MSG_MOVE_PREV);
 		getMainHandler().sendEmptyMessage(MSG_MOVE_PREV);
@@ -208,7 +222,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void moveNext()
 	{
-		if (inScroll.get()) return;
+		if (inScroll.get())
+			return;
 
 		getMainHandler().removeMessages(MSG_MOVE_NEXT);
 		getMainHandler().sendEmptyMessage(MSG_MOVE_NEXT);
@@ -229,7 +244,8 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 	}
 
-	public void fireDragEnd(int currentPage, TiViewProxy currentView) {
+	public void fireDragEnd(int currentPage, TiViewProxy currentView)
+	{
 		if (hasListeners(TiC.EVENT_DRAGEND)) {
 			KrollDict options = new KrollDict();
 			options.put("view", currentView);
@@ -273,26 +289,38 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setScrollingEnabled(Object enabled)
+	// clang-format on
 	{
 		getMainHandler().obtainMessage(MSG_SET_ENABLED, enabled).sendToTarget();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean getScrollingEnabled()
+	// clang-format on
 	{
 		return getView().getEnabled();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getCurrentPage()
+	// clang-format on
 	{
 		return getView().getCurrentPage();
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setCurrentPage(Object page)
+	// clang-format on
 	{
 		//getView().setCurrentPage(page);
 		getMainHandler().obtainMessage(MSG_SET_CURRENT, page).sendToTarget();

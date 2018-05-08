@@ -6,7 +6,9 @@ const path = require('path'),
 	glob = require('glob'),
 	appc = require('node-appc'),
 	request = require('request'),
-	temp = require('temp'),
+	os = require('os'),
+	ssri = require('ssri'),
+	tempDir = os.tmpdir(),
 	util = require('util'),
 	Utils = {};
 
@@ -54,20 +56,16 @@ Utils.copyAndModifyFiles = function (srcFolder, destFolder, files, substitutions
 	}, next);
 };
 
-Utils.downloadURL = function (url, callback) {
+function download(url, destination, callback) {
 	console.log('Downloading %s', url);
 
-	const tempName = temp.path({ suffix: '.gz' }),
-		tempDir = path.dirname(tempName);
-	fs.existsSync(tempDir) || fs.mkdirsSync(tempDir);
-
-	const tempStream = fs.createWriteStream(tempName),
-		req = request({ url: url });
+	const tempStream = fs.createWriteStream(destination);
+	const req = request({ url: url });
 
 	req.pipe(tempStream);
 
 	req.on('error', function (err) {
-		fs.existsSync(tempName) && fs.unlinkSync(tempName);
+		fs.existsSync(destination) && fs.unlinkSync(destination);
 		console.log();
 		console.error('Failed to download: %s', err.toString());
 		callback(err);
@@ -99,7 +97,7 @@ Utils.downloadURL = function (url, callback) {
 					bar.tick(total);
 					console.log('\n');
 				}
-				callback(null, tempName);
+				callback(null, destination);
 			});
 		} else {
 			// we don't know how big the file is, display a spinner
@@ -109,10 +107,73 @@ Utils.downloadURL = function (url, callback) {
 			tempStream.on('close', function () {
 				busy && busy.stop();
 				console.log();
-				callback(null, tempName);
+				callback(null, destination);
 			});
 		}
 	});
+}
+
+function downloadWithIntegrity(url, downloadPath, integrity, callback) {
+	download(url, downloadPath, function (err, file) {
+		if (err) {
+			return callback(err);
+		}
+		// Verify integrity!
+		ssri.checkStream(fs.createReadStream(file), integrity).then(() => {
+			callback(null, file);
+		}).catch((e) => {
+			callback(e);
+		});
+	});
+}
+
+function cachedDownloadPath(url) {
+	// Use some consistent name so we can cache files!
+	const cacheDir = path.join(tempDir, 'timob-build');
+	fs.existsSync(cacheDir) || fs.mkdirsSync(cacheDir);
+
+	const filename = url.slice(url.lastIndexOf('/') + 1);
+	// Place to download file
+	return path.join(cacheDir, filename);
+}
+
+Utils.generateSSRIHashFromURL = function (url, callback) {
+	const downloadPath = cachedDownloadPath(url);
+	fs.removeSync(downloadPath);
+	download(url, downloadPath, function (err, file) {
+		if (err) {
+			return callback(err);
+		}
+		// Generate integrity hash!
+		ssri.fromStream(fs.createReadStream(file)).then(integrity => {
+			callback(null, integrity.toString());
+		}).catch(e => {
+			callback(e);
+		});
+	});
+};
+
+Utils.downloadURL = function downloadURL(url, integrity, callback) {
+	const downloadPath = cachedDownloadPath(url);
+
+	if (!integrity) {
+		return callback(new Error('No "integrity" value given for %s, may need to run "node scons.js modules-integrity" to generate new module listing with updated integrity hashes.', url));
+	}
+	// Check if file already exists and passes integrity check!
+	if (fs.existsSync(downloadPath)) {
+		// if it passes integrity check, we're all good, return path to file
+		ssri.checkStream(fs.createReadStream(downloadPath), integrity).then(() => {
+			// cached copy is still valid, integrity hash matches
+			callback(null, downloadPath);
+		}).catch(() => {
+			// hash doesn't match. Wipe the cached version and re-download
+			fs.removeSync(downloadPath);
+			downloadWithIntegrity(url, downloadPath, integrity, callback);
+		});
+	} else {
+		// download and verify integrity
+		downloadWithIntegrity(url, downloadPath, integrity, callback);
+	}
 };
 
 module.exports = Utils;

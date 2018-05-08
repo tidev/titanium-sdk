@@ -154,7 +154,7 @@ function exportExamples(api) {
 				code = code.replace(/<p>/g, '').replace(/<\/p>/g, '');
 				code = '<pre><code>' + code + '</code></pre>';
 			}
-			rv.push({ 'description': example.title, 'code': code });
+			rv.push({ description: example.title, code: code });
 		});
 	}
 	return rv;
@@ -222,7 +222,7 @@ function exportReturnTypes(api) {
 			rv.push(x);
 		});
 	} else {
-		rv.push({ 'type': 'void' });
+		rv.push({ type: 'void' });
 	}
 	if (rv.length === 1) {
 		return rv[0];
@@ -239,9 +239,9 @@ function exportPlatforms(api) {
 	const rv = [];
 	for (const platform in api.since) {
 		rv.push({
-			'pretty_name': common.PRETTY_PLATFORM[platform],
-			'since': api.since[platform],
-			'name': platform
+			pretty_name: common.PRETTY_PLATFORM[platform],
+			since: api.since[platform],
+			name: platform
 		});
 	}
 	return rv;
@@ -334,7 +334,7 @@ exports.exportData = function exportJSON(apis) {
 			events: exportAPIs(cls, 'events'),
 			examples: exportExamples(cls),
 			methods: exportAPIs(cls, 'methods'),
-			'extends': cls['extends'] || 'Object',
+			extends: cls['extends'] || 'Object',
 			properties: exportAPIs(cls, 'properties'),
 			description: exportDescription(cls),
 			platforms: exportPlatforms(cls),
