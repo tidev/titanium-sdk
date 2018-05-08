@@ -10,13 +10,12 @@ description: |
 extends: Titanium.Proxy
 since: "7.1.0"
 methods:
-
   - name: show
-    description: Allow the shortcut to show.
+    summary: Allow the shortcut to show.
     platforms: [android, iphone, ipad]
 
   - name: hide
-    description: Hide the shortcut.
+    summary: Hide the shortcut.
     platforms: [android, iphone, ipad]
 
 properties:

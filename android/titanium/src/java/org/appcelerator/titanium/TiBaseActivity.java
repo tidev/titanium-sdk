@@ -1334,7 +1334,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		// handle shortcut intents
 		Intent intent = getIntent();
-		String shortcutId = intent.hasExtra(TiC.EVENT_PROPERTY_SHORTCUT) ? intent.getStringExtra(TiC.EVENT_PROPERTY_SHORTCUT) : null;
+		String shortcutId =
+			intent.hasExtra(TiC.EVENT_PROPERTY_SHORTCUT) ? intent.getStringExtra(TiC.EVENT_PROPERTY_SHORTCUT) : null;
 		if (shortcutId != null) {
 			KrollModule appModule = TiApplication.getInstance().getModuleByName("App");
 			if (appModule != null) {

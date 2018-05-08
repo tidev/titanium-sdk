@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule = UIModule.class)
 public class ShortcutItemProxy extends KrollProxy
 {
 	private static final String TAG = "ShortcutItemProxy";
@@ -62,7 +62,7 @@ public class ShortcutItemProxy extends KrollProxy
 			Log.e(TAG, "id is required to create a shortcut!");
 			return;
 		}
-		
+
 		// create shortcut intent
 		Intent intent = new Intent(TiApplication.getAppRootOrCurrentActivity().getIntent());
 		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -79,7 +79,7 @@ public class ShortcutItemProxy extends KrollProxy
 		if (dict.containsKey(TiC.PROPERTY_ICON)) {
 			Object icon = dict.get(TiC.PROPERTY_ICON);
 			if (icon instanceof Number) {
-				int resId = ((Number)icon).intValue();
+				int resId = ((Number) icon).intValue();
 				shortcutBuilder.setIcon(Icon.createWithResource(context, resId));
 			} else if (icon instanceof String) {
 				String uri = resolveUrl(null, dict.getString(TiC.PROPERTY_ICON));

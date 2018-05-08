@@ -79,7 +79,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		TiRootActivity rootActivity = tiApp.getRootActivity();
 
 		if (intent != null) {
-			
+
 			// remove 'singleTop' flag and reset window stack count
 			if ((intent.getFlags() & Intent.FLAG_ACTIVITY_SINGLE_TOP) == Intent.FLAG_ACTIVITY_SINGLE_TOP) {
 				intent.setFlags(intent.getFlags() & ~Intent.FLAG_ACTIVITY_SINGLE_TOP);
