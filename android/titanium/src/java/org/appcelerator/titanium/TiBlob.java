@@ -860,8 +860,8 @@ public class TiBlob extends KrollProxy
 		String nativePath = getNativePath();
 		String key = null;
 		if (nativePath != null) {
-			key = getNativePath() + "_imageAsThumbnail_" + rotation + "_" + thumbnailSize + "_" + Integer.toString(border)
-				  + "_" + Float.toString(radius);
+			key = getNativePath() + "_imageAsThumbnail_" + rotation + "_" + thumbnailSize + "_"
+				  + Integer.toString(border) + "_" + Float.toString(radius);
 			Bitmap bitmap = mMemoryCache.get(key);
 			if (bitmap != null) {
 				if (!bitmap.isRecycled()) {
