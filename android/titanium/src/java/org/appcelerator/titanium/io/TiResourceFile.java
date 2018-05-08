@@ -269,32 +269,21 @@ public class TiResourceFile extends TiBaseFile
 
 	private void fetchStats()
 	{
-		InputStream is = null;
-		try {
-			is = getInputStream();
+		if (KrollAssetHelper.assetExists(TiFileHelper2.getResourcesPath(path))) {
 			this.typeDir = false;
 			this.typeFile = true;
 			this.exists = true;
-		} catch (IOException e) {
-			this.typeFile = false; // definitely not a file
-			// getInputStream() will throw a FileNotFoundException if it is a
-			// directory. We check if there are directory listings. If there is,
-			// we can assume it is a directory and it exists.
+		} else {
+			this.typeFile = false;
+
 			if (!getDirectoryListing().isEmpty()) {
 				this.typeDir = true;
 				this.exists = true;
+
+			// does not exist; neither file or directory
 			} else {
-				// doesn't exist so neither file nor directory
 				this.typeDir = false;
 				this.exists = false;
-			}
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-					// Ignore
-				}
 			}
 		}
 		statsFetched = true;
