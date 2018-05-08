@@ -10,7 +10,7 @@
 'use strict';
 var should = require('./utilities/assertions');
 
-describe.only('Titanium.Blob', function () {
+describe('Titanium.Blob', function () {
 	var win;
 
 	afterEach(function () {
@@ -37,7 +37,7 @@ describe.only('Titanium.Blob', function () {
 	// Windows also crashes if we uncomment this now, I think closing the window (or failing the test) in the blob callback is causing Desktop crash
 	// Android is sometimes timing out... Trying an open event now...
 	// TODO: Test is tempermental, skipping for now...
-	it('constructed from image', function (finish) {
+	it.skip('constructed from image', function (finish) { // eslint-disable-line mocha/no-skipped-tests
 		var label;
 		win = Ti.UI.createWindow();
 		label = Ti.UI.createLabel({ text: 'test' });
@@ -75,11 +75,28 @@ describe.only('Titanium.Blob', function () {
 		// TODO Test that it's read-only
 	});
 
-	// FIXME Add to iOS API
-	it.iosMissing('#append()', function () {
-		var blob = Ti.Filesystem.getFile('app.js').read();
-		should(blob.append).be.a.Function;
-		// TODO Test actually appending data to it
+	describe.only('#append()', function () {
+		it('is a Function', function () {
+			var blob = Ti.Filesystem.getFile('app.js').read();
+			should(blob.append).be.a.Function;
+		});
+
+		it('appends two files together', function () {
+			var appJsBlob = Ti.Filesystem.getFile('app.js').read();
+			var thisFile = Ti.Filesystem.getFile(__filename).read();
+			var originalLength = appJsBlob.length;
+			var originalText = appJsBlob.text;
+			var thisFileText = thisFile.text;
+			var thisFileLength = thisFile.length;
+			appJsBlob.append(thisFile);
+			// Now the blob's text should be the concatentaion of the two blobs
+			appJsBlob.text.should.be.eql(originalText + thisFileText);
+			// and the size should be their sum
+			appJsBlob.length.should.be.eql(originalLength + thisFileLength);
+			// The passed in blob shouldn't be changed
+			thisFile.length.should.eql(thisFileLength);
+			thisFile.text.should.eql(thisFileText);
+		});
 	});
 
 	it('.nativePath', function () {
