@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -222,10 +223,12 @@ public class TiResourceFile extends TiBaseFile
 	{
 		List<String> listing = new ArrayList<String>();
 		try {
-			String lpath = TiFileHelper2.joinSegments("Resources", path);
+			String lpath = TiFileHelper2.getResourcesPath(path);
 			if (lpath.endsWith("/")) {
 				lpath = lpath.substring(0, lpath.lastIndexOf("/"));
 			}
+
+			// list application assets
 			String[] names = TiApplication.getInstance().getAssets().list(lpath);
 			if (names != null) {
 				int len = names.length;
@@ -233,6 +236,26 @@ public class TiResourceFile extends TiBaseFile
 					listing.add(names[i]);
 				}
 			}
+
+			// list encrypted assets
+			String[] assets = KrollAssetHelper.getEncryptedAssets();
+			if (assets != null) {
+				for (String asset : assets) {
+					if (asset.startsWith(path)) {
+						String relativePath = asset.substring(path.length());
+						int dirIndex = asset.lastIndexOf("/");
+						String dir = dirIndex != -1 ? relativePath.substring(0, dirIndex) : "";
+						if (dir.length() > 0) {
+							if (!listing.contains(dir)) {
+								listing.add(dir);
+							}
+						} else if (relativePath.length() > 0) {
+							listing.add(relativePath);
+						}
+					}
+				}
+			}
+
 		} catch (IOException e) {
 			Log.e(TAG, "Error while getting a directory listing: " + e.getMessage(), e);
 		}
