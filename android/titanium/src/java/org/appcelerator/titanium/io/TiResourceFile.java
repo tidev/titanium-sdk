@@ -243,10 +243,10 @@ public class TiResourceFile extends TiBaseFile
 				for (String asset : assets) {
 					if (asset.startsWith(path)) {
 						String relativePath = asset.substring(path.length());
-						int dirIndex = asset.lastIndexOf("/");
-						String dir = dirIndex != -1 ? relativePath.substring(0, dirIndex) : "";
-						if (dir.length() > 0) {
-							if (!listing.contains(dir)) {
+						int dirIndex = relativePath.lastIndexOf('/');
+						if (dirIndex != -1) {
+							String dir = relativePath.substring(0, dirIndex);
+							if (dir.length() > 0 && !listing.contains(dir)) {
 								listing.add(dir);
 							}
 						} else if (relativePath.length() > 0) {
