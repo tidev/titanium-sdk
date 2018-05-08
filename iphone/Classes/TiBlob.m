@@ -312,13 +312,12 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 {
   id arg = [args objectAtIndex:0];
   if ([arg isKindOfClass:[TiBlob class]]) {
-      NSData *otherData = [(TiBlob *)arg data]; // other Blob's data
+    NSData *otherData = [(TiBlob *)arg data]; // other Blob's data
 
-      NSMutableData *newData = [[NSMutableData alloc] initWithData:[self data]];
-      [newData appendData:otherData];
+    NSMutableData *newData = [[NSMutableData alloc] initWithData:[self data]];
+    [newData appendData:otherData];
 
-      // TODO Call setData? This changes the type...
-      [self setData:newData];
+    [self setData:newData];
   }
 }
 
