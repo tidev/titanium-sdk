@@ -183,9 +183,9 @@ public class TiResourceFile extends TiBaseFile
 	}
 
 	@Override
-	public double spaceAvailable()
+	public long spaceAvailable()
 	{
-		return 0;
+		return 0L;
 	}
 
 	public String toURL()
@@ -196,7 +196,7 @@ public class TiResourceFile extends TiBaseFile
 	public long size()
 	{
 		if (!isFile()) {
-			return 0;
+			return 0L;
 		}
 
 		InputStream is = null;
@@ -214,7 +214,7 @@ public class TiResourceFile extends TiBaseFile
 				}
 			}
 		}
-		return 0;
+		return 0L;
 	}
 
 	@Override

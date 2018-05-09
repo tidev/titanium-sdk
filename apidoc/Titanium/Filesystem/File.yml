@@ -152,6 +152,18 @@ methods:
         On Android, returns 0 for resource files.
     returns:
         type: Number
+    deprecated:
+        since: "7.2.0"
+        notes: Use <Titanium.Filesystem.File.createdAt> instead.
+
+  - name: createdAt
+    summary: Returns the creation Date for the file identified by this file object.
+    description: |
+        On Android, returns a Date whose `getTime()` value is 0 for resource files.
+    returns:
+        type: Date
+    platforms: [iphone, ipad, android]
+    since: { iphone: "7.2.0", ipad: "7.2.0", android: "7.2.0" }
 
   - name: deleteDirectory
     summary: Deletes the directory identified by this file object.
@@ -231,6 +243,17 @@ methods:
         On Android, returns 0 for resource files.
     returns:
         type: Number
+    deprecated:
+        since: "7.2.0"
+        notes: Use <Titanium.Filesystem.File.modifiedAt> instead.
+  - name: modifiedAt
+    summary: Returns the last modification Date for the file identified by this file object.
+    description: |
+        On Android, returns a Date whose `getTime()` value is 0 for resource files.
+    returns:
+        type: Date
+    platforms: [iphone, ipad, android]
+    since: { iphone: "7.2.0", ipad: "7.2.0", android: "7.2.0" }
 
   - name: move
     summary: Moves the file identified by this file object to another path.

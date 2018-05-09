@@ -58,13 +58,19 @@
   return [resultDict objectForKey:NSFileImmutable];
 }
 
-- (NSNumber *)createTimestamp
+- (NSDate *)createTimestamp
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp", @"7.2.0", @"Filesystem.File.createTimestamp()");
-  return [self createTimestamp:nil];
+  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp", @"7.2.0", @"Filesystem.File.createdAt()");
+  return [self createdAt:nil];
 }
 
-- (NSNumber *)createTimestamp:(id)unused
+- (NSDate *)createTimestamp:(id)unused
+{
+  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp()", @"7.2.0", @"Filesystem.File.createdAt()");
+  return [self createdAt:unused];
+}
+
+- (NSDate *)createdAt:(id)unused
 {
   NSError *error = nil;
   NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
@@ -76,24 +82,29 @@
   if (result == nil) {
     result = [resultDict objectForKey:NSFileModificationDate];
   }
-  return @([result timeIntervalSince1970]);
+  return result;
 }
 
-- (NSNumber *)modificationTimestamp
+- (NSDate *)modificationTimestamp
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp", @"7.2.0", @"Filesystem.File.modificationTimestamp()");
-  return [self modificationTimestamp:nil];
+  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp", @"7.2.0", @"Filesystem.File.modifiedAt()");
+  return [self modifiedAt:nil];
 }
 
-- (NSNumber *)modificationTimestamp:(id)unused
+- (NSDate *)modificationTimestamp:(id)unused
+{
+  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp()", @"7.2.0", @"Filesystem.File.modifiedAt()");
+  return [self modifiedAt:nil];
+}
+
+- (NSDate *)modifiedAt:(id)unused
 {
   NSError *error = nil;
   NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
   if (error != nil) {
     [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
   }
-  NSDate *result = [resultDict objectForKey:NSFileModificationDate];
-  return @([result timeIntervalSince1970]);
+  return [resultDict objectForKey:NSFileModificationDate];
 }
 
 - (NSNumber *)symbolicLink

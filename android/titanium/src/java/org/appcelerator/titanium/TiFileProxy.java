@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -303,14 +304,14 @@ public class TiFileProxy extends KrollProxy
 	// clang-format off
 	@Kroll.method
 	@Kroll.getProperty
-	public double getSize()
+	public long getSize()
 	// clang-format on
 	{
 		return tbf.size();
 	}
 
 	@Kroll.method
-	public double spaceAvailable()
+	public long spaceAvailable()
 	{
 		return tbf.spaceAvailable();
 	}
@@ -354,15 +355,27 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public double createTimestamp()
+	public long createTimestamp()
 	{
 		return tbf.createTimestamp();
 	}
 
 	@Kroll.method
-	public double modificationTimestamp()
+	public long modificationTimestamp()
 	{
 		return tbf.modificationTimestamp();
+	}
+
+	@Kroll.method
+	public Date createdAt()
+	{
+		return tbf.createdAt();
+	}
+
+	@Kroll.method
+	public Date modifiedAt()
+	{
+		return tbf.modifiedAt();
 	}
 
 	@Kroll.method

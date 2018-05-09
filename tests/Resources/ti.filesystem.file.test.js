@@ -11,22 +11,22 @@
 var should = require('./utilities/assertions'),
 	utilities = require('./utilities/utilities');
 
-describe('Titanium.Filesystem.File', function () {
-	it('apiName', function () {
+describe.only('Titanium.Filesystem.File', function () {
+	it('.apiName', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		should(file).have.readOnlyProperty('apiName').which.is.a.String;
 		should(file.apiName).be.eql('Ti.Filesystem.File');
 	});
 
 	// Check if name exists and returns string
-	it('name', function () {
+	it('.name', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		should(file).have.a.readOnlyProperty('name').which.is.a.String;
 		should(file.name).be.eql('app.js');
 	});
 
 	// Check if nativePath exists and returns string
-	it('nativePath', function () {
+	it('.nativePath', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		should(file).have.a.readOnlyProperty('nativePath').which.is.a.String;
 	});
@@ -47,37 +47,37 @@ describe('Titanium.Filesystem.File', function () {
 	});
 
 	// Check if executable exists and returns boolean
-	it('executable', function () {
+	it('.executable', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		should(file).have.a.readOnlyProperty('executable').which.is.a.Boolean;
 	});
 
 	// Check if hidden exists and returns boolean
-	it('hidden', function () {
+	it('.hidden', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		should(file).have.a.readOnlyProperty('hidden').which.is.a.Boolean;
 	});
 
 	// Check if readonly exists and returns boolean
-	it('readonly', function () {
+	it('.readonly', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		should(file).have.a.readOnlyProperty('readonly').which.is.a.Boolean;
 	});
 
 	// Check if writable exists and returns boolean
-	it('writable', function () {
+	it('.writable', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		should(file).have.a.readOnlyProperty('writable').which.is.a.Boolean;
 	});
 
 	// Check if symbolicLink exists and returns boolean
-	it('symbolicLink', function () {
+	it('.symbolicLink', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		should(file).have.a.readOnlyProperty('symbolicLink').which.is.a.Boolean;
 	});
 
 	// Check if parent exists and returns File
-	it('parent', function () {
+	it('.parent', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		// parent may be null if at root?
 		// should(file.parent).be.ok; // not null or undefined. should(file).not.be.null causes a stack overflow somehow.
@@ -86,84 +86,159 @@ describe('Titanium.Filesystem.File', function () {
 	});
 
 	// Check if size exists and returns number
-	it('size', function () {
+	it('.size', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		should(file).have.readOnlyProperty('size').which.is.a.Number;
 		should(file.size).be.above(0);
 	});
 
-	// exists should return true if file exists
-	it('#exists() returns true for existing file', function () {
-		var file = Ti.Filesystem.getFile('app.js');
-		should(file.exists()).be.true;
+	describe('#exists()', function () {
+		it('is a Function', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			should(file.exists).be.a.Function;
+		});
+
+		// exists should return true if file exists
+		it('returns true for existing file', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			should(file.exists()).be.true;
+		});
+
+		// exists should return false if file is not there
+		it('returns false for non-existent file', function () {
+			var file = Ti.Filesystem.getFile('appp.js');
+			should(file.exists()).be.false;
+		});
 	});
 
-	// exists should return false if file is not there
-	it('#exists() returns false for non-existent file', function () {
-		var file = Ti.Filesystem.getFile('appp.js');
-		should(file.exists()).be.false;
+	describe('#isFile()', function () {
+		it('is a Function', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			should(file.isFile).be.a.Function;
+		});
+
+		it('returns true for an existing file', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			should(file.exists()).be.true;
+			should(file.isFile()).be.true;
+		});
+
+		it('returns false for a file that doesn\'t exist', function () {
+			var file = Ti.Filesystem.getFile('appp.js');
+			should(file.exists()).be.false;
+			should(file.isFile()).be.false;
+		});
+
+		it('returns false for a directory', function () {
+			var dir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory);
+			should(dir.isFile()).be.false;
+		});
 	});
 
-	// isFile should return true if file exists
-	it('#isFile() returns true for an existing file', function () {
-		var file = Ti.Filesystem.getFile('app.js');
-		should(file.exists()).be.true;
-		should(file.isFile()).be.true;
+	describe('#isDirectory()', function () {
+		it('is a Function', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			should(file.isDirectory).be.a.Function;
+		});
+
+		it('returns true for directory that exists', function () {
+			var dir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory);
+			should(dir.isDirectory()).be.true;
+		});
+
+		it('returns false for a file that exists', function () {
+			var dir = Ti.Filesystem.getFile('app.js');
+			should(dir.isDirectory()).be.false;
+		});
+
+		it('returns false for directory that doesn\'t exist', function () {
+			var dir = Ti.Filesystem.getFile('appp');
+			should(dir.isDirectory()).be.false;
+		});
 	});
 
-	// isFile should return false if file is not there
-	it('#isFile() returns false for a file that doesn\'t exist', function () {
-		var file = Ti.Filesystem.getFile('appp.js');
-		should(file.exists()).be.false;
-		should(file.isFile()).be.false;
+	// This method is now deprecated due to difference in return type between iOS and other platforms
+	// #createdAt() is new version returning a Date object
+	describe('#createTimestamp()', function () {
+		it('is a Function', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			should(file.createTimestamp).be.a.Function;
+		});
+
+		// iOS returns a Date
+		it.iosBroken('returns a Number', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			var create_date = file.createTimestamp();
+			should(create_date).be.a.Number; // iOS returns a Date (or maybe a string in iso date format?) Docs say Number
+			if (utilities.isAndroid()) { // Android returns 0 for createTimestamp on files under Resources dir
+				should(create_date).eql(0);
+			} else {
+				should(create_date).be.above(0);
+			}
+		});
 	});
 
-	// isFile should return false if file points to directory
-	it('#isFile() returns false for a directory', function () {
-		var dir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory);
-		should(dir.isFile()).be.false;
+	describe('#createdAt()', function () {
+		it('is a Function', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			should(file.createdAt).be.a.Function;
+		});
+
+		it('returns a Date', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			var create_date = file.createdAt();
+			should(create_date).be.a.Date;
+			if (utilities.isAndroid()) {
+				should(create_date.getTime()).be.eql(0); // Android gives equivalent of 0 for timestamp
+			} else {
+				should(create_date.getTime()).be.above(0);
+			}
+		});
+
+		it.android('returns a non-zero Date timestamp for files outside app', function () {
+			var file = Ti.Filesystem.createTempFile();
+			var create_date = file.createdAt();
+			should(create_date).be.a.Date;
+			should(create_date.getTime()).be.above(0);
+		});
 	});
 
-	// isDirectory should return true if file points to directory
-	it('#isDirectory() returns true for directory that exists', function () {
-		var dir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory);
-		should(dir.isDirectory()).be.true;
+	// This method is now deprecated due to difference in return type between iOS and other platforms
+	// #modifiedAt() is new version returning a Date object
+	describe('#modificationTimestamp()', function () {
+		it('is a Function', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			should(file.modificationTimestamp).be.a.Function;
+		});
+
+		it.iosBroken('returns a Number', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			var mod_date = file.modificationTimestamp();
+			should(mod_date).be.a.Number; // iOS returns a Date (or maybe a string in iso date format?) Docs say Number
+			if (utilities.isAndroid()) { // Android returns 0 for modificationTimestamp on files under Resources dir
+				should(mod_date).eql(0);
+			} else {
+				should(mod_date).be.above(0);
+			}
+		});
 	});
 
-	// isDirectory should return false if file points to file
-	it('#isDirectory() returns false for a file that exists', function () {
-		var dir = Ti.Filesystem.getFile('app.js');
-		should(dir.isDirectory()).be.false;
-	});
+	describe('#modifiedAt()', function () {
+		it('is a Function', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			should(file.modifiedAt).be.a.Function;
+		});
 
-	// isDirectory should return false if file is not there
-	it('#isDirectory() returns false for directory that doesn\'t exist', function () {
-		var dir = Ti.Filesystem.getFile('appp');
-		should(dir.isDirectory()).be.false;
-	});
-
-	// createTimestamp should return number
-	it('#createTimestamp()', function () {
-		var file = Ti.Filesystem.getFile('app.js');
-		var create_date = file.createTimestamp();
-		should(create_date).be.a.Number; // iOS returns a Date (or maybe a string in iso date format?) Docs say Number
-		if (utilities.isAndroid()) { // Android returns 0 for createTimestamp on files under Resources dir
-			should(create_date).eql(0);
-		} else {
-			should(create_date).be.above(0);
-		}
-	});
-
-	// modificationTimestamp should return number
-	it('#modificationTimestamp()', function () {
-		var file = Ti.Filesystem.getFile('app.js');
-		var mod_date = file.modificationTimestamp();
-		should(mod_date).be.a.Number; // iOS returns a Date (or maybe a string in iso date format?) Docs say Number
-		if (utilities.isAndroid()) { // Android returns 0 for modificationTimestamp on files under Resources dir
-			should(mod_date).eql(0);
-		} else {
-			should(mod_date).be.above(0);
-		}
+		it('returns a Date', function () {
+			var file = Ti.Filesystem.getFile('app.js');
+			var mod_date = file.modifiedAt();
+			should(mod_date).be.a.Date;
+			if (utilities.isAndroid()) { // Android returns 0 for modificationTimestamp on files under Resources dir
+				should(mod_date.getTime()).eql(0);
+			} else {
+				should(mod_date.getTime()).be.above(0);
+			}
+		});
 	});
 
 	// createDirectory and deleteDirectory
