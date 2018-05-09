@@ -106,7 +106,7 @@
         paragraphStyle.lineHeightMultiple = [TiUtils floatValue:[value objectForKey:key]];
       } else if ([key isEqualToString:@"hyphenationFactor"]) {
         paragraphStyle.hyphenationFactor = (float)[TiUtils floatValue:[value objectForKey:key]];
-      } else if ([key isEqualToString:@"allowsDefaultTighteningForTruncation"]) {
+      } else if ([TiUtils isIOS9OrGreater] && [key isEqualToString:@"allowsDefaultTighteningForTruncation"]) {
         paragraphStyle.allowsDefaultTighteningForTruncation = [TiUtils boolValue:[value objectForKey:key]];
       } else {
         DebugLog(@"[WARN] Ti.UI.ATTRIBUTE_PARAGRAPH_STYLE - Unsupported property %@", key);
