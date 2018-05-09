@@ -460,7 +460,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	{
 		TiUIView v = peekView();
 		if (v != null) {
-			return ((TiUIWebView) v).getZoomLevel();
+			return TiConvert.toFloat(getProperty(TiC.PROPERTY_ZOOM_LEVEL), 1.0f);
 		} else {
 			return 1.0f;
 		}
