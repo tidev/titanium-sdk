@@ -106,6 +106,7 @@ methods:
     returns:
         type: Boolean
     platforms: [android, iphone, ipad]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.2.0" }
   - name: copy
     summary: Copies the file identified by this file object to a new path.
     description: Returns `true` if the copy succeeds.

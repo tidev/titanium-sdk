@@ -11,7 +11,7 @@
 var should = require('./utilities/assertions'),
 	utilities = require('./utilities/utilities');
 
-describe.only('Titanium.Filesystem.File', function () {
+describe('Titanium.Filesystem.File', function () {
 	it('.apiName', function () {
 		var file = Ti.Filesystem.getFile('app.js');
 		should(file).have.readOnlyProperty('apiName').which.is.a.String;
@@ -445,9 +445,8 @@ describe.only('Titanium.Filesystem.File', function () {
 	});
 	// We are eventually hanging after Titanium.Filesystem.FileStream.fileStreamTruncateTest
 
-	// Intentionally skip on Android, doesn't support method
 	// FIXME Causes the test suite to hang later if not logged into Windows Desktop build machine!
-	it.androidMissingAndWindowsDesktopBroken('#append(String)', function () {
+	it.windowsDesktopBroken('#append(String)', function () {
 		var msg = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'write_test.txt'),
 			blob;
 		should(msg.write('Appcelerator', false)).be.true;
@@ -467,9 +466,8 @@ describe.only('Titanium.Filesystem.File', function () {
 		should(msg.exists()).be.false;
 	});
 
-	// Intentionally skip on Android, doesn't support method
 	// FIXME Causes the test suite to hang later if not logged into Windows Desktop build machine!
-	it.androidMissingAndWindowsDesktopBroken('#append(File)', function () {
+	it.windowsDesktopBroken('#append(File)', function () {
 		var from = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'write_test.txt'),
 			to,
 			blob;
@@ -496,9 +494,8 @@ describe.only('Titanium.Filesystem.File', function () {
 		should(to.exists()).be.false;
 	});
 
-	// Intentionally skip on Android, doesn't support method // TODO For parity, add #append() to File on Android: https://jira.appcelerator.org/browse/TIMOB-23493
 	// FIXME Causes the test suite to hang later if not logged into Windows Desktop build machine!
-	it.androidMissingAndWindowsDesktopBroken('#append(Blob)', function () {
+	it.windowsDesktopBroken('#append(Blob)', function () {
 		var from = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'write_test.txt'),
 			to,
 			blob;

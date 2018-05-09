@@ -393,6 +393,19 @@ public class TiFileProxy extends KrollProxy
 		return new FileStreamProxy(this);
 	}
 
+	@Kroll.method
+	public boolean append(Object[] args) throws IOException
+	{
+		if (args == null || args.length == 0) {
+			return false;
+		}
+		// delegate to #write()
+		Object[] newArgs = new Object[2];
+		newArgs[0] = args[0];
+		newArgs[1] = Boolean.TRUE;
+		return write(newArgs);
+	}
+
 	public InputStream getInputStream() throws IOException
 	{
 		return getBaseFile().getInputStream();
