@@ -125,118 +125,118 @@ properties:
     type: Array<Number>
     optional: false
 
-  -----
-  name: ParagraphAttribute
-  summary: An abstract datatype for specifying an Paragraph style attribute.
-  description: |
-      Attributes are added corresponding to value to create paragraph style, 
-      which when used with attributed string will give styled text. 
-  platforms: [iphone, ipad]
-  since: "7.3.0"
+---
+name: ParagraphAttribute
+summary: An abstract datatype for specifying an Paragraph style attribute.
+description: |
+    Attributes are added corresponding to value to create paragraph style, 
+    which when used with attributed string will give styled text. 
+platforms: [iphone, ipad]
+since: "7.3.0"
   
-  properties:
-    - name: alignment
-      summary: The text alignment of the receiver.
-      type: Number
-      constants: [ Titanium.UI.TEXT_ALIGNMENT_* ]
+properties:
+  - name: alignment
+    summary: The text alignment of the receiver.
+    type: Number
+    constants: [ Titanium.UI.TEXT_ALIGNMENT_* ]
 
-    - name: firstLineHeadIndent
-      summary: The indentation of the first line of the receiver.
-      description: |
-        This property contains the distance (in points) from the leading margin 
-        of a text container to the beginning of the paragraph’s first line. 
-        This value is always nonnegative float value.
-      type: Number
+  - name: firstLineHeadIndent
+    summary: The indentation of the first line of the receiver.
+    description: |
+      This property contains the distance (in points) from the leading margin 
+      of a text container to the beginning of the first line of paragraph. 
+      This value is always nonnegative float value.
+    type: Number
 
-    - name: headIndent
-      summary: The indentation of the receiver’s lines other than the first.
-      description: |
-        This property contains the distance (in points) from the leading margin 
-        of a text container to the beginning of lines other than the first. 
-        This value is always nonnegative float value.
-      type: Number
+  - name: headIndent
+    summary: The indentation of the lines of lines other than the first.
+    description: |
+      This property contains the distance (in points) from the leading margin 
+      of a text container to the beginning of lines other than the first. 
+      This value is always nonnegative float value.
+    type: Number
 
-    - name: tailIndent
-      summary: The trailing indentation of the receiver.
-      description: |
-        If positive, this value is the distance from the leading margin 
-        (for example, the left margin in left-to-right text). If 0 or negative, 
-        it’s the distance from the trailing margin. This is a float value.
-      type: Number
+  - name: tailIndent
+    summary: The trailing indentation of the receiver.
+    description: |
+      If positive, this value is the distance from the leading margin 
+      (for example, the left margin in left-to-right text). If 0 or negative, 
+      it is the distance from the trailing margin. This is a float value.
+    type: Number
 
-    - name: lineBreakMode
-      summary: The mode that should be used to break lines in the receiver.
-      description: |
-        This property contains the line break mode to be used laying out the paragraph’s text.
-      type: Number
-      constants: [ Titanium.UI.ATTRIBUTE_LINE_BREAK_* ]
+  - name: lineBreakMode
+    summary: The mode that should be used to break lines in the receiver.
+    description: |
+      This property contains the line break mode to be used laying out the text of paragraph.
+    type: Number
+    constants: [ Titanium.UI.ATTRIBUTE_LINE_BREAK_* ]
 
-    - name: maximumLineHeight
-      summary: The receiver’s maximum line height.
-      description: |
-        This property contains the maximum height in points that any line in the receiver will occupy, 
-        regardless of the font size or size of any attached graphic. This value is always nonnegative. 
-        The default value is 0.
-      type: Number
+  - name: maximumLineHeight
+    summary: The maximum line height of receiver.
+    description: |
+      This property contains the maximum height in points that any line in the receiver will occupy, 
+      regardless of the font size or size of any attached graphic. This value is always nonnegative. 
+      The default value is 0.
+    type: Number
 
-    - name: minimumLineHeight
-      summary: The receiver’s minimum height.
-      description: |
-        This property contains the minimum height in points that any line in the receiver will occupy, 
-        regardless of the font size or size of any attached graphic. This value must be nonnegative.
-      type: Number
+  - name: minimumLineHeight
+    summary: The minimum height of receiver.
+    description: |
+      This property contains the minimum height in points that any line in the receiver will occupy, 
+      regardless of the font size or size of any attached graphic. This value must be nonnegative.
+    type: Number
 
-    - name: lineSpacing
-      summary: The distance in points between the bottom of one line fragment and the top of the next.
-      description: |
-        This value is always nonnegative. This value is included in the line fragment heights 
-        in the layout manager.
-      type: Number
+  - name: lineSpacing
+    summary: The distance in points between the bottom of one line fragment and the top of the next.
+    description: |
+      This value is always nonnegative. This value is included in the line fragment heights 
+      in the layout manager.
+    type: Number
 
-    - name: paragraphSpacing
-      summary: The space after the end of the paragraph.
-      description: |
-        This property contains the space (measured in points) added at the end of the paragraph 
-        to separate it from the following paragraph. This value must be nonnegative. The space 
-        between paragraphs is determined by adding the previous paragraph’s paragraphSpacing and 
-        the current paragraph’s paragraphSpacingBefore.
-      type: Number
+  - name: paragraphSpacing
+    summary: The space after the end of the paragraph.
+    description: |
+      This property contains the space (measured in points) added at the end of the paragraph 
+      to separate it from the following paragraph. This value must be nonnegative. The space 
+      between paragraphs is determined by adding the paragraphSpacing of previous paragraph and 
+      the paragraphSpacingBefore of current paragraph.
+    type: Number
 
-    - name: paragraphSpacingBefore
-      summary: The distance between the paragraph’s top and the beginning of its text content.
-      description: |
-        This property contains the space (measured in points) between the paragraph’s top and 
-        the beginning of its text content. The default value of this property is 0.0.
-      type: Number
+  - name: paragraphSpacingBefore
+    summary: The distance between the top of paragraph and the beginning of its text content.
+    description: |
+      This property contains the space (measured in points) between the top of paragraph and 
+      the beginning of its text content. The default value of this property is 0.0.
+    type: Number
 
-    - name: lineHeightMultiple
-      summary: The line height multiple.
-      description: |
-        The natural line height of the receiver is multiplied by this factor (if positive) 
-        before being constrained by minimum and maximum line height. The default value of 
-        this property is 0.0.
-      type: Number
+  - name: lineHeightMultiple
+    summary: The line height multiple.
+    description: |
+      The natural line height of the receiver is multiplied by this factor (if positive) 
+      before being constrained by minimum and maximum line height. The default value of 
+      this property is 0.0.
+    type: Number
 
-    - name: hyphenationFactor
-      summary: The paragraph’s threshold for hyphenation.
-      description: |
-        Valid values lie between 0.0 and 1.0 inclusive. The default value is 0.0. Hyphenation 
-        is attempted when the ratio of the text width (as broken without hyphenation) to the 
-        width of the line fragment is less than the hyphenation factor. When the paragraph’s 
-        hyphenation factor is 0.0, the layout manager’s hyphenation factor is used instead. 
-        When both are 0.0, hyphenation is disabled. This property detects the user-selected 
-        language by examining the first item in preferredLanguages.
-      type: Number
+  - name: hyphenationFactor
+    summary: The threshold of paragraph for hyphenation.
+    description: |
+      Valid values lie between 0.0 and 1.0 inclusive. The default value is 0.0. Hyphenation 
+      is attempted when the ratio of the text width (as broken without hyphenation) to the 
+      width of the line fragment is less than the hyphenation factor. When the hyphenation 
+      factor of paragraph is 0.0, the ] hyphenation factor of layout manager is used instead. 
+      When both are 0.0, hyphenation is disabled. This property detects the user-selected 
+      language by examining the first item in preferredLanguages.
+    type: Number
 
-    - name: allowsDefaultTighteningForTruncation
-      summary: |
-        A Boolean value indicating whether the system may tighten inter-character spacing 
-        before truncating text.
-      description: |
-        When this property is set to YES, the system tries to reduce the space between characters 
-        before truncating characters. The system performs this tightening in cases where the text 
-        would not otherwise fit in the available space. The maximum amount of tightening performed 
-        by the system is dependent on the font, line width, and other factors. The default value of 
-        this property is NO.
-      type: Number
-      osver: {ios: {min: "9.0"}}
+  - name: allowsDefaultTighteningForTruncation
+    summary: |
+      A Boolean value indicating whether the system may tighten inter-character spacing 
+      before truncating text.
+    description: |
+      When this property is set to YES, the system tries to reduce the space between characters 
+      before truncating characters. The system performs this tightening in cases where the text 
+      would not otherwise fit in the available space. The maximum amount of tightening performed 
+      by the system is dependent on the font, line width, and other factors. The default value of 
+      this property is NO.
+    type: Number
+    osver: {ios: {min: "9.0"}}
