@@ -1096,6 +1096,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CACHE_SIZE = "cacheSize";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_MONTH = "daysOfTheMonth";
 
 	/**
