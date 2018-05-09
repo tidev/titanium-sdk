@@ -82,32 +82,33 @@
     NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
 
     for (NSString *key in value) {
+      id objectValue = [value objectForKey:key];
       if ([key isEqualToString:@"alignment"]) {
-        paragraphStyle.alignment = [[TiUtils numberFromObject:[value objectForKey:key]] unsignedIntegerValue];
+        paragraphStyle.alignment = [[TiUtils numberFromObject:objectValue] unsignedIntegerValue];
       } else if ([key isEqual:@"firstLineHeadIndent"]) {
-        paragraphStyle.firstLineHeadIndent = [TiUtils floatValue:[value objectForKey:key]];
+        paragraphStyle.firstLineHeadIndent = [TiUtils floatValue:objectValue];
       } else if ([key isEqual:@"headIndent"]) {
-        paragraphStyle.headIndent = [TiUtils floatValue:[value objectForKey:key]];
+        paragraphStyle.headIndent = [TiUtils floatValue:objectValue];
       } else if ([key isEqual:@"tailIndent"]) {
-        paragraphStyle.tailIndent = [TiUtils floatValue:[value objectForKey:key]];
+        paragraphStyle.tailIndent = [TiUtils floatValue:objectValue];
       } else if ([key isEqual:@"lineBreakMode"]) {
-        paragraphStyle.lineBreakMode = [[TiUtils numberFromObject:[value objectForKey:key]] unsignedIntegerValue];
+        paragraphStyle.lineBreakMode = [[TiUtils numberFromObject:objectValue] unsignedIntegerValue];
       } else if ([key isEqualToString:@"maximumLineHeight"]) {
-        paragraphStyle.maximumLineHeight = [TiUtils floatValue:[value objectForKey:key]];
+        paragraphStyle.maximumLineHeight = [TiUtils floatValue:objectValue];
       } else if ([key isEqualToString:@"minimumLineHeight"]) {
-        paragraphStyle.minimumLineHeight = [TiUtils floatValue:[value objectForKey:key]];
+        paragraphStyle.minimumLineHeight = [TiUtils floatValue:objectValue];
       } else if ([key isEqualToString:@"lineSpacing"]) {
-        paragraphStyle.lineSpacing = [TiUtils floatValue:[value objectForKey:key]];
+        paragraphStyle.lineSpacing = [TiUtils floatValue:objectValue];
       } else if ([key isEqualToString:@"paragraphSpacing"]) {
-        paragraphStyle.paragraphSpacing = [TiUtils floatValue:[value objectForKey:key]];
+        paragraphStyle.paragraphSpacing = [TiUtils floatValue:objectValue];
       } else if ([key isEqualToString:@"paragraphSpacingBefore"]) {
-        paragraphStyle.paragraphSpacingBefore = [TiUtils floatValue:[value objectForKey:key]];
+        paragraphStyle.paragraphSpacingBefore = [TiUtils floatValue:objectValue];
       } else if ([key isEqualToString:@"lineHeightMultiple"]) {
-        paragraphStyle.lineHeightMultiple = [TiUtils floatValue:[value objectForKey:key]];
+        paragraphStyle.lineHeightMultiple = [TiUtils floatValue:objectValue];
       } else if ([key isEqualToString:@"hyphenationFactor"]) {
-        paragraphStyle.hyphenationFactor = (float)[TiUtils floatValue:[value objectForKey:key]];
+        paragraphStyle.hyphenationFactor = (float)[TiUtils floatValue:objectValue];
       } else if ([TiUtils isIOS9OrGreater] && [key isEqualToString:@"allowsDefaultTighteningForTruncation"]) {
-        paragraphStyle.allowsDefaultTighteningForTruncation = [TiUtils boolValue:[value objectForKey:key]];
+        paragraphStyle.allowsDefaultTighteningForTruncation = [TiUtils boolValue:objectValue];
       } else {
         DebugLog(@"[WARN] Ti.UI.ATTRIBUTE_PARAGRAPH_STYLE - Unsupported property %@", key);
       }
