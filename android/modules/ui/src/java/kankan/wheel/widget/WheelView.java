@@ -359,26 +359,26 @@ public class WheelView extends View
 	 *            the source layout
 	 * @return the desired layout height
 	 */
+	// APPCELERATOR TITANIUM CUSTOMIZATION:
 	private int getDesiredHeight(Layout layout)
 	{
+		// Validate argument.
 		if (layout == null) {
 			return 0;
 		}
 
-		int linecount = layout.getLineCount();
-
-		// APPCELERATOR TITANIUM CUSTOMIZATION:
-		int desired = layout.getLineTop(linecount) - getAdditionalItemHeight();
-
+		// Calculate height of spinner based on lines rendered in given layout.
+		// Note: Subtracting offset from height clips the top-most and bottom-most lines in spinner
+		//       on purpose so that end-user knows that there are more items to scroll to.
+		int desired = layout.getHeight();
+		desired -= getItemOffset() * 2;
 		if (Build.VERSION.SDK_INT < 21) {
-			desired -= getItemOffset() * 2;
-		} else {
-			desired += getTextSize();
+			// Android 4.4 always adds "spacingadd" below last line when we don't want it. Exclude it.
+			desired -= getAdditionalItemHeight();
 		}
 
-		// Check against our minimum height
+		// Do not allow desired height to be larger than assigned minimum.
 		desired = Math.max(desired, getSuggestedMinimumHeight());
-
 		return desired;
 	}
 
@@ -391,6 +391,12 @@ public class WheelView extends View
 	// Must build ellipsized string here because the layout in this class only support one-line items. (TIMOB-14654)
 	private String buildText(int widthItems)
 	{
+		// Empty lines on Android 5.0 and higher have a different line/spacing height compared to non-empty lines.
+		// Work-Around: Add a zero-width space char to end of every line to ensure they all have same line height.
+		final String ZERO_WIDTH_SPACE = "\u200B";
+		final String LINE_ENDING = ZERO_WIDTH_SPACE + "\n";
+
+		// Create the text lines above the selection.
 		WheelAdapter adapter = getAdapter();
 		StringBuilder itemsText = new StringBuilder();
 		int addItems = visibleItems / 2;
@@ -403,11 +409,13 @@ public class WheelView extends View
 					itemsText.append(text);
 				}
 			}
-			itemsText.append("\n");
+			itemsText.append(LINE_ENDING);
 		}
 
-		itemsText.append("\n"); // here will be current value
+		// Create an empty line where the selected item will be.
+		itemsText.append(LINE_ENDING);
 
+		// Create the text lines below the selection.
 		for (int i = currentItem + 1; i <= currentItem + addItems; i++) {
 			if (adapter != null && i < adapter.getItemsCount()) {
 				String text = adapter.getItem(i);
@@ -418,9 +426,12 @@ public class WheelView extends View
 				}
 			}
 			if (i < currentItem + addItems) {
-				itemsText.append("\n");
+				itemsText.append(LINE_ENDING);
 			}
 		}
+		itemsText.append(ZERO_WIDTH_SPACE);
+
+		// Return the multiline text to be displayed by the spinner.
 		return itemsText.toString();
 	}
 
@@ -607,14 +618,7 @@ public class WheelView extends View
 
 		if (itemsWidth > 0) {
 			canvas.save();
-			// Skip padding space and hide a part of top and bottom items
-			float translateY;
-			if (Build.VERSION.SDK_INT < 21) {
-				translateY = -getItemOffset();
-			} else {
-				translateY = getTextSize() / 2.0f;
-			}
-			canvas.translate(PADDING, translateY);
+			canvas.translate(PADDING, -getItemOffset());
 			drawItems(canvas);
 			drawValue(canvas);
 			canvas.restore();
