@@ -862,6 +862,7 @@ properties:
         visibility and that the app is still in use.
     type: Boolean
     default: false
+    since: "7.3.0"
     osver: { ios: { min: "11.0" } }
     platforms: [iphone, ipad]
 
