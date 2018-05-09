@@ -25,6 +25,7 @@ import ti.modules.titanium.ui.LabelProxy;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.TiUILabel;
+import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
@@ -357,7 +358,16 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		selectorSource = newSelectorSource;
 		if (selectorSource != null) {
-			rp.getTable().getTableView().getTableView().enableCustomSelector();
+			TableViewProxy tableViewProxy = rp.getTable();
+			if (tableViewProxy != null) {
+				TiUITableView tableView = tableViewProxy.getTableView();
+				if (tableViewProxy != null) {
+					TiTableView view = tableView.getTableView();
+					if (view != null) {
+						view.enableCustomSelector();
+					}
+				}
+			}
 		}
 
 		setBackgroundFromProxy(rp);

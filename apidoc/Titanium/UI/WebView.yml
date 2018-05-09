@@ -599,7 +599,6 @@ properties:
     default: true
     platforms: [iphone,ipad]
     since: 2.0.0
-    default: true
 
   - name: enableZoomControls
     summary: If `true`, zoom controls are enabled.

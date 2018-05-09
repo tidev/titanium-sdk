@@ -12,10 +12,10 @@ const exporter = require('./html_generator.js');
  */
 exports.exportData = function exportModuleHTML (apis) {
 	const rv = {
-			'proxy': [],
-			'event': [],
-			'method': [],
-			'property': []
+			proxy: [],
+			event: [],
+			method: [],
+			property: []
 		},
 		data = exporter.exportData(apis),
 		modules = apis.__modules;

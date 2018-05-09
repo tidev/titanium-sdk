@@ -518,25 +518,26 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	public static void dispatchException(final String title, final String message, final String sourceName,
-										 final int line, final String lineSource, final int lineOffset)
+										 final int line, final String lineSource, final int lineOffset,
+										 final String jsStack, final String javaStack)
 	{
 		if (instance != null) {
 			HashMap<String, KrollExceptionHandler> handlers = instance.exceptionHandlers;
 			KrollExceptionHandler currentHandler;
+			ExceptionMessage exceptionMessage =
+				new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset, jsStack, javaStack);
 
 			if (!handlers.isEmpty()) {
 				for (String key : handlers.keySet()) {
 					currentHandler = handlers.get(key);
 					if (currentHandler != null) {
-						currentHandler.handleException(
-							new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset));
+						currentHandler.handleException(exceptionMessage);
 					}
 				}
 			}
 
 			// Handle exception with defaultExceptionHandler
-			instance.primaryExceptionHandler.handleException(
-				new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset));
+			instance.primaryExceptionHandler.handleException(exceptionMessage);
 		}
 	}
 
