@@ -357,12 +357,18 @@ public class TiFileProxy extends KrollProxy
 	@Kroll.method
 	public long createTimestamp()
 	{
+		Log.w(
+			TAG,
+			"createTimestamp() has been deprecated in 7.2.0 in favor of createdAt() to avoid platform-differences for return type between iOS and Android. createdAt() will return a Date object on all platforms.");
 		return tbf.createTimestamp();
 	}
 
 	@Kroll.method
 	public long modificationTimestamp()
 	{
+		Log.w(
+			TAG,
+			"modificationTimestamp() has been deprecated in 7.2.0 in favor of modifiedAt() to avoid platform-differences for return type between iOS and Android. modifiedAt() will return a Date object on all platforms.");
 		return tbf.modificationTimestamp();
 	}
 
