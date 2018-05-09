@@ -7,7 +7,7 @@ summary: |
 description: |
     Unlike Titanium.App.Properties, Titanium.App.iOS.UserDefaults does not pull properties defined in the `tiapp.xml` file.
 
-    To create a notification action, use the <Titanium.App.iOS.createUserDefaults> method.
+    To create a UserDefaults object, use the <Titanium.App.iOS.createUserDefaults> method.
 createable: false
 extends: Titanium.App.Properties
 since: "4.0.0"

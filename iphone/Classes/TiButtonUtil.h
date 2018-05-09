@@ -6,10 +6,9 @@
  */
 
 @interface TiButtonUtil : NSObject {
-
 }
 
-+(UIView*)systemButtonWithType:(int)type;
-+(UIView*)buttonWithType:(int)type;
++ (UIView *)systemButtonWithType:(int)type;
++ (UIView *)buttonWithType:(int)type;
 
 @end

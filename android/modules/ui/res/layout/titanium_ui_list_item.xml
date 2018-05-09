@@ -28,8 +28,9 @@
         android:contentDescription="One of the following images: checkmark, child, or disclosure"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:maxHeight="48dp"
-        android:maxWidth="48dp"
+        android:maxHeight="17dp"
+        android:maxWidth="17dp"
+        android:layout_marginRight="6dp"
         android:scaleType="centerInside" />
 
 </FrameLayout>

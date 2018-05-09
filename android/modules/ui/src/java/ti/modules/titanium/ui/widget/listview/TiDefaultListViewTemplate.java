@@ -12,21 +12,25 @@ import java.util.Iterator;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.ImageViewProxy;
 import ti.modules.titanium.ui.LabelProxy;
 import android.app.Activity;
 
-public class TiDefaultListViewTemplate extends TiListViewTemplate {
+public class TiDefaultListViewTemplate extends TiListViewTemplate
+{
 
-	public TiDefaultListViewTemplate(String id, KrollDict properties, Activity activity) {
+	public TiDefaultListViewTemplate(String id, KrollDict properties, Activity activity)
+	{
 		super(id, properties);
 		generateDefaultProps(activity);
 	}
-	
-	public void generateDefaultProps(Activity activity) {
-		
+
+	public void generateDefaultProps(Activity activity)
+	{
+
 		//Generate root item data proxy
 		ListItemProxy proxy = new ListItemProxy();
 		proxy.setActivity(activity);
@@ -42,9 +46,11 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 		labelProxy.getProperties().put(TiC.PROPERTY_TOUCH_ENABLED, false);
 		labelProxy.setActivity(activity);
 		//Generate properties
-		defaultLabelProperties.put(TiC.PROPERTY_LEFT, "2dp");
-		defaultLabelProperties.put(TiC.PROPERTY_WIDTH, "55%");
+		defaultLabelProperties.put(TiC.PROPERTY_LEFT, "6dp");
+		defaultLabelProperties.put(TiC.PROPERTY_WIDTH, "75%");
 		defaultLabelProperties.put(TiC.PROPERTY_TEXT, "label");
+		defaultLabelProperties.put(TiC.PROPERTY_COLOR, "#fff");
+		defaultLabelProperties.put(TiC.PROPERTY_ENABLED, true);
 		//bind the proxy and default propertiess
 		DataItem labelItem = new DataItem(labelProxy, TiC.PROPERTY_TITLE, rootItem);
 		dataItems.put(TiC.PROPERTY_TITLE, labelItem);
@@ -52,7 +58,7 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 		labelItem.setDefaultProperties(defaultLabelProperties);
 		//add child
 		rootItem.addChild(labelItem);
-		
+
 		//Generate image proxy
 		ImageViewProxy imageProxy = new ImageViewProxy();
 		imageProxy.getProperties().put(TiC.PROPERTY_TOUCH_ENABLED, false);
@@ -61,16 +67,15 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 		defaultImageProperties.put(TiC.PROPERTY_RIGHT, "25dp");
 		defaultImageProperties.put(TiC.PROPERTY_WIDTH, "15%");
 		//bind the proxy and default properties
-		DataItem imageItem = new DataItem (imageProxy, TiC.PROPERTY_IMAGE, rootItem);
+		DataItem imageItem = new DataItem(imageProxy, TiC.PROPERTY_IMAGE, rootItem);
 		dataItems.put(TiC.PROPERTY_IMAGE, imageItem);
 		//set default properties
 		imageItem.setDefaultProperties(defaultImageProperties);
 		//add child
 		rootItem.addChild(imageItem);
-		
-
 	}
-	private void parseDefaultData(KrollDict data) {
+	private void parseDefaultData(KrollDict data)
+	{
 		//for built-in template, we only process 'properties' key
 		Iterator<String> bindings = data.keySet().iterator();
 		while (bindings.hasNext()) {
@@ -82,7 +87,8 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 		}
 
 		KrollDict properties = data.getKrollDict(TiC.PROPERTY_PROPERTIES);
-		KrollDict clone_properties = new KrollDict((HashMap)properties);
+		properties.put(TiC.PROPERTY_HEIGHT, 45);
+		KrollDict clone_properties = new KrollDict((HashMap) properties);
 		if (clone_properties.containsKey(TiC.PROPERTY_TITLE)) {
 			KrollDict text = new KrollDict();
 			text.put(TiC.PROPERTY_TEXT, TiConvert.toString(clone_properties, TiC.PROPERTY_TITLE));
@@ -97,18 +103,19 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 			}
 			clone_properties.remove(TiC.PROPERTY_TITLE);
 		}
-		
+
 		if (clone_properties.containsKey(TiC.PROPERTY_IMAGE)) {
 			KrollDict image = new KrollDict();
 			image.put(TiC.PROPERTY_IMAGE, TiConvert.toString(clone_properties, TiC.PROPERTY_IMAGE));
 			data.put(TiC.PROPERTY_IMAGE, image);
 			clone_properties.remove(TiC.PROPERTY_IMAGE);
 		}
-		
+
 		data.put(TiC.PROPERTY_PROPERTIES, clone_properties);
 	}
-	
-	public void updateOrMergeWithDefaultProperties(KrollDict data, boolean update) {
+
+	public void updateOrMergeWithDefaultProperties(KrollDict data, boolean update)
+	{
 
 		if (!data.containsKey(TiC.PROPERTY_PROPERTIES)) {
 			Log.e(TAG, "Please use 'properties' binding for builtInTemplate");
@@ -121,5 +128,4 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 		parseDefaultData(data);
 		super.updateOrMergeWithDefaultProperties(data, update);
 	}
-	
 }
