@@ -18,6 +18,7 @@
       <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-arch-lifecycle-livedata-core.jar!/" />
       <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-arch-lifecycle-viewmodel.jar!/" />
       <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/android-arch-lifecycle-runtime.jar!/" />
+      <root url="jar://$PROJECT_DIR$/modules/appcompat/lib/exifinterface.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
