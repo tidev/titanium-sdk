@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,44 +11,10 @@
 var should = require('./utilities/assertions');
 
 describe('Titanium.UI.TableView', function () {
-	var win;
-
-	this.timeout(5000);
-
-	beforeEach(function () {
-		win = Ti.UI.createWindow({
-			backgroundColor: 'blue'
-		});
-	});
-
-	afterEach(function () {
-		win.close();
-	});
-
-	it('set and clear data', function (finish) {
-		var data_a = [
-				{ title: 'Square', backgroundSelectedColor: 'red' },
-				{ title: 'Circle', backgroundSelectedColor: 'blue' },
-				{ title: 'Triangle', backgroundSelectedColor: 'purple' }
-			],
-			data_b = [
-				{ title: 'Red', backgroundSelectedColor: 'red' },
-				{ title: 'Green', backgroundSelectedColor: 'green' },
-				{ title: 'Blue', backgroundSelectedColor: 'blue' }
-			],
-			tv = Ti.UI.createTableView(),
-			error;
-
-		try {
-			tv.data = [];
-			tv.setData(data_a);
-			tv.data = [];
-			tv.setData(data_b);
-			tv.data = [];
-			tv.setData(data_a);
-		} catch (e) {
-			error = e;
-		}
-		finish(error);
+	it.windowsMissing('scrollable', function () {
+		var tableView = Ti.UI.createTableView({ scrollable: false });
+		should(tableView.scrollable).be.eql(false);
+		tableView.scrollable = !tableView.scrollable;
+		should(tableView.scrollable).be.eql(true);
 	});
 });

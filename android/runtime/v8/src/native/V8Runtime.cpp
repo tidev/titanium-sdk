@@ -346,8 +346,7 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nati
 
 	// TODO Pump the message loop/queues until it's empty?
 	// while (v8::platform::PumpMessageLoop(V8Runtime::platform, V8Runtime:v8_isolate)) continue;
-    // v8::platform::RunIdleTasks(g_platform, isolate,
-    //                            50.0 / base::Time::kMillisecondsPerSecond);
+	// v8::platform::RunIdleTasks(g_platform, isolate, 50.0 / base::Time::kMillisecondsPerSecond);
 
 	// FIXME What is a good value to use here? We're basically giving it 100 ms to run right now
 	double deadline_in_s = V8Runtime::platform->MonotonicallyIncreasingTime() + 0.1;

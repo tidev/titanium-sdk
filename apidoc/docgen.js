@@ -24,7 +24,7 @@ var common = require('./lib/common.js'),
 	libPath = './lib/',
 	templatePath = './templates/',
 	formats = [ 'html' ],
-	outputPath = '../dist/',
+	outputPath = pathMod.join(__dirname, '..', 'dist'),
 	output = outputPath,
 	parseData = {},
 	doc = {},
@@ -887,7 +887,7 @@ formats.forEach(function (format) {
 	switch (format) {
 		case 'addon':
 
-			output += 'addon/';
+			output = pathMod.join(outputPath, 'addon');
 			if (!fs.existsSync(output)) {
 				fs.mkdirSync(output);
 			}
@@ -925,20 +925,21 @@ formats.forEach(function (format) {
 
 			let copyCommand;
 
-			output += '/apidoc/';
+			output = pathMod.join(outputPath, 'apidoc');
+
 			if (!fs.existsSync(output)) {
 				fs.mkdirSync(output);
 			}
 
 			if (cssFile) {
-				fs.createReadStream(cssPath).pipe(fs.createWriteStream(output + cssFile));
+				fs.createReadStream(cssPath).pipe(fs.createWriteStream(pathMod.join(output, cssFile)));
 			}
-
+			const imgPath = pathMod.join(apidocPath, '/images');
 			if (os.type() === 'Windows_NT') {
-				copyCommand = 'xcopy ' + apidocPath + '/images ' + output;
+				copyCommand = `xcopy ${imgPath} ${output}`;
 				copyCommand = copyCommand.replace(/\//g, '\\') + ' /s';
 			} else {
-				copyCommand = 'cp -r ' + apidocPath + '/images ' + output;
+				copyCommand = `cp -r ${imgPath} ${output}`;
 			}
 
 			exec(copyCommand, function (error) {
@@ -954,8 +955,9 @@ formats.forEach(function (format) {
 				templateStr = fs.readFileSync(templatePath + 'htmlejs/' + type + '.html', 'utf8');
 				exportData[type].forEach(function (member) { // eslint-disable-line no-loop-func
 					render = ejs.render(templateStr, { data: member, filename: templatePath + 'htmlejs/' + type + '.html', assert: common.assertObjectKey, css: cssFile });
-					if (fs.writeFileSync(output + member.filename + '.html', render) <= 0) {
-						common.log(common.LOG_ERROR, 'Failed to write to file: %s', output + member.filename + '.html');
+					const filename = pathMod.join(output, `${member.filename}.html`);
+					if (fs.writeFileSync(filename, render) <= 0) {
+						common.log(common.LOG_ERROR, 'Failed to write to file: %s', filename);
 					}
 				});
 			}
@@ -967,29 +969,32 @@ formats.forEach(function (format) {
 				templateStr = fs.readFileSync(templatePath + 'htmlejs/index.html', 'utf8');
 				render = ejs.render(templateStr, { data: exportData, assert: common.assertObjectKey, css: cssFile });
 			}
-			output += 'index.html';
+			output  = pathMod.join(output, 'index.html');
 			break;
 		case 'jsca' :
 			render = JSON.stringify(exportData, null, '    ');
-			output += 'api.jsca';
+			output  = pathMod.join(outputPath, 'api.jsca');
 			break;
 		case 'json' :
 			render = JSON.stringify(exportData, null, '    ');
-			output += 'api.json';
+			output = pathMod.join(outputPath, 'api.json');
 			break;
 		case 'jsduck' :
 			templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
 			render = ejs.render(templateStr, { doc: exportData });
-			output += 'titanium.js';
+			output = pathMod.join(outputPath, 'titanium.js');
 			break;
 		case 'parity' :
 			templateStr = fs.readFileSync(templatePath + 'parity.ejs', 'utf8');
 			render = ejs.render(templateStr, { apis: exportData });
-			output += 'parity.html';
+			output = pathMod.join(outputPath, 'parity.html');
 			break;
 		case 'solr' :
 			render = JSON.stringify(exportData, null, '    ');
-			output += 'api_solr.json';
+			output = pathMod.join(outputPath, 'api_solr.json');
+		case 'typescript':
+			render = exportData;
+			output = pathMod.join(outputPath, 'index.d.ts');
 	}
 
 	if (!~[ 'addon' ].indexOf(format)) {
