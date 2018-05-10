@@ -15,7 +15,7 @@ description: |
     but it lets you use new ArrowDB APIs as soon as they are available.
     
     For a more detailed overview of ArrowDB and how to configure an application to use it, refer to the
-    [Integrating with Appcelerator Cloud Services](http://docs.appcelerator.com/platform/latest/#!/guide/Integrating_with_Appcelerator_Cloud_Services).
+    [Integrate with Mobile Backend Services](http://docs.appcelerator.com/platform/latest/#!/guide/Integrate_with_Mobile_Backend_Services).
         
     #### Using the Modules.Cloud Module
     

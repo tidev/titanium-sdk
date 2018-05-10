@@ -11,7 +11,11 @@
 var should = require('./utilities/assertions');
 
 describe('Titanium.API', function () {
-	it.android('TIMOB-25757', function () {
-		should.not.exist(Ti.API.bubbleParent);
+	it('integer to boolean conversion', function () {
+		var view = Ti.UI.createView({ bubbleParent: 0 });
+
+		should(view.bubbleParent).be.eql(false);
+		view.bubbleParent = 1;
+		should(view.bubbleParent).be.eql(true);
 	});
 });

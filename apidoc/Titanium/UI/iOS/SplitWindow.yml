@@ -64,12 +64,12 @@ methods:
 
 properties:
   - name: detailView
-    summary: View for the detail view section of the SplitWindow.
-    type: Titanium.UI.View
+    summary: Window for the detail view section of the SplitWindow.
+    type: Titanium.UI.Window
     
   - name: masterView
-    summary: View for the master view section of the SplitWindow.
-    type: Titanium.UI.View
+    summary: Window for the master view section of the SplitWindow.
+    type: Titanium.UI.Window
     
   - name: showMasterInPortrait
     summary: Determines whether to show the master view in portrait orientation. 
@@ -103,15 +103,15 @@ examples:
     example: |
         This is an example of a Split Window.
 
-            var detail = Ti.UI.createWindow({backgroundColor: 'white'});
-            var label1 = Ti.UI.createLabel({text: 'Detail View'});
+            var detail = Ti.UI.createWindow({ backgroundColor: 'white' });
+            var label1 = Ti.UI.createLabel({ text: 'Detail View' });
             detail.add(label1);
-            var detailNav = Ti.UI.iOS.createNavigationWindow({window: detail});
+            var detailNav = Ti.UI.iOS.createNavigationWindow({ window: detail });
             
-            var master = Ti.UI.createWindow({backgroundColor: 'gray'});
-            var label2 = Ti.UI.createLabel({text: 'Master View'});
+            var master = Ti.UI.createWindow({ backgroundColor: 'gray' });
+            var label2 = Ti.UI.createLabel({ text: 'Master View' });
             master.add(label2);
-            var masterNav = Ti.UI.iOS.createNavigationWindow({window: master});
+            var masterNav = Ti.UI.iOS.createNavigationWindow({ window: master });
 
             var splitWin = Ti.UI.iOS.createSplitWindow({
                 detailView: detailNav,
@@ -133,9 +133,9 @@ examples:
                   <Window title="Master View">
                     <ListView>
                       <ListSection headerTitle="Some items">
-                        <ListItem title="Item 1"></ListItem>
-                        <ListItem title="Item 2"></ListItem>
-                        <ListItem title="Item 3"></ListItem>
+                        <ListItem title="Item 1" />
+                        <ListItem title="Item 2" />
+                        <ListItem title="Item 3" />
                       </ListSection>
                     </ListView>
                   </Window>
@@ -153,10 +153,10 @@ examples:
             **controllers/index.js:**
 
             $.index.addEventListener('visible',function(e){
-              if (e.view == 'detail'){
+              if (e.view === 'detail') {
                 e.button.title = "Master";
                 $.index.detailView.getWindow().leftNavButton = e.button;
-              } else if (e.view == 'master'){
+              } else if (e.view === 'master') {
                 $.index.detailView.getWindow().leftNavButton = null;
               }
             });

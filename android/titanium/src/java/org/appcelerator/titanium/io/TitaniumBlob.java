@@ -8,11 +8,14 @@
 package org.appcelerator.titanium.io;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.util.TiFileHelper;
 
 import android.content.ContentUris;
 import android.database.Cursor;
@@ -22,6 +25,8 @@ import android.provider.MediaStore;
 
 public class TitaniumBlob extends TiBaseFile
 {
+	private static final String TAG = "TitaniumBlob";
+
 	protected String url;
 	protected String name;
 	protected String path;
@@ -85,6 +90,19 @@ public class TitaniumBlob extends TiBaseFile
 				if (c.moveToNext()) {
 					name = c.getString(0);
 					path = c.getString(1);
+				}
+
+				// must be a remote file, save locally as a temp file
+				// TODO: we should refactor our content resolving implementation
+				if (path == null) {
+					try {
+						InputStream inputStream =
+							TiApplication.getInstance().getContentResolver().openInputStream(Uri.parse(url));
+						File tempFile = TiFileHelper.getInstance().getTempFileFromInputStream(inputStream, name, true);
+						path = tempFile.getPath();
+					} catch (FileNotFoundException e) {
+						Log.e(TAG, "could not find " + url);
+					}
 				}
 			} finally {
 				if (c != null) {

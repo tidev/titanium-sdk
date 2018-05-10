@@ -25,7 +25,7 @@ methods:
     summary: |
         Returns whether the system is configured with a default application to handle the URL's protocol.
     description: |
-        On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](http://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
+        On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](http://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
     returns:
         type: Boolean
     platforms: [iphone, ipad]
