@@ -1,0 +1,11 @@
+<%
+  var name = param.name;
+  if ('optional' in param && param.optional === true) {
+    name = '[' + name;
+    if ('defaultValue' in param && param.defaultValue !== '') {
+      name += '=' + param.defaultValue;
+    }
+    name = name + ']';
+  }
+-%>
+ * @param {<%- param.type.join('/') %>} <%- name %> <%- param.summary -%>

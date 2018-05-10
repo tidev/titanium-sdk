@@ -236,33 +236,32 @@ function exportType(api) {
 
 /**
  * Export method parameters or event properties field
- * @param {Object[]} apis full api tree
- * @return {string[]}
+ * This really just:
+ * - tweaks the summary property to format the markdown and concatenate constants listing.
+ * - normalizes the type property to be an Array of types
+ * @param {Object[]} apis original parameters/properties
+ * @return {object[]}
  */
 function exportParams(apis) {
-	const rv = [];
+	const parameters = [];
 	apis.forEach(function (member) {
-		let platforms = '',
-			optional = '',
-			str = '';
+	// 	let platforms = '';
 		if (!('type' in member) || !member.type) {
 			member.type = 'String';
 		}
 		if (!Array.isArray(member.type)) {
 			member.type = [ member.type ];
 		}
-		if ('platforms' in member) {
-			platforms = ' (' + member.platforms.join(' ') + ') ';
-		}
-		if ('optional' in member && member.optional === true) {
-			optional += ' (optional)';
-		}
-		str += '{' +  member.type.join('/') + '} ' + platforms + member.name + optional + '\n';
-		str += exportSummary(member);
-		str += exportConstants(member);
-		rv.push(str);
+		// 	if ('platforms' in member) {
+		// 		platforms = ' (' + member.platforms.join(' ') + ') ';
+		// 	}
+		// TODO Append the platform list to the summary!
+		let summary = exportSummary(member);
+		summary += exportConstants(member);
+		member.summary = summary;
+		parameters.push(member);
 	});
-	return rv;
+	return parameters;
 }
 
 /**
@@ -408,11 +407,11 @@ function exportAPIs(api, type) {
 						}
 						member.properties = member.properties.concat(doc['Titanium.Event'].properties);
 					}
-					annotatedMember.properties = exportParams(member.properties, 'properties');
+					annotatedMember.properties = exportParams(member.properties);
 					break;
 				case 'methods':
 					if ('parameters' in member) {
-						annotatedMember.parameters = exportParams(member.parameters, 'parameters');
+						annotatedMember.parameters = exportParams(member.parameters);
 					}
 					if ('returns' in member) {
 						annotatedMember.returns = exportReturns(member);
