@@ -13,6 +13,7 @@
 #include "AndroidUtil.h"
 #include "JavaObject.h"
 #include "JNIUtil.h"
+#include "JSException.h"
 #include "KrollBindings.h"
 #include "Proxy.h"
 #include "TypeConverter.h"
@@ -165,6 +166,12 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	env->DeleteLocalRef(javaV8Object);
 	env->DeleteLocalRef(javaArgs);
 	// We don't delete the global jclass reference...
+
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+		return NULL;
+	}
 
 	return javaProxy;
 }
