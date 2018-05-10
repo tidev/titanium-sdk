@@ -171,22 +171,19 @@ methods:
         type: Titanium.Blob
         summary: The image thumbnail in a blob.
     parameters:
-
       - name: size
         type: Number
         summary: Size of the thumbnail, in either width or height.
 
       - name: borderSize
         type: Number
-        summary: Width of the thumbnail's border.
+        summary: Width of the thumbnail's border. Defaults to 1.
         optional: true
-        default: 1
 
       - name: cornerRadius
         type: Number
-        summary: Radius of the thumbnail's corners.
+        summary: Radius of the thumbnail's corners. Defaults to 0.
         optional: true
-        default: 0
 
   - name: imageWithAlpha
     summary: Returns a copy of the underlying image with an added alpha channel.
