@@ -95,6 +95,12 @@ describe('Titanium.UI.TableView', function () {
 		should(tableView.getResultsSeparatorStyle).be.a.Function;
 		should(tableView.resultsSeparatorStyle).eql(Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE);
 		should(tableView.getResultsSeparatorStyle()).eql(Ti.UI.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE);
-
+  });
+  
+	it.windowsMissing('scrollable', function () {
+		var tableView = Ti.UI.createTableView({ scrollable: false });
+		should(tableView.scrollable).be.eql(false);
+		tableView.scrollable = !tableView.scrollable;
+		should(tableView.scrollable).be.eql(true);
 	});
 });

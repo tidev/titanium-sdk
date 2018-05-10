@@ -21,6 +21,7 @@ import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.Ti2DMatrix.Operation;
 import org.appcelerator.titanium.view.TiAnimation;
 import org.appcelerator.titanium.view.TiBackgroundColorWrapper;
+import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUIView;
@@ -320,10 +321,15 @@ public class TiAnimationBuilder
 		}
 
 		if (backgroundColor != null) {
+			View bgView = view;
+			if (view instanceof TiBorderWrapperView && ((TiBorderWrapperView) view).getChildCount() > 0) {
+				// set backgroundColor on the child view and not TiBorderWrapperView itself
+				bgView = ((TiBorderWrapperView) view).getChildAt(0);
+			}
 			TiBackgroundColorWrapper bgWrap = TiBackgroundColorWrapper.wrap(view);
 			int currentBackgroundColor = bgWrap.getBackgroundColor();
 			ObjectAnimator bgAnimator =
-				ObjectAnimator.ofInt(view, "backgroundColor", currentBackgroundColor, backgroundColor);
+				ObjectAnimator.ofInt(bgView, "backgroundColor", currentBackgroundColor, backgroundColor);
 			bgAnimator.setEvaluator(new ArgbEvaluator());
 			addAnimator(animators, bgAnimator);
 		}
