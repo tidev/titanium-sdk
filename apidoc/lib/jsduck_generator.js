@@ -303,22 +303,6 @@ function exportReturns(api) {
 }
 
 /**
- * Export default field
- * @param {Object} api api object
- * @return {string}
- */
-function exportDefault(api) {
-	if ('default' in api && api['default'] !== 'undefined') {
-		if (typeof api['default'] === 'string') {
-			return convertLinks(api['default']);
-		} else {
-			return api['default'];
-		}
-	}
-	return '';
-}
-
-/**
  * Returns GitHub edit URL for current API file.
  * @param {Object} api api object
  * @return {string}
@@ -420,7 +404,8 @@ function exportAPIs(api, type) {
 				case 'properties':
 					annotatedMember.availability = member.availability || null;
 					annotatedMember.constants = exportConstants(member);
-					annotatedMember.defaultValue = exportDefault(member);
+					// FIXME How can we handle setting empty string, false, or undefined as default values?
+					annotatedMember['default'] = member['default'] || '';
 					annotatedMember.permission = member.permission || 'read-write';
 					annotatedMember.type = exportType(member);
 					annotatedMember.value = exportValue(member);

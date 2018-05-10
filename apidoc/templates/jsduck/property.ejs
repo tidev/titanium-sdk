@@ -1,6 +1,6 @@
 /**
-<% if ('defaultValue' in property && property.defaultValue !== '') { -%>
- * @property {<%- property.type %>} [<%- property.name %>=<%- property.defaultValue %>]
+<% if ('default' in property && property['default'] !== '') { -%>
+ * @property {<%- property.type %>} [<%- property.name %>=<%- property['default'] %>]
 <% } else { -%>
  * @property {<%- property.type %>} <%- property.name %>
 <% } -%>

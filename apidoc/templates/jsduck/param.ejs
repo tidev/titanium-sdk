@@ -2,8 +2,8 @@
   var name = param.name;
   if ('optional' in param && param.optional === true) {
     name = '[' + name;
-    if ('defaultValue' in param && param.defaultValue !== '') {
-      name += '=' + param.defaultValue;
+    if ('default' in param && param['default'] !== '') {
+      name += '=' + param['default'];
     }
     name = name + ']';
   }
