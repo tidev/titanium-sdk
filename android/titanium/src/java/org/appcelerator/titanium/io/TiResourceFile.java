@@ -238,7 +238,7 @@ public class TiResourceFile extends TiBaseFile
 			}
 
 			// list encrypted assets
-			String[] assets = KrollAssetHelper.getEncryptedAssets();
+			String[] assets = KrollAssetHelper.getEncryptedAssetPaths();
 			if (assets != null) {
 				for (String asset : assets) {
 					if (asset.startsWith(path)) {
@@ -280,7 +280,7 @@ public class TiResourceFile extends TiBaseFile
 				this.typeDir = true;
 				this.exists = true;
 
-			// does not exist; neither file or directory
+				// does not exist; neither file or directory
 			} else {
 				this.typeDir = false;
 				this.exists = false;

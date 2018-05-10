@@ -26,7 +26,7 @@ public class KrollAssetHelper
 
 	public interface AssetCrypt {
 		String readAsset(String path);
-		String[] getAssets();
+		String[] getAssetPaths();
 	}
 
 	public static void setAssetCrypt(AssetCrypt assetCrypt)
@@ -78,10 +78,10 @@ public class KrollAssetHelper
 		return null;
 	}
 
-	public static String[] getEncryptedAssets()
+	public static String[] getEncryptedAssetPaths()
 	{
 		if (assetCrypt != null) {
-			return assetCrypt.getAssets();
+			return assetCrypt.getAssetPaths();
 		}
 		return null;
 	}
