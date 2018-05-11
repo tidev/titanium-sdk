@@ -405,7 +405,9 @@ function exportAPIs(api, type) {
 					annotatedMember.availability = member.availability || null;
 					annotatedMember.constants = exportConstants(member);
 					// FIXME How can we handle setting empty string, false, or undefined as default values?
-					annotatedMember['default'] = member['default'] || '';
+					if ('default' in member) {
+						annotatedMember['default'] = member['default'];
+					}
 					annotatedMember.permission = member.permission || 'read-write';
 					annotatedMember.type = exportType(member);
 					annotatedMember.value = exportValue(member);

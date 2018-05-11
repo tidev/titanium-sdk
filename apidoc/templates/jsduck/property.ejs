@@ -1,6 +1,6 @@
 /**
-<% if ('default' in property && property['default'] !== '') { -%>
- * @property {<%- property.type %>} [<%- property.name %>=<%- property['default'] %>]
+<% if ('default' in property) { -%>
+ * @property {<%- property.type %>} [<%- property.name %>=<%- JSON.stringify(property['default']) %>]
 <% } else { -%>
  * @property {<%- property.type %>} <%- property.name %>
 <% } -%>
