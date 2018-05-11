@@ -137,6 +137,13 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	@Kroll.method
 	public PersonProxy getPersonByID(long id)
 	{
+		Log.w(TAG, "getPersonByID has been deprecated in favor of getPersonById (parity)", Log.DEBUG_MODE);
+		return contactsApi.getPersonById(id);
+	}
+
+	@Kroll.method
+	public PersonProxy getPersonByIdentifier(long id)
+	{
 		return contactsApi.getPersonById(id);
 	}
 
