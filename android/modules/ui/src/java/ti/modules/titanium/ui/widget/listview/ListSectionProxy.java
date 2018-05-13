@@ -705,7 +705,11 @@ public class ListSectionProxy extends ViewProxy
 	/**
 	 * @return number of entries within section
 	 */
+	// clang-format off
+	@Kroll.method(name = "getFilteredItemCount")
+	@Kroll.getProperty(name = "filteredItemCount")
 	public int getItemCount()
+	// clang-format on
 	{
 		int totalCount = 0;
 
@@ -729,7 +733,7 @@ public class ListSectionProxy extends ViewProxy
 	private boolean hideHeaderOrFooter()
 	{
 		TiListView listview = getListView();
-		return (listview.getSearchText() != null && filterIndices.isEmpty());
+		return (listview != null && listview.getSearchText() != null && filterIndices.isEmpty());
 	}
 
 	public boolean hasHeader()

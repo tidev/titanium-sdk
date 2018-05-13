@@ -30,6 +30,13 @@ properties:
     since: 3.2.0
     platforms: [android, iphone, ipad]
 
+  - name: itemCount
+    summary: Returns the item count of the section incorporating the search filter.
+    returns:
+      - type: Number
+    since: 7.2.0
+    platforms: [android]
+
   - name: headerTitle
     summary: Title of this section header.
     description: |
@@ -148,6 +155,13 @@ methods:
         type: Number
     returns:
       type: ListDataItem
+
+  - name: getItemCount
+    summary: Returns the item count of the section incorporating the search filter.
+    returns:
+      - type: Number
+    since: 7.2.0
+    platforms: [android]
 
   - name: updateItemAt
     summary: |
