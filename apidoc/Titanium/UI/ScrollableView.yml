@@ -200,15 +200,6 @@ events:
         summary: The currently visible view.
         type: Titanium.UI.View
 
-    properties:
-      - name: currentPage
-        summary: Index of the currently visible view of <Titanium.UI.ScrollableView.views>.
-        type: Number
-
-      - name: view
-        summary: The currently visible view.
-        type: Titanium.UI.View
-
   - name: scrollend
     summary: Fired when the view has stopped moving completely.
     properties:
