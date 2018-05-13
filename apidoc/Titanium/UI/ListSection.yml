@@ -4,7 +4,7 @@ summary: A list section is a container within a list view used to organize list 
 description: |
     Use the <Titanium.UI.createListSection> method or **`<ListSection>`** Alloy element to create a `ListSection`.
 
-    List sections are used to manipulate and organize list items contained within it. For examples 
+    List sections are used to manipulate and organize list items contained within it. For examples
     of using list sections, see the examples in <Titanium.UI.ListView> and <Titanium.UI.ListItem>.
 platforms: [android, ipad, iphone]
 since: '3.1.0'
@@ -13,7 +13,7 @@ excludes:
     methods: [addEventListener, fireEvent, removeEventListener]
     properties: [bubbleParent]
 properties:
- 
+
   - name: footerTitle
     summary: Title of this section footer.
     description: |
@@ -23,7 +23,7 @@ properties:
   - name: footerView
     summary: View to use for this section footer.
     description: |
-        Using this property and `footerTitle` together is not supported. Use one or the other. 
+        Using this property and `footerTitle` together is not supported. Use one or the other.
         In Alloy you can specify this property with a `<FooterView>` child element of a `<ListSection>`
         element (see Examples).
     type: Titanium.UI.View
@@ -31,10 +31,17 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: itemCount
-    summary: Returns the item count of the section incorporating the search filter.
-    returns:
-      - type: Number
-    since: 7.2.0
+    summary: Returns the item count of the section.
+    type: Number
+    since: 7.3.0
+    permission: read-only
+    platforms: [iphone, ipad]
+
+  - name: filteredItemCount
+    summary: Returns the item count of the section, also incorporating the search filter if active.
+    type: Number
+    since: 9.3.0
+    permission: read-only
     platforms: [android]
 
   - name: headerTitle
@@ -46,7 +53,7 @@ properties:
   - name: headerView
     summary: View to use for this section header.
     description: |
-        Using this property and `headerTitle` together is not supported. Use one or the other. 
+        Using this property and `headerTitle` together is not supported. Use one or the other.
         In Alloy you can specify this property with a `<HeaderView>` child element of a `<ListSection>`
         element (see Examples).
     type: Titanium.UI.View
@@ -156,13 +163,6 @@ methods:
     returns:
       type: ListDataItem
 
-  - name: getItemCount
-    summary: Returns the item count of the section incorporating the search filter.
-    returns:
-      - type: Number
-    since: 7.2.0
-    platforms: [android]
-
   - name: updateItemAt
     summary: |
         Updates an item at the specified index.
@@ -199,7 +199,7 @@ examples:
                         <HeaderView>
                             <View backgroundColor="#DDD" height="Ti.UI.SIZE">
                                 <Label>Fruits</Label>
-                            </View>>
+                            </View>
                         </HeaderView>
 
                         <ListItem title="Apple" />
