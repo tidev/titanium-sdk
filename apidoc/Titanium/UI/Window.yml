@@ -540,7 +540,7 @@ properties:
   - name: hidesBackButton
     summary: Set this to true to hide the back button of navigation bar.
     description: |
-        When this property is set to `true`, the navigation controller hides its back button.
+        When this property is set to `true`, the navigation window hides its back button.
     platforms: [iphone, ipad]
     type: Boolean
     default: false
