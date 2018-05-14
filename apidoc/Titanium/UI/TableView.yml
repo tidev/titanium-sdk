@@ -18,7 +18,7 @@ description: |
 
     Use the <Titanium.UI.createTableView> method or **`<TableView>`** Alloy element to create a `TableView`.
 
-    Also see the [TableViews guide](http://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
+    Also see the [TableViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
 
     #### Creating Tables
 
@@ -379,39 +379,6 @@ events:
         type: Number
         platforms: [android]
 
-  - name: scrollEnd
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.TableView.scrollend> instead.
-    summary: Fired when the table view stops scrolling.
-    properties:
-      - name: contentSize
-        summary: |
-            Dictionary with `width` and `height` properties containing the size of the content
-            (regardless of the display size in the case of scrolling).
-        type: Dictionary
-        platforms: [iphone, ipad]
-
-      - name: contentOffset
-        summary: Dictionary with `x` and `y` properties containing the content offset.
-        type: Point
-        platforms: [iphone, ipad]
-
-      - name: size
-        summary: |
-            Dictionary with `width` and `height` properties containing the size of the visible
-            table view.
-        type: Dictionary
-
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-
-
   - name: scrollend
     summary: Fired when the table view stops scrolling.
     properties:
@@ -694,32 +661,6 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-
-  - name: dragStart
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.TableView.dragstart> instead.
-    summary: Fired when the scrollable region starts being dragged.
-    description: |
-        A dragging gesture is when a touch remains in contact with the display to physically drag
-        the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
-
-  - name: dragEnd
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.TableView.dragend> instead.
-    summary: Fired when the scrollable region stops being dragged.
-    description: |
-        A dragging gesture is when a touch remains in contact with the display to physically drag
-        the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
-    properties:
-      - name: decelerate
-        summary: |
-            Indicates whether scrolling will continue but decelerate, now that the drag gesture has
-            been released by the touch. If `false`, scrolling will stop immediately.
-        type: Boolean
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.
@@ -1212,7 +1153,7 @@ properties:
         To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
 
         For an example, see the "Pull to refresh" section in the
-        [TableViews guide](http://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
+        [TableViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
 
         Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
 
