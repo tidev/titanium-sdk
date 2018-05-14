@@ -131,7 +131,7 @@ if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
 // Now apply our labels
 // Filter to only labels that aren't already on the PR
 const existingLabelNames = github.issue.labels.map(l => l.name);
-const labelsToAdd = labels.filter(l => !existingLabelNames.includes(l));
+const labelsToAdd = [ ...labels ].filter(l => !existingLabelNames.includes(l));
 github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: labelsToAdd });
 
 // Check for iOS crash file
