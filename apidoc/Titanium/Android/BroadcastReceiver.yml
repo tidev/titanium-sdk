@@ -40,8 +40,8 @@ description: |
 
     Further Reading:
 
-      * [Android Broadcast Intents and Receivers guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Broadcast_Intents_and_Receivers)
-      * [Android Developers: Broadcast Receivers](http://developer.android.com/reference/android/content/BroadcastReceiver.html).
+      * [Android Broadcast Intents and Receivers guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Broadcast_Intents_and_Receivers)
+      * [Android Developers: Broadcast Receivers](https://developer.android.com/reference/android/content/BroadcastReceiver.html).
 
 
 extends: Titanium.Proxy
