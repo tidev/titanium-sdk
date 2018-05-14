@@ -135,6 +135,7 @@
   [self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsOnSwipe" notification:NO];
   [self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsOnTap" notification:NO];
   [self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
+  [self replaceValue:NUMBOOL(NO) forKey:@"hidesBackButton" notification:NO];
   [super _configure];
 }
 
@@ -702,6 +703,12 @@
     [self refreshBackButton]; //Because this is actually a property of a DIFFERENT view controller,
     //we can't attach this until we're in the navbar stack.
   }
+}
+
+- (void)setHideBackButton:(id)arg
+{
+  BOOL value = [TiUtils boolValue:arg def:NO];
+  [controller.navigationItem setHidesBackButton:YES];
 }
 
 - (void)updateNavBar
