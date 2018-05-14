@@ -129,8 +129,8 @@ if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
 }
 
 // Receive existing labels to avoid re-adding them
-const existingLabels = github.api.issues.getLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name });
-const filteredLabels = existingLabels.filter(label => existingLabels.includes(label.name));
+const existingLabels = github.issue.labels.map(label => label.name);
+const filteredLabels = labels.filter(label => !existingLabels.includes(label));
 
 // Now apply our labels
 github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: filteredLabels });
