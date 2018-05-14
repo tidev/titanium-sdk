@@ -24,7 +24,6 @@ const appc = require('node-appc'),
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
-	humanize = require('humanize'),
 	ioslib = require('ioslib'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
@@ -5766,9 +5765,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
-                  targets: {
-                    ios: this.minSupportedIosSdk // Target our min ios version
-                  },
+									targets: {
+										ios: this.minSupportedIosSdk // Target our min ios version
+									},
 								};
 
 								try {
