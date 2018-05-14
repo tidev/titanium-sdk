@@ -106,6 +106,7 @@ methods:
     returns:
         type: Boolean
     platforms: [android, iphone, ipad]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.2.0" }
   - name: copy
     summary: Copies the file identified by this file object to a new path.
     description: Returns `true` if the copy succeeds.
@@ -115,13 +116,23 @@ methods:
         type: String
     returns:
         type: Boolean
-    platforms: [android]
+    platforms: [android, iphone, ipad]
+    since: { iphone: "7.2.0", ipad: "7.2.0", android: "0.9.0" }
   - name: createDirectory
     summary: Creates a directory at the path identified by this file object.
     description: |
         Returns `true` if the directory was created successfully.
     returns:
         type: Boolean
+    parameters:
+      - name: recursive
+        summary: |
+          Only available on iOS. Toggles whether to recursively create the directory structure (like mkdir -p).
+          Pass `false` to avoid recursively creating the directory.
+          Defaults to true on SDK 7.2.0+, defaults to false on older SDK versions.
+        type: Boolean
+        optional: true
+        default: true
   - name: createFile
     summary: Creates a file at the path identified by this file object.
     description: |
@@ -142,6 +153,18 @@ methods:
         On Android, returns 0 for resource files.
     returns:
         type: Number
+    deprecated:
+        since: "7.2.0"
+        notes: Use <Titanium.Filesystem.File.createdAt> instead.
+
+  - name: createdAt
+    summary: Returns the creation Date for the file identified by this file object.
+    description: |
+        On Android, returns a Date whose `getTime()` value is 0 for resource files.
+    returns:
+        type: Date
+    platforms: [iphone, ipad, android]
+    since: { iphone: "7.2.0", ipad: "7.2.0", android: "7.2.0" }
 
   - name: deleteDirectory
     summary: Deletes the directory identified by this file object.
@@ -187,7 +210,7 @@ methods:
         a <Titanium.Filesystem.File> reference in the future as well.
     deprecated:
         since: "7.0.0"
-        notes: | 
+        notes: |
             Use the <Titanium.Filesystem.File.parent> property to receive a `File`
             reference instead. If you wish to receive the path, use the `nativePath`
             property of that reference instead.
@@ -221,6 +244,17 @@ methods:
         On Android, returns 0 for resource files.
     returns:
         type: Number
+    deprecated:
+        since: "7.2.0"
+        notes: Use <Titanium.Filesystem.File.modifiedAt> instead.
+  - name: modifiedAt
+    summary: Returns the last modification Date for the file identified by this file object.
+    description: |
+        On Android, returns a Date whose `getTime()` value is 0 for resource files.
+    returns:
+        type: Date
+    platforms: [iphone, ipad, android]
+    since: { iphone: "7.2.0", ipad: "7.2.0", android: "7.2.0" }
 
   - name: move
     summary: Moves the file identified by this file object to another path.
@@ -363,8 +397,8 @@ properties:
   - name: parent
     summary: A `File` object representing the parent directory of the file identified by this object.
     description: |
-        iOS platform-note: Prior to Titanium SDK 7.0.0, this method returned the 
-        path of the parent directory as a String. Since Titanium SDK 7.0.0 it 
+        iOS platform-note: Prior to Titanium SDK 7.0.0, this method returned the
+        path of the parent directory as a String. Since Titanium SDK 7.0.0 it
         returnes a <Titanium.Filesystem.File> reference for parity wih Android and Windows.
     type: Titanium.Filesystem.File
     permission: read-only

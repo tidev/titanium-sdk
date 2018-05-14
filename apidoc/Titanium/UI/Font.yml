@@ -75,6 +75,9 @@ properties:
         For example, "16dp" specifies a size of 16 density-independent pixels.
 
         iOS ignores any unit specifier after the size value.
+
+        On Windows, font sizing is in effective pixels, not actual physical pixels so you don't have to alter font sizes for different screens sizes or resolutions.
+        For more information about font sizing on Windows, see [Typography Size and Scaling](https://docs.microsoft.com/en-us/windows/uwp/design/style/typography#size-and-scaling).
     type: [ Number, String ]
     default: 15px
   - name: fontWeight

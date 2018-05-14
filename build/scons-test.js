@@ -62,7 +62,7 @@ function runTests(platforms, branch, next) {
 		},
 		function (cb) {
 			// Make sure it's dependencies are installed
-			exec('npm install .', { cwd: path.join(MOCHA_TESTS_DIR, 'scripts') }, cb);
+			exec('npm install .', { cwd: MOCHA_TESTS_DIR }, cb);
 		},
 		function (cb) {
 			// Copy over the local overrides from tests folder
@@ -70,7 +70,7 @@ function runTests(platforms, branch, next) {
 		},
 		function (cb) {
 			// Load up the main script
-			const tests = require(path.join(MOCHA_TESTS_DIR, 'scripts')); // eslint-disable-line security/detect-non-literal-require
+			const tests = require(MOCHA_TESTS_DIR); // eslint-disable-line security/detect-non-literal-require
 			// Run the tests
 			tests.test(zipfile, platforms, program.target, program.deviceId, program.skipSdkInstall, undefined, function (err, results) {
 				if (err) {
