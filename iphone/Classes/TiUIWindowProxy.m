@@ -705,12 +705,6 @@
   }
 }
 
-- (void)setHideBackButton:(id)arg
-{
-  BOOL value = [TiUtils boolValue:arg def:NO];
-  [controller.navigationItem setHidesBackButton:YES];
-}
-
 - (void)updateNavBar
 {
   //Called from the view when the screen rotates.
