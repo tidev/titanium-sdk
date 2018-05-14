@@ -7,6 +7,7 @@
 package org.appcelerator.titanium;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
@@ -18,13 +19,14 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.view.Window;
 
-public class TiRootActivity extends TiLaunchActivity
-	implements TiActivitySupport
+import java.util.Set;
+
+public class TiRootActivity extends TiLaunchActivity implements TiActivitySupport
 {
 	private static final String TAG = "TiRootActivity";
 	private boolean finishing = false;
 
-	private Drawable[] backgroundLayers = {null, null};
+	private Drawable[] backgroundLayers = { null, null };
 
 	public void setBackgroundColor(int color)
 	{
@@ -78,30 +80,49 @@ public class TiRootActivity extends TiLaunchActivity
 
 		if (intent != null) {
 			if (rootActivity != null) {
+
+				// TIMOB-24527: FLAG_ACTIVITY_NEW_DOCUMENT creates a new activity instance
+				// which overrides any previous event handlers and prevents resumed instances
+				// from functioning correctly. We need to ignore this flag.
+				if ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_DOCUMENT) != 0) {
+					intent.setFlags(intent.getFlags() & ~Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+					finish();
+					startActivity(intent);
+
+					KrollRuntime.incrementActivityRefCount();
+					activityOnCreate(savedInstanceState);
+					return;
+				}
 				rootActivity.setIntent(intent);
 			} else {
 
-				// TIMOB-24497: launching as CATEGORY_HOME prevents intent data being passed to our
-				// resumed activity. Re-launch using CATEGORY_LAUNCHER.
-				if (intent.getCategories() != null && intent.getCategories().contains(Intent.CATEGORY_HOME)) {
+				// TIMOB-24497: launching as CATEGORY_HOME or CATEGORY_DEFAULT prevents intent data from
+				// being passed to our resumed activity. Re-launch using CATEGORY_LAUNCHER.
+				Set<String> categories = intent.getCategories();
+				if (categories == null || categories.contains(Intent.CATEGORY_HOME)
+					|| !categories.contains(Intent.CATEGORY_LAUNCHER)) {
 					finish();
 
-					intent.removeCategory(Intent.CATEGORY_HOME);
+					if (categories != null) {
+						for (String category : categories) {
+							intent.removeCategory(category);
+						}
+					}
 					intent.addCategory(Intent.CATEGORY_LAUNCHER);
 					startActivity(intent);
 
 					restartActivity(100, 0);
 
+					KrollRuntime.incrementActivityRefCount();
 					activityOnCreate(savedInstanceState);
 					return;
 				}
 			}
 
 			// TIMOB-15253: implement 'singleTask' like launchMode as android:launchMode cannot be used with Titanium
-			if (tiApp.intentFilterNewTask() &&
-				intent.getAction() != null && intent.getAction().equals(Intent.ACTION_VIEW) &&
-				intent.getDataString() != null &&
-				(intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != Intent.FLAG_ACTIVITY_NEW_TASK) {
+			if (tiApp.intentFilterNewTask() && intent.getAction() != null
+				&& intent.getAction().equals(Intent.ACTION_VIEW) && intent.getDataString() != null
+				&& (intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != Intent.FLAG_ACTIVITY_NEW_TASK) {
 
 				if (rootActivity == null) {
 					intent.setAction(Intent.ACTION_MAIN);
@@ -109,7 +130,8 @@ public class TiRootActivity extends TiLaunchActivity
 				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(intent);
 				finish();
-				
+
+				KrollRuntime.incrementActivityRefCount();
 				activityOnCreate(savedInstanceState);
 				return;
 			}
@@ -204,5 +226,4 @@ public class TiRootActivity extends TiLaunchActivity
 			super.finish();
 		}
 	}
-
 }

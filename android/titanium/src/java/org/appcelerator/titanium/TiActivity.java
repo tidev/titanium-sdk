@@ -17,7 +17,8 @@ public class TiActivity extends TiBaseActivity
 	Intent intent = null;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
 		if (intent == null) {
@@ -47,6 +48,7 @@ public class TiActivity extends TiBaseActivity
 				if (intent.getComponent().getClassName().equals(TiActivity.class.getName())) {
 					Intent newIntent = new Intent(intent);
 					newIntent.putExtras(rootIntent);
+					newIntent.setData(rootIntent.getData());
 					setIntent(newIntent);
 
 					// fire 'newintent'
@@ -83,5 +85,4 @@ public class TiActivity extends TiBaseActivity
 			return;
 		}
 	}
-
 }

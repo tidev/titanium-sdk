@@ -13,18 +13,18 @@
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)
 
-#import "TiProxy.h"
 #import "GDataXMLNode.h"
 #import "TiDOMElementProxy.h"
+#import "TiProxy.h"
 
 @interface TiDOMNamedNodeMapProxy : TiProxy {
-@private
-	TiDOMElementProxy* element;
+  @private
+  TiDOMElementProxy *element;
 }
 
-@property(nonatomic,readonly) NSNumber* length;
+@property (nonatomic, readonly) NSNumber *length;
 
--(void)setElement:(TiDOMElementProxy*)element;
+- (void)setElement:(TiDOMElementProxy *)element;
 
 @end
 

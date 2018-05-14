@@ -26,14 +26,14 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ToggleButton;
 
-public class TiUISwitch extends TiUIView
-	implements OnCheckedChangeListener
+public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 {
 	private static final String TAG = "TiUISwitch";
-	
+
 	private boolean oldValue = false;
-	
-	public TiUISwitch(TiViewProxy proxy) {
+
+	public TiUISwitch(TiViewProxy proxy)
+	{
 		super(proxy);
 		Log.d(TAG, "Creating a switch", Log.DEBUG_MODE);
 
@@ -55,11 +55,12 @@ public class TiUISwitch extends TiUIView
 
 		View nativeView = getNativeView();
 		if (nativeView != null) {
-			updateButton((CompoundButton)nativeView, d);
+			updateButton((CompoundButton) nativeView, d);
 		}
 	}
-	
-	protected void updateButton(CompoundButton cb, KrollDict d) {
+
+	protected void updateButton(CompoundButton cb, KrollDict d)
+	{
 		if (d.containsKey(TiC.PROPERTY_TITLE) && cb instanceof CheckBox) {
 			cb.setText(TiConvert.toString(d, TiC.PROPERTY_TITLE));
 		}
@@ -69,7 +70,6 @@ public class TiUISwitch extends TiUIView
 			} else if (cb instanceof SwitchCompat) {
 				((SwitchCompat) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
 			}
-
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE_ON)) {
 			if (cb instanceof ToggleButton) {
@@ -79,7 +79,7 @@ public class TiUISwitch extends TiUIView
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
-		
+
 			cb.setChecked(TiConvert.toBoolean(d, TiC.PROPERTY_VALUE));
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
@@ -99,14 +99,13 @@ public class TiUISwitch extends TiUIView
 		cb.invalidate();
 	}
 
-
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
-		
+
 		CompoundButton cb = (CompoundButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_STYLE) && newValue != null) {
 			setStyle(TiConvert.toInt(newValue));
@@ -144,7 +143,8 @@ public class TiUISwitch extends TiUIView
 	}
 
 	@Override
-	public void onCheckedChanged(CompoundButton btn, boolean value) {
+	public void onCheckedChanged(CompoundButton btn, boolean value)
+	{
 		KrollDict data = new KrollDict();
 
 		proxy.setProperty(TiC.PROPERTY_VALUE, value);
@@ -155,7 +155,7 @@ public class TiUISwitch extends TiUIView
 			oldValue = value;
 		}
 	}
-	
+
 	protected void setStyle(int style)
 	{
 		CompoundButton currentButton = (CompoundButton) getNativeView();
@@ -173,13 +173,12 @@ public class TiUISwitch extends TiUIView
 						}
 						return;
 					}
-					button = (CheckBox) TiApplication.getAppCurrentActivity().getLayoutInflater()
-						.inflate(buttonId, null);
-					button.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
-					{
+					button =
+						(CheckBox) TiApplication.getAppCurrentActivity().getLayoutInflater().inflate(buttonId, null);
+					button.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 						@Override
 						public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
-							int oldTop, int oldRight, int oldBottom)
+												   int oldTop, int oldRight, int oldBottom)
 						{
 							TiUIHelper.firePostLayoutEvent(proxy);
 						}
@@ -189,8 +188,7 @@ public class TiUISwitch extends TiUIView
 
 			case AndroidModule.SWITCH_STYLE_TOGGLEBUTTON:
 				if (!(currentButton instanceof ToggleButton)) {
-					button = new ToggleButton(proxy.getActivity())
-					{
+					button = new ToggleButton(proxy.getActivity()) {
 						@Override
 						protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 						{
@@ -212,13 +210,12 @@ public class TiUISwitch extends TiUIView
 						}
 						return;
 					}
-					button = (SwitchCompat) TiApplication.getAppCurrentActivity().getLayoutInflater()
-						.inflate(buttonId, null);
-					button.addOnLayoutChangeListener(new View.OnLayoutChangeListener()
-					{
+					button = (SwitchCompat) TiApplication.getAppCurrentActivity().getLayoutInflater().inflate(buttonId,
+																											  null);
+					button.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 						@Override
 						public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
-							int oldTop, int oldRight, int oldBottom)
+												   int oldTop, int oldRight, int oldBottom)
 						{
 							TiUIHelper.firePostLayoutEvent(proxy);
 						}

@@ -9,11 +9,11 @@
 #ifdef USE_TI_ACCELEROMETER
 #import <CoreMotion/CoreMotion.h>
 
-@interface AccelerometerModule : TiModule<UIAccelerometerDelegate> {
-@private
-    CMMotionManager* _motionManager;
-    NSOperationQueue* _motionQueue;
-    CFAbsoluteTime oldTime;
+@interface AccelerometerModule : TiModule <UIAccelerometerDelegate> {
+  @private
+  CMMotionManager *_motionManager;
+  NSOperationQueue *_motionQueue;
+  CFAbsoluteTime oldTime;
 }
 
 @end
