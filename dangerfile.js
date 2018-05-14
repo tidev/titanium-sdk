@@ -128,8 +128,12 @@ if (hasAppChanges && !hasTestChanges && !hasNoTestsLabel) {
 	}
 }
 
+// Receive existing labels to avoid re-adding them
+const existingLabels = github.api.issues.getLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name });
+const filteredLabels = existingLabels.filter(label => existingLabels.includes(label.name));
+
 // Now apply our labels
-github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: labels });
+github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: github.pr.base.repo.name, number: github.pr.number, labels: filteredLabels });
 
 // Check for iOS crash file
 const crashFiles = fs.readdirSync(__dirname).filter(function (p) {
