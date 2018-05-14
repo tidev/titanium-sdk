@@ -992,6 +992,9 @@ formats.forEach(function (format) {
 		case 'solr' :
 			render = JSON.stringify(exportData, null, '    ');
 			output = pathMod.join(outputPath, 'api_solr.json');
+		case 'typescript':
+			render = exportData;
+			output = pathMod.join(outputPath, 'index.d.ts');
 	}
 
 	if (!~[ 'addon' ].indexOf(format)) {
