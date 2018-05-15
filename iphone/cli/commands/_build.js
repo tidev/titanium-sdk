@@ -15,14 +15,12 @@
 
 const appc = require('node-appc'),
 	async = require('async'),
-	babel = require('babel-core'),
 	bufferEqual = require('buffer-equal'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	CleanCSS = require('clean-css'),
 	crypto = require('crypto'),
 	cyan = require('colors').cyan,
 	DOMParser = require('xmldom').DOMParser,
-	env = require('babel-preset-env'),
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
@@ -59,8 +57,8 @@ function iOSBuilder() {
 
 	// object mapping the build-targets to their deploy-types
 	this.deployTypes = {
-		'simulator': 'development',
-		'device': 'test',
+		simulator: 'development',
+		device: 'test',
 		'dist-appstore': 'production',
 		'dist-adhoc': 'production'
 	};
@@ -465,7 +463,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							default: true,
 							desc: __('focus the iOS Simulator')
 						},
-						'xcode': {
+						xcode: {
 							// DEPRECATED
 							// secret flag to perform Xcode pre-compile build step
 							callback: function (value) {
@@ -495,7 +493,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							hidden: true
 						},
 						'ios-version':                this.configOptioniOSVersion(130),
-						'keychain':                   this.configOptionKeychain(),
+						keychain:                   this.configOptionKeychain(),
 						'launch-bundle-id':           this.configOptionLaunchBundleId(),
 						'launch-url': {
 							// url for the application to launch in mobile Safari, as soon as the app boots up
@@ -506,7 +504,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'profiler-host': {
 							hidden: true
 						},
-						'target':                     this.configOptionTarget(110),
+						target:                     this.configOptionTarget(110),
 						'watch-app-name':             this.configOptionWatchAppName(212),
 						'watch-device-id':            this.configOptionWatchDeviceId(215)
 					}
@@ -1826,6 +1824,10 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		// this may have already been called in an option validate() callback
 		this.initTiappSettings();
 
+		// Transpilation details
+		this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+		// this.minSupportedIosSdk holds the target ios version to transpile down to
+
 		// check for blacklisted files in the Resources directory
 		[	path.join(this.projectDir, 'Resources'),
 			path.join(this.projectDir, 'Resources', 'iphone'),
@@ -2868,15 +2870,15 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 		// next we check if any tiapp.xml values changed so we know if we need to reconstruct the main.m
 		// note: as soon as these tiapp.xml settings are written to an encrypted file instead of the binary, we can remove this whole section
 		const tiappSettings = {
-			'name':        'project name',
-			'id':          'app id',
-			'analytics':   'analytics flag',
-			'publisher':   'publisher',
-			'url':         'url',
-			'version':     'version',
-			'description': 'description',
-			'copyright':   'copyright',
-			'guid':        'guid'
+			name:        'project name',
+			id:          'app id',
+			analytics:   'analytics flag',
+			publisher:   'publisher',
+			url:         'url',
+			version:     'version',
+			description: 'description',
+			copyright:   'copyright',
+			guid:        'guid'
 		};
 		let changed = null;
 
@@ -3920,12 +3922,12 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		fbAppId = this.tiapp.properties && this.tiapp.properties['ti.facebook.appid'] && this.tiapp.properties['ti.facebook.appid'].value,
 		iconName = this.tiapp.icon.replace(/(.+)(\..*)$/, '$1'), // note: this is basically stripping the file extension
 		consts = {
-			'__APPICON__': iconName,
-			'__PROJECT_NAME__': this.tiapp.name,
-			'__PROJECT_ID__': this.tiapp.id,
-			'__URL__': this.tiapp.id,
-			'__URLSCHEME__': this.tiapp.name.replace(/\./g, '_').replace(/ /g, '').toLowerCase(),
-			'__ADDITIONAL_URL_SCHEMES__': fbAppId ? '<string>fb' + fbAppId + '</string>' : ''
+			__APPICON__: iconName,
+			__PROJECT_NAME__: this.tiapp.name,
+			__PROJECT_ID__: this.tiapp.id,
+			__URL__: this.tiapp.id,
+			__URLSCHEME__: this.tiapp.name.replace(/\./g, '_').replace(/ /g, '').toLowerCase(),
+			__ADDITIONAL_URL_SCHEMES__: fbAppId ? '<string>fb' + fbAppId + '</string>' : ''
 		},
 		resourceDir = path.join(this.projectDir, 'Resources'),
 		iphoneDir = path.join(resourceDir, 'iphone'),
@@ -3965,77 +3967,77 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		i18nLaunchScreens[path.basename(p)] = 1;
 	});
 
-	[{
-		'orientation': 'Portrait',
+	[ {
+		orientation: 'Portrait',
 		'minimum-system-version': '11.0',
-		'name': 'Default-Portrait',
-		'subtype': '2436h',
-		'scale': [ '3x' ],
-		'size': '{375, 812}'
+		name: 'Default-Portrait',
+		subtype: '2436h',
+		scale: [ '3x' ],
+		size: '{375, 812}'
 	},
 	{
-		'orientation': 'Landscape',
+		orientation: 'Landscape',
 		'minimum-system-version': '11.0',
-		'name': 'Default-Landscape',
-		'subtype': '2436h',
-		'scale': [ '3x' ],
-		'size': '{375, 812}'
+		name: 'Default-Landscape',
+		subtype: '2436h',
+		scale: [ '3x' ],
+		size: '{375, 812}'
 	},
 	{
-		'orientation': 'Portrait',
+		orientation: 'Portrait',
 		'minimum-system-version': '8.0',
-		'name': 'Default-Portrait',
-		'subtype': '736h',
-		'scale': [ '3x' ],
-		'size': '{414, 736}'
+		name: 'Default-Portrait',
+		subtype: '736h',
+		scale: [ '3x' ],
+		size: '{414, 736}'
 	},
 	{
-		'orientation': 'Landscape',
+		orientation: 'Landscape',
 		'minimum-system-version': '8.0',
-		'name': 'Default-Landscape',
-		'subtype': '736h',
-		'scale': [ '3x' ],
-		'size': '{414, 736}'
+		name: 'Default-Landscape',
+		subtype: '736h',
+		scale: [ '3x' ],
+		size: '{414, 736}'
 	},
 	{
-		'orientation': 'Portrait',
+		orientation: 'Portrait',
 		'minimum-system-version': '8.0',
-		'name': 'Default',
-		'subtype': '667h',
-		'scale': [ '2x' ],
-		'size': '{375, 667}'
+		name: 'Default',
+		subtype: '667h',
+		scale: [ '2x' ],
+		size: '{375, 667}'
 	},
 	{
-		'orientation': 'Portrait',
+		orientation: 'Portrait',
 		'minimum-system-version': '7.0',
-		'name': 'Default',
-		'scale': [ '2x', '1x' ],
-		'size': '{320, 480}'
+		name: 'Default',
+		scale: [ '2x', '1x' ],
+		size: '{320, 480}'
 	},
 	{
-		'orientation': 'Portrait',
+		orientation: 'Portrait',
 		'minimum-system-version': '7.0',
-		'name': 'Default',
-		'subtype': '568h',
-		'scale': [ '2x' ],
-		'size': '{320, 568}'
+		name: 'Default',
+		subtype: '568h',
+		scale: [ '2x' ],
+		size: '{320, 568}'
 	},
 	{
-		'orientation': 'Portrait',
-		'idiom': 'ipad',
+		orientation: 'Portrait',
+		idiom: 'ipad',
 		'minimum-system-version': '7.0',
-		'name': 'Default-Portrait',
-		'scale': [ '2x', '1x' ],
-		'size': '{768, 1024}'
+		name: 'Default-Portrait',
+		scale: [ '2x', '1x' ],
+		size: '{768, 1024}'
 	},
 	{
-		'orientation': 'Landscape',
-		'idiom': 'ipad',
+		orientation: 'Landscape',
+		idiom: 'ipad',
 		'minimum-system-version': '7.0',
-		'name': 'Default-Landscape',
-		'scale': [ '2x', '1x' ],
-		'size': '{768, 1024}'
-	}].forEach(function (asset) {
+		name: 'Default-Landscape',
+		scale: [ '2x', '1x' ],
+		size: '{768, 1024}'
+	} ].forEach(function (asset) {
 		asset.scale.some(function (scale) {
 			let key;
 			const basefilename = asset.name + (asset.subtype ? '-' + asset.subtype : ''),
@@ -4228,21 +4230,21 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 	this.logger.info(__('Creating main.m'));
 
 	const consts = {
-			'__PROJECT_NAME__':     this.tiapp.name,
-			'__PROJECT_ID__':       this.tiapp.id,
-			'__DEPLOYTYPE__':       this.deployType,
-			'__SHOW_ERROR_CONTROLLER__':       this.showErrorController,
-			'__APP_ID__':           this.tiapp.id,
-			'__APP_ANALYTICS__':    String(this.tiapp.hasOwnProperty('analytics') ? !!this.tiapp.analytics : true),
-			'__APP_PUBLISHER__':    this.tiapp.publisher,
-			'__APP_URL__':          this.tiapp.url,
-			'__APP_NAME__':         this.tiapp.name,
-			'__APP_VERSION__':      this.tiapp.version,
-			'__APP_DESCRIPTION__':  this.tiapp.description,
-			'__APP_COPYRIGHT__':    this.tiapp.copyright,
-			'__APP_GUID__':         this.tiapp.guid,
-			'__APP_RESOURCE_DIR__': '',
-			'__APP_DEPLOY_TYPE__':  this.buildType
+			__PROJECT_NAME__:     this.tiapp.name,
+			__PROJECT_ID__:       this.tiapp.id,
+			__DEPLOYTYPE__:       this.deployType,
+			__SHOW_ERROR_CONTROLLER__:       this.showErrorController,
+			__APP_ID__:           this.tiapp.id,
+			__APP_ANALYTICS__:    String(this.tiapp.hasOwnProperty('analytics') ? !!this.tiapp.analytics : true),
+			__APP_PUBLISHER__:    this.tiapp.publisher,
+			__APP_URL__:          this.tiapp.url,
+			__APP_NAME__:         this.tiapp.name,
+			__APP_VERSION__:      this.tiapp.version,
+			__APP_DESCRIPTION__:  this.tiapp.description,
+			__APP_COPYRIGHT__:    this.tiapp.copyright,
+			__APP_GUID__:         this.tiapp.guid,
+			__APP_RESOURCE_DIR__: '',
+			__APP_DEPLOY_TYPE__:  this.buildType
 		},
 		contents = fs.readFileSync(path.join(this.platformPath, 'main.m')).toString().replace(/(__.+?__)/g, function (match, key) {
 			const s = consts.hasOwnProperty(key) ? consts[key] : key;
@@ -5602,12 +5604,12 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 				if (!info.i18n) {
 					const img = {
-						'extent': meta.extent,
-						'idiom': meta.idiom,
-						'filename': filename,
+						extent: meta.extent,
+						idiom: meta.idiom,
+						filename: filename,
 						'minimum-system-version': meta.minSysVer,
-						'orientation': meta.orientation,
-						'scale': meta.scale + 'x'
+						orientation: meta.orientation,
+						scale: meta.scale + 'x'
 					};
 					meta.subtype && (img.subtype = meta.subtype);
 					launchImageSet.images.push(img);
@@ -5783,54 +5785,61 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					try {
 						this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
 							const originalContents = fs.readFileSync(from).toString();
-							// parse the AST
-							const r = jsanalyze.analyzeJs(originalContents, { minify: this.minifyJS, filename: from });
-
-							// we want to sort by the "to" filename so that we correctly handle file overwriting
-							this.tiSymbols[to] = r.symbols;
-
-							// Now transpile too!
+							// Populate an initial object to pass in. This won't have modified
+							// contents or symbols populated, which it used to at this point,
+							// but I don't think any plugin relied on that behavior, while
+							// hyperloop would clobber the contents if we didn't do the mods
+							// inside the compile hook.
+							const r = {
+								original: originalContents,
+								contents: originalContents,
+								symbols: []
+							};
 							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-								const dir = path.dirname(to);
-								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-								this.unmarkBuildDirFile(to);
-
-								// generate our transpile target based on tijscore/jscore
-								const presets = this.useJSCore ? [[ env, {
-									'targets': {
-										'ios': this.minSupportedIosSdk // if using jscore, target our min ios version
-									}
-								}]] : [ env ]; // if not jscore, just transpile everything down (no target)
-								const result = babel.transform(r.contents, {
+								// Read the possibly modified file contents
+								const source = r.contents;
+								// Analyze Ti API usage, possibly also minify/transpile
+								const analyzeOptions = {
 									filename: from,
-									presets: presets
-								});
-								const newContents = result.code;
+									minify: this.minifyJS,
+									transpile: this.transpile,
+								};
+								// generate our transpile target based on tijscore/jscore
+								if (this.useJSCore) {
+									analyzeOptions.targets = { ios: this.minSupportedIosSdk }; // if using jscore, target our min ios version
+								} // if not jscore, just transpile everything down (no target)
 
-								// if we didn't change the contents any...
-								if (newContents === originalContents) {
-									if (this.copyFileSync(from, to)) { // copy/symlink if necessary
-										this.jsFilesChanged = true;
-									} else { // possibly no need to copy/change, so we skipped entirely!
-										this.logger.trace(__('No change, skipping %s', to.cyan));
-									}
-								} else {
-									// contents definitely changed from source file...
+								try {
+									const modified = jsanalyze.analyzeJs(source, analyzeOptions);
+									const newContents = modified.contents;
+
+									// we want to sort by the "to" filename so that we correctly handle file overwriting
+									this.tiSymbols[to] = modified.symbols;
+
+									const dir = path.dirname(to);
+									fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
 									const exists = fs.existsSync(to);
-									// check if dest file already exists and has same modified contents
+									// dest doesn't exist, or new contents differs from existing dest file
 									if (!exists || newContents !== fs.readFileSync(to).toString()) {
-										// dest doesn't exist or it's different, so let's write the new file
 										this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
 										exists && fs.unlinkSync(to);
 										fs.writeFileSync(to, newContents);
 										this.jsFilesChanged = true;
 									} else {
-										// so we changed from the source file, but we already wrote teh modified contents before and that didn't change
 										this.logger.trace(__('No change, skipping %s', to.cyan));
 									}
+									cb2();
+								} catch (err) {
+									err.message.split('\n').forEach(this.logger.error);
+									if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
+										this.logger.log(err.codeFrame);
+									}
+									this.logger.log();
+									process.exit(1);
+								} finally {
+									this.unmarkBuildDirFile(to);
 								}
-								cb2();
 							})(r, from, to, cb);
 						})(info.src, info.dest, next);
 					} catch (ex) {
@@ -6060,11 +6069,11 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	this.logger.info(__('Processing Titanium symbols'));
 
 	const namespaces = {
-			'analytics': 1,
-			'api': 1,
-			'network': 1,
-			'platform': 1,
-			'ui': 1
+			analytics: 1,
+			api: 1,
+			network: 1,
+			platform: 1,
+			ui: 1
 		},
 		symbols = {};
 
@@ -6541,7 +6550,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 				TMPDIR: process.env.TMPDIR,
 				HOME: process.env.HOME,
 				PATH: process.env.PATH,
-				TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/'
+				TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? https://www.axway.com/en/career'
 			}
 		},
 		next
