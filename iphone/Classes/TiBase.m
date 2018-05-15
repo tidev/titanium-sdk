@@ -147,17 +147,8 @@ BOOL TiExceptionIsSafeOnMainThread = NO;
 
 void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason, NSString *subreason, NSString *location)
 {
-#if TI_USE_KROLL_THREAD
-  if (TiExceptionIsSafeOnMainThread || [NSThread isMainThread]) {
-#endif
-    NSDictionary *details = [NSDictionary dictionaryWithObjectsAndKeys:subreason, kTiExceptionSubreason, location, kTiExceptionLocation, nil];
-    @throw [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
-#if TI_USE_KROLL_THREAD
-  } else {
-    NSString *message = [NSString stringWithFormat:@"%@. %@ %@", reason, (subreason != nil ? subreason : @""), (location != nil ? location : @"")];
-    NSLog(@"[ERROR] %@", message);
-  }
-#endif
+  NSDictionary *details = [NSDictionary dictionaryWithObjectsAndKeys:subreason, kTiExceptionSubreason, location, kTiExceptionLocation, nil];
+  @throw [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
 }
 
 NSString *JavascriptNameForClass(Class c)

@@ -756,7 +756,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
   if (args != nil) {
     _refreshControlProxy = [args retain];
-    [[self tableView] addSubview:[_refreshControlProxy control]];
+
+    if ([TiUtils isIOS10OrGreater]) {
+      [[self tableView] setRefreshControl:_refreshControlProxy.control];
+    } else {
+      [[self tableView] addSubview:[_refreshControlProxy control]];
+    }
   }
 #endif
 }
