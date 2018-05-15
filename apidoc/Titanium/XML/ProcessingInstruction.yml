@@ -2,7 +2,7 @@
 name: Titanium.XML.ProcessingInstruction
 extends: Titanium.Proxy
 summary: A way to keep processor-specific information in the text of the document. Implements the
-    [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1004215813)
+    [DOM Level 2 API](https://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1004215813)
     on Android and iOS.
 since: "0.9"
 createable: false

@@ -381,8 +381,7 @@ public class TiUIDialog extends TiUIView
 		data.put(TiC.PROPERTY_CANCEL, isCancel);
 		if (isCancel) {
 			fireEvent(TiC.EVENT_CANCEL, data);
-		} else {
-			fireEvent(TiC.EVENT_CLICK, data);
 		}
+		fireEvent(TiC.EVENT_CLICK, data);
 	}
 }
