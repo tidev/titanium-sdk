@@ -8,12 +8,10 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+var should = require('./utilities/assertions');
 
 describe('Titanium.UI.Window', function () {
 	var win,
-		didFocus = false,
 		rootWindow;
 
 	this.timeout(5000);
