@@ -116,6 +116,11 @@ USE_VIEW_FOR_CONTENT_WIDTH
   return NUMBOOL(loading);
 }
 
+- (NSNumber *)zoomLevel
+{
+  return [[(TiUIWebView *)[self view] webview] stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom"];
+}
+
 - (void)goBack:(id)args
 {
   TiThreadPerformOnMainThread(^{
