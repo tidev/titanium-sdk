@@ -403,16 +403,16 @@
 #if IS_XCODE_9
 - (NSNumber *)homeIndicatorAutoHidden
 {
-  if ([TiUtils isIOS11OrGreater] == NO) {
+  if (![TiUtils isIOS11OrGreater]) {
     NSLog(@"[ERROR] This property is available on iOS 11 and above.");
-    return NUMINT(-1);
+    return @(NO);
   }
-  return NUMBOOL([self homeIndicatorAutoHide]);
+  return @([self homeIndicatorAutoHide]);
 }
 
 - (void)setHomeIndicatorAutoHidden:(id)arg
 {
-  if ([TiUtils isIOS11OrGreater] == NO) {
+  if (![TiUtils isIOS11OrGreater]) {
     NSLog(@"[ERROR] This property is available on iOS 11 and above.");
     return;
   }
