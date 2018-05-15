@@ -28,11 +28,6 @@
 #import "TiUIiOSTransitionAnimationProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSADVIEW
-#import "TiUIiOSAdViewProxy.h"
-#import <iAd/iAd.h>
-#endif
-
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 #import "TiUIiOSCoverFlowViewProxy.h"
 #endif
@@ -473,31 +468,17 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_ON_DRAG, UIScrollViewKeyboardDismissModeO
 MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissModeInteractive);
 #endif
 
-#ifdef USE_TI_UIIOSADVIEW
-- (NSString *)AD_SIZE_PORTRAIT
-{
-  return [TiUIiOSAdViewProxy portraitSize];
-}
-
-- (NSString *)AD_SIZE_LANDSCAPE
-{
-  return [TiUIiOSAdViewProxy landscapeSize];
-}
-
-- (id)createAdView:(id)args
-{
-#if IS_XCODE_8
-  DebugLog(@"[WARN] iAd is deprecated in iOS 10 and will be removed in future versions of iOS. Please consider to replace it with a different service.");
-#endif
-
-  return [[[TiUIiOSAdViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 - (id)createCoverFlowView:(id)args
 {
   return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIIOSADVIEW
+- (id)createAdView:(id)args
+{
+  DebugLog(@"[ERROR] iAd has been deprecated in iOS 10 and SDK 5.5.0. It was removed as part of the SDK 7.0.0.");
 }
 #endif
 
@@ -818,6 +799,12 @@ MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT, UIImpactFeedbackStyleLig
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM, UIImpactFeedbackStyleMedium);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY, UIImpactFeedbackStyleHeavy);
 #endif
+#endif
+
+#if IS_XCODE_9
+MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_AUTOMATIC, UINavigationItemLargeTitleDisplayModeAutomatic);
+MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_ALWAYS, UINavigationItemLargeTitleDisplayModeAlways);
+MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_NEVER, UINavigationItemLargeTitleDisplayModeNever);
 #endif
 
 @end

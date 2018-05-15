@@ -14,14 +14,13 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import android.location.Location;
 
-
 /**
- * LocationRuleProxy represents a location rule that can be used for filtering location updates.  
+ * LocationRuleProxy represents a location rule that can be used for filtering location updates.
  * The properties contained in the rule that can used for filtering are:
  * <ul>
  * 	<li>provider - the name of the location service that this rule will match</li>
- * 	<li>accuracy - the accuracy value compared against the accuracy value of a location.  
- * 		if the location accuracy value is less than (lower is better) the accuracy value 
+ * 	<li>accuracy - the accuracy value compared against the accuracy value of a location.
+ * 		if the location accuracy value is less than (lower is better) the accuracy value
  * 		for the rule then the comparison will pass</li>
  * 	<li>minAge - time value that is expected to be less than the time in milliseconds
  * 		since the last good location update</li>
@@ -29,18 +28,20 @@ import android.location.Location;
  * 		since the last good location update</li>
  * </ul>
  */
+// clang-format off
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_PROVIDER,
 	TiC.PROPERTY_ACCURACY,
 	TiC.PROPERTY_MIN_AGE,
 	TiC.PROPERTY_MAX_AGE
 })
+// clang-format on
 public class LocationRuleProxy extends KrollProxy
 {
 	/**
-	 * Constructor.  Used primarily when creating a location rule via 
+	 * Constructor.  Used primarily when creating a location rule via
 	 * Ti.Geolocation.Android.createLocationRule
-	 * 
+	 *
 	 * @param creationArgs			creation arguments for the location provider
 	 */
 	public LocationRuleProxy(Object[] creationArgs)
@@ -51,11 +52,11 @@ public class LocationRuleProxy extends KrollProxy
 	}
 
 	/**
-	 * Constructor.  Used primarily when creating a location provider via 
+	 * Constructor.  Used primarily when creating a location provider via
 	 * internal platform code.
-	 * 
+	 *
 	 * @param provider			location service that the provider should be associated with
-	 * @param accuracy			the accuracy value that will be compared against the accuracy 
+	 * @param accuracy			the accuracy value that will be compared against the accuracy
 	 * 							value of a location
 	 * @param minAge			time value that is expected to be less than the time in milliseconds
 	 * 							since the last good location update
@@ -73,22 +74,23 @@ public class LocationRuleProxy extends KrollProxy
 	}
 
 	/**
-	 * Compares the two specified locations and checks if the new location passes the 
+	 * Compares the two specified locations and checks if the new location passes the
 	 * checks specified in this rule
-	 * 
+	 *
 	 * @param currentLocation			current location that is compared against the specified
 	 * 									new location
 	 * @param newLocation				new location that is compared against the specified
 	 * 									current location
-	 * @return							<code>true</code> if the new location passes the checks 
-	 * 									for this rule when compared against the current location, 
+	 * @return							<code>true</code> if the new location passes the checks
+	 * 									for this rule when compared against the current location,
 	 * 									<code>false</code> if not
 	 */
 	public boolean check(Location currentLocation, Location newLocation)
 	{
 		String provider = TiConvert.toString(properties.get(TiC.PROPERTY_PROVIDER));
 		if (provider != null) {
-			if (!(provider.equals(newLocation.getProvider()))) {
+			String newProvider = newLocation.getProvider();
+			if (!newProvider.equals(FusedLocationProvider.PROVIDER) && !provider.equals(newProvider)) {
 				return false;
 			}
 		}
@@ -126,4 +128,3 @@ public class LocationRuleProxy extends KrollProxy
 		return "Ti.Geolocation.Android.LocationRule";
 	}
 }
-

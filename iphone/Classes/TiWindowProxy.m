@@ -9,6 +9,7 @@
 #import "TiApp.h"
 #import "TiErrorController.h"
 #import "TiUIWindow.h"
+#import "TiUIWindowProxy.h"
 
 @interface TiWindowProxy (Private)
 - (void)openOnUIThread:(id)args;
@@ -399,6 +400,37 @@
   return isModal;
 }
 
+#if IS_XCODE_9
+- (NSNumber *)homeIndicatorAutoHidden
+{
+  if (![TiUtils isIOS11OrGreater]) {
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
+    return @(NO);
+  }
+  return @([self homeIndicatorAutoHide]);
+}
+
+- (void)setHomeIndicatorAutoHidden:(id)arg
+{
+  if (![TiUtils isIOS11OrGreater]) {
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
+    return;
+  }
+
+  ENSURE_TYPE(arg, NSNumber);
+  id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
+  [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
+  if (current != arg && [TiUtils isIOS11OrGreater]) {
+    [[self windowHoldingController] setNeedsUpdateOfHomeIndicatorAutoHidden];
+  }
+}
+
+- (BOOL)homeIndicatorAutoHide
+{
+  return [TiUtils boolValue:[self valueForUndefinedKey:@"homeIndicatorAutoHidden"] def:NO];
+}
+#endif
+
 - (BOOL)hidesStatusBar
 {
   return hidesStatusBar;
@@ -425,6 +457,16 @@
     }
     UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     [[self view] setAccessibilityElementsHidden:NO];
+    NSArray *childProxies = [self children];
+    for (TiViewProxy *thisProxy in childProxies) {
+      // Will pass messsage to view proxies if they are listening e.g TiUIListViewProxy
+      if ([thisProxy respondsToSelector:@selector(gainFocus)]) {
+        [(id)thisProxy gainFocus];
+      }
+    }
+#if IS_XCODE_9
+    [self processForSafeArea];
+#endif
   }
   TiThreadPerformOnMainThread(^{
     [self forceNavBarFrame];
@@ -442,6 +484,13 @@
       }
     }
     [[self view] setAccessibilityElementsHidden:YES];
+  }
+  NSArray *childProxies = [self children];
+  for (TiViewProxy *thisProxy in childProxies) {
+    // Will pass messsage to view proxies if they are listening e.g TiUIListViewProxy
+    if ([thisProxy respondsToSelector:@selector(resignFocus)]) {
+      [(id)thisProxy resignFocus];
+    }
   }
 }
 
@@ -600,6 +649,9 @@
     id properties = (args != nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
     [[controller navigationController] setNavigationBarHidden:NO animated:animated];
+#if IS_XCODE_9
+    [self processForSafeArea];
+#endif
   }
 }
 
@@ -611,6 +663,9 @@
     id properties = (args != nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
     [[controller navigationController] setNavigationBarHidden:YES animated:animated];
+#if IS_XCODE_9
+    [self processForSafeArea];
+#endif
     //TODO: need to fix height
   }
 }
@@ -856,4 +911,10 @@
 }
 #endif
 
+#if IS_XCODE_9
+- (void)processForSafeArea
+{
+  // Overridden in subclass
+}
+#endif
 @end

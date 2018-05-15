@@ -37,12 +37,21 @@ void ReferenceTable::makeWeakReference(jlong key)
 		key);
 }
 
-jobject ReferenceTable::clearWeakReference(jlong key)
+void ReferenceTable::makeSoftReference(jlong key)
+{
+	JNIEnv* env = JNIUtil::getJNIEnv();
+	env->CallStaticVoidMethod(
+		JNIUtil::referenceTableClass,
+		JNIUtil::referenceTableMakeSoftReferenceMethod,
+		key);
+}
+
+jobject ReferenceTable::clearReference(jlong key)
 {
 	JNIEnv* env = JNIUtil::getJNIEnv();
 	return env->CallStaticObjectMethod(
 		JNIUtil::referenceTableClass,
-		JNIUtil::referenceTableClearWeakReferenceMethod,
+		JNIUtil::referenceTableClearReferenceMethod,
 		key);
 }
 

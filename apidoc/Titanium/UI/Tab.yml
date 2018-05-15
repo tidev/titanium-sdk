@@ -75,6 +75,7 @@ methods:
             Identical to the `options` parameter to [Window.open](Titanium.UI.Window.open).
             iOS only supports the **animated** parameter.
         type: Object
+        optional: true
 
   - name: close
     summary: Closes the top-level window for this tab.
@@ -152,12 +153,9 @@ properties:
          If unspecified, iOS uses a tint color to indicate the active tab. See
          [icon](Titanium.UI.Tab.icon) for more information.
 
-         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
-         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
+         If the icon provided is larger than [30 pixels (60 pixels for retina, 90 pixels for super-retina)]
+         (https://developer.apple.com/ios/human-interface-guidelines/icons-and-images/image-size-and-resolution/),
          this image will be scaled to fit.
-
-         On iOS prior to 5.0, the default tint color is always used and this property
-         remains unset.
     type: String
     platforms: [iphone, ipad]
     since: "3.1.0"
@@ -169,12 +167,6 @@ properties:
     platforms: [android]
     since: {android: 3.0.0}
 
-  - name: backgroundDisabledColor
-    platforms: []
-
-  - name: backgroundDisabledImage
-    platforms: []
-
   - name: backgroundFocusedColor
     summary: Sets the color of the tab when it is focused.
     description: |
@@ -183,15 +175,6 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     platforms: [android]
     since: {android: 3.0.0}
-
-  - name: backgroundFocusedImage
-    platforms: []
-
-  - name: backgroundImage
-    platforms: []
-
-  - name: backgroundSelectedImage
-    platforms: []
 
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
@@ -221,8 +204,7 @@ properties:
         to black. In the active state, the tint color is usually blue. Prior to Titanium
         3.1, there was no way to override the default active icon tint.
 
-        Titanium 3.1 introduced some new ways to customize tab icons, which are supported
-        in iOS 5.0 and above:
+        Some icon-related features:
 
         *   You can specify the active tab's tint color as
         [activeTabIconTint](Titanium.UI.TabGroup.activeTabIconTint).
@@ -232,8 +214,8 @@ properties:
         inactive state, and `activeIcon` is used in the active state. **No default tint
         is applied to either icon.**
 
-         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
-         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
+         If the icon provided is larger than [30 pixels (60 pixels for retina, 90 pixels for super-retina)]
+         (https://developer.apple.com/ios/human-interface-guidelines/icons-and-images/image-size-and-resolution/),
          this image will be scaled to fit if used with activeIcon, and cropped at the bottom
          otherwise.
     type: String
@@ -298,9 +280,6 @@ properties:
     osver: {ios: {min: "5.0"}}
     platforms: [iphone,ipad]
 
-  - name: touchEnabled
-    platforms: []
-
   - name: window
     summary: Root-level tab window.  All tabs must have at least one root-level tab window.
     type: Titanium.UI.Window
@@ -349,12 +328,6 @@ events:
     summary: Fired when this tab is clicked in the tab group.
     exclude-platforms: [iphone, ipad]
 
-  - name: dblclick
-    platforms: []
-
-  - name: doubletap
-    platforms: []
-
   - name: focus
     summary: Fired when the tab gains focus.
     deprecated:
@@ -393,34 +366,10 @@ events:
         type: Titanium.UI.Tab
     platforms: [android, iphone, ipad]
 
-  - name: longpress
-    platforms: []
-
-  - name: postlayout
-    platforms: []
-
   - name: selected
     summary: Fired when the tab is selected.
     platforms: [android]
     since: "3.6.0"
-
-  - name: singletap
-    platforms: []
-
-  - name: swipe
-    platforms: []
-
-  - name: touchcancel
-    platforms: []
-
-  - name: touchend
-    platforms: []
-
-  - name: touchmove
-    platforms: []
-
-  - name: touchstart
-    platforms: []
 
   - name: unselected
     summary: Fired when the tab is unselected.

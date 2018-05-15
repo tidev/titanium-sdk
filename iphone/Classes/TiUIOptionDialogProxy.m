@@ -37,15 +37,8 @@
 - (void)show:(id)args
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
-  // prevent more than one JS thread from showing an alert box at a time
-  if ([NSThread isMainThread] == NO) {
-    [self rememberSelf];
-    TiThreadPerformOnMainThread(^{
-      [self show:args];
-    },
-        YES);
-    return;
-  }
+  ENSURE_UI_THREAD_1_ARG(args);
+  [self rememberSelf];
 
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
 
@@ -105,7 +98,7 @@
   }
 
   if ([TiUtils isIPad] && (cancelButtonIndex == -1)) {
-    UIAlertAction *theAction = [UIAlertAction actionWithTitle:@"Cancel"
+    UIAlertAction *theAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Cancel")
                                                         style:UIAlertActionStyleCancel
                                                       handler:^(UIAlertAction *action) {
                                                         [self fireClickEventWithAction:action];
@@ -254,9 +247,14 @@
                                                       NUMINT(destructiveButtonIndex), @"destructive",
                                                       nil];
 
-    [self fireEvent:@"click" withObject:event];
+    TiThreadPerformOnMainThread(^{
+      [self fireEvent:@"click" withObject:event];
+      [self cleanup];
+    },
+        YES);
+  } else {
+    [self cleanup];
   }
-  [self cleanup];
 }
 
 - (void)cleanup

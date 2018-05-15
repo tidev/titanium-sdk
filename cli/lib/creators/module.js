@@ -76,10 +76,10 @@ util.inherits(ModuleCreator, Creator);
 ModuleCreator.prototype.init = function init() {
 	return {
 		options: {
-			'id':            this.configOptionId(150),
-			'name':          this.configOptionName(140),
-			'platforms':     this.configOptionPlatforms(120),
-			'template':      this.configOptionTemplate(110),
+			id:            this.configOptionId(150),
+			name:          this.configOptionName(140),
+			platforms:     this.configOptionPlatforms(120),
+			template:      this.configOptionTemplate(110),
 			'workspace-dir': this.configOptionWorkspaceDir(170)
 		}
 	};

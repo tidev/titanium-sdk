@@ -13,6 +13,8 @@
 @class TiBuffer;
 @class WebFont;
 @class TiScriptError;
+@class TiUIView;
+@class TiViewProxy;
 
 /*	NOTE TO MODULE DEVELOPERS:
  *	The following 4 imports will be going away as it's better to simply
@@ -24,8 +26,6 @@
 #import "TiColor.h"
 #import "TiFile.h"
 #import "WebFont.h"
-
-bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, char **outOutputDataPtr, size_t *outOutputDataSize);
 
 typedef enum {
   BAD_DEST_OFFSET = -1,
@@ -534,6 +534,8 @@ typedef enum {
  @param frameRect The rectangle containing bounds to apply to the view.
  */
 + (void)setView:(UIView *)view positionRect:(CGRect)frameRect;
+
++ (void)applyConstraintToView:(TiUIView *)view forProxy:(TiViewProxy *)proxy withBounds:(CGRect)bounds;
 
 + (CGRect)viewPositionRect:(UIView *)view;
 

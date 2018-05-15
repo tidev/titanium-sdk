@@ -9,7 +9,7 @@ description: |
     
         Ti.Android.currentActivity.getString(Ti.Android.R.string.ok);
 
-    See also: [android.R](http://developer.android.com/reference/android/R.html) in the
+    See also: [android.R](https://developer.android.com/reference/android/R.html) in the
     Android Developer Reference.
 
     Accessing drawables using Ti.Android.R.drawable is deprecated and not a recommended practice since the system provided drawables can be 
@@ -24,7 +24,7 @@ properties:
   - name: anim
     summary: |
         Animation resources. See 
-        [R.anim](http://developer.android.com/reference/android/R.anim.html) 
+        [R.anim](https://developer.android.com/reference/android/R.anim.html) 
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -32,7 +32,7 @@ properties:
 
   - name: array
     summary: |
-        Array resources. See [R.array](http://developer.android.com/reference/android/R.array.html)
+        Array resources. See [R.array](https://developer.android.com/reference/android/R.array.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -41,7 +41,7 @@ properties:
   - name: attr
     summary: |
         Attribute resources. See 
-        [R.attr](http://developer.android.com/reference/android/R.attr.html)
+        [R.attr](https://developer.android.com/reference/android/R.attr.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -50,7 +50,7 @@ properties:
   - name: color
     summary: |
         Color resources. See 
-        [R.color](http://developer.android.com/reference/android/R.color.html)
+        [R.color](https://developer.android.com/reference/android/R.color.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -59,7 +59,7 @@ properties:
   - name: dimen
     summary: |
         Dimension resources.  See 
-        [http://developer.android.com/reference/android/R.dimen.html](http://developer.android.com/reference/android/R.dimen.html)
+        [https://developer.android.com/reference/android/R.dimen.html](https://developer.android.com/reference/android/R.dimen.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -68,7 +68,7 @@ properties:
   - name: drawable
     summary: |
         Drawable resources. See 
-        [R.drawable](http://developer.android.com/reference/android/R.drawable.html)
+        [R.drawable](https://developer.android.com/reference/android/R.drawable.html)
         in the Android Developer Reference.
         Accessing drawables using Ti.Android.R.drawable is deprecated and not a recommended practice since the system provided 
         drawables can be removed across Android versions. Prefer to copy the images to application res folder. 
@@ -79,7 +79,7 @@ properties:
   - name: id
     summary: |
         ID resources.  See 
-        [R.id](http://developer.android.com/reference/android/R.id.html)
+        [R.id](https://developer.android.com/reference/android/R.id.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -88,7 +88,7 @@ properties:
   - name: integer
     summary: |
         Integer resources. See 
-        [R.integer](http://developer.android.com/reference/android/R.integer.html)
+        [R.integer](https://developer.android.com/reference/android/R.integer.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -97,7 +97,7 @@ properties:
   - name: layout
     summary: |
         Layout resources. See 
-        [R.layout](http://developer.android.com/reference/android/R.layout.html)
+        [R.layout](https://developer.android.com/reference/android/R.layout.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -106,7 +106,7 @@ properties:
   - name: string
     summary: |
         String resources. See 
-        [R.string](http://developer.android.com/reference/android/R.string.html)
+        [R.string](https://developer.android.com/reference/android/R.string.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -115,7 +115,7 @@ properties:
   - name: style
     summary: |
         Style resources. See 
-        [R.style](http://developer.android.com/reference/android/R.style.html)
+        [R.style](https://developer.android.com/reference/android/R.style.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
@@ -124,7 +124,7 @@ properties:
   - name: styleable
     summary: |
         Styleable reosurces. See 
-        [R.styleable](http://developer.android.com/reference/android/R.styleable.html)
+        [R.styleable](https://developer.android.com/reference/android/R.styleable.html)
         in the Android Developer Reference.
     type: Object
     accessors: false
