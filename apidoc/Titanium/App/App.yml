@@ -331,6 +331,15 @@ events:
     platforms: [iphone, ipad]
     since: '3.1.0'
 
+  - name: shortcutitemclick
+    summary: Fired when a <Titanium.UI.ShortcutItem> is clicked.
+    properties:
+      - name: id
+        summary: Identifier of the clicked shortcut item.
+        type: String
+    platforms: [iphone, ipad, android]
+    since: '7.2.0'
+
 methods:
   - name: fireSystemEvent
     summary: Fire a system-level event such as <Titanium.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>.

@@ -41,6 +41,11 @@ public class ShortcutItemProxy extends KrollProxy
 	{
 		super();
 
+		// only supported on Android 7.1 and above
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+			return;
+		}
+
 		context = TiApplication.getAppRootOrCurrentActivity();
 		if (shortcutManager == null) {
 			shortcutManager = (ShortcutManager) context.getSystemService(Context.SHORTCUT_SERVICE);
