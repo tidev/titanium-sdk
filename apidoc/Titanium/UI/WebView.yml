@@ -684,9 +684,15 @@ properties:
         On Android you should avoid Calling `setRequestHeaders()` right after `createWebView()`. Use the `requestHeaders` property
         inside `createWebView()` or put it inside the window `open` event.
     type: Dictionary
-    platforms: [android,iphone,ipad]
+    platforms: [android, iphone, ipad]
     since: "6.1.0"
 
+  - name: zoomLevel
+    summary: Manage the zoom-level of the current page.
+    type: Number
+    default: undefined. Behaves as no zoom applied.
+    platforms: [android, iphone, ipad]
+    since: "7.2.0"
 
 examples:
   - title: Basic Web View to External URL
