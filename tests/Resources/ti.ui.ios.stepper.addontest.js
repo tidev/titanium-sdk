@@ -19,7 +19,7 @@ describe.ios('Titanium.UI.iOS', function () {
 			steps: 3,
 			maximum: 30,
 			minimum: 0,
-			value:20
+			value: 20
 		});
 		should(stepper.value).be.eql(20);
 		stepper.setValue(30);
