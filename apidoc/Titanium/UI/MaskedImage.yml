@@ -14,12 +14,11 @@ description: |
     These constants correspond directly to the iOS blend modes described in the iOS developer 
     library:
 
-    ["CGBlendMode" in CGContext Reference](http://developer.apple.com/library/ios/#documentation/GraphicsImaging/Reference/CGContext/Reference/reference.html#//apple_ref/c/tdef/CGBlendMode)
+    ["CGBlendMode" in CGContext Reference](https://developer.apple.com/documentation/coregraphics/cgblendmode)
 
     and:
 
-    ["Using Blend Modes with Images" in Quartz2D
-    Reference](http://developer.apple.com/library/ios/#documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101)
+    ["Bitmap Images and Image Masks" in Quartz2D Reference](https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101)
 
     When compositing two images, the `mask` property specifies the background, or 
     destination (D) image, and the `image` property specifies the foreground, or 

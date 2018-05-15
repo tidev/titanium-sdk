@@ -104,7 +104,7 @@ exports.exportData = function exportHTML(apis) {
 			if (property.__hide) {
 				continue;
 			}
-			proxy.properties.push({ name:property.name, platforms:property.platforms });
+			proxy.properties.push({ name: property.name, platforms: property.platforms });
 			if (!pseudo) {
 				updateCoverage(rv.coverage, property.platforms);
 			}
@@ -113,7 +113,7 @@ exports.exportData = function exportHTML(apis) {
 			if (method.__hide) {
 				continue;
 			}
-			proxy.methods.push({ name:method.name, platforms:method.platforms });
+			proxy.methods.push({ name: method.name, platforms: method.platforms });
 			if (!pseudo) {
 				updateCoverage(rv.coverage, method.platforms);
 			}
@@ -122,7 +122,7 @@ exports.exportData = function exportHTML(apis) {
 			if (event.__hide) {
 				continue;
 			}
-			proxy.events.push({ name:event.name, platforms:event.platforms });
+			proxy.events.push({ name: event.name, platforms: event.platforms });
 			if (!pseudo) {
 				updateCoverage(rv.coverage, event.platforms);
 			}
