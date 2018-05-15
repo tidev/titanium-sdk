@@ -478,6 +478,18 @@ properties:
     type: Boolean
     default: false
 
+  - name: homeIndicatorAutoHidden
+    summary: Boolean value indicating whether the system is allowed to hide the visual indicator for returning to the Home screen.
+    description: |
+        Set this value true, if you want the system to determine when to hide the indicator. Set this value false, 
+        if you want the indicator shown at all times. The system takes your preference into account, but setting 
+        true is no guarantee that the indicator will be hidden.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 7.3.0
+    osver: {ios: {min: "11.0"}}
+
   - name: hideShadow
     summary: Set this to true to hide the shadow image of the navigation bar.
     description: |
