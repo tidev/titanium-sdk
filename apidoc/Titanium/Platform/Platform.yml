@@ -25,7 +25,7 @@ methods:
     summary: |
         Returns whether the system is configured with a default application to handle the URL's protocol.
     description: |
-        On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](http://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
+        On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
     returns:
         type: Boolean
     platforms: [iphone, ipad]
@@ -132,7 +132,7 @@ properties:
         
         Previously on iOS this may have been a UDID, but access to
         this has been restricted by Apple. For more information, see
-        [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
+        [UUID Article on NSHipster](http://nshipster.com/uuid-udid-unique-identifier/)
         documentation.
 
         To use a UUID across different applications of the same vendor,

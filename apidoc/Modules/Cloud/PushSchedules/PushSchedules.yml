@@ -11,7 +11,7 @@ description: |
     Datetime fields use the ISO 8601 format, for example, `YYYY-MM-DDTHH:mm:ss+ZZZZ`.
 
     For information on configuring and setting up push notifications,
-    see the [Push Notifications guide](http://docs.appcelerator.com/platform/latest/#!/guide/Push_Notifications).
+    see the [Push Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/Push_Notifications).
 extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 platforms: [android, iphone, ipad]
@@ -23,7 +23,7 @@ methods:
     description: |
         Requires user login and the current user must be an application admin. 
         
-        See [push_schedules/create.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushSchedules-method-create)
+        See [push_schedules/create.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushSchedules-method-create)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -39,7 +39,7 @@ methods:
     description: |
         Requires user login and the current user must be an application admin. 
         
-        See [push_schedules/delete.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushSchedules-method-delete)
+        See [push_schedules/delete.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushSchedules-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -55,7 +55,7 @@ methods:
     description: |
         Requires user login and the current user must be an application admin. 
         
-        See [push_schedules/qyery.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushSchedules-method-query)
+        See [push_schedules/qyery.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushSchedules-method-query)
         for the request parameter supported by this method.
     parameters:
       - name: parameters
@@ -127,6 +127,6 @@ summary: Argument passed to the callback when a request finishes successfully.
 extends: CloudResponse
 properties:
   - name: push_schedules
-    summary: Array of [schedules push notifications](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushSchedules), if any exist.
+    summary: Array of [schedules push notifications](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushSchedules), if any exist.
     description: Only included if `success` is `true`.
     type: Array<Object>
