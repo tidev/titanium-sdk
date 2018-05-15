@@ -16,24 +16,6 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 #include <libkern/OSAtomic.h>
 
-#ifdef KROLL_COVERAGE
-#import "KrollCoverage.h"
-@interface TitaniumObject : KrollCoverageObject {
-#else
-@interface TitaniumObject : KrollObject {
-#endif
-  @private
-  NSMutableDictionary *modules;
-  TiHost *host;
-  id<TiEvaluator> pageContext;
-  NSMutableDictionary *dynprops;
-}
-
-- (id)initWithContext:(KrollContext *)context_ host:(TiHost *)host_ context:(id<TiEvaluator>)context baseURL:(NSURL *)baseURL_;
-- (id)addModule:(NSString *)name module:(TiModule *)module;
-- (TiModule *)moduleNamed:(NSString *)name context:(id<TiEvaluator>)context;
-@end
-
 extern NSString *TitaniumModuleRequireFormat;
 
 @interface KrollBridge : Bridge <TiEvaluator, KrollDelegate> {
@@ -44,7 +26,7 @@ extern NSString *TitaniumModuleRequireFormat;
   NSDictionary *preload;
   NSMutableDictionary *modules;
   NSMutableDictionary *pathCache;
-  TitaniumObject *titanium;
+//  TitaniumObject *titanium;
   KrollObject *console;
   BOOL shutdown;
   BOOL evaluationError;

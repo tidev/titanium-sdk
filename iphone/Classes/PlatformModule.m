@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_PLATFORM
 
 #import "PlatformModule.h"
+#import "TiPlatformDisplayCaps.h"
 #import "TiApp.h"
 
 #import <mach/mach.h>
@@ -27,7 +28,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize name, model, version, architecture, processorCount, username, ostype, availableMemory;
+@synthesize architecture, availableMemory, model, name, osname, ostype, processorCount, username, version;
 
 #pragma mark Internal
 
@@ -47,10 +48,10 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 
     if ([TiUtils isIPad]) {
       // ipad is a constant for Ti.Platform.osname
-      [self replaceValue:@"ipad" forKey:@"osname" notification:NO];
+      osname = [@"ipad" retain];
     } else {
       // iphone is a constant for Ti.Platform.osname
-      [self replaceValue:@"iphone" forKey:@"osname" notification:NO];
+      osname = [@"iphone" retain];
     }
 
     NSString *themodel = [theDevice model];
@@ -105,10 +106,10 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   RELEASE_TO_NIL(architecture);
   RELEASE_TO_NIL(processorCount);
   RELEASE_TO_NIL(username);
-  RELEASE_TO_NIL(address);
+//  RELEASE_TO_NIL(address);
   RELEASE_TO_NIL(ostype);
   RELEASE_TO_NIL(availableMemory);
-  RELEASE_TO_NIL(capabilities);
+//  RELEASE_TO_NIL(capabilities);
   [super dealloc];
 }
 
@@ -220,14 +221,24 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 }
 
 #if defined(USE_TI_PLATFORMIDENTIFIERFORADVERTISING) || defined(USE_TI_PLATFORMGETIDENTIFIERFORADVERTISING)
-- (NSNumber *)isAdvertisingTrackingEnabled
+- (BOOL)isAdvertisingTrackingEnabled
 {
-  return NUMBOOL([[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled]);
+  return [[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled];
 }
 
 - (NSString *)identifierForAdvertising
 {
   return [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+}
+#else
+- (BOOL)isAdvertisingTrackingEnabled
+{
+    return NO;
+}
+
+- (NSString *)identifierForAdvertising
+{
+    return @"";
 }
 #endif
 
@@ -236,12 +247,12 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   return [TiUtils appIdentifier];
 }
 
-- (NSString *)createUUID:(id)args
+- (NSString *)createUUID
 {
   return [TiUtils createUUID];
 }
 
-- (NSNumber *)is24HourTimeFormat:(id)unused
+- (BOOL)is24HourTimeFormat
 {
   NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
   [dateFormatter setLocale:[NSLocale currentLocale]];
@@ -250,7 +261,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   NSRange amRange = [dateInStringForm rangeOfString:[dateFormatter AMSymbol]];
   NSRange pmRange = [dateInStringForm rangeOfString:[dateFormatter PMSymbol]];
   [dateFormatter release];
-  return NUMBOOL(amRange.location == NSNotFound && pmRange.location == NSNotFound);
+  return amRange.location == NSNotFound && pmRange.location == NSNotFound;
 }
 
 - (NSNumber *)availableMemory
@@ -266,31 +277,33 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   return [NSNumber numberWithDouble:((vm_page_size * vmStats.free_count) / 1024.0) / 1024.0];
 }
 
-- (NSNumber *)openURL:(NSArray *)args
+- (BOOL)openURL:(NSString *)newUrlString
 {
-  NSString *newUrlString = [args objectAtIndex:0];
   NSURL *newUrl = [TiUtils toURL:newUrlString proxy:self];
-  BOOL result = NO;
   if (newUrl != nil) {
-    [[UIApplication sharedApplication] openURL:newUrl];
+    return [[UIApplication sharedApplication] openURL:newUrl];
   }
 
-  return [NSNumber numberWithBool:result];
+  return NO;
 }
 
-- (NSNumber *)canOpenURL:(id)arg
+- (BOOL)canOpenURL:(NSString *)arg
 {
-  ENSURE_SINGLE_ARG(arg, NSString);
   NSURL *url = [TiUtils toURL:arg proxy:self];
-  return NUMBOOL([[UIApplication sharedApplication] canOpenURL:url]);
+  return [[UIApplication sharedApplication] canOpenURL:url];
+}
+
+- (TiPlatformDisplayCaps *)DisplayCaps
+{
+    return [self displayCaps];
 }
 
 - (TiPlatformDisplayCaps *)displayCaps
 {
-  if (capabilities == nil) {
-    return [[[TiPlatformDisplayCaps alloc] _initWithPageContext:[self executionContext]] autorelease];
-  }
-  return capabilities;
+//  if (capabilities == nil) {
+    return [[[TiPlatformDisplayCaps alloc] init] autorelease];
+//  }
+//  return capabilities;
 }
 
 - (void)setBatteryMonitoring:(NSNumber *)yn
@@ -402,7 +415,7 @@ MAKE_SYSTEM_PROP(BATTERY_STATE_FULL, UIDeviceBatteryStateFull);
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification
 {
-  RELEASE_TO_NIL(capabilities);
+//  RELEASE_TO_NIL(capabilities);
   [super didReceiveMemoryWarning:notification];
 }
 

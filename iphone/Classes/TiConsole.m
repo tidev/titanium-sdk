@@ -9,9 +9,9 @@
 
 @implementation TiConsole
 
-- (void)log:(NSArray *)args
+- (void)log:(id)level withMessage:(id)args
 {
-  [self logMessage:args severity:@"info"];
+  [self logMessage:level severity:@"info"];
 }
 
 @end

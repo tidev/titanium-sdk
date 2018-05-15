@@ -209,7 +209,13 @@ JSValueRef KrollGetProperty(JSContextRef jsContext, JSObjectRef object, JSString
         return remoteFunction;
       }
     }
-
+      
+    // TODO USe a marking protocol to skip when
+      if ([result conformsToProtocol:@protocol(JSExport)]) {
+          JSContext *objcContext = [JSContext contextWithJSGlobalContextRef:[[o context] context]];
+          return [[JSValue valueWithObject:result inContext:objcContext] JSValueRef];
+      }
+      
     JSValueRef jsResult = ConvertIdTiValue([o context], result);
     if (([result isKindOfClass:[KrollObject class]] && ![result isKindOfClass:[KrollCallback class]] && [[result target] isKindOfClass:[TiProxy class]])
         || ([result isKindOfClass:[TiProxy class]])) {
@@ -281,18 +287,6 @@ bool KrollSetProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef pr
   return false;
 }
 
-// forward declare these
-
-//@interface TitaniumObject : NSObject
-//@end
-
-@interface TitaniumObject (Private)
-- (NSDictionary *)modules;
-@end
-
-//@interface TiProxy : NSObject
-//@end
-
 //
 // handle property names which makes the object iterable
 //
@@ -307,13 +301,7 @@ void KrollPropertyNames(JSContextRef ctx, JSObjectRef object, JSPropertyNameAccu
   if (o) {
     id target = [o target];
 
-    if ([o isKindOfClass:[TitaniumObject class]]) {
-      for (NSString *key in [[(TitaniumObject *)o modules] allKeys]) {
-        JSStringRef value = JSStringCreateWithUTF8CString([key UTF8String]);
-        JSPropertyNameAccumulatorAddName(propertyNames, value);
-        JSStringRelease(value);
-      }
-    } else if ([target isKindOfClass:[TiProxy class]]) {
+    if ([target isKindOfClass:[TiProxy class]]) {
       for (NSString *key in [target allKeys]) {
         JSStringRef value = JSStringCreateWithUTF8CString([key UTF8String]);
         JSPropertyNameAccumulatorAddName(propertyNames, value);

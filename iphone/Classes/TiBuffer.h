@@ -14,8 +14,8 @@
  The class represents a buffer of bytes.
  */
 @interface TiBuffer : TiProxy {
-  NSMutableData *data;
-  NSNumber *byteOrder;
+    NSMutableData *data;
+    NSNumber *byteOrder;
 }
 /**
  Provides access to raw data.
