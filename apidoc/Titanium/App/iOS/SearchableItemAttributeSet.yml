@@ -29,7 +29,7 @@ properties:
     summary: Content type of the attribute set.
     description: |
         Must be set to create a SearchableItemAttributeSet object.  Set to an identifier in the
-        [iOS Developer Library: System-Declared Uniform Type Identifiers](https://developer.apple.com/library/ios/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html)
+        [iOS Developer Library: System-Declared Uniform Type Identifiers](https://developer.apple.com/library/content/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html)
     type: String
     constants: Titanium.App.iOS.UTTYPE_*
     availability: creation

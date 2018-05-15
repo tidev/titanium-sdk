@@ -7,9 +7,8 @@ description: |
     (especially CommonJS modules) to Titanium.
     
     Note that `console` does not currently implement the complete
-    [firebug specification](http://getfirebug.com/wiki/index.php/Console_API).
-    Our support is roughly equivalent to that offered by
-    [node.js's console](http://nodejs.org/api/stdio.html).
+    [Console](https://developer.mozilla.org/de/docs/Web/API/Console) specification.
+    See the following supported methods for details and submit a pull request to add more!
 since: "2.1.0"
 methods:
   - name: log
