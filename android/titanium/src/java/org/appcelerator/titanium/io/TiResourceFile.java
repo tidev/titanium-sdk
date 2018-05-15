@@ -30,7 +30,7 @@ public class TiResourceFile extends TiBaseFile
 {
 	private static final String TAG = "TiResourceFile";
 
-	private final String path;
+	private String path;
 	private boolean statsFetched = false;
 	private boolean exists = false;
 
@@ -191,6 +191,9 @@ public class TiResourceFile extends TiBaseFile
 
 	public String toURL()
 	{
+		if (!path.isEmpty() && !path.endsWith("/") && isDirectory()) {
+			path += "/";
+		}
 		return TiC.URL_ANDROID_ASSET_RESOURCES + path;
 	}
 
@@ -273,6 +276,7 @@ public class TiResourceFile extends TiBaseFile
 			this.typeDir = false;
 			this.typeFile = true;
 			this.exists = true;
+
 		} else {
 			this.typeFile = false;
 
