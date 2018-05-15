@@ -34,10 +34,6 @@ describe('Titanium.UI.Window', function () {
 		rootWindow.close();
 	});
 
-	beforeEach(function () {
-		didFocus = false;
-	});
-
 	afterEach(function () {
 		if (win) {
 			win.close();
