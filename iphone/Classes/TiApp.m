@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -923,25 +923,24 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 
   if (error) {
-    NSDictionary *errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                            NUMINTEGER([error code]), @"errorCode",
+    NSDictionary *errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:@(NO), @"success",
+                                            @([error code]), @"errorCode",
                                             [error localizedDescription], @"message",
                                             nil];
     [dict addEntriesFromDictionary:errorinfo];
   } else {
     NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(task.taskIdentifier)];
-    if (responseObj) {
-      //we only send responseText as this is the responsesData dictionary only gets filled with data from uploads
+    if (responseObj != nil) {
+      // We only send "responseText" as the "responsesData" is only set with data from uploads
       NSString *responseText = [[NSString alloc] initWithData:[responseObj objectForKey:@"responseData"] encoding:NSUTF8StringEncoding];
       NSInteger statusCode = [[responseObj valueForKey:@"statusCode"] integerValue];
       [uploadTaskResponses removeObjectForKey:@(task.taskIdentifier)];
-      NSDictionary *success = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
-                                                   NUMINT(0), @"errorCode",
-                                                   responseText, @"responseText",
-                                                   NUMINTEGER(statusCode), @"statusCode",
-                                                   nil];
-      [dict addEntriesFromDictionary:success];
-      ;
+      NSDictionary *successResponse = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(YES), @"success",
+                                                           @(0), @"errorCode",
+                                                           responseText, @"responseText",
+                                                           @(statusCode), @"statusCode",
+                                                           nil];
+      [dict addEntriesFromDictionary:successResponse];
     }
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
