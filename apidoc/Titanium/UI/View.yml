@@ -1324,6 +1324,19 @@ properties:
     platforms: [android]
     since: 6.1.0
 
+  - name: horizontalMotionEffect
+    summary: Adds a horizontal parallax effect to the view
+    description: |
+        Pass an object with the following key-value pairs:
+
+         * `min` (Number): Minimum amount it can move horizontally (-10 for example)
+         * `max` (Number): Maximum amount it can move horizontally (10 for example)
+
+         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator
+    type: Dictionary
+    platforms: [iphone, ipad]
+    since: 7.2.0
+
   - name: left
     summary: View's left position, in platform-specific units.
     description: |
@@ -1665,6 +1678,19 @@ properties:
     platforms: [android]
     since: "5.0.2"
     osver: {android: {min: 5.0}}
+
+  - name: verticalMotionEffect
+    summary: Adds a vertical parallax effect to the view
+    description: |
+        Pass an object with the following key-value pairs:
+
+         * `min` (Number): Minimum amount it can move vertically (-10 for example)
+         * `max` (Number): Maximum amount it can move vertically (10 for example)
+
+         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator
+    type: Dictionary
+    platforms: [iphone, ipad]
+    since: 7.2.0
 
   - name: viewShadowRadius
     summary: Determines the blur radius used to create the shadow.
