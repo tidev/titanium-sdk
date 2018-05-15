@@ -26,7 +26,7 @@ description: |
 
     Further Reading:
 
-      * [Android Developers: MenuItem](http://developer.android.com/reference/android/view/MenuItem.html)
+      * [Android Developers: MenuItem](https://developer.android.com/reference/android/view/MenuItem.html)
 
 extends: Titanium.Proxy
 platforms: [android]
@@ -237,10 +237,10 @@ properties:
 
         See also:
 
-        *   [getOrder](http://developer.android.com/reference/android/view/MenuItem.html#getOrder())
+        *   [getOrder](https://developer.android.com/reference/android/view/MenuItem.html#getOrder())
             in the Android Developer Reference.
 
-        *   [Menu](http://developer.android.com/reference/android/view/Menu.html) in the
+        *   [Menu](https://developer.android.com/reference/android/view/Menu.html) in the
             Android Developer Reference for definitions of the `CATEGORY` values.
     type: Number
     permission: read-only

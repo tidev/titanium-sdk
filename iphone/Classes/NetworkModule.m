@@ -254,7 +254,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
   pushNotificationError = [[args objectForKey:@"error"] retain];
   pushNotificationCallback = [[args objectForKey:@"callback"] retain];
 
-  [[TiApp app] setRemoteNotificationDelegate:self];
+  [[TiApp app] registerApplicationDelegate:self];
 
   UIApplication *app = [UIApplication sharedApplication];
 
@@ -280,6 +280,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 {
   UIApplication *app = [UIApplication sharedApplication];
   [app unregisterForRemoteNotifications];
+  [[TiApp app] unregisterApplicationDelegate:self];
 }
 
 #pragma mark Push Notification Delegates

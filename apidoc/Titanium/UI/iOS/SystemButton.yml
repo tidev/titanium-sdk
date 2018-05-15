@@ -26,7 +26,7 @@ description: |
     * [INFO_LIGHT](Titanium.UI.iOS.SystemButton.INFO_LIGHT)
 
     See Apple's 
-    [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/Introduction/Introduction.html) 
+    [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/) 
     in the iOS Developer Library for details on the proper usage of iOS standard buttons
     and icons.
 extends: Titanium.Proxy

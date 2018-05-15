@@ -16,6 +16,7 @@
 #import "TiMediaAudioSession.h"
 #import "TiMediaItem.h"
 #import "TiMediaMusicPlayer.h"
+#import "TiMediaTypes.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 
@@ -320,15 +321,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER, MediaModuleErrorNoMusicPlayer);
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 MAKE_SYSTEM_STR(MEDIA_TYPE_VIDEO, kUTTypeMovie);
 MAKE_SYSTEM_STR(MEDIA_TYPE_PHOTO, kUTTypeImage);
-
-- (NSString *)MEDIA_TYPE_LIVEPHOTO
-{
-  if ([TiUtils isIOS9_1OrGreater] == YES) {
-    return (NSString *)kUTTypeLivePhoto;
-  }
-
-  return @"";
-}
+MAKE_SYSTEM_STR(MEDIA_TYPE_LIVEPHOTO, kUTTypeLivePhoto);
 
 //Constants for videoQuality for Video Editing
 MAKE_SYSTEM_PROP(QUALITY_HIGH, UIImagePickerControllerQualityTypeHigh);
