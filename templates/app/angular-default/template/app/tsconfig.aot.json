@@ -1,0 +1,7 @@
+{
+    "extends": "./tsconfig",
+    "angularCompilerOptions": {
+        "genDir": "./src",
+        "preserveWhitespaces": false
+    }
+}

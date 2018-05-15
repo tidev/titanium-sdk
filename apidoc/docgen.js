@@ -981,17 +981,20 @@ formats.forEach(function (format) {
 			break;
 		case 'jsduck' :
 			templateStr = fs.readFileSync(templatePath + 'jsduck.ejs', 'utf8');
-			render = ejs.render(templateStr, { doc: exportData });
+			render = ejs.render(templateStr, { doc: exportData }, { filename: templatePath + 'jsduck.ejs' });
 			output = pathMod.join(outputPath, 'titanium.js');
 			break;
 		case 'parity' :
 			templateStr = fs.readFileSync(templatePath + 'parity.ejs', 'utf8');
-			render = ejs.render(templateStr, { apis: exportData });
+			render = ejs.render(templateStr, { apis: exportData }, { filename: templatePath + 'parity.ejs' });
 			output = pathMod.join(outputPath, 'parity.html');
 			break;
 		case 'solr' :
 			render = JSON.stringify(exportData, null, '    ');
 			output = pathMod.join(outputPath, 'api_solr.json');
+		case 'typescript':
+			render = exportData;
+			output = pathMod.join(outputPath, 'index.d.ts');
 	}
 
 	if (!~[ 'addon' ].indexOf(format)) {

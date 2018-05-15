@@ -166,6 +166,12 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 		env->DeleteLocalRef(javaValue);
 	}
 
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+		return;
+	}
+
 	// Store new property value on JS internal map.
 	setPropertyOnProxy(isolate, property, value, proxyObject);
 }
@@ -206,6 +212,12 @@ void Proxy::getIndexedProperty(uint32_t index, const PropertyCallbackInfo<Value>
 
 	proxy->unreferenceJavaObject(javaProxy);
 
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+		return;
+	}
+
 	Local<Value> result = TypeConverter::javaObjectToJsValue(isolate, env, value);
 	env->DeleteLocalRef(value);
 
@@ -235,6 +247,12 @@ void Proxy::setIndexedProperty(uint32_t index, Local<Value> value, const Propert
 	proxy->unreferenceJavaObject(javaProxy);
 	if (javaValueIsNew) {
 		env->DeleteLocalRef(javaValue);
+	}
+
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+		return;
 	}
 
 	info.GetReturnValue().Set(value);
@@ -272,6 +290,12 @@ void Proxy::hasListenersForEventType(const v8::FunctionCallbackInfo<v8::Value>& 
 
 	env->DeleteLocalRef(krollObject);
 	env->DeleteLocalRef(javaEventType);
+
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+		return;
+	}
 }
 
 void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
@@ -311,6 +335,12 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 	env->DeleteLocalRef(javaEventType);
 	if (isNew) {
 		env->DeleteLocalRef(javaEventData);
+	}
+
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+		return;
 	}
 }
 
@@ -498,7 +528,10 @@ void Proxy::proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& 
 
 	proxy->unreferenceJavaObject(javaProxy);
 
-	return;
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+	}
 }
 
 void Proxy::dispose(Isolate* isolate)
