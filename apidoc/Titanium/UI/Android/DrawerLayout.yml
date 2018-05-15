@@ -158,21 +158,17 @@ examples:
             });
             const btn = Ti.UI.createButton({ title: 'RIGHT' });
 
-            btn.addEventListener('click', () => {
-                drawer.toggleRight();
-            });
+            btn.addEventListener('click', () => drawer.toggleRight());
 
             centerView.add(btn);
 
             win.addEventListener('open', () => {
-                const activity = win.getActivity(),
-                    actionBar = activity.getActionBar();
+                const activity = win.getActivity();
+                const actionBar = activity.getActionBar();
 
                 if (actionBar) {
                     actionBar.displayHomeAsUp = true;
-                    actionBar.onHomeIconItemSelected = () => {
-                        drawer.toggleLeft();
-                    };
+                    actionBar.onHomeIconItemSelected = () => drawer.toggleLeft();
                 }
             });
 

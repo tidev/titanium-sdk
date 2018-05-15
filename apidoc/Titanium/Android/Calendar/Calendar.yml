@@ -233,9 +233,7 @@ examples:
         have been selected in the native Android calendar application.
         
             function showCalendars(calendars) {
-              calendars.forEach(calendar => {
-                Ti.API.info(calendar.name);
-              });
+              calendars.forEach(calendar => Ti.API.info(calendar.name));
             }
             
             Ti.API.info('ALL CALENDARS: ');

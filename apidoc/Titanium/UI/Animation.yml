@@ -231,7 +231,7 @@ examples:
             win.add(box);
 
             box.addEventListener('click', () => {
-              const matrix = Ti.UI.create2DMatrix();
+              let matrix = Ti.UI.create2DMatrix();
               matrix = matrix.rotate(180);
               matrix = matrix.scale(2, 2);
               const animation = Ti.UI.createAnimation({

@@ -95,7 +95,7 @@ description: |
     full height of the web view:
 
         window.onresize= () => {
-            document.getElementById("component").style.height = window.innerHeight + 'px';
+            document.getElementById('component').style.height = window.innerHeight + 'px';
         };
 
     For more information, see the following topics:
@@ -153,7 +153,7 @@ methods:
       For example:
 
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
-                  { baseURL:'https://developer.appcelerator.com/' });
+                  { baseURL: 'https://developer.appcelerator.com/' });
     parameters:
 
       - name: html

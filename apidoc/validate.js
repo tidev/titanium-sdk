@@ -556,7 +556,7 @@ function validateKey(obj, syntax, currentKey, className) {
 		if (syntax.length === 1) {
 			if (Array.isArray(syntax[0])) {
 				// Validate array elements against syntax array
-				const errs = [];
+				let errs = [];
 				// If key is 'platforms', validate not an empty array!
 				if (currentKey === 'platforms' && obj.length === 0) {
 					errs.push('platforms array must not be empty. Remove to fall back to "default" platforms based on "since" value; or remove doc entry if this applies to no platforms.');

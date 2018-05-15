@@ -122,9 +122,7 @@ examples:
             win.open();
 
             if (!isAndroid) {
-              setTimeout(() => {
-                pickerDefaults(picker);
-              }, 1500);
+              setTimeout(() => pickerDefaults(picker), 1500);
             }
 
   - title: Alloy XML Markup

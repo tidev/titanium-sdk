@@ -1056,7 +1056,7 @@ events:
         must be passed as the an argument to the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method.
 
             Ti.App.iOS.addEventListener('watchkitextensionrequest', (e) => {
-                const replyContent = { foo:"bar" };
+                const replyContent = { foo: 'bar' };
                 Ti.App.iOS.sendWatchExtensionReply(e.handlerId,replyContent);
             });
     properties:

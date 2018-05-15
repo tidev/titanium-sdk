@@ -84,8 +84,7 @@ examples:
 
             win.addEventListener('close', () => {
                 audioPlayer.stop();
-                if (Ti.Platform.osname === 'android')
-                {
+                if (Ti.Platform.osname === 'android') {
                     audioPlayer.release();
                 }
             });

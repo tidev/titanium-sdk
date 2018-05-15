@@ -1942,9 +1942,7 @@ examples:
                 // transitionAnimation: transition
             });
             const button1 = Ti.UI.createButton({title: 'Open Red Window'});
-            button1.addEventListener('click', () => {
-                nav.openWindow(win2);
-            });
+            button1.addEventListener('click', () => nav.openWindow(win2));
             win1.add(button1);
 
             const nav = Ti.UI.iOS.createNavigationWindow({

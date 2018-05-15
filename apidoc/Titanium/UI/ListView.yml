@@ -1508,9 +1508,7 @@ examples:
                 imageArrow.hide();
                 actInd.show();
                 listView.setContentInsets({ top: 80}, { animated: true });
-                setTimeout(() => {
-                    loadTableData();
-                }, 2000);
+                setTimeout(() => loadTableData(), 2000);
             }
 
             const tableHeader = Ti.UI.createView({
@@ -1795,7 +1793,7 @@ description: |
     `right`, `left`) that the content view is inset from the enclosing scroll view of the list view.
     For example
 
-        setContentInset({ top: 50, bottom: 10, right: 10, left: 10 }, { animated:true })
+        setContentInset({ top: 50, bottom: 10, right: 10, left: 10 }, { animated: true })
 since: 3.2.0
 platforms: [iphone, ipad]
 properties:

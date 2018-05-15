@@ -1580,7 +1580,7 @@ examples:
 
               const labelUserName = Ti.UI.createLabel({
                 color: '#576996',
-                font: {fontFamily: 'Arial', fontSize:defaultFontSize+6, fontWeight: 'bold'},
+                font: { fontFamily: 'Arial', fontSize:defaultFontSize+6, fontWeight: 'bold' },
                 text: 'Fred Smith ' + i,
                 left: 70, top: 6,
                 width: 200, height: 30
@@ -1589,7 +1589,7 @@ examples:
 
               const labelDetails = Ti.UI.createLabel({
                 color: '#222',
-                font: {fontFamily: 'Arial', fontSize:defaultFontSize + 2, fontWeight: 'normal'},
+                font: { fontFamily: 'Arial', fontSize:defaultFontSize + 2, fontWeight: 'normal' },
                 text: 'Replied to post with id ' + randomInt(1000) + '.',
                 left: 70, top: 44,
                 width: 360
@@ -1597,15 +1597,15 @@ examples:
               row.add(labelDetails);
 
               const imageCalendar = Ti.UI.createImageView({
-                image:IMG_BASE + 'custom_tableview/eventsButton.png',
+                image: IMG_BASE + 'custom_tableview/eventsButton.png',
                 left: 70, bottom: 2,
-                width:32, height: 32
+                width: 32, height: 32
               });
               row.add(imageCalendar);
 
               const labelDate = Ti.UI.createLabel({
                 color: '#999',
-                font: {fontFamily: 'Arial', fontSize:defaultFontSize, fontWeight: 'normal'},
+                font: { fontFamily: 'Arial', fontSize:defaultFontSize, fontWeight: 'normal' },
                 text: 'on ' + randomInt(30) + ' Nov 2012',
                 left: 105, bottom: 10,
                 width: 200, height: 20

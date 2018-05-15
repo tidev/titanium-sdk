@@ -489,7 +489,7 @@ examples:
             // Repopulate contact data
             function reloadContacts() {
                 const contacts = Ti.Contacts.getAllPeople();
-                const data = [];
+                let data = [];
                 for (let i = 0; i < contacts.length; i++) {
                     const title = contacts[i].fullName;
                     if (!title || title.length === 0) {

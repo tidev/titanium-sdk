@@ -64,9 +64,7 @@ examples:
         This example creates a broadcast receiver and registers it to handle the airplane mode broadcast.
 
             const broadcastReceiver = Ti.Android.createBroadcastReceiver({
-                onReceived: () => {
-                    Ti.API.info('Handling broadcast.');
-                }
+                onReceived: () => Ti.API.info('Handling broadcast!')
             });
 
             Ti.Android.registerBroadcastReceiver(broadcastReceiver, [Ti.Android.ACTION_AIRPLANE_MODE_CHANGED]);

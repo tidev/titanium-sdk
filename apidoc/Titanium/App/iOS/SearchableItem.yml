@@ -60,15 +60,15 @@ examples:
             let searchItems = [];
             const itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
                 itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
-                title:"Titanium Core Spotlight Tutorial",
-                contentDescription:"Tech Example \nOn: " + String.formatDate(new Date(),"short"),
-                keywords: ["Mobile","Appcelerator","Titanium"]
+                title: 'Titanium Core Spotlight Tutorial',
+                contentDescription: 'Tech Example \nOn: ' + String.formatDate(new Date(), 'short'),
+                keywords: ['Mobile', 'Appcelerator', 'Titanium']
             });
 
             const item = Ti.App.iOS.createSearchableItem({
-                uniqueIndentifier:"my-id",
-                domainIdentifier:"com.mydomain",
-                attributeSet:itemAttr
+                uniqueIndentifier: 'my-id',
+                domainIdentifier: 'com.mydomain',
+                attributeSet: itemAttr
             });
             searchItems.push(item);
 
@@ -76,8 +76,8 @@ examples:
 
             indexer.addToDefaultSearchableIndex(searchItems, (e) => {
                 if (e.success) {
-                    alert("Press the home button and now search for your keywords");
+                    alert('Press the home button and now search for your keywords');
                 } else {
-                    alert("Errored: " + JSON.stringify(e.error));
+                    alert('Errored: ' + JSON.stringify(e.error));
                 }
             });

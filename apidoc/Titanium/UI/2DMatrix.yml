@@ -232,12 +232,12 @@ examples:
             win.add(button);
 
             button.addEventListener('click', () => {
-              const t1 = Ti.UI.create2DMatrix();
-              t1 = t1.translate(0, 300);
-              const a1 = Ti.UI.createAnimation();
-              a1.transform = t1;
-              a1.duration = 800;
-              label.animate(a1);
+              let transform = Ti.UI.create2DMatrix();
+              transform = transform.translate(0, 300);
+              let animation = Ti.UI.createAnimation();
+              animation.transform = transform;
+              animation.duration = 800;
+              label.animate(animation);
             });
             win.open();
 

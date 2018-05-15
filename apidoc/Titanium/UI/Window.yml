@@ -217,13 +217,11 @@ events:
         As of 5.0.0, you can create an event that can prevent accidental closure of the
         app due to hitting the back button to many times.
 
-            const win = Ti.UI.createWindow(
-                { // some code... }
-            );
+            const win = Ti.UI.createWindow({ 
+                // some code... 
+            });
             // more code
-            win.addEventListener('windows:back', () =>
-                { alert("Back pressed"); }
-            );
+            win.addEventListener('windows:back', () => alert('Back button pressed'));
 
     since: '3.0.0'
 

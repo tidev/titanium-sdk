@@ -112,7 +112,7 @@ examples:
 
             Cloud.PushSchedules.query({}, function(e) {
                 if (e.success) {
-                    Ti.API.info("List of scheduled push notifications:");
+                    Ti.API.info('List of scheduled push notifications:');
                     e.push_schedules.forEach(function(push){
                         Ti.API.info("\t" + push.name);
                     });

@@ -85,60 +85,60 @@ examples:
         #### app.js
 
             const win = Ti.UI.createWindow({
-                backgroundColor: "#fff"
+                backgroundColor: '#fff'
             });
             const btn = Ti.UI.createButton({
-                title: "Start search-query"
+                title: 'Start search-query'
             });
 
             let searchItems = [];
             const itemAttr = Ti.App.iOS.createSearchableItemAttributeSet({
                 itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
-                title: "Titanium Core Spotlight Tutorial"
+                title: 'Titanium Core Spotlight Tutorial'
             });
 
-            itemAttr.contentDescription = "Tech Example \nOn: " + String.formatDate(new Date(), "short");
-            itemAttr.keywords = ["Mobile", "Appcelerator", "Titanium"];
-            itemAttr.displayName = "Hello world";
+            itemAttr.contentDescription = 'Tech Example \nOn: ' + String.formatDate(new Date(), 'short');
+            itemAttr.keywords = ['Mobile', 'Appcelerator', 'Titanium'];
+            itemAttr.displayName = 'Hello world';
 
             const item = Ti.App.iOS.createSearchableItem({
-                uniqueIdentifier: "my-id",
-                domainIdentifier: "com.mydomain",
+                uniqueIdentifier: 'my-id',
+                domainIdentifier: 'com.mydomain',
                 attributeSet: itemAttr
             });
             searchItems.push(item);
 
             const indexer = Ti.App.iOS.createSearchableIndex();
 
-            indexer.addToDefaultSearchableIndex(searchItems, (e) => {
-                if (e.success) {
-                    Ti.API.info("Press the home button and now search for your keywords");
+            indexer.addToDefaultSearchableIndex(searchItems, (event) => {
+                if (event.success) {
+                    Ti.API.info('Press the home button and now search for your keywords');
                 } else {
-                    alert("Searchable index could not be created: " + JSON.stringify(e.error));
+                    alert('Searchable index could not be created: ' + JSON.stringify(event.error));
                 }
             });
 
             btn.addEventListener('click', () => {
                 // An array of found Ti.App.iOS.SearchableItem's
-                const allItems = [];
+                let allItems = [];
 
                 // The search-query
                 const searchQuery = Ti.App.iOS.createSearchQuery({
                     queryString: 'title == "Titanium*"',
-                    attributes: ["title", "displayName", "keywords", "contentType"]
+                    attributes: ['title', 'displayName', 'keywords', 'contentType']
                 });
 
                 // The event to be called when a new batch of items is found
-                searchQuery.addEventListener('founditems', (e) => {
-                    for (let i = 0; i < e.items.length; i++) {
-                        allItems.push(e.items[i]);
+                searchQuery.addEventListener('founditems', (event) => {
+                    for (let i = 0; i < event.items.length; i++) {
+                        allItems.push(event.items[i]);
                     }
                 });
 
                 // The event to be called when the search-query completes
-                searchQuery.addEventListener('completed', (e) => {
-                    if (!e.success) {
-                        alert(e.error);
+                searchQuery.addEventListener('completed', (event) => {
+                    if (!event.success) {
+                        alert(event.error);
                     }
 
                     for (let i = 0; i < allItems.length; i++) {
@@ -146,7 +146,7 @@ examples:
                         const foundTitle = attributeSet.title
                         const foundDisplayName = attributeSet.displayName
 
-                        Ti.API.info("title: " + foundTitle + ", displayName: " + foundDisplayName);
+                        Ti.API.info(`title: ${foundTitle}, displayName: ${foundDisplayName}`);
                     }
                 });
 

@@ -115,9 +115,7 @@ examples:
                     if (actionBar) {
                         actionBar.backgroundImage = 'bg.png';
                         actionBar.title = 'New Title';
-                        actionBar.onHomeIconItemSelected = () => {
-                            Ti.API.info('Home icon clicked!');
-                        };
+                        actionBar.onHomeIconItemSelected = () => Ti.API.info('Home icon clicked!');
                     }
                 }
             });

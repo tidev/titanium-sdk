@@ -242,9 +242,7 @@ examples:
             	});
             });
 
-            btn2.addEventListener('click', () => {
-                alert(Ti.UI.Clipboard.getItems());
-            });
+            btn2.addEventListener('click', () => alert(Ti.UI.Clipboard.getItems()));
 
             win.add(btn1);
             win.add(btn2);

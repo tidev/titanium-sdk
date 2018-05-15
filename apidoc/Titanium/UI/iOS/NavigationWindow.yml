@@ -102,7 +102,7 @@ examples:
                 title: 'Close Blue Window'
             });
             button2.addEventListener('click', () => {
-                win1.closeWindow(win3, {animated:false}); //win3.close() will also work!!
+                win1.closeWindow(win3, { animated: false }); // win3.close() will also work!!
             });
 
             win3.add(button2);

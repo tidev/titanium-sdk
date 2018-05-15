@@ -181,9 +181,7 @@ examples:
             });
 
             // The document viewer immediately launches without an animation
-            winButton.addEventListener('click', () => {
-                docViewer.show()
-            });
+            winButton.addEventListener('click', () => docViewer.show());
 
             navWin.open();
 

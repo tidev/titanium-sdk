@@ -111,14 +111,14 @@ description: |
 
          function MainWindow() {
 
-           var listViewData = [];
+           let listViewData = [];
            var loadCookies = Ti.UI.createButton({
-             title: "cookies+",
+             title: 'cookies+',
              left: 0,
              bottom: 5
            });
            var createCookies = Ti.UI.createButton({
-             title: "+",
+             title: '+',
              right: 0,
              bottom: 5
            });

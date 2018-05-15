@@ -221,9 +221,7 @@ examples:
                 icon:  'item1.png',
                 showAsAction: Ti.Android.SHOW_AS_ACTION_IF_ROOM
               });
-              menuItem.addEventListener('click', () => {
-                Ti.API.debug('I was clicked');
-              });
+              menuItem.addEventListener('click', () => Ti.API.debug('I was clicked'));
             };
 
             win.open();

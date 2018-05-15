@@ -2793,8 +2793,8 @@ examples:
               layout: 'vertical',
               title: 'Color Demo'
             });
-            const rows = [];
-            for (let i = 0, ilen = colorArray.length; i < ilen; i++) {
+            let rows = [];
+            for (let i = 0; i < colorArray.length; i++) {
               const row = Ti.UI.createTableViewRow({
                 color: 'black',
                 backgroundColor: colorArray[i],

@@ -18,7 +18,7 @@ examples:
         The simplest use case is also the most common.
 
             const toast = Ti.UI.createNotification({
-                message:"Please Stand By",
+                message: 'Please Stand By',
                 duration: Ti.UI.NOTIFICATION_DURATION_LONG
             });
             toast.show();
@@ -31,7 +31,7 @@ examples:
 
             <Alloy>
                 <Window>
-                    <Notification id="toast" platform="android" message="Please Stand By" duration="Ti.UI.NOTIFICATION_DURATION_LONG" />
+                    <Notification id='toast' platform='android' message='Please Stand By' duration='Ti.UI.NOTIFICATION_DURATION_LONG' />
                 </Window>
             </Alloy>
 

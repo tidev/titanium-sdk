@@ -832,10 +832,10 @@ examples:
         Create a picker to allow an existing calendar to be selected and, when a button is clicked, 
         generate details of all events in that calendar for the current year .
         
-            const calendars = [];
+            let calendars = [];
+            let pickerData = [];
             const selectedCalendarName;
             const selectedid;
-            const pickerData = [];
             const osname = Ti.Platform.osname;
             
             //**read events from calendar*******

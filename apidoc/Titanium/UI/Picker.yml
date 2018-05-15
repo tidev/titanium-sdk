@@ -536,11 +536,11 @@ examples:
               top: 50
             });
 
-            const data = [];
-            data[0]=Ti.UI.createPickerRow({title: 'Bananas'});
-            data[1]=Ti.UI.createPickerRow({title: 'Strawberries'});
-            data[2]=Ti.UI.createPickerRow({title: 'Mangos'});
-            data[3]=Ti.UI.createPickerRow({title: 'Grapes'});
+            let data = [];
+            data[0] = Ti.UI.createPickerRow({ title: 'Bananas' });
+            data[1] = Ti.UI.createPickerRow({ title: 'Strawberries' });
+            data[2] = Ti.UI.createPickerRow({ title: 'Mangos' });
+            data[3] = Ti.UI.createPickerRow({ title: 'Grapes' });
 
             picker.add(data);
             picker.selectionIndicator = true;
@@ -616,9 +616,7 @@ examples:
             win.add(picker);
             win.open();
 
-            picker.addEventListener('change', (e) => {
-              Ti.API.info("User selected date: " + e.value.toLocaleString());
-            });
+            picker.addEventListener('change', (e) => Ti.API.info('User selected date: ' + e.value.toLocaleString()));
 
   - title: Date Picker using showDatePickerDialog() (Android only)
     example: |
@@ -629,13 +627,13 @@ examples:
 
             const picker = Ti.UI.createPicker({
               type: Ti.UI.PICKER_TYPE_DATE,
-              minDate: new Date(2009,0,1),
-              maxDate: new Date(2014,11,31),
-              value:n ew Date(2014,3,12)
+              minDate: new Date(2009, 0, 1),
+              maxDate: new Date(2014, 11, 31),
+              value: new Date(2014, 3, 12)
             });
 
             picker.showDatePickerDialog({
-              value: new Date(2010,8,1),
+              value: new Date(2010, 8, 1),
               callback: (e) => {
                 if (e.cancel) {
                   Ti.API.info('User canceled dialog');

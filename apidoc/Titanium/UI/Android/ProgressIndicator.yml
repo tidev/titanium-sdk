@@ -141,13 +141,12 @@ examples:
                     return;
                 }
                 progressIndicator.value = value;
-                value ++;
+                value++;
               }, 200);
+
               // do some work that takes 3 seconds
               // ie. replace the following setTimeout block with your code
-              setTimeout(() => {
-                progressIndicator.hide();
-              }, 3000);
+              setTimeout(() => progressIndicator.hide(), 3000);
             });
 
             win.add(button);
@@ -175,17 +174,17 @@ examples:
             function showIndicator(e) {
                 $.progressIndicator.show();
                 let value = 0;
+
                 setInterval(() => {
                     if (value > 10) {
                         return;
                     }
                     $.progressIndicator.value = value;
-                    value ++;
+                    value++;
                 }, 200);
+
                 // do some work that takes 3 seconds
                 // ie. replace the following setTimeout block with your code
-                setTimeout(() => {
-                    $.progressIndicator.hide();
-                }, 3000);
+                setTimeout(() => $.progressIndicator.hide(), 3000);
             }
             $.index.open();

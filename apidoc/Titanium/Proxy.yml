@@ -35,7 +35,7 @@ methods:
         When adding a listener, you must save a reference to the callback function
         in order to remove the listener later:
 
-            const listener = () => { Ti.API.info("Event listener called."); }
+            const listener = () => Ti.API.info('Event listener called!');
             window.addEventListener('click', listener);
 
         To remove the listener, pass in a reference to the callback function:
