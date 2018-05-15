@@ -28,7 +28,7 @@ describe('Titanium.UI.View', function () {
 			}
 		});
 
-    	win.addEventListener('open', function () {
+		win.addEventListener('open', function () {
 			// horizontalMotionEffect
 			should(view.horizontalMotionEffect).be.an.Object;
 			should(view.horizontalMotionEffect.min).be.a.Number;
@@ -38,7 +38,7 @@ describe('Titanium.UI.View', function () {
 			should(view.verticalMotionEffect).be.an.Object;
 			should(view.verticalMotionEffect.min).be.a.Number;
 			should(view.verticalMotionEffect.max).be.a.Number;
-			
+
 			finish();
 		});
 
