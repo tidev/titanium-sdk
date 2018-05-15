@@ -12,39 +12,19 @@
 var should = require('./utilities/assertions');
 
 describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
-	var win, rootWindow;
+	var nav;
 
 	this.timeout(5000);
 
-	// Create and open a root window for the rest of the below child window tests to use as a parent.
-	// We're not going to close this window until the end of this test suite.
-	// Note: Android needs this so that closing the last window won't back us out of the app.
-	before(function (finish) {
-		rootWindow = Ti.UI.createWindow();
-		rootWindow.addEventListener('open', function () {
-			finish();
-		});
-		rootWindow.open();
-	});
-
-	after(function (finish) {
-		rootWindow.addEventListener('close', function () {
-			finish();
-		});
-		rootWindow.close();
-	});
-
 	afterEach(function () {
-		if (win) {
-			win.close();
+		if (nav !== null) {
+			nav.close();
 		}
-		win = null;
+		nav = null;
 	});
 
 	it('#openWindow', function (finish) {
-		var nav;
-
-		win = Ti.UI.createWindow();
+		var win = Ti.UI.createWindow();
 		nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
@@ -64,10 +44,9 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 	});
 
 	it('#closeWindow', function (finish) {
-		var nav;
+		var win = Ti.UI.createWindow();
 		var subWindow = Ti.UI.createWindow();
 
-		win = Ti.UI.createWindow();
 		nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
@@ -89,10 +68,9 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 	});
 
 	it('#popToRootWindow', function (finish) {
-		var nav;
+		var win = Ti.UI.createWindow();
 		var subWindow = Ti.UI.createWindow();
 
-		win = Ti.UI.createWindow();
 		nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
@@ -111,9 +89,7 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 	});
 
 	it('.navigationWindow', function (finish) {
-		var nav;
-
-		win = Ti.UI.createWindow();
+		var win = Ti.UI.createWindow();
 		nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
