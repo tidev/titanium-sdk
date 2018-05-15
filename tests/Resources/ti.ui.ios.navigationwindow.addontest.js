@@ -57,7 +57,6 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 		});
 
 		subWindow.addEventListener('open', function () {
-			nav.close();
 			finish();
 		});
 
@@ -127,7 +126,6 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 
 			should(nav.openWindow).be.a.function;
 			should(win.navigationWindow.openWindow).be.a.function;
-			nav.close();
 			finish();
 		});
 
