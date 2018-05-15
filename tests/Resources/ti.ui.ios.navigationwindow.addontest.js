@@ -67,12 +67,12 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 	it('#closeWindow', function (finish) {
 		var nav;
 		var subWindow = Ti.UI.createWindow();
-	
+
 		win = Ti.UI.createWindow();
 		nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
 		});
-	
+
 		win.addEventListener('open', function () {
 			nav.openWindow(subWindow);
 		});
