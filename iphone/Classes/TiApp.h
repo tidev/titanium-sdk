@@ -31,7 +31,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 @interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate> {
   UIWindow *window;
   UIImageView *loadView;
-  UIImageView *splashScreenImage;
+  UIView *splashScreenView;
   BOOL loaded;
 
   TiContextGroupRef contextGroup;
