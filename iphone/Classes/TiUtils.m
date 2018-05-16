@@ -18,6 +18,7 @@
 #import "TiHost.h"
 #import "TiPoint.h"
 #import "TiProxy.h"
+#import "TiUIView.h"
 #import "TiUtils.h"
 #import "WebFont.h"
 
@@ -1394,6 +1395,11 @@ If the new path starts with / and the base url is app://..., we have to massage 
   [view setCenter:newCenter];
 }
 
++ (void)applyConstraintToView:(TiUIView *)view forProxy:(TiViewProxy *)proxy withBounds:(CGRect)bounds
+{
+  ApplyConstraintToViewWithBounds([proxy layoutProperties], view, bounds);
+}
+
 + (CGRect)viewPositionRect:(UIView *)view
 {
 #if USEFRAME
@@ -1497,7 +1503,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (NSUInteger)extendedEdgesFromProp:(id)prop
 {
   if (![prop isKindOfClass:[NSArray class]]) {
-    return 0;
+    return 0; // TODO: Change the default value in SDK 8+ to match native iOS behavior
   }
 
   NSUInteger result = 0;
