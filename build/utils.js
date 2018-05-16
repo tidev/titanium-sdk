@@ -157,7 +157,7 @@ Utils.downloadURL = function downloadURL(url, integrity, callback) {
 	const downloadPath = cachedDownloadPath(url);
 
 	if (!integrity) {
-		return callback(new Error('No "integrity" value given for %s, may need to run "scons update-modules-integrity" to generate new module listing with updated integrity hashes.', url));
+		return callback(new Error('No "integrity" value given for %s, may need to run "node scons.js modules-integrity" to generate new module listing with updated integrity hashes.', url));
 	}
 	// Check if file already exists and passes integrity check!
 	if (fs.existsSync(downloadPath)) {
