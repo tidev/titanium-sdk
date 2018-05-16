@@ -91,7 +91,7 @@
   ENSURE_TYPE(value, NSNumber);
   double newValue = [TiUtils doubleValue:value];
 
-  if (newValue < [[self stepper] maximumValue] && newValue > [[self stepper] minimumValue]) {
+  if (newValue <= [[self stepper] maximumValue] && newValue >= [[self stepper] minimumValue]) {
     [[self stepper] setValue:newValue];
   } else {
     NSNumber *currentValue = [NSNumber numberWithDouble:[[self stepper] value]];

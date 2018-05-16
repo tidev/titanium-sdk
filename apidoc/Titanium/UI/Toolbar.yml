@@ -12,7 +12,7 @@ description: |
     [FLEXIBLE_SPACE](Titanium.UI.iOS.SystemButton.FLEXIBLE_SPACE).
     
     Note that toolbars are positioned like other views (using the `top` and `bottom` properties, 
-    for example), but the [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/mobilehig/Bars.html#//apple_ref/doc/uid/TP40006556-CH12-SW4) 
+    for example), but the [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/#//apple_ref/doc/uid/TP40006556-CH12-SW4) 
     have specific requirements for placing toolbars, specifically:
 
     * On the iPhone and Android, a toolbar should be at the bottom of the window.
@@ -30,7 +30,7 @@ description: |
 
     See also:
 
-    *  [Toolbar in the iOS Human Interface Guidelines.](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/mobilehig/Bars.html#//apple_ref/doc/uid/TP40006556-CH12-SW4)
+    *  [Toolbar in the iOS Human Interface Guidelines.](https://developer.apple.com/ios/human-interface-guidelines/bars/toolbars/)
 
 extends: Titanium.UI.View
 excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDisabledImage,         
@@ -74,7 +74,6 @@ properties:
     default: Undefined. Behaves as if set to false.
     platforms: [iphone, ipad, android]
     availability: creation
-    platforms: [iphone, ipad, android]
     accessors: false
     
   - name: translucent
