@@ -8,6 +8,10 @@
 @interface TiErrorController : UIViewController {
 
   NSString *error;
+
+  UIScrollView *scrollView;
+  UITextView *messageView;
+  UIButton *continueButton;
 }
 
 - (id)initWithError:(NSString *)error_;
