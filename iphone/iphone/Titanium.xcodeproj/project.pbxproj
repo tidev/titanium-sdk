@@ -236,7 +236,6 @@
 		502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */; };
 		502A68EB16F0428500661EF6 /* TiViewTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68EA16F0428500661EF6 /* TiViewTemplate.m */; };
 		5081CEF815F8100E00C881D8 /* TiExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */; };
-		63D27B82209AA2C400E9ACE2 /* ErrorScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 63D27B81209AA2C400E9ACE2 /* ErrorScreen.xib */; };
 		823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
 		838159E21B7A9632002EE811 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 838159EC1B7C3EFA002EE811 /* Assets.xcassets */; };
 		838267951D9DAD6800F99248 /* TiLogServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 838267941D9DAD6800F99248 /* TiLogServer.m */; };
@@ -780,7 +779,6 @@
 		502A68EA16F0428500661EF6 /* TiViewTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiViewTemplate.m; sourceTree = "<group>"; };
 		5081CEF615F8100E00C881D8 /* TiExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiExceptionHandler.h; sourceTree = "<group>"; };
 		5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiExceptionHandler.m; sourceTree = "<group>"; };
-		63D27B81209AA2C400E9ACE2 /* ErrorScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ErrorScreen.xib; sourceTree = "<group>"; };
 		823CC8AA1B7F0E4D00D220C7 /* WatchSessionModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchSessionModule.h; sourceTree = "<group>"; };
 		823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchSessionModule.m; sourceTree = "<group>"; };
 		838159EC1B7C3EFA002EE811 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -2032,7 +2030,6 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				63D27B81209AA2C400E9ACE2 /* ErrorScreen.xib */,
 				83A749EE1BE7EB1D00757383 /* LaunchScreen.storyboard */,
 				838159EC1B7C3EFA002EE811 /* Assets.xcassets */,
 				241EAEC5118E2BA90081A5BE /* project.xcconfig */,
@@ -2496,7 +2493,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63D27B82209AA2C400E9ACE2 /* ErrorScreen.xib in Resources */,
 				838159E21B7A9632002EE811 /* Assets.xcassets in Resources */,
 				83A749EF1BE7EB1D00757383 /* LaunchScreen.storyboard in Resources */,
 			);

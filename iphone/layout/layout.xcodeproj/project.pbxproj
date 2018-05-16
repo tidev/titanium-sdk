@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		63821164209CD71700131E0B /* ErrorScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 63821163209CD71700131E0B /* ErrorScreen.xib */; };
 		B63761541BC5A3650070A695 /* TiLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761531BC5A3650070A695 /* TiLabel.m */; };
 		B63761571BC5BE110070A695 /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761561BC5BE110070A695 /* TiToolbar.m */; };
 		B637615C1BC5BE6C0070A695 /* TiTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761591BC5BE6C0070A695 /* TiTableView.m */; };
@@ -40,7 +39,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		63821163209CD71700131E0B /* ErrorScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ErrorScreen.xib; path = ../../iphone/ErrorScreen.xib; sourceTree = "<group>"; };
 		B63761521BC5A3650070A695 /* TiLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiLabel.h; path = Classes/TiLabel.h; sourceTree = SOURCE_ROOT; };
 		B63761531BC5A3650070A695 /* TiLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiLabel.m; path = Classes/TiLabel.m; sourceTree = SOURCE_ROOT; };
 		B63761551BC5BE110070A695 /* TiToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbar.h; sourceTree = "<group>"; };
@@ -142,7 +140,6 @@
 				B6A0FED21B7155BE00DF0FBC /* ViewController.m */,
 				B6A0FED71B7155BE00DF0FBC /* Assets.xcassets */,
 				B6A0FED91B7155BE00DF0FBC /* LaunchScreen.storyboard */,
-				63821163209CD71700131E0B /* ErrorScreen.xib */,
 				B6A0FEDC1B7155BE00DF0FBC /* Info.plist */,
 				B6A0FECB1B7155BE00DF0FBC /* Supporting Files */,
 			);
@@ -284,7 +281,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63821164209CD71700131E0B /* ErrorScreen.xib in Resources */,
 				B6A0FEDB1B7155BE00DF0FBC /* LaunchScreen.storyboard in Resources */,
 				B6A0FED81B7155BE00DF0FBC /* Assets.xcassets in Resources */,
 			);
