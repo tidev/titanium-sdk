@@ -6,7 +6,7 @@ summary: |
 
     See also:
 
-    * [iOS Developer Library: UIMenuController](https://developer.apple.com/library/prerelease/ios/documentation/iPhone/Reference/UIMenuController_Class/index.html)
+    * [iOS Developer Library: UIMenuController](https://developer.apple.com/documentation/uikit/uimenucontroller)
 
 platforms: [iphone,ipad]
 since: "5.2.0"
