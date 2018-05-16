@@ -7,8 +7,6 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "GeolocationModule.h"
-#import "APSAnalytics.h"
-#import "AnalyticsModule.h"
 #import "NSData+Additions.h"
 #import "TiApp.h"
 #import "TiEvaluator.h"
@@ -16,7 +14,6 @@
 #import <sys/utsname.h>
 
 extern NSString *const TI_APPLICATION_GUID;
-extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @interface GeolocationCallback : NSObject <APSHTTPRequestDelegate> {
   id<TiEvaluator> context;
@@ -985,22 +982,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   }
 }
 
-#pragma mark Geolacation Analytics
-
-- (void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations
-{
-  if ([AnalyticsModule isEventFiltered:@"ti.geo"]) {
-    return;
-  }
-  static BOOL analyticsSend = NO;
-  [lastLocationDict release];
-  lastLocationDict = [[self locationDictionary:[locations lastObject]] copy];
-  if (TI_APPLICATION_ANALYTICS && !analyticsSend) {
-    analyticsSend = YES;
-    [[APSAnalytics sharedInstance] sendAppGeoEvent:[locations lastObject]];
-  }
-}
-
 #pragma mark Delegates
 
 - (void)locationManagerDidPauseLocationUpdates:(CLLocationManager *)manager
@@ -1078,7 +1059,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     [self fireEvent:@"location" withObject:event];
   }
 
-  [self fireApplicationAnalyticsIfNeeded:locations];
+  [self updateLastLocationDictionary:locations];
   [self fireSingleShotLocationIfNeeded:event stopIfNeeded:YES];
 }
 
@@ -1131,10 +1112,18 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   return calibration;
 }
 
+#pragma mark Utilities
+
 - (void)dismissHeadingCalibrationDisplay:(id)args
 {
   ENSURE_UI_THREAD(dismissHeadingCalibrationDisplay, args);
   [[self locationManager] dismissHeadingCalibrationDisplay];
+}
+
+- (void)updateLastLocationDictionary:(NSArray *)locations
+{
+  [lastLocationDict release];
+  lastLocationDict = [[self locationDictionary:[locations lastObject]] copy];
 }
 
 @end
