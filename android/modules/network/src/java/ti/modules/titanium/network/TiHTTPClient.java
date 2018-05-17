@@ -52,6 +52,7 @@ import javax.net.ssl.X509TrustManager;
 import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -289,8 +290,12 @@ public class TiHTTPClient
 		}
 
 		if (tiFile == null) {
-			outFile = TiFileFactory.createDataFile("tihttp", "tmp");
-			tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			TiApplication app = TiApplication.getInstance();
+			if (app != null) {
+				TiTempFileHelper tempFileHelper = app.getTempFileHelper();
+				outFile = tempFileHelper.createTempFile("tihttp", "tmp");
+				tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			}
 		}
 
 		if (dumpResponseOut) {
@@ -631,10 +636,14 @@ public class TiHTTPClient
 	{
 		if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
 			aborted = true;
-			if (client != null) {
-				client.disconnect();
-				client = null;
+
+			try {
+				if (client != null) {
+					client.disconnect();
+				}
+			} catch (Exception ex) {
 			}
+
 			// Fire the disposehandle event if the request is aborted.
 			// And it will dispose the handle of the httpclient in the JS.
 			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
@@ -709,7 +718,7 @@ public class TiHTTPClient
 	public String getResponseHeader(String getHeaderName)
 	{
 		String result = "";
-		if (!responseHeaders.isEmpty()) {
+		if (responseHeaders != null && !responseHeaders.isEmpty()) {
 			boolean firstPass = true;
 			StringBuilder sb = new StringBuilder(256);
 			Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
@@ -891,14 +900,7 @@ public class TiHTTPClient
 				String mimeType = blob.getMimeType();
 				File tmpFile =
 					File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
-				if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
-					FileOutputStream fos = new FileOutputStream(tmpFile);
-					TiBaseFile.copyStream(blob.getInputStream(),
-										  new Base64OutputStream(fos, android.util.Base64.DEFAULT));
-					fos.close();
-				} else {
-					createFileFromBlob(blob, tmpFile);
-				}
+				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);
 
@@ -1306,7 +1308,10 @@ public class TiHTTPClient
 			} catch (Throwable t) {
 				if (client != null) {
 					Log.d(TAG, "clearing the expired and idle connections", Log.DEBUG_MODE);
-					client.disconnect();
+					try {
+						client.disconnect();
+					} catch (Exception ex) {
+					}
 				} else {
 					Log.d(TAG, "client is not valid, unable to clear expired and idle connections");
 				}

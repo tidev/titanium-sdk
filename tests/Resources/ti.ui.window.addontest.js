@@ -11,7 +11,28 @@
 var should = require('./utilities/assertions');
 
 describe('Titanium.UI.Window', function () {
-	var win;
+	var win,
+		rootWindow;
+
+	this.timeout(5000);
+
+	// Create and open a root window for the rest of the below child window tests to use as a parent.
+	// We're not going to close this window until the end of this test suite.
+	// Note: Android needs this so that closing the last window won't back us out of the app.
+	before(function (finish) {
+		rootWindow = Ti.UI.createWindow();
+		rootWindow.addEventListener('open', function () {
+			finish();
+		});
+		rootWindow.open();
+	});
+
+	after(function (finish) {
+		rootWindow.addEventListener('close', function () {
+			finish();
+		});
+		rootWindow.close();
+	});
 
 	afterEach(function () {
 		if (win) {
@@ -20,23 +41,22 @@ describe('Titanium.UI.Window', function () {
 		win = null;
 	});
 
-	it.ios('.extendSafeArea exists', function (finish) {
-		this.timeout(5000);
-		// TODO: Add more unit tests related to top, bottom, left, right margins of win.safeAreaView.
+	it.ios('.homeIndicatorAutoHidden', function (finish) {
 		win = Ti.UI.createWindow({
-			backgroundColor: 'gray',
-			extendSafeArea: false
+			title: 'this is some text'
 		});
 
 		win.addEventListener('open', function () {
 			try {
-				should(win.safeAreaView).be.a.Object;
+				should(win.homeIndicatorAutoHidden).be.a.Boolean;
+				should(win.homeIndicatorAutoHidden).be.false;
+				win.setHomeIndicatorAutoHidden(true);
+				should(win.homeIndicatorAutoHidden).be.true;
 				finish();
 			} catch (err) {
 				finish(err);
 			}
 		});
-
 		win.open();
 	});
 });
