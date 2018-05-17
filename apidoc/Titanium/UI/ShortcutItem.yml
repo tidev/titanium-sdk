@@ -8,7 +8,7 @@ description: |
     Use the <Titanium.UI.createShortcutItem> method to create a shortcut.
 
 extends: Titanium.Proxy
-since: "7.2.0"
+since: "7.3.0"
 methods:
   - name: show
     summary: Allow the shortcut to show.
@@ -32,8 +32,8 @@ properties:
     platforms: [android, iphone, ipad]
     availability: creation
 
-  - name: subtitle
-    description: Subtitle of the shortcut.
+  - name: description
+    description: Description of the shortcut.
     type: String
     platforms: [android, iphone, ipad]
     availability: creation
@@ -50,19 +50,19 @@ examples:
     example: |
         Create a shortcut item and detect its click with the `shortcutitemclick` event.
 
-            var win = Ti.UI.createWindow({backgroundColor: 'grey'}),
-                btn = Ti.UI.createButton({title: 'TOGGLE SHORTCUT'}),
+            var win = Ti.UI.createWindow({ backgroundColor: 'grey' }),
+                btn = Ti.UI.createButton({ title: 'TOGGLE SHORTCUT' }),
                 shortcut = Ti.UI.createShortcutItem({
                     id: 'test_shortcut',
                     title: 'TEST',
-                    text: 'DESCRIPTION'
+                    description: 'DESCRIPTION'
                 });
 
-            Ti.App.addEventListener('shortcutitemclick', function() {
+            Ti.App.addEventListener('shortcutitemclick', function () {
                 win.backgroundColor = 'blue';
             });
 
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 if (shortcut.visible) {
                     win.backgroundColor = 'red';
                     shortcut.hide();

@@ -78,8 +78,8 @@ public class ShortcutItemProxy extends KrollProxy
 		if (dict.containsKey(TiC.PROPERTY_TITLE)) {
 			shortcutBuilder.setShortLabel(dict.getString(TiC.PROPERTY_TITLE));
 		}
-		if (dict.containsKey(TiC.PROPERTY_SUBTITLE)) {
-			shortcutBuilder.setLongLabel(dict.getString(TiC.PROPERTY_SUBTITLE));
+		if (dict.containsKey(TiC.PROPERTY_DESCRIPTION)) {
+			shortcutBuilder.setLongLabel(dict.getString(TiC.PROPERTY_DESCRIPTION));
 		}
 		if (dict.containsKey(TiC.PROPERTY_ICON)) {
 			Object icon = dict.get(TiC.PROPERTY_ICON);
