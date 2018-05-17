@@ -368,6 +368,20 @@
   [super viewDidDisappear:animated];
 }
 
+#if IS_XCODE_9
+- (BOOL)homeIndicatorAutoHide
+{
+  UIViewController *topVC = [navController topViewController];
+  if ([topVC isKindOfClass:[TiViewController class]]) {
+    TiViewProxy *theProxy = [(TiViewController *)topVC proxy];
+    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+      return [(id<TiWindowProtocol>)theProxy homeIndicatorAutoHide];
+    }
+  }
+  return [super homeIndicatorAutoHide];
+}
+#endif
+
 - (BOOL)hidesStatusBar
 {
   UIViewController *topVC = [navController topViewController];

@@ -60,9 +60,9 @@ description: |
     updates when the user is not moving.
 
     For iOS 8 and later, add either the
-    [`NSLocationWhenInUseUsageDescription`](https://developer.apple.com/library/prerelease/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW26)
+    [`NSLocationWhenInUseUsageDescription`](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW26)
     or
-    [`NSLocationAlwaysUsageDescription`](https://developer.apple.com/library/prerelease/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW18)
+    [`NSLocationAlwaysUsageDescription`](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW26)
     key to the iOS plist section of the project's `tiapp.xml` file.
 
         <ti:app>
@@ -291,7 +291,7 @@ methods:
         descriptive error-log if any required keys are missing.
 
         More infos:
-          * [Available Info.plist keys](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+          * [Available Info.plist keys](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
           * [Request Always Authorization](https://developer.apple.com/documentation/corelocation/choosing_the_authorization_level_for_location_services/request_always_authorization)
     parameters:
       - name: authorizationType
@@ -1213,7 +1213,7 @@ summary: Simple object describing a location provider.
 description: |
     The `accuracy` and `power` values correspond to constants defined in the
     Android API. See
-    [android.location.Criteria](http://developer.android.com/reference/android/location/Criteria.html)
+    [android.location.Criteria](https://developer.android.com/reference/android/location/Criteria.html)
     in the Android API Reference.
 
     These values are generalizations. In general, a provider with coarse accuracy will
