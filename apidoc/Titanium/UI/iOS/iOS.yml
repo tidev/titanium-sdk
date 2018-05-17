@@ -752,7 +752,7 @@ properties:
 
   - name: BLEND_MODE_CLEAR
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_CLEAR> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -763,7 +763,7 @@ properties:
 
   - name: BLEND_MODE_COLOR
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_COLOR> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -774,7 +774,7 @@ properties:
 
   - name: BLEND_MODE_COLOR_BURN
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_COLOR_BURN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -785,7 +785,7 @@ properties:
 
   - name: BLEND_MODE_COLOR_DODGE
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_COLOR_DODGE> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -796,7 +796,7 @@ properties:
 
   - name: BLEND_MODE_COPY
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_COPY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -807,7 +807,7 @@ properties:
 
   - name: BLEND_MODE_DARKEN
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_DARKEN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -818,7 +818,7 @@ properties:
 
   - name: BLEND_MODE_DESTINATION_ATOP
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_ATOP> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -829,7 +829,7 @@ properties:
 
   - name: BLEND_MODE_DESTINATION_IN
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_IN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -840,7 +840,7 @@ properties:
 
   - name: BLEND_MODE_DESTINATION_OUT
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_OUT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -851,7 +851,7 @@ properties:
 
   - name: BLEND_MODE_DESTINATION_OVER
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_OVER> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -862,7 +862,7 @@ properties:
 
   - name: BLEND_MODE_DIFFERENCE
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_DIFFERENCE> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -873,7 +873,7 @@ properties:
 
   - name: BLEND_MODE_EXCLUSION
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_EXCLUSION> instead.
     summary: |
         Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -884,7 +884,7 @@ properties:
 
   - name: BLEND_MODE_HARD_LIGHT
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_HARD_LIGHT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -895,7 +895,7 @@ properties:
     
   - name: BLEND_MODE_HUE
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_HUE> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -906,7 +906,7 @@ properties:
 
   - name: BLEND_MODE_LIGHTEN
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_LIGHTEN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -917,7 +917,7 @@ properties:
 
   - name: BLEND_MODE_LUMINOSITY
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_LUMINOSITY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -928,7 +928,7 @@ properties:
 
   - name: BLEND_MODE_MULTIPLY
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_MULTIPLY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -939,7 +939,7 @@ properties:
 
   - name: BLEND_MODE_NORMAL
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_NORMAL> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -950,7 +950,7 @@ properties:
 
   - name: BLEND_MODE_OVERLAY
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_OVERLAY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -961,7 +961,7 @@ properties:
 
   - name: BLEND_MODE_PLUS_DARKER
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_PLUS_DARKER> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -972,7 +972,7 @@ properties:
     
   - name: BLEND_MODE_PLUS_LIGHTER
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_PLUS_LIGHTER> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -983,7 +983,7 @@ properties:
 
   - name: BLEND_MODE_SATURATION
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_SATURATION> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -994,7 +994,7 @@ properties:
 
   - name: BLEND_MODE_SCREEN
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_SCREEN> instead.
     summary: |
         Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -1005,7 +1005,7 @@ properties:
 
   - name: BLEND_MODE_SOFT_LIGHT
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_SOFT_LIGHT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -1016,7 +1016,7 @@ properties:
 
   - name: BLEND_MODE_SOURCE_ATOP
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_SOURCE_ATOP> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -1027,7 +1027,7 @@ properties:
 
   - name: BLEND_MODE_SOURCE_IN
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_SOURCE_IN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -1038,7 +1038,7 @@ properties:
 
   - name: BLEND_MODE_SOURCE_OUT
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_SOURCE_OUT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
@@ -1049,7 +1049,7 @@ properties:
 
   - name: BLEND_MODE_XOR
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.UI.BLEND_MODE_XOR> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
