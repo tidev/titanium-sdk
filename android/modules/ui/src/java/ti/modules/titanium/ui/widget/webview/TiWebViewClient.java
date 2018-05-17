@@ -242,4 +242,11 @@ public class TiWebViewClient extends WebViewClient
 		data.put(TiC.PROPERTY_URL, url);
 		proxy.fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, data);
 	}
+
+	@Override
+	public void onScaleChanged(WebView view, float oldScale, float newScale)
+	{
+		super.onScaleChanged(view, oldScale, newScale);
+		webView.setZoomLevel(newScale);
+	}
 }

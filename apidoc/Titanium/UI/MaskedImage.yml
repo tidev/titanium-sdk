@@ -13,8 +13,7 @@ description: |
     The `mode` value can be set to one of the <Titanium.UI> `BLEND_MODE` constants. 
     These constants correspond directly to the blend modes described by Apple and Google here:
 
-    ["Using Blend Modes with Images" in Quartz2D
-    Reference](http://developer.apple.com/library/ios/#documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101)
+    ["Bitmap Images and Image Masks" in Quartz2D Reference](https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101)
 
     ["PorterDuff.Mode" Android Reference](https://developer.android.com/reference/android/graphics/PorterDuff.Mode.html)
 
@@ -34,7 +33,7 @@ description: |
 
     Use the <Titanium.UI.createMaskedImage> method to create a masked image view.
 extends: Titanium.UI.View
-since: { android: "7.2.0", iphone: "0.8", ipad: "0.8" }
+since: { android: "7.3.0", iphone: "0.8", ipad: "0.8" }
 platforms: [android, iphone, ipad]
 examples: 
   - title: Lighten Blend Mode

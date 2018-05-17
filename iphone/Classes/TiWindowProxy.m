@@ -400,6 +400,37 @@
   return isModal;
 }
 
+#if IS_XCODE_9
+- (NSNumber *)homeIndicatorAutoHidden
+{
+  if (![TiUtils isIOS11OrGreater]) {
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
+    return @(NO);
+  }
+  return @([self homeIndicatorAutoHide]);
+}
+
+- (void)setHomeIndicatorAutoHidden:(id)arg
+{
+  if (![TiUtils isIOS11OrGreater]) {
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
+    return;
+  }
+
+  ENSURE_TYPE(arg, NSNumber);
+  id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
+  [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
+  if (current != arg && [TiUtils isIOS11OrGreater]) {
+    [[self windowHoldingController] setNeedsUpdateOfHomeIndicatorAutoHidden];
+  }
+}
+
+- (BOOL)homeIndicatorAutoHide
+{
+  return [TiUtils boolValue:[self valueForUndefinedKey:@"homeIndicatorAutoHidden"] def:NO];
+}
+#endif
+
 - (BOOL)hidesStatusBar
 {
   return hidesStatusBar;
