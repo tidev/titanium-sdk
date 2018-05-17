@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
@@ -24,7 +25,7 @@ import android.util.Log;
 import com.appcelerator.aps.APSAnalytics;
 import com.appcelerator.aps.APSAnalyticsEvent;
 
-@Kroll.module
+@Kroll.module(propertyAccessors = TiC.PROPERTY_OPTED_OUT)
 public class AnalyticsModule extends KrollModule
 {
 	private static final String TAG = "AnalyticsModule";
@@ -48,6 +49,14 @@ public class AnalyticsModule extends KrollModule
 	public AnalyticsModule()
 	{
 		super();
+	}
+
+	@Override
+	public void onPropertyChanged(String name, Object value) {
+		super.onPropertyChanged(name, value);
+		if (name.equals(TiC.PROPERTY_OPTED_OUT)) {
+			APSAnalytics.getInstance().setOptedOut((boolean) value);
+		}
 	}
 
 	@Kroll.method
