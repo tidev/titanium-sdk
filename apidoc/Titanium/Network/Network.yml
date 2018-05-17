@@ -70,7 +70,7 @@ description: |
     specific domains.
 
     For more information, see
-    [iOS Developer Library: App Transport Security Technote](https://developer.apple.com/library/prerelease/ios/technotes/App-Transport-Security-Technote/index.html).
+    [iOS Developer Library: App Transport Security](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW33).
 
     Example:
 
@@ -81,7 +81,11 @@ description: |
               <dict>
                 <key>NSAppTransportSecurity</key>
                 <dict>
-                  <key>NSAllowsArbitraryLoads</key><true/>
+                  <!-- Disable ATS completely -->
+                  <key>NSAllowsArbitraryLoads</key>
+                  <true/>
+
+                  <-- Alternative: Define whitelisted domains -->
                   <key>NSExceptionDomains</key>
                   <dict>
                     <!-- Loosen security measure for www.foo.com domain -->
@@ -118,7 +122,7 @@ description: |
     enabled to share your Wi-Fi connection.
 
     For detailed instructions, see
-    [Mac Developer Library: Test for IPv6 DNS64/NAT64 Compatibility](https://developer.apple.com/library/prerelease/mac/documentation/NetworkingInternetWeb/Conceptual/NetworkingOverview/UnderstandingandPreparingfortheIPv6Transition/UnderstandingandPreparingfortheIPv6Transition.html#//apple_ref/doc/uid/TP40010220-CH213-SW16).
+    [Mac Developer Library: Test for IPv6 DNS64/NAT64 Compatibility](https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/NetworkingOverview/UnderstandingandPreparingfortheIPv6Transition/UnderstandingandPreparingfortheIPv6Transition.html#//apple_ref/doc/uid/TP40010220-CH213-SW16).
 
 extends: Titanium.Module
 since: "0.1"
@@ -144,7 +148,7 @@ methods:
         `expiryDate` property must be a date later than the creating date, otherwise the cookie will not persist in the
         cookie storage.
         On Android, any existing cookie with the same domain and name will be replaced with the new cookie. This is a bug
-        in [BasicCookieStore](http://developer.android.com/reference/org/apache/http/impl/cookie/BasicClientCookie.html)
+        in [BasicCookieStore](https://developer.android.com/reference/org/apache/http/impl/cookie/BasicClientCookie.html)
         because based on `RFC6265`, an existing cookie can be evicted and replaced only when it has the same cookie-name,
         domain-value and path-value with the new cookie.
     parameters:
@@ -417,7 +421,7 @@ methods:
     description: |
         Per Apple's documentation, it is rarely necessary to call this method. See:
         [unregisterForRemoteNotifications in the UIApplication Class
-        Reference](http://developer.apple.com/library/IOs/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/occ/instm/UIApplication/unregisterForRemoteNotifications)
+        Reference](https://developer.apple.com/documentation/uikit/uiapplication/1623093-unregisterforremotenotifications)
 
         For example, calling this method would be required if a new version of
         your application no longer supports push notifications.
@@ -809,8 +813,8 @@ properties:
     description: |
         For more information, see the following item in the iOS Developer Library:
 
-        [application:didReceiveRemoteNotification in the UIApplicationDelegate Protocol
-        Reference](http://developer.apple.com/library/ios/#DOCUMENTATION/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:didReceiveRemoteNotification:)
+        [`application:didReceiveRemoteNotification:fetchCompletionHandler` in the UIApplicationDelegate Protocol
+        Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623013-application)
     type: Dictionary
   - name: inBackground
     summary: |
