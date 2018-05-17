@@ -2332,6 +2332,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_OPTED_OUT = "optedOut";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ORDER = "order";
 
 	/**
