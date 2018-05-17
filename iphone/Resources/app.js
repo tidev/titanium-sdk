@@ -1,21 +1,22 @@
-var vidWin = Titanium.UI.createWindow({
-	title : 'Video View Demo',
-	backgroundColor : '#fff'
+/**
+ * This file is used to validate iOS test-cases. It is ran using the Xcode
+ * project in titanium_mobile/iphone/iphone/Titanium.xcodeproj.
+ *
+ * Change the below code to fit your use-case. By default, it included a button
+ * to trigger a log that is displayed in the Xcode console.
+ */
+
+var win = Ti.UI.createWindow({
+    backgroundColor: '#fff'
 });
- 
-var videoPlayer = Titanium.Media.createVideoPlayer({
-	top : activeMovieTop,
-	width : Alloy.CFG.phoneWidth,
-	bottom : (Alloy.CFG.isiPhoneX) ? 80 : 50,
-	visible : false,
-	zIndex : 999999,
-	mediaControlStyle : Titanium.Media.VIDEO_CONTROL_DEFAULT,
-	scalingMode : Titanium.Media.VIDEO_SCALING_ASPECT_FILL,
-	autoplay : false,
-	elevation : 24,
-	media : videoMedia
+
+var btn = Ti.UI.createButton({
+    title: 'Trigger'
 });
- 
-//videoPlayer.url = 'movie.mp4';
-vidWin.add(videoPlayer);
-vidWin.open(); 
+
+btn.addEventListener('click', function() {
+    Ti.API.info('Hello world!');
+});
+
+win.add(btn);
+win.open();
