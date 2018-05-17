@@ -1203,312 +1203,228 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_CLEAR
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_CLEAR> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_COLOR
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_COLOR_BURN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR_BURN> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_COLOR_DODGE
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_COLOR_DODGE> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_COPY
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_COPY> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DARKEN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DARKEN> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_ATOP
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_ATOP> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_IN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_IN> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_OUT
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_OUT> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_OVER
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DESTINATION_OVER> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DIFFERENCE
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_DIFFERENCE> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_EXCLUSION
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_EXCLUSION> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_HARD_LIGHT
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_HARD_LIGHT> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_HUE
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_HUE> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_LIGHTEN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_LIGHTEN> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_LUMINOSITY
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_LUMINOSITY> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_MULTIPLY
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_MULTIPLY> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_NORMAL
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_NORMAL> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_OVERLAY
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_OVERLAY> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_PLUS_DARKER
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_PLUS_DARKER> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_PLUS_LIGHTER
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_PLUS_LIGHTER> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SATURATION
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SATURATION> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_SCREEN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SCREEN> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SOFT_LIGHT
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOFT_LIGHT> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_SOURCE_ATOP
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_ATOP> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SOURCE_IN
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_IN> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SOURCE_OUT
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_SOURCE_OUT> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_XOR
-    deprecated:
-        since: "1.8.0"
-        notes: Use <Titanium.UI.iOS.BLEND_MODE_XOR> instead.
-        removed: "6.0.0"
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    since: "7.3.0"
+    platforms: [android, iphone, ipad]
 
   - name: HINT_TYPE_STATIC
     deprecated:

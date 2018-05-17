@@ -1335,7 +1335,7 @@ properties:
          Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator
     type: Dictionary
     platforms: [iphone, ipad]
-    since: 7.2.0
+    since: 7.3.0
 
   - name: left
     summary: View's left position, in platform-specific units.
@@ -1690,7 +1690,7 @@ properties:
          Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator
     type: Dictionary
     platforms: [iphone, ipad]
-    since: 7.2.0
+    since: 7.3.0
 
   - name: viewShadowRadius
     summary: Determines the blur radius used to create the shadow.
