@@ -1207,7 +1207,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_COLOR
@@ -1215,7 +1215,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_COLOR_BURN
@@ -1223,7 +1223,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_COLOR_DODGE
@@ -1231,7 +1231,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_COPY
@@ -1239,7 +1239,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DARKEN
@@ -1247,7 +1247,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_ATOP
@@ -1255,7 +1255,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_IN
@@ -1263,7 +1263,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_OUT
@@ -1271,7 +1271,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_OVER
@@ -1279,7 +1279,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DIFFERENCE
@@ -1287,7 +1287,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_EXCLUSION
@@ -1295,7 +1295,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_HARD_LIGHT
@@ -1303,7 +1303,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_HUE
@@ -1311,7 +1311,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_LIGHTEN
@@ -1319,7 +1319,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_LUMINOSITY
@@ -1327,7 +1327,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_MULTIPLY
@@ -1335,7 +1335,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_NORMAL
@@ -1343,7 +1343,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_OVERLAY
@@ -1351,7 +1351,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_PLUS_DARKER
@@ -1359,7 +1359,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_PLUS_LIGHTER
@@ -1367,7 +1367,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SATURATION
@@ -1375,7 +1375,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_SCREEN
@@ -1383,7 +1383,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SOFT_LIGHT
@@ -1391,7 +1391,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_SOURCE_ATOP
@@ -1399,7 +1399,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SOURCE_IN
@@ -1407,7 +1407,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SOURCE_OUT
@@ -1415,7 +1415,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_XOR
@@ -1423,7 +1423,7 @@ properties:
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     type: Number
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
     platforms: [android, iphone, ipad]
 
   - name: HINT_TYPE_STATIC
