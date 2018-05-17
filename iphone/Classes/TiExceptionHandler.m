@@ -57,10 +57,29 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)showScriptError:(TiScriptError *)error
 {
-  [[TiApp app] showModalError:[error description]];
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification
-                                                      object:self
-                                                    userInfo:error.dictionaryValue];
+  NSMutableArray *nativeStackTrace;
+  @try {
+    // throw an exception so we can obtain the current native stack trace
+    // if we dont throw it, the stack will be nil
+    @throw [NSException exceptionWithName:@"" reason:nil userInfo:nil];
+  } @catch (NSException *exception) {
+    // obtain stack trace
+    NSArray *exceptionStackTrace = [exception callStackSymbols];
+    NSUInteger exceptionStackTraceLength = [exceptionStackTrace count];
+
+    // re-size stack trace and format results
+    NSMutableArray *stackTrace = [[[NSMutableArray alloc] init] autorelease];
+    for (int i = 5; i <= (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
+      NSString *line = [[exceptionStackTrace objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
+      [stackTrace addObject:line];
+    }
+    nativeStackTrace = stackTrace;
+  }
+  if (nativeStackTrace == nil) {
+    [[TiApp app] showModalError:[error description]];
+  } else {
+    [[TiApp app] showModalError:[NSString stringWithFormat:@"%@\n\n%@", [error description], [nativeStackTrace componentsJoinedByString:@"\n"]]];
+  }
 }
 
 #pragma mark - TiExceptionHandlerDelegate
