@@ -3876,6 +3876,19 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}
 	}, this);
 
+	this.androidLibraries.forEach(libraryInfo => {
+		const libraryManifestPath = path.join(libraryInfo.explodedPath, 'AndroidManifest.xml');
+		if (fs.existsSync(libraryManifestPath)) {
+			const libraryManifest = new AndroidManifest();
+			libraryManifest.load(libraryManifestPath);
+			// we don't want android libraries to override the <supports-screens> or <uses-sdk> tags
+			delete libraryManifest.__attr__;
+			delete libraryManifest['supports-screens'];
+			delete libraryManifest['uses-sdk'];
+			finalAndroidManifest.merge(libraryManifest);
+		}
+	});
+
 	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
 	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
 	// elements, otherwise changes in orientation will cause the app to restart

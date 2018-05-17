@@ -10,11 +10,19 @@
 'use strict';
 var should = require('./utilities/assertions');
 
-describe.windowsDesktopBroken('Titanium.XML', function () {
-	it.ios('parseString (invalid xml)', function () {
-		should(Ti.XML.parseString).be.a.Function;
-		should(function () {
-			var xml = Ti.XML.parseString('invalid XML');
-		}).throw();
+describe('Titanium.UI.Picker', function () {
+
+	it('DatePicker postlayout event in layout', function (finish) {
+		var win = Ti.UI.createWindow(),
+			dp = Ti.UI.createPicker({
+				type: Ti.UI.PICKER_TYPE_DATE
+			});
+
+		dp.addEventListener('postlayout', function () {
+			finish();
+		});
+		win.add(dp);
+		win.open();
 	});
+
 });

@@ -58,27 +58,7 @@ events:
       - name: item
         summary: Item that was deleted.
         type: Titanium.UI.DashboardItem
-    
-  - name: dragEnd
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.DashboardView.dragend> instead.
-    summary: Fired when an item finishes being dragged in edit mode.
-    properties:
-      - name: item
-        summary: Item that was dragged.
-        type: Titanium.UI.DashboardItem
-        
-  - name: dragStart
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.DashboardView.dragstart> instead.
-    summary: Fired when an item starts being dragged in edit mode.
-    properties:
-      - name: item
-        summary: Item that was dragged.
-        type: Titanium.UI.DashboardItem
-        
+            
   - name: dragend
     summary: Fired when an item finishes being dragged in edit mode.
     properties:
