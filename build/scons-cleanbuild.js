@@ -15,9 +15,9 @@ const os = require('os'),
 	ROOT_DIR = path.join(__dirname, '..'),
 	DIST_DIR = path.join(ROOT_DIR, 'dist'),
 	OS_TO_PLATFORMS = {
-		'win32': [ 'android', 'windows' ],
-		'osx': [ 'android', 'ios' ],
-		'linux': [ 'android' ]
+		win32: [ 'android', 'windows' ],
+		osx: [ 'android', 'ios' ],
+		linux: [ 'android' ]
 	};
 
 program

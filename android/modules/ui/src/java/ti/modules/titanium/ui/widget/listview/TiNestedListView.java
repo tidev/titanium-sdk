@@ -457,6 +457,8 @@ public abstract class TiNestedListView extends ListView implements NestedScrolli
 			{
 				if (isTouchScrollable()) {
 					super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+				} else {
+					dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, null);
 				}
 			}
 		}

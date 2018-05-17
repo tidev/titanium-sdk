@@ -11,20 +11,21 @@
 var should = require('./utilities/assertions');
 
 describe('Titanium.Network.HTTPClient', function () {
-	it.ios('basic-auth success', function (finish) {
-		var xhr, attempts;
-		this.timeout(6e4);
-		xhr = Ti.Network.createHTTPClient({
-			username: 'user',
-			password: 'passwd'
-		});
-		attempts = 3;
+	this.timeout(6e4);
+
+	it.android('save response data to temp directory', function (finish) {
+		var xhr = Ti.Network.createHTTPClient(),
+			attempts = 3;
 		xhr.setTimeout(6e4);
 
-		xhr.onload = function () {
+		xhr.onload = function (e) {
 			try {
-				should(this.responseText).be.a.string;
-				finish();
+				should(e.source.responseData.nativePath).be.a.string;
+				if (e.source.responseData.nativePath.includes('cache/_tmp') !== -1) {
+					finish();
+				} else {
+					finish(new Error('not saving response data to temp directory'));
+				}
 			} catch (err) {
 				finish(err);
 			}
@@ -39,28 +40,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'http://httpbin.org/basic-auth/user/passwd');
-		xhr.send();
-	});
-
-	it.ios('basic-auth failure', function (finish) {
-		var xhr;
-		this.timeout(6e4);
-		xhr = Ti.Network.createHTTPClient({
-			username: 'user',
-			password: 'wrong_password',
-		});
-		xhr.setTimeout(6e4);
-
-		xhr.onload = function () {
-			finish(new Error('With wrong password it is authenticating'));
-		};
-		xhr.onerror = function () {
-			// This request should fail as password is wrong.
-			finish();
-		};
-
-		xhr.open('GET', 'http://httpbin.org/basic-auth/user/passwd');
+		xhr.open('GET', 'https://www.nasa.gov/sites/default/files/thumbnails/image/sun_0.jpg');
 		xhr.send();
 	});
 });

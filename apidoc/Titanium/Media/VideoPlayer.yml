@@ -260,17 +260,6 @@ events:
         type: Number
         platforms: [iphone, ipad, android]
 
-  - name: durationAvailable
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.durationavailable> instead.
-    summary: |
-        Fired when the video duration is available.
-    properties:
-      - name: duration
-        summary: Video duration, in milliseconds.
-        type: Number
-
   - name: durationavailable
     summary: Fired when the video duration is available.
     properties:
@@ -339,44 +328,6 @@ events:
         summary: Current value of the [loadState](Titanium.Media.VideoPlayer.loadState) property.
         type: Number
 
-  - name: mediaTypesAvailable
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.mediatypesavailable> instead.
-    summary: |
-        Fired when the media types in the current movie are determined.
-    platforms: [iphone, ipad]
-    properties:
-      - name: mediaTypes
-        summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
-        type: Number
-
-  - name: naturalSizeAvailable
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.naturalsizeavailable> instead.
-    summary: |
-        Fired when the natural size of the current movie is determined.
-    description: |
-        On iOS 6.0, this event is not fired by the operating system.
-    platforms: [iphone, ipad]
-    properties:
-      - name: naturalSize
-        summary: Current value of the [naturalSize](Titanium.Media.VideoPlayer.naturalSize) property.
-        type: Number
-
-  - name: playbackState
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.playbackstate> instead.
-    summary: |
-        Fired when the [playbackState](Titanium.Media.VideoPlayer.playbackState) changes.
-    properties:
-      - name: playbackState
-        summary: Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property.
-        type: Number
-        constants: Titanium.Media.VIDEO_PLAYBACK_STATE_*
-
   - name: mediatypesavailable
     deprecated:
         since: "7.0.0"
@@ -426,18 +377,6 @@ events:
   - name: resize
     summary: Fired when the movie player is resized.
     platforms: [iphone, ipad]
-
-  - name: sourceChange
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.sourcechange> instead.
-    summary: |
-        Fired when the [sourceType](Titanium.Media.VideoPlayer.sourceType) property
-        changes.
-    platforms: [iphone, ipad]
-    properties:
-      - name: sourceType
-        summary: New `sourceType` value.
 
   - name: sourcechange
     deprecated:
