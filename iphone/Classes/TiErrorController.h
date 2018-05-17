@@ -5,6 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+@interface TiErrorNavigationController : UINavigationController
+
+@end
+
 @interface TiErrorController : UIViewController {
 
   NSString *error;

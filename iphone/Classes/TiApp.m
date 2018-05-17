@@ -1244,8 +1244,10 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     return;
   }
   ENSURE_UI_THREAD(showModalError, message);
-  TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
-  [self showModalController:error animated:YES];
+
+  TiErrorController *error = [[TiErrorController alloc] initWithError:message];
+  TiErrorNavigationController *nav = [[[TiErrorNavigationController alloc] initWithRootViewController:error] autorelease];
+  [[[self controller] topPresentedController] presentViewController:nav animated:YES completion:nil];
 }
 
 - (void)showModalController:(UIViewController *)modalController animated:(BOOL)animated

@@ -13,6 +13,10 @@
 #import "TiUtils.h"
 #import <QuartzCore/QuartzCore.h>
 
+@implementation TiErrorNavigationController
+
+@end
+
 @implementation TiErrorController
 
 - (id)initWithError:(NSString *)error_
@@ -27,19 +31,23 @@
 {
   RELEASE_TO_NIL(scrollView);
   RELEASE_TO_NIL(messageView);
-  RELEASE_TO_NIL(continueButton);
+  RELEASE_TO_NIL(error);
   [super dealloc];
 }
 
 - (void)dismiss:(id)sender
 {
-  [[TiApp app] hideModalController:self animated:YES];
+  [[TiApp app] hideModalController:self.navigationController animated:YES];
 }
 
 - (void)loadView
 {
   [super loadView];
-  self.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+
+  // configure view controller
+  UIColor *errorColor = [UIColor colorWithRed:0.90 green:0.22 blue:0.21 alpha:1.0];
+  self.navigationItem.title = NSLocalizedString(@"Application Error", nil);
+  self.navigationController.navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : errorColor };
   [self.view setBackgroundColor:[UIColor colorWithRed:0.96 green:0.96 blue:0.96 alpha:1.0]];
 
   // release previous allocations
@@ -76,11 +84,11 @@
   messageView = [[UITextView alloc] init];
   [messageView setTranslatesAutoresizingMaskIntoConstraints:NO];
   [messageView setContentMode:UIViewContentModeScaleToFill];
-  [messageView setBounces:false];
-  [messageView setBouncesZoom:false];
-  [messageView setEditable:false];
-  [messageView setScrollEnabled:false];
-  [messageView setMultipleTouchEnabled:true];
+  [messageView setBounces:NO];
+  [messageView setBouncesZoom:NO];
+  [messageView setEditable:NO];
+  [messageView setScrollEnabled:NO];
+  [messageView setMultipleTouchEnabled:YES];
   [messageView setBackgroundColor:[UIColor clearColor]];
   [messageView setTextColor:[UIColor colorWithRed:0.90 green:0.22 blue:0.21 alpha:1.0]];
   [messageView setText:error];
@@ -108,13 +116,14 @@
   // create continue button to dismiss exception
   continueButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [continueButton setTranslatesAutoresizingMaskIntoConstraints:NO];
-  [continueButton setBackgroundColor:[UIColor colorWithRed:0.90 green:0.22 blue:0.21 alpha:1.0]];
+  [continueButton setBackgroundColor:errorColor];
 
   // set title and adjust font attributes
-  NSMutableAttributedString *continueAttributes = [[NSMutableAttributedString alloc] initWithString:@"CONTINUE"];
+  NSMutableAttributedString *continueAttributes = [[NSMutableAttributedString alloc] initWithString:NSLocalizedString(@"CONTINUE", nil)];
   [continueAttributes addAttribute:NSForegroundColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, [continueAttributes length])];
   [continueAttributes addAttribute:NSFontAttributeName value:[UIFont boldSystemFontOfSize:18] range:NSMakeRange(0, [continueAttributes length])];
   [continueButton setAttributedTitle:continueAttributes forState:UIControlStateNormal];
+  RELEASE_TO_NIL(continueAttributes);
 
   // define button behaviour
   [continueButton addTarget:self action:@selector(dismiss:) forControlEvents:UIControlEventTouchUpInside];
