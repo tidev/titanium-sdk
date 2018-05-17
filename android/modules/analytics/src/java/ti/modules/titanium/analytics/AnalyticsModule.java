@@ -52,7 +52,8 @@ public class AnalyticsModule extends KrollModule
 	}
 
 	@Override
-	public void onPropertyChanged(String name, Object value) {
+	public void onPropertyChanged(String name, Object value)
+	{
 		super.onPropertyChanged(name, value);
 		if (name.equals(TiC.PROPERTY_OPTED_OUT)) {
 			APSAnalytics.getInstance().setOptedOut((boolean) value);
