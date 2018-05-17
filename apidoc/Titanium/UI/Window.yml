@@ -658,7 +658,7 @@ properties:
     description: |
         Returns the navigation window that hosts this window. Returns `null` if the window is not 
         hosted by a navigation window.
-    since: "7.2.0"
+    since: "7.3.0"
     type: Titanium.UI.iOS.NavigationWindow
     permission: read-only
     platforms: [iphone, ipad]  
