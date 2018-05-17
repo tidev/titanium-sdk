@@ -731,6 +731,25 @@
 
 @synthesize parentOrientationController;
 
+#if IS_XCODE_9
+- (BOOL)homeIndicatorAutoHide
+{
+  if (rootWindow == nil) {
+    return NO;
+  }
+
+  UINavigationController *nc = [[rootWindow hostingController] navigationController];
+  UIViewController *topVc = [nc topViewController];
+  if ([topVc isKindOfClass:[TiViewController class]]) {
+    TiViewProxy *theProxy = [(TiViewController *)topVc proxy];
+    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+      return [(id<TiWindowProtocol>)theProxy homeIndicatorAutoHide];
+    }
+  }
+  return NO;
+}
+#endif
+
 - (BOOL)hidesStatusBar
 {
   if (rootWindow == nil) {
