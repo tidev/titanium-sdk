@@ -14,7 +14,7 @@ var should = require('./utilities/assertions');
 describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 	var nav;
 
-	this.timeout(5000);
+	this.timeout(10000);
 
 	afterEach(function () {
 		if (nav !== null) {
@@ -23,7 +23,7 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 		nav = null;
 	});
 
-	it('#openWindow', function (finish) {
+	it('#openWindow, #closeWindow', function (finish) {
 		var win = Ti.UI.createWindow();
 		nav = Ti.UI.iOS.createNavigationWindow({
 			window: win
@@ -33,34 +33,19 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 
 		win.addEventListener('open', function () {
 			should(nav.openWindow).be.a.function;
-			nav.openWindow(subWindow);
+			setTimeout(function () {
+				nav.openWindow(subWindow);
+			}, 500);
 		});
 
 		subWindow.addEventListener('open', function () {
-			finish();
+			should(nav.openWindow).be.a.function;
+			setTimeout(function () {
+				nav.closeWindow(subWindow);
+			}, 500);
 		});
-
-		nav.open();
-	});
-
-	it('#closeWindow', function (finish) {
-		var win = Ti.UI.createWindow();
-		var subWindow = Ti.UI.createWindow();
-
-		nav = Ti.UI.iOS.createNavigationWindow({
-			window: win
-		});
-
-		win.addEventListener('open', function () {
-			nav.openWindow(subWindow);
-		});
-
+		
 		subWindow.addEventListener('open', function () {
-			should(nav.closeWindow).be.a.function;
-			nav.closeWindow(subWindow);
-		});
-
-		subWindow.addEventListener('close', function () {
 			finish();
 		});
 
@@ -76,13 +61,17 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 		});
 
 		win.addEventListener('open', function () {
-			nav.openWindow(subWindow);
+			setTimeout(function () {
+				nav.openWindow(subWindow);
+			}, 500);
 		});
 
 		subWindow.addEventListener('open', function () {
 			should(nav.popToRootWindow).be.a.function;
-			nav.popToRootWindow();
-			finish();
+			setTimeout(function () {
+				nav.popToRootWindow();
+				finish();
+			}, 500);
 		});
 
 		nav.open();
@@ -102,6 +91,7 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 
 			should(nav.openWindow).be.a.function;
 			should(win.navigationWindow.openWindow).be.a.function;
+
 			finish();
 		});
 
