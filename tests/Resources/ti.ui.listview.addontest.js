@@ -10,7 +10,7 @@
 'use strict';
 
 describe('Titanium.UI.ListView', function () {
-	it.windowsAndAndroidMissing('.refreshControl (in NavigationWindow)', function (finish) {
+	it.androidAndWindowsMissing('.refreshControl (in NavigationWindow)', function (finish) {
 		var window, nav, control, listView;
 
 		window = Ti.UI.createWindow({
