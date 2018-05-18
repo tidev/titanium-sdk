@@ -60,9 +60,6 @@ describe('Titanium.UI.Window', function () {
 		win = Ti.UI.iOS.createNavigationWindow({
 			window: window1
 		});
-		win.open({
-			modal: true,
-			animated: false
-		});
+		win.open({ modal: true, animated: false });
 	});
 });
