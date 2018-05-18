@@ -32,8 +32,14 @@ describe('Titanium.UI.TableView', function () {
 		});
 
 		win.addEventListener('open', function () {
+			should(table.headerView).not.be.null;
+			should(table.footerView).not.be.null;
+
 			table.headerView = null;
 			table.footerView = null;
+
+			should(table.headerView).be.null;
+			should(table.footerView).be.null;
 
 			finish();
 		});
