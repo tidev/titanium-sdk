@@ -3,14 +3,14 @@ name: Titanium.Analytics
 summary: |
     Used for transmitting developer-defined Analytics events to the Appcelerator Analytics product. 
 description: |
-    The analytics module can be used to supply additional context or application-specific 
+    The Analytics module can be used to supply additional context or application-specific 
     information which can then be accessed during analysis using Analytics.
 
     Use the [featureEvent](Titanium.Analytics.featureEvent) method to generate custom
     events that you can view through the Analytics product. You can specify a name for 
     the feature event which is visible through Analytics.
 
-    **NOTE** The analytics module lets you transmit some data that is stored, but 
+    **NOTE** The Analytics module lets you transmit some data that is stored, but 
     not made accessible through the Analytics UI. To access this data, you must
     sign up for the optional raw data export service. 
     
@@ -23,6 +23,16 @@ description: |
     Viewing navigation events in the Analytics UI will be supported in a future version 
     of the Analytics product. There is no plan to support the other event types, and they 
     should not be used.
+
+    **GDPR Complience**
+
+    The Ti.Analytics namespace in Titanium is GDPR compliant since SDK 7.2.0. End users
+    should be able to opt out of Analytics using the <Titanium.Analytics.optedOut> property
+    and any Analytics calls should be guarded, since they will throw an error if opted-out.
+
+    Note: This does not affect your app until you make use of the `optedOut` property. Once
+    enabled for your users (e.g. by having a <Titanium.UI.Switch> in your settings), you
+    should handle it within your app logic.
 
 extends: Titanium.Module
 # technically these methods exist, but they serve no purpose and confuse the doc.
@@ -80,7 +90,7 @@ methods:
         default: null
 
   - name: filterEvents
-    summary: Sets a list of events that will not be sent to the analytics server.
+    summary: Sets a list of events that will not be sent to the Analytics server.
     parameters:
       - name: events
         summary: List of events to be filtered.
@@ -188,7 +198,7 @@ methods:
 
 properties:
   - name: lastEvent
-    summary: JSON representation of the last analytics event generated.
+    summary: JSON representation of the last Analytics event generated.
     description: |
          LastEvent is the JSON version of the last event prepared to be sent to Appcelerator
          during the application's session. This value may be null or undefined if no such
@@ -204,6 +214,13 @@ properties:
         Once opted out, no Analytics events will be sent anymore. If implemented to the end user,
         ensure to check if the user is opted out before trying to send an Analytics event.
 
+        **Important**: If you use this property, make sure that sending events will throw an error 
+        that should be handled properly. Here is an example of a GDPR-compliant Analytics call:
+
+            if (!Ti.Analytics.optedOut) {
+              Ti.Analytics.featureEvent('gdpr_rocks');
+            }
+
         Read more about GDPR on the [official website](https://www.eugdpr.org/).
     type: Boolean
     since: "7.2.0"
@@ -215,7 +232,7 @@ examples:
         This example shows how to send a feature event during an application session to indicate 
         some feature that you would like to track was used.
         
-            Titanium.Analytics.featureEvent('app.feature');
+            Ti.Analytics.featureEvent('app.feature');
         
         In this case, the Analytics product would show statistics about how many times the
         'app.feature' event was generated.
