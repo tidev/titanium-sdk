@@ -15,6 +15,11 @@
 
 @implementation TiErrorNavigationController
 
+- (UIViewController *)childViewControllerForHomeIndicatorAutoHidden
+{
+  return self.topViewController;
+}
+
 @end
 
 @implementation TiErrorController
@@ -92,7 +97,7 @@
   [messageView setBackgroundColor:[UIColor clearColor]];
   [messageView setTextColor:[UIColor colorWithRed:0.90 green:0.22 blue:0.21 alpha:1.0]];
   [messageView setText:error];
-  [messageView setFont:[UIFont fontWithName:@"Courier" size:18]];
+  [messageView setFont:[UIFont fontWithName:@"Courier" size:15]];
   [scrollView addSubview:messageView];
 
   // constraints for top and left padding
@@ -160,6 +165,21 @@
   [scrollView setContentSize:CGSizeMake(messageView.contentSize.width, messageView.contentSize.height)];
 
   [self.view layoutIfNeeded];
+
+#if IS_XCODE_8
+  // use haptic feedback on supported devices
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    UINotificationFeedbackGenerator *generator = [UINotificationFeedbackGenerator new];
+    [generator prepare];
+    [generator notificationOccurred:UINotificationFeedbackTypeError];
+    RELEASE_TO_NIL(generator);
+  }
+#endif
+}
+
+- (BOOL)prefersHomeIndicatorAutoHidden
+{
+  return YES;
 }
 
 - (void)viewDidAppear:(BOOL)animated

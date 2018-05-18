@@ -57,28 +57,21 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)showScriptError:(TiScriptError *)error
 {
-  NSMutableArray *nativeStackTrace;
-  @try {
-    // throw an exception so we can obtain the current native stack trace
-    // if we dont throw it, the stack will be nil
-    @throw [NSException exceptionWithName:@"" reason:nil userInfo:nil];
-  } @catch (NSException *exception) {
-    // obtain stack trace
-    NSArray *exceptionStackTrace = [exception callStackSymbols];
-    NSUInteger exceptionStackTraceLength = [exceptionStackTrace count];
+  NSArray<NSString *> *exceptionStackTrace = [NSThread callStackSymbols];
 
-    // re-size stack trace and format results
-    NSMutableArray *stackTrace = [[[NSMutableArray alloc] init] autorelease];
-    for (int i = 5; i <= (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
-      NSString *line = [[exceptionStackTrace objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
-      [stackTrace addObject:line];
-    }
-    nativeStackTrace = stackTrace;
-  }
-  if (nativeStackTrace == nil) {
+  if (exceptionStackTrace == nil) {
     [[TiApp app] showModalError:[error description]];
   } else {
-    [[TiApp app] showModalError:[NSString stringWithFormat:@"%@\n\n%@", [error description], [nativeStackTrace componentsJoinedByString:@"\n"]]];
+    NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
+    NSUInteger exceptionStackTraceLength = [exceptionStackTrace count];
+
+    // re-size stack trace and format results. Starting at index = 4 to not include the script-error API's
+    for (NSInteger i = 4; i <= (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
+      NSString *line = [[exceptionStackTrace objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
+      [formattedStackTrace addObject:line];
+    }
+
+    [[TiApp app] showModalError:[NSString stringWithFormat:@"%@\n\n%@", [error description], [formattedStackTrace componentsJoinedByString:@"\n"]]];
   }
 }
 

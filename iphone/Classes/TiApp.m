@@ -647,9 +647,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)invokeSelector:(SEL)selector withArguments:(NSOrderedSet<id> *)arguments onDelegate:(id)delegate
 {
-  NSArray *keys = [NSStringFromSelector(selector) componentsSeparatedByString:@":"];
-  NSMutableDictionary *output = [NSMutableDictionary dictionaryWithCapacity:[arguments count]];
-
   NSInteger index = 2; // Index 0 and 1 are reserved for the invocation internals ("self" and "_cmd")
   NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[delegate methodSignatureForSelector:selector]];
   [inv setSelector:selector];
@@ -1247,6 +1244,8 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   TiErrorController *error = [[TiErrorController alloc] initWithError:message];
   TiErrorNavigationController *nav = [[[TiErrorNavigationController alloc] initWithRootViewController:error] autorelease];
+  RELEASE_TO_NIL(error);
+
   [[[self controller] topPresentedController] presentViewController:nav animated:YES completion:nil];
 }
 
