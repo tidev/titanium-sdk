@@ -75,4 +75,53 @@ describe('Titanium.UI.ListView', function () {
 		window.add(listView);
 		window.open();
 	});
+
+	it.android('listView with Ti.UI.Android.CardView', function (finish) {
+		var win = Ti.UI.createWindow({
+				backgroundColor: 'gray'
+			}),
+			listView = Ti.UI.createListView({
+				templates: {
+					test: {
+						childTemplates: [{
+							type: 'Ti.UI.Android.CardView',
+							childTemplates: [{
+								type: 'Ti.UI.Label',
+								bindId: 'label',
+								properties: {
+									color: 'black',
+									bindId: 'label'
+								}
+							}],
+							properties: {
+								width: Ti.UI.FILL,
+								height: Ti.UI.SIZE,
+								cardUseCompatPadding: true,
+								backgroundColor: 'white',
+								layout: 'vertical'
+							}
+						}]
+					}
+				},
+				defaultItemTemplate: 'test'
+			}),
+			section = Ti.UI.createListSection(),
+			items = [];
+
+		['A', 'B', 'C'].forEach((item) => items.push({
+			label: { text: item },
+			template: 'test'
+		}));
+
+		section.setItems(items);
+		listView.setSections([ section ]);
+
+		// should not crash after drawing listView
+		win.addEventListener('postlayout', function () {
+			finish();
+		});
+
+		win.add(listView);
+		win.open();
+	});
 });
