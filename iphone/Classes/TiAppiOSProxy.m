@@ -499,17 +499,16 @@
 
   if ([TiUtils isIOS10OrGreater]) {
     DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
-    return;
-  } else {
-    __block NSDictionary *returnVal = nil;
-    TiThreadPerformOnMainThread(^{
-      UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
-      returnVal = [[self formatUserNotificationSettings:notificationSettings] retain];
-    },
-        YES);
-
-    return [returnVal autorelease];
   }
+
+  __block NSDictionary *returnVal = nil;
+  TiThreadPerformOnMainThread(^{
+    UIUserNotificationSettings *notificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
+    returnVal = [[self formatUserNotificationSettings:notificationSettings] retain];
+  },
+      YES);
+
+  return [returnVal autorelease];
 }
 
 - (NSDictionary *)formatNotificationAttachmentOptions:(NSDictionary *)options

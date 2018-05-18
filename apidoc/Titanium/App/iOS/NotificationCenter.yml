@@ -7,7 +7,7 @@ summary: |
 extends: Titanium.Module
 platforms: [iphone, ipad]
 osver: {ios: {min: "8.0"}}
-since: "7.2.0"
+since: "7.3.0"
 
 methods:
   - name: getPendingNotifications
@@ -18,7 +18,7 @@ methods:
             The function that is being called after the notifications
             have been fetched.
         type: Callback<UserNotificationCallbackResponse>
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: getDeliveredNotifications
     summary: Fetches the delivered notifications asynchronously.
@@ -29,20 +29,20 @@ methods:
             have been fetched.
         type: Callback<UserNotificationCallbackResponse>
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: removePendingNotifications
     summary: |
         Removes the specified pending notifications to prevent them from being triggered.
         If no notifications are specified, all pending notifications will be removed.
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: removeDeliveredNotifications
     summary: |
         Removes the specified delivered notifications from the notification-center.
         If no notifications are specified, all delivered notifications will be removed.
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: requestUserNotificationSettings
     summary: |
@@ -52,7 +52,7 @@ methods:
       - name: callback
         summary: The callback invoked when requesting user notification settings.
         type: Callback<GetUserNotificationSettings>
-    since: "7.2.0"
+    since: "7.3.0"
 
 ---
 name: UserNotificationCallbackResponse
@@ -60,7 +60,7 @@ summary: |
     Response when receiving pending or local notifications
     in <Titanium.App.iOS.NotificationCenter.getPendingNotifications> and
     <Titanium.App.iOS.NotificationCenter.getDeliveredNotifications>.
-since: "7.2.0"
+since: "7.3.0"
 properties:
   - name: notifications
     type: Array<UserNotificationDictionary>
@@ -73,7 +73,7 @@ summary: |
     when receiving pending or local notifications in
     <Titanium.App.iOS.NotificationCenter.getPendingNotifications> and
     <Titanium.App.iOS.NotificationCenter.getDeliveredNotifications>.
-since: "7.2.0"
+since: "7.3.0"
 properties:
   - name: alertTitle
     summary: Title of the notification.
@@ -130,7 +130,7 @@ properties:
         This property is required in iOS 10 and later and will fallback
         to "notification" if not set.
     optional: false
-    since: "7.2.0"
+    since: "7.3.0"
     type: String
 
   - name: region

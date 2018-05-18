@@ -17,7 +17,7 @@
 
 @property (nonatomic, retain) id notification;
 
-- (void)cancel:(id)used;
+- (void)cancel:(id)unused;
 
 @end
 
