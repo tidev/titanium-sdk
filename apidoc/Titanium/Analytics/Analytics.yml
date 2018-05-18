@@ -198,6 +198,17 @@ properties:
     permission: read-only
     platforms: [android, iphone, ipad]
 
+  - name: optedOut
+    summary: Allows the user to opt out from Analytics during runtime to comply to GPDR.
+    description: |
+        Once opted out, no Analytics events will be sent anymore. If implemented to the end user,
+        ensure to check if the user is opted out before trying to send an Analytics event.
+
+        Read more about GDPR on the [official website](https://www.eugdpr.org/).
+    type: Boolean
+    since: "7.2.0"
+    platforms: [android, iphone, ipad]
+
 examples:
   - title: Custom Feature Event
     example: |

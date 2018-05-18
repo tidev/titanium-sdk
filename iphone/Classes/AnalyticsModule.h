@@ -21,7 +21,7 @@
 
 - (void)setOptedOut:(id)optedOut;
 
-- (void)isOptedOut:(id)unused;
+- (void)optedOut;
 
 #pragma mark Internal API's
 
