@@ -24,11 +24,11 @@ description: |
     of the Analytics product. There is no plan to support the other event types, and they 
     should not be used.
 
-    **GDPR Complience**
+    **GDPR Compliance**
 
     The Ti.Analytics namespace in Titanium is GDPR compliant since SDK 7.2.0. End users
-    should be able to opt out of Analytics using the <Titanium.Analytics.optedOut> property
-    and any Analytics calls should be guarded, since they will throw an error if opted-out.
+    should be able to opt out of Analytics using the <Titanium.Analytics.optedOut> property.
+    If a user opted out from Analytics and you still call Analytics events, they will be ignored.
 
     Note: This does not affect your app until you make use of the `optedOut` property. Once
     enabled for your users (e.g. by having a <Titanium.UI.Switch> in your settings), you
@@ -213,9 +213,9 @@ properties:
     description: |
         Once opted out, no Analytics events will be sent anymore. If implemented to the end user,
         ensure to check if the user is opted out before trying to send an Analytics event.
+        In case you do not guard the Analytics call, it will be ignored silently.
 
-        **Important**: If you use this property, make sure that sending events will throw an error 
-        that should be handled properly. Here is an example of a GDPR-compliant Analytics call:
+        Here is an example of a guarded Analytics call:
 
             if (!Ti.Analytics.optedOut) {
               Ti.Analytics.featureEvent('gdpr_rocks');
