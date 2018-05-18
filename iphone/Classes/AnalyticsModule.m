@@ -111,7 +111,7 @@ static const NSInteger ANALYTICS_DISABLED = -2;
   [[APSAnalytics sharedInstance] setOptedOut:[TiUtils boolValue:optedOut]];
 }
 
-- (void)isOptedOut:(id)unused
+- (void)optedOut
 {
   @([[APSAnalytics sharedInstance] isOptedOut]);
 }
