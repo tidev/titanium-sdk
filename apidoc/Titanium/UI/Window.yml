@@ -478,6 +478,18 @@ properties:
     type: Boolean
     default: false
 
+  - name: homeIndicatorAutoHidden
+    summary: Boolean value indicating whether the system is allowed to hide the visual indicator for returning to the Home screen.
+    description: |
+        Set this value true, if you want the system to determine when to hide the indicator. Set this value false, 
+        if you want the indicator shown at all times. The system takes your preference into account, but setting 
+        true is no guarantee that the indicator will be hidden.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 7.3.0
+    osver: {ios: {min: "11.0"}}
+
   - name: hideShadow
     summary: Set this to true to hide the shadow image of the navigation bar.
     description: |
@@ -625,7 +637,7 @@ properties:
 
         Since Release 3.3.0, due to changes to support the appcompat library, this property has no
         effect. By default, the action bar is always displayed.  To hide the action bar, see the
-        [Android Action Bar guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
+        [Android Action Bar guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Action_Bar).
 
     platforms: [android, iphone, ipad]
     default: false
@@ -828,7 +840,7 @@ properties:
     summary: Boolean value to enable split action bar.
     description: |
         `splitActionBar` must be set **before** opening the window.
-        This property indicates if the window should use a [split action bar](http://developer.android.com/guide/topics/ui/actionbar.html#SplitBar)
+        This property indicates if the window should use a [split action bar](https://developer.android.com/guide/topics/ui/actionbar.html#SplitBar)
     platforms: [android]
     type: Boolean
     since: 3.6.0
@@ -862,7 +874,7 @@ properties:
         If property is undefined then it defaults to false.
         
         Note: This feature is only available on supported devices. The functionality is experimental and
-        subject to change in future releases. See [Android docs](https://developer.android.com/about/versions/nougat/android-7.0.html#sustained_performance_api) and [Google VR docs](https://developers.google.com/vr/android/ndk/jni/reference/com/google/vr/ndk/base/AndroidCompat.html#setSustainedPerformanceMode(Activity, boolean)) for further info.
+        subject to change in future releases. See [Android docs](https://source.android.com/devices/tech/power/performance) for further info.
     type: Boolean
     since: "7.0.0"
     platforms: [android]
@@ -892,8 +904,8 @@ properties:
   - name: theme
     summary: Name of the theme to apply to the window.
     description: |
-        Set the theme of the window. It can be either a [built-in theme](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-Built-inThemes)
-        or a [custom theme](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-CustomThemes).
+        Set the theme of the window. It can be either a [built-in theme](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-Built-inThemes)
+        or a [custom theme](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes-section-34636181_AndroidThemes-CustomThemes).
     platforms: [android]
     type: String
     since: "3.4.0"
@@ -1021,8 +1033,8 @@ properties:
         removed: 6.0.0
     description: |
         **Note:** The recommended way of creating windows with their own context is to either use the
-        [Alloy Framework](http://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Framework) or a
-        [CommonJS module](http://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
+        [Alloy Framework](https://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Framework) or a
+        [CommonJS module](https://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
         than using this property.  One benefit of using a CommonJS module is that it consumes less
         resources.
 
@@ -1047,9 +1059,9 @@ properties:
     summary: Additional flags to set on the Activity Window.
     description: |
         Set the flags of the window, as per the WindowManager.LayoutParams flags.
-        See [WindowManager.LayoutParams](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html) for a
-        list of supported flags. Setting <Titanium.UI.Window.fullscreen> to true automatically sets the [WindowManager.LayoutParams.FLAG_FULLSCREEN](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_FULLSCREEN)
-        flag. Setting <Titanium.UI.Window.flagSecure> to true automatically sets the [WindowManager.LayoutParams.FLAG_SECURE](http://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_SECURE) flag.
+        See [WindowManager.LayoutParams](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html) for a
+        list of supported flags. Setting <Titanium.UI.Window.fullscreen> to true automatically sets the [WindowManager.LayoutParams.FLAG_FULLSCREEN](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_FULLSCREEN)
+        flag. Setting <Titanium.UI.Window.flagSecure> to true automatically sets the [WindowManager.LayoutParams.FLAG_SECURE](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_SECURE) flag.
     platforms: [android]
     type: Number
     since: "3.3.0"
@@ -1076,7 +1088,7 @@ properties:
         example for a demonstration.
 
         For more information, see the official Android Developers website API Reference for
-        [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
+        [Window.setSoftInputMode](https://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     platforms: [android]
     type: Number
     constants: [Titanium.UI.Android.SOFT_INPUT_STATE_*, Titanium.UI.Android.SOFT_INPUT_ADJUST_*]
@@ -1120,7 +1132,7 @@ properties:
     summary: Set the pixel format for the Activity's Window.
     description: |
         For more information on pixel formats, see
-        [Android SDK Window.setFormat](http://developer.android.com/reference/android/view/Window.html#setFormat(int))
+        [Android SDK Window.setFormat](https://developer.android.com/reference/android/view/Window.html#setFormat(int))
     platforms: [android]
     type: Number
     constants: Titanium.UI.Android.PIXEL_FORMAT_*
@@ -1283,7 +1295,7 @@ description: |
     ### Pass Context Between Windows
 
     To pass data between windows, use a
-    [CommonJS module](http://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
+    [CommonJS module](https://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
     to save information from one window then retrieve it in another.  In the example below, the foo
     module exposes two methods to store and retrieve an object.  The first window of the project
     loads the foo module and uses the set method to store some data before opening the second window.
@@ -1649,11 +1661,11 @@ description: |
             activityExitAnimation: Ti.Android.R.anim.fade_out
         });
 
-    See the official Android [R.anim](http://developer.android.com/reference/android/R.anim.html) documentation
+    See the official Android [R.anim](https://developer.android.com/reference/android/R.anim.html) documentation
     for information about built-in animations.
 
     For information on creating your own animation resource XML files, see
-    "[View Animation](http://developer.android.com/guide/topics/resources/animation-resource.html#View)"
+    "[View Animation](https://developer.android.com/guide/topics/resources/animation-resource.html#View)"
     in Android's Resources documentation. After creating an animation resource file, you can place it under
     `platform/android/res/anim` in your Titanium project folder and it will be packaged in your app's APK
     and then available via <Titanium.App.Android.R>.
@@ -1700,7 +1712,7 @@ description: |
 
     Note that specifying the transitions is not mandatory. If not specified it defaults to Material theme transition.
 
-    See the official Android [Activity Transitions](http://developer.android.com/training/material/animations.html#Transitions)
+    See the official Android [Activity Transitions](https://developer.android.com/training/material/animations.html#Transitions)
     documentation for more information and supported transitons.
 
     #### Android "root" Windows
