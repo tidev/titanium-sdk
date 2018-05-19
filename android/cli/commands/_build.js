@@ -3885,8 +3885,15 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	this.androidLibraries.forEach(libraryInfo => {
 		const libraryManifestPath = path.join(libraryInfo.explodedPath, 'AndroidManifest.xml');
 		if (fs.existsSync(libraryManifestPath)) {
+			let libraryManifestContent = fs.readFileSync(libraryManifestPath).toString();
+
+			// handle injected build variables
+			// https://developer.android.com/studio/build/manifest-build-variables
+			libraryManifestContent = libraryManifestContent.replace('${applicationId}', this.appid); // eslint-disable-line no-template-curly-in-string
+
 			const libraryManifest = new AndroidManifest();
-			libraryManifest.load(libraryManifestPath);
+			libraryManifest.parse(libraryManifestContent);
+
 			// we don't want android libraries to override the <supports-screens> or <uses-sdk> tags
 			delete libraryManifest.__attr__;
 			delete libraryManifest['supports-screens'];
