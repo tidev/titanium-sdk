@@ -2063,6 +2063,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MASK = "mask";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MAX = "max";
 
 	/**
@@ -2183,6 +2188,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MODAL = "modal";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MODE = "mode";
 
 	/**
 	 * @module.api
@@ -3015,6 +3025,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TINT = "tint";
 
 	/**
 	 * @module.api
