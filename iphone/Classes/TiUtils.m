@@ -589,7 +589,9 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   case TiDimensionTypeAuto:
     return @"auto";
   case TiDimensionTypeDip:
-    return [NSNumber numberWithFloat:dimension.value];
+    return @(dimension.value);
+  case TiDimensionTypePercent:
+    return [NSString stringWithFormat:@"%li%%", (NSInteger)(dimension.value * 100)];
   default: {
     break;
   }

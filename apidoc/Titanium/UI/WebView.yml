@@ -692,7 +692,7 @@ properties:
     type: Number
     default: undefined. Behaves as no zoom applied.
     platforms: [android, iphone, ipad]
-    since: "7.2.0"
+    since: "7.3.0"
 
 examples:
   - title: Basic Web View to External URL
