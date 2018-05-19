@@ -249,9 +249,12 @@ extern NSString *const TI_APPLICATION_GUID;
   // pauseLocationupdateAutomatically by default NO
   pauseLocationUpdateAutomatically = NO;
 
-  //Set the default based on if the user has defined a background location mode
+  // Set the default based on if the user has defined a background location mode
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   allowsBackgroundLocationUpdates = ([backgroundModes containsObject:@"location"]);
+
+  // Per default, background location indicators are not visible
+  showBackgroundLocationIndicator = NO;
 
   lock = [[NSRecursiveLock alloc] init];
 
@@ -307,6 +310,12 @@ extern NSString *const TI_APPLICATION_GUID;
     if ([TiUtils isIOS9OrGreater]) {
       locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
     }
+
+#if IS_XCODE_9
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+      locationManager.showsBackgroundLocationIndicator = showBackgroundLocationIndicator;
+    }
+#endif
 
     locationManager.activityType = activityType;
     locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
@@ -628,6 +637,30 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)setShowCalibration:(NSNumber *)value
 {
   calibration = [TiUtils boolValue:value];
+}
+
+- (NSNumber *)showBackgroundLocationIndicator
+{
+#if IS_XCODE_9
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    return @(showBackgroundLocationIndicator);
+  }
+#endif
+  DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Returning \"false\" ...");
+  return @NO;
+}
+
+- (void)setShowBackgroundLocationIndicator:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+#if IS_XCODE_9
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    showBackgroundLocationIndicator = [TiUtils boolValue:value];
+    return;
+  }
+#endif
+  DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Ignoring call ...");
 }
 
 - (NSNumber *)locationServicesEnabled
