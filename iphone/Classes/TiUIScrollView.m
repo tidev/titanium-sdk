@@ -9,6 +9,7 @@
 #import "TiUIScrollView.h"
 #import "TiUIScrollViewProxy.h"
 #import "TiUtils.h"
+#import "TiWindowProxy.h"
 
 @implementation TiUIScrollViewImpl
 
@@ -140,7 +141,28 @@
     [self addSubview:scrollView];
 #endif
   }
+  if ([TiUtils isIOS11OrGreater]) {
+    [self adjustScrollViewInsets];
+  }
   return scrollView;
+}
+
+- (void)adjustScrollViewInsets
+{
+#if IS_XCODE_9
+  id viewProxy = self.proxy;
+  while (viewProxy && ![viewProxy isKindOfClass:[TiWindowProxy class]]) {
+    viewProxy = [viewProxy parent];
+  }
+  if (viewProxy != nil) {
+    id autoAdjust = [(TiProxy *)viewProxy valueForUndefinedKey:@"autoAdjustScrollViewInsets"];
+    if ([TiUtils boolValue:autoAdjust def:NO]) {
+      [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAlways];
+    } else {
+      [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+    }
+  }
+#endif
 }
 
 - (id)accessibilityElement
@@ -311,6 +333,11 @@
   CGPoint newOffset = CGPointMake(bottomWidth, bottomHeight);
 
   [currScrollView setContentOffset:newOffset animated:YES];
+}
+
+- (void)scrollToTop
+{
+  [[self scrollView] setContentOffset:CGPointMake(0, -[[self scrollView] contentInset].top) animated:YES];
 }
 
 - (void)setDecelerationRate_:(id)value

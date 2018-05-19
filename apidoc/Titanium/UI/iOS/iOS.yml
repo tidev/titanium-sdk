@@ -43,6 +43,37 @@ methods:
     osver: {ios: {min: "9.1"}}
     
 properties:
+  - name: LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
+    summary: |
+        Automatically use the large out-of-line title based on the state of the p
+        revious item in the navigation bar.
+    description: |
+        Use with <Titanium.UI.Window.largeTitleDisplayMode>. An item with this 
+        constant will show or hide the large title based on the request of the 
+        previous navigation item. If the first item pushed is set to Automatic, 
+        then it will show the large title if the navigation bar has the property
+        <Titanium.UI.Window.largeTitleEnabled> set to `true`.
+    type: Number
+    since: "6.3.0"
+    osver: {ios: {min: "11.0"}}
+    permission: read-only 
+
+  - name: LARGE_TITLE_DISPLAY_MODE_ALWAYS
+    summary: Always use a larger title when this item is top most.
+    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
+    type: Number
+    since: "6.3.0"
+    osver: {ios: {min: "11.0"}}
+    permission: read-only
+    
+  - name: LARGE_TITLE_DISPLAY_MODE_NEVER
+    summary:  Never use a larger title when this item is top most.
+    description: Use with <Titanium.UI.Window.largeTitleDisplayMode>. 
+    type: Number
+    since: "6.3.0"
+    osver: {ios: {min: "11.0"}}
+    permission: read-only
+
   - name: LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
     summary: |
         Include treatments so this image can be shown directly over the content 
@@ -720,6 +751,9 @@ properties:
     platforms: [iphone, ipad]
 
   - name: BLEND_MODE_CLEAR
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_CLEAR> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -728,6 +762,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_COLOR
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_COLOR> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -736,6 +773,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_COLOR_BURN
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_COLOR_BURN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -744,6 +784,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_COLOR_DODGE
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_COLOR_DODGE> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -752,6 +795,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_COPY
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_COPY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -760,6 +806,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_DARKEN
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_DARKEN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -768,6 +817,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_DESTINATION_ATOP
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_ATOP> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -776,6 +828,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_DESTINATION_IN
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_IN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -784,6 +839,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_DESTINATION_OUT
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_OUT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -792,6 +850,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_DESTINATION_OVER
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_DESTINATION_OVER> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -800,6 +861,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_DIFFERENCE
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_DIFFERENCE> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -808,6 +872,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_EXCLUSION
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_EXCLUSION> instead.
     summary: |
         Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -816,6 +883,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_HARD_LIGHT
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_HARD_LIGHT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -824,6 +894,9 @@ properties:
     permission: read-only
     
   - name: BLEND_MODE_HUE
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_HUE> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -832,6 +905,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_LIGHTEN
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_LIGHTEN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -840,6 +916,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_LUMINOSITY
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_LUMINOSITY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -848,6 +927,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_MULTIPLY
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_MULTIPLY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -856,6 +938,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_NORMAL
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_NORMAL> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -864,6 +949,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_OVERLAY
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_OVERLAY> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -872,6 +960,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_PLUS_DARKER
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_PLUS_DARKER> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -880,6 +971,9 @@ properties:
     permission: read-only
     
   - name: BLEND_MODE_PLUS_LIGHTER
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_PLUS_LIGHTER> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -888,6 +982,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_SATURATION
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_SATURATION> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -896,6 +993,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_SCREEN
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_SCREEN> instead.
     summary: |
         Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -904,6 +1004,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_SOFT_LIGHT
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_SOFT_LIGHT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -912,6 +1015,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_SOURCE_ATOP
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_SOURCE_ATOP> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -920,6 +1026,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_SOURCE_IN
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_SOURCE_IN> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -928,6 +1037,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_SOURCE_OUT
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_SOURCE_OUT> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -936,6 +1048,9 @@ properties:
     permission: read-only
 
   - name: BLEND_MODE_XOR
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.UI.BLEND_MODE_XOR> instead.
     summary: |
         Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
     description: |
@@ -1236,6 +1351,144 @@ properties:
     type: Number
     permission: read-only
 
+  - name: MODAL_PRESENTATION_CURRENT_CONTEXT
+    summary: View presented with the same style as its parent window.
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+        and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
+    type: Number
+    since: "5.4.0"
+    
+  - name: MODAL_PRESENTATION_FORMSHEET
+    summary: |
+        Window width and height are smaller than those of the screen and the view is centered on 
+        the screen.
+    description: |
+        If the system is in a landscape orientation and the keyboard is visible, the position of the 
+        view is adjusted upward so that the view remains visible. All uncovered areas are dimmed 
+        and do not respond to touch to prevent the user from interacting with them.
+        
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+        and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+    
+  - name: MODAL_PRESENTATION_FULLSCREEN
+    summary: Window covers the screen.
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+        and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+    
+  - name: MODAL_PRESENTATION_PAGESHEET
+    summary: |
+        Window height is the height of the screen and width is equal to screen width in a portrait 
+        orientation.
+    description: |
+        Any uncovered areas are dimmed and do not respond to touch, to prevent the user from 
+        interacting with them. In portrait orientations, this option is essentially the same as 
+        <Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN>.
+        
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window presentation style constants 
+        [MODAL_PRESENTATION_CURRENT_CONTEXT](Titanium.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT), 
+        [MODAL_PRESENTATION_FORMSHEET](Titanium.UI.iOS.MODAL_PRESENTATION_FORMSHEET), 
+        [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
+        and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+
+  - name: MODAL_TRANSITION_STYLE_COVER_VERTICAL
+    summary: |
+        When the window is presented, its view slides up from the bottom of the screen. On dismissal, 
+        the view slides back down (default.)
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+        and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+   
+  - name: MODAL_TRANSITION_STYLE_CROSS_DISSOLVE
+    summary: |
+        When the window is presented, the current view fades out while the new view fades in at the 
+        same time. On dismissal, a similar type of cross-fade is used to return to the original view.
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+        and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+    
+  - name: MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL
+    summary: |
+        When the window is presented, the current view initiates a horizontal 3D flip from 
+        right-to-left, resulting in the revealing of the new view as if it were on the back of the 
+        previous view. On dismissal, the flip occurs from left-to-right, returning to the original 
+        view.
+    description: |
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+        and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+    
+  - name: MODAL_TRANSITION_STYLE_PARTIAL_CURL
+    summary: |
+        When the window is presented, one corner of the current view curls up to reveal the modal 
+        view underneath. On dismissal, the curled up page unfurls itself back on top of the modal 
+        view.
+    description: |
+        A modal view presented using this transition is itself prevented from presenting any 
+        additional modal views. This transition style is supported only if the window is presenting 
+        a <Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN> modal presentation style.
+        
+        Used with the <Titanium.UI.Window.open> and <Titanium.UI.Window.close> methods.
+        
+        One of the group of modal window transition style constants 
+        [MODAL_TRANSITION_STYLE_COVER_VERTICAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_COVER_VERTICAL), 
+        [MODAL_TRANSITION_STYLE_CROSS_DISSOLVE](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE), 
+        [MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL), 
+        and [MODAL_TRANSITION_STYLE_PARTIAL_CURL](Titanium.UI.iOS.MODAL_TRANSITION_STYLE_PARTIAL_CURL).
+    type: Number
+    permission: read-only
+    since: "5.4.0"
+
   - name: PUSH_MODE_CONTINUOUS
     summary: |
         Use with <Titanium.UI.iOS.PushBehavior.pushMode> to specifiy a continuous force.
@@ -1352,7 +1605,7 @@ properties:
 
   - name: SEARCH_BAR_STYLE_PROMINENT
     summary: |
-        Use with <Titanium.UI.Searchbar.style> to change the search bar style.
+        Use with <Titanium.UI.SearchBar.style> to change the search bar style.
     description: |
         The search bar has a translucent background, and the search field is opaque.
     type: Number
@@ -1361,7 +1614,7 @@ properties:
   
   - name: SEARCH_BAR_STYLE_MINIMAL
     summary: |
-        Use with <Titanium.UI.Searchbar.style> to change the search bar style.
+        Use with <Titanium.UI.SearchBar.style> to change the search bar style.
     description: |
         The search bar has no background, and the search field is translucent.
     type: Number

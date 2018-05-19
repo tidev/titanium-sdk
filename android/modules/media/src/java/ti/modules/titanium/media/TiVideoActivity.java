@@ -31,7 +31,9 @@ public class TiVideoActivity extends Activity
 	private Messenger proxyMessenger = null;
 	private TiLifecycle.OnLifecycleEvent lifecycleListener = null;
 
-	public TiVideoActivity() {}
+	public TiVideoActivity()
+	{
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -69,13 +71,15 @@ public class TiVideoActivity extends Activity
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(Configuration newConfig)
+	{
 		super.onConfigurationChanged(newConfig);
 		sendProxyMessage(VideoPlayerProxy.CONTROL_MSG_CONFIG_CHANGED);
 	}
 
 	@Override
-	protected void onStart() {
+	protected void onStart()
+	{
 		super.onStart();
 
 		if (lifecycleListener != null) {
@@ -84,7 +88,8 @@ public class TiVideoActivity extends Activity
 	}
 
 	@Override
-	protected void onResume() {
+	protected void onResume()
+	{
 		super.onResume();
 
 		TiApplication.getInstance().setCurrentActivity(this, this);
@@ -94,7 +99,8 @@ public class TiVideoActivity extends Activity
 	}
 
 	@Override
-	protected void onPause() {
+	protected void onPause()
+	{
 		super.onPause();
 
 		TiApplication.getInstance().setCurrentActivity(this, null);
@@ -104,7 +110,8 @@ public class TiVideoActivity extends Activity
 	}
 
 	@Override
-	protected void onDestroy() {
+	protected void onDestroy()
+	{
 		super.onDestroy();
 
 		if (lifecycleListener != null) {
@@ -129,5 +136,4 @@ public class TiVideoActivity extends Activity
 	{
 		lifecycleListener = listener;
 	}
-
 }

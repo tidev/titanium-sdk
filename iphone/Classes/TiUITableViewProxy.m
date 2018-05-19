@@ -88,6 +88,16 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   }
 }
 
+- (void)gainFocus
+{
+  [[self tableView] viewGetFocus];
+}
+
+- (void)resignFocus
+{
+  [[self tableView] viewResignFocus];
+}
+
 - (NSArray *)keySequence
 {
   if (tableKeySequence == nil) {
@@ -936,7 +946,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     }
                               forceReload:NO];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)deleteSection:(id)args
@@ -977,7 +987,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     }
                               forceReload:NO];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)insertSection:(TiUITableViewSectionProxy *)section atIndex:(int)sectionIndex withOptions:(id)options
@@ -1100,7 +1110,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     }
                               forceReload:NO];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 @end
 

@@ -315,7 +315,24 @@
   *imageIdiom = UIUserInterfaceIdiomPhone;
   // Default
   image = nil;
-  if ([TiUtils isRetinaHDDisplay]) {
+
+  // iPhone X
+  if ([TiUtils isRetinaiPhoneX]) {
+    if (UIDeviceOrientationIsPortrait(orientation)) {
+      // Portrait
+      image = [UIImage imageNamed:@"LaunchImage-1100-Portrait-2436h@3x"];
+    } else if (UIDeviceOrientationIsLandscape(orientation)) {
+      // Landscape
+      image = [UIImage imageNamed:@"LaunchImage-1100-Landscape-2436h@3x"];
+    }
+    if (image != nil) {
+      *imageOrientation = orientation;
+      return image;
+    }
+  }
+
+  // iPhone 6 Plus
+  if ([TiUtils isRetinaiPhone6Plus]) {
     if (UIDeviceOrientationIsPortrait(orientation)) {
       image = [UIImage imageNamed:@"LaunchImage-800-Portrait-736h@3x"];
     } else if (UIDeviceOrientationIsLandscape(orientation)) {
@@ -326,12 +343,16 @@
       return image;
     }
   }
+
+  // iPhone 6
   if ([TiUtils isRetinaiPhone6]) {
     image = [UIImage imageNamed:@"LaunchImage-800-667h"];
     if (image != nil) {
       return image;
     }
   }
+
+  // iPhone 5
   if ([TiUtils isRetinaFourInch]) {
     image = [UIImage imageNamed:@"LaunchImage-700-568h@2x"];
     if (image != nil) {
@@ -339,6 +360,7 @@
     }
   }
 
+  // iPhone 4
   return [UIImage imageNamed:@"LaunchImage-700@2x"];
 }
 
@@ -486,19 +508,6 @@
   }
 }
 
-- (void)placeView:(UIView *)targetView nearTopOfRect:(CGRect)targetRect aboveTop:(BOOL)aboveTop
-{
-  CGRect viewFrame;
-  viewFrame.size = [targetView frame].size;
-  viewFrame.origin.x = targetRect.origin.x;
-  if (aboveTop) {
-    viewFrame.origin.y = targetRect.origin.y - viewFrame.size.height;
-  } else {
-    viewFrame.origin.y = targetRect.origin.y;
-  }
-  [targetView setFrame:viewFrame];
-}
-
 - (UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView
 {
   //If the toolbar actually contains the view, then we have to give that precidence.
@@ -541,9 +550,6 @@
   [focusedToolbar setBounds:focusedToolbarBounds];
 
   CGFloat keyboardHeight = endingFrame.origin.y;
-  if (focusedToolbar != nil && focusedToolbar != leavingAccessoryView) {
-    keyboardHeight -= focusedToolbarBounds.size.height;
-  }
 
   if ((scrolledView != nil) && (keyboardHeight > 0)) //If this isn't IN the toolbar, then we update the scrollviews to compensate.
   {
@@ -559,55 +565,6 @@
 
     [confirmedScrollView keyboardDidShowAtHeight:keyboardHeight];
     [confirmedScrollView scrollToShowView:scrolledView withKeyboardHeight:keyboardHeight];
-  }
-
-  //This is if the keyboard is hiding or showing due to hardware.
-  if ((accessoryView != nil) && !CGRectEqualToRect(targetedFrame, endingFrame)) {
-    //endingFrame is set to zero when splitting or merging keyboard, so don't do anything here
-    if (!CGRectEqualToRect(CGRectZero, endingFrame)) {
-      targetedFrame = endingFrame;
-    }
-    if ([accessoryView superview] != ourView) {
-      targetedFrame = [ourView convertRect:endingFrame toView:[accessoryView superview]];
-    }
-
-    [UIView beginAnimations:@"update" context:accessoryView];
-    if (keyboardVisible) {
-      [UIView setAnimationDuration:enterDuration];
-      [UIView setAnimationCurve:enterCurve];
-    } else {
-      [UIView setAnimationDuration:leaveDuration];
-      [UIView setAnimationCurve:leaveCurve];
-    }
-
-    [UIView setAnimationDelegate:self];
-    [self placeView:accessoryView nearTopOfRect:targetedFrame aboveTop:YES];
-    [UIView commitAnimations];
-  }
-
-  if (enteringAccessoryView != nil) {
-    //Start animation to put it into place.
-    if ([enteringAccessoryView superview] != ourView) {
-      [self placeView:enteringAccessoryView nearTopOfRect:[ourView convertRect:startFrame fromView:nil] aboveTop:NO];
-      [[self viewForKeyboardAccessory] addSubview:enteringAccessoryView];
-    }
-    targetedFrame = endingFrame;
-    [UIView beginAnimations:@"enter" context:enteringAccessoryView];
-    [UIView setAnimationDuration:enterDuration];
-    [UIView setAnimationCurve:enterCurve];
-    [UIView setAnimationDelegate:self];
-    [self placeView:enteringAccessoryView nearTopOfRect:endingFrame aboveTop:YES];
-    [UIView commitAnimations];
-    accessoryView = enteringAccessoryView;
-    enteringAccessoryView = nil;
-  }
-  if (leavingAccessoryView != nil) {
-    [UIView beginAnimations:@"exit" context:leavingAccessoryView];
-    [UIView setAnimationDuration:leaveDuration];
-    [UIView setAnimationCurve:leaveCurve];
-    [UIView setAnimationDelegate:self];
-    [self placeView:leavingAccessoryView nearTopOfRect:endingFrame aboveTop:NO];
-    [UIView commitAnimations];
   }
 }
 
@@ -1384,6 +1341,12 @@
     [self refreshOrientationWithDuration:nil];
     [self updateStatusBar];
   }
+
+#if IS_XCODE_9
+  if ([TiUtils isIOS11OrGreater]) {
+    [self setNeedsUpdateOfHomeIndicatorAutoHidden];
+  }
+#endif
 }
 
 - (void)setParentOrientationController:(id<TiOrientationController>)newParent
@@ -1511,6 +1474,18 @@
   }
   [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
+
+#pragma mark - HomeIndicatorAutoHidden
+
+#if IS_XCODE_9
+- (BOOL)prefersHomeIndicatorAutoHidden
+{
+  if ([containedWindows count] > 0) {
+    return [[containedWindows lastObject] homeIndicatorAutoHide];
+  }
+  return NO;
+}
+#endif
 
 #pragma mark - Status Bar Appearance
 - (BOOL)prefersStatusBarHidden

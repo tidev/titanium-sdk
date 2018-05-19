@@ -12,10 +12,7 @@
 NSString *const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND = @"scrollview_textured";
 NSString *const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND = @"view_flipside";
 NSString *const IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND = @"group_tableview";
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_5_0
 NSString *const IOS_COLOR_UNDER_PAGE_BACKGROUND = @"under_page";
-#endif
 
 UIColor *checkmarkColor = nil;
 NSMutableDictionary *colorLookup = nil;

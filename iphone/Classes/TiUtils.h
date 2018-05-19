@@ -13,6 +13,8 @@
 @class TiBuffer;
 @class WebFont;
 @class TiScriptError;
+@class TiUIView;
+@class TiViewProxy;
 
 /*	NOTE TO MODULE DEVELOPERS:
  *	The following 4 imports will be going away as it's better to simply
@@ -24,8 +26,6 @@
 #import "TiColor.h"
 #import "TiFile.h"
 #import "WebFont.h"
-
-bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, char **outOutputDataPtr, size_t *outOutputDataSize);
 
 typedef enum {
   BAD_DEST_OFFSET = -1,
@@ -535,6 +535,8 @@ typedef enum {
  */
 + (void)setView:(UIView *)view positionRect:(CGRect)frameRect;
 
++ (void)applyConstraintToView:(TiUIView *)view forProxy:(TiViewProxy *)proxy withBounds:(CGRect)bounds;
+
 + (CGRect)viewPositionRect:(UIView *)view;
 
 + (BOOL)barTranslucencyForColor:(TiColor *)color;
@@ -604,6 +606,12 @@ typedef enum {
 + (BOOL)isIOS10OrGreater;
 
 /**
+ Whether or not the current OS version is equal to or greater than 11.0.
+ @return _YES_ if the current OS version is equal to or greater than 11.0, _NO_ otherwise.
+ */
++ (BOOL)isIOS11OrGreater;
+
+/**
  Whether or not the current OS version is equal to or greater than the specified version.
  @param version The version to compare.
  @return _YES_ if the current OS version is equal to or greater than the specified version, _NO_ otherwise.
@@ -629,10 +637,22 @@ typedef enum {
 + (BOOL)isRetinaFourInch;
 
 /**
- Whether or not the current device has a 4.7 inch retina display (iPhone6).
+ Whether or not the current device has a 4.7 inch retina display (iPhone 6).
  @return _YES_ if the current device has a 4.7 inch retina display, _NO_ otherwise.
  */
 + (BOOL)isRetinaiPhone6;
+
+/**
+ Whether or not the current device has a 5.5 inch retina display (iPhone 6).
+ @return _YES_ if the current device has a 5.5 inch retina display, _NO_ otherwise.
+ */
++ (BOOL)isRetinaiPhone6Plus;
+
+/**
+ Whether or not the current device has a 5.8 inch retina display (iPhone X).
+ @return _YES_ if the current device has a 5.8 inch retina display, _NO_ otherwise.
+ */
++ (BOOL)isRetinaiPhoneX;
 
 /**
  Whether or not the current device has HD retina display (@3X).

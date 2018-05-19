@@ -244,6 +244,10 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
 
+#if IS_XCODE_9
+  [window processForSafeArea];
+#endif
+
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];
@@ -251,6 +255,11 @@
   [window setIsManaged:YES];
   [window setTab:self];
   [window setParentOrientationController:self];
+
+  TiUIView *view = [window view];
+  TiViewController *controller = (TiViewController *)[window hostingController];
+  [view setFrame:controller.view.bounds];
+
   //Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
     args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
@@ -364,6 +373,9 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
+#if IS_XCODE_9
+  [theWindow processForSafeArea];
+#endif
   if (theWindow == rootWindow) {
     //This is probably too late for the root view controller.
     //Figure out how to call open before this callback
@@ -665,12 +677,6 @@
 
 - (void)setActiveIcon:(id)icon
 {
-  if (![UITabBarItem instancesRespondToSelector:
-                         @selector(setFinishedSelectedImage:withFinishedUnselectedImage:)]) {
-    NSLog(@"[WARN] activeIcon is only supported in iOS 5 or above.");
-    return;
-  }
-
   if ([icon isKindOfClass:[NSString class]]) {
     // we might be inside a different context than our tab group and if so, he takes precendence in
     // url resolution
@@ -729,6 +735,25 @@
 #pragma mark - TiOrientationController
 
 @synthesize parentOrientationController;
+
+#if IS_XCODE_9
+- (BOOL)homeIndicatorAutoHide
+{
+  if (rootWindow == nil) {
+    return NO;
+  }
+
+  UINavigationController *nc = [[rootWindow hostingController] navigationController];
+  UIViewController *topVc = [nc topViewController];
+  if ([topVc isKindOfClass:[TiViewController class]]) {
+    TiViewProxy *theProxy = [(TiViewController *)topVc proxy];
+    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+      return [(id<TiWindowProtocol>)theProxy homeIndicatorAutoHide];
+    }
+  }
+  return NO;
+}
+#endif
 
 - (BOOL)hidesStatusBar
 {

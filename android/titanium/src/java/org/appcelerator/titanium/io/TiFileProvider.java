@@ -16,22 +16,24 @@ import java.io.FileNotFoundException;
 /**
  * TiFileProvider is intended to expose filesystem resources to outside apps.
  */
-public class TiFileProvider extends ContentProvider {
+public class TiFileProvider extends ContentProvider
+{
 	private static final String TAG = "TiFileProvider";
 
 	@Override
-	public boolean onCreate() {
+	public boolean onCreate()
+	{
 		return true;
 	}
 
-	public static Uri createUriFrom(File file) {
+	public static Uri createUriFrom(String filePath)
+	{
 		final TiApplication tiApp = TiApplication.getInstance();
 		if (tiApp == null) {
 			return null;
 		}
-
 		try {
-			String path = getUriPrefix() + file.getAbsolutePath();
+			String path = getUriPrefix() + filePath.replaceAll("^file://(/android_asset)?", "");
 			return Uri.parse(path);
 		} catch (Exception e) {
 			// ignore exception
@@ -40,8 +42,14 @@ public class TiFileProvider extends ContentProvider {
 		return null;
 	}
 
+	public static Uri createUriFrom(File file)
+	{
+		return createUriFrom(file.getAbsolutePath());
+	}
+
 	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
+	public int delete(Uri uri, String selection, String[] selectionArgs)
+	{
 		throw new UnsupportedOperationException("No external deletions");
 	}
 
@@ -49,22 +57,26 @@ public class TiFileProvider extends ContentProvider {
 	 * Returns the type of a file assuming that it has an extension otherwise 'application/octet-stream' is returned.
 	 */
 	@Override
-	public String getType(Uri uri) {
+	public String getType(Uri uri)
+	{
 		return TiMimeTypeHelper.getMimeType(uri.getPath(), "application/octet-stream");
 	}
 
 	@Override
-	public Uri insert(Uri uri, ContentValues values) {
+	public Uri insert(Uri uri, ContentValues values)
+	{
 		throw new UnsupportedOperationException("No external inserts");
 	}
 
 	@Override
-	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException
+	{
 		return ParcelFileDescriptor.open(getFileFrom(uri), getFileMode(mode));
 	}
 
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder)
+	{
 		File file = getFileFrom(uri);
 		if (file == null) {
 			return null;
@@ -78,7 +90,7 @@ public class TiFileProvider extends ContentProvider {
 		String[] cols = new String[projection.length];
 		Object[] values = new Object[projection.length];
 		int i = 0;
-		for (String col: projection) {
+		for (String col : projection) {
 			if (OpenableColumns.DISPLAY_NAME.equals(col)) {
 				cols[i] = OpenableColumns.DISPLAY_NAME;
 				values[i++] = file.getName();
@@ -97,23 +109,27 @@ public class TiFileProvider extends ContentProvider {
 	}
 
 	@Override
-	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs)
+	{
 		throw new UnsupportedOperationException("No external updates");
 	}
 
-	private static String[] copyOf(String[] original, int newLength) {
+	private static String[] copyOf(String[] original, int newLength)
+	{
 		final String[] result = new String[newLength];
 		System.arraycopy(original, 0, result, 0, newLength);
 		return result;
 	}
 
-	private static Object[] copyOf(Object[] original, int newLength) {
+	private static Object[] copyOf(Object[] original, int newLength)
+	{
 		final Object[] result = new Object[newLength];
 		System.arraycopy(original, 0, result, 0, newLength);
 		return result;
 	}
-	
-	private static File getFileFrom(Uri uri) {
+
+	private static File getFileFrom(Uri uri)
+	{
 		if (uri == null) {
 			return null;
 		}
@@ -125,29 +141,27 @@ public class TiFileProvider extends ContentProvider {
 		}
 		return null;
 	}
-	
-	private static int getFileMode(String mode) {
+
+	private static int getFileMode(String mode)
+	{
 		if ("w".equals(mode) || "wt".equals(mode)) {
-			return ParcelFileDescriptor.MODE_WRITE_ONLY
-					| ParcelFileDescriptor.MODE_CREATE
-					| ParcelFileDescriptor.MODE_TRUNCATE;
+			return ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE
+				| ParcelFileDescriptor.MODE_TRUNCATE;
 		} else if ("wa".equals(mode)) {
-			return ParcelFileDescriptor.MODE_WRITE_ONLY
-					| ParcelFileDescriptor.MODE_CREATE
-					| ParcelFileDescriptor.MODE_APPEND;
+			return ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_CREATE
+				| ParcelFileDescriptor.MODE_APPEND;
 		} else if ("rw".equals(mode)) {
-			return ParcelFileDescriptor.MODE_READ_WRITE
-					| ParcelFileDescriptor.MODE_CREATE;
+			return ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_CREATE;
 		} else if ("rwt".equals(mode)) {
-			return ParcelFileDescriptor.MODE_READ_WRITE
-					| ParcelFileDescriptor.MODE_CREATE
-					| ParcelFileDescriptor.MODE_TRUNCATE;
+			return ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_CREATE
+				| ParcelFileDescriptor.MODE_TRUNCATE;
 		} else {
 			return ParcelFileDescriptor.MODE_READ_ONLY;
 		}
 	}
 
-	private static String getUriPrefix() {
+	private static String getUriPrefix()
+	{
 		final TiApplication tiApp = TiApplication.getInstance();
 		if (tiApp == null) {
 			return null;

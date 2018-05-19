@@ -54,6 +54,43 @@ exports.init = function (logger, config, cli, appc) {
 			scanModuleAndStartTransform(builder, logger, callback);
 		}
 	});
+
+	cli.on('build.android.dexer', {
+		priority: 1100,
+		/**
+		 * Fixes an issue with Hyperloop 2.1.0 which causes a crash when trying to
+		 * override the Android Support Libraries with local .aar files. Hyperloop
+		 * 2.1.0 will always manually add our bundled Android Support Libraries
+		 * to the dexer paths even if they were replaced by the builder. To fix this
+		 * we check the altered dexer paths again and remove any replaced libraries.
+		 *
+		 * @param {Object} data Hook data
+		 * @param {Function} callback Callback function
+		 */
+		pre: function (data, callback) {
+			const builder = data.ctx;
+			const dexerOptions = data.args[1].slice(0, 6);
+			const dexerPaths = data.args[1].slice(6);
+			let hyperloopModule = null;
+			builder.nativeLibModules.forEach(function (module) {
+				if (module.id === 'hyperloop' && module.version === '2.1.0') {
+					hyperloopModule = module;
+				}
+			});
+			if (hyperloopModule && builder.androidLibraries.length > 0) {
+				let fixedDexerPaths = [];
+				dexerPaths.forEach(function (entryPathAndFilename) {
+					if (!this.isExternalAndroidLibraryAvailable(entryPathAndFilename)) {
+						fixedDexerPaths.push(entryPathAndFilename);
+					} else {
+						logger.trace('Removed duplicate library ' + entryPathAndFilename + ' from dexer paths.');
+					}
+				}, builder);
+				data.args[1] = dexerOptions.concat(fixedDexerPaths);
+			}
+			callback();
+		}
+	});
 };
 
 /**
@@ -114,12 +151,12 @@ function scanProjectAndStartTransform(builder, logger, callback) {
  * @param {Function} callback Function to call once the transform is complete
  */
 function scanModuleAndStartTransform(builder, logger, callback) {
-	const moduleAndroidLibraries = [];
-	fs.readdirSync(builder.projLibDir).forEach(function (file) {
+	const moduleAndroidLibraries = builder.moduleAndroidLibraries || [];
+	fs.existsSync(builder.projLibDir) && fs.readdirSync(builder.projLibDir).forEach(function (file) {
 		if (/\.aar/.test(file)) {
 			moduleAndroidLibraries.push({
 				aarPathAndFilename: path.join(builder.projLibDir, file),
-				originType: LIBRARY_ORIGIN_PORJECT
+				originType: LIBRARY_ORIGIN_MODULE
 			});
 		}
 	});
@@ -194,7 +231,7 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 					return done(null, hash);
 				}
 
-				logger.trace('Skipping ' + aarPathAndFilename.cyan + ' because it is a duplicate of ' + libraryHashMap[hash].aarPathAndFilename.cyan);
+				logger.trace('Skipping ' + aarPathAndFilename.cyan + ' because it is a duplicate of ' + libraryHashMap[hash].packageName.cyan);
 				done(new SkipLibraryError());
 			},
 
@@ -264,7 +301,7 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 				function formatDupeInfo(dupeLibraryInfo) {
 					var infoString = dupeLibraryInfo.task.aarPathAndFilename + ' (hash: ' + dupeLibraryInfo.sha256;
 					if (dupeLibraryInfo.task.originType === LIBRARY_ORIGIN_MODULE) {
-						infoString += ', origin: Module ' + dupeLibraryInfo.task.moduleInfo.id;
+						infoString += ', origin: Module';
 					} else if (dupeLibraryInfo.task.originType === LIBRARY_ORIGIN_PORJECT) {
 						infoString += ', origin: Project';
 					}
