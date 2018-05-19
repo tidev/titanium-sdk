@@ -44,7 +44,7 @@ describe.ios('Titanium.UI.iOS.NavigationWindow', function () {
 				nav.closeWindow(subWindow);
 			}, 500);
 		});
-		
+
 		subWindow.addEventListener('open', function () {
 			finish();
 		});
