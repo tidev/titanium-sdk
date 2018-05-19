@@ -433,7 +433,7 @@ events:
         summary: New network type as a string.
         type: String
       - name: online
-        summary: Boolean to indicate if the device is online.
+        summary: Boolean indicating if the device is connected to the network.
         type: Boolean
       - name: networkType
         summary: New network type
@@ -690,10 +690,14 @@ properties:
     permission: read-only
 
   - name: online
-    summary: Boolean value indicating if the device can reach the Internet.
+    summary: Boolean value indicating if the device is connected to the network.
     description: |
-        The `online` property is `true` if the device can currently reach the Internet
-        using either WiFi, mobile network or LAN.
+        The `online` property is `true` if the device has network access via WiFi,
+        LAN, or mobile/cellular network.
+
+        Note that if the device is connected to a private network without Internet access,
+        then this property will be `true` as well. This means you cannot assume the device
+        has Internet access if it's connected to the network.
     type: Boolean
     permission: read-only
 
