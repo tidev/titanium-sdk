@@ -1379,7 +1379,7 @@ properties:
         [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN
     summary: Presented view covers the screen. 
@@ -1396,8 +1396,8 @@ properties:
         [MODAL_PRESENTATION_FULLSCREEN](Titanium.UI.iOS.MODAL_PRESENTATION_FULLSCREEN), 
         and [MODAL_PRESENTATION_PAGESHEET](Titanium.UI.iOS.MODAL_PRESENTATION_PAGESHEET).
     type: Number
-    since: "7.2.0"
-    
+    since: "7.3.0"
+
   - name: MODAL_PRESENTATION_FORMSHEET
     summary: |
         Window width and height are smaller than those of the screen and the view is centered on 
