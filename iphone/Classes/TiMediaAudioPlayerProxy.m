@@ -82,7 +82,7 @@
 
 - (void)setPaused:(NSNumber *)paused
 {
-  DEPRECATED_REPLACED(@"Media.AudioPlayer.setPaused", @"7.1.0", @"Media.AudioPlayer.pause");
+  DEPRECATED_REPLACED(@"Media.AudioPlayer.setPaused", @"7.3.0", @"Media.AudioPlayer.pause");
 
   if ([TiUtils boolValue:paused]) {
     [[self player] pause];
@@ -93,7 +93,7 @@
 
 - (void)play:(id)unused
 {
-  DEPRECATED_REPLACED(@"Media.AudioPlayer.play", @"7.1.0", @"Media.AudioPlayer.start");
+  DEPRECATED_REPLACED(@"Media.AudioPlayer.play", @"7.3.0", @"Media.AudioPlayer.start");
   [self start:unused];
 }
 
@@ -440,7 +440,7 @@
   case AVPlayerStatusReadyToPlay:
     if (_player.rate == 1.0) {
       _state = TiAudioPlayerStatePlaying;
-    } else if (_player.currentItem.duration.value == _player.currentItem.currentTime.value || oldState == TiAudioPlayerStateStopping) {
+    } else if (_player.currentItem.currentTime.value == 0 || oldState == TiAudioPlayerStateStopping) {
       _state = TiAudioPlayerStateStopped;
     } else {
       _state = TiAudioPlayerStatePaused;
@@ -465,7 +465,7 @@
   if (_player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
     _state = TiAudioPlayerStatePlaying;
   } else if (_player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
-    if (_player.currentItem.duration.value == _player.currentItem.currentTime.value || oldState == TiAudioPlayerStateStopping) {
+    if (_player.currentItem.currentTime.value == 0.0 || oldState == TiAudioPlayerStateStopping) {
       _state = TiAudioPlayerStateStopped;
     } else {
       _state = TiAudioPlayerStatePaused;
@@ -529,15 +529,15 @@
 
 #pragma mark Constants
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_INITIALIZED, TiAudioPlayerStateInitialized, @"Media.AudioPlayer.STATE_INITIALIZED", @"7.2.0", @"Media.AUDIO_STATE_INITIALIZED");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_STARTING, TiAudioPlayerStateStartingFileThread, @"Media.AudioPlayer.STATE_STARTING", @"7.2.0", @"Media.STATE_STARTING");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_WAITING_FOR_DATA, TiAudioPlayerStateWaitingForData, @"Media.AudioPlayer.STATE_WAITING_FOR_DATA", @"7.2.0", @"Media.AUDIO_STATE_WAITING_FOR_DATA");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_WAITING_FOR_QUEUE, TiAudioPlayerStateWaitingForQueueToStart, @"Media.AudioPlayer.STATE_WAITING_FOR_QUEUE", @"7.2.0", @"Media.AUDIO_STATE_WAITING_FOR_QUEUE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_PLAYING, TiAudioPlayerStatePlaying, @"Media.AudioPlayer.STATE_PLAYING", @"7.2.0", @"Media.AUDIO_STATE_PLAYING");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_BUFFERING, TiAudioPlayerStateBuffering, @"Media.AudioPlayer.STATE_BUFFERING", @"7.2.0", @"Media.AUDIO_STATE_BUFFERING");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_STOPPING, TiAudioPlayerStateStopping, @"Media.AudioPlayer.STATE_STOPPING", @"7.2.0", @"Media.AUDIO_STATE_STOPPING");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_STOPPED, TiAudioPlayerStateStopped, @"Media.AudioPlayer.STATE_STOPPED", @"7.2.0", @"Media.AUDIO_STATE_STOPPED");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_PAUSED, TiAudioPlayerStatePaused, @"Media.AudioPlayer.STATE_PAUSED", @"7.2.0", @"Media.AUDIO_STATE_PAUSED");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_INITIALIZED, TiAudioPlayerStateInitialized, @"Media.AudioPlayer.STATE_INITIALIZED", @"7.3.0", @"Media.AUDIO_STATE_INITIALIZED");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_STARTING, TiAudioPlayerStateStartingFileThread, @"Media.AudioPlayer.STATE_STARTING", @"7.3.0", @"Media.STATE_STARTING");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_WAITING_FOR_DATA, TiAudioPlayerStateWaitingForData, @"Media.AudioPlayer.STATE_WAITING_FOR_DATA", @"7.3.0", @"Media.AUDIO_STATE_WAITING_FOR_DATA");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_WAITING_FOR_QUEUE, TiAudioPlayerStateWaitingForQueueToStart, @"Media.AudioPlayer.STATE_WAITING_FOR_QUEUE", @"7.3.0", @"Media.AUDIO_STATE_WAITING_FOR_QUEUE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_PLAYING, TiAudioPlayerStatePlaying, @"Media.AudioPlayer.STATE_PLAYING", @"7.3.0", @"Media.AUDIO_STATE_PLAYING");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_BUFFERING, TiAudioPlayerStateBuffering, @"Media.AudioPlayer.STATE_BUFFERING", @"7.3.0", @"Media.AUDIO_STATE_BUFFERING");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_STOPPING, TiAudioPlayerStateStopping, @"Media.AudioPlayer.STATE_STOPPING", @"7.3.0", @"Media.AUDIO_STATE_STOPPING");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_STOPPED, TiAudioPlayerStateStopped, @"Media.AudioPlayer.STATE_STOPPED", @"7.3.0", @"Media.AUDIO_STATE_STOPPED");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATE_PAUSED, TiAudioPlayerStatePaused, @"Media.AudioPlayer.STATE_PAUSED", @"7.3.0", @"Media.AUDIO_STATE_PAUSED");
 
 @end
 
