@@ -137,7 +137,7 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
   if (window == rootWindow && ![[TiApp app] willTerminate]) {
-    DebugLog(@"[ERROR] Can not close root window of the navWindow. Close this window instead");
+    DebugLog(@"[ERROR] Can not close the root window of the NavigationWindow. Close the NavigationWindow instead.");
     return;
   }
   TiThreadPerformOnMainThread(^{
@@ -246,7 +246,7 @@
 
 #pragma mark - Private API
 
-- (void)setFrame:(CGRect)bounds
+- (void)_setFrame:(CGRect)bounds
 {
   if (navController != nil) {
     [[navController view] setFrame:bounds];

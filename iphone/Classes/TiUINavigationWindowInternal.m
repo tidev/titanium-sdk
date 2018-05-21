@@ -14,7 +14,7 @@
 
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-  [(TiUINavigationWindowProxy *)[self proxy] setFrame:bounds];
+  [(TiUINavigationWindowProxy *)[self proxy] _setFrame:bounds];
   [super frameSizeChanged:frame bounds:bounds];
 }
 

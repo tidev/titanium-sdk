@@ -20,7 +20,7 @@
 }
 
 // Private API
-- (void)setFrame:(CGRect)bounds;
+- (void)_setFrame:(CGRect)bounds;
 
 @end
 
