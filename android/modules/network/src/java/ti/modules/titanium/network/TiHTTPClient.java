@@ -52,6 +52,7 @@ import javax.net.ssl.X509TrustManager;
 import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -289,8 +290,12 @@ public class TiHTTPClient
 		}
 
 		if (tiFile == null) {
-			outFile = TiFileFactory.createDataFile("tihttp", "tmp");
-			tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			TiApplication app = TiApplication.getInstance();
+			if (app != null) {
+				TiTempFileHelper tempFileHelper = app.getTempFileHelper();
+				outFile = tempFileHelper.createTempFile("tihttp", "tmp");
+				tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			}
 		}
 
 		if (dumpResponseOut) {
@@ -713,7 +718,7 @@ public class TiHTTPClient
 	public String getResponseHeader(String getHeaderName)
 	{
 		String result = "";
-		if (!responseHeaders.isEmpty()) {
+		if (responseHeaders != null && !responseHeaders.isEmpty()) {
 			boolean firstPass = true;
 			StringBuilder sb = new StringBuilder(256);
 			Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();

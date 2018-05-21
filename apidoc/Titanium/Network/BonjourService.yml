@@ -4,7 +4,7 @@ summary: Describes a service on the network which is published by Bonjour.
 description: |
     You can obtain a `BonjourService` instance by calling <Titanium.Network.createBonjourService> 
     or from the `service` list from a [BonjourBrowser](Titanium.Network.BonjourBrowser)  
-    `updatedServices` event.   
+    `updatedservices` event.   
 
     You can only publish Bonjour services attached to a socket which is currently listening; 
     you cannot publish a service for a remotely connected socket.  If you stop the Bonjour 

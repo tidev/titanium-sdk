@@ -710,9 +710,20 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private void setCustomActionBar()
 	{
 		if (activityProxy.hasProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)) {
-			this.setSupportActionBar(
-				((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR))
-					 .getToolbarInstance()));
+			try {
+				this.setSupportActionBar(
+					((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR))
+						 .getToolbarInstance()));
+			} catch (RuntimeException e) {
+				Log.e(
+					TAG,
+					"Attempting to use Toolbar as ActionBar without disabling the default ActionBar in the current theme.\n"
+						+ "You must set 'windowActionBar' to false in your current theme. Or use one of the following themes:\n"
+						+ " - Theme.Titanium\n - Theme.AppCompat.Translucent.NoTitleBar\n - Theme.AppCompat.NoTitleBar\n"
+						+ "Which have ActionBar disabled by default.");
+				TiApplication.terminateActivityStack();
+				finish();
+			}
 		}
 	}
 
