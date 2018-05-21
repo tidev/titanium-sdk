@@ -362,20 +362,24 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
 
-		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
+		// handle uncaught java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			@Override
 			public void uncaughtException(Thread t, Throwable e)
 			{
-				if (isAnalyticsEnabled()) {
-					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash;
-					Log.e(TAG,
-						  "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium "
-							  + tiVer,
-						  e);
-					TiPlatformHelper.getInstance().postAnalyticsEvent(
-						TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
+
+				// obtain java stack trace
+				String javaStack = null;
+				StackTraceElement[] frames = e.getCause() != null ? e.getCause().getStackTrace() : e.getStackTrace();
+				if (frames != null && frames.length > 0) {
+					javaStack = "";
+					for (StackTraceElement frame : frames) {
+						javaStack += "\n    " + frame.toString();
+					}
 				}
-				defaultHandler.uncaughtException(t, e);
+
+				// throw exception as KrollException
+				KrollRuntime.dispatchException("Runtime Error", e.getMessage(), null, 0, null, 0, null, javaStack);
 			}
 		});
 

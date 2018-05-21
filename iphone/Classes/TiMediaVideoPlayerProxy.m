@@ -227,18 +227,18 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)updateScalingMode:(id)value
 {
-  [movie setVideoGravity:[TiUtils stringValue:value properties:nil def:AVLayerVideoGravityResize]];
+  [movie setVideoGravity:[TiUtils stringValue:value properties:loadProperties def:AVLayerVideoGravityResize]];
 }
 
 - (void)setScalingMode:(NSString *)value
 {
+  [loadProperties setValue:value forKey:@"scalingMode"];
+
   if (movie != nil) {
     TiThreadPerformOnMainThread(^{
-      [self updateScalingMode:value];
+      [self updateScalingMode:@"scalingMode"];
     },
         NO);
-  } else {
-    [loadProperties setValue:value forKey:@"scalingMode"];
   }
 }
 
