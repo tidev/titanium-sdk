@@ -1,14 +1,16 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Axway Titanium
+ * Copyright (c) 2018-present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
+#if defined(USE_TI_UINAVIGATIONWINDOW) || defined(USE_TI_UIIOSNAVIGATIONWINDOW)
+
+#import "TiProxy.h"
 #import "TiWindowProxy.h"
 
-@interface TiUIiOSNavWindowProxy : TiWindowProxy <UINavigationControllerDelegate, UIGestureRecognizerDelegate, TiOrientationController, TiTab> {
+@interface TiUINavigationWindowProxy : TiWindowProxy <UINavigationControllerDelegate, UIGestureRecognizerDelegate, TiOrientationController, TiTab> {
   @private
   UINavigationController *navController;
   TiWindowProxy *rootWindow;
@@ -17,7 +19,9 @@
   BOOL transitionWithGesture;
 }
 
-//Private API
+// Private API
 - (void)setFrame:(CGRect)bounds;
+
 @end
+
 #endif
