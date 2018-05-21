@@ -227,18 +227,18 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)updateScalingMode:(id)value
 {
-  [movie setVideoGravity:[TiUtils stringValue:value properties:nil def:AVLayerVideoGravityResize]];
+  [movie setVideoGravity:[TiUtils stringValue:value properties:loadProperties def:AVLayerVideoGravityResize]];
 }
 
 - (void)setScalingMode:(NSString *)value
 {
+  [loadProperties setValue:value forKey:@"scalingMode"];
+
   if (movie != nil) {
     TiThreadPerformOnMainThread(^{
-      [self updateScalingMode:value];
+      [self updateScalingMode:@"scalingMode"];
     },
         NO);
-  } else {
-    [loadProperties setValue:value forKey:@"scalingMode"];
   }
 }
 
@@ -934,7 +934,7 @@ NSArray *moviePlayerKeys = nil;
     playing = ([[movie player] rate] == 1.0);
     if (playing) {
       _playbackState = TiVideoPlayerPlaybackStatePlaying;
-    } else if (movie.player.currentItem.duration.value == movie.player.currentItem.currentTime.value || !movie.player.currentItem.canStepBackward) {
+    } else if (movie.player.currentItem.currentTime.value == 0 || !movie.player.currentItem.canStepBackward) {
       _playbackState = TiVideoPlayerPlaybackStateStopped;
     } else {
       _playbackState = TiVideoPlayerPlaybackStatePaused;
@@ -957,7 +957,7 @@ NSArray *moviePlayerKeys = nil;
   if (movie.player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
     _playbackState = TiVideoPlayerPlaybackStatePlaying;
   } else if (movie.player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
-    if (movie.player.currentItem.duration.value == movie.player.currentItem.currentTime.value) {
+    if (movie.player.currentItem.currentTime.value == 0) {
       _playbackState = TiVideoPlayerPlaybackStateStopped;
     } else {
       _playbackState = TiVideoPlayerPlaybackStatePaused;

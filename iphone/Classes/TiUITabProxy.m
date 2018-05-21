@@ -255,6 +255,11 @@
   [window setIsManaged:YES];
   [window setTab:self];
   [window setParentOrientationController:self];
+
+  TiUIView *view = [window view];
+  TiViewController *controller = (TiViewController *)[window hostingController];
+  [view setFrame:controller.view.bounds];
+
   //Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
     args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
@@ -730,6 +735,25 @@
 #pragma mark - TiOrientationController
 
 @synthesize parentOrientationController;
+
+#if IS_XCODE_9
+- (BOOL)homeIndicatorAutoHide
+{
+  if (rootWindow == nil) {
+    return NO;
+  }
+
+  UINavigationController *nc = [[rootWindow hostingController] navigationController];
+  UIViewController *topVc = [nc topViewController];
+  if ([topVc isKindOfClass:[TiViewController class]]) {
+    TiViewProxy *theProxy = [(TiViewController *)topVc proxy];
+    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+      return [(id<TiWindowProtocol>)theProxy homeIndicatorAutoHide];
+    }
+  }
+  return NO;
+}
+#endif
 
 - (BOOL)hidesStatusBar
 {

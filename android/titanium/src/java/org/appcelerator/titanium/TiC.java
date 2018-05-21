@@ -1096,6 +1096,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CACHE_SIZE = "cacheSize";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_MONTH = "daysOfTheMonth";
 
 	/**
@@ -1352,6 +1357,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DATE = "date";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DAY_BEFORE_MONTH = "dayBeforeMonth";
 
 	/**
 	 * @module.api
@@ -2008,6 +2018,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LOCALE = "locale";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOCATION = "location";
 
 	/**
@@ -2048,6 +2063,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MASK = "mask";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MAX = "max";
 
 	/**
@@ -2084,6 +2104,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MEDIA_CONTROL_STYLE = "mediaControlStyle";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MEDIA_TYPES = "mediaTypes";
 
 	/**
 	 * @module.api
@@ -2167,6 +2192,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MODE = "mode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MOTHER = "mother";
 
 	/**
@@ -2203,6 +2233,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NUMBER = "number";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NUMERIC_MONTHS = "numericMonths";
 
 	/**
 	 * @module.api
@@ -2639,6 +2674,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SCROLLABLE = "scrollable";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SEARCH = "search";
 
 	/**
@@ -2989,6 +3029,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TINT = "tint";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TINT_COLOR = "tintColor";
 
 	/**
@@ -3282,6 +3327,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ZINDEX = "zIndex";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ZOOM_LEVEL = "zoomLevel";
 
 	/**
 	 * @module.api

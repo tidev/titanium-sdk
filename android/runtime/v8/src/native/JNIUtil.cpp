@@ -43,6 +43,7 @@ jclass JNIUtil::setClass = NULL;
 jclass JNIUtil::outOfMemoryError = NULL;
 jclass JNIUtil::nullPointerException = NULL;
 jclass JNIUtil::throwableClass = NULL;
+jclass JNIUtil::stackTraceElementClass = NULL;
 
 jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::v8FunctionClass = NULL;
@@ -79,7 +80,11 @@ jmethodID JNIUtil::booleanInitMethod = NULL;
 jmethodID JNIUtil::booleanBooleanValueMethod = NULL;
 jmethodID JNIUtil::longInitMethod = NULL;
 jmethodID JNIUtil::numberDoubleValueMethod = NULL;
+
 jmethodID JNIUtil::throwableGetMessageMethod = NULL;
+jmethodID JNIUtil::throwableGetStackTraceMethod = NULL;
+
+jmethodID JNIUtil::stackTraceElementToStringMethod = NULL;
 
 jfieldID JNIUtil::v8ObjectPtrField = NULL;
 jmethodID JNIUtil::v8ObjectInitMethod = NULL;
@@ -318,6 +323,7 @@ void JNIUtil::initCache()
 	outOfMemoryError = findClass("java/lang/OutOfMemoryError");
 	nullPointerException = findClass("java/lang/NullPointerException");
 	throwableClass = findClass("java/lang/Throwable");
+	stackTraceElementClass = findClass("java/lang/StackTraceElement");
 
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object");
 	v8FunctionClass = findClass("org/appcelerator/kroll/runtime/v8/V8Function");
@@ -355,6 +361,8 @@ void JNIUtil::initCache()
 	longInitMethod = getMethodID(longClass, "<init>", "(J)V", false);
 	numberDoubleValueMethod = getMethodID(numberClass, "doubleValue", "()D", false);
 	throwableGetMessageMethod = getMethodID(throwableClass, "getMessage", "()Ljava/lang/String;", false);
+	throwableGetStackTraceMethod = getMethodID(throwableClass, "getStackTrace", "()[Ljava/lang/StackTraceElement;", false);
+	stackTraceElementToStringMethod = getMethodID(stackTraceElementClass, "toString", "()Ljava/lang/String;", false);
 
 	v8ObjectPtrField = getFieldID(v8ObjectClass, "ptr", "J");
 	v8ObjectInitMethod = getMethodID(v8ObjectClass, "<init>", "(J)V", false);
@@ -393,7 +401,7 @@ void JNIUtil::initCache()
 	krollProxyOnPropertiesChangedMethod = getMethodID(krollProxyClass, "onPropertiesChanged",
 		"([[Ljava/lang/Object;)V", false);
 
-	krollRuntimeDispatchExceptionMethod = getMethodID(krollRuntimeClass, "dispatchException", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;I)V",true);
+	krollRuntimeDispatchExceptionMethod = getMethodID(krollRuntimeClass, "dispatchException", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;ILjava/lang/String;Ljava/lang/String;)V",true);
 	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
 
 	krollLoggingLogWithDefaultLoggerMethod = getMethodID(krollLoggingClass, "logWithDefaultLogger", "(ILjava/lang/String;)V", true);

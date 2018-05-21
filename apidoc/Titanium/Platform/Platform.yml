@@ -25,7 +25,7 @@ methods:
     summary: |
         Returns whether the system is configured with a default application to handle the URL's protocol.
     description: |
-        On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](http://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
+        On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
     returns:
         type: Boolean
     platforms: [iphone, ipad]
@@ -43,6 +43,19 @@ methods:
   - name: openURL
     summary: |
         Opens this URL using the system's default application for its protocol.
+    description: |
+        **iOS Note**: For iOS 10 and later, this method is performed asynchronously 
+        and will call the function passed as an (optional) third parameter instead
+        of returning a boolean synchronously.
+        
+        Example:
+          
+            Ti.Platform.openURL('myapp://', {
+              'UIApplicationOpenURLOptionUniversalLinksOnly': true
+            }, function(e) {
+              Ti.API.info('URL open successfully? ' + e.success);
+            });
+
     platforms: [android, iphone, ipad]
     returns:
         type: Boolean
@@ -50,6 +63,19 @@ methods:
       - name: url
         summary: The url to open.
         type: String
+      - name: options
+        summary: |
+            The optional options to pass to the URL handling (iOS 10+). Pass a
+            dictionary with one or more of the following string-keys:
+                * `UIApplicationOpenURLOptionsSourceApplicationKey` (String value)
+                * `UIApplicationOpenURLOptionsAnnotationKey` (Array value)
+                * `UIApplicationOpenURLOptionsOpenInPlaceKey` (Boolean value)
+                * `UIApplicationOpenURLOptionUniversalLinksOnly` (Boolean value)
+            Read more about the available keys in the [Apple documentation](https://developer.apple.com/documentation/uikit/uiapplicationopenurloptionskey?language=objc).
+        type: Dictionary
+      - name: callback
+        summary: The optional callback that is called once the URL is opened (iOS 10+).
+        type: Callback
 
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.
@@ -132,7 +158,7 @@ properties:
         
         Previously on iOS this may have been a UDID, but access to
         this has been restricted by Apple. For more information, see
-        [Apple's uniqueIdentifier](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIDevice_Class/DeprecationAppendix/AppendixADeprecatedAPI.html#//apple_ref/occ/instp/UIDevice/uniqueIdentifier)
+        [UUID Article on NSHipster](http://nshipster.com/uuid-udid-unique-identifier/)
         documentation.
 
         To use a UUID across different applications of the same vendor,
