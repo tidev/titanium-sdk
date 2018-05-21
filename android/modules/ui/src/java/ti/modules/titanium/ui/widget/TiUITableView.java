@@ -335,12 +335,16 @@ public class TiUITableView
 			if (oldValue != null) {
 				tableView.removeHeaderView((TiViewProxy) oldValue);
 			}
-			tableView.setHeaderView();
+			if (newValue != null) {
+				tableView.setHeaderView();
+			}
 		} else if (TiC.PROPERTY_FOOTER_VIEW.equals(key)) {
 			if (oldValue != null) {
 				tableView.removeFooterView((TiViewProxy) oldValue);
 			}
-			tableView.setFooterView();
+			if (newValue != null) {
+				tableView.setFooterView();
+			}
 		} else if (key.equals(TiC.PROPERTY_FILTER_ANCHORED)) {
 			tableView.setFilterAnchored(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {
