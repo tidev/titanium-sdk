@@ -285,7 +285,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			fireEvent(TiC.EVENT_LOCATION,
 					  buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
 			currentLocation = location;
-			doAnalytics(location);
 		}
 	}
 
@@ -583,7 +582,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 					fireEvent(TiC.EVENT_LOCATION,
 							  buildLocationEvent(lastLocation,
 												 tiLocation.locationManager.getProvider(lastLocation.getProvider())));
-					doAnalytics(lastLocation);
 				}
 			}
 		}

@@ -14,6 +14,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -186,8 +187,10 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected void windowCreated(Bundle savedInstanceState)
 	{
 		super.windowCreated(savedInstanceState);
+		TiPlatformHelper.getInstance().initialize();
 		loadActivityScript();
 		scriptLoaded();
+		TiApplication.getInstance().postAppInfo();
 	}
 
 	protected boolean checkInvalidLaunch(Bundle savedInstanceState)
