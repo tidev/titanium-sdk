@@ -13,23 +13,23 @@ var should = require('./utilities/assertions');
 describe('Titanium.UI.TableView', function () {
 	it('Add and remove headerView/footerView ', function (finish) {
 		var win = Ti.UI.createWindow({ backgroundColor: 'gray' }),
-		headerView = Ti.UI.createView({
-			backgroundColor: 'red',
-			height: 100,
-			width: Ti.UI.FILL
-		}),
-		footerView = Ti.UI.createView({
-			backgroundColor: 'green',
-			height: 100,
-			width: Ti.UI.FILL
-		}),
-		table = Ti.UI.createTableView({
-			headerView: headerView,
-			footerView: footerView,
-			data: [
-				{ title: 'ITEM' }
-			]
-		});
+			headerView = Ti.UI.createView({
+				backgroundColor: 'red',
+				height: 100,
+				width: Ti.UI.FILL
+			}),
+			footerView = Ti.UI.createView({
+				backgroundColor: 'green',
+				height: 100,
+				width: Ti.UI.FILL
+			}),
+			table = Ti.UI.createTableView({
+				headerView: headerView,
+				footerView: footerView,
+				data: [
+					{ title: 'ITEM' }
+				]
+			});
 
 		win.addEventListener('open', function () {
 			should(table.headerView).not.be.null;
