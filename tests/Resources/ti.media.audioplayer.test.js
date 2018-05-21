@@ -20,18 +20,14 @@ describe('Titanium.Media.AudioPlayer', function () {
 	var audioPlayer;
 
 	it('apiName', function () {
-		var player = Ti.Media.createAudioPlayer();
+		var player = Ti.Media.createAudioPlayer({ url: 'sample.mp3' });
 		should(player).have.a.readOnlyProperty('apiName').which.is.a.String;
 		should(player.apiName).be.eql('Ti.Media.AudioPlayer');
-		// FIXME This only works on an instance of a proxy now on Android
-		// should(Ti.Media.AudioPlayer).have.readOnlyProperty('apiName').which.is.a.String;
-		// should(Ti.Media.AudioPlayer.apiName).be.eql('Ti.Media.AudioPlayer');
+		player = null;
 	});
 
 	before(function () {
-		audioPlayer = Ti.Media.createAudioPlayer({
-			url: 'sample.mp3'
-		});
+		audioPlayer = Ti.Media.createAudioPlayer({ url: 'sample.mp3' });
 	});
 
 	afterEach(function () {

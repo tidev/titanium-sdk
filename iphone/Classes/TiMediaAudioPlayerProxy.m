@@ -69,7 +69,9 @@
 {
   if (_player == nil) {
     if (_url == nil) {
-      [self throwException:NSLocalizedString(@"invalid url", nil) subreason:NSLocalizedString(@"url has not been set", nil) location:CODELOCATION];
+      [self throwException:NSLocalizedString(@"Invalid URL passed to the audio-player", nil)
+                 subreason:NSLocalizedString(@"The \"url\" probably has not been set to a valid value.", nil)
+                  location:CODELOCATION];
     }
     _player = [AVPlayer playerWithURL:_url];
     [self addNotificationObserver];
