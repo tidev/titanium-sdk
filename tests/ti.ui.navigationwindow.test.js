@@ -11,41 +11,41 @@
 var should = require('./utilities/assertions');
 
 describe('Titanium.UI.NavigationWindow', function () {
-	it('Ti.UI.NavigationWindow', function () {
+	it.androidAndWindowsMissing('Ti.UI.NavigationWindow', function () {
 		should(Ti.UI.NavigationWindow).not.be.undefined;
 	});
 
-	it('apiName', function () {
+	it.androidAndWindowsMissing('apiName', function () {
 		var view = Ti.UI.createNavigationWindow();
 		should(view).have.readOnlyProperty('apiName').which.is.a.String;
 		should(view.apiName).be.eql('Ti.UI.NavigationWindow');
 	});
 
-	it('open', function () {
+	it.androidAndWindowsMissing('#open', function () {
 		var view = Ti.UI.createNavigationWindow();
 		should(view.open).not.be.undefined;
 		should(view.open).be.a.Function;
 	});
 
-	it('openWindow', function () {
+	it.androidAndWindowsMissing('#openWindow', function () {
 		var view = Ti.UI.createNavigationWindow();
 		should(view.openWindow).not.be.undefined;
 		should(view.openWindow).be.a.Function;
 	});
 
-	it('close', function () {
+	it.androidAndWindowsMissing('#close', function () {
 		var view = Ti.UI.createNavigationWindow();
 		should(view.close).not.be.undefined;
 		should(view.close).be.a.Function;
 	});
 
-	it('closeWindow', function () {
+	it.androidAndWindowsMissing('#closeWindow', function () {
 		var view = Ti.UI.createNavigationWindow();
 		should(view.closeWindow).not.be.undefined;
 		should(view.closeWindow).be.a.Function;
 	});
 
-	it('open/close should open/close the window', function (finish) {
+	it.androidAndWindowsMissing('open/close should open/close the window', function (finish) {
 		this.timeout(5000);
 		var window = Ti.UI.createWindow(),
 			navigation = Ti.UI.createNavigationWindow({
@@ -64,7 +64,7 @@ describe('Titanium.UI.NavigationWindow', function () {
 		navigation.open();
 	});
 
-	it('basic open/close navigation', function (finish) {
+	it.androidAndWindowsMissing('basic open/close navigation', function (finish) {
 		this.timeout(5000);
 		var window1 = Ti.UI.createWindow(),
 			window2 = Ti.UI.createWindow(),
