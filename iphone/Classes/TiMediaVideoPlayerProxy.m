@@ -117,8 +117,10 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)removeNotificationObserver
 {
+  if ([self observationInfo]) {
+    [self removeObserver:self forKeyPath:@"url"];
+  }
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
-  [self removeObserver:self forKeyPath:@"url"];
   [movie removeObserver:self forKeyPath:@"player.status"];
   [movie removeObserver:self forKeyPath:@"videoBounds"];
 
