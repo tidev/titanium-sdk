@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 'use strict';
 
-const async = require('async'),
-	utils = require('./utils'),
-	fs = require('fs-extra'),
-	path = require('path'),
-	modulesPath = path.join('../support/module/packaged/modules.json'),
-	modules = require(modulesPath);
+const async = require('async');
+const utils = require('./utils');
+const fs = require('fs-extra');
+const path = require('path');
+const modulesPath = path.join('../support/module/packaged/modules.json');
+const modules = require(modulesPath); // eslint-disable-line security/detect-non-literal-require
 
 const platforms = Object.keys(modules);
 async.map(platforms, (platform, platformNext) => {

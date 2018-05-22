@@ -17,7 +17,6 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -42,18 +41,11 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 		this(proxy);
 		Log.d(TAG, "Creating a date picker", Log.DEBUG_MODE);
 
-		DatePicker picker;
+		CustomDatePicker picker;
 		// If it is not API Level 21 (Android 5.0), create picker normally.
 		// If not, it will inflate a spinner picker to address a bug.
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-			picker = new DatePicker(activity) {
-				@Override
-				protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-				{
-					super.onLayout(changed, left, top, right, bottom);
-					TiUIHelper.firePostLayoutEvent(proxy);
-				}
-			};
+			picker = new CustomDatePicker(activity);
 		} else {
 			// A bug where PickerCalendarDelegate does not send events to the
 			// listener on API Level 21 (Android 5.0) for TIMOB-19192
@@ -69,8 +61,9 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 				}
 				return;
 			}
-			picker = (DatePicker) activity.getLayoutInflater().inflate(datePickerSpinner, null);
+			picker = (CustomDatePicker) activity.getLayoutInflater().inflate(datePickerSpinner, null);
 		}
+		picker.setProxy(getProxy());
 		setNativeView(picker);
 	}
 
@@ -112,8 +105,8 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 			this.maxDate = maxDateCalendar.getTime();
 			picker.setMaxDate(maxDateCalendar.getTimeInMillis());
 		}
-		if (d.containsKey("minuteInterval")) {
-			int mi = d.getInt("minuteInterval");
+		if (d.containsKey(TiC.PROPERTY_MINUTE_INTERVAL)) {
+			int mi = d.getInt(TiC.PROPERTY_MINUTE_INTERVAL);
 			if (mi >= 1 && mi <= 30 && mi % 60 == 0) {
 				this.minuteInterval = mi;
 			}
@@ -124,7 +117,7 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 		suppressChangeEvent = false;
 
 		if (!valueExistsInProxy) {
-			proxy.setProperty("value", calendar.getTime());
+			proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
 		}
 
 		//iPhone ignores both values if max <= min
@@ -146,6 +139,10 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 		}
 		if (key.equals(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
 			setCalendarView(TiConvert.toBoolean(newValue));
+		} else if (TiC.PROPERTY_MIN_DATE.equals(key)) {
+			((DatePicker) getNativeView()).setMinDate(TiConvert.toDate(newValue).getTime());
+		} else if (TiC.PROPERTY_MAX_DATE.equals(key)) {
+			((DatePicker) getNativeView()).setMaxDate(TiConvert.toDate(newValue).getTime());
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
