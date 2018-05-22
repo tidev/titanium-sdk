@@ -263,14 +263,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		return super.handleMessage(message);
 	}
 
-	private void doAnalytics(Location location)
-	{
-		if (!sentAnalytics) {
-			tiLocation.doAnalytics(location);
-			sentAnalytics = true;
-		}
-	}
-
 	/**
 	 * Called by a registered location provider when a location update is received
 	 *
