@@ -582,6 +582,8 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)setAccuracy:(NSNumber *)value
 {
   ENSURE_UI_THREAD(setAccuracy, value);
+  ENSURE_TYPE(value, NSNumber);
+
   accuracy = [TiUtils doubleValue:value];
   // don't prematurely start it
   if (locationManager != nil) {

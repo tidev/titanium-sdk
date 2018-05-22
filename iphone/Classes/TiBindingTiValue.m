@@ -277,12 +277,16 @@ TiValueRef TiBindingTiValueFromNSObject(TiContextRef jsContext, NSObject *obj)
   if ([obj isKindOfClass:[NSDictionary class]]) {
     return TiBindingTiValueFromNSDictionary(jsContext, (NSDictionary *)obj);
   }
+
+  // Handle native errors
   if ([obj isKindOfClass:[NSException class]]) {
     TiStringRef jsString = TiStringCreateWithCFString((CFStringRef)[(NSException *)obj reason]);
     TiValueRef result = TiValueMakeString(jsContext, jsString);
     TiStringRelease(jsString);
     TiObjectRef excObject = TiObjectMakeError(jsContext, 1, &result, NULL);
     NSDictionary *details = [(NSException *)obj userInfo];
+
+    // Add "nativeReason" key
     NSString *subreason = [details objectForKey:kTiExceptionSubreason];
     if (subreason != nil) {
       TiStringRef propertyName = TiStringCreateWithUTF8CString("nativeReason");
@@ -291,6 +295,27 @@ TiValueRef TiBindingTiValueFromNSObject(TiContextRef jsContext, NSObject *obj)
       TiStringRelease(propertyName);
       TiStringRelease(valueString);
     }
+
+    // Add "nativeStack" key
+    NSArray<NSString *> *nativeStack = [(NSException *)obj callStackSymbols];
+    if (nativeStack != nil) {
+      NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
+      NSUInteger exceptionStackTraceLength = [nativeStack count];
+
+      // re-size stack trace and format results. Starting at index = 4 to not include the script-error API's
+      for (NSInteger i = 3; i < (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
+        NSString *line = [[nativeStack objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
+        [formattedStackTrace addObject:line];
+      }
+
+      TiStringRef propertyName = TiStringCreateWithUTF8CString("nativeStack");
+      TiStringRef valueString = TiStringCreateWithCFString((CFStringRef)[formattedStackTrace componentsJoinedByString:@"\n"]);
+      TiObjectSetProperty(jsContext, excObject, propertyName, TiValueMakeString(jsContext, valueString), kTiPropertyAttributeReadOnly, NULL);
+      TiStringRelease(propertyName);
+      TiStringRelease(valueString);
+    }
+
+    // Add "nativeLocation" key
     NSString *location = [details objectForKey:kTiExceptionLocation];
     if (location != nil) {
       TiStringRef propertyName = TiStringCreateWithUTF8CString("nativeLocation");
