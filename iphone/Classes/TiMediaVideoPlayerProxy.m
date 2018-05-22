@@ -117,8 +117,10 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)removeNotificationObserver
 {
+  if ([self observationInfo]) {
+    [self removeObserver:self forKeyPath:@"url"];
+  }
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
-  [self removeObserver:self forKeyPath:@"url"];
   [movie removeObserver:self forKeyPath:@"player.status"];
   [movie removeObserver:self forKeyPath:@"videoBounds"];
 
@@ -934,7 +936,7 @@ NSArray *moviePlayerKeys = nil;
     playing = ([[movie player] rate] == 1.0);
     if (playing) {
       _playbackState = TiVideoPlayerPlaybackStatePlaying;
-    } else if (movie.player.currentItem.duration.value == movie.player.currentItem.currentTime.value || !movie.player.currentItem.canStepBackward) {
+    } else if (movie.player.currentItem.currentTime.value == 0 || !movie.player.currentItem.canStepBackward) {
       _playbackState = TiVideoPlayerPlaybackStateStopped;
     } else {
       _playbackState = TiVideoPlayerPlaybackStatePaused;
@@ -957,7 +959,7 @@ NSArray *moviePlayerKeys = nil;
   if (movie.player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
     _playbackState = TiVideoPlayerPlaybackStatePlaying;
   } else if (movie.player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
-    if (movie.player.currentItem.duration.value == movie.player.currentItem.currentTime.value) {
+    if (movie.player.currentItem.currentTime.value == 0) {
       _playbackState = TiVideoPlayerPlaybackStateStopped;
     } else {
       _playbackState = TiVideoPlayerPlaybackStatePaused;
