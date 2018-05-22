@@ -144,12 +144,6 @@ public class TiLocation implements Handler.Callback
 		return latestKnownLocation;
 	}
 
-	public void doAnalytics(Location location)
-	{
-		long locationTime = location.getTime();
-		TiApplication application = TiApplication.getInstance();
-	}
-
 	public void forwardGeocode(String address, GeocodeResponseHandler responseHandler)
 	{
 		if (address != null) {
