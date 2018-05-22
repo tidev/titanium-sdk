@@ -40,12 +40,10 @@ describe('Titanium.Media.VideoPlayer', function () {
 
 		videoWindow.addEventListener('open', function () {
 			setTimeout(function () {
-				if (videoPlayer != null) {
-					videoPlayer.release();
-					videoWindow.remove(videoPlayer);
-				}
+				videoPlayer.release();
+				videoWindow.remove(videoPlayer);
 				videoPlayer = null;
-				videoWindow.close();	
+				videoWindow.close();
 			}, 2000);
 		});
 
