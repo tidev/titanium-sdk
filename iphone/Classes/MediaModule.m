@@ -20,17 +20,12 @@
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 
-#import <AudioToolbox/AudioToolbox.h>
-#if IS_XCODE_8
-#import <AVFoundation/AVFAudio.h>
-#else
-#import <AVFoundation/AVAudioPlayer.h>
-#import <AVFoundation/AVAudioSession.h>
-#endif
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetExportSession.h>
+#import <AVFoundation/AVFAudio.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AVFoundation/AVMediaFormat.h>
+#import <AudioToolbox/AudioToolbox.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <Photos/Photos.h>
@@ -1670,7 +1665,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     if (transform != nil) {
       ENSURE_TYPE(transform, Ti2DMatrix);
       [picker setCameraViewTransform:[transform matrix]];
-    } else if (cameraView != nil && customPicker) {
+    } else if (cameraView != nil && customPicker && ![TiUtils boolValue:@"showControls" properties:args def:YES]) {
       //No transforms in popover
       CGSize screenSize = [[UIScreen mainScreen] bounds].size;
       UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
