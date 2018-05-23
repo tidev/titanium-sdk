@@ -59,6 +59,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static final int MSG_RESUME = MSG_FIRST_ID + 112;
 	private static final int MSG_SET_HEADERS = MSG_FIRST_ID + 113;
 	private static final int MSG_GET_HEADERS = MSG_FIRST_ID + 114;
+	private static final int MSG_ZOOM_BY = MSG_FIRST_ID + 115;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
@@ -75,6 +76,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
 		defaultValues.put(TiC.PROPERTY_DISABLE_CONTEXT_MENU, false);
+		defaultValues.put(TiC.PROPERTY_ZOOM_LEVEL, 1.0);
 	}
 
 	@Override
@@ -205,6 +207,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 				case MSG_SET_HTML:
 					String html = TiConvert.toString(getProperty(TiC.PROPERTY_HTML));
 					getWebView().setHtml(html);
+					return true;
+				case MSG_ZOOM_BY:
+					getWebView().zoomBy(TiConvert.toFloat(getProperty(TiC.PROPERTY_ZOOM_LEVEL)));
 					return true;
 			}
 		}
@@ -445,6 +450,40 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
 		return enabled;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getZoomLevel()
+	// clang-format on
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return TiConvert.toFloat(getProperty(TiC.PROPERTY_ZOOM_LEVEL), 1.0f);
+		} else {
+			return 1.0f;
+		}
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setZoomLevel(float value)
+	// clang-format on
+	{
+		setProperty(TiC.PROPERTY_ZOOM_LEVEL, value);
+
+		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
+		// view is created.
+		TiUIView v = peekView();
+		if (v != null) {
+			if (TiApplication.isUIThread()) {
+				((TiUIWebView) v).zoomBy(value);
+			} else {
+				getMainHandler().sendEmptyMessage(MSG_ZOOM_BY);
+			}
+		}
 	}
 
 	public void clearBasicAuthentication()

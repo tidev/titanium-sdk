@@ -6,39 +6,41 @@
  */
 /* eslint-env mocha */
 /* global Ti */
-/* eslint no-unused-expressions: 'off' */
+/* eslint no-unused-expressions: "off" */
 'use strict';
+var should = require('./utilities/assertions');
 
 describe('Titanium.UI.TableView', function () {
-	var win,
-		didFocus = false;
-
-	this.timeout(5000);
-
-	beforeEach(function () {
-		didFocus = false;
-	});
-
-	afterEach(function () {
-		if (win) {
-			win.close();
-		}
-		win = null;
-	});
-
-	it('appendSection and appendRow (TIMOB-25936)', function (finish) {
-		win = Ti.UI.createWindow({ backgroundColor: '#f00' });
-		var table = Ti.UI.createTableView();
-
-		for (var i = 0; i < 2; ++i) {
-			table.appendSection(Ti.UI.createTableViewSection({ headerTitle: 'Header ' + i, className: 'Header' }));
-			for (var j = 0; j < 3; j++) {
-				table.appendRow(Ti.UI.createTableViewRow({ title: 'Row ' + j, className: 'Row' }));
-			}
-		}
+	it('Add and remove headerView/footerView ', function (finish) {
+		var win = Ti.UI.createWindow({ backgroundColor: 'gray' }),
+			headerView = Ti.UI.createView({
+				backgroundColor: 'red',
+				height: 100,
+				width: Ti.UI.FILL
+			}),
+			footerView = Ti.UI.createView({
+				backgroundColor: 'green',
+				height: 100,
+				width: Ti.UI.FILL
+			}),
+			table = Ti.UI.createTableView({
+				headerView: headerView,
+				footerView: footerView,
+				data: [
+					{ title: 'ITEM' }
+				]
+			});
 
 		win.addEventListener('open', function () {
-			didFocus = true;
+			should(table.headerView).not.be.null;
+			should(table.footerView).not.be.null;
+
+			table.headerView = null;
+			table.footerView = null;
+
+			should(table.headerView).be.null;
+			should(table.footerView).be.null;
+
 			finish();
 		});
 

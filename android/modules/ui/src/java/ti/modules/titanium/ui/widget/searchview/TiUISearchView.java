@@ -53,6 +53,17 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 		if (props.containsKey(TiC.PROPERTY_HINT_TEXT)) {
 			searchView.setQueryHint(props.getString(TiC.PROPERTY_HINT_TEXT));
 		}
+		if (props.containsKey(TiC.PROPERTY_HINT_TEXT_COLOR)) {
+			try {
+				int id = TiRHelper.getResource("id.search_src_text");
+				EditText text = (EditText) searchView.findViewById(id);
+				if (text != null) {
+					text.setHintTextColor(TiConvert.toColor(props, TiC.PROPERTY_HINT_TEXT_COLOR));
+				}
+			} catch (ResourceNotFoundException e) {
+				Log.e(TAG, "Could not find SearchView EditText");
+			}
+		}
 		if (props.containsKey(TiC.PROPERTY_VALUE)) {
 			changeEventEnabled = false;
 			searchView.setQuery(props.getString(TiC.PROPERTY_VALUE), false);
@@ -96,6 +107,16 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 			}
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
 			searchView.setQueryHint((String) newValue);
+		} else if (key.equals(TiC.PROPERTY_HINT_TEXT_COLOR)) {
+			try {
+				int id = TiRHelper.getResource("id.search_src_text");
+				EditText text = (EditText) searchView.findViewById(id);
+				if (text != null) {
+					text.setHintTextColor(TiConvert.toColor((String) newValue));
+				}
+			} catch (ResourceNotFoundException e) {
+				Log.e(TAG, "Could not find SearchView EditText");
+			}
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			searchView.setQuery((String) newValue, false);
 		} else if (key.equals(TiC.PROPERTY_ICONIFIED)) {
