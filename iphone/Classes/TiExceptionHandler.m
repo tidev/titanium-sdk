@@ -56,7 +56,13 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)showScriptError:(TiScriptError *)error
 {
-  [[TiApp app] showModalError:[error description]];
+  NSDictionary *errorDictionary = [error dictionaryValue];
+
+  if (errorDictionary != nil) {
+    [[TiApp app] showModalError:[error description] reason:errorDictionary[@"nativeReason"]];
+  } else {
+    [[TiApp app] showModalError:[error description]];
+  }
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification
                                                       object:self
                                                     userInfo:error.dictionaryValue];

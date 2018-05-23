@@ -174,6 +174,8 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  */
 @property (nonatomic, assign) BOOL disableNetworkActivityIndicator;
 
+- (void)showModalError:(NSString *)message reason:(NSString *)reason;
+
 - (void)showModalError:(NSString *)message;
 
 /**

@@ -1260,15 +1260,20 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 #endif
 
 //TODO: this should be compiled out in production mode
-- (void)showModalError:(NSString *)message
+- (void)showModalError:(NSString *)message reason:(NSString *)reason
 {
   if (TI_APPLICATION_SHOW_ERROR_CONTROLLER == NO) {
     NSLog(@"[ERROR] Application received error: %@", message);
     return;
   }
   ENSURE_UI_THREAD(showModalError, message);
-  TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
+  TiErrorController *error = [[[TiErrorController alloc] initWithError:message reason:reason] autorelease];
   [self showModalController:error animated:YES];
+}
+
+- (void)showModalError:(NSString *)message
+{
+  [self showModalError:message reason:nil];
 }
 
 - (void)showModalController:(UIViewController *)modalController animated:(BOOL)animated

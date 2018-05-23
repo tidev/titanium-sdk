@@ -143,7 +143,7 @@ NSString *JavascriptNameForClass(Class c);
     x = (t *)[x objectAtIndex:0];                                                                                                                                          \
   }                                                                                                                                                                        \
   if (![x isKindOfClass:[t class]]) {                                                                                                                                      \
-    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@", CLASS2JS([t class]), OBJTYPE2JS(x)] location:CODELOCATION]; \
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Expected: %@, was: %@", CLASS2JS([t class]), OBJTYPE2JS(x)] location:CODELOCATION]; \
   }
 
 #define ENSURE_SINGLE_ARG_OR_NIL(x, t)                                                                                                                                       \
@@ -154,7 +154,7 @@ NSString *JavascriptNameForClass(Class c);
       x = (t *)[x objectAtIndex:0];                                                                                                                                          \
     }                                                                                                                                                                        \
     if (![x isKindOfClass:[t class]]) {                                                                                                                                      \
-      [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@", CLASS2JS([t class]), OBJTYPE2JS(x)] location:CODELOCATION]; \
+      [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Expected: %@, was: %@", CLASS2JS([t class]), OBJTYPE2JS(x)] location:CODELOCATION]; \
     }                                                                                                                                                                        \
   }
 
@@ -163,7 +163,7 @@ NSString *JavascriptNameForClass(Class c);
     out = (type *)[args objectAtIndex:index];                                                                                                                                   \
   }                                                                                                                                                                             \
   if (![out isKindOfClass:[type class]]) {                                                                                                                                      \
-    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@", CLASS2JS([type class]), OBJTYPE2JS(out)] location:CODELOCATION]; \
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Expected: %@, was: %@", CLASS2JS([type class]), OBJTYPE2JS(out)] location:CODELOCATION]; \
   }
 
 #define ENSURE_ARG_OR_NIL_AT_INDEX(out, args, index, type)                                                                                                                        \
@@ -176,13 +176,13 @@ NSString *JavascriptNameForClass(Class c);
       out = nil;                                                                                                                                                                  \
     }                                                                                                                                                                             \
     if (out && ![out isKindOfClass:[type class]]) {                                                                                                                               \
-      [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@", CLASS2JS([type class]), OBJTYPE2JS(out)] location:CODELOCATION]; \
+      [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Expected: %@, was: %@", CLASS2JS([type class]), OBJTYPE2JS(out)] location:CODELOCATION]; \
     }                                                                                                                                                                             \
   }
 
 #define COERCE_TO_INT(out, in)                                                                                                                                \
   if (![in respondsToSelector:@selector(intValue)]) {                                                                                                         \
-    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"cannot coerce type %@ to int", OBJTYPE2JS(in)] location:CODELOCATION]; \
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Cannot coerce type %@ to int", OBJTYPE2JS(in)] location:CODELOCATION]; \
   }                                                                                                                                                           \
   out = [in intValue];
 
@@ -238,7 +238,7 @@ NSString *JavascriptNameForClass(Class c);
 
 #define ENSURE_CLASS(x, t)                                                                                                                                         \
   if (![x isKindOfClass:t]) {                                                                                                                                      \
-    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@, was: %@", CLASS2JS(t), OBJTYPE2JS(x)] location:CODELOCATION]; \
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Expected: %@, was: %@", CLASS2JS(t), OBJTYPE2JS(x)] location:CODELOCATION]; \
   }
 
 #define ENSURE_TYPE(x, t) ENSURE_CLASS(x, [t class])
@@ -255,7 +255,7 @@ NSString *JavascriptNameForClass(Class c);
   if (IS_NULL_OR_NIL(x)) {                                                                                                                                                \
     x = nil;                                                                                                                                                              \
   } else if (![x isKindOfClass:t]) {                                                                                                                                      \
-    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"expected: %@ or nil, was: %@", CLASS2JS(t), OBJTYPE2JS(x)] location:CODELOCATION]; \
+    [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Expected: %@ or nil, was: %@", CLASS2JS(t), OBJTYPE2JS(x)] location:CODELOCATION]; \
   }
 
 #define ENSURE_TYPE_OR_NIL(x, t) ENSURE_CLASS_OR_NIL(x, [t class])

@@ -162,14 +162,22 @@ NSString *JavascriptNameForClass(Class c)
     return @"Array";
   else if ([c isSubclassOfClass:[NSDictionary class]])
     return @"Object";
-  else if ([c isSubclassOfClass:[KrollCallback class]])
+  else if ([c isSubclassOfClass:[KrollCallback class]] || [c isSubclassOfClass:[KrollWrapper class]])
     return @"Function";
-  else if ([c isSubclassOfClass:[KrollWrapper class]])
-    return @"Function";
-  else if ([c conformsToProtocol:@protocol(JavascriptClass)]) {
+  else if ([c isSubclassOfClass:[NSDate class]])
+    return @"Date";
+  else if ([c isSubclassOfClass:[NSNull class]])
+    return @"Null";
+  else if ([c conformsToProtocol:@protocol(JavascriptClass)])
     return [(id<JavascriptClass>)c javascriptClassName];
+
+  NSString *className = NSStringFromClass(c);
+
+  if ([className hasSuffix:@"Proxy"]) {
+    return [className stringByReplacingOccurrencesOfString:@"Proxy" withString:@""];
   }
-  return NSStringFromClass(c);
+
+  return className;
 }
 #ifdef TI_USE_KROLL_THREAD
 void TiThreadReleaseOnMainThread(id releasedObject, BOOL waitForFinish)
