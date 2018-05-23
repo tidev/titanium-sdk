@@ -589,7 +589,9 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   case TiDimensionTypeAuto:
     return @"auto";
   case TiDimensionTypeDip:
-    return [NSNumber numberWithFloat:dimension.value];
+    return @(dimension.value);
+  case TiDimensionTypePercent:
+    return [NSString stringWithFormat:@"%li%%", (NSInteger)(dimension.value * 100)];
   default: {
     break;
   }
@@ -1503,7 +1505,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (NSUInteger)extendedEdgesFromProp:(id)prop
 {
   if (![prop isKindOfClass:[NSArray class]]) {
-    return 0;
+    return 0; // TODO: Change the default value in SDK 8+ to match native iOS behavior
   }
 
   NSUInteger result = 0;

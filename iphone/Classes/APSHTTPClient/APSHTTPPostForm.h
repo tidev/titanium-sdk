@@ -9,26 +9,27 @@
 
 @interface APSHTTPPostForm : NSObject
 
-@property(nonatomic, readonly) NSData *requestData;
-@property(nonatomic, readonly) NSDictionary *requestHeaders;
-@property(nonatomic, readonly) NSString *contentType;
+@property (nonatomic, readonly) NSData *requestData;
+@property (nonatomic, readonly) NSDictionary *requestHeaders;
+@property (nonatomic, readonly) NSString *contentType;
 
--(void)setJSONData:(id)json;
--(void)setStringData:(NSString*)str;
--(void)appendData:(NSData*)data withContentType:(NSString*)contentType;
+- (void)setJSONData:(id)json;
+- (void)setStringData:(NSString *)str;
+- (void)appendData:(NSData *)data withContentType:(NSString *)contentType;
 
--(void)addDictionay:(NSDictionary*)dict;
--(void)addFormKey:(NSString*)key andValue:(NSString*)value;
+- (void)addDictionay:(NSDictionary *)dict;
+- (void)addFormKey:(NSString *)key andValue:(NSString *)value;
 
--(void)addFormFile:(NSString*)path;
--(void)addFormFile:(NSString*)path fieldName:(NSString*)name;
--(void)addFormFile:(NSString*)path fieldName:(NSString*)name contentType:(NSString*)contentType;
+- (void)addFormFile:(NSString *)path;
+- (void)addFormFile:(NSString *)path fieldName:(NSString *)name;
+- (void)addFormFile:(NSString *)path fieldName:(NSString *)name contentType:(NSString *)contentType;
 
--(void)addFormData:(NSData*)data;
--(void)addFormData:(NSData*)data fileName:(NSString*)fileName;
--(void)addFormData:(NSData*)data fileName:(NSString*)fileName fieldName:(NSString*)fieldName;
--(void)addFormData:(NSData*)data fileName:(NSString*)fileName fieldName:(NSString*)fieldName contentType:(NSString*)contentType;
+- (void)addFormData:(NSData *)data;
+- (void)addFormData:(NSData *)data fileName:(NSString *)fileName;
+- (void)addFormData:(NSData *)data fileName:(NSString *)fileName fieldName:(NSString *)fieldName;
+- (void)addFormData:(NSData *)data fileName:(NSString *)fileName fieldName:(NSString *)fieldName contentType:(NSString *)contentType;
 
--(void)addHeaderKey:(NSString*)key andHeaderValue:(NSString*)value;
+- (void)addHeaderKey:(NSString *)key andHeaderValue:(NSString *)value;
+- (void)destroyTemporaryData;
 
 @end

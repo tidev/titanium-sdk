@@ -135,6 +135,9 @@
   if (count == 0 && [type isEqual:@"remotenotificationaction"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiRemoteNotificationAction object:nil];
   }
+  if ((count == 0) && [type isEqual:@"handleurl"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationLaunchedFromURL object:nil];
+  }
 
   if ((count == 1) && [type isEqual:@"backgroundfetch"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiBackgroundFetchNotification object:nil];
@@ -160,7 +163,6 @@
   if ((count == 1) && [type isEqual:@"uploadprogress"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiURLUploadProgress object:nil];
   }
-
   if ((count == 1) && [type isEqual:@"usernotificationsetting"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiUserNotificationSettingsNotification object:nil];
   }
@@ -170,7 +172,6 @@
   if ((count == 1) && [type isEqual:@"continueactivity"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContinueActivity object:nil];
   }
-
   if ([TiUtils isIOS9OrGreater]) {
     if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
       [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationShortcut object:nil];
@@ -201,6 +202,10 @@
 
 - (void)didHandleURL:(NSNotification *)info
 {
+  if (![self _hasListeners:@"handleurl"]) {
+    return;
+  }
+
   [self fireEvent:@"handleurl"
        withObject:@{
          @"launchOptions" : [info userInfo]
