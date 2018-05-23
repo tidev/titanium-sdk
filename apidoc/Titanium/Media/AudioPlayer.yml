@@ -8,7 +8,7 @@ description: |
     release associated system resources.
 
     On iOS, you can control how the audio stream interacts with other system sounds
-    by setting <Titanium.Media.audioSessionMode>.
+    by setting <Titanium.Media.audioSessionCategory>.
 
     Use the <Titanium.Media.createAudioPlayer> method to create an audio player.
 extends: Titanium.Proxy
@@ -409,7 +409,7 @@ properties:
         volume setting for the device.
 
         On iOS, to adjust the volume of the device, set the `volume` property of
-        <Titanium.Media.appMusicPlayer> and set the <Titanium.Media.audioSessionMode> property
+        <Titanium.Media.appMusicPlayer> and set the <Titanium.Media.audioSessionCategory> property
         to either <Titanium.Media.AUDIO_SESSION_CATEGORY_AMBIENT>,
         <Titanium.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT>,
         or <Titanium.Media.AUDIO_SESSION_CATEGORY_PLAYBACK>.

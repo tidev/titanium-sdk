@@ -32,8 +32,8 @@ description: |
 
     Further Reading:
 
-      * [Android Services guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Services)
-      * [Android Developer: Service](http://developer.android.com/reference/android/app/Service.html)
+      * [Android Services guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Services)
+      * [Android Developer: Service](https://developer.android.com/reference/android/app/Service.html)
 
 extends: Titanium.Proxy
 platforms: [android]

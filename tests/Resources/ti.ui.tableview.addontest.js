@@ -11,52 +11,40 @@
 var should = require('./utilities/assertions');
 
 describe('Titanium.UI.TableView', function () {
-
-	it.ios('Delete row (Search Active)', function (finish) {
-		var win = Ti.UI.createWindow({
-				backgroundColor: 'blue'
+	it('Add and remove headerView/footerView ', function (finish) {
+		var win = Ti.UI.createWindow({ backgroundColor: 'gray' }),
+			headerView = Ti.UI.createView({
+				backgroundColor: 'red',
+				height: 100,
+				width: Ti.UI.FILL
 			}),
-			section_0,
-			searchBar,
-			tableView,
-			isFocused;
-		section_0 = Ti.UI.createTableViewSection({ headerTitle: 'Zero' });
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Red' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'White' }));
-		section_0.add(Ti.UI.createTableViewRow({ title: 'Purple' }));
+			footerView = Ti.UI.createView({
+				backgroundColor: 'green',
+				height: 100,
+				width: Ti.UI.FILL
+			}),
+			table = Ti.UI.createTableView({
+				headerView: headerView,
+				footerView: footerView,
+				data: [
+					{ title: 'ITEM' }
+				]
+			});
 
-		searchBar = Titanium.UI.createSearchBar({showCancel:true});
-		tableView = Ti.UI.createTableView({
-			data: [ section_0 ],
-			search: searchBar
-		});
-		
-		isFocused = false;
+		win.addEventListener('open', function () {
+			should(table.headerView).not.be.null;
+			should(table.footerView).not.be.null;
 
-		win.addEventListener('focus', function () {
-			var error;
+			table.headerView = null;
+			table.footerView = null;
 
-			if (isFocused) {
-				return;
-			}
-			isFocused = true;
+			should(table.headerView).be.null;
+			should(table.footerView).be.null;
 
-			try {
-				searchBar.setValue('e');
-  				searchBar.focus();
-				should(tableView.sections[0].rowCount).be.eql(3);
-				tableView.deleteRow(0);
-				should(tableView.sections[0].rowCount).be.eql(2);
-			} catch (err) {
-				error = err;
-			}				
-			setTimeout(function () {
-				win.close();
-				finish(error);
-			}, 1000);
+			finish();
 		});
 
-		win.add(tableView);
+		win.add(table);
 		win.open();
 	});
 });

@@ -171,6 +171,8 @@ public class TiUIVideoView
 
 		} else if (key.equals(TiC.PROPERTY_REPEAT_MODE)) {
 			videoView.setRepeatMode(TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_SHOWS_CONTROLS)) {
+			setMediaControlStyle(getPlayerProxy().getMediaControlStyle());
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -208,8 +210,8 @@ public class TiUIVideoView
 			return;
 		}
 
+		// Determine if the overlaid controls should be shown/hidden based on given media style.
 		boolean showController = true;
-
 		switch (style) {
 			case MediaModule.VIDEO_CONTROL_DEFAULT:
 			case MediaModule.VIDEO_CONTROL_EMBEDDED:
@@ -222,6 +224,17 @@ public class TiUIVideoView
 				break;
 		}
 
+		// If VideoPlayer's "showsControls" property is false,
+		// then ignore "mediaControlStyle" property and hide controls.
+		VideoPlayerProxy proxy = getPlayerProxy();
+		if (proxy != null) {
+			Object value = proxy.getProperty(TiC.PROPERTY_SHOWS_CONTROLS);
+			if ((value instanceof Boolean) && value.equals(Boolean.FALSE)) {
+				showController = false;
+			}
+		}
+
+		// Show/hide the video's overlaid controls.
 		if (showController) {
 			if (mediaController == null) {
 				mediaController = new MediaController(proxy.getActivity());

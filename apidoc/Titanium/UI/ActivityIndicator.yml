@@ -129,8 +129,7 @@ properties:
     description: |
         One of the activity indicator style constants.
 
-        See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor),
-        [indicatorDiameter](Titanium.UI.ActivityIndicator.indicatorDiameter)
+        See also: [indicatorColor](Titanium.UI.ActivityIndicator.indicatorColor)
     type: Number
     constants: Titanium.UI.ActivityIndicatorStyle.*
     default: <Titanium.UI.ActivityIndicatorStyle.PLAIN>

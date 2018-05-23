@@ -7,36 +7,17 @@
 /* eslint-env mocha */
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
+
 'use strict';
+
 var should = require('./utilities/assertions');
 
 describe('Titanium.UI.Window', function () {
-	var win;
-
-	afterEach(function () {
-		if (win) {
-			win.close();
-		}
-		win = null;
-	});
-
-	it.ios('.extendSafeArea exists', function (finish) {
-		this.timeout(5000);
-		// TODO: Add more unit tests related to top, bottom, left, right margins of win.safeAreaView.
-		win = Ti.UI.createWindow({
-			backgroundColor: 'gray',
-			extendSafeArea: false
-		});
-
-		win.addEventListener('open', function () {
-			try {
-				should(win.safeAreaView).be.a.Object;
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-		});
-
-		win.open();
+	it.ios('.modalPresentationStyles', function () {
+		should(Ti.UI.iOS.MODAL_PRESENTATION_PAGESHEET).be.a.Number;
+		should(Ti.UI.iOS.MODAL_PRESENTATION_FORMSHEET).be.a.Number;
+		should(Ti.UI.iOS.MODAL_PRESENTATION_CURRENT_CONTEXT).be.a.Number;
+		should(Ti.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_CONTEXT).be.a.Number;
+		should(Ti.UI.iOS.MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN).be.a.Number;
 	});
 });

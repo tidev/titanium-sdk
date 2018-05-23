@@ -1438,7 +1438,7 @@
   if (![searchController isActive]) {
     return;
   }
-  [dimmingView setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+  [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
   UIView *searchSuperView = [searchController.view superview];
@@ -1987,7 +1987,12 @@
   [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
   if (args != nil) {
     _refreshControlProxy = [args retain];
-    [[self tableView] addSubview:[_refreshControlProxy control]];
+
+    if ([TiUtils isIOS10OrGreater]) {
+      [[self tableView] setRefreshControl:_refreshControlProxy.control];
+    } else {
+      [[self tableView] addSubview:[_refreshControlProxy control]];
+    }
   }
 #endif
 }
@@ -2353,7 +2358,7 @@
 - (void)createDimmingView
 {
   if (dimmingView == nil) {
-    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
     dimmingView.backgroundColor = [UIColor blackColor];
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
@@ -2363,7 +2368,7 @@
 
 - (void)showDimmingView
 {
-  dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
   if (!dimmingView.superview) {
     [self addSubview:dimmingView];
     [self bringSubviewToFront:dimmingView];
@@ -2762,6 +2767,31 @@
 
 - (void)presentSearchController:(UISearchController *)controller
 {
+  TiColor *resultsBackgroundColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsBackgroundColor"]];
+  TiColor *resultsSeparatorColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsSeparatorColor"]];
+  id resultsSeparatorInsets = [[self proxy] valueForKey:@"resultsSeparatorInsets"];
+  id resultsSeparatorStyle = [[self proxy] valueForKey:@"resultsSeparatorStyle"];
+
+  ENSURE_TYPE_OR_NIL(resultsSeparatorInsets, NSDictionary);
+  ENSURE_TYPE_OR_NIL(resultsSeparatorStyle, NSNumber);
+
+  if (resultsBackgroundColor) {
+    // TIMOB-23281: Hack to support transparent backgrounds (not officially supported)
+    UIColor *color = [resultsBackgroundColor _color] == [UIColor clearColor] ? [UIColor colorWithWhite:1.0 alpha:0.0001] : [resultsBackgroundColor _color];
+    [tableview setBackgroundColor:color];
+  }
+
+  if (resultsSeparatorColor) {
+    [tableview setSeparatorColor:[resultsSeparatorColor _color]];
+  }
+
+  if (resultsSeparatorInsets) {
+    [tableview setSeparatorInset:[TiUtils contentInsets:resultsSeparatorInsets]];
+  }
+
+  if (resultsSeparatorStyle) {
+    [tableview setSeparatorStyle:[TiUtils intValue:resultsSeparatorStyle def:UITableViewCellSeparatorStyleSingleLine]];
+  }
   tableContentOffset = [tableview contentOffset];
 
   if (!searchControllerPresenter) {

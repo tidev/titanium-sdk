@@ -113,11 +113,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
 
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     _tableView.prefetchDataSource = nil;
   }
-#endif
 
   [_tableView release];
   [_templates release];
@@ -214,11 +212,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _tableView.estimatedSectionFooterHeight = 0;
     _tableView.estimatedSectionHeaderHeight = 0;
 
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
       _tableView.prefetchDataSource = self;
     }
-#endif
 
     if (TiDimensionIsDip(_rowHeight)) {
       [_tableView setRowHeight:_rowHeight.value];
@@ -576,7 +572,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (![searchController isActive]) {
     return;
   }
-  [dimmingView setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+  [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
   UIView *searchSuperView = [searchController.view superview];
@@ -756,7 +752,12 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
   if (args != nil) {
     _refreshControlProxy = [args retain];
-    [[self tableView] addSubview:[_refreshControlProxy control]];
+
+    if ([TiUtils isIOS10OrGreater]) {
+      [[self tableView] setRefreshControl:_refreshControlProxy.control];
+    } else {
+      [[self tableView] addSubview:[_refreshControlProxy control]];
+    }
   }
 #endif
 }
@@ -1541,7 +1542,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 #pragma mark - UITableViewDataSourcePrefetching
 
-#if IS_XCODE_8
 - (void)tableView:(UITableView *)tableView prefetchRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths
 {
   NSString *eventName = @"prefetch";
@@ -1575,7 +1575,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [self.proxy fireEvent:eventName withObject:@{ @"prefetchedItems" : cells }];
   RELEASE_TO_NIL(cells);
 }
-#endif
 
 - (NSDictionary *)listItemFromIndexPath:(NSIndexPath *)indexPath
 {
@@ -2345,7 +2344,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)createDimmingView
 {
   if (dimmingView == nil) {
-    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+    dimmingView = [[UIView alloc] initWithFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
     dimmingView.backgroundColor = [UIColor blackColor];
     dimmingView.alpha = .2;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSearchController)];
@@ -2355,7 +2354,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)showDimmingView
 {
-  dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  dimmingView.frame = CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height);
   if (!dimmingView.superview) {
     [self addSubview:dimmingView];
     [self bringSubviewToFront:dimmingView];
