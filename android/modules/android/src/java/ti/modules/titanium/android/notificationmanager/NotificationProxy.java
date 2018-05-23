@@ -51,7 +51,9 @@ public class NotificationProxy extends KrollProxy
 		notificationBuilder = new NotificationCompat.Builder(TiApplication.getInstance().getApplicationContext())
 								  .setSmallIcon(android.R.drawable.stat_sys_warning)
 								  .setWhen(System.currentTimeMillis())
-								  .setChannelId("miscellaneous"); // NotificationChannel.DEFAULT_CHANNEL_ID
+								  .setChannelId(NotificationManagerModule.useDefaultChannel()
+													? NotificationManagerModule.DEFAULT_CHANNEL_ID
+													: "miscellaneous"); // NotificationChannel.DEFAULT_CHANNEL_ID
 
 		//set up default values
 		flags = Notification.FLAG_AUTO_CANCEL;
