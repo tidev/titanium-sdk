@@ -12,19 +12,27 @@ var should = require('./utilities/assertions'); // eslint-disable-line no-unused
 
 describe('Titanium.UI.TabGroup', function () {
 	var tabGroup,
-		tab;
+		tab,
+		win;
 
 	afterEach(function () {
 		if (tab && tabGroup) {
 			tabGroup.removeTab(tab);
 		}
 		tab = null;
+		try {
+			if (win) {
+				win.close();
+			}
+		} catch (e) {
+			// ignore
+		} finally {
+			win = null;
+		}
 	});
 
 	it.ios('tabs', function () {
-
-		var win = Ti.UI.createWindow();
-
+		win = Ti.UI.createWindow();
 		tabGroup = Ti.UI.createTabGroup();
 		tab = Ti.UI.createTab({
 			title: 'Tab',
@@ -38,9 +46,7 @@ describe('Titanium.UI.TabGroup', function () {
 	});
 
 	it.ios('allowUserCustomization', function () {
-
-		var win = Ti.UI.createWindow();
-
+		win = Ti.UI.createWindow();
 		tabGroup = Ti.UI.createTabGroup({
 			allowUserCustomization: true
 		});
@@ -56,9 +62,7 @@ describe('Titanium.UI.TabGroup', function () {
 	});
 
 	it.ios('tabsTranslucent', function () {
-
-		var win = Ti.UI.createWindow();
-
+		win = Ti.UI.createWindow();
 		tabGroup = Ti.UI.createTabGroup({
 			tabsTranslucent: true
 		});
@@ -71,5 +75,28 @@ describe('Titanium.UI.TabGroup', function () {
 		should(tabGroup.tabsTranslucent).eql(true);
 		tabGroup.setTabsTranslucent(false);
 		should(tabGroup.tabsTranslucent).eql(false);
+	});
+
+	it('close event', function (finish) {
+		this.timeout(10000);
+
+		win = Ti.UI.createWindow();
+		tabGroup = Ti.UI.createTabGroup();
+
+		tabGroup.addEventListener('open', function () {
+			tabGroup.close();
+		});
+
+		tabGroup.addEventListener('close', function () {
+			finish();
+		});
+
+		tab = Ti.UI.createTab({
+			title: 'Tab',
+			window: win
+		});
+		tabGroup.addTab(tab);
+
+		tabGroup.open();
 	});
 });
