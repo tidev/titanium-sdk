@@ -660,9 +660,7 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
 - (NSString *)CLIPBOARD_OPTION_LOCAL_ONLY
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return UIPasteboardOptionLocalOnly;
-#endif
   } else {
     return @"";
   }
@@ -670,9 +668,7 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
 - (NSString *)CLIPBOARD_OPTION_EXPIRATION_DATE
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return UIPasteboardOptionExpirationDate;
-#endif
   } else {
     return @"";
   }
