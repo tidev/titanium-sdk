@@ -663,7 +663,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 		super.onCreate(savedInstanceState);
 
-		windowCreated(savedInstanceState);
+		try {
+			windowCreated(savedInstanceState);
+		} catch (Throwable t) {
+			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+		}
 
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
