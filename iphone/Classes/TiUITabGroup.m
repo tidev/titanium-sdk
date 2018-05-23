@@ -640,10 +640,6 @@ DEFINE_EXCEPTIONS
 
 - (void)close:(id)args
 {
-  if ([self.proxy _hasListeners:@"close"]) {
-    [self.proxy fireEvent:@"close" withObject:event];
-  }
-
   if (controller != nil) {
     controller.viewControllers = nil;
   }
