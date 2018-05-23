@@ -45,14 +45,14 @@
   if (count == 1 && [type isEqualToString:@"progress"]) {
     __weak TiMediaAudioPlayerProxy *weakSelf = self;
     _timeObserver = [[self player] addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0, NSEC_PER_SEC)
-                                                queue:nil
-                                           usingBlock:^(CMTime time) {
-                                             TiMediaAudioPlayerProxy *strongSelf = weakSelf;
-                                             [strongSelf fireEvent:@"progress"
-                                                        withObject:@{
-                                                          @"progress" : NUMINT(CMTimeGetSeconds(time) * 1000)
-                                                        }];
-                                           }];
+                                                                queue:nil
+                                                           usingBlock:^(CMTime time) {
+                                                             TiMediaAudioPlayerProxy *strongSelf = weakSelf;
+                                                             [strongSelf fireEvent:@"progress"
+                                                                        withObject:@{
+                                                                          @"progress" : NUMINT(CMTimeGetSeconds(time) * 1000)
+                                                                        }];
+                                                           }];
   }
 }
 
