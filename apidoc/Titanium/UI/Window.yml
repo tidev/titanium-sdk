@@ -478,6 +478,18 @@ properties:
     type: Boolean
     default: false
 
+  - name: homeIndicatorAutoHidden
+    summary: Boolean value indicating whether the system is allowed to hide the visual indicator for returning to the Home screen.
+    description: |
+        Set this value true, if you want the system to determine when to hide the indicator. Set this value false, 
+        if you want the indicator shown at all times. The system takes your preference into account, but setting 
+        true is no guarantee that the indicator will be hidden.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 7.3.0
+    osver: {ios: {min: "11.0"}}
+
   - name: hideShadow
     summary: Set this to true to hide the shadow image of the navigation bar.
     description: |
@@ -640,6 +652,16 @@ properties:
     default: null
     osver: {ios: {min: "7.0"}}
     platforms: [iphone,ipad]
+
+  - name: navigationWindow
+    summary: The <Titanium.UI.iOS.NavigationWindow> instance hosting this window.
+    description: |
+        Returns the navigation window that hosts this window. Returns `null` if the window is not 
+        hosted by a navigation window.
+    since: "7.3.0"
+    type: Titanium.UI.iOS.NavigationWindow
+    permission: read-only
+    platforms: [iphone, ipad]  
 
   - name: opacity
     summary: The opacity from 0.0-1.0.

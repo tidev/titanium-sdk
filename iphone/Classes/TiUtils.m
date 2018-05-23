@@ -164,6 +164,11 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   return [TiUtils isIOSVersionOrGreater:@"8.0"];
 }
 
++ (BOOL)isIOS82rGreater
+{
+  return [TiUtils isIOSVersionOrGreater:@"8.2"];
+}
+
 + (BOOL)isIOS9OrGreater
 {
   return [TiUtils isIOSVersionOrGreater:@"9.0"];
@@ -181,20 +186,12 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (BOOL)isIOS10OrGreater
 {
-#if IS_XCODE_8
   return [TiUtils isIOSVersionOrGreater:@"10.0"];
-#else
-  return NO;
-#endif
 }
 
 + (BOOL)isIOS11OrGreater
 {
-#if IS_XCODE_9
   return [TiUtils isIOSVersionOrGreater:@"11.0"];
-#else
-  return NO;
-#endif
 }
 
 + (BOOL)isIOSVersionOrGreater:(NSString *)version
@@ -589,7 +586,9 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   case TiDimensionTypeAuto:
     return @"auto";
   case TiDimensionTypeDip:
-    return [NSNumber numberWithFloat:dimension.value];
+    return @(dimension.value);
+  case TiDimensionTypePercent:
+    return [NSString stringWithFormat:@"%li%%", (NSInteger)(dimension.value * 100)];
   default: {
     break;
   }
