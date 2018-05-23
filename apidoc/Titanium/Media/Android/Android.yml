@@ -15,7 +15,7 @@ methods:
         Use this method to force an immediate scan of particular files, such as
         newly-created or downloaded resources.
             
-        See [MediaScannerConnection in the Android API Reference](http://developer.android.com/reference/android/media/MediaScannerConnection.html).
+        See [MediaScannerConnection in the Android API Reference](https://developer.android.com/reference/android/media/MediaScannerConnection.html).
         
     parameters:
       - name: paths

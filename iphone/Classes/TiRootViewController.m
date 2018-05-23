@@ -1341,6 +1341,12 @@
     [self refreshOrientationWithDuration:nil];
     [self updateStatusBar];
   }
+
+#if IS_XCODE_9
+  if ([TiUtils isIOS11OrGreater]) {
+    [self setNeedsUpdateOfHomeIndicatorAutoHidden];
+  }
+#endif
 }
 
 - (void)setParentOrientationController:(id<TiOrientationController>)newParent
@@ -1468,6 +1474,18 @@
   }
   [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
+
+#pragma mark - HomeIndicatorAutoHidden
+
+#if IS_XCODE_9
+- (BOOL)prefersHomeIndicatorAutoHidden
+{
+  if ([containedWindows count] > 0) {
+    return [[containedWindows lastObject] homeIndicatorAutoHide];
+  }
+  return NO;
+}
+#endif
 
 #pragma mark - Status Bar Appearance
 - (BOOL)prefersStatusBarHidden

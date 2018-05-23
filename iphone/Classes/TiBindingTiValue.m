@@ -67,6 +67,7 @@ NSDictionary *TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef 
   return [dict autorelease];
 }
 
+// TODO: Remove once the minimum target is iOS 9
 #ifdef USE_JSCORE_FRAMEWORK
 BOOL TiValueIsArray(JSContextRef js_context_ref, JSValueRef js_value_ref)
 {

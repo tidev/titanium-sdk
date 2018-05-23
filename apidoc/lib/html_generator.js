@@ -46,7 +46,7 @@ function convertAPIToLink(apiName) {
 		return '<code>' + apiName + '</code>';
 	} else if (apiName in doc) {
 		if (remoteURL && !~doc.__modules.indexOf(apiName)) {
-			url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + apiName;
+			url = 'https://docs.appcelerator.com/platform/latest/#!/api/' + apiName;
 		} else {
 			url = exportClassFilename(apiName) + '.html';
 		}
@@ -61,7 +61,7 @@ function convertAPIToLink(apiName) {
 			if (common.findAPI(doc, cls, member, 'properties')) {
 				if (remoteURL) {
 					if (!~doc.__modules.indexOf(cls)) {
-						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-property-' + member;
+						url = 'https://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-property-' + member;
 					} else {
 						url = exportClassFilename(cls) + '.html#' + cleanAPIName(member);
 					}
@@ -72,7 +72,7 @@ function convertAPIToLink(apiName) {
 			if (common.findAPI(doc, cls, member, 'methods')) {
 				if (remoteURL) {
 					if (!~doc.__modules.indexOf(cls)) {
-						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-method-' + member;
+						url = 'https://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-method-' + member;
 					} else {
 						url = exportClassFilename(cls) + '.html#' + cleanAPIName(member);
 					}
@@ -83,7 +83,7 @@ function convertAPIToLink(apiName) {
 			if (common.findAPI(doc, cls, member, 'events')) {
 				if (remoteURL) {
 					if (!~doc.__modules.indexOf(cls)) {
-						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-event-' + member;
+						url = 'https://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-event-' + member;
 					} else {
 						url = exportClassFilename(cls) + '.html#' + cleanAPIName(member);
 					}
@@ -152,7 +152,7 @@ function markdownToHTML(text) {
 function exportClassFilename(name) {
 	if (assert(doc, name)) {
 		if (remoteURL && !~doc.__modules.indexOf(name)) {
-			return 'http://docs.appcelerator.com/platform/latest/#!/api/' + name;
+			return 'https://docs.appcelerator.com/platform/latest/#!/api/' + name;
 		} else {
 			return (doc[name].__subtype === 'module') ? name + '-module' : name + '-object';
 		}

@@ -90,7 +90,7 @@
   NSData *data = [self convertToData:args];
 
   unsigned char result[CC_SHA1_DIGEST_LENGTH];
-  CC_SHA1([data bytes], [data length], result);
+  CC_SHA1([data bytes], (CC_LONG)[data length], result);
   return [TiUtils convertToHex:(unsigned char *)&result length:CC_SHA1_DIGEST_LENGTH];
 }
 
@@ -101,7 +101,7 @@
   NSData *data = [self convertToData:args];
 
   unsigned char result[CC_SHA256_DIGEST_LENGTH];
-  CC_SHA256([data bytes], [data length], result);
+  CC_SHA256([data bytes], (CC_LONG)[data length], result);
   return [TiUtils convertToHex:(unsigned char *)&result length:CC_SHA256_DIGEST_LENGTH];
 }
 
