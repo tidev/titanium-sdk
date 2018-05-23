@@ -93,10 +93,8 @@
 #import "TiUIiOSStepperProxy.h"
 #endif
 
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 #import "TiUIiOSFeedbackGeneratorProxy.h"
-#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -430,21 +428,17 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 - (id)BLUR_EFFECT_STYLE_REGULAR
 {
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     return NUMINTEGER(UIBlurEffectStyleRegular);
   }
-#endif
   return [NSNull null];
 }
 
 - (id)BLUR_EFFECT_STYLE_PROMINENT
 {
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     return NUMINTEGER(UIBlurEffectStyleProminent);
   }
-#endif
   return [NSNull null];
 }
 #endif
@@ -778,8 +772,9 @@ MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_PARTIAL_CURL, UIModalTransitionStylePart
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_PAGESHEET, UIModalPresentationPageSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_FORMSHEET, UIModalPresentationFormSheet);
 MAKE_SYSTEM_PROP(MODAL_PRESENTATION_CURRENT_CONTEXT, UIModalPresentationCurrentContext);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_OVER_CURRENT_CONTEXT, UIModalPresentationOverCurrentContext);
+MAKE_SYSTEM_PROP(MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN, UIModalPresentationOverFullScreen);
 
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 
 - (id)createFeedbackGenerator:(id)args
@@ -798,7 +793,6 @@ MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR, UINotificationFeedb
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT, UIImpactFeedbackStyleLight);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM, UIImpactFeedbackStyleMedium);
 MAKE_SYSTEM_PROP(FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY, UIImpactFeedbackStyleHeavy);
-#endif
 #endif
 
 #if IS_XCODE_9
