@@ -93,7 +93,7 @@ describe('Titanium.Media.VideoPlayer', function () {
 
 	it.ios('showsControls', function () {
 		var player = Ti.Media.createVideoPlayer();
-		should(player).have.readOnlyProperty('showsControls').which.is.a.Number;
+		should(player).have.readOnlyProperty('showsControls').which.is.a.Boolean;
 	});
 
 	it.ios('Close window containing a video player (TIMOB-25574)', function (finish) {
