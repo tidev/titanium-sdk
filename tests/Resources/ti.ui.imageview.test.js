@@ -41,9 +41,9 @@ describe('Titanium.UI.ImageView', function () {
 	});
 
 	it.android('image from density specific folder on Android', function (finish) {
-		var window = Ti.UI.createWindow({backgroundColor: 'gray'});
-		var imageView = Ti.UI.createImageView({width: '50%', image: '/images/dip.png'});
-		imageView.addEventListener('load', function() {
+		var window = Ti.UI.createWindow({ backgroundColor: 'gray' });
+		var imageView = Ti.UI.createImageView({ width: '50%', image: '/images/dip.png' });
+		imageView.addEventListener('load', function () {
 			try {
 				should(imageView.image).be.a.String;
 				should(imageView.getImage).be.a.Function;
