@@ -131,11 +131,11 @@ NSArray *moviePlayerKeys = nil;
   }
 }
 
-// Used to avoid duplicate code in Brightcove module; makes things easier to maintain.
 - (void)configurePlayer
 {
   [self addNotificationObserver];
   [self setValuesForKeysWithDictionary:loadProperties];
+
   // we need this code below since the player can be realized before loading
   // properties in certain cases and when we go to create it again after setting
   // url we will need to set the new controller to the already created view
@@ -143,11 +143,6 @@ NSArray *moviePlayerKeys = nil;
     TiMediaVideoPlayer *vp = (TiMediaVideoPlayer *)[self view];
     [vp setMovie:movie];
   }
-}
-
-- (AVPlayerViewController *)player
-{
-  return movie;
 }
 
 - (AVPlayerViewController *)ensurePlayer
@@ -471,7 +466,13 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)setShowsControls:(NSNumber *)value
 {
-  [movie setShowsPlaybackControls:[TiUtils boolValue:value def:YES]];
+  ENSURE_UI_THREAD(setShowsControls, value);
+
+  if (movie != nil) {
+    [movie setShowsPlaybackControls:[TiUtils boolValue:value def:YES]];
+  } else {
+    [loadProperties setValue:value forKey:@"showsControls"];
+  }
 }
 
 - (void)cancelAllThumbnailImageRequests:(id)value
