@@ -237,24 +237,22 @@ timestamps {
 					stage('Security') {
 						timeout(25) { // sometimes the upload hangs forever...
 							// Clean up and install only production dependencies
-							sh 'npm prune --production'
+							sh 'npm ci --production'
 
 							// Scan for Dependency Check and RetireJS warnings
 							dependencyCheckAnalyzer datadir: '', hintsFile: '', includeCsvReports: true, includeHtmlReports: true, includeJsonReports: true, isAutoupdateDisabled: false, outdir: '', scanpath: 'package.json', skipOnScmChange: false, skipOnUpstreamChange: false, suppressionFile: '', zipExtensions: ''
 							dependencyCheckPublisher canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '', unHealthy: ''
 
 							// Adding appc-license scan, until we can get the output from Dependency Check/Track
-							sh 'npm install appc-license'
 							sh 'npx appc-license > output.csv'
 							archiveArtifacts 'output.csv'
 
-							sh 'npm install retire'
 							sh 'npx retire --exitwith 0'
 							step([$class: 'WarningsPublisher', canComputeNew: false, canResolveRelativePaths: false, consoleParsers: [[parserName: 'Node Security Project Vulnerabilities'], [parserName: 'RetireJS']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''])
 
 							// Don't upload to Threadfix, we do that in a nightly security scan job
 							// re-install dev dependencies for testing later...
-							sh(returnStatus: true, script: 'npm install --only=dev') // ignore PEERINVALID grunt issue for now
+							sh(returnStatus: true, script: 'npm ci') // ignore PEERINVALID grunt issue for now
 						}
 					} // end 'Security' stage
 				}

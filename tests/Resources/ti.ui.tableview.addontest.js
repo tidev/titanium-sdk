@@ -1,6 +1,6 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,32 +8,43 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
+var should = require('./utilities/assertions');
 
-describe('Ti.UI.TableView', function () {
-	it('set and clear data', function (finish) {
-		var data_a = [
-				{ title: 'Square', backgroundSelectedColor: 'red' },
-				{ title: 'Circle', backgroundSelectedColor: 'blue' },
-				{ title: 'Triangle', backgroundSelectedColor: 'purple' }
-			],
-			data_b = [
-				{ title: 'Red', backgroundSelectedColor: 'red' },
-				{ title: 'Green', backgroundSelectedColor: 'green' },
-				{ title: 'Blue', backgroundSelectedColor: 'blue' }
-			],
-			tv = Ti.UI.createTableView(),
-			error;
+describe('Titanium.UI.TableView', function () {
+	it('Add and remove headerView/footerView ', function (finish) {
+		var win = Ti.UI.createWindow({ backgroundColor: 'gray' }),
+			headerView = Ti.UI.createView({
+				backgroundColor: 'red',
+				height: 100,
+				width: Ti.UI.FILL
+			}),
+			footerView = Ti.UI.createView({
+				backgroundColor: 'green',
+				height: 100,
+				width: Ti.UI.FILL
+			}),
+			table = Ti.UI.createTableView({
+				headerView: headerView,
+				footerView: footerView,
+				data: [
+					{ title: 'ITEM' }
+				]
+			});
 
-		try {
-			tv.data = [];
-			tv.setData(data_a);
-			tv.data = [];
-			tv.setData(data_b);
-			tv.data = [];
-			tv.setData(data_a);
-		} catch (e) {
-			error = e;
-		}
-		finish(error);
+		win.addEventListener('open', function () {
+			should(table.headerView).not.be.null;
+			should(table.footerView).not.be.null;
+
+			table.headerView = null;
+			table.footerView = null;
+
+			should(table.headerView).be.null;
+			should(table.footerView).be.null;
+
+			finish();
+		});
+
+		win.add(table);
+		win.open();
 	});
 });
