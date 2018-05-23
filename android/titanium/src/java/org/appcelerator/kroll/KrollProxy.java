@@ -123,7 +123,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		// Associate the activity with the proxy.  if the proxy needs activity association delayed until a
 		// later point then initActivity should be overridden to be a no-op and then call setActivity directly
 		// at the appropriate time
-		initActivity(TiApplication.getInstance().getCurrentActivity());
+		initActivity(TiApplication.getAppRootOrCurrentActivity());
 
 		// Setup the proxy according to the creation arguments TODO - pass in createdInModule
 		handleCreationArgs(null, creationArguments);
@@ -152,6 +152,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public void setActivity(Activity activity)
 	{
+		// our proxy must always be associated with a valid activity
+		if (activity == null) {
+			initActivity(TiApplication.getAppRootOrCurrentActivity());
+			return;
+		}
 		this.activity = new WeakReference<Activity>(activity);
 	}
 
@@ -162,15 +167,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
 	/**
-	 * @return the activity associated with this proxy. It can be null.
+	 * @return the activity associated with this proxy.
 	 * @module.api
 	 */
 	public Activity getActivity()
 	{
-		if (activity == null) {
-			return null;
+		// our proxy must always be associated with a valid activity
+		if (this.activity == null || this.activity.get() == null) {
+			initActivity(TiApplication.getAppRootOrCurrentActivity());
 		}
-		return activity.get();
+		return this.activity.get();
 	}
 
 	/**
