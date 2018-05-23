@@ -426,6 +426,19 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 		return duration;
 	}
 
+	public boolean isMuted() {
+		AudioManager audioManager =
+			(AudioManager) TiApplication.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+
+		return audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT;
+	}
+
+	public void setMuted(boolean muted) {
+		if (mp != null) {
+			mp.setVolume(0.0, 0.0);
+		}
+	}
+
 	public int getTime()
 	{
 		int time = 0;

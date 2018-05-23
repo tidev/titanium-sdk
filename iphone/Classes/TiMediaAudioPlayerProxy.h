@@ -78,6 +78,8 @@
 
 - (void)pause:(id)unused;
 
+- (void)release:(id)unused;
+
 - (NSString *)stateDescription:(id)state;
 
 @end

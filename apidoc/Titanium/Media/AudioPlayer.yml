@@ -5,7 +5,9 @@ summary: |
 description: |
     On Android, when you are done playing a given audio file, you must call the
     [release](Titanium.Media.AudioPlayer.release) method to stop buffering audio data and
-    release associated system resources.
+    release associated system resources. Since 7.3.0, this method is available on iOS as well
+    and will release all audio-player related resources. After this method has been called,
+    the object should not be accessed anymore.
 
     On iOS, you can control how the audio stream interacts with other system sounds
     by setting <Titanium.Media.audioSessionCategory>. Since Titanium 7.3.0, this API
@@ -59,9 +61,7 @@ examples:
                 if (audioPlayer.playing || audioPlayer.paused) {
                     audioPlayer.stop();
                     pauseResumeButton.enabled = false;
-                    if (Ti.Platform.name === 'android') {
-                        audioPlayer.release();
-                    }
+                    audioPlayer.release();
                 } else {
                     audioPlayer.start();
                     pauseResumeButton.enabled = true;
@@ -86,9 +86,7 @@ examples:
 
             win.addEventListener('close', function() {
                 audioPlayer.stop();
-                if (Ti.Platform.osname === 'android') {
-                    audioPlayer.release();
-                }
+                audioPlayer.release();
             });
 
             win.open();
@@ -172,7 +170,12 @@ methods:
     description: |
         On Android, this method should be called when you are done streaming a given
         audio object, to release underlying resources, including buffered data.
-    platforms: [android]
+
+        On iOS, this method can be called for parity to release the current player
+        instance and it's observers. Note: If you are listening to the `progress` event,
+        you should remove and re-add the event listener.
+    platforms: [android, iphone, ipad]
+    since: { "android": "0.9", "iphone": "7.3.0", "ipad": "7.3.0" }
 
   - name: getAudioSessionId
     summary: Returns the audio session id.
@@ -183,6 +186,10 @@ methods:
 
   - name: start
     summary: Starts or resumes audio playback.
+  
+  - name: restart
+    summary: Restarts (stops and stars) audio playback.
+    since: "7.3.0"
 
   - name: stateDescription
     summary: |
@@ -446,7 +453,7 @@ properties:
   - name: muted
     summary: Indicates whether or not audio output of the player is muted. 
     description: Only affects audio muting for the player instance and not for the device.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
     type: Boolean
     since: "7.3.0"
     

@@ -27,7 +27,6 @@
 {
   if (_state == TiAudioPlayerStatePlaying || _state == TiAudioPlayerStatePaused) {
     [self stop:nil];
-    [[TiMediaAudioSession sharedSession] stopAudioSession];
   }
 
   [self removeNotificationObserver];
@@ -45,7 +44,7 @@
 {
   if (count == 1 && [type isEqualToString:@"progress"]) {
     __weak TiMediaAudioPlayerProxy *weakSelf = self;
-    [[self player] addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0, NSEC_PER_SEC)
+    _timeObserver = [[self player] addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0, NSEC_PER_SEC)
                                                 queue:nil
                                            usingBlock:^(CMTime time) {
                                              TiMediaAudioPlayerProxy *strongSelf = weakSelf;
@@ -308,6 +307,7 @@
 
   [[self player] pause];
   [[self player] seekToTime:kCMTimeZero];
+  [[TiMediaAudioSession sharedSession] stopAudioSession];
 }
 
 - (void)pause:(id)unused
@@ -321,6 +321,12 @@
   }
 
   [[self player] pause];
+}
+
+- (void)release:(id)unused
+{
+  [self stop:nil];
+  _player = nil;
 }
 
 - (NSString *)stateDescription:(id)state
