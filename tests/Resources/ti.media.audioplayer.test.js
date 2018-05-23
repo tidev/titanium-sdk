@@ -19,19 +19,19 @@ describe('Titanium.Media', function () {
 describe('Titanium.Media.AudioPlayer', function () {
 	var audioPlayer;
 
-	it('apiName', function () {
-		var player = Ti.Media.createAudioPlayer({ url: 'sample.mp3' });
-		should(player).have.a.readOnlyProperty('apiName').which.is.a.String;
-		should(player.apiName).be.eql('Ti.Media.AudioPlayer');
-		player = null;
-	});
-
 	before(function () {
 		audioPlayer = Ti.Media.createAudioPlayer({ url: 'sample.mp3' });
 	});
 
 	afterEach(function () {
 		audioPlayer = null;
+	});
+
+	it('apiName', function () {
+		var player = Ti.Media.createAudioPlayer({ url: 'sample.mp3' });
+		should(player).have.a.readOnlyProperty('apiName').which.is.a.String;
+		should(player.apiName).be.eql('Ti.Media.AudioPlayer');
+		player = null;
 	});
 
 	// constants
@@ -71,16 +71,26 @@ describe('Titanium.Media.AudioPlayer', function () {
 		should(Ti.Media).have.constant('AUDIO_STATE_WAITING_FOR_QUEUE').which.is.a.Number;
 	});
 
-	it('basic', function () {
+	it('.url', function () {
 		should(audioPlayer.url).be.a.String;
 		should(audioPlayer.getUrl).be.a.Function;
 		should(audioPlayer.setUrl).be.a.Function;
+		should(audioPlayer.url).eql(audioPlayer.getUrl());
 	});
 
-	it('methods', function () {
+	it('#start', function () {
 		should(audioPlayer.start).be.a.Function;
-		should(audioPlayer.restart).be.a.Function;
-		should(audioPlayer.pause).be.a.Function;
+	});
+
+	it('#stop', function () {
 		should(audioPlayer.stop).be.a.Function;
+	});
+
+	it('#pause', function () {
+		should(audioPlayer.pause).be.a.Function;
+	});
+
+	it('#restart', function () {
+		should(audioPlayer.restart).be.a.Function;
 	});
 });
