@@ -19,7 +19,7 @@ describe('Titanium.Media', function () {
 describe('Titanium.Media.AudioPlayer', function () {
 	var audioPlayer;
 
-	before(function () {
+	beforeEach(function () {
 		audioPlayer = Ti.Media.createAudioPlayer({ url: 'sample.mp3' });
 	});
 
