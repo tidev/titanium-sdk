@@ -126,6 +126,11 @@ methods:
         The `require` function takes a module identifier as its argument and returns an object with
         references to the module's exported symbols.
 
+        #### ES6+ Syntax
+
+        Using Titanium SDK 7.1.0 and later, you can also use the ES6+ [`import`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) and [`export`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export) syntax
+        by enabling transpiling via the `<transpile>true</transpile>` property in your tiapp.xml
+
         #### Native Titanium Module
 
         To load a native Titanium module:
@@ -135,7 +140,7 @@ methods:
           3. Initialize the module with the `require` method by passing the module ID to the method.
 
         For detailed instructions, refer to
-        [Using a Module](http://docs.appcelerator.com/platform/latest/#!/guide/Using_a_Module).
+        [Using a Module](https://docs.appcelerator.com/platform/latest/#!/guide/Using_a_Module).
 
         #### CommonJS Module
 
@@ -161,8 +166,7 @@ methods:
              // load platform-specific task window module
              var taskWindow = require('ui/TaskWindow');
 
-        For more information, see the Official CommonJS website about
-        [CommonJS Modules/1.1 Specification](http://wiki.commonjs.org/wiki/Modules/1.1).
+        For more information, see the official [CommonJS](http://requirejs.org/docs/commonjs.html) website.
 
         #### Alloy
 
