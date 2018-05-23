@@ -165,10 +165,27 @@ properties:
     since: "5.4.0"
     platforms: [iphone,ipad]
 
+  - name: color
+    summary: Color of the text in this text field, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    platforms: [android, iphone, ipad]
+    since: "7.1.0"
+
   - name: hintText
     summary: Text to show when the search bar field is not focused.
     type: String
     default: On iOS, "Search"; on Android, no hint text.
+
+  - name: hintTextColor
+    summary: Hint text color to display when the field is empty.
+    platforms: [android, iphone, ipad]
+    since: "7.1.0"
+    description: |
+        Sets the color of the <Titanium.UI.SearchBar.hintText>.
+    type: String
+    default: The platform's default hint text color.
 
   - name: hinttextid
     summary: |

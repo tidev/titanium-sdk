@@ -120,6 +120,7 @@ NSString *const kTiFrameAdjustNotification = @"TiFrameAdjust";
 NSString *const kTiLocalNotification = @"TiLocalNotification";
 NSString *const kTiLocalNotificationAction = @"TiLocalNotificationAction";
 NSString *const kTiRemoteNotificationAction = @"TiRemoteNotificationAction";
+NSString *const kTiRemoteExtentionWillExpire = @"remoteextentionwillexpire";
 NSString *const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
 NSString *const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 NSString *const kTiContinueActivity = @"TiContinueActivity";
@@ -147,13 +148,8 @@ BOOL TiExceptionIsSafeOnMainThread = NO;
 
 void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason, NSString *subreason, NSString *location)
 {
-  if (TiExceptionIsSafeOnMainThread || ![NSThread isMainThread]) {
-    NSDictionary *details = [NSDictionary dictionaryWithObjectsAndKeys:subreason, kTiExceptionSubreason, location, kTiExceptionLocation, nil];
-    @throw [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
-  } else {
-    NSString *message = [NSString stringWithFormat:@"%@. %@ %@", reason, (subreason != nil ? subreason : @""), (location != nil ? location : @"")];
-    NSLog(@"[ERROR] %@", message);
-  }
+  NSDictionary *details = [NSDictionary dictionaryWithObjectsAndKeys:subreason, kTiExceptionSubreason, location, kTiExceptionLocation, nil];
+  @throw [NSException exceptionWithName:exceptionName reason:reason userInfo:details];
 }
 
 NSString *JavascriptNameForClass(Class c)

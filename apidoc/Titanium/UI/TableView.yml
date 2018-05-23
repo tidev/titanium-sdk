@@ -18,7 +18,7 @@ description: |
 
     Use the <Titanium.UI.createTableView> method or **`<TableView>`** Alloy element to create a `TableView`.
 
-    Also see the [TableViews guide](http://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
+    Also see the [TableViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
 
     #### Creating Tables
 
@@ -379,39 +379,6 @@ events:
         type: Number
         platforms: [android]
 
-  - name: scrollEnd
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.TableView.scrollend> instead.
-    summary: Fired when the table view stops scrolling.
-    properties:
-      - name: contentSize
-        summary: |
-            Dictionary with `width` and `height` properties containing the size of the content
-            (regardless of the display size in the case of scrolling).
-        type: Dictionary
-        platforms: [iphone, ipad]
-
-      - name: contentOffset
-        summary: Dictionary with `x` and `y` properties containing the content offset.
-        type: Point
-        platforms: [iphone, ipad]
-
-      - name: size
-        summary: |
-            Dictionary with `width` and `height` properties containing the size of the visible
-            table view.
-        type: Dictionary
-
-      - name: x
-        summary: X coordinate of the event from the `source` view's coordinate system.
-        type: Number
-
-      - name: y
-        summary: Y coordinate of the event from the `source` view's coordinate system.
-        type: Number
-
-
   - name: scrollend
     summary: Fired when the table view stops scrolling.
     properties:
@@ -694,32 +661,6 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
-
-  - name: dragStart
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.TableView.dragstart> instead.
-    summary: Fired when the scrollable region starts being dragged.
-    description: |
-        A dragging gesture is when a touch remains in contact with the display to physically drag
-        the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
-
-  - name: dragEnd
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.TableView.dragend> instead.
-    summary: Fired when the scrollable region stops being dragged.
-    description: |
-        A dragging gesture is when a touch remains in contact with the display to physically drag
-        the view, as opposed to it being the result of scrolling momentum.
-    platforms: [iphone, ipad]
-    properties:
-      - name: decelerate
-        summary: |
-            Indicates whether scrolling will continue but decelerate, now that the drag gesture has
-            been released by the touch. If `false`, scrolling will stop immediately.
-        type: Boolean
 
   - name: dragstart
     summary: Fired when the scrollable region starts being dragged.
@@ -1212,7 +1153,7 @@ properties:
         To specify the wrapper color see <Titanium.UI.View.pullBackgroundColor>.
 
         For an example, see the "Pull to refresh" section in the
-        [TableViews guide](http://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
+        [TableViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/TableViews).
 
         Alloy applications can use a `<HeaderPullView>` element inside a `<TableView>` element.
 
@@ -1365,7 +1306,8 @@ properties:
     summary: If `true`, the tableview can be scrolled.
     type: Boolean
     default: true
-    platforms: [iphone,ipad]
+    since: { android: 7.3.0, iphone: 0.8, ipad: 0.8 }
+    platforms: [android, iphone, ipad]
 
   - name: scrollIndicatorStyle
     summary: Style of the scrollbar.
@@ -1543,6 +1485,53 @@ properties:
     type: Number
     constants: Titanium.UI.iOS.TableViewStyle.*
     platforms: [iphone, ipad]
+
+  - name: resultsBackgroundColor
+    summary: The background color of the search results (iOS-only).
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        Note: A transparent background-color is not officially supported by Apple to
+        prevent that the list of results overlaps with the list view below it.  
+    type: String
+    default: undefined (behaves as white) 
+    since: 7.3.0
+    platforms: [iphone, ipad]
+    availability: creation
+
+  - name: resultsSeparatorColor
+    summary: |
+        Separator line color between rows inside search results, 
+        as a color name or hex triplet (iOS-only).
+    description: |
+        To make the line invisible, set this property to `transparent`, or the same value as the 
+        [backgroundColor](Titanium.UI.TableView.backgroundColor) property. 
+        For information about color values, see the "Colors" section of <Titanium.UI>. 
+    type: String
+    default: undefined (behaves as gray) 
+    since: 7.3.0
+    platforms: [iphone, ipad]
+    availability: creation
+    
+  - name: resultsSeparatorStyle
+    summary: The separator style of the search results (iOS-only).
+    type: Number
+    constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
+    since: 7.3.0
+    platforms: [iphone, ipad]
+    availability: creation
+
+  - name: resultsSeparatorInsets
+    summary: | 
+        The insets for search results separators (applies to all cells & iOS-only). 
+    description: |
+        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
+        This property sets the default inset for all cells in the table. 
+        Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` 
+        specifying the inset from the right edge. 
+    type: Dictionary
+    since: 7.3.0
+    platforms: [iphone, ipad]
+    availability: creation
 
 examples:
   - title: Simple Table View

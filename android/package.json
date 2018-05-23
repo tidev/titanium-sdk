@@ -19,13 +19,13 @@
 		"mode": "release"
 	},
 	"minSDKVersion": "16",
-	"compileSDKVersion": "26",
+	"compileSDKVersion": "27",
 	"vendorDependencies": {
-		"android sdk": ">=23.x <=25.x",
-		"android build tools": "26.x",
-		"android platform tools": "26.x",
+		"android sdk": ">=23.x <=27.x",
+		"android build tools": ">=25.x <=27.x",
+		"android platform tools": "27.x",
 		"android tools": "<=26.x",
-		"android ndk": ">=r11c <=r15c",
+		"android ndk": ">=r11c <=r16c",
 		"node": ">=4.0 <=7.x",
 		"java": ">=1.8.x"
 	},
