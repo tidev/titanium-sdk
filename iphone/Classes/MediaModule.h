@@ -229,6 +229,7 @@
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_USBAUDIO;
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_CARAUDIO;
 
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_INITIALIZED;
 @property (nonatomic, readonly) NSNumber *AUDIO_STATE_STARTING;
 @property (nonatomic, readonly) NSNumber *AUDIO_STATE_WAITING_FOR_DATA;
 @property (nonatomic, readonly) NSNumber *AUDIO_STATE_WAITING_FOR_QUEUE;

@@ -252,6 +252,7 @@ MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PLAYING, TiVideoPlayerPlaybackStatePlaying
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_STOPPED, TiVideoPlayerPlaybackStateStopped);
 
 // Constants for AudioPlayer
+MAKE_SYSTEM_PROP(AUDIO_STATE_INITIALIZED, TiAudioPlayerStateInitialized);
 MAKE_SYSTEM_PROP(AUDIO_STATE_STARTING, TiAudioPlayerStateStartingFileThread);
 MAKE_SYSTEM_PROP(AUDIO_STATE_WAITING_FOR_DATA, TiAudioPlayerStateWaitingForData);
 MAKE_SYSTEM_PROP(AUDIO_STATE_WAITING_FOR_QUEUE, TiAudioPlayerStateWaitingForQueueToStart);

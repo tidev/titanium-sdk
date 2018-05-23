@@ -66,7 +66,7 @@
 
 - (void)setUrl:(id)url;
 
-- (NSURL *)url;
+- (NSString *)url;
 
 - (void)seekToTime:(id)time;
 

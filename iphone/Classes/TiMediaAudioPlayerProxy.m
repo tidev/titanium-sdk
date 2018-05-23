@@ -235,9 +235,9 @@
   }
 }
 
-- (NSURL *)url
+- (NSString *)url
 {
-  return _url;
+  return [_url absoluteString];
 }
 
 - (void)seekToTime:(id)time
@@ -391,14 +391,18 @@
 {
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
+  [nc removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
+  [nc removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+
+  if (_player == nil) {
+    return;
+  }
+
   if ([TiUtils isIOS10OrGreater]) {
     [[self player] removeObserver:self forKeyPath:@"timeControlStatus"];
   } else {
     [[self player] removeObserver:self forKeyPath:@"rate"];
   }
-
-  [nc removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
-  [nc removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
 
   [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferEmpty"];
   [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferFull"];
