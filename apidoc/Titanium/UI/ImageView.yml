@@ -34,8 +34,8 @@ description: |
     this purpose.
 
     For further information about nine-patch images and the Android utility, see the
-    [Nine-patch](http://developer.android.com/guide/topics/graphics/2d-graphics.html#nine-patch)
-    and [Draw 9-patch](http://developer.android.com/guide/developing/tools/draw9patch.html) sections
+    [Nine-patch](https://developer.android.com/guide/topics/graphics/drawables#nine-patch)
+    and [Draw 9-patch](https://developer.android.com/studio/write/draw9patch) sections
     of the Android Developer website.
 
     The nine-patch technique may be used with any of Titanium's static image properties. See the
@@ -201,7 +201,7 @@ properties:
 
   - name: hires
     summary: |
-        Set to `true` to prevent scaling of 2x-resolution remote images for Retina
+        Set to `true` to prevent scaling of 2x/3x-resolution remote images for retina
         displays.
     description: |
         Causes images to display at 50%, where one pixel of the graphic maps to one physical pixel

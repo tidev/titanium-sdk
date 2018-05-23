@@ -215,7 +215,11 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     UIApplication *app = [UIApplication sharedApplication];
     NSURL *url = [NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]];
     if ([app canOpenURL:url]) {
-      [app openURL:url];
+      if ([TiUtils isIOS10OrGreater]) {
+        [app openURL:url options:@{} completionHandler:nil];
+      } else {
+        [app openURL:url];
+      }
     } else {
       DebugLog(@"[WARN] The launch-url provided : %@ is invalid.", [launchDefaults objectForKey:@"application-launch-url"]);
     }

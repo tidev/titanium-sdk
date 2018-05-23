@@ -38,7 +38,7 @@ description: |
     #### Further Reading
 
     If using tab groups on iOS, see
-    [iOS UI Element Usage Guidelines](https://developer.apple.com/library/ios/documentation/userexperience/conceptual/mobilehig/Bars.html#//apple_ref/doc/uid/TP40006556-CH12-SW52).
+    [iOS UI Element Usage Guidelines](https://developer.apple.com/ios/human-interface-guidelines/bars/tab-bars/).
 
 extends: Titanium.UI.View
 since: "0.9"
@@ -389,7 +389,7 @@ properties:
         is displayed.
     description: |
         For more information see the official Android API Reference,
-        [Window.setSoftInputMode](http://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
+        [Window.setSoftInputMode](https://developer.android.com/reference/android/view/Window.html#setSoftInputMode(int)).
     type: Number
     constants: Titanium.UI.Android.SOFT_INPUT_ADJUST_*
     availability: creation

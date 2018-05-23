@@ -7,5 +7,6 @@ description: |
     file and imported using [require](Global.require).
 
     Each of the modules in this section is either packaged with the Titanium SDK or
-    available for free through the [Appcelerator Marketplace](https://marketplace.appcelerator.com).
+    available for free through the [Axway Marketplace](https://marketplace.axway.com/home) and
+    the community based [Gitt.io](http://gitt.io) project.
 
