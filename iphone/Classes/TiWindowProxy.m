@@ -11,6 +11,10 @@
 #import "TiUIWindow.h"
 #import "TiUIWindowProxy.h"
 
+#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
+#import "TiUIiOSNavWindowProxy.h"
+#endif
+
 @interface TiWindowProxy (Private)
 - (void)openOnUIThread:(id)args;
 - (void)closeOnUIThread:(id)args;
@@ -400,6 +404,37 @@
   return isModal;
 }
 
+#if IS_XCODE_9
+- (NSNumber *)homeIndicatorAutoHidden
+{
+  if (![TiUtils isIOS11OrGreater]) {
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
+    return @(NO);
+  }
+  return @([self homeIndicatorAutoHide]);
+}
+
+- (void)setHomeIndicatorAutoHidden:(id)arg
+{
+  if (![TiUtils isIOS11OrGreater]) {
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
+    return;
+  }
+
+  ENSURE_TYPE(arg, NSNumber);
+  id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
+  [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
+  if (current != arg && [TiUtils isIOS11OrGreater]) {
+    [[self windowHoldingController] setNeedsUpdateOfHomeIndicatorAutoHidden];
+  }
+}
+
+- (BOOL)homeIndicatorAutoHide
+{
+  return [TiUtils boolValue:[self valueForUndefinedKey:@"homeIndicatorAutoHidden"] def:NO];
+}
+#endif
+
 - (BOOL)hidesStatusBar
 {
   return hidesStatusBar;
@@ -651,6 +686,18 @@
     NSLog(@"[WARN] Use this method only with toolbars which are attached to a Ti.UI.iOS.NavigationWindow by using the setToolbar method.");
   }
 }
+
+#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
+- (TiUIiOSNavWindowProxy *)navigationWindow
+{
+  if (parentController != nil && [parentController isKindOfClass:[TiUIiOSNavWindowProxy class]]) {
+    return (TiUIiOSNavWindowProxy *)parentController;
+  }
+
+  NSLog(@"[ERROR] Trying to receive a Ti.UI.NavigationWindow instance that does not exist in this context!");
+  return nil;
+}
+#endif
 
 - (void)hideToolbar:(NSArray *)args
 {

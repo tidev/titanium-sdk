@@ -107,7 +107,7 @@ methods:
         summary: The authentication scheme.
         type: String
       - name: factory
-        summary: The authentication factory. This factory must implement the [AuthSchemeFactory](http://developer.android.com/reference/org/apache/http/auth/AuthSchemeFactory.html) interface.
+        summary: The authentication factory. This factory must implement the [AuthSchemeFactory](https://developer.android.com/reference/org/apache/http/auth/AuthSchemeFactory.html) interface.
         type: Object
     platforms: [android]
     since: {android: "3.0.0"}
@@ -124,7 +124,7 @@ methods:
         property is ignored.
     parameters:
       - name: X509KeyManager
-        summary: X.509 key manager. This key manager must implement the [X509KeyManager](http://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) inteface.
+        summary: X.509 key manager. This key manager must implement the [X509KeyManager](https://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) inteface.
         type: Object
     platforms: [android]
     since: {android: "3.1.0"}
@@ -141,7 +141,7 @@ methods:
         property is ignored.
     parameters:
       - name: X509TrustManager
-        summary: X.509 trust manager. This trust manager must implement the [X509TrustManager](http://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) inteface.
+        summary: X.509 trust manager. This trust manager must implement the [X509TrustManager](https://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) inteface.
         type: Object
     platforms: [android]
     since: {android: "3.1.0"}
@@ -576,8 +576,8 @@ methods:
   - name: willHandleURL
     summary: Returns if the security manager will participate in authentication of this end point.
     description: |
-        The parameter passed to this method is a [NSURL](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSURL_Class/Reference/Reference.html)
-        on iOS and a [Uri](http://developer.android.com/reference/android/net/Uri.html) on android.
+        The parameter passed to this method is a [NSURL](https://developer.apple.com/documentation/foundation/nsurl?language=objc)
+        on iOS and a [Uri](https://developer.android.com/reference/android/net/Uri.html) on android.
 
         Return **true** to participate, **false** to allow default authentication flow.
     returns:
@@ -596,12 +596,12 @@ methods:
         type: APSConnectionDelegate
     parameters:
       - name: url
-        summary: The [NSURL](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSURL_Class/Reference/Reference.html) representing the end point of this connection.
+        summary: The [NSURL](https://developer.apple.com/documentation/foundation/nsurl?language=objc) representing the end point of this connection.
         type: Object
     platforms: [iphone, ipad]
 
   - name: getTrustManagers
-    summary: Returns an array of objects implementing the [X509TrustManager](http://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) protocol for the SSL Context.
+    summary: Returns an array of objects implementing the [X509TrustManager](https://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) protocol for the SSL Context.
     description: |
         This method is only called if <SecurityManagerProtocol.willHandleURL> returns true.
 
@@ -615,7 +615,7 @@ methods:
     platforms: [android]
 
   - name: getKeyManagers
-    summary: Returns an array of objects implementing the [X509KeyManager](http://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) protocol for the SSL Context.
+    summary: Returns an array of objects implementing the [X509KeyManager](https://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) protocol for the SSL Context.
     description: |
         This method is only called if <SecurityManagerProtocol.willHandleURL> returns true.
 
