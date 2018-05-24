@@ -21,7 +21,7 @@
 
 - (void)setOptedOut:(id)optedOut;
 
-- (void)optedOut;
+- (NSNumber *)optedOut;
 
 #pragma mark Internal API's
 
