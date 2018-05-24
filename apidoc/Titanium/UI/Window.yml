@@ -653,6 +653,16 @@ properties:
     osver: {ios: {min: "7.0"}}
     platforms: [iphone,ipad]
 
+  - name: navigationWindow
+    summary: The <Titanium.UI.iOS.NavigationWindow> instance hosting this window.
+    description: |
+        Returns the navigation window that hosts this window. Returns `null` if the window is not 
+        hosted by a navigation window.
+    since: "7.3.0"
+    type: Titanium.UI.iOS.NavigationWindow
+    permission: read-only
+    platforms: [iphone, ipad]  
+
   - name: opacity
     summary: The opacity from 0.0-1.0.
     description: |
