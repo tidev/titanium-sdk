@@ -11,7 +11,7 @@
 var should = require('./utilities/assertions'), // eslint-disable-line no-unused-vars
 	utilities = require('./utilities/utilities');
 
-describe.only('Error', function () {
+describe('Error', function () {
 	it.windowsMissing('JS error thrown', function () {
 		var e = {};
 
