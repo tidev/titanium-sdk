@@ -111,9 +111,9 @@ static const NSInteger ANALYTICS_DISABLED = -2;
   [[APSAnalytics sharedInstance] setOptedOut:[TiUtils boolValue:optedOut]];
 }
 
-- (void)optedOut
+- (NSNumber *)optedOut
 {
-  @([[APSAnalytics sharedInstance] isOptedOut]);
+  return @([[APSAnalytics sharedInstance] isOptedOut]);
 }
 
 + (BOOL)isEventFiltered:(NSString *)eventName
