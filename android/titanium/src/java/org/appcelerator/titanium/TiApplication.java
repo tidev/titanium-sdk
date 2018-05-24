@@ -428,9 +428,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void postAppInfo()
 	{
-
 		if (isAnalyticsEnabled()) {
 
+			TiPlatformHelper.getInstance().initialize();
 			TiPlatformHelper.getInstance().initAnalytics();
 			TiPlatformHelper.getInstance().setSdkVersion("ti." + getTiBuildVersion());
 			TiPlatformHelper.getInstance().setAppName(getAppInfo().getName());

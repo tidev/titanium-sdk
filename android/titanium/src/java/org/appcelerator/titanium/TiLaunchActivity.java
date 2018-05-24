@@ -187,7 +187,6 @@ public abstract class TiLaunchActivity extends TiBaseActivity
 	protected void windowCreated(Bundle savedInstanceState)
 	{
 		super.windowCreated(savedInstanceState);
-		TiPlatformHelper.getInstance().initialize();
 		loadActivityScript();
 		scriptLoaded();
 		TiApplication.getInstance().postAppInfo();
