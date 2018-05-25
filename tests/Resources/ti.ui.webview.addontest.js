@@ -15,10 +15,6 @@ describe('Titanium.UI.WebView', function () {
 	this.slow(2000);
 	this.timeout(10000);
 
-	beforeEach(function () {
-		didFocus = false;
-	});
-
 	afterEach(function () {
 		if (win) {
 			win.close();
@@ -27,8 +23,7 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	it.windowsMissing('.zoomLevel', function (finish) {
-		var webView,
-			beforeLoaded = false;
+		var webView;
 
 		this.slow(5000);
 		this.timeout(10000);
@@ -47,15 +42,15 @@ describe('Titanium.UI.WebView', function () {
 			should(webView.zoomLevel).eql(1.0);
 			should(webView.getZoomLevel()).eql(1.0);
 
-			setTimeout(function() {
+			setTimeout(function () {
 				webView.zoomLevel = 3.0;
 				should(webView.zoomLevel).eql(3.0);
 				should(webView.getZoomLevel()).eql(3.0);
-				setTimeout(function() {
+				setTimeout(function () {
 					webView.setZoomLevel(1.0);
 					should(webView.zoomLevel).eql(1.0);
 					finish();
-				}, 500);    
+				}, 500);
 			}, 500);
 		});
 
