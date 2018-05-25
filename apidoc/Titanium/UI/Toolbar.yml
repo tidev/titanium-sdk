@@ -33,7 +33,7 @@ description: |
     *  [Toolbar in the iOS Human Interface Guidelines.](https://developer.apple.com/ios/human-interface-guidelines/bars/toolbars/)
 
 extends: Titanium.UI.View
-excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDisabledImage,         
+excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDisabledImage,
             backgroundFocusedColor, backgroundFocusedImage,
             backgroundLeftCap, backgroundTopCap, backgroundRepeat,
             backgroundSelectedColor, backgroundSelectedImage, layout,

@@ -105,6 +105,17 @@ static const NSInteger ANALYTICS_DISABLED = -2;
   }
 }
 
+- (void)setOptedOut:(id)optedOut
+{
+  ENSURE_TYPE(optedOut, NSNumber);
+  [[APSAnalytics sharedInstance] setOptedOut:[TiUtils boolValue:optedOut]];
+}
+
+- (NSNumber *)optedOut
+{
+  return @([[APSAnalytics sharedInstance] isOptedOut]);
+}
+
 + (BOOL)isEventFiltered:(NSString *)eventName
 {
   if (_filteredEvents == nil)
