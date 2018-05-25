@@ -19,6 +19,7 @@ import ti.modules.titanium.android.AndroidModule;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 import android.os.PowerManager;
@@ -89,7 +90,22 @@ public class NotificationManagerModule extends KrollModule
 
 	public static boolean useDefaultChannel()
 	{
-		return TiApplication.getInstance().getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.O;
+		// use default channel if we are targeting API 26+
+		boolean useDefaultChannel =
+			Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+			&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.O;
+
+		// setup default channel it it does not exist
+		if (useDefaultChannel && defaultChannel == null) {
+			defaultChannel =
+				new NotificationChannel(DEFAULT_CHANNEL_ID, "miscellaneous", NotificationManager.IMPORTANCE_DEFAULT);
+			getManager().createNotificationChannel(defaultChannel);
+			Log.w(
+				TAG,
+				"Falling back to default notification channel.\nIt is highly advised to create your own notification channel using Ti.Android.NotificationManager.createNotificationChannel()");
+		}
+
+		return useDefaultChannel;
 	}
 
 	@TargetApi(26)
@@ -123,14 +139,8 @@ public class NotificationManagerModule extends KrollModule
 		Notification notification = notificationProxy.buildNotification();
 
 		// targeting Android O or above? create default channel
-		if (useDefaultChannel() && defaultChannel == null && notification.getChannelId() == DEFAULT_CHANNEL_ID) {
-			defaultChannel =
-				new NotificationChannel(DEFAULT_CHANNEL_ID, "miscellaneous", NotificationManager.IMPORTANCE_DEFAULT);
-			getManager().createNotificationChannel(defaultChannel);
-
-			Log.w(
-				TAG,
-				"Falling back to default notification channel.\nIt is highly advised to create your own notification channel using Ti.Android.NotificationManager.createNotificationChannel()");
+		if (notification.getChannelId() == DEFAULT_CHANNEL_ID) {
+			useDefaultChannel();
 		}
 
 		getManager().notify(id, notification);
