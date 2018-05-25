@@ -12,8 +12,10 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -49,6 +51,8 @@ public class AppModule extends KrollModule implements SensorEventListener
 	private boolean proximityDetection = false;
 	private boolean proximityState;
 	private int proximityEventListenerCount = 0;
+
+	private static final String APP_PATH = "Resources/app.js";
 
 	public AppModule()
 	{
@@ -213,14 +217,23 @@ public class AppModule extends KrollModule implements SensorEventListener
 	@Kroll.method(name = "_restart")
 	public void restart()
 	{
-		Application app = (Application) KrollRuntime.getInstance().getKrollApplication();
-		Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
-		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		i.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-		i.addCategory(Intent.CATEGORY_LAUNCHER);
-		i.setAction(Intent.ACTION_MAIN);
+		KrollRuntime runtime = KrollRuntime.getInstance();
+
+		// prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity()
+		TiBaseActivity.canFinishRoot = false;
+
+		// terminate all activities excluding root
 		TiApplication.terminateActivityStack();
-		app.startActivity(i);
+
+		// allow termination again
+		TiBaseActivity.canFinishRoot = true;
+
+		// restart kroll runtime
+		runtime.doDispose();
+		runtime.initRuntime();
+
+		// manually re-launch app
+		runtime.doRunModule(KrollAssetHelper.readAsset(APP_PATH), APP_PATH, getActivityProxy());
 	}
 
 	@Kroll.method

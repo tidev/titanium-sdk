@@ -12,8 +12,10 @@ description: |
     See also: [android.R](https://developer.android.com/reference/android/R.html) in the
     Android Developer Reference.
 
-    Accessing drawables using Ti.Android.R.drawable is deprecated and not a recommended practice since the system provided drawables can be 
-    removed across Android versions. Prefer to copy the images to application res folder. 
+    Starting in Titanium SDK 7.2.0, this API exposes all Android related R classes
+    for the usage in Hyperloop. For example, it can be used to access `menu` resources
+    as part of native user interfaces, e.g. `BottomNavigationView` or `RecyclerView`.
+    See an example in the [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) for details! 
 
 extends: Titanium.Proxy
 platforms: [android]
@@ -29,6 +31,16 @@ properties:
     type: Object
     accessors: false
     permission: read-only
+    
+  - name: animator
+    summary: |
+        Animator resources. See 
+        [R.animator](https://developer.android.com/reference/android/R.animator.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.2.0"
 
   - name: array
     summary: |
@@ -46,6 +58,16 @@ properties:
     type: Object
     accessors: false
     permission: read-only
+
+  - name: bool
+    summary: |
+        Boolean resources. See 
+        [R.bool](https://developer.android.com/reference/android/R.bool.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.2.0"
 
   - name: color
     summary: |
@@ -70,11 +92,19 @@ properties:
         Drawable resources. See 
         [R.drawable](https://developer.android.com/reference/android/R.drawable.html)
         in the Android Developer Reference.
-        Accessing drawables using Ti.Android.R.drawable is deprecated and not a recommended practice since the system provided 
-        drawables can be removed across Android versions. Prefer to copy the images to application res folder. 
     type: Object
     accessors: false
     permission: read-only
+
+  - name: fraction
+    summary: |
+        Fraction resources. See 
+        [R.fraction](https://developer.android.com/reference/android/R.fraction.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.2.0"
 
   - name: id
     summary: |
@@ -94,6 +124,16 @@ properties:
     accessors: false
     permission: read-only
 
+  - name: interpolator
+    summary: |
+        Interpolator resources. See 
+        [R.fraction](https://developer.android.com/reference/android/R.interpolator.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.2.0"
+
   - name: layout
     summary: |
         Layout resources. See 
@@ -103,6 +143,46 @@ properties:
     accessors: false
     permission: read-only
 
+  - name: menu
+    summary: |
+        Menu resources. See 
+        [R.menu](https://developer.android.com/reference/android/R.menu.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.2.0"
+
+  - name: mipmap
+    summary: |
+        Mipmap resources. See 
+        [R.mipmap](https://developer.android.com/reference/android/R.mipmap.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.2.0"
+
+  - name: plurals
+    summary: |
+        Plurals resources. See 
+        [R.plurals](https://developer.android.com/reference/android/R.plurals.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.2.0"
+
+  - name: raw
+    summary: |
+        Raw resources. See 
+        [R.raw](https://developer.android.com/reference/android/R.raw.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.2.0"
+  
   - name: string
     summary: |
         String resources. See 
@@ -129,3 +209,23 @@ properties:
     type: Object
     accessors: false
     permission: read-only
+
+  - name: transition
+    summary: |
+        Transition resources. See 
+        [R.transition](https://developer.android.com/reference/android/R.transition.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.2.0"
+
+  - name: xml
+    summary: |
+        XML resources. See 
+        [R.xml](https://developer.android.com/reference/android/R.xml.html) 
+        in the Android Developer Reference.
+    type: Object
+    accessors: false
+    permission: read-only
+    since: "7.2.0"

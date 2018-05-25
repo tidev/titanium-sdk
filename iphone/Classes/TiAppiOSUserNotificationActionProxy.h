@@ -5,19 +5,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_APPIOS
 #import "TiProxy.h"
 
+#ifdef USE_TI_APPIOS
 #import <UserNotifications/UserNotifications.h>
 
-@interface TiAppiOSLocalNotificationProxy : TiProxy {
-  @private
-  id _notification;
-}
+@interface TiAppiOSUserNotificationActionProxy : TiProxy
 
-@property (nonatomic, retain) id notification;
-
-- (void)cancel:(id)unused;
+@property (nonatomic, retain) id notificationAction;
 
 @end
 
