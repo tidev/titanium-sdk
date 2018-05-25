@@ -187,7 +187,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	private Context context;
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
-	private boolean sentAnalytics = false;
 	private ArrayList<LocationRuleProxy> simpleLocationRules = new ArrayList<LocationRuleProxy>();
 	private LocationRuleProxy simpleLocationGpsRule;
 	private LocationRuleProxy simpleLocationNetworkRule;

@@ -1267,6 +1267,12 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// determine the abis to support
 	this.abis = this.validABIs;
+	if (this.deployType === 'production') {
+		// by default, remove 'x86' from production builds
+		// 'x86' devices are scarce; this is predominantly used for emulators
+		// we can save 16MB+ by removing this from release builds
+		this.abis.splice(this.abis.indexOf('x86'), 1);
+	}
 	if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1) {
 		this.abis = cli.tiapp.android.abi;
 		this.abis.forEach(function (abi) {
@@ -3880,8 +3886,15 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 	this.androidLibraries.forEach(libraryInfo => {
 		const libraryManifestPath = path.join(libraryInfo.explodedPath, 'AndroidManifest.xml');
 		if (fs.existsSync(libraryManifestPath)) {
+			let libraryManifestContent = fs.readFileSync(libraryManifestPath).toString();
+
+			// handle injected build variables
+			// https://developer.android.com/studio/build/manifest-build-variables
+			libraryManifestContent = libraryManifestContent.replace('${applicationId}', this.appid); // eslint-disable-line no-template-curly-in-string
+
 			const libraryManifest = new AndroidManifest();
-			libraryManifest.load(libraryManifestPath);
+			libraryManifest.parse(libraryManifestContent);
+
 			// we don't want android libraries to override the <supports-screens> or <uses-sdk> tags
 			delete libraryManifest.__attr__;
 			delete libraryManifest['supports-screens'];
