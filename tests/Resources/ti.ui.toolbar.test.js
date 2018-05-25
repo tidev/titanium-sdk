@@ -88,10 +88,10 @@ describe('Titanium.UI.Toolbar', function () {
 	});
 
 	it.android('logo', function (finish) {
-		var listener = function (e) {
+		function listener (e) {
 			should(e.logo).eql(true);
 			finish();
-		};
+		}
 		var toolbar = Ti.UI.createToolbar({ top: 0, width: Ti.UI.FILL, logo: Ti.Filesystem.resourcesDirectory + 'Logo.png', barColor: 'red', resourceLoadedListener: listener });
 		window.activity.supportToolbar = toolbar;
 		window.add(toolbar);
@@ -99,10 +99,10 @@ describe('Titanium.UI.Toolbar', function () {
 	});
 
 	it.android('logo pixel density specific', function (finish) {
-		var listener = function (e) {
+		function listener (e) {
 			should(e.logo).eql(true);
 			finish();
-		};
+		}
 		var toolbar = Ti.UI.createToolbar({ top: 0, width: Ti.UI.FILL, logo: '/images/dip.png', barColor: 'red', resourceLoadedListener: listener });
 		window.activity.supportToolbar = toolbar;
 		window.add(toolbar);
