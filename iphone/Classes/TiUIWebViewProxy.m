@@ -120,7 +120,7 @@ USE_VIEW_FOR_CONTENT_WIDTH
 {
   NSString *zoomLevel = [[(TiUIWebView *)[self view] webview] stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom"];
 
-  if (zoomLevel == nil) {
+  if (zoomLevel == nil || zoomLevel.length == 0) {
     return @(1.0);
   }
 
