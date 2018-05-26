@@ -582,6 +582,8 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)setAccuracy:(NSNumber *)value
 {
   ENSURE_UI_THREAD(setAccuracy, value);
+  ENSURE_TYPE(value, NSNumber);
+
   accuracy = [TiUtils doubleValue:value];
   // don't prematurely start it
   if (locationManager != nil) {
@@ -880,7 +882,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 + (BOOL)hasAlwaysPermissionKeys
 {
   if (![TiUtils isIOS11OrGreater]) {
-    return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways];
+    return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways] != nil;
   }
 
   return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse] &&
@@ -890,7 +892,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 + (BOOL)hasWhenInUsePermissionKeys
 {
-  return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse];
+  return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse] != nil;
 }
 - (void)executeAndReleaseCallbackWithCode:(NSInteger)code andMessage:(NSString *)message
 {

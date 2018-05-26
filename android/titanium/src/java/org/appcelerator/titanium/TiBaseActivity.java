@@ -150,6 +150,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
+	public static boolean canFinishRoot = true;
+
 	private boolean overridenLayout;
 
 	public class DialogWrapper
@@ -1649,7 +1651,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	protected boolean shouldFinishRootActivity()
 	{
-		return getIntentBoolean(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
+		return canFinishRoot && getIntentBoolean(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
 	}
 
 	@Override

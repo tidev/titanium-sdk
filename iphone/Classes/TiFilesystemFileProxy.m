@@ -222,6 +222,8 @@ FILENOOP(setHidden
   return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
 }
 
+// Xcode complains about the "copy" method naming, but in this case it's a proxy method so we are fine
+#ifndef __clang_analyzer__
 - (NSNumber *)copy:(id)args
 {
   ENSURE_TYPE(args, NSArray);
@@ -240,6 +242,7 @@ FILENOOP(setHidden
   }
   return NUMBOOL(result);
 }
+#endif
 
 - (NSNumber *)createFile:(id)args
 {
