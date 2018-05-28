@@ -99,7 +99,7 @@
         paragraphStyle.minimumLineHeight = [TiUtils floatValue:objectValue];
       } else if ([key isEqualToString:@"lineSpacing"]) {
         paragraphStyle.lineSpacing = [TiUtils floatValue:objectValue];
-      } else if ([key isEqualToString:@"paragraphSpacing"]) {
+      } else if ([key isEqualToString:@"paragraphSpacingAfter"]) {
         paragraphStyle.paragraphSpacing = [TiUtils floatValue:objectValue];
       } else if ([key isEqualToString:@"paragraphSpacingBefore"]) {
         paragraphStyle.paragraphSpacingBefore = [TiUtils floatValue:objectValue];

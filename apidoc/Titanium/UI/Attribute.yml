@@ -132,7 +132,7 @@ description: |
     Attributes are added corresponding to value to create paragraph style, 
     which when used with attributed string will give styled text. 
 platforms: [iphone, ipad]
-since: "7.3.0"
+since: "7.4.0"
   
 properties:
   - name: alignment
@@ -159,9 +159,9 @@ properties:
   - name: tailIndent
     summary: The trailing indentation of the receiver.
     description: |
-      If positive, this value is the distance from the leading margin 
+      If positive, this value is the distance (in points) from the leading margin 
       (for example, the left margin in left-to-right text). If 0 or negative, 
-      it is the distance from the trailing margin. This is a float value.
+      it is the distance (in points) from the trailing margin. This is a float value.
     type: Number
 
   - name: lineBreakMode
@@ -176,7 +176,10 @@ properties:
     description: |
       This property contains the maximum height in points that any line in the receiver will occupy, 
       regardless of the font size or size of any attached graphic. This value is always nonnegative. 
-      The default value is 0.
+      The default value is 0. 
+      Glyphs and graphics exceeding this height will overlap neighboring lines; however, a maximum 
+      height of 0 implies no line height limit. Although this limit applies to the line itself, 
+      line spacing adds extra space between adjacent lines.
     type: Number
 
   - name: minimumLineHeight
@@ -184,6 +187,8 @@ properties:
     description: |
       This property contains the minimum height in points that any line in the receiver will occupy, 
       regardless of the font size or size of any attached graphic. This value must be nonnegative.
+      E.g. If you have set minimum height 30 and font size 10. It will make line height 30 which have 
+      smaller text size and more vertical sapcing between text. 
     type: Number
 
   - name: lineSpacing
@@ -193,12 +198,12 @@ properties:
       in the layout manager.
     type: Number
 
-  - name: paragraphSpacing
+  - name: paragraphSpacingAfter
     summary: The space after the end of the paragraph.
     description: |
       This property contains the space (measured in points) added at the end of the paragraph 
       to separate it from the following paragraph. This value must be nonnegative. The space 
-      between paragraphs is determined by adding the paragraphSpacing of previous paragraph and 
+      between paragraphs is determined by adding the paragraphSpacingAfter of previous paragraph and 
       the paragraphSpacingBefore of current paragraph.
     type: Number
 
@@ -214,7 +219,7 @@ properties:
     description: |
       The natural line height of the receiver is multiplied by this factor (if positive) 
       before being constrained by minimum and maximum line height. The default value of 
-      this property is 0.0.
+      this property is 0.0, which means nothing multipied.
     type: Number
 
   - name: hyphenationFactor
@@ -223,7 +228,7 @@ properties:
       Valid values lie between 0.0 and 1.0 inclusive. The default value is 0.0. Hyphenation 
       is attempted when the ratio of the text width (as broken without hyphenation) to the 
       width of the line fragment is less than the hyphenation factor. When the hyphenation 
-      factor of paragraph is 0.0, the ] hyphenation factor of layout manager is used instead. 
+      factor of paragraph is 0.0, the hyphenation factor of layout manager is used instead. 
       When both are 0.0, hyphenation is disabled. This property detects the user-selected 
       language by examining the first item in preferredLanguages.
     type: Number
@@ -233,10 +238,10 @@ properties:
       A Boolean value indicating whether the system may tighten inter-character spacing 
       before truncating text.
     description: |
-      When this property is set to YES, the system tries to reduce the space between characters 
+      When this property is set to true, the system tries to reduce the space between characters 
       before truncating characters. The system performs this tightening in cases where the text 
       would not otherwise fit in the available space. The maximum amount of tightening performed 
       by the system is dependent on the font, line width, and other factors. The default value of 
-      this property is NO.
-    type: Number
+      this property is false.
+    type: Boolean
     osver: {ios: {min: "9.0"}}

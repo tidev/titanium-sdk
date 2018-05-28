@@ -623,26 +623,6 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak); // deprecated
 {
   return NUMINTEGER(NSLineBreakByTruncatingMiddle);
 }
-- (NSNumber *)ATTRIBUTE_TEXT_ALIGNMENT_LEFT
-{
-  return NUMINTEGER(NSTextAlignmentLeft);
-}
-- (NSNumber *)ATTRIBUTE_TEXT_ALIGNMENT_RIGHT
-{
-  return NUMINTEGER(NSTextAlignmentRight);
-}
-- (NSNumber *)ATTRIBUTE_TEXT_ALIGNMENT_CENTER
-{
-  return NUMINTEGER(NSTextAlignmentCenter);
-}
-- (NSNumber *)ATTRIBUTE_TEXT_ALIGNMENT_JUSTIFIED
-{
-  return NUMINTEGER(NSTextAlignmentJustified);
-}
-- (NSNumber *)ATTRIBUTE_TEXT_ALIGNMENT_NATURAL
-{
-  return NUMINTEGER(NSTextAlignmentNatural);
-}
 #endif
 
 #if defined(USE_TI_UITEXTAREA) || defined(USE_TI_UITEXTFIELD)

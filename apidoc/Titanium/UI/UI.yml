@@ -349,7 +349,7 @@ properties:
         See <Attribute> for more information on type modes.
     type: Number
     platforms: [iphone, ipad]
-    since: "7.3.0"
+    since: "7.4.0"
     permission: read-only
 
   - name: ATTRIBUTE_STROKE_WIDTH
@@ -492,6 +492,9 @@ properties:
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK
+    deprecated:
+        since: "7.4.0"
+        notes: Use <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE.lineBreakMode> instead.  
     summary: |
         Use with <Attribute.type> to wrap and truncate the text.
     description: |
