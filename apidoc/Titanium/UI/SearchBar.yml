@@ -173,6 +173,14 @@ properties:
     platforms: [android, iphone, ipad]
     since: "7.1.0"
 
+  - name: fieldBackgroundColor
+    summary: Background color of the text field, as a color name or hex triplet.
+    description: |
+      For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.3.0"
+
   - name: hintText
     summary: Text to show when the search bar field is not focused.
     type: String
