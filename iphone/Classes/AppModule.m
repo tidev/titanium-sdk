@@ -208,8 +208,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         // fire application level event
         [host fireEvent:[entry listener] withObject:jsonObject remove:NO context:[entry context] thisObject:nil];
       }
-      [array release];
     }
+    [array release];
   }
 }
 
