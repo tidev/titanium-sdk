@@ -25,7 +25,7 @@ import android.util.Log;
 import com.appcelerator.aps.APSAnalytics;
 import com.appcelerator.aps.APSAnalyticsEvent;
 
-@Kroll.module(propertyAccessors = TiC.PROPERTY_OPTED_OUT)
+@Kroll.module
 public class AnalyticsModule extends KrollModule
 {
 	private static final String TAG = "AnalyticsModule";
@@ -49,18 +49,24 @@ public class AnalyticsModule extends KrollModule
 	public AnalyticsModule()
 	{
 		super();
-
-		getProperties().put(TiC.PROPERTY_OPTED_OUT, false);
 	}
 
-	@Override
-	public void onPropertyChanged(String name, Object value)
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getOptedOut()
+	// clang-format on
 	{
-		super.onPropertyChanged(name, value);
+		return APSAnalytics.getInstance().isOptedOut();
+	}
 
-		if (name.equals(TiC.PROPERTY_OPTED_OUT)) {
-			APSAnalytics.getInstance().setOptedOut((boolean) value);
-		}
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setOptedOut(boolean optedOut)
+	// clang-format on
+	{
+		APSAnalytics.getInstance().setOptedOut(optedOut);
 	}
 
 	@Kroll.method
