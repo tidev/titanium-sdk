@@ -228,7 +228,7 @@
 - (void)open:(id)args
 {
   //If an error is up, Go away
-  if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorController class]]) {
+  if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorNavigationController class]]) {
     DebugLog(@"[ERROR] ErrorController is up. ABORTING open");
     return;
   }

@@ -307,8 +307,12 @@ public class TiUIWebView extends TiUIView
 			}
 		}
 
-		TiWebView webView =
-			isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
+		TiWebView webView = null;
+		try {
+			webView = isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
+		} catch (Exception e) {
+			// silence unnecessary internal logs...
+		}
 		webView.setVerticalScrollbarOverlay(true);
 
 		WebSettings settings = webView.getSettings();
