@@ -147,7 +147,7 @@ describe('Titanium.UI.SearchBar', function () {
 		});
 
 		searchBar = Ti.UI.createSearchBar({
-			width : 150
+			width: 150
 		});
 
 		listView = Ti.UI.createListView({
@@ -161,19 +161,19 @@ describe('Titanium.UI.SearchBar', function () {
 		});
 		win.add(listView);
 		win.open();
-    });
-    
-    it.ios('Should be able to set/get the background of the textfield', function () {
-        var backgroundColor = 'red';
-        var searchBar = Ti.UI.createSearchBar({
-			fieldBackgroundColor: backgroundColor
-        });
-        
-        should(searchBar.fieldBackgroundColor).eql('red');
+	});
 
-        searchBar.fieldBackgroundColor = 'blue';
-        should(searchBar.fieldBackgroundColor).eql('blue');
-    });
+	it.ios('Should be able to set/get the background of the textfield', function () {
+		var backgroundColor = 'red';
+		var searchBar = Ti.UI.createSearchBar({
+			fieldBackgroundColor: backgroundColor
+		});
+
+		should(searchBar.fieldBackgroundColor).eql('red');
+
+		searchBar.fieldBackgroundColor = 'blue';
+		should(searchBar.fieldBackgroundColor).eql('blue');
+	});
 
 	// TODO: Expose Windows as well
 	// We have in in Ti.UI.Android.SearchView for Android, but need more parity here
