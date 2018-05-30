@@ -12,7 +12,6 @@ var should = require('./utilities/assertions');
 
 describe('Titanium.UI', function () {
 	var win,
-		didFocus = false,
 		rootWindow;
 
 	this.timeout(5000);
@@ -33,10 +32,6 @@ describe('Titanium.UI', function () {
 			finish();
 		});
 		rootWindow.close();
-	});
-
-	beforeEach(function () {
-		didFocus = false;
 	});
 
 	afterEach(function () {
