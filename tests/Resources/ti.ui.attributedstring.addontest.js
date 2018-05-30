@@ -9,17 +9,17 @@ var should = require('./utilities/assertions'),
 	utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.AttributedString', function () {
-	it.ios('Ti.UI.AttributedString', function () {
+	it('Ti.UI.AttributedString', function () {
 		should(Ti.UI.AttributedString).not.be.undefined;
 	});
 
-	it.ios('apiName', function () {
+	it('apiName', function () {
 		var attributedString = Ti.UI.createAttributedString({text : 'abc'});
 		should(attributedString).have.readOnlyProperty('apiName').which.is.a.String;
 		should(attributedString.apiName).be.eql('Ti.UI.AttributedString');
 	});
 
-	it.ios('createAttributedString', function () {
+	it('createAttributedString', function () {
 		should(Ti.UI.createAttributedString).not.be.undefined;
 		should(Ti.UI.createAttributedString).be.a.Function;
 
@@ -30,7 +30,7 @@ describe('Titanium.UI.AttributedString', function () {
 		should(attributedString.text).be.a.String;
 	});
 	
-	it.ios('attributes', function() {
+	it('attributes', function() {
 		var str = 'Lorem ipsum dolor sit amet.';
 		var attributedString = Ti.UI.createAttributedString({
 			text : str,
