@@ -33,14 +33,14 @@ describe('Titanium.UI.AttributedString', function () {
 	it('attributes', function() {
 		var str = 'Lorem ipsum dolor sit amet.';
 		var attributedString = Ti.UI.createAttributedString({
-			text : str,
+			text: str,
 			attributes: [{
 				type: Ti.UI.ATTRIBUTE_PARAGRAPH_STYLE,
 				value: {
 					alignment: Ti.UI.ATTRIBUTE_TEXT_ALIGNMENT_JUSTIFIED,
 					minimumLineHeight: 40,
 					headIndent: 5,
-					lineSpacing: 5,
+					lineSpacing: 5
 				},
 				range: [0, str.length]
 			}]
@@ -50,11 +50,10 @@ describe('Titanium.UI.AttributedString', function () {
 		should(attributedString.attributes.length).be.eql(1);
 
 		attributedString.addAttribute({
-			type : Ti.UI.ATTRIBUTE_FONT,
+			type: Ti.UI.ATTRIBUTE_FONT,
 			value: {fontSize : 16},
 			range: [0, str.length]
-        });
-
-        should(attributedString.attributes.length).be.eql(2);
+		});
+		should(attributedString.attributes.length).be.eql(2);
 	});
 });
