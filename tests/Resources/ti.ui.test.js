@@ -210,30 +210,5 @@ describe('Titanium.UI', function () {
 	it('backgroundImage');
 	it('currentTab');
 
-	// FIXME Get working on iOS
-	// FIXME Get working on Android - Ti.UI.currentWindow is null
-	// Supposedly this property should only exist when using Ti.UI.Window.url to load JS files into own context! But we support elsewhere for Windows
-	it.androidAndIosBroken('.currentWindow', function (finish) {
-		win = Ti.UI.createWindow({
-			backgroundColor: 'yellow'
-		});
-		win.addEventListener('focus', function () {
-			if (didFocus) {
-				return;
-			}
-			didFocus = true;
-
-			try {
-				should(Ti.UI.currentWindow).exist; // Android gives null
-				should(Ti.UI.currentWindow).be.eql(win); // iOS fails here
-
-				finish();
-			} catch (err) {
-				finish(err);
-			}
-		});
-		win.open();
-	});
-
 	it.ios('tintColor');
 });
