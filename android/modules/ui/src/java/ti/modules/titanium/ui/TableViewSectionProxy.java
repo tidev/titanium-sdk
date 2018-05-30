@@ -157,7 +157,10 @@ public class TableViewSectionProxy extends TiViewProxy
 		if (rows != null) {
 			for (TableViewRowProxy row : rows) {
 				row.releaseViews();
+				row.release();
 			}
+			rows.clear();
+			rows = null;
 		}
 	}
 

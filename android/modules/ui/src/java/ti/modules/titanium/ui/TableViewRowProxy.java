@@ -281,6 +281,8 @@ public class TableViewRowProxy extends TiViewProxy
 			for (TiViewProxy control : controls) {
 				control.releaseViews();
 			}
+			controls.clear();
+			controls = null;
 		}
 	}
 
