@@ -97,7 +97,7 @@ def isMajorVersionLessThan(version, minValue) {
 
 // Wrap in timestamper
 timestamps {
-	def targetBranch
+	def targetBranch = '7_1_0-TIMOB-25910'
 	try {
 		node('git && android-sdk && android-ndk && ant && gperf && osx') {
 			stage('Checkout') {
@@ -132,9 +132,6 @@ timestamps {
 					targetBranch = env.CHANGE_TARGET
 				} else if (isMainlineBranch) { // if it's a mainline branch, use the same branch for titanium_mobile_windows
 					targetBranch = env.BRANCH_NAME
-				}
-				if (!targetBranch) { // if all else fails, use master as SDK branch to test with
-					targetBranch = 'master'
 				}
 			}
 
@@ -262,8 +259,8 @@ timestamps {
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
 			parallel(
-				'android unit tests': unitTests('android', nodeVersion, targetBranch),
-				'iOS unit tests': unitTests('ios', nodeVersion, targetBranch),
+				'android unit tests': unitTests('android', nodeVersion, '7_1_X'),
+				'iOS unit tests': unitTests('ios', nodeVersion, '7_1_X'),
 				failFast: true
 			)
 		}
