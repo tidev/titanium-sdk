@@ -163,16 +163,22 @@ describe('Titanium.UI.SearchBar', function () {
 		win.open();
 	});
 
-	it.ios('Should be able to set/get the background of the textfield', function () {
+	it.ios('Should be able to set/get the background image of the textfield', function () {
 		var backgroundColor = 'red';
+		var backgroundView = Ti.UI.createView({
+			height: 36,
+			width: Ti.Platform.displayCaps.platformWidth - 20,
+			backgroundColor: '#268E8E93',
+			borderRadius: 12
+		});
+		
 		var searchBar = Ti.UI.createSearchBar({
-			fieldBackgroundColor: backgroundColor
+			fieldBackgroundImage: backgroundView.toImage(),
+			fieldBackgroundDisabledImage: backgroundView.toImage()
 		});
 
-		should(searchBar.fieldBackgroundColor).eql('red');
-
-		searchBar.fieldBackgroundColor = 'blue';
-		should(searchBar.fieldBackgroundColor).eql('blue');
+		should(searchBar.fieldBackgroundImage.apiName).eql('Ti.Blob');
+		should(searchBar.fieldBackgroundDisabledImage.apiName).eql('Ti.Blob');
 	});
 
 	// TODO: Expose Windows as well
