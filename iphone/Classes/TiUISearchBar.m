@@ -164,6 +164,16 @@
     }];
 }
 
+- (void)setFieldBackgroundImage_:(id)arg
+{
+  [[self searchBar] setSearchFieldBackgroundImage:[self loadImage:arg] forState:UIControlStateNormal];
+}
+
+- (void)setFieldBackgroundDisabledImage_:(id)arg
+{
+  [[self searchBar] setSearchFieldBackgroundImage:[self loadImage:arg] forState:UIControlStateDisabled];
+}
+
 - (void)setKeyboardType_:(id)value
 {
   [[self searchBar] setKeyboardType:[TiUtils intValue:value]];
