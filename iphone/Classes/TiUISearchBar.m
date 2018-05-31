@@ -150,28 +150,16 @@
   }];
 }
 
-- (void)setFieldBackgroundColor_:(id)value
-{
-    // TIMOB-10368
-    // Remove this hack again once iOS exposes this as a public API
-    UIView *searchContainerView = [[[self searchBar] subviews] firstObject];
-    
-    [[searchContainerView subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-        if ([obj isKindOfClass:[UITextField class]]) {
-            [(UITextField *)obj setBackgroundColor:[[TiUtils colorValue:value] _color]];
-            *stop = YES;
-        }
-    }];
-}
-
 - (void)setFieldBackgroundImage_:(id)arg
 {
   [[self searchBar] setSearchFieldBackgroundImage:[self loadImage:arg] forState:UIControlStateNormal];
+  [self.searchBar setSearchTextPositionAdjustment:UIOffsetMake(8.0, 0.0)];
 }
 
 - (void)setFieldBackgroundDisabledImage_:(id)arg
 {
   [[self searchBar] setSearchFieldBackgroundImage:[self loadImage:arg] forState:UIControlStateDisabled];
+  [self.searchBar setSearchTextPositionAdjustment:UIOffsetMake(8.0, 0.0)];
 }
 
 - (void)setKeyboardType_:(id)value
