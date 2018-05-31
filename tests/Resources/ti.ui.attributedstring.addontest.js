@@ -1,12 +1,14 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+/* eslint-env mocha */
+/* global Ti */
+/* eslint no-unused-expressions: "off" */
+'use strict';
+var should = require('./utilities/assertions');
 
 describe('Titanium.UI.AttributedString', function () {
 	it('Ti.UI.AttributedString', function () {
@@ -14,7 +16,9 @@ describe('Titanium.UI.AttributedString', function () {
 	});
 
 	it('apiName', function () {
-		var attributedString = Ti.UI.createAttributedString({text : 'abc'});
+		var attributedString = Ti.UI.createAttributedString({
+			text: 'abc'
+		});
 		should(attributedString).have.readOnlyProperty('apiName').which.is.a.String;
 		should(attributedString.apiName).be.eql('Ti.UI.AttributedString');
 	});
@@ -23,7 +27,9 @@ describe('Titanium.UI.AttributedString', function () {
 		should(Ti.UI.createAttributedString).not.be.undefined;
 		should(Ti.UI.createAttributedString).be.a.Function;
 
-		var attributedString = Ti.UI.createAttributedString({text : 'abc'});
+		var attributedString = Ti.UI.createAttributedString({
+			text: 'abc'
+		});
 		should(attributedString).be.a.Object;
 		should(attributedString.apiName).be.a.String;
 		should(attributedString.apiName).be.eql('Ti.UI.AttributedString');
@@ -34,7 +40,7 @@ describe('Titanium.UI.AttributedString', function () {
 		var str = 'Lorem ipsum dolor sit amet.';
 		var attributedString = Ti.UI.createAttributedString({
 			text: str,
-			attributes: [{
+			attributes: [ {
 				type: Ti.UI.ATTRIBUTE_PARAGRAPH_STYLE,
 				value: {
 					alignment: Ti.UI.ATTRIBUTE_TEXT_ALIGNMENT_JUSTIFIED,
@@ -42,8 +48,8 @@ describe('Titanium.UI.AttributedString', function () {
 					headIndent: 5,
 					lineSpacing: 5
 				},
-				range: [0, str.length]
-			}]
+				range: [ 0, str.length ]
+			} ]
 		});
 
 		should(attributedString.text).be.eql(str);
@@ -51,8 +57,10 @@ describe('Titanium.UI.AttributedString', function () {
 
 		attributedString.addAttribute({
 			type: Ti.UI.ATTRIBUTE_FONT,
-			value: {fontSize : 16},
-			range: [0, str.length]
+			value: {
+				fontSize: 16
+			},
+			range: [ 0, str.length ]
 		});
 		should(attributedString.attributes.length).be.eql(2);
 	});
