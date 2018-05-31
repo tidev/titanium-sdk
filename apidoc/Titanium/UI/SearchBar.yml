@@ -173,10 +173,18 @@ properties:
     platforms: [android, iphone, ipad]
     since: "7.1.0"
 
-  - name: fieldBackgroundColor
-    summary: Background color of the text field, as a color name or hex triplet.
+  - name: fieldBackgroundImage
+    summary: Background image of the text field, specified as a local file path or URL.
     description: |
-      For information about color values, see the "Colors" section of <Titanium.UI>.
+      If this property is not specified, the default white background is used.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.3.0"
+
+  - name: fieldBackgroundDisabledImage
+    summary: Background image of the text field in disabled state, specified as a local file path or URL.
+    description: |
+      If this property is not specified, the default white background is used.
     type: String
     platforms: [iphone, ipad]
     since: "7.3.0"
