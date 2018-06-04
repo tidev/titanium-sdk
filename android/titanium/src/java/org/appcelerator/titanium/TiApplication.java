@@ -393,6 +393,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
 
 		tempFileHelper = new TiTempFileHelper(this);
+
+		deployData = new TiDeployData(this);
 	}
 
 	@Override
@@ -426,14 +428,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void postAppInfo()
 	{
-		deployData = new TiDeployData(this);
-
-		TiPlatformHelper.getInstance().initialize();
-		// Fastdev has been deprecated
-		// TiFastDev.initFastDev(this);
-
 		if (isAnalyticsEnabled()) {
 
+			TiPlatformHelper.getInstance().initialize();
 			TiPlatformHelper.getInstance().initAnalytics();
 			TiPlatformHelper.getInstance().setSdkVersion("ti." + getTiBuildVersion());
 			TiPlatformHelper.getInstance().setAppName(getAppInfo().getName());
