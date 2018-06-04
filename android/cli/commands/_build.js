@@ -1817,7 +1817,6 @@ AndroidBuilder.prototype.doAnalytics = function doAnalytics(next) {
 	}
 
 	cli.addAnalyticsEvent(eventName, {
-		dir: cli.argv['project-dir'],
 		name: cli.tiapp.name,
 		publisher: cli.tiapp.publisher,
 		url: cli.tiapp.url,
