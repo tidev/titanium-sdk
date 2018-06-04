@@ -3,7 +3,7 @@
  * Logic for creating new Titanium apps.
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -209,7 +209,6 @@ AppCreator.prototype.run = function run(callback) {
 		tasks.push(function (next) {
 			// send the analytics
 			this.cli.addAnalyticsEvent('project.create.mobile', {
-				dir:         projectDir,
 				name:        argv.name,
 				publisher:   projectConfig.publisher,
 				url:         projectConfig.url,
