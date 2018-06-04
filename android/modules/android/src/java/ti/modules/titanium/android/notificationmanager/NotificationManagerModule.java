@@ -40,7 +40,7 @@ public class NotificationManagerModule extends KrollModule
 	private static NotificationManager notificationManager = null;
 	private static NotificationChannel defaultChannel = null;
 
-	public static final String DEFAULT_CHANNEL_ID = "defaultChannel";
+	public static final String DEFAULT_CHANNEL_ID = "ti_default_channel";
 
 	@Kroll.constant
 	public static final int DEFAULT_ALL = Notification.DEFAULT_ALL;
