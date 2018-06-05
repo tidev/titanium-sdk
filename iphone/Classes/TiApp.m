@@ -1165,8 +1165,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 #pragma mark Handoff Delegates
 
 #ifdef USE_TI_APPIOS
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
-      restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *_Nullable))restorationHandler
 {
 
   NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
