@@ -168,6 +168,20 @@
   [[self textWidgetView] setTextContentType:[TiUtils stringValue:value]];
 }
 
+#if IS_XCODE_10
+- (void)setPasswordRules_:(NSString *)passwordRules
+{
+  ENSURE_TYPE_OR_NIL(passwordRules, NSString);
+
+  if (![TiUtils isIOSVersionOrGreater:@"12.0"]) {
+    NSLog(@"[ERROR] The 'passwordRules' property is only available on iOS 12 and later.");
+    return;
+  }
+
+  [[self textWidgetView] setPasswordRules:[UITextInputPasswordRules passwordRulesWithDescriptor:passwordRules]];
+}
+#endif
+
 #pragma mark Responder methods
 //These used to be blur/focus, but that's moved to the proxy only.
 //The reason for that is so checking the toolbar can use UIResponder methods.
