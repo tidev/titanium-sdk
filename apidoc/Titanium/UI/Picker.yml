@@ -24,7 +24,7 @@ description: |
     On iOS, the `height` property is only available in iOS 9 and later.
     By default, the size of the picker, including its background, is fixed at the
     same height as the iPhone keyboard to respect the
-    [iOS Human Interface Guidelines](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/MobileHIG/Controls.html#//apple_ref/doc/uid/TP40006556-CH15-SW3).
+    [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/#//apple_ref/doc/uid/TP40006556-CH15-SW3).
     The default `width` on iOS is 320px and the `height` is 228px.
     The contents of the picker are sized to fit the picker, which may cut off text
     in the picker rows. Adding views to picker rows is also supported on iOS.
@@ -255,7 +255,7 @@ properties:
     description: |
         Applicable to <Titanium.UI.PICKER_TYPE_TIME> and <Titanium.UI.PICKER_TYPE_DATE_AND_TIME> picker types.
         The picker type <Titanium.UI.PICKER_TYPE_DATE> does not support text customizing as stated in the
-        [UIKit User Interface Catalog](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/UIKitUICatalog/UIDatePicker.html).
+        [UIKit User Interface Catalog](https://developer.apple.com/documentation/uikit/uidatepicker).
     type: String
     platforms: [iphone, ipad]
     since: "5.2.0"

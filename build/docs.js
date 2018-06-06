@@ -73,6 +73,26 @@ Documentation.prototype.generateJSCA = function (next) {
 	}.bind(this));
 };
 
+Documentation.prototype.generateTypeScriptTypeDefinitions = function (next) {
+	let args = [ path.join(DOC_DIR, 'docgen.js'), '-f', 'typescript', '-o', this.outputDir + path.sep ];
+
+	console.log('Generating TypeScript type definitions...');
+
+	const prc = spawn('node', args, { cwd: DOC_DIR });
+	prc.stdout.on('data', function (data) {
+		console.log(data.toString().trim());
+	});
+	prc.stderr.on('data', function (data) {
+		console.error(data.toString().trim());
+	});
+	prc.on('close', function (code) {
+		if (code !== 0) {
+			return next('Failed to generate ambient module with TypeScript type definitions.');
+		}
+		next(null, path.join(this.outputDir, 'index.d.ts'));
+	}.bind(this));
+};
+
 Documentation.prototype.generate = function (next) {
 	this.prepare(function (err) {
 		if (err) {
@@ -80,7 +100,8 @@ Documentation.prototype.generate = function (next) {
 		}
 		async.parallel([
 			this.generateParityReport.bind(this),
-			this.generateJSCA.bind(this)
+			this.generateJSCA.bind(this),
+			this.generateTypeScriptTypeDefinitions.bind(this)
 		], next);
 	}.bind(this));
 };
