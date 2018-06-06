@@ -75,6 +75,7 @@ methods:
             Identical to the `options` parameter to [Window.open](Titanium.UI.Window.open).
             iOS only supports the **animated** parameter.
         type: Object
+        optional: true
 
   - name: close
     summary: Closes the top-level window for this tab.
@@ -152,12 +153,9 @@ properties:
          If unspecified, iOS uses a tint color to indicate the active tab. See
          [icon](Titanium.UI.Tab.icon) for more information.
 
-         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
-         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
+         If the icon provided is larger than [30 pixels (60 pixels for retina, 90 pixels for super-retina)]
+         (https://developer.apple.com/ios/human-interface-guidelines/icons-and-images/image-size-and-resolution/),
          this image will be scaled to fit.
-
-         On iOS prior to 5.0, the default tint color is always used and this property
-         remains unset.
     type: String
     platforms: [iphone, ipad]
     since: "3.1.0"
@@ -206,8 +204,7 @@ properties:
         to black. In the active state, the tint color is usually blue. Prior to Titanium
         3.1, there was no way to override the default active icon tint.
 
-        Titanium 3.1 introduced some new ways to customize tab icons, which are supported
-        in iOS 5.0 and above:
+        Some icon-related features:
 
         *   You can specify the active tab's tint color as
         [activeTabIconTint](Titanium.UI.TabGroup.activeTabIconTint).
@@ -217,8 +214,8 @@ properties:
         inactive state, and `activeIcon` is used in the active state. **No default tint
         is applied to either icon.**
 
-         If the icon provided is larger than [30 pixels (60 pixels in the retina variant)]
-         (https://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/MobileHIG/IconsImages/IconsImages.html),
+         If the icon provided is larger than [30 pixels (60 pixels for retina, 90 pixels for super-retina)]
+         (https://developer.apple.com/ios/human-interface-guidelines/icons-and-images/image-size-and-resolution/),
          this image will be scaled to fit if used with activeIcon, and cropped at the bottom
          otherwise.
     type: String
