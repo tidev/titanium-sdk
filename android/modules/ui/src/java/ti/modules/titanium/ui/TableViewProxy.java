@@ -44,7 +44,8 @@ import android.os.Message;
 		TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
 		TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
 		TiC.PROPERTY_MAX_CLASSNAME,
-		TiC.PROPERTY_REFRESH_CONTROL
+		TiC.PROPERTY_REFRESH_CONTROL,
+		TiC.PROPERTY_SCROLLABLE
 	})
 // clang-format on
 public class TableViewProxy extends TiViewProxy
@@ -87,6 +88,7 @@ public class TableViewProxy extends TiViewProxy
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
+		defaultValues.put(TiC.PROPERTY_SCROLLABLE, true);
 		// eventManager.addOnEventChangeListener(this);
 	}
 
@@ -886,6 +888,7 @@ public class TableViewProxy extends TiViewProxy
 		Object asyncResult = null;
 		switch (msg.what) {
 			case MSG_UPDATE_VIEW:
+				setModelDirtyIfNecessary();
 				result = (AsyncResult) msg.obj;
 				if (tableNativeViewCreated) {
 					tableNativeView.updateView();
