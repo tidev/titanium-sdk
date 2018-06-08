@@ -700,7 +700,7 @@
         ENSURE_ARG_OR_NIL_FOR_KEY(_options, attachment, @"options", NSDictionary);
 
         NSDictionary *nativeOptions = _options != nil ? [[self formatNotificationAttachmentOptions:_options] retain] : nil;
-  
+
         UNNotificationAttachment *_attachment = [UNNotificationAttachment attachmentWithIdentifier:_identifier
                                                                                                URL:[TiUtils toURL:_url proxy:self]
                                                                                            options:nativeOptions
