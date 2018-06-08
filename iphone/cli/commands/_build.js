@@ -2906,16 +2906,11 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 	const buildDirExists = fs.existsSync(this.buildDir);
 
 	if (this.forceCleanBuild && buildDirExists) {
-		this.logger.debug(__('Recreating %s', cyan(this.buildDir)));
+		this.logger.debug(__('Cleaning %s', cyan(this.buildDir)));
 		wrench.rmdirSyncRecursive(this.buildDir);
-		wrench.mkdirSyncRecursive(this.buildDir);
 	} else if (!buildDirExists) {
-		this.logger.debug(__('Creating %s', cyan(this.buildDir)));
-		wrench.mkdirSyncRecursive(this.buildDir);
 		this.forceCleanBuild = true;
 	}
-
-	fs.existsSync(this.xcodeAppDir) || wrench.mkdirSyncRecursive(this.xcodeAppDir);
 };
 
 iOSBuilder.prototype.generateXcodeUuid = function generateXcodeUuid(xcodeProject) {
