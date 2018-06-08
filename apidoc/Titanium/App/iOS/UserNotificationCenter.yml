@@ -1,5 +1,5 @@
 ---
-name: Titanium.App.iOS.NotificationCenter
+name: Titanium.App.iOS.UserNotificationCenter
 summary: |
     The top-level App iOS Notification Center module, available only to iOS devices running iOS 8 or later. It is
     used to control scheduled notifications and receive details about the system-wide notification settings.
@@ -58,8 +58,8 @@ methods:
 name: UserNotificationCallbackResponse
 summary: |
     Response when receiving pending or local notifications
-    in <Titanium.App.iOS.NotificationCenter.getPendingNotifications> and
-    <Titanium.App.iOS.NotificationCenter.getDeliveredNotifications>.
+    in <Titanium.App.iOS.UserNotificationCenter.getPendingNotifications> and
+    <Titanium.App.iOS.UserNotificationCenter.getDeliveredNotifications>.
 since: "7.3.0"
 properties:
   - name: notifications
@@ -71,8 +71,8 @@ name: UserNotificationDictionary
 summary: |
     Dictionary of notification data used in the array of `notifications`
     when receiving pending or local notifications in
-    <Titanium.App.iOS.NotificationCenter.getPendingNotifications> and
-    <Titanium.App.iOS.NotificationCenter.getDeliveredNotifications>.
+    <Titanium.App.iOS.UserNotificationCenter.getPendingNotifications> and
+    <Titanium.App.iOS.UserNotificationCenter.getDeliveredNotifications>.
 since: "7.3.0"
 properties:
   - name: alertTitle
