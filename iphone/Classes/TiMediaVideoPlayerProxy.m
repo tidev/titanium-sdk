@@ -19,7 +19,7 @@
 #import "TiViewProxy.h"
 #import "Webcolor.h"
 
-/** 
+/**
  * Design Notes:
  *
  * Normally we'd use a ViewProxy/View pattern here ...but...
@@ -372,13 +372,17 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)volume
 {
-  __block float volume = 1.0;
-  TiThreadPerformOnMainThread(^{
-    volume = [[movie player] volume];
-  },
-      YES);
+  if (movie != nil) {
+    __block float volume = 1.0;
+    TiThreadPerformOnMainThread(^{
+      volume = [[movie player] volume];
+    },
+        YES);
 
-  return NUMFLOAT(volume);
+    return NUMFLOAT(volume);
+  } else {
+    return NUMFLOAT(1.0);
+  }
 }
 
 - (void)setVolume:(NSNumber *)newVolume
@@ -461,7 +465,11 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)showsControls
 {
-  return NUMBOOL([movie showsPlaybackControls]);
+  if (movie != nil) {
+    return NUMBOOL([movie showsPlaybackControls]);
+  } else {
+    return NUMBOOL(YES);
+  }
 }
 
 - (void)setShowsControls:(NSNumber *)value

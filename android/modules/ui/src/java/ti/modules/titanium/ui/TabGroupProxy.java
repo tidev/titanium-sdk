@@ -437,6 +437,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		Log.d(TAG, "handleClose: " + options, Log.DEBUG_MODE);
 
+		fireEvent(TiC.EVENT_CLOSE, null);
+
 		modelListener = null;
 		releaseViews();
 		view = null;
