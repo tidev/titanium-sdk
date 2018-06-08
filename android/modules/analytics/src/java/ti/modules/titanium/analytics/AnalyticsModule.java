@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
@@ -48,6 +49,24 @@ public class AnalyticsModule extends KrollModule
 	public AnalyticsModule()
 	{
 		super();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getOptedOut()
+	// clang-format on
+	{
+		return APSAnalytics.getInstance().isOptedOut();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setOptedOut(boolean optedOut)
+	// clang-format on
+	{
+		APSAnalytics.getInstance().setOptedOut(optedOut);
 	}
 
 	@Kroll.method
