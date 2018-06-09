@@ -1123,6 +1123,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 - (int)forceGarbageCollectNow
 {
 #ifdef USE_JSCORE_FRAMEWORK
+  JSGarbageCollect(context);
   gcrequest = NO;
   loopCount = 0;
 #else

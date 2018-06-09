@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -63,6 +63,9 @@ public class TiUIWebView extends TiUIView
 	private boolean isLocalHTML = false;
 	private boolean disableContextMenu = false;
 	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
+	private float zoomLevel =
+		TiApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics().density;
+	private float initScale = zoomLevel;
 
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
@@ -304,8 +307,12 @@ public class TiUIWebView extends TiUIView
 			}
 		}
 
-		TiWebView webView =
-			isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
+		TiWebView webView = null;
+		try {
+			webView = isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
+		} catch (Exception e) {
+			// silence unnecessary internal logs...
+		}
 		webView.setVerticalScrollbarOverlay(true);
 
 		WebSettings settings = webView.getSettings();
@@ -479,6 +486,10 @@ public class TiUIWebView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_USER_AGENT)) {
 			((WebViewProxy) getProxy()).setUserAgent(d.getString(TiC.PROPERTY_USER_AGENT));
 		}
+
+		if (d.containsKey(TiC.PROPERTY_ZOOM_LEVEL)) {
+			zoomBy(getWebView(), TiConvert.toFloat(d, TiC.PROPERTY_ZOOM_LEVEL));
+		}
 	}
 
 	@Override
@@ -510,6 +521,8 @@ public class TiUIWebView extends TiUIView
 			}
 		} else if (TiC.PROPERTY_DISABLE_CONTEXT_MENU.equals(key)) {
 			disableContextMenu = TiConvert.toBoolean(newValue);
+		} else if (TiC.PROPERTY_ZOOM_LEVEL.equals(key)) {
+			zoomBy(getWebView(), TiConvert.toFloat(newValue, 1.0f));
 		} else if (TiC.PROPERTY_USER_AGENT.equals(key)) {
 			((WebViewProxy) getProxy()).setUserAgent(TiConvert.toString(newValue));
 		} else {
@@ -524,6 +537,36 @@ public class TiUIWebView extends TiUIView
 		if (isBgRelated && nativeView != null && nativeView.getBackground() instanceof TiBackgroundDrawable) {
 			nativeView.setBackgroundColor(Color.TRANSPARENT);
 		}
+	}
+
+	private void zoomBy(WebView webView, float scale)
+	{
+		if (Build.VERSION.SDK_INT >= 21 && webView != null) {
+			if (scale <= 0.0f) {
+				scale = 0.01f;
+			} else if (scale >= 100.0f) {
+				scale = 100.0f;
+			}
+
+			float targetVal = (initScale * scale) / zoomLevel;
+			webView.zoomBy(targetVal);
+		}
+	}
+
+	public void zoomBy(float scale)
+	{
+		zoomBy(getWebView(), scale);
+	}
+
+	public float getZoomLevel()
+	{
+		return zoomLevel;
+	}
+
+	public void setZoomLevel(float value)
+	{
+		getProxy().setProperty(TiC.PROPERTY_ZOOM_LEVEL, value / initScale);
+		zoomLevel = value;
 	}
 
 	private boolean mightBeHtml(String url)
@@ -950,6 +993,7 @@ public class TiUIWebView extends TiUIView
 	public void setBindingCodeInjected(boolean injected)
 	{
 		bindingCodeInjected = injected;
+		initScale = getZoomLevel();
 	}
 
 	public boolean interceptOnBackPressed()

@@ -15,7 +15,7 @@ var btn = Ti.UI.createButton({
 });
 
 btn.addEventListener('click', function() {
-    Ti.API.info('Hello world!');
+    Ti.App.iOS.UserNotificationCenter.removePendingNotifications()
 });
 
 win.add(btn);

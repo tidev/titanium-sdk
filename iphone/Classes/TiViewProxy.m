@@ -2931,7 +2931,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
   TiViewTemplate *viewTemplate = [TiViewTemplate templateFromViewTemplate:viewTemplate_];
   if (viewTemplate == nil) {
-    return;
+    return nil;
   }
 
   if (viewTemplate.type != nil) {
