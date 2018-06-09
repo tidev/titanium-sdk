@@ -883,7 +883,7 @@ public class TiDrawableReference
 
 	/**
 	 * Based on the underlying type of reference this is, figures out how to get
-	 * an InputStream for it.  E.g., if a blob, calls blob.getInputStream, if 
+	 * an InputStream for it.  E.g., if a blob, calls blob.getInputStream, if
 	 * a resource id, calls context.getTiApp().getResources().openRawResource(resourceId).
 	 * @return InputStream or null if problem getting it (check logcat in that case)
 	 */
@@ -896,14 +896,14 @@ public class TiDrawableReference
 				stream = TiFileHelper.getInstance().openInputStream(url, false);
 
 			} catch (IOException e) {
-				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
+				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage());
 			}
 
 		} else if (isTypeFile() && file != null) {
 			try {
 				stream = file.getInputStream();
 			} catch (IOException e) {
-				Log.e(TAG, "Problem opening stream from file " + file.name() + ": " + e.getMessage(), e);
+				Log.e(TAG, "Problem opening stream from file " + file.name() + ": " + e.getMessage());
 			}
 
 		} else if (isTypeBlob() && blob != null) {
@@ -924,7 +924,7 @@ public class TiDrawableReference
 
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
-	 * 
+	 *
 	 * @see <a href="http://developer.android.com/reference/android/graphics/BitmapFactory.Options.html#inSampleSize">BitmapFactory.Options.inSampleSize</a>
 	 * @param srcWidth int
 	 * @param srcHeight int
@@ -942,7 +942,7 @@ public class TiDrawableReference
 
 	/**
 	 * Calculates a value for the BitmapFactory.Options .inSampleSize property.
-	 * 
+	 *
 	 * @see <a href="http://developer.android.com/reference/android/graphics/BitmapFactory.Options.html#inSampleSize">BitmapFactory.Options.inSampleSize</a>
 	 * @param srcWidth int
 	 * @param srcHeight int

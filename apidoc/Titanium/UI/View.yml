@@ -96,7 +96,7 @@ description: |
 
     For more details see:
 
-    * [UI Composite Layout Spec](http://docs.appcelerator.com/platform/latest/#!/guide/UI_Composite_Layout_Behavior_Spec)
+    * [UI Composite Layout Spec](https://docs.appcelerator.com/platform/latest/#!/guide/UI_Composite_Layout_Behavior_Spec)
 
     #### Size and Position
 
@@ -151,10 +151,10 @@ description: |
     The first three, `accessibilityLabel`, `accessibilityValue` and `accessibilityHint`, are for setting text
     that will be relayed to the user by the assistive service (such as TalkBack on Android or VoiceOver
     on iOS). On iOS, Titanium will then take these values and set the native properties
-    of the same name which are defined in the [UIAccessibilityProtocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+    of the same name which are defined in the [UIAccessibilityProtocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
     On Android, Titanium takes the three values and concatenates them in the order `accessibilityLabel`,
     `accessibilityValue`, and `accessibilityHint`, and then uses the result to set the native view's
-    [`contentDescription`](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29)
+    [`contentDescription`](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29)
     property.
 
     You are not required to set all three properties: feel free to set just one or two as needed and
@@ -162,11 +162,11 @@ description: |
 
     The fourth property, `accessibilityHidden`, when set to `true`, indicates that the view can be ignored
     by the assistive service. In iOS this sets the similarly-named
-    [accessibilityElementsHidden](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html#//apple_ref/occ/instp/NSObject/accessibilityElementsHidden)
+    [accessibilityElementsHidden](https://developer.apple.com/documentation/objectivec/nsobject/1615080-accessibilityelementshidden)
     native property, which is only available in iOS 5.0 and later. On earlier versions of
     iOS, this property is ignored.
 
-    In Android `accessibilityHidden` calls the native [View.setImportantForAccessibility(boolean)](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) method, passing `false` when
+    In Android `accessibilityHidden` calls the native [View.setImportantForAccessibility(boolean)](https://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) method, passing `false` when
     this property is set to `true` (i.e., "hidden" means it's not important). However, the
     native `setImportantForAccessibility` method is available only on devices running
     Android 4.1 (API level 16/Jelly Bean) or later. On earlier versions of Android, this
@@ -280,7 +280,7 @@ events:
     properties:
       - name: keyCode
         type: Number
-        summary: The code for the physical key that was pressed. For more details, see [KeyEvent](http://developer.android.com/reference/android/view/KeyEvent.html). This API is experimental and subject to change.
+        summary: The code for the physical key that was pressed. For more details, see [KeyEvent](https://developer.android.com/reference/android/view/KeyEvent.html). This API is experimental and subject to change.
 
   - name: longclick
     summary: Fired when the device detects a long click.
@@ -948,12 +948,12 @@ properties:
     description: |
         On iOS this is a direct analog of the `accessibilityElementsHidden` property defined in the
         [UIAccessibility
-        Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
         The native property is only available in iOS 5.0 and later; if
         `accessibilityHidden` is specified on earlier versions of iOS, it is ignored.
 
         On Android, setting `accessibilityHidden` calls the native
-        [View.setImportantForAccessibility](http://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29)
+        [View.setImportantForAccessibility](https://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29)
         method. The native method is only available in Android 4.1 (API level 16/Jelly Bean) and
         later; if this property is specified on earlier versions of Android, it is ignored.
 
@@ -971,11 +971,11 @@ properties:
     summary: Briefly describes what performing an action (such as a click) on the view will do.
     description: |
         On iOS this is a direct analog of the `accessibilityHint` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityValue> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
-        argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+        argument to the native [View.setContentDescription](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
     type: String
     since: "3.0.0"
     platforms: [android, iphone, ipad]
@@ -985,11 +985,11 @@ properties:
     summary: A succint label identifying the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityLabel` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityValue> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
-        argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+        argument to the native [View.setContentDescription](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: String
@@ -999,11 +999,11 @@ properties:
     summary: A string describing the value (if any) of the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityValue` property defined in the
-        [UIAccessibility Protocol](http://developer.apple.com/library/ios/documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+        [UIAccessibility Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
         On Android, it is concatenated together with
         <Titanium.UI.View.accessibilityLabel> and <Titanium.UI.View.accessibilityHint> in the order: `accessibilityLabel`,
         `accessibilityValue`, `accessibilityHint`. The concatenated value is then passed as the
-        argument to the native [View.setContentDescription](http://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
+        argument to the native [View.setContentDescription](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
     since: "3.0.0"
     platforms: [android, iphone, ipad]
     type: String
@@ -1275,7 +1275,7 @@ properties:
         **Note:** The `elevation` property only works on `Titanium.UI.View` objects.
         Many Android components have a default elevation that cannot be modified.
         For more information, see
-        [Google design guidelines: Elevation and shadows](https://www.google.com/design/spec/what-is-material/elevation-shadows.html).
+        [Google design guidelines: Elevation and shadows](https://developer.android.com/training/material/shadows-clipping#Elevation).
     type: Number
     platforms: [android]
     since: 5.0.0
@@ -1292,7 +1292,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp').
         Can also be one of the following special values:
@@ -1323,6 +1323,19 @@ properties:
     default: Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE
     platforms: [android]
     since: 6.1.0
+
+  - name: horizontalMotionEffect
+    summary: Adds a horizontal parallax effect to the view
+    description: |
+        Pass an object with the following key-value pairs:
+
+         * `min` (Number): Minimum amount it can move horizontally (-10 for example)
+         * `max` (Number): Maximum amount it can move horizontally (10 for example)
+
+         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator
+    type: Dictionary
+    platforms: [iphone, ipad]
+    since: 7.3.0
 
   - name: left
     summary: View's left position, in platform-specific units.
@@ -1417,7 +1430,7 @@ properties:
             precedence is `width`, `left`, `center.x`, `right`.
 
             For complete details on composite layout rules, see
-            [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System)
+            [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System)
             in the Titanium Mobile Guides.
 
          *  `vertical`. Children are laid out vertically from top to bottom. The first child
@@ -1666,6 +1679,19 @@ properties:
     since: "5.0.2"
     osver: {android: {min: 5.0}}
 
+  - name: verticalMotionEffect
+    summary: Adds a vertical parallax effect to the view
+    description: |
+        Pass an object with the following key-value pairs:
+
+         * `min` (Number): Minimum amount it can move vertically (-10 for example)
+         * `max` (Number): Maximum amount it can move vertically (10 for example)
+
+         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator
+    type: Dictionary
+    platforms: [iphone, ipad]
+    since: 7.3.0
+
   - name: viewShadowRadius
     summary: Determines the blur radius used to create the shadow.
     type: Number
@@ -1697,7 +1723,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](http://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp').
         Can also be one of the following special values:

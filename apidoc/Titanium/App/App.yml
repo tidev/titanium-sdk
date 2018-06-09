@@ -118,7 +118,7 @@ description: |
     This can lead to memory leaks if application-level event listeners are added and not
     removed.
 
-    See also: [Event Handling](http://docs.appcelerator.com/platform/latest/#!/guide/Event_Handling)
+    See also: [Event Handling](https://docs.appcelerator.com/platform/latest/#!/guide/Event_Handling)
     in the Titanium Mobile Guides.
 
     #### System Level Accessibility Events
@@ -150,13 +150,13 @@ description: |
     * <Titanium.App.iOS.EVENT_ACCESSIBILITY_LAYOUT_CHANGED>, available only on iOS, can be used to alert
     the accessibility system that the layout of the screen has changed, such as when an element
     appears or disappears. When your application fires this event, Titanium calls `UIAccessibilityLayoutChangedNotification`
-    in the iOS [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+    in the iOS [UIAccessibility Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
     No second parameter is required when firing this event with <Titanium.App.fireSystemEvent>.
 
     * <Titanium.App.iOS.EVENT_ACCESSIBILITY_SCREEN_CHANGED>, available only on iOS, can be used to alert
     the accessibility system when a new view appears that comprises a major portion of the screen.
     When your application fires this event, Titanium calls `UIAccessibilityScreenChangedNotification`
-    in the iOS [UIAccessibility Protocol](http://developer.apple.com/library/ios/#documentation/uikit/reference/UIAccessibility_Protocol/Introduction/Introduction.html).
+    in the iOS [UIAccessibility Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
     No second parameter is required when firing this event with <Titanium.App.fireSystemEvent>.
 
     ##### Listening for Accessibility Events
@@ -205,7 +205,7 @@ events:
         application is focused.
         
         See the `applicationWillResignActive` section of the official Apple documentation about 
-        [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
+        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622950-applicationwillresignactive) 
         for the exact behavior that triggers this event.
         
         Note that calls to functions that modify the UI during this event may be partially executed, 
@@ -224,7 +224,7 @@ events:
         This event fires when the user leaves the application.
         
         See the `applicationDidEnterBackground` section of the official Apple documentation about 
-        [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
+        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622997-applicationdidenterbackground?language=objc) 
         for the exact behavior that triggers this event.
         
     platforms: [iphone, ipad]
@@ -293,7 +293,7 @@ events:
         calls.
         
         See the `applicationWillEnterForeground` section of the official Apple documentation about 
-        [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
+        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623076-applicationwillenterforeground) 
         for the exact behavior that triggers this event.
     platforms: [iphone, ipad]
     
@@ -305,7 +305,7 @@ events:
         this event will be called every time the application resized.
 
         See the `applicationDidBecomeActive` section of the official Apple documentation about 
-        [Monitoring Application State Changes](https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/doc/uid/TP40006786-CH3-SW5) 
+        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive) 
         for the exact behavior that triggers this event.
         
         Note: This event will not be fired for URL's in iOS 10+ that are handled by the <Modules.SafariDialog> 
