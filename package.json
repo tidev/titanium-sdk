@@ -39,7 +39,7 @@
     "lodash.defaultsdeep": "4.6.0",
     "markdown": "0.5.0",
     "moment": "2.18.1",
-    "node-appc": "^0.2.45",
+    "node-appc": "^0.2.47",
     "node-titanium-sdk": "^0.4.11",
     "node-uuid": "1.4.8",
     "pngjs": "3.0.1",
@@ -77,10 +77,10 @@
     "visual studio": ">=10 <=12",
     "windows phone sdk": "8.x",
     "msbuild": ">=4.0",
-    "node": "6.x || 8.x"
+    "node": "4.x || 6.x || 8.x"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=4"
   },
   "license": "Apache-2.0"
 }
