@@ -1936,7 +1936,11 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 				const xcodeInfo = this.iosInfo.xcode;
 
 				function sortXcodeIds(a, b) {
-					return xcodeInfo[a].selected || appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
+					// prioritize selected xcode
+					if (xcodeInfo[b].selected) {
+						return 1;
+					}
+					return appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
 				}
 
 				if (this.iosSdkVersion) {
