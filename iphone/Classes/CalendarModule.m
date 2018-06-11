@@ -227,7 +227,7 @@
                                NSDictionary *propertiesDict;
                                if (error == nil) {
                                  NSString *errorMsg = granted ? nil : @"The user has denied access to events in Calendar.";
-                                 propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1)message:errorMsg];
+                                 propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMsg];
                                } else {
                                  propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
                                }
