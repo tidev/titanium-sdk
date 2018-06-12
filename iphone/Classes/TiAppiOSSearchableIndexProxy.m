@@ -18,11 +18,7 @@
 
 - (id)isSupported:(id)unused
 {
-  if ([TiUtils isIOS9OrGreater]) {
     return NUMBOOL([CSSearchableIndex isIndexingAvailable]);
-  } else {
-    return NUMBOOL(NO);
-  }
 }
 
 - (void)addToDefaultSearchableIndex:(id)args

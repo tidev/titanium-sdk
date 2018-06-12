@@ -203,10 +203,6 @@
 
 - (void)setShowUndoRedoActions:(id)value
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return;
-  }
-
   UITextView *tv = (UITextView *)[self textWidgetView];
   if ([TiUtils boolValue:value] == YES) {
 

@@ -306,10 +306,7 @@ extern NSString *const TI_APPLICATION_GUID;
       }
     }
 
-    //This is set to NO by default for > iOS9.
-    if ([TiUtils isIOS9OrGreater]) {
-      locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
-    }
+    locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
 
 #if IS_XCODE_9
     if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {

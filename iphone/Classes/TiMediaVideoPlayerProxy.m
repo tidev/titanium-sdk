@@ -453,14 +453,12 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)pictureInPictureEnabled
 {
-  return NUMBOOL([TiUtils isIOS9OrGreater] && [movie allowsPictureInPicturePlayback]);
+  return @([movie allowsPictureInPicturePlayback]);
 }
 
 - (void)setPictureInPictureEnabled:(NSNumber *)value
 {
-  if ([TiUtils isIOS9OrGreater] == YES) {
-    [movie setAllowsPictureInPicturePlayback:[TiUtils boolValue:value]];
-  }
+  [movie setAllowsPictureInPicturePlayback:[TiUtils boolValue:value]];
 }
 
 - (NSNumber *)showsControls

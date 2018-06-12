@@ -335,9 +335,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)setAllowsLinkPreview_:(id)value
 {
-  if ([TiUtils isIOS9OrGreater] == NO) {
-    return;
-  }
   ENSURE_TYPE(value, NSNumber);
   [webview setAllowsLinkPreview:[TiUtils boolValue:value]];
 }

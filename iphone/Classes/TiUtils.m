@@ -141,56 +141,67 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (BOOL)isIOS4_2OrGreater
 {
+  DEPRECATED_REPLACED(@"isIOS4_2OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"4.2\")");
   return [TiUtils isIOSVersionOrGreater:@"4.2"];
 }
 
 + (BOOL)isIOS5OrGreater
 {
+  DEPRECATED_REPLACED(@"isIOS5OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"5.0\")");
   return [TiUtils isIOSVersionOrGreater:@"5.0"];
 }
 
 + (BOOL)isIOS6OrGreater
 {
+  DEPRECATED_REPLACED(@"isIOS6OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"6.0\")");
   return [TiUtils isIOSVersionOrGreater:@"6.0"];
 }
 
 + (BOOL)isIOS7OrGreater
 {
+  DEPRECATED_REPLACED(@"isIOS7OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"7.0\")");
   return [TiUtils isIOSVersionOrGreater:@"7.0"];
 }
 
 + (BOOL)isIOS8OrGreater
 {
+  DEPRECATED_REPLACED(@"isIOS8OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"8.0\")");
   return [TiUtils isIOSVersionOrGreater:@"8.0"];
 }
 
 + (BOOL)isIOS82rGreater
 {
+  DEPRECATED_REPLACED(@"isIOS82rGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"8.2\")");
   return [TiUtils isIOSVersionOrGreater:@"8.2"];
 }
 
 + (BOOL)isIOS9OrGreater
 {
+  DEPRECATED_REPLACED(@"isIOS9OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"9.0\")");
   return [TiUtils isIOSVersionOrGreater:@"9.0"];
 }
 
 + (BOOL)isIOS9_1OrGreater
 {
+  DEPRECATED_REPLACED(@"isIOS9_1OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"9.1\")");
   return [TiUtils isIOSVersionOrGreater:@"9.1"];
 }
 
 + (BOOL)isIOS9_3OrGreater
 {
+  DEPRECATED_REPLACED(@"isIOS9_3OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"9.3\")");
   return [TiUtils isIOSVersionOrGreater:@"9.3"];
 }
 
 + (BOOL)isIOS10OrGreater
 {
+  DEPRECATED_REPLACED(@"isIOS10OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"10.0\")");
   return [TiUtils isIOSVersionOrGreater:@"10.0"];
 }
 
 + (BOOL)isIOS11OrGreater
 {
+  DEPRECATED_REPLACED(@"isIOS11OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"11.0\")");
   return [TiUtils isIOSVersionOrGreater:@"11.0"];
 }
 
@@ -2015,9 +2026,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (BOOL)forceTouchSupported
 {
-  if ([self isIOS9OrGreater] == NO) {
-    return NO;
-  }
   return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
 }
 

@@ -110,14 +110,13 @@
   if ((count == 1) && [type isEqual:@"continueactivity"]) {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveContinueActivityNotification:) name:kTiContinueActivity object:nil];
   }
-  if ([TiUtils isIOS9OrGreater]) {
-    if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
-      [[NSNotificationCenter defaultCenter] addObserver:self
-                                               selector:@selector
-                                               (didReceiveApplicationShortcutNotification:)
-                                                   name:kTiApplicationShortcut
-                                                 object:nil];
-    }
+
+  if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector
+                                             (didReceiveApplicationShortcutNotification:)
+                                                 name:kTiApplicationShortcut
+                                               object:nil];
   }
 
   if ((count == 1) && [type isEqual:@"handleurl"]) {
@@ -176,10 +175,8 @@
   if ((count == 1) && [type isEqual:@"continueactivity"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContinueActivity object:nil];
   }
-  if ([TiUtils isIOS9OrGreater]) {
-    if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
-      [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationShortcut object:nil];
-    }
+  if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationShortcut object:nil];
   }
 }
 
@@ -228,23 +225,15 @@
 }
 
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
-- (id)createSearchableIndex:(id)unused
+- (TiAppiOSSearchableIndexProxy *)createSearchableIndex:(id)unused
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return nil;
-  }
-
   return [[[TiAppiOSSearchableIndexProxy alloc] init] autorelease];
-  ;
 }
 #endif
 
 #ifdef USE_TI_APPIOSSEARCHABLEITEM
 - (id)createSearchableItem:(id)args
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return nil;
-  }
   if (![NSThread isMainThread]) {
     __block id result;
     TiThreadPerformOnMainThread(^{
@@ -273,11 +262,8 @@
 #endif
 
 #ifdef USE_TI_APPIOSSEARCHABLEITEMATTRIBUTESET
-- (id)createSearchableItemAttributeSet:(id)args
+- (TiAppiOSSearchableItemAttributeSetProxy *)createSearchableItemAttributeSet:(id)args
 {
-  if (![TiUtils isIOS9OrGreater]) {
-    return nil;
-  }
   if (![NSThread isMainThread]) {
     __block id result;
     TiThreadPerformOnMainThread(^{
@@ -300,7 +286,7 @@
 #endif
 
 #ifdef USE_TI_APPIOSSEARCHQUERY
-- (id)createSearchQuery:(id)args
+- (TiAppiOSSearchQueryProxy *)createSearchQuery:(id)args
 {
   if (![TiUtils isIOS10OrGreater]) {
     NSLog(@"[ERROR] Search-Queries are only available in iOS 10 and later.");
@@ -322,7 +308,7 @@
 #endif
 
 #ifdef USE_TI_APPIOSUSERACTIVITY
-- (id)createUserActivity:(id)args
+- (TiAppiOSUserActivityProxy *)createUserActivity:(id)args
 {
   if (![NSThread isMainThread]) {
     __block id result;
@@ -342,7 +328,7 @@
 }
 #endif
 
-- (id)createUserDefaults:(id)args
+- (TiAppiOSUserDefaultsProxy *)createUserDefaults:(id)args
 {
   NSString *suiteName;
   ENSURE_SINGLE_ARG(args, NSDictionary);
@@ -357,7 +343,7 @@
   return userDefaultsProxy;
 }
 
-- (id)registerBackgroundService:(id)args
+- (TiAppiOSBackgroundServiceProxy *)registerBackgroundService:(id)args
 {
   NSDictionary *a = nil;
   ENSURE_ARG_AT_INDEX(a, args, 0, NSDictionary)
@@ -389,6 +375,7 @@
 
   NSArray *categories;
   NSArray *typesRequested;
+
   ENSURE_ARG_OR_NIL_FOR_KEY(categories, args, @"categories", NSArray);
   ENSURE_ARG_OR_NIL_FOR_KEY(typesRequested, args, @"types", NSArray);
 
@@ -504,12 +491,12 @@
   }
 }
 
-- (id)createUserNotificationAction:(id)args
+- (TiAppiOSUserNotificationActionProxy *)createUserNotificationAction:(id)args
 {
   return [[[TiAppiOSUserNotificationActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
-- (id)createUserNotificationCategory:(id)args
+- (TiAppiOSUserNotificationCategoryProxy *)createUserNotificationCategory:(id)args
 {
   return [[[TiAppiOSUserNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
@@ -608,7 +595,7 @@
                        nil];
 }
 
-- (id)scheduleLocalNotification:(id)args
+- (TiAppiOSLocalNotificationProxy *)scheduleLocalNotification:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSDictionary);
 
@@ -1024,9 +1011,7 @@
 
 - (void)didReceiveWatchExtensionRequestNotification:(NSNotification *)notif
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    DebugLog(@"[WARN] Deprecated. Please use Ti.App.iOS.WatchConnectivity instead");
-  }
+  DebugLog(@"[WARN] The \"watchkitextensionrequest\" event is deprecated. Please use the Ti.App.iOS.WatchConnectivity API instead.");
   [self fireEvent:@"watchkitextensionrequest" withObject:[notif userInfo]];
 }
 
@@ -1034,9 +1019,8 @@
 
 - (void)sendWatchExtensionReply:(id)args
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    DebugLog(@"[WARN] Deprecated. Please use Ti.App.iOS.WatchConnectivity instead");
-  }
+  DebugLog(@"[WARN] The \"sendWatchExtensionReply\" method is deprecated. Please use the Ti.App.iOS.WatchConnectivity API instead.");
+
   enum Args {
     kArgKey = 0,
     kArgCount,
@@ -1174,20 +1158,12 @@
 
 - (NSNumber *)USER_NOTIFICATION_BEHAVIOR_DEFAULT
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINT(UIUserNotificationActionBehaviorDefault);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserNotificationActionBehaviorDefault);
 }
 
 - (NSNumber *)USER_NOTIFICATION_BEHAVIOR_TEXTINPUT
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINT(UIUserNotificationActionBehaviorTextInput);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserNotificationActionBehaviorTextInput);
 }
 
 - (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_NONE
@@ -1236,6 +1212,7 @@
 }
 
 #pragma mark UTI Text Type Constants
+
 - (CFStringRef)UTTYPE_TEXT
 {
   return kUTTypeText;
@@ -1317,6 +1294,7 @@
 }
 
 #pragma mark UTI Composite Content Type Constants
+
 - (CFStringRef)UTTYPE_PDF
 {
   return kUTTypePDF;
@@ -1343,6 +1321,7 @@
 }
 
 #pragma mark UTI Image Content Types
+
 - (CFStringRef)UTTYPE_IMAGE
 {
   return kUTTypeImage;
@@ -1399,6 +1378,7 @@
 }
 
 #pragma mark UTI Audio Visual Content Types
+
 - (CFStringRef)UTTYPE_AUDIO_VISUAL_CONTENT
 {
   return kUTTypeAudiovisualContent;

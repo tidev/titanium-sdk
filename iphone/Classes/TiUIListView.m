@@ -235,12 +235,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     [self configureHeaders];
     _defaultSeparatorInsets = [_tableView separatorInset];
 
-    [_tableView setLayoutMargins:UIEdgeInsetsZero];
-
-    if ([TiUtils isIOS9OrGreater]) {
-      _tableView.cellLayoutMarginsFollowReadableWidth = NO;
-    }
+    _tableView.layoutMargins = UIEdgeInsetsZero;
+    _tableView.cellLayoutMarginsFollowReadableWidth = NO;
   }
+
   if ([_tableView superview] != self) {
     [self addSubview:_tableView];
   }
@@ -2116,10 +2114,9 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       searchControllerPresenter = [[[TiApp app] controller] retain];
     }
   }
-  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
   searchControllerPresenter.definesPresentationContext = YES;
   [searchControllerPresenter presentViewController:controller
-                                          animated:shouldAnimate
+                                          animated:NO
                                         completion:^{
                                           isSearched = YES;
                                           [self showDimmingView];

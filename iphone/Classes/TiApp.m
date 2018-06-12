@@ -387,6 +387,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   NSDictionary *_remoteNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
   UILocalNotification *_localNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   NSNumber *launchedLocation = [launchOptions objectForKey:UIApplicationLaunchOptionsLocationKey];
+  UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
 
   // Map background location key
   if (launchedLocation != nil) {
@@ -422,14 +423,8 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   if (_remoteNotification != nil) {
     [self generateNotification:_remoteNotification];
   }
-
-  // iOS 9+: Map application shortcuts
-  if ([TiUtils isIOS9OrGreater] == YES) {
-    UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
-
-    if (shortcut != nil) {
-      launchedShortcutItem = [shortcut retain];
-    }
+  if (shortcut != nil) {
+    launchedShortcutItem = [shortcut retain];
   }
 
   // Queue selector for usage in modules / Hyperloop
@@ -564,10 +559,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 {
   RELEASE_TO_NIL(localNotification);
   localNotification = [[TiApp dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
-
-  if ([TiUtils isIOS9OrGreater] == YES) {
-    [localNotification setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
-  }
+  [localNotification setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
 
   [self tryToInvokeSelector:@selector(application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, notification, responseInfo, completionHandler, nil]];
@@ -1133,7 +1125,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 {
   NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
 
-  if ([TiUtils isIOS9OrGreater] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+  if ([[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
     if ([userActivity userInfo] != nil) {
       [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
     }

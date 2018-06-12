@@ -453,12 +453,10 @@
 
     defaultSeparatorInsets = [tableview separatorInset];
 
-    [tableview setLayoutMargins:UIEdgeInsetsZero];
-
-    if ([TiUtils isIOS9OrGreater]) {
-      tableview.cellLayoutMarginsFollowReadableWidth = NO;
-    }
+    tableview.layoutMargins = UIEdgeInsetsZero;
+    tableview.cellLayoutMarginsFollowReadableWidth = NO;
   }
+
   if ([tableview superview] != self) {
     [self addSubview:tableview];
   }
@@ -2805,10 +2803,8 @@
   }
   searchControllerPresenter.definesPresentationContext = YES;
 
-  BOOL shouldAnimate = ![TiUtils isIOS9OrGreater];
-
   [searchControllerPresenter presentViewController:controller
-                                          animated:shouldAnimate
+                                          animated:NO
                                         completion:^{
                                           isSearched = YES;
                                           [self showDimmingView];

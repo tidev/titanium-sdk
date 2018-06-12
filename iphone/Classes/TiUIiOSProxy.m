@@ -167,24 +167,15 @@
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 - (NSNumber *)PREVIEW_ACTION_STYLE_DEFAULT
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINTEGER(UIPreviewActionStyleDefault);
-  }
-  return nil;
+  return NUMINTEGER(UIPreviewActionStyleDefault);
 }
 - (NSNumber *)PREVIEW_ACTION_STYLE_DESTRUCTIVE
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINTEGER(UIPreviewActionStyleDestructive);
-  }
-  return nil;
+  return NUMINTEGER(UIPreviewActionStyleDestructive);
 }
 - (NSNumber *)PREVIEW_ACTION_STYLE_SELECTED
 {
-  if ([TiUtils isIOS9OrGreater]) {
-    return NUMINTEGER(UIPreviewActionStyleSelected);
-  }
-  return nil;
+  return NUMINTEGER(UIPreviewActionStyleSelected);
 }
 #endif
 
