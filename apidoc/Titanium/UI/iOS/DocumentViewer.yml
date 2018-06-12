@@ -29,64 +29,64 @@ description: |
     In the document viewer, click the **Done** button to dismiss the document viewer or click the
     right navigation button to open the options menu to perform another action with the document,
     such as printing the document or opening the document in another application.
-    
+
     **Note for iOS 11 and later**
     When using the DocumentViewer in iOS 11 and later, documents need to be placed in the app-bundle
-    in order to be shared to third-party apps. This is a privacy restriction and can be solved by 
-    using either a document from the `Resources` directory (classic Titanium) or `app/assets` (Alloy). 
-    Alternatively, documents can also be stored in the <Titanium.Filesystem.applicationCacheDirectory> 
+    in order to be shared to third-party apps. This is a privacy restriction and can be solved by
+    using either a document from the `Resources` directory (classic Titanium) or `app/assets` (Alloy).
+    Alternatively, documents can also be stored in the <Titanium.Filesystem.applicationCacheDirectory>
     or <Titanium.Filesystem.applicationDataDirectory>.
-    
+
     **Note for iOS 11.2 and later**
     Apple introduced a regression in iOS 11.2 that forces **all** files to be in the application data
     directory. We handle this workaround for you in Titanium SDK 7.0.2+, but you
     can also work around it without an SDK update. Here is an example:
-      
+
         var fileName = 'example.pdf';
-        
+
         // For iOS 11.2, workaround the Apple issue by creating a temporary file and
         // reference it. It will be removed from filesystem once the app closes.
         // Read more here: http://nshipster.com/nstemporarydirectory/
         if (isiOS11_2()) {
           fileName = fileInApplicationDataDirectory(fileName);
         }
-        
+
         var docViewer = Ti.UI.iOS.createDocumentViewer({
           url: fileName
         });
-       
+
         docViewer.show();
-          
+
         // Check if the current device runs iOS 11.2+
         function isiOS11_2() {
-          var version = Ti.Platform.version.split(".");	
+          var version = Ti.Platform.version.split(".");
           return (parseInt(version[0]) >= 11 && parseInt(version[1]) >= 2);
         }
 
         // Create a temporary file with the contents of the old file
-        // Expects the file to be in the resources directory. If you receive the file 
+        // Expects the file to be in the resources directory. If you receive the file
         // from an API-call, receive pass the Ti.Blob/Ti.File/text to "write" directly.
         function fileInApplicationDataDirectory(fileName) {
           var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, fileName);
-          
+
           if (!file.exists()) {
             alert('File does not exist in resources!');
             return;
           }
-          
+
           var newFile = Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, fileName);
           newFile.createFile();
-          
+
           if (!newFile.exists()) {
             alert('New file could not be created in application data directory!');
             return;
           }
-          
+
           newFile.write(file);
-          
+
           return newFile.nativePath;
         }
-        
+
     Read more about the issue in [TIMOB-25680](https://jira.appcelerator.org/browse/TIMOB-25680).
 
 extends: Titanium.Proxy
@@ -106,7 +106,7 @@ properties:
     description: |
         Important note: For iOS 11.2 and later, you need to reference this URL
         from either the application data directory or temporary directory. Read
-        more about this change in the "Note for iOS 11.2 and later" paragraph of 
+        more about this change in the "Note for iOS 11.2 and later" paragraph of
         the API summary.
     type: String
 
@@ -118,7 +118,7 @@ methods:
         summary: Animation options.
         type: DocumentViewerOptions
         optional: true
-  
+
   - name: show
     summary: Displays the document viewer over the current view.
     description: |
@@ -153,7 +153,7 @@ examples:
                 rightNavButton: navButton
             });
 
-            var navWin = Ti.UI.iOS.createNavigationWindow({
+            var navWin = Ti.UI.createNavigationWindow({
                 window: win
             });
 
@@ -198,7 +198,7 @@ properties:
     summary: Indicates whether to animate the transition.
     type: Boolean
     default: false
-        
+
   - name: view
     summary: Anchors the options menu to the specified view.
     description: |

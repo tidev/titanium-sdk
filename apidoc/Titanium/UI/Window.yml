@@ -35,7 +35,7 @@ methods:
   - name: hideNavBar
     summary: Hides the navigation bar.
     description: |
-        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+        If the window is not displayed in a <Titanium.UI.NavigationWindow>, this method has no effect.
     parameters:
       - name: options
         summary: |
@@ -85,7 +85,7 @@ methods:
   - name: showNavBar
     summary: Makes the navigation bar visible.
     description: |
-        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+        If the window is not displayed in a <Titanium.UI.NavigationWindow>, this method has no effect.
     parameters:
       - name: options
         summary: |
@@ -98,7 +98,7 @@ methods:
   - name: showToolbar
     summary: Makes the bottom toolbar visible.
     description: |
-        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+        If the window is not displayed in a <Titanium.UI.NavigationWindow>, this method has no effect.
         Note: This method is only intended to work with toolbars that are created using [setToolbar](Titanium.UI.Window.setToolbar).
         It will not have any effect on toolbars added manually to the window.
     parameters:
@@ -115,7 +115,7 @@ methods:
   - name: hideToolbar
     summary: Makes the bottom toolbar invisible.
     description: |
-        If the window is not displayed in a <Titanium.UI.iOS.NavigationWindow>, this method has no effect.
+        If the window is not displayed in a <Titanium.UI.NavigationWindow>, this method has no effect.
         Note: This method is only intended to work with toolbars that are created using [setToolbar](Titanium.UI.Window.setToolbar).
         It will not have any effect on toolbars added manually to the window.
     parameters:
@@ -441,15 +441,15 @@ properties:
 
   - name: extendSafeArea
     summary: |
-        Specifies whether the content (subviews) of the window  will render inside the safe-area or not. 
+        Specifies whether the content (subviews) of the window  will render inside the safe-area or not.
         Only used in iOS 11.0 and later.
     description:  |
-        If set `true` (the default), then the content of the window will be extended to fill the whole screen and 
-        under the system's UI elements (such as the top status-bar) and physical obstructions (such as the iPhone X 
-        rounded corners and top sensor housing). In this case, it is the app developer's responsibility to position 
+        If set `true` (the default), then the content of the window will be extended to fill the whole screen and
+        under the system's UI elements (such as the top status-bar) and physical obstructions (such as the iPhone X
+        rounded corners and top sensor housing). In this case, it is the app developer's responsibility to position
         views so that they're unobstructed.
 
-        If set `false`, then the window's content will be laid out within the safe-area and its child views will be 
+        If set `false`, then the window's content will be laid out within the safe-area and its child views will be
         unobstructed. For example, you will not need to position a view below the top status-bar.
 
         Read more about the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
@@ -481,8 +481,8 @@ properties:
   - name: homeIndicatorAutoHidden
     summary: Boolean value indicating whether the system is allowed to hide the visual indicator for returning to the Home screen.
     description: |
-        Set this value true, if you want the system to determine when to hide the indicator. Set this value false, 
-        if you want the indicator shown at all times. The system takes your preference into account, but setting 
+        Set this value true, if you want the system to determine when to hide the indicator. Set this value false,
+        if you want the indicator shown at all times. The system takes your preference into account, but setting
         true is no guarantee that the indicator will be hidden.
     platforms: [iphone, ipad]
     type: Boolean
@@ -540,8 +540,8 @@ properties:
   - name: largeTitleEnabled
     summary: A Boolean value indicating whether the title should be displayed in a large format.
     description: |
-        When set to `true`, the navigation bar will use a larger out-of-line 
-        title view when requested by the current navigation item. To specify when 
+        When set to `true`, the navigation bar will use a larger out-of-line
+        title view when requested by the current navigation item. To specify when
         the large out-of-line title view appears, see <Titanium.UI.Window.largeTitleDisplayMode>.
     default: false
     type: String
@@ -552,11 +552,11 @@ properties:
   - name: largeTitleDisplayMode
     summary: The mode to use when displaying the title of the navigation bar.
     description: |
-        Automatically use the large out-of-line title based on the state of the 
-        previous item in the navigation bar. An item with 
-        `largeTitleDisplayMode = Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC` 
-        will show or hide the large title based on the request of the previous 
-        navigation item. If the first item pushed is set to Automatic, then it 
+        Automatically use the large out-of-line title based on the state of the
+        previous item in the navigation bar. An item with
+        `largeTitleDisplayMode = Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC`
+        will show or hide the large title based on the request of the previous
+        navigation item. If the first item pushed is set to Automatic, then it
         will show the large title if the navigation bar has `largeTitleEnabled = true`.
     type: Number
     constants: [Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_*]
@@ -625,12 +625,12 @@ properties:
         Since Titanium SDK 6.0.0, you can use this property to hide and show the property as well.
 
         Using this property, the navigation bar will be hidden or shown animated by default. Please note that
-        this property will only take effect if the window is used inside a <Titanium.UI.iOS.NavigationWindow>
+        this property will only take effect if the window is used inside a <Titanium.UI.NavigationWindow>
         and will be ignored otherwise. If you want to hide or show the navigation without an animation, use t
         he methods <Titanium.UI.Window.showNavBar> and <Titanium.UI.Window.hideNavBar> with the second parameter
         to specify the animation:
 
-            // "myWindow" is a Ti.UI.Window inside a Ti.UI.iOS.NavigationWindow
+            // "myWindow" is a Ti.UI.Window inside a Ti.UI.NavigationWindow
             myWindow.hideNavBar(true, {animated: false});
 
         #### Android Platform Notes
@@ -654,14 +654,14 @@ properties:
     platforms: [iphone,ipad]
 
   - name: navigationWindow
-    summary: The <Titanium.UI.iOS.NavigationWindow> instance hosting this window.
+    summary: The <Titanium.UI.NavigationWindow> instance hosting this window.
     description: |
-        Returns the navigation window that hosts this window. Returns `null` if the window is not 
+        Returns the navigation window that hosts this window. Returns `null` if the window is not
         hosted by a navigation window.
     since: "7.3.0"
-    type: Titanium.UI.iOS.NavigationWindow
+    type: Titanium.UI.NavigationWindow
     permission: read-only
-    platforms: [iphone, ipad]  
+    platforms: [iphone, ipad]
 
   - name: opacity
     summary: The opacity from 0.0-1.0.
@@ -879,10 +879,10 @@ properties:
         Performance can fluctuate dramatically for long-running apps, because the system throttles
         system-on-chip engines as device components reach their temperature limits. This fluctuation
         presents a moving target for app developers creating high-performance, long-running apps.
-        
+
         Setting this feature to true will set sustained performance mode for the corresponding window.
         If property is undefined then it defaults to false.
-        
+
         Note: This feature is only available on supported devices. The functionality is experimental and
         subject to change in future releases. See [Android docs](https://source.android.com/devices/tech/power/performance) for further info.
     type: Boolean
@@ -895,7 +895,7 @@ properties:
     description: |
         If `false` the user will not be able to swipe from the left edge of the window to close it.
         Note: This property is only used for a window being embedded in a [Ti.UI.Tab](Titanium.UI.Tab) or
-        [Ti.UI.iOS.NavigationWindow](Titanium.UI.iOS.NavigationWindow). It is enabled by default.
+        [Ti.UI.NavigationWindow](Titanium.UI.NavigationWindow). It is enabled by default.
     type: Boolean
     since: "5.2.0"
     platforms: [iphone,ipad]
@@ -981,7 +981,7 @@ properties:
     summary: |
         Array of button objects to show in the window's toolbar.
     description: |
-        The toolbar is only shown when the window is inside a <Titanium.UI.iOS.NavigationWindow>.
+        The toolbar is only shown when the window is inside a <Titanium.UI.NavigationWindow>.
         To display a toolbar when a window is not inside a NavigationWindow, add an instance of a
         <Titanium.UI.iOS.Toolbar> to the window.
 
@@ -1019,7 +1019,7 @@ properties:
   - name: transitionAnimation
     summary: |
         Use a transition animation when opening or closing windows in a
-        <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
+        <Titanium.UI.NavigationWindow> or <Titanium.UI.Tab>.
     description: |
         Create the transition animation using the <Titanium.UI.iOS.createTransitionAnimation>
         method.
@@ -1292,7 +1292,7 @@ description: |
     Windows *contain* other views, but in general they are not *contained* inside
     other views. There are a few specialized views that manage windows:
 
-    * [NavigationWindow](Titanium.UI.iOS.NavigationWindow)
+    * [NavigationWindow](Titanium.UI.NavigationWindow)
     * [SplitWindow](Titanium.UI.iPad.SplitWindow)
     * [TabGroup](Titanium.UI.TabGroup)
     * [Tab](Titanium.UI.Tab)
@@ -1445,7 +1445,7 @@ description: |
 
     You can create this type of modal window on iPad with the following code snippet:
 
-        var win = Ti.UI.iOS.createNavigationWindow({
+        var win = Ti.UI.createNavigationWindow({
             window: Ti.UI.createWindow({
                 title: "Modal Window"
             })
@@ -1536,7 +1536,7 @@ description: |
     In the above example, the red window will be animated from the right-to-left over the blue window.
 
     Starting with iOS 7, you can create transition animations when opening and closing windows in
-    either a <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
+    either a <Titanium.UI.NavigationWindow> or <Titanium.UI.Tab>.
 
     Use the <Titanium.UI.iOS.createTransitionAnimation> method to specify an animation objects to hide and
     show the window, then set the newly created TransitionAnimation object to the window's
@@ -1997,7 +1997,7 @@ examples:
   - title: Simple Example
     example: |
 
-        var win = Titanium.UI.createWindow({
+        var win = Ti.UI.createWindow({
             title: 'Title',
             barColor: 'yellow',
             titleAttributes:  {
@@ -2006,7 +2006,7 @@ examples:
                 shadow:{color:'gray', offset:{width:1,height:1}}
             }
         });
-        var nav = Titanium.UI.iOS.createNavigationWindow({window: win});
+        var nav = Ti.UI.createNavigationWindow({window: win});
         nav.open();
 
 properties:
