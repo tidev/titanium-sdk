@@ -1,15 +1,15 @@
 /**
-* Android module build command.
-*
-* @module cli/_buildModule
-*
-* @copyright
-* Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
-*
-* @license
-* Licensed under the terms of the Apache Public License
-* Please see the LICENSE included with this distribution for details.
-*/
+ * Android module build command.
+ *
+ * @module cli/_buildModule
+ *
+ * @copyright
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * @license
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 
 'use strict';
 
@@ -362,7 +362,6 @@ AndroidModuleBuilder.prototype.doAnalytics = function doAnalytics(next) {
 		eventName = 'android.' + cli.argv.type;
 
 	cli.addAnalyticsEvent(eventName, {
-		dir: cli.argv['project-dir'],
 		name: manifest.name,
 		publisher: manifest.author,
 		appid: manifest.moduleid,
@@ -1532,7 +1531,7 @@ AndroidModuleBuilder.prototype.jsToC = function (next) {
 
 	if (fs.existsSync(jsBootstrapFile)) {
 
-		const str = new Buffer(fs.readFileSync(jsBootstrapFile)); // eslint-disable-line security/detect-new-buffer
+		const str = Buffer.from(fs.readFileSync(jsBootstrapFile));
 
 		[].forEach.call(str, function (char) {
 			result.push(char);
