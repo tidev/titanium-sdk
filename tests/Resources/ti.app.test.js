@@ -81,7 +81,7 @@ describe('Titanium.App', function () {
 		should(Ti.App.getDisableNetworkActivityIndicator()).be.a.Boolean;
 	});
 
-	it.ios('forceSplashAsSnapshot', function () { // eslint-disable-line mocha/no-skipped-tests
+	it.ios('forceSplashAsSnapshot', function () {
 		should(Ti.App.forceSplashAsSnapshot).be.a.Boolean;
 		should(Ti.App.forceSplashAsSnapshot).be.false;
 
@@ -92,7 +92,7 @@ describe('Titanium.App', function () {
 		should(Ti.App.forceSplashAsSnapshot).be.false;
 	});
 
-	it.ios('#getForceSplashAsSnapshot()', function () { // eslint-disable-line mocha/no-skipped-tests
+	it.ios('#getForceSplashAsSnapshot()', function () {
 		should(Ti.App.getForceSplashAsSnapshot).be.a.Function;
 		should(Ti.App.getForceSplashAsSnapshot()).be.a.Boolean;
 	});
