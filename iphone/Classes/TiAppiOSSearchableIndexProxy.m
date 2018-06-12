@@ -18,7 +18,7 @@
 
 - (id)isSupported:(id)unused
 {
-    return NUMBOOL([CSSearchableIndex isIndexingAvailable]);
+  return NUMBOOL([CSSearchableIndex isIndexingAvailable]);
 }
 
 - (void)addToDefaultSearchableIndex:(id)args

@@ -337,11 +337,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 }
 - (NSString *)TEXT_STYLE_TITLE2
 {
-    return UIFontTextStyleTitle2;
+  return UIFontTextStyleTitle2;
 }
 - (NSString *)TEXT_STYLE_TITLE3
 {
-    return UIFontTextStyleTitle3;
+  return UIFontTextStyleTitle3;
 }
 - (NSString *)TEXT_STYLE_CALLOUT
 {

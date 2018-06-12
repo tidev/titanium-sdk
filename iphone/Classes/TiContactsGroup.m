@@ -220,7 +220,7 @@
 // Ignore static analylzer warning here
 // This is to release the saverequest in TiContactsPerson.m line 965 in (CNSaveRequest*)getSaveRequestForAddition
 #ifndef __clang_analyzer__
-    RELEASE_TO_NIL(saveRequest);
+  RELEASE_TO_NIL(saveRequest);
 #endif
 }
 
@@ -249,7 +249,7 @@
 // Ignore static analyzer warning here
 // This is to release the saverequest in TiContactsPerson.m line 956 in (CNSaveRequest*)getSaveRequestForDeletion
 #ifndef __clang_analyzer__
-    RELEASE_TO_NIL(saveRequest)
+  RELEASE_TO_NIL(saveRequest)
 #endif
 }
 
