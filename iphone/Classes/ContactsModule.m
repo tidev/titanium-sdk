@@ -391,7 +391,6 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
     return [result autorelease];
   }
 
-
   CNContactStore *ourContactStore = [self contactStore];
   if (ourContactStore == NULL) {
     return nil;
