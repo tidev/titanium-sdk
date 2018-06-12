@@ -1945,7 +1945,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 				if (this.iosSdkVersion) {
 					// find the Xcode for this version
-					Object.keys(this.iosInfo.xcode).sort(sortXcodeIds).reverse().some(function (ver) {
+					Object.keys(this.iosInfo.xcode).sort(sortXcodeIds).some(function (ver) {
 						if (this.iosInfo.xcode[ver].sdks.indexOf(this.iosSdkVersion) !== -1) {
 							this.xcodeEnv = this.iosInfo.xcode[ver];
 							return true;
