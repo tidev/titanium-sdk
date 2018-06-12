@@ -16,6 +16,12 @@ description: |
 
     To access system-wide resources, rather than application resources, use <Titanium.Android.R> 
     instead.
+    
+    Starting in Titanium SDK 7.2.0, this API exposes all Android related R classes
+    for the usage in Hyperloop. For example, it can be used to access `menu` resources
+    as part of native user interfaces, e.g. `BottomNavigationView` or `RecyclerView`.
+    See an example in the [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) for details! 
+
 extends: Titanium.Proxy
 since: "1.5"
 platforms: [android]

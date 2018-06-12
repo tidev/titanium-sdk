@@ -494,11 +494,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
       if ([convertToUnits caseInsensitiveCompare:kTiUnitDip] == NSOrderedSame) {
         result = fromVal.value;
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitPixel] == NSOrderedSame) {
-        if ([TiUtils isRetinaDisplay]) {
-          result = fromVal.value * 2;
-        } else {
-          result = fromVal.value;
-        }
+        result = convertDipToPixels(fromVal.value);
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitInch] == NSOrderedSame) {
         result = convertDipToInch(fromVal.value);
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitCm] == NSOrderedSame) {
@@ -660,9 +656,7 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
 - (NSString *)CLIPBOARD_OPTION_LOCAL_ONLY
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return UIPasteboardOptionLocalOnly;
-#endif
   } else {
     return @"";
   }
@@ -670,9 +664,7 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
 - (NSString *)CLIPBOARD_OPTION_EXPIRATION_DATE
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return UIPasteboardOptionExpirationDate;
-#endif
   } else {
     return @"";
   }
