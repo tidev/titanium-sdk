@@ -1958,9 +1958,8 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 						logger.error(__('Unable to find any Xcode installations that support iOS SDK %s.', this.iosSdkVersion) + '\n');
 						process.exit(1);
 					}
-				} else if (cli.argv.target === 'simulator' && !cli.argv['build-only']) {
-					// we'll let ioslib suggest an iOS version
-				} else { // device, dist-appstore, dist-adhoc
+
+				} else { // device, simulator, dist-appstore, dist-adhoc
 					Object.keys(xcodeInfo)
 						.filter(function (id) { return xcodeInfo[id].supported; })
 						.sort(sortXcodeIds)
