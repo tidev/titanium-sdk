@@ -4441,8 +4441,6 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		}, this);
 	}, this);
 
-	this.logger.debug('test3');
-
 	// Add dex files
 	this.logger.info(__('Processing %s', this.buildBinClassesDex.cyan));
 	fs.readdirSync(this.buildBinClassesDex).forEach(function (name) {
