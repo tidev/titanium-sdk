@@ -5480,7 +5480,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								const buf = [];
 								this.pack()
 									.on('data', function (bytes) {
-										buf.push(new Buffer(bytes)); // eslint-disable-line security/detect-new-buffer
+										buf.push(Buffer.from(bytes));
 									})
 									.on('end', function (err) {
 										if (err) {
