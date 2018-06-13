@@ -227,54 +227,6 @@ static NSDictionary *iOS9propertyKeys;
   return multiValueTypes;
 }
 
-+ (NSDictionary *)multiValueLabels
-{
-  if (multiValueLabels == nil) {
-    multiValueLabels =
-        [[NSDictionary alloc] initWithObjectsAndKeys:(NSString *)kABHomeLabel, @"home", // Generic labels
-                              kABWorkLabel, @"work",
-                              kABOtherLabel, @"other",
-                              kABPersonPhoneMobileLabel, @"mobile", // Phone labels
-                              kABPersonPhonePagerLabel, @"pager",
-                              kABPersonPhoneWorkFAXLabel, @"workFax",
-                              kABPersonPhoneMainLabel, @"main",
-                              kABPersonPhoneIPhoneLabel, @"iPhone",
-                              kABPersonPhoneHomeFAXLabel, @"homeFax",
-                              kABPersonSocialProfileServiceFacebook, @"facebookProfile", // Social Profile Labels
-                              kABPersonSocialProfileServiceFlickr, @"flickrProfile",
-                              kABPersonSocialProfileServiceGameCenter, @"gameCenterProfile",
-                              kABPersonSocialProfileServiceLinkedIn, @"linkedInProfile",
-                              kABPersonSocialProfileServiceMyspace, @"myspaceProfile",
-                              kABPersonSocialProfileServiceSinaWeibo, @"sinaWeiboProfile",
-                              kABPersonSocialProfileServiceTwitter, @"twitterProfile",
-                              kABPersonInstantMessageServiceAIM, @"aim", // IM labels
-                              kABPersonInstantMessageServiceICQ, @"icq",
-                              kABPersonInstantMessageServiceJabber, @"jabber",
-                              kABPersonInstantMessageServiceMSN, @"msn",
-                              kABPersonInstantMessageServiceYahoo, @"yahoo",
-                              kABPersonInstantMessageServiceQQ, @"qq",
-                              kABPersonInstantMessageServiceSkype, @"skype",
-                              kABPersonInstantMessageServiceGoogleTalk, @"googletalk",
-                              kABPersonInstantMessageServiceGaduGadu, @"gadugadu",
-                              kABPersonInstantMessageServiceFacebook, @"facebook",
-                              kABPersonMotherLabel, @"mother", // Relation labels
-                              kABPersonFatherLabel, @"father",
-                              kABPersonParentLabel, @"parent",
-                              kABPersonSisterLabel, @"sister",
-                              kABPersonBrotherLabel, @"brother",
-                              kABPersonChildLabel, @"child",
-                              kABPersonFriendLabel, @"friend",
-                              kABPersonSpouseLabel, @"spouse",
-                              kABPersonPartnerLabel, @"partner",
-                              kABPersonManagerLabel, @"manager",
-                              kABPersonAssistantLabel, @"assistant",
-                              kABPersonAnniversaryLabel, @"anniversary", // Date label
-                              kABPersonHomePageLabel, @"homepage", // URL label
-                              nil];
-  }
-  return multiValueLabels;
-}
-
 + (NSDictionary *)iOS9multiValueLabels
 {
   if (iOS9multiValueLabels == nil) {
