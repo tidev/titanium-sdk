@@ -235,7 +235,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 {
   RELEASE_TO_NIL(image);
   image = [image_ retain];
-  [self setMimeType:([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG)type:TiBlobTypeImage];
+  [self setMimeType:([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG) type:TiBlobTypeImage];
 }
 
 - (NSString *)path
