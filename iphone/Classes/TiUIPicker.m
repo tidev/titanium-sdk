@@ -179,7 +179,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
   if (picker == nil) {
     [[self proxy] replaceValue:value forKey:@"selectionIndicator" notification:NO];
-  } else if ([self isDatePicker] == NO) {
+  } else if (![self isDatePicker]) {
     [(UIPickerView *)[self picker] setShowsSelectionIndicator:[TiUtils boolValue:value]];
   }
 }

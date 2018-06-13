@@ -113,7 +113,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     _tableView.prefetchDataSource = nil;
   }
 
@@ -212,7 +212,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _tableView.estimatedSectionFooterHeight = 0;
     _tableView.estimatedSectionHeaderHeight = 0;
 
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       _tableView.prefetchDataSource = self;
     }
 
@@ -756,7 +756,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (args != nil) {
     _refreshControlProxy = [args retain];
 
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       [[self tableView] setRefreshControl:_refreshControlProxy.control];
     } else {
       [[self tableView] addSubview:[_refreshControlProxy control]];
@@ -1250,13 +1250,13 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
 
-  if ([self canEditRowAtIndexPath:realIndexPath] == YES && [self canInsertRowAtIndexPath:realIndexPath] == YES) {
+  if ([self canEditRowAtIndexPath:realIndexPath] && [self canInsertRowAtIndexPath:realIndexPath]) {
     DebugLog(@"[WARN] The row at sectionIndex=%i and itemIndex=%i has both 'canEdit' and 'canInsert'. Please use either 'canEdit' for deleting or 'canInsert' for inserting a row.", realIndexPath.section, realIndexPath.row);
   }
 
-  if ([self canEditRowAtIndexPath:realIndexPath] == YES) {
+  if ([self canEditRowAtIndexPath:realIndexPath]) {
     return UITableViewCellEditingStyleDelete;
-  } else if ([self canInsertRowAtIndexPath:realIndexPath] == YES) {
+  } else if ([self canInsertRowAtIndexPath:realIndexPath]) {
     return UITableViewCellEditingStyleInsert;
   }
 
@@ -1843,10 +1843,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   if ((_pullViewProxy != nil) && ([scrollView isTracking])) {
-    if ((scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO)) {
+    if ((scrollView.contentOffset.y < pullThreshhold) && !pullActive) {
       pullActive = YES;
       [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
-    } else if ((scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES)) {
+    } else if ((scrollView.contentOffset.y > pullThreshhold) && (pullActive)) {
       pullActive = NO;
       [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }
@@ -1956,7 +1956,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   if ([self.proxy _hasListeners:@"pullend"]) {
-    if ((_pullViewProxy != nil) && (pullActive == YES)) {
+    if ((_pullViewProxy != nil) && (pullActive)) {
       pullActive = NO;
       [self.proxy fireEvent:@"pullend" withObject:nil withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
     }

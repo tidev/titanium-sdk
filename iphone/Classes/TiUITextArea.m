@@ -204,7 +204,7 @@
 - (void)setShowUndoRedoActions:(id)value
 {
   UITextView *tv = (UITextView *)[self textWidgetView];
-  if ([TiUtils boolValue:value] == YES) {
+  if ([TiUtils boolValue:value]) {
 
     tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
     tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;

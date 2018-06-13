@@ -139,69 +139,43 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   return scale > 1.0;
 }
 
-+ (BOOL)isIOS4_2OrGreater
-{
-  DEPRECATED_REPLACED(@"isIOS4_2OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"4.2\")");
-  return [TiUtils isIOSVersionOrGreater:@"4.2"];
-}
-
-+ (BOOL)isIOS5OrGreater
-{
-  DEPRECATED_REPLACED(@"isIOS5OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"5.0\")");
-  return [TiUtils isIOSVersionOrGreater:@"5.0"];
-}
-
-+ (BOOL)isIOS6OrGreater
-{
-  DEPRECATED_REPLACED(@"isIOS6OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"6.0\")");
-  return [TiUtils isIOSVersionOrGreater:@"6.0"];
-}
-
 + (BOOL)isIOS7OrGreater
 {
-  DEPRECATED_REPLACED(@"isIOS7OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"7.0\")");
   return [TiUtils isIOSVersionOrGreater:@"7.0"];
 }
 
 + (BOOL)isIOS8OrGreater
 {
-  DEPRECATED_REPLACED(@"isIOS8OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"8.0\")");
   return [TiUtils isIOSVersionOrGreater:@"8.0"];
 }
 
 + (BOOL)isIOS82rGreater
 {
-  DEPRECATED_REPLACED(@"isIOS82rGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"8.2\")");
   return [TiUtils isIOSVersionOrGreater:@"8.2"];
 }
 
 + (BOOL)isIOS9OrGreater
 {
-  DEPRECATED_REPLACED(@"isIOS9OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"9.0\")");
   return [TiUtils isIOSVersionOrGreater:@"9.0"];
 }
 
 + (BOOL)isIOS9_1OrGreater
 {
-  DEPRECATED_REPLACED(@"isIOS9_1OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"9.1\")");
   return [TiUtils isIOSVersionOrGreater:@"9.1"];
 }
 
 + (BOOL)isIOS9_3OrGreater
 {
-  DEPRECATED_REPLACED(@"isIOS9_3OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"9.3\")");
   return [TiUtils isIOSVersionOrGreater:@"9.3"];
 }
 
 + (BOOL)isIOS10OrGreater
 {
-  DEPRECATED_REPLACED(@"isIOS10OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"10.0\")");
   return [TiUtils isIOSVersionOrGreater:@"10.0"];
 }
 
 + (BOOL)isIOS11OrGreater
 {
-  DEPRECATED_REPLACED(@"isIOS11OrGreater", @"8.0.0", @"isIOSVersionOrGreater(@\"11.0\")");
   return [TiUtils isIOSVersionOrGreater:@"11.0"];
 }
 
@@ -222,10 +196,10 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (BOOL)isIPhone4
 {
-  static bool iphone_checked = NO;
-  static bool iphone4 = NO;
-  if (iphone_checked == NO) {
-    iphone_checked = YES;
+  static BOOL iphoneChecked = NO;
+  static BOOL isiPhone4 = NO;
+  if (!iphoneChecked) {
+    iphoneChecked = YES;
     // for now, this is all we know. we assume this
     // will continue to increase with new models but
     // for now we can't really assume
@@ -233,11 +207,11 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
       struct utsname u;
       uname(&u);
       if (!strcmp(u.machine, "iPhone3,1")) {
-        iphone4 = YES;
+        isiPhone4 = YES;
       }
     }
   }
-  return iphone4;
+  return isiPhone4;
 }
 
 + (NSString *)UTCDateForDate:(NSDate *)data
@@ -289,14 +263,7 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (NSString *)encodeQueryPart:(NSString *)unencodedString
 {
-  NSString *result = (NSString *)CFURLCreateStringByAddingPercentEscapes(
-      NULL,
-      (CFStringRef)unencodedString,
-      NULL,
-      (CFStringRef) @"!*'();:@+$,/?%#[]=",
-      kCFStringEncodingUTF8);
-  [result autorelease];
-  return result;
+  return [unencodedString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
 }
 
 + (NSString *)encodeURIParameters:(NSString *)unencodedString
@@ -876,13 +843,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
     if (range.location != NSNotFound) {
       NSString *firstPortion = [relativeString substringToIndex:range.location];
       NSString *pathPortion = [relativeString substringFromIndex:range.location];
-      CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-          (CFStringRef)pathPortion, charactersToNotEscape, charactersThatNeedEscaping,
-          kCFStringEncodingUTF8);
+      NSString *escapedPath = [pathPortion stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]];
       relativeString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
-      if (escapedPath != NULL) {
-        CFRelease(escapedPath);
-      }
     }
     result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
   } else {
@@ -890,7 +852,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
     if ([[relativeString componentsSeparatedByString:@" "] count] - 1 == 0) {
       result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
     } else {
-      result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
+      result = [NSURL URLWithString:[relativeString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]
+                      relativeToURL:rootPath];
     }
   }
   //TIMOB-18262
@@ -1215,7 +1178,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
                                                      [NSNumber numberWithDouble:touch.timestamp], @"timestamp",
                                                      nil];
 
-    if ([self isIOS9_1OrGreater]) {
+    if ([self isIOSVersionOrGreater:@"9.1"]) {
       [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
     }
 
@@ -1238,7 +1201,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
     height = statusFrame.size.height;
   }
 
-  CGRect f = [[UIScreen mainScreen] applicationFrame];
+  CGRect f = UIApplication.sharedApplication.keyWindow.frame;
   return CGRectMake(f.origin.x, height, f.size.width, f.size.height);
 }
 
@@ -1457,11 +1420,11 @@ If the new path starts with / and the base url is app://..., we have to massage 
       appurlstr = [appurlstr substringFromIndex:1];
     }
 #if TARGET_IPHONE_SIMULATOR
-    if (app == YES && leadingSlashRemoved) {
+    if (app && leadingSlashRemoved) {
       // on simulator we want to keep slash since it's coming from file
       appurlstr = [@"/" stringByAppendingString:appurlstr];
     }
-    if (TI_APPLICATION_RESOURCE_DIR != nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""] == NO) {
+    if (TI_APPLICATION_RESOURCE_DIR != nil && ![TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]) {
       if ([appurlstr hasPrefix:TI_APPLICATION_RESOURCE_DIR]) {
         if ([[NSFileManager defaultManager] fileExistsAtPath:appurlstr]) {
           return [NSData dataWithContentsOfFile:appurlstr];
@@ -1594,7 +1557,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (CGRect)frameForController:(UIViewController *)theController
 {
   CGRect mainScreen = [[UIScreen mainScreen] bounds];
-  CGRect rect = [[UIScreen mainScreen] applicationFrame];
+  CGRect rect = UIApplication.sharedApplication.keyWindow.frame;
   NSUInteger edges = [theController edgesForExtendedLayout];
   //Check if I cover status bar
   if (((edges & UIRectEdgeTop) != 0)) {
@@ -2031,7 +1994,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (BOOL)livePhotoSupported
 {
-  return [self isIOS9_1OrGreater] == YES;
+  return [self isIOSVersionOrGreater:@"9.1"];
 }
 
 + (NSString *)currentArchitecture
@@ -2053,7 +2016,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (BOOL)validatePencilWithTouch:(UITouch *)touch
 {
-  if ([self isIOS9_1OrGreater]) {
+  if ([self isIOSVersionOrGreater:@"9.1"]) {
     return [touch type] == UITouchTypeStylus;
   } else {
     return NO;

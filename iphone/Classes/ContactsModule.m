@@ -40,31 +40,6 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
   }
 }
 
-// We'll force the address book to only be accessed on the main thread, for consistency.  Otherwise
-// we could run into cross-thread memory issues.
-- (ABAddressBookRef)addressBook
-{
-  if (![NSThread isMainThread]) {
-    return NULL;
-  }
-
-  if (reloadAddressBook && (addressBook != NULL)) {
-    [self releaseAddressBook];
-    addressBook = NULL;
-  }
-  reloadAddressBook = NO;
-
-  if (addressBook == NULL) {
-    addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
-    if (addressBook == NULL) {
-      DebugLog(@"[WARN] Could not create an address book. Make sure you have gotten permission first.");
-    } else {
-      ABAddressBookRegisterExternalChangeCallback(addressBook, CMExternalChangeCallback, self);
-    }
-  }
-  return addressBook;
-}
-
 - (CNContactStore *)contactStore
 {
   if (![NSThread isMainThread]) {
@@ -87,15 +62,6 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
     }
   }
   return contactStore;
-}
-
-- (void)releaseAddressBook
-{
-  TiThreadPerformOnMainThread(^{
-    ABAddressBookUnregisterExternalChangeCallback(addressBook, CMExternalChangeCallback, self);
-    CFRelease(addressBook);
-  },
-      YES);
 }
 
 - (void)startup
@@ -124,13 +90,9 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
 
 - (void)dealloc
 {
-  RELEASE_TO_NIL(picker)
   RELEASE_TO_NIL(cancelCallback)
   RELEASE_TO_NIL(selectedPersonCallback)
   RELEASE_TO_NIL(selectedPropertyCallback)
-  if (addressBook != NULL) {
-    [self releaseAddressBook];
-  }
   RELEASE_TO_NIL(contactKeysWithoutImage)
   RELEASE_TO_NIL(contactKeysWithImage)
   RELEASE_TO_NIL(contactStore)
@@ -147,33 +109,17 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
   return @"Ti.Contacts";
 }
 
-- (void)removeRecord:(ABRecordRef)record
-{
-  CFErrorRef error;
-  if (!ABAddressBookRemoveRecord([self addressBook], record, &error)) {
-    CFStringRef errorStr = CFErrorCopyDescription(error);
-    NSString *str = [NSString stringWithString:(NSString *)errorStr];
-    CFRelease(errorStr);
-
-    NSString *kind = (ABRecordGetRecordType(record) == kABPersonType) ? @"person" : @"group";
-
-    [self throwException:[NSString stringWithFormat:@"Failed to remove %@: %@", kind, str]
-               subreason:nil
-                location:CODELOCATION];
-  }
-}
-
 #pragma mark Public API
 
 - (NSNumber *)hasContactsPermissions:(id)unused
 {
   NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSContactsUsageDescription"];
 
-  if ([TiUtils isIOS10OrGreater] && !calendarPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !calendarPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSContactsUsageDescription\" inside the plist in your tiapp.xml when accessing the native contacts. Please add the key and re-run the application.");
   }
 
-  return NUMBOOL(ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusAuthorized);
+  return @([CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts] == CNAuthorizationStatusAuthorized);
 }
 
 - (void)requestAuthorization:(id)args
@@ -260,11 +206,7 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
 - (void)revert:(id)unused
 {
   ENSURE_UI_THREAD(revert, unused)
-  ABAddressBookRef ourAddressBook = [self addressBook];
-  if (ourAddressBook == NULL) {
-    return;
-  }
-  ABAddressBookRevert(ourAddressBook);
+  DEPRECATED_REMOVED(@"Contacts.revert()", @"8.0.0", @"8.0.0. Re-fetch your contacts instead.");
 }
 
 - (void)showContacts:(id)args
@@ -275,7 +217,6 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
   RELEASE_TO_NIL(cancelCallback)
   RELEASE_TO_NIL(selectedPersonCallback)
   RELEASE_TO_NIL(selectedPropertyCallback)
-  RELEASE_TO_NIL(picker)
   RELEASE_TO_NIL(contactPicker)
   cancelCallback = [[args objectForKey:@"cancel"] retain];
   selectedPersonCallback = [[args objectForKey:@"selectedPerson"] retain];
@@ -594,7 +535,7 @@ MAKE_SYSTEM_PROP(CONTACTS_SORT_FIRST_NAME, CNContactSortOrderGivenName);
 MAKE_SYSTEM_PROP(CONTACTS_SORT_LAST_NAME, CNContactSortOrderFamilyName);
 
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, CNAuthorizationStatusNotDetermined);
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUTHORIZATION_RESTRICTED, kABAuthorizationStatusRestricted, @"AUTHORIZATION_RESTRICTED", @"8.0.0", @"8.0.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUTHORIZATION_RESTRICTED, 1, @"AUTHORIZATION_RESTRICTED", @"8.0.0", @"8.0.0");
 MAKE_SYSTEM_PROP(AUTHORIZATION_DENIED, CNAuthorizationStatusDenied);
 MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
 
@@ -611,11 +552,6 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
     [[TiApp app] hideModalController:contactPicker animated:animated];
   }
 }
-/*
-- (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContactProperties:(nonnull NSArray<CNContactProperty *> *)contactProperties
-{
-    
-}*/
 
 - (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContactProperty:(nonnull CNContactProperty *)contactProperty
 {
@@ -696,11 +632,6 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
   }
   return YES;
 }
-/*
-- (void)contactPicker:(nonnull CNContactPickerViewController *)picker didSelectContacts:(nonnull NSArray<CNContact *> *)contacts
-{
-    
-}*/
 
 - (void)contactPickerDidCancel:(nonnull CNContactPickerViewController *)picker
 {

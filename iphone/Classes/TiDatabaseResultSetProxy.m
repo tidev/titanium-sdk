@@ -130,7 +130,7 @@
 {
   if (results != nil) {
     validRow = [results next];
-    if (validRow == NO) {
+    if (!validRow) {
       [self close:nil];
     }
     return NUMBOOL(validRow);
@@ -211,7 +211,7 @@
       [results reset];
       reset = YES;
     }
-    if (reset == NO) {
+    if (!reset) {
       return NUMINT(rowCount);
     }
     // we cache it

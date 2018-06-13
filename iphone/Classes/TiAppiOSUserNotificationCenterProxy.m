@@ -18,7 +18,7 @@
 {
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     TiThreadPerformOnMainThread(^{
       [[UNUserNotificationCenter currentNotificationCenter] getPendingNotificationRequestsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
         NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
@@ -59,7 +59,7 @@
 {
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     TiThreadPerformOnMainThread(^{
       [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
         NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
@@ -87,7 +87,7 @@
 {
   ENSURE_TYPE_OR_NIL(args, NSArray);
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     TiThreadPerformOnMainThread(^{
       if (args == nil || [args count] == 0) {
@@ -131,7 +131,7 @@
 {
   ENSURE_TYPE_OR_NIL(args, NSArray);
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     TiThreadPerformOnMainThread(^{
       UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
@@ -165,7 +165,7 @@
 {
   ENSURE_SINGLE_ARG(callback, KrollCallback);
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     TiThreadPerformOnMainThread(^{
       [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *settings) {
         NSMutableDictionary *propertiesDict = [@{

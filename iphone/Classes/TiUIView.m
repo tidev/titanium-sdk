@@ -290,7 +290,7 @@ DEFINE_EXCEPTIONS
 #ifndef TI_USE_AUTOLAYOUT
   self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 #else
-  if (self.translatesAutoresizingMaskIntoConstraints == NO) {
+  if (!self.translatesAutoresizingMaskIntoConstraints) {
     self.autoresizingMask = UIViewAutoresizingNone;
   } else {
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -392,8 +392,7 @@ DEFINE_EXCEPTIONS
   // this happens when a view is added to another view but not
   // through the framework (such as a tableview header) and it
   // means we need to force the layout of our children
-  if (childrenInitialized == NO && CGRectIsEmpty(frame) == NO &&
-      [self.proxy isKindOfClass:[TiViewProxy class]]) {
+  if (!childrenInitialized && !CGRectIsEmpty(frame) && [self.proxy isKindOfClass:[TiViewProxy class]]) {
     childrenInitialized = YES;
     [(TiViewProxy *)self.proxy layoutChildren:NO];
   }
@@ -844,7 +843,7 @@ DEFINE_EXCEPTIONS
 {
   RELEASE_TO_NIL(animation);
 
-  if ([self.proxy isKindOfClass:[TiViewProxy class]] && [(TiViewProxy *)self.proxy viewReady] == NO) {
+  if ([self.proxy isKindOfClass:[TiViewProxy class]] && ![(TiViewProxy *)self.proxy viewReady]) {
     DebugLog(@"[DEBUG] Ti.View.animate() called before view %@ was ready: Will re-attempt", self);
     if (animationDelayGuard++ > 5) {
       DebugLog(@"[DEBUG] Animation guard triggered, exceeded timeout to perform animation.");
@@ -1232,7 +1231,7 @@ DEFINE_EXCEPTIONS
   // be handled at all.. NOTE: we don't turn off the views interactionEnabled
   // property since we need special handling ourselves and if we turn it off
   // on the view, we'd never get this event
-  if (hasTouchListeners == NO && [self interactionEnabled] == NO) {
+  if (!hasTouchListeners && ![self interactionEnabled]) {
     return nil;
   }
 

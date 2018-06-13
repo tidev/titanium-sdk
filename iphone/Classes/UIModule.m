@@ -569,11 +569,11 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 }
 - (NSNumber *)ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
 {
-  return NUMINTEGER(NSTextWritingDirectionEmbedding);
+  return NUMINTEGER(NSWritingDirectionEmbedding);
 }
 - (NSNumber *)ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
 {
-  return NUMINTEGER(NSTextWritingDirectionOverride);
+  return NUMINTEGER(NSWritingDirectionOverride);
 }
 - (NSString *)ATTRIBUTE_LETTERPRESS_STYLE
 {
@@ -643,7 +643,7 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_ONE_TIME_CODE, UITextContentTypeOneTimeCode);
 #ifdef USE_TI_UICLIPBOARD
 - (NSString *)CLIPBOARD_OPTION_LOCAL_ONLY
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return UIPasteboardOptionLocalOnly;
   } else {
     return @"";
@@ -651,7 +651,7 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_ONE_TIME_CODE, UITextContentTypeOneTimeCode);
 }
 - (NSString *)CLIPBOARD_OPTION_EXPIRATION_DATE
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return UIPasteboardOptionExpirationDate;
   } else {
     return @"";

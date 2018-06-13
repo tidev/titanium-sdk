@@ -282,7 +282,7 @@
   }
 
   // TIMOB-16100: Native issue that prevents the textfield to mutate the font-config
-  BOOL needsAdjustment = (![TiUtils isIOS10OrGreater] && ((UITextField *)textWidgetView).secureTextEntry);
+  BOOL needsAdjustment = (![TiUtils isIOSVersionOrGreater:@"10.0"] && ((UITextField *)textWidgetView).secureTextEntry);
 
   if (needsAdjustment) {
     NSString *str = ((UITextField *)textWidgetView).text;
@@ -301,7 +301,7 @@
 
   [[self proxy] replaceValue:value forKey:@"showUndoRedoActions" notification:NO];
 
-  if ([TiUtils boolValue:value] == YES) {
+  if ([TiUtils boolValue:value]) {
     tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
     tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
   } else {

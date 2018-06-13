@@ -204,7 +204,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     UIApplication *app = [UIApplication sharedApplication];
     NSURL *url = [NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]];
     if ([app canOpenURL:url]) {
-      if ([TiUtils isIOS10OrGreater]) {
+      if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
         [app openURL:url options:@{} completionHandler:nil];
       } else {
         [app openURL:url];
@@ -1213,7 +1213,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 //TODO: this should be compiled out in production mode
 - (void)showModalError:(NSString *)message
 {
-  if (TI_APPLICATION_SHOW_ERROR_CONTROLLER == NO) {
+  if (!TI_APPLICATION_SHOW_ERROR_CONTROLLER) {
     NSLog(@"[ERROR] Application received error: %@", message);
     return;
   }

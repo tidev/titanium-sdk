@@ -9,44 +9,9 @@
 
 @implementation TiContactsGroup
 
-- (ABRecordRef)record
-{
-  // Force us to be on the main thread
-  if (![NSThread isMainThread]) {
-    return NULL;
-  }
-
-  if (record == NULL) {
-    if (recordId != kABRecordInvalidID) {
-      ABAddressBookRef ourAddressBook = [module addressBook];
-      if (ourAddressBook != NULL) {
-        record = ABAddressBookGetGroupWithRecordID(ourAddressBook, recordId);
-      }
-    }
-  }
-  return record;
-}
-
-- (NSNumber *)recordId
-{
-  DebugLog(@"[WARN] The \"recordId\" property has been removed for iOS 9 and greater.");
-  return NULL;
-}
-
-//only for iOS9
 - (NSString *)identifier
 {
   return group.identifier;
-}
-
-- (id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule *)module_
-{
-  if (self = [super _initWithPageContext:context]) {
-    recordId = id_;
-    record = NULL;
-    module = module_;
-  }
-  return self;
 }
 
 - (id)_initWithPageContext:(id<TiEvaluator>)context contactGroup:(CNMutableGroup *)group_ module:(ContactsModule *)module_

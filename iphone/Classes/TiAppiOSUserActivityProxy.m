@@ -88,7 +88,10 @@
   }
 
   if ([props objectForKey:@"webpageURL"]) {
-    [_userActivity setWebpageURL:[NSURL URLWithString:[[TiUtils stringValue:@"webpageURL" properties:props] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+    NSString *webpageURLProxyString = [TiUtils stringValue:@"webpageURL" properties:props];
+    NSString *webpageURLString = [webpageURLProxyString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+
+    [_userActivity setWebpageURL:[NSURL URLWithString:webpageURLString]];
   }
 
   if ([props objectForKey:@"needsSave"]) {
@@ -258,8 +261,8 @@
   ENSURE_SINGLE_ARG(value, NSString);
   ENSURE_UI_THREAD(setWebpageURL, value);
 
-  [_userActivity setWebpageURL:
-                     [NSURL URLWithString:[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+  NSURL *webpageURL = [NSURL URLWithString:[value stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
+  [_userActivity setWebpageURL:webpageURL];
 }
 
 - (NSNumber *)needsSave

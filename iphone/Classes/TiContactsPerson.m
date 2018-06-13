@@ -14,52 +14,12 @@
 static NSDictionary *contactProperties;
 static NSDictionary *multiValueProperties;
 static NSDictionary *multiValueTypes;
-static NSDictionary *multiValueLabels;
 static NSDictionary *iOS9multiValueLabels;
 static NSDictionary *iOS9propertyKeys;
 
 @implementation TiContactsPerson
 
 #pragma mark Internals
-
-- (ABRecordRef)record
-{
-  // Force us to be on the main thread
-  if (![NSThread isMainThread]) {
-    return NULL;
-  }
-
-  if (record == NULL) {
-    if (recordId != kABRecordInvalidID) {
-      ABAddressBookRef ourAddressBook = [module addressBook];
-      if (ourAddressBook != NULL) {
-        record = ABAddressBookGetPersonWithRecordID(ourAddressBook, recordId);
-        CFRetain(record);
-      }
-    }
-  }
-  return record;
-}
-
-- (id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule *)module_
-{
-  if (self = [super _initWithPageContext:context]) {
-    recordId = id_;
-    record = NULL;
-    module = module_;
-  }
-  return self;
-}
-
-- (id)_initWithPageContext:(id<TiEvaluator>)context person:(ABRecordRef)person_ module:(ContactsModule *)module_
-{
-  if (self = [super _initWithPageContext:context]) {
-    recordId = ABRecordGetRecordID(person_);
-    record = CFRetain(person_);
-    module = module_;
-  }
-  return self;
-}
 
 - (id)_initWithPageContext:(id<TiEvaluator>)context
                  contactId:(CNMutableContact *)person_
@@ -91,9 +51,6 @@ static NSDictionary *iOS9propertyKeys;
 {
   [self setObserver:nil];
   RELEASE_TO_NIL(iOS9contactProperties)
-  if (record != NULL) {
-    CFRelease(record);
-  }
   [super dealloc];
 }
 
@@ -133,33 +90,6 @@ static NSDictionary *iOS9propertyKeys;
 
 #pragma mark Property dictionaries
 
-// -kABPerson non-multi properties
-+ (NSDictionary *)contactProperties
-{
-  if (contactProperties == nil) {
-    contactProperties =
-        [[NSDictionary alloc] initWithObjectsAndKeys:NUMINT(kABPersonFirstNameProperty), @"firstName",
-                              NUMINT(kABPersonLastNameProperty), @"lastName",
-                              NUMINT(kABPersonMiddleNameProperty), @"middleName",
-                              NUMINT(kABPersonPrefixProperty), @"prefix",
-                              NUMINT(kABPersonSuffixProperty), @"suffix",
-                              NUMINT(kABPersonNicknameProperty), @"nickname",
-                              NUMINT(kABPersonFirstNamePhoneticProperty), @"firstPhonetic",
-                              NUMINT(kABPersonLastNamePhoneticProperty), @"lastPhonetic",
-                              NUMINT(kABPersonMiddleNamePhoneticProperty), @"middlePhonetic",
-                              NUMINT(kABPersonOrganizationProperty), @"organization",
-                              NUMINT(kABPersonJobTitleProperty), @"jobTitle",
-                              NUMINT(kABPersonDepartmentProperty), @"department",
-                              NUMINT(kABPersonNoteProperty), @"note",
-                              NUMINT(kABPersonBirthdayProperty), @"birthday",
-                              NUMINT(kABPersonCreationDateProperty), @"created",
-                              NUMINT(kABPersonModificationDateProperty), @"modified",
-                              NUMINT(kABPersonKindProperty), @"kind",
-                              nil];
-  }
-  return contactProperties;
-}
-
 + (NSDictionary *)iOS9propertyKeys
 {
   if (iOS9propertyKeys == nil) {
@@ -191,40 +121,6 @@ static NSDictionary *iOS9propertyKeys;
                                              nil];
   }
   return iOS9propertyKeys;
-}
-
-+ (NSDictionary *)multiValueProperties
-{
-  if (multiValueProperties == nil) {
-    multiValueProperties =
-        [[NSDictionary alloc] initWithObjectsAndKeys:NUMINT(kABPersonEmailProperty), @"email",
-                              NUMINT(kABPersonAddressProperty), @"address",
-                              NUMINT(kABPersonPhoneProperty), @"phone",
-                              NUMINT(kABPersonSocialProfileProperty), @"socialProfile",
-                              NUMINT(kABPersonInstantMessageProperty), @"instantMessage",
-                              NUMINT(kABPersonRelatedNamesProperty), @"relatedNames",
-                              NUMINT(kABPersonDateProperty), @"date",
-                              NUMINT(kABPersonURLProperty), @"url",
-                              nil];
-  }
-  return multiValueProperties;
-}
-
-+ (NSDictionary *)multiValueTypes
-{
-  if (multiValueTypes == nil) {
-    multiValueTypes =
-        [[NSDictionary alloc] initWithObjectsAndKeys:NUMINT(kABMultiStringPropertyType), NUMINT(kABPersonEmailProperty),
-                              NUMINT(kABMultiDictionaryPropertyType), NUMINT(kABPersonAddressProperty),
-                              NUMINT(kABMultiStringPropertyType), NUMINT(kABPersonPhoneProperty),
-                              NUMINT(kABMultiDictionaryPropertyType), NUMINT(kABPersonSocialProfileProperty),
-                              NUMINT(kABMultiDictionaryPropertyType), NUMINT(kABPersonInstantMessageProperty),
-                              NUMINT(kABMultiStringPropertyType), NUMINT(kABPersonRelatedNamesProperty),
-                              NUMINT(kABMultiDateTimePropertyType), NUMINT(kABPersonDateProperty),
-                              NUMINT(kABMultiStringPropertyType), NUMINT(kABPersonURLProperty),
-                              nil];
-  }
-  return multiValueTypes;
 }
 
 + (NSDictionary *)iOS9multiValueLabels
@@ -285,48 +181,6 @@ static NSDictionary *iOS9propertyKeys;
 }
 
 #pragma mark Multi-value property management
-
-- (NSDictionary *)dictionaryFromMultiValue:(ABMultiValueRef)multiValue defaultKey:(NSString *)defaultKey
-{
-  NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-
-  CFIndex count = ABMultiValueGetCount(multiValue);
-  for (CFIndex i = 0; i < count; i++) {
-    CFStringRef label = ABMultiValueCopyLabelAtIndex(multiValue, i);
-    CFTypeRef value = ABMultiValueCopyValueAtIndex(multiValue, i);
-
-    NSString *readableLabel = nil;
-    NSArray *labelKeys = [[TiContactsPerson multiValueLabels] allKeysForObject:(NSString *)label];
-    if (labelKeys != nil && ([labelKeys count] > 0)) {
-      readableLabel = [labelKeys objectAtIndex:0];
-    } else {
-      if (label == NULL) {
-        readableLabel = defaultKey;
-      } else {
-        readableLabel = (NSString *)label;
-      }
-    }
-
-    if ([dict valueForKey:readableLabel] == nil) {
-      [dict setValue:[NSMutableArray array] forKey:readableLabel];
-    }
-
-    if (CFGetTypeID(value) == CFDateGetTypeID()) {
-      // Dates still need special handling - we should make a TiDate object
-      [[dict valueForKey:readableLabel] addObject:[TiUtils UTCDateForDate:(NSDate *)value]];
-    } else {
-      // This works as long as 'value' is toll-free bridged, which is (currently) true for all AB property types
-      [[dict valueForKey:readableLabel] addObject:(id)value];
-    }
-
-    if (label != NULL) {
-      CFRelease(label);
-    }
-    CFRelease(value);
-  }
-
-  return dict;
-}
 
 - (NSDictionary *)dictionaryFromiOS9MultiValueArray:(NSArray *)property
 {
@@ -398,24 +252,6 @@ static NSDictionary *iOS9propertyKeys;
   }
   NSDictionary *result = [NSDictionary dictionaryWithDictionary:multiValueDict];
   return result;
-}
-
-- (ABMultiValueRef)dictionaryToMultiValue:(NSDictionary *)dict type:(ABPropertyType)type
-{
-  ABMultiValueRef multiValue = ABMultiValueCreateMutable(type);
-  [(id)multiValue autorelease];
-  for (NSString *key in [dict allKeys]) {
-    NSString *label = [[TiContactsPerson multiValueLabels] valueForKey:key];
-    for (id value in [dict objectForKey:key]) {
-      if (type == kABMultiDateTimePropertyType) {
-        ABMultiValueAddValueAndLabel(multiValue, (CFDateRef)[TiUtils dateForUTCDate:(CFTypeRef)value], (CFStringRef)label, NULL);
-      } else {
-        ABMultiValueAddValueAndLabel(multiValue, (CFTypeRef)value, (CFStringRef)label, NULL);
-      }
-    }
-  }
-
-  return multiValue;
 }
 
 #pragma mark Property management

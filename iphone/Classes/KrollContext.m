@@ -828,14 +828,14 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (void)stop
 {
-  if (stopped == NO) {
+  if (!stopped) {
     stopped = YES;
   }
 }
 
 - (BOOL)running
 {
-  return stopped == NO;
+  return !stopped;
 }
 
 - (JSGlobalContextRef)context

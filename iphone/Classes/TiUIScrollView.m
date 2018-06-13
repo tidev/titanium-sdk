@@ -139,7 +139,7 @@
     [self addSubview:scrollView];
 #endif
   }
-  if ([TiUtils isIOS11OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     [self adjustScrollViewInsets];
   }
   return scrollView;
@@ -363,7 +363,7 @@
 - (void)setRefreshControl_:(id)args
 {
 #ifdef USE_TI_UIREFRESHCONTROL
-  if (![TiUtils isIOS10OrGreater]) {
+  if (![TiUtils isIOSVersionOrGreater:@"10.0"]) {
     NSLog(@"[WARN] Ti.UI.RefreshControl inside Ti.UI.ScrollView is only available in iOS 10 and later.");
     return;
   }
