@@ -471,7 +471,7 @@ static NSDictionary *iOS9propertyKeys;
 - (NSNumber *)recordId
 {
   DebugLog(@"[WARN] This \"recordId\" property has been removed for iOS 9 and greater.");
-  return NULL;
+  return nil;
 }
 
 - (NSString *)identifier
@@ -559,8 +559,6 @@ static NSDictionary *iOS9propertyKeys;
   NSCalendar *cal = [NSCalendar currentCalendar];
   person.birthday = [cal components:unitFlags fromDate:saveDate];
   [self checkAndNotifyObserver];
-
-  return;
 }
 
 - (id)valueForUndefinedKey:(NSString *)key
