@@ -1104,7 +1104,7 @@ properties:
     summary: Specifies the expectation of a new password.
     type: String
     platforms: [iphone, ipad]
-    since: "8.0.0"
+    since: "7.4.0"
     osver: { ios: { min: "12.0" } }
     permission: read-only
 
@@ -1112,7 +1112,7 @@ properties:
     summary: Specifies the expectation of a single-factor SMS login code.
     type: String
     platforms: [iphone, ipad]
-    since: "8.0.0"
+    since: "7.4.0"
     osver: { ios: { min: "12.0" } }
     permission: read-only
 
