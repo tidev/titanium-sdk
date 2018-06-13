@@ -656,7 +656,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   TiThreadPerformOnMainThread(^() {
     [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
       KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                             eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:nil]
+                                                             eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
                                                               thisObject:self];
       [[callback context] enqueue:invocationEvent];
       RELEASE_TO_NIL(invocationEvent);
@@ -1008,7 +1008,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
                              completionHandler:^(BOOL granted) {
                                NSString *errorMessage = granted ? nil : @"The user denied access to use the camera.";
                                KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                                      eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:errorMessage]
+                                                                                      eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
                                                                                        thisObject:self];
                                [[callback context] enqueue:invocationEvent];
                                RELEASE_TO_NIL(invocationEvent);
@@ -1042,7 +1042,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       BOOL granted = (status == PHAuthorizationStatusAuthorized);
       NSString *errorMessage = granted ? @"" : @"The user denied access to use the photo gallery.";
       KrollEvent *invocationEvent = [[[KrollEvent alloc] initWithCallback:callback
-                                                              eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:errorMessage]
+                                                              eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
                                                                thisObject:self] autorelease];
       [[callback context] enqueue:invocationEvent];
     }];
@@ -1188,7 +1188,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
         BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
         KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                               eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:nil]
+                                                               eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
                                                                 thisObject:self];
         [[callback context] enqueue:invocationEvent];
         RELEASE_TO_NIL(invocationEvent);
