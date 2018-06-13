@@ -26,8 +26,8 @@ extern NSString *const TI_APPLICATION_DEPLOYTYPE;
 - (void)logMessage:(NSArray *)args severity:(NSString *)severity
 {
 
-  NSString *lcSeverity = [severity lowercaseString];
 #ifndef USE_JSCORE_FRAMEWORK
+  NSString *lcSeverity = [severity lowercaseString];
   DebuggerLogLevel level = OUT;
   if ([lcSeverity isEqualToString:@"warn"]) {
     level = WARN;

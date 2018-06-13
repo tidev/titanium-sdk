@@ -119,6 +119,7 @@
     if ([calendar_ allowsContentModifications]) {
       TiCalendarCalendar *calendar = [[TiCalendarCalendar alloc] _initWithPageContext:[self executionContext] calendar:calendar_ module:self];
       [editableCalendars addObject:calendar];
+      RELEASE_TO_NIL(calendar);
     }
   }
   return editableCalendars;
