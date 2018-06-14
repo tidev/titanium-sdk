@@ -1137,7 +1137,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
-    since: {android: "7.4.0"}
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_LOW
     summary: Media type constant for low-quality video recording.
     description: |
@@ -1145,7 +1145,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
-    since: {android: "7.4.0"}
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_MEDIUM
     summary: Media type constant for medium-quality video recording.
     description: |
@@ -1162,14 +1162,14 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
-    since: {android: "7.4.0"}
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_IFRAME_1280x720
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 1280x720 iFrame format.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
-    since: {android: "7.4.0", iphone: "6.0.0", ipad: "6.0.0"}
+    since: { android: "7.4.0", iphone: "6.0.0", ipad: "6.0.0" }
   - name: QUALITY_IFRAME_960x540
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 960x540 iFrame format.
