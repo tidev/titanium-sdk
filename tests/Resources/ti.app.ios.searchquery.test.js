@@ -14,14 +14,14 @@ describe.ios('Titanium.App.iOS.SearchQuery', function () {
 
 	var searchQuery;
 
-	before(function (finish) {
+	before(function () {
 		searchQuery = Ti.App.iOS.createSearchQuery({
 			queryString: 'title == "Titanium*"',
-			attributes: ['title', 'displayName', 'keywords', 'contentType']
+			attributes: [ 'title', 'displayName', 'keywords', 'contentType' ]
 		});
 	});
 
-	after(function (finish) {
+	after(function () {
 		searchQuery = null;
 	});
 
