@@ -138,9 +138,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD = 5;
 
 	@Kroll.constant
-	public static final int VIDEO_QUALITY_LOW = CamcorderProfile.QUALITY_LOW;
+	public static final int QUALITY_LOW = CamcorderProfile.QUALITY_LOW;
 	@Kroll.constant
-	public static final int VIDEO_QUALITY_HIGH = CamcorderProfile.QUALITY_HIGH;
+	public static final int QUALITY_HIGH = CamcorderProfile.QUALITY_HIGH;
+	@Kroll.constant
+	public static final int QUALITY_640x480 = CamcorderProfile.QUALITY_480P;
+	@Kroll.constant
+	public static final int QUALITY_IFRAME_1280x720 = CamcorderProfile.QUALITY_720P;
 
 	@Kroll.constant
 	public static final int VIDEO_FINISH_REASON_PLAYBACK_ENDED = 0;
@@ -248,7 +252,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		String[] mediaTypes = null;
 		String intentType = MediaStore.ACTION_IMAGE_CAPTURE;
 		int videoMaximumDuration = 0;
-		int videoQuality = VIDEO_QUALITY_HIGH;
+		int videoQuality = QUALITY_HIGH;
 		int cameraType = 0;
 
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
@@ -356,7 +360,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		boolean saveToPhotoGallery = false;
 		boolean autohide = true;
 		int videoMaximumDuration = 0;
-		int videoQuality = VIDEO_QUALITY_HIGH;
+		int videoQuality = QUALITY_HIGH;
 		int cameraType = 0;
 		String[] mediaTypes = null;
 		int flashMode = CAMERA_FLASH_OFF;
