@@ -40,7 +40,7 @@ describe.ios('Titanium.App.iOS', function () {
 	});
 
 	it('#createSearchQuery(args)', function () {
-		should(Ti.App.iOS.createSearchQuery).be.a.Function; // More tests can be found in own suite 
+		should(Ti.App.iOS.createSearchQuery).be.a.Function; // More tests can be found in own suite
 	});
 
 	it('#createSearchableIndex(args)', function () {
@@ -65,7 +65,7 @@ describe.ios('Titanium.App.iOS', function () {
 			itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
 			title: 'Titanium Core Spotlight Tutorial',
 			contentDescription: 'Tech Example \nOn: ' + String.formatDate(new Date(), 'short'),
-			keywords: ['Mobile', 'Appcelerator', 'Titanium']
+			keywords: [ 'Mobile', 'Appcelerator', 'Titanium' ]
 		});
 
 		var searchableItem = Ti.App.iOS.createSearchableItem({
@@ -85,7 +85,7 @@ describe.ios('Titanium.App.iOS', function () {
 			itemContentType: Ti.App.iOS.UTTYPE_IMAGE,
 			title: 'Titanium Core Spotlight Tutorial',
 			contentDescription: 'Tech Example \nOn: ' + String.formatDate(new Date(), 'short'),
-			keywords: ['Mobile', 'Appcelerator', 'Titanium']
+			keywords: [ 'Mobile', 'Appcelerator', 'Titanium' ]
 		});
 
 		should(itemAttr).be.an.Object;
