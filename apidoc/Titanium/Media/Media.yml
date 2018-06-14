@@ -1136,14 +1136,16 @@ properties:
         Desktop using Image Capture; they are likely to be too large for transfer using Wi-Fi.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_LOW
     summary: Media type constant for low-quality video recording.
     description: |
         Recorded files can usually be transferred over the cellular network.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_MEDIUM
     summary: Media type constant for medium-quality video recording.
     description: |
@@ -1159,14 +1161,15 @@ properties:
         of 640x480).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_IFRAME_1280x720
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 1280x720 iFrame format.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: 6.0.0
+    platforms: [iphone, ipad, android]
+    since: { android: "7.4.0", iphone: "6.0.0", ipad: "6.0.0" }
   - name: QUALITY_IFRAME_960x540
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 960x540 iFrame format.

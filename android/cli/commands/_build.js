@@ -1817,7 +1817,6 @@ AndroidBuilder.prototype.doAnalytics = function doAnalytics(next) {
 	}
 
 	cli.addAnalyticsEvent(eventName, {
-		dir: cli.argv['project-dir'],
 		name: cli.tiapp.name,
 		publisher: cli.tiapp.publisher,
 		url: cli.tiapp.url,
@@ -3848,6 +3847,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 		finalAndroidManifest.application.service[tiAnalyticsService] = {
 			name: tiAnalyticsService,
+			permission: 'android.permission.BIND_JOB_SERVICE',
 			exported: false
 		};
 	}

@@ -17,3 +17,8 @@
 #define IS_XCODE_9 false
 #endif
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000
+#define IS_XCODE_10 true
+#else
+#define IS_XCODE_10 false
+#endif

@@ -69,3 +69,32 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+
+  - name: time
+    summary: Start a timer to track duration of an operation.
+    description: |
+          Begin a timer that can be used to track the duration of an operation.
+          If no label is passed to the function it will default to "default".
+          If a label already exists then the existing label will not be overwritten
+          and a warning will be logged to the console.
+    parameters:
+      - name: label
+        summary: The label to track the timer by
+        type: String
+        optional: true
+        default: "default"
+    since: 7.2.0
+
+  - name: timeEnd
+    summary: Stop a timer that was previously started.
+    description: |
+          Stop a timer that was started by calling [console.time](Global.console.time), and
+          output the time since the timer was begun to the console in milliseconds.
+          If no timer exists a warning will be logged to the console.
+    parameters:
+      - name: label
+        summary: The label to track the timer by
+        type: String
+        optional: true
+        default: "default"
+    since: 7.2.0
