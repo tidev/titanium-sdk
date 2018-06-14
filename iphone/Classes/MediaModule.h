@@ -54,7 +54,6 @@
   KrollCallback *pickerErrorCallback;
   KrollCallback *pickerCancelCallback;
 
-  id popover;
   TiViewProxy *cameraView;
 
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)

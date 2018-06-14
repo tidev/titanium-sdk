@@ -25,8 +25,8 @@
 #import "TiUIWindowProxy.h"
 #endif
 
-#define IGNORE_IF_NOT_OPENED                      \
-  if (!windowOpened || ![self viewAttached])      \
+#define IGNORE_IF_NOT_OPENED                 \
+  if (!windowOpened || ![self viewAttached]) \
     return;
 
 static NSArray *touchEventsArray;

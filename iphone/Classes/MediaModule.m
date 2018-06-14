@@ -957,16 +957,10 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     if (cameraView != nil) {
       [cameraView windowWillClose];
     }
-    if (popover != nil) {
-      [popover dismissPopoverAnimated:animatedPicker];
-      RELEASE_TO_NIL(popover);
 
-      //Unregister for interface change notification
-      [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-    } else {
-      [[TiApp app] hideModalController:picker animated:animatedPicker];
-      [[TiApp controller] repositionSubviews];
-    }
+    [[TiApp app] hideModalController:picker animated:animatedPicker];
+    [[TiApp controller] repositionSubviews];
+
     if (cameraView != nil) {
       [cameraView windowDidClose];
       [self forgetProxy:cameraView];
@@ -1390,7 +1384,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)destroyPicker
 {
-  RELEASE_TO_NIL(popover);
   [self forgetProxy:cameraView];
   RELEASE_TO_NIL(cameraView);
   RELEASE_TO_NIL(editorSuccessCallback);
@@ -1500,7 +1493,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   if (![TiUtils isIPad]) {
     [tiApp showModalController:picker_ animated:animatedPicker];
   } else {
-    RELEASE_TO_NIL(popover);
     TiViewProxy *popoverViewProxy = [args objectForKey:@"popoverView"];
 
     if (![popoverViewProxy isKindOfClass:[TiViewProxy class]]) {
@@ -1514,13 +1506,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [self updatePopoverNow:picker_];
     },
         YES);
-  }
-}
-
-- (void)updatePopover:(NSNotification *)notification
-{
-  if (popover) {
-    [self performSelector:@selector(updatePopoverNow:) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
   }
 }
 
@@ -1541,13 +1526,10 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   if (cameraView != nil) {
     [cameraView windowWillClose];
   }
-  if (popover) {
-    [(UIPopoverController *)popover dismissPopoverAnimated:animatedPicker];
-    RELEASE_TO_NIL(popover);
-  } else {
-    [[TiApp app] hideModalController:picker_ animated:animatedPicker];
-    [[TiApp controller] repositionSubviews];
-  }
+
+  [[TiApp app] hideModalController:picker_ animated:animatedPicker];
+  [[TiApp controller] repositionSubviews];
+
   if (cameraView != nil) {
     [cameraView windowDidClose];
     [self forgetProxy:cameraView];
@@ -1790,22 +1772,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#pragma mark UIPopoverControllerDelegate
-- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
-{
-#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
-  if ([popoverController contentViewController] == musicPicker) {
-    RELEASE_TO_NIL(musicPicker);
-  }
-#endif
-
-  RELEASE_TO_NIL(popover);
-  [self sendPickerCancel];
-  //Unregister for interface change notification
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-}
-
 #pragma mark UIPopoverPresentationControllerDelegate
+
 - (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
 {
   if (self.popoverView != nil) {

@@ -25,14 +25,6 @@ static NSArray *contactKeysWithoutImage;
 
 @implementation ContactsModule
 
-void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRef info, void *context)
-{
-  DebugLog(@"Got External Change Callback");
-  ContactsModule *theModule = (ContactsModule *)context;
-  theModule->reloadAddressBook = YES;
-  [theModule fireEvent:@"reload" withObject:nil];
-}
-
 - (void)contactStoreDidChange:(NSNotification *)notification
 {
   if ([self _hasListeners:@"reload"]) {
