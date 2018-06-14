@@ -5802,6 +5802,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
+									resourcesDir: this.xcodeAppDir
 								};
 								// generate our transpile target based on tijscore/jscore
 								if (this.useJSCore) {

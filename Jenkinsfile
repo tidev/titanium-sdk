@@ -446,7 +446,7 @@ timestamps {
 						withEnv(['ghprbGhRepository=appcelerator/titanium_mobile',"ghprbPullId=${env.CHANGE_ID}", "ZIPFILE=${basename}-osx.zip", "BUILD_STATUS=${currentBuild.currentResult}"]) {
 							// FIXME Can't pass along env variables properly, so we cheat and write them as a JSON file we can require
 							sh 'node -p \'JSON.stringify(process.env)\' > env.json'
-							sh returnStatus: true, script: 'npx danger ci' // Don't fail build if danger fails. We want to retain existign build status.
+							sh returnStatus: true, script: 'npx danger' // Don't fail build if danger fails. We want to retain existing build status.
 						} // withEnv
 					} // nodejs
 					deleteDir()
