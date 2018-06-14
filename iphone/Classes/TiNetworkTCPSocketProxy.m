@@ -543,8 +543,7 @@ const CFOptionFlags writeStreamEventFlags = kCFStreamEventCanAcceptBytes | kCFSt
 
 - (void)close:(id)unused
 {
-  @synchronized(self)
-  {
+  @synchronized(self) {
     if (!VALID) {
       [self throwException:@"Socket is not open"
                  subreason:nil
