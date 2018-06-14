@@ -130,7 +130,7 @@ static NSOperationQueue *_operationQueue = nil;
 {
   id arg = [args objectAtIndex:0];
   NSString *unencodedString = [TiUtils stringValue:arg];
-  return [unencodedString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+  return [unencodedString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 }
 
 - (id)decodeURIComponent:(id)args
