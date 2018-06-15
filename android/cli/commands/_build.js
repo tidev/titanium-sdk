@@ -2730,7 +2730,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 									transpile: this.transpile,
 									targets: {
 										chrome: this.chromeVersion
-									}
+									},
+									resourcesDir: this.buildBinAssetsResourcesDir
 								});
 								const newContents = modified.contents;
 
