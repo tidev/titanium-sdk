@@ -34,8 +34,7 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 
 + (SCListener *)sharedListener
 {
-  @synchronized(self)
-  {
+  @synchronized(self) {
     if (sharedListener == nil) {
       sharedListener = [[self alloc] init];
     }
@@ -177,8 +176,7 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 
 + (id)allocWithZone:(NSZone *)zone
 {
-  @synchronized(self)
-  {
+  @synchronized(self) {
     if (sharedListener == nil) {
       sharedListener = [super allocWithZone:zone];
       return sharedListener;
