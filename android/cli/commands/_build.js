@@ -2557,8 +2557,20 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	const tasks = [
-		// first task is to copy all files in the Resources directory, but ignore
-		// any directory that is the name of a known platform
+		// First copy all of the Titanium SDK's core JS files shared by all platforms.
+		function (cb) {
+			const src = path.join(this.titaniumSdkPath, 'templates', 'core', 'Resources');
+			warnDupeDrawableFolders.call(this, src);
+			_t.logger.debug(__('Copying %s', src.cyan));
+			copyDir.call(this, {
+				src: src,
+				dest: this.buildBinAssetsResourcesDir,
+				ignoreRootDirs: ti.allPlatformNames
+			}, cb);
+		},
+
+		// Next, copy all files in the project's Resources directory,
+		// but ignore any directory that is the name of a known platform.
 		function (cb) {
 			const src = path.join(this.projectDir, 'Resources');
 			warnDupeDrawableFolders.call(this, src);
@@ -2570,7 +2582,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			}, cb);
 		},
 
-		// next copy all files from the Android specific Resources directory
+		// Last, copy all files from the Android specific Resources directory.
 		function (cb) {
 			const src = path.join(this.projectDir, 'Resources', 'android');
 			warnDupeDrawableFolders.call(this, src);
@@ -3986,6 +3998,7 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-S', this.buildResDir,
 			'-I', this.androidCompileSDK.androidJar,
 			'-F', this.ap_File,
+			'--ignore-assets', '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~',
 			'--output-text-symbols', bundlesPath,
 			'--no-version-vectors'
 		];

@@ -183,7 +183,7 @@ function extendModuleWithCommonJs(externalModule, id, thiss, context) {
  * @return {Object}                 The exported module
  */
 Module.prototype.loadExternalModule = function (id, externalBinding, context) {
-	var sourceUrl = (context === undefined) ? 'app://app.js' : context.sourceUrl,
+	var sourceUrl = (context === undefined) ? 'app://ti.shell.js' : context.sourceUrl,
 		externalModule,
 		returnObj;
 

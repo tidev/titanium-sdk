@@ -16,6 +16,7 @@ import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -51,8 +52,6 @@ public class AppModule extends KrollModule implements SensorEventListener
 	private boolean proximityDetection = false;
 	private boolean proximityState;
 	private int proximityEventListenerCount = 0;
-
-	private static final String APP_PATH = "Resources/app.js";
 
 	public AppModule()
 	{
@@ -217,7 +216,18 @@ public class AppModule extends KrollModule implements SensorEventListener
 	@Kroll.method(name = "_restart")
 	public void restart()
 	{
-		KrollRuntime runtime = KrollRuntime.getInstance();
+		// Fetch the root activity hosting the JavaScript runtime.
+		TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
+		if (rootActivity == null) {
+			return;
+		}
+
+		// Fetch a path to the main script that was last loaded.
+		String appPath = rootActivity.getUrl();
+		if (appPath == null) {
+			return;
+		}
+		appPath = "Resources/" + appPath;
 
 		// prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity()
 		TiBaseActivity.canFinishRoot = false;
@@ -229,11 +239,12 @@ public class AppModule extends KrollModule implements SensorEventListener
 		TiBaseActivity.canFinishRoot = true;
 
 		// restart kroll runtime
+		KrollRuntime runtime = KrollRuntime.getInstance();
 		runtime.doDispose();
 		runtime.initRuntime();
 
 		// manually re-launch app
-		runtime.doRunModule(KrollAssetHelper.readAsset(APP_PATH), APP_PATH, getActivityProxy());
+		runtime.doRunModule(KrollAssetHelper.readAsset(appPath), appPath, getActivityProxy());
 	}
 
 	@Kroll.method

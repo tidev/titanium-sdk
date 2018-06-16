@@ -106,7 +106,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	Local<Value> sourceUrl = args.Callee()->GetScriptOrigin().ResourceName();
 	v8::String::Utf8Value sourceUrlValue(sourceUrl);
 
-	const char *url = "app://app.js";
+	const char *url = "app://ti.shell.js";
 	jstring javaSourceUrl = NULL;
 	if (sourceUrlValue.length() > 0) {
 		url = *sourceUrlValue;

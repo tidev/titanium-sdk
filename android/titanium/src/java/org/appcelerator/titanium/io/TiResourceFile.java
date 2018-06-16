@@ -31,34 +31,32 @@ public class TiResourceFile extends TiBaseFile
 	private static final String TAG = "TiResourceFile";
 
 	private String path;
+	private String name;
 	private boolean statsFetched = false;
 	private boolean exists = false;
 
 	public TiResourceFile(String path)
 	{
 		super(TYPE_RESOURCE);
-		this.path = path;
+		this.path = (path != null) ? path : "";
+		fetchName();
 	}
 
 	@Override
 	public boolean isDirectory()
 	{
-		if (statsFetched) {
-			return this.exists && this.typeDir;
+		if (this.statsFetched == false) {
+			fetchStats();
 		}
-
-		fetchStats();
 		return this.exists && this.typeDir;
 	}
 
 	@Override
 	public boolean isFile()
 	{
-		if (statsFetched) {
-			return this.exists && this.typeFile;
+		if (this.statsFetched == false) {
+			fetchStats();
 		}
-
-		fetchStats();
 		return this.exists && this.typeFile;
 	}
 
@@ -145,22 +143,16 @@ public class TiResourceFile extends TiBaseFile
 	@Override
 	public boolean exists()
 	{
-		if (statsFetched) {
-			return this.exists;
+		if (this.statsFetched == false) {
+			fetchStats();
 		}
-
-		fetchStats();
 		return this.exists;
 	}
 
 	@Override
 	public String name()
 	{
-		int idx = path.lastIndexOf("/");
-		if (idx != -1) {
-			return path.substring(idx + 1);
-		}
-		return path;
+		return this.name;
 	}
 
 	@Override
@@ -226,12 +218,11 @@ public class TiResourceFile extends TiBaseFile
 	{
 		List<String> listing = new ArrayList<String>();
 		try {
-			String lpath = TiFileHelper2.getResourcesPath(path);
+			// List files under the APK's "assets/Resources" directory tree.
+			String lpath = TiFileHelper2.getResourcesPath(this.path);
 			if (lpath.endsWith("/")) {
 				lpath = lpath.substring(0, lpath.lastIndexOf("/"));
 			}
-
-			// list application assets
 			String[] names = TiApplication.getInstance().getAssets().list(lpath);
 			if (names != null) {
 				int len = names.length;
@@ -240,14 +231,23 @@ public class TiResourceFile extends TiBaseFile
 				}
 			}
 
-			// list encrypted assets
+			// List the encrypted JavaScript files. These are not under an actual directory.
+			lpath = this.path;
+			if (lpath.equals("/")) {
+				// Strip off the slash if referencing the root "Resources" directory.
+				lpath = "";
+			} else if (!lpath.isEmpty() && !lpath.endsWith("/")) {
+				// Assume all other paths are a directories and append a slash.
+				// If given path is a file, then no asset path will match a file with a slash at the end.
+				lpath += "/";
+			}
 			String[] assets = KrollAssetHelper.getEncryptedAssetPaths();
 			if (assets != null) {
 				for (String asset : assets) {
-					if (asset.startsWith(path)) {
-						String relativePath = asset.substring(path.length());
-						int dirIndex = relativePath.lastIndexOf('/');
-						if (dirIndex != -1) {
+					if ((asset.length() > lpath.length()) && asset.startsWith(lpath)) {
+						String relativePath = asset.substring(lpath.length());
+						int dirIndex = relativePath.indexOf('/');
+						if (dirIndex >= 0) {
 							String dir = relativePath.substring(0, dirIndex);
 							if (dir.length() > 0 && !listing.contains(dir)) {
 								listing.add(dir);
@@ -258,8 +258,7 @@ public class TiResourceFile extends TiBaseFile
 					}
 				}
 			}
-
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Log.e(TAG, "Error while getting a directory listing: " + e.getMessage(), e);
 		}
 		return listing;
@@ -280,7 +279,7 @@ public class TiResourceFile extends TiBaseFile
 		} else {
 			this.typeFile = false;
 
-			if (!getDirectoryListing().isEmpty()) {
+			if (path.isEmpty() || !getDirectoryListing().isEmpty()) {
 				this.typeDir = true;
 				this.exists = true;
 
@@ -291,5 +290,33 @@ public class TiResourceFile extends TiBaseFile
 			}
 		}
 		statsFetched = true;
+	}
+
+	private void fetchName()
+	{
+		// Extract the file/directory name from the path.
+		// Notes:
+		// - An empty path or "/" references the root "Resources" directory.
+		// - A directory path may or may not end with a trailing "/".
+		String name = "Resources";
+		if (this.path.length() > 0) {
+			int startIndex = 0;
+			int endIndexExclusive = this.path.length();
+			if (this.path.charAt(endIndexExclusive - 1) == '/') {
+				endIndexExclusive--;
+			}
+			for (int index = endIndexExclusive - 1; index >= 0; index--) {
+				if (this.path.charAt(index) == '/') {
+					startIndex = index + 1;
+					break;
+				}
+			}
+			if ((startIndex == 0) && (endIndexExclusive == this.path.length())) {
+				name = this.path;
+			} else if (startIndex < endIndexExclusive) {
+				name = this.path.substring(startIndex, endIndexExclusive);
+			}
+		}
+		this.name = name;
 	}
 }
