@@ -494,11 +494,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
       if ([convertToUnits caseInsensitiveCompare:kTiUnitDip] == NSOrderedSame) {
         result = fromVal.value;
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitPixel] == NSOrderedSame) {
-        if ([TiUtils isRetinaDisplay]) {
-          result = fromVal.value * 2;
-        } else {
-          result = fromVal.value;
-        }
+        result = convertDipToPixels(fromVal.value);
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitInch] == NSOrderedSame) {
         result = convertDipToInch(fromVal.value);
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitCm] == NSOrderedSame) {

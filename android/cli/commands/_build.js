@@ -1817,7 +1817,6 @@ AndroidBuilder.prototype.doAnalytics = function doAnalytics(next) {
 	}
 
 	cli.addAnalyticsEvent(eventName, {
-		dir: cli.argv['project-dir'],
 		name: cli.tiapp.name,
 		publisher: cli.tiapp.publisher,
 		url: cli.tiapp.url,
@@ -2743,7 +2742,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 									transpile: this.transpile,
 									targets: {
 										chrome: this.chromeVersion
-									}
+									},
+									resourcesDir: this.buildBinAssetsResourcesDir
 								});
 								const newContents = modified.contents;
 
@@ -3860,6 +3860,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 		finalAndroidManifest.application.service[tiAnalyticsService] = {
 			name: tiAnalyticsService,
+			permission: 'android.permission.BIND_JOB_SERVICE',
 			exported: false
 		};
 	}

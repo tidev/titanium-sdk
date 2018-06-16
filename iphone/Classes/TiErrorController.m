@@ -166,7 +166,6 @@
 
   [self.view layoutIfNeeded];
 
-#if IS_XCODE_8
   // use haptic feedback on supported devices
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     UINotificationFeedbackGenerator *generator = [UINotificationFeedbackGenerator new];
@@ -174,7 +173,6 @@
     [generator notificationOccurred:UINotificationFeedbackTypeError];
     RELEASE_TO_NIL(generator);
   }
-#endif
 }
 
 - (BOOL)prefersHomeIndicatorAutoHidden

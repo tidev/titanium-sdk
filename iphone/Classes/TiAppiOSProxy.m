@@ -501,10 +501,10 @@
 
 - (NSDictionary *)currentUserNotificationSettings
 {
-  DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"7.2.0", @"App.iOS.NotificationCenter.requestUserNotificationSettings");
+  DEPRECATED_REPLACED(@"App.iOS.currentUserNotificationSettings", @"7.3.0", @"App.iOS.UserNotificationCenter.requestUserNotificationSettings");
 
   if ([TiUtils isIOS10OrGreater]) {
-    DebugLog(@"[ERROR] Please use Ti.App.iOS.NotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
+    DebugLog(@"[ERROR] Please use Ti.App.iOS.UserNotificationCenter.requestUserNotificationSettings in iOS 10 and later to request user notification settings asynchronously.");
   }
 
   __block NSDictionary *returnVal = nil;
@@ -699,10 +699,15 @@
         ENSURE_ARG_FOR_KEY(_url, attachment, @"url", NSString);
         ENSURE_ARG_OR_NIL_FOR_KEY(_options, attachment, @"options", NSDictionary);
 
+        NSDictionary *nativeOptions = _options != nil ? [[self formatNotificationAttachmentOptions:_options] retain] : nil;
+
         UNNotificationAttachment *_attachment = [UNNotificationAttachment attachmentWithIdentifier:_identifier
                                                                                                URL:[TiUtils toURL:_url proxy:self]
-                                                                                           options:[[self formatNotificationAttachmentOptions:_options] retain]
+                                                                                           options:nativeOptions
                                                                                              error:&error];
+
+        RELEASE_TO_NIL(nativeOptions);
+
         if (error != nil) {
           DebugLog(@"[ERROR] Attachment with the identifier = \"%@\" is invalid: %@", _identifier, [error localizedDescription]);
         } else {
@@ -843,7 +848,7 @@
 {
   ENSURE_UI_THREAD(cancelAllLocalNotifications, unused);
 
-  DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications", @"7.2.0", @"App.iOS.NotificationCenter.removeAllPendingNotifications");
+  DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications", @"7.3.0", @"App.iOS.UserNotificationCenter.removeAllPendingNotifications");
 
   if ([TiUtils isIOS10OrGreater]) {
     [[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
@@ -857,7 +862,7 @@
   ENSURE_SINGLE_ARG(value, NSObject);
   ENSURE_UI_THREAD(cancelLocalNotification, value);
 
-  DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification", @"7.2.0", @"App.iOS.NotificationCenter.removePendingNotificationsWithIdentifiers");
+  DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotificationsWithIdentifiers");
 
   if ([TiUtils isIOS10OrGreater]) {
     NSString *identifier = [TiUtils stringValue:value] ?: @"notification";

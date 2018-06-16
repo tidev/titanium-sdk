@@ -315,7 +315,7 @@ properties:
         user notifications.
     description: |
         Used to check the `authorizationStatus` attribute received in
-        <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
@@ -325,7 +325,7 @@ properties:
     summary: The application is authorized to post user notifications.
     description: |
         Used to check the `authorizationStatus` attribute received in
-        <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
@@ -335,7 +335,7 @@ properties:
     summary: The application is not authorized to post user notifications.
     description: |
         Used to check the `authorizationStatus` attribute received in
-        <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
@@ -345,7 +345,7 @@ properties:
     summary: The application does not support this notification type.
     description: |
         Used to check application-wide enabled notification settings received in
-        <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
@@ -355,7 +355,7 @@ properties:
     summary: The notification setting is turned on.
     description: |
         Used to check application-wide enabled notification settings received in
-        <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
@@ -365,7 +365,7 @@ properties:
     summary: The notification setting is turned off.
     description: |
         Used to check application-wide enabled notification settings received in
-        <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
@@ -375,7 +375,7 @@ properties:
     summary: No banner or alert dialog is presented when the notification is received.
     description: |
         Used to check the `alertStyle` attribute received in
-        <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
@@ -385,7 +385,7 @@ properties:
     summary: A alert dialog is presented when the notification is received.
     description: |
         Used to check the `alertStyle` attribute received in
-        <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
@@ -395,7 +395,7 @@ properties:
     summary: A banner is presented when the notification is received.
     description: |
         Used to check the `alertStyle` attribute received in
-        <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
@@ -715,7 +715,7 @@ properties:
     permission: read-only
     deprecated:
         since: "7.2.0"
-        notes: Use <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings> instead.
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings> instead.
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
@@ -1443,7 +1443,7 @@ summary: |
     the <Titanium.App.iOS.registerUserNotificationSettings> method.
 
     To retrieve the current notification settings, use the
-    <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings> method.
+    <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings> method.
 since: "3.4.0"
 platforms: [iphone, ipad]
 

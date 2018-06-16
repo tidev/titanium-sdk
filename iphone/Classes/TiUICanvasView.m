@@ -136,7 +136,7 @@ enum {
   BLEND_MODE(source - in, kCGBlendModeSourceIn);
   BLEND_MODE(source - out, kCGBlendModeSourceOut);
   BLEND_MODE(source - over, kCGBlendModeNormal);
-  BLEND_MODE (xor, kCGBlendModeXOR);
+  BLEND_MODE(xor, kCGBlendModeXOR);
   return kCGBlendModeNormal; //default by HTML canvas spec
 }
 
