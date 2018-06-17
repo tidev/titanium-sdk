@@ -10,8 +10,6 @@ description: |
 
     You can add tabs to the group using [addTab](Titanium.UI.TabGroup.addTab), and programmatically
     switch to a specific tab using [setActiveTab](Titanium.UI.TabGroup.setActiveTab).
-    
-    **Note**: Tabs do not support fire click, singletap, or other UI-related events since they do not have a <Ti.UI.View> subclass.
 
     #### Platform Implementation Notes
 
@@ -53,6 +51,8 @@ excludes:
                  borderColor,borderRadius,borderWidth,bottom,children,enabled,focusable,height,
                  horizontalWrap,layout,left,opacity,right,softKeyboardOnFocus,
                  top,transform,width,zIndex]
+    events: [click, dblclick, doubletap, keypressed, longclick, longpress, pinch, postlayout, 
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
 
 events:
   - name: androidback
