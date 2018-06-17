@@ -51,6 +51,8 @@ excludes:
                  borderColor,borderRadius,borderWidth,bottom,children,enabled,focusable,height,
                  horizontalWrap,layout,left,opacity,right,softKeyboardOnFocus,
                  top,transform,width,zIndex]
+    events: [click, dblclick, doubletap, keypressed, longclick, longpress, pinch, postlayout, 
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
 
 events:
   - name: androidback
