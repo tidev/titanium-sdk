@@ -718,8 +718,7 @@ properties:
     description: |
         Setting the `types` property with the <Titanium.Network.registerForPushNotifications> method has no effect.
 
-        Use the [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
-        method to register the notification types to receive.
+        Use the <Titanium.App.iOS.registerUserNotificationSettings> method to register the notification types to receive.
     type: Array<Number>
     constants: Titanium.Network.NOTIFICATION_TYPE_*
   - name: success
