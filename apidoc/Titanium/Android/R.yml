@@ -12,7 +12,7 @@ description: |
     See also: [android.R](https://developer.android.com/reference/android/R.html) in the
     Android Developer Reference.
 
-    Starting in Titanium SDK 7.2.0, this API exposes all Android related R classes
+    Starting in Titanium SDK 7.3.0, this API exposes all Android related R classes
     for the usage in Hyperloop. For example, it can be used to access `menu` resources
     as part of native user interfaces, e.g. `BottomNavigationView` or `RecyclerView`.
     See an example in the [Hyperloop Sample App](https://github.com/appcelerator/hyperloop-examples) for details! 
@@ -40,7 +40,7 @@ properties:
     type: Object
     accessors: false
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: array
     summary: |
@@ -67,7 +67,7 @@ properties:
     type: Object
     accessors: false
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: color
     summary: |
@@ -104,7 +104,7 @@ properties:
     type: Object
     accessors: false
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: id
     summary: |
@@ -132,7 +132,7 @@ properties:
     type: Object
     accessors: false
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: layout
     summary: |
@@ -151,7 +151,7 @@ properties:
     type: Object
     accessors: false
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: mipmap
     summary: |
@@ -161,7 +161,7 @@ properties:
     type: Object
     accessors: false
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: plurals
     summary: |
@@ -171,7 +171,7 @@ properties:
     type: Object
     accessors: false
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: raw
     summary: |
@@ -181,7 +181,7 @@ properties:
     type: Object
     accessors: false
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
   
   - name: string
     summary: |
@@ -218,7 +218,7 @@ properties:
     type: Object
     accessors: false
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: xml
     summary: |
@@ -228,4 +228,4 @@ properties:
     type: Object
     accessors: false
     permission: read-only
-    since: "7.2.0"
+    since: "7.3.0"
