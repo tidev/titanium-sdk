@@ -154,6 +154,7 @@ public class TableViewSectionProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		super.releaseViews();
+
 		if (rows != null) {
 			for (TableViewRowProxy row : rows) {
 				row.releaseViews();
