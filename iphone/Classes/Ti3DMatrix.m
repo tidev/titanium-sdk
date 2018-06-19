@@ -101,15 +101,15 @@
   return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
-#define MAKE_PROP(x)                               \
-  - (void)setM##x : (NSNumber *)m##x               \
-  {                                                \
-    matrix.m##x = [m##x floatValue];               \
-  }                                                \
-                                                   \
-  - (NSNumber *)m##x                               \
-  {                                                \
-    return @(matrix.m##x);                         \
+#define MAKE_PROP(x)                 \
+  -(void)setM##x : (NSNumber *)m##x  \
+  {                                  \
+    matrix.m##x = [m##x floatValue]; \
+  }                                  \
+                                     \
+  -(NSNumber *)m##x                  \
+  {                                  \
+    return @(matrix.m##x);           \
   }
 
 MAKE_PROP(11)
