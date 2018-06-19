@@ -415,7 +415,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)add:(id)arg
 {
-    NSLog(@"[ERROR] Cannot add sub-views to list views. Use \"appendSection\" instead.");
+  NSLog(@"[ERROR] Cannot add sub-views to list views. Use \"appendSection\" instead.");
 }
 
 #pragma mark - Helper Methods
