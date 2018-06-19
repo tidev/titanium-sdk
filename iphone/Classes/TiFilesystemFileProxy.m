@@ -60,13 +60,13 @@
 
 - (NSDate *)createTimestamp
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp", @"7.2.0", @"Filesystem.File.createdAt()");
+  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp", @"7.3.0", @"Filesystem.File.createdAt()");
   return [self createdAt:nil];
 }
 
 - (NSDate *)createTimestamp:(id)unused
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp()", @"7.2.0", @"Filesystem.File.createdAt()");
+  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp()", @"7.3.0", @"Filesystem.File.createdAt()");
   return [self createdAt:unused];
 }
 
@@ -87,13 +87,13 @@
 
 - (NSDate *)modificationTimestamp
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp", @"7.2.0", @"Filesystem.File.modifiedAt()");
+  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp", @"7.3.0", @"Filesystem.File.modifiedAt()");
   return [self modifiedAt:nil];
 }
 
 - (NSDate *)modificationTimestamp:(id)unused
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp()", @"7.2.0", @"Filesystem.File.modifiedAt()");
+  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp()", @"7.3.0", @"Filesystem.File.modifiedAt()");
   return [self modifiedAt:nil];
 }
 
@@ -222,6 +222,8 @@ FILENOOP(setHidden
   return [[[TiFilesystemFileStreamProxy alloc] _initWithPageContext:[self executionContext] args:payload] autorelease];
 }
 
+// Xcode complains about the "copy" method naming, but in this case it's a proxy method so we are fine
+#ifndef __clang_analyzer__
 - (NSNumber *)copy:(id)args
 {
   ENSURE_TYPE(args, NSArray);
@@ -240,6 +242,7 @@ FILENOOP(setHidden
   }
   return NUMBOOL(result);
 }
+#endif
 
 - (NSNumber *)createFile:(id)args
 {

@@ -29,8 +29,10 @@ description: |
 
 extends: Titanium.UI.View
 excludes:
-    events: [ 'pinch' ]
-    properties: ['height']
+    events: [pinch]
+    properties: [height, children]
+    methods: [add, remove, removeAllChildren, replaceAt]
+
 since: "0.8"
 examples:
   - title: Simple Slider
@@ -83,23 +85,6 @@ examples:
             $.window.open();
 
 methods:
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to a `Slider` is not supported on all platforms.
-
-        If you need to display views on top of this object, consider using
-        another view as a container for both this object and the views you want
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
   - name: setValue
     summary: Sets the [value](Titanium.UI.Slider.value) property.
     description: |
@@ -121,7 +106,6 @@ methods:
         optional: true
 
 events:
-
   - name: change
     summary: Fired when the value of the slider changes.
     properties:

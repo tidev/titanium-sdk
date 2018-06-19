@@ -129,7 +129,7 @@
   NSAttributedString *placeHolder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
 
   if ([TiUtils isIOS9OrGreater]) {
-    [[UITextField appearanceWhenContainedInInstancesOfClasses:@[ [UISearchBar class] ]] setAttributedPlaceholder:placeHolder];
+    [[UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]] setAttributedPlaceholder:placeHolder];
   } else {
     [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setAttributedPlaceholder:placeHolder];
   }

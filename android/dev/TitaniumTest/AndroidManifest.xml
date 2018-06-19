@@ -13,7 +13,7 @@
 		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" android:configChanges="screenSize"/>
 		<activity android:name="ti.modules.titanium.media.TiCameraActivity" android:configChanges="keyboardHidden|orientation|screenSize" android:theme="@style/Theme.AppCompat.Translucent.NoTitleBar.Fullscreen"/>
 		<provider android:name="org.appcelerator.titanium.io.TiFileProvider" android:authorities="com.titanium.test.tifileprovider" android:exported="false" android:grantUriPermissions="true"/>
-		<service android:name="com.appcelerator.aps.APSAnalyticsService" android:exported="false"/>
+		<service android:name="com.appcelerator.aps.APSAnalyticsService" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="false"/>
 	</application>
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
