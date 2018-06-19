@@ -413,6 +413,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   return nil;
 }
 
+- (void)add:(id)arg
+{
+    NSLog(@"[ERROR] Cannot add sub-views to list views. Use \"appendSection\" instead.");
+}
+
 #pragma mark - Helper Methods
 
 - (CGFloat)computeRowWidth:(UITableView *)tableView
@@ -2471,11 +2476,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     }
   }
   return nil;
-}
-
-- (void)add:(id)arg
-{
-  NSLog(@"[ERROR] Cannot add sub-views to list views. Use \"appendSection\" instead.");
 }
 
 #endif
