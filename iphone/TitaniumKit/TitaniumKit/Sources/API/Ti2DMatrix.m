@@ -105,15 +105,15 @@
   return [[[Ti2DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
-#define MAKE_PROP(x, y)                         \
-  - (void)set##x : (NSNumber *)_##y             \
-  {                                             \
-    matrix.y = [_##y floatValue];               \
-  }                                             \
-                                                \
-  - (NSNumber *)y                               \
-  {                                             \
-    return @(matrix.y);                         \
+#define MAKE_PROP(x, y)            \
+  -(void)set##x : (NSNumber *)_##y \
+  {                                \
+    matrix.y = [_##y floatValue];  \
+  }                                \
+                                   \
+  -(NSNumber *)y                   \
+  {                                \
+    return @(matrix.y);            \
   }
 
 MAKE_PROP(A, a)
