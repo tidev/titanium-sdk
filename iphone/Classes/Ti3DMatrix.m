@@ -1,10 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UI3DMATRIX
+
+#if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
+
 #import "Ti3DMatrix.h"
 #import "TiBase.h"
 
@@ -100,14 +102,14 @@
 }
 
 #define MAKE_PROP(x)                               \
-  -(void)setM##x : (NSNumber *)m##x                \
+  - (void)setM##x : (NSNumber *)m##x               \
   {                                                \
     matrix.m##x = [m##x floatValue];               \
   }                                                \
                                                    \
-  -(NSNumber *)m##x                                \
+  - (NSNumber *)m##x                               \
   {                                                \
-    return [NSNumber numberWithFloat:matrix.m##x]; \
+    return @(matrix.m##x);                         \
   }
 
 MAKE_PROP(11)
