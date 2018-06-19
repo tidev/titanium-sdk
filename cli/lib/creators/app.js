@@ -3,7 +3,7 @@
  * Logic for creating new Titanium apps.
  *
  * @copyright
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -76,11 +76,11 @@ util.inherits(AppCreator, Creator);
 AppCreator.prototype.init = function init() {
 	return {
 		options: {
-			'id':            this.configOptionId(150),
-			'name':          this.configOptionName(140),
-			'platforms':     this.configOptionPlatforms(120),
-			'template':      this.configOptionTemplate(110),
-			'url':           this.configOptionUrl(160),
+			id:            this.configOptionId(150),
+			name:          this.configOptionName(140),
+			platforms:     this.configOptionPlatforms(120),
+			template:      this.configOptionTemplate(110),
+			url:           this.configOptionUrl(160),
 			'workspace-dir': this.configOptionWorkspaceDir(170)
 		}
 	};
@@ -209,7 +209,6 @@ AppCreator.prototype.run = function run(callback) {
 		tasks.push(function (next) {
 			// send the analytics
 			this.cli.addAnalyticsEvent('project.create.mobile', {
-				dir:         projectDir,
 				name:        argv.name,
 				publisher:   projectConfig.publisher,
 				url:         projectConfig.url,

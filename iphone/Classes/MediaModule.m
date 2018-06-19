@@ -16,20 +16,16 @@
 #import "TiMediaAudioSession.h"
 #import "TiMediaItem.h"
 #import "TiMediaMusicPlayer.h"
+#import "TiMediaTypes.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 
-#import <AudioToolbox/AudioToolbox.h>
-#if IS_XCODE_8
-#import <AVFoundation/AVFAudio.h>
-#else
-#import <AVFoundation/AVAudioPlayer.h>
-#import <AVFoundation/AVAudioSession.h>
-#endif
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetExportSession.h>
+#import <AVFoundation/AVFAudio.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AVFoundation/AVMediaFormat.h>
+#import <AudioToolbox/AudioToolbox.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <Photos/Photos.h>
@@ -320,15 +316,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER, MediaModuleErrorNoMusicPlayer);
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 MAKE_SYSTEM_STR(MEDIA_TYPE_VIDEO, kUTTypeMovie);
 MAKE_SYSTEM_STR(MEDIA_TYPE_PHOTO, kUTTypeImage);
-
-- (NSString *)MEDIA_TYPE_LIVEPHOTO
-{
-  if ([TiUtils isIOS9_1OrGreater] == YES) {
-    return (NSString *)kUTTypeLivePhoto;
-  }
-
-  return @"";
-}
+MAKE_SYSTEM_STR(MEDIA_TYPE_LIVEPHOTO, kUTTypeLivePhoto);
 
 //Constants for videoQuality for Video Editing
 MAKE_SYSTEM_PROP(QUALITY_HIGH, UIImagePickerControllerQualityTypeHigh);
@@ -668,7 +656,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   TiThreadPerformOnMainThread(^() {
     [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
       KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                             eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:nil]
+                                                             eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
                                                               thisObject:self];
       [[callback context] enqueue:invocationEvent];
       RELEASE_TO_NIL(invocationEvent);
@@ -1020,7 +1008,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
                              completionHandler:^(BOOL granted) {
                                NSString *errorMessage = granted ? nil : @"The user denied access to use the camera.";
                                KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                                      eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:errorMessage]
+                                                                                      eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
                                                                                        thisObject:self];
                                [[callback context] enqueue:invocationEvent];
                                RELEASE_TO_NIL(invocationEvent);
@@ -1054,7 +1042,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       BOOL granted = (status == PHAuthorizationStatusAuthorized);
       NSString *errorMessage = granted ? @"" : @"The user denied access to use the photo gallery.";
       KrollEvent *invocationEvent = [[[KrollEvent alloc] initWithCallback:callback
-                                                              eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:errorMessage]
+                                                              eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
                                                                thisObject:self] autorelease];
       [[callback context] enqueue:invocationEvent];
     }];
@@ -1200,7 +1188,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
         BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
         KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                               eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:nil]
+                                                               eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
                                                                 thisObject:self];
         [[callback context] enqueue:invocationEvent];
         RELEASE_TO_NIL(invocationEvent);
@@ -1677,7 +1665,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     if (transform != nil) {
       ENSURE_TYPE(transform, Ti2DMatrix);
       [picker setCameraViewTransform:[transform matrix]];
-    } else if (cameraView != nil && customPicker) {
+    } else if (cameraView != nil && customPicker && ![TiUtils boolValue:@"showControls" properties:args def:YES]) {
       //No transforms in popover
       CGSize screenSize = [[UIScreen mainScreen] bounds].size;
       UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];

@@ -178,7 +178,7 @@ typedef struct {
 void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 {
   TiClassSelectorPair *pair = payload;
-  [(Class)(pair->class) performSelector:(SEL)(pair->selector)withObject:runloop];
+  [(Class)(pair->class) performSelector:(SEL)(pair->selector) withObject:runloop];
 }
 
 @implementation TiProxy

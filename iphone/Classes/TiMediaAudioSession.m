@@ -9,11 +9,7 @@
 #import "TiMediaAudioSession.h"
 #import "TiUtils.h"
 
-#if IS_XCODE_8
 #import <AVFoundation/AVFAudio.h>
-#else
-#import <AVFoundation/AVAudioSession.h>
-#endif
 
 NSString *const kTiMediaAudioSessionInterruptionBegin = @"TiMediaAudioSessionInterruptionBegin";
 NSString *const kTiMediaAudioSessionInterruptionEnd = @"TiMediaAudioSessionInterruptionEnd";
@@ -167,8 +163,7 @@ NSString *const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputChan
 + (TiMediaAudioSession *)sharedSession
 {
   static TiMediaAudioSession *session = nil;
-  @synchronized(self)
-  {
+  @synchronized(self) {
     if (session == nil) {
       session = [[TiMediaAudioSession alloc] init];
     }

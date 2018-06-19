@@ -1,15 +1,15 @@
 /**
-* iOS module build command.
-*
-* @module cli/_buildModule
-*
-* @copyright
-* Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
-*
-* @license
-* Licensed under the terms of the Apache Public License
-* Please see the LICENSE included with this distribution for details.
-*/
+ * iOS module build command.
+ *
+ * @module cli/_buildModule
+ *
+ * @copyright
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * @license
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 
 'use strict';
 
@@ -126,7 +126,6 @@ iOSModuleBuilder.prototype.doAnalytics = function doAnalytics() {
 		eventName = 'ios.' + cli.argv.type;
 
 	cli.addAnalyticsEvent(eventName, {
-		dir:         this.cli.argv['project-dir'],
 		name:        this.moduleName,
 		publisher:   this.manifest.author,
 		appid:       this.moduleId,
@@ -240,9 +239,9 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 	const moduleJS = this.moduleId + '.js',
 		jsFile = path.join(this.assetsDir, moduleJS),
 		renderData = {
-			'moduleIdAsIdentifier' : this.moduleIdAsIdentifier,
-			'mainEncryptedAssetReturn': 'return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[0]);',
-			'allEncryptedAssetsReturn': 'NSNumber *index = [map objectForKey:path];'
+			moduleIdAsIdentifier: this.moduleIdAsIdentifier,
+			mainEncryptedAssetReturn: 'return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[0]);',
+			allEncryptedAssetsReturn: 'NSNumber *index = [map objectForKey:path];'
 				+ '\n  if (index == nil) {\n    return nil;\n  }'
 				+ '\n  return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);'
 		},
@@ -325,7 +324,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			titaniumPrepHook(
 				path.join(this.platformPath, 'titanium_prep'),
 				[ this.moduleId, this.assetsDir, this.moduleGuid ],
-				{ 'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'mainEncryptedAsset' },
+				{ jsFiles: this.jsFilesToEncrypt, placeHolder: 'mainEncryptedAsset' },
 				cb
 			);
 		},
@@ -352,7 +351,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 				titaniumPrepHook(
 					path.join(this.platformPath, 'titanium_prep'),
 					[ this.moduleId, this.assetsDir, this.moduleGuid ],
-					{ 'jsFiles': this.jsFilesToEncrypt, 'placeHolder': 'allEncryptedAssets' },
+					{ jsFiles: this.jsFilesToEncrypt, placeHolder: 'allEncryptedAssets' },
 					cb
 				);
 			} catch (e) {
@@ -383,7 +382,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			}.bind(this));
 
 			fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
-			fs.writeFileSync(this.metaDataFile, JSON.stringify({ 'exports': this.metaData }));
+			fs.writeFileSync(this.metaDataFile, JSON.stringify({ exports: this.metaData }));
 
 			cb();
 		}

@@ -16,7 +16,7 @@ methods:
     description: |
         You must be an **enterprise application admin** to use this API.
         
-        See [geo_fences/create.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/GeoFences-method-create)
+        See [geo_fences/create.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/GeoFences-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `geo_fences` property of the parameter passed to the callback.
@@ -35,7 +35,7 @@ methods:
     description: |
         You must be an **enterprise application user** to use this API.
 
-        See [geo_fences/query.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/GeoFences-method-query)
+        See [geo_fences/query.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/GeoFences-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `geo_fences` property of the parameter passed to the callback.
@@ -54,7 +54,7 @@ methods:
     description: |
         You must be an **enterprise application admin** to use this API.
         
-        See [geo_fences/delete.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/GeoFences-method-delete)
+        See [geo_fences/delete.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/GeoFences-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -70,7 +70,7 @@ methods:
     description: |
         You must be an **enterprise application admin** to use this API.
         
-        See [geo_fences/update.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/GeoFences-method-update)
+        See [geo_fences/update.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/GeoFences-method-update)
         for the request parameters supported by this method.
         
         Data is returned in the `geo_fences` property of the parameter passed to the callback.
