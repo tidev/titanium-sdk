@@ -12,7 +12,6 @@ var should = require('./utilities/assertions');
 
 describe.windowsBroken('Titanium.Geolocation', function () {
 	it.windowsMissing('hasCompass', function () {
-		should(Ti.Geolocation.hasCompass).be.a.Function;
 		should(Ti.Geolocation.hasCompass()).be.a.Boolean;
 	});
 });
