@@ -175,7 +175,7 @@ description: |
 
     Both iOS and Android support a receiving heading updates from a hardware compass, if available.
 
-    Check the [hasCompass](Titanium.Geolocation.hasCompass) property to see if the current
+    Check the [hasCompass()](Titanium.Geolocation.hasCompass) method to see if the current
     device supports a compass.
 
     To retrieve compass readings, you can either use
@@ -251,6 +251,13 @@ methods:
         summary: Function to invoke on success or failure of obtaining the current location.
         type: Callback<LocationResults>
     platforms: [android, iphone, ipad]
+
+  - name: hasCompass
+    summary: Indicates whether the current device supports a compass.
+    returns:
+        type: Boolean
+    platforms: [android, iphone, ipad]
+    since: "8.0.0"
 
   - name: hasLocationPermissions
     summary: Returns `true` if the app has location access.
@@ -775,11 +782,13 @@ properties:
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
 
-
   - name: hasCompass
     summary: Indicates whether the current device supports a compass.
     type: Boolean
     permission: read-only
+    deprecated:
+        since: "8.0.0"
+        notes: Use the <Titanium.Geolocation.hasCompass> method instead.
     platforms: [android, iphone, ipad]
 
   - name: headingFilter

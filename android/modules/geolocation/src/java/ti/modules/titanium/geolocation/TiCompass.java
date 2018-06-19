@@ -167,7 +167,7 @@ public class TiCompass implements SensorEventListener
 		}
 	}
 
-	public boolean getHasCompass()
+	public boolean hasCompass()
 	{
 		boolean compass = false;
 

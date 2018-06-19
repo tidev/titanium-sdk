@@ -603,7 +603,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	}
 
 	/**
-	 * Checks if the device has a compass sensor
+	 * Checks if the device has a compass sensor (DEPRECATED, use hasCompass() instead)
 	 *
 	 * @return			<code>true</code> if the device has a compass, <code>false</code> if not
 	 */
@@ -613,7 +613,21 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public boolean getHasCompass()
 	// clang-format on
 	{
-		return tiCompass.getHasCompass();
+		Log.w(TAG, "Use the hasCompass() method instead.", Log.DEBUG_MODE);
+		return this.hasCompass();
+	}
+
+	/**
+	 * Checks if the device has a compass sensor
+	 *
+	 * @return			<code>true</code> if the device has a compass, <code>false</code> if not
+	 */
+	// clang-format off
+	@Kroll.method
+	public boolean hasCompass()
+	// clang-format on
+	{
+		return tiCompass.hasCompass();
 	}
 
 	/**
