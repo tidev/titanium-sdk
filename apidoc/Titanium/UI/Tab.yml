@@ -51,7 +51,7 @@ extends: Titanium.UI.View
 since: "0.8"
 excludes:
     events: [pinch, keypressed, longclick, twofingertap]
-    methods: [add, animate, hide, remove, removeAllChildren, show]
+    methods: [add, animate, hide, remove, replaceAt, removeAllChildren, show]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter,backgroundGradient,backgroundLeftCap,
                  backgroundRepeat,backgroundTopCap,borderColor,borderRadius,borderWidth,

@@ -315,7 +315,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED
     summary: The application is authorized to post user notifications.
@@ -325,7 +325,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED
     summary: The application is not authorized to post user notifications.
@@ -335,7 +335,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_SETTING_NOT_SUPPORTED
     summary: The application does not support this notification type.
@@ -345,7 +345,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_SETTING_ENABLED
     summary: The notification setting is turned on.
@@ -355,7 +355,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_SETTING_DISABLED
     summary: The notification setting is turned off.
@@ -365,7 +365,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_NONE
     summary: No banner or alert dialog is presented when the notification is received.
@@ -375,7 +375,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_ALERT
     summary: A alert dialog is presented when the notification is received.
@@ -385,7 +385,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_BANNER
     summary: A banner is presented when the notification is received.
@@ -395,7 +395,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_NONE
     summary: No options.
@@ -404,7 +404,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_CUSTOM_DISMISS_ACTION
     summary: Send dismiss actions to the UNUserNotificationCenter object's delegate for handling.
@@ -413,7 +413,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_ALLOW_IN_CARPLAY
     summary: Allow CarPlay to display notifications of this type.
@@ -422,7 +422,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_TITLE
     summary: Show the notification's title, even if the user has disabled notification previews for the app.
@@ -431,7 +431,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "11.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_SUBTITLE
     summary: Show the notification's subtitle, even if the user has disabled notification previews for the app.
@@ -440,7 +440,7 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "11.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: UTTYPE_TEXT
     summary: |
@@ -1293,7 +1293,7 @@ properties:
         This property is required in iOS 10 and later and will fallback
         to "notification" if not set.
     optional: false
-    since: "7.2.0"
+    since: "7.3.0"
     type: String
 
   - name: alertAction
@@ -1313,14 +1313,14 @@ properties:
     type: String
     optional: true
     osver: {ios: {min: "8.2"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: alertSubtitle
     summary: Alert subtitle to display.
     type: String
     optional: true
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: alertLaunchImage
     summary: Image to display instead of `Default.png` when launching the application.
@@ -1332,7 +1332,7 @@ properties:
     type: Array<UserNotificationAttachment>
     optional: true
     osver: {ios: {min: "10.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
   - name: badge
     summary: Application badge value.
@@ -1381,7 +1381,7 @@ properties:
     type: Dictionary
     optional: true
     osver: {ios: {min: "8.0"}}
-    since: "7.2.0"
+    since: "7.3.0"
 
 ---
 name: UserNotificationAttachment
@@ -1389,7 +1389,7 @@ summary: |
     Provide at least the property `identifier` and `url` property to identify a local
     image, sound or video. If your media is invalid, the API will throw an error log and
     skip the invalid attachment.
-since: "7.2.0"
+since: "7.3.0"
 platforms: [iphone, ipad]
 osver: {ios: {min: "10.0"}}
 properties:

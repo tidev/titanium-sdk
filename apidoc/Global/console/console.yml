@@ -83,7 +83,7 @@ methods:
         type: String
         optional: true
         default: "default"
-    since: 7.2.0
+    since: 7.3.0
 
   - name: timeEnd
     summary: Stop a timer that was previously started.
@@ -97,4 +97,4 @@ methods:
         type: String
         optional: true
         default: "default"
-    since: 7.2.0
+    since: 7.3.0

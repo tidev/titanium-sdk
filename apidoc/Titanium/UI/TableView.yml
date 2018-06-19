@@ -122,7 +122,8 @@ extends: Titanium.UI.View
 since: "0.8"
 excludes:
     events: [focus]
-    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
+    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled, children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 
 events:
   - name: click
