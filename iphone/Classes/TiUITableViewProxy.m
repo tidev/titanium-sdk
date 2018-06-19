@@ -816,15 +816,16 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     }
 
     sections = [newSections mutableCopy];
-    [self performTableActionIfInitialized:^{
-      UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:properties];
-      TiUITableView *ourView = (TiUITableView *)[self view];
-      for (TiUITableViewSectionProxy *section in newSections) {
-        [section setTable:ourView];
-      }
-      [ourView reloadDataFromCount:[oldSections count] toCount:sectionIndex animation:ourAnimation];
-    }
-                              forceReload:YES];
+    [self
+        performTableActionIfInitialized:^{
+          UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:properties];
+          TiUITableView *ourView = (TiUITableView *)[self view];
+          for (TiUITableViewSectionProxy *section in newSections) {
+            [section setTable:ourView];
+          }
+          [ourView reloadDataFromCount:[oldSections count] toCount:sectionIndex animation:ourAnimation];
+        }
+                            forceReload:YES];
 
     for (TiUITableViewSectionProxy *section in oldSections) {
       if (![newSections containsObject:section]) {
@@ -927,26 +928,27 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
       [sections addObject:section];
     }
 
-    [self performTableActionIfInitialized:^{
-      UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:options];
-      TiUITableView *ourView = (TiUITableView *)[self view];
-      UITableView *ourTable = [ourView tableView];
-      [section setTable:ourView];
-      for (TiUITableViewSectionProxy *thisSection in sectionArray) {
-        [thisSection setTable:ourView];
-      }
-      if (!falseFirstSection) {
-        [ourTable insertSections:[NSIndexSet indexSetWithIndexesInRange:sectionRange] withRowAnimation:ourAnimation];
-      } else { //UITableView doesn't know we had 0 sections.
-        [ourTable beginUpdates];
-        [ourTable deleteSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
-        [ourTable insertSections:[NSIndexSet indexSetWithIndexesInRange:sectionRange] withRowAnimation:ourAnimation];
-        [ourTable endUpdates];
-      }
-    }
-                              forceReload:NO];
+    [self
+        performTableActionIfInitialized:^{
+          UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:options];
+          TiUITableView *ourView = (TiUITableView *)[self view];
+          UITableView *ourTable = [ourView tableView];
+          [section setTable:ourView];
+          for (TiUITableViewSectionProxy *thisSection in sectionArray) {
+            [thisSection setTable:ourView];
+          }
+          if (!falseFirstSection) {
+            [ourTable insertSections:[NSIndexSet indexSetWithIndexesInRange:sectionRange] withRowAnimation:ourAnimation];
+          } else { //UITableView doesn't know we had 0 sections.
+            [ourTable beginUpdates];
+            [ourTable deleteSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
+            [ourTable insertSections:[NSIndexSet indexSetWithIndexesInRange:sectionRange] withRowAnimation:ourAnimation];
+            [ourTable endUpdates];
+          }
+        }
+                            forceReload:NO];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)deleteSection:(id)args
@@ -975,19 +977,20 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     }
     [self forgetSection:[sections objectAtIndex:sectionIndex]];
     [sections removeObjectAtIndex:sectionIndex];
-    [self performTableActionIfInitialized:^{
-      UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:options];
-      TiUITableView *ourView = (TiUITableView *)[self view];
-      UITableView *ourTable = [ourView tableView];
-      if ([sections count] == 0) { //UITableView can't handle 0 sections.
-        [ourTable reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
-      } else {
-        [ourTable deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:ourAnimation];
-      }
-    }
-                              forceReload:NO];
+    [self
+        performTableActionIfInitialized:^{
+          UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:options];
+          TiUITableView *ourView = (TiUITableView *)[self view];
+          UITableView *ourTable = [ourView tableView];
+          if ([sections count] == 0) { //UITableView can't handle 0 sections.
+            [ourTable reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
+          } else {
+            [ourTable deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:ourAnimation];
+          }
+        }
+                            forceReload:NO];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)insertSection:(TiUITableViewSectionProxy *)section atIndex:(int)sectionIndex withOptions:(id)options
@@ -999,18 +1002,19 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     [section setSection:boundSectionIndex];
     [sections insertObject:section atIndex:boundSectionIndex];
 
-    [self performTableActionIfInitialized:^{
-      UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:options];
-      TiUITableView *ourView = (TiUITableView *)[self view];
-      UITableView *ourTable = [ourView tableView];
-      [section setTable:ourView];
-      if (oldSectionCount == 0) { //UITableView doesn't know we have 0 sections.
-        [ourTable reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
-      } else {
-        [ourTable insertSections:[NSIndexSet indexSetWithIndex:boundSectionIndex] withRowAnimation:ourAnimation];
-      }
-    }
-                              forceReload:NO];
+    [self
+        performTableActionIfInitialized:^{
+          UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:options];
+          TiUITableView *ourView = (TiUITableView *)[self view];
+          UITableView *ourTable = [ourView tableView];
+          [section setTable:ourView];
+          if (oldSectionCount == 0) { //UITableView doesn't know we have 0 sections.
+            [ourTable reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
+          } else {
+            [ourTable insertSections:[NSIndexSet indexSetWithIndex:boundSectionIndex] withRowAnimation:ourAnimation];
+          }
+        }
+                            forceReload:NO];
   },
       NO);
 }
@@ -1101,16 +1105,17 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
       [sections replaceObjectAtIndex:sectionIndex withObject:section];
     }
 
-    [self performTableActionIfInitialized:^{
-      UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:options];
-      TiUITableView *ourView = (TiUITableView *)[self view];
-      UITableView *ourTable = [ourView tableView];
-      [section setTable:ourView];
-      [ourTable reloadSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:ourAnimation];
-    }
-                              forceReload:NO];
+    [self
+        performTableActionIfInitialized:^{
+          UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:options];
+          TiUITableView *ourView = (TiUITableView *)[self view];
+          UITableView *ourTable = [ourView tableView];
+          [section setTable:ourView];
+          [ourTable reloadSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:ourAnimation];
+        }
+                            forceReload:NO];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 @end
 
