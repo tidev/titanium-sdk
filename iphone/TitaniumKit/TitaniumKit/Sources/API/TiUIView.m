@@ -1,18 +1,22 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiUIView.h"
 #import "ImageLoader.h"
-#import "Ti2DMatrix.h"
-#import "Ti3DMatrix.h"
-#import "TiApp.h"
 #import "TiBase.h"
 #import "TiColor.h"
 #import "TiRect.h"
 #import "TiUtils.h"
+#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
+#import "Ti2DMatrix.h"
+#endif
+#if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
+#import "Ti3DMatrix.h"
+#endif
+#import "TiApp.h"
 #import "TiViewProxy.h"
 #import "UIImage+Resize.h"
 
@@ -434,14 +438,18 @@ DEFINE_EXCEPTIONS
 }
 - (void)updateTransform
 {
+#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
   if ([transformMatrix isKindOfClass:[Ti2DMatrix class]]) {
     self.transform = CGAffineTransformConcat(virtualParentTransform, [(Ti2DMatrix *)transformMatrix matrix]);
     return;
   }
+#endif
+#if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
   if ([transformMatrix isKindOfClass:[Ti3DMatrix class]]) {
     self.layer.transform = CATransform3DConcat(CATransform3DMakeAffineTransform(virtualParentTransform), [(Ti3DMatrix *)transformMatrix matrix]);
     return;
   }
+#endif
   self.transform = virtualParentTransform;
 }
 

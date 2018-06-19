@@ -1,9 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
+#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
+
 #import "TiProxy.h"
 
 /**
@@ -46,3 +49,5 @@
 @property (nonatomic, readwrite, retain) NSNumber *ty;
 
 @end
+
+#endif

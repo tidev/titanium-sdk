@@ -1679,8 +1679,10 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     // allow a transform on the preview image
     id transform = [args objectForKey:@"transform"];
     if (transform != nil) {
+#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
       ENSURE_TYPE(transform, Ti2DMatrix);
       [picker setCameraViewTransform:[transform matrix]];
+#endif
     } else if (cameraView != nil && customPicker && ![TiUtils boolValue:@"showControls" properties:args def:YES]) {
       //No transforms in popover
       CGSize screenSize = [[UIScreen mainScreen] bounds].size;

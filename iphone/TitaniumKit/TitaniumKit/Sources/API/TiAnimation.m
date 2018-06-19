@@ -1,14 +1,18 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiAnimation.h"
 #import "KrollCallback.h"
 #import "LayoutConstraint.h"
+#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
 #import "Ti2DMatrix.h"
+#endif
+#if defined(USE_TI_UI3DMATRIX) || defined(USE_TI_UIMATRIX3D)
 #import "Ti3DMatrix.h"
+#endif
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 
@@ -450,6 +454,7 @@
         [self animationStarted:[self description] context:self];
       }
 
+#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
       if (transform != nil) {
         if (reverseAnimation != nil) {
           id transformMatrix = [(TiUIView *)view_ transformMatrix];
@@ -472,6 +477,7 @@
         }
         [(TiUIView *)view_ setTransform_:transform];
       }
+#endif
 
       if ([view_ isKindOfClass:[TiUIView class]]) { //TODO: Shouldn't we be updating the proxy's properties to reflect this?
         TiUIView *uiview = (TiUIView *)view_;

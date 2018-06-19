@@ -4,6 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
+#if defined(USE_TI_UI2DMATRIX) || defined(USE_TI_UIMATRIX2D)
+
 #import "Ti2DMatrix.h"
 #import "TiBase.h"
 #import "TiDimension.h"
@@ -103,14 +106,14 @@
 }
 
 #define MAKE_PROP(x, y)                         \
-  -(void)set##x : (NSNumber *)_##y              \
+  - (void)set##x : (NSNumber *)_##y             \
   {                                             \
     matrix.y = [_##y floatValue];               \
   }                                             \
                                                 \
-  -(NSNumber *)y                                \
+  - (NSNumber *)y                               \
   {                                             \
-    return [NSNumber numberWithFloat:matrix.y]; \
+    return @(matrix.y);                         \
   }
 
 MAKE_PROP(A, a)
@@ -144,3 +147,5 @@ MAKE_PROP(D, d)
 }
 
 @end
+
+#endif
