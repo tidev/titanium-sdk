@@ -28,7 +28,6 @@
       <module fileurl="file://$PROJECT_DIR$/modules/utils/utils.iml" filepath="$PROJECT_DIR$/modules/utils/utils.iml" />
       <module fileurl="file://$PROJECT_DIR$/runtime/v8/v8.iml" filepath="$PROJECT_DIR$/runtime/v8/v8.iml" />
       <module fileurl="file://$PROJECT_DIR$/modules/xml/xml.iml" filepath="$PROJECT_DIR$/modules/xml/xml.iml" />
-      <module fileurl="file://$PROJECT_DIR$/modules/yahoo/yahoo.iml" filepath="$PROJECT_DIR$/modules/yahoo/yahoo.iml" />
     </modules>
   </component>
 </project>

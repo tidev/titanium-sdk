@@ -26,7 +26,6 @@
     <orderEntry type="module" module-name="contacts" />
     <orderEntry type="module" module-name="xml" />
     <orderEntry type="module" module-name="database" />
-    <orderEntry type="module" module-name="yahoo" />
     <orderEntry type="module" module-name="geolocation" />
     <orderEntry type="module" module-name="gesture" />
     <orderEntry type="module" module-name="accelerometer" />

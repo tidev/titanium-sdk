@@ -143,8 +143,6 @@ public abstract class CommonContactsApi
 			key = "custom";
 		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_MSN) {
 			key = "msn";
-		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_YAHOO) {
-			key = "yahoo";
 		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_SKYPE) {
 			key = "skype";
 		} else if (type == ContactsContract.CommonDataKinds.Im.PROTOCOL_QQ) {
