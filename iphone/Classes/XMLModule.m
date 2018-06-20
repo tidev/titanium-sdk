@@ -17,7 +17,7 @@
   if (self = [super _initWithPageContext:context]) {
     DebugLog(@"[WARN] The Ti.XML namespace has been deprecated in favor of a standalone module in SDK 8.0.0.");
   }
-  
+
   return self;
 }
 
