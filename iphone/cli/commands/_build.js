@@ -4678,7 +4678,7 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 	}
 
 	const exe = this.xcodeEnv.executables.xcodebuild,
-		args = [ 'clean', '-UseNewBuildSystem=NO' ] // Use old build system until www.openradar.me/40906897 is fixed
+		args = [ 'clean', '-UseNewBuildSystem=NO' ]; // Use old build system until www.openradar.me/40906897 is fixed
 	let tries = 0,
 		lastErr = null,
 		done = false;
