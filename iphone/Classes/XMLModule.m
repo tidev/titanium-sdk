@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,15 @@
 #import "TiDOMNodeProxy.h"
 
 @implementation XMLModule
+
+- (id)_initWithPageContext:(id<TiEvaluator>)context
+{
+  if (self = [super _initWithPageContext:context]) {
+    DebugLog(@"[WARN] The Ti.XML namespace has been deprecated in favor of a standalone module in SDK 8.0.0.");
+  }
+  
+  return self;
+}
 
 - (id)parseString:(id)arg
 {

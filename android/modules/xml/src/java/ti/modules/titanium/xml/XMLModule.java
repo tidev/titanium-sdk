@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -25,6 +25,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.xml.sax.SAXException;
 
+// DEPRECATED IN SDK 8.0.0
 @Kroll.module
 public class XMLModule extends KrollModule
 {
@@ -49,6 +50,7 @@ public class XMLModule extends KrollModule
 	public XMLModule()
 	{
 		super();
+		Log.w(TAG, "The Ti.XML namespace has been deprecated in favor of a standalone module in SDK 8.0.0.");
 	}
 
 	@Kroll.method
