@@ -454,28 +454,17 @@ extern NSString *const TI_APPLICATION_GUID;
   }
 }
 
-- (BOOL)headingAvailable
-{
-  return [CLLocationManager headingAvailable];
-}
-
 #pragma mark Public APIs
+
+- (NSNumber *)hasCompass:(id)unused
+{
+  return @([CLLocationManager headingAvailable]);
+}
 
 - (NSNumber *)hasCompass
 {
-  UIDevice *theDevice = [UIDevice currentDevice];
-  NSString *version = [theDevice systemVersion];
-
-  BOOL headingAvailableBool = [self headingAvailable];
-  if (headingAvailableBool) {
-    struct utsname u;
-    uname(&u);
-    if (!strcmp(u.machine, "i386")) {
-      // 3.0 simulator headingAvailable will report YES but its not really available except post 3.0
-      headingAvailableBool = [version hasPrefix:@"3.0"] ? NO : [CLLocationManager headingAvailable];
-    }
-  }
-  return NUMBOOL(headingAvailableBool);
+  DEPRECATED_REPLACED(@"Geolocation.hasCompass", @"8.0.0", @"Geolocation.hasCompass()");
+  return [self hasCompass:nil];
 }
 
 - (void)performGeo:(NSString *)direction address:(NSString *)address callback:(GeolocationCallback *)callback
