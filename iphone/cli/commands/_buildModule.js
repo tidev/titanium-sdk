@@ -1,15 +1,15 @@
 /**
-* iOS module build command.
-*
-* @module cli/_buildModule
-*
-* @copyright
-* Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
-*
-* @license
-* Licensed under the terms of the Apache Public License
-* Please see the LICENSE included with this distribution for details.
-*/
+ * iOS module build command.
+ *
+ * @module cli/_buildModule
+ *
+ * @copyright
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * @license
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 
 'use strict';
 
@@ -126,7 +126,6 @@ iOSModuleBuilder.prototype.doAnalytics = function doAnalytics() {
 		eventName = 'ios.' + cli.argv.type;
 
 	cli.addAnalyticsEvent(eventName, {
-		dir:         this.cli.argv['project-dir'],
 		name:        this.moduleName,
 		publisher:   this.manifest.author,
 		appid:       this.moduleId,
@@ -456,13 +455,15 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 	// Create a build for the device
 	xcodebuildHook(this.xcodeEnv.executables.xcodebuild, [
 		'-configuration', 'Release',
-		'-sdk', 'iphoneos'
+		'-sdk', 'iphoneos',
+		'-UseNewBuildSystem=NO',
 	], opts, 'xcode-dist', done);
 
 	// Create a build for the simulator
 	xcodebuildHook(this.xcodeEnv.executables.xcodebuild, [
 		'-configuration', 'Release',
-		'-sdk', 'iphonesimulator'
+		'-sdk', 'iphonesimulator',
+		'-UseNewBuildSystem=NO',
 	], opts, 'xcode-sim', done);
 };
 
