@@ -138,6 +138,22 @@ excludes:
     methods: [add, remove, removeAllChildren, replaceAt]
 since: "0.8"
 properties:
+  - name: attributedString
+    summary: Specify an attributed string for the label.
+    description: |
+        The underlying attributed string drawn by the label. If set, avoid setting common attributes
+        in the label, such as `color` and `font`, as unexpected behaviors may result.
+        
+        iOS Note: This property can also be used to supress the underline style when accessibility
+        is enabled. To do so, set the `type` to <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> and the
+        `value` to <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE>.
+    type: Titanium.UI.AttributedString
+    platforms: [android, iphone, ipad]
+    since:
+        android: 7.4.0
+        iphone: 7.4.0
+        ipad: 7.4.0
+
   - name: backgroundImage
     summary: |
         Background image for the button in its normal state, specified as a local file path or URL.
@@ -147,7 +163,6 @@ properties:
         image will appear faded to indicate being disabled. Also on iOS, if backgroundSelectedImage
         is unset, the image will be darkened to indicate being selected.
     type: String
-
 
   - name: backgroundDisabledImage
     summary: |
@@ -194,7 +209,6 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
 
-
   - name: disabledColor
     summary: Text color of the button in its disabled state, as a color name or hex triplet.
     type: String
@@ -210,7 +224,6 @@ properties:
   - name: font
     summary: Font to use for the button text.
     type: Font
-
 
   - name: image
     summary: Image to display on the button, specified as a local
