@@ -455,13 +455,15 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 	// Create a build for the device
 	xcodebuildHook(this.xcodeEnv.executables.xcodebuild, [
 		'-configuration', 'Release',
-		'-sdk', 'iphoneos'
+		'-sdk', 'iphoneos',
+		'-UseNewBuildSystem=NO',
 	], opts, 'xcode-dist', done);
 
 	// Create a build for the simulator
 	xcodebuildHook(this.xcodeEnv.executables.xcodebuild, [
 		'-configuration', 'Release',
-		'-sdk', 'iphonesimulator'
+		'-sdk', 'iphonesimulator',
+		'-UseNewBuildSystem=NO',
 	], opts, 'xcode-sim', done);
 };
 
