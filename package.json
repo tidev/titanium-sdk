@@ -36,11 +36,10 @@
     "glob": "^7.1.2",
     "humanize": "0.0.9",
     "ioslib": "^1.7.2",
-    "lodash.defaultsdeep": "4.6.0",
     "markdown": "0.5.0",
     "moment": "^2.22.2",
     "node-appc": "^0.2.47",
-    "node-titanium-sdk": "^0.4.11",
+    "node-titanium-sdk": "^0.4.13",
     "node-uuid": "1.4.8",
     "pngjs": "^3.3.3",
     "request": "^2.87.0",
@@ -55,7 +54,9 @@
   "devDependencies": {
     "clang-format": "^1.2.3",
     "commander": "^2.15.1",
-    "danger": "^2.1.10",
+    "danger": "^2.1.5",
+    "eslint-config-axway": "^2.0.14",
+    "eslint-plugin-mocha": "^5.0.0",
     "grunt": "^1.0.3",
     "grunt-appc-js": "^2.1.0",
     "grunt-clang-format": "^1.1.0",
@@ -64,9 +65,7 @@
     "grunt-mocha-test": "^0.13.3",
     "js-yaml": "^3.12.0",
     "mocha": "^5.2.0",
-    "optimist": "^0.6.1",
     "pagedown": "~1.1.0",
-    "should": "^13.2.1",
     "ssri": "^5.3.0"
   },
   "repository": {
