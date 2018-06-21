@@ -11,6 +11,10 @@
 #import "TiUIWindow.h"
 #import "TiUIWindowProxy.h"
 
+#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
+#import "TiUIiOSNavWindowProxy.h"
+#endif
+
 @interface TiWindowProxy (Private)
 - (void)openOnUIThread:(id)args;
 - (void)closeOnUIThread:(id)args;
@@ -221,7 +225,7 @@
 - (void)open:(id)args
 {
   //If an error is up, Go away
-  if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorController class]]) {
+  if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorNavigationController class]]) {
     DebugLog(@"[ERROR] ErrorController is up. ABORTING open");
     return;
   }
@@ -682,6 +686,18 @@
     NSLog(@"[WARN] Use this method only with toolbars which are attached to a Ti.UI.iOS.NavigationWindow by using the setToolbar method.");
   }
 }
+
+#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
+- (TiUIiOSNavWindowProxy *)navigationWindow
+{
+  if (parentController != nil && [parentController isKindOfClass:[TiUIiOSNavWindowProxy class]]) {
+    return (TiUIiOSNavWindowProxy *)parentController;
+  }
+
+  NSLog(@"[ERROR] Trying to receive a Ti.UI.NavigationWindow instance that does not exist in this context!");
+  return nil;
+}
+#endif
 
 - (void)hideToolbar:(NSArray *)args
 {

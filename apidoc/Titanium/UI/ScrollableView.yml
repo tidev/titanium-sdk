@@ -27,6 +27,9 @@ description: |
     the "Simple Scrollable View with 2 Zoomable Images" example for a demonstration.
 excludes:
     events: [ 'click', 'longclick', 'pinch', 'swipe', 'touchend', 'touchmove' ]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
+
 extends: Titanium.UI.View
 platforms: [android, iphone, ipad]
 since: "0.8"
@@ -183,6 +186,10 @@ events:
 
   - name: scroll
     summary: Fired repeatedly as the view is being scrolled.
+    description: |
+        Prior to 2.1, the scroll event did not fire consistently on all platforms. On iOS,
+        it fired when scrolling ended, and on Android, it fired when drag ended. You can restore
+        the pre-2.1 behavior by listening for the `scrollEnd` or `dragEnd` events instead.
     properties:
 
       - name: currentPage

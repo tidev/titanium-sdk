@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -557,6 +557,30 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                                     userInfo:@{ @"userNotificationSettings" : notificationSettings }];
 }
 
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
+{
+  // TODO: Get desired options from notification?
+  completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response
+             withCompletionHandler:(void (^)(void))completionHandler
+{
+  if ([[[[[response notification] request] content] userInfo] valueForKey:@"isRemoteNotification"] != nil) {
+    RELEASE_TO_NIL(remoteNotification);
+    remoteNotification = [[[self class] dictionaryWithUserNotification:response.notification
+                                                        withIdentifier:response.actionIdentifier] retain];
+
+    [self tryToPostNotification:remoteNotification withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
+  } else {
+    RELEASE_TO_NIL(localNotification);
+    localNotification = [[[self class] dictionaryWithUserNotification:response.notification
+                                                       withIdentifier:response.actionIdentifier] retain];
+
+    [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
+  }
+}
+
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler
 {
   RELEASE_TO_NIL(localNotification);
@@ -647,9 +671,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)invokeSelector:(SEL)selector withArguments:(NSOrderedSet<id> *)arguments onDelegate:(id)delegate
 {
-  NSArray *keys = [NSStringFromSelector(selector) componentsSeparatedByString:@":"];
-  NSMutableDictionary *output = [NSMutableDictionary dictionaryWithCapacity:[arguments count]];
-
   NSInteger index = 2; // Index 0 and 1 are reserved for the invocation internals ("self" and "_cmd")
   NSInvocation *inv = [NSInvocation invocationWithMethodSignature:[delegate methodSignatureForSelector:selector]];
   [inv setSelector:selector];
@@ -768,7 +789,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 }
 
 #pragma mark
-#pragma mark Remote Notifications iOS 7
+#pragma mark Remote Notifications
 
 #ifdef USE_TI_SILENTPUSH
 // Delegate callback for Silent Remote Notification.
@@ -808,7 +829,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
   }
 }
-
 #endif
 
 #pragma mark Background Transfer Service
@@ -1145,10 +1165,8 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 #pragma mark Handoff Delegates
 
 #ifdef USE_TI_APPIOS
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
-      restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *_Nullable))restorationHandler
 {
-
   NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
 
   if ([TiUtils isIOS9OrGreater] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
@@ -1244,8 +1262,12 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     return;
   }
   ENSURE_UI_THREAD(showModalError, message);
-  TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
-  [self showModalController:error animated:YES];
+
+  TiErrorController *error = [[TiErrorController alloc] initWithError:message];
+  TiErrorNavigationController *nav = [[[TiErrorNavigationController alloc] initWithRootViewController:error] autorelease];
+  RELEASE_TO_NIL(error);
+
+  [[[self controller] topPresentedController] presentViewController:nav animated:YES completion:nil];
 }
 
 - (void)showModalController:(UIViewController *)modalController animated:(BOOL)animated
@@ -1324,7 +1346,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   return kjsBridge;
 }
 
-#pragma mark Backgrounding
+#pragma mark Background Tasks
 
 - (void)beginBackgrounding
 {
@@ -1475,7 +1497,27 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [self checkBackgroundServices];
 }
 
-#define NOTNIL(v) ((v == nil) ? (id)[NSNull null] : v)
++ (NSDictionary *)dictionaryWithUserNotification:(UNNotification *)notification withIdentifier:(NSString *)identifier
+{
+  if (notification == nil) {
+    return nil;
+  }
+  NSMutableDictionary *event = [NSMutableDictionary dictionary];
+
+  [event setObject:NULL_IF_NIL([notification date]) forKey:@"date"];
+  [event setObject:[[NSTimeZone defaultTimeZone] name] forKey:@"timezone"];
+  [event setObject:NULL_IF_NIL([[[notification request] content] body]) forKey:@"alertBody"];
+  [event setObject:NULL_IF_NIL([[[notification request] content] title]) forKey:@"alertTitle"];
+  [event setObject:NULL_IF_NIL([[[notification request] content] subtitle]) forKey:@"alertSubtitle"];
+  [event setObject:NULL_IF_NIL([[[notification request] content] launchImageName]) forKey:@"alertLaunchImage"];
+  [event setObject:NULL_IF_NIL([[[notification request] content] sound]) forKey:@"sound"];
+  [event setObject:NULL_IF_NIL([[[notification request] content] badge]) forKey:@"badge"];
+  [event setObject:NULL_IF_NIL([[[notification request] content] userInfo]) forKey:@"userInfo"];
+  [event setObject:NULL_IF_NIL([[[notification request] content] categoryIdentifier]) forKey:@"category"];
+  [event setObject:NULL_IF_NIL([[notification request] identifier]) forKey:@"identifier"];
+
+  return event;
+}
 
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier:(NSString *)identifier
 {
@@ -1483,17 +1525,18 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     return nil;
   }
   NSMutableDictionary *event = [NSMutableDictionary dictionary];
-  [event setObject:NOTNIL([notification fireDate]) forKey:@"date"];
-  [event setObject:NOTNIL([[notification timeZone] name]) forKey:@"timezone"];
-  [event setObject:NOTNIL([notification alertBody]) forKey:@"alertBody"];
-  [event setObject:NOTNIL([notification alertAction]) forKey:@"alertAction"];
-  [event setObject:NOTNIL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
-  [event setObject:NOTNIL([notification soundName]) forKey:@"sound"];
-  [event setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
-  [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
-  [event setObject:NOTNIL([notification category]) forKey:@"category"];
-  [event setObject:NOTNIL(identifier) forKey:@"identifier"];
-  [event setObject:NUMBOOL([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) forKey:@"inBackground"];
+  [event setObject:NULL_IF_NIL([notification fireDate]) forKey:@"date"];
+  [event setObject:NULL_IF_NIL([[notification timeZone] name]) forKey:@"timezone"];
+  [event setObject:NULL_IF_NIL([notification alertTitle]) forKey:@"alertTitle"];
+  [event setObject:NULL_IF_NIL([notification alertBody]) forKey:@"alertBody"];
+  [event setObject:NULL_IF_NIL([notification alertAction]) forKey:@"alertAction"];
+  [event setObject:NULL_IF_NIL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
+  [event setObject:NULL_IF_NIL([notification soundName]) forKey:@"sound"];
+  [event setObject:@([notification applicationIconBadgeNumber]) forKey:@"badge"];
+  [event setObject:NULL_IF_NIL([notification userInfo]) forKey:@"userInfo"];
+  [event setObject:NULL_IF_NIL([notification category]) forKey:@"category"];
+  [event setObject:NULL_IF_NIL(identifier) forKey:@"identifier"];
+  [event setObject:@([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) forKey:@"inBackground"];
 
   return event;
 }

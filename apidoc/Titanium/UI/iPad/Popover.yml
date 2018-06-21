@@ -19,7 +19,7 @@ since: "1.2"
 excludes:
     events: [click, dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
-    methods: [animate, convertPointToView, removeAllChildren, toImage]
+    methods: [add, remove, replaceAt, animate, convertPointToView, removeAllChildren, toImage]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter,backgroundDisabledColor,
                  backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
@@ -34,26 +34,12 @@ events:
     summary: Fired when the popover is hidden.
 
 methods:
-  - name: add
-    summary: Adds a child to the popover.
-    deprecated:
-        since: "3.2.0"
-        removed: "3.4.2"
-        notes: Use the <Titanium.UI.iPad.Popover.contentView> property to modify the content of the popover.
-
   - name: hide
     summary: Hides the popover.
     parameters:
       - name: options
         summary: Display properties to use when hiding the popover.
         type: PopoverParams
-
-  - name: remove
-    summary: Removes a child from the popover.
-    deprecated:
-        since: "3.2.0"
-        removed: "3.4.2"
-        notes: Use the <Titanium.UI.iPad.Popover.contentView> property to modify the content of the popover.
 
   - name: show
     summary: Displays the popover.

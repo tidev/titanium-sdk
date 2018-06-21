@@ -837,19 +837,6 @@ properties:
     platforms: [android]
     default: <Titanium.Geolocation.PROVIDER_NETWORK>
 
-  - name: purpose
-    summary: |
-        Text to display in the permission dialog when requesting location
-        services.
-    description: |
-        This property informs the end user why location services are being requested by
-        the application. This property is **required** starting in iOS 4.0.
-        deprecated for >= iOS6, include the `NSLocationUsageDescription` key with your
-        description in tiapp.xml instead.
-    platforms: [iphone, ipad]
-    type: String
-    osver: {ios: {max: "5.0"}}
-
   - name: showCalibration
     summary: Determines whether the compass calibration UI is shown if needed.
     description: |
@@ -857,6 +844,26 @@ properties:
         in invalid heading data.
     type: Boolean
     default: true
+    platforms: [iphone, ipad]
+
+  - name: showBackgroundLocationIndicator
+    summary: |
+        Specifies that an indicator be shown when the app makes use of continuous 
+        background location updates.
+    description: |
+        Starting continuous background location updates requires the app to 
+        set `UIBackgroundModes` to include "location" and to set this property 
+        to `true` before calling `getCurrentPosition` with the intent to continue 
+        in the background.
+
+        Note that this property only applies to apps with Always authorization.
+        For apps with WhenInUse authorization, the indicator is always shown when
+        using continuous background location updates in order to maintain user
+        visibility and that the app is still in use.
+    type: Boolean
+    default: false
+    since: "7.3.0"
+    osver: { ios: { min: "11.0" } }
     platforms: [iphone, ipad]
 
   - name: trackSignificantLocationChange
