@@ -22,7 +22,7 @@ const appc = require('node-appc'),
 	iosPackageJson = appc.pkginfo.package(module),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	ejs = require('ejs'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	markdown = require('markdown').markdown,
 	path = require('path'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
@@ -151,6 +151,7 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 	this.metaData = [];
 	this.metaDataFile = path.join(this.projectDir, 'metadata.json');
 	this.manifestFile = path.join(this.projectDir, 'manifest');
+	this.distDir = path.join(this.projectDir, 'dist');
 	this.templatesDir = path.join(this.platformPath, 'templates');
 	this.assetsTemplateFile = path.join(this.templatesDir, 'module', 'default', 'template', 'ios', 'Classes', '{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
 	this.universalBinaryDir = path.join(this.projectDir, 'build');
@@ -557,7 +558,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		moduleId = this.moduleId,
 		version = this.moduleVersion,
 		moduleZipName = [ moduleId, '-iphone-', version, '.zip' ].join(''),
-		moduleZipFullPath = path.join(this.projectDir, moduleZipName),
+		moduleZipFullPath = path.join(this.distDir, moduleZipName),
 		moduleFolders = path.join('modules', 'iphone', moduleId, version),
 		binarylibName = 'lib' + moduleId + '.a',
 		binarylibFile = path.join(this.projectDir, 'build', binarylibName);
@@ -569,6 +570,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 
 	try {
 		// if the zip file is there, remove it
+		fs.ensureDirSync(this.distDir);
 		fs.existsSync(moduleZipFullPath) && fs.unlinkSync(moduleZipFullPath);
 		const zipStream = fs.createWriteStream(moduleZipFullPath);
 		zipStream.on('close', function () {
