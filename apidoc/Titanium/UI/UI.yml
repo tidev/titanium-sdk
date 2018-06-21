@@ -144,7 +144,7 @@ methods:
     parameters:
       - name: parameters
         summary: Initial transformation of the matrix.
-        type: MatrixCreationDict
+        type: Matrix2DCreationDict
         optional: true
     deprecated:
         since: "8.0.0"
@@ -157,7 +157,7 @@ methods:
     parameters:
       - name: parameters
         summary: Initial transformation of the matrix.
-        type: MatrixCreationDict
+        type: Matrix2DCreationDict
         optional: true
 
   - name: convertUnits
