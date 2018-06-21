@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.lang.reflect.Method;
 import java.lang.System;
+import java.util.Collection;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -48,8 +49,8 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 		return new String(filterDataInRange(assetsBytes, range.offset, range.length));
 	}
 
-	public String[] getAssetPaths() {
-		return assets.keySet().toArray(new String[assets.size()]);
+	public Collection<String> getAssetPaths() {
+		return assets.keySet();
 	}
 
 	private static byte[] filterDataInRange(byte[] data, int offset, int length)

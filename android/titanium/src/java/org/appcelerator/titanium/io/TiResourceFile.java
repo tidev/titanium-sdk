@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
@@ -216,52 +215,8 @@ public class TiResourceFile extends TiBaseFile
 	@Override
 	public List<String> getDirectoryListing()
 	{
-		List<String> listing = new ArrayList<String>();
-		try {
-			// List files under the APK's "assets/Resources" directory tree.
-			String lpath = TiFileHelper2.getResourcesPath(this.path);
-			if (lpath.endsWith("/")) {
-				lpath = lpath.substring(0, lpath.lastIndexOf("/"));
-			}
-			String[] names = TiApplication.getInstance().getAssets().list(lpath);
-			if (names != null) {
-				int len = names.length;
-				for (int i = 0; i < len; i++) {
-					listing.add(names[i]);
-				}
-			}
-
-			// List the encrypted JavaScript files. These are not under an actual directory.
-			lpath = this.path;
-			if (lpath.equals("/")) {
-				// Strip off the slash if referencing the root "Resources" directory.
-				lpath = "";
-			} else if (!lpath.isEmpty() && !lpath.endsWith("/")) {
-				// Assume all other paths are a directories and append a slash.
-				// If given path is a file, then no asset path will match a file with a slash at the end.
-				lpath += "/";
-			}
-			String[] assets = KrollAssetHelper.getEncryptedAssetPaths();
-			if (assets != null) {
-				for (String asset : assets) {
-					if ((asset.length() > lpath.length()) && asset.startsWith(lpath)) {
-						String relativePath = asset.substring(lpath.length());
-						int dirIndex = relativePath.indexOf('/');
-						if (dirIndex >= 0) {
-							String dir = relativePath.substring(0, dirIndex);
-							if (dir.length() > 0 && !listing.contains(dir)) {
-								listing.add(dir);
-							}
-						} else if (relativePath.length() > 0) {
-							listing.add(relativePath);
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Error while getting a directory listing: " + e.getMessage(), e);
-		}
-		return listing;
+		String resourcePath = TiFileHelper2.getResourcesPath(this.path);
+		return KrollAssetHelper.getDirectoryListing(resourcePath);
 	}
 
 	public String toString()
@@ -271,25 +226,32 @@ public class TiResourceFile extends TiBaseFile
 
 	private void fetchStats()
 	{
-		if (KrollAssetHelper.assetExists(TiFileHelper2.getResourcesPath(path))) {
+		// Do not continue if already fetched.
+		if (this.statsFetched) {
+			return;
+		}
+
+		// Determine if the path references an existing file or directory.
+		String resourcePath = TiFileHelper2.getResourcesPath(this.path);
+		if (this.path.isEmpty() || this.path.equals("/")) {
+			// Path references the root "Resources" directory. (This is an optimization.)
+			this.typeFile = false;
+			this.typeDir = true;
+			this.exists = true;
+		} else if (KrollAssetHelper.assetExists(resourcePath)) {
+			// Path references an existing file.
 			this.typeDir = false;
 			this.typeFile = true;
 			this.exists = true;
-
 		} else {
+			// Path does not reference a file. Check if it references an existing directory.
 			this.typeFile = false;
-
-			if (path.isEmpty() || !getDirectoryListing().isEmpty()) {
-				this.typeDir = true;
-				this.exists = true;
-
-				// does not exist; neither file or directory
-			} else {
-				this.typeDir = false;
-				this.exists = false;
-			}
+			this.typeDir = KrollAssetHelper.directoryExists(resourcePath);
+			this.exists = this.typeDir;
 		}
-		statsFetched = true;
+
+		// Flag that path info has been fetched.
+		this.statsFetched = true;
 	}
 
 	private void fetchName()
