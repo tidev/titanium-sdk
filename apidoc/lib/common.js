@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-2017 Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2018 Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  *
  * Common Library for Doctools
@@ -186,7 +186,12 @@ exports.parseYAML = function parseYAML(path) {
 								rv.data[doc.name] = doc;
 								rv.data[doc.name].__file = currentFile;
 							} else {
-								rv.errors.push({ toString: function () { return 'Duplicate key: ' + doc.name + '. Please rename the key to be unique!' }, __file: currentFile });
+								rv.errors.push({
+									toString: function () {
+										return 'Duplicate key: ' + doc.name + '. Please rename the key to be unique!';
+									},
+									__file: currentFile
+								});
 							}
 						});
 					} catch (e) {
