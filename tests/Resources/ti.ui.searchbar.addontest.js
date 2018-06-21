@@ -104,7 +104,7 @@ describe('Titanium.UI.SearchBar', function () {
 		should(searchBar.getPrompt()).eql('another value');
 	});
 
-  it.ios('Should be able to set/get the background image of the textfield', function () {
+	it.ios('Should be able to set/get the background image of the textfield', function () {
 		var backgroundView = Ti.UI.createView({
 			height: 36,
 			width: Ti.Platform.displayCaps.platformWidth - 20,
