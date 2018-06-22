@@ -393,7 +393,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   // bump out the dictionary as-is
   remoteNotification = [[NSMutableDictionary alloc] initWithDictionary:dict];
   NSDictionary *aps = [dict objectForKey:@"aps"];
-  for (id key in aps) {
+  for (NSString *key in aps) {
     if ([dict objectForKey:key] != nil) {
       DebugLog(@"[WARN] Conflicting keys in push APS dictionary and notification dictionary `%@`, not copying to toplevel from APS", key);
       continue;
@@ -525,7 +525,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   if ([backgroundModes containsObject:@"fetch"]) {
 
     // Generate unique key with timestamp.
-    id key = [NSString stringWithFormat:@"Fetch-%f", [[NSDate date] timeIntervalSince1970]];
+    NSString *key = [NSString stringWithFormat:@"Fetch-%f", [[NSDate date] timeIntervalSince1970]];
 
     // Store the completionhandler till we can come back and send appropriate message.
     if (pendingCompletionHandlers == nil) {
@@ -628,7 +628,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 {
 
   // Generate unique key with timestamp.
-  id key = [NSString stringWithFormat:@"watchkit-reply-%f", [[NSDate date] timeIntervalSince1970]];
+  NSString *key = [NSString stringWithFormat:@"watchkit-reply-%f", [[NSDate date] timeIntervalSince1970]];
 
   if (pendingReplyHandlers == nil) {
     pendingReplyHandlers = [[NSMutableDictionary alloc] init];
@@ -721,7 +721,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)tryToPostBackgroundModeNotification:(NSMutableDictionary *)userInfo withNotificationName:(NSString *)notificationName
 {
-  //Check to see if the app booted and we still have the completionhandler in the system
+  // Check to see if the app booted and we still have the completion handler in the system
   NSString *key = [userInfo objectForKey:@"handlerId"];
   BOOL shouldContinue = NO;
   if ([key rangeOfString:@"Session"].location != NSNotFound) {
@@ -741,42 +741,44 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 }
 
-//Clear out  the pendingCompletionHandlerQueue
+// Clear out the pending completion handlers
 - (void)flushCompletionHandlerQueue
 {
   if (pendingCompletionHandlers != nil) {
-    for (id key in pendingCompletionHandlers) {
-      [self completionHandler:key withResult:2]; //UIBackgroundFetchResultFailed
+    for (NSString *key in [pendingCompletionHandlers allKeys]) {
+      // Do not remove from the pending handlers for now, as it's removed after the enumeration finished
+      [self performCompletionHandlerWithKey:key andResult:UIBackgroundFetchResultFailed removeAfterExecution:NO];
     }
   }
   RELEASE_TO_NIL(pendingCompletionHandlers);
 }
 
-// This method gets called when the wall clock runs out and the completionhandler is still there.
+// This method gets called when the wall clock runs out and the completion handler is still there
 - (void)fireCompletionHandler:(NSTimer *)timer
 {
-  id key = timer.userInfo;
+  NSString *key = (NSString *)timer.userInfo;
   if ([pendingCompletionHandlers objectForKey:key]) {
-    [self completionHandler:key withResult:UIBackgroundFetchResultFailed];
-    //Send a event signalling the that backgroundfetch ended.
+    // Send an event notifying the developer that the background-fetch failed
+    [self performCompletionHandlerWithKey:key andResult:UIBackgroundFetchResultFailed removeAfterExecution:YES];
   }
 }
 
 // Gets called when user ends finishes with backgrounding stuff. By default this would always be called with UIBackgroundFetchResultNoData.
-- (void)completionHandler:(id)key withResult:(int)result
+- (void)performCompletionHandlerWithKey:(NSString *)key andResult:(UIBackgroundFetchResult)result removeAfterExecution:(BOOL)removeAfterExecution
 {
   if ([pendingCompletionHandlers objectForKey:key]) {
-    void (^completionHandler)(UIBackgroundFetchResult);
-    completionHandler = [pendingCompletionHandlers objectForKey:key];
+    void (^completionHandler)(UIBackgroundFetchResult) = [pendingCompletionHandlers objectForKey:key];
     completionHandler(result);
-    [pendingCompletionHandlers removeObjectForKey:key];
+    if (removeAfterExecution) {
+      [pendingCompletionHandlers removeObjectForKey:key];
+    }
   } else {
-    DebugLog(@"[ERROR] The specified Completion Handler with ID: %@ has already expired or removed from the system", key);
+    DebugLog(@"[ERROR] The specified completion handler with ID = %@ has already expired or been removed from the system", key);
   }
 }
 
 //Called to mark the end of background transfer while in the background.
-- (void)completionHandlerForBackgroundTransfer:(id)key
+- (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key
 {
   if ([backgroundTransferCompletionHandlers objectForKey:key] != nil) {
     void (^completionHandler)();
@@ -784,7 +786,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     [backgroundTransferCompletionHandlers removeObjectForKey:key];
     completionHandler();
   } else {
-    DebugLog(@"[ERROR] The specified Completion Handler with ID: %@ has already expired or removed from the system", key);
+    DebugLog(@"[ERROR] The specified completion handler with ID = %@ has already expired or been removed from the system", key);
   }
 }
 
@@ -809,7 +811,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   if ([backgroundModes containsObject:@"remote-notification"]) {
 
     // Generate unique key with timestamp.
-    id key = [NSString stringWithFormat:@"SilentPush-%f", [[NSDate date] timeIntervalSince1970]];
+    NSString *key = [NSString stringWithFormat:@"SilentPush-%f", [[NSDate date] timeIntervalSince1970]];
 
     // Store the completionhandler till we can come back and send appropriate message.
     if (pendingCompletionHandlers == nil) {
@@ -837,7 +839,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
 {
   // Generate unique key with timestamp.
-  id key = [NSString stringWithFormat:@"Session-%f", [[NSDate date] timeIntervalSince1970]];
+  NSString *key = [NSString stringWithFormat:@"Session-%f", [[NSDate date] timeIntervalSince1970]];
 
   // Store the completionhandler till we can come back and send appropriate message.
   if (backgroundTransferCompletionHandlers == nil) {
