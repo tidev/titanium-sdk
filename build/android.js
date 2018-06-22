@@ -114,6 +114,7 @@ Android.prototype.package = function (packager, next) {
 
 				// skip geolocation
 				if ([ 'geolocation' ].includes(dir)) {
+					callback();
 					return;
 				}
 
