@@ -8,46 +8,58 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 
 describe('Titanium.Filesystem.File', function () {
-	it('#directoryListing()', function () {
-		let rootDir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory),
-			rootPath,
-			filesFound = {};
-		should(rootDir.exists()).be.true;
-		should(rootDir.getDirectoryListing).be.a.Function;
-		should(rootDir.getDirectoryListing()).be.an.Array;
+	describe('#getDirectoryListing()', function () {
+		it('is a Function', function () {
+			var dir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory);
+			should(dir.getDirectoryListing).be.a.Function;
+		});
 
-		// Traverse entire Resources directory tree looking for files/directories in "filesFound".
-		rootPath = rootDir.nativePath;
-		filesFound[rootPath + 'app.js'] = false;
-		filesFound[rootPath + 'ti.ui.webview.test.html'] = false;
-		filesFound[rootPath + 'fixtures/'] = false; // Subdirectory containing only JS files.
-		filesFound[rootPath + 'fixtures/empty-double.js'] = false;
-		filesFound[rootPath + 'txtFiles/'] = false; // Subdirectory containing only assets.
-		filesFound[rootPath + 'txtFiles/text.txt'] = false;
-		function searchFileTree(file) {
-			if (file) {
-				let fileList = file.getDirectoryListing();
-				if (fileList) {
-					for (let index = 0; index < fileList.length; index++) {
-						let nextFile = Ti.Filesystem.getFile(file.nativePath, fileList[index]);
-						if (nextFile) {
-							let absolutePath = nextFile.nativePath;
-							if (absolutePath in filesFound) {
-								filesFound[absolutePath] = true;
-							}
-							searchFileTree(nextFile);
-						}
-					}
-				}
+		it('returns Array of filenames for directory contents', function () {
+			var dir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory),
+				files = dir.getDirectoryListing();
+			should(dir.exists()).be.true;
+			files.should.be.an.Array;
+			files.length.should.be.above(0);
+			files[0].should.be.a.String;
+		});
+
+		it('returns empty Array for empty directory', function () {
+			var emptyDir = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'emptyDir'),
+				result;
+			should(emptyDir).be.ok;
+			// remove it if it exists
+			if (emptyDir.exists()) {
+				should(emptyDir.deleteDirectory()).eql(true);
 			}
-		}
-		searchFileTree(rootDir);
-		for (let key in filesFound) {
-			Ti.API.info('Checking if found file: ' + key);
-			should(filesFound[key]).be.true;
-		}
+			// create a fresh empty dir
+			should(emptyDir.createDirectory()).eql(true);
+			should(emptyDir.exists()).eql(true);
+			should(emptyDir.isFile()).eql(false);
+			should(emptyDir.isDirectory()).eql(true);
+
+			result = emptyDir.getDirectoryListing();
+			result.should.be.an.Array;
+			result.length.should.eql(0);
+		});
+
+		it('returns null for non-existent directory', function () {
+			var nonExistentDir = Ti.Filesystem.getFile('madeup');
+			var result = nonExistentDir.getDirectoryListing();
+			should(nonExistentDir).be.ok;
+			should(nonExistentDir.exists()).eql(false);
+			should(result).eql(null);
+		});
+
+		it('returns null for file', function () {
+			var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'app.js');
+			var result = file.getDirectoryListing();
+			should(file).be.ok;
+			should(file.exists()).eql(true);
+			should(file.isFile()).eql(true);
+			should(result).eql(null);
+		});
 	});
 });
