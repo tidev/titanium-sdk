@@ -104,4 +104,20 @@ describe('Titanium.UI.SearchBar', function () {
 		should(searchBar.getPrompt()).eql('another value');
 	});
 
+	it.ios('Should be able to set/get the background image of the textfield', function () {
+		var backgroundView = Ti.UI.createView({
+			height: 36,
+			width: Ti.Platform.displayCaps.platformWidth - 20,
+			backgroundColor: '#268E8E93',
+			borderRadius: 12
+		});
+
+		var searchBar = Ti.UI.createSearchBar({
+			fieldBackgroundImage: backgroundView.toImage(),
+			fieldBackgroundDisabledImage: backgroundView.toImage()
+		});
+
+		should(searchBar.fieldBackgroundImage.apiName).eql('Ti.Blob');
+		should(searchBar.fieldBackgroundDisabledImage.apiName).eql('Ti.Blob');
+	});
 });
