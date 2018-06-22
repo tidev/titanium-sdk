@@ -1049,13 +1049,14 @@
   [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:fetchInterval];
 }
 
-- (void)endBackgroundHandler:(id)arg
+- (void)endBackgroundHandler:(id)handlerIdentifier
 {
-  ENSURE_SINGLE_ARG(arg, NSString);
-  if ([arg rangeOfString:@"Session"].location != NSNotFound) {
-    [[TiApp app] completionHandlerForBackgroundTransfer:arg];
+  ENSURE_SINGLE_ARG(handlerIdentifier, NSString);
+
+  if ([handlerIdentifier rangeOfString:@"Session"].location != NSNotFound) {
+    [[TiApp app] performCompletionHandlerForBackgroundTransferWithKey:handlerIdentifier];
   } else {
-    [[TiApp app] completionHandler:arg withResult:1];
+    [[TiApp app] performCompletionHandlerWithKey:handlerIdentifier andResult:UIBackgroundFetchResultNoData];
   }
 }
 

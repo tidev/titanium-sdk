@@ -11,6 +11,7 @@ import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
@@ -43,6 +44,12 @@ public final class ReferenceTable
 		long key = lastKey++;
 		Log.d(TAG, "Creating strong reference for key: " + key, Log.DEBUG_MODE);
 		references.put(key, object);
+
+		// store reference key in proxy
+		if (object instanceof KrollProxy) {
+			((KrollProxy) object).setReferenceKey(key);
+		}
+
 		return key;
 	}
 

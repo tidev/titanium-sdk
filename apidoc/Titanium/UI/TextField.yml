@@ -14,22 +14,10 @@ description: |
     Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
 extends: Titanium.UI.View
 since: "0.8"
-
-
+excludes:
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 methods:
-
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to a `TextField` is not supported on all platforms.
-
-        If you need to display views on top of this object, consider using
-        another view as a container for both this object and the views you want
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
   - name: blur
     summary: Forces the field to lose focus.
 
@@ -42,11 +30,6 @@ methods:
         type: Boolean
         summary: True if this text field contains text.
     since: "2.1.0"
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.TextField.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
 
   - name: setSelection
     summary: Selects the text in range (start, end).
