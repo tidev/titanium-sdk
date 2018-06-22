@@ -21,18 +21,21 @@ properties:
         Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the gravity.
     type: Number
     permission: read-only
+    since: "7.4.0"
 
   - name: GRAVITY_LEFT
     summary: |
         Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the gravity.
     type: Number
     permission: read-only
+    since: "7.4.0"
 
   - name: GRAVITY_RIGHT
     summary: |
         Use with [DrawerLayout.drawerLockMode](Titanium.UI.Android.DrawerLayout.drawerLockMode) to specify the gravity.
     type: Number
     permission: read-only
+    since: "7.4.0"
 
   - name: LOCK_MODE_LOCKED_CLOSED
     summary: |
@@ -104,8 +107,8 @@ properties:
     default: true
 
   - name: drawerLockMode
-    summary: Get or set the drawerLockMode
-    type: drawerLockModeObject
+    summary: Get or set the drawer lock-mode. Consists of an object of `lockMode` and `gravity`.
+    type: DrawerLockModeObject
 
   - name: toolbarEnabled
     summary: Determine whether to enable the toolbar.
@@ -163,9 +166,9 @@ examples:
 
             var win = Ti.UI.createWindow();
 
-            var leftView = Ti.UI.createView({ backgroundColor:'red' });
-            var centerView = Ti.UI.createView({ backgroundColor:'yellow' });
-            var rightView = Ti.UI.createView({ backgroundColor:'orange' });
+            var leftView = Ti.UI.createView({ backgroundColor: 'red' });
+            var centerView = Ti.UI.createView({ backgroundColor: 'yellow' });
+            var rightView = Ti.UI.createView({ backgroundColor: 'orange' });
 
             var drawer = Ti.UI.Android.createDrawerLayout({
                 leftView: leftView,
@@ -180,11 +183,11 @@ examples:
 
             centerView.add(btn);
 
-            win.addEventListener('open', function(){
+            win.addEventListener('open', function() {
                 var activity = win.getActivity(),
                     actionBar = activity.getActionBar();
 
-                if (actionBar) {
+                if (actionBar !== null) {
                     actionBar.displayHomeAsUp = true;
                     actionBar.onHomeIconItemSelected = function() {
                         drawer.toggleLeft();
@@ -196,18 +199,18 @@ examples:
             win.open();
 
 ---
-name: drawerLockModeObject
+name: DrawerLockModeObject
 summary: Returning `lockMode` and `gravity`.
-since: 7.0.0
+since: 7.4.0
 platforms: [android]
 properties:
   - name: lockMode
-    summary: Drawer lock mode
+    summary: Enable or disable interaction with the given drawer.
     type: Number
     constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
     default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
   - name: gravity
-    summary: Which drawer is addressed by `lockMode`
+    summary: Expresses which drawer to change the mode for.
     type: Number
     constants: Titanium.UI.Android.DrawerLayout.GRAVITY_*
     default: Titanium.UI.Android.DrawerLayout.GRAVITY_BOTH
