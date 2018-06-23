@@ -68,10 +68,10 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 	@Override
 	public String getUrl()
 	{
-		// The Titanium "ti.shell.js" script is shared by all platforms.
+		// The Titanium "ti.main.js" script is shared by all platforms.
 		// It will run the app developer's "app.js" script after loading all JS extensions.
-		// Script Location: titanium_mobile/template/core/Resources
-		return "ti.shell.js";
+		// Script Location: titanium_mobile/common/Resources
+		return "ti.main.js";
 	}
 
 	@Override

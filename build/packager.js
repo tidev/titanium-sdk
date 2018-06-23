@@ -269,8 +269,8 @@ Packager.prototype.package = function (next) {
 			fs.copy(path.join(this.outputDir, 'api.jsca'), path.join(this.zipSDKDir, 'api.jsca'), cb);
 		}.bind(this),
 		function (cb) {
-			// Copy some root files, cli/, templates/, node_modules minus .bin sub-dir
-			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'node_modules', 'templates' ], cb);
+			// Copy some root files, cli/, common/, templates/, node_modules minus .bin sub-dir
+			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'common', 'node_modules', 'templates' ], cb);
 		}.bind(this),
 		// Now run 'npm prune --production' on the zipSDKDir, so we retain only production dependencies
 		function (cb) {

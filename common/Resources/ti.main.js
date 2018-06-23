@@ -3,7 +3,7 @@
  * Copyright (c) 2018 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- * 
+ *
  * This script is loaded on app startup on all platforms. It is used to do the following:
  * - Provide consistent startup behavior between platforms, such as logging Titanium version.
  * - Load Titanium's core JavaScript extensions shared by all platforms.

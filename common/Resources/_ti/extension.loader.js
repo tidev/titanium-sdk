@@ -14,25 +14,20 @@
 
 'use strict';
 
-var JS_EXTENSION = '.js',
-	DIRECTORY_PATH = '_ti/extensions/';
-
 exports.load = function () {
-	var directory = Ti.Filesystem.getFile(Ti.Filesystem.getResourcesDirectory(), DIRECTORY_PATH),
+	var DIRECTORY_PATH = '_ti/extensions/',
+		directory = Ti.Filesystem.getFile(Ti.Filesystem.getResourcesDirectory(), DIRECTORY_PATH),
 		fileNames = directory.getDirectoryListing(),
-		fileName,
 		fileIndex,
-		stringIndex;
+		regexResults;
 
 	if (fileNames) {
 		fileNames.sort();
 		for (fileIndex = 0; fileIndex < fileNames.length; fileIndex++) {
-			fileName = fileNames[fileIndex];
-			if (fileName) {
-				stringIndex = fileName.lastIndexOf(JS_EXTENSION);
-				if ((stringIndex >= 0) && ((fileName.length - stringIndex) === JS_EXTENSION.length)) {
-					require(DIRECTORY_PATH + fileName.substr(0, fileName.length - JS_EXTENSION.length));
-				}
+			// If the next file has a "*.js" extension, extract the file name and require it in.
+			regexResults = fileNames[fileIndex].match(/^(.*)\.js$/);
+			if (regexResults) {
+				require(DIRECTORY_PATH + regexResults[1]);
 			}
 		}
 	}

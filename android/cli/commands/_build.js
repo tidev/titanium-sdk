@@ -2558,7 +2558,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	const tasks = [
 		// First copy all of the Titanium SDK's core JS files shared by all platforms.
 		function (cb) {
-			const src = path.join(this.titaniumSdkPath, 'templates', 'core', 'Resources');
+			const src = path.join(this.titaniumSdkPath, 'common', 'Resources');
 			warnDupeDrawableFolders.call(this, src);
 			_t.logger.debug(__('Copying %s', src.cyan));
 			copyDir.call(this, {

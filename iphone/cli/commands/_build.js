@@ -3966,7 +3966,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		i18nLaunchScreens[path.basename(p)] = 1;
 	});
 
-	[{
+	[ {
 		orientation: 'Portrait',
 		'minimum-system-version': '11.0',
 		name: 'Default-Portrait',
@@ -4036,7 +4036,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		name: 'Default-Landscape',
 		scale: [ '2x', '1x' ],
 		size: '{768, 1024}'
-	}].forEach(function (asset) {
+	} ].forEach(function (asset) {
 		asset.scale.some(function (scale) {
 			let key;
 			const basefilename = asset.name + (asset.subtype ? '-' + asset.subtype : ''),
@@ -4911,7 +4911,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	this.logger.info(__('Analyzing Resources directory'));
-	walk(path.join(this.titaniumSdkPath, 'templates', 'core', 'Resources'), this.xcodeAppDir);
+	walk(path.join(this.titaniumSdkPath, 'common', 'Resources'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources'),           this.xcodeAppDir, platformsRegExp);
 	walk(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources', 'ios'),    this.xcodeAppDir);

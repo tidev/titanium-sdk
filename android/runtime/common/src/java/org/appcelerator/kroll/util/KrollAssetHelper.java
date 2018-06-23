@@ -223,13 +223,15 @@ public class KrollAssetHelper
 		ArrayList<String> resultList = new ArrayList<>();
 		path = normalizeDirectoryPath(path);
 		{
-			Collection<String> collection = encrpytedDirectoryListingMap.get(normalizeAssetCryptPath(path));
+			// Grab the APK "assets" listing first since it's likely the largest list.
+			Collection<String> collection = apkDirectoryListingMap.get(path);
 			if (collection != null) {
 				resultList.addAll(collection);
 			}
 		}
 		{
-			Collection<String> collection = apkDirectoryListingMap.get(path);
+			// Merge the encrypted assets listing (if any) into the result list.
+			Collection<String> collection = encrpytedDirectoryListingMap.get(normalizeAssetCryptPath(path));
 			if (collection != null) {
 				for (String entry : collection) {
 					if (!resultList.contains(entry)) {
@@ -303,7 +305,9 @@ public class KrollAssetHelper
 
 			// Remove path separator(s) from the front of the path. It must be relative down below.
 			int startIndex = 0;
-			for (; (startIndex < path.length()) && (path.charAt(startIndex) == '/'); startIndex++);
+			while ((startIndex < path.length()) && (path.charAt(startIndex) == '/')) {
+				startIndex++;
+			}
 			if (startIndex > 0) {
 				if (startIndex < path.length()) {
 					path = path.substring(startIndex);
