@@ -69,7 +69,7 @@ exports.config = function (logger, config, cli) {
 								ti.validateTiappXml(logger, config, tiapp);
 
 								// check that the Titanium SDK version is correct
-								if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
+								if (!ti.validateCorrectSDK(logger, config, cli, 'clean')) {
 									throw new cli.GracefulShutdown();
 								}
 

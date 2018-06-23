@@ -19,7 +19,8 @@ description: |
         <SearchView ns="Ti.UI.Android" platform="android"/>
 
 extends: Titanium.UI.View
-excludes: { methods: [ add ] }
+excludes:
+    methods: [add]
 since: "3.0.2"
 platforms: [android]
 methods:
@@ -79,13 +80,13 @@ properties:
     
   - name: iconified
     summary: Iconifies or expands the search view
-    description: see [Android Documentation](http://developer.android.com/reference/android/widget/SearchView.html#setIconified(boolean)) for more details.
+    description: see [Android Documentation](https://developer.android.com/reference/android/widget/SearchView.html#setIconified(boolean)) for more details.
     type: Boolean
     default: undefined
   
   - name: iconifiedByDefault
     summary: Sets the default or resting state of the search view
-    description: see [Android Documentation](http://developer.android.com/reference/android/widget/SearchView.html#setIconifiedByDefault(boolean)) for more details.
+    description: see [Android Documentation](https://developer.android.com/reference/android/widget/SearchView.html#setIconifiedByDefault(boolean)) for more details.
     type: Boolean
     default: true
   
