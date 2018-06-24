@@ -100,7 +100,7 @@ description: |
 
     For more information, see the following topics:
 
-      * [Android Developers: Migrating to WebView in Android 4.4](http://developer.android.com/guide/webapps/migrating.html)
+      * [Android Developers: Migrating to WebView in Android 4.4](https://developer.android.com/guide/webapps/migrating.html)
       * [Google Chrome: WebView for Android](https://developer.chrome.com/multidevice/webview/overview)
 
     **Plugin Support**
@@ -130,14 +130,15 @@ description: |
     #### For More Information
 
     See [Integrating Web
-    Content](http://docs.appcelerator.com/platform/latest/#!/guide/Integrating_Web_Content)
+    Content](https://docs.appcelerator.com/platform/latest/#!/guide/Integrating_Web_Content)
     in the Titanium Mobile Guides for more information on using web views, including use
     cases, more code examples, and best practices for web view content.
 
 
 extends: Titanium.UI.View
 excludes:
-    methods: [ add, removeAllChildren ]
+    methods: [ add, remove, removeAllChildren, replaceAt ]
+    properties: [children]
 since: "0.8"
 methods:
 
@@ -153,7 +154,7 @@ methods:
       For example:
 
           setHtml('<html><body>Hello, <a href="/documentation">Titanium</a>!</body></html>',
-                  {baseURL:'http://developer.appcelerator.com/'});
+                  {baseURL:'https://developer.appcelerator.com/'});
     parameters:
 
       - name: html
@@ -282,8 +283,8 @@ events:
     description: |
         The `errorCode` value refers to one of the <Titanium.UI> URL_ERROR constants or, if it does not
         match one of those constants, it refers to a platform-specific constant. The platform-specific
-        values are underlying [iOS NSURLError*](https://developer.apple.com/library/ios/#documentation/Cocoa/Reference/Foundation/Miscellaneous/Foundation_Constants/Reference/reference.html#//apple_ref/doc/uid/TP40003793-CH3g-SW40)
-        or [Android WebViewClient ERROR_*](http://developer.android.com/reference/android/webkit/WebViewClient.html) constants.
+        values are underlying [iOS NSURLError*](https://developer.apple.com/documentation/foundation/1508628-url_loading_system_error_codes)
+        or [Android WebViewClient ERROR_*](https://developer.android.com/reference/android/webkit/WebViewClient.html) constants.
     properties:
       - name: success
         summary: Indicates a successful operation. Returns `false`.
@@ -577,7 +578,7 @@ properties:
             </android>
 
         See Android documentation for
-        [WebSettings.PluginState](http://developer.android.com/reference/android/webkit/WebSettings.PluginState.html).
+        [WebSettings.PluginState](https://developer.android.com/reference/android/webkit/WebSettings.PluginState.html).
 
         This property only works on Android devices at API Level 8 or greater.
     type: Number
@@ -684,9 +685,15 @@ properties:
         On Android you should avoid Calling `setRequestHeaders()` right after `createWebView()`. Use the `requestHeaders` property
         inside `createWebView()` or put it inside the window `open` event.
     type: Dictionary
-    platforms: [android,iphone,ipad]
+    platforms: [android, iphone, ipad]
     since: "6.1.0"
 
+  - name: zoomLevel
+    summary: Manage the zoom-level of the current page.
+    type: Number
+    default: undefined. Behaves as no zoom applied.
+    platforms: [android, iphone, ipad]
+    since: "7.3.0"
 
 examples:
   - title: Basic Web View to External URL
