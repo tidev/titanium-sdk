@@ -948,6 +948,16 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 	}
 
+	@Kroll.method
+	public void stopAnimation()
+	{
+		TiUIView tiv = peekView();
+
+		if (tiv != null) {
+			tiv.stopAnimation();
+		}
+	}
+
 	public void handlePendingAnimation(boolean forceQueue)
 	{
 		if (pendingAnimation != null && peekView() != null) {

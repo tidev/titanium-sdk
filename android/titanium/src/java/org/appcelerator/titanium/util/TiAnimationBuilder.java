@@ -133,6 +133,7 @@ public class TiAnimationBuilder
 	protected View view;
 	protected AnimatorHelper animatorHelper;
 	protected TiViewProxy viewProxy;
+	protected AnimatorSet animatorSet;
 
 	public TiAnimationBuilder()
 	{
@@ -628,7 +629,7 @@ public class TiAnimationBuilder
 		if (delay != null) {
 			as.setStartDelay(delay.longValue());
 		}
-
+		animatorSet = as;
 		return as;
 	}
 
@@ -1414,6 +1415,17 @@ public class TiAnimationBuilder
 			// (see top of this file for explanation.)
 			view.startAnimation(buildViewAnimations());
 		}
+	}
+
+	public void stop(View view)
+	{
+		if (animatorSet != null) {
+			animatorSet.removeAllListeners();
+			animatorSet.cancel();
+			animatorSet = null;
+		}
+		view.clearAnimation();
+		setAnimationRunningFor(view, false);
 	}
 
 	private void setAnchor(int width, int height)
