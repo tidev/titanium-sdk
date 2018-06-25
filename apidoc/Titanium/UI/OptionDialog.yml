@@ -63,7 +63,7 @@ since: "0.8"
 excludes:
     events: [dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
-    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage]
+    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage, replaceAt]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter, backgroundColor,backgroundDisabledColor,
                  backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
