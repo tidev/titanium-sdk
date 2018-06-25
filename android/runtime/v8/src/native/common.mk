@@ -35,7 +35,7 @@ endif
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
 
 # optimize output size
-CFLAGS += -Os -flto -ffunction-sections -fdata-sections
+CFLAGS += -Os -ffunction-sections -fdata-sections
 LDLIBS += -Wl,--gc-sections,--strip-all
 
 # exclude v8 libraries

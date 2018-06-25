@@ -3,16 +3,16 @@ name: Titanium.UI.Toolbar
 summary: A toolbar, which can contain buttons and certain other controls.
 description: |
     A `Toolbar` is created by the <Titanium.UI.createToolbar> factory method or **`<Toolbar>`** Alloy element.
-    
-    A `Toolbar` can contain buttons, as well as certain other widgets, including text fields and 
-    labels. 
-    
-    To provide spacing between items in the toolbar, on iOS you can use the special system button types, 
-    [FIXED_SPACE](Titanium.UI.iOS.SystemButton.FIXED_SPACE) and 
+
+    A `Toolbar` can contain buttons, as well as certain other widgets, including text fields and
+    labels.
+
+    To provide spacing between items in the toolbar, on iOS you can use the special system button types,
+    [FIXED_SPACE](Titanium.UI.iOS.SystemButton.FIXED_SPACE) and
     [FLEXIBLE_SPACE](Titanium.UI.iOS.SystemButton.FLEXIBLE_SPACE).
-    
-    Note that toolbars are positioned like other views (using the `top` and `bottom` properties, 
-    for example), but the [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/#//apple_ref/doc/uid/TP40006556-CH12-SW4) 
+
+    Note that toolbars are positioned like other views (using the `top` and `bottom` properties,
+    for example), but the [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/#//apple_ref/doc/uid/TP40006556-CH12-SW4)
     have specific requirements for placing toolbars, specifically:
 
     * On the iPhone and Android, a toolbar should be at the bottom of the window.
@@ -33,12 +33,14 @@ description: |
     *  [Toolbar in the iOS Human Interface Guidelines.](https://developer.apple.com/ios/human-interface-guidelines/bars/toolbars/)
 
 extends: Titanium.UI.View
-excludes: { properties: [ backgroundColor, backgroundDisabledColor, backgroundDisabledImage,
-            backgroundFocusedColor, backgroundFocusedImage,
-            backgroundLeftCap, backgroundTopCap, backgroundRepeat,
-            backgroundSelectedColor, backgroundSelectedImage, layout,
-            softKeyboardOnFocus ],
-            events: [ longclick, twofingertap ] }
+excludes:
+    properties: [backgroundColor, backgroundDisabledColor, backgroundDisabledImage,
+                backgroundFocusedColor, backgroundFocusedImage,
+                backgroundLeftCap, backgroundTopCap, backgroundRepeat,
+                backgroundSelectedColor, backgroundSelectedImage, layout,
+                softKeyboardOnFocus, children]
+    events: [longclick, twofingertap]
+    methods: [add, remove, removeAllChildren, replaceAt]
 since: "6.2.0"
 platforms: [iphone, ipad, android]
 
@@ -47,16 +49,16 @@ properties:
     summary: Background color for the toolbar, as a color name or hex triplet.
     description: |
         To use a background image on the toolbar, either `barColor` must be a fully or
-        partially transparent color, 
+        partially transparent color,
         or the [translucent](Titanium.UI.Toolbar.translucent) property must be `true`.
 
         To use a background gradient on a toolbar, `barColor` must be `'transparent'`
         *and* the the [translucent](Titanium.UI.Toolbar.translucent) property must be `true`.
 
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     platforms: [iphone, ipad, android]
-    
+
   - name: items
     summary: An array of buttons (or other widgets) contained in the toolbar.
     type: Array<Titanium.UI.View>
@@ -75,12 +77,12 @@ properties:
     platforms: [iphone, ipad, android]
     availability: creation
     accessors: false
-    
+
   - name: translucent
     summary: If `true`, a translucent background color is used for the toolbar.
     description: |
         Note that if `translucent` is `false`, views under the toolbar are hidden, even
-        if [barColor](Titanium.UI.Toolbar.barColor) is set to a semi-transparent or 
+        if [barColor](Titanium.UI.Toolbar.barColor) is set to a semi-transparent or
         transparent color.
     type: Boolean
     default: true
@@ -165,7 +167,7 @@ methods:
     platforms: [android]
 
   - name: getContentInsetStart
-    summary: Returns the margin at the toolbar's content start. 
+    summary: Returns the margin at the toolbar's content start.
     returns:
         type: Number
     platforms: [android]
@@ -189,13 +191,13 @@ methods:
     platforms: [android]
 
   - name: getCurrentContentInsetStart
-    summary: Returns the margin at the toolbar's content start that will be used with the current configuration of the toolbar. 
+    summary: Returns the margin at the toolbar's content start that will be used with the current configuration of the toolbar.
     returns:
         type: Number
     platforms: [android]
 
   - name: hasExpandedActionView
-    summary: Checks if the toolbar is currently hosting an expanded action view.        
+    summary: Checks if the toolbar is currently hosting an expanded action view.
     returns:
         type: Boolean
     platforms: [android]
@@ -236,73 +238,73 @@ methods:
     summary: Shows the overflow menu if there is one
     platforms: [android]
 
-examples: 
+examples:
   - title: Simple Toolbar
     example: |
-        The following code excerpt creates a simple toolbar, placed at the bottom of the window. 
-        
+        The following code excerpt creates a simple toolbar, placed at the bottom of the window.
+
             var win = Ti.UI.createWindow({
                 backgroundColor: 'white'
             });
-        
+
             var send = Ti.UI.createButton({
                 title: 'Send'
             });
-            
+
             var camera = Ti.UI.createButton({
                 title: 'Camera'
             });
-            
+
             var cancel = Ti.UI.createButton({
                 title: 'Cancel'
             });
-            
+
             var toolbar = Ti.UI.createToolbar({
                 items: [send, camera, cancel],
                 bottom: 0
             });
-            
+
             win.add(toolbar);
             win.open();
-        
+
   - title: Toolbar (iOS) with extended background
     example: |
-        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar (**iOS 7 only**). 
-        
+        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar (**iOS 7 only**).
+
             var win = Ti.UI.createWindow({
                 backgroundColor: 'white'
             });
-        
+
             var send = Ti.UI.createButton({
                 title: 'Send',
                 style: Ti.UI.iOS.SystemButtonStyle.DONE,
             });
-            
+
             var camera = Ti.UI.createButton({
                 systemButton: Ti.UI.iOS.SystemButton.CAMERA,
             });
-            
+
             var cancel = Ti.UI.createButton({
                 systemButton: Ti.UI.iOS.SystemButton.CANCEL
             });
-            
+
             flexSpace = Ti.UI.createButton({
                 systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
-            
+
             var toolbar = Ti.UI.createToolbar({
                 items: [send, flexSpace, camera, flexSpace, cancel],
                 top: 20,
                 extendBackground: true
-            }); 
-            
+            });
+
             win.add(toolbar);
             win.open();
 
-        Note the use of the flexible space for positioning the toolbar buttons -- the 
-        `FLEXIBLE_SPACE` button doesn't appear as a button, but a variable space between the 
-        controls on either side of it. Available space in the toolbar is divided between all of the 
-        flexible space buttons in the toolbar. Without the flexible spaces in this example, 
+        Note the use of the flexible space for positioning the toolbar buttons -- the
+        `FLEXIBLE_SPACE` button doesn't appear as a button, but a variable space between the
+        controls on either side of it. Available space in the toolbar is divided between all of the
+        flexible space buttons in the toolbar. Without the flexible spaces in this example,
         the toolbar buttons would be grouped tightly together on the left side of the toolbar.
 
   - title: Alloy Example (simple Toolbar)
@@ -346,11 +348,11 @@ examples:
                             <Button id="cancel" title="Cancel"/>
                         </Items>
                     </Toolbar>
-                    
+
                     <!-- The MenuItem's to be mapped to the toolbar -->
                     <Menu>
                         <MenuItem id="item1" title="Settings" showAsAction="Ti.Android.SHOW_AS_ACTION_NEVER"/>
                         <MenuItem id="item2" title="Search" showAsAction="Ti.Android.SHOW_AS_ACTION_NEVER"/>
-                    </Menu> 
+                    </Menu>
                 </Window>
             </Alloy>

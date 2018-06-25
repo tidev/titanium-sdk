@@ -18,6 +18,8 @@ since: "0.8"
 excludes:
     events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick',
         'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap' ]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 
 events: 
   - name: click

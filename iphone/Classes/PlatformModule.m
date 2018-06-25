@@ -293,7 +293,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
                                          options:options
                                completionHandler:^(BOOL success) {
                                  if (callback != nil) {
-                                   [callback call:@[ @{ @"success" : @(success) } ] thisObject:self];
+                                   [callback call:@[ @{ @"success" : @(success)} ] thisObject:self];
                                  }
                                }];
     } else {
