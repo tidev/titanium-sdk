@@ -1936,12 +1936,16 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 				const xcodeInfo = this.iosInfo.xcode;
 
 				function sortXcodeIds(a, b) {
-					return xcodeInfo[a].selected || appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
+					// prioritize selected xcode
+					if (xcodeInfo[b].selected) {
+						return 1;
+					}
+					return appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
 				}
 
 				if (this.iosSdkVersion) {
 					// find the Xcode for this version
-					Object.keys(this.iosInfo.xcode).sort(sortXcodeIds).reverse().some(function (ver) {
+					Object.keys(this.iosInfo.xcode).sort(sortXcodeIds).some(function (ver) {
 						if (this.iosInfo.xcode[ver].sdks.indexOf(this.iosSdkVersion) !== -1) {
 							this.xcodeEnv = this.iosInfo.xcode[ver];
 							return true;
@@ -1954,9 +1958,8 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 						logger.error(__('Unable to find any Xcode installations that support iOS SDK %s.', this.iosSdkVersion) + '\n');
 						process.exit(1);
 					}
-				} else if (cli.argv.target === 'simulator' && !cli.argv['build-only']) {
-					// we'll let ioslib suggest an iOS version
-				} else { // device, dist-appstore, dist-adhoc
+
+				} else { // device, simulator, dist-appstore, dist-adhoc
 					Object.keys(xcodeInfo)
 						.filter(function (id) { return xcodeInfo[id].supported; })
 						.sort(sortXcodeIds)
