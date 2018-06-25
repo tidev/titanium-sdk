@@ -2938,7 +2938,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     TiViewProxy *proxy = nil;
     // First try a native proxy class...
     @try {
-      proxy = (TiViewProxy*) [[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
+      proxy = (TiViewProxy *)[[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
       [context.krollContext invokeBlockOnThread:^{
         [context registerProxy:proxy];
         [proxy rememberSelf];
@@ -2948,24 +2948,25 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     @catch (NSException *exception) {
       // TODO Cache by name? Otherwise it seems to keep trying to load native class repeatedly (and failing) and has to re-eval this below!
       // TODO eval once and pass in the controller name and props as args?
-        NSString* code = [NSString stringWithFormat:@"var result;"
-        "try {"
-        "  var widget = require('/alloy/widgets/%@/controllers/widget');"
-        "  if (widget) {"
-        "    result = function (parameters) {"
-        "      const obj = new widget(parameters);"
-        "      return obj.getView();"
-        "    };"
-        "  }"
-        "} catch (e) {"
-        "  Ti.API.error('Failed to load alloy widget '%@' to be used as template');"
-        "}"
-        "result;", viewTemplate.type, viewTemplate.type];
+      NSString *code = [NSString stringWithFormat:@"var result;"
+                                                   "try {"
+                                                   "  var widget = require('/alloy/widgets/%@/controllers/widget');"
+                                                   "  if (widget) {"
+                                                   "    result = function (parameters) {"
+                                                   "      const obj = new widget(parameters);"
+                                                   "      return obj.getView();"
+                                                   "    };"
+                                                   "  }"
+                                                   "} catch (e) {"
+                                                   "  Ti.API.error('Failed to load alloy widget '%@' to be used as template');"
+                                                   "}"
+                                                   "result;",
+                                 viewTemplate.type, viewTemplate.type];
       id result = [context evalJSAndWait:code];
       if (result != nil) {
-        KrollCallback* func = (KrollCallback*) result;
-        id contructResult = [func call:@[viewTemplate.properties] thisObject:nil]; // TODO: Do some error-handling here if the widget contructor fails?
-        proxy = (TiViewProxy*) contructResult;
+        KrollCallback *func = (KrollCallback *)result;
+        id contructResult = [func call:@[ viewTemplate.properties ] thisObject:nil]; // TODO: Do some error-handling here if the widget contructor fails?
+        proxy = (TiViewProxy *)contructResult;
       }
     }
     if (proxy != nil) {
