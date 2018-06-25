@@ -32,7 +32,7 @@ describe('Titanium.UI.ListView', function () {
 				]
 			},
 			listView = Ti.UI.createListView({
-				templates: { 'template': myTemplate },
+				templates: { template: myTemplate },
 				defaultItemTemplate: 'template'
 			}),
 			sections = [],
