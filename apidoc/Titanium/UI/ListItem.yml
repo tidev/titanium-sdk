@@ -637,7 +637,7 @@ properties:
           * <Titanium.UI.iOS.Stepper>
           * <Titanium.UI.iOS.TabbedBar>
           
-        Alternatively, use the view class of the module defined under the `module` key (Titanium 7.1.0 and later).
+        Alternatively, use the view class of the module defined under the `module` key (Titanium 7.4.0 and later).
     type: String
     optional: false
 
@@ -665,7 +665,7 @@ properties:
   - name: module
     summary: |
         The module instance used to determine where to instantiate the view class defined in `type`.
-    description: Available in Titanium SDK 7.1.0 and later.
+    description: Available in Titanium SDK 7.4.0 and later.
     type: Titanium.Module
 
 ---
