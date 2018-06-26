@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Date;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
@@ -215,10 +216,15 @@ public abstract class TiBaseFile
 		return false;
 	}
 
-	public double createTimestamp()
+	public long createTimestamp()
 	{
 		logNotSupported("createTimestamp");
-		return 0;
+		return 0L;
+	}
+
+	public Date createdAt()
+	{
+		return new Date(createTimestamp());
 	}
 
 	public boolean deleteDirectory(boolean recursive)
@@ -269,10 +275,15 @@ public abstract class TiBaseFile
 		return null;
 	}
 
-	public double modificationTimestamp()
+	public long modificationTimestamp()
 	{
 		logNotSupported("modificationTimestamp");
-		return 0;
+		return 0L;
+	}
+
+	public Date modifiedAt()
+	{
+		return new Date(modificationTimestamp());
 	}
 
 	public boolean move(String destination) throws IOException
@@ -380,13 +391,13 @@ public abstract class TiBaseFile
 	public long size()
 	{
 		logNotSupported("size");
-		return 0;
+		return 0L;
 	}
 
-	public double spaceAvailable()
+	public long spaceAvailable()
 	{
 		logNotSupported("spaceAvailable");
-		return 0;
+		return 0L;
 	}
 
 	public void unzip(String destination)

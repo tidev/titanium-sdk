@@ -13,6 +13,8 @@ since: "0.8"
 excludes:
     events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick', 
         'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap' ]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 
 events: 
   - name: click
@@ -52,7 +54,7 @@ examples:
             	labels:['One', 'Two', 'Three'],
             	backgroundColor:'#336699',
             	top:50,
-            	style:Titanium.UI.iOS.SystemButtonStyle.BAR,
+            	style:Titanium.UI.iOS.SystemButtonStyle.PLAIN,
             	height:25,
             	width:200
             });
