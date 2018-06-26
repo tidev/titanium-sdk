@@ -10,6 +10,10 @@ summary: An interface extending <Titanium.XML.Node> with a set of
 since: "0.9"
 createable: false
 platforms: [android, iphone, ipad]
+deprecated:
+    since: "8.0.0"
+    notes: The Ti.XML namespace has been deprecated in favor of the standalone [Ti.XML](https://github.com/appcelerator-modules/ti.xml) module.");
+
 methods:
   - name: appendData
     summary: Append the string to the end of the character data of the node.

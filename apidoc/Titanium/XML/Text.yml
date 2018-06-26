@@ -6,6 +6,10 @@ summary: Represents the textual content of an <Titanium.XML.Element> or <Titaniu
     on Android and iOS.
 createable: false
 platforms: [android, iphone, ipad]
+deprecated:
+    since: "8.0.0"
+    notes: The Ti.XML namespace has been deprecated in favor of the standalone [Ti.XML](https://github.com/appcelerator-modules/ti.xml) module.");
+
 methods:
   - name: splitText
     summary: Breaks this node into two nodes at the specified by offset,
