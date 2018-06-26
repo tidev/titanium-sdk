@@ -204,7 +204,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	{
 		Log.w(
 			TAG,
-			"The \"play()\" method has been deprecated in favor of the cross-platform \"start()\" method in Titanium 7.3.0.");
+			"The \"play()\" method has been deprecated in favor of the cross-platform \"start()\" method in Titanium 7.4.0.");
 		start();
 	}
 

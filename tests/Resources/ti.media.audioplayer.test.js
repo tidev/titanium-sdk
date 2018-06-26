@@ -28,9 +28,8 @@ describe('Titanium.Media.AudioPlayer', function () {
 	});
 
 	it('apiName', function () {
-		var player = Ti.Media.createAudioPlayer({ url: 'sample.mp3' });
-		should(player).have.a.readOnlyProperty('apiName').which.is.a.String;
-		should(player.apiName).be.eql('Ti.Media.AudioPlayer');
+		should(audioPlayer).have.a.readOnlyProperty('apiName').which.is.a.String;
+		should(audioPlayer.apiName).be.eql('Ti.Media.AudioPlayer');
 		player = null;
 	});
 
@@ -78,19 +77,38 @@ describe('Titanium.Media.AudioPlayer', function () {
 		should(audioPlayer.url).eql(audioPlayer.getUrl());
 	});
 
-	it('#start', function () {
+	it('#start, #stop', function (finish) {
 		should(audioPlayer.start).be.a.Function;
-	});
-
-	it('#stop', function () {
 		should(audioPlayer.stop).be.a.Function;
+	
+		audioPlayer.start();
+	
+		setTimeout(function () {
+			audioPlayer.stop();
+			finish();
+		}, 1000)
 	});
 
 	it('#pause', function () {
 		should(audioPlayer.pause).be.a.Function;
+
+		audioPlayer.start();
+	
+		setTimeout(function () {
+			audioPlayer.pause();
+			finish();
+		}, 1000)
 	});
 
 	it('#restart', function () {
 		should(audioPlayer.restart).be.a.Function;
+
+		audioPlayer.start();
+	
+		setTimeout(function () {
+			audioPlayer.restart();
+			audioPlayer.stop();
+			finish();
+		}, 1000)
 	});
 });
