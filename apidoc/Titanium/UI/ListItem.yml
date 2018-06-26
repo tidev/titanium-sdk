@@ -85,7 +85,7 @@ description: |
     or <Titanium.UI.ListView.defaultItemTemplate> property: <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>,
     <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
 
-    #### External Modules (Titanium 7.1.0 and later)
+    #### External Modules (Titanium 7.4.0 and later)
     
     In addition to using one of the predefined view classes, you can also pass module views to your list
     item template. For example, use the Ti.Map module to show a map-view in your list view:
