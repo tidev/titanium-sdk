@@ -2,7 +2,7 @@ name: Modules.Cloud.PushNotifications
 summary: Provides methods for accessing Arrow push notification channels.
 description: |
     For information on configuring and setting up push notifications,
-    see the [Push Notifications guide](http://docs.appcelerator.com/platform/latest/#!/guide/Push_Notifications).
+    see the [Push Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/Push_Notifications).
 
     The methods in this module are used to subscribe and unsubscribe from Arrow push notification
     channels, and to generate Arrow push notifications. Push notifications are received using
@@ -34,7 +34,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [push_notifications/notify.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-notify)
+        See [push_notifications/notify.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-notify)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -48,7 +48,7 @@ methods:
   - name: notifyTokens
     summary: Send a push notification to a channel to the specified devices.
     description: |
-        See [push_notifications/notify_tokens.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-notify_tokens)
+        See [push_notifications/notify_tokens.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-notify_tokens)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -70,7 +70,7 @@ methods:
         This method only supports the PUT request, which means a device token must be passed to this
         method.
 
-        See [push_notifications/reset_badge.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-reset_badge_put)
+        See [push_notifications/reset_badge.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-reset_badge_put)
         for the request parameter supported by this method.
     parameters:
       - name: parameters
@@ -88,7 +88,7 @@ methods:
         To update the badge in the device's UI, send a push notification to the device with the
         `badge` field defined.
 
-        See [push_notifications/set_badge.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-set_badge)
+        See [push_notifications/set_badge.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-set_badge)
         for the request parameter supported by this method.
     parameters:
       - name: parameters
@@ -105,7 +105,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [push_notifications/subscribe.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-subscribe)
+        See [push_notifications/subscribe.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-subscribe)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -119,7 +119,7 @@ methods:
   - name: subscribeToken
     summary: Subscribe a mobile device to a push notification channel using a device token.
     description: |
-        See [push_notifications/subsribe_tokens.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-subscribe_token)
+        See [push_notifications/subsribe_tokens.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-subscribe_token)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -136,7 +136,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [push_notifications/unsubscribe.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-unsubscribe)
+        See [push_notifications/unsubscribe.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-unsubscribe)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -150,7 +150,7 @@ methods:
   - name: unsubscribeToken
     summary: Unsubscribe a mobile device from a push notification channel using a device token.
     description: |
-        See [push_notifications/unsubscribe_tokens.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-unsubscribe_token)
+        See [push_notifications/unsubscribe_tokens.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-unsubscribe_token)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -167,9 +167,9 @@ methods:
     description: |
         This allows an Appcelerator Dashboard administrator 
         to send push notifications to devices located within a specified geographic region. For details, see 
-        [Sending and scheduling push notifications](http://docs.appcelerator.com/platform/latest/#!/guide/Sending_and_scheduling_push_notifications). 
+        [Sending and scheduling push notifications](https://docs.appcelerator.com/platform/latest/#!/guide/Sending_and_scheduling_push_notifications). 
 
-        See [push_notifications/unsubscribe.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-subscription_update)
+        See [push_notifications/unsubscribe.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-subscription_update)
         for the request parameters supported by this method.
 
     parameters:
@@ -187,7 +187,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [push_notifications/channels/query.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-channels_query)
+        See [push_notifications/channels/query.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-channels_query)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -204,7 +204,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [push_notifications/channels/show.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-channels_show)
+        See [push_notifications/channels/show.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-channels_show)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -219,7 +219,7 @@ methods:
   - name: query
     summary: Custom query of push notification subscriptions with paginating.
     description: |
-        See [push_notifications/query.json](http://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-query)
+        See [push_notifications/query.json](https://docs.appcelerator.com/arrowdb/latest/#!/api/PushNotifications-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `subscriptions` property of the parameter passed to the callback.

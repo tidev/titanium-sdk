@@ -192,7 +192,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		WeakReference<Activity> activityRef;
 		Activity currentActivity;
 
-		for (int i = activityStack.size() - 1; i >= 0; i--) {
+		for (int i = activityStack.size() - 1; i > 0; i--) {
 			// We need to check the stack size here again. Since we call finish(), that could potentially
 			// change the activity stack while we are looping through them. TIMOB-12487
 			if (i < activityStack.size()) {
@@ -201,11 +201,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 					currentActivity = activityRef.get();
 					if (currentActivity != null && !currentActivity.isFinishing()) {
 						currentActivity.finish();
+						activityStack.remove(activityRef);
 					}
 				}
 			}
 		}
-		activityStack.clear();
 	}
 
 	public boolean activityStackHasLaunchActivity()
@@ -311,7 +311,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		}
 
-		Log.e(TAG, "No valid root or current activity found for application instance");
 		return null;
 	}
 
@@ -362,20 +361,24 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
 
-		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
+		// handle uncaught java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			@Override
 			public void uncaughtException(Thread t, Throwable e)
 			{
-				if (isAnalyticsEnabled()) {
-					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash;
-					Log.e(TAG,
-						  "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium "
-							  + tiVer,
-						  e);
-					TiPlatformHelper.getInstance().postAnalyticsEvent(
-						TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
+
+				// obtain java stack trace
+				String javaStack = null;
+				StackTraceElement[] frames = e.getCause() != null ? e.getCause().getStackTrace() : e.getStackTrace();
+				if (frames != null && frames.length > 0) {
+					javaStack = "";
+					for (StackTraceElement frame : frames) {
+						javaStack += "\n    " + frame.toString();
+					}
 				}
-				defaultHandler.uncaughtException(t, e);
+
+				// throw exception as KrollException
+				KrollRuntime.dispatchException("Runtime Error", e.getMessage(), null, 0, null, 0, null, javaStack);
 			}
 		});
 
@@ -389,6 +392,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
 
 		tempFileHelper = new TiTempFileHelper(this);
+
+		deployData = new TiDeployData(this);
 	}
 
 	@Override
@@ -422,14 +427,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void postAppInfo()
 	{
-		deployData = new TiDeployData(this);
-
-		TiPlatformHelper.getInstance().initialize();
-		// Fastdev has been deprecated
-		// TiFastDev.initFastDev(this);
-
 		if (isAnalyticsEnabled()) {
 
+			TiPlatformHelper.getInstance().initialize();
 			TiPlatformHelper.getInstance().initAnalytics();
 			TiPlatformHelper.getInstance().setSdkVersion("ti." + getTiBuildVersion());
 			TiPlatformHelper.getInstance().setAppName(getAppInfo().getName());

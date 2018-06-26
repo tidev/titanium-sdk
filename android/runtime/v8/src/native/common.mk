@@ -33,6 +33,32 @@ CLEAN_OBJ := if exist $(OBJ_DIR) (rd /s /q $(subst /,\\,$(OBJ_DIR)) && mkdir $(s
 endif
 
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
+
+# optimize output size
+CFLAGS += -Os -ffunction-sections -fdata-sections
+LDLIBS += -Wl,--gc-sections,--strip-all
+
+# exclude v8 libraries
+LDLIBS += -Wl,--exclude-libs=libv8_libbase
+LDLIBS += -Wl,--exclude-libs=libv8_libplatform
+# LDLIBS += -Wl,--exclude-libs=libv8_base
+LDLIBS += -Wl,--exclude-libs=libv8_nosnapshot
+LDLIBS += -Wl,--exclude-libs=libv8_builtins_generators
+LDLIBS += -Wl,--exclude-libs=libv8_builtins_setup
+
+# tune for common architectures
+ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
+	CFLAGS += -mtune=cortex-a53
+endif
+ifeq ($(TARGET_ARCH_ABI),x86)
+	CFLAGS += -mtune=atom
+	LDLIBS += -Wl,--icf=all
+endif
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+	CFLAGS += -mtune=cortex-a7
+	LDLIBS += -Wl,--icf=all
+endif
+
 ABS_SRC_FILES := \
 	$(wildcard $(LOCAL_PATH)/*.cpp) \
 	$(wildcard $(LOCAL_PATH)/modules/*.cpp)
