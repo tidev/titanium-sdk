@@ -27,7 +27,7 @@ description: |
     ### Local Interactive Notifications
 
     You can create interactive notifications, where users can respond to application notifications 
-    without launching the application to the foreground.  The user needs to reveal notification 
+    without launching the application to the foreground. The user needs to reveal notification 
     actions in the notification, then press a notification action to respond to the notification.
 
     To create an interactive notification, the application needs to:
@@ -63,7 +63,7 @@ description: |
     ### Index Application Content
 
     In iOS 9 and later, Apple lets you index application content, such as music, videos, images and documents, to allow it
-    to be searched in iOS Spotlight.  To effectively add and remove information from the iOS search index
+    to be searched in iOS Spotlight. To effectively add and remove information from the iOS search index
     you will need to use the following APIs:
 
     * <Titanium.App.iOS.SearchableItemAttributeSet> - Used to create metadata related to the `Ti.App.iOS.SearchableItem`
@@ -114,7 +114,7 @@ methods:
     summary: |
         Registers the application to use the requested notification types and categories.
     description:  |
-        Call this method at application start up.  If the application needs to register for remote
+        Call this method at application start up. If the application needs to register for remote
         notifications, call this method before calling
         [Titanium.Network.registerForPushNotifications](Titanium.Network.registerForPushNotifications).
     parameters:
@@ -266,7 +266,7 @@ properties:
 
   - name: USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
     summary: |
-        The action will execute in background.  Use with the
+        The action will execute in background. Use with the
         [activationMode](Titanium.App.iOS.UserNotificationAction.activationMode) property.
     type: Number
     permission: read-only
@@ -1180,13 +1180,13 @@ events:
             Use <Titanium.WatchSession> instead, which is supported on iOS 9 and later.
     summary: Fired when openParentApplication:reply is called from a WatchKit extension. Available only on iOS 8.2 and later.
     description: |
-        Add this event if your Titanium application if you are using a WatchKit extension.  When your WatchKit extension uses the openParentApplication:reply
+        Add this event if your Titanium application if you are using a WatchKit extension. When your WatchKit extension uses the openParentApplication:reply
         method your Titanium application will be opened in the background and provides your Titanium app the information from the extension. When this
         event is fired you must provide a reply by calling the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method with
         the `handlerID` parameter from this event.
 
         The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
-        current event and the `userInfo` property, containing the dictionary passed from the WatchKit extension.  The `handlerID` identifier
+        current event and the `userInfo` property, containing the dictionary passed from the WatchKit extension. The `handlerID` identifier
         must be passed as the an argument to the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method.
 
             Ti.App.iOS.addEventListener("watchkitextensionrequest",function(e){
@@ -1211,7 +1211,7 @@ events:
     summary: Fired when iOS continueactivity calls `continueUserActivity`.
     description: |
         Add this event if your Titanium application if you are responding to an iOS Handoff or Core Spotlight `continueUserActivity` request. This event will
-        fire when a user taps on the handoff icon or the Core Spotlight search item.  Your Titanium application will be opened in the background and provides
+        fire when a user taps on the handoff icon or the Core Spotlight search item. Your Titanium application will be opened in the background and provides
         your Titanium app the information from the NSUserActivity. When this event is fired you should implement logic within your application to allow the
         user to pick-up from where they left off on their other device.
 
@@ -1237,7 +1237,7 @@ events:
         type: String
       - name: userInfo
         summary: |
-            The optional userInfo provided to the user activity.  The userInfo is a custom dictionary and can contain any information needed
+            The optional userInfo provided to the user activity. The userInfo is a custom dictionary and can contain any information needed
             to create your handoff or Core Spotlight session.
         type: Dictionary
     platforms: [iphone, ipad]
