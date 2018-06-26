@@ -35,7 +35,16 @@ methods:
     summary: |
         Removes the specified pending notifications to prevent them from being triggered.
         If no notifications are specified, all pending notifications will be removed.
+    description: |
+        Pending notifications can be obtained via a call to the <Titanium.App.iOS.UserNotificationCenter.getDeliveredNotifications> 
+        method.
     since: "7.3.0"
+    parameters:
+      - name: notifications
+        summary: |
+            The pending notification to remove. If none specified, all pending notifications
+            will be removed.
+        type: Array<Titanium.App.iOS.LocalNotification>
 
   - name: removeDeliveredNotifications
     summary: |

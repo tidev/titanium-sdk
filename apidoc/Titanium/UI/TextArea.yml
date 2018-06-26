@@ -14,18 +14,11 @@ description: |
     Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area.
 extends: Titanium.UI.View
 since: "0.8"
+excludes:
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 
 methods:
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to a `TextArea` is not supported on all platforms.
-
-        If you need to display views on top of this object, consider using
-        another view as a container for both this object and the views you want
-        to appear on top of it.
-    platforms: [iphone, ipad]
-
   - name: blur
     summary: Forces this text area to lose focus.
 
@@ -38,11 +31,6 @@ methods:
         type: Boolean
         summary: True if this text area contains text.
     since: "2.1.0"
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.TextArea.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
 
   - name: setSelection
     summary: Selects the text in range (start, end).
