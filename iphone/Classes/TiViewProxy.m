@@ -2950,18 +2950,21 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       // TODO eval once and pass in the controller name and props as args?
       NSString *code = [NSString stringWithFormat:@"var result;"
                                                    "try {"
-                                                   "  var widget = require('/alloy/widgets/%@/controllers/widget');"
-                                                   "  if (widget) {"
+                                                   "  var jsModule = require('/alloy/widgets/%@/controllers/widget');"
+                                                   "  if (!jsModule) {"
+                                                   "    jsModule = require('%@');"
+                                                   "  }"
+                                                   "  if (jsModule) {"
                                                    "    result = function (parameters) {"
-                                                   "      const obj = new widget(parameters);"
+                                                   "      const obj = new jsModule(parameters);"
                                                    "      return obj.getView();"
                                                    "    };"
                                                    "  }"
                                                    "} catch (e) {"
-                                                   "  Ti.API.error('Failed to load alloy widget \"%@\" to be used as template');"
+                                                   "  Ti.API.error('Failed to load Alloy widget / CommonJS module \"%@\" to be used as template');"
                                                    "}"
                                                    "result;",
-                                 viewTemplate.type, viewTemplate.type];
+                                 viewTemplate.type, viewTemplate.type, viewTemplate.type];
       id result = [context evalJSAndWait:code];
       if (result != nil) {
         KrollCallback *func = (KrollCallback *)result;
