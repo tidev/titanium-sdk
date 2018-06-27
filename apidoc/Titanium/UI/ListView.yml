@@ -30,7 +30,7 @@ description: |
         </Alloy>        
 
     For more instructions and examples of using `ListView`, refer to the
-    [ListViews guide](http://docs.appcelerator.com/platform/latest/#!/guide/ListViews).
+    [ListViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/ListViews).
 
     #### Creating a List
 
@@ -205,7 +205,8 @@ since: '3.1.0'
 excludes:
     events: [click, dblclick,doubletap,focus,keypressed,longclick,longpress,pinch,postlayout,
              singletap,swipe,touchcancel,touchend,touchmove,touchstart,twofingertap]
-    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
+    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled, children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 
 events:
   - name: indexclick

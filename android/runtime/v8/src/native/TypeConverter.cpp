@@ -114,7 +114,7 @@ jstring TypeConverter::jsValueToJavaString(v8::Isolate* isolate, v8::Local<v8::V
 
 jstring TypeConverter::jsValueToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Value> jsValue)
 {
-	if (jsValue->IsNull()) {
+	if (jsValue.IsEmpty() || jsValue->IsNullOrUndefined()) {
 		return NULL;
 	}
 

@@ -1,15 +1,15 @@
 /**
-* Android module build command.
-*
-* @module cli/_buildModule
-*
-* @copyright
-* Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
-*
-* @license
-* Licensed under the terms of the Apache Public License
-* Please see the LICENSE included with this distribution for details.
-*/
+ * Android module build command.
+ *
+ * @module cli/_buildModule
+ *
+ * @copyright
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * @license
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 
 'use strict';
 
@@ -362,7 +362,6 @@ AndroidModuleBuilder.prototype.doAnalytics = function doAnalytics(next) {
 		eventName = 'android.' + cli.argv.type;
 
 	cli.addAnalyticsEvent(eventName, {
-		dir: cli.argv['project-dir'],
 		name: manifest.name,
 		publisher: manifest.author,
 		appid: manifest.moduleid,
@@ -380,7 +379,6 @@ AndroidModuleBuilder.prototype.doAnalytics = function doAnalytics(next) {
 AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.tiSymbols = {};
 	this.metaData = [];
-	this.documentation = [];
 	this.classPaths = {};
 	this.classPaths[this.androidCompileSDK.androidJar] = 1;
 	this.manifestFile = path.join(this.projectDir, 'manifest');
@@ -551,7 +549,7 @@ AndroidModuleBuilder.prototype.cleanup = function cleanup(next) {
 
 	// remove old module libraries
 	fs.existsSync(this.libsDir) && this.dirWalker(this.libsDir, function (file) {
-		const libExp = new RegExp('lib' + this.manifest.moduleid + '.so$', 'i');
+		const libExp = new RegExp('lib' + this.manifest.moduleid + '.so$', 'i'); // eslint-disable-line security/detect-non-literal-regexp
 		if (libExp.test(file) && fs.existsSync(file)) {
 			this.logger.debug(__('Removing %s', file.cyan));
 			fs.removeSync(file);
@@ -1104,7 +1102,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		let js = '';
 		if (('_dependencies' in node) && (node['_dependencies'].length) > 0) {
 			node['_dependencies'].forEach(function (dependency, index) {
-				js += ejs.render(JS_DEPENDENCY, { 'name': dependency, 'index': index });
+				js += ejs.render(JS_DEPENDENCY, { name: dependency, index: index });
 			});
 		}
 
@@ -1141,11 +1139,11 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			Object.keys(proxyMap.dynamicProperties).forEach(function (dp) {
 				const dpMap = proxyMap.dynamicProperties[dp];
 				if (dpMap.getHasInvocation) {
-					invocationAPIs.push({ 'apiName': dpMap.getMethodName });
+					invocationAPIs.push({ apiName: dpMap.getMethodName });
 				}
 
 				if (dpMap.setHasInvocation) {
-					invocationAPIs.push({ 'apiName': dpMap.setHasInvocation });
+					invocationAPIs.push({ apiName: dpMap.setHasInvocation });
 				}
 			});
 		}
@@ -1159,7 +1157,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				decl = 'return';
 			}
 
-			js += ejs.render(JS_LAZY_GET, { 'decl': decl, 'className': className, 'api': apiName, 'namespace': namespace });
+			js += ejs.render(JS_LAZY_GET, { decl: decl, className: className, api: apiName, namespace: namespace });
 		}
 
 		let childJS = '';
@@ -1170,7 +1168,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 					childNamespace = childAPI;
 				}
 
-				childJS += ejs.render(JS_GETTER, { 'varname': varName, 'child': childAPI });
+				childJS += ejs.render(JS_GETTER, { varname: varName, child: childAPI });
 				childJS += processNode(node[childAPI], childNamespace, indent + 1);
 				childJS += JS_CLOSE_GETTER;
 			}
@@ -1178,15 +1176,15 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 
 		if (hasChildren) {
 			js += '\tif (!("__propertiesDefined__" in ' + varName + ')) {';
-			js += ejs.render(JS_DEFINE_PROPERTIES, { 'varname': varName, 'properties': childJS });
+			js += ejs.render(JS_DEFINE_PROPERTIES, { varname: varName, properties: childJS });
 		}
 
 		if (hasCreateProxies) {
 			const createProxies = bindingJson.modules[className].createProxies;
 			createProxies.forEach(function (create) {
 				const accessor = '["' + create.name + '"]';
-				invocationAPIs.push({ 'apiName': 'create' + create.name });
-				js += ejs.render(JS_CREATE, { 'name': varName, 'type': create.name, 'accessor': accessor });
+				invocationAPIs.push({ apiName: 'create' + create.name });
+				js += ejs.render(JS_CREATE, { name: varName, type: create.name, accessor: accessor });
 			});
 		}
 
@@ -1201,14 +1199,14 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 					topLevelNames = proxyMap.topLevelMethods[method];
 
 				topLevelNames.forEach(function (name) {
-					globalsJS += ejs.render(JS_DEFINE_TOP_LEVEL, { 'name': name, 'mapping': method, 'namespace': ns });
+					globalsJS += ejs.render(JS_DEFINE_TOP_LEVEL, { name: name, mapping: method, namespace: ns });
 				});
 
 			});
 		}
 
 		invocationAPIs.forEach(function (api) {
-			invocationJS += ejs.render(JS_INVOCATION_API, { 'moduleNamespace': moduleName, 'namespace': namespace, 'api': api['apiName'] });
+			invocationJS += ejs.render(JS_INVOCATION_API, { moduleNamespace: moduleName, namespace: namespace, api: api['apiName'] });
 		});
 
 		if (needsReturn) {
@@ -1229,7 +1227,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 
 					if (api !== moduleName && !(api in tree)) {
 						tree[api] = {
-							'_dependencies': []
+							_dependencies: []
 						};
 						tree = tree[api];
 					}
@@ -1266,18 +1264,18 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			var bootstrapJS = processNode(apiTree, '', 0);
 
 			var bootstrapContext = {
-				'globalsJS': globalsJS,
-				'invocationJS': invocationJS,
-				'bootstrapJS': bootstrapJS,
-				'modulesWithCreate': modulesWithCreate,
-				'moduleClass': apiTree['_className'],
-				'moduleName': moduleName
+				globalsJS: globalsJS,
+				invocationJS: invocationJS,
+				bootstrapJS: bootstrapJS,
+				modulesWithCreate: modulesWithCreate,
+				moduleClass: apiTree['_className'],
+				moduleName: moduleName
 			};
 
 			var bindingsContext = {
-				'headers': headers,
-				'bindings': initTable,
-				'moduleName': fileNamePrefix
+				headers: headers,
+				bindings: initTable,
+				moduleName: fileNamePrefix
 			};
 
 			fs.writeFileSync(
@@ -1296,9 +1294,9 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		function (cb) {
 
 			const nativeContext = {
-				'moduleId': this.manifest.moduleid,
-				'className': fileNamePrefix,
-				'jniPackage': this.manifest.moduleid.replace(/\./g, '_')
+				moduleId: this.manifest.moduleid,
+				className: fileNamePrefix,
+				jniPackage: this.manifest.moduleid.replace(/\./g, '_')
 			};
 
 			const boostrapPathJava = path.join(this.buildGenJavaDir, this.moduleIdSubDir);
@@ -1324,11 +1322,13 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 	const jsFilesToEncrypt = this.jsFilesToEncrypt = [];
 
-	this.dirWalker(this.assetsDir, function (file) {
-		if (path.extname(file) === '.js') {
-			jsFilesToEncrypt.push(path.relative(this.assetsDir, file));
-		}
-	}.bind(this));
+	if (fs.existsSync(this.assetsDir)) {
+		this.dirWalker(this.assetsDir, function (file) {
+			if (path.extname(file) === '.js') {
+				jsFilesToEncrypt.push(path.relative(this.assetsDir, file));
+			}
+		}.bind(this));
+	}
 
 	if (!jsFilesToEncrypt.length) {
 		// nothing to encrypt, continue
@@ -1378,7 +1378,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 				}
 
 				fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
-				fs.writeFileSync(this.metaDataFile, JSON.stringify({ 'exports': this.metaData }));
+				fs.writeFileSync(this.metaDataFile, JSON.stringify({ exports: this.metaData }));
 
 				done();
 			}.bind(this));
@@ -1477,7 +1477,7 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 		opts = {
 			env: appc.util.mix({}, process.env, {
 				// we force the JAVA_HOME so that titaniumprep doesn't complain
-				'JAVA_HOME': this.jdkInfo.home
+				JAVA_HOME: this.jdkInfo.home
 			})
 		},
 		fatal = function fatal(err) {
@@ -1531,7 +1531,7 @@ AndroidModuleBuilder.prototype.jsToC = function (next) {
 
 	if (fs.existsSync(jsBootstrapFile)) {
 
-		const str = new Buffer(fs.readFileSync(jsBootstrapFile)); // eslint-disable-line security/detect-new-buffer
+		const str = Buffer.from(fs.readFileSync(jsBootstrapFile));
 
 		[].forEach.call(str, function (char) {
 			result.push(char);
@@ -1797,26 +1797,6 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 	fs.emptyDirSync(this.distDir);
 
 	const tasks = [
-		function (cb) {
-			// Generate documentation
-			if (fs.existsSync(this.documentationDir)) {
-				const files = fs.readdirSync(this.documentationDir);
-				for (const i in files) {
-					const file = files[i],
-						currentFile = path.join(this.documentationDir, file);
-					if (fs.statSync(currentFile).isFile()) {
-						const obj = {},
-							contents = fs.readFileSync(currentFile).toString();
-
-						obj[file] = markdown.toHTML(contents);
-						this.documentation.push(obj);
-					}
-				}
-			}
-
-			cb();
-		},
-
 		/**
 		 * Generates the module jar file.
 		 *
@@ -1844,11 +1824,13 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 			const excludeRegex = new RegExp('.*\\' + path.sep + 'R\\.class$|.*\\' + path.sep + 'R\\$(.*)\\.class$', 'i'); // eslint-disable-line security/detect-non-literal-regexp
 
 			const assetsParentDir = path.join(this.assetsDir, '..');
-			this.dirWalker(this.assetsDir, function (file) {
-				if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
-					moduleJarArchive.append(fs.createReadStream(file), { name: path.relative(assetsParentDir, file) });
-				}
-			});
+			if (fs.existsSync(this.assetsDir)) {
+				this.dirWalker(this.assetsDir, function (file) {
+					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
+						moduleJarArchive.append(fs.createReadStream(file), { name: path.relative(assetsParentDir, file) });
+					}
+				});
+			}
 
 			/**
 			 * @param  {string} file file path
@@ -1907,10 +1889,10 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 							return walk(file, path.join(parent, name));
 						}
 
-						let contents = fs.readFileSync(file).toString();
+						let contents = fs.readFileSync(file);
 
 						if (mdRegExp.test(name)) {
-							contents = markdown.toHTML(contents);
+							contents = markdown.toHTML(contents.toString());
 							name = name.replace(/\.md$/, '.html');
 						}
 
@@ -1958,11 +1940,13 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				}
 
 				// 6. assets folder, not including js files
-				this.dirWalker(this.assetsDir, function (file) {
-					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
-						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
-					}
-				}.bind(this));
+				if (fs.existsSync(this.assetsDir)) {
+					this.dirWalker(this.assetsDir, function (file) {
+						if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
+							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
+						}
+					}.bind(this));
+				}
 
 				// 7. libs folder, only architectures defined in manifest
 				this.dirWalker(this.libsDir, function (file) {
