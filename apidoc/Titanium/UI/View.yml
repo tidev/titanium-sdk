@@ -163,8 +163,7 @@ description: |
     The fourth property, `accessibilityHidden`, when set to `true`, indicates that the view can be ignored
     by the assistive service. In iOS this sets the similarly-named
     [accessibilityElementsHidden](https://developer.apple.com/documentation/objectivec/nsobject/1615080-accessibilityelementshidden)
-    native property, which is only available in iOS 5.0 and later. On earlier versions of
-    iOS, this property is ignored.
+    native property.
 
     In Android `accessibilityHidden` calls the native [View.setImportantForAccessibility(boolean)](https://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) method, passing `false` when
     this property is set to `true` (i.e., "hidden" means it's not important). However, the
@@ -182,12 +181,6 @@ description: |
     Given an image of width `w` and height `h`, the stretchable portion on the image is defined as a rectangle with the `top-left` point set to
     `(backgroundLeftCap , backgroundTopCap)` and the `bottom-right` point set to `(w - backgroundLeftCap , h - backgroundTopCap)`. The portions not covered by
     the stretchable portion keep their original size and appearance.
-
-    The behavior of these properties on [ImageView](Titanium.UI.ImageView) is slightly different and depends on the iOS version on the device.
-
-    * For iOS 6.x and above, the behavior is as described above.
-    * For iOS 5.x the computed rectangle is tiled and not streched in the stretchable portion.
-    * For iOS 4.x the strechable portion is always a 1x1 region that is tiled repeatedly.
 
     For best results on ImageView set up the `backgroundLeftCap` and `backgroundTopCap` properties such that the stretchable portion is always a 1x1 box.
 
@@ -949,8 +942,6 @@ properties:
         On iOS this is a direct analog of the `accessibilityElementsHidden` property defined in the
         [UIAccessibility
         Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
-        The native property is only available in iOS 5.0 and later; if
-        `accessibilityHidden` is specified on earlier versions of iOS, it is ignored.
 
         On Android, setting `accessibilityHidden` calls the native
         [View.setImportantForAccessibility](https://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29)
@@ -1597,7 +1588,7 @@ properties:
     platforms: [android]
 
   - name: tintColor
-    summary: The view's tintColor. This property is applicable on iOS 7 and greater.
+    summary: The view's tintColor
     description: |
         This property is a direct correspondant of the tintColor property of UIView on iOS. If no value is specified,
         the tintColor of the View is inherited from its superview.

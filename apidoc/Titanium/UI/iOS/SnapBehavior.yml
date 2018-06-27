@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.SnapBehavior
 summary: Dynamic behavior defining an item's movement to a specific point.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     A snap behavior specifies how an item moves towards a specified point with a spring-like
     effect, ending with an oscillation.
 

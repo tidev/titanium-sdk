@@ -784,18 +784,6 @@ properties:
     type: String
     permission: read-only
 
-  - name: ACTION_PACKAGE_INSTALL
-    summary: Trigger the download and eventual installation of a package.
-    description: |
-        **Note:** this constant has never been used by Android.
-
-        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
-
-        See [Intent.ACTION_PACKAGE_INSTALL in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_INSTALL).
-    type: String
-    permission: read-only
-    osver: {android: {max: "4.0"}}
-
   - name: ACTION_PACKAGE_REMOVED
     summary: An existing application package has been removed from the device.
     description: |
@@ -1024,26 +1012,6 @@ properties:
         See [Intent.ACTION_UID_REMOVED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_UID_REMOVED).
     type: String
     permission: read-only
-
-  - name: ACTION_UMS_CONNECTED
-    summary:  The device has entered USB Mass Storage mode.
-    description: |
-        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
-
-        See [Intent.ACTION_UMS_CONNECTED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_UMS_CONNECTED).
-    type: String
-    permission: read-only
-    osver: {android: {max: "4.0"}}
-
-  - name: ACTION_UMS_DISCONNECTED
-    summary:  The device has exited USB Mass Storage mode.
-    description: |
-        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
-
-        See [Intent.ACTION_UMS_DISCONNECTED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_UMS_DISCONNECTED).
-    type: String
-    permission: read-only
-    osver: {android: {max: "4.0"}}
 
   - name: ACTION_USER_PRESENT
     summary:  Sent when the user is present after device wakes up.

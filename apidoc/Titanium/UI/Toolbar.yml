@@ -67,8 +67,8 @@ properties:
   - name: extendBackground
     summary: If `true`, the background of the toolbar extends upwards.
     description: |
-        This property allows the user to specify that the toolbar's background show through the status bar on iOS 7 and Android Lollipop
-        and above . This property is only intended to be used with toolbars hosted in windows with **no navigation controllers**.
+        This property allows the user to specify that the toolbar's background show through the status bar.
+        and is only intended to be used with toolbars hosted in windows with **no navigation controllers**.
         The toolbar must be placed at the top of the screen just below the status bar and used as an ActionBar on Android for this
         property to work as expected.
         This **must** be specified at creation.
@@ -269,7 +269,7 @@ examples:
 
   - title: Toolbar (iOS) with extended background
     example: |
-        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar (**iOS 7 only**).
+        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar. 
 
             var win = Ti.UI.createWindow({
                 backgroundColor: 'white'
