@@ -147,6 +147,8 @@
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_CURRENT_CONTEXT;
+@property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_OVER_CURRENT_CONTEXT;
+@property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_OVER_CURRENT_FULL_SCREEN;
 
 @property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_COVER_VERTICAL;
 @property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL;
@@ -230,10 +232,8 @@
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 - (id)createApplicationShortcuts:(id)args;
 #endif
-#if IS_XCODE_8
 #ifdef USE_TI_UIIOSFEEDBACKGENERATOR
 - (id)createFeedbackGenerator:(id)args;
-#endif
 #endif
 
 @end

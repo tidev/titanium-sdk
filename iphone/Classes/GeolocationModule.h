@@ -31,6 +31,7 @@ NSString *const kTiGeolocationUsageDescriptionAlwaysAndWhenInUse = @"NSLocationA
   BOOL trackingLocation;
   BOOL trackSignificantLocationChange;
   BOOL allowsBackgroundLocationUpdates;
+  BOOL showBackgroundLocationIndicator;
   KrollCallback *authorizationCallback;
   CLAuthorizationStatus requestedAuthorizationStatus;
 
@@ -44,6 +45,7 @@ NSString *const kTiGeolocationUsageDescriptionAlwaysAndWhenInUse = @"NSLocationA
 @property (nonatomic, readwrite, assign) NSNumber *accuracy;
 @property (nonatomic, readwrite, assign) NSNumber *highAccuracy;
 @property (nonatomic, readwrite, assign) NSNumber *showCalibration;
+@property (nonatomic, readwrite, assign) NSNumber *showBackgroundLocationIndicator;
 @property (nonatomic, readwrite, assign) NSNumber *distanceFilter;
 @property (nonatomic, readwrite, assign) NSNumber *headingFilter;
 @property (nonatomic, readonly) NSNumber *locationServicesEnabled;
