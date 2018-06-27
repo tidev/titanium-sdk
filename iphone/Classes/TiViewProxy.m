@@ -2958,7 +2958,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
                                                    "    };"
                                                    "  }"
                                                    "} catch (e) {"
-                                                   "  Ti.API.error('Failed to load alloy widget '%@' to be used as template');"
+                                                   "  Ti.API.error('Failed to load alloy widget \"%@\" to be used as template');"
                                                    "}"
                                                    "result;",
                                  viewTemplate.type, viewTemplate.type];
