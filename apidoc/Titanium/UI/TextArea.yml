@@ -313,7 +313,7 @@ properties:
     summary: Specifies if the text area should allow user interaction with the given URL in the given range of text.
     description: |
         When the text is specified using an attributed string and the text has an attribute of type [ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK),
-        this property controls if the system should handle that link automatically. Only valid on iOS 7 and above.
+        this property controls if the system should handle that link automatically.
     type: Boolean
     default: false
     platforms: [iphone,ipad]

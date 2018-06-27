@@ -79,7 +79,7 @@ properties:
     permission: read-only
 
   - name: LIGHT_CONTENT
-    summary: Status bar style to use with dark backgrounds. Valid on iOS 7 and above.
+    summary: Status bar style to use with dark backgrounds.
     description: |
         Use with the <Titanium.UI.Window.statusBarStyle> property.
         
