@@ -390,30 +390,14 @@ methods:
     description: |
         Call this method at application startup.
 
-        For iOS 8 and later, before calling this method, the application needs to call the
-        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
-        method and pass it the notification types to use.  Setting the notification types with this
-        method will have no effect on iOS 8 and later.
-
-        For iOS 7 and earlier, set the notification types to use with this method.
+        Before calling this method, the application needs to call the [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
+        method and pass it the notification types to use. Setting the notification types with this
+        method will have no effect and throws a warning.
     platforms: [iphone, ipad]
     parameters:
       - name: config
         summary: Dictionary specifying push-notification related options.
         type: PushNotificationConfig
-
-  - name: removeConnectivityListener
-    deprecated:
-        since: "1.7.0"
-        removed: "3.0.0"
-        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
-    summary: |
-        Legacy method to remove a connectivity listener.
-    parameters:
-      - name: callback
-        summary: Callback function to remove.
-        type: Callback<Object>
-    platforms: [iphone, ipad]
 
   - name: unregisterForPushNotifications
     summary: Unregisters the application for push notifications.
@@ -732,12 +716,9 @@ properties:
   - name: types
     summary: Array of `NOTIFICATION_TYPE` constants that the application would like to receive.
     description: |
-        For iOS 8 and later, setting the `types` property with the
-        <Titanium.Network.registerForPushNotifications> method has no effect.
+        Setting the `types` property with the <Titanium.Network.registerForPushNotifications> method has no effect.
 
-        For devices running iOS 8 and later, use the
-        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
-        method to register the notification types to receive.
+        Use the <Titanium.App.iOS.registerUserNotificationSettings> method to register the notification types to receive.
     type: Array<Number>
     constants: Titanium.Network.NOTIFICATION_TYPE_*
   - name: success
