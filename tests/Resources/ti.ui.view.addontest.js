@@ -68,7 +68,7 @@ describe('Titanium.UI.View', function () {
 	(((utilities.isWindows8_1() && utilities.isWindowsDesktop()) || utilities.isIOS() || utilities.isAndroid()) ? it.skip : it)('backgroundFocusedColor/Image', function (finish) {
 		var view;
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
-		view = Ti.UI.createView({ width:Ti.UI.FILL, height:Ti.UI.FILL });
+		view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			if (didFocus) {
@@ -96,7 +96,7 @@ describe('Titanium.UI.View', function () {
 	(((utilities.isWindows8_1() && utilities.isWindowsDesktop()) || utilities.isIOS() || utilities.isAndroid()) ? it.skip : it)('backgroundSelectedColor/Image', function (finish) {
 		var view;
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
-		view = Ti.UI.createView({ width:Ti.UI.FILL, height:Ti.UI.FILL });
+		view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			if (didFocus) {
@@ -124,7 +124,7 @@ describe('Titanium.UI.View', function () {
 	(((utilities.isWindows8_1() && utilities.isWindowsDesktop()) || utilities.isIOS() || utilities.isAndroid()) ? it.skip : it)('backgroundDisabledColor/Image', function (finish) {
 		var view;
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
-		view = Ti.UI.createView({ width:Ti.UI.FILL, height:Ti.UI.FILL });
+		view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			if (didFocus) {
@@ -153,12 +153,12 @@ describe('Titanium.UI.View', function () {
 		var view;
 
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
-		view = Ti.UI.createView({ width:Ti.UI.FILL, height:Ti.UI.FILL });
+		view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		view.backgroundGradient = {
 			type: 'linear',
 			startPoint: { x: '0%', y: '50%' },
 			endPoint: { x: '100%', y: '100%' },
-			colors: [{ color: 'red', offset: 0.0 }, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 }],
+			colors: [ { color: 'red', offset: 0.0 }, { color: 'blue', offset: 0.25 }, { color: 'red', offset: 1.0 } ],
 		};
 		win.add(view);
 		win.addEventListener('focus', function () {
@@ -185,7 +185,7 @@ describe('Titanium.UI.View', function () {
 	it.allBroken('border', function (finish) {
 		var view;
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
-		view = Ti.UI.createView({ width:Ti.UI.FILL, height:Ti.UI.FILL });
+		view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			if (didFocus) {
@@ -214,7 +214,7 @@ describe('Titanium.UI.View', function () {
 	(((utilities.isWindows8_1() && utilities.isWindowsDesktop()) || utilities.isAndroid() || utilities.isIOS()) ? it.skip : it)('rect and size', function (finish) {
 		var view;
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
-		view = Ti.UI.createView({ width:Ti.UI.FILL, height:Ti.UI.FILL });
+		view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 
 		view.addEventListener('postlayout', function () {
@@ -278,7 +278,7 @@ describe('Titanium.UI.View', function () {
 		var view;
 		win = Ti.UI.createWindow();
 		view = Ti.UI.createView({
-			backgroundColor:'red',
+			backgroundColor: 'red',
 			width: 100, height: 100,
 			left: 100,  top: 100
 		});
@@ -318,7 +318,7 @@ describe('Titanium.UI.View', function () {
 		var view;
 		win = Ti.UI.createWindow();
 		view = Ti.UI.createView({
-			backgroundColor:'red',
+			backgroundColor: 'red',
 			width: 100, height: 100,
 			left: 100,  top: 100
 		});
@@ -362,7 +362,7 @@ describe('Titanium.UI.View', function () {
 			count = 0;
 
 		view = Ti.UI.createView({
-			backgroundColor:'red',
+			backgroundColor: 'red',
 			width: 100, height: 100,
 			left: 100,  top: 100
 		});
@@ -558,7 +558,7 @@ describe('Titanium.UI.View', function () {
 		var a,
 			b;
 		win = Ti.UI.createWindow();
-		a = Ti.UI.createView({ backgroundColor:'red' });
+		a = Ti.UI.createView({ backgroundColor: 'red' });
 		b = Ti.UI.createView({ top: '100', backgroundColor: 'blue' });
 
 		a.add(b);
@@ -592,7 +592,7 @@ describe('Titanium.UI.View', function () {
 	(utilities.isAndroid() ? it.skip : it)('parent', function (finish) {
 		var view;
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
-		view = Ti.UI.createView({ width:Ti.UI.FILL, height:Ti.UI.FILL });
+		view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 
 		win.addEventListener('open', function () {
