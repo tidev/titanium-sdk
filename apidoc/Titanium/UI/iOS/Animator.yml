@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.Animator
 summary: Provides support for the built-in iOS dynamic animations
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     The animator provides physics-related capabilities and animations using the iOS physics engine.
     Each animator is independent of other animators you create.  An animator is comprised of
     behaviors and items. Behaviors define the rules of the animation, while items are the

@@ -921,6 +921,23 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLUploadProgress object:self userInfo:dict];
 }
 
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
+{
+  if (!uploadTaskResponses) {
+    uploadTaskResponses = [[NSMutableDictionary alloc] init];
+  }
+  //This dictionary will mutate if delegate is called
+  NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
+  if (!responseObj) {
+    NSMutableData *responseData = [NSMutableData dataWithData:data];
+    NSInteger statusCode = [(NSHTTPURLResponse *)[dataTask response] statusCode];
+    responseObj = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(statusCode), @"statusCode", responseData, @"responseData", nil];
+    [uploadTaskResponses setValue:responseObj forKey:(NSString *)@(dataTask.taskIdentifier)];
+  } else {
+    [[responseObj objectForKey:@"responseData"] appendData:data];
+  }
+}
+
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
   NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -932,17 +949,25 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 
   if (error) {
-    NSDictionary *errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                            NUMINTEGER([error code]), @"errorCode",
+    NSDictionary *errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:@(NO), @"success",
+                                            @([error code]), @"errorCode",
                                             [error localizedDescription], @"message",
                                             nil];
     [dict addEntriesFromDictionary:errorinfo];
   } else {
-    NSDictionary *success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
-                                          NUMINT(0), @"errorCode",
-                                          @"", @"message",
-                                          nil];
-    [dict addEntriesFromDictionary:success];
+    NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(task.taskIdentifier)];
+    if (responseObj != nil) {
+      // We only send "responseText" as the "responsesData" is only set with data from uploads
+      NSString *responseText = [[NSString alloc] initWithData:[responseObj objectForKey:@"responseData"] encoding:NSUTF8StringEncoding];
+      NSInteger statusCode = [[responseObj valueForKey:@"statusCode"] integerValue];
+      [uploadTaskResponses removeObjectForKey:@(task.taskIdentifier)];
+      NSDictionary *successResponse = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(YES), @"success",
+                                                           @(0), @"errorCode",
+                                                           responseText, @"responseText",
+                                                           @(statusCode), @"statusCode",
+                                                           nil];
+      [dict addEntriesFromDictionary:successResponse];
+    }
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
 }
@@ -1312,6 +1337,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 #endif
   RELEASE_TO_NIL(backgroundServices);
   RELEASE_TO_NIL(localNotification);
+  RELEASE_TO_NIL(uploadTaskResponses);
   RELEASE_TO_NIL(queuedBootEvents);
   RELEASE_TO_NIL(_queuedApplicationSelectors);
   RELEASE_TO_NIL(_applicationDelegates);
