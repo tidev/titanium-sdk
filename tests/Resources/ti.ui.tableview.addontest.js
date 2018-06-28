@@ -8,7 +8,6 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
 
 describe('Titanium.UI.TableView', function () {
 	var win,
@@ -29,7 +28,7 @@ describe('Titanium.UI.TableView', function () {
 
 	it.ios('TIMOB-26164 : updateRow + insertRowAfter causing crash on main thread', function (finish) {
 		var tableView = Ti.UI.createTableView({
-			data: [ { title:'Red' } ]
+			data: [ { title: 'Red' } ]
 		});
 
 		win = Ti.UI.createWindow({
