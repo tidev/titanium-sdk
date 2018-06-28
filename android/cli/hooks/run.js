@@ -235,8 +235,7 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
-					const tiapiRegExp = /^(\w\/TiAPI\s*:)/,
-						nonTiLogRegexp = /^\w\/.+\s*\(\s*\d+\):/;
+					const tiapiRegExp = /^(\w\/(TiAPI|TiApplication|TiRootActivity)\s*:)/;
 
 					let lastLogLevel,
 						logBuffer = [],
@@ -254,11 +253,10 @@ exports.init = function (logger, config, cli) {
 							if (tiapiRegExp.test(line)) {
 								line = line.replace(tiapiRegExp, '').trim();
 							} else {
-								line = line.replace(/^\w\/(\w+)\s*:/g, '$1:').grey;
+								return;
 							}
 							line = deviceName + line;
-						// if it begins with something like "E/SQLiteLog( 1659):" it's not a contination, don't log it.
-						} else if (nonTiLogRegexp.test(line)) {
+						} else {
 							return;
 						}
 
