@@ -29,6 +29,7 @@ import android.webkit.WebView;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
+		TiC.PROPERTY_ALLOW_WEB_PERMISSION,
 		TiC.PROPERTY_BLACKLISTED_URLS,
 		TiC.PROPERTY_DATA,
 		TiC.PROPERTY_ON_CREATE_WINDOW,
@@ -76,6 +77,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
 		defaultValues.put(TiC.PROPERTY_DISABLE_CONTEXT_MENU, false);
+		defaultValues.put(TiC.PROPERTY_ALLOW_WEB_PERMISSION, false);
 		defaultValues.put(TiC.PROPERTY_ZOOM_LEVEL, 1.0);
 	}
 
