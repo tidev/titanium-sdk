@@ -30,7 +30,7 @@ description: |
         </Alloy>        
 
     For more instructions and examples of using `ListView`, refer to the
-    [ListViews guide](http://docs.appcelerator.com/platform/latest/#!/guide/ListViews).
+    [ListViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/ListViews).
 
     #### Creating a List
 
@@ -172,7 +172,7 @@ description: |
           deletes the item, a [delete](Titanium.UI.ListView.delete) event is fired.
 
         - [editActions](Titanium.UI.ListItem.editActions) - When [canEdit](Titanium.UI.ListItem.canEdit) is set to true, the default behavior
-          is to allow the item to be deleted. This behavior can be overridden with on iOS 8 and above by using the [editActions](Titanium.UI.ListItem.editActions)
+          is to allow the item to be deleted. This behavior can be overridden by using the [editActions](Titanium.UI.ListItem.editActions)
           property of the item. When this property is defined, the user is instead presented with the options as defined by the [title](RowActionType.title) property.
           In this scenario the ListView does not fire a [delete](Titanium.UI.ListView.delete) event. Instead the [editaction](Titanium.UI.ListView.editaction) event is fired
           and the developer is free to update the ListView as required. This is supported on Titanium SDK 4.1.0 and later on the iOS platform.
@@ -205,7 +205,8 @@ since: '3.1.0'
 excludes:
     events: [click, dblclick,doubletap,focus,keypressed,longclick,longpress,pinch,postlayout,
              singletap,swipe,touchcancel,touchend,touchmove,touchstart,twofingertap]
-    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
+    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled, children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 
 events:
   - name: indexclick
@@ -705,10 +706,17 @@ properties:
     platforms: [iphone, ipad]
 
   - name: allowsSelectionDuringEditing
-    summary: Determines whether this list View rows can be selected while editing the table.
+    summary: Determines whether this list view items can be selected while editing the table.
     type: Boolean
     default: false
     since: "5.4.0"
+    platforms: [iphone, ipad]
+
+  - name: allowsMultipleSelectionDuringEditing
+    summary: Determines whether multiple items of this list view can be selected at the same time while editing the table.
+    type: Boolean
+    default: false
+    since: "7.0.0"
     platforms: [iphone, ipad]
 
   - name: lazyLoadingEnabled
@@ -842,8 +850,8 @@ properties:
     description: |
         An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples.
     type: Titanium.UI.RefreshControl
-    platforms: [iphone, ipad]
-    since: 3.2.0
+    platforms: [android, iphone, ipad]
+    since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
   - name: searchView
     summary: Search field to use for the list view.
@@ -955,7 +963,7 @@ properties:
     default: true
 
   - name: separatorColor
-    summary: Separator line color between rows, as a color name or hex triplet.
+    summary: Separator line color between items, as a color name or hex triplet.
     description: |
         To make the line invisible, set this property to `transparent`, or the same value as the 
         [backgroundColor](Titanium.UI.ListView.backgroundColor) property. 
@@ -966,12 +974,12 @@ properties:
     platforms: [android, iphone, ipad]
 
   - name: separatorInsets
-    summary: The insets for list view separators (applies to all cells). This property is applicable on iOS 7 and greater.
+    summary: The insets for list view separators (applies to all cells).
     deprecated:
         since: "5.2.0"
         notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
     description: |
-        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
+        Cell separators do not extend all the way to the edge of the list view. 
         This property sets the default inset for all cells in the table. 
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge. 
     type: Dictionary
@@ -1000,9 +1008,9 @@ properties:
     deprecated:
         since: "5.4.0"
         notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
-    summary: The insets for the table view header and footer. This property is applicable on iOS 7 and greater.
+    summary: The insets for the table view header and footer.
     description: |
-        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. Set this to a
+        Cell separators do not extend all the way to the edge of the list view. Set this to a
         dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
         right edge. If the rowSeparatorInsets is not set, the tableSeparatorInsets will also set the cell insets.
  
@@ -1020,9 +1028,9 @@ properties:
     platforms: [iphone, ipad]
 
   - name: listSeparatorInsets
-    summary: The insets for the list view header and footer. This property is applicable on iOS 7 and greater.
+    summary: The insets for the list view header and footer.
     description: |
-        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. Set this to a
+        Cell separators do not extend all the way to the edge of the list view. Set this to a
         dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
         right edge. If the rowSeparatorInsets is not set, the listSeparatorInsets will also set the cell insets.
  
@@ -1040,9 +1048,9 @@ properties:
     platforms: [iphone, ipad]
 
   - name: rowSeparatorInsets
-    summary: The insets for list view cells (applies to all cells). This property is applicable on iOS 7 and greater.
+    summary: The insets for list view cells (applies to all cells).
     description: |
-        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. Set this to a
+        Cell separators do not extend all the way to the edge of the list view. Set this to a
         dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
         right edge. This property is only available upon creation of the cells.
  
@@ -1056,7 +1064,18 @@ properties:
     type: Dictionary
     since: "5.2.0"
     osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad] 
+
+  - name: dimBackgroundForSearch
+    summary: A Boolean indicating whether the underlying content is dimmed during a search.
+    description: |
+          If you do not want to show the dimmed background when clicking on the search bar, 
+          set this property `false` during creation. 
+    type: Boolean
+    default: true 
+    since: 6.2.0
     platforms: [iphone, ipad]
+    availability: creation
 
   - name: resultsBackgroundColor
     summary: The background color of the search results (iOS-only).
@@ -1083,11 +1102,11 @@ properties:
     since: 6.1.0
     platforms: [iphone, ipad]
     availability: creation
-
+    
   - name: resultsSeparatorStyle
     summary: The separator style of the search results (iOS-only).
     type: Number
-    constants: Titanium.UI.iPhone.ListViewSeparatorStyle.*
+    constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     since: 6.1.0
     platforms: [iphone, ipad]
     availability: creation
@@ -1096,7 +1115,7 @@ properties:
     summary: | 
         The insets for search results separators (applies to all cells & iOS-only). 
     description: |
-        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
+        Cell separators do not extend all the way to the edge of the list view. 
         This property sets the default inset for all cells in the table. 
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` 
         specifying the inset from the right edge. 
@@ -1104,6 +1123,12 @@ properties:
     since: 6.1.0
     platforms: [iphone, ipad]
     availability: creation
+    
+  - name: selectedItems
+    summary: Returns the selected list view items. 
+    type: Array<ListItemEventType>
+    since: "7.0.0"
+    platforms: [iphone, ipad]
     
 methods:
   - name: scrollToItem
@@ -1124,7 +1149,7 @@ methods:
         type: Number
 
       - name: animation
-        summary: Animation properties. (iOS and Android only.)
+        summary: Animation properties. (iOS, Android and Windows)
         type: ListViewAnimationProperties
         optional: true
 
@@ -1704,7 +1729,7 @@ properties:
   - name: position
     summary: Specifies what position to scroll the selected cell to.
     type: Number
-    constants: Titanium.UI.iOS.ListViewScrollPosition.*
+    constants: [Titanium.UI.iOS.ListViewScrollPosition.*, Titanium.UI.Windows.ListViewScrollPosition.*]
     default: Titanium.UI.iOS.ListViewScrollPosition.NONE
 
 ---      

@@ -28,6 +28,8 @@ platforms: [iphone, ipad]
 excludes:
     events: [doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, twofingertap]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 properties:
 
   - name: enabled
@@ -53,9 +55,9 @@ properties:
 
   - name: wraps
     summary: |
-        If YES, incrementing beyond <Ti.UI.iOS.Stepper.maximum> sets value to <Ti.UI.iOS.Stepper.minimum>. likewise, decrementing below
-        <Ti.UI.iOS.Stepper.minimum> sets value to <Ti.UI.iOS.Stepper.maximum>. If NO, the stepper does not increment beyond <Ti.UI.iOS.Stepper.maximum> nor
-        does it decrement below <Ti.UI.iOS.Stepper.minimum> but rather holds at those values.
+        If YES, incrementing beyond <Titanium.UI.iOS.Stepper.maximum> sets value to <Titanium.UI.iOS.Stepper.minimum>. likewise, decrementing below
+        <Titanium.UI.iOS.Stepper.minimum> sets value to <Titanium.UI.iOS.Stepper.maximum>. If NO, the stepper does not increment beyond <Titanium.UI.iOS.Stepper.maximum> nor
+        does it decrement below <Titanium.UI.iOS.Stepper.minimum> but rather holds at those values.
         The default value is NO.
     type: Boolean
 

@@ -111,11 +111,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected String[] filteredAnalyticsEvents;
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
-	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
-	protected static TiWeakList<TiBaseActivity> activityStack = new TiWeakList<TiBaseActivity>();
+	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners =
+		new ArrayList<ActivityTransitionListener>();
+	protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
 
-	public static interface ActivityTransitionListener
-	{
+	public static interface ActivityTransitionListener {
 		public void onActivityTransition(boolean state);
 	}
 
@@ -135,7 +135,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		for (int i = 0; i < activityTransitionListeners.size(); ++i) {
 			activityTransitionListeners.get(i).onActivityTransition(state);
 		}
-
 	}
 	public CountDownLatch rootActivityLatch = new CountDownLatch(1);
 
@@ -172,9 +171,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return null;
 	}
 
-	public static void addToActivityStack(TiBaseActivity activity)
+	public static void addToActivityStack(Activity activity)
 	{
-		activityStack.add(new WeakReference<TiBaseActivity>(activity));
+		activityStack.add(new WeakReference<Activity>(activity));
 	}
 
 	public static void removeFromActivityStack(Activity activity)
@@ -190,10 +189,10 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			return;
 		}
 
-		WeakReference<TiBaseActivity> activityRef;
+		WeakReference<Activity> activityRef;
 		Activity currentActivity;
 
-		for (int i = activityStack.size() - 1; i >= 0; i--) {
+		for (int i = activityStack.size() - 1; i > 0; i--) {
 			// We need to check the stack size here again. Since we call finish(), that could potentially
 			// change the activity stack while we are looping through them. TIMOB-12487
 			if (i < activityStack.size()) {
@@ -202,11 +201,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 					currentActivity = activityRef.get();
 					if (currentActivity != null && !currentActivity.isFinishing()) {
 						currentActivity.finish();
+						activityStack.remove(activityRef);
 					}
 				}
 			}
 		}
-		activityStack.clear();
 	}
 
 	public boolean activityStackHasLaunchActivity()
@@ -214,7 +213,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		if (activityStack == null || activityStack.size() == 0) {
 			return false;
 		}
-		for (WeakReference<TiBaseActivity> activityRef : activityStack) {
+		for (WeakReference<Activity> activityRef : activityStack) {
 			if (activityRef != null && activityRef.get() instanceof TiLaunchActivity) {
 				return true;
 			}
@@ -231,7 +230,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		Activity currentActivity = getAppCurrentActivity();
 		if (currentActivity instanceof TiBaseActivity) {
-			return ((TiBaseActivity)currentActivity).isInForeground();
+			return ((TiBaseActivity) currentActivity).isInForeground();
 		}
 		return false;
 	}
@@ -242,7 +241,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 * @return the current activity
 	 * @module.api
 	 */
-	public static TiBaseActivity getAppCurrentActivity()
+	public static Activity getAppCurrentActivity()
 	{
 		TiApplication tiApp = getInstance();
 		if (tiApp == null) {
@@ -272,16 +271,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 * @return the current activity if exists. Otherwise, the thread will wait for a valid activity to be visible.
 	 * @module.api
 	 */
-	public TiBaseActivity getCurrentActivity()
+	public Activity getCurrentActivity()
 	{
 		int activityStackSize;
 
 		while ((activityStackSize = activityStack.size()) > 0) {
-			TiBaseActivity activity = (activityStack.get(activityStackSize - 1)).get();
+			Activity activity = (activityStack.get(activityStackSize - 1)).get();
 
 			// Skip and remove any activities which are dead or in the process of finishing.
 			if (activity == null || activity.isFinishing()) {
-				activityStack.remove(activityStackSize -1);
+				activityStack.remove(activityStackSize - 1);
 				continue;
 			}
 
@@ -312,34 +311,32 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		}
 
-		Log.e(TAG, "No valid root or current activity found for application instance");
 		return null;
 	}
 
 	protected void loadBuildProperties()
 	{
-		buildVersion = "1.0";
-		buildTimestamp = "N/A";
-		buildHash = "N/A";
-		InputStream versionStream = getClass().getClassLoader().getResourceAsStream("org/appcelerator/titanium/build.properties");
-		if (versionStream != null) {
-			Properties properties = new Properties();
-			try {
-				properties.load(versionStream);
-				if (properties.containsKey("build.version")) {
-					buildVersion = properties.getProperty("build.version");
-				}
-				if (properties.containsKey("build.timestamp")) {
-					buildTimestamp = properties.getProperty("build.timestamp");
-				}
-				if (properties.containsKey("build.githash")) {
-					buildHash = properties.getProperty("build.githash");
-				}
-			} catch (IOException e) {}
+		// Initialize build property member variables.
+		this.buildVersion = "1.0";
+		this.buildTimestamp = "N/A";
+		this.buildHash = "N/A";
+
+		// Attempt to read the "build.properties" file.
+		final String FILE_NAME = "org/appcelerator/titanium/build.properties";
+		try (InputStream stream = getClass().getClassLoader().getResourceAsStream(FILE_NAME)) {
+			if (stream != null) {
+				Properties properties = new Properties();
+				properties.load(stream);
+				this.buildVersion = properties.getProperty("build.version", this.buildVersion);
+				this.buildTimestamp = properties.getProperty("build.timestamp", this.buildTimestamp);
+				this.buildHash = properties.getProperty("build.githash", this.buildHash);
+			}
+		} catch (Exception e) {
 		}
 	}
 
-	public void loadAppProperties() {
+	public void loadAppProperties()
+	{
 		// Load the JSON file:
 		String appPropertiesString = KrollAssetHelper.readAsset("Resources/_app_props_.json");
 		if (appPropertiesString != null) {
@@ -352,7 +349,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	@Override
-	protected void attachBaseContext(Context base) {
+	protected void attachBaseContext(Context base)
+	{
 		super.attachBaseContext(base);
 		MultiDex.install(this);
 	}
@@ -363,15 +361,24 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
 
-		final UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
+		// handle uncaught java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-			public void uncaughtException(Thread t, Throwable e) {
-				if (isAnalyticsEnabled()) {
-					String tiVer = buildVersion + "," + buildTimestamp + "," + buildHash ;
-					Log.e(TAG, "Sending event: exception on thread: " + t.getName() + " msg:" + e.toString() + "; Titanium " + tiVer, e);
-					TiPlatformHelper.getInstance().postAnalyticsEvent(TiAnalyticsEventFactory.createErrorEvent(t, e, tiVer));
+			@Override
+			public void uncaughtException(Thread t, Throwable e)
+			{
+
+				// obtain java stack trace
+				String javaStack = null;
+				StackTraceElement[] frames = e.getCause() != null ? e.getCause().getStackTrace() : e.getStackTrace();
+				if (frames != null && frames.length > 0) {
+					javaStack = "";
+					for (StackTraceElement frame : frames) {
+						javaStack += "\n    " + frame.toString();
+					}
 				}
-				defaultHandler.uncaughtException(t, e);
+
+				// throw exception as KrollException
+				KrollRuntime.dispatchException("Runtime Error", e.getMessage(), null, 0, null, 0, null, javaStack);
 			}
 		});
 
@@ -385,6 +392,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
 
 		tempFileHelper = new TiTempFileHelper(this);
+
+		deployData = new TiDeployData(this);
 	}
 
 	@Override
@@ -396,7 +405,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	}
 
 	@Override
-	public void onLowMemory ()
+	public void onLowMemory()
 	{
 		// Release all the cached images
 		TiBlobLruCache.getInstance().evictAll();
@@ -418,14 +427,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void postAppInfo()
 	{
-		deployData = new TiDeployData(this);
-
-		TiPlatformHelper.getInstance().initialize();
-		// Fastdev has been deprecated
-		// TiFastDev.initFastDev(this);
-
 		if (isAnalyticsEnabled()) {
 
+			TiPlatformHelper.getInstance().initialize();
 			TiPlatformHelper.getInstance().initAnalytics();
 			TiPlatformHelper.getInstance().setSdkVersion("ti." + getTiBuildVersion());
 			TiPlatformHelper.getInstance().setAppName(getAppInfo().getName());
@@ -474,8 +478,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private File getRemoteCacheDir()
 	{
 		File cacheDir = new File(tempFileHelper.getTempDirectory(), "remote-cache");
-		if (!cacheDir.exists())
-		{
+		if (!cacheDir.exists()) {
 			cacheDir.mkdirs();
 			tempFileHelper.excludeFileOnCleanup(cacheDir);
 		}
@@ -490,8 +493,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		// calculate the display density
 		DisplayMetrics dm = new DisplayMetrics();
 		rootActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-		switch(dm.densityDpi)
-		{
+		switch (dm.densityDpi) {
 			case DisplayMetrics.DENSITY_HIGH: {
 				density = "high";
 				break;
@@ -538,7 +540,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void setCurrentActivity(Activity callingActivity, Activity newValue)
 	{
-		synchronized (this) {
+		synchronized (this)
+		{
 			Activity currentActivity = getCurrentActivity();
 			if (currentActivity == null || callingActivity == currentActivity) {
 				this.currentActivity = new WeakReference<Activity>(newValue);
@@ -671,7 +674,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			if (eventName.equals(currentName)) {
 				return true;
 			}
-
 		}
 		return false;
 	}
@@ -750,8 +752,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public boolean isCoverageEnabled()
 	{
-		if (!getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION))
-		{
+		if (!getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
 			return getAppProperties().getBool(TiApplication.PROPERTY_ENABLE_COVERAGE, false);
 		}
 		return false;
@@ -761,7 +762,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		Log.w(TAG, "Scheduling application restart");
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
+			Log.d(TAG,
+				  "Here is call stack leading to restart. (NOTE: this is not a real exception, just a stack trace.) :");
 			(new Exception()).printStackTrace();
 		}
 		this.restartPending = true;
@@ -825,8 +827,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	private void startExternalStorageMonitor()
 	{
-		externalStorageReceiver = new BroadcastReceiver()
-		{
+		externalStorageReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent)
 			{

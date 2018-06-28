@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -17,20 +16,21 @@ import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
 import android.app.Activity;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_MESSAGE,
-	TiC.PROPERTY_MESSAGEID,
-	TiC.PROPERTY_COLOR,
-	TiC.PROPERTY_FONT,
-	TiC.PROPERTY_STYLE,
-	TiC.PROPERTY_INDICATOR_COLOR
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_MESSAGE,
+		TiC.PROPERTY_MESSAGEID,
+		TiC.PROPERTY_COLOR,
+		TiC.PROPERTY_FONT,
+		TiC.PROPERTY_STYLE,
+		TiC.PROPERTY_INDICATOR_COLOR
 })
-@Kroll.dynamicApis(methods = {
-	"hide", "show"
-})
+@Kroll.dynamicApis(methods = { "hide", "show" })
 public class ActivityIndicatorProxy extends TiViewProxy
+// clang-format on
 {
-	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
+	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SHOW = MSG_FIRST_ID + 100;
 
 	boolean visible = false;
@@ -63,7 +63,8 @@ public class ActivityIndicatorProxy extends TiViewProxy
 	}
 
 	@Override
-	protected KrollDict getLangConversionTable() {
+	protected KrollDict getLangConversionTable()
+	{
 		KrollDict table = new KrollDict();
 		table.put(TiC.PROPERTY_MESSAGE, TiC.PROPERTY_MESSAGEID);
 		return table;

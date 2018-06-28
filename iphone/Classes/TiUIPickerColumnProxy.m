@@ -14,56 +14,51 @@
 
 @synthesize column;
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(rows);
-	[super dealloc];
+  RELEASE_TO_NIL(rows);
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.PickerColumn";
+  return @"Ti.UI.PickerColumn";
 }
 
--(NSMutableArray*)rows
+- (NSMutableArray *)rows
 {
-	// return copy so developer can't directly mutate
-	return [[rows copy] autorelease];
+  // return copy so developer can't directly mutate
+  return [[rows copy] autorelease];
 }
 
--(NSInteger)rowCount
+- (NSInteger)rowCount
 {
-	return [rows count];
+  return [rows count];
 }
 
--(id)rowAt:(NSInteger)index
+- (id)rowAt:(NSInteger)index
 {
-	return (index < [rows count]) ? [rows objectAtIndex:index] : nil;
+  return (index < [rows count]) ? [rows objectAtIndex:index] : nil;
 }
 
--(NSNumber*)addRow:(id)row
+- (NSNumber *)addRow:(id)row
 {
-	ENSURE_SINGLE_ARG(row,TiUIPickerRowProxy);
-	if (rows==nil)
-	{
-		rows = [[NSMutableArray arrayWithObject:row] retain];
-	}
-	else
-	{
-		[rows addObject:row];
-	}
-	return NUMUINTEGER([rows count]-1);
+  ENSURE_SINGLE_ARG(row, TiUIPickerRowProxy);
+  if (rows == nil) {
+    rows = [[NSMutableArray arrayWithObject:row] retain];
+  } else {
+    [rows addObject:row];
+  }
+  return NUMUINTEGER([rows count] - 1);
 }
 
--(void)removeRow:(id)row
+- (void)removeRow:(id)row
 {
-	ENSURE_SINGLE_ARG(row,TiUIPickerRowProxy);
-	if (rows!=nil)
-	{
-		[rows removeObject:row];
-	}
+  ENSURE_SINGLE_ARG(row, TiUIPickerRowProxy);
+  if (rows != nil) {
+    [rows removeObject:row];
+  }
 }
-
 
 @end
 

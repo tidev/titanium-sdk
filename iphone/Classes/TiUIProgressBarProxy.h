@@ -8,7 +8,6 @@
 
 #import "TiViewProxy.h"
 
-
 @interface TiUIProgressBarProxy : TiViewProxy {
 }
 @end

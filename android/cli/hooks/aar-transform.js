@@ -8,12 +8,12 @@
  * See the LICENSE file for more information.
  */
 
-var AarTransformer = require('appc-aar-tools').AarTransformer;
-var async = require('async');
-var crypto = require('crypto');
-var fs = require('fs');
-var path = require('path');
-var wrench = require('wrench');
+const AarTransformer = require('appc-aar-tools').AarTransformer,
+	async = require('async'),
+	crypto = require('crypto'),
+	fs = require('fs'),
+	path = require('path'),
+	wrench = require('wrench');
 
 /**
  * Version number to idenfity the data structure of transform results that are
@@ -35,7 +35,6 @@ const BUILD_VARIANT_APP = 'App';
  * Constants to identify where an .aar file comes from. Currently only Titanium
  * modules and projects are able to provide Android Libraries.
  */
-const LIBRARY_ORIGIN_CORE = 'Core';
 const LIBRARY_ORIGIN_MODULE = 'Module';
 const LIBRARY_ORIGIN_PORJECT = 'Project';
 
@@ -44,15 +43,52 @@ exports.cliVersion = '>=3.2';
 exports.init = function (logger, config, cli, appc) {
 	cli.on('build.pre.compile', {
 		priority: 1100,
-		post: function(builder, callback) {
+		post: function (builder, callback) {
 			registerHyperloopCompatibilityFixes(cli, builder, appc, logger);
 			scanProjectAndStartTransform(builder, logger, callback);
 		}
 	});
 
 	cli.on('build.module.pre.compile', {
-		post: function(builder, callback) {
+		post: function (builder, callback) {
 			scanModuleAndStartTransform(builder, logger, callback);
+		}
+	});
+
+	cli.on('build.android.dexer', {
+		priority: 1100,
+		/**
+		 * Fixes an issue with Hyperloop 2.1.0 which causes a crash when trying to
+		 * override the Android Support Libraries with local .aar files. Hyperloop
+		 * 2.1.0 will always manually add our bundled Android Support Libraries
+		 * to the dexer paths even if they were replaced by the builder. To fix this
+		 * we check the altered dexer paths again and remove any replaced libraries.
+		 *
+		 * @param {Object} data Hook data
+		 * @param {Function} callback Callback function
+		 */
+		pre: function (data, callback) {
+			const builder = data.ctx;
+			const dexerOptions = data.args[1].slice(0, 6);
+			const dexerPaths = data.args[1].slice(6);
+			let hyperloopModule = null;
+			builder.nativeLibModules.forEach(function (module) {
+				if (module.id === 'hyperloop' && module.version === '2.1.0') {
+					hyperloopModule = module;
+				}
+			});
+			if (hyperloopModule && builder.androidLibraries.length > 0) {
+				let fixedDexerPaths = [];
+				dexerPaths.forEach(function (entryPathAndFilename) {
+					if (!this.isExternalAndroidLibraryAvailable(entryPathAndFilename)) {
+						fixedDexerPaths.push(entryPathAndFilename);
+					} else {
+						logger.trace('Removed duplicate library ' + entryPathAndFilename + ' from dexer paths.');
+					}
+				}, builder);
+				data.args[1] = dexerOptions.concat(fixedDexerPaths);
+			}
+			callback();
 		}
 	});
 };
@@ -72,13 +108,13 @@ exports.init = function (logger, config, cli, appc) {
 function scanProjectAndStartTransform(builder, logger, callback) {
 	var projectAndroidLibraries = [];
 
-	builder.nativeLibModules.forEach(function(moduleInfo) {
+	builder.nativeLibModules.forEach(function (moduleInfo) {
 		var moduleLibrariesPath = path.join(moduleInfo.modulePath, 'lib');
 		if (!fs.existsSync(moduleLibrariesPath)) {
 			return;
 		}
 
-		fs.readdirSync(moduleLibrariesPath).forEach(function(file) {
+		fs.readdirSync(moduleLibrariesPath).forEach(function (file) {
 			if (/\.aar$/.test(file)) {
 				projectAndroidLibraries.push({
 					aarPathAndFilename: path.join(moduleLibrariesPath, file),
@@ -89,9 +125,9 @@ function scanProjectAndStartTransform(builder, logger, callback) {
 		});
 	});
 
-	var androidPlatformPath = path.join(builder.projectDir, 'platform', 'android');
+	const androidPlatformPath = path.join(builder.projectDir, 'platform', 'android');
 	if (fs.existsSync(androidPlatformPath)) {
-		fs.readdirSync(androidPlatformPath).forEach(function(file) {
+		fs.readdirSync(androidPlatformPath).forEach(function (file) {
 			if (/\.aar$/.test(file)) {
 				projectAndroidLibraries.push({
 					aarPathAndFilename: path.join(androidPlatformPath, file),
@@ -115,12 +151,12 @@ function scanProjectAndStartTransform(builder, logger, callback) {
  * @param {Function} callback Function to call once the transform is complete
  */
 function scanModuleAndStartTransform(builder, logger, callback) {
-	var moduleAndroidLibraries = [];
-	fs.readdirSync(builder.projLibDir).forEach(function(file) {
+	const moduleAndroidLibraries = builder.moduleAndroidLibraries || [];
+	fs.existsSync(builder.projLibDir) && fs.readdirSync(builder.projLibDir).forEach(function (file) {
 		if (/\.aar/.test(file)) {
 			moduleAndroidLibraries.push({
 				aarPathAndFilename: path.join(builder.projLibDir, file),
-				originType: LIBRARY_ORIGIN_PORJECT
+				originType: LIBRARY_ORIGIN_MODULE
 			});
 		}
 	});
@@ -135,6 +171,7 @@ function scanModuleAndStartTransform(builder, logger, callback) {
  * @param {String} buildVariant One of the BUILD_VARIANT_* constants
  * @param {Object} logger Logger to use
  * @param {Function} callback Function to call once all tasks are complete
+ * @return {undefined}
  */
 function transformAndroidLibraries(transformTasks, builder, buildVariant, logger, callback) {
 	if (transformTasks.length === 0) {
@@ -142,9 +179,9 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 		return callback();
 	}
 
-	var aarOutputPath = path.join(builder.buildIntermediatesDir, 'exploded-aar');
+	const aarOutputPath = path.join(builder.buildIntermediatesDir, 'exploded-aar');
 
-	var cache = new SimpleFileCache(path.join(aarOutputPath, 'state.json'));
+	const cache = new SimpleFileCache(path.join(aarOutputPath, 'state.json'));
 	if (cache.has('data-version')) {
 		if (cache.get('data-version') !== HOOK_DATA_VERSION) {
 			logger.trace('Cache data structure is out of date, flushing current cache data.');
@@ -153,12 +190,12 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 	}
 	cache.set('data-version', HOOK_DATA_VERSION);
 
-	var libraryHashMap = {};
-	var packageNameMap = {};
+	const libraryHashMap = {};
+	const packageNameMap = {};
 
 	logger.trace('Pre-compile hook: Transforming bundled .aar libraries');
-	async.eachSeries(transformTasks, function(transformTaskInfo, next) {
-		var aarPathAndFilename = transformTaskInfo.aarPathAndFilename;
+	async.eachSeries(transformTasks, function (transformTaskInfo, next) {
+		const aarPathAndFilename = transformTaskInfo.aarPathAndFilename;
 		async.waterfall([
 			/**
 			 * Create a hash from the AAR file we are about to transform.
@@ -169,14 +206,14 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 			 * @param {Function} done Function to call once the hash has been computed
 			 */
 			function hashFile(done) {
-				var hash = crypto.createHash('sha1');
-				var fileReadStream = fs.createReadStream(aarPathAndFilename);
-				fileReadStream.on('readable', function() {
-					var data = fileReadStream.read();
+				const hash = crypto.createHash('sha1');
+				const fileReadStream = fs.createReadStream(aarPathAndFilename);
+				fileReadStream.on('readable', function () {
+					const data = fileReadStream.read();
 					if (data) {
 						hash.update(data);
 					} else {
-						var finalHash = hash.digest('hex');
+						const finalHash = hash.digest('hex');
 						done(null, finalHash);
 					}
 				});
@@ -194,7 +231,7 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 					return done(null, hash);
 				}
 
-				logger.trace('Skipping ' + aarPathAndFilename.cyan + ' because it is a duplicate of ' + libraryHashMap[hash].aarPathAndFilename.cyan);
+				logger.trace('Skipping ' + aarPathAndFilename.cyan + ' because it is a duplicate of ' + libraryHashMap[hash].packageName.cyan);
 				done(new SkipLibraryError());
 			},
 
@@ -214,15 +251,15 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 			 */
 			function doTransform(hash, done) {
 				if (cache.has(hash)) {
-					var cacheData = cache.get(hash);
+					const cacheData = cache.get(hash);
 					if (cacheData.task.aarPathAndFilename === transformTaskInfo.aarPathAndFilename && fs.existsSync(cacheData.explodedPath)) {
 						logger.trace(aarPathAndFilename.cyan + ' has not changed since last built, skipping transform task.');
 						return done(null, cacheData);
 					}
 				}
 
-				var transformer = new AarTransformer(logger);
-				var transformOptions = {
+				const transformer = new AarTransformer(logger);
+				const transformOptions = {
 					aarPathAndFilename: aarPathAndFilename,
 					outputPath: aarOutputPath,
 				};
@@ -236,7 +273,7 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 						return done(err);
 					}
 
-					var libraryInfo = {
+					const libraryInfo = {
 						packageName: result.packageName,
 						explodedPath: result.explodedPath,
 						jars: result.jars,
@@ -264,7 +301,7 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 				function formatDupeInfo(dupeLibraryInfo) {
 					var infoString = dupeLibraryInfo.task.aarPathAndFilename + ' (hash: ' + dupeLibraryInfo.sha256;
 					if (dupeLibraryInfo.task.originType === LIBRARY_ORIGIN_MODULE) {
-						infoString += ', origin: Module ' + dupeLibraryInfo.task.moduleInfo.id;
+						infoString += ', origin: Module';
 					} else if (dupeLibraryInfo.task.originType === LIBRARY_ORIGIN_PORJECT) {
 						infoString += ', origin: Project';
 					}
@@ -273,9 +310,9 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 					return infoString;
 				}
 
-				var existingLibrary = packageNameMap[libraryInfo.packageName];
+				const existingLibrary = packageNameMap[libraryInfo.packageName];
 				if (existingLibrary) {
-					var errorMessage = 'Conflicting Android Libraries with package name "' + libraryInfo.packageName + '" detected:\n';
+					let errorMessage = 'Conflicting Android Libraries with package name "' + libraryInfo.packageName + '" detected:\n';
 					errorMessage += '  ' + formatDupeInfo(existingLibrary) + '\n';
 					errorMessage += '  ' + formatDupeInfo(libraryInfo) + '\n\n';
 					if (existingLibrary.task.originType === LIBRARY_ORIGIN_MODULE && libraryInfo.task.originType === LIBRARY_ORIGIN_MODULE) {
@@ -301,7 +338,7 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 			 */
 			function updateBuilderWithTransformResult(libraryInfo, done) {
 				if (buildVariant === BUILD_VARIANT_MODULE) {
-					libraryInfo.jars.forEach(function(jarPathAndFilename) {
+					libraryInfo.jars.forEach(function (jarPathAndFilename) {
 						builder.classPaths[jarPathAndFilename] = 1;
 					});
 				}
@@ -321,14 +358,14 @@ function transformAndroidLibraries(transformTasks, builder, buildVariant, logger
 
 			next(err);
 		});
-	}, function(err) {
+	}, function (err) {
 		if (err) {
 			return callback(err);
 		}
 
 		// Clean up the cache if files were removed
-		var hashes = Object.keys(libraryHashMap);
-		var unusedKeys = cache.keys().filter((key) => {
+		const hashes = Object.keys(libraryHashMap);
+		const unusedKeys = cache.keys().filter((key) => {
 			// exlcude our version meta data key from being removed
 			if (key === 'data-version') {
 				return false;
@@ -377,6 +414,8 @@ class SimpleFileCache {
 
 	/**
 	 * Gets an entry from this cache identfied by key.
+	 * @param {object} key cache key
+	 * @return {object|null}
 	 */
 	get(key) {
 		return this.has(key) ? this.data[key] : null;
@@ -399,6 +438,7 @@ class SimpleFileCache {
 	 * Checks if this cache contains an entry for the specified key.
 	 *
 	 * @param {String} key The key to check for
+	 * @return {boolean}
 	 */
 	has(key) {
 		return this.data.hasOwnProperty(key);
@@ -406,6 +446,7 @@ class SimpleFileCache {
 
 	/**
 	 * Returns all keys that are currently in this cache.
+	 * @return {object[]}
 	 */
 	keys() {
 		return Object.keys(this.data);
@@ -440,7 +481,7 @@ class SimpleFileCache {
 	 */
 	persist() {
 		var dataToWrite = JSON.stringify(this.data);
-		if (!fs.exists(path.dirname(this.cachePathAndFilename))) {
+		if (!fs.existsSync(path.dirname(this.cachePathAndFilename))) {
 			wrench.mkdirSyncRecursive(path.dirname(this.cachePathAndFilename));
 		}
 		fs.writeFileSync(this.cachePathAndFilename, dataToWrite);
@@ -458,18 +499,19 @@ class SimpleFileCache {
  * @param {Object} logger Logger instance
  */
 function registerHyperloopCompatibilityFixes(cli, builder, appc, logger) {
-	var hyperloopModule = null;
+	let hyperloopModule = null;
 	builder.nativeLibModules.some(function (module) {
 		if (module.id === 'hyperloop' && appc.version.lt(module.version, '2.2.0')) {
 			hyperloopModule = module;
 			return true;
 		}
+		return false;
 	});
 	if (hyperloopModule === null) {
 		return;
 	}
 
-	var hyperloopBuildPath = path.join(builder.projectDir, 'build/hyperloop/android');
+	const hyperloopBuildPath = path.join(builder.projectDir, 'build/hyperloop/android');
 
 	cli.on('build.android.aapt', {
 		priority: 1100,
@@ -478,26 +520,27 @@ function registerHyperloopCompatibilityFixes(cli, builder, appc, logger) {
 		 *
 		 * @param {Object} data Hook data
 		 * @param {Function} callback Callback function
+		 * @return {undefined}
 		 */
 		pre: function (data, callback) {
 			logger.trace('Cleaning AAPT options from changes made by Hyperloop');
-			var aaptOptions = data.args[1];
-			var extraPackagesIndex = aaptOptions.indexOf('--extra-packages') + 1;
+			const aaptOptions = data.args[1];
+			const extraPackagesIndex = aaptOptions.indexOf('--extra-packages') + 1;
 			if (extraPackagesIndex === -1) {
 				return callback();
 			}
-			var extraPackages = aaptOptions[extraPackagesIndex];
-			var parameterIndex = aaptOptions.indexOf('-S');
-			var packageNameRegex = /package="(.*)"/;
+			let extraPackages = aaptOptions[extraPackagesIndex];
+			let parameterIndex = aaptOptions.indexOf('-S');
+			const packageNameRegex = /package="(.*)"/;
 			while (parameterIndex !== -1) {
-				var resourcePath = aaptOptions[parameterIndex + 1];
+				const resourcePath = aaptOptions[parameterIndex + 1];
 				if (resourcePath.indexOf(hyperloopBuildPath) !== -1) {
-					var manifestPathAndFilename = path.join(resourcePath, '../AndroidManifest.xml');
+					const manifestPathAndFilename = path.join(resourcePath, '../AndroidManifest.xml');
 					if (fs.existsSync(manifestPathAndFilename)) {
-						var manifestContent = fs.readFileSync(manifestPathAndFilename).toString();
-						var packageNameMatch = manifestContent.match(packageNameRegex);
+						const manifestContent = fs.readFileSync(manifestPathAndFilename).toString();
+						const packageNameMatch = manifestContent.match(packageNameRegex);
 						if (packageNameMatch !== null) {
-							var packageName = packageNameMatch[1];
+							const packageName = packageNameMatch[1];
 							extraPackages = extraPackages.split(':').filter(n => n !== packageName).join(':');
 							logger.trace('Removed package ' + packageName + ' from AAPT --extra-packages option');
 						}
@@ -514,7 +557,6 @@ function registerHyperloopCompatibilityFixes(cli, builder, appc, logger) {
 		}
 	});
 
-
 	cli.on('build.android.dexer', {
 		priority: 1100,
 		/**
@@ -526,11 +568,11 @@ function registerHyperloopCompatibilityFixes(cli, builder, appc, logger) {
 		 */
 		pre: function (data, callback) {
 			logger.trace('Cleaning dexer paths from changes made by Hyperloop');
-			var builder = data.ctx;
-			var dexerOptions = data.args[1].slice(0, 6);
-			var dexerPaths = data.args[1].slice(6);
+			const builder = data.ctx;
+			const dexerOptions = data.args[1].slice(0, 6);
+			const dexerPaths = data.args[1].slice(6);
 			if (builder.androidLibraries.length > 0) {
-				var fixedDexerPaths = [];
+				const fixedDexerPaths = [];
 				dexerPaths.forEach(function (entryPathAndFilename) {
 					var isHyperloopExtractedAarPath = entryPathAndFilename.indexOf(hyperloopBuildPath) !== -1;
 					if (builder.isExternalAndroidLibraryAvailable(entryPathAndFilename) || isHyperloopExtractedAarPath) {

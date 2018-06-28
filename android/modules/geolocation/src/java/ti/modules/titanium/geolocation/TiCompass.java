@@ -25,8 +25,7 @@ import android.location.Location;
 import android.os.SystemClock;
 
 @SuppressWarnings("deprecation")
-public class TiCompass
-	implements SensorEventListener
+public class TiCompass implements SensorEventListener
 {
 	private static final String TAG = "TiCompass";
 	private static final int DECLINATION_CHECK_INTERVAL = 60 * 1000;
@@ -42,7 +41,6 @@ public class TiCompass
 	private Criteria locationCriteria = new Criteria();
 	private Location geomagneticFieldLocation;
 	private long lastDeclinationCheck;
-
 
 	public TiCompass(GeolocationModule geolocationModule, TiLocation tiLocation)
 	{
@@ -69,10 +67,10 @@ public class TiCompass
 	{
 		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
 			long eventTimestamp = event.timestamp / 1000000;
-			
+
 			if (eventTimestamp - lastEventInUpdate > 250) {
 				long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
-				
+
 				lastEventInUpdate = eventTimestamp;
 
 				Object filter = geolocationModule.getProperty(TiC.PROPERTY_HEADING_FILTER);
@@ -105,23 +103,24 @@ public class TiCompass
 		heading.put(TiC.PROPERTY_Z, z);
 		heading.put(TiC.PROPERTY_MAGNETIC_HEADING, x);
 		heading.put(TiC.PROPERTY_ACCURACY, event.accuracy);
+		heading.put(TiC.PROPERTY_SUCCESS, true);
 
 		if (Log.isDebugModeEnabled()) {
-			switch(event.accuracy) {
-			case SensorManager.SENSOR_STATUS_UNRELIABLE :
-				Log.i(TAG, "Compass accuracy unreliable");
-				break;
-			case SensorManager.SENSOR_STATUS_ACCURACY_LOW :
-				Log.i(TAG, "Compass accuracy low");
-				break;
-			case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM :
-				Log.i(TAG, "Compass accuracy medium");
-				break;
-			case SensorManager.SENSOR_STATUS_ACCURACY_HIGH :
-				Log.i(TAG, "Compass accuracy high");
-				break;
-			default :
-				Log.w(TAG, "Unknown compass accuracy value: " + event.accuracy);
+			switch (event.accuracy) {
+				case SensorManager.SENSOR_STATUS_UNRELIABLE:
+					Log.i(TAG, "Compass accuracy unreliable");
+					break;
+				case SensorManager.SENSOR_STATUS_ACCURACY_LOW:
+					Log.i(TAG, "Compass accuracy low");
+					break;
+				case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM:
+					Log.i(TAG, "Compass accuracy medium");
+					break;
+				case SensorManager.SENSOR_STATUS_ACCURACY_HIGH:
+					Log.i(TAG, "Compass accuracy high");
+					break;
+				default:
+					Log.w(TAG, "Unknown compass accuracy value: " + event.accuracy);
 			}
 		}
 
@@ -138,7 +137,7 @@ public class TiCompass
 		return data;
 	}
 
-    /*
+	/*
      * Check whether a fresher location is available and update the GeomagneticField 
      * that we use for correcting the magnetic heading. If the location is stale,
      * use it anyway but log a warning.
@@ -153,7 +152,9 @@ public class TiCompass
 				Location location = tiLocation.locationManager.getLastKnownLocation(provider);
 				if (location != null) {
 					if (geomagneticFieldLocation == null || (location.getTime() > geomagneticFieldLocation.getTime())) {
-						geomagneticField = new GeomagneticField((float)location.getLatitude(), (float)location.getLongitude(), (float)(location.getAltitude()), currentTime);
+						geomagneticField =
+							new GeomagneticField((float) location.getLatitude(), (float) location.getLongitude(),
+												 (float) (location.getAltitude()), currentTime);
 						geomagneticFieldLocation = location;
 					}
 				}
@@ -183,27 +184,28 @@ public class TiCompass
 
 	public void getCurrentHeading(final KrollFunction listener)
 	{
-		if(listener != null) {
-			final SensorEventListener oneShotHeadingListener = new SensorEventListener()
-			{
-				public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+		if (listener != null) {
+			final SensorEventListener oneShotHeadingListener = new SensorEventListener() {
+				public void onAccuracyChanged(Sensor sensor, int accuracy)
+				{
 				}
 
-				public void onSensorChanged(SensorEvent event) {
+				public void onSensorChanged(SensorEvent event)
+				{
 					if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
 						long eventTimestamp = event.timestamp / 1000000;
 						long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
 
-						listener.callAsync(geolocationModule.getKrollObject(), new Object[] { eventToHashMap(event, actualTimestamp) });
+						listener.callAsync(geolocationModule.getKrollObject(),
+										   new Object[] { eventToHashMap(event, actualTimestamp) });
 						TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
 					}
 				}
 			};
 
 			updateDeclination();
-			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
+			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener,
+											SensorManager.SENSOR_DELAY_UI);
 		}
 	}
 }
-

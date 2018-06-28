@@ -1,0 +1,217 @@
+---
+name: Titanium.Android.QuickSettingsService
+summary: Android service for creating custom quick settings tiles and handling user's interaction with them.
+description: |
+    A special kind of service providing access to a tile in the quick settings menu. Used for customization
+    and event handling of the tile. Usage is similar to default <Titanium.Android.Service> but with the
+    addition of some specific attributes and methods. This service is not started from within the application 
+    with the help of an Intent, but instead whenever the custom tile is added in the quick settings menu by the
+    user. Applications can have multiple tiles in the quick settigs menu, but a <Titanium.Android.QuickSettingsService>
+    corresponds to a single one - you need separate service file for every tile.
+
+    To create a service file:
+
+      1. Write the JavaScript code you want the service to execute in a separate file.
+         The service can execute any Titanium APIs but you should only use non-UI APIs.
+      2. Register the service in your `tiapp.xml` file. Refer to the example below.
+
+      Icons used for the 'icon' attribute in the service declaration in tiapp.xml must
+      be in the Android drawables folder, so they you should be put under
+      `platform/android/res/drawable`
+      Icons added with the setIcon method can be outside the directory.
+
+    To get a reference to the `Service` inside the JavaScript service code, use the
+    <Titanium.Android.currentService> property to retrieve a reference to the service,
+
+    Further Reading:
+
+      * [Android Quick Settings Tile API](https://developer.android.com/about/versions/nougat/android-7.0.html#tile_api)
+
+extends: Titanium.Android.Service
+platforms: [android]
+since: "7.0"
+methods:
+  - name: updateTile
+    summary: Applies current tile's properties.
+    description: |
+        Updates the Tile's with it's current label, icon and state.
+
+  - name: setIcon
+    summary: Changes the Tile's icon.
+    description: |
+      If no image is passed as Tile icon it will use the Application's one.
+    parameters: 
+      - name: icon
+        summary: Source of the icon image
+        type: [String, Titanium.Blob, Titanium.Filesystem.File]
+
+  - name: setState
+    summary: Sets the state of the Tile.
+    description: |
+      State can be one of the following: [TILE_STATE_UNAVAILABLE](Titanium.Android.TILE_STATE_UNAVAILABLE),
+      [TILE_STATE_INACTIVE](Titanium.Android.TILE_STATE_INACTIVE),
+      [TILE_STATE_ACTIVE](Titanium.Android.TILE_STATE_ACTIVE)
+    parameters:
+      - name: state
+        summary: State to be set.
+        type: Number
+        constants: Titanium.Android.TILE_STATE_*
+
+  - name: setLabel
+    summary: Changes the Tile's label.
+    description: |
+      If no label is set the Tile uses the Application name.
+    parameters: 
+      - name: label
+        summary: String to be used.
+        type: String
+
+  - name: getIcon
+    summary: Returns the Tile's current icon.
+    returns:
+        type: [String, Titanium.Blob, Titanium.Filesystem.File]
+
+  - name: getState
+    summary: Returns the Tile's current state.
+    returns:
+        type: Number
+        constants: Titanium.Android.TILE_STATE_*
+
+  - name: getLabel
+    summary: Returns the Tile's current label.
+    returns:
+        type: String
+
+  - name: isLocked
+    summary: Returns 'true' if the device is currently locked, 'false' otherwise.
+    returns:
+        type: Boolean
+
+  - name: isSecure
+    summary: Returns 'true' if the device is in secure state, 'false' otherwise.
+    returns:
+        type: Boolean
+
+  - name: showDialog
+    summary: Opens an Alert dialog.
+    description: |
+      Creates and shows a default Alert dialog with the provided options dictionary.
+
+      Note: Alert dialog only supports one of the following: message/options.
+      If you pass both - only `message` will be shown.
+    parameters:
+      - name: options
+        type: showParams
+        summary: Dictionary containing the options for the dialog.
+
+  - name: startActivityAndCollapse
+    summary: Colapses the quick settings menu and starts an activity for the passed Intent.
+    parameters:
+      - name: intent
+        summary: Intent to be fired.
+        type: Titanium.Android.Intent
+
+  - name: unlockAndRun
+    summary: Prompts the user to unlock the device and runs the JS code.
+    parameters:
+      - name: jsCode
+        summary: JavaScript code to be evaluated.
+        type: String
+
+events:
+  - name: startlistening
+    summary: Tile is listening for events.
+    description: |
+      Dispatched whenever the user has opened the quick setting menu and the Tile is added in there.
+
+  - name: stoplistening
+    summary: Tile has stopped listening for events.
+    description: |
+      Dispatched whenever the user has collapsed the quick setting menu and the Tile is not visible.
+
+  - name: tileadded
+    summary: The Tile has been added in the quick menu.
+    description: |
+      Dispatched wheneved the user has moved the Tile for this service in the quick settings menu.
+
+  - name: tileremoved
+    summary: The Tile has been removed from the quick menu.
+    description: |
+      Dispatched wheneved the user has removed the Tile for this service from the quick settings menu.
+
+  - name: tiledialogoptionselected
+    summary: An item from the signle choice menu has been selected.
+    properties:
+      - name: itemIndex
+        summary: Index of the selected item from the single choice menu in the dialog.
+
+  - name: tiledialogcancelled
+    summary: Dispatched when the alert dialog has been cancelled.
+
+  - name: tiledialogpositive
+    summary: Dispatched when the positive (index 0) button has been clicked.
+
+  - name: tiledialogneutral
+    summary: Dispatched when the neutral (index 1) button has been clicked.
+
+  - name: tiledialognegative
+    summary: Dispatched when the negative (index 2) button has been clicked.
+
+examples:
+  - title: Update Tile Example
+    example: |
+        This example shows how to create a service in JavaScript.
+        It will update the Tile in quick settings according to the
+        user's interaction.
+
+        File: updatequicksettings.js:
+
+            var service = Ti.Android.currentService;
+            service.addEventListener('click', function () {
+
+              if (service.getState() == Ti.Android.TILE_STATE_ACTIVE) {
+                service.setState(Ti.Android.TILE_STATE_INACTIVE);
+                service.setLabel('Inactive');
+                service.setIcon('inactive.png');
+              } else {
+                service.setState(Ti.Android.TILE_STATE_ACTIVE);
+                service.setLabel('Active');
+                service.setIcon('active.png');
+              }
+              service.updateTile();
+            }
+
+        Register the service in tiapp.xml:
+
+            <ti:app>
+                <android xmlns:android="http://schemas.android.com/apk/res/android">
+                    <services>
+                        <service url="updatequicksettings.js" type="quicksettings" label="Active" icon="active.png"/>
+                    </services>
+                </android>
+            </ti:app>
+---
+name: showParams
+summary: Dictionary of options for the <Titanium.Android.QuickSettingsService.showDialog> method.
+
+properties:
+  - name: title
+    summary: String to be used as title for the dialog.
+    type: String
+
+  - name: message
+    summary: String to be used as a message for the dialog.
+    type: String
+
+  - name: buttonNames
+    summary: Array of String instances.
+    description: |
+        They will be shown as buttons' titles. They are limited up
+        to three buttons and with a predefined order - positive, neutral, negative. See events.
+    type: Array<String>
+
+  - name: options
+    summary: Array of String instances.
+    description: |
+      They will be shown as a single choice list.
+    type: Array<String>

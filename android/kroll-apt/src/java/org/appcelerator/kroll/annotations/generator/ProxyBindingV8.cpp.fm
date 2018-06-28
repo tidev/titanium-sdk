@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,11 +11,8 @@
 #include "${packageName}.${proxyClassName}.h"
 
 #include "AndroidUtil.h"
-#include "EventEmitter.h"
 #include "JNIUtil.h"
 #include "JSException.h"
-#include "Proxy.h"
-#include "ProxyFactory.h"
 #include "TypeConverter.h"
 #include "V8Util.h"
 
@@ -261,6 +258,10 @@ void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 	</#if>
 
 	jobject javaProxy = proxy->getJavaObject();
+	if (javaProxy == NULL) {
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
+	}
 	<@Proxy.callJNIMethod method.args, method.hasInvocation, method.returnType,
 		"methodID", "javaProxy", "jArguments", (method.returnType != "void") ; hasResult, resultVar>
 
@@ -296,6 +297,10 @@ void ${className}::getter_${name}(Local<Name> property, const PropertyCallbackIn
 	jvalue* jArguments = 0;
 
 	jobject javaProxy = proxy->getJavaObject();
+	if (javaProxy == NULL) {
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
+	}
 	<@Proxy.callJNIMethod property.getMethodArgs, property.getHasInvocation, property.getReturnType,
 		"methodID", "javaProxy", "jArguments", (property.getReturnType != "void") ; hasResult, resultVar>
 
@@ -330,6 +335,9 @@ void ${className}::setter_${name}(Local<Name> property, Local<Value> value, cons
 	<@Proxy.verifyAndConvertArgument expr="value" index=0 info=typeInfo logOnly=true isOptional=false/>
 
 	jobject javaProxy = proxy->getJavaObject();
+	if (javaProxy == NULL) {
+		return;
+	}
 	<@Proxy.callJNIMethod property.setMethodArgs, property.setHasInvocation, property.setReturnType, "methodID", "javaProxy", "jArguments", false ;
 		hasResult, resultVar>
 	</@Proxy.callJNIMethod>
