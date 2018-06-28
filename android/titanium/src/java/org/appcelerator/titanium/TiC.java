@@ -21,16 +21,15 @@ public class TiC
 	public static final int PERMISSION_CODE_CAMERA = 101;
 	public static final int PERMISSION_CODE_CONTACTS = 102;
 	public static final int PERMISSION_CODE_EXTERNAL_STORAGE = 103;
-	public static final int PERMISSION_CODE_LOCATION= 104;
+	public static final int PERMISSION_CODE_LOCATION = 104;
 	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
-
+	public static final int PERMISSION_CODE_MICROPHONE = 106;
 
 	public static final String PERMISSION_CALENDAR = "calendar";
 	public static final String PERMISSION_CAMERA = "camera";
 	public static final String PERMISSION_CONTACTS = "contacts";
 	public static final String PERMISSION_EXTERNAL_STORAGE = "externalstorage";
 	public static final String PERMISSION_LOCATION = "location";
-
 
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
@@ -148,6 +147,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_DRAGSTART = "dragstart";
 
 	/**
 	 * @module.api
@@ -377,6 +381,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_RECURRENCE_RULES = "recurrenceRules";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_REQUEST_CODE = "requestCode";
 
 	/**
@@ -511,6 +520,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_REFRESH_END = "refreshend";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_REFRESH_START = "refreshstart";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_REGION_CHANGED = "regionchanged";
 
 	/**
@@ -556,12 +575,27 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_SLIDE = "slide";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_START = "start";
 
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_START_LISTENING = "startlistening";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_STOP = "stop";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_STOP_LISTENING = "stoplistening";
 
 	/**
 	 * @module.api
@@ -577,6 +611,41 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_TASK_REMOVED = "taskremoved";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_ADDED = "tileadded";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_DIALOG_OPTION_SELECTED = "tiledialogoptionselected";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_DIALOG_CANCELED = "tiledialogcancelled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_DIALOG_POSITIVE = "tiledialogpositive";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_DIALOG_NEUTRAL = "tiledialogneutral";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_DIALOG_NEGATIVE = "tiledialognegative";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_TILE_REMOVED = "tileremoved";
 
 	/**
 	 * @module.api
@@ -835,6 +904,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_AUDIO_TYPE = "audioType";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_AUDIO_FOCUS = "audioFocus";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_AUTO_LINK = "autoLink";
 
 	/**
@@ -846,6 +925,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_AUTOCORRECT = "autocorrect";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_AUTOFILL_TYPE = "autofillType";
 
 	/**
 	 * @module.api
@@ -933,12 +1017,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_FEEDBACK = "touchFeedback";
-	
+
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
-	
+
 	/**
 	 * @module.api
 	 */
@@ -988,6 +1072,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BIRTHDAY = "birthday";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BLACKLIST_URL = "blacklisturl";
 
 	/**
 	 * @module.api
@@ -1052,12 +1141,52 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BYPASS_DND = "bypassDnd";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CACHE_MODE = "cacheMode";
 
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CACHE_SIZE = "cacheSize";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_MONTH = "daysOfTheMonth";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_WEEK = "daysOfTheWeek";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_DAYS_OF_THE_YEAR = "daysOfTheYear";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_ID = "calendarID";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_MONTHS_OF_THE_YEAR = "monthsOfTheYear";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CALENDAR_VIEW_SHOWN = "calendarViewShown";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CALENDAR_WEEKS_OF_THE_YEAR = "weeksOfTheYear";
 
 	/**
 	 * @module.api
@@ -1103,6 +1232,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CHARSET = "charset";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CHANNEL_ID = "channelId";
 
 	/**
 	 * @module.api
@@ -1167,6 +1301,16 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CONTENT_INSET_END_WITH_ACTIONS = "contentInsetEndWithActions";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION = "contentInsetStartWithNavigation";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
 
 	/**
@@ -1198,6 +1342,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PADDING_TOP = "paddingTop";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CENTER_VIEW = "centerView";
 
 	/**
 	 * @module.api
@@ -1267,7 +1416,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DAY_BEFORE_MONTH = "dayBeforeMonth";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DECODE_RETRIES = "decodeRetries";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DESCRIPTION = "description";
 
 	/**
 	 * @module.api
@@ -1332,6 +1491,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DRAG_MARGIN = "dragMargin";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DRAWER_INDICATOR_ENABLED = "drawerIndicatorEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DRAWER_LOCK_MODE = "drawerLockMode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DURATION = "duration";
 
 	/**
@@ -1372,7 +1546,22 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ENABLE_LIGHTS = "enableLights";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ENABLE_RETURN_KEY = "enableReturnKey";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ENABLE_VIBRATION = "enableVibration";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_END = "end";
 
 	/**
 	 * @module.api
@@ -1393,6 +1582,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_EXPIRY_DATE = "expiryDate";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_EXTEND_BACKGROUND = "extendBackground";
 
 	/**
 	 * @module.api
@@ -1433,7 +1627,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FLAGS = "flags";
-
 
 	/**
 	 * @module.api
@@ -1545,6 +1738,21 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_GROUP_KEY = "groupKey";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_GROUP_ALERT_BEHAVIOR = "groupAlertBehavior";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_GROUP_SUMMARY = "groupSummary";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_HAS_CHECK = "hasCheck";
 
 	/**
@@ -1610,7 +1818,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HINT_TEXT_ID = "hinttextid";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_HINT_TEXT_COLOR = "hintTextColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_HINT_TYPE = "hintType";
 
 	/**
 	 * @module.api
@@ -1652,7 +1870,6 @@ public class TiC
 	 */
 	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
 
-
 	/**
 	 * @module.api
 	 */
@@ -1667,6 +1884,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_IMAGES = "images";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_IMPORTANCE = "importance";
 
 	/**
 	 * @module.api
@@ -1701,6 +1923,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_INTERVAL = "interval";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ITEM_ID = "itemId";
 
 	/**
@@ -1727,6 +1954,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_KIND = "kind";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LABEL = "label";
 
 	/**
 	 * @module.api
@@ -1776,6 +2008,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LIGHT_COLOR = "lightColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
 
 	/**
@@ -1821,6 +2058,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LEFT_WIDTH = "leftWidth";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LENGTH = "length";
 
 	/**
@@ -1831,7 +2073,22 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LOCALE = "locale";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOCATION = "location";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOGO = "logo";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LOCKSCREEN_VISIBILITY = "lockscreenVisibility";
 
 	/**
 	 * @module.api
@@ -1857,6 +2114,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MAP_TYPE = "mapType";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MASK = "mask";
 
 	/**
 	 * @module.api
@@ -1901,6 +2163,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MEDIA_TYPES = "mediaTypes";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MENU = EVENT_PROPERTY_MENU;
 
 	/**
@@ -1937,14 +2204,30 @@ public class TiC
 	 */
 	public static final String PROPERTY_MIN = "min";
 
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MIN_AGE = "minAge";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MIN_UPDATE_TIME = "minUpdateTime";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MINIMUM_FONT_SIZE = "minimumFontSize";
 
 	/**
 	 * @module.api
@@ -1960,6 +2243,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MODAL = "modal";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MODE = "mode";
 
 	/**
 	 * @module.api
@@ -1984,6 +2272,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_NAVIGATION_ICON = "navigationIcon";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_NICKNAME = "nickname";
 
 	/**
@@ -1995,6 +2288,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NUMBER = "number";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NUMERIC_MONTHS = "numericMonths";
 
 	/**
 	 * @module.api
@@ -2054,7 +2352,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_ON_STOP_BLACKISTED_URL = "onStopBlacklistedUrl";
+	public static final String PROPERTY_ON_STOP_BLACKLISTED_URL = "onStopBlacklistedUrl"; // Deprecated in 6.1.0
 
 	/**
 	 * @module.api
@@ -2124,6 +2422,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_OPTED_OUT = "optedOut";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ORDER = "order";
 
 	/**
@@ -2145,6 +2448,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OVER_SCROLL_MODE = "overScrollMode";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OVERFLOW_ICON = "overflowIcon";
 
 	/**
 	 * @module.api
@@ -2274,6 +2582,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_REFRESH_CONTROL = "refreshControl";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_REGION = "region";
 
 	/**
@@ -2299,12 +2612,22 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_RELATIONSHIP = "relationship";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_REPEAT = "repeat";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_REPEAT_COUNT = "repeatCount";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_REPEAT_MODE = "repeatMode";
 
 	/**
 	 * @module.api
@@ -2337,6 +2660,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_RIGHT_VIEW = "rightView";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_RIGHT_WIDTH = "rightWidth";
 
 	/**
 	 * @module.api
@@ -2402,6 +2730,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SCROLL_TYPE = "scrollType";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SCROLLABLE = "scrollable";
 
 	/**
 	 * @module.api
@@ -2511,7 +2844,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHOW_BADGE = "showBadge";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_CANCEL = "showCancel";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SHOWS_CONTROLS = "showsControls";
 
 	/**
 	 * @module.api
@@ -2581,6 +2924,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SPLIT_TRACK = "splitTrack";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SPOUSE = "spouse";
 
 	/**
@@ -2631,6 +2979,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SUBTITLE_TEXT_COLOR = "subtitleTextColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SUBTITLEID = "subtitleid";
 
 	/**
@@ -2642,6 +2995,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SUMMARY_TEXT = "summaryText";
+
+	/**
+	 @module.api
+	 */
+	public static final String PROPERTY_SUSTAINED_PERFORMANCE_MODE = "sustainedPerformanceMode";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SUPPORT_TOOLBAR = "supportToolbar";
 
 	/**
 	 * @module.api
@@ -2726,6 +3089,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TINT = "tint";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TINT_COLOR = "tintColor";
 
 	/**
@@ -2765,6 +3133,10 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TITLE_TEXT_COLOR = "titleTextColor";
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TO = "to";
 
 	/**
@@ -2776,6 +3148,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TOOLBAR = "toolbar";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TOOLBAR_ENABLED = "toolbarEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SOUND_EFFECTS_ENABLED = "soundEffectsEnabled";
 
 	/**
 	 * @module.api
@@ -2796,6 +3183,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TRANSLATION_Z = "translationZ";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLUCENT = "translucent";
 
 	/**
 	 * @module.api
@@ -2831,6 +3223,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_USE_SPINNER = "useSpinner";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_USER_AGENT = "userAgent";
 
 	/**
 	 * @module.api
@@ -2905,6 +3302,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_WAKE_LOCK = "wakeLock";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_WEBVIEW_IGNORE_SSL_ERROR = "ignoreSslError";
 
 	/**
@@ -2964,7 +3366,17 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_X_ABSOLUTE = "absoluteX";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_Y = "y";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_Y_ABSOLUTE = "absoluteY";
 
 	/**
 	 * @module.api
@@ -2975,6 +3387,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ZINDEX = "zIndex";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ZOOM_LEVEL = "zoomLevel";
 
 	/**
 	 * @module.api
@@ -2995,6 +3412,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CUSTOM = "custom";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CUSTOM_VIEW = "customView";
 
 	/**
 	 * @module.api

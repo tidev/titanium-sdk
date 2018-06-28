@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.util;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import org.appcelerator.titanium.TiApplication;
@@ -14,7 +15,7 @@ import org.appcelerator.titanium.TiC;
 
 public class TiFileHelper2
 {
-	public static final String APP_SCHEME= "app://";
+	public static final String APP_SCHEME = "app://";
 
 	/**
 	 * Joins a path with a relative "Resources" folder
@@ -38,7 +39,7 @@ public class TiFileHelper2
 		}
 
 		String s1 = segments[0];
-		for(int i = 1; i < segments.length; i++) {
+		for (int i = 1; i < segments.length; i++) {
 			String s2 = segments[i];
 			if (s1.endsWith("/")) {
 				if (s2.startsWith("/")) {
@@ -81,19 +82,20 @@ public class TiFileHelper2
 		return null;
 	}
 
-	public static boolean hasStoragePermission() {
+	public static boolean hasStoragePermission()
+	{
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		Context context = TiApplication.getInstance().getApplicationContext();
 		// Fix for TIMOB-20434 where activity is null
-		if (currentActivity == null) {
-		    return false;
+		if (context == null) {
+			return false;
 		}
-		if (currentActivity.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+		if (context.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+			== PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
 		return false;
 	}
-
 }

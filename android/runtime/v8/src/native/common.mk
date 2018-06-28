@@ -13,18 +13,16 @@ MODULES_DIR := $(LOCAL_PATH)/../../../../modules
 UI_JS_DIR := $(MODULES_DIR)/ui/src/ti/modules/titanium/ui
 PROPERTIES_JS_DIR := $(MODULES_DIR)/app/src/ti/modules/titanium/app/properties
 
-CFLAGS := -I$(GENERATED_DIR) -I$(LOCAL_PATH)/modules -DV8_SHARED=1
+CFLAGS := -I$(GENERATED_DIR) -I$(LOCAL_PATH)/modules -DV8_SHARED=0
 
 ifeq ($(TI_DEBUG),1)
 CFLAGS += -DTI_DEBUG=1 -g
 endif
 
-# Several places in generated code we set some jvalues to NULL and
-# since NDK r8b we'd get warnings about each one.
-CFLAGS += -Wno-conversion-null
-
-# cf https://groups.google.com/forum/?fromgroups=#!topic/android-ndk/Q8ajOD37LR0
-CFLAGS += -Wno-psabi
+CFLAGS += -Wno-conversion-null -Wno-format-security -Wno-format -Wno-tautological-compare -Wno-unused-result -Wno-deprecated-register
+# Limitting the stack protector to functions with buffer larger than 4 bytes instead of the default 8
+# This is neccessary due to TIMOB-24940
+CFLAGS += -fstack-protector --param=ssp-buffer-size=4
 
 CLEAN_GEN := rm -f $(GENERATED_DIR)/*
 CLEAN_OBJ := rm -rf $(OBJ_DIR)/*
@@ -35,6 +33,32 @@ CLEAN_OBJ := if exist $(OBJ_DIR) (rd /s /q $(subst /,\\,$(OBJ_DIR)) && mkdir $(s
 endif
 
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
+
+# optimize output size
+CFLAGS += -Os -ffunction-sections -fdata-sections
+LDLIBS += -Wl,--gc-sections,--strip-all
+
+# exclude v8 libraries
+LDLIBS += -Wl,--exclude-libs=libv8_libbase
+LDLIBS += -Wl,--exclude-libs=libv8_libplatform
+# LDLIBS += -Wl,--exclude-libs=libv8_base
+LDLIBS += -Wl,--exclude-libs=libv8_nosnapshot
+LDLIBS += -Wl,--exclude-libs=libv8_builtins_generators
+LDLIBS += -Wl,--exclude-libs=libv8_builtins_setup
+
+# tune for common architectures
+ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
+	CFLAGS += -mtune=cortex-a53
+endif
+ifeq ($(TARGET_ARCH_ABI),x86)
+	CFLAGS += -mtune=atom
+	LDLIBS += -Wl,--icf=all
+endif
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+	CFLAGS += -mtune=cortex-a7
+	LDLIBS += -Wl,--icf=all
+endif
+
 ABS_SRC_FILES := \
 	$(wildcard $(LOCAL_PATH)/*.cpp) \
 	$(wildcard $(LOCAL_PATH)/modules/*.cpp)

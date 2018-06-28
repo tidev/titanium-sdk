@@ -1,68 +1,43 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
-#include <string.h>
+#include <cstring>
+#include <sstream>
 
 #include <v8.h>
+
 #include "V8Util.h"
 #include "JNIUtil.h"
 #include "JSException.h"
 #include "AndroidUtil.h"
 #include "TypeConverter.h"
 
-
 namespace titanium {
 using namespace v8;
 
 #define TAG "V8Util"
 
-Utf8Value::Utf8Value(v8::Local<v8::Value> value)
-    : length_(0), str_(str_st_) {
-  if (value.IsEmpty())
-    return;
+// DEPRECATED: Use v8::String::Utf8Value. Remove in SDK 8.0
+Utf8Value::Utf8Value(v8::Local<v8::Value> value) : length_(0), str_(str_st_)
+{
+	if (value.IsEmpty()) return;
 
-  v8::Local<v8::String> string = value.As<String>();
-  if (string.IsEmpty())
-    return;
+	v8::Local<v8::String> string = value->ToString();
+	if (string.IsEmpty()) return;
 
-  // Allocate enough space to include the null terminator
-  size_t len = (3 * string->Length()) + 1;
-  if (len > sizeof(str_st_)) {
-    str_ = static_cast<char*>(malloc(len));
-    //CHECK_NE(str_, nullptr);
-  }
+	// Allocate enough space to include the null terminator
+	size_t len = (3 * string->Length()) + 1;
+	if (len > sizeof(str_st_)) {
+		str_ = static_cast<char*>(malloc(len));
+		//CHECK_NE(str_, nullptr);
+	}
 
-  const int flags =
-      v8::String::NO_NULL_TERMINATION | v8::String::REPLACE_INVALID_UTF8;
-  length_ = string->WriteUtf8(str_, len, 0, flags);
-  str_[length_] = '\0';
-}
-
-
-TwoByteValue::TwoByteValue(v8::Local<v8::Value> value)
-    : length_(0), str_(str_st_) {
-  if (value.IsEmpty())
-    return;
-
-  v8::Local<v8::String> string = value.As<String>();
-  if (string.IsEmpty())
-    return;
-
-  // Allocate enough space to include the null terminator
-  size_t len = (string->Length() * sizeof(uint16_t)) + 1;
-  if (len > sizeof(str_st_)) {
-    str_ = static_cast<uint16_t*>(malloc(len));
-    //CHECK_NE(str_, nullptr);
-  }
-
-  const int flags =
-      v8::String::NO_NULL_TERMINATION | v8::String::REPLACE_INVALID_UTF8;
-  length_ = string->Write(str_, 0, len, flags);
-  str_[length_] = '\0';
+	const int flags = v8::String::NO_NULL_TERMINATION | v8::String::REPLACE_INVALID_UTF8;
+	length_ = string->WriteUtf8(str_, len, 0, flags);
+	str_[length_] = '\0';
 }
 
 Local<Value> V8Util::executeString(Isolate* isolate, Local<String> source, Local<Value> filename)
@@ -130,17 +105,16 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 	}
 
 	if (showLine) {
-		Local<Message> message = tryCatch.Message();
 		if (!message.IsEmpty()) {
-			titanium::Utf8Value filename(message->GetScriptResourceName());
-			titanium::Utf8Value msg(message->Get());
+			v8::String::Utf8Value filename(message->GetScriptResourceName());
+			v8::String::Utf8Value msg(message->Get());
 			int linenum = message->GetLineNumber();
 			LOGE(EXC_TAG, "Exception occurred at %s:%i: %s", *filename, linenum, *msg);
 		}
 	}
 
 	Local<Value> stackTrace = tryCatch.StackTrace();
-	titanium::Utf8Value trace(tryCatch.StackTrace());
+	v8::String::Utf8Value trace(stackTrace);
 
 	if (trace.length() > 0 && !stackTrace->IsUndefined()) {
 		LOGD(EXC_TAG, *trace);
@@ -152,12 +126,12 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 			Local<Value> name = exceptionObj->Get(nameSymbol.Get(isolate));
 
 			if (!message->IsUndefined() && !name->IsUndefined()) {
-				titanium::Utf8Value nameValue(name);
-				titanium::Utf8Value messageValue(message);
+				v8::String::Utf8Value nameValue(name);
+				v8::String::Utf8Value messageValue(message);
 				LOGE(EXC_TAG, "%s: %s", *nameValue, *messageValue);
 			}
 		} else {
-			titanium::Utf8Value error(exception);
+			v8::String::Utf8Value error(exception);
 			LOGE(EXC_TAG, *error);
 		}
 	}
@@ -170,12 +144,42 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		return;
 	}
 
+	HandleScope scope(isolate);
+
+	Local<Context> context = isolate->GetCurrentContext();
 	Local<Message> message = tryCatch.Message();
+	Local<Value> exception = tryCatch.Exception();
+
+	Local<Value> jsStack;
+	Local<Value> javaStack;
+
+	// obtain javascript and java stack traces
+	if (exception->IsObject()) {
+		Local<Object> error = exception.As<Object>();
+		jsStack = error->Get(context, STRING_NEW(isolate, "stack")).FromMaybe(Undefined(isolate).As<Value>());
+		javaStack = error->Get(context, STRING_NEW(isolate, "nativeStack")).FromMaybe(Undefined(isolate).As<Value>());
+	}
+
+	// javascript stack trace not provided? obtain current javascript stack trace
+	if (jsStack.IsEmpty() || jsStack->IsNullOrUndefined()) {
+		Local<StackTrace> frames = message->GetStackTrace();
+		if (frames.IsEmpty() || !frames->GetFrameCount()) {
+			frames = StackTrace::CurrentStackTrace(isolate, MAX_STACK);
+		}
+		if (!frames.IsEmpty()) {
+			std::string stackString = V8Util::stackTraceString(frames);
+			if (!stackString.empty()) {
+				jsStack = String::NewFromUtf8(isolate, stackString.c_str()).As<Value>();
+			}
+		}
+	}
 
 	jstring title = env->NewStringUTF("Runtime Error");
 	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, message->Get());
 	jstring resourceName = TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
 	jstring sourceLine = TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine());
+	jstring jsStackString = TypeConverter::jsValueToJavaString(isolate, env, jsStack);
+	jstring javaStackString = TypeConverter::jsValueToJavaString(isolate, env, javaStack);
 
 	env->CallStaticVoidMethod(
 		JNIUtil::krollRuntimeClass,
@@ -185,12 +189,16 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		resourceName,
 		message->GetLineNumber(),
 		sourceLine,
-		message->GetEndColumn());
+		message->GetEndColumn(),
+		jsStackString,
+		javaStackString);
 
 	env->DeleteLocalRef(title);
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
 	env->DeleteLocalRef(sourceLine);
+	env->DeleteLocalRef(jsStackString);
+	env->DeleteLocalRef(javaStackString);
 }
 
 static int uncaughtExceptionCounter = 0;
@@ -228,7 +236,7 @@ bool V8Util::constructorNameMatches(Isolate* isolate, Local<Object> object, cons
 {
 	HandleScope scope(isolate);
 	Local<String> constructorName = object->GetConstructorName();
-	return strcmp(*titanium::Utf8Value(constructorName), name) == 0;
+	return strcmp(*v8::String::Utf8Value(constructorName), name) == 0;
 }
 
 static Persistent<Function> isNaNFunction;
@@ -257,6 +265,28 @@ void V8Util::dispose()
 	nameSymbol.Reset();
 	messageSymbol.Reset();
 	isNaNFunction.Reset();
+}
+
+std::string V8Util::stackTraceString(Local<StackTrace> frames) {
+	if (frames.IsEmpty()) {
+		return std::string();
+	}
+
+	std::stringstream stack;
+
+	for (int i = 0, count = frames->GetFrameCount(); i < count; i++) {
+		v8::Local<v8::StackFrame> frame = frames->GetFrame(i);
+
+		v8::String::Utf8Value jsFunctionName(frame->GetFunctionName());
+		std::string functionName = std::string(*jsFunctionName, jsFunctionName.length());
+
+		v8::String::Utf8Value jsScriptName(frame->GetScriptName());
+		std::string scriptName = std::string(*jsScriptName, jsScriptName.length());
+
+		stack << "    at " << functionName << "(" << scriptName << ":" << frame->GetLineNumber() << ":" << frame->GetColumn() << ")" << std::endl;
+	}
+
+	return stack.str();
 }
 
 }

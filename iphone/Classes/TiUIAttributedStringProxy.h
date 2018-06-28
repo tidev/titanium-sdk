@@ -8,42 +8,41 @@
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiProxy.h"
 
-@interface TiUIAttributedStringProxy : TiProxy
-{
-	NSMutableAttributedString *_attributedString;
-	NSMutableArray *attributes;
+@interface TiUIAttributedStringProxy : TiProxy {
+  NSMutableAttributedString *_attributedString;
+  NSMutableArray *attributes;
 }
 
--(NSString*)getLink:(NSUInteger)arg;
+- (NSString *)getLink:(NSUInteger)arg;
 
 typedef enum {
-	AttributeNameFont,
-	AttributeNameParagraphStyle,
-	AttributeNameForegroundColor,
-	AttributeNameBackgroundColor,
-	AttributeNameLigature,
-	AttributeNameKern,
-	AttributeNameStrikethroughStyle,
-	AttributeNameUnderlineStyle,
-	AttributeNameStrokeColor,
-	AttributeNameStrokeWidth,
-	AttributeNameShadow,
-	AttributeNameVerticalGlyphForm,
-	AttributeNameWritingDirection,
-	AttributeNameTextEffect,
-	AttributeNameAttachment,
-	AttributeNameLink,
-	AttributeNameBaselineOffset,
-	AttributeNameUnderlineColor,
-	AttributeNameStrikethroughColor,
-	AttributeNameObliqueness,
-	AttributeNameExpansion,
-    AttributeNameLineBreak
+  AttributeNameFont,
+  AttributeNameParagraphStyle,
+  AttributeNameForegroundColor,
+  AttributeNameBackgroundColor,
+  AttributeNameLigature,
+  AttributeNameKern,
+  AttributeNameStrikethroughStyle,
+  AttributeNameUnderlineStyle,
+  AttributeNameStrokeColor,
+  AttributeNameStrokeWidth,
+  AttributeNameShadow,
+  AttributeNameVerticalGlyphForm,
+  AttributeNameWritingDirection,
+  AttributeNameTextEffect,
+  AttributeNameAttachment,
+  AttributeNameLink,
+  AttributeNameBaselineOffset,
+  AttributeNameUnderlineColor,
+  AttributeNameStrikethroughColor,
+  AttributeNameObliqueness,
+  AttributeNameExpansion,
+  AttributeNameLineBreak
 } AttributeName;
 
 #pragma mark - Not exposed to JS. Internal Use Only.
-@property(nonatomic, readonly) NSMutableAttributedString *attributedString;
-@property(nonatomic, readonly) NSMutableDictionary *urls;
+@property (nonatomic, readonly) NSMutableAttributedString *attributedString;
+@property (nonatomic, readonly) NSMutableDictionary *urls;
 @end
 
 #endif

@@ -11,7 +11,7 @@ description: |
     `type`, `value` and `range`.
 
     For examples of using Attributed Strings, see the
-    [Attributed Strings guide](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.iOS.AttributedString).
+    [Attributed Strings guide](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.iOS.AttributedString).
 platforms: [iphone, ipad]
 extends: Titanium.Proxy
 since: "3.2"
@@ -88,8 +88,7 @@ properties:
                 color: 'red'
             }
 
-        If you use the <Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT>, you must use the only supported iOS 7 constant
-        <Titanium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE>.
+        If you use the <Titanium.UI.iOS.ATTRIBUTE_TEXT_EFFECT>, you must use the <Titanium.UI.iOS.ATTRIBUTE_LETTERPRESS_STYLE> constant.
 
     type: Number
     constants: [ Titanium.UI.iOS.ATTRIBUTE_UNDERLINE_STYLE_*,

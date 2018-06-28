@@ -5,18 +5,19 @@
 // (c) 2009-* Stephen Celis, <stephen@stephencelis.com>.
 // Released under the MIT License.
 //
-#ifdef USE_TI_MEDIA
 
-#import <Foundation/Foundation.h>
+#if defined(USE_TI_MEDIASTARTMICROPHONEMONITOR) || defined(USE_TI_MEDIASTOPMICROPHONEMONITOR) || defined(USE_TI_MEDIAPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAGETPEAKMICROPHONEPOWER) || defined(USE_TI_MEDIAAVERAGEMICROPHONEPOWER) || defined(USE_TI_MEDIAGETAVERAGEMICROPHONEPOWER)
+
 #import <AudioToolbox/AudioQueue.h>
 #import <AudioToolbox/AudioServices.h>
+#import <Foundation/Foundation.h>
 
 @interface SCListener : NSObject {
-	AudioQueueLevelMeterState *levels;
-	
-	AudioQueueRef queue;
-	AudioStreamBasicDescription format;
-	Float64 sampleRate;
+  AudioQueueLevelMeterState *levels;
+
+  AudioQueueRef queue;
+  AudioStreamBasicDescription format;
+  Float64 sampleRate;
 }
 
 + (SCListener *)sharedListener;

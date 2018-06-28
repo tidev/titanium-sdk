@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.graphics.Color;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -16,6 +17,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiColorHelper;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
@@ -23,19 +25,20 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import ti.modules.titanium.ui.widget.tableview.TiTableViewRowProxyItem;
 import android.app.Activity;
 import android.os.Message;
-
-@Kroll.proxy(creatableInModule=UIModule.class,
-propertyAccessors = {
-	TiC.PROPERTY_HAS_CHECK,
-	TiC.PROPERTY_HAS_CHILD,
-	TiC.PROPERTY_CLASS_NAME,
-	TiC.PROPERTY_LAYOUT,
-	TiC.PROPERTY_LEFT_IMAGE,
-	TiC.PROPERTY_RIGHT_IMAGE,
-	TiC.PROPERTY_TITLE,
-	TiC.PROPERTY_HEADER,
-	TiC.PROPERTY_FOOTER
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_HAS_CHECK,
+		TiC.PROPERTY_HAS_CHILD,
+		TiC.PROPERTY_CLASS_NAME,
+		TiC.PROPERTY_LAYOUT,
+		TiC.PROPERTY_LEFT_IMAGE,
+		TiC.PROPERTY_RIGHT_IMAGE,
+		TiC.PROPERTY_TITLE,
+		TiC.PROPERTY_HEADER,
+		TiC.PROPERTY_FOOTER
 })
+// clang-format on
 public class TableViewRowProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewRowProxy";
@@ -48,7 +51,6 @@ public class TableViewRowProxy extends TiViewProxy
 	public TableViewRowProxy()
 	{
 		super();
-
 		// TIMOB-24058: Prevent setOnClickListener() from being set allowing
 		// backgroundSelectedColor and backgroundSelectedImage to function
 		defaultValues.put(TiC.PROPERTY_TOUCH_ENABLED, false);
@@ -76,6 +78,18 @@ public class TableViewRowProxy extends TiViewProxy
 		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
 			Log.w(TAG, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead");
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, options.get(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE));
+		}
+		if (!options.containsKey(TiC.PROPERTY_COLOR)) {
+			if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+				int color = TiColorHelper.parseColor((String) options.get(TiC.PROPERTY_BACKGROUND_COLOR));
+				if (Math.abs(color - Color.WHITE) < Math.abs(color - Color.BLACK)) {
+					options.put(TiC.PROPERTY_COLOR, "black");
+				} else {
+					options.put(TiC.PROPERTY_COLOR, "white");
+				}
+			} else {
+				options.put(TiC.PROPERTY_COLOR, "white");
+			}
 		}
 	}
 
@@ -112,7 +126,8 @@ public class TableViewRowProxy extends TiViewProxy
 	}
 
 	@Override
-	public void add(Object args) {
+	public void add(Object args)
+	{
 		if (args == null) {
 			Log.e(TAG, "Add called with a null child");
 			return;
@@ -258,13 +273,14 @@ public class TableViewRowProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		super.releaseViews();
+
 		if (tableViewItem != null) {
 			tableViewItem.release();
 			tableViewItem = null;
 		}
 		if (controls != null) {
 			for (TiViewProxy control : controls) {
-				control.releaseViews();
+				control.releaseKroll();
 			}
 		}
 	}

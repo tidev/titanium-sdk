@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,7 @@
 # define LOGD(tag, ...) LOG(DEBUG, tag, __VA_ARGS__)
 # define LOG_TIMER(tag, desc) LogTimer timer(tag, desc)
 # define ASSERT(expr) \
-    if (!(expr)) { \
+	if (!(expr)) { \
 		LOGE("assert", "Assert failure @ [%s:%d]", __FILE__, __LINE__); \
 		abort(); \
 	}

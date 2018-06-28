@@ -13,8 +13,8 @@ import os, re, sys
 thisDir = os.path.abspath(os.path.dirname(__file__))
 androidDir = os.path.abspath(os.path.join(thisDir, "..", "..", ".."))
 
-# We package simplejson in the support/common directory.
-commonSupportDir = os.path.abspath(os.path.join(androidDir, "..", "support", "common"))
+# We package simplejson in our directory.
+commonSupportDir = os.path.abspath(os.path.join(thisDir))
 sys.path.append(commonSupportDir)
 
 try:
@@ -30,10 +30,8 @@ genDir = os.path.join(os.path.dirname(thisDir), "generated")
 if not os.path.exists(genDir):
 	os.makedirs(genDir)
 
-androidModuleDir = os.path.abspath(os.path.join(androidDir, "..", "support", "module", "android"))
 jsonDir = os.path.abspath(os.path.join(androidDir, "..", "dist", "android", "json"))
 
-sys.path.append(androidModuleDir)
 import bootstrap
 
 def loadBindings():
@@ -101,4 +99,3 @@ def main():
 
 if __name__ == "__main__":
 	main()
-

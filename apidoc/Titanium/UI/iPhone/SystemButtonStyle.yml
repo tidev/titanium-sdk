@@ -40,6 +40,7 @@ platforms: [iphone, ipad]
 createable: false
 deprecated:
     since: "5.4.0"
+    removed: "7.0.0"
     notes: Use <Titanium.UI.iOS.SystemButtonStyle> instead.
 
 properties:
@@ -64,7 +65,6 @@ properties:
         
         When used with [ButtonBar](Titanium.UI.ButtonBar) or [TabbedBar](Titanium.UI.iOS.TabbedBar), 
         specifies a standard bar with a heavier border.
-    description: |
     type: Number
     permission: read-only
     

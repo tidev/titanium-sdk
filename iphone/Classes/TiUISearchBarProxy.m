@@ -20,80 +20,171 @@
 
 #pragma mark Method forwarding
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.SearchBar";
+  return @"Ti.UI.SearchBar";
 }
 
--(void)blur:(id)args
+- (void)blur:(id)args
 {
-	[self makeViewPerformSelector:@selector(blur:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+  [self makeViewPerformSelector:@selector(blur:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
--(void)focus:(id)args
+- (void)focus:(id)args
 {
-	[self makeViewPerformSelector:@selector(focus:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+  [self makeViewPerformSelector:@selector(focus:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 - (void)windowWillClose
 {
-    if([self viewInitialized])
-    {
-        [self makeViewPerformSelector:@selector(blur:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+  if ([self viewInitialized]) {
+    [self makeViewPerformSelector:@selector(blur:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+  }
+  [super windowWillClose];
+}
+
+- (void)setShowCancel:(id)value withObject:(id)object
+{
+  BOOL boolValue = [TiUtils boolValue:value];
+  BOOL animated = [TiUtils boolValue:@"animated" properties:object def:NO];
+  //TODO: Value checking and exception generation, if necessary.
+
+  [self replaceValue:value forKey:@"showCancel" notification:NO];
+  showsCancelButton = boolValue;
+
+  //ViewAttached gives a false negative when not attached to a window.
+  TiThreadPerformOnMainThread(^{
+    UISearchBar *search = [self searchBar];
+    [search setShowsCancelButton:showsCancelButton animated:animated];
+    [search sizeToFit];
+  },
+      NO);
+}
+
+- (void)setDelegate:(id<UISearchBarDelegate>)delegate
+{
+  [self makeViewPerformSelector:@selector(setDelegate:) withObject:delegate createIfNeeded:(delegate != nil) waitUntilDone:YES];
+}
+
+- (UISearchBar *)searchBar
+{
+  return [(TiUISearchBar *)[self view] searchBar];
+}
+
+- (void)setSearchBar:(UISearchBar *)searchBar
+{
+  // In UISearchController searchbar is readonly. We have to replace that search bar with existing search bar of proxy.
+  [(TiUISearchBar *)[self view] setSearchBar:searchBar];
+
+  // Set search bar properties to new search bar
+  NSDictionary *properties = [self allProperties];
+  for (NSString *key in properties.allKeys) {
+    SEL selector = SetterForKrollProperty(key);
+    if ([(TiUISearchBar *)[self view] respondsToSelector:selector]) {
+      [(TiUISearchBar *)[self view] performSelector:selector withObject:[properties objectForKey:key]];
     }
-    [super windowWillClose];
+  }
 }
 
--(void)setShowCancel:(id)value withObject:(id)object
+- (void)ensureSearchBarHierarchy
 {
-	BOOL boolValue = [TiUtils boolValue:value];
-	BOOL animated = [TiUtils boolValue:@"animated" properties:object def:NO];
-	//TODO: Value checking and exception generation, if necessary.
-
-	[self replaceValue:value forKey:@"showCancel" notification:NO];
-	showsCancelButton = boolValue;
-
-	//ViewAttached gives a false negative when not attached to a window.
-	TiThreadPerformOnMainThread(^{
-		UISearchBar *search = [self searchBar];
-		[search setShowsCancelButton:showsCancelButton animated:animated];
-		[search sizeToFit];
-	}, NO);
-}
-
-
--(void)setDelegate:(id<UISearchBarDelegate>)delegate
-{
-    [self makeViewPerformSelector:@selector(setDelegate:) withObject:delegate createIfNeeded:(delegate!=nil) waitUntilDone:YES];
-}
-
--(UISearchBar*)searchBar
-{
-	return [(TiUISearchBar*)[self view] searchBar];
-}
-
--(void)ensureSearchBarHeirarchy
-{
-    WARN_IF_BACKGROUND_THREAD;
-    if ([self viewAttached]) {
-        UISearchBar* searchBar = [self searchBar];
-        if ([searchBar superview] != view) {
-            [view addSubview:searchBar];
-            [searchBar setFrame:[view bounds]];
-        }
+  WARN_IF_BACKGROUND_THREAD;
+  if ([self viewAttached]) {
+    UISearchBar *searchBar = [self searchBar];
+    if ([searchBar superview] != view) {
+      [view addSubview:searchBar];
     }
-    
+    [searchBar setFrame:[view bounds]];
+  }
 }
 
-
--(NSMutableDictionary*)langConversionTable
+- (NSMutableDictionary *)langConversionTable
 {
-    return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"prompt",@"promptid",@"hintText",@"hinttextid",nil];
+  return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"prompt", @"promptid", @"hintText", @"hinttextid", nil];
 }
 
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
+}
+
+#pragma mark getters
+
+- (NSString *)value
+{
+  return [[self searchBar] text];
+}
+
+- (NSNumber *)showBookmark
+{
+  return NUMBOOL([[self searchBar] showsBookmarkButton]);
+}
+
+- (NSNumber *)showCancel
+{
+  return NUMBOOL([[self searchBar] showsCancelButton]);
+}
+
+- (NSString *)hintText
+{
+  return [[self searchBar] placeholder];
+}
+
+- (id)hintTextColor
+{
+  return [self valueForUndefinedKey:@"hintTextColor"];
+}
+
+- (id)color
+{
+  return [self valueForUndefinedKey:@"color"];
+}
+
+- (NSNumber *)keyboardType
+{
+  return NUMINT([[self searchBar] keyboardType]);
+}
+
+- (NSNumber *)keyboardAppearance
+{
+  return NUMINT([[self searchBar] keyboardAppearance]);
+}
+
+- (NSString *)prompt
+{
+  return [[self searchBar] prompt];
+}
+
+- (NSNumber *)autocorrect
+{
+  UITextAutocorrectionType autocorrectionType = [[self searchBar] autocorrectionType];
+  if (autocorrectionType == UITextAutocorrectionTypeYes) {
+    return NUMBOOL(YES);
+  } else if (autocorrectionType == UITextAutocorrectionTypeNo) {
+    return NUMBOOL(NO);
+  } else {
+    return nil;
+  }
+}
+
+- (NSNumber *)autocapitalization
+{
+  return NUMINT([[self searchBar] autocapitalizationType]);
+}
+
+- (id)tintColor
+{
+  return [self valueForUndefinedKey:@"tintColor"];
+}
+
+- (id)barColor
+{
+  return [self valueForUndefinedKey:@"barColor"];
+}
+
+- (NSNumber *)style
+{
+  return NUMINT([[self searchBar] searchBarStyle]);
 }
 
 USE_VIEW_FOR_CONTENT_HEIGHT

@@ -41,8 +41,8 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			textView.setId(101);
 			textView.setFocusable(false);
 			textView.setFocusableInTouchMode(false);
-			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.MATCH_PARENT);
+			RelativeLayout.LayoutParams params =
+				new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 			params.addRule(CENTER_VERTICAL);
 			params.alignWithParent = true;
 			addView(textView, params);
@@ -50,10 +50,10 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			setPadding(0, 0, 0, 0);
 			setMinimumHeight((int) TiUIHelper.getRawDIPSize(18, context));
 			setVerticalFadingEdgeEnabled(false);
-			TiUIHelper.styleText(textView, "", "10dp", "normal"); // TODO font
-			textView.setBackgroundColor(Color.DKGRAY);
-			textView.setTextColor(Color.LTGRAY);
-			TiUIHelper.setTextViewDIPPadding(textView, 4, 2);
+			TiUIHelper.styleText(textView, "", "14sp", "normal"); // TODO font
+			textView.setBackgroundColor(Color.rgb(169, 169, 169));
+			textView.setTextColor(Color.WHITE);
+			TiUIHelper.setTextViewDIPPadding(textView, 5, 0);
 		}
 
 		public void setRowData(Item item)
@@ -102,7 +102,10 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 
 	public Item getRowData()
 	{
-		return rowView.getRowData();
+		if (rowView != null) {
+			return rowView.getRowData();
+		}
+		return null;
 	}
 
 	@Override
@@ -113,12 +116,11 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		int h = 0;
 		// If measure spec is not specified, height should behave as Ti.UI.SIZE
 		if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED) {
-		    h = getSuggestedMinimumHeight();
+			h = getSuggestedMinimumHeight();
 		} else {
-		    h = Math.max(MeasureSpec.getSize(heightMeasureSpec), getSuggestedMinimumHeight());
+			h = Math.max(MeasureSpec.getSize(heightMeasureSpec), getSuggestedMinimumHeight());
 		}
 		setMeasuredDimension(resolveSize(w, widthMeasureSpec), resolveSize(h, heightMeasureSpec));
-
 	}
 
 	@Override

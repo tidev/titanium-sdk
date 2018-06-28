@@ -14,8 +14,9 @@ import org.appcelerator.titanium.TiProperties;
 
 import ti.modules.titanium.app.AppModule;
 
-@Kroll.module(parentModule=AppModule.class)
-public class PropertiesModule extends KrollModule {
+@Kroll.module(parentModule = AppModule.class)
+public class PropertiesModule extends KrollModule
+{
 
 	private TiProperties appProperties;
 
@@ -70,7 +71,7 @@ public class PropertiesModule extends KrollModule {
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
 	}
-	
+
 	@Kroll.method
 	public void removeAllProperties()
 	{
@@ -107,7 +108,6 @@ public class PropertiesModule extends KrollModule {
 			appProperties.setInt(key, value);
 			fireEvent(TiC.EVENT_CHANGE, null);
 		}
-
 	}
 
 	@Kroll.method

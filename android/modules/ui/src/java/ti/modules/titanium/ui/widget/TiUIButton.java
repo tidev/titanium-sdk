@@ -6,11 +6,13 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.lang.CharSequence;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -19,9 +21,13 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
+import ti.modules.titanium.ui.AttributedStringProxy;
+
 import android.graphics.Color;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.support.v7.widget.AppCompatButton;
 
@@ -40,8 +46,7 @@ public class TiUIButton extends TiUIView
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
-		AppCompatButton btn = new AppCompatButton(proxy.getActivity())
-		{
+		AppCompatButton btn = new AppCompatButton(proxy.getActivity()) {
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
@@ -51,6 +56,8 @@ public class TiUIButton extends TiUIView
 		};
 		btn.setGravity(Gravity.CENTER);
 		defaultColor = btn.getCurrentTextColor();
+		btn.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+		btn.setMaxLines(1);
 		setNativeView(btn);
 	}
 
@@ -82,6 +89,12 @@ public class TiUIButton extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			btn.setText(d.getString(TiC.PROPERTY_TITLE));
+		}
+		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			if (attributedString instanceof AttributedStringProxy) {
+				setAttributedStringText((AttributedStringProxy) attributedString);
+			}
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
@@ -142,6 +155,8 @@ public class TiUIButton extends TiUIView
 		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
+			setAttributedStringText((AttributedStringProxy) newValue);
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			btn.setTextColor(TiConvert.toColor(TiConvert.toString(newValue)));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
@@ -177,14 +192,29 @@ public class TiUIButton extends TiUIView
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
-			if (newValue == null){
+			if (newValue == null) {
 				btn.getBackground().clearColorFilter();
 			} else {
-				btn.getBackground().setColorFilter( TiConvert.toColor(TiConvert.toString(newValue)), Mode.MULTIPLY);						
+				btn.getBackground().setColorFilter(TiConvert.toColor(TiConvert.toString(newValue)), Mode.MULTIPLY);
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
+	private void setAttributedStringText(AttributedStringProxy attrString)
+	{
+		AppCompatButton btn = (AppCompatButton) getNativeView();
+
+		if (btn == null) {
+			return;
+		}
+
+		CharSequence text = AttributedStringProxy.toSpannable(attrString, TiApplication.getAppCurrentActivity());
+		if (text == null) {
+			text = "";
+		}
+
+		btn.setText(text);
+	}
 }

@@ -19,6 +19,18 @@ properties:
     summary: Artist credited for the album containing this item.
     type: String
     permission: read-only
+    
+  - name: albumArtistPersistentID
+    summary: The persistent identifier for an album artist.
+    type: Number
+    permission: read-only
+    since: "6.1.0"
+    
+  - name: albumPersistentID
+    summary: The key for the persistent identifier for an album.
+    type: Number
+    permission: read-only
+    since: "6.1.0"
 
   - name: albumTitle
     summary: Title of the album containing this item.
@@ -47,10 +59,45 @@ properties:
     type: Titanium.Blob
     permission: read-only
 
+  - name: assetURL
+    summary: A URL pointing to the media item.
+    type: String
+    permission: read-only
+    since: "6.1.0"
+
+  - name: beatsPerMinute
+    summary: |
+        The number of musical beats per minute for the media item, corresponding 
+        to the "BPM" field in the Info tab in the "Get Info" dialog in iTunes.
+    type: Number
+    permission: read-only
+    since: "6.1.0"
+
+  - name: bookmarkTime
+    summary: The user's place in the media item the most recent time it was played.
+    type: String
+    permission: read-only
+    since: "6.1.0"
+
+  - name: comments
+    summary: |
+        Textual information about the media item, corresponding to the "Comments" 
+        field in in the Info tab in the Get Info dialog in iTunes.
+    type: String
+    permission: read-only
+    since: "6.1.0"
+
   - name: composer
     summary: Composer of this item.
     type: String
     permission: read-only
+
+  - name: dateAdded
+    summary: Date when the item was added to the music library.
+    type: Date
+    permission: read-only
+    since: "6.1.0"
+    osver: {ios: {min: "10.0"}}
 
   - name: discCount
     summary: Total number of discs for the album containing this item.
@@ -66,11 +113,41 @@ properties:
     summary: Genre of this item.
     type: String
     permission: read-only
+    
+  - name: genrePersistentID
+    summary: The persistent identifier for a genre.
+    type: Number
+    permission: read-only
+    since: "6.1.0"
 
+  - name: hasProtectedAsset
+    summary: True if the item represents a protected asset.
+    type: Boolean
+    permission: read-only
+    since: "6.1.0"
+    
+  - name: isCloudItem
+    summary: True if the media item is an iCloud item.
+    type: Boolean
+    permission: read-only
+    since: "6.1.0"
+    
   - name: isCompilation
     summary: True if this item is part of a compilation album.
     type: Boolean
     permission: read-only
+
+  - name: isExplicit
+    summary: True if this item is marked as "Explicit".
+    type: Boolean
+    permission: read-only
+    since: "6.1.0"
+
+  - name: lastPlayedDate
+    summary: The most recent calendar date on which the user played the media item.
+    type: Date
+    permission: read-only
+    since: "6.1.0"
 
   - name: lyrics
     summary: Lyrics for this item.
@@ -87,6 +164,12 @@ properties:
     constants: Titanium.Media.MUSIC_MEDIA_TYPE_*
     permission: read-only
 
+  - name: persistentID
+    summary: The key for the persistent identifier for the media item.
+    type: String
+    permission: read-only
+    since: "6.1.0"
+
   - name: playCount
     summary: Number of times the item has been played.
     type: Number
@@ -97,17 +180,36 @@ properties:
     type: Number
     permission: read-only
 
+  - name: playbackStoreID
+    summary: Used to enqueue store tracks by their ID.
+    type: Number
+    permission: read-only
+    since: "6.1.0"
+    osver: {ios: {min: "10.3"}}
+
   - name: podcastTitle
     summary: Title of a podcast item.  
     description: |
         Only included if the media type is <Titanium.Media.MUSIC_MEDIA_TYPE_PODCAST>.
     type: String
     permission: read-only
+    
+  - name: podcastPersistentID
+    summary: The persistent identifier for an audio podcast.
+    type: Number
+    permission: read-only
+    since: "6.1.0"
 
   - name: rating
     summary: Rating for this item.
     type: Number
     permission: read-only
+
+  - name: releaseDate
+    summary: Date when this this item was released.
+    type: Date
+    permission: read-only
+    since: "6.1.0"
 
   - name: skipCount
     summary: Number of times this item has been skipped.
@@ -118,3 +220,11 @@ properties:
     summary: Title of this item.
     type: String
     permission: read-only
+
+  - name: userGrouping
+    summary: |
+        Corresponds to the "Grouping" field in the Info tab in the "Get Info" 
+        dialog in iTunes.
+    type: String
+    permission: read-only
+    since: "6.1.0"

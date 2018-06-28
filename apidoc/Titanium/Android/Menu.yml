@@ -64,7 +64,7 @@ description: |
     On Android 3.0 and later, menu items can be displayed as _action items_ in the action
     bar. To enable this, the application must be built with a theme that supports the
     action bar, such as the Holo theme. (See
-    [Android Themes](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes) in
+    [Android Themes](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Themes) in
     the Titanium Guides for information on setting your application's theme.)
 
     For menu items displayed in the menu, the `onCreateOptionsMenu` function is called
@@ -75,13 +75,13 @@ description: |
 
     See also:
 
-    *   [Menus](http://developer.android.com/guide/topics/ui/menus.html) in the
+    *   [Menus](https://developer.android.com/guide/topics/ui/menus.html) in the
         Android Developer Guides.
 
-    *   [Action Bar](http://developer.android.com/guide/topics/ui/actionbar.html) in
+    *   [Action Bar](https://developer.android.com/guide/topics/ui/actionbar.html) in
         the Android Developer Guides.
 
-    *   [Menu](http://developer.android.com/reference/android/view/Menu.html)
+    *   [Menu](https://developer.android.com/reference/android/view/Menu.html)
         in the Android Developer Reference.
 
 extends: Titanium.Proxy

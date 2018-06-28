@@ -20,31 +20,37 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.app.Activity;
 import android.os.Message;
-
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_ATTRIBUTED_STRING,
-	TiC.PROPERTY_ATTRIBUTED_HINT_TEXT,
-	TiC.PROPERTY_AUTOCAPITALIZATION,
-	TiC.PROPERTY_AUTOCORRECT,
-	TiC.PROPERTY_AUTO_LINK,
-	TiC.PROPERTY_CLEAR_ON_EDIT,
-	TiC.PROPERTY_COLOR,
-	TiC.PROPERTY_EDITABLE,
-	TiC.PROPERTY_ELLIPSIZE,
-	TiC.PROPERTY_ENABLE_RETURN_KEY,
-	TiC.PROPERTY_FONT,
-	TiC.PROPERTY_HINT_TEXT,
-	TiC.PROPERTY_HINT_TEXT_COLOR,
-	TiC.PROPERTY_INPUT_TYPE,
-	TiC.PROPERTY_KEYBOARD_TYPE,
-	TiC.PROPERTY_MAX_LENGTH,
-	TiC.PROPERTY_PASSWORD_MASK,
-	TiC.PROPERTY_TEXT_ALIGN,
-	TiC.PROPERTY_VALUE,
-	TiC.PROPERTY_VERTICAL_ALIGN,
-	TiC.PROPERTY_RETURN_KEY_TYPE,
-	TiC.PROPERTY_PADDING
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_ATTRIBUTED_STRING,
+		TiC.PROPERTY_ATTRIBUTED_HINT_TEXT,
+		TiC.PROPERTY_AUTOCAPITALIZATION,
+		TiC.PROPERTY_AUTOCORRECT,
+		TiC.PROPERTY_AUTOFILL_TYPE,
+		TiC.PROPERTY_AUTO_LINK,
+		TiC.PROPERTY_CLEAR_ON_EDIT,
+		TiC.PROPERTY_COLOR,
+		TiC.PROPERTY_EDITABLE,
+		TiC.PROPERTY_ELLIPSIZE,
+		TiC.PROPERTY_ENABLE_RETURN_KEY,
+		TiC.PROPERTY_FONT,
+		TiC.PROPERTY_FULLSCREEN,
+		TiC.PROPERTY_HINT_TEXT,
+		TiC.PROPERTY_HINT_TEXT_ID,
+		TiC.PROPERTY_HINT_TEXT_COLOR,
+		TiC.PROPERTY_HINT_TYPE,
+		TiC.PROPERTY_INPUT_TYPE,
+		TiC.PROPERTY_KEYBOARD_TYPE,
+		TiC.PROPERTY_MAX_LENGTH,
+		TiC.PROPERTY_PASSWORD_MASK,
+		TiC.PROPERTY_TEXT_ALIGN,
+		TiC.PROPERTY_VALUE,
+		TiC.PROPERTY_VERTICAL_ALIGN,
+		TiC.PROPERTY_RETURN_KEY_TYPE,
+		TiC.PROPERTY_PADDING
 })
+// clang-format on
 public class TextFieldProxy extends TiViewProxy
 {
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
@@ -56,18 +62,28 @@ public class TextFieldProxy extends TiViewProxy
 		super();
 		defaultValues.put(TiC.PROPERTY_VALUE, "");
 		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
+		defaultValues.put(TiC.PROPERTY_FULLSCREEN, true);
+		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
 	}
 
 	@Override
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
+	{
 		super.handleCreationArgs(createdInModule, args);
-
 	}
 
 	@Override
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUIText(this, true);
+	}
+
+	@Override
+	protected KrollDict getLangConversionTable()
+	{
+		KrollDict table = new KrollDict();
+		table.put(TiC.PROPERTY_HINT_TEXT, TiC.PROPERTY_HINT_TEXT_ID);
+		return table;
 	}
 
 	@Kroll.method
@@ -83,7 +99,7 @@ public class TextFieldProxy extends TiViewProxy
 		TiUIView v = getOrCreateView();
 		if (v != null) {
 			if (TiApplication.isUIThread()) {
-				((TiUIText)v).setSelection(start, stop);
+				((TiUIText) v).setSelection(start, stop);
 				return;
 			}
 			KrollDict args = new KrollDict();
@@ -93,21 +109,24 @@ public class TextFieldProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public KrollDict getSelection()
+	// clang-format on
 	{
 		TiUIView v = peekView();
 		if (v != null) {
 			if (TiApplication.isUIThread()) {
-				return ((TiUIText)v).getSelection();
+				return ((TiUIText) v).getSelection();
 			} else {
-				return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_SELECTION));
+				return (KrollDict) TiMessenger.sendBlockingMainMessage(
+					getMainHandler().obtainMessage(MSG_GET_SELECTION));
 			}
 		} else {
 			return null;
 		}
 	}
-
 
 	public boolean handleMessage(Message msg)
 	{
@@ -118,7 +137,7 @@ public class TextFieldProxy extends TiViewProxy
 					Object argsObj = msg.obj;
 					if (argsObj instanceof KrollDict) {
 						KrollDict args = (KrollDict) argsObj;
-						((TiUIText)v).setSelection(args.getInt(TiC.PROPERTY_START), args.getInt(TiC.PROPERTY_STOP));
+						((TiUIText) v).setSelection(args.getInt(TiC.PROPERTY_START), args.getInt(TiC.PROPERTY_STOP));
 					}
 				}
 				return true;
@@ -128,7 +147,7 @@ public class TextFieldProxy extends TiViewProxy
 				result = (AsyncResult) msg.obj;
 				TiUIView v = peekView();
 				if (v != null) {
-					result.setResult(((TiUIText)v).getSelection());
+					result.setResult(((TiUIText) v).getSelection());
 				} else {
 					result.setResult(null);
 				}

@@ -15,10 +15,10 @@ import org.appcelerator.titanium.TiApplication;
 import android.util.DisplayMetrics;
 import android.view.Display;
 
-@Kroll.proxy(parentModule=PlatformModule.class)
+@Kroll.proxy(parentModule = PlatformModule.class)
 public class DisplayCapsProxy extends KrollProxy
 {
-	private final DisplayMetrics dm;
+	private DisplayMetrics dm;
 	private SoftReference<Display> softDisplay;
 
 	public DisplayCapsProxy()
@@ -27,89 +27,117 @@ public class DisplayCapsProxy extends KrollProxy
 		dm = new DisplayMetrics();
 	}
 
-	private Display getDisplay() {
+	private Display getDisplay()
+	{
 		if (softDisplay == null || softDisplay.get() == null) {
 			// we only need the window manager so it doesn't matter if the root or current activity is used
 			// for accessing it
-			softDisplay = new SoftReference<Display>(TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay());
+			softDisplay = new SoftReference<Display>(
+				TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay());
 		}
 		return softDisplay.get();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getPlatformWidth() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getPlatformWidth()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.widthPixels;
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getPlatformHeight() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getPlatformHeight()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.heightPixels;
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getDensity() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getDensity()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
-			switch(dm.densityDpi) {
-			case DisplayMetrics.DENSITY_HIGH :
-				return "high";
-			case DisplayMetrics.DENSITY_MEDIUM :
-				return "medium";
-			case 213: //TV
-				return "high";
-			case 280: //Introduce in API 22.
-				return "xhigh";
-			case 320:
-				return "xhigh";
-			case 400:
-				return "xxhigh";
-			case 480 :
-				return "xxhigh";
-			case 560:
+			int dpi = dm.densityDpi;
+			if (dpi >= 560) { // DisplayMetrics.DENSITY_560
 				return "xxxhigh";
-			case 640:
-				return "xxxhigh";
-			case DisplayMetrics.DENSITY_LOW :
-				return "low";
-			default :
+			} else if (dpi >= 400) { // DisplayMetrics.DENSITY_400
+				return "xxhigh";
+			} else if (dpi >= 280) { // DisplayMetrics.DENSITY_280
+				return "xhigh";
+			} else if (dpi >= DisplayMetrics.DENSITY_HIGH) {
+				return "high";
+			} else if (dpi >= DisplayMetrics.DENSITY_TV) {
+				return "tvdpi";
+			} else if (dpi >= DisplayMetrics.DENSITY_MEDIUM) {
 				return "medium";
 			}
+			return "low";
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public float getDpi() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getDpi()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.densityDpi;
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public float getXdpi() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getXdpi()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.xdpi;
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public float getYdpi() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getYdpi()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.ydpi;
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public float getLogicalDensityFactor() {
-		synchronized(dm) {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getLogicalDensityFactor()
+	// clang-format on
+	{
+		synchronized (dm)
+		{
 			getDisplay().getMetrics(dm);
 			return dm.density;
 		}

@@ -26,22 +26,21 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.webkit.WebView;
-
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_BLACKLISTED_URLS,
-	TiC.PROPERTY_DATA,
-	TiC.PROPERTY_ON_CREATE_WINDOW,
-	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
-	TiC.PROPERTY_REQUEST_HEADERS,
-	TiC.PROPERTY_URL,
-	TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR,
-	TiC.PROPERTY_OVER_SCROLL_MODE,
-	TiC.PROPERTY_CACHE_MODE,
-	TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
-	TiC.PROPERTY_HTML
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_BLACKLISTED_URLS,
+		TiC.PROPERTY_DATA,
+		TiC.PROPERTY_ON_CREATE_WINDOW,
+		TiC.PROPERTY_SCALES_PAGE_TO_FIT,
+		TiC.PROPERTY_URL,
+		TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR,
+		TiC.PROPERTY_OVER_SCROLL_MODE,
+		TiC.PROPERTY_CACHE_MODE,
+		TiC.PROPERTY_LIGHT_TOUCH_ENABLED
 })
-public class WebViewProxy extends ViewProxy
-	implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
+// clang-format on
+public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
 {
 	private static final String TAG = "WebViewProxy";
 	private static final int MSG_FIRST_ID = ViewProxy.MSG_LAST_ID + 1;
@@ -60,6 +59,7 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_RESUME = MSG_FIRST_ID + 112;
 	private static final int MSG_SET_HEADERS = MSG_FIRST_ID + 113;
 	private static final int MSG_GET_HEADERS = MSG_FIRST_ID + 114;
+	private static final int MSG_ZOOM_BY = MSG_FIRST_ID + 115;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
@@ -75,14 +75,15 @@ public class WebViewProxy extends ViewProxy
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
-		defaultValues.put(TiC.PROPERTY_BORDER_RADIUS, 0);
+		defaultValues.put(TiC.PROPERTY_DISABLE_CONTEXT_MENU, false);
+		defaultValues.put(TiC.PROPERTY_ZOOM_LEVEL, 1.0);
 	}
 
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
-		((TiBaseActivity)activity).addInterceptOnBackPressedEventListener(this);
+		((TiBaseActivity) activity).addOnLifecycleEventListener(this);
+		((TiBaseActivity) activity).addInterceptOnBackPressedEventListener(this);
 		TiUIWebView webView = new TiUIWebView(this);
 
 		if (postCreateMessage != null) {
@@ -114,8 +115,11 @@ public class WebViewProxy extends ViewProxy
 		return view.getJSValue(code);
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getHtml()
+	// clang-format on
 	{
 		if (!hasProperty(TiC.PROPERTY_HTML)) {
 			return getWebView().getJSValue("document.documentElement.outerHTML");
@@ -123,18 +127,20 @@ public class WebViewProxy extends ViewProxy
 		return (String) getProperty(TiC.PROPERTY_HTML);
 	}
 
+	// clang-format off
 	@Kroll.method
-	public void setHtml(String html, @Kroll.argument(optional = true) KrollDict d)
+	@Kroll.setProperty
+	public void setHtml(String html)
+	// clang-format on
 	{
 		setProperty(TiC.PROPERTY_HTML, html);
-		setProperty(OPTIONS_IN_SETHTML, d);
 
 		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
 		// view is created.
 		TiUIView v = peekView();
 		if (v != null) {
 			if (TiApplication.isUIThread()) {
-				((TiUIWebView) v).setHtml(html, d);
+				((TiUIWebView) v).setHtml(html);
 			} else {
 				getMainHandler().sendEmptyMessage(MSG_SET_HTML);
 			}
@@ -167,7 +173,7 @@ public class WebViewProxy extends ViewProxy
 					return true;
 				}
 				case MSG_SET_HEADERS: {
-					getWebView().setRequestHeaders((HashMap)msg.obj);
+					getWebView().setRequestHeaders((HashMap) msg.obj);
 					return true;
 				}
 				case MSG_GET_HEADERS: {
@@ -200,8 +206,10 @@ public class WebViewProxy extends ViewProxy
 					return true;
 				case MSG_SET_HTML:
 					String html = TiConvert.toString(getProperty(TiC.PROPERTY_HTML));
-					HashMap<String, Object> d = (HashMap<String, Object>) getProperty(OPTIONS_IN_SETHTML);
-					getWebView().setHtml(html, d);
+					getWebView().setHtml(html);
+					return true;
+				case MSG_ZOOM_BY:
+					getWebView().zoomBy(TiConvert.toFloat(getProperty(TiC.PROPERTY_ZOOM_LEVEL)));
 					return true;
 			}
 		}
@@ -219,11 +227,13 @@ public class WebViewProxy extends ViewProxy
 		}
 		clearBasicAuthentication();
 		getWebView().setBasicAuthentication(username, password);
-
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setUserAgent(String userAgent)
+	// clang-format on
 	{
 		TiUIWebView currWebView = getWebView();
 		if (currWebView != null) {
@@ -237,8 +247,11 @@ public class WebViewProxy extends ViewProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getUserAgent()
+	// clang-format on
 	{
 		TiUIWebView currWebView = getWebView();
 		if (currWebView != null) {
@@ -251,8 +264,11 @@ public class WebViewProxy extends ViewProxy
 		return "";
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setRequestHeaders(HashMap params)
+	// clang-format on
 	{
 		if (params != null) {
 			TiUIWebView currWebView = getWebView();
@@ -268,8 +284,11 @@ public class WebViewProxy extends ViewProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public HashMap getRequestHeaders()
+	// clang-format on
 	{
 		TiUIWebView currWebView = getWebView();
 		if (currWebView != null) {
@@ -302,7 +321,8 @@ public class WebViewProxy extends ViewProxy
 			if (TiApplication.isUIThread()) {
 				return getWebView().canGoForward();
 			} else {
-				return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CAN_GO_FORWARD));
+				return (Boolean) TiMessenger.sendBlockingMainMessage(
+					getMainHandler().obtainMessage(MSG_CAN_GO_FORWARD));
 			}
 		}
 		return false;
@@ -332,8 +352,11 @@ public class WebViewProxy extends ViewProxy
 		getMainHandler().sendEmptyMessage(MSG_STOP_LOADING);
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getPluginState()
+	// clang-format on
 	{
 		int pluginState = TiUIWebView.PLUGIN_STATE_OFF;
 
@@ -344,20 +367,32 @@ public class WebViewProxy extends ViewProxy
 		return pluginState;
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setDisableContextMenu(boolean disableContextMenu)
+	// clang-format on
 	{
 		setPropertyAndFire(TiC.PROPERTY_DISABLE_CONTEXT_MENU, disableContextMenu);
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean getDisableContextMenu()
+	// clang-format on
 	{
-		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU));
+		if (hasPropertyAndNotNull(TiC.PROPERTY_DISABLE_CONTEXT_MENU)) {
+			return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU));
+		}
+		return false;
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setPluginState(int pluginState)
+	// clang-format on
 	{
 		switch (pluginState) {
 			case TiUIWebView.PLUGIN_STATE_OFF:
@@ -394,14 +429,20 @@ public class WebViewProxy extends ViewProxy
 		}
 	}
 
-	@Kroll.method(runOnUiThread=true) @Kroll.setProperty(runOnUiThread=true)
+	// clang-format off
+	@Kroll.method(runOnUiThread = true)
+	@Kroll.setProperty(runOnUiThread = true)
 	public void setEnableZoomControls(boolean enabled)
+	// clang-format on
 	{
 		setPropertyAndFire(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled);
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean getEnableZoomControls()
+	// clang-format on
 	{
 		boolean enabled = true;
 
@@ -409,6 +450,40 @@ public class WebViewProxy extends ViewProxy
 			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
 		return enabled;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getZoomLevel()
+	// clang-format on
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return TiConvert.toFloat(getProperty(TiC.PROPERTY_ZOOM_LEVEL), 1.0f);
+		} else {
+			return 1.0f;
+		}
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setZoomLevel(float value)
+	// clang-format on
+	{
+		setProperty(TiC.PROPERTY_ZOOM_LEVEL, value);
+
+		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
+		// view is created.
+		TiUIView v = peekView();
+		if (v != null) {
+			if (TiApplication.isUIThread()) {
+				((TiUIWebView) v).zoomBy(value);
+			} else {
+				getMainHandler().sendEmptyMessage(MSG_ZOOM_BY);
+			}
+		}
 	}
 
 	public void clearBasicAuthentication()
@@ -474,25 +549,30 @@ public class WebViewProxy extends ViewProxy
 	}
 
 	@Override
-	public void onStart(Activity activity) {
+	public void onStart(Activity activity)
+	{
 	}
 
 	@Override
-	public void onResume(Activity activity) {
+	public void onResume(Activity activity)
+	{
 		resume();
 	}
 
 	@Override
-	public void onPause(Activity activity) {
+	public void onPause(Activity activity)
+	{
 		pause();
 	}
 
 	@Override
-	public void onStop(Activity activity) {
+	public void onStop(Activity activity)
+	{
 	}
 
 	@Override
-	public void onDestroy(Activity activity) {
+	public void onDestroy(Activity activity)
+	{
 		TiUIWebView webView = (TiUIWebView) peekView();
 		if (webView == null) {
 			return;

@@ -43,11 +43,15 @@ methods:
   - name: setQueue
     summary: Sets the media queue.
     description: |
-        Sets the media queue to a single media item or a list of items.
+        Sets the media queue to a single media item or a list of items. 
+        
+        Starting in Titanium 6.1.0 you can also pass a String that identifies 
+        the Media item. This string has to be the <Titanium.Media.Item.persistentID> 
+        property that identifies a media item uniquely.
     parameters:
       - name: queue
         summary: One or more media items.
-        type: [Titanium.Media.Item, Array<Titanium.Media.Item>, PlayerQueue]
+        type: [Titanium.Media.Item, Array<Titanium.Media.Item>, String]
 
   - name: skipToBeginning
     summary: Skips to the beginning of the currently playing media item.
@@ -73,35 +77,7 @@ methods:
         [seekBackward](Titanium.Media.MusicPlayer.seekBackward).
 
 events:
-  - name: playingChange
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.MusicPlayer.playingchange> instead.
-    summary: Fired when the currently playing media item changes.
-    description: |
-        See [nowPlaying](Titanium.Media.MusicPlayer.nowPlaying) to identify the current
-        media item.
-
-  - name: stateChange
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.MusicPlayer.statechange> instead.
-    summary: Fired when the music player's playback state changes.
-    description: |
-        See [playbackState](Titanium.Media.MusicPlayer.playbackState) to identify the current
-        playback state.
-
-  - name: volumeChange
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.MusicPlayer.volumechange> instead.
-    summary: Fired when the volume changes.
-    description: |
-        This event has been deprecated and renamed volumechange (lower case).
-
-        Use the [volume](Titanium.Media.MusicPlayer.volume) property to set or determine
-        the current volume level for this player.
-
+ 
   - name: playingchange
     summary: Fired when the currently playing media item changes.
     description: |
@@ -155,23 +131,3 @@ properties:
         Shuffle setting.
     type: Number
     constants: Titanium.Media.MUSIC_PLAYER_SHUFFLE_*
-
-  - name: volume
-    summary: Volume level for the music player from 0.0 (muted) to 1.0 (loudest).
-    description: |
-        This property has no effect on devices running iOS 8.0 and later.
-
-        This adjusts the volume of the application's session.
-
-        The iOS simulator ignores this volume setting. This is a known issue
-        with Apple's simulator.
-    type: Number
-    osver: {ios: {"max": "7.0"}}
-
----
-name: PlayerQueue
-summary: A simple object for specifying a queue of media items.
-properties:
-  - name: items
-    summary: An array of media items.
-    type: Array<Titanium.Media.Item>

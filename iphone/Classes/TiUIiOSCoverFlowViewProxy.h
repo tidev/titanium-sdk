@@ -8,8 +8,7 @@
 
 #import "TiViewProxy.h"
 
-@interface TiUIiOSCoverFlowViewProxy : TiViewProxy 
-{
+@interface TiUIiOSCoverFlowViewProxy : TiViewProxy {
 }
 
 @end
