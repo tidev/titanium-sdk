@@ -335,7 +335,7 @@ events:
     description: |
         A pinch is a touch and expand or contract 
         with two fingers.  The event occurs continuously until a finger is lifted again.  
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, android]
     since: "1.8.0"
     properties:
       - name: scale
@@ -349,7 +349,7 @@ events:
       - name: time
         summary: The event time of the current event being processed.
         type: Number
-        since: "6.2.0"
+        since: "7.4.0"
         platforms: [android]
         
       - name: timeDelta
@@ -357,7 +357,7 @@ events:
             The time difference in milliseconds between the previous accepted scaling event and the 
             current scaling event.
         type: Number
-        since: "6.2.0"
+        since: "7.4.0"
         platforms: [android]
         
       - name: currentSpan
@@ -365,7 +365,7 @@ events:
             The average distance between each of the pointers forming the gesture in progress through
             the focal point.
         type: Number
-        since: "6.2.0"
+        since: "7.4.0"
         platforms: [android]
         
       - name: currentSpanX
@@ -373,7 +373,7 @@ events:
             The average X distance between each of the pointers forming the gesture in progress through 
             the focal point.
         type: Number
-        since: "6.2.0"
+        since: "7.4.0"
         platforms: [android]
 
       - name: currentSpanY
@@ -381,7 +381,7 @@ events:
             The average Y distance between each of the pointers forming the gesture in progress through 
             the focal point.
         type: Number
-        since: "6.2.0"
+        since: "7.4.0"
         platforms: [android]
         
       - name: previousSpan
@@ -389,7 +389,7 @@ events:
             The previous average distance between each of the pointers forming the gesture in progress through 
             the focal point.
         type: Number
-        since: "6.2.0"
+        since: "7.4.0"
         platforms: [android]
         
       - name: previousSpanX
@@ -397,7 +397,7 @@ events:
             The previous average X distance between each of the pointers forming the gesture in progress through 
             the focal point.
         type: Number
-        since: "6.2.0"
+        since: "7.4.0"
         platforms: [android]
         
       - name: previousSpanY
@@ -405,27 +405,27 @@ events:
             The previous average Y distance between each of the pointers forming the gesture in progress through 
             the focal point.
         type: Number
-        since: "6.2.0"
+        since: "7.4.0"
         platforms: [android]
         
       - name: focusX
         summary: |
             The X coordinate of the current gesture's focal point.
         type: Number
-        since: "6.2.0"
+        since: "7.4.0"
         platforms: [android]
         
       - name: focusY
         summary: |
             The Y coordinate of the current gesture's focal point.
         type: Number
-        since: "6.2.0"
+        since: "7.4.0"
         platforms: [android]
         
       - name: inProgress
         summary: Returns `true` if a scale gesture is in progress, `false` otherwise.
         type: Number
-        since: "6.2.0"
+        since: "7.4.0"
         platforms: [android]
     
   - name: postlayout
