@@ -309,7 +309,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		}
 
-		Log.e(TAG, "No valid root or current activity found for application instance");
 		return null;
 	}
 

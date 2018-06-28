@@ -68,7 +68,7 @@ properties:
   - name: extendBackground
     summary: If `true`, the background of the toolbar extends upwards.
     description: |
-        This property allows the user to specify that the toolbar's background show through the status bar on iOS 7. This property is
+        This property allows the user to specify that the toolbar's background show through the status bar. This property is 
         only intended to be used with toolbars hosted in windows with **no navigation controllers**. The toolbar must be placed at the
         top of the screen just below the status bar for this property to work as expected. This **must** be specified at creation.
     type: Boolean
@@ -85,7 +85,7 @@ properties:
         if [barColor](Titanium.UI.iOS.Toolbar.barColor) is set to a semi-transparent or
         transparent color.
     type: Boolean
-    default: true on iOS 7 and above. false otherwise.
+    default: true
 
 examples:
   - title: Simple Toolbar
@@ -129,7 +129,7 @@ examples:
 
   - title: Toolbar with extended background
     example: |
-        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar (**iOS 7 only**).
+        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar. 
 
             var win = Ti.UI.createWindow({
                 backgroundColor: 'white'

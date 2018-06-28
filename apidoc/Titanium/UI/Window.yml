@@ -387,7 +387,7 @@ properties:
 
   - name: extendEdges
     summary: |
-        An array of supported values specified using the EXTEND_EDGE constants in <Titanium.UI>. Valid on iOS 7 and greater.
+        An array of supported values specified using the EXTEND_EDGE constants in <Titanium.UI>.
     description:  |
         This is only valid for windows hosted by navigation controllers or tab bar controllers. This property is used to
         determine the layout of the window within its parent view controller. For example if the window is specified to extend its top edge
@@ -415,7 +415,7 @@ properties:
 
   - name: includeOpaqueBars
     summary: |
-        Specifies if the edges should extend beyond opaque bars (navigation bar, tab bar, toolbar). Valid on iOS 7 and greater.
+        Specifies if the edges should extend beyond opaque bars (navigation bar, tab bar, toolbar).
     description:  |
         By default edges are only extended to include translucent bars. However if this is set to true, then edges are extended beyond
         opaque bars as well.
@@ -428,7 +428,7 @@ properties:
 
   - name: autoAdjustScrollViewInsets
     summary: |
-        Specifies whether or not the view controller should automatically adjust its scroll view insets. Valid on iOS 7 and greater.
+        Specifies whether or not the view controller should automatically adjust its scroll view insets.
     description:  |
         When the value is true, it allows the view controller to adjust its scroll view insets in response
         to the screen areas consumed by the status bar, navigation bar, toolbar and tab bar.
@@ -441,15 +441,15 @@ properties:
 
   - name: extendSafeArea
     summary: |
-        Specifies whether the content (subviews) of the window  will render inside the safe-area or not. 
+        Specifies whether the content (subviews) of the window  will render inside the safe-area or not.
         Only used in iOS 11.0 and later.
     description:  |
-        If set `true` (the default), then the content of the window will be extended to fill the whole screen and 
-        under the system's UI elements (such as the top status-bar) and physical obstructions (such as the iPhone X 
-        rounded corners and top sensor housing). In this case, it is the app developer's responsibility to position 
+        If set `true` (the default), then the content of the window will be extended to fill the whole screen and
+        under the system's UI elements (such as the top status-bar) and physical obstructions (such as the iPhone X
+        rounded corners and top sensor housing). In this case, it is the app developer's responsibility to position
         views so that they're unobstructed.
 
-        If set `false`, then the window's content will be laid out within the safe-area and its child views will be 
+        If set `false`, then the window's content will be laid out within the safe-area and its child views will be
         unobstructed. For example, you will not need to position a view below the top status-bar.
 
         Read more about the safe-area layout-guide in the [Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/iphone-x/).
@@ -481,8 +481,8 @@ properties:
   - name: homeIndicatorAutoHidden
     summary: Boolean value indicating whether the system is allowed to hide the visual indicator for returning to the Home screen.
     description: |
-        Set this value true, if you want the system to determine when to hide the indicator. Set this value false, 
-        if you want the indicator shown at all times. The system takes your preference into account, but setting 
+        Set this value true, if you want the system to determine when to hide the indicator. Set this value false,
+        if you want the indicator shown at all times. The system takes your preference into account, but setting
         true is no guarantee that the indicator will be hidden.
     platforms: [iphone, ipad]
     type: Boolean
@@ -537,11 +537,20 @@ properties:
     osver: {ios: {min: "8.0"}}
     availability: creation
 
+  - name: hidesBackButton
+    summary: Set this to true to hide the back button of navigation bar.
+    description: |
+        When this property is set to `true`, the navigation window hides its back button.
+    platforms: [iphone, ipad]
+    type: Boolean
+    default: false
+    since: 7.4.0
+
   - name: largeTitleEnabled
     summary: A Boolean value indicating whether the title should be displayed in a large format.
     description: |
-        When set to `true`, the navigation bar will use a larger out-of-line 
-        title view when requested by the current navigation item. To specify when 
+        When set to `true`, the navigation bar will use a larger out-of-line
+        title view when requested by the current navigation item. To specify when
         the large out-of-line title view appears, see <Titanium.UI.Window.largeTitleDisplayMode>.
     default: false
     type: String
@@ -552,11 +561,11 @@ properties:
   - name: largeTitleDisplayMode
     summary: The mode to use when displaying the title of the navigation bar.
     description: |
-        Automatically use the large out-of-line title based on the state of the 
-        previous item in the navigation bar. An item with 
-        `largeTitleDisplayMode = Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC` 
-        will show or hide the large title based on the request of the previous 
-        navigation item. If the first item pushed is set to Automatic, then it 
+        Automatically use the large out-of-line title based on the state of the
+        previous item in the navigation bar. An item with
+        `largeTitleDisplayMode = Ti.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC`
+        will show or hide the large title based on the request of the previous
+        navigation item. If the first item pushed is set to Automatic, then it
         will show the large title if the navigation bar has `largeTitleEnabled = true`.
     type: Number
     constants: [Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_*]
@@ -644,7 +653,7 @@ properties:
     type: Boolean
 
   - name: navTintColor
-    summary: The tintColor to apply to the navigation bar. This property is applicable on iOS 7 and greater.
+    summary: The tintColor to apply to the navigation bar.
     description: |
         This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
     type: [String]
@@ -656,12 +665,12 @@ properties:
   - name: navigationWindow
     summary: The <Titanium.UI.iOS.NavigationWindow> instance hosting this window.
     description: |
-        Returns the navigation window that hosts this window. Returns `null` if the window is not 
+        Returns the navigation window that hosts this window. Returns `null` if the window is not
         hosted by a navigation window.
     since: "7.3.0"
     type: Titanium.UI.iOS.NavigationWindow
     permission: read-only
-    platforms: [iphone, ipad]  
+    platforms: [iphone, ipad]
 
   - name: opacity
     summary: The opacity from 0.0-1.0.
@@ -879,10 +888,10 @@ properties:
         Performance can fluctuate dramatically for long-running apps, because the system throttles
         system-on-chip engines as device components reach their temperature limits. This fluctuation
         presents a moving target for app developers creating high-performance, long-running apps.
-        
+
         Setting this feature to true will set sustained performance mode for the corresponding window.
         If property is undefined then it defaults to false.
-        
+
         Note: This feature is only available on supported devices. The functionality is experimental and
         subject to change in future releases. See [Android docs](https://source.android.com/devices/tech/power/performance) for further info.
     type: Boolean
@@ -1023,8 +1032,6 @@ properties:
     description: |
         Create the transition animation using the <Titanium.UI.iOS.createTransitionAnimation>
         method.
-
-        Supported on iOS 7 and later.
     type: Titanium.Proxy
     since: "3.2.0"
     platforms: [iphone, ipad]
@@ -1535,7 +1542,7 @@ description: |
 
     In the above example, the red window will be animated from the right-to-left over the blue window.
 
-    Starting with iOS 7, you can create transition animations when opening and closing windows in
+    You can create transition animations when opening and closing windows in
     either a <Titanium.UI.iOS.NavigationWindow> or <Titanium.UI.Tab>.
 
     Use the <Titanium.UI.iOS.createTransitionAnimation> method to specify an animation objects to hide and
@@ -1930,7 +1937,7 @@ properties:
   - name: translucent
     summary: Defines if the toolbar is translucent.
     type: Boolean
-    default: true on iOS 7 and above, false otherwise.
+    default: true
 
   - name: animated
     summary: Defines if the toolbar appearance is animated.
@@ -1942,7 +1949,7 @@ properties:
     type: String
 
   - name: tintColor
-    summary: The tintColor to apply to the tool bar. Applicable on iOS 7 and above.
+    summary: The tintColor to apply to the tool bar.
     type: String
 
 ---
@@ -2032,9 +2039,7 @@ properties:
   - name: blurRadius
     summary: Specifies the blur radius of the shadow.
     description: |
-        Supported on iOS 7 and later.
-
-        `0` means no blur.
+        A value of `0` means no blur is applied.
     type: Number
 
   - name: color
