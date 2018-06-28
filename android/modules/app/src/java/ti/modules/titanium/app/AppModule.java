@@ -35,6 +35,8 @@ import android.support.v4.view.accessibility.AccessibilityManagerCompat.Accessib
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 
+import com.appcelerator.aps.APSAnalytics;
+
 @Kroll.module
 public class AppModule extends KrollModule implements SensorEventListener
 {
@@ -172,7 +174,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public String getSessionId()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getSessionId();
+		return APSAnalytics.getInstance().getCurrentSessionId();
 	}
 
 	// clang-format off

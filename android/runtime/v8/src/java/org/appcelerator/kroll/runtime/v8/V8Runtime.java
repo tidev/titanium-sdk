@@ -138,21 +138,18 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		for (String libName : externalModules.keySet()) {
 			Log.d(TAG, "Bootstrapping module: " + libName, Log.DEBUG_MODE);
 
-			if (!loadedLibs.contains(libName)) {
-				System.loadLibrary(libName);
-				loadedLibs.add(libName);
-			}
-
-			Class<? extends KrollExternalModule> moduleClass = externalModules.get(libName);
-
 			try {
+				if (!loadedLibs.contains(libName)) {
+					System.loadLibrary(libName);
+					loadedLibs.add(libName);
+				}
+
+				Class<? extends KrollExternalModule> moduleClass = externalModules.get(libName);
+
 				KrollExternalModule module = moduleClass.newInstance();
 				module.bootstrap();
 
-			} catch (IllegalAccessException e) {
-				Log.e(TAG, "Error bootstrapping external module: " + e.getMessage(), e);
-
-			} catch (InstantiationException e) {
+			} catch (Exception e) {
 				Log.e(TAG, "Error bootstrapping external module: " + e.getMessage(), e);
 			}
 		}
