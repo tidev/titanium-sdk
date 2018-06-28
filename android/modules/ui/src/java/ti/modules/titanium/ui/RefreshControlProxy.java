@@ -176,6 +176,9 @@ public class RefreshControlProxy extends KrollProxy
 
 				// Show the refresh progress indicator.
 				swipeRefreshLayout.setRefreshing(true);
+
+				// Notify the owner that the refresh state has started.
+				fireEvent(TiC.EVENT_REFRESH_START, null);
 			}
 		});
 	}

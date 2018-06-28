@@ -111,6 +111,13 @@ Android.prototype.package = function (packager, next) {
 		function (cb) {
 			const moduleDirs = fs.readdirSync(path.join(ANDROID_ROOT, 'modules'));
 			async.each(moduleDirs, function (dir, callback) {
+
+				// skip geolocation
+				if ([ 'geolocation' ].includes(dir)) {
+					callback();
+					return;
+				}
+
 				const moduleLibDir = path.join(ANDROID_ROOT, 'modules', dir, 'lib');
 				if (fs.existsSync(moduleLibDir)) {
 					globCopy('*.jar', moduleLibDir, ANDROID_DEST, callback);

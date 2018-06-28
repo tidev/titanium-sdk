@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -1936,12 +1936,16 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 				const xcodeInfo = this.iosInfo.xcode;
 
 				function sortXcodeIds(a, b) {
-					return xcodeInfo[a].selected || appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
+					// prioritize selected xcode
+					if (xcodeInfo[b].selected) {
+						return 1;
+					}
+					return appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
 				}
 
 				if (this.iosSdkVersion) {
 					// find the Xcode for this version
-					Object.keys(this.iosInfo.xcode).sort(sortXcodeIds).reverse().some(function (ver) {
+					Object.keys(this.iosInfo.xcode).sort(sortXcodeIds).some(function (ver) {
 						if (this.iosInfo.xcode[ver].sdks.indexOf(this.iosSdkVersion) !== -1) {
 							this.xcodeEnv = this.iosInfo.xcode[ver];
 							return true;
@@ -1954,9 +1958,8 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 						logger.error(__('Unable to find any Xcode installations that support iOS SDK %s.', this.iosSdkVersion) + '\n');
 						process.exit(1);
 					}
-				} else if (cli.argv.target === 'simulator' && !cli.argv['build-only']) {
-					// we'll let ioslib suggest an iOS version
-				} else { // device, dist-appstore, dist-adhoc
+
+				} else { // device, simulator, dist-appstore, dist-adhoc
 					Object.keys(xcodeInfo)
 						.filter(function (id) { return xcodeInfo[id].supported; })
 						.sort(sortXcodeIds)
@@ -2329,7 +2332,6 @@ iOSBuilder.prototype.doAnalytics = function doAnalytics() {
 	}
 
 	cli.addAnalyticsEvent(eventName, {
-		dir:         cli.argv['project-dir'],
 		name:        this.tiapp.name,
 		publisher:   this.tiapp.publisher,
 		url:         this.tiapp.url,
@@ -4679,7 +4681,7 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 	}
 
 	const exe = this.xcodeEnv.executables.xcodebuild,
-		args = [ 'clean' ];
+		args = [ 'clean', '-UseNewBuildSystem=NO' ]; // Use old build system until www.openradar.me/40906897 is fixed
 	let tries = 0,
 		lastErr = null,
 		done = false;
@@ -5481,7 +5483,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								const buf = [];
 								this.pack()
 									.on('data', function (bytes) {
-										buf.push(new Buffer(bytes)); // eslint-disable-line security/detect-new-buffer
+										buf.push(Buffer.from(bytes));
 									})
 									.on('end', function (err) {
 										if (err) {
@@ -5803,6 +5805,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
+									resourcesDir: this.xcodeAppDir
 								};
 								// generate our transpile target based on tijscore/jscore
 								if (this.useJSCore) {
@@ -6530,7 +6533,8 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'-derivedDataPath', path.join(this.buildDir, 'DerivedData'),
 		'OBJROOT=' + path.join(this.buildDir, 'build', 'Intermediates'),
 		'SHARED_PRECOMPS_DIR=' + path.join(this.buildDir, 'build', 'Intermediates', 'PrecompiledHeaders'),
-		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products')
+		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products'),
+		'-UseNewBuildSystem=NO' // Use old build system until www.openradar.me/40906897 is fixed
 	];
 
 	if (this.simHandle) {

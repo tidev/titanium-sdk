@@ -25,6 +25,11 @@
 @property (nonatomic, readonly) NSInteger lineNo;
 
 /**
+ * Returns line column where error happened.
+ */
+@property (nonatomic, readonly) NSInteger column;
+
+/**
  * Returns error related message
  */
 @property (nonatomic, readonly) NSString *message;
@@ -61,7 +66,7 @@
  * @param exception An original NSException object
  * @param stackTrace An array of strings containing stack trace description
  */
-- (void)handleUncaughtException:(NSException *)exception withStackTrace:(NSArray *)stackTrace;
+- (void)handleUncaughtException:(NSException *)exception;
 - (void)handleScriptError:(TiScriptError *)error;
 
 @end
