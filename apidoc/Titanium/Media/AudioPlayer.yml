@@ -474,7 +474,8 @@ properties:
   - name: rate
     summary: |
         Indicates the desired rate of playback; 0.0 means "paused", 1.0 indicates a 
-        desire to play at the natural rate of the current item.
+        desire to play at the natural rate of the current item. In addition, 2.0
+        would mean that the audio plays twice as fast.
     description: |
         Setting the value of rate to 0.0 pauses playback, causing the value of 
         the `state` property change to <Titanium.Media.AUDIO_STATE_PAUSED>.

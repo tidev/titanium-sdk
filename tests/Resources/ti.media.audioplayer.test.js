@@ -30,7 +30,6 @@ describe('Titanium.Media.AudioPlayer', function () {
 	it('apiName', function () {
 		should(audioPlayer).have.a.readOnlyProperty('apiName').which.is.a.String;
 		should(audioPlayer.apiName).be.eql('Ti.Media.AudioPlayer');
-		player = null;
 	});
 
 	// constants
@@ -80,35 +79,35 @@ describe('Titanium.Media.AudioPlayer', function () {
 	it('#start, #stop', function (finish) {
 		should(audioPlayer.start).be.a.Function;
 		should(audioPlayer.stop).be.a.Function;
-	
+
 		audioPlayer.start();
-	
+
 		setTimeout(function () {
 			audioPlayer.stop();
 			finish();
-		}, 1000)
+		}, 1000);
 	});
 
-	it('#pause', function () {
+	it('#pause', function (finish) {
 		should(audioPlayer.pause).be.a.Function;
 
 		audioPlayer.start();
-	
+
 		setTimeout(function () {
 			audioPlayer.pause();
 			finish();
 		}, 1000)
 	});
 
-	it('#restart', function () {
+	it('#restart', function (finish) {
 		should(audioPlayer.restart).be.a.Function;
 
 		audioPlayer.start();
-	
+
 		setTimeout(function () {
 			audioPlayer.restart();
 			audioPlayer.stop();
 			finish();
-		}, 1000)
+		}, 1000);
 	});
 });

@@ -437,7 +437,8 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 	public void setMuted(boolean muted)
 	{
 		if (mp != null) {
-			mp.setVolume(0.0f, 0.0f);
+			float scale = muted ? 0.0f : 1.0f;
+			mp.setVolume(scale, scale);
 		}
 	}
 
