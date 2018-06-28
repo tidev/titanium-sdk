@@ -6,9 +6,12 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
@@ -41,6 +44,12 @@ public final class ReferenceTable
 		long key = lastKey++;
 		Log.d(TAG, "Creating strong reference for key: " + key, Log.DEBUG_MODE);
 		references.put(key, object);
+
+		// store reference key in proxy
+		if (object instanceof KrollProxy) {
+			((KrollProxy) object).setReferenceKey(key);
+		}
+
 		return key;
 	}
 
@@ -53,8 +62,8 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Destroying reference under key: " + key, Log.DEBUG_MODE);
 		Object obj = references.remove(key);
-		if (obj instanceof WeakReference) {
-			obj = ((WeakReference<?>) obj).get();
+		if (obj instanceof Reference) {
+			obj = ((Reference<?>) obj).get();
 		}
 		// If it's an V8Object, set the ptr to 0, because the proxy is dead on C++ side
 		// This *should* prevent the native code from trying to reconstruct the proxy for any reason
@@ -77,20 +86,35 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Downgrading to weak reference for key: " + key, Log.DEBUG_MODE);
 		Object ref = references.get(key);
+		references.remove(key);
 		references.put(key, new WeakReference<Object>(ref));
 	}
 
 	/**
-	 * Make the reference strong again to prevent future collection. This method will return null if the weak reference
+	 * Makes the reference "soft" which which are cleared at the discretion of the garbage collector.
+	 *
+	 * @param key the key for the reference to soften.
+	 */
+	public static void makeSoftReference(long key)
+	{
+		Log.d(TAG, "Downgrading to soft reference for key: " + key, Log.DEBUG_MODE);
+		Object ref = references.get(key);
+		references.remove(key);
+		references.put(key, new SoftReference<Object>(ref));
+	}
+
+	/**
+	 * Make the reference strong again to prevent future collection. This method will return null if the reference
 	 * was invalidated and the object collected.
 	 *
 	 * @param key the key for the reference.
 	 * @return the referenced object if the reference is still valid.
 	 */
-	public static Object clearWeakReference(long key)
+	public static Object clearReference(long key)
 	{
-		Log.d(TAG, "Upgrading weak reference to strong for key: " + key, Log.DEBUG_MODE);
+		Log.d(TAG, "Upgrading reference to strong for key: " + key, Log.DEBUG_MODE);
 		Object ref = getReference(key);
+		references.remove(key);
 		references.put(key, ref);
 		return ref;
 	}
@@ -105,8 +129,8 @@ public final class ReferenceTable
 	public static Object getReference(long key)
 	{
 		Object ref = references.get(key);
-		if (ref instanceof WeakReference) {
-			ref = ((WeakReference<?>) ref).get();
+		if (ref instanceof Reference) {
+			ref = ((Reference<?>) ref).get();
 		}
 		return ref;
 	}

@@ -36,10 +36,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class TiUINativePicker extends TiUIPicker implements OnItemSelectedListener
+public class TiUINativePicker extends TiUIPicker
 {
 	private static final String TAG = "TiUINativePicker";
-	private boolean firstSelectedFired = false;
+	private boolean nativeViewDrawn = false;
 	private static int defaultTextColor;
 	private static boolean setDefaultTextColor = false;
 
@@ -101,7 +101,6 @@ public class TiUINativePicker extends TiUIPicker implements OnItemSelectedListen
 	public TiUINativePicker(final TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
-
 		int spinnerId;
 		try {
 			spinnerId = TiRHelper.getResource("layout.titanium_ui_spinner");
@@ -111,7 +110,7 @@ public class TiUINativePicker extends TiUIPicker implements OnItemSelectedListen
 			}
 			return;
 		}
-		Spinner spinner = (Spinner) activity.getLayoutInflater().inflate(spinnerId, null);
+		final Spinner spinner = (Spinner) activity.getLayoutInflater().inflate(spinnerId, null);
 
 		spinner.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override
@@ -119,6 +118,11 @@ public class TiUINativePicker extends TiUIPicker implements OnItemSelectedListen
 									   int oldRight, int oldBottom)
 			{
 				TiUIHelper.firePostLayoutEvent(proxy);
+				// Set the flag showing if the native view has been drawn
+				nativeViewDrawn = true;
+				// Attach the listener for the first time after
+				// all the setting up has finished.
+				spinner.setOnItemSelectedListener(onItemSelectedListener);
 			}
 		});
 
@@ -139,31 +143,23 @@ public class TiUINativePicker extends TiUIPicker implements OnItemSelectedListen
 		setNativeView(spinner);
 		refreshNativeView();
 		preselectRows();
-
-		spinner.setOnItemSelectedListener(this);
 	}
 
 	private void preselectRows()
 	{
+		Spinner spinner = (Spinner) nativeView;
 		ArrayList<Integer> preselectedRows = getPickerProxy().getPreselectedRows();
 		if (preselectedRows == null || preselectedRows.size() == 0) {
 			return;
 		}
-		Spinner spinner = (Spinner) nativeView;
 		if (spinner == null)
 			return;
-		try {
-			spinner.setOnItemSelectedListener(null);
-			for (int i = 0; i < preselectedRows.size(); i++) {
-				Integer rowIndex = preselectedRows.get(i);
-				if (rowIndex == 0 || rowIndex.intValue() < 0) {
-					continue;
-				}
-				selectRow(i, rowIndex, false);
+		for (int i = 0; i < preselectedRows.size(); i++) {
+			Integer rowIndex = preselectedRows.get(i);
+			if (rowIndex == 0 || rowIndex.intValue() < 0) {
+				continue;
 			}
-		} finally {
-			spinner.setOnItemSelectedListener(this);
-			firstSelectedFired = true;
+			selectRow(i, rowIndex, false);
 		}
 	}
 
@@ -205,13 +201,17 @@ public class TiUINativePicker extends TiUIPicker implements OnItemSelectedListen
 	protected void refreshNativeView()
 	{
 		// Don't allow change events here
-		suppressChangeEvent = true;
 		Spinner spinner = (Spinner) nativeView;
 		if (spinner == null) {
 			return;
 		}
 		try {
-			spinner.setOnItemSelectedListener(null);
+			if (nativeViewDrawn) {
+				// If we have drawn the spinner it has a selected item listener.
+				// Detach while the native view is refreshed to prevent
+				// unnecessary event triggers.
+				spinner.setOnItemSelectedListener(null);
+			}
 			int rememberSelectedRow = getSelectedRowIndex(0);
 			// Just one column - the first column - for now.
 			// Maybe someday we'll support multiple columns.
@@ -237,39 +237,37 @@ public class TiUINativePicker extends TiUIPicker implements OnItemSelectedListen
 			if (rememberSelectedRow >= 0) {
 				selectRow(0, rememberSelectedRow, false);
 			}
-
+			// The new adapter has been set.
+			// If the Spinner has been drawn reattach the onItemSelected listener here.
+			// If it has not been drawn yet, the listener will be attached in the
+			// onLayout lifecycle event.
+			if (nativeViewDrawn) {
+				spinner.setOnItemSelectedListener(onItemSelectedListener);
+			}
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to refresh native spinner control: " + t.getMessage(), t);
-		} finally {
-			suppressChangeEvent = false;
-			spinner.setOnItemSelectedListener(this);
 		}
 	}
 
-	@Override
-	public void onItemSelected(AdapterView<?> parent, View view, int position, long itemId)
-	{
-		if (!firstSelectedFired) {
-			// swallow the first selected event that gets fired after the adapter gets set, so as to avoid
-			// firing our change event in that case.
-			firstSelectedFired = true;
-			return;
-		}
-		fireSelectionChange(0, position);
+	private final OnItemSelectedListener onItemSelectedListener = new OnItemSelectedListener() {
+		@Override
+		public void onItemSelected(AdapterView<?> parent, View view, int position, long itemId)
+		{
+			fireSelectionChange(0, position);
 
-		// Invalidate the parent view after the item is selected (TIMOB-13540).
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+			// Invalidate the parent view after the item is selected (TIMOB-13540).
 			ViewParent p = nativeView.getParent();
 			if (p instanceof View) {
 				((View) p).invalidate();
 			}
 		}
-	}
 
-	@Override
-	public void onNothingSelected(AdapterView<?> arg0)
-	{
-	}
+		@Override
+		public void onNothingSelected(AdapterView<?> parent)
+		{
+		}
+	};
+
 	public void add(TiUIView child)
 	{
 		// Don't do anything.  We don't add/remove views to the native picker (the Android "Spinner").

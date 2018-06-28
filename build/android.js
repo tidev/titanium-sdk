@@ -67,7 +67,7 @@ Android.prototype.package = function (packager, next) {
 		},
 		// copy android/package.json, but replace __VERSION__ with our version!
 		function (cb) {
-			copyAndModifyFile(ANDROID_ROOT, ANDROID_DEST, 'package.json', { '__VERSION__': this.sdkVersion }, cb);
+			copyAndModifyFile(ANDROID_ROOT, ANDROID_DEST, 'package.json', { __VERSION__: this.sdkVersion }, cb);
 		}.bind(this),
 		// include headers for v8 3rd party module building
 		function (cb) {
@@ -111,6 +111,13 @@ Android.prototype.package = function (packager, next) {
 		function (cb) {
 			const moduleDirs = fs.readdirSync(path.join(ANDROID_ROOT, 'modules'));
 			async.each(moduleDirs, function (dir, callback) {
+
+				// skip geolocation
+				if ([ 'geolocation' ].includes(dir)) {
+					callback();
+					return;
+				}
+
 				const moduleLibDir = path.join(ANDROID_ROOT, 'modules', dir, 'lib');
 				if (fs.existsSync(moduleLibDir)) {
 					globCopy('*.jar', moduleLibDir, ANDROID_DEST, callback);

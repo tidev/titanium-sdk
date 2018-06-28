@@ -3,7 +3,7 @@ name: Titanium.Filesystem
 summary: The top level filesystem module, used to access files and directories on the device.
 description: |
     For examples of using the Filesystem APIs, refer to the
-    [Filesystem Access and Storage guide](http://docs.appcelerator.com/platform/latest/#!/guide/Filesystem_Access_and_Storage)
+    [Filesystem Access and Storage guide](https://docs.appcelerator.com/platform/latest/#!/guide/Filesystem_Access_and_Storage)
     as well as the other Filesystem submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
@@ -68,7 +68,7 @@ methods:
       - name: path
         summary: One or more path components. Path arguments are joined together using
             the platform specific path separator to form the full path.
-        type: String
+        type: [String, Array<String>]
 
   - name: getAsset
     summary: Returns a `Blob` object representing the asset catalog image identified by the path
