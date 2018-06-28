@@ -1127,6 +1127,14 @@ events:
       - name: message
         summary: A string containing the localized description of the error.
         type: String
+
+      - name: responseText
+        summary: The response text for upload tasks (since SDK 7.2.0).
+        type: String
+
+      - name: statusCode
+        summary: The response status code for upload tasks (since SDK 7.2.0).
+        type: Number
     osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
