@@ -421,7 +421,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:newrow animation:anim type:TiUITableViewActionUpdateRow] autorelease];
     [table dispatchAction:action];
   },
-      NO);
+      YES);
 }
 
 - (void)deleteRow:(id)args
