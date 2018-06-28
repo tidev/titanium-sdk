@@ -69,9 +69,7 @@ description: |
     <tr><th align="left">TLS 1.2</th><td>4.1+</td><td>5.0+</td></tr>
 
     In Titanium, if a connection with TLS 1.2 fails, Titanium will re-attempt the connection with
-    TLS 1.1 and TLS 1.0. By default, TLS 1.2 is only attempted first for devices running Android 4.1
-    and greater, or iOS 5.0 and greater. Prior to these versions, only TLS 1.0 is attempted since
-    1.0 is the only supported TLS version.
+    TLS 1.1 and TLS 1.0. By default, TLS 1.2 is attempted first.
 
     Use the <Titanium.Network.HTTPClient.tlsVersion> property to set the version of the TLS protocol
     if you know the version the server is running.  If you do not know, do not set this property.
@@ -517,8 +515,7 @@ properties:
     constants: Titanium.Network.TLS_VERSION_*
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
     default: |
-        undefined. <Titanium.Network.TLS_VERSION_1_2> for Android 4.1 and later, or iOS 5 and
-        later. <Titanium.Network.TLS_VERSION_1_0> for Android 4.0 and earlier, or iOS 4 and earlier.
+        undefined, behaves as `Ti.Network.TLS_VERSION_1_2`.
     platforms: [android, iphone, ipad]
 
   - name: cache
