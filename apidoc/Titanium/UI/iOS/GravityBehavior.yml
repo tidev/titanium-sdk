@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.GravityBehavior
 summary: Gravitational force to apply to an item.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     A gravity behavior configures the gravity vector of one or more items. To define a gravity
     behavior:
 

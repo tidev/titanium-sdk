@@ -50,7 +50,7 @@ properties:
     type: String
     
   - name: recordId
-    summary: Record identifier of the group. Single value. Deprecated for >= iOS9.
+    summary: Record identifier of the group. Single value. Deprecated for iOS 9 and later.
     type: Number
     platforms: [iphone, ipad]
     osver: {ios: {max: "8.0"}}

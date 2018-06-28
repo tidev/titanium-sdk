@@ -16,8 +16,7 @@ description: |
     To send a local notification, the application needs to:
 
       1. Enroll the application to send local notifications with the
-         <Titanium.App.iOS.registerUserNotificationSettings> method only if the device is running iOS 8
-         or later.
+         <Titanium.App.iOS.registerUserNotificationSettings> method.
       2. Schedule a local notification with the <Titanium.App.iOS.scheduleLocalNotification> method.
       3. Monitor the [notification](Titanium.App.iOS.notification) event to respond to the
          notification.
@@ -27,10 +26,9 @@ description: |
 
     ### Local Interactive Notifications
 
-    Starting with Release 3.4.0, you can create interactive notifications, where users can respond to
-    application notifications without launching the application to the foreground.  The user needs to
-    reveal notification actions in the notification, then press a notification action to respond to the
-    notification.  This feature is available on devices running iOS 8 or later.
+    You can create interactive notifications, where users can respond to application notifications 
+    without launching the application to the foreground. The user needs to reveal notification 
+    actions in the notification, then press a notification action to respond to the notification.
 
     To create an interactive notification, the application needs to:
 
@@ -55,9 +53,8 @@ description: |
 
     ### Handoff User Activities
 
-    In iOS 8, Apple introduced Handoff, which allows you to create and transfer user activies from one device to another.
-    For example, you can start editing a document on your phone, then transfer the activity to your iPad to continue
-    editing the document.
+    Handoff allows you to create and transfer user activies from one device to another. For example, you can start editing 
+    a document on your phone, then transfer the activity to your iPad to continue editing the document.
 
     To make an activity shareable, use the <Titanium.App.iOS.UserActivity> API to create the activity.
     To continue the activity on another device, listen for the
@@ -65,8 +62,8 @@ description: |
 
     ### Index Application Content
 
-    In iOS 9, Apple lets you index application content, such as music, videos, images and documents, to allow it
-    to be searched in iOS Spotlight.  To effectively add and remove information from the iOS search index
+    In iOS 9 and later, Apple lets you index application content, such as music, videos, images and documents, to allow it
+    to be searched in iOS Spotlight. To effectively add and remove information from the iOS search index
     you will need to use the following APIs:
 
     * <Titanium.App.iOS.SearchableItemAttributeSet> - Used to create metadata related to the `Ti.App.iOS.SearchableItem`
@@ -115,10 +112,9 @@ methods:
 
   - name: registerUserNotificationSettings
     summary: |
-        Registers the application to use the requested notification types and categories
-        (for devices running iOS 8 or later).
+        Registers the application to use the requested notification types and categories.
     description:  |
-        Call this method at application start up.  If the application needs to register for remote
+        Call this method at application start up. If the application needs to register for remote
         notifications, call this method before calling
         [Titanium.Network.registerForPushNotifications](Titanium.Network.registerForPushNotifications).
     parameters:
@@ -270,7 +266,7 @@ properties:
 
   - name: USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
     summary: |
-        The action will execute in background.  Use with the
+        The action will execute in background. Use with the
         [activationMode](Titanium.App.iOS.UserNotificationAction.activationMode) property.
     type: Number
     permission: read-only
@@ -709,8 +705,7 @@ properties:
 
   - name: currentUserNotificationSettings
     summary: |
-        Notification types and user notification categories the application is registered to use
-        (available on iOS 8 and later).
+        Notification types and user notification categories the application is registered to use.
     type: UserNotificationSettings
     permission: read-only
     deprecated:
@@ -722,7 +717,6 @@ properties:
   - name: supportedUserActivityTypes
     summary: |
         Provides an Array of the NSUserActivityTypes keys defined within your Titanium project.
-        (available on iOS 8 and later).
     description: |
         Used to obtain a list of the NSUserActivityTypes keys defined in your Titanium project's tiapp.xml file.
         These NSUserActivityTypes keys are the keys which you can use working with iOS Titanium User Activities.
@@ -1166,7 +1160,7 @@ events:
 
   - name: usernotificationsettings
     summary: |
-        Fired when the user notification settings are registered (available for iOS 8 and later).
+        Fired when the user notification settings are registered.
     properties:
       - name: types
         summary: Notification types the application is registered to use.
@@ -1183,16 +1177,16 @@ events:
     deprecated:
         since: "5.0.0"
         notes: |
-            Use <Titanium.WatchSession> instead, which is supported on iOS9 and later.
+            Use <Titanium.WatchSession> instead, which is supported on iOS 9 and later.
     summary: Fired when openParentApplication:reply is called from a WatchKit extension. Available only on iOS 8.2 and later.
     description: |
-        Add this event if your Titanium application if you are using a WatchKit extension.  When your WatchKit extension uses the openParentApplication:reply
+        Add this event if your Titanium application if you are using a WatchKit extension. When your WatchKit extension uses the openParentApplication:reply
         method your Titanium application will be opened in the background and provides your Titanium app the information from the extension. When this
         event is fired you must provide a reply by calling the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method with
         the `handlerID` parameter from this event.
 
         The event returns the dictionary containing the `handlerID` property, which is a unique handler ID for the
-        current event and the `userInfo` property, containing the dictionary passed from the WatchKit extension.  The `handlerID` identifier
+        current event and the `userInfo` property, containing the dictionary passed from the WatchKit extension. The `handlerID` identifier
         must be passed as the an argument to the [sendWatchExtensionReply](Titanium.App.iOS.sendWatchExtensionReply) method.
 
             Ti.App.iOS.addEventListener("watchkitextensionrequest",function(e){
@@ -1217,7 +1211,7 @@ events:
     summary: Fired when iOS continueactivity calls `continueUserActivity`.
     description: |
         Add this event if your Titanium application if you are responding to an iOS Handoff or Core Spotlight `continueUserActivity` request. This event will
-        fire when a user taps on the handoff icon or the Core Spotlight search item.  Your Titanium application will be opened in the background and provides
+        fire when a user taps on the handoff icon or the Core Spotlight search item. Your Titanium application will be opened in the background and provides
         your Titanium app the information from the NSUserActivity. When this event is fired you should implement logic within your application to allow the
         user to pick-up from where they left off on their other device.
 
@@ -1243,7 +1237,7 @@ events:
         type: String
       - name: userInfo
         summary: |
-            The optional userInfo provided to the user activity.  The userInfo is a custom dictionary and can contain any information needed
+            The optional userInfo provided to the user activity. The userInfo is a custom dictionary and can contain any information needed
             to create your handoff or Core Spotlight session.
         type: Dictionary
     platforms: [iphone, ipad]
@@ -1347,8 +1341,7 @@ properties:
 
   - name: category
     summary: |
-        String identifier of category of actions to be displayed for an interactive
-        notification (only for iOS 8 and above).
+        String identifier of category of actions to be displayed for an interactive notification.
     type: String
     optional: true
 

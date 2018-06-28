@@ -207,7 +207,11 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
-			activity.setRequestedOrientation(orientation);
+			try {
+				activity.setRequestedOrientation(orientation);
+			} catch (Exception ex) {
+				Log.e(TAG, ex.getMessage());
+			}
 		}
 	}
 

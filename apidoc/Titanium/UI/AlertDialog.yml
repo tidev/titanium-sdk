@@ -210,8 +210,7 @@ properties:
   - name: destructive
     summary: Index to define the destructive button.
     platforms: [iphone, ipad]
-    description: |
-        Note that this property is only available on iOS 8 or above. Setting to -1 disables this option.
+    description: Setting this property to -1 disables this option.
     type: Number
     default: -1
     since: 3.5.0
@@ -567,7 +566,7 @@ examples:
             });
             win.open();
 
-  - title: Alert Dialog with Plain Text Input (iOS 5 and later)
+  - title: Alert Dialog with Plain Text Input
     example: |
         Create an alert dialog and allow the user enter plain text, which is invoked when the
         app window is clicked.
