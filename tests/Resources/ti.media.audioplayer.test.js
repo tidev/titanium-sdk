@@ -96,7 +96,7 @@ describe('Titanium.Media.AudioPlayer', function () {
 		setTimeout(function () {
 			audioPlayer.pause();
 			finish();
-		}, 1000)
+		}, 1000);
 	});
 
 	it('#restart', function (finish) {
