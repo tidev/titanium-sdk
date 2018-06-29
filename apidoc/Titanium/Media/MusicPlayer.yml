@@ -92,13 +92,6 @@ events:
         playback state.
     since: '3.0.0'
 
-  - name: volumechange
-    summary: Fired when the volume changes.
-    description: |
-        Use the [volume](Titanium.Media.MusicPlayer.volume) property to set or determine
-        the current volume level for this player.
-    since: '3.0.0'
-
 properties:
 
   - name: currentPlaybackTime
