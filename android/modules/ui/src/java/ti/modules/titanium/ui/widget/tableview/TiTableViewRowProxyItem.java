@@ -652,6 +652,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			for (TiUIView view : views) {
 				view.release();
 			}
+			views.clear();
 			views = null;
 		}
 		if (content != null) {

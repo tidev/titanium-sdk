@@ -103,6 +103,7 @@ public class TiCompass implements SensorEventListener
 		heading.put(TiC.PROPERTY_Z, z);
 		heading.put(TiC.PROPERTY_MAGNETIC_HEADING, x);
 		heading.put(TiC.PROPERTY_ACCURACY, event.accuracy);
+		heading.put(TiC.PROPERTY_SUCCESS, true);
 
 		if (Log.isDebugModeEnabled()) {
 			switch (event.accuracy) {

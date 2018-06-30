@@ -122,7 +122,8 @@ extends: Titanium.UI.View
 since: "0.8"
 excludes:
     events: [focus]
-    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled]
+    properties: [backgroundSelectedColor, backgroundSelectedImage, enabled, children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 
 events:
   - name: click
@@ -1038,17 +1039,8 @@ properties:
     summary: Background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-
-        Prior to iOS 6, it was possible to explicitly specify a color value of
-        <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND> or 'stripped' (sic) to select the iOS group
-        tableview background texture. On iPhone and iPod Touch, this produces a pinstriped texture; on iPad,
-        it is transparent.
-
-        In iOS 6, there is no way to explicitly specify the group tableview background texture. The color
-        values <Titanium.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND> or 'stripped' are interpreted as black.
     type: String
     default: transparent on non-iOS platforms, white on the iOS platform
-
 
   - name: data
     summary: Rows of the table view.
@@ -1402,12 +1394,12 @@ properties:
     default: platform-specific default color
 
   - name: separatorInsets
-    summary: The insets for table view separators (applies to all cells). This property is applicable on iOS 7 and greater.
+    summary: The insets for table view separators (applies to all cells).
     deprecated:
         since: "5.2.0"
         notes: Use <Titanium.UI.TableView.tableSeparatorInsets> instead.
     description: |
-        In iOS 7 and later, cell separators do not extend all the way to the edge of the table view.
+        Cell separators do not extend all the way to the edge of the table view.
         This property sets the default inset for all cells in the table. Set this to a dictionary
         with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge.
 
@@ -1424,9 +1416,9 @@ properties:
     platforms: [iphone, ipad]
 
   - name: tableSeparatorInsets
-    summary: The insets for the table view header and footer. This property is applicable on iOS 7 and greater.
+    summary: The insets for the table view header and footer.
     description: |
-        In iOS 7 and later, cell separators do not extend all the way to the edge of the table view.Set this to a
+        Cell separators do not extend all the way to the edge of the table view.Set this to a
         dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
         right edge. If the rowSeparatorInsets is not set, the tableSeparatorInsets will also set the cell insets.
 
@@ -1444,9 +1436,9 @@ properties:
     platforms: [iphone, ipad]
 
   - name: rowSeparatorInsets
-    summary: The insets for table view cells (applies to all cells). This property is applicable on iOS 7 and greater.
+    summary: The insets for table view cells (applies to all cells).
     description: |
-        In iOS 7 and later, cell separators do not extend all the way to the edge of the table view.Set this to a
+        Cell separators do not extend all the way to the edge of the table view.Set this to a
         dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
         right edge. This property is only available upon creation of the cells.
 
@@ -1524,7 +1516,7 @@ properties:
     summary: | 
         The insets for search results separators (applies to all cells & iOS-only). 
     description: |
-        In iOS 7 and later, cell separators do not extend all the way to the edge of the list view. 
+        Cell separators do not extend all the way to the edge of the list view. 
         This property sets the default inset for all cells in the table. 
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` 
         specifying the inset from the right edge. 

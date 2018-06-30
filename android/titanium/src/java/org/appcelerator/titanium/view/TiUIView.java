@@ -1598,7 +1598,18 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 					if (didScale) {
 						KrollDict data = new KrollDict();
+						data.put(TiC.EVENT_PROPERTY_CURRENT_SPAN, sgd.getCurrentSpan());
+						data.put(TiC.EVENT_PROPERTY_CURRENT_SPAN_X, sgd.getCurrentSpanX());
+						data.put(TiC.EVENT_PROPERTY_CURRENT_SPAN_Y, sgd.getCurrentSpanY());
+						data.put(TiC.EVENT_PROPERTY_TIME, sgd.getEventTime());
+						data.put(TiC.EVENT_PROPERTY_FOCUS_X, sgd.getFocusX());
+						data.put(TiC.EVENT_PROPERTY_FOCUS_Y, sgd.getFocusY());
+						data.put(TiC.EVENT_PROPERTY_PREVIOUS_SPAN, sgd.getPreviousSpan());
+						data.put(TiC.EVENT_PROPERTY_PREVIOUS_SPAN_X, sgd.getPreviousSpanX());
+						data.put(TiC.EVENT_PROPERTY_PREVIOUS_SPAN_Y, sgd.getPreviousSpanY());
 						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+						data.put(TiC.EVENT_PROPERTY_TIME_DELTA, sgd.getTimeDelta());
+						data.put(TiC.EVENT_PROPERTY_IN_PROGRESS, sgd.isInProgress());
 						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
 						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 

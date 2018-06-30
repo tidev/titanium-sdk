@@ -163,8 +163,7 @@ NSString *const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputChan
 + (TiMediaAudioSession *)sharedSession
 {
   static TiMediaAudioSession *session = nil;
-  @synchronized(self)
-  {
+  @synchronized(self) {
     if (session == nil) {
       session = [[TiMediaAudioSession alloc] init];
     }

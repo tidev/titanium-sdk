@@ -464,6 +464,7 @@
     [label setAdjustsFontSizeToFitWidth:YES];
     CGFloat ratio = minFontSize / label.font.pointSize;
     [label setMinimumScaleFactor:ratio];
+    [label setBaselineAdjustment:UIBaselineAdjustmentNone];
   }
 }
 

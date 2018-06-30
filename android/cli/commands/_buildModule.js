@@ -1531,7 +1531,7 @@ AndroidModuleBuilder.prototype.jsToC = function (next) {
 
 	if (fs.existsSync(jsBootstrapFile)) {
 
-		const str = new Buffer(fs.readFileSync(jsBootstrapFile)); // eslint-disable-line security/detect-new-buffer
+		const str = Buffer.from(fs.readFileSync(jsBootstrapFile));
 
 		[].forEach.call(str, function (char) {
 			result.push(char);
