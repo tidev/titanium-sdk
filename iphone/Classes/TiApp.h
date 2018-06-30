@@ -32,7 +32,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 @interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate> {
   UIWindow *window;
   UIImageView *loadView;
-  UIImageView *splashScreenImage;
+  UIView *splashScreenView;
   BOOL loaded;
 
   TiContextGroupRef contextGroup;
@@ -52,10 +52,13 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
   NSString *remoteDeviceUUID;
 
   NSDictionary *remoteNotification;
+
   NSMutableDictionary<NSString *, id> *pendingCompletionHandlers;
   NSMutableDictionary<NSString *, id> *pendingReplyHandlers;
   NSMutableDictionary<NSString *, id> *backgroundTransferCompletionHandlers;
   NSMutableDictionary<NSString *, id> *queuedBootEvents;
+  NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *uploadTaskResponses;
+
   NSMutableDictionary<NSString *, NSOrderedSet<id> *> *_queuedApplicationSelectors;
   NSMutableSet<id> *_applicationDelegates;
 
