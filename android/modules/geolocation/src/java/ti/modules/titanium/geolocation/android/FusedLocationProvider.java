@@ -90,7 +90,13 @@ public class FusedLocationProvider
 	 */
 	public void registerLocationProvider(final LocationProviderProxy locationProvider)
 	{
-		PlayServices.registerLocationProvider(locationProvider, geolocationModule);
+		if (locationProvider != null && geolocationModule != null) {
+			try {
+				PlayServices.registerLocationProvider(locationProvider, geolocationModule);
+			} catch (Exception e) {
+				Log.e(TAG, e.getMessage());
+			}
+		}
 	}
 
 	/**
@@ -100,7 +106,13 @@ public class FusedLocationProvider
 	 */
 	public void unregisterLocationProvider(LocationProviderProxy locationProvider)
 	{
-		PlayServices.unregisterLocationProvider(locationProvider);
+		if (locationProvider != null) {
+			try {
+				PlayServices.unregisterLocationProvider(locationProvider);
+			} catch (Exception e) {
+				Log.e(TAG, e.getMessage());
+			}
+		}
 	}
 
 	/**

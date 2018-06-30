@@ -163,8 +163,7 @@ description: |
     The fourth property, `accessibilityHidden`, when set to `true`, indicates that the view can be ignored
     by the assistive service. In iOS this sets the similarly-named
     [accessibilityElementsHidden](https://developer.apple.com/documentation/objectivec/nsobject/1615080-accessibilityelementshidden)
-    native property, which is only available in iOS 5.0 and later. On earlier versions of
-    iOS, this property is ignored.
+    native property.
 
     In Android `accessibilityHidden` calls the native [View.setImportantForAccessibility(boolean)](https://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29) method, passing `false` when
     this property is set to `true` (i.e., "hidden" means it's not important). However, the
@@ -182,12 +181,6 @@ description: |
     Given an image of width `w` and height `h`, the stretchable portion on the image is defined as a rectangle with the `top-left` point set to
     `(backgroundLeftCap , backgroundTopCap)` and the `bottom-right` point set to `(w - backgroundLeftCap , h - backgroundTopCap)`. The portions not covered by
     the stretchable portion keep their original size and appearance.
-
-    The behavior of these properties on [ImageView](Titanium.UI.ImageView) is slightly different and depends on the iOS version on the device.
-
-    * For iOS 6.x and above, the behavior is as described above.
-    * For iOS 5.x the computed rectangle is tiled and not streched in the stretchable portion.
-    * For iOS 4.x the strechable portion is always a 1x1 region that is tiled repeatedly.
 
     For best results on ImageView set up the `backgroundLeftCap` and `backgroundTopCap` properties such that the stretchable portion is always a 1x1 box.
 
@@ -323,9 +316,9 @@ events:
   - name: pinch
     summary: Fired when the device detects a pinch gesture.
     description: |
-        A pinch is a touch and expand or contract
-        with two fingers.  The event occurs continuously until a finger is lifted again.
-    platforms: [iphone,ipad]
+        A pinch is a touch and expand or contract 
+        with two fingers.  The event occurs continuously until a finger is lifted again.  
+    platforms: [iphone, ipad, android]
     since: "1.8.0"
     properties:
       - name: scale
@@ -335,6 +328,88 @@ events:
       - name: velocity
         summary: The velocity of the pinch in scale factor per second.
         type: Number
+        
+      - name: time
+        summary: The event time of the current event being processed.
+        type: Number
+        since: "7.4.0"
+        platforms: [android]
+        
+      - name: timeDelta
+        summary: |
+            The time difference in milliseconds between the previous accepted scaling event and the 
+            current scaling event.
+        type: Number
+        since: "7.4.0"
+        platforms: [android]
+        
+      - name: currentSpan
+        summary: |
+            The average distance between each of the pointers forming the gesture in progress through
+            the focal point.
+        type: Number
+        since: "7.4.0"
+        platforms: [android]
+        
+      - name: currentSpanX
+        summary: |
+            The average X distance between each of the pointers forming the gesture in progress through 
+            the focal point.
+        type: Number
+        since: "7.4.0"
+        platforms: [android]
+
+      - name: currentSpanY
+        summary: |
+            The average Y distance between each of the pointers forming the gesture in progress through 
+            the focal point.
+        type: Number
+        since: "7.4.0"
+        platforms: [android]
+        
+      - name: previousSpan
+        summary: |
+            The previous average distance between each of the pointers forming the gesture in progress through 
+            the focal point.
+        type: Number
+        since: "7.4.0"
+        platforms: [android]
+        
+      - name: previousSpanX
+        summary: |
+            The previous average X distance between each of the pointers forming the gesture in progress through 
+            the focal point.
+        type: Number
+        since: "7.4.0"
+        platforms: [android]
+        
+      - name: previousSpanY
+        summary: |
+            The previous average Y distance between each of the pointers forming the gesture in progress through 
+            the focal point.
+        type: Number
+        since: "7.4.0"
+        platforms: [android]
+        
+      - name: focusX
+        summary: |
+            The X coordinate of the current gesture's focal point.
+        type: Number
+        since: "7.4.0"
+        platforms: [android]
+        
+      - name: focusY
+        summary: |
+            The Y coordinate of the current gesture's focal point.
+        type: Number
+        since: "7.4.0"
+        platforms: [android]
+        
+      - name: inProgress
+        summary: Returns `true` if a scale gesture is in progress, `false` otherwise.
+        type: Number
+        since: "7.4.0"
+        platforms: [android]
 
   - name: postlayout
     summary: Fired when a layout cycle is finished.
@@ -949,8 +1024,6 @@ properties:
         On iOS this is a direct analog of the `accessibilityElementsHidden` property defined in the
         [UIAccessibility
         Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
-        The native property is only available in iOS 5.0 and later; if
-        `accessibilityHidden` is specified on earlier versions of iOS, it is ignored.
 
         On Android, setting `accessibilityHidden` calls the native
         [View.setImportantForAccessibility](https://developer.android.com/reference/android/view/View.html#setImportantForAccessibility%28int%29)
@@ -1597,7 +1670,7 @@ properties:
     platforms: [android]
 
   - name: tintColor
-    summary: The view's tintColor. This property is applicable on iOS 7 and greater.
+    summary: The view's tintColor
     description: |
         This property is a direct correspondant of the tintColor property of UIView on iOS. If no value is specified,
         the tintColor of the View is inherited from its superview.

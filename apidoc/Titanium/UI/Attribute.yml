@@ -45,7 +45,7 @@ properties:
                 range: [0, 100]
             }
 
-        On IOS, if you use <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>,
+        On iOS, if you use <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>,
         you must use one or more of these constants:
 
           * <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE>
@@ -67,7 +67,7 @@ properties:
                 range: [0, 100]
             }
 
-        On IOS, if you use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION>, you must use one or more of
+        On iOS, if you use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION>, you must use one or more of
         these constants:
 
           * <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING>
@@ -78,7 +78,7 @@ properties:
 
         These can also be combined the same way as the underline styles.
 
-        On IOS, if you use the <Titanium.UI.ATTRIBUTE_SHADOW>, the `value` must be a JavaScript object containing
+        On iOS, if you use the <Titanium.UI.ATTRIBUTE_SHADOW>, the `value` must be a JavaScript object containing
         any of the `offset`, `blurRadius` or `color` properties:
 
             {
@@ -90,10 +90,9 @@ properties:
                 color: 'red'
             }
 
-        On IOS, if you use the <Titanium.UI.ATTRIBUTE_TEXT_EFFECT>, you must use the only supported iOS 7 constant
-        <Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE>.
+        On iOS, if you use the <Titanium.UI.ATTRIBUTE_TEXT_EFFECT>, you must use the <Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE> constant.
 
-        On IOS, if you use the <Titanium.UI.ATTRIBUTE_LINE_BREAK>, you must use one of
+        On iOS, if you use the <Titanium.UI.ATTRIBUTE_LINE_BREAK>, you must use one of
         these constants:
 
           * <Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING>

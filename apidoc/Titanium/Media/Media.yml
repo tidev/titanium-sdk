@@ -289,8 +289,7 @@ methods:
         for more information. If the user has, the callback will return the earlier decision. To change the permission the
         user needs to change it in the device settings.
 
-        This API is available in iOS 8 and later. Earlier versions of iOS, as well as apps that do not include this method,
-        will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
+        iOS Apps that do not include this method, will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
     parameters:
       - name: callback
         summary: Function to call upon user decision to grant camera access.
@@ -352,7 +351,7 @@ methods:
   - name: requestAuthorization
     summary: Request the user's permission for audio recording.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
@@ -374,7 +373,7 @@ methods:
   - name: hasAudioPermissions
     summary: Returns `true` if the app has audio permissions.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
@@ -394,7 +393,7 @@ methods:
   - name: hasAudioRecorderPermissions
     summary: Returns `true` if the app has audio permissions.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
@@ -414,7 +413,7 @@ methods:
   - name: requestAudioPermissions
     summary: Request the user's permission for audio recording.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
@@ -436,7 +435,7 @@ methods:
   - name: requestAudioRecorderPermissions
     summary: Request the user's permission for audio recording.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
@@ -1136,14 +1135,16 @@ properties:
         Desktop using Image Capture; they are likely to be too large for transfer using Wi-Fi.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_LOW
     summary: Media type constant for low-quality video recording.
     description: |
         Recorded files can usually be transferred over the cellular network.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_MEDIUM
     summary: Media type constant for medium-quality video recording.
     description: |
@@ -1159,14 +1160,15 @@ properties:
         of 640x480).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_IFRAME_1280x720
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 1280x720 iFrame format.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: 6.0.0
+    platforms: [iphone, ipad, android]
+    since: { android: "7.4.0", iphone: "6.0.0", ipad: "6.0.0" }
   - name: QUALITY_IFRAME_960x540
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 960x540 iFrame format.

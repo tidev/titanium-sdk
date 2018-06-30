@@ -239,6 +239,9 @@ public class TiFileProxy extends KrollProxy
 	public String[] getDirectoryListing()
 	// clang-format on
 	{
+		if (!isDirectory()) {
+			return null;
+		}
 		List<String> dl = tbf.getDirectoryListing();
 		return dl != null ? dl.toArray(new String[0]) : null;
 	}
