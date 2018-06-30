@@ -334,7 +334,6 @@ public class TiUIScrollView extends TiUIView
 				}
 			}
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
-			setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS);
 			layout = new TiScrollViewLayout(context, arrangement);
 			FrameLayout.LayoutParams params =
 				new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -479,7 +478,6 @@ public class TiUIScrollView extends TiUIView
 			super(context);
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 			setScrollContainer(true);
-			setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS);
 
 			// Set up nested scrolling. Improves "SwipeRefreshLayout" touch interception handling.
 			// Note: On Android 5.0 and above, all views support nested child scrolling. We just need to enable it.
