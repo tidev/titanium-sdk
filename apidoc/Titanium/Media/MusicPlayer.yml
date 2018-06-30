@@ -131,15 +131,3 @@ properties:
         Shuffle setting.
     type: Number
     constants: Titanium.Media.MUSIC_PLAYER_SHUFFLE_*
-
-  - name: volume
-    summary: Volume level for the music player from 0.0 (muted) to 1.0 (loudest).
-    description: |
-        This property has no effect on devices running iOS 8.0 and later.
-
-        This adjusts the volume of the application's session.
-
-        The iOS simulator ignores this volume setting. This is a known issue
-        with Apple's simulator.
-    type: Number
-    osver: {ios: {"max": "7.0"}}

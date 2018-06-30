@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 
 import android.Manifest;
@@ -28,10 +27,8 @@ import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 
-import com.appcelerator.aps.APSAnalyticsHelper;
-
 @SuppressWarnings("deprecation")
-public class TiPlatformHelper extends APSAnalyticsHelper
+public class TiPlatformHelper
 {
 	public static final String TAG = "TiPlatformHelper";
 	private static final Map<String, Locale> locales =
@@ -60,11 +57,6 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 	{
 	}
 
-	public void initialize()
-	{
-		APSAnalyticsHelper.getInstance().init(TiApplication.getInstance().getAppGUID(), TiApplication.getInstance());
-	}
-
 	public synchronized void intializeDisplayMetrics(Activity activity)
 	{
 		DisplayMetrics dm = new DisplayMetrics();
@@ -86,11 +78,6 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		} else {
 			applicationLogicalDensity = DisplayMetrics.DENSITY_LOW;
 		}
-	}
-
-	public ITiAppInfo getAppInfo()
-	{
-		return TiApplication.getInstance().getAppInfo();
 	}
 
 	public String getLocale()

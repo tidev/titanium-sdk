@@ -45,6 +45,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -218,7 +219,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 				}
 			}
 		}
-		String model = TiPlatformHelper.getInstance().getModel();
+		String model = Build.MODEL;
 		if (model != null && model.equals("SPH-P100")) {
 			Activity activity = (Activity) getContext();
 			Display d = activity.getWindowManager().getDefaultDisplay();

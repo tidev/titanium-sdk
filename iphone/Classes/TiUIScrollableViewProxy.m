@@ -60,7 +60,7 @@
   [self lockViews];
   NSArray *result = [viewProxies copy];
   [self unlockViews];
-  return [result autorelease];
+  return [result autorelease] ?: @[];
 }
 
 - (NSUInteger)viewCount
@@ -89,14 +89,14 @@
     TiThreadPerformOnMainThread(^{
       [[oldViewProxy view] removeFromSuperview];
     },
-        NO);
+        YES);
 #endif
     if (![args containsObject:oldViewProxy]) {
       [oldViewProxy setParent:nil];
       TiThreadPerformOnMainThread(^{
         [oldViewProxy detachView];
       },
-          NO);
+          YES);
       [self forgetProxy:oldViewProxy];
     }
   }
