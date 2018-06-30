@@ -69,7 +69,6 @@ public class TiDrawableReference
 	}
 
 	private static final String TAG = "TiDrawableReference";
-	private static final String FILE_PREFIX = "file://";
 	private static final int UNKNOWN = -1;
 	private static final int DEFAULT_SAMPLE_SIZE = 1;
 	private int resourceId = UNKNOWN;
@@ -894,7 +893,6 @@ public class TiDrawableReference
 		if (isTypeUrl() && url != null) {
 			try {
 				stream = TiFileHelper.getInstance().openInputStream(url, false);
-
 			} catch (IOException e) {
 				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage());
 			}

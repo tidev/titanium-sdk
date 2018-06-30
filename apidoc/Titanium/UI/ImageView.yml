@@ -238,6 +238,17 @@ properties:
     type: Number
     default: 0 (infinite)
 
+  - name: requestHeaders
+    summary: The additional request headers passed to the remote-images of this image view.
+    description: |
+        Setting this property allows you to set custom headers to the remote image 
+        URL requests, for example to authenticate your image request. The parameter 
+        will be key-value pairs: `{'Custom-Field1': 'value1', 'Custom-Field2': 'value2'}`.        
+    type: Dictionary
+    platforms: [iphone, ipad, android]
+    since: "7.1.0"
+    accessors: false
+
   - name: reverse
     summary: Run the animation in reverse.
     type: Boolean

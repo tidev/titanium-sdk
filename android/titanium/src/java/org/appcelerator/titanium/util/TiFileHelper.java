@@ -20,6 +20,7 @@ import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -242,10 +244,12 @@ public class TiFileHelper implements Handler.Callback
 				}
 			}
 		} catch (URISyntaxException uriException) {
+			uriException.printStackTrace();
 		}
 
 		URL u = new URL(path);
-		InputStream lis = u.openStream();
+		URLConnection connection = u.openConnection();
+		InputStream lis = connection.getInputStream();
 		ByteArrayOutputStream bos = null;
 		try {
 			bos = new ByteArrayOutputStream(8192);
@@ -303,8 +307,8 @@ public class TiFileHelper implements Handler.Callback
 	/**
 	 * This method creates a Drawable given the bitmap's path, and converts it to a NinePatch Drawable
 	 * if checkForNinePatch param is true.
-	 * @param path  the path/url of the Drawable 
-	 * @param report  this is not being used. 
+	 * @param path  the path/url of the Drawable
+	 * @param report  this is not being used.
 	 * @param checkForNinePatch  a boolean to determine whether the returning Drawable is a NinePatch Drawable.
 	 * @param densityScaled  a boolean to determine whether the returning Drawable is scaled based on device density.
 	 * @return  a Drawable instance.
@@ -780,7 +784,7 @@ public class TiFileHelper implements Handler.Callback
 			case MSG_NETWORK_URL:
 				AsyncResult result = (AsyncResult) msg.obj;
 				try {
-					result.setResult(handleNetworkURL(TiConvert.toString(result.getArg())));
+					result.setResult(handleNetworkURL((((String) result.getArg()))));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
