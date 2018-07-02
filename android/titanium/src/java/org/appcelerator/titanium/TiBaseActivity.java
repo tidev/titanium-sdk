@@ -1183,13 +1183,17 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		data.put("source", activityProxy);
 
 		final KrollDict d = data;
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run()
-			{
-				activityProxy.callPropertySync(name, new Object[] { d });
-			}
-		});
+		if (TiApplication.isUIThread()) {
+			activityProxy.callPropertyAsync(name, new Object[] { d });
+		} else {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run()
+				{
+					activityProxy.callPropertySync(name, new Object[] { d });
+				}
+			});
+		}
 	}
 
 	private void releaseDialogs(boolean finish)
