@@ -421,7 +421,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:newrow animation:anim type:TiUITableViewActionUpdateRow] autorelease];
     [table dispatchAction:action];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)deleteRow:(id)args
@@ -834,7 +834,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     }
     [oldSections release];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)setSections:(NSArray *)newSections
@@ -1016,7 +1016,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
         }
                             forceReload:NO];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)insertSectionAfter:(id)args

@@ -98,7 +98,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: id
-    summary: Identifier of this calendar. Available only in iOS 5.0 and above.
+    summary: Identifier of this calendar.
     type: String
     permission: read-only
     osver: {ios: {min: "5.0"}}

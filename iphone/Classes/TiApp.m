@@ -364,13 +364,19 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [self boot];
 }
 
-- (UIImageView *)splashScreenImage
+- (UIView *)splashScreenView
 {
-  if (splashScreenImage == nil) {
-    splashScreenImage = [[UIImageView alloc] init];
-    [splashScreenImage setBackgroundColor:[UIColor yellowColor]];
-    [splashScreenImage setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
-    [splashScreenImage setContentMode:UIViewContentModeScaleToFill];
+  if (splashScreenView == nil) {
+#ifdef LAUNCHSCREEN_STORYBOARD
+    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
+    UIViewController *launchScreen = [sb instantiateInitialViewController];
+
+    splashScreenView = [[launchScreen view] retain];
+#else
+    splashScreenView = [[UIImageView alloc] init];
+    [splashScreenView setBackgroundColor:[UIColor yellowColor]];
+    [splashScreenView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+    [splashScreenView setContentMode:UIViewContentModeScaleToFill];
 
     UIDeviceOrientation imageOrientation;
     UIUserInterfaceIdiom imageIdiom;
@@ -379,10 +385,12 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                             (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
                                               resultingOrientation:&imageOrientation
                                                              idiom:&imageIdiom];
-    [splashScreenImage setImage:defaultImage];
-    [splashScreenImage setFrame:[[UIScreen mainScreen] bounds]];
+    [(UIImageView *)splashScreenView setImage:defaultImage];
+    [splashScreenView setFrame:[[UIScreen mainScreen] bounds]];
+#endif
   }
-  return splashScreenImage;
+
+  return splashScreenView;
 }
 
 - (void)generateNotification:(NSDictionary *)dict
@@ -919,6 +927,23 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLUploadProgress object:self userInfo:dict];
 }
 
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
+{
+  if (!uploadTaskResponses) {
+    uploadTaskResponses = [[NSMutableDictionary alloc] init];
+  }
+  //This dictionary will mutate if delegate is called
+  NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
+  if (!responseObj) {
+    NSMutableData *responseData = [NSMutableData dataWithData:data];
+    NSInteger statusCode = [(NSHTTPURLResponse *)[dataTask response] statusCode];
+    responseObj = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(statusCode), @"statusCode", responseData, @"responseData", nil];
+    [uploadTaskResponses setValue:responseObj forKey:(NSString *)@(dataTask.taskIdentifier)];
+  } else {
+    [[responseObj objectForKey:@"responseData"] appendData:data];
+  }
+}
+
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
   NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -930,17 +955,25 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 
   if (error) {
-    NSDictionary *errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                            NUMINTEGER([error code]), @"errorCode",
+    NSDictionary *errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:@(NO), @"success",
+                                            @([error code]), @"errorCode",
                                             [error localizedDescription], @"message",
                                             nil];
     [dict addEntriesFromDictionary:errorinfo];
   } else {
-    NSDictionary *success = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"success",
-                                          NUMINT(0), @"errorCode",
-                                          @"", @"message",
-                                          nil];
-    [dict addEntriesFromDictionary:success];
+    NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(task.taskIdentifier)];
+    if (responseObj != nil) {
+      // We only send "responseText" as the "responsesData" is only set with data from uploads
+      NSString *responseText = [[NSString alloc] initWithData:[responseObj objectForKey:@"responseData"] encoding:NSUTF8StringEncoding];
+      NSInteger statusCode = [[responseObj valueForKey:@"statusCode"] integerValue];
+      [uploadTaskResponses removeObjectForKey:@(task.taskIdentifier)];
+      NSDictionary *successResponse = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(YES), @"success",
+                                                           @(0), @"errorCode",
+                                                           responseText, @"responseText",
+                                                           @(statusCode), @"statusCode",
+                                                           nil];
+      [dict addEntriesFromDictionary:successResponse];
+    }
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
 }
@@ -1057,13 +1090,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
               withArguments:[NSOrderedSet orderedSetWithObject:application]];
 
   if ([self forceSplashAsSnapshot]) {
-#ifdef LAUNCHSCREEN_STORYBOARD
-    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
-    UIViewController *vc = [sb instantiateInitialViewController];
-    [[[self controller] topPresentedController] presentViewController:vc animated:NO completion:nil];
-#else
-    [window addSubview:[self splashScreenImage]];
-#endif
+    [window addSubview:[self splashScreenView]];
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
 
@@ -1086,16 +1113,9 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   // We should think about placing this inside "applicationWillBecomeActive" instead to make
   // the UI re-useable again more quickly
-  if ([self forceSplashAsSnapshot]) {
-#ifdef LAUNCHSCREEN_STORYBOARD
-    [[[self controller] topPresentedController] dismissViewControllerAnimated:NO
-                                                                   completion:nil];
-#else
-    if (splashScreenImage != nil) {
-      [[self splashScreenImage] removeFromSuperview];
-      RELEASE_TO_NIL(splashScreenImage);
-    }
-#endif
+  if ([self forceSplashAsSnapshot] && splashScreenView != nil) {
+    [[self splashScreenView] removeFromSuperview];
+    RELEASE_TO_NIL(splashScreenView);
   }
 
   // NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
@@ -1302,7 +1322,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   RELEASE_TO_NIL(userAgent);
   RELEASE_TO_NIL(remoteDeviceUUID);
   RELEASE_TO_NIL(remoteNotification);
-  RELEASE_TO_NIL(splashScreenImage);
+  RELEASE_TO_NIL(splashScreenView);
 #ifndef USE_JSCORE_FRAMEWORK
   if ([self debugMode]) {
     TiDebuggerStop();
@@ -1310,6 +1330,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 #endif
   RELEASE_TO_NIL(backgroundServices);
   RELEASE_TO_NIL(localNotification);
+  RELEASE_TO_NIL(uploadTaskResponses);
   RELEASE_TO_NIL(queuedBootEvents);
   RELEASE_TO_NIL(_queuedApplicationSelectors);
   RELEASE_TO_NIL(_applicationDelegates);
