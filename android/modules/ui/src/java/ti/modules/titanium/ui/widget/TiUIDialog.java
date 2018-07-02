@@ -289,6 +289,8 @@ public class TiUIDialog extends TiUIView
 			dialog = getBuilder().create();
 			dialog.setCanceledOnTouchOutside(
 				proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, true));
+			dialog.setCancelable(
+				proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELABLE, true));
 			// Initially apply accessibility properties here, the first time
 			// the dialog actually becomes available. After this, propertyChanged
 			// can also be used.
