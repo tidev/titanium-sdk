@@ -135,6 +135,7 @@
   [self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsOnSwipe" notification:NO];
   [self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsOnTap" notification:NO];
   [self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
+  [self replaceValue:NUMBOOL(NO) forKey:@"hidesBackButton" notification:NO];
   [super _configure];
 }
 

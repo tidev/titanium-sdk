@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.AnchorAttachmentBehavior
 summary: Dynamic behavior to support connections between an anchor point and an item.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     An anchor attachment behavior creates a dynamic connection between an anchor point and an item.
     To define an anchor attachment behavior:
 

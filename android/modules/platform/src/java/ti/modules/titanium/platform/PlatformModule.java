@@ -22,8 +22,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.Manifest;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.Build;
+
+import com.appcelerator.aps.APSAnalytics;
+import com.appcelerator.aps.APSAnalyticsMeta;
+
+import java.util.UUID;
 
 @Kroll.module
 public class PlatformModule extends KrollModule
@@ -61,7 +71,7 @@ public class PlatformModule extends KrollModule
 	public String getName()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getName();
+		return "android";
 	}
 
 	// clang-format off
@@ -70,7 +80,7 @@ public class PlatformModule extends KrollModule
 	public String getOsname()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getName();
+		return "android";
 	}
 
 	// clang-format off
@@ -101,7 +111,7 @@ public class PlatformModule extends KrollModule
 	public int getProcessorCount()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getProcessorCount();
+		return Runtime.getRuntime().availableProcessors();
 	}
 
 	// clang-format off
@@ -110,7 +120,7 @@ public class PlatformModule extends KrollModule
 	public String getUsername()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getUsername();
+		return Build.USER;
 	}
 
 	// clang-format off
@@ -119,7 +129,7 @@ public class PlatformModule extends KrollModule
 	public String getVersion()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getVersion();
+		return APSAnalyticsMeta.getAppVersion();
 	}
 
 	// clang-format off
@@ -128,7 +138,7 @@ public class PlatformModule extends KrollModule
 	public double getAvailableMemory()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getAvailableMemory();
+		return Runtime.getRuntime().freeMemory();
 	}
 
 	// clang-format off
@@ -137,7 +147,7 @@ public class PlatformModule extends KrollModule
 	public String getModel()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getModel();
+		return Build.MODEL;
 	}
 
 	// clang-format off
@@ -146,7 +156,7 @@ public class PlatformModule extends KrollModule
 	public String getManufacturer()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getManufacturer();
+		return Build.MANUFACTURER;
 	}
 
 	// clang-format off
@@ -155,7 +165,7 @@ public class PlatformModule extends KrollModule
 	public String getOstype()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getOstype();
+		return "32bit";
 	}
 
 	// clang-format off
@@ -164,7 +174,7 @@ public class PlatformModule extends KrollModule
 	public String getArchitecture()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getArchitecture();
+		return APSAnalyticsMeta.getArchitecture();
 	}
 
 	// clang-format off
@@ -198,7 +208,7 @@ public class PlatformModule extends KrollModule
 	@Kroll.method
 	public String createUUID()
 	{
-		return TiPlatformHelper.getInstance().createUUID();
+		return UUID.randomUUID().toString();
 	}
 
 	@Kroll.method
@@ -228,7 +238,45 @@ public class PlatformModule extends KrollModule
 	public String getMacaddress()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getMacaddress();
+		String macaddr = null;
+		TiApplication tiApp = TiApplication.getInstance();
+
+		if (tiApp.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+			== PackageManager.PERMISSION_GRANTED) {
+			WifiManager wm = (WifiManager) tiApp.getSystemService(Context.WIFI_SERVICE);
+			if (wm != null) {
+				WifiInfo wi = wm.getConnectionInfo();
+				if (wi != null) {
+					macaddr = wi.getMacAddress();
+					Log.d(TAG, "Found mac address " + macaddr);
+				} else {
+					Log.d(TAG, "Mo WifiInfo, enabling Wifi to get mac address");
+					if (!wm.isWifiEnabled()) {
+						if (wm.setWifiEnabled(true)) {
+							if ((wi = wm.getConnectionInfo()) != null) {
+								macaddr = wi.getMacAddress();
+							} else {
+								Log.d(TAG, "Still no WifiInfo, assuming no mac address");
+							}
+							Log.d(TAG, "Disabling wifi because we enabled it.");
+							wm.setWifiEnabled(false);
+						} else {
+							Log.d(TAG, "Enabling wifi failed, assuming no mac address");
+						}
+					} else {
+						Log.d(TAG, "Wifi already enabled, assuming no mac address");
+					}
+				}
+			}
+		} else {
+			Log.w(TAG, "Must have android.permission.ACCESS_WIFI_STATE to get mac address.");
+		}
+
+		if (macaddr == null) {
+			macaddr = getId(); // just make it the unique ID if not found
+		}
+
+		return macaddr;
 	}
 
 	// clang-format off
@@ -237,7 +285,7 @@ public class PlatformModule extends KrollModule
 	public String getId()
 	// clang-format on
 	{
-		return TiPlatformHelper.getInstance().getMobileId();
+		return APSAnalytics.getInstance().getMachineId();
 	}
 
 	// clang-format off

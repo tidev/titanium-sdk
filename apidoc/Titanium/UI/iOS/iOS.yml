@@ -15,8 +15,6 @@ methods:
     description: |
         Use the object returned by this method with the Window's
         [transitionAnimation](Titanium.UI.Window.transitionAnimation) property.
-
-        Supported on iOS 7 and later.
     parameters:
       - name: transition
         summary: Dictionary specifying the transition animation.
@@ -1173,60 +1171,6 @@ properties:
     permission: read-only
     since: "3.2.0"
     osver: {ios: {min: "7.0"}}
-    
-  - name: COLOR_GROUP_TABLEVIEW_BACKGROUND
-    summary: Returns the iOS system texture used to render the background on a group table view. 
-    description: |
-        Corresponds to iOS `UIColor` groupTableViewBackgroundColor`.
-        
-        This constant has been deprecated in iOS 6. Group style table views still default to using the standard iOS group table 
-        view background texture if no background color is specified. However, specifying this constant explicitly on iOS 6 and 
-        above results in a black background color.
-        
-        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
-    type: String
-    permission: read-only
-    since: "2.1.0"
-    
-  - name: COLOR_SCROLLVIEW_BACKGROUND
-    summary: Returns the iOS system texture used to render the area behind scrollable content.
-    deprecated:
-        since: "3.4.2"
-        removed: "3.6.0"
-    description: |
-        Corresponds to iOS `UIColor` `scrollViewTexturedBackgroundColor`.
-
-        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
-    type: String
-    permission: read-only
-    since: "2.1.0"
-    
-  - name: COLOR_VIEW_FLIPSIDE_BACKGROUND
-    summary: Returns the iOS system texture used for the back side of a view while it is being flipped.
-    deprecated:
-        since: "3.4.2"
-        removed: "3.6.0"
-    description: |
-        Corresponds to iOS `UIColor` `viewFlipsideBackgroundColor`.
-
-        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
-    type: String
-    permission: read-only
-    since: "2.1.0"
-
-  - name: COLOR_UNDER_PAGE_BACKGROUND
-    summary: Returns the iOS system texture used to render the background of a page.
-    deprecated:
-        since: "3.4.2"
-        removed: "3.6.0"
-    description: |
-        Corresponds to iOS `UIColor` `underPageBackgroundColor`.
-
-        Can be used anywhere a color value is required. See also "Colors" in <Titanium.UI>.
-    type: String
-    permission: read-only
-    since: "2.1.0"
-    osver: {ios: {min: "5.0"}}
 
   - name: forceTouchSupported
     summary: Determines if the 3D-Touch capability "Force Touch" is supported (`true`) or not (`false`) by the device.
@@ -2012,7 +1956,6 @@ properties:
 name: transitionAnimationParam
 summary: |
     Dictionary specifying the transition animation used with the <Titanium.UI.iOS.createTransitionAnimation> method.
-    Only supported on iOS 7 and later.
 platforms: [iphone, ipad]
 since: "3.2.0"
 osver: {ios: {min: "7.0"}}
