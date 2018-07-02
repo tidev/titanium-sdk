@@ -624,6 +624,8 @@
   id sound = [args objectForKey:@"sound"];
   id summaryArgument = [args objectForKey:@"summaryArgument"];
   id summaryArgumentCount = [args objectForKey:@"summaryArgumentCount"];
+  id threadIdentifier = [args objectForKey:@"threadIdentifier"];
+  id timezone = [args objectForKey:@"timezone"];
 
   // Construct a new local notification proxy from our current context
   TiAppiOSLocalNotificationProxy *notification = [[[TiAppiOSLocalNotificationProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
@@ -644,6 +646,10 @@
         date = [NSDate dateWithTimeIntervalSince1970:[TiUtils doubleValue:date] / 1000];
       }
       NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+
+      if (timezone != nil) {
+        calendar.timeZone = [NSTimeZone timeZoneWithName:[TiUtils stringValue:timezone]];
+      }
 
       // Per default, use all components and don't repeat
       NSCalendarUnit components = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
@@ -711,6 +717,15 @@
     if (alertLaunchImage != nil) {
       [content setLaunchImageName:[TiUtils stringValue:alertLaunchImage]];
     }
+
+#if IS_XCODE_10
+    // Set the thread identifier to enable grouped notifications
+    if ([TiUtils isIOSVersionOrGreater:@"12.0"] && threadIdentifier != nil)
+       
+      {
+        [content setThreadIdentifier:threadIdentifier];
+      }
+#endif
 
     // Set additional user-info
     if (userInfo != nil) {
@@ -811,7 +826,11 @@
 
     if (date != nil) {
       content.fireDate = date;
-      content.timeZone = [NSTimeZone defaultTimeZone];
+      if (timezone != nil) {
+        content.timeZone = [NSTimeZone timeZoneWithName:[TiUtils stringValue:timezone]];
+      } else {
+        content.timeZone = [NSTimeZone defaultTimeZone];
+      }
     }
 
     if (repeat != nil) {

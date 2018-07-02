@@ -824,7 +824,7 @@ events:
         type: String
 
       - name: timezone
-        summary: Timezone of the date when the notification was configured to fire.
+        summary: Timezone of the date when the notification was configured to fire. Available in Titanium SDK 7.4.0+.
         type: String
 
       - name: userInfo
@@ -832,8 +832,14 @@ events:
         type: Dictionary
 
       - name: inBackground
-        summary: Boolean indicating if notification was received while app was in background (since Titanium SDK 6.2.0).
+        summary: Boolean indicating if notification was received while app was in background. Available in Titanium SDK 6.2.0+.
         type: Boolean
+
+      - name: threadIdentifier
+        summary: |
+            The unique identifier for the thread or conversation related to this notification request.
+            It will be used to visually group notifications together. Available in Titanium SDK 7.4.0+ and iOS 12+.
+        type: String
 
   - name: localnotificationaction
     summary: Fired when a user selects an action for an interactive local notification.
