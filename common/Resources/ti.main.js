@@ -17,11 +17,11 @@
 Ti.API.info(Ti.App.name + ' ' + Ti.App.version + ' (Powered by Titanium ' + Ti.version + '.' + Ti.buildHash + ')');
 
 // Load all JavaScript extensions.
-require('./_ti/extension.loader').load();
+require('./ti.internal/extension.loader').load();
 
 // Load and execute all "*.bootstrap.js" files.
 // Note: This must be done after loading extensions since bootstraps might depend on them.
-require('./_ti/bootstrap.loader').loadAsync(function () {
+require('./ti.internal/bootstrap.loader').loadAsync(function () {
 	// We've finished loading/executing all bootstrap scripts.
 	// We can now proceed to run the main "app.js" script.
 	require('./app');

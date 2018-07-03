@@ -15,7 +15,7 @@
 'use strict';
 
 exports.load = function () {
-	var DIRECTORY_PATH = '_ti/extensions/',
+	var DIRECTORY_PATH = 'ti.internal/extensions/',
 		directory = Ti.Filesystem.getFile(Ti.Filesystem.getResourcesDirectory(), DIRECTORY_PATH),
 		fileNames = directory.getDirectoryListing(),
 		fileIndex,
