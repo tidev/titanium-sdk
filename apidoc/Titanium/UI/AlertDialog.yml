@@ -199,7 +199,7 @@ properties:
     type: Number
     default: undefined (Android), -1 (iOS)
 
-  - name: cancelable
+  - name: buttonPressRequired
     summary: |
         This property determines whether the dialog can be cancelled by clicking the System Back button on Android.
     type: Boolean
