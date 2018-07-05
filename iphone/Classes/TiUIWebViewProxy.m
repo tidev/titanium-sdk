@@ -7,208 +7,81 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import "TiUIWebViewProxy.h"
-#import "TiBlob.h"
 #import "TiHost.h"
 #import "TiUIWebView.h"
 #import "TiUtils.h"
 
 @implementation TiUIWebViewProxy
 
-#ifdef DEBUG_MEMORY
+- (id)_initWithPageContext:(id<TiEvaluator>)context
+{
+  if (self = [super _initWithPageContext:context]) {
+    //[[self webView] registerNotificationCenter];
+  }
+
+  return self;
+}
+
+- (TiUIWebView *)webView
+{
+  return (TiUIWebView *)self.view;
+}
+
 - (void)dealloc
 {
-  RELEASE_TO_NIL(webKeySequence);
+  RELEASE_TO_NIL(_allowedURLSchemes);
+  RELEASE_TO_NIL(_genericProperties);
   [super dealloc];
 }
 
-- (id)retain
-{
-  return [super retain];
-}
-
-- (void)release
-{
-  [super release];
-}
-#endif
-
-- (NSArray *)keySequence
-{
-  RELEASE_TO_NIL(webKeySequence)
-  // if "html" is not set, the URL has to be processed first since the spinner depends on URL being remote
-  if ([self valueForUndefinedKey:@"html"] == nil) {
-    webKeySequence = [[NSArray arrayWithObjects:@"url", nil] retain];
-  } else {
-    webKeySequence = [[NSArray array] retain];
-  }
-
-  return webKeySequence;
-}
-
-- (NSString *)apiName
-{
-  return @"Ti.UI.WebView";
-}
-
-- (BOOL)shouldDetachViewForSpace
-{
-  return NO;
-}
-
-- (void)_initWithProperties:(NSDictionary *)properties
-{
-  [self replaceValue:[NSArray arrayWithObject:NUMINT(UIDataDetectorTypePhoneNumber)] forKey:@"autoDetect" notification:NO];
-  [self initializeProperty:@"willHandleTouches" defaultValue:NUMBOOL(YES)];
-  [super _initWithProperties:properties];
-}
-
-- (NSString *)evalJS:(id)code
-{
-  ENSURE_SINGLE_ARG(code, NSString);
-  /*
-     Using GCD either through dispatch_async/dispatch_sync or TiThreadPerformOnMainThread
-     does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
-     */
-  if (![NSThread isMainThread]) {
-    inKJSThread = YES;
-    [self performSelectorOnMainThread:@selector(evalJS:) withObject:code waitUntilDone:YES];
-    inKJSThread = NO;
-  } else {
-    evalResult = [[(TiUIWebView *)[self view] stringByEvaluatingJavaScriptFromString:code] retain];
-  }
-  return (inKJSThread ? evalResult : [evalResult autorelease]);
-}
-
-USE_VIEW_FOR_CONTENT_HEIGHT
-USE_VIEW_FOR_CONTENT_WIDTH
-
-- (NSString *)userAgent
-{
-  return [[(TiUIWebView *)self.view webview] stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-}
-
-- (NSString *)html
-{
-  NSString *html = [self evalJSAndWait:@"document.documentElement.outerHTML"];
-  // strip out the ti injection - nobody wants that - and if
-  // you're saving off the HTML, we don't want to save that off since
-  // it's dynamically injected and can't be preserved
-  NSRange range = [html rangeOfString:@"<script id=\"__ti_injection"];
-  if (range.location != NSNotFound) {
-    NSRange nextRange = [html rangeOfString:@"</script" options:0 range:NSMakeRange(range.location, [html length] - range.location) locale:nil];
-    if (nextRange.location != NSNotFound) {
-      NSString *before = [html substringToIndex:range.location];
-      NSString *after = [html substringFromIndex:nextRange.location + 9];
-      return [NSString stringWithFormat:@"%@%@", before, after];
-    }
-  }
-  return html;
-}
-
-- (id)loading
-{
-  __block BOOL loading;
-  TiThreadPerformOnMainThread(^{
-    loading = [(TiUIWebView *)[self view] loading];
-  },
-      YES);
-
-  return NUMBOOL(loading);
-}
-
-- (NSNumber *)zoomLevel
-{
-  NSString *zoomLevel = [[(TiUIWebView *)[self view] webview] stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom"];
-
-  if (zoomLevel == nil || zoomLevel.length == 0) {
-    return @(1.0);
-  }
-
-  return @([zoomLevel doubleValue]);
-}
-
-- (void)goBack:(id)args
+- (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
 {
   TiThreadPerformOnMainThread(^{
-    [(TiUIWebView *)[self view] goBack];
+    [[self webView] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
   },
       NO);
 }
 
-- (void)goForward:(id)args
+- (void)setPageToken:(NSString *)pageToken
 {
-  TiThreadPerformOnMainThread(^{
-    [(TiUIWebView *)[self view] goForward];
-  },
-      NO);
-}
-
-- (void)stopLoading:(id)args
-{
-  TiThreadPerformOnMainThread(^{
-    [(TiUIWebView *)[self view] stopLoading];
-  },
-      NO);
-}
-
-- (void)reload:(id)args
-{
-  TiThreadPerformOnMainThread(^{
-    [(TiUIWebView *)[self view] reload];
-  },
-      NO);
-}
-
-- (void)setHtml:(NSString *)content withObject:(id)property
-{
-  [self replaceValue:content forKey:@"html" notification:NO];
-  TiThreadPerformOnMainThread(^{
-    [(TiUIWebView *)[self view] setHtml_:content withObject:property];
-  },
-      YES);
-}
-
-- (id)canGoBack:(id)args
-{
-  if ([self viewAttached]) {
-    __block BOOL result;
-    TiThreadPerformOnMainThread(^{
-      result = [(TiUIWebView *)[self view] canGoBack];
-    },
-        YES);
-    return NUMBOOL(result);
+  if (_pageToken != nil) {
+    [[self host] unregisterContext:(id<TiEvaluator>)self forToken:_pageToken];
+    _pageToken = nil;
   }
-  return NUMBOOL(NO);
+  _pageToken = pageToken;
+  [[self host] registerContext:self forToken:_pageToken];
 }
 
-- (id)canGoForward:(id)args
+- (void)refreshHTMLContent
 {
-  if ([self viewAttached]) {
-    __block BOOL result;
-    TiThreadPerformOnMainThread(^{
-      result = [(TiUIWebView *)[self view] canGoForward];
-    },
-        YES);
-    return NUMBOOL(result);
-  }
-  return NUMBOOL(NO);
+  NSString *code = @"document.documentElement.outerHTML.toString()";
+
+  // Refresh the "html" property async to be able to use the remote HTML content.
+  // This should be deprecated asap, since it is an overhead that should be done using
+  // webView.evalJS() within the app if required.
+  [[[self webView] webView] evaluateJavaScript:code
+                             completionHandler:^(id result, NSError *error) {
+                               if (error != nil) {
+                                 return;
+                               }
+                               [self replaceValue:result forKey:@"html" notification:NO];
+                             }];
 }
 
-- (void)setBasicAuthentication:(NSArray *)args
+- (void)viewDidDetach
 {
-  [self makeViewPerformSelector:@selector(setBasicAuthentication:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+  [(TiUIWebView *)[self view] viewDidDetach];
 }
 
-- (void)repaint:(id)unused
+- (void)windowWillClose
 {
-  [self contentsWillChange];
 }
 
 - (void)windowDidClose
 {
-  if (pageToken != nil) {
-    [[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
-    RELEASE_TO_NIL(pageToken);
+  if (_pageToken != nil) {
+    [[self host] unregisterContext:(id<TiEvaluator>)self forToken:_pageToken];
+    _pageToken = nil;
   }
   NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
   WARN_IF_BACKGROUND_THREAD_OBJ;
@@ -218,96 +91,18 @@ USE_VIEW_FOR_CONTENT_WIDTH
 
 - (void)_destroy
 {
-  if (pageToken != nil) {
-    [[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
-    RELEASE_TO_NIL(pageToken);
+  if (_pageToken != nil) {
+    [[self host] unregisterContext:(id<TiEvaluator>)self forToken:_pageToken];
+    _pageToken = nil;
   }
   [super _destroy];
 }
 
-- (void)setPageToken:(NSString *)pageToken_
-{
-  if (pageToken != nil) {
-    [[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
-    RELEASE_TO_NIL(pageToken);
-  }
-  pageToken = [pageToken_ retain];
-  [[self host] registerContext:self forToken:pageToken];
-}
-
-#pragma mark Evaluator
-
-- (BOOL)evaluationError
-{
-  // TODO; is this correct
-  return NO;
-}
+#pragma mark - TiEvaluator Protocol
 
 - (TiHost *)host
 {
   return [self _host];
-}
-
-- (void)evalFile:(NSString *)file
-{
-  TiThreadPerformOnMainThread(^{
-    [(TiUIWebView *)[self view] evalFile:file];
-  },
-      NO);
-}
-
-- (id)evalJSAndWait:(NSString *)code
-{
-  __block id result;
-  TiThreadPerformOnMainThread(^{
-    result = [[(TiUIWebView *)[self view] stringByEvaluatingJavaScriptFromString:code] retain];
-  },
-      YES);
-  return [result autorelease];
-}
-
-- (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
-{
-  TiThreadPerformOnMainThread(^{
-    [(TiUIWebView *)[self view] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
-  },
-      NO);
-}
-
-- (id)preloadForKey:(id)key name:(id)name
-{
-  return nil;
-}
-
-- (KrollContext *)krollContext
-{
-  return nil;
-}
-
-- (id)registerProxy:(id)proxy
-{
-  return nil;
-}
-
-- (void)unregisterProxy:(id)proxy
-{
-}
-
-//TODO: Is this correct?
-- (BOOL)usesProxy:(id)proxy;
-{
-  return NO;
-}
-
-//TODO: Is this correct?
-- (id)krollObjectForProxy:(id)proxy
-{
-  return nil;
-}
-
-- (void)evalJSWithoutResult:(NSString *)code
-{
-  [self evalJS:code];
 }
 
 - (NSString *)basename
@@ -324,23 +119,420 @@ USE_VIEW_FOR_CONTENT_WIDTH
 {
 }
 
-DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
-
-#pragma mark - Internal Use Only
-- (void)delayedLoad
+- (void)evalFile:(NSString *)path
 {
-  TiThreadPerformOnMainThread(^{
-    [self contentsWillChange];
-  },
-      NO);
+  NSURL *url_ = [path hasPrefix:@"file:"] ? [NSURL URLWithString:path] : [NSURL fileURLWithPath:path];
+
+  if (![path hasPrefix:@"/"] && ![path hasPrefix:@"file:"]) {
+    NSURL *root = [[self _host] baseURL];
+    url_ = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@/%@", root, path]];
+  }
+
+  NSString *code = [NSString stringWithContentsOfURL:url_ encoding:NSUTF8StringEncoding error:nil];
+  [[[self webView] webView] evaluateJavaScript:code
+                             completionHandler:^(id _Nullablecresult, NSError *_Nullable error){
+                             }];
 }
 
-- (void)webviewDidFinishLoad
+- (NSString *)evalJSAndWait:(NSString *)code
+{
+  return [self evalJSSync:code];
+}
+
+- (void)evalJSWithoutResult:(NSString *)code
+{
+  [self evalJS:code];
+}
+
+- (BOOL)evaluationError
+{
+  return NO;
+}
+
+- (KrollContext *)krollContext
+{
+  return nil;
+}
+
+- (id)krollObjectForProxy:(id)proxy
+{
+  return nil;
+}
+
+- (id)preloadForKey:(id)key name:(id)name
+{
+  return nil;
+}
+
+- (id)registerProxy:(id)proxy
+{
+  return nil;
+}
+
+- (void)unregisterProxy:(id)proxy
+{
+}
+
+- (BOOL)usesProxy:(id)proxy
+{
+  return NO;
+}
+
+#pragma mark - Public APIs
+
+#pragma mark Getters
+
+- (NSNumber *)disableBounce
+{
+  return @(![[[[self webView] webView] scrollView] bounces]);
+}
+
+- (NSNumber *)scrollsToTop
+{
+  return @([[[[self webView] webView] scrollView] scrollsToTop]);
+}
+
+- (NSNumber *)allowsBackForwardNavigationGestures
+{
+  return @([[[self webView] webView] allowsBackForwardNavigationGestures]);
+}
+
+- (NSString *)userAgent
+{
+  return [[[self webView] webView] customUserAgent];
+}
+
+- (NSString *)url
+{
+  return [[[[self webView] webView] URL] absoluteString];
+}
+
+- (NSString *)title
+{
+  return [[[self webView] webView] title];
+}
+
+- (NSNumber *)progress
+{
+  return @([[[self webView] webView] estimatedProgress]);
+}
+
+- (NSNumber *)secure
+{
+  return @([[[self webView] webView] hasOnlySecureContent]);
+}
+
+- (NSDictionary *)backForwardList
+{
+  WKBackForwardList *list = [[[self webView] webView] backForwardList];
+
+  NSMutableArray *backList = [NSMutableArray arrayWithCapacity:list.backList.count];
+  NSMutableArray *forwardList = [NSMutableArray arrayWithCapacity:list.forwardList.count];
+
+  for (WKBackForwardListItem *item in list.backList) {
+    [backList addObject:[[self class] _dictionaryFromBackForwardItem:item]];
+  }
+
+  for (WKBackForwardListItem *item in list.forwardList) {
+    [forwardList addObject:[[self class] _dictionaryFromBackForwardItem:item]];
+  }
+
+  return @{
+    @"currentItem" : [[self class] _dictionaryFromBackForwardItem:[list currentItem]],
+    @"backItem" : [[self class] _dictionaryFromBackForwardItem:[list backItem]],
+    @"forwardItem" : [[self class] _dictionaryFromBackForwardItem:[list forwardItem]],
+    @"backList" : backList,
+    @"forwardList" : forwardList
+  };
+}
+
+- (NSDictionary *)preferences
+{
+  return @{
+    @"minimumFontSize" : NUMFLOAT([[[[[self webView] webView] configuration] preferences] minimumFontSize]),
+    @"javaScriptEnabled" : NUMBOOL([[[[[self webView] webView] configuration] preferences] javaScriptEnabled]),
+    @"javaScriptCanOpenWindowsAutomatically" : NUMBOOL([[[[[self webView] webView] configuration] preferences] javaScriptCanOpenWindowsAutomatically]),
+  };
+}
+
+- (NSNumber *)selectionGranularity
+{
+  return @([[[[self webView] webView] configuration] selectionGranularity]);
+}
+
+- (NSNumber *)mediaTypesRequiringUserActionForPlayback
+{
+  return @([[[[self webView] webView] configuration] mediaTypesRequiringUserActionForPlayback]);
+}
+
+- (NSNumber *)suppressesIncrementalRendering
+{
+  return @([[[[self webView] webView] configuration] suppressesIncrementalRendering]);
+}
+
+- (NSNumber *)allowsInlineMediaPlayback
+{
+  return @([[[[self webView] webView] configuration] allowsInlineMediaPlayback]);
+}
+
+- (NSNumber *)allowsAirPlayMediaPlayback
+{
+  return @([[[[self webView] webView] configuration] allowsAirPlayForMediaPlayback]);
+}
+
+- (NSNumber *)allowsPictureInPictureMediaPlayback
+{
+  return @([[[[self webView] webView] configuration] allowsPictureInPictureMediaPlayback]);
+}
+
+- (NSArray<NSString *> *)allowedURLSchemes
+{
+  return _allowedURLSchemes;
+}
+
+- (NSNumber *)zoomLevel
+{
+  NSString *zoomLevel = [self evalJS:@[ @"document.body.style.zoom" ]];
+
+  if (zoomLevel == nil || zoomLevel.length == 0) {
+    return @(1.0);
+  }
+
+  return @([zoomLevel doubleValue]);
+}
+
+#pragma mark Setter
+
+- (void)setAllowedURLSchemes:(NSArray *)schemes
+{
+  RELEASE_TO_NIL(_allowedURLSchemes);
+  for (id scheme in schemes) {
+    ENSURE_TYPE(scheme, NSString);
+  }
+
+  _allowedURLSchemes = [[NSArray arrayWithArray:schemes] retain];
+}
+
+- (void)setHtml:(id)args
+{
+  [[self webView] setHtml_:args];
+}
+
+#pragma mark Methods
+
+- (void)addUserScript:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+
+  NSString *source = [TiUtils stringValue:@"source" properties:args];
+  WKUserScriptInjectionTime injectionTime = [TiUtils intValue:@"injectionTime" properties:args];
+  BOOL mainFrameOnly = [TiUtils boolValue:@"mainFrameOnly" properties:args];
+
+  WKUserScript *script = [[WKUserScript alloc] initWithSource:source injectionTime:injectionTime forMainFrameOnly:mainFrameOnly];
+  WKUserContentController *controller = [[[[self webView] webView] configuration] userContentController];
+  [controller addUserScript:script];
+}
+
+- (void)removeAllUserScripts:(id)unused
+{
+  WKUserContentController *controller = [[[[self webView] webView] configuration] userContentController];
+  [controller removeAllUserScripts];
+}
+
+- (void)addScriptMessageHandler:(id)value
+{
+  ENSURE_SINGLE_ARG(value, NSString);
+
+  WKUserContentController *controller = [[[[self webView] webView] configuration] userContentController];
+  [controller addScriptMessageHandler:[self webView] name:value];
+}
+
+- (void)removeScriptMessageHandler:(id)value
+{
+  ENSURE_SINGLE_ARG(value, NSString);
+
+  WKUserContentController *controller = [[[[self webView] webView] configuration] userContentController];
+  [controller removeScriptMessageHandlerForName:value];
+}
+
+- (NSNumber *)isLoading:(id)unused
+{
+  return NUMBOOL([[[self webView] webView] isLoading]);
+}
+
+- (void)stopLoading:(id)unused
+{
+  [[[self webView] webView] stopLoading];
+}
+
+- (void)reload:(id)unused
+{
+  [[[self webView] webView] reload];
+}
+
+- (void)repaint:(id)unused
 {
   [self contentsWillChange];
-  //Do a delayed load as well if this one does not go through.
-  [self performSelector:@selector(delayedLoad) withObject:nil afterDelay:0.5];
 }
-@end
 
+- (void)goBack:(id)unused
+{
+  [[[self webView] webView] goBack];
+}
+
+- (void)goForward:(id)unused
+{
+  [[[self webView] webView] goForward];
+}
+
+- (NSNumber *)canGoBack:(id)unused
+{
+  return NUMBOOL([[[self webView] webView] canGoBack]);
+}
+
+- (NSNumber *)canGoForward:(id)unused
+{
+  return NUMBOOL([[[self webView] webView] canGoForward]);
+}
+
+- (NSNumber *)loading
+{
+  return @([[[self webView] webView] isLoading]);
+}
+
+- (void)startListeningToProperties:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSArray);
+
+  if (_genericProperties == nil) {
+    _genericProperties = [[NSMutableArray alloc] init];
+  }
+  for (id property in args) {
+    ENSURE_TYPE(property, NSString);
+    [_genericProperties addObject:property];
+    [[[self webView] webView] addObserver:self forKeyPath:property options:NSKeyValueObservingOptionNew context:NULL];
+  }
+}
+
+- (void)stopListeningToProperties:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSArray);
+
+  for (id property in args) {
+    ENSURE_TYPE(property, NSString);
+
+    [[[self webView] webView] removeObserver:self forKeyPath:property];
+    [_genericProperties removeObject:property];
+  }
+}
+
+- (id)evalJS:(id)args
+{
+  NSString *code = nil;
+  KrollCallback *callback = nil;
+
+  ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
+  ENSURE_ARG_OR_NIL_AT_INDEX(callback, args, 1, KrollCallback);
+
+  if (code == nil) {
+    [self throwException:@"Missing JavaScript code"
+               subreason:@"The required first argument is missinf and should contain a valid JavaScript string."
+                location:CODELOCATION];
+    return nil;
+  }
+
+  // If no argument is passed, return in sync (NOT recommended)
+  if (callback == nil) {
+    return [self evalJSSync:@[ code ]];
+  }
+
+  [[[self webView] webView] evaluateJavaScript:code
+                             completionHandler:^(id result, NSError *error) {
+                               if (!callback) {
+                                 return;
+                               }
+
+                               NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
+                                 @"result" : result ?: [NSNull null],
+                                 @"success" : NUMBOOL(error == nil)
+                               }];
+
+                               if (error) {
+                                 [event setObject:[error localizedDescription] forKey:@"error"];
+                               }
+
+                               [callback call:[[NSArray alloc] initWithObjects:&event count:1] thisObject:self];
+                             }];
+
+  return nil;
+}
+
+- (NSString *)evalJSSync:(id)args
+{
+  NSString *code = nil;
+
+  __block NSString *resultString = nil;
+  __block BOOL finishedEvaluation = NO;
+
+  ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
+
+  [[[self webView] webView] evaluateJavaScript:code
+                             completionHandler:^(id result, NSError *error) {
+                               resultString = [NULL_IF_NIL(result) retain];
+                               finishedEvaluation = YES;
+                             }];
+
+  while (!finishedEvaluation) {
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+  }
+
+  return [resultString autorelease];
+}
+
+#if __IPHONE_11_0
+- (void)takeSnapshot:(id)args
+{
+  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    DebugLog(@"[ERROR] The \"takeSnapshot\" method is only available on iOS 11 and later.");
+    return;
+  }
+
+  KrollCallback *callback = (KrollCallback *)[args objectAtIndex:0];
+  ENSURE_TYPE(callback, KrollCallback);
+
+  [[[self webView] webView] takeSnapshotWithConfiguration:nil
+                                        completionHandler:^(UIImage *snapshotImage, NSError *error) {
+                                          if (error != nil) {
+                                            [callback call:@[ @{ @"success" : NUMBOOL(NO), @"error" : error.localizedDescription } ] thisObject:self];
+                                            return;
+                                          }
+
+                                          [callback call:@[ @{ @"success" : NUMBOOL(YES), @"snapshot" : [[TiBlob alloc] initWithImage:snapshotImage] } ] thisObject:self];
+                                        }];
+}
+#endif
+
+#pragma mark Utilities
+
++ (NSDictionary *)_dictionaryFromBackForwardItem:(WKBackForwardListItem *)item
+{
+  if (item == nil) {
+    return @{};
+  }
+  return @{ @"url" : item.URL.absoluteString, @"initialUrl" : item.initialURL.absoluteString, @"title" : item.title };
+}
+
+#pragma mark Generic KVO
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+  for (NSString *property in _genericProperties) {
+    if ([self _hasListeners:property] && [keyPath isEqualToString:property] && object == [[self webView] webView]) {
+      [self fireEvent:property withObject:@{ @"value" : NULL_IF_NIL([[[self webView] webView] valueForKey:property]) }];
+      return;
+    }
+  }
+}
+
+@end
 #endif
