@@ -6,8 +6,9 @@
  */
 package org.appcelerator.kroll;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,6 +85,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	protected KrollDict defaultValues = new KrollDict();
 	protected Handler mainHandler = null;
 	protected Handler runtimeHandler = null;
+	protected long referenceKey = -1;
 
 	private KrollDict langConversionTable = null;
 	private boolean bubbleParent = true;
@@ -143,6 +145,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 
 		return null;
+	}
+
+	public void setReferenceKey(long key)
+	{
+		this.referenceKey = key;
 	}
 
 	protected void initActivity(Activity activity)
@@ -1379,6 +1386,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void release()
 	{
+		releaseKroll();
+
 		if (eventListeners != null) {
 			eventListeners.clear();
 			eventListeners = null;
@@ -1403,6 +1412,25 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void releaseKroll()
 	{
+		// TIMOB-25910: attempt to make any strong references into soft references
+		// NOTE: there is an issue where proxies created in another context (such as an event listener callback)
+		// may not be destroyed when the context has ended. This workaround allows the GC to free these objects
+		// if memory is constraint.
+		if (referenceKey != -1) {
+			try {
+				final Class referenceTableClass = Class.forName("org.appcelerator.kroll.runtime.v8.ReferenceTable");
+				final Method getReferenceMethod = referenceTableClass.getDeclaredMethod("getReference", long.class);
+
+				final Object reference = getReferenceMethod.invoke(null, this.referenceKey);
+				if (!(reference instanceof WeakReference || reference instanceof SoftReference)) {
+					final Method softReferenceMethod =
+						referenceTableClass.getDeclaredMethod("makeSoftReference", long.class);
+					softReferenceMethod.invoke(null, this.referenceKey);
+				}
+			} catch (Exception e) {
+				// do nothing...
+			}
+		}
 		if (krollObject != null) {
 			krollObject.release();
 		}

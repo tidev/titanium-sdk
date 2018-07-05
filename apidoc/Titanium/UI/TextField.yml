@@ -14,22 +14,10 @@ description: |
     Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
 extends: Titanium.UI.View
 since: "0.8"
-
-
+excludes:
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 methods:
-
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to a `TextField` is not supported on all platforms.
-
-        If you need to display views on top of this object, consider using
-        another view as a container for both this object and the views you want
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
   - name: blur
     summary: Forces the field to lose focus.
 
@@ -42,11 +30,6 @@ methods:
         type: Boolean
         summary: True if this text field contains text.
     since: "2.1.0"
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.TextField.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
 
   - name: setSelection
     summary: Selects the text in range (start, end).
@@ -91,11 +74,8 @@ properties:
         The underlying attributed string drawn by the textField. If set, avoid setting common attributes
         in TextField, such as `value`, `color` and `font`, as unexpected behaviors may result.
 
-        Prior to Release 3.6.0, assign this property an object from the
-        <Titanium.UI.iOS.AttributedString> class.
-
-        Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedString>`
-        element inside a `<TextField>` element and set the text property as node text:
+        For Alloy, you can use an `<AttributedString>` element inside a `<TextField>` element and set 
+        the text property as node text:
 
             <Alloy>
               <Window>
@@ -211,10 +191,7 @@ properties:
     description: |
         Multiple autolink values can be combined with a bitwise OR. For example:
 
-            textField.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES|Ti.UI.AUTOLINK_PHONE_NUMBERS;
-
-        Prior to Release 3.0, this field used platform-specific constants. These are now
-        deprecated in favor of the `AUTOLINK` constants listed above.
+            textField.autoLink = Ti.UI.AUTOLINK_MAP_ADDRESSES | Ti.UI.AUTOLINK_PHONE_NUMBERS;
 
         The Android-specific `LINKIFY` legacy constants are defined in <Titanium.UI.Android>.
     type: Number
@@ -241,7 +218,6 @@ properties:
     summary: Determines whether the value of this text field should be cleared when it is focused.
     type: Boolean
     default: false
-
 
   - name: color
     summary: Color of the text in this text field, as a color name or hex triplet.
@@ -270,7 +246,6 @@ properties:
 
         On Android, if `true`, `return` event will not fire. Clicking on the return key will do nothing, but
         the key itself won't be **disabled**.
-
     type: Boolean
     default: false
 
@@ -315,7 +290,7 @@ properties:
         This has no effect when used with `hintType` Ti.UI.HINT_TYPE_ANIMATED. Instead a theme must be
         used that defines the `android:textColorHint` attribute.
 
-        *Note for Android*:
+        **Android Note**:
         The hint text color in Android is determined by the theme of the application. By default, the
         theme is 'Theme.AppCompat' which is a Dark theme. When you create the background to be white,
         the hint text color would also be white, hence not visible to the user. To change this, you can
@@ -376,12 +351,12 @@ properties:
 
             <Alloy>
                 <TextField id="textfield" platform="ios" hintText="Tap here...">
-                    <!-- even nested proxy properties -->
+                    <!-- Nested properties -->
                     <KeyboardToolbar >
                         <Toolbar >
                             <Items >
                                 <Button>button 1</Button>
-                                <FlexSpace/>
+                                <FlexSpace />
                                 <Button>button 2</Button>
                             </Items>
                         </Toolbar>
@@ -425,15 +400,15 @@ properties:
 
             <Alloy>
                 <Window>
-                  <!-- iOS TextField proxy properties -->
-                  <TextField id="textfield" platform="ios">
-                    <LeftButton>
-                      <Button onClick="sayHi" class="textButton">left</Button>
-                    </LeftButton>
-                    <RightButton>
-                      <Button onClick="doAlert" class="textButton">right</Button>
-                    </RightButton>
-                  </TextField>
+                    <!-- iOS TextField properties -->
+                    <TextField id="textfield" platform="ios">
+                        <LeftButton>
+                            <Button onClick="sayHi">Say Hi</Button>
+                        </LeftButton>
+                        <RightButton>
+                            <Button onClick="doAlert">Do Alert</Button>
+                        </RightButton>
+                    </TextField>
                 </Window>
             </Alloy>
     type: Object
@@ -506,17 +481,19 @@ properties:
 
             <Alloy>
                 <Window>
-                  <!-- iOS TextField proxy properties -->
-                  <TextField id="textfield" platform="ios">
-                    <LeftButton>
-                      <Button onClick="sayHi" class="textButton">left</Button>
-                    </LeftButton>
-                    <RightButton>
-                      <Button onClick="doAlert" class="textButton">right</Button>
-                    </RightButton>
-                  </TextField>
+                    <!-- iOS TextField properties -->
+                    <TextField id="textfield" platform="ios">
+                        <LeftButton>
+                            <Button onClick="sayHi">Say Hi</Button>
+                        </LeftButton>
+                        <RightButton>
+                            <Button onClick="doAlert">Do Alert</Button>
+                        </RightButton>
+                    </TextField>
                 </Window>
             </Alloy>
+        
+        The `sayHi` and `doAlert` methods are defined in the Alloy controller.
     type: Object
     platforms: [iphone, ipad]
 
@@ -627,19 +604,19 @@ events:
         type: String
 
 examples:
-  - title: Basic Text Field with rounded border
+  - title: Basic Text Field
     example: |
-        Create a simple text field with a round border style.
+        Create a simple text field with green text color.
 
             var win = Ti.UI.createWindow({
               backgroundColor: 'white'
             });
 
             var textField = Ti.UI.createTextField({
-              borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
-              color: '#336699',
-              top: 10, left: 10,
-              width: 250, height: 60
+              backgroundColor: '#fafafa',
+              color: 'green',
+              width: 250, 
+              height: 40
             });
 
             win.add(textField);
@@ -658,30 +635,31 @@ examples:
             });
 
             var send = Ti.UI.createButton({
-                title : 'Send',
-                style : Ti.UI.iOS.SystemButtonStyle.DONE,
+                title: 'Send',
+                style: Ti.UI.iOS.SystemButtonStyle.DONE,
             });
 
             var camera = Ti.UI.createButton({
-                systemButton : Ti.UI.iOS.SystemButton.CAMERA,
+                systemButton: Ti.UI.iOS.SystemButton.CAMERA,
             });
 
             var cancel = Ti.UI.createButton({
-                systemButton : Ti.UI.iOS.SystemButton.CANCEL
+                systemButton: Ti.UI.iOS.SystemButton.CANCEL
             });
 
             var flexSpace = Ti.UI.createButton({
-                systemButton : Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
+                systemButton: Ti.UI.iOS.SystemButton.FLEXIBLE_SPACE
             });
 
             var textfield = Ti.UI.createTextField({
-                borderStyle : Ti.UI.INPUT_BORDERSTYLE_BEZEL,
-                hintText : 'Focus to see keyboard with toolbar',
+                borderStyle: Ti.UI.INPUT_BORDERSTYLE_BEZEL,
+                hintText: 'Focus to see keyboard with toolbar',
                 keyboardToolbar : [cancel, flexSpace, camera, flexSpace, send],
-                keyboardToolbarColor : '#999',
-                keyboardToolbarHeight : 40,
-                top : 10,
-                width : 300, height : 35
+                keyboardToolbarColor: '#999',
+                keyboardToolbarHeight: 40,
+                top: 10,
+                width: 300, 
+                height: 35
             });
 
             win.add(textField);
@@ -689,20 +667,18 @@ examples:
 
   - title: Alloy XML Markup
     example: |
-        Previous basic text field with rounded border example as an Alloy view.
+        Previous basic text field with green text color example using Alloy.
 
-        Define the `borderStyle` property in the TSS file.
+        Alternatively, define the properties using the TSS file.
 
             <Alloy>
                 <Window id="win" backgroundColor="white">
-                    <TextField id="textField" borderStyle="Ti.UI.INPUT_BORDERSTYLE_ROUNDED" color="#336699" top="10" left="10" width="250" height="60" />
+                    <TextField class="myTextField" color="green" width="250" height="45" />
                 </Window>
             </Alloy>
 
   - title: Alloy Custom Keyboard Toolbar (iOS)
     example: |
-        Supported in Alloy 1.3.0 and later.
-
         Previous custom keyboard toolbar example as an Alloy view.  Use the `<KeyboardToolbar>` XML
         element to set the `keyboardToolbar` property.
 
@@ -714,8 +690,11 @@ examples:
                     <TextField
                         platform="ios"
                         borderStyle="Ti.UI.INPUT_BORDERSTYLE_BEZEL"
-                        keyboardToolbarColor="#999" keyboardToolbarHeight="40"
-                        top="10" height="35" width="300"
+                        keyboardToolbarColor="#999" 
+                        keyboardToolbarHeight="40"
+                        top="10" 
+                        height="35" 
+                        width="300"
                         value="Focus to see keyboard with toolbar">
 
                         <!-- Sets the keyboardToolbar property -->
@@ -730,7 +709,6 @@ examples:
                                 </Items>
                             </Toolbar>
                         </KeyboardToolbar>
-
                     </TextField>
                 </Window>
             </Alloy>

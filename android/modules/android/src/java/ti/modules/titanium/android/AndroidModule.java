@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -593,10 +593,19 @@ public class AndroidModule extends KrollModule
 	public void startService(IntentProxy intentProxy)
 	{
 		TiApplication app = TiApplication.getInstance();
-		if (app != null) {
-			app.startService(intentProxy.getIntent());
-		} else {
+		if (app == null) {
 			Log.w(TAG, "Application instance no longer available. Unable to startService.");
+			return;
+		}
+
+		try {
+			app.startService(intentProxy.getIntent());
+		} catch (Exception ex) {
+			String message = ex.getMessage();
+			if (message == null) {
+				message = "startService() failed. Reason unknown.";
+			}
+			Log.w(TAG, message);
 		}
 	}
 

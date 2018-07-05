@@ -6,19 +6,17 @@
  */
 
 #ifdef USE_TI_APPIOS
+
 #import "TiAppiOSUserNotificationCenterProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
 #import "TiAppiOSUserNotificationCategoryProxy.h"
 #import <CoreLocation/CoreLocation.h>
 
-#define NOTNIL(v) ((v == nil) ? (id)[NSNull null] : v)
-
 @implementation TiAppiOSUserNotificationCenterProxy
 
-- (void)getPendingNotifications:(id)args
+- (void)getPendingNotifications:(id)callback
 {
-  KrollCallback *callback = nil;
-  ENSURE_ARG_AT_INDEX(callback, args, 0, KrollCallback);
+  ENSURE_SINGLE_ARG(callback, KrollCallback);
 
   if ([TiUtils isIOS10OrGreater]) {
     TiThreadPerformOnMainThread(^{
@@ -57,12 +55,11 @@
   }
 }
 
-- (void)getDeliveredNotifications:(id)args
+- (void)getDeliveredNotifications:(id)callback
 {
-  if ([TiUtils isIOS10OrGreater]) {
-    KrollCallback *callback = nil;
-    ENSURE_ARG_AT_INDEX(callback, args, 0, KrollCallback);
+  ENSURE_SINGLE_ARG(callback, KrollCallback);
 
+  if ([TiUtils isIOS10OrGreater]) {
     TiThreadPerformOnMainThread(^{
       [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
         NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
@@ -82,18 +79,18 @@
     },
         NO);
   } else {
-    DebugLog(@"[WARN] Ti.App.iOS.NotificationCenter.getDeliveredNotifications is not available in iOS < 10.");
+    DebugLog(@"[ERROR] Ti.App.iOS.UserNotificationCenter.getDeliveredNotifications() is only available in iOS 10 and later.");
   }
 }
 
 - (void)removePendingNotifications:(id)args
 {
-  ENSURE_TYPE(args, NSArray);
+  ENSURE_TYPE_OR_NIL(args, NSArray);
 
   if ([TiUtils isIOS10OrGreater]) {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     TiThreadPerformOnMainThread(^{
-      if ([args count] == 0) {
+      if (args == nil || [args count] == 0) {
         [center removeAllPendingNotificationRequests];
         return;
       }
@@ -116,7 +113,7 @@
         NO);
   } else {
     TiThreadPerformOnMainThread(^{
-      if ([args count] == 0) {
+      if (args == nil || [args count] == 0) {
         [[UIApplication sharedApplication] cancelAllLocalNotifications];
         return;
       }
@@ -132,7 +129,7 @@
 
 - (void)removeDeliveredNotifications:(id)args
 {
-  ENSURE_TYPE(args, NSArray);
+  ENSURE_TYPE_OR_NIL(args, NSArray);
 
   if ([TiUtils isIOS10OrGreater]) {
     TiThreadPerformOnMainThread(^{
@@ -160,16 +157,13 @@
     },
         NO);
   } else {
-    DebugLog(@"[WARN] Ti.App.iOS.NotificationCenter.removeDeliveredNotifications is only available in iOS 10 and later.");
+    DebugLog(@"[ERROR] Ti.App.iOS.UserNotificationCenter.removeDeliveredNotifications() is only available in iOS 10 and later.");
   }
 }
 
-- (void)requestUserNotificationSettings:(id)args
+- (void)requestUserNotificationSettings:(id)callback
 {
-  ENSURE_SINGLE_ARG(args, NSArray);
-  ENSURE_TYPE([args objectAtIndex:0], KrollCallback);
-
-  KrollCallback *callback = [args objectAtIndex:0];
+  ENSURE_SINGLE_ARG(callback, KrollCallback);
 
   if ([TiUtils isIOS10OrGreater]) {
     TiThreadPerformOnMainThread(^{
@@ -217,18 +211,18 @@
   NSMutableDictionary *event = [NSMutableDictionary dictionary];
 
   [event setObject:[[NSTimeZone defaultTimeZone] name] forKey:@"timezone"];
-  [event setObject:NOTNIL([[request content] body]) forKey:@"alertBody"];
-  [event setObject:NOTNIL([[request content] title]) forKey:@"alertTitle"];
-  [event setObject:NOTNIL([[request content] subtitle]) forKey:@"alertSubtitle"];
-  [event setObject:NOTNIL([[request content] launchImageName]) forKey:@"alertLaunchImage"];
-  [event setObject:NOTNIL([[request content] sound]) forKey:@"sound"];
-  [event setObject:NOTNIL([[request content] badge]) forKey:@"badge"];
-  [event setObject:NOTNIL([[request content] userInfo]) forKey:@"userInfo"];
-  [event setObject:NOTNIL([[request content] categoryIdentifier]) forKey:@"category"];
-  [event setObject:NOTNIL([request identifier]) forKey:@"identifier"];
+  [event setObject:NULL_IF_NIL([[request content] body]) forKey:@"alertBody"];
+  [event setObject:NULL_IF_NIL([[request content] title]) forKey:@"alertTitle"];
+  [event setObject:NULL_IF_NIL([[request content] subtitle]) forKey:@"alertSubtitle"];
+  [event setObject:NULL_IF_NIL([[request content] launchImageName]) forKey:@"alertLaunchImage"];
+  [event setObject:NULL_IF_NIL([[request content] sound]) forKey:@"sound"];
+  [event setObject:NULL_IF_NIL([[request content] badge]) forKey:@"badge"];
+  [event setObject:NULL_IF_NIL([[request content] userInfo]) forKey:@"userInfo"];
+  [event setObject:NULL_IF_NIL([[request content] categoryIdentifier]) forKey:@"category"];
+  [event setObject:NULL_IF_NIL([request identifier]) forKey:@"identifier"];
 
   if ([[request trigger] isKindOfClass:[UNCalendarNotificationTrigger class]]) {
-    [event setObject:NOTNIL([(UNCalendarNotificationTrigger *)[request trigger] nextTriggerDate]) forKey:@"date"];
+    [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)[request trigger] nextTriggerDate]) forKey:@"date"];
   } else if ([[request trigger] isKindOfClass:[UNLocationNotificationTrigger class]]) {
     CLCircularRegion *region = (CLCircularRegion *)[(UNLocationNotificationTrigger *)[request trigger] region];
 

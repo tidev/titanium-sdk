@@ -2685,7 +2685,9 @@ properties:
         JavaScript files in their own contexts.
     type: Titanium.UI.Window
     permission: read-only
-
+    deprecated:
+        since: 3.5.0
+        removed: 6.0.0
 
   - name: orientation
     summary: Updates the orientation of the current window to the specified orientation value.

@@ -265,7 +265,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
     }
 #ifdef TI_USE_KROLL_THREAD
     [o setValue:v
-          forKey:name];
+         forKey:name];
 #else
 
     TiThreadPerformOnMainThread(^{

@@ -60,13 +60,13 @@
 
 - (NSDate *)createTimestamp
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp", @"7.2.0", @"Filesystem.File.createdAt()");
+  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp", @"7.3.0", @"Filesystem.File.createdAt()");
   return [self createdAt:nil];
 }
 
 - (NSDate *)createTimestamp:(id)unused
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp()", @"7.2.0", @"Filesystem.File.createdAt()");
+  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp()", @"7.3.0", @"Filesystem.File.createdAt()");
   return [self createdAt:unused];
 }
 
@@ -87,13 +87,13 @@
 
 - (NSDate *)modificationTimestamp
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp", @"7.2.0", @"Filesystem.File.modifiedAt()");
+  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp", @"7.3.0", @"Filesystem.File.modifiedAt()");
   return [self modifiedAt:nil];
 }
 
 - (NSDate *)modificationTimestamp:(id)unused
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp()", @"7.2.0", @"Filesystem.File.modifiedAt()");
+  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp()", @"7.3.0", @"Filesystem.File.modifiedAt()");
   return [self modifiedAt:nil];
 }
 
