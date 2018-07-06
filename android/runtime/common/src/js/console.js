@@ -26,7 +26,7 @@ function join(args) {
 	}).join(' ');
 }
 
-function logTime(label, ...logData) {
+function logTime(label, logData) {
 	label = `${label}`;
 	const startTime = times.get(label);
 	if (!startTime) {
@@ -35,7 +35,7 @@ function logTime(label, ...logData) {
 	}
 	const duration = Date.now() - startTime;
 	if (logData) {
-		exports.log(`${label}: ${duration}ms`, logData);
+		exports.log(`${label}: ${duration}ms`, ...logData);
 	} else {
 		exports.log(`${label}: ${duration}ms`);
 	}
