@@ -72,8 +72,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
     [controller addUserScript:[self userScriptTitaniumInjection]];
     [controller addUserScript:[self userScriptTitaniumInjectionForAppEvent]];
-    [controller addScriptMessageHandler:self name:@"TiApp"];
-    [controller addScriptMessageHandler:self name:@"Ti"];
+    [controller addScriptMessageHandler:self name:@"_Ti_"];
 
     [config setUserContentController:controller];
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
@@ -125,6 +124,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   }
 }
 #pragma mark Public API's
+
+- (void)setHandlePlatformUrl_:(id)arg
+{
+}
 
 - (void)setZoomLevel_:(id)zoomLevel
 {
@@ -389,7 +392,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     if (callbacks[name]) { \
     callbacks[name](_payload); \
     } \
-    window.webkit.messageHandlers.TiApp.postMessage({name: name, payload: _payload, method: 'fireEvent'},'*'); \
+    window.webkit.messageHandlers._Ti_.postMessage({name: name, payload: _payload, method: 'fireEvent'},'*'); \
     }, \
     addEventListener: function(name, callback) { \
     callbacks[name] = callback; \
@@ -398,7 +401,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     listeners=[];Ti._listeners[name]=listeners} \
     var newid=Ti.pageToken+Ti._listener_id++; \
     listeners.push({callback:callback,id:newid});\
-    window.webkit.messageHandlers.TiApp.postMessage({name: name, method: 'addEventListener', callback: Ti._JSON({name:name, id:newid},1)},'*'); \
+    window.webkit.messageHandlers._Ti_.postMessage({name: name, method: 'addEventListener', callback: Ti._JSON({name:name, id:newid},1)},'*'); \
     }, \
     removeEventListener: function(name, callback) { \
     var listeners=Ti._listeners[name]; \
@@ -407,7 +410,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     var entry=listeners[c]; \
     if(entry.callback==fn){ \
     listeners.splice(c,1);\
-    window.webkit.messageHandlers.TiApp.postMessage({name: name, method: 'removeEventListener', callback: Ti._JSON({name:name, id:entry.id},1)},'*'); \
+    window.webkit.messageHandlers._Ti_.postMessage({name: name, method: 'removeEventListener', callback: Ti._JSON({name:name, id:entry.id},1)},'*'); \
     delete callbacks[name]; break}}}\
     }, \
     _dispatchEvent: function(type,evtid,evt){ \
@@ -420,19 +423,19 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     }}}}}; \
     Ti.API = { \
     debug: function(message) { \
-    window.webkit.messageHandlers.TiApp.postMessage({name:'debug', method: 'log', callback: Ti._JSON({level:'debug', message:message},1)},'*'); \
+    window.webkit.messageHandlers._Ti_.postMessage({name:'debug', method: 'log', callback: Ti._JSON({level:'debug', message:message},1)},'*'); \
     }, \
     error: function(message) { \
-    window.webkit.messageHandlers.TiApp.postMessage({name:'error', method: 'log', callback: Ti._JSON({level:'error', message:message},1)},'*'); \
+    window.webkit.messageHandlers._Ti_.postMessage({name:'error', method: 'log', callback: Ti._JSON({level:'error', message:message},1)},'*'); \
     }, \
     info: function(message){ \
-    window.webkit.messageHandlers.TiApp.postMessage({name:'info', method: 'log', callback: Ti._JSON({level:'info', message:message},1)},'*'); \
+    window.webkit.messageHandlers._Ti_.postMessage({name:'info', method: 'log', callback: Ti._JSON({level:'info', message:message},1)},'*'); \
     }, \
     fatal: function(message){ \
-    window.webkit.messageHandlers.TiApp.postMessage({name:'fatal', method: 'log', callback: Ti._JSON({level:'fatal', message:message},1)},'*'); \
+    window.webkit.messageHandlers._Ti_.postMessage({name:'fatal', method: 'log', callback: Ti._JSON({level:'fatal', message:message},1)},'*'); \
     }, \
     warn: function(message){ \
-    window.webkit.messageHandlers.TiApp.postMessage({name:'warn', method: 'log', callback: Ti._JSON({level:'warn', message:message},1)},'*'); \
+    window.webkit.messageHandlers._Ti_.postMessage({name:'warn', method: 'log', callback: Ti._JSON({level:'warn', message:message},1)},'*'); \
     }, \
     }; \
     ";
@@ -578,7 +581,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     NSString *name = [[message body] objectForKey:@"name"];
     NSDictionary *payload = [[message body] objectForKey:@"payload"];
 
-    if ([message.name isEqualToString:@"TiApp"]) {
+    if ([message.name isEqualToString:@"_Ti_"]) {
       NSString *callback = [[message body] objectForKey:@"callback"];
 
       SBJSON *decoder = [[[SBJSON alloc] init] autorelease];
@@ -1011,7 +1014,7 @@ static NSString *UIKitLocalizedString(NSString *string)
       [[self proxy] fireEvent:@"progress"
                    withObject:@{
                      @"value" : NUMDOUBLE([[self webView] estimatedProgress]),
-                     @"url" : [[[self webView] URL] absoluteString] ?: @""
+                     @"url" : [[[self webView] URL] absoluteString] ?: [[NSBundle mainBundle] bundlePath]
                    }];
     }
   } else {

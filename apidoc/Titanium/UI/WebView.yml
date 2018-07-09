@@ -255,9 +255,94 @@ methods:
         summary: Basic auth password.
         type: String
 
+      - name: persistence
+        summary: Constants specify how long the credential will be kept.
+        type: Number
+        platforms: [iphone, ipad]
+        since: "7.4.0"
+        constants: Titanium.UI.CREDENTIAL_PERSISTENCE_*
+
   - name: stopLoading
     summary: Stops loading a currently loading page.
 
+  - name: startListeningToProperties
+    summary: Add native properties for observing for change. 
+    description: |
+        Some common properties are title, URL, estimatedProgress etc. 
+        See native KVO capability at https://developer.apple.com/documentation/webkit/wkwebview.
+        See example section for usage.      
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    parameters:
+      - name: propertyList
+        summary: List of properties for listen.
+        type: Array
+
+  - name: stopListeningToProperties
+    summary: Remove native properties from observing.      
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    parameters:
+      - name: propertyList
+        summary: List of properties to remove.
+        type: Array
+
+  - name: takeSnapshot
+    summary: Takes a snapshot of the view's visible viewport.      
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    osver: {ios: {min: "11.0"}}
+    parameters:
+      - name: callback
+        summary: Function to call upon snapshot captured.
+        type: Callback<SnapshotResult>
+
+  - name: addUserScript
+    summary: Adds a user script.      
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    parameters:
+      - name: source
+        summary: A script that can be injected into a webpage.
+        type: String
+      - name: injectionTime
+        summary: The time when the script should be injected into the webpage.
+        type: Number
+        constants: Titanium.UI.INJECTION_TIME_DOCUMENT_*
+      - name: mainFrameOnly
+        summary: |
+            A Boolean value indicating whether the script should be injected only into the 
+            main frame (true) or into all frames (false).
+        type: Boolean
+
+  - name: removeAllUserScripts
+    summary: Removes all associated user scripts.      
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+
+  - name: addScriptMessageHandler
+    summary: Adds a script message handler.
+    description: |
+        Adding a script message handler with name 'name' causes the JavaScript function 
+        window.webkit.messageHandlers.name.postMessage(messageBody) to be defined in all 
+        frames in the web view.      
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    parameters:
+      - name: name
+        summary: The name of the message handler.
+        description: |
+            The name should not be '_Ti_' as we are using this name for internal use.
+        type: String
+
+  - name: removeScriptMessageHandler
+    summary: Removes a script message handler.     
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    parameters:
+      - name: name
+        summary: The name of the message handler.
+        type: String  
 events:
 
   - name: beforeload
@@ -342,12 +427,13 @@ events:
     description: |
         Android only. This is a synchronous event and the developer can change the value of `ignoreSslError`
         to control if the request should proceed or fail.
-    platforms: [android]
-    since: "3.3.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "3.3.0", iphone: "7.4.0", ipad: "7.4.0"}
     properties:
       - name: code
         summary: SSL error code.
         type: Number
+        platforms: [android]
 
   - name: onStopBlacklistedUrl
     summary: Fired when a blacklisted URL is stopped.
@@ -367,6 +453,68 @@ events:
     properties:
       - name: url
         summary: The URL of the web document that is stopped.
+
+  - name: message
+    summary: Fired when a script message is received from a webpage.
+    description: |
+        This event get fired when you have added message handler using method 'addScriptMessageHandler'
+        and  webpage sends message to it.
+    platforms: [ipad, iphone]
+    since: "7.4.0"
+    properties:
+      - name: url
+        summary: URL of the web document being loaded.
+        type: String
+      - name: body
+        summary: The body of message sent from webview.
+        type: String
+      - name: name
+        summary: The name of the message handler to which the message is sent.
+        type: String
+      - name: isMainFrame
+        summary: |
+            A Boolean value indicating whether the frame is the web site's main frame or a subframe.
+        type: Boolean
+
+  - name: progress
+    summary: Fired when webpage download progresses.
+    platforms: [ipad, iphone]
+    since: "7.4.0"
+    properties:
+      - name: value
+        summary: |
+            An estimate of what fraction of the current navigation has been loaded.
+        description: |
+            This value ranges from 0.0 to 1.0 based on the total number of bytes expected to be received, 
+            including the main document and all of its potential subresources.
+        type: Number
+      - name: url
+        summary: URL of the web document being loaded.
+        type: String
+
+  - name: redirect
+    summary: Fired when a web view receives a server redirect.
+    platforms: [ipad, iphone]
+    since: "7.4.0"
+    properties:
+      - name: title
+        summary: Page title of webpage.
+        type: String
+      - name: url
+        summary: URL of the web document being loaded.
+        type: String
+
+  - name: handleurl
+    summary: Fired when a web view receives a server redirect. See the example.
+    platforms: [ipad, iphone]
+    since: "7.4.0"
+    properties:
+      - name: handler
+        summary: Page title of webpage.
+        type: String
+      - name: url
+        summary: URL of the web document being loaded.
+        type: String
 
 properties:
 
@@ -694,6 +842,82 @@ properties:
     default: undefined. Behaves as no zoom applied.
     platforms: [android, iphone, ipad]
     since: "7.3.0"
+
+  - name: allowsBackForwardNavigationGestures
+    summary: |
+        A Boolean value indicating whether horizontal swipe gestures will trigger back-forward list navigations.
+    type: Boolean
+    default: false.
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+
+  - name: title
+    summary: Returns page title of webpage.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    permission: read-only
+
+  - name: progress
+    summary: An estimate of what fraction of the current navigation has been loaded.
+    description: |
+        This value ranges from 0.0 to 1.0 based on the total number of bytes expected 
+        to be received, including the main document and all of its potential subresources. 
+        After loading completes, the progress remains at 1.0 until a new download starts, 
+        at which point progress is reset to 0.0.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    permission: read-only
+
+  - name: cachePolicy
+    summary: The cache policy for the request.
+    type: Number
+    constants: Titanium.UI.CACHE_POLICY_*
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+
+  - name: timeout
+    summary: The timeout interval for the request, in seconds.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+
+  - name: selectionGranularity
+    summary: |
+        The level of granularity with which the user can interactively select content in the web view.
+    type: Number
+    constants: Titanium.UI.SELECTION_GRANULARITY_*
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    permission: read-only
+
+  - name: secure
+    summary: |
+        A Boolean value indicating whether all resources on the page have been loaded through 
+        securely encrypted connections.
+    type: Boolean
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    permission: read-only
+
+---
+name: SnapshotResult
+summary: The parameter passed to the <Titanium.UI.WebView.takeSnapshot> callback.
+platforms: [iphone, ipad]
+since: "7.4.0"
+properties:
+  - name: snapshot
+    summary: The snapshot image.
+    type: Titanium.Blob
+  - name: success
+    summary: Indicates if the snapshot taken.
+    description: Returns `true` on successful snapshot captured otherwise `false`.
+    type: Boolean
+  - name: error
+    summary: Error message, if any returned.
+    description: May be undefined.
+    type: String
 
 examples:
   - title: Basic Web View to External URL

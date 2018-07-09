@@ -325,7 +325,7 @@
   ENSURE_SINGLE_ARG(args, NSDictionary);
 
   NSString *source = [TiUtils stringValue:@"source" properties:args];
-  WKUserScriptInjectionTime injectionTime = [TiUtils intValue:@"injectionTime" properties:args];
+  WKUserScriptInjectionTime injectionTime = [TiUtils intValue:@"injectionTime" properties:args def:WKUserScriptInjectionTimeAtDocumentStart];
   BOOL mainFrameOnly = [TiUtils boolValue:@"mainFrameOnly" properties:args];
 
   WKUserScript *script = [[WKUserScript alloc] initWithSource:source injectionTime:injectionTime forMainFrameOnly:mainFrameOnly];
