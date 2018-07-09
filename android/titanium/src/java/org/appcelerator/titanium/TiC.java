@@ -1281,6 +1281,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CLIP_VIEWS = "clipViews";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CODE = "code";
 
 	/**
