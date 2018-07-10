@@ -304,7 +304,11 @@ public class TiUIScrollableView extends TiUIView
 
 	protected TiPagingControl buildPagingControl()
 	{
-		return new TiArrowPagingControl(this, mPager);
+		if (TiConvert.toBoolean(proxy.getProperty(ScrollableViewProxy.USE_LEGACY_CONTROL))) {
+			return new TiArrowPagingControl(this, mPager);
+		} else {
+			return new TiDotPagingControl(this, mPager);
+		}
 	}
 
 	@Override
@@ -372,8 +376,44 @@ public class TiUIScrollableView extends TiUIView
 			mPager.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 		} else if (TiC.PROPERTY_CACHE_SIZE.equals(key)) {
 			setPageCacheSize(TiConvert.toInt(newValue));
+		} else if (TiC.PROPERTY_PAGING_CONTROL_ON_TOP.equals(key)) {
+			setPagingControlPosition(TiConvert.toBoolean(newValue));
+		} else if (TiC.PROPERTY_PAGE_INDICATOR_COLOR.equals(key)) {
+			setPageIndicatorColor(TiConvert.toColor((String) newValue));
+		} else if (TiC.PROPERTY_CURRENT_PAGE_INDICATOR_COLOR.equals(key)) {
+			setCurrentPageIndicatorColor(TiConvert.toColor((String) newValue));
+		} else if (TiC.PROPERTY_PAGING_CONTROL_HEIGHT.equals(key)) {
+			setPagingControlHeight(TiConvert.toInt(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
+	}
+
+	private void setPagingControlPosition(boolean onTop)
+	{
+		if (mPagingControl != null) {
+			mPagingControl.setPagingControlPosition(onTop);
+		}
+	}
+
+	private void setPageIndicatorColor(int color)
+	{
+		if (mPagingControl != null) {
+			mPagingControl.setPageIndicatorColor(color);
+		}
+	}
+
+	private void setCurrentPageIndicatorColor(int color)
+	{
+		if (mPagingControl != null) {
+			mPagingControl.setCurrentPageIndicatorColor(color);
+		}
+	}
+
+	private void setPagingControlHeight(int height)
+	{
+		if (mPagingControl != null) {
+			mPagingControl.setPagingControlHeight(height);
 		}
 	}
 

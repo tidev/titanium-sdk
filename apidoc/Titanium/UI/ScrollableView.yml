@@ -8,9 +8,9 @@ description: |
     a scrollable view.
 
     The `ScrollableView` supports an on-screen paging control to indicate whether a previous or next
-    page exists. When the paging control is enabled on iOS, by default it appears as
-    small dots on the bottom of the screen, whereas Android displays arrows on the left and
-    right-hand sides.
+    page exists. When the paging control is enabled, by default it appears as small dots on the bottom of
+    the screen (on Android to use old control style with arrows on the left and right-hand sides you must
+    pass `useLegacyControl` property with `true` value on ScrollableView creation).
 
     Use the `cacheSize` property to cache views inside the scrollable view. This can be required when
     using complex view structures in the scrollable view (e.g. map views) and the app might crash if no
@@ -256,8 +256,8 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     default: undefined (system-default white)
-    platforms: [iphone, ipad]
-    since: "5.4.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "8.0.0", iphone: "5.4.0", ipad: "5.4.0"}
 
   - name: disableBounce
     summary: Determines whether page bouncing effect is disabled.
@@ -285,7 +285,8 @@ properties:
     summary: Height of the paging control, in pixels.
     type: Number
     default: 20
-    platforms: [iphone,ipad]
+    platforms: [android, iphone,ipad]
+    since: {android: "8.0.0"}
 
   - name: pageIndicatorColor
     summary: Color of the paging control, as a color name or hex triplet.
@@ -293,8 +294,8 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
     default: undefined (system-default gray)
-    platforms: [iphone, ipad]
-    since: "5.4.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "8.0.0", iphone: "5.4.0", ipad: "5.4.0"}
 
   - name: showPagingControl
     summary: Determines whether the paging control is visible.
@@ -304,11 +305,15 @@ properties:
 
   - name: pagingControlTimeout
     summary: Number of milliseconds to wait before hiding the paging control.
-    description: Set to less than or equal to `0` to disable timeout, to keep controls displayed.
+    description: |
+        Set to less than or equal to `0` to disable timeout, to keep controls displayed. When
+        `useLegacyControl` is not present or set to `false` default value is `0`.
     type: Number
     availability: creation
     default: 3000
     platforms: [android]
+    deprecated:
+        since: "8.0.0"
 
   - name: pagingControlAlpha
     summary: Alpha value of the paging control.
@@ -322,8 +327,8 @@ properties:
     description: Set to `true` for the paging control at the top.
     type: Boolean
     default: false
-    platforms: [iphone,ipad]
-    since: "2.1.0"
+    platforms: [android, iphone,ipad]
+    since: {android: "8.0.0", iphone: "2.1.0", ipad: "2.1.0"}
 
   - name: overlayEnabled
     summary: Determines whether the paging control is added as an overlay to the view.
@@ -381,6 +386,14 @@ properties:
     platforms: [android]
     type: ViewPadding
     since: "7.5.0"
+
+  - name:  useLegacyControl
+    summary: Enable old control style with arrows on the left and right-hand sides.
+    type: Boolean
+    default: false
+    platforms: [android]
+    deprecated:
+        since: "8.0.0"
 
 examples:
   - title: Simple Scrollable View with 3 Views

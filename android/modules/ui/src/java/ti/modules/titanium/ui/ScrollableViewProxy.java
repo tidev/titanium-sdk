@@ -27,6 +27,11 @@ import android.os.Message;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
+		ScrollableViewProxy.USE_LEGACY_CONTROL,
+		TiC.PROPERTY_PAGING_CONTROL_HEIGHT,
+		TiC.PROPERTY_PAGING_CONTROL_ON_TOP,
+		TiC.PROPERTY_PAGE_INDICATOR_COLOR,
+		TiC.PROPERTY_CURRENT_PAGE_INDICATOR_COLOR,
 		TiC.PROPERTY_CURRENT_PAGE,
 		TiC.PROPERTY_SCROLLING_ENABLED,
 		TiC.PROPERTY_VIEWS,
@@ -40,6 +45,8 @@ import android.os.Message;
 public class ScrollableViewProxy extends TiViewProxy
 {
 	private static final String TAG = "TiScrollableView";
+
+	public static final String USE_LEGACY_CONTROL = "useLegacyControl";
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	public static final int MSG_HIDE_PAGER = MSG_FIRST_ID + 101;
@@ -57,6 +64,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		super();
 		inScroll = new AtomicBoolean(false);
+		defaultValues.put(TiC.PROPERTY_PAGING_CONTROL_HEIGHT, 20);
+		defaultValues.put(TiC.PROPERTY_PAGING_CONTROL_ON_TOP, false);
 		defaultValues.put(TiC.PROPERTY_CACHE_SIZE, MIN_CACHE_SIZE);
 		defaultValues.put(TiC.PROPERTY_CLIP_VIEWS, true);
 		defaultValues.put(TiC.PROPERTY_SHOW_PAGING_CONTROL, false);
@@ -64,6 +73,9 @@ public class ScrollableViewProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_CURRENT_PAGE, 0);
 		defaultValues.put(TiC.PROPERTY_SCROLLING_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_VIEWS, new Object[0]);
+		defaultValues.put(ScrollableViewProxy.USE_LEGACY_CONTROL, false);
+		defaultValues.put(TiC.PROPERTY_PAGE_INDICATOR_COLOR, "#808080");
+		defaultValues.put(TiC.PROPERTY_CURRENT_PAGE_INDICATOR_COLOR, "#FFFFFF");
 	}
 
 	@Override
@@ -236,9 +248,11 @@ public class ScrollableViewProxy extends TiViewProxy
 		getMainHandler().removeMessages(MSG_HIDE_PAGER);
 
 		int timeout = DEFAULT_PAGING_CONTROL_TIMEOUT;
-		Object o = getProperty(TiC.PROPERTY_PAGING_CONTROL_TIMEOUT);
-		if (o != null) {
-			timeout = TiConvert.toInt(o);
+		if (TiConvert.toBoolean(getProperty(USE_LEGACY_CONTROL))) {
+			Object o = getProperty(TiC.PROPERTY_PAGING_CONTROL_TIMEOUT);
+			if (o != null) {
+				timeout = TiConvert.toInt(o);
+			}
 		}
 
 		if (timeout > 0) {
