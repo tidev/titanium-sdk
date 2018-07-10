@@ -77,11 +77,6 @@
 #define Reachability __TI_NS_SYMBOL(Reachability)
 #endif
 
-// SCListener
-#ifndef SCListener
-#define SCListener __TI_NS_SYMBOL(SCListener)
-#endif
-
 // PlausibleDatabase
 #ifndef PlausibleDatabase
 #define PlausibleDatabase __TI_NS_SYMBOL(PlausibleDatabase)
