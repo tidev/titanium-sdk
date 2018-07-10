@@ -14,10 +14,8 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiEventHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -28,18 +26,13 @@ import ti.modules.titanium.ui.widget.listview.ListItemProxy;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
-import android.view.View.MeasureSpec;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
@@ -49,15 +42,12 @@ public class TiUIScrollableView extends TiUIView
 {
 	private static final String TAG = "TiUIScrollableView";
 
-	private static final int PAGE_LEFT_ID = 200;
-	private static final int PAGE_RIGHT_ID = 201;
-
 	private final ViewPager mPager;
 	private final ArrayList<TiViewProxy> mViews;
 	private final ArrayList<Object> mNewViews;
 	private final ViewPagerAdapter mAdapter;
 	private final TiViewPagerLayout mContainer;
-	private final FrameLayout mPagingControl;
+	private TiPagingControl mPagingControl;
 
 	private int mCurIndex = 0;
 	private boolean mEnabled = true;
@@ -82,11 +72,14 @@ public class TiUIScrollableView extends TiUIView
 		mContainer.addView(mPager, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
 		// Add paging controls to container.
-		mPagingControl = buildPagingControl(activity);
-		mContainer.addView(mPagingControl,
-						   new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		mPagingControl = buildPagingControl();
 
 		setNativeView(mContainer);
+	}
+
+	public FrameLayout getContainer()
+	{
+		return mContainer;
 	}
 
 	private ViewPager buildViewPager(Context context, ViewPagerAdapter adapter)
@@ -305,73 +298,9 @@ public class TiUIScrollableView extends TiUIView
 		}
 	}
 
-	private FrameLayout buildPagingControl(Context context)
+	protected TiPagingControl buildPagingControl()
 	{
-		// Validate argument.
-		if (context == null) {
-			return null;
-		}
-
-		// Calculate a density scaled left/right arrow size.
-		int arrowSizeInPixels = 24;
-		if (context.getResources() != null) {
-			DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-			if ((metrics != null) && (metrics.density >= 0.5f)) {
-				arrowSizeInPixels = (int) ((float) arrowSizeInPixels * metrics.density);
-			}
-		}
-
-		// Create an overlay view that will display the page controls.
-		FrameLayout layout = new FrameLayout(context);
-		layout.setFocusable(false);
-		layout.setFocusableInTouchMode(false);
-
-		// Add left arrow button to overlay.
-		TiArrowView leftArrow = new TiArrowView(context);
-		leftArrow.setVisibility(View.INVISIBLE);
-		leftArrow.setId(PAGE_LEFT_ID);
-		leftArrow.setMinimumWidth(arrowSizeInPixels);
-		leftArrow.setMinimumHeight(arrowSizeInPixels);
-		leftArrow.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v)
-			{
-				if (mEnabled) {
-					movePrevious();
-				}
-			}
-		});
-		FrameLayout.LayoutParams leftLayoutParams =
-			new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		leftLayoutParams.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
-		layout.addView(leftArrow, leftLayoutParams);
-
-		// Add right arrow button to overlay.
-		TiArrowView rightArrow = new TiArrowView(context);
-		rightArrow.setLeft(false);
-		rightArrow.setVisibility(View.INVISIBLE);
-		rightArrow.setId(PAGE_RIGHT_ID);
-		rightArrow.setMinimumWidth(arrowSizeInPixels);
-		rightArrow.setMinimumHeight(arrowSizeInPixels);
-		rightArrow.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v)
-			{
-				if (mEnabled) {
-					moveNext();
-				}
-			}
-		});
-		FrameLayout.LayoutParams rightLayoutParams =
-			new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		rightLayoutParams.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
-		layout.addView(rightArrow, rightLayoutParams);
-
-		// Hide this overlay by default. Will be shown if Titanium "showPagingControl" is set true.
-		layout.setVisibility(View.GONE);
-
-		// Return the newly created overlay view.
-		return layout;
+		return new TiArrowPagingControl(this, mPager);
 	}
 
 	@Override
@@ -467,17 +396,6 @@ public class TiUIScrollableView extends TiUIView
 
 	public void showPager()
 	{
-		View v = null;
-		v = mContainer.findViewById(PAGE_LEFT_ID);
-		if (v != null) {
-			v.setVisibility(mCurIndex > 0 ? View.VISIBLE : View.INVISIBLE);
-		}
-
-		v = mContainer.findViewById(PAGE_RIGHT_ID);
-		if (v != null) {
-			v.setVisibility(mCurIndex < (mViews.size() - 1) ? View.VISIBLE : View.INVISIBLE);
-		}
-
 		mPagingControl.setVisibility(View.VISIBLE);
 		((ScrollableViewProxy) proxy).setPagerTimeout();
 	}
@@ -586,6 +504,10 @@ public class TiUIScrollableView extends TiUIView
 				viewProxy.setParent(null);
 			}
 			mViews.clear();
+		}
+		if (mPagingControl != null) {
+			mPagingControl.release();
+			mPagingControl = null;
 		}
 		super.release();
 	}
@@ -726,7 +648,6 @@ public class TiUIScrollableView extends TiUIView
 				oldProxiesList.add((TiViewProxy) item);
 			}
 		}
-
 
 		@Override
 		public int getItemPosition(Object object)
