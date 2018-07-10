@@ -72,7 +72,7 @@ public class TiUIScrollableView extends TiUIView
 		mContainer.addView(mPager, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
 		// Add paging controls to container.
-		mPagingControl = buildPagingControl();
+		showPager();
 
 		setNativeView(mContainer);
 	}
@@ -396,13 +396,20 @@ public class TiUIScrollableView extends TiUIView
 
 	public void showPager()
 	{
+		if (shouldShowPager()) {
+			if (mPagingControl == null) {
+				mPagingControl = buildPagingControl();
+			}
+		}
 		mPagingControl.setVisibility(View.VISIBLE);
 		((ScrollableViewProxy) proxy).setPagerTimeout();
 	}
 
 	public void hidePager()
 	{
-		mPagingControl.setVisibility(View.INVISIBLE);
+		if (mPagingControl != null) {
+			mPagingControl.setVisibility(View.INVISIBLE);
+		}
 	}
 
 	public void moveNext()
@@ -700,9 +707,7 @@ public class TiUIScrollableView extends TiUIView
 		public boolean onTrackballEvent(MotionEvent event)
 		{
 			// Any trackball activity should show the pager.
-			if (shouldShowPager() && mPagingControl.getVisibility() != View.VISIBLE) {
-				showPager();
-			}
+			showPager();
 			return super.onTrackballEvent(event);
 		}
 
