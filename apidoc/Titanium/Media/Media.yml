@@ -574,7 +574,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ULAW
-    summary: Audio format 8-bit [muLaw encoding](https://en.wikipedia.org/wiki/Μ-law_algorithm).
+    summary: Audio format 8-bit [muLaw encoding](https://en.wikipedia.org/wiki/M-law_algorithm).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
