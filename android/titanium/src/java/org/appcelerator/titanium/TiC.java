@@ -1406,6 +1406,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CURRENT_PAGE_INDICATOR_COLOR = "currentPageIndicatorColor";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DATA = "data";
 
 	/**
@@ -2463,6 +2468,21 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PACKAGE_NAME = "packageName";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PAGE_INDICATOR_COLOR = "pageIndicatorColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PAGING_CONTROL_HEIGHT = "pagingControlHeight";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PAGING_CONTROL_ON_TOP = "pagingControlOnTop";
 
 	/**
 	 * @module.api
