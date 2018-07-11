@@ -27,7 +27,7 @@ description: |
 
     Pinching a `ScrollableView` to zoom in and out of content is not supported on Android. On iOS, this action
     is natively supported by the UIScrollView class, but on Android, the native ScrollView class does
-    not support this action. Parity between the two platforms cannot be achieved with this feature.
+    not support this action.
 extends: Titanium.UI.View
 since: "0.9"
 
@@ -224,7 +224,7 @@ properties:
     description: |
         While absolute dimensions are supported, relative values, such as those provided
         in percentages, are not. The minimum value for contentHeight is the height of the scroll view.
-        Measured in platform-specific units; pixels on Android and density-independent pixels (dip) on iOS.
+        Measured in platform-specific units; pixels on Android, effective pixels on Windows and density-independent pixels (dip) on iOS.
     type: [Number, String]
 
   - name: contentOffset
@@ -241,7 +241,7 @@ properties:
     description: |
         While absolute dimensions are supported, relative values, such as those provided
         in percentages, are not. The minimum value for contentWidth is the width of the scroll view.
-        Measured in platform-specific units; pixels on Android and density-independent pixels (dip) on iOS.
+        Measured in platform-specific units; pixels on Android, effective pixels on Windows and density-independent pixels (dip) on iOS.
     type: [Number, String]
 
   - name: decelerationRate
@@ -282,7 +282,7 @@ properties:
     type: Number
     constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
     platforms: [iphone, ipad]
-    default: Undefined (behaves like <Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE>)
+    default: Undefined (behaves like Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE)
     since: "6.0.0"
 
   - name: maxZoomScale
@@ -330,7 +330,7 @@ properties:
         The scroll-to-top gesture is a tap on the status bar; The default value of this property is true.
         This gesture works when you have a single visible scroll view.
         If there are multiple table views, web views, text areas, and/or scroll views visible,
-        you will need to disable (set to false) on the above views you DON'T want this
+        you will need to disable (set to false) on the above views that you don't want this
         behaviour on. The remaining view will then respond to scroll-to-top gesture.
     type: Boolean
     default: true
@@ -341,7 +341,7 @@ properties:
     summary: Style of the scrollbar.
     type: Number
     constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
-    default: <Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT>
+    default: Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT
     platforms: [iphone, ipad]
 
   - name: scrollType
