@@ -70,7 +70,7 @@ JavaObject::~JavaObject()
 
 jobject JavaObject::getJavaObject()
 {
-	if (isWeakRef_) { // Did JS side try to collect our object already?
+	if (isWeakRef_ || !ReferenceTable::isStrongReference(refTableKey_)) { // Did JS side try to collect our object already?
 		MakeJavaStrong(); // move back to strong reference on Java side
 		MakeJSWeak(); // ask V8 to let us know when it thinks it's dead again
 	}
@@ -167,9 +167,7 @@ void JavaObject::MakeJavaStrong()
 		ASSERT(refTableKey_ == 0);
 		ASSERT(javaObject_ != NULL);
 	} else {
-		if (isWeakRef_) { // if we are weak, upgrade back to strong
-			// Make sure we have a key
-			ASSERT(refTableKey_ != 0);
+		if (refTableKey_ > 0 && (isWeakRef_ || !ReferenceTable::isStrongReference(refTableKey_))) { // if we are weak, upgrade back to strong
 			JNIEnv *env = JNIUtil::getJNIEnv();
 			ASSERT(env != NULL);
 			jobject stored = ReferenceTable::clearReference(refTableKey_);
