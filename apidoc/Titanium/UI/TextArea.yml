@@ -354,6 +354,14 @@ properties:
     default: <Titanium.UI.KEYBOARD_DEFAULT>
     platforms: [android, iphone, ipad]
 
+  - name: lines
+    summary: Number of lines tall the text area height will be, if set.
+    description: Sets the height of the text area by line height. Set to -1 to respect the view's height property instead.
+    default: 1
+    type: Number
+    since: { android: "7.4.0" }
+    platforms: [android]
+
   - name: maxLength
     summary: Maximum length of text field input.
     description: Any attempt to input text beyond this length (including pasting a string
@@ -363,6 +371,14 @@ properties:
     type: Number
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
     platforms: [android, iphone, ipad]
+
+  - name: maxLines
+    summary: Maximum line count of text field input.
+    description: Sets the maximum of lines that the field will be extended to when pressing `Return`.
+    default: -1
+    type: Number
+    since: { android: "7.4.0" }
+    platforms: [android]
 
   - name: padding
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.

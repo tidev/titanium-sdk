@@ -422,18 +422,24 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	// Subclasses can override to provide a custom layout
 	protected View createLayout()
 	{
+		// Set up the view's layout.
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
-
 		String layoutFromIntent = getIntentString(TiC.INTENT_PROPERTY_LAYOUT, "");
 		if (layoutFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
 			arrangement = LayoutArrangement.HORIZONTAL;
-
 		} else if (layoutFromIntent.equals(TiC.LAYOUT_VERTICAL)) {
 			arrangement = LayoutArrangement.VERTICAL;
 		}
 
-		// set to null for now, this will get set correctly in setWindowProxy()
-		return new TiCompositeLayout(this, arrangement, null);
+		// Create the root view to be used by the activity.
+		// - Set the layout's proxy to null for now. Will be set later via setWindowProxy().
+		// - Make it focusable so Android won't auto-focus on the first focusable child view in the window.
+		//   This makes it match iOS' behavior where no child view has the focus when a window is opened.
+		TiCompositeLayout compositeLayout = new TiCompositeLayout(this, arrangement, null);
+		compositeLayout.setFocusable(true);
+		compositeLayout.setFocusableInTouchMode(true);
+		compositeLayout.setDescendantFocusability(TiCompositeLayout.FOCUS_BEFORE_DESCENDANTS);
+		return compositeLayout;
 	}
 
 	@Override
@@ -1177,13 +1183,17 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		data.put("source", activityProxy);
 
 		final KrollDict d = data;
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run()
-			{
-				activityProxy.callPropertySync(name, new Object[] { d });
-			}
-		});
+		if (TiApplication.isUIThread()) {
+			activityProxy.callPropertyAsync(name, new Object[] { d });
+		} else {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run()
+				{
+					activityProxy.callPropertySync(name, new Object[] { d });
+				}
+			});
+		}
 	}
 
 	private void releaseDialogs(boolean finish)
