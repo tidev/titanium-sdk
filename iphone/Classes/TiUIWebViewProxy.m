@@ -16,7 +16,6 @@
 - (id)_initWithPageContext:(id<TiEvaluator>)context
 {
   if (self = [super _initWithPageContext:context]) {
-    //[[self webView] registerNotificationCenter];
   }
 
   return self;
@@ -353,11 +352,6 @@
 
   WKUserContentController *controller = [[[[self webView] webView] configuration] userContentController];
   [controller removeScriptMessageHandlerForName:value];
-}
-
-- (NSNumber *)isLoading:(id)unused
-{
-  return NUMBOOL([[[self webView] webView] isLoading]);
 }
 
 - (void)stopLoading:(id)unused

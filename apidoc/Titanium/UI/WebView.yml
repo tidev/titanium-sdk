@@ -244,11 +244,15 @@ methods:
   - name: setBasicAuthentication
     summary: |
         Sets the basic authentication for this web view to use on subsequent URl requests.
+    description: |
+        Persistence property used in this method is only supported on iOS platform and 
+        from SDK version 7.4.0.
     platforms: [android, iphone, ipad]
+
     parameters:
 
       - name: username
-        summary: Basic auth username.
+        summary: Basic auth user name.
         type: String
 
       - name: password
@@ -258,8 +262,6 @@ methods:
       - name: persistence
         summary: Constants specify how long the credential will be kept.
         type: Number
-        platforms: [iphone, ipad]
-        since: "7.4.0"
         constants: Titanium.UI.CREDENTIAL_PERSISTENCE_*
 
   - name: stopLoading
@@ -270,7 +272,7 @@ methods:
     description: |
         Some common properties are title, URL, estimatedProgress etc. 
         See native KVO capability at https://developer.apple.com/documentation/webkit/wkwebview.
-        See example section for usage.      
+        See example section "Listening to Web View properties in iOS" for usage.      
     platforms: [iphone, ipad]
     since: "7.4.0"
     parameters:
@@ -329,10 +331,8 @@ methods:
     platforms: [iphone, ipad]
     since: "7.4.0"
     parameters:
-      - name: name
-        summary: The name of the message handler.
-        description: |
-            The name should not be '_Ti_' as we are using this name for internal use.
+      - name: handlerName
+        summary: The name of the message handler and should not be _Ti_.
         type: String
 
   - name: removeScriptMessageHandler
@@ -342,7 +342,16 @@ methods:
     parameters:
       - name: name
         summary: The name of the message handler.
-        type: String  
+        type: String
+
+  - name: backForwardList
+    summary: |
+        An object which maintains a list of visited pages used to go back and forward to the most recent page.     
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    returns:
+        type: BackForwardList
+
 events:
 
   - name: beforeload
@@ -478,15 +487,14 @@ events:
 
   - name: progress
     summary: Fired when webpage download progresses.
+    description: |
+        This value ranges from 0.0 to 1.0 based on the total number of bytes expected to be received, 
+        including the main document and all of its potential subresources.
     platforms: [ipad, iphone]
     since: "7.4.0"
     properties:
       - name: value
-        summary: |
-            An estimate of what fraction of the current navigation has been loaded.
-        description: |
-            This value ranges from 0.0 to 1.0 based on the total number of bytes expected to be received, 
-            including the main document and all of its potential subresources.
+        summary: An estimate of what fraction of the current navigation has been loaded.
         type: Number
       - name: url
         summary: URL of the web document being loaded.
@@ -505,7 +513,9 @@ events:
         type: String
 
   - name: handleurl
-    summary: Fired when a web view receives a server redirect. See the example.
+    summary: Fired when a web view receives a server redirect.
+    description: |
+            See the example section "Usage of allowedURLSchemes and handleurl  in iOS".
     platforms: [ipad, iphone]
     since: "7.4.0"
     properties:
@@ -585,6 +595,13 @@ properties:
     availability: creation
     default: true
 
+  - name: disableZoom
+    summary: Determines whether or not the webview should not be able to zoom.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+
   - name: handlePlatformUrl
     summary: Lets the webview handle platform supported urls
     description: |
@@ -597,6 +614,14 @@ properties:
     platforms: [iphone, ipad]
     since: "3.3.0"
     default: undefined. Behaves as if false
+
+  - name: configuration
+    summary: The configuration for the new web view.
+    description: |
+        This property can only be set when creating the webview and will be ignored when set afterwards. 
+    type: Titanium.UI.WebViewConfiguration
+    platforms: [iphone, ipad]
+    since: "7.4.0"
 
   - name: hideLoadIndicator
     summary: Hides activity indicator when loading remote URL.
@@ -919,6 +944,46 @@ properties:
     description: May be undefined.
     type: String
 
+---
+name: BackForwardList
+summary: The object returned to the <Titanium.UI.WebView.backForwardList> method.
+platforms: [iphone, ipad]
+since: "7.4.0"
+properties:
+  - name: currentItem
+    summary: The current item.
+    type: BackForwardListItem
+  - name: backItem
+    summary: The item immediately preceding the current item.
+    type: BackForwardListItem
+  - name: forwardItem
+    summary: The item immediately following the current item.
+    type: BackForwardListItem
+  - name: backList
+    summary: The portion of the list preceding the current item.
+    description: The items are in the order in which they were originally visited.
+    type: Array<BackForwardListItem>
+  - name: forwardList
+    summary: The portion of the list following the current item.
+    description: The items are in the order in which they were originally visited.
+    type: Array<BackForwardListItem>
+
+---
+name: BackForwardListItem
+summary: The object represents a webpage in the back-forward of a web view.
+platforms: [iphone, ipad]
+since: "7.4.0"
+properties:
+  - name: url
+    summary: The URL of the webpage represented by this item.
+    type: String
+  - name: initialUrl
+    summary: The URL of the initial request that created this item.
+    type: String
+  - name: title
+    summary: The title of the webpage represented by this item.
+    type: String
+
 examples:
   - title: Basic Web View to External URL
     example: |
@@ -938,3 +1003,34 @@ examples:
                     <WebView id="webview" url="http://www.appcelerator.com" />
                 </Window>
             </Alloy>
+
+  - title: Listening to Web View properties in iOS
+    example: |
+
+        var webview = Titanium.UI.createWebView({
+                url:'http://www.appcelerator.com'
+            });
+        webview.startListeningToProperties(['title']);
+        webview.addEventListener('title', function(e){
+                Ti.API.info('/n/n Title is : -' +e.value);
+            });
+        var window = Titanium.UI.createWindow();
+        window.add(webview);
+        window.open();
+
+  - title: Usage of allowedURLSchemes and handleurl  in iOS
+    example: |
+
+        var webview = Ti.UI.createWebView({
+            url: 'https://www.google.com',
+            allowedURLSchemes: ['https', 'http']
+        });
+
+        webview.addEventListener('handleurl', function(e) {
+            var handler = e.handler;
+            Ti.Platform.openURL(e.url);
+            handler.invoke(Ti.UI.ACTION_POLICY_CANCEL); 
+        });
+        var window = Titanium.UI.createWindow();
+        window.add(webview);
+        window.open();

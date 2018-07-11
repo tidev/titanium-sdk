@@ -35,8 +35,6 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if (_webView != nil) {
     [_webView setUIDelegate:nil];
     [_webView setNavigationDelegate:nil];
-
-    // per doc, must stop webview load before releasing
     if (_webView.loading) {
       [_webView stopLoading];
     }
@@ -44,14 +42,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   RELEASE_TO_NIL(_pageToken);
   RELEASE_TO_NIL(_webView);
-  //RELEASE_TO_NIL(url);
   RELEASE_TO_NIL(_loadingIndicator);
-  //   RELEASE_TO_NIL(basicCredentials);
-  //    RELEASE_TO_NIL(reloadData);
-  //    RELEASE_TO_NIL(reloadDataProperties);
-  //   RELEASE_TO_NIL(lastValidLoad);
-  //  RELEASE_TO_NIL(blacklistedURLs);
-  // RELEASE_TO_NIL(insecureConnection);
   [super dealloc];
 }
 
@@ -65,12 +56,10 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (WKWebView *)webView
 {
   if (_webView == nil) {
-    //TO DO : add configproxy file
     TiUIWebViewConfigurationProxy *configProxy = [[self proxy] valueForKey:@"configuration"];
     WKWebViewConfiguration *config = configProxy ? [configProxy configuration] : [[[WKWebViewConfiguration alloc] init] autorelease];
     WKUserContentController *controller = [[[WKUserContentController alloc] init] autorelease];
 
-    [controller addUserScript:[self userScriptTitaniumInjection]];
     [controller addUserScript:[self userScriptTitaniumInjectionForAppEvent]];
     [controller addScriptMessageHandler:self name:@"_Ti_"];
 
@@ -127,6 +116,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setHandlePlatformUrl_:(id)arg
 {
+  DEPRECATED_REPLACED(@"UI.WebView.handlePlatformUrl", @"7.4.0", @"UI.WebView.allowedURLSchemes in conjuction with UI.WebView.handleurl event");
 }
 
 - (void)setZoomLevel_:(id)zoomLevel
@@ -154,10 +144,8 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     [[self webView] stopLoading];
   }
 
-  // Handle remote URL's
   if ([value hasPrefix:@"http"] || [value hasPrefix:@"https"]) {
     [self loadRequestWithURL:[NSURL URLWithString:[TiUtils stringValue:value]]];
-    // Handle local URL's (WiP)
   } else {
     NSString *path = [[TiUtils toURL:value proxy:self.proxy] absoluteString];
     [[self webView] loadFileURL:[NSURL fileURLWithPath:path]
@@ -191,12 +179,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     data = [[(TiFilesystemFileProxy *)value blob] data];
 #endif
   } else {
-    NSLog(@"[ERROR] Ti.UI.iOS.WebView.data can only be a TiBlob or TiFile object, was %@", [(TiProxy *)value apiName]);
+    NSLog(@"[ERROR] Ti.UI.WebView.data can only be a TiBlob or TiFile object, was %@", [(TiProxy *)value apiName]);
   }
 
   [[self webView] loadData:data
                    MIMEType:[self mimeTypeForData:data]
-      characterEncodingName:@"UTF-8" // TODO: Support other character-encodings as well
+      characterEncodingName:@"UTF-8"
                     baseURL:[[NSBundle mainBundle] resourceURL]];
 }
 
@@ -350,30 +338,6 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   return [[[WKUserScript alloc] initWithSource:source injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:YES] autorelease];
 }
 
-- (WKUserScript *)userScriptTitaniumInjection
-{
-  NSString *source = @"var callbacks = {}; var WK = { \
-    fireEvent: function(name, payload) { \
-    var _payload = payload; \
-    if (typeof payload === 'string') { \
-    _payload = JSON.parse(payload); \
-    } \
-    if (callbacks[name]) { \
-    callbacks[name](_payload); \
-    } \
-    window.webkit.messageHandlers.Ti.postMessage({name: name, payload: _payload},'*'); \
-    }, \
-    addEventListener: function(name, callback) { \
-    callbacks[name] = callback; \
-    }, \
-    removeEventListener: function(name, callback) { \
-    delete callbacks[name]; \
-    } \
-    }";
-
-  return [[[WKUserScript alloc] initWithSource:source injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO] autorelease];
-}
-
 - (WKUserScript *)userScriptTitaniumInjectionForAppEvent
 {
   if (_pageToken == nil) {
@@ -384,16 +348,16 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   NSString *source = @"var callbacks = {}; var Ti = {}; Ti.pageToken = %@; \
     Ti._listener_id = 1; Ti._listeners={}; %@\
     Ti.App = { \
-    fireEvent: function(name, payload) { \
-    var _payload = payload; \
-    if (typeof payload === 'string') { \
-    _payload = JSON.parse(payload); \
-    } \
-    if (callbacks[name]) { \
-    callbacks[name](_payload); \
-    } \
-    window.webkit.messageHandlers._Ti_.postMessage({name: name, payload: _payload, method: 'fireEvent'},'*'); \
-    }, \
+                fireEvent: function(name, payload) { \
+                var _payload = payload; \
+                if (typeof payload === 'string') { \
+                  _payload = JSON.parse(payload); \
+                } \
+                if (callbacks[name]) { \
+                  callbacks[name](_payload); \
+                } \
+              window.webkit.messageHandlers._Ti_.postMessage({name: name, payload: _payload, method: 'fireEvent'},'*'); \
+                }, \
     addEventListener: function(name, callback) { \
     callbacks[name] = callback; \
     var listeners=Ti._listeners[name]; \

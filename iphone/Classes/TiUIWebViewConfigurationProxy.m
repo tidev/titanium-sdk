@@ -67,7 +67,7 @@
 {
   ENSURE_TYPE(value, NSNumber);
 
-  [[self configuration] setSuppressesIncrementalRendering:[TiUtils boolValue:value]];
+  [[self configuration] setSuppressesIncrementalRendering:[TiUtils boolValue:value def:NO]];
 }
 
 - (void)setAllowsInlineMediaPlayback:(id)value
@@ -81,7 +81,7 @@
 {
   ENSURE_TYPE(value, NSNumber);
 
-  [[self configuration] setAllowsAirPlayForMediaPlayback:[TiUtils boolValue:value]];
+  [[self configuration] setAllowsAirPlayForMediaPlayback:[TiUtils boolValue:value def:YES]];
 }
 
 - (void)setAllowsPictureInPictureMediaPlayback:(id)value

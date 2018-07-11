@@ -1,0 +1,141 @@
+---
+name: Titanium.UI.WebViewConfiguration
+summary: A collection of properties used to initialize a web view.
+description: |
+    Use the <Titanium.UI.createWebViewConfiguration> method to create. Use it as parameter of <Titanium.UI.WebView.configuration>
+    Using this you can determine how soon a webpage is rendered, how media playback is handled, the granularity of items that the 
+    user can select, and many other options. This property can only be set when creating the webview and will be ignored when set afterwards.
+
+    E.g.
+
+    var config = Ti.UI.createWebViewConfiguration({
+        allowsPictureInPictureMediaPlaback: true
+    });
+
+    var webView = WK.createWebView({
+        configuration: config
+    });
+
+extends: Titanium.Proxy
+since: "7.4.0"
+platforms: [iphone, ipad]
+
+properties:
+
+  - name: preferences
+    summary: The preference settings to be used by the web view.
+    type: PreferencesObject
+    platforms: [iphone, ipad]
+
+  - name: selectionGranularity
+    summary: |
+        The level of granularity with which the user can interactively select content in the web view.
+    type: Number
+    platforms: [iphone, ipad]
+    constants: Titanium.UI.SELECTION_GRANULARITY_*
+    default: Titanium.UI.SELECTION_GRANULARITY_DYNAMIC
+
+  - name: mediaTypesRequiringUserActionForPlayback
+    summary: Determines which media types require a user gesture to begin playing.
+    type: Number
+    constants: Titanium.UI.AUDIOVISUAL_MEDIA_TYPE_*
+    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad]
+    default: Titanium.UI.AUDIOVISUAL_MEDIA_TYPE_NONE
+
+  - name: suppressesIncrementalRendering
+    summary: |
+        A Boolean value indicating whether the web view suppresses content rendering until it is fully 
+        loaded into memory.
+    type: Boolean
+    platforms: [iphone, ipad]
+    default: false
+
+  - name: allowsInlineMediaPlayback
+    summary: |
+        A Boolean value indicating whether HTML5 videos play inline or use the native full-screen controller.
+    description: |
+        You must set this property to play inline video. Set this property to true to play videos inline. 
+        Set this property to false to use the native full-screen controller. When adding a video element 
+        to a HTML document on the iPhone, you must also include the playsinline attribute.
+        The default value for iPhone is false and the default value for iPad is true.
+    type: Boolean
+    platforms: [iphone, ipad]
+    default: For iPhone false and for iPad true.
+
+  - name: allowsAirPlayMediaPlayback
+    summary: A Boolean value indicating whether AirPlay is allowed.
+    type: Boolean
+    platforms: [iphone, ipad]
+    default: true
+
+  - name: allowsPictureInPictureMediaPlayback
+    summary: A Boolean value indicating whether HTML5 videos can play picture-in-picture.
+    type: Boolean
+    platforms: [iphone, ipad]
+    default: true
+
+  - name: processPool
+    summary: The process pool from which to obtain the  Web Content process of view.
+    description: |
+        When a web view is initialized, either a new web content process is created for it from the 
+        specified pool or an existing process in that pool is used.
+    type: Titanium.UI.WebViewProcessPool
+    platforms: [iphone, ipad]
+
+---
+name: PreferencesObject
+summary: The parameter passed to the <Titanium.UI.WebViewConfiguration.preferences> method.
+platforms: [iphone, ipad]
+since: "7.4.0"
+properties:
+  - name: minimumFontSize
+    summary: The minimum font size in points.
+    type: Number
+    default: 0.0
+  - name: javaScriptEnabled
+    summary: A Boolean value indicating whether JavaScript is enabled.
+    description: |
+        Setting this property to false disables JavaScripts that are loaded or executed by the web page. 
+        This setting does not affect user scripts.
+    type: Boolean
+    default: true
+  - name: javaScriptCanOpenWindowsAutomatically
+    summary: |
+        A Boolean value indicating whether JavaScript can open windows without user interaction.
+    type: Boolean
+    default: false
+
+---
+name: Titanium.UI.WebViewProcessPool
+summary: It represents a pool of Web Content processes.
+description: |
+    The process pool associated with a web view is specified by its web view configuration. Each web view 
+    is given its own Web Content process until an implementation-defined process limit is reached; after that,
+    web views with the same process pool end up sharing Web Content processes. Process pools do not take arguments, 
+    just pass the same reference to multiple web views. 
+
+    E.g.
+
+    var pool = Ti.UI.createWebViewProcessPool();
+
+    var config1 = Ti.UI.createWebViewConfiguration({
+        processPool: pool
+    });
+
+    var config2 = Ti.UI.createWebViewConfiguration({
+        processPool: pool
+    });
+
+    var firstWebView = Ti.UI.createWebView({
+        configuration: config1
+    });
+
+    var secondWebView = Ti.UI.createWebView({
+        configuration: config2
+    });
+
+extends: Titanium.Proxy
+since: "7.4.0"
+platforms: [iphone, ipad]
+
