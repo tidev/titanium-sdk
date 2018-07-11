@@ -78,7 +78,7 @@ methods:
         not modify are updated to reflect the most recent value in the database. If the 
         event has been deleted from the database, it is re-created as a new event.
 
-        On Android, this method only updates recurrence rule.
+        On Android, this method only updates the recurrence rule (if set).
     returns:
         type: Boolean
     parameters:
