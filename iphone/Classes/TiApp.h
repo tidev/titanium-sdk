@@ -10,9 +10,6 @@
 
 #import "KrollBridge.h"
 #import "TiHost.h"
-#ifdef USE_TI_UIWEBVIEW
-#import "XHRBridge.h"
-#endif
 #import "TiRootViewController.h"
 #import "TiToJS.h"
 
@@ -37,10 +34,6 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 
   TiContextGroupRef contextGroup;
   KrollBridge *kjsBridge;
-
-#ifdef USE_TI_UIWEBVIEW
-  XHRBridge *xhrBridge;
-#endif
 
   NSMutableDictionary *launchOptions;
   NSTimeInterval started;
@@ -130,8 +123,6 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 - (BOOL)windowIsKeyWindow;
 
 - (UIView *)topMostView;
-
-- (void)attachXHRBridgeIfRequired;
 
 - (void)registerApplicationDelegate:(id)applicationDelegate;
 

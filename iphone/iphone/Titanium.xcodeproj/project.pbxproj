@@ -82,7 +82,6 @@
 		24CA89BE1111615D0084E2DE /* KrollPropertyDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B51111615D0084E2DE /* KrollPropertyDelegate.m */; };
 		24CA89BF1111615D0084E2DE /* KrollTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B71111615D0084E2DE /* KrollTimer.m */; };
 		24CA8B66111161FE0084E2DE /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0C111161FD0084E2DE /* YahooModule.m */; };
-		24CA8B67111161FE0084E2DE /* XHRBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0E111161FD0084E2DE /* XHRBridge.m */; };
 		24CA8B68111161FE0084E2DE /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A10111161FD0084E2DE /* WebFont.m */; };
 		24CA8B6A111161FE0084E2DE /* UIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A14111161FD0084E2DE /* UIModule.m */; };
 		24CA8B6C111161FE0084E2DE /* TiViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A18111161FD0084E2DE /* TiViewProxy.m */; };
@@ -477,8 +476,6 @@
 		24CA89B71111615D0084E2DE /* KrollTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollTimer.m; path = ../Classes/KrollTimer.m; sourceTree = SOURCE_ROOT; };
 		24CA8A0C111161FD0084E2DE /* YahooModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YahooModule.m; path = ../Classes/YahooModule.m; sourceTree = SOURCE_ROOT; };
 		24CA8A0D111161FD0084E2DE /* YahooModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YahooModule.h; path = ../Classes/YahooModule.h; sourceTree = SOURCE_ROOT; };
-		24CA8A0E111161FD0084E2DE /* XHRBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XHRBridge.m; path = ../Classes/XHRBridge.m; sourceTree = SOURCE_ROOT; };
-		24CA8A0F111161FD0084E2DE /* XHRBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XHRBridge.h; path = ../Classes/XHRBridge.h; sourceTree = SOURCE_ROOT; };
 		24CA8A10111161FD0084E2DE /* WebFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WebFont.m; path = ../Classes/WebFont.m; sourceTree = SOURCE_ROOT; };
 		24CA8A11111161FD0084E2DE /* WebFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebFont.h; path = ../Classes/WebFont.h; sourceTree = SOURCE_ROOT; };
 		24CA8A13111161FD0084E2DE /* Webcolor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Webcolor.h; path = ../Classes/Webcolor.h; sourceTree = SOURCE_ROOT; };
@@ -1387,8 +1384,6 @@
 				84EB33FE17A8CAA700723B1E /* TiWindowProxy.h */,
 				84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */,
 				B473FB65126F8E8900E29C73 /* Utility Macros */,
-				24CA8A0F111161FD0084E2DE /* XHRBridge.h */,
-				24CA8A0E111161FD0084E2DE /* XHRBridge.m */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -2574,7 +2569,6 @@
 				B63761701BC5CA4A0070A695 /* TiLayoutView.m in Sources */,
 				24CA8B66111161FE0084E2DE /* YahooModule.m in Sources */,
 				CAC2255B1BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.m in Sources */,
-				24CA8B67111161FE0084E2DE /* XHRBridge.m in Sources */,
 				24CA8B68111161FE0084E2DE /* WebFont.m in Sources */,
 				24CA8B6A111161FE0084E2DE /* UIModule.m in Sources */,
 				24CA8B6C111161FE0084E2DE /* TiViewProxy.m in Sources */,

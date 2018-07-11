@@ -178,15 +178,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   UIWindow *currentKeyWindow_ = [[UIApplication sharedApplication] keyWindow];
   return [[currentKeyWindow_ subviews] lastObject];
 }
-- (void)attachXHRBridgeIfRequired
-{
-#ifdef USE_TI_UIWEBVIEW
-  if (xhrBridge == nil) {
-    xhrBridge = [[XHRBridge alloc] initWithHost:self];
-    [xhrBridge boot:self url:nil preload:nil];
-  }
-#endif
-}
 
 - (void)registerApplicationDelegate:(id)applicationDelegate
 {
@@ -1031,10 +1022,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
   NSCondition *condition = [[NSCondition alloc] init];
 
-#ifdef USE_TI_UIWEBVIEW
-  [xhrBridge shutdown:nil];
-#endif
-
 #ifdef KROLL_COVERAGE
   [KrollCoverageObject releaseCoverage];
 #endif
@@ -1061,9 +1048,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 #endif
   RELEASE_TO_NIL(condition);
   RELEASE_TO_NIL(kjsBridge);
-#ifdef USE_TI_UIWEBVIEW
-  RELEASE_TO_NIL(xhrBridge);
-#endif
   RELEASE_TO_NIL(remoteNotification);
   RELEASE_TO_NIL(pendingCompletionHandlers);
   RELEASE_TO_NIL(backgroundTransferCompletionHandlers);
@@ -1077,10 +1061,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   applicationInMemoryPanic = YES;
   [Webcolor flushCache];
-// don't worry about KrollBridge since he's already listening
-#ifdef USE_TI_UIWEBVIEW
-  [xhrBridge gc];
-#endif
+
   [self performSelector:@selector(clearMemoryPanic)
              withObject:nil
              afterDelay:0.0];
@@ -1100,9 +1081,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [[ImageLoader sharedLoader] suspend];
   [kjsBridge gc];
 
-#ifdef USE_TI_UIWEBVIEW
-  [xhrBridge gc];
-#endif
 #ifdef TI_USE_KROLL_THREAD
   [self waitForKrollProcessing];
 #endif
@@ -1314,9 +1292,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)dealloc
 {
   RELEASE_TO_NIL(kjsBridge);
-#ifdef USE_TI_UIWEBVIEW
-  RELEASE_TO_NIL(xhrBridge);
-#endif
   RELEASE_TO_NIL(loadView);
   RELEASE_TO_NIL(window);
   RELEASE_TO_NIL(launchOptions);
