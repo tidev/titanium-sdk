@@ -724,9 +724,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   [_microphoneRecorder stop];
   [_microphoneTimer invalidate];
+  _microphoneTimer = nil;
 
   RELEASE_TO_NIL(_microphoneRecorder);
-  RELEASE_TO_NIL(_microphoneTimer);
 }
 
 - (NSNumber *)peakMicrophonePower
