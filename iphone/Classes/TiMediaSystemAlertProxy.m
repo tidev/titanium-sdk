@@ -13,6 +13,16 @@
 
 #pragma mark Proxy Lifecycle
 
+- (id)_initWithPageContext:(id<TiEvaluator>)context
+{
+  if (self = [super _initWithPageContext:context]) {
+    DebugLog(@"[WARN] The iOS-only SystemAlert API has been deprecated and moved to an external module in 8.0.0.");
+    DebugLog(@"[WARN] It will be removed from the core in the future, please migrate!");
+  }
+  
+  return self;
+}
+
 - (void)_destroy
 {
   AudioServicesDisposeSystemSoundID(sound);
