@@ -1136,7 +1136,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_BUTTON_PRESS_REQUIRED = "buttonPressRequired";
+	public static final String PROPERTY_BUTTON_CLICK_REQUIRED = "buttonClickRequired";
 
 	/**
 	 * @module.api
