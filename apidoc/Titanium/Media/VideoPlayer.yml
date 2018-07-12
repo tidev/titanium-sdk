@@ -73,9 +73,7 @@ examples:
                 autoplay : true,
                 backgroundColor : 'blue',
                 height : 300,
-                width : 300,
-                mediaControlStyle : Titanium.Media.VIDEO_CONTROL_DEFAULT,
-                scalingMode : Titanium.Media.VIDEO_SCALING_ASPECT_FIT
+                width : 300
             });
 
             videoPlayer.url = 'movie.mp4';
@@ -115,8 +113,6 @@ examples:
                 var activeMovie = Titanium.Media.createVideoPlayer({
                     url : contentURL,
                     backgroundColor : 'blue',
-                    mediaControlStyle : Titanium.Media.VIDEO_CONTROL_DEFAULT,
-                    scalingMode : Titanium.Media.VIDEO_SCALING_ASPECT_FILL,
                     fullscreen : true,
                     autoplay : true
                 });
@@ -328,20 +324,6 @@ events:
         summary: Current value of the [loadState](Titanium.Media.VideoPlayer.loadState) property.
         type: Number
 
-  - name: mediatypesavailable
-    deprecated:
-        since: "7.0.0"
-        notes: This event has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: Fired when the media types in the current movie are determined.
-    platforms: [iphone, ipad]
-    properties:
-      - name: mediaTypes
-        summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
-        type: Number
-        constants: Titanium.Media.VIDEO_MEDIA_TYPE_*
-    since: '3.0.0'
-
   - name: naturalsizeavailable
     summary: Fired when the natural size of the current movie is determined.
     platforms: [iphone, ipad]
@@ -375,21 +357,6 @@ events:
   - name: resize
     summary: Fired when the movie player is resized.
     platforms: [iphone, ipad]
-
-  - name: sourcechange
-    deprecated:
-        since: "7.0.0"
-        notes: This event has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: |
-        Fired when the [sourceType](Titanium.Media.VideoPlayer.sourceType) property
-        changes.
-    platforms: [iphone, ipad]
-    properties:
-      - name: sourceType
-        summary: New `sourceType` value.
-        constants: Titanium.Media.VIDEO_SOURCE_TYPE_*
-    since: '3.0.0'
 
   - name: click
     summary: Fired when the device detects a click against the view.
@@ -595,20 +562,14 @@ properties:
     permission: write-only
 
   - name: mediaControlStyle
-    deprecated:
-        since: "7.0.0"
-        notes: On iOS, use <Titanium.Media.VideoPlayer.showsControls> instead.
-        removed: "7.0.0"
     summary: The style of the playback controls.
-    description: |
-        Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and
-        <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
+    description: On iOS, use <Titanium.Media.VideoPlayer.showsControls> instead.
     type: Number
     constants: Titanium.Media.VIDEO_CONTROL_*
     default: System default video controls (<Titanium.Media.VIDEO_CONTROL_DEFAULT>).
 
   - name: mediaTypes
-    summary: The types of media in the movie, or <Titanium.Media.VIDEO_MEDIA_TYPE_NONE> if not known.
+    summary: The types of media in the movie.
     description: |
         A movie can contain video
         ([VIDEO_MEDIA_TYPE_VIDEO](Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO)),
@@ -620,6 +581,7 @@ properties:
             Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO|Titanium.Media.VIDEO_MEDIA_TYPE_AUDIO
     platforms: [iphone, ipad]
     type: Number
+    permission: read-only
     constants: Titanium.Media.VIDEO_MEDIA_TYPE_*
 
   - name: moviePlayerStatus
@@ -718,22 +680,6 @@ properties:
     type: Boolean
     default: true
     since: {android: "7.1.0", iphone: "7.0.0", ipad: "7.0.0"}
-
-  - name: sourceType
-    deprecated:
-        since: "7.0.0"
-        notes: This method has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: The playback type of the movie.
-    description: |
-        Specifying a playback type before playing the movie can result in faster load times.
-
-        The [sourceChange](Titanium.Media.VideoPlayer.sourcechange) event is fired when
-        movie's source type is determined.
-    platforms: [iphone, ipad]
-    type: Number
-    constants: Titanium.Media.VIDEO_SOURCE_TYPE_*
-    default: Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN
 
   - name: url
     summary: URL of the media to play.

@@ -75,7 +75,6 @@
 @property (nonatomic, readonly) NSDictionary *currentRoute;
 @property (nonatomic, readonly) NSNumber *audioPlaying;
 @property (nonatomic, readonly) NSNumber *isCameraSupported;
-@property (nonatomic, readonly) NSNumber *cameraAuthorizationStatus;
 @property (nonatomic, assign) NSNumber *audioSessionMode;
 @property (nonatomic, assign) NSString *audioSessionCategory;
 
@@ -90,12 +89,8 @@
 @property (nonatomic, readonly) NSNumber *NO_VIDEO;
 @property (nonatomic, readonly) NSNumber *NO_MUSIC_PLAYER;
 
-@property (nonatomic, readonly) NSNumber *VIDEO_CONTROL_DEFAULT;
-@property (nonatomic, readonly) NSNumber *VIDEO_CONTROL_HIDDEN;
-
-@property (nonatomic, readonly) NSString *VIDEO_SCALING_MODE_RESIZE;
-@property (nonatomic, readonly) NSString *VIDEO_SCALING_MODE_RESIZE_ASPECT;
-@property (nonatomic, readonly) NSString *VIDEO_SCALING_MODE_RESIZE_ASPECT_FILL;
+@property (nonatomic, readonly) NSString *VIDEO_MEDIA_TYPE_VIDEO;
+@property (nonatomic, readonly) NSString *VIDEO_MEDIA_TYPE_AUDIO;
 
 @property (nonatomic, readonly) NSNumber *QUALITY_HIGH;
 @property (nonatomic, readonly) NSNumber *QUALITY_MEDIUM;
@@ -119,7 +114,6 @@
 @property (nonatomic, readonly) NSNumber *CAMERA_AUTHORIZATION_AUTHORIZED;
 @property (nonatomic, readonly) NSNumber *CAMERA_AUTHORIZATION_DENIED;
 @property (nonatomic, readonly) NSNumber *CAMERA_AUTHORIZATION_RESTRICTED;
-@property (nonatomic, readonly) NSNumber *CAMERA_AUTHORIZATION_NOT_DETERMINED;
 
 @property (nonatomic, readonly) NSString *MEDIA_TYPE_VIDEO;
 @property (nonatomic, readonly) NSString *MEDIA_TYPE_PHOTO;
@@ -192,10 +186,6 @@
 @property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE;
 @property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE_ASPECT;
 @property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE_ASPECT_FILL;
-
-@property (nonatomic, readonly) NSNumber *VIDEO_SOURCE_TYPE_UNKNOWN;
-@property (nonatomic, readonly) NSNumber *VIDEO_SOURCE_TYPE_FILE;
-@property (nonatomic, readonly) NSNumber *VIDEO_SOURCE_TYPE_STREAMING;
 
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_STOPPED;
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_PLAYING;

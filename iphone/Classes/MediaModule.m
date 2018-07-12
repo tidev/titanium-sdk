@@ -327,6 +327,9 @@ MAKE_SYSTEM_PROP(QUALITY_IFRAME_1280x720, UIImagePickerControllerQualityTypeIFra
 MAKE_SYSTEM_PROP(QUALITY_IFRAME_960x540, UIImagePickerControllerQualityTypeIFrame960x540);
 #endif
 
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_VIDEO, AVMediaTypeVideo);
+MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_AUDIO, AVMediaTypeAudio);
+
 //Constants for MediaTypes in VideoPlayer
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 //Constants for VideoPlayer mediaControlStyle
@@ -400,32 +403,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   return [self audioSessionMode];
 }
 
-- (void)setAudioSessionMode:(NSNumber *)mode
-{
-  DEPRECATED_REPLACED(@"Media.audioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-
-  switch ([mode unsignedIntegerValue]) {
-  case kAudioSessionCategory_AmbientSound:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_AMBIENT]];
-    break;
-  case kAudioSessionCategory_SoloAmbientSound:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]];
-    break;
-  case kAudioSessionCategory_PlayAndRecord:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]];
-    break;
-  case kAudioSessionCategory_RecordAudio:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_RECORD]];
-    break;
-  case kAudioSessionCategory_MediaPlayback:
-    [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAYBACK]];
-    break;
-  default:
-    DebugLog(@"Unsupported audioSessionMode specified");
-    break;
-  }
-}
-
 #if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined(USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 - (void)setAudioSessionCategory:(NSString *)mode
 {
@@ -472,10 +449,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
     [[TiMediaAudioSession sharedSession] startAudioSession]; // Have to start a session to get a listener
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
-  } else if (count == 1 && [type isEqualToString:@"recordinginput"]) {
-    DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Check the inputs property fo the currentRoute property to check if an input line is available");
-  } else if (count == 1 && [type isEqualToString:@"linechange"]) {
-    DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Listen for the routechange event instead");
   }
 }
 
@@ -579,13 +552,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#if defined(USE_TI_MEDIACAMERAAUTHORIZATION) || defined(USE_TI_MEDIACAMERAAUTHORIZATIONSTATUS)
-- (NSNumber *)cameraAuthorizationStatus
-{
-  DEPRECATED_REPLACED(@"Media.cameraAuthorizationStatus", @"5.2.0", @"Media.cameraAuthorization");
-  return [self cameraAuthorization];
-}
-
+#ifdefUSE_TI_MEDIACAMERAAUTHORIZATION
 - (NSNumber *)cameraAuthorization
 {
   return NUMINTEGER([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo]);
@@ -605,64 +572,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   //No pattern support on iOS
   [self beep:nil];
-}
-#endif
-
-/**
- Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
- **/
-#ifdef USE_TI_MEDIAREQUESTAUTHORIZATION
-- (void)requestAuthorization:(id)args
-{
-  DEPRECATED_REPLACED(@"Media.requestAudioPermissions", @"5.1.0", @"Media.requestAudioRecorderPermissions");
-  [self requestAudioRecorderPermissions:args];
-}
-#endif
-
-#ifdef USE_TI_MEDIAHASAUDIOPERMISSIONS
-- (id)hasAudioPermissions:(id)unused
-{
-  DEPRECATED_REPLACED(@"Media.hasAudioPermissions", @"6.1.0", @"Media.hasAudioRecorderPermissions");
-  return [self hasAudioRecorderPermissions:unused];
-}
-#endif
-
-#if defined(USE_TI_MEDIAHASAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAHASAUDIOPERMISSIONS)
-- (id)hasAudioRecorderPermissions:(id)unused
-{
-  NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
-
-  if ([TiUtils isIOS10OrGreater] && !microphonePermission) {
-    NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
-  }
-
-  return NUMBOOL([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized);
-}
-#endif
-
-#ifdef USE_TI_MEDIAREQUESTAUDIOPERMISSIONS
-- (void)requestAudioPermissions:(id)args
-{
-  DEPRECATED_REPLACED(@"Media.requestAudioPermissions", @"6.1.0", @"Media.requestAudioRecorderPermissions");
-  [self requestAudioRecorderPermissions:args];
-}
-#endif
-
-#if defined(USE_TI_MEDIAREQUESTAUDIORECORDERPERMISSIONS) || defined(USE_TI_MEDIAREQUESTAUDIOPERMISSIONS) || defined(USE_TI_MEDIAREQUESTAUTHORIZATION)
-- (void)requestAudioRecorderPermissions:(id)args
-{
-  ENSURE_SINGLE_ARG(args, KrollCallback);
-  KrollCallback *callback = args;
-  TiThreadPerformOnMainThread(^() {
-    [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
-      KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                             eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
-                                                              thisObject:self];
-      [[callback context] enqueue:invocationEvent];
-      RELEASE_TO_NIL(invocationEvent);
-    }];
-  },
-      NO);
 }
 #endif
 
