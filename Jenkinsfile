@@ -244,8 +244,11 @@ timestamps {
 
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
-			unitTests('android', nodeVersion, npmVersion, targetBranch),
-			unitTests('ios', nodeVersion, npmVersion, targetBranch),
+			parallel(
+				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch),
+				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch),
+				failFast: false
+			)
 		}
 
 		stage('Deploy') {
