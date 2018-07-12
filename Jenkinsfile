@@ -206,7 +206,6 @@ timestamps {
 					} // dir
 					archiveArtifacts artifacts: "${basename}-*.zip"
 					stash includes: 'dist/parity.html', name: 'parity'
-					stash includes: 'tests/', name: 'override-tests'
 				} // end 'Build' stage
 
 				if (runSecurityChecks) {
@@ -245,11 +244,8 @@ timestamps {
 
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
-			parallel(
-				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch),
-				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch),
-				failFast: true
-			)
+			unitTests('android', nodeVersion, npmVersion, targetBranch),
+			unitTests('ios', nodeVersion, npmVersion, targetBranch),
 		}
 
 		stage('Deploy') {
