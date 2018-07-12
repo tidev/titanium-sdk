@@ -363,4 +363,10 @@ public class TiUICardView extends TiUIView
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
+
+	@Override
+	protected boolean hasBorder(KrollDict d)
+	{
+		return false;
+	}
 }

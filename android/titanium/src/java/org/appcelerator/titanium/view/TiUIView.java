@@ -444,7 +444,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_GRADIENT);
 	}
 
-	private boolean hasBorder(KrollDict d)
+	protected boolean hasBorder(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
 			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
@@ -1186,19 +1186,24 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		nativeView.setBackground(rippleDrawable);
 	}
 
+	@Override
 	public void onFocusChange(final View v, boolean hasFocus)
 	{
+		// Show/hide the virtual keyboard.
 		if (hasFocus) {
 			TiMessenger.postOnMain(new Runnable() {
+				@Override
 				public void run()
 				{
 					TiUIHelper.requestSoftInputChange(proxy, v);
 				}
 			});
-			fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus));
-		} else {
-			fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus));
 		}
+
+		// Fire a focus/blur event. (This event should not be bubbled.)
+		boolean isBubbled = false;
+		String eventName = hasFocus ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
+		fireEvent(eventName, getFocusEventObject(hasFocus), isBubbled);
 	}
 
 	protected KrollDict getFocusEventObject(boolean hasFocus)
