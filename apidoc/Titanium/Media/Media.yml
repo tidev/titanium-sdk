@@ -163,7 +163,7 @@ methods:
         summary: A dictionary of camera options as described in <CameraOptionsType>.
         type: CameraOptionsType
   - name: hasMusicLibraryPermissions
-    summary: Returns `true` if the app has camera access.
+    summary: Returns `true` if the app has music library access.
     description: |
         Music-library permissions are only needed in iOS 9.3 and later and will be ignored on older
         iOS versions. Because of that, the method will return `true` for devices that run iOS < 9.3.
@@ -549,7 +549,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ALAW
-    summary: Audio format 8-bit aLaw encoding.
+    summary: Audio format 8-bit [aLaw encoding](https://en.wikipedia.org/wiki/A-law_algorithm).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -559,7 +559,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ILBC
-    summary: Audio format iLBC encoding.
+    summary: Audio format [iLBC encoding](https://en.wikipedia.org/wiki/Internet_Low_Bitrate_Codec).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -569,12 +569,12 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_LINEAR_PCM
-    summary: Audio format 16-bit, linear PCM encoding.
+    summary: Audio format 16-bit, [linear PCM encoding](https://en.wikipedia.org/wiki/Pulse-code_modulation).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ULAW
-    summary: Audio format 8-bit muLaw encoding.
+    summary: Audio format 8-bit [muLaw encoding](https://en.wikipedia.org/wiki/M-law_algorithm).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -1657,6 +1657,8 @@ properties:
     permission: read-only
   - name: volume
     summary: Current volume of the playback device.
+    description: |
+        A value in the range `0.0` to `1.0`, with `0.0` representing the minimum volume and `1.0` representing the maximum volume.
     type: Number
     platforms: [iphone, ipad]
     permission: read-only
@@ -1986,7 +1988,7 @@ properties:
   - name: mediaTypes
     summary: |
         Array of media type constants to allow.
-        
+
         Live photos is only supported on the iOS platform, starting with iOS 9.1. If you want
         to allow live photos with <Titanium.Media.MEDIA_TYPE_LIVEPHOTO>, you also need to specify
         at least <Titanium.Media.MEDIA_TYPE_PHOTO> as a fallback. If you do not allow live

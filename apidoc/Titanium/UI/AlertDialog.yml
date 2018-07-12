@@ -38,7 +38,7 @@ description: |
 
     Buttons are defined using the `buttonNames` property and are rendered vertically below
     the message. Alert dialogs are automatically cancelled when the application is
-    paused/suspended. This behavior can avoided by setting `persistent` property on alert dialog
+    paused/suspended. This behavior can be avoided by setting `persistent` property on alert dialog
     to be `true`.
 
     The `style` property can be used to allow the user to enter plain text,
@@ -621,3 +621,5 @@ examples:
             function doClick(e) {
                 Ti.API.info('e.text: ' + e.text);
             }
+            
+            $.win.open();
