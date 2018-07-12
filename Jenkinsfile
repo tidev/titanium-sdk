@@ -50,7 +50,6 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 					sh 'npm ci'
 					try {
 						sh "npm run test:unit:${os}"
-					}
 					} catch (e) {
 						if ('ios'.equals(os)) {
 							// Gather the crash report(s)
