@@ -72,7 +72,7 @@ def unitTests(nodeVersion, npmVersion, testSuiteBranch) {
 						} // if
 					} // finally
 					// save the junit reports as artifacts explicitly so danger.js can use them later
-					stash includes: 'junit.xml', name: "test-report"
+					stash includes: 'reports/junit/**/*.xml', name: "test-reports"
 					junit 'reports/junit/**/*.xml'
 				} // nodejs
 			} // timeout
@@ -138,8 +138,7 @@ timestamps {
 					// was it a failure?
 					if (npmTestResult != 0) {
 						// empty stashes of test reports, so danger step can still run.
-						stash allowEmpty: true, name: 'test-report-ios'
-						stash allowEmpty: true, name: 'test-report-android'
+						stash allowEmpty: true, name: 'test-reports'
 						error readFile('npm_test.log')
 					} else if (isGreenKeeper) {
 						sh 'greenkeeper-lockfile-upload' // FIXME: This will get pushed up even if unit tests on sims fails later...
@@ -403,14 +402,11 @@ timestamps {
 						unstash 'danger' // this gives us dangerfile.js, package.json, package-lock.json, node_modules/, android java sources for format check
 						// ok to not grab crash logs, still run Danger.JS
 						try {
-							unarchive mapping: ['mocha_*.crash': '.'] // unarchive any iOS simulator crashes
+							unarchive mapping: ['ti.karma.runner_*.crash': '.'] // unarchive any iOS simulator crashes
 						} catch (e) {}
 						// ok to not grab test results, still run Danger.JS
 						try {
-							unstash 'test-report-ios' // junit.ios.report.xml
-						} catch (e) {}
-						try {
-							unstash 'test-report-android' // junit.android.report.xml
+							unstash 'test-reports' // android and iOS junit reports
 						} catch (e) {}
 						ensureNPM(npmVersion)
 						// FIXME We need to hack the env vars for Danger.JS because it assumes Github Pull Request Builder plugin only
