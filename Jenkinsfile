@@ -30,56 +30,6 @@ def basename = ''
 def vtag = ''
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json, used to help bootstrap new mainline branches between Windows/main SDK
 
-def unitTests(nodeVersion, npmVersion, testSuiteBranch) {
-	return {
-		def labels = 'git && osx'
-		if ('ios'.equals(os)) {
-			labels = 'git && osx && xcode-10' // Use xcode-10 to make use of ios 12 APIs
-		} else {
-			labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
-		}
-		node(labels) {
-			timeout(20) {
-				// Unarchive the osx build of the SDK (as a zip)
-				sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
-				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip'] // grab the osx zip from our current build
-				def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
-				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-					ensureNPM(npmVersion)
-					sh "titanium sdk install ${zipName} -d"
-					sh 'npm ci'
-					try {
-						sh "npm run test:unit"
-					} catch (e) {
-						if ('ios'.equals(os)) {
-							// Gather the crash report(s)
-							def home = sh(returnStdout: true, script: 'printenv HOME').trim()
-							sh "mv ${home}/Library/Logs/DiagnosticReports/ti.karma.runner_*.crash ."
-							archiveArtifacts 'ti.karma.runner_*.crash'
-							sh 'rm -f ti.karma.runner_*.crash'
-						} else {
-							// FIXME gather crash reports/tombstones for Android?
-						}
-						throw e
-					} finally {
-						// Kill the emulators!
-						if ('android'.equals(os)) {
-							sh 'adb shell am force-stop ti.karma.runner'
-							sh 'adb uninstall ti.karma.runner'
-							sh 'killall -9 emulator || echo ""'
-							sh 'killall -9 emulator64-arm || echo ""'
-							sh 'killall -9 emulator64-x86 || echo ""'
-						} // if
-					} // finally
-					// save the junit reports as artifacts explicitly so danger.js can use them later
-					stash includes: 'reports/junit/**/*.xml', name: "test-reports"
-					junit 'reports/junit/**/*.xml'
-				} // nodejs
-			} // timeout
-		}
-	}
-}
-
 // Wrap in timestamper
 timestamps {
 	try {
@@ -241,9 +191,43 @@ timestamps {
 			} // nodeJs
 		} // end node for checkout/build
 
-		// Run unit tests in parallel for android/iOS
 		stage('Test') {
-			unitTests(nodeVersion, npmVersion, targetBranch)
+			node('git && osx && xcode-10 && android-emulator && android-sdk') {
+				timeout(20) {
+					// Unarchive the osx build of the SDK (as a zip)
+					sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
+					unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip'] // grab the osx zip from our current build
+					def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
+					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+						ensureNPM(npmVersion)
+						sh "titanium sdk install ${zipName} -d"
+						sh 'npm ci'
+						try {
+							sh "npm run test:unit"
+						} catch (e) {
+							// Gather the crash report(s)
+							def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+							sh "mv ${home}/Library/Logs/DiagnosticReports/ti.karma.runner_*.crash ."
+							archiveArtifacts 'ti.karma.runner_*.crash'
+							sh 'rm -f ti.karma.runner_*.crash'
+						
+							// FIXME gather crash reports/tombstones for Android?
+							
+							throw e
+						} finally {
+							// Kill the Android emulators!
+							sh 'adb shell am force-stop ti.karma.runner'
+							sh 'adb uninstall ti.karma.runner'
+							sh 'killall -9 emulator || echo ""'
+							sh 'killall -9 emulator64-arm || echo ""'
+							sh 'killall -9 emulator64-x86 || echo ""'
+						} // finally
+						// save the junit reports as artifacts explicitly so danger.js can use them later
+						stash includes: 'reports/junit/**/*.xml', name: "test-reports"
+						junit 'reports/junit/**/*.xml'
+					} // nodejs
+				} // timeout
+			}
 		}
 
 		stage('Deploy') {
