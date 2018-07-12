@@ -180,12 +180,6 @@ void CMExternalChangeCallback(ABAddressBookRef notifyAddressBook, CFDictionaryRe
   return NUMBOOL(ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusAuthorized);
 }
 
-- (void)requestAuthorization:(id)args
-{
-  DEPRECATED_REPLACED(@"Contacts.requestAuthorization()", @"5.1.0", @"Contacts.requestContactsPermissions()");
-  [self requestContactsPermissions:args];
-}
-
 - (void)requestContactsPermissions:(id)args
 {
   ENSURE_SINGLE_ARG(args, KrollCallback);

@@ -762,7 +762,6 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_LOW, kCLLocationAccuracyThreeKilometers);
 MAKE_SYSTEM_PROP(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation); //Since 2.1.3
 
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);
-MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorizedAlways);
 MAKE_SYSTEM_PROP(AUTHORIZATION_WHEN_IN_USE, kCLAuthorizationStatusAuthorizedWhenInUse);
 MAKE_SYSTEM_PROP(AUTHORIZATION_ALWAYS, kCLAuthorizationStatusAuthorizedAlways);
 MAKE_SYSTEM_PROP(AUTHORIZATION_DENIED, kCLAuthorizationStatusDenied);

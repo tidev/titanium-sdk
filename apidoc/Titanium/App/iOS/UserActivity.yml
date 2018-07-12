@@ -94,14 +94,6 @@ properties:
     type: Array<String>
     osver: {ios: {min: "9.0"}}
 
-  - name: supported
-    summary: Determines if user activities are supported (`true`) or not (`false`) by the device.
-    type: Boolean
-    osver: {ios: {min: "8.0"}}
-    deprecated:
-        since: "5.1.0"
-        notes: Use <Titanium.App.iOS.UserActivity.isSupported> instead.
-
   - name: title
     summary: An optional, user-visible title for this activity such as a document name or web page title.
     type: String
@@ -160,39 +152,6 @@ methods:
     platforms: [iphone, ipad]
     osver: {ios: {min: "8.0"}}
 events:
-  - name: useractivitywillsave
-    summary: |
-        Fired if the activity context needs to be saved before being continued on another device.
-
-        To fire the event, set the UserActiviy object's `needsSave ` property to `true`.
-
-        The receiver should update the activity with current activity state.
-
-        After the event is fired, iOS will reset the `needsSave` property to false.
-    properties:
-      - name: activityType
-        summary: The activityType of the User Activity triggering the event.
-        type: String
-        platforms: [iphone, ipad]
-
-      - name: title
-        summary: The title of the User Activity if defined.
-        type: String
-        platforms: [iphone, ipad]
-
-      - name: webpageURL
-        summary: The webpageURL of the User Activity if defined.
-        type: String
-        platforms: [iphone, ipad]
-
-      - name: userInfo
-        summary: Dictionary object containing the userInfo data of the User Activity.
-        type: Dictionary
-        platforms: [iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        notes: Set the property `needsSave` to true everytime you update current activity state instead.
-
   - name: useractivitywascontinued
     summary: |
         Fired when the user activity was continued on another device.

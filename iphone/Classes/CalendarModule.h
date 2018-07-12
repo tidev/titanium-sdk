@@ -25,7 +25,6 @@
 @property (nonatomic, readonly) NSNumber *STATUS_NONE;
 @property (nonatomic, readonly) NSNumber *STATUS_CONFIRMED;
 @property (nonatomic, readonly) NSNumber *STATUS_TENTATIVE;
-@property (nonatomic, readonly) NSNumber *STATUS_CANCELLED;
 
 @property (nonatomic, readonly) NSNumber *AVAILABILITY_NOTSUPPORTED;
 @property (nonatomic, readonly) NSNumber *AVAILABILITY_BUSY;

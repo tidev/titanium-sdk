@@ -101,12 +101,6 @@
                                                  name:kTiUserNotificationSettingsNotification
                                                object:nil];
   }
-  if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didReceiveWatchExtensionRequestNotification:)
-                                                 name:kTiWatchKitExtensionRequest
-                                               object:nil];
-  }
   if ((count == 1) && [type isEqual:@"continueactivity"]) {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveContinueActivityNotification:) name:kTiContinueActivity object:nil];
   }
@@ -169,9 +163,6 @@
   }
   if ((count == 1) && [type isEqual:@"usernotificationsetting"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiUserNotificationSettingsNotification object:nil];
-  }
-  if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiWatchKitExtensionRequest object:nil];
   }
   if ((count == 1) && [type isEqual:@"continueactivity"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContinueActivity object:nil];
@@ -950,40 +941,7 @@
        withObject:[self formatUserNotificationSettings:(UIUserNotificationSettings *)[[note userInfo] valueForKey:@"userNotificationSettings"]]];
 }
 
-#pragma mark Apple Watchkit notifications
-
-- (void)didReceiveWatchExtensionRequestNotification:(NSNotification *)notif
-{
-  if ([TiUtils isIOS9OrGreater]) {
-    DebugLog(@"[WARN] Deprecated. Please use Ti.App.iOS.WatchConnectivity instead");
-  }
-  [self fireEvent:@"watchkitextensionrequest" withObject:[notif userInfo]];
-}
-
 #pragma mark Apple Watchkit handleWatchKitExtensionRequest reply
-
-- (void)sendWatchExtensionReply:(id)args
-{
-  if ([TiUtils isIOS9OrGreater]) {
-    DebugLog(@"[WARN] Deprecated. Please use Ti.App.iOS.WatchConnectivity instead");
-  }
-  enum Args {
-    kArgKey = 0,
-    kArgCount,
-    kArgUserInfo = kArgCount
-  };
-
-  ENSURE_TYPE(args, NSArray);
-  ENSURE_ARG_COUNT(args, kArgCount);
-
-  NSString *key = [TiUtils stringValue:[args objectAtIndex:kArgKey]];
-
-  if ([args count] > 1) {
-    [[TiApp app] watchKitExtensionRequestHandler:key withUserInfo:[args objectAtIndex:kArgUserInfo]];
-  } else {
-    [[TiApp app] watchKitExtensionRequestHandler:key withUserInfo:nil];
-  }
-}
 
 - (void)setMinimumBackgroundFetchInterval:(id)value
 {
