@@ -47,7 +47,7 @@ module.exports = function (grunt) {
 			},
 			ios: {
 				junitReporter: {
-					outputFile: 'junit.android.xml'
+					outputFile: 'junit.ios.xml'
 				}
 			}
 		}
