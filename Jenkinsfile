@@ -46,7 +46,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 				def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
 				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
 					ensureNPM(npmVersion)
-					sh "titanium sdk install ../../${zipName} -d"
+					sh "titanium sdk install ${zipName} -d"
 					sh 'npm ci'
 					try {
 						sh "npm run test:unit:${os}"
