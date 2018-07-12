@@ -37,18 +37,8 @@ module.exports = function (grunt) {
 			ios: { src: iosSrc }
 		},
 		karma: {
-			options: {
+			unit: {
 				configFile: 'test/unit/karma.unit.config.js'
-			},
-			android: {
-				junitReporter: {
-					outputFile: 'junit.android.xml'
-				}
-			},
-			ios: {
-				junitReporter: {
-					outputFile: 'junit.ios.xml'
-				}
 			}
 		}
 	});

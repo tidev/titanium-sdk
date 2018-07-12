@@ -11,13 +11,14 @@ module.exports = config => {
 		],
 		reporters: ['progress', 'junit'],
 		junitReporter: {
-			outputDir: '',
-			useBrowserName: false
+			outputDir: 'reports/junit',
+			outputFile: 'junit.xml'
 		},
 		customLaunchers: {
 			android: {
 				base: 'Titanium',
 				browserName: 'Android Emulator',
+				displayName: 'android',
 				platform: 'android'
 			}
 		},

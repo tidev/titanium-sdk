@@ -30,7 +30,7 @@ def basename = ''
 def vtag = ''
 def isFirstBuildOnBranch = false // calculated by looking at S3's branches.json, used to help bootstrap new mainline branches between Windows/main SDK
 
-def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
+def unitTests(nodeVersion, npmVersion, testSuiteBranch) {
 	return {
 		def labels = 'git && osx'
 		if ('ios'.equals(os)) {
@@ -49,7 +49,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 					sh "titanium sdk install ${zipName} -d"
 					sh 'npm ci'
 					try {
-						sh "npm run test:unit:${os}"
+						sh "npm run test:unit"
 					} catch (e) {
 						if ('ios'.equals(os)) {
 							// Gather the crash report(s)
@@ -72,8 +72,8 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 						} // if
 					} // finally
 					// save the junit reports as artifacts explicitly so danger.js can use them later
-					stash includes: 'junit.*.xml', name: "test-report-${os}"
-					junit 'junit.*.xml'
+					stash includes: 'junit.xml', name: "test-report"
+					junit 'reports/junit/**/*.xml'
 				} // nodejs
 			} // timeout
 		}
@@ -244,11 +244,7 @@ timestamps {
 
 		// Run unit tests in parallel for android/iOS
 		stage('Test') {
-			parallel(
-				'android unit tests': unitTests('android', nodeVersion, npmVersion, targetBranch),
-				'iOS unit tests': unitTests('ios', nodeVersion, npmVersion, targetBranch),
-				failFast: false
-			)
+			unitTests(nodeVersion, npmVersion, targetBranch)
 		}
 
 		stage('Deploy') {

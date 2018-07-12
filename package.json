@@ -19,8 +19,7 @@
   "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
   "scripts": {
     "test": "grunt",
-    "test:unit:android": "grunt karma:android",
-    "test:unit:ios": "grunt karma:ios"
+    "test:unit": "grunt karma"
   },
   "dependencies": {
     "adm-zip": "^0.4.11",
@@ -72,7 +71,7 @@
     "karma": "^2.0.4",
     "karma-jasmine": "^1.1.2",
     "karma-junit-reporter": "^1.2.0",
-    "karma-titanium-launcher": "^0.2.0",
+    "karma-titanium-launcher": "^0.2.1",
     "pagedown": "~1.1.0",
     "ssri": "^5.3.0"
   },
