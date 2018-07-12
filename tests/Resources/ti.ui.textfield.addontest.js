@@ -60,4 +60,22 @@ describe('Titanium.UI.TextField', function () {
 		});
 		win.open();
 	});
+
+	it.ios('.passwordRules', function () {
+		var textField = Ti.UI.createTextField({
+			passwordMask: true,
+			passwordRules: 'required: upper; required: lower; required: digit; max-consecutive: 2'
+		});
+		should(textField.passwordRules).equal('required: upper; required: lower; required: digit; max-consecutive: 2');
+	});
+});
+
+describe('Ti.UI', function () {
+	it.ios('.AUTOFILL_TYPE_NEW_PASSWORD', function () {
+		should(Ti.UI).have.a.constant('AUTOFILL_TYPE_NEW_PASSWORD').which.is.a.String;
+	});
+
+	it.ios('.AUTOFILL_TYPE_ONE_TIME_CODE', function () {
+		should(Ti.UI).have.a.constant('AUTOFILL_TYPE_ONE_TIME_CODE').which.is.a.String;
+	});
 });
