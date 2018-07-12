@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,7 +19,7 @@
     DebugLog(@"[WARN] The iOS-only SystemAlert API has been deprecated and moved to an external module in 8.0.0.");
     DebugLog(@"[WARN] It will be removed from the core in the future, please migrate!");
   }
-  
+
   return self;
 }
 
