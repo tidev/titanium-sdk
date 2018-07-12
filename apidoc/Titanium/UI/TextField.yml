@@ -464,6 +464,19 @@ properties:
     type: Boolean
     default: false
 
+  - name: passwordRules
+    summary: Set password rules that should be used for this text field.
+    description: |
+      This property is used to communicate requirements for passwords for your service
+      to ensure iOS can generate compatible passwords for users. It only works when <Titanium.UI.TextField.passwordMask>
+      is `true`. You do not need to use this property if the passwords that iOS generates are already
+      compatible with your service. You can learn more about the purpose of and syntax for these rules
+      on the [Password Rules documentation guide](https://developer.apple.com/documentation/security/password_autofill/customizing_password_autofill_rules).
+    type: String
+    since: "7.4.0"
+    osver: { ios: { min: "12.0" } }
+    platforms: [iphone, ipad]
+
   - name: returnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
     type: Number
