@@ -35,6 +35,21 @@ module.exports = function (grunt) {
 		checkFormat: {
 			android: { src: androidSrc },
 			ios: { src: iosSrc }
+		},
+		karma: {
+			options: {
+				configFile: 'test/unit/karma.unit.config.js'
+			},
+			android: {
+				junitReporter: {
+					outputFile: 'junit.android.xml'
+				}
+			},
+			ios: {
+				junitReporter: {
+					outputFile: 'junit.android.xml'
+				}
+			}
 		}
 	});
 
@@ -115,7 +130,7 @@ module.exports = function (grunt) {
 	grunt.registerMultiTask('checkFormat', 'Validates the source code formatting.', validateFormatting);
 
 	// Load grunt plugins for modules
-	grunt.loadNpmTasks('grunt-mocha-test');
+	grunt.loadNpmTasks('grunt-karma');
 	grunt.loadNpmTasks('grunt-appc-js');
 	grunt.loadNpmTasks('grunt-clang-format');
 	grunt.loadNpmTasks('grunt-contrib-clean');

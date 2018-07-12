@@ -106,7 +106,7 @@ if (github.pr.author_association === 'FIRST_TIMER') {
 // Check if any tests were changed/added
 const hasAppChanges = (modifiedAndroidFiles.length + modifiedIOSFiles.length) > 0;
 const testChanges = modified.filter(function (p) {
-	return p.startsWith('tests/') && p.endsWith('.js');
+	return p.startsWith('test/') && p.endsWith('.js');
 });
 const hasTestChanges = testChanges.length > 0;
 const hasNoTestsLabel = github.issue.labels.some(function (label) {
@@ -136,7 +136,7 @@ github.api.issues.addLabels({ owner: github.pr.base.repo.owner.login, repo: gith
 
 // Check for iOS crash file
 const crashFiles = fs.readdirSync(__dirname).filter(function (p) {
-	return p.startsWith('mocha_') && p.endsWith('.crash');
+	return p.startsWith('ti.karma.runner_') && p.endsWith('.crash');
 });
 if (crashFiles.length > 0) {
 	const crashLink = danger.utils.href(`${ENV.BUILD_URL}artifact/${crashFiles[0]}`, 'the crash log');

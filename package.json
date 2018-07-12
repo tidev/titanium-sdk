@@ -18,7 +18,9 @@
   ],
   "author": "Appcelerator, Inc. <npmjs@appcelerator.com>",
   "scripts": {
-    "test": "grunt"
+    "test": "grunt",
+    "test:unit:android": "grunt karma:android",
+    "test:unit:ios": "grunt karma:ios"
   },
   "dependencies": {
     "adm-zip": "^0.4.11",
@@ -53,6 +55,7 @@
     "xmldom": "^0.1.27"
   },
   "devDependencies": {
+    "@types/titanium": "^7.1.0",
     "clang-format": "^1.2.3",
     "commander": "^2.15.1",
     "danger": "^2.1.5",
@@ -63,9 +66,13 @@
     "grunt-clang-format": "^1.1.0",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
-    "grunt-mocha-test": "^0.13.3",
+    "grunt-karma": "^2.0.0",
+    "jasmine-core": "^3.1.0",
     "js-yaml": "^3.12.0",
-    "mocha": "^5.2.0",
+    "karma": "^2.0.4",
+    "karma-jasmine": "^1.1.2",
+    "karma-junit-reporter": "^1.2.0",
+    "karma-titanium-launcher": "^0.2.0",
     "pagedown": "~1.1.0",
     "ssri": "^5.3.0"
   },
