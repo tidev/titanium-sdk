@@ -348,36 +348,6 @@ public class HTTPClientProxy extends KrollProxy
 		return null;
 	}
 
-	// This uses Apache
-	/*
-	@Kroll.method
-	public void addAuthFactory(String scheme, Object factory)
-	{
-		//Sanity Checks
-		if ( (scheme == null) || (scheme.length() == 0) || (! (factory instanceof AuthSchemeFactory) )) {
-			return;
-		}
-
-		client.addAuthFactory(scheme, (AuthSchemeFactory)factory);
-	}
-	*/
-
-	@Kroll.method
-	public void addTrustManager(Object manager)
-	{
-		if (manager instanceof X509TrustManager) {
-			client.addTrustManager((X509TrustManager) manager);
-		}
-	}
-
-	@Kroll.method
-	public void addKeyManager(Object manager)
-	{
-		if (manager instanceof X509KeyManager) {
-			client.addKeyManager((X509KeyManager) manager);
-		}
-	}
-
 	// clang-format off
 	@Kroll.method
 	@Kroll.setProperty

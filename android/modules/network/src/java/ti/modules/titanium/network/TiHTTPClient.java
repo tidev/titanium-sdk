@@ -446,13 +446,6 @@ public class TiHTTPClient
 		return false;
 	}
 
-	/*
-	public void addAuthFactory(String scheme, AuthSchemeFactory theFactory)
-	{
-		customAuthenticators.put(scheme, theFactory);
-	}
-	*/
-
 	public void setReadyState(int readyState)
 	{
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
@@ -1513,28 +1506,6 @@ public class TiHTTPClient
 	protected boolean getAutoRedirect()
 	{
 		return autoRedirect;
-	}
-
-	protected void addKeyManager(X509KeyManager manager)
-	{
-		if (Log.isDebugModeEnabled()) {
-			Log.d(
-				TAG,
-				"addKeyManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts",
-				Log.DEBUG_MODE);
-		}
-		keyManagers.add(manager);
-	}
-
-	protected void addTrustManager(X509TrustManager manager)
-	{
-		if (Log.isDebugModeEnabled()) {
-			Log.d(
-				TAG,
-				"addTrustManager method is deprecated. Use the securityManager property on the HttpClient to define custom SSL Contexts",
-				Log.DEBUG_MODE);
-		}
-		trustManagers.add(manager);
 	}
 
 	protected void setTlsVersion(int value)

@@ -542,8 +542,6 @@ public class StreamModule extends KrollModule
 		KrollDict callbackArgs = new KrollDict();
 		callbackArgs.put("source", sourceStream);
 		callbackArgs.put("bytesProcessed", bytesProcessed);
-		callbackArgs.put("errorState", errorState);
-		callbackArgs.put("errorDescription", errorDescription);
 		callbackArgs.putCodeAndMessage(errorState, errorDescription);
 
 		return callbackArgs;
@@ -556,8 +554,6 @@ public class StreamModule extends KrollModule
 		callbackArgs.put("fromStream", fromStream);
 		callbackArgs.put("toStream", toStream);
 		callbackArgs.put("bytesProcessed", bytesProcessed);
-		callbackArgs.put("errorState", errorState);
-		callbackArgs.put("errorDescription", errorDescription);
 		callbackArgs.putCodeAndMessage(errorState, errorDescription);
 
 		return callbackArgs;
@@ -571,8 +567,6 @@ public class StreamModule extends KrollModule
 		callbackArgs.put("buffer", buffer);
 		callbackArgs.put("bytesProcessed", bytesProcessed);
 		callbackArgs.put("totalBytesProcessed", totalBytesProcessed);
-		callbackArgs.put("errorState", errorState);
-		callbackArgs.put("errorDescription", errorDescription);
 		callbackArgs.putCodeAndMessage(errorState, errorDescription);
 
 		return callbackArgs;
