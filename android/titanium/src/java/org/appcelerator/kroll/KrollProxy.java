@@ -1402,7 +1402,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void releaseKroll()
 	{
-		// TIMOB-25910: attempt to make any strong references into soft references
+		// TIMOB-25910: attempt to make any strong references into weak references
 		// NOTE: there is an issue where proxies created in another context (such as an event listener callback)
 		// may not be destroyed when the context has ended. This workaround allows the GC to free these objects
 		// if memory is constraint.
@@ -1413,9 +1413,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 				final Object reference = getReferenceMethod.invoke(null, this.referenceKey);
 				if (!(reference instanceof WeakReference || reference instanceof SoftReference)) {
-					final Method softReferenceMethod =
-						referenceTableClass.getDeclaredMethod("makeSoftReference", long.class);
-					softReferenceMethod.invoke(null, this.referenceKey);
+					final Method weakReferenceMethod =
+						referenceTableClass.getDeclaredMethod("makeWeakReference", long.class);
+					weakReferenceMethod.invoke(null, this.referenceKey);
 				}
 			} catch (Exception e) {
 				// do nothing...
