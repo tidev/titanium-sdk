@@ -107,34 +107,7 @@ extends: Titanium.Module
 excludes: { methods: [ 'addEventListener', 'fireEvent', 'removeEventListener',  ] }
 since: {android: "2.0",  iphone: "2.0", ipad: "2.0"}
 
-methods:
-  - name: hasStoredSession
-    summary: Checks if there is a stored user session.
-    deprecated:
-        since: "2.1.2"
-        notes: See [accessToken](Modules.Cloud.accessToken) and [sessionId](Modules.Cloud.sessionId) for details on persisting session data.
-    description: |
-        True is returned after successfully calling <Modules.Cloud.Users.create> or 
-        <Modules.Cloud.Users.login>, and false after successfully calling 
-        <Modules.Cloud.Users.logout>.
-    returns:
-        type: Boolean
-        
-  - name: retrieveStoredSession
-    summary: Returns the stored user session identifier.
-    deprecated:
-        since: "2.1.2"
-        notes: See [accessToken](Modules.Cloud.accessToken) and [sessionId](Modules.Cloud.sessionId) for details on persisting session data.
-    description: |
-        A value is returned after successfully calling <Modules.Cloud.Users.create> or 
-        <Modules.Cloud.Users.login>, and null after successfully calling 
-        <Modules.Cloud.Users.logout>. 
-        
-        All calls made using the Cloud module automatically use this value and, thus, it only needs 
-        to be used when manually making calls to the ArrowDB servers using <Titanium.Network.HTTPClient>. 
-    returns:
-        type: String
-  
+methods:  
   - name: sendRequest
     summary: Makes a REST API call to the ArrowDB server.
     description: |
@@ -265,19 +238,6 @@ properties:
         
         When you are done tracking the transmission, set this to null.
     type: Callback<CloudStreamProgress>
-    
-  - name: useSecure
-    summary: Indicates whether to use SSL when sending requests to ArrowDB.
-    type: Boolean
-    default: true
-    deprecated:
-        since: "2.0"
-        removed: "3.1.1"
-        notes: |
-            To disable SSL, set the `acs-base-url` and `acs-authbase-url` properties in the `tiapp.xml` using the HTTP URL.
-            To enable SSL, use the HTTPS URL.
-
-                <property name="acs-base-url" type="string">https://api.cloud.appcelerator.com</property>
 
   - name: sessionId
     since: "2.1.2"

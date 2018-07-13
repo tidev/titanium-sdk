@@ -140,13 +140,6 @@ events:
         type: Number
         platforms: [iphone, ipad, android]
 
-      - name: message
-        summary: Error message. Use the error property instead.
-        type: String
-        deprecated:
-            since: "3.1.0"
-
-
   - name: interrupted
     summary: Fired  when audio playback is interrupted by the device. 
     description: |
