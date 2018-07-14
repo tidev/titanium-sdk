@@ -3,14 +3,13 @@
  * Copyright (c) 2018 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
- * 
+ *
  * Description:
- * This script recursively searches the "Resources" directory for all JavaScript files
- * named "bootstrap.js" or ending with the name "*.bootstrap.js" and then executes them.
- * The main intention of this feature is to all JavaScript to kick-off functionality or
+ * This script loads all JavaScript files ending with the name "*.bootstrap.js" and then executes them.
+ * The main intention of this feature is to allow JavaScript files to kick-off functionality or
  * display UI to the end-user before the "app.js" gets loaded. This feature is the CommonJS
  * equivalent to Titanium's Android module onAppCreate() or iOS module load() features.
- * 
+ *
  * Use-Cases:
  * - Automatically kick-off analytics functionality on app startup.
  * - Ensure "Google Play Services" is installed/updated on app startup on Android.
@@ -18,18 +17,51 @@
 
 'use strict';
 
-var JS_EXTENSION = '.js',
-	BOOTSTRAP_FILE_NAME = 'bootstrap' + JS_EXTENSION,
-	BOOTSTRAP_SUFFIX = '.' + BOOTSTRAP_FILE_NAME;
+/**
+ * Attempts to load all bootstraps from a "bootstrap.json" file created by the app build system.
+ * This is an optional feature and is the fastest method of acquiring boostraps configured for the app.
+ * This JSON file, if provided, must be in the same directory as this script.
+ * @returns {Array.<string>}
+ * Returns an array of require() compatible strings if bootstraps were successfully loaded from JSON.
+ * Returns an empty array if JSON file was found, but no bootstraps were configured for the app.
+ * Returns null if JSON file was not found.
+ */
+function fetchScriptsFromJson() {
+	var JSON_FILE_NAME = 'bootstrap.json',
+		jsonFile,
+		settings;
 
-exports.loadAsync = function (finished) {
-	var resourceDirectory = Ti.Filesystem.getFile(Ti.Filesystem.getResourcesDirectory()),
+	try {
+		jsonFile = Ti.Filesystem.getFile(
+			Ti.Filesystem.getResourcesDirectory(), 'ti.internal/' + JSON_FILE_NAME);
+		if (jsonFile.exists()) {
+			settings = JSON.parse(jsonFile.read().text);
+			if (Array.isArray(settings.scripts)) {
+				return settings.scripts;
+			} else {
+				return [];
+			}
+		}
+	} catch (error) {
+		Ti.API.error('Failed to read "' + JSON_FILE_NAME + '". Reason: ' + error.message);
+	}
+	return null;
+}
+
+/**
+ * Recursively searches the "Resources" directory for all "*.bootstrap.js" files.
+ * @returns {Array.<string>}
+ * Returns an array of require() compatible strings for each bootstrap found in the search.
+ * Returns an empty array if no bootstrap files were found.
+ */
+function fetchScriptsFromResourcesDirectory() {
+	var JS_EXTENSION = '.js',
+		BOOTSTRAP_SUFFIX = '.bootstrap' + JS_EXTENSION,
+		resourceDirectory = Ti.Filesystem.getFile(Ti.Filesystem.getResourcesDirectory()),
 		resourceDirectoryPath = resourceDirectory.nativePath,
 		bootstrapScripts = [];
 
-	// Fetches all "*.bootstrap.js" files under given directory and adds them to the "bootstrapScripts" array.
-	// The names stored in the array can be loaded via require() method.
-	function fetchBootstrapScriptsFrom(file) {
+	function loadFrom(file) {
 		var index,
 			fileNameArray,
 			bootstrapPath;
@@ -40,10 +72,10 @@ exports.loadAsync = function (finished) {
 				fileNameArray = file.getDirectoryListing();
 				if (fileNameArray) {
 					for (index = 0; index < fileNameArray.length; index++) {
-						fetchBootstrapScriptsFrom(Ti.Filesystem.getFile(file.nativePath, fileNameArray[index]));
+						loadFrom(Ti.Filesystem.getFile(file.nativePath, fileNameArray[index]));
 					}
 				}
-			} else if ((file.name === BOOTSTRAP_FILE_NAME) || file.name.endsWith(BOOTSTRAP_SUFFIX)) {
+			} else if (file.name.endsWith(BOOTSTRAP_SUFFIX)) {
 				// This is a bootstrap file.
 				// Convert its path to something loadable via require() and add it to the array.
 				bootstrapPath = file.nativePath;
@@ -54,12 +86,33 @@ exports.loadAsync = function (finished) {
 			}
 		}
 	}
-	fetchBootstrapScriptsFrom(resourceDirectory);
+	loadFrom(resourceDirectory);
+	return bootstrapScripts;
+}
 
-	// Sort the bootstrap scripts so that they'll be loaded in a consistent order between platforms.
+/**
+ * Non-blocking function which loads and executes all bootstrap scripts configured for the app.
+ * @param {function} finished Callback to be invoked once all bootstraps have finished executing. Cannot be null.
+ */
+exports.loadAsync = function (finished) {
+	// Acquire an array of all bootstrap scripts included with the app.
+	// - For best performance, attempt to fetch scripts via an optional JSON file create by the build system.
+	// - If JSON file not found (will return null), then search "Resources" directory for bootstrap files.
+	var bootstrapScripts = fetchScriptsFromJson();
+	if (!bootstrapScripts) {
+		bootstrapScripts = fetchScriptsFromResourcesDirectory();
+	}
+
+	// Do not continue if no bootstraps were found.
+	if (!bootstrapScripts || (bootstrapScripts.length <= 0)) {
+		finished();
+		return;
+	}
+
+	// Sort the bootstraps so that they'll be loaded in a consistent order between platforms.
 	bootstrapScripts.sort();
 
-	// Loads all bootstrap scripts found before loading the "app.js" script.
+	// Loads all bootstrap scripts found.
 	function loadBootstrapScripts(finished) {
 		var bootstrapIndex = 0;
 		function doLoad() {
@@ -82,7 +135,7 @@ exports.loadAsync = function (finished) {
 				bootstrapIndex++;
 			}
 
-			// We're done. Invoke given callback so that the "app.js" can be loaded.
+			// Invoke given callback to inform caller that all loading is done.
 			finished();
 		}
 		function onBootstrapExecutionFinished() {
@@ -97,7 +150,7 @@ exports.loadAsync = function (finished) {
 	}
 	loadBootstrapScripts(function () {
 		// We've finished loading/executing all bootstrap scripts.
-		// We can now proceed to run the main "app.js" script.
+		// Inform caller by invoking the callback given to loadAsync().
 		finished();
 	});
 };
