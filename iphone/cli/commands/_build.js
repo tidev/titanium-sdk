@@ -6563,7 +6563,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 	];
 
 	if (!this.useNewBuildSystem) {
-		args.push('UseNewBuildSystem=NO');
+		args.push('-UseNewBuildSystem=NO');
 	}
 
 	if (this.simHandle) {
