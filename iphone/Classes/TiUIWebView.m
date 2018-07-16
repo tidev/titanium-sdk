@@ -770,24 +770,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
     // Use "onlink" callback property to decide the navigation policy
     KrollWrapper *onLink = [[self proxy] valueForKey:@"onlink"];
-    if (onLink != nil && [KrollBridge krollBridgeExists:[onLink bridge]]) {
-      TiObjectRef value = [onLink jsobject];
-      TiContextRef context = [onLink.bridge.krollContext context];
-
-      TiValueRef callException = NULL;
-      TiValueRef callArgs[1] = { [KrollObject toValue:onLink.bridge.krollContext value:@{ @"url" : newUrl.absoluteString }] };
-
-      TiValueRef functionResult = TiObjectCallAsFunction(context, value, NULL, 1, callArgs, &callException);
-
-      if (callException != NULL) {
-        id exceptionPayload = [KrollObject toID:onLink.bridge.krollContext value:callException];
-        [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:exceptionPayload]];
-      }
-
-      bool isBoolean = TiValueIsBoolean(context, functionResult);
-
-      if (isBoolean) {
-        return TiValueToBoolean(context, functionResult);
+    if (onLink != nil) {
+      TiValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : newUrl.absoluteString } ]];
+      if (functionResult != NULL && TiValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
+        return TiValueToBoolean([onLink.bridge.krollContext context], functionResult);
       }
     }
 
