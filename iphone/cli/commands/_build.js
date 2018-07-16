@@ -2449,15 +2449,12 @@ iOSBuilder.prototype.initialize = function initialize() {
 
 	if (!this.tiapp.ios.hasOwnProperty('use-new-build-system') && appc.version.lt(this.xcodeEnv.version, '10.0.0')) {
 		// if running on Xcode < 10, do not use the new build system by default
-		console.log('1');
 		this.useNewBuildSystem = false;
 	} else if (this.tiapp.ios.hasOwnProperty('use-new-build-system')) {
 		// if explicitely set via tiapp.xml, go with that one
-		console.log('2');
 		this.useNewBuildSystem = this.tiapp.ios['use-new-build-system'];
 	} else {
 		// if not set and Xcode >= 10, use the new build system
-		console.log('3');
 		this.useNewBuildSystem = true;
 	}
 
