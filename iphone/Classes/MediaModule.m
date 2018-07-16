@@ -683,6 +683,10 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     return;
   }
 
+  if (![TiUtils boolValue:[self hasAudioRecorderPermissions:nil]]) {
+    DebugLog(@"[ERROR] Microphone permissions are required to use the microphone monitoring API.");
+  }
+
   NSURL *url = [NSURL fileURLWithPath:@"/dev/null"];
   NSDictionary *settings = [NSDictionary dictionaryWithObjectsAndKeys:
                                              [NSNumber numberWithFloat:44100.0], AVSampleRateKey,
