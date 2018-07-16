@@ -775,10 +775,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
       TiContextRef context = [onLink.bridge.krollContext context];
 
       TiValueRef callException = NULL;
-      TiValueRef _args[1];
-      _args[0] = [KrollObject toValue:onLink.bridge.krollContext value:@{ @"url" : newUrl.absoluteString }];
+      TiValueRef callArgs[1] = { [KrollObject toValue:onLink.bridge.krollContext value:@{ @"url" : newUrl.absoluteString }] };
 
-      TiValueRef functionResult = TiObjectCallAsFunction(context, value, NULL, 1, _args, &callException);
+      TiValueRef functionResult = TiObjectCallAsFunction(context, value, NULL, 1, callArgs, &callException);
 
       if (callException != NULL) {
         id exceptionPayload = [KrollObject toID:onLink.bridge.krollContext value:callException];
