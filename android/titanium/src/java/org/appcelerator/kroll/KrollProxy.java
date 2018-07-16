@@ -1426,13 +1426,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 					final Method weakReferenceMethod =
 						referenceTableClass.getDeclaredMethod("makeWeakReference", long.class);
 					weakReferenceMethod.invoke(null, this.referenceKey);
+				} else {
+					if (krollObject != null) {
+						krollObject.release();
+					}
 				}
 			} catch (Exception e) {
 				// do nothing...
 			}
-		}
-		if (krollObject != null) {
-			krollObject.release();
+		} else {
+			if (krollObject != null) {
+				krollObject.release();
+			}
 		}
 	}
 
