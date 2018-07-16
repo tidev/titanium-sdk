@@ -10,6 +10,7 @@
 #import "Mimetypes.h"
 #import "TiApp.h"
 #import "TiBlob.h"
+#import "TiExceptionHandler.h"
 #import "TiFile.h"
 #import "TiHost.h"
 #import "TiProxy.h"
@@ -773,10 +774,17 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
       TiObjectRef value = [onLink jsobject];
       TiContextRef context = [onLink.bridge.krollContext context];
 
+      TiValueRef callException = NULL;
       TiValueRef _args[1];
       _args[0] = [KrollObject toValue:onLink.bridge.krollContext value:@{ @"url" : newUrl.absoluteString }];
 
-      TiValueRef functionResult = TiObjectCallAsFunction(context, value, NULL, 1, _args, NULL);
+      TiValueRef functionResult = TiObjectCallAsFunction(context, value, NULL, 1, _args, &callException);
+
+      if (callException != NULL) {
+        id exceptionPayload = [KrollObject toID:onLink.bridge.krollContext value:callException];
+        [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:exceptionPayload]];
+      }
+
       bool isBoolean = TiValueIsBoolean(context, functionResult);
 
       if (isBoolean) {
