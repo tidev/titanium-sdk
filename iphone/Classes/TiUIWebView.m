@@ -766,6 +766,20 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     if ([scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
       [LocalProtocolHandler setContentInjection:[self titaniumInjection]];
     }
+
+    // Use "onlink" callback property to decide the navigation policy
+    KrollWrapper *onLink = [[self proxy] valueForKey:@"onlink"];
+    if (onLink != nil && [KrollBridge krollBridgeExists:[onLink bridge]]) {
+      TiObjectRef value = [onLink jsobject];
+      TiContextRef context = [onLink.bridge.krollContext context];
+      TiValueRef functionResult = TiObjectCallAsFunction(context, value, NULL, 0, NULL, NULL);
+      bool isBoolean = TiValueIsBoolean(context, functionResult);
+
+      if (isBoolean) {
+        return TiValueToBoolean(context, functionResult);
+      }
+    }
+
     return YES;
   }
 
