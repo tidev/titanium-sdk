@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import "TiUIWebViewDecisionHandlerProxy.h"
+#import "TiUIiOSWebViewDecisionHandlerProxy.h"
 #import "TiUtils.h"
 
-@implementation TiUIWebViewDecisionHandlerProxy
+@implementation TiUIiOSWebViewDecisionHandlerProxy
 
 - (id)_initWithPageContext:(id<TiEvaluator>)context andDecisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler
 {

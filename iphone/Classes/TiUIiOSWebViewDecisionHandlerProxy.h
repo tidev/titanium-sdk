@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TiUIWebViewDecisionHandlerProxy : TiProxy {
+@interface TiUIiOSWebViewDecisionHandlerProxy : TiProxy {
   void (^_Nonnull _decisionHandler)(WKNavigationActionPolicy);
 }
 

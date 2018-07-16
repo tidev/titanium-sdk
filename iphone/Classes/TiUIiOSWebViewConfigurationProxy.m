@@ -9,11 +9,11 @@
 
 #import <WebKit/WebKit.h>
 
-#import "TiUIWebViewConfigurationProxy.h"
-#import "TiUIWebViewProcessPoolProxy.h"
+#import "TiUIiOSWebViewConfigurationProxy.h"
+#import "TiUIiOSWebViewProcessPoolProxy.h"
 #import "TiUtils.h"
 
-@implementation TiUIWebViewConfigurationProxy
+@implementation TiUIiOSWebViewConfigurationProxy
 
 - (WKWebViewConfiguration *)configuration
 {
@@ -23,8 +23,8 @@
     id processPool = [self valueForKey:@"processPool"];
 
     if ([self valueForKey:@"processPool"]) {
-      ENSURE_TYPE(processPool, TiUIWebViewProcessPoolProxy);
-      [_configuration setProcessPool:[(TiUIWebViewProcessPoolProxy *)processPool pool]];
+      ENSURE_TYPE(processPool, TiUIiOSWebViewProcessPoolProxy);
+      [_configuration setProcessPool:[(TiUIiOSWebViewProcessPoolProxy *)processPool pool]];
     }
   }
 

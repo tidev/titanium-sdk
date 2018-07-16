@@ -6,13 +6,18 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import "TiProxy.h"
-#import <WebKit/WebKit.h>
+#import "TiUIiOSWebViewProcessPoolProxy.h"
 
-@interface TiUIWebViewProcessPoolProxy : TiProxy {
+@implementation TiUIiOSWebViewProcessPoolProxy
+
+- (id)_initWithPageContext:(id<TiEvaluator>)context
+{
+  if (self = [super _initWithPageContext:context]) {
+    _pool = [[WKProcessPool alloc] init];
+  }
+
+  return self;
 }
-
-@property (nonatomic, strong) WKProcessPool *pool;
 
 @end
 

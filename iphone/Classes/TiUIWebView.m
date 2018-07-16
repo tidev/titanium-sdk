@@ -10,8 +10,8 @@
 #import "SBJSON.h"
 #import "TiApp.h"
 #import "TiFilesystemFileProxy.h"
-#import "TiUIWebViewConfigurationProxy.h"
-#import "TiUIWebViewDecisionHandlerProxy.h"
+#import "TiUIiOSWebViewConfigurationProxy.h"
+#import "TiUIiOSWebViewDecisionHandlerProxy.h"
 #import "TiUIWebViewProxy.h"
 #import "Webcolor.h"
 
@@ -56,7 +56,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (WKWebView *)webView
 {
   if (_webView == nil) {
-    TiUIWebViewConfigurationProxy *configProxy = [[self proxy] valueForKey:@"configuration"];
+    TiUIiOSWebViewConfigurationProxy *configProxy = [[self proxy] valueForKey:@"configuration"];
     WKWebViewConfiguration *config = configProxy ? [configProxy configuration] : [[[WKWebViewConfiguration alloc] init] autorelease];
     WKUserContentController *controller = [[[WKUserContentController alloc] init] autorelease];
 
@@ -770,7 +770,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
         [[self proxy] fireEvent:@"handleurl"
                      withObject:@{
                        @"url" : [TiUtils stringValue:[[navigationAction request] URL]],
-                       @"handler" : [[[TiUIWebViewDecisionHandlerProxy alloc] _initWithPageContext:[[self proxy] pageContext] andDecisionHandler:decisionHandler] autorelease]
+                       @"handler" : [[[TiUIiOSWebViewDecisionHandlerProxy alloc] _initWithPageContext:[[self proxy] pageContext] andDecisionHandler:decisionHandler] autorelease]
                      }];
       } else {
         // DEPRECATED: Should use the "handleurl" event instead and call openURL on Ti.Platform.openURL instead
