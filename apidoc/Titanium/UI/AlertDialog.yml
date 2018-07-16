@@ -45,12 +45,12 @@ description: |
     obscured text or login identifier and password. Entered values can be captured with listening
     `cancel` event.
 
-    Starting at Titanium SDK 5.1.0, you can also specify the `placeholder`, `keyboardType` and `returnKeyType`
+    Starting at Titanium SDK 5.1.0, you can also specify the `hintText`, `keyboardType` and `returnKeyType`
     properties when using the alert dialog style <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
     <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
     When using the alert dialog style <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>, you can
-    specify the `loginPlaceholder`, `loginKeyboardType` and `loginReturnKeyType` properties for the login field,
-    as well as the `passwordPlaceholder`, `passwordKeyboardType` and `passwordReturnKeyType` properties for the password field.
+    specify the `loginHintText`, `loginKeyboardType` and `loginReturnKeyType` properties for the login field,
+    as well as the `passwordHintText`, `passwordKeyboardType` and `passwordReturnKeyType` properties for the password field.
 
     #### Global Alias
 
@@ -259,18 +259,6 @@ properties:
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
 
-  - name: loginPlaceholder
-    summary: Placeholder of the login text field inside the dialog.
-    deprecated:
-        since: "5.4.0"
-        notes: Use <Titanium.UI.AlertDialog.loginHintText> instead.
-    description: |
-        Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
-    type: String
-    since: 5.1.0
-    platforms: [iphone, ipad]
-
   - name: loginHintText
     summary: Hint text of the login text field inside the dialog.
     description: |
@@ -341,18 +329,6 @@ properties:
     type: String
     platforms: [iphone, ipad]
 
-  - name: passwordPlaceholder
-    summary: Placeholder of the password text field inside the dialog.
-    deprecated:
-        since: "5.4.0"
-        notes: Use <Titanium.UI.AlertDialog.passwordHintText> instead.
-    description: |
-        Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iOS.AlertDialogStyle.LOGIN_AND_PASSWORD_INPUT>.
-    type: String
-    since: 5.1.0
-    platforms: [iphone, ipad]
-
   - name: passwordHintText
     summary: Hint text of the password text field inside the dialog.
     description: |
@@ -399,19 +375,6 @@ properties:
     since: 5.1.0
     constants: Titanium.UI.KEYBOARD_*
     default: <Titanium.UI.KEYBOARD_DEFAULT>
-
-  - name: placeholder
-    summary: Placeholder of the text field inside the dialog.
-    deprecated:
-        since: "5.4.0"
-        notes: Use <Titanium.UI.AlertDialog.hintText> instead.
-    description: |
-        Note that this property is only available if dialog `style` property is defined as
-        <Titanium.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT> or
-        <Titanium.UI.iOS.AlertDialogStyle.SECURE_TEXT_INPUT>.
-    type: String
-    since: 5.1.0
-    platforms: [iphone, ipad]
 
   - name: persistent
     summary: Boolean value indicating if the alert dialog should only be cancelled by user gesture or by hide method.
