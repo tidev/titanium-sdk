@@ -110,9 +110,13 @@ function iOSBuilder() {
 	// when true, uses the JavaScriptCore that ships with iOS instead of the original Titanium version
 	this.useJSCore = true;
 
+	// when true, uses the new build system (Xcode 9+)
+	this.useNewBuildSystem = true;
+
 	// when false, JavaScript will run on its own thread - the Kroll Thread
 	this.runOnMainThread = true;
 
+	// when true, uses the AutoLayout engine
 	this.useAutoLayout = false;
 
 	// populated the first time getDeviceInfo() is called
@@ -2384,10 +2388,10 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS;
 	this.currentBuildManifest.showErrorController          = this.showErrorController;
 
-	// Use native JSCore by default (TIMOB-23136)
+	// use native JSCore by default (TIMOB-23136)
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
 
-	// Remove this check on 7.0.0
+	// remove this check on 8.0.0
 	if (this.tiapp.ios && (this.tiapp.ios.hasOwnProperty('run-on-main-thread'))) {
 		this.logger.warn(__('run-on-main-thread no longer set in the <ios> section of the tiapp.xml. Use <property name="run-on-main-thread" type="bool">true</property> instead'));
 		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.ios['run-on-main-thread'] === true);
@@ -2396,13 +2400,13 @@ iOSBuilder.prototype.initialize = function initialize() {
 	}
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
-	// Deprecate TiJSCore and leave a warning if used anyway
+	// deprecate TiJSCore and leave a warning if used anyway
 	if (!this.useJSCore) {
 		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy JavaScriptCore library in favor of the built-in JavaScriptCore.'));
 		this.logger.warn(__('The legacy JavaScriptCore library will be removed in Titanium SDK 8.0.0.'));
 	}
 
-	// Deprecate KrollThread and leave a warning if used anyway
+	// deprecate KrollThread and leave a warning if used anyway
 	if (!this.runOnMainThread) {
 		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy UI-execution on Kroll-Thread in favor of the Main-Thread.'));
 		this.logger.warn(__('The legacy execution will be removed in Titanium SDK 8.0.0.'));
@@ -2441,6 +2445,20 @@ iOSBuilder.prototype.initialize = function initialize() {
 	if (!this.tiapp.ios['enable-launch-screen-storyboard'] || appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
 		this.enableLaunchScreenStoryboard = false;
 		this.defaultLaunchScreenStoryboard = false;
+	}
+
+	if (!this.tiapp.ios.hasOwnProperty('use-new-build-system') && appc.version.lt(this.xcodeEnv.version, '10.0.0')) {
+		// if running on Xcode < 10, do not use the new build system by default
+		console.log('1');
+		this.useNewBuildSystem = false;
+	} else if (this.tiapp.ios.hasOwnProperty('use-new-build-system')) {
+		// if explicitely set via tiapp.xml, go with that one
+		console.log('2');
+		this.useNewBuildSystem = this.tiapp.ios['use-new-build-system'];
+	} else {
+		// if not set and Xcode >= 10, use the new build system
+		console.log('3');
+		this.useNewBuildSystem = true;
 	}
 
 	if (this.enableLaunchScreenStoryboard && (fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard')))) {
@@ -2861,6 +2879,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
+		// check if the use use-new-build-system flag has changed
+		if (this.useNewBuildSystem !== manifest.useNewBuildSystem) {
+			this.logger.info(__('Forcing rebuild: use use-new-build-system flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.useNewBuildSystem));
+			this.logger.info('  ' + __('Now: %s', this.useNewBuildSystem));
+			return true;
+		}
+
 		// check if the showErrorController flag has changed
 		if (this.showErrorController !== manifest.showErrorController) {
 			this.logger.info(__('Forcing rebuild: showErrorController flag changed since last build'));
@@ -2939,7 +2965,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	this.logger.info(__('Creating Xcode project'));
 
 	const appName = this.tiapp.name,
-		scrubbedAppName = appName.replace(/[-\W]/g, '_'),
+		scrubbedAppName = this.sanitizedAppName(),
 		srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj'),
 		contents = fs.readFileSync(srcFile).toString(),
 		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
@@ -4401,7 +4427,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 	this.logger.info(__('Copying Titanium iOS files'));
 
 	const nameChanged = !this.previousBuildManifest || this.tiapp.name !== this.previousBuildManifest.name,
-		name = this.tiapp.name.replace(/[-\W]/g, '_'),
+		name = this.sanitizedAppName(),
 		extRegExp = /\.(c|cpp|h|m|mm)$/,
 
 		// files to watch for while copying
@@ -4681,7 +4707,7 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 	}
 
 	const exe = this.xcodeEnv.executables.xcodebuild,
-		args = [ 'clean', '-UseNewBuildSystem=NO' ]; // Use old build system until www.openradar.me/40906897 is fixed
+		args = [ 'clean', '-scheme', this.sanitizedAppName() ];
 	let tries = 0,
 		lastErr = null,
 		done = false;
@@ -6529,13 +6555,16 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'archive' : 'build',
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
-		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),
+		'-scheme', this.sanitizedAppName(),
 		'-derivedDataPath', path.join(this.buildDir, 'DerivedData'),
 		'OBJROOT=' + path.join(this.buildDir, 'build', 'Intermediates'),
 		'SHARED_PRECOMPS_DIR=' + path.join(this.buildDir, 'build', 'Intermediates', 'PrecompiledHeaders'),
 		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products'),
-		'-UseNewBuildSystem=NO' // Use old build system until www.openradar.me/40906897 is fixed
 	];
+
+	if (!this.useNewBuildSystem) {
+		args.push('UseNewBuildSystem=NO');
+	}
 
 	if (this.simHandle) {
 		// when building for the simulator, we need to specify a destination and a scheme (above)
@@ -6567,6 +6596,15 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})(this.currentBuildManifest, next);
+};
+
+/**
+ * Returns the sanitized app name to replace invalid characters.
+ *
+ * @returns {String}
+ */
+iOSBuilder.prototype.sanitizedAppName = function sanitizedAppName() {
+	return this.tiapp.name.replace(/[-\W]/g, '_');
 };
 
 function sha1(value) {
