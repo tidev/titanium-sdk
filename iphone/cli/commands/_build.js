@@ -2846,7 +2846,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use JavaScriptCore flag has changed
 		if (this.useJSCore !== manifest.useJSCore) {
-			this.logger.info(__('Forcing rebuild: use JSCore flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: use-jscore-framework flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useJSCore));
 			this.logger.info('  ' + __('Now: %s', this.useJSCore));
 			return true;
@@ -2854,7 +2854,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use RunOnMainThread flag has changed
 		if (this.runOnMainThread !== manifest.runOnMainThread) {
-			this.logger.info(__('Forcing rebuild: use RunOnMainThread flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: run-on-main-thread flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.runOnMainThread));
 			this.logger.info('  ' + __('Now: %s', this.runOnMainThread));
 			return true;
@@ -2862,7 +2862,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use UserAutoLayout flag has changed
 		if (this.useAutoLayout !== manifest.useAutoLayout) {
-			this.logger.info(__('Forcing rebuild: use UserAutoLayout flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: use-autolayout flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useAutoLayout));
 			this.logger.info('  ' + __('Now: %s', this.useAutoLayout));
 			return true;
@@ -2870,7 +2870,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use use-app-thinning flag has changed
 		if (this.useAppThinning !== manifest.useAppThinning) {
-			this.logger.info(__('Forcing rebuild: use use-app-thinning flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: use-app-thinning flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useAppThinning));
 			this.logger.info('  ' + __('Now: %s', this.useAppThinning));
 			return true;
@@ -2878,7 +2878,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use use-new-build-system flag has changed
 		if (this.useNewBuildSystem !== manifest.useNewBuildSystem) {
-			this.logger.info(__('Forcing rebuild: use use-new-build-system flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: use-new-build-system flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useNewBuildSystem));
 			this.logger.info('  ' + __('Now: %s', this.useNewBuildSystem));
 			return true;
