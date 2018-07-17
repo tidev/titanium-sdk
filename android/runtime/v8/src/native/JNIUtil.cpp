@@ -96,6 +96,7 @@ jmethodID JNIUtil::referenceTableMakeWeakReferenceMethod = NULL;
 jmethodID JNIUtil::referenceTableMakeSoftReferenceMethod = NULL;
 jmethodID JNIUtil::referenceTableClearReferenceMethod = NULL;
 jmethodID JNIUtil::referenceTableGetReferenceMethod = NULL;
+jmethodID JNIUtil::referenceTableIsStrongReferenceMethod = NULL;
 
 jint JNIUtil::krollRuntimeDontIntercept = -1;
 jmethodID JNIUtil::krollInvocationInitMethod = NULL;
@@ -378,6 +379,7 @@ void JNIUtil::initCache()
 	referenceTableMakeSoftReferenceMethod = getMethodID(referenceTableClass, "makeSoftReference", "(J)V", true);
 	referenceTableClearReferenceMethod = getMethodID(referenceTableClass, "clearReference", "(J)Ljava/lang/Object;", true);
 	referenceTableGetReferenceMethod = getMethodID(referenceTableClass, "getReference", "(J)Ljava/lang/Object;", true);
+	referenceTableIsStrongReferenceMethod = getMethodID(referenceTableClass, "isStrongReference", "(J)Z", true);
 
 	jfieldID dontInterceptField = env->GetStaticFieldID(krollRuntimeClass, "DONT_INTERCEPT", "I");
 	krollRuntimeDontIntercept = env->GetStaticIntField(krollRuntimeClass, dontInterceptField);
