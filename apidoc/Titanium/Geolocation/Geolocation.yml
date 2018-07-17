@@ -41,6 +41,7 @@ description: |
     to one of the following values:
 
     *   [ACCURACY_BEST](Titanium.Geolocation.ACCURACY_BEST) (highest accuracy and power consumption)
+    *   [ACCURACY_BEST_FOR_NAVIGATION](Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION)
     *   [ACCURACY_HIGH](Titanium.Geolocation.ACCURACY_HIGH)
     *   [ACCURACY_NEAREST_TEN_METERS](Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS)
     *   [ACCURACY_HUNDRED_METERS](Titanium.Geolocation.ACCURACY_HUNDRED_METERS)
@@ -48,8 +49,6 @@ description: |
     *   [ACCURACY_LOW](Titanium.Geolocation.ACCURACY_LOW)
     *   [ACCURACY_THREE_KILOMETERS](Titanium.Geolocation.ACCURACY_THREE_KILOMETERS) (lowest
         accuracy and power consumption).
-    *   [ACCURACY_BEST_FOR_NAVIGATION](Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION)
-        (Available in iOS 6.0 and above)
 
     Based on the accuracy you choose, iOS uses its own logic to select location providers
     and filter location updates to provide location updates that meet your accuracy
@@ -59,10 +58,10 @@ description: |
     [distanceFilter](Titanium.Geolocation.distanceFilter) property to eliminate position
     updates when the user is not moving.
 
-    For iOS 8 and later, add either the
-    [`NSLocationWhenInUseUsageDescription`](https://developer.apple.com/library/prerelease/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW26)
+    In order to receive the user's location, add either the
+    [`NSLocationWhenInUseUsageDescription`](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW26)
     or
-    [`NSLocationAlwaysUsageDescription`](https://developer.apple.com/library/prerelease/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW18)
+    [`NSLocationAlwaysUsageDescription`](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW26)
     key to the iOS plist section of the project's `tiapp.xml` file.
 
         <ti:app>
@@ -90,9 +89,7 @@ description: |
 
     #### Configurating Location Updates on Android
 
-    Prior to Titanium Mobile 2.0, Titanium attempted to follow the iOS model on Android,
-    but this didn't fit the native Android model well. In Release 2.0, three different
-    location service modes are supported on Android: *simple*, *manual*, and *legacy*.
+    On Android, three different location service modes are supported: *simple*, *manual*, and *legacy*.
 
     *   *Simple mode* provides a compromise mode that provides adaquate support for
         undemanding location applications without requiring developers to
@@ -138,14 +135,14 @@ description: |
         [frequency](Titanium.Geolocation.frequency) property. The `preferredProvider`
         and `frequency` properties are not used in any other mode.
 
-    As of Titanium SDK 7.1.0 and later, including `ti.playservices` will allow Google Play Services to be used by
-    default to obtain location information. This means the provider passed into [createLocationProvider](Titanium.Geolocation.Android.createLocationProvider) will
-    be ignored, as Google Play Services will select the best provider based on current device conditions.
+    As of Titanium SDK 7.1.0 and later, including the [`ti.playservices`](https://github.com/appcelerator-modules/ti.playservices) module will allow Google Play Services 
+    to be used by default to obtain location information. This means the provider passed into [createLocationProvider](Titanium.Geolocation.Android.createLocationProvider)
+    will be ignored, as Google Play Services will select the best provider based on current device conditions.
     If Google Play Services is not available it will fallback to previous behaviour of using Android location APIs.
 
     To retrieve location events:
 
-        var win = Ti.UI.createWindow({ backgroundColor: 'gray' });
+        var win = Ti.UI.createWindow({ backgroundColor: 'white' });
 
         Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;
 
@@ -156,7 +153,7 @@ description: |
         }
 
         win.addEventListener('open', function() {
-            if (Ti.Geolocation.hasLocationPermissions()){
+            if (Ti.Geolocation.hasLocationPermissions()) {
                 getLocation();
              } else {
                 Ti.Geolocation.requestLocationPermissions(Ti.Geolocation.AUTHORIZATION_ALWAYS, function(e) {
@@ -183,16 +180,16 @@ description: |
     previous example, or add a listener for the
     [heading](Titanium.Geolocation.heading) event, as shown below:
 
-        var compassHandler = function(e) {
-          if (e.success === undefined || e.success) {
-            Ti.API.info("Heading: " + e.heading.magneticHeading);
+        function compassHandler (e) {
+          if (e.success) {
+            Ti.API.info('Heading: ' + e.heading.magneticHeading);
           }
         }
-        Ti.Geolocation.addEventListener("heading", compassHandler);
+        Ti.Geolocation.addEventListener('heading', compassHandler);
 
-    Note that Android does not include a `success` property in the `heading` event.
+    Note that Android did not include a `success` property in the `heading` event prior to SDK 7.4.0.
     Heading events are only generated on Android when heading data is available. So if
-    `success` is undefined, we assume that the event contains valid compass data.
+    `success` is undefined on prior SDK versions, we assume that the event contains valid compass data.
 
     To obtain true heading data for the compass (as opposed to magnetic heading data),
     a current location fix is required. See the notes on
@@ -256,10 +253,8 @@ methods:
     summary: Returns `true` if the app has location access.
     parameters:
       - name: authorizationType
-        summary: |
-            Types of geolocation's authorizations. This is an iOS 8 and above only parameter and is ignored on
-            Android and iOS 7.
-        constants: [Titanium.Geolocation.AUTHORIZATION_ALWAYS,Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE]
+        summary: Types of geolocation's authorizations. This is an iOS only parameter and is ignored on Android.
+        constants: [Titanium.Geolocation.AUTHORIZATION_ALWAYS, Titanium.Geolocation.AUTHORIZATION_WHEN_IN_USE]
         type: Number
     returns:
         type: Boolean
@@ -291,7 +286,7 @@ methods:
         descriptive error-log if any required keys are missing.
 
         More infos:
-          * [Available Info.plist keys](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+          * [Available Info.plist keys](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
           * [Request Always Authorization](https://developer.apple.com/documentation/corelocation/choosing_the_authorization_level_for_location_services/request_always_authorization)
     parameters:
       - name: authorizationType
@@ -311,7 +306,6 @@ methods:
         is successful, the object includes one or more addresses that are possible matches
         for the requested coordinates.
     parameters:
-
       - name: latitude
         summary: Latitude to search, specified in decimal degrees.
         type: Number
@@ -330,18 +324,18 @@ events:
   - name: calibration
     summary: Fired when the device detects interface and requires calibration.
     description: |
-        When this event is fired, the OS calibration UI is being displayed to the end user.
+        When this event is fired, the iOS calibration UI is being displayed to the end user.
     platforms: [iphone, ipad]
 
   - name: heading
     summary: Fired when an heading update is received.
     properties:
       - name: code
-        summary: If `success` is false, the error code if available.
+        summary: If `success` is `false`, the error code is available.
         platforms: [android, iphone, ipad]
 
       - name: success
-        summary: Indicate if the heading event was successfully received.
+        summary: Indicate if the heading event was successfully received. Android returns this since SDK 7.4.0.
         type: Boolean
         platforms: [android, iphone, ipad]
 
@@ -353,7 +347,6 @@ events:
       - name: heading
         summary: Dictionary object containing the heading data.
         type: HeadingData
-
 
   - name: location
     summary: Fired when a location update is received.
@@ -381,7 +374,7 @@ events:
         type: String
 
   - name: locationupdatepaused
-    summary: Fired when location updates are paused by the OS. Available in iOS 6.0 and later.
+    summary: Fired when location updates are paused by the OS.
     description: |
         This event is fired when [pauseLocationUpdateAutomatically](Titanium.Geolocation.pauseLocationUpdateAutomatically)
         is set to `true` and if the OS detects that the device's location is not changing,
@@ -391,7 +384,7 @@ events:
     since: "3.1.0"
 
   - name: locationupdateresumed
-    summary: Fired when location manager is resumed by the OS. Available in iOS 6.0 and later.
+    summary: Fired when location manager is resumed by the OS.
     description: |
         When location updates are paused and need to be resumed (perhaps because the user
         is moving again), this event is fired to let the app know that it is about to
@@ -400,7 +393,7 @@ events:
     since: "3.1.0"
 
   - name: authorization
-    summary: Fired when changes are made to the authorization status for location services. Available in iOS 8.0 and later.
+    summary: Fired when changes are made to the authorization status for location services.
     description: |
         This event is fired whenever the application's ability to use location services changes.
         Changes can occur because the user allowed or denied the use of location services for the app or the system as a whole.
@@ -552,8 +545,6 @@ properties:
     summary: |
         A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value
         indicating that the authorization state is unknown.
-    description: |
-        This value is always returned if the device is running an iOS release prior to 4.2.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -607,9 +598,6 @@ properties:
     summary: Error code indicating that region monitoring is delayed.
     platforms: [iphone, ipad]
     permission: read-only
-    osver:
-        ios:
-            min: "4.0"
     type: Number
 
   - name: ERROR_REGION_MONITORING_DENIED
@@ -617,18 +605,12 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    osver:
-        ios:
-            min: "4.0"
 
   - name: ERROR_REGION_MONITORING_FAILURE
     summary: Error code indicating a region monitoring failure.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-    osver:
-        ios:
-            min: "4.0"
 
   - name: PROVIDER_GPS
     summary: |
@@ -677,7 +659,7 @@ properties:
   - name: ACTIVITYTYPE_OTHER
     summary: The location data is being used for an unknown activity.
     description: |
-        Used with [activityType](Titanium.Geolocation.activityType). Available in iOS 6.0 and later.
+        Used with [activityType](Titanium.Geolocation.activityType).
     type: String
     permission: read-only
     platforms: [iphone,ipad]
@@ -688,7 +670,7 @@ properties:
     description: |
         Used with [activityType](Titanium.Geolocation.activityType). This activity might
         cause location updates to be paused only when the vehicle does not move for an
-        extended period of time. Available in iOS 6.0 and later.
+        extended period of time.
     type: String
     permission: read-only
     platforms: [iphone,ipad]
@@ -699,7 +681,7 @@ properties:
     description: |
         Used with [activityType](Titanium.Geolocation.activityType). This activity might
         cause location updates to be paused only when the user does not move a significant
-        distance over a period of time.Available in iOS 6.0 and later.
+        distance over a period of time.
     type: String
     permission: read-only
     platforms: [iphone,ipad]
@@ -714,7 +696,6 @@ properties:
         to track navigation by boat, train, or plane. Do not use this type for pedestrian
         navigation tracking. This activity might cause location updates to be paused only
         when the vehicle does not move a significant distance over a period of time.
-        Available in iOS 6.0 and later.
     type: String
     permission: read-only
     platforms: [iphone,ipad]
@@ -746,7 +727,6 @@ properties:
     type: Number
     constants: Titanium.Geolocation.ACCURACY_*
 
-
   - name: distanceFilter
     summary: The minimum change of position (in meters) before a 'location' event is fired.
     description: |
@@ -775,7 +755,6 @@ properties:
         A value of 0 means that updates should be generated as quickly as possible.
     type: Number
 
-
   - name: hasCompass
     summary: Indicates whether the current device supports a compass.
     type: Boolean
@@ -793,23 +772,18 @@ properties:
   - name: locationServicesAuthorization
     summary: Returns an authorization constant indicating if the application has access to location services.
     description: |
-         Always returns `AUTHORIZATION_UNKNOWN` on pre-4.2 devices.
-
-         If `locationServicesAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
-         attempt to re-authorize: this will lead to issues.
+        If `locationServicesAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
+        attempt to re-authorize: this will lead to issues.
     type: Number
     constants: Titanium.Geolocation.AUTHORIZATION_*
     platforms: [iphone, ipad]
-    osver:
-        ios:
-            min: "4.2"
 
   - name: locationServicesEnabled
     summary: Indicates if the user has enabled or disabled location services for the device (not the application).
     description: |
         This method returns `true` if *any* location provider is enabled.
 
-        On Android OS 2.2 and above, there is a new,  "passive" location provider that is enabled
+        On Android, there is a "passive" location provider that is enabled
         at all times, even when the user disables both the GPS and Network location providers.
         Therefore, this method returns `true` on these devices if only there is GPS or network provider available.
     type: Boolean
@@ -837,19 +811,6 @@ properties:
     platforms: [android]
     default: <Titanium.Geolocation.PROVIDER_NETWORK>
 
-  - name: purpose
-    summary: |
-        Text to display in the permission dialog when requesting location
-        services.
-    description: |
-        This property informs the end user why location services are being requested by
-        the application. This property is **required** starting in iOS 4.0.
-        deprecated for >= iOS6, include the `NSLocationUsageDescription` key with your
-        description in tiapp.xml instead.
-    platforms: [iphone, ipad]
-    type: String
-    osver: {ios: {max: "5.0"}}
-
   - name: showCalibration
     summary: Determines whether the compass calibration UI is shown if needed.
     description: |
@@ -859,13 +820,34 @@ properties:
     default: true
     platforms: [iphone, ipad]
 
+  - name: showBackgroundLocationIndicator
+    summary: |
+        Specifies that an indicator be shown when the app makes use of continuous 
+        background location updates.
+    description: |
+        Starting continuous background location updates requires the app to 
+        set `UIBackgroundModes` to include "location" and to set this property 
+        to `true` before calling `getCurrentPosition` with the intent to continue 
+        in the background.
+
+        Note that this property only applies to apps with Always authorization.
+        For apps with WhenInUse authorization, the indicator is always shown when
+        using continuous background location updates in order to maintain user
+        visibility and that the app is still in use.
+    type: Boolean
+    default: false
+    since: "7.3.0"
+    osver: { ios: { min: "11.0" } }
+    platforms: [iphone, ipad]
+
   - name: trackSignificantLocationChange
     summary: |
         Indicates if the location changes should be updated only when a significant change
         in location occurs.
     description: |
         The trackSignificantLocationChange service offers a low-power location service for
-        devices with cellular radios.This service is available only in iOS 4.0 and later.
+        devices with cellular radios.
+
         This service offers a significant power savings and provides accuracy that is good
         enough for most applications. It uses the device's cellular radio to determine the
         user's location  and report changes in that location, allowing the system to manage
@@ -882,7 +864,7 @@ properties:
         Determines if the app can do background location updates.
     description: |
         When `UIBackgroundModes` include `location` in tiapp.xml, this property is
-        set to `true` by default. Available in iOS 9.0 and later.
+        set to `true` by default.
     type: Boolean
     default: true
     platforms: [iphone, ipad]
@@ -891,7 +873,7 @@ properties:
 
   - name: activityType
     summary: |
-        The type of user activity to be associated with the location updates. Available in iOS 6.0 and later.
+        The type of user activity to be associated with the location updates.
     description: |
         The information in this property is used as a cue to determine when location
         updates may be automatically paused. Pausing updates gives the system the
@@ -907,7 +889,7 @@ properties:
     platforms: [iphone,ipad]
 
   - name: pauseLocationUpdateAutomatically
-    summary: Indicates whether the location updates may be paused. Available in iOS 6.0 and later.
+    summary: Indicates whether the location updates may be paused.
     description: |
         Allowing the location updates to be paused can improve battery life on the
         target device without sacrificing location data. When this property is set to YES,
@@ -931,6 +913,7 @@ properties:
     since: "3.1.2"
     permission: read-only
     platforms: [android, iphone, ipad]
+
 ---
 name: LocationResults
 summary: |
@@ -992,7 +975,7 @@ properties:
     type: Number
 
   - name: floor
-    summary: The floor of the building on which the user is located. Available in iOS 8.0 and later.
+    summary: The floor of the building on which the user is located.
     type: LocationCoordinatesFloor
     osver: {ios: {min: "8.0"}}
     since: { iphone: "3.6.0", ipad: "3.6.0" }
@@ -1001,8 +984,7 @@ properties:
 ---
 name: LocationCoordinatesFloor
 summary: |
-        Simple object holding floor of the building on which the user is located.
-        In places where floor information can be determined.
+    Simple object holding floor of the building on which the user is located.
 properties:
 
   - name: level
@@ -1213,7 +1195,7 @@ summary: Simple object describing a location provider.
 description: |
     The `accuracy` and `power` values correspond to constants defined in the
     Android API. See
-    [android.location.Criteria](http://developer.android.com/reference/android/location/Criteria.html)
+    [android.location.Criteria](https://developer.android.com/reference/android/location/Criteria.html)
     in the Android API Reference.
 
     These values are generalizations. In general, a provider with coarse accuracy will
@@ -1340,6 +1322,7 @@ properties:
     summary: Full address.
     type: String
     platforms: [android, iphone, ipad]
+
 ---
 name: LocationAuthorizationResponse
 summary: Argument passed to the callback when a request finishes successfully or erroneously.

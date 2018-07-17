@@ -406,6 +406,61 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_PROPERTY_TIME = "time";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_FOCUS_X = "focusX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_FOCUS_Y = "focusY";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_CURRENT_SPAN = "currentSpan";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_CURRENT_SPAN_X = "currentSpanX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_CURRENT_SPAN_Y = "currentSpanY";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_PREVIOUS_SPAN = "previousSpan";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_PREVIOUS_SPAN_X = "previousSpanX";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_PREVIOUS_SPAN_Y = "previousSpanY";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_TIME_DELTA = "timeDelta";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_IN_PROGRESS = "inProgress";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROPERTY_SEARCH_MODE = "searchMode";
 
 	/**
@@ -1092,6 +1147,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CACHE_MODE = "cacheMode";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CACHE_SIZE = "cacheSize";
 
 	/**
 	 * @module.api
@@ -2058,6 +2118,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MASK = "mask";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MAX = "max";
 
 	/**
@@ -2094,6 +2159,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MEDIA_CONTROL_STYLE = "mediaControlStyle";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MEDIA_TYPES = "mediaTypes";
 
 	/**
 	 * @module.api
@@ -2173,6 +2243,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MODAL = "modal";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MODE = "mode";
 
 	/**
 	 * @module.api
@@ -2343,6 +2418,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OPTIONS = "options";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OPTED_OUT = "optedOut";
 
 	/**
 	 * @module.api
@@ -2650,6 +2730,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SCROLL_TYPE = "scrollType";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SCROLLABLE = "scrollable";
 
 	/**
 	 * @module.api
@@ -3004,6 +3089,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TINT = "tint";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TINT_COLOR = "tintColor";
 
 	/**
@@ -3297,6 +3387,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ZINDEX = "zIndex";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ZOOM_LEVEL = "zoomLevel";
 
 	/**
 	 * @module.api

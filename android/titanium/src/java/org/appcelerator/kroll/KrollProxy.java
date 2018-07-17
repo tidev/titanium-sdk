@@ -6,8 +6,9 @@
  */
 package org.appcelerator.kroll;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,6 +85,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	protected KrollDict defaultValues = new KrollDict();
 	protected Handler mainHandler = null;
 	protected Handler runtimeHandler = null;
+	protected long referenceKey = -1;
 
 	private KrollDict langConversionTable = null;
 	private boolean bubbleParent = true;
@@ -123,7 +125,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		// Associate the activity with the proxy.  if the proxy needs activity association delayed until a
 		// later point then initActivity should be overridden to be a no-op and then call setActivity directly
 		// at the appropriate time
-		initActivity(TiApplication.getInstance().getCurrentActivity());
+		initActivity(TiApplication.getAppRootOrCurrentActivity());
 
 		// Setup the proxy according to the creation arguments TODO - pass in createdInModule
 		handleCreationArgs(null, creationArguments);
@@ -145,6 +147,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		return null;
 	}
 
+	public void setReferenceKey(long key)
+	{
+		this.referenceKey = key;
+	}
+
 	protected void initActivity(Activity activity)
 	{
 		this.activity = new WeakReference<Activity>(activity);
@@ -152,6 +159,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public void setActivity(Activity activity)
 	{
+		// our proxy must always be associated with a valid activity
+		if (activity == null) {
+			initActivity(TiApplication.getAppRootOrCurrentActivity());
+			return;
+		}
 		this.activity = new WeakReference<Activity>(activity);
 	}
 
@@ -162,15 +174,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
 	/**
-	 * @return the activity associated with this proxy. It can be null.
+	 * @return the activity associated with this proxy.
 	 * @module.api
 	 */
 	public Activity getActivity()
 	{
-		if (activity == null) {
-			return null;
+		// our proxy must always be associated with a valid activity
+		if (this.activity == null || this.activity.get() == null) {
+			initActivity(TiApplication.getAppRootOrCurrentActivity());
 		}
-		return activity.get();
+		return this.activity.get();
 	}
 
 	/**
@@ -1133,83 +1146,87 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public boolean handleMessage(Message msg)
 	{
-		switch (msg.what) {
-			case MSG_MODEL_PROPERTY_CHANGE: {
-				((KrollPropertyChange) msg.obj).fireEvent(this, modelListener);
+		try {
+			switch (msg.what) {
+				case MSG_MODEL_PROPERTY_CHANGE: {
+					((KrollPropertyChange) msg.obj).fireEvent(this, modelListener);
 
-				return true;
-			}
-			case MSG_LISTENER_ADDED:
-			case MSG_LISTENER_REMOVED: {
-				if (modelListener == null) {
 					return true;
 				}
+				case MSG_LISTENER_ADDED:
+				case MSG_LISTENER_REMOVED: {
+					if (modelListener == null) {
+						return true;
+					}
 
-				String event = (String) msg.obj;
+					String event = (String) msg.obj;
 
-				if (msg.what == MSG_LISTENER_ADDED) {
-					eventListenerAdded(event, 1, this);
+					if (msg.what == MSG_LISTENER_ADDED) {
+						eventListenerAdded(event, 1, this);
 
-				} else {
-					eventListenerRemoved(event, 0, this);
+					} else {
+						eventListenerRemoved(event, 0, this);
+					}
+
+					return true;
 				}
-
-				return true;
-			}
-			case MSG_MODEL_PROCESS_PROPERTIES: {
-				if (modelListener != null) {
-					modelListener.processProperties(properties);
+				case MSG_MODEL_PROCESS_PROPERTIES: {
+					if (modelListener != null) {
+						modelListener.processProperties(properties);
+					}
+					return true;
 				}
-				return true;
-			}
-			case MSG_MODEL_PROPERTIES_CHANGED: {
-				firePropertiesChanged((Object[][]) msg.obj);
+				case MSG_MODEL_PROPERTIES_CHANGED: {
+					firePropertiesChanged((Object[][]) msg.obj);
 
-				return true;
-			}
-			case MSG_INIT_KROLL_OBJECT: {
-				initKrollObject();
-				((AsyncResult) msg.obj).setResult(null);
+					return true;
+				}
+				case MSG_INIT_KROLL_OBJECT: {
+					initKrollObject();
+					((AsyncResult) msg.obj).setResult(null);
 
-				return true;
-			}
-			case MSG_SET_PROPERTY: {
-				Object value = msg.obj;
-				String property = msg.getData().getString(PROPERTY_NAME);
-				doSetProperty(property, value);
+					return true;
+				}
+				case MSG_SET_PROPERTY: {
+					Object value = msg.obj;
+					String property = msg.getData().getString(PROPERTY_NAME);
+					doSetProperty(property, value);
 
-				return true;
-			}
-			case MSG_FIRE_EVENT: {
-				Object data = msg.obj;
-				String event = msg.getData().getString(PROPERTY_NAME);
-				doFireEvent(event, data);
+					return true;
+				}
+				case MSG_FIRE_EVENT: {
+					Object data = msg.obj;
+					String event = msg.getData().getString(PROPERTY_NAME);
+					doFireEvent(event, data);
 
-				return true;
-			}
-			case MSG_FIRE_SYNC_EVENT: {
-				AsyncResult asyncResult = (AsyncResult) msg.obj;
-				boolean handled = doFireEvent(msg.getData().getString(PROPERTY_NAME), asyncResult.getArg());
-				asyncResult.setResult(handled);
+					return true;
+				}
+				case MSG_FIRE_SYNC_EVENT: {
+					AsyncResult asyncResult = (AsyncResult) msg.obj;
+					boolean handled = doFireEvent(msg.getData().getString(PROPERTY_NAME), asyncResult.getArg());
+					asyncResult.setResult(handled);
 
-				return handled;
-			}
-			case MSG_CALL_PROPERTY_ASYNC: {
-				String propertyName = msg.getData().getString(PROPERTY_NAME);
-				Object[] args = (Object[]) msg.obj;
-				getKrollObject().callProperty(propertyName, args);
+					return handled;
+				}
+				case MSG_CALL_PROPERTY_ASYNC: {
+					String propertyName = msg.getData().getString(PROPERTY_NAME);
+					Object[] args = (Object[]) msg.obj;
+					getKrollObject().callProperty(propertyName, args);
 
-				return true;
-			}
-			case MSG_CALL_PROPERTY_SYNC: {
-				String propertyName = msg.getData().getString(PROPERTY_NAME);
-				AsyncResult asyncResult = (AsyncResult) msg.obj;
-				Object[] args = (Object[]) asyncResult.getArg();
-				getKrollObject().callProperty(propertyName, args);
-				asyncResult.setResult(null);
+					return true;
+				}
+				case MSG_CALL_PROPERTY_SYNC: {
+					String propertyName = msg.getData().getString(PROPERTY_NAME);
+					AsyncResult asyncResult = (AsyncResult) msg.obj;
+					Object[] args = (Object[]) asyncResult.getArg();
+					getKrollObject().callProperty(propertyName, args);
+					asyncResult.setResult(null);
 
-				return true;
+					return true;
+				}
 			}
+		} catch (Throwable t) {
+			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
 		}
 
 		return false;
@@ -1369,6 +1386,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void release()
 	{
+		releaseKroll();
+
 		if (eventListeners != null) {
 			eventListeners.clear();
 			eventListeners = null;
@@ -1393,6 +1412,25 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void releaseKroll()
 	{
+		// TIMOB-25910: attempt to make any strong references into soft references
+		// NOTE: there is an issue where proxies created in another context (such as an event listener callback)
+		// may not be destroyed when the context has ended. This workaround allows the GC to free these objects
+		// if memory is constraint.
+		if (referenceKey != -1) {
+			try {
+				final Class referenceTableClass = Class.forName("org.appcelerator.kroll.runtime.v8.ReferenceTable");
+				final Method getReferenceMethod = referenceTableClass.getDeclaredMethod("getReference", long.class);
+
+				final Object reference = getReferenceMethod.invoke(null, this.referenceKey);
+				if (!(reference instanceof WeakReference || reference instanceof SoftReference)) {
+					final Method softReferenceMethod =
+						referenceTableClass.getDeclaredMethod("makeSoftReference", long.class);
+					softReferenceMethod.invoke(null, this.referenceKey);
+				}
+			} catch (Exception e) {
+				// do nothing...
+			}
+		}
 		if (krollObject != null) {
 			krollObject.release();
 		}

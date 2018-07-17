@@ -19,7 +19,6 @@ public final class TitaniumTestApplication extends TiApplication {
         super.onCreate();
 
         appInfo = new TitaniumTestAppInfo(this);
-        postAppInfo();
 
         // KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
         V8Runtime runtime = new V8Runtime();

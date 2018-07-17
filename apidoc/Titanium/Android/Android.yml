@@ -36,7 +36,7 @@ description: |
     mode changes.
 
     For more information about broadcasts, see the
-    [Android Broadcast Intents and Receivers guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Broadcast_Intents_and_Receivers)
+    [Android Broadcast Intents and Receivers guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Broadcast_Intents_and_Receivers)
     and [Titanium.Android.BroadcastReceiver API reference](Titanium.Android.BroadcastReceiver).
 
     #### Intents
@@ -54,12 +54,12 @@ description: |
     can define intent filters to let Android know your application can handle those data types.
 
     For more information about intent filters, see the
-    [Android Intent Filters guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
+    [Android Intent Filters guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
 
     #### Launch Modes
 
     Defining launch modes using `android:launchMode` is not supported by Titanium Android.
-    However, `singleTask` behaviour can be accomplished when using [intent filters](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
+    However, `singleTask` behaviour can be accomplished when using [intent filters](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
 
     #### Notifications
 
@@ -138,7 +138,7 @@ methods:
         start an activity. See the code example for details on how to display the chooser.
 
         For more information, see the official Android documentation for
-        [Intent.ACTION_CHOOSER](http://developer.android.com/reference/android/content/Intent.html#ACTION_CHOOSER)
+        [Intent.ACTION_CHOOSER](https://developer.android.com/reference/android/content/Intent.html#ACTION_CHOOSER)
     parameters:
       - name: intent
         summary: The intent to display a chooser for.
@@ -225,7 +225,7 @@ methods:
             with dangerous protection level [here](https://developer.android.com/reference/android/Manifest.permission.html).
             For example, `android.permission.WRITE_CONTACTS`. 
 
-            Since Titanium 6.1.0, the method will also accept Array<String>
+            Since Titanium 6.1.0, the method will also accept `Array<String>`
         type: [String, Array<String>]
     returns:
         type: Boolean 
@@ -325,7 +325,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_AIRPLANE_MODE_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_AIRPLANE_MODE_CHANGED).
+        See [Intent.ACTION_AIRPLANE_MODE_CHANGED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_AIRPLANE_MODE_CHANGED).
     type: String
     permission: read-only
 
@@ -334,7 +334,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_ALL_APPS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_ALL_APPS).
+        See [Intent.ACTION_ALL_APPS in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_ALL_APPS).
     type: String
     permission: read-only
 
@@ -343,7 +343,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_ANSWER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_ANSWER).
+        See [Intent.ACTION_ANSWER in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_ANSWER).
     type: String
     permission: read-only
 
@@ -352,7 +352,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_ATTACH_DATA in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_ATTACH_DATA).
+        See [Intent.ACTION_ATTACH_DATA in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_ATTACH_DATA).
     type: String
     permission: read-only
 
@@ -363,7 +363,7 @@ properties:
 
         Note that Titanium exposes battery monitoring using the <Titanium.Platform> API.
 
-        See [Intent.ACTION_BATTERY_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_CHANGED).
+        See [Intent.ACTION_BATTERY_CHANGED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_CHANGED).
     type: String
     permission: read-only
 
@@ -374,7 +374,7 @@ properties:
 
         Note that Titanium exposes battery monitoring using the <Titanium.Platform> API.
 
-        See [Intent.ACTION_BATTERY_LOW in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_LOW).
+        See [Intent.ACTION_BATTERY_LOW in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_LOW).
     type: String
     permission: read-only
 
@@ -385,7 +385,7 @@ properties:
 
         Note that Titanium exposes battery monitoring using the <Titanium.Platform> API.
 
-        See [Intent.ACTION_BATTERY_OKAY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_OKAY).
+        See [Intent.ACTION_BATTERY_OKAY in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_BATTERY_OKAY).
     type: String
     permission: read-only
 
@@ -405,7 +405,7 @@ properties:
                 </android>
             </ti:app>
 
-        See [Intent.ACTION_BOOT_COMPLETED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BOOT_COMPLETED).
+        See [Intent.ACTION_BOOT_COMPLETED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_BOOT_COMPLETED).
     type: String
     permission: read-only
 
@@ -414,7 +414,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_BUG_REPORT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_BUG_REPORT).
+        See [Intent.ACTION_BUG_REPORT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_BUG_REPORT).
     type: String
     permission: read-only
 
@@ -423,7 +423,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_CALL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CALL).
+        See [Intent.ACTION_CALL in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_CALL).
     type: String
     permission: read-only
 
@@ -432,7 +432,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_CALL_BUTTON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CALL_BUTTON).
+        See [Intent.ACTION_CALL_BUTTON in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_CALL_BUTTON).
     type: String
     permission: read-only
 
@@ -441,7 +441,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_CAMERA_BUTTON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CAMERA_BUTTON).
+        See [Intent.ACTION_CAMERA_BUTTON in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_CAMERA_BUTTON).
     type: String
     permission: read-only
 
@@ -452,7 +452,7 @@ properties:
 
         You can also create an activity chooser using the <Titanium.Android.createIntentChooser> method.
 
-        See [Intent.ACTION_CHOOSER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CHOOSER).
+        See [Intent.ACTION_CHOOSER in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_CHOOSER).
     type: String
     permission: read-only
 
@@ -461,7 +461,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_CLOSE_SYSTEM_DIALOGS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CLOSE_SYSTEM_DIALOGS).
+        See [Intent.ACTION_CLOSE_SYSTEM_DIALOGS in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_CLOSE_SYSTEM_DIALOGS).
     type: String
     permission: read-only
 
@@ -470,7 +470,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_CONFIGURATION_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CONFIGURATION_CHANGED).
+        See [Intent.ACTION_CONFIGURATION_CHANGED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_CONFIGURATION_CHANGED).
     type: String
     permission: read-only
 
@@ -479,7 +479,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_CREATE_SHORTCUT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_CREATE_SHORTCUT).
+        See [Intent.ACTION_CREATE_SHORTCUT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_CREATE_SHORTCUT).
     type: String
     permission: read-only
 
@@ -488,7 +488,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_DATE_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DATE_CHANGED).
+        See [Intent.ACTION_DATE_CHANGED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_DATE_CHANGED).
     type: String
     permission: read-only
 
@@ -497,7 +497,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_DEFAULT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DEFAULT).
+        See [Intent.ACTION_DEFAULT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_DEFAULT).
     type: String
     permission: read-only
 
@@ -506,7 +506,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_DELETE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DELETE).
+        See [Intent.ACTION_DELETE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_DELETE).
     type: String
     permission: read-only
 
@@ -515,7 +515,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_DEVICE_STORAGE_LOW in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DEVICE_STORAGE_LOW).
+        See [Intent.ACTION_DEVICE_STORAGE_LOW in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_DEVICE_STORAGE_LOW).
     type: String
     permission: read-only
 
@@ -524,7 +524,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_DIAL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_DIAL).
+        See [Intent.ACTION_DIAL in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_DIAL).
     type: String
     permission: read-only
 
@@ -533,7 +533,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_EDIT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_EDIT).
+        See [Intent.ACTION_EDIT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_EDIT).
     type: String
     permission: read-only
 
@@ -542,7 +542,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_GET_CONTENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_GET_CONTENT).
+        See [Intent.ACTION_GET_CONTENT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_GET_CONTENT).
     type: String
     permission: read-only
 
@@ -551,7 +551,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_GTALK_SERVICE_CONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_GTALK_SERVICE_CONNECTED).
+        See [Intent.ACTION_GTALK_SERVICE_CONNECTED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_GTALK_SERVICE_CONNECTED).
     type: String
     permission: read-only
 
@@ -560,7 +560,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_GTALK_SERVICE_DISCONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_GTALK_SERVICE_DISCONNECTED).
+        See [Intent.ACTION_GTALK_SERVICE_DISCONNECTED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_GTALK_SERVICE_DISCONNECTED).
     type: String
     permission: read-only
 
@@ -569,7 +569,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_HEADSET_PLUG in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_HEADSET_PLUG).
+        See [Intent.ACTION_HEADSET_PLUG in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_HEADSET_PLUG).
     type: String
     permission: read-only
 
@@ -578,7 +578,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_INPUT_METHOD_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_INPUT_METHOD_CHANGED).
+        See [Intent.ACTION_INPUT_METHOD_CHANGED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_INPUT_METHOD_CHANGED).
     type: String
     permission: read-only
 
@@ -587,7 +587,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_INSERT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_INSERT).
+        See [Intent.ACTION_INSERT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_INSERT).
     type: String
     permission: read-only
 
@@ -596,7 +596,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_INSERT_OR_EDIT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_INSERT_OR_EDIT).
+        See [Intent.ACTION_INSERT_OR_EDIT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_INSERT_OR_EDIT).
     type: String
     permission: read-only
 
@@ -605,7 +605,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_MAIN in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MAIN).
+        See [Intent.ACTION_MAIN in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MAIN).
     type: String
     permission: read-only
 
@@ -614,7 +614,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MANAGE_PACKAGE_STORAGE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MANAGE_PACKAGE_STORAGE).
+        See [Intent.ACTION_MANAGE_PACKAGE_STORAGE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MANAGE_PACKAGE_STORAGE).
     type: String
     permission: read-only
 
@@ -623,7 +623,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_BAD_REMOVAL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_BAD_REMOVAL).
+        See [Intent.ACTION_MEDIA_BAD_REMOVAL in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_BAD_REMOVAL).
     type: String
     permission: read-only
 
@@ -632,7 +632,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_BUTTON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_BUTTON).
+        See [Intent.ACTION_MEDIA_BUTTON in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_BUTTON).
     type: String
     permission: read-only
 
@@ -643,7 +643,7 @@ properties:
 
         Applications should close all files they have open within the mount point when they receive this intent.
 
-        See [Intent.ACTION_MEDIA_CHECKING in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_CHECKING).
+        See [Intent.ACTION_MEDIA_CHECKING in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_CHECKING).
     type: String
     permission: read-only
 
@@ -652,7 +652,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_EJECT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_EJECT).
+        See [Intent.ACTION_MEDIA_EJECT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_EJECT).
     type: String
     permission: read-only
 
@@ -661,7 +661,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_MOUNTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_MOUNTED).
+        See [Intent.ACTION_MEDIA_MOUNTED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_MOUNTED).
     type: String
     permission: read-only
 
@@ -670,7 +670,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_NOFS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_NOFS).
+        See [Intent.ACTION_MEDIA_NOFS in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_NOFS).
     type: String
     permission: read-only
 
@@ -679,7 +679,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_REMOVED).
+        See [Intent.ACTION_MEDIA_REMOVED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_REMOVED).
     type: String
     permission: read-only
 
@@ -688,7 +688,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_SCANNER_FINISHED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_FINISHED).
+        See [Intent.ACTION_MEDIA_SCANNER_FINISHED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_FINISHED).
     type: String
     permission: read-only
 
@@ -697,7 +697,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_SCANNER_SCAN_FILE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_SCAN_FILE).
+        See [Intent.ACTION_MEDIA_SCANNER_SCAN_FILE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_SCAN_FILE).
     type: String
     permission: read-only
 
@@ -706,7 +706,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_SCANNER_STARTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_STARTED).
+        See [Intent.ACTION_MEDIA_SCANNER_STARTED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SCANNER_STARTED).
     type: String
     permission: read-only
 
@@ -715,7 +715,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_SHARED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SHARED).
+        See [Intent.ACTION_MEDIA_SHARED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_SHARED).
     type: String
     permission: read-only
 
@@ -724,7 +724,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_UNMOUNTABLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_UNMOUNTABLE).
+        See [Intent.ACTION_MEDIA_UNMOUNTABLE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_UNMOUNTABLE).
     type: String
     permission: read-only
 
@@ -733,7 +733,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_MEDIA_UNMOUNTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_UNMOUNTED).
+        See [Intent.ACTION_MEDIA_UNMOUNTED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_MEDIA_UNMOUNTED).
     type: String
     permission: read-only
 
@@ -753,7 +753,7 @@ properties:
                 </android>
             </ti:app>
 
-        See [Intent.ACTION_NEW_OUTGOING_CALL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_NEW_OUTGOING_CALL).
+        See [Intent.ACTION_NEW_OUTGOING_CALL in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_NEW_OUTGOING_CALL).
     type: String
     permission: read-only
 
@@ -762,7 +762,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_PACKAGE_ADDED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_ADDED).
+        See [Intent.ACTION_PACKAGE_ADDED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_ADDED).
     type: String
     permission: read-only
 
@@ -771,7 +771,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_PACKAGE_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_CHANGED).
+        See [Intent.ACTION_PACKAGE_CHANGED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_CHANGED).
     type: String
     permission: read-only
 
@@ -780,28 +780,16 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_PACKAGE_DATA_CLEARED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_DATA_CLEARED).
+        See [Intent.ACTION_PACKAGE_DATA_CLEARED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_DATA_CLEARED).
     type: String
     permission: read-only
-
-  - name: ACTION_PACKAGE_INSTALL
-    summary: Trigger the download and eventual installation of a package.
-    description: |
-        **Note:** this constant has never been used by Android.
-
-        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
-
-        See [Intent.ACTION_PACKAGE_INSTALL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_INSTALL).
-    type: String
-    permission: read-only
-    osver: {android: {max: "4.0"}}
 
   - name: ACTION_PACKAGE_REMOVED
     summary: An existing application package has been removed from the device.
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_PACKAGE_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_REMOVED).
+        See [Intent.ACTION_PACKAGE_REMOVED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_REMOVED).
     type: String
     permission: read-only
 
@@ -810,7 +798,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_PACKAGE_REPLACED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_REPLACED).
+        See [Intent.ACTION_PACKAGE_REPLACED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_REPLACED).
     type: String
     permission: read-only
 
@@ -819,7 +807,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_PACKAGE_RESTARTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_RESTARTED).
+        See [Intent.ACTION_PACKAGE_RESTARTED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_PACKAGE_RESTARTED).
     type: String
     permission: read-only
 
@@ -828,7 +816,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_PICK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PICK).
+        See [Intent.ACTION_PICK in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_PICK).
     type: String
     permission: read-only
 
@@ -841,7 +829,7 @@ properties:
         `Titanium.Android.EXTRA_INTENT` as the `name` parameter and the activity intent
         as the `data` parameter.
 
-        See [Intent.ACTION_PICK_ACTIVITY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PICK_ACTIVITY).
+        See [Intent.ACTION_PICK_ACTIVITY in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_PICK_ACTIVITY).
     type: String
     permission: read-only
 
@@ -850,7 +838,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_POWER_CONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_CONNECTED).
+        See [Intent.ACTION_POWER_CONNECTED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_CONNECTED).
     type: String
     permission: read-only
 
@@ -859,7 +847,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_POWER_DISCONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_DISCONNECTED).
+        See [Intent.ACTION_POWER_DISCONNECTED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_DISCONNECTED).
     type: String
     permission: read-only
 
@@ -868,7 +856,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_POWER_USAGE_SUMMARY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_USAGE_SUMMARY).
+        See [Intent.ACTION_POWER_USAGE_SUMMARY in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_POWER_USAGE_SUMMARY).
     type: String
     permission: read-only
 
@@ -877,7 +865,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_PROVIDER_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_PROVIDER_CHANGED).
+        See [Intent.ACTION_PROVIDER_CHANGED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_PROVIDER_CHANGED).
     type: String
     permission: read-only
 
@@ -886,7 +874,7 @@ properties:
     description: |
         **Only used by the system.**
 
-        See [Intent.ACTION_REBOOT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_REBOOT).
+        See [Intent.ACTION_REBOOT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_REBOOT).
     type: String
     permission: read-only
 
@@ -895,7 +883,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_RUN in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_RUN).
+        See [Intent.ACTION_RUN in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_RUN).
     type: String
     permission: read-only
 
@@ -904,7 +892,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_SCREEN_OFF in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SCREEN_OFF).
+        See [Intent.ACTION_SCREEN_OFF in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_SCREEN_OFF).
     type: String
     permission: read-only
 
@@ -913,7 +901,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_SCREEN_ON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SCREEN_ON).
+        See [Intent.ACTION_SCREEN_ON in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_SCREEN_ON).
     type: String
     permission: read-only
 
@@ -922,7 +910,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_SEARCH in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEARCH).
+        See [Intent.ACTION_SEARCH in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_SEARCH).
     type: String
     permission: read-only
 
@@ -931,7 +919,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_SEARCH_LONG_PRESS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEARCH_LONG_PRESS).
+        See [Intent.ACTION_SEARCH_LONG_PRESS in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_SEARCH_LONG_PRESS).
     type: String
     permission: read-only
 
@@ -940,7 +928,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_SEND in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEND).
+        See [Intent.ACTION_SEND in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_SEND).
     type: String
     permission: read-only
 
@@ -949,7 +937,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_SENDTO in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SENDTO).
+        See [Intent.ACTION_SENDTO in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_SENDTO).
     type: String
     permission: read-only
 
@@ -958,7 +946,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_SEND_MULTIPLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SEND_MULTIPLE).
+        See [Intent.ACTION_SEND_MULTIPLE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_SEND_MULTIPLE).
     type: String
     permission: read-only
 
@@ -967,7 +955,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_SET_WALLPAPER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SET_WALLPAPER).
+        See [Intent.ACTION_SET_WALLPAPER in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_SET_WALLPAPER).
     type: String
     permission: read-only
 
@@ -976,7 +964,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_SHUTDOWN in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SHUTDOWN).
+        See [Intent.ACTION_SHUTDOWN in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_SHUTDOWN).
     type: String
     permission: read-only
 
@@ -985,7 +973,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_SYNC in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SYNC).
+        See [Intent.ACTION_SYNC in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_SYNC).
     type: String
     permission: read-only
 
@@ -994,7 +982,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_SYSTEM_TUTORIAL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_SYSTEM_TUTORIAL).
+        See [Intent.ACTION_SYSTEM_TUTORIAL in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_SYSTEM_TUTORIAL).
     type: String
     permission: read-only
 
@@ -1003,7 +991,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_TIME_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_TIME_CHANGED).
+        See [Intent.ACTION_TIME_CHANGED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_TIME_CHANGED).
     type: String
     permission: read-only
 
@@ -1012,7 +1000,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_TIME_TICK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_TIME_TICK).
+        See [Intent.ACTION_TIME_TICK in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_TIME_TICK).
     type: String
     permission: read-only
 
@@ -1021,36 +1009,16 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_UID_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_UID_REMOVED).
+        See [Intent.ACTION_UID_REMOVED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_UID_REMOVED).
     type: String
     permission: read-only
-
-  - name: ACTION_UMS_CONNECTED
-    summary:  The device has entered USB Mass Storage mode.
-    description: |
-        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
-
-        See [Intent.ACTION_UMS_CONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_UMS_CONNECTED).
-    type: String
-    permission: read-only
-    osver: {android: {max: "4.0"}}
-
-  - name: ACTION_UMS_DISCONNECTED
-    summary:  The device has exited USB Mass Storage mode.
-    description: |
-        Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
-
-        See [Intent.ACTION_UMS_DISCONNECTED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_UMS_DISCONNECTED).
-    type: String
-    permission: read-only
-    osver: {android: {max: "4.0"}}
 
   - name: ACTION_USER_PRESENT
     summary:  Sent when the user is present after device wakes up.
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_USER_PRESENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_USER_PRESENT).
+        See [Intent.ACTION_USER_PRESENT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_USER_PRESENT).
     type: String
     permission: read-only
 
@@ -1059,7 +1027,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_VIEW in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_VIEW).
+        See [Intent.ACTION_VIEW in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_VIEW).
     type: String
     permission: read-only
 
@@ -1068,7 +1036,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_VOICE_COMMAND in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_VOICE_COMMAND).
+        See [Intent.ACTION_VOICE_COMMAND in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_VOICE_COMMAND).
     type: String
     permission: read-only
 
@@ -1077,7 +1045,7 @@ properties:
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
-        See [Intent.ACTION_WALLPAPER_CHANGED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_WALLPAPER_CHANGED).
+        See [Intent.ACTION_WALLPAPER_CHANGED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_WALLPAPER_CHANGED).
     type: String
     permission: read-only
     osver: {android: {max: "4.1"}}
@@ -1087,7 +1055,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Intent.action> property to create an **Activity Intent**.
 
-        See [Intent.ACTION_WEB_SEARCH in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#ACTION_WEB_SEARCH).
+        See [Intent.ACTION_WEB_SEARCH in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#ACTION_WEB_SEARCH).
     type: String
     permission: read-only
 
@@ -1096,7 +1064,7 @@ properties:
     description: |
         Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
 
-        See [Intent.CATEGORY_ALTERNATIVE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_ALTERNATIVE).
+        See [Intent.CATEGORY_ALTERNATIVE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_ALTERNATIVE).
     type: String
     permission: read-only
 
@@ -1107,7 +1075,7 @@ properties:
 
         The `Titanium.Android.ACTION_MAIN` constant must also be set in the intent's `action` property.
 
-        See [Intent.CATEGORY_BROWSABLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_BROWSABLE).
+        See [Intent.CATEGORY_BROWSABLE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_BROWSABLE).
     type: String
     permission: read-only
 
@@ -1116,7 +1084,7 @@ properties:
     description: |
         Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
 
-        See [Intent.CATEGORY_DEFAULT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_DEFAULT).
+        See [Intent.CATEGORY_DEFAULT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_DEFAULT).
     type: String
     permission: read-only
 
@@ -1125,21 +1093,21 @@ properties:
     description: |
         Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
 
-        See [Intent.CATEGORY_DEVELOPMENT_PREFERENCE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_DEVELOPMENT_PREFERENCE).
+        See [Intent.CATEGORY_DEVELOPMENT_PREFERENCE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_DEVELOPMENT_PREFERENCE).
     type: String
     permission: read-only
 
   - name: CATEGORY_EMBED
     summary: Activity can run inside a parent activity.
     description: |
-        See [Intent.CATEGORY_EMBED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_EMBED).
+        See [Intent.CATEGORY_EMBED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_EMBED).
     type: String
     permission: read-only
 
   - name: CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST
     summary: To be used as test code for framework instrumentation tests.
     description: |
-        See [Intent.CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST).
+        See [Intent.CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_FRAMEWORK_INSTRUMENTATION_TEST).
     type: String
     permission: read-only
 
@@ -1148,7 +1116,7 @@ properties:
     description: |
         Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
 
-        See [Intent.CATEGORY_HOME in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_HOME).
+        See [Intent.CATEGORY_HOME in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_HOME).
     type: String
     permission: read-only
 
@@ -1157,7 +1125,7 @@ properties:
     description: |
         Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
 
-        See [Intent.CATEGORY_INFO in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_INFO).
+        See [Intent.CATEGORY_INFO in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_INFO).
     type: String
     permission: read-only
 
@@ -1166,21 +1134,21 @@ properties:
     description: |
         Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
 
-        See [Intent.CATEGORY_LAUNCHER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_LAUNCHER).
+        See [Intent.CATEGORY_LAUNCHER in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_LAUNCHER).
     type: String
     permission: read-only
 
   - name: CATEGORY_MONKEY
     summary: This activity may be exercised by the monkey or other automated test tools.
     description: |
-        See [Intent.CATEGORY_MONKEY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_MONKEY).
+        See [Intent.CATEGORY_MONKEY in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_MONKEY).
     type: String
     permission: read-only
 
   - name: CATEGORY_OPENABLE
     summary: Activity can open raw `file://` or `scheme://` URIs.
     description: |
-        See [Intent.CATEGORY_OPENABLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_OPENABLE).
+        See [Intent.CATEGORY_OPENABLE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_OPENABLE).
     type: String
     permission: read-only
 
@@ -1189,14 +1157,14 @@ properties:
     description: |
         Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
 
-        See [Intent.CATEGORY_PREFERENCE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_PREFERENCE).
+        See [Intent.CATEGORY_PREFERENCE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_PREFERENCE).
     type: String
     permission: read-only
 
   - name: CATEGORY_SAMPLE_CODE
     summary: To be used as a sample code example (not part of the normal user experience).
     description: |
-        See [Intent.CATEGORY_SAMPLE_CODE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_SAMPLE_CODE).
+        See [Intent.CATEGORY_SAMPLE_CODE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_SAMPLE_CODE).
     type: String
     permission: read-only
 
@@ -1207,7 +1175,7 @@ properties:
     description: |
         Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
 
-        See [Intent.CATEGORY_SELECTED_ALTERNATIVE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_SELECTED_ALTERNATIVE).
+        See [Intent.CATEGORY_SELECTED_ALTERNATIVE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_SELECTED_ALTERNATIVE).
     type: String
     permission: read-only
 
@@ -1216,7 +1184,7 @@ properties:
     description: |
         Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
 
-        See [Intent.CATEGORY_TAB in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_TAB).
+        See [Intent.CATEGORY_TAB in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_TAB).
     type: String
     permission: read-only
 
@@ -1225,35 +1193,35 @@ properties:
     description: |
         Pass to the Intent's [addCategory()](Titanium.Android.Intent.addCategory) method to set a category.
 
-        See [Intent.CATEGORY_TEST in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_TEST).
+        See [Intent.CATEGORY_TEST in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_TEST).
     type: String
     permission: read-only
 
   - name: CATEGORY_UNIT_TEST
     summary: To be used as a unit test (run through the Test Harness).
     description: |
-        See [Intent.CATEGORY_UNIT_TEST in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#CATEGORY_UNIT_TEST).
+        See [Intent.CATEGORY_UNIT_TEST in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#CATEGORY_UNIT_TEST).
     type: String
     permission: read-only
 
   - name: EXTRA_ALARM_COUNT
     summary: Integer indicating how many pending alarms are being delivered with the intent.
     description: |
-        See [Intent.EXTRA_ALARM_COUNT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_ALARM_COUNT).
+        See [Intent.EXTRA_ALARM_COUNT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_ALARM_COUNT).
     type: String
     permission: read-only
 
   - name: EXTRA_BCC
     summary: String array containing e-mail addresses for blind carbon copying.
     description: |
-        See [Intent.EXTRA_BCC in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_BCC).
+        See [Intent.EXTRA_BCC in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_BCC).
     type: String
     permission: read-only
 
   - name: EXTRA_CC
     summary: String array containing e-mail addresses for carbon copying.
     description: |
-        See [Intent.EXTRA_CC in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_CC).
+        See [Intent.EXTRA_CC in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_CC).
     type: String
     permission: read-only
 
@@ -1262,7 +1230,7 @@ properties:
     description: |
         Sent with the `Titanium.Android.ACTION_PACKAGE_REMOVED` broadcast.
 
-        See [Intent.EXTRA_DATA_REMOVED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_DATA_REMOVED).
+        See [Intent.EXTRA_DATA_REMOVED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_DATA_REMOVED).
     type: String
     permission: read-only
 
@@ -1272,14 +1240,14 @@ properties:
         Sent with the `Titanium.Android.ACTION_PACKAGE_REMOVED` and
         `Titanium.Android.ACTION_PACKAGE_CHANGED` broadcasts.
 
-        See [Intent.EXTRA_DONT_KILL_APP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_DONT_KILL_APP).
+        See [Intent.EXTRA_DONT_KILL_APP in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_DONT_KILL_APP).
     type: String
     permission: read-only
 
   - name: EXTRA_EMAIL
     summary: String array containing e-mail addresses.
     description: |
-        See [Intent.EXTRA_EMAIL in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_EMAIL).
+        See [Intent.EXTRA_EMAIL in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_EMAIL).
     type: String
     permission: read-only
 
@@ -1288,14 +1256,14 @@ properties:
     description: |
         Set if the Intent's action is `Titanium.Android.ACTION_PICK_ACTIVITY`.
 
-        See [Intent.EXTRA_INTENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_INTENT).
+        See [Intent.EXTRA_INTENT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_INTENT).
     type: String
     permission: read-only
 
   - name: EXTRA_KEY_EVENT
     summary: A KeyEvent object containing the event that triggered the creation of the Intent it is in.
     description: |
-        See [Intent.EXTRA_KEY_EVENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_KEY_EVENT).
+        See [Intent.EXTRA_KEY_EVENT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_KEY_EVENT).
     type: String
     permission: read-only
 
@@ -1306,7 +1274,7 @@ properties:
 
         Set if the Intent's action is `Titanium.Android.ACTION_CALL`.
 
-        See [Intent.EXTRA_PHONE_NUMBER in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_PHONE_NUMBER).
+        See [Intent.EXTRA_PHONE_NUMBER in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_PHONE_NUMBER).
     type: String
     permission: read-only
 
@@ -1315,7 +1283,7 @@ properties:
     description: |
         Sent with the `Titanium.Android.ACTION_PACKAGE_REMOVED` broadcast.
 
-        See [Intent.EXTRA_REPLACING in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_REPLACING).
+        See [Intent.EXTRA_REPLACING in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_REPLACING).
     type: String
     permission: read-only
 
@@ -1324,7 +1292,7 @@ properties:
     description: |
         Return value of an intent with a `Titanium.Android.ACTION_CREATE_SHORTCUT` action.
 
-        See [Intent.EXTRA_SHORTCUT_ICON in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_ICON).
+        See [Intent.EXTRA_SHORTCUT_ICON in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_ICON).
     type: String
     permission: read-only
 
@@ -1333,7 +1301,7 @@ properties:
     description: |
         Return value of an intent with a `Titanium.Android.ACTION_CREATE_SHORTCUT` action.
 
-        See [Intent.EXTRA_SHORTCUT_ICON_RESOURCE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_ICON_RESOURCE).
+        See [Intent.EXTRA_SHORTCUT_ICON_RESOURCE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_ICON_RESOURCE).
     type: String
     permission: read-only
 
@@ -1342,7 +1310,7 @@ properties:
     description: |
         Return value of an intent with a `Titanium.Android.ACTION_CREATE_SHORTCUT` action.
 
-        See [Intent.EXTRA_SHORTCUT_INTENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_INTENT).
+        See [Intent.EXTRA_SHORTCUT_INTENT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_INTENT).
     type: String
     permission: read-only
 
@@ -1351,7 +1319,7 @@ properties:
     description: |
         Return value of an intent with a `Titanium.Android.ACTION_CREATE_SHORTCUT` action.
 
-        See [Intent.EXTRA_SHORTCUT_NAME in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_NAME).
+        See [Intent.EXTRA_SHORTCUT_NAME in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_SHORTCUT_NAME).
     type: String
     permission: read-only
 
@@ -1360,14 +1328,14 @@ properties:
     description: |
         Use if the Intent's action is `Titanium.Android.ACTION_SEND`.
 
-        See [Intent.EXTRA_STREAM in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_STREAM).
+        See [Intent.EXTRA_STREAM in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_STREAM).
     type: String
     permission: read-only
 
   - name: EXTRA_SUBJECT
     summary: Subject line of a message.
     description: |
-        See [Intent.EXTRA_SUBJECT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_SUBJECT).
+        See [Intent.EXTRA_SUBJECT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_SUBJECT).
     type: String
     permission: read-only
 
@@ -1376,14 +1344,14 @@ properties:
     description: |
         Use if the Intent's action is `Titanium.Android.ACTION_INSERT`.
 
-        See [Intent.EXTRA_TEMPLATE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_TEMPLATE).
+        See [Intent.EXTRA_TEMPLATE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_TEMPLATE).
     type: String
     permission: read-only
 
   - name: EXTRA_TEXT
     summary: Corresponds to the Android `Intent.EXTRA_TEXT` constant.
     description: |
-        See [Intent.EXTRA_TEXT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_TEXT).
+        See [Intent.EXTRA_TEXT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_TEXT).
     type: String
     permission: read-only
 
@@ -1392,7 +1360,7 @@ properties:
     description: |
         Set if the Intent's action is `Titanium.Android.ACTION_CHOOSER`.
 
-        See [Intent.EXTRA_TITLE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_TITLE).
+        See [Intent.EXTRA_TITLE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_TITLE).
     type: String
     permission: read-only
 
@@ -1402,42 +1370,42 @@ properties:
         Sent with the `Titanium.Android.ACTION_UID_REMOVED` broadcast, and may be sent with the
         `Titanium.Android.ACTION_PACKAGE_CHANGED` and `Titanium.Android.ACTION_PACKAGE_REMOVED` broadcasts.
 
-        See [Intent.EXTRA_UID in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#EXTRA_UID).
+        See [Intent.EXTRA_UID in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#EXTRA_UID).
     type: String
     permission: read-only
 
   - name: FILL_IN_ACTION
     summary: Not used.
     description: |
-        See [Intent.FILL_IN_ACTION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_ACTION).
+        See [Intent.FILL_IN_ACTION in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FILL_IN_ACTION).
     type: Number
     permission: read-only
 
   - name: FILL_IN_CATEGORIES
     summary: Not used.
     description: |
-        See [Intent.FILL_IN_CATEGORIES in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_CATEGORIES).
+        See [Intent.FILL_IN_CATEGORIES in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FILL_IN_CATEGORIES).
     type: Number
     permission: read-only
 
   - name: FILL_IN_COMPONENT
     summary: Not used.
     description: |
-        See [Intent.FILL_IN_COMPONENT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_COMPONENT).
+        See [Intent.FILL_IN_COMPONENT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FILL_IN_COMPONENT).
     type: Number
     permission: read-only
 
   - name: FILL_IN_DATA
     summary: Not used.
     description: |
-        See [Intent.FILL_IN_DATA in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_DATA).
+        See [Intent.FILL_IN_DATA in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FILL_IN_DATA).
     type: Number
     permission: read-only
 
   - name: FILL_IN_PACKAGE
     summary: Not used.
     description: |
-        See [Intent.FILL_IN_PACKAGE in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FILL_IN_PACKAGE).
+        See [Intent.FILL_IN_PACKAGE in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FILL_IN_PACKAGE).
     type: Number
     permission: read-only
 
@@ -1446,7 +1414,7 @@ properties:
     description: |
         Set by the system when launching a task.
 
-        See [Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_BROUGHT_TO_FRONT).
+        See [Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_BROUGHT_TO_FRONT).
     type: Number
     permission: read-only
 
@@ -1456,14 +1424,14 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_CLEAR_TOP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_CLEAR_TOP).
+        See [Intent.FLAG_ACTIVITY_CLEAR_TOP in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_CLEAR_TOP).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET
     summary: Corresponds to the Android `Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET` constant.
     description: |
-        See [Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET).
+        See [Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET).
     type: Number
     permission: read-only
     osver: {android: {max: "5.0"}}
@@ -1473,7 +1441,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS).
+        See [Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS).
     type: Number
     permission: read-only
 
@@ -1482,7 +1450,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_FORWARD_RESULT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_FORWARD_RESULT).
+        See [Intent.FLAG_ACTIVITY_FORWARD_RESULT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_FORWARD_RESULT).
     type: Number
     permission: read-only
 
@@ -1491,7 +1459,7 @@ properties:
     description: |
         Set by the system when launching a task.
 
-        See [Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY).
+        See [Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY).
     type: Number
     permission: read-only
 
@@ -1502,7 +1470,7 @@ properties:
 
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_MULTIPLE_TASK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_MULTIPLE_TASK).
+        See [Intent.FLAG_ACTIVITY_MULTIPLE_TASK in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_MULTIPLE_TASK).
     type: Number
     permission: read-only
 
@@ -1511,7 +1479,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_NEW_TASK in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NEW_TASK).
+        See [Intent.FLAG_ACTIVITY_NEW_TASK in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NEW_TASK).
     type: Number
     permission: read-only
 
@@ -1520,7 +1488,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_NO_ANIMATION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_ANIMATION).
+        See [Intent.FLAG_ACTIVITY_NO_ANIMATION in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_ANIMATION).
     type: Number
     permission: read-only
 
@@ -1529,17 +1497,17 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_NO_HISTORY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_HISTORY).
+        See [Intent.FLAG_ACTIVITY_NO_HISTORY in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_HISTORY).
     type: Number
     permission: read-only
 
   - name: FLAG_ACTIVITY_NO_USER_ACTION
     summary: |
-        Disables the [onUserLeaveHint()](http://developer.android.com/reference/android/app/Activity.html#onUserLeaveHint()) callback.
+        Disables the [onUserLeaveHint()](https://developer.android.com/reference/android/app/Activity.html#onUserLeaveHint()) callback.
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_NO_USER_ACTION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_USER_ACTION).
+        See [Intent.FLAG_ACTIVITY_NO_USER_ACTION in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_NO_USER_ACTION).
     type: Number
     permission: read-only
 
@@ -1548,7 +1516,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_PREVIOUS_IS_TOP).
+        See [Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_PREVIOUS_IS_TOP).
     type: Number
     permission: read-only
 
@@ -1557,7 +1525,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_REORDER_TO_FRONT in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_REORDER_TO_FRONT).
+        See [Intent.FLAG_ACTIVITY_REORDER_TO_FRONT in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_REORDER_TO_FRONT).
     type: Number
     permission: read-only
 
@@ -1566,7 +1534,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_RESET_TASK_IF_NEEDED).
+        See [Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_RESET_TASK_IF_NEEDED).
     type: Number
     permission: read-only
 
@@ -1575,7 +1543,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_ACTIVITY_SINGLE_TOP in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_SINGLE_TOP).
+        See [Intent.FLAG_ACTIVITY_SINGLE_TOP in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_ACTIVITY_SINGLE_TOP).
     type: Number
     permission: read-only
 
@@ -1584,7 +1552,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_DEBUG_LOG_RESOLUTION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_DEBUG_LOG_RESOLUTION).
+        See [Intent.FLAG_DEBUG_LOG_RESOLUTION in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_DEBUG_LOG_RESOLUTION).
     type: Number
     permission: read-only
 
@@ -1593,7 +1561,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_FROM_BACKGROUND in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_FROM_BACKGROUND).
+        See [Intent.FLAG_FROM_BACKGROUND in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_FROM_BACKGROUND).
     type: Number
     permission: read-only
 
@@ -1602,7 +1570,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_GRANT_READ_URI_PERMISSION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_GRANT_READ_URI_PERMISSION).
+        See [Intent.FLAG_GRANT_READ_URI_PERMISSION in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_GRANT_READ_URI_PERMISSION).
     type: Number
     permission: read-only
 
@@ -1611,7 +1579,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_GRANT_WRITE_URI_PERMISSION in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_GRANT_WRITE_URI_PERMISSION).
+        See [Intent.FLAG_GRANT_WRITE_URI_PERMISSION in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_GRANT_WRITE_URI_PERMISSION).
     type: Number
     permission: read-only
 
@@ -1620,7 +1588,7 @@ properties:
     description: |
         Bitwise-OR the constant with the Intent's `flags` property.
 
-        See [Intent.FLAG_RECEIVER_REGISTERED_ONLY in the Android API Reference](http://developer.android.com/reference/android/content/Intent.html#FLAG_RECEIVER_REGISTERED_ONLY).
+        See [Intent.FLAG_RECEIVER_REGISTERED_ONLY in the Android API Reference](https://developer.android.com/reference/android/content/Intent.html#FLAG_RECEIVER_REGISTERED_ONLY).
     type: Number
     permission: read-only
 
@@ -1632,7 +1600,7 @@ properties:
     description: |
         Use with the <Titanium.Android.PendingIntent.flags> property.
 
-        See [PendingIntent.FLAG_CANCEL_CURRENT in the Android API Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_CANCEL_CURRENT).
+        See [PendingIntent.FLAG_CANCEL_CURRENT in the Android API Reference](https://developer.android.com/reference/android/app/PendingIntent.html#FLAG_CANCEL_CURRENT).
     type: Number
     permission: read-only
 
@@ -1641,7 +1609,7 @@ properties:
     description: |
         Use with the <Titanium.Android.PendingIntent.flags> property.
 
-        See [PendingIntent.FLAG_NO_CREATE in the Android API Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_NO_CREATE).
+        See [PendingIntent.FLAG_NO_CREATE in the Android API Reference](https://developer.android.com/reference/android/app/PendingIntent.html#FLAG_NO_CREATE).
     type: Number
     permission: read-only
 
@@ -1650,7 +1618,7 @@ properties:
     description: |
         Use with the <Titanium.Android.PendingIntent.flags> property.
 
-        See [PendingIntent.FLAG_ONE_SHOT in the Android API Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_ONE_SHOT).
+        See [PendingIntent.FLAG_ONE_SHOT in the Android API Reference](https://developer.android.com/reference/android/app/PendingIntent.html#FLAG_ONE_SHOT).
     type: Number
     permission: read-only
 
@@ -1660,7 +1628,7 @@ properties:
         Use with the <Titanium.Android.PendingIntent.flags> property.
 
         See [PendingIntent.FLAG_UPDATE_CURRENT in the Android API
-        Reference](http://developer.android.com/reference/android/app/PendingIntent.html#FLAG_UPDATE_CURRENT).
+        Reference](https://developer.android.com/reference/android/app/PendingIntent.html#FLAG_UPDATE_CURRENT).
     type: Number
     permission: read-only
 
@@ -1671,7 +1639,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_ALARM in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_ALARM).
+        See [Notification.CATEGORY_ALARM in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_ALARM).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1684,7 +1652,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_CALL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_CALL).
+        See [Notification.CATEGORY_CALL in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_CALL).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1695,7 +1663,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_EMAIL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_EMAIL).
+        See [Notification.CATEGORY_EMAIL in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_EMAIL).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1706,7 +1674,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_ERROR in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_ERROR).
+        See [Notification.CATEGORY_ERROR in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_ERROR).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1717,7 +1685,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_EVENT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_EVENT).
+        See [Notification.CATEGORY_EVENT in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_EVENT).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1728,7 +1696,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_MESSAGE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_MESSAGE).
+        See [Notification.CATEGORY_MESSAGE in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_MESSAGE).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1739,7 +1707,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_PROGRESS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_PROGRESS).
+        See [Notification.CATEGORY_PROGRESS in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_PROGRESS).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1750,7 +1718,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_PROMO in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_PROMO).
+        See [Notification.CATEGORY_PROMO in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_PROMO).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1761,7 +1729,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_RECOMMENDATION in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_RECOMMENDATION).
+        See [Notification.CATEGORY_RECOMMENDATION in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_RECOMMENDATION).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1772,7 +1740,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_SERVICE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_SERVICE).
+        See [Notification.CATEGORY_SERVICE in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_SERVICE).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1783,7 +1751,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_SOCIAL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_SOCIAL).
+        See [Notification.CATEGORY_SOCIAL in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_SOCIAL).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1794,7 +1762,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_STATUS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_STATUS).
+        See [Notification.CATEGORY_STATUS in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_STATUS).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1805,7 +1773,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.category> property.
 
-        See [Notification.CATEGORY_TRANSPORT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#CATEGORY_TRANSPORT).
+        See [Notification.CATEGORY_TRANSPORT in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#CATEGORY_TRANSPORT).
     type: String
     permission: read-only
     since: "3.6.0"
@@ -1816,7 +1784,7 @@ properties:
         Use all default settings for a notification; see
         [Notification.defaults](Titanium.Android.Notification.defaults).
     description: |
-        See [Notification.DEFAULT_ALL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_ALL).
+        See [Notification.DEFAULT_ALL in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#DEFAULT_ALL).
     type: Number
     permission: read-only
 
@@ -1825,7 +1793,7 @@ properties:
         Use the default light settings for a notification; see
         [Notification.defaults](Titanium.Android.Notification.defaults).
     description: |
-        See [Notification.DEFAULT_LIGHTS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_LIGHTS).
+        See [Notification.DEFAULT_LIGHTS in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#DEFAULT_LIGHTS).
     type: Number
     permission: read-only
 
@@ -1834,7 +1802,7 @@ properties:
         Use the default sound settings for a notification; see
         [Notification.defaults](Titanium.Android.Notification.defaults).
     description: |
-        See [Notification.DEFAULT_SOUND in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_SOUND).
+        See [Notification.DEFAULT_SOUND in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#DEFAULT_SOUND).
     type: Number
     permission: read-only
 
@@ -1843,7 +1811,7 @@ properties:
         Use the default vibration settings for a notification; see
         [Notification.defaults](Titanium.Android.Notification.defaults).
     description: |
-        See [Notification.DEFAULT_VIBRATE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#DEFAULT_VIBRATE).
+        See [Notification.DEFAULT_VIBRATE in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#DEFAULT_VIBRATE).
     type: Number
     permission: read-only
 
@@ -1852,7 +1820,7 @@ properties:
     description: |
         Use with [Notification.flags](Titanium.Android.Notification.flags).
 
-        See also: [Notification.FLAG_AUTO_CANCEL in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_AUTO_CANCEL).
+        See also: [Notification.FLAG_AUTO_CANCEL in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#FLAG_AUTO_CANCEL).
     type: Number
     permission: read-only
 
@@ -1863,7 +1831,7 @@ properties:
     description: |
         Use with [Notification.flags](Titanium.Android.Notification.flags).
 
-        See also: [Notification.FLAG_INSISTENT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_INSISTENT).
+        See also: [Notification.FLAG_INSISTENT in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#FLAG_INSISTENT).
     type: Number
     permission: read-only
 
@@ -1872,7 +1840,7 @@ properties:
     description: |
         Use with [Notification.flags](Titanium.Android.Notification.flags).
 
-        See also: [Notification.FLAG_NO_CLEAR in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_NO_CLEAR).
+        See also: [Notification.FLAG_NO_CLEAR in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#FLAG_NO_CLEAR).
     type: Number
     permission: read-only
 
@@ -1881,7 +1849,7 @@ properties:
     description: |
         Use with [Notification.flags](Titanium.Android.Notification.flags).
 
-        See also: [Notification.FLAG_ONGOING_EVENT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_ONGOING_EVENT).
+        See also: [Notification.FLAG_ONGOING_EVENT in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#FLAG_ONGOING_EVENT).
     type: Number
     permission: read-only
 
@@ -1890,7 +1858,7 @@ properties:
     description: |
         Use with [Notification.flags](Titanium.Android.Notification.flags).
 
-        See also: [Notification.FLAG_ONLY_ALERT_ONCE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_ONLY_ALERT_ONCE).
+        See also: [Notification.FLAG_ONLY_ALERT_ONCE in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#FLAG_ONLY_ALERT_ONCE).
     type: Number
     permission: read-only
 
@@ -1899,7 +1867,7 @@ properties:
     description: |
         Use with [Notification.flags](Titanium.Android.Notification.flags).
 
-        See also: [Notification.FLAG_SHOW_LIGHTS in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#FLAG_SHOW_LIGHTS).
+        See also: [Notification.FLAG_SHOW_LIGHTS in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#FLAG_SHOW_LIGHTS).
     type: Number
     permission: read-only
 
@@ -1910,7 +1878,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.priority> property.
 
-        See also: [Notification.PRIORITY_MAX in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_MAX).
+        See also: [Notification.PRIORITY_MAX in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#PRIORITY_MAX).
     type: Number
     permission: read-only
     since: "3.6.0"
@@ -1921,7 +1889,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.priority> property.
 
-        See also: [Notification.PRIORITY_HIGH in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_HIGH).
+        See also: [Notification.PRIORITY_HIGH in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#PRIORITY_HIGH).
     type: Number
     permission: read-only
     since: "3.6.0"
@@ -1932,7 +1900,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.priority> property.
 
-        See also: [Notification.PRIORITY_DEFAULT in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_DEFAULT).
+        See also: [Notification.PRIORITY_DEFAULT in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#PRIORITY_DEFAULT).
     type: Number
     permission: read-only
     since: "3.6.0"
@@ -1943,7 +1911,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.priority> property.
 
-        See also: [Notification.PRIORITY_LOW in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_LOW).
+        See also: [Notification.PRIORITY_LOW in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#PRIORITY_LOW).
     type: Number
     permission: read-only
     since: "3.6.0"
@@ -1957,7 +1925,7 @@ properties:
         Note that the user will not be alerted to the notification (sound, vibration, etc.),
         but the notification will appear in the drawer.
 
-        See also: [Notification.PRIORITY_MIN in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#PRIORITY_MIN).
+        See also: [Notification.PRIORITY_MIN in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#PRIORITY_MIN).
     type: Number
     permission: read-only
     since: "3.6.0"
@@ -1970,7 +1938,7 @@ properties:
 
         Only the application name and icon appear in the lock screen with the message: "Contents hidden".
 
-        See also: [Notification.VISIBILITY_PRIVATE in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#VISIBILITY_PRIVATE).
+        See also: [Notification.VISIBILITY_PRIVATE in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#VISIBILITY_PRIVATE).
     type: Number
     permission: read-only
     since: "3.6.0"
@@ -1981,7 +1949,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.visibility> property.
 
-        See also: [Notification.VISIBILITY_PUBLIC in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#VISIBILITY_PUBLIC).
+        See also: [Notification.VISIBILITY_PUBLIC in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#VISIBILITY_PUBLIC).
     type: Number
     permission: read-only
     since: "3.6.0"
@@ -1992,7 +1960,7 @@ properties:
     description: |
         Use with the <Titanium.Android.Notification.visibility> property.
 
-        See also: [Notification.VISIBILITY_SECRET in the Android API Reference](http://developer.android.com/reference/android/app/Notification.html#VISIBILITY_SECRET).
+        See also: [Notification.VISIBILITY_SECRET in the Android API Reference](https://developer.android.com/reference/android/app/Notification.html#VISIBILITY_SECRET).
     type: Number
     permission: read-only
     since: "3.6.0"

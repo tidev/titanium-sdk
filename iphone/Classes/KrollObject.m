@@ -160,6 +160,36 @@ void KrollInitializer(TiContextRef ctx, TiObjectRef object)
   }
 }
 
+bool KrollHasProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef propertyName)
+{
+  waitForMemoryPanicCleared();
+
+  // Debugger may actually try to get properties off global Kroll property (which is a special case KrollContext singleton)
+  id privateObject = (id)TiObjectGetPrivate(object);
+  if ([privateObject isKindOfClass:[KrollContext class]]) {
+    return false;
+  }
+
+  if (TiStringIsEqual(propertyName, kTiStringTiPropertyKey)) {
+    return false;
+  }
+
+  KrollObject *o = (KrollObject *)privateObject;
+  TiObjectRef exports = [o objectForTiString:kTiStringExportsKey context:jsContext];
+  if ((exports != NULL) && TiObjectHasProperty(jsContext, exports, propertyName)) {
+    return true;
+  }
+
+  NSString *name = (NSString *)TiStringCopyCFString(kCFAllocatorDefault, propertyName);
+  [name autorelease];
+  id result = [o valueForKey:name];
+  if (result != nil) {
+    return true;
+  }
+
+  return false;
+}
+
 //
 // callback for handling retrieving an objects property (in JS land)
 //
@@ -265,7 +295,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
     }
 #ifdef TI_USE_KROLL_THREAD
     [o setValue:v
-          forKey:name];
+         forKey:name];
 #else
 
     TiThreadPerformOnMainThread(^{
@@ -374,6 +404,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
     classDef.className = "Object";
     classDef.initialize = KrollInitializer;
     classDef.finalize = KrollFinalizer;
+    classDef.hasProperty = KrollHasProperty;
     classDef.setProperty = KrollSetProperty;
     classDef.getProperty = KrollGetProperty;
     classDef.deleteProperty = KrollDeleteProperty;

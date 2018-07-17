@@ -333,9 +333,7 @@ public class TiUIScrollView extends TiUIView
 					window.setSoftInputMode(softInputMode | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 				}
 			}
-
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
-
 			layout = new TiScrollViewLayout(context, arrangement);
 			FrameLayout.LayoutParams params =
 				new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -488,7 +486,6 @@ public class TiUIScrollView extends TiUIView
 				this.nestedScrollingChildHelper = new NestedScrollingChildHelper(this);
 			}
 			setNestedScrollingEnabled(true);
-
 			layout = new TiScrollViewLayout(context, arrangement);
 			FrameLayout.LayoutParams params =
 				new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);

@@ -6,7 +6,7 @@ summary: >
     defined by a start-tag and end-tag (or an empty tag). Elements may have
     [attributes](Titanium.XML.Attr) associated with them.
 
-    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-745549614)
+    Implements the [DOM Level 2 API](https://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-745549614)
     on Android and iOS with some non-standard extensions.
 createable: false
 platforms: [android, iphone, ipad]
@@ -124,8 +124,8 @@ methods:
             The qualified name of the attribute. If it is malformed,
             has a prefix and namespaceURI is `null`, or if the prefix is `xml` or
             `xmlns` but does not correspond to a property defined in the
-            [XML](http://www.w3.org/XML/1998/namespace) or
-            [XMLNS](http://www.w3.org/2000/xmlns/) specifications, then it contains
+            [XML](https://www.w3.org/XML/1998/namespace) or
+            [XMLNS](https://www.w3.org/2000/xmlns/) specifications, then it contains
             an error.
         type: String
       - name: value

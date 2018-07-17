@@ -429,6 +429,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<classpath>
 				<fileset file="${dist.dir}/kroll-common.jar"/>
 				<fileset file="${dist.dir}/java_websocket.jar"/>
+				<fileset file="${dist.dir}/titanium.jar"/>
 			</classpath>
 		</javac>
 

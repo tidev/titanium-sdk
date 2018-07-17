@@ -11,6 +11,10 @@
 #import "TiUIWindow.h"
 #import "TiUIWindowProxy.h"
 
+#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
+#import "TiUIiOSNavWindowProxy.h"
+#endif
+
 @interface TiWindowProxy (Private)
 - (void)openOnUIThread:(id)args;
 - (void)closeOnUIThread:(id)args;
@@ -221,7 +225,7 @@
 - (void)open:(id)args
 {
   //If an error is up, Go away
-  if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorController class]]) {
+  if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorNavigationController class]]) {
     DebugLog(@"[ERROR] ErrorController is up. ABORTING open");
     return;
   }
@@ -399,6 +403,37 @@
 {
   return isModal;
 }
+
+#if IS_XCODE_9
+- (NSNumber *)homeIndicatorAutoHidden
+{
+  if (![TiUtils isIOS11OrGreater]) {
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
+    return @(NO);
+  }
+  return @([self homeIndicatorAutoHide]);
+}
+
+- (void)setHomeIndicatorAutoHidden:(id)arg
+{
+  if (![TiUtils isIOS11OrGreater]) {
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
+    return;
+  }
+
+  ENSURE_TYPE(arg, NSNumber);
+  id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
+  [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
+  if (current != arg && [TiUtils isIOS11OrGreater]) {
+    [[self windowHoldingController] setNeedsUpdateOfHomeIndicatorAutoHidden];
+  }
+}
+
+- (BOOL)homeIndicatorAutoHide
+{
+  return [TiUtils boolValue:[self valueForUndefinedKey:@"homeIndicatorAutoHidden"] def:NO];
+}
+#endif
 
 - (BOOL)hidesStatusBar
 {
@@ -652,6 +687,18 @@
   }
 }
 
+#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
+- (TiUIiOSNavWindowProxy *)navigationWindow
+{
+  if (parentController != nil && [parentController isKindOfClass:[TiUIiOSNavWindowProxy class]]) {
+    return (TiUIiOSNavWindowProxy *)parentController;
+  }
+
+  NSLog(@"[ERROR] Trying to receive a Ti.UI.NavigationWindow instance that does not exist in this context!");
+  return nil;
+}
+#endif
+
 - (void)hideToolbar:(NSArray *)args
 {
   ENSURE_UI_THREAD(hideToolbar, args);
@@ -673,6 +720,7 @@
   id hidesBarsOnSwipe = [self valueForUndefinedKey:@"hidesBarsOnSwipe"];
   id hidesBarsOnTap = [self valueForUndefinedKey:@"hidesBarsOnTap"];
   id hidesBarsWhenKeyboardAppears = [self valueForUndefinedKey:@"hidesBarsWhenKeyboardAppears"];
+  id hidesBackButton = [self valueForUndefinedKey:@"hidesBackButton"];
 
   if (navBarHidden) {
     id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"animated"]];
@@ -690,6 +738,9 @@
   }
   if (hidesBarsWhenKeyboardAppears) {
     [self setHidesBarsWhenKeyboardAppears:hidesBarsWhenKeyboardAppears];
+  }
+  if (hidesBackButton) {
+    [self setHidesBackButton:hidesBackButton];
   }
 
   [self willShow];
@@ -750,6 +801,18 @@
 
   if ((controller != nil) && ([controller navigationController] != nil)) {
     [[controller navigationController] setHidesBarsWhenKeyboardAppears:[TiUtils boolValue:value def:NO]];
+  }
+}
+
+- (void)setHidesBackButton:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  ENSURE_UI_THREAD(setHidesBackButton, value);
+
+  [self replaceValue:value forKey:@"hidesBackButton" notification:NO];
+
+  if ((controller != nil) && ([controller navigationItem] != nil)) {
+    [[controller navigationItem] setHidesBackButton:[TiUtils boolValue:value def:NO]];
   }
 }
 

@@ -1267,6 +1267,12 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// determine the abis to support
 	this.abis = this.validABIs;
+	if (this.deployType === 'production') {
+		// by default, remove 'x86' from production builds
+		// 'x86' devices are scarce; this is predominantly used for emulators
+		// we can save 16MB+ by removing this from release builds
+		this.abis.splice(this.abis.indexOf('x86'), 1);
+	}
 	if (cli.tiapp.android && cli.tiapp.android.abi && cli.tiapp.android.abi.indexOf('all') === -1) {
 		this.abis = cli.tiapp.android.abi;
 		this.abis.forEach(function (abi) {
@@ -1811,7 +1817,6 @@ AndroidBuilder.prototype.doAnalytics = function doAnalytics(next) {
 	}
 
 	cli.addAnalyticsEvent(eventName, {
-		dir: cli.argv['project-dir'],
 		name: cli.tiapp.name,
 		publisher: cli.tiapp.publisher,
 		url: cli.tiapp.url,
@@ -2725,7 +2730,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 									transpile: this.transpile,
 									targets: {
 										chrome: this.chromeVersion
-									}
+									},
+									resourcesDir: this.buildBinAssetsResourcesDir
 								});
 								const newContents = modified.contents;
 
@@ -3842,6 +3848,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 		finalAndroidManifest.application.service[tiAnalyticsService] = {
 			name: tiAnalyticsService,
+			permission: 'android.permission.BIND_JOB_SERVICE',
 			exported: false
 		};
 	}
@@ -3875,6 +3882,26 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 			}
 		}
 	}, this);
+
+	this.androidLibraries.forEach(libraryInfo => {
+		const libraryManifestPath = path.join(libraryInfo.explodedPath, 'AndroidManifest.xml');
+		if (fs.existsSync(libraryManifestPath)) {
+			let libraryManifestContent = fs.readFileSync(libraryManifestPath).toString();
+
+			// handle injected build variables
+			// https://developer.android.com/studio/build/manifest-build-variables
+			libraryManifestContent = libraryManifestContent.replace('${applicationId}', this.appid); // eslint-disable-line no-template-curly-in-string
+
+			const libraryManifest = new AndroidManifest();
+			libraryManifest.parse(libraryManifestContent);
+
+			// we don't want android libraries to override the <supports-screens> or <uses-sdk> tags
+			delete libraryManifest.__attr__;
+			delete libraryManifest['supports-screens'];
+			delete libraryManifest['uses-sdk'];
+			finalAndroidManifest.merge(libraryManifest);
+		}
+	});
 
 	// if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
 	// the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
@@ -4366,200 +4393,189 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		soRegExp = /\.so$/,
 		trailingSlashRegExp = /\/$/,
 		nativeLibs = {},
-		origConsoleError = console.error,
 		entryNames = [];
 
-	// since the archiver library didn't set max listeners, we squelch all error output
-	console.error = function () {};
+	fs.existsSync(this.unsignedApkFile) && fs.unlinkSync(this.unsignedApkFile);
+	const apkStream = fs.createWriteStream(this.unsignedApkFile);
+	apkStream.on('close', function () {
+		next();
+	});
+	dest.catchEarlyExitAttached = true; // silence exceptions
+	dest.pipe(apkStream);
+
+	this.logger.info(__('Creating unsigned apk'));
+
+	// merge files from the app.ap_ file as well as all titanium and 3rd party jar files
+	const archives = [ this.ap_File ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+
+	archives.forEach(function (file) {
+		const src = new AdmZip(file),
+			entries = src.getEntries();
+
+		this.logger.debug(__('Processing %s', file.cyan));
+
+		entries.forEach(function (entry) {
+			if (entry.entryName.indexOf('META-INF/') === -1
+				&& (entry.entryName.indexOf('org/appcelerator/titanium/bindings/') === -1 || !jsonRegExp.test(entry.name))
+				&& entry.name.charAt(0) !== '.'
+				&& !classRegExp.test(entry.name)
+				&& !trailingSlashRegExp.test(entry.entryName)
+			) {
+				// do not add duplicate entries
+				if (entryNames.indexOf(entry.entryName) > -1) {
+					this.logger.warn(__('Removing duplicate entry %s', entry.entryName.cyan));
+					return;
+				}
+
+				const store = this.uncompressedTypes.indexOf(entry.entryName.split('.').pop()) !== -1;
+
+				this.logger.debug(store
+					? __('Adding %s', entry.entryName.cyan)
+					: __('Deflating %s', entry.entryName.cyan));
+
+				dest.append(src.readFile(entry), {
+					name: entry.entryName,
+					store: store
+				});
+				entryNames.push(entry.entryName);
+			}
+		}, this);
+	}, this);
+
+	// Add dex files
+	this.logger.info(__('Processing %s', this.buildBinClassesDex.cyan));
+	fs.readdirSync(this.buildBinClassesDex).forEach(function (name) {
+		var file = path.join(this.buildBinClassesDex, name);
+		if (dexRegExp.test(name)) {
+			this.logger.debug(__('Adding %s', name.cyan));
+			dest.append(fs.createReadStream(file), { name: name });
+		}
+	}, this);
+
+	this.logger.info(__('Processing %s', this.buildSrcDir.cyan));
+	(function copyDir(dir, base) {
+		base = base || dir;
+		fs.readdirSync(dir).forEach(function (name) {
+			var file = path.join(dir, name);
+			if (fs.existsSync(file)) {
+				if (fs.statSync(file).isDirectory()) {
+					copyDir(file, base);
+				} else if (!javaRegExp.test(name)) {
+					name = file.replace(base, '').replace(/^[/\\]/, '');
+					this.logger.debug(__('Adding %s', name.cyan));
+					dest.append(fs.createReadStream(file), { name: name });
+				}
+			}
+		}, this);
+	}.call(this, this.buildSrcDir));
+
+	const addNativeLibs = function (dir) {
+		if (!fs.existsSync(dir)) {
+			return;
+		}
+
+		for (let i = 0; i < this.abis.length; i++) {
+			const abiDir = path.join(dir, this.abis[i]);
+
+			// check that we found the desired abi, otherwise we abort the build
+			if (!fs.existsSync(abiDir) || !fs.statSync(abiDir).isDirectory()) {
+				throw this.abis[i];
+			}
+
+			// copy all the .so files into the archive
+			fs.readdirSync(abiDir).forEach(function (name) {
+				if (name !== 'libtiprofiler.so' || (this.allowProfiling && this.profilerPort)) {
+					const file = path.join(abiDir, name),
+						rel = 'lib/' + this.abis[i] + '/' + name;
+					if (!nativeLibs[rel] && soRegExp.test(name) && fs.existsSync(file)) {
+						nativeLibs[rel] = 1;
+						this.logger.debug(__('Adding %s', rel.cyan));
+						dest.append(fs.createReadStream(file), { name: rel });
+					}
+				}
+			}, this);
+		}
+	}.bind(this);
 
 	try {
-		fs.existsSync(this.unsignedApkFile) && fs.unlinkSync(this.unsignedApkFile);
-		const apkStream = fs.createWriteStream(this.unsignedApkFile);
-		apkStream.on('close', function () {
-			console.error = origConsoleError;
-			next();
+		// add Titanium native modules
+		addNativeLibs(path.join(this.platformPath, 'native', 'libs'));
+	} catch (abi) {
+		// this should never be called since we already validated this
+		const abis = [];
+		fs.readdirSync(path.join(this.platformPath, 'native', 'libs')).forEach(function (abi) {
+			var dir = path.join(this.platformPath, 'native', 'libs', abi);
+			if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+				abis.push(abi);
+			}
 		});
-		dest.catchEarlyExitAttached = true; // silence exceptions
-		dest.pipe(apkStream);
+		this.logger.error(__('Invalid native Titanium library ABI "%s"', abi));
+		this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
+		process.exit(1);
+	}
 
-		this.logger.info(__('Creating unsigned apk'));
+	try {
+		// add native modules from the build dir's "libs" dir
+		addNativeLibs(path.join(this.buildDir, 'libs'));
+	} catch (e) {
+		// ignore
+	}
 
-		// merge files from the app.ap_ file as well as all titanium and 3rd party jar files
-		const archives = [ this.ap_File ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
-
-		archives.forEach(function (file) {
-			const src = new AdmZip(file),
-				entries = src.getEntries();
-
-			this.logger.debug(__('Processing %s', file.cyan));
-
-			entries.forEach(function (entry) {
-				if (entry.entryName.indexOf('META-INF/') === -1
-					&& (entry.entryName.indexOf('org/appcelerator/titanium/bindings/') === -1 || !jsonRegExp.test(entry.name))
-					&& entry.name.charAt(0) !== '.'
-					&& !classRegExp.test(entry.name)
-					&& !trailingSlashRegExp.test(entry.entryName)
-				) {
-					// do not add duplicate entries
-					if (entryNames.indexOf(entry.entryName) > -1) {
-						this.logger.warn(__('Removing duplicate entry %s', entry.entryName.cyan));
-						return;
-					}
-
-					const store = this.uncompressedTypes.indexOf(entry.entryName.split('.').pop()) !== -1;
-
-					this.logger.debug(store
-						? __('Adding %s', entry.entryName.cyan)
-						: __('Deflating %s', entry.entryName.cyan));
-
-					dest.append(src.readFile(entry), {
-						name: entry.entryName,
-						store: store
-					});
-					entryNames.push(entry.entryName);
-				}
-			}, this);
-		}, this);
-
-		// Add dex files
-		this.logger.info(__('Processing %s', this.buildBinClassesDex.cyan));
-		fs.readdirSync(this.buildBinClassesDex).forEach(function (name) {
-			var file = path.join(this.buildBinClassesDex, name);
-			if (dexRegExp.test(name)) {
-				this.logger.debug(__('Adding %s', name.cyan));
-				dest.append(fs.createReadStream(file), { name: name });
-			}
-		}, this);
-
-		this.logger.info(__('Processing %s', this.buildSrcDir.cyan));
-		(function copyDir(dir, base) {
-			base = base || dir;
-			fs.readdirSync(dir).forEach(function (name) {
-				var file = path.join(dir, name);
-				if (fs.existsSync(file)) {
-					if (fs.statSync(file).isDirectory()) {
-						copyDir(file, base);
-					} else if (!javaRegExp.test(name)) {
-						name = file.replace(base, '').replace(/^[/\\]/, '');
-						this.logger.debug(__('Adding %s', name.cyan));
-						dest.append(fs.createReadStream(file), { name: name });
-					}
-				}
-			}, this);
-		}.call(this, this.buildSrcDir));
-
-		const addNativeLibs = function (dir) {
-			if (!fs.existsSync(dir)) {
-				return;
-			}
-
-			for (let i = 0; i < this.abis.length; i++) {
-				const abiDir = path.join(dir, this.abis[i]);
-
-				// check that we found the desired abi, otherwise we abort the build
-				if (!fs.existsSync(abiDir) || !fs.statSync(abiDir).isDirectory()) {
-					throw this.abis[i];
-				}
-
-				// copy all the .so files into the archive
-				fs.readdirSync(abiDir).forEach(function (name) {
-					if (name !== 'libtiprofiler.so' || (this.allowProfiling && this.profilerPort)) {
-						const file = path.join(abiDir, name),
-							rel = 'lib/' + this.abis[i] + '/' + name;
-						if (!nativeLibs[rel] && soRegExp.test(name) && fs.existsSync(file)) {
-							nativeLibs[rel] = 1;
-							this.logger.debug(__('Adding %s', rel.cyan));
-							dest.append(fs.createReadStream(file), { name: rel });
-						}
-					}
-				}, this);
-			}
-		}.bind(this);
-
-		try {
-			// add Titanium native modules
-			addNativeLibs(path.join(this.platformPath, 'native', 'libs'));
-		} catch (abi) {
-			// this should never be called since we already validated this
-			const abis = [];
-			fs.readdirSync(path.join(this.platformPath, 'native', 'libs')).forEach(function (abi) {
-				var dir = path.join(this.platformPath, 'native', 'libs', abi);
-				if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
-					abis.push(abi);
-				}
-			});
-			this.logger.error(__('Invalid native Titanium library ABI "%s"', abi));
-			this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
-			process.exit(1);
-		}
-
-		try {
-			// add native modules from the build dir's "libs" dir
-			addNativeLibs(path.join(this.buildDir, 'libs'));
-		} catch (e) {
-			// ignore
-		}
-
-		this.modules.forEach(function (m) {
-			if (m.native) {
-				try {
-					// add native modules for each module
-					addNativeLibs(path.join(m.modulePath, 'libs'));
-				} catch (abi) {
-					// this should never be called since we already validated this
-					const abis = [];
-					fs.readdirSync(path.join(m.modulePath, 'libs')).forEach(function (abi) {
-						var dir = path.join(m.modulePath, 'libs', abi);
-						if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
-							abis.push(abi);
-						}
-					});
-					/* commenting this out to preserve the old, incorrect behavior
-					this.logger.error(__('The module "%s" does not support the ABI "%s"', m.id, abi));
-					this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
-					process.exit(1);
-					*/
-					this.logger.warn(__('The module %s does not support the ABI: %s', m.id.cyan, abi.cyan));
-					this.logger.warn(__('It only supports the following ABIs: %s', abis.map(function (a) { return a.cyan; }).join(', '))); // eslint-disable-line max-statements-per-line
-					this.logger.warn(__('Your application will most likely encounter issues'));
-				}
-			}
-		}, this);
-
-		this.androidLibraries.forEach(function (libraryInfo) {
-			if (libraryInfo.nativeLibraries.length === 0) {
-				return;
-			}
-
-			const libraryJniPath = path.join(libraryInfo.explodedPath, 'jni');
+	this.modules.forEach(function (m) {
+		if (m.native) {
 			try {
-				addNativeLibs(libraryJniPath);
-			} catch (e) {
+				// add native modules for each module
+				addNativeLibs(path.join(m.modulePath, 'libs'));
+			} catch (abi) {
+				// this should never be called since we already validated this
 				const abis = [];
-				fs.readdirSync(libraryJniPath).forEach(function (abi) {
-					const dir = path.join(libraryJniPath, abi);
+				fs.readdirSync(path.join(m.modulePath, 'libs')).forEach(function (abi) {
+					var dir = path.join(m.modulePath, 'libs', abi);
 					if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
 						abis.push(abi);
 					}
 				});
-				// FIXME This validation code isn't right. Shoudl likley be in the function above!
-				// if (libraryInfo.task.originType === 'Module') {
-				// 	this.logger.error(__('The Android Library "%s" from module "%s" does not support the ABI: %s', libraryInfo.packageName, libraryInfo.task.moduleInfo.id, abi));
-				// } else if (libraryInfo.task.originType === 'Project') {
-				// 	this.logger.error(__('The Android Library "%s" does not support the ABI: %s', libraryInfo.packageName, abi));
-				// }
-				this.logger.error(__('Supported ABIs by the Android Library: %s', abis.join(', ')));
-				this.logger.error(__('Valid ABIs for this project: %s', this.abis(', ')));
+				/* commenting this out to preserve the old, incorrect behavior
+				this.logger.error(__('The module "%s" does not support the ABI "%s"', m.id, abi));
+				this.logger.error(__('Supported ABIs: %s', abis.join(', ')) + '\n');
 				process.exit(1);
+				*/
+				this.logger.warn(__('The module %s does not support the ABI: %s', m.id.cyan, abi.cyan));
+				this.logger.warn(__('It only supports the following ABIs: %s', abis.map(function (a) { return a.cyan; }).join(', '))); // eslint-disable-line max-statements-per-line
+				this.logger.warn(__('Your application will most likely encounter issues'));
 			}
-		}, this);
+		}
+	}, this);
 
-		this.logger.info(__('Writing unsigned apk: %s', this.unsignedApkFile.cyan));
-		dest.finalize();
-	} catch (ex) {
-		console.error = origConsoleError;
-		throw ex;
-	}
+	this.androidLibraries.forEach(function (libraryInfo) {
+		if (libraryInfo.nativeLibraries.length === 0) {
+			return;
+		}
+
+		const libraryJniPath = path.join(libraryInfo.explodedPath, 'jni');
+		try {
+			addNativeLibs(libraryJniPath);
+		} catch (abi) {
+			const abis = [];
+			fs.readdirSync(libraryJniPath).forEach(function (abi) {
+				const dir = path.join(libraryJniPath, abi);
+				if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+					abis.push(abi);
+				}
+			});
+
+			if (libraryInfo.task.originType === 'Module') {
+				this.logger.warn(__('The Android Library "%s" from module "%s" does not support the ABI: %s', libraryInfo.packageName.cyan, libraryInfo.task.moduleInfo.id.cyan, abi.cyan));
+			} else if (libraryInfo.task.originType === 'Project') {
+				this.logger.warn(__('The Android Library "%s" does not support the ABI: %s', libraryInfo.packageName.cyan, abi.cyan));
+			}
+			this.logger.warn(__('It only supports the following ABIs: %s', abis.map(function (a) { return a.cyan; }).join(', '))); // eslint-disable-line max-statements-per-line
+			this.logger.warn(__('Your application will most likely encounter issues'));
+		}
+	}, this);
+
+	this.logger.info(__('Writing unsigned apk: %s', this.unsignedApkFile.cyan));
+	dest.finalize();
 };
 
 AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {

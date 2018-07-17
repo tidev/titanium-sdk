@@ -13,6 +13,8 @@
 @class TiBuffer;
 @class WebFont;
 @class TiScriptError;
+@class TiUIView;
+@class TiViewProxy;
 
 /*	NOTE TO MODULE DEVELOPERS:
  *	The following 4 imports will be going away as it's better to simply
@@ -533,6 +535,8 @@ typedef enum {
  */
 + (void)setView:(UIView *)view positionRect:(CGRect)frameRect;
 
++ (void)applyConstraintToView:(TiUIView *)view forProxy:(TiViewProxy *)proxy withBounds:(CGRect)bounds;
+
 + (CGRect)viewPositionRect:(UIView *)view;
 
 + (BOOL)barTranslucencyForColor:(TiColor *)color;
@@ -576,6 +580,12 @@ typedef enum {
  @return _YES_ if the current OS version is equal to or greater than 8.0, _NO_ otherwise.
  */
 + (BOOL)isIOS8OrGreater;
+
+/**
+ Whether or not the current OS version is equal to or greater than 8.2.
+ @return _YES_ if the current OS version is equal to or greater thann 8.2, _NO_ otherwise.
+ */
++ (BOOL)isIOS82rGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 9.0.

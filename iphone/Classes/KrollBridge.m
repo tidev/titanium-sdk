@@ -69,7 +69,7 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
         [sharedAnalytics performSelector:@selector(setBuildType:) withObject:TI_APPLICATION_BUILD_TYPE];
       }
       [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@", [module performSelector:@selector(version)]]];
-      [sharedAnalytics enableWithAppKey:TI_APPLICATION_GUID andDeployType:TI_APPLICATION_DEPLOYTYPE];
+      [sharedAnalytics performSelector:@selector(enableWithAppKey:andDeployType:) withObject:TI_APPLICATION_GUID withObject:TI_APPLICATION_DEPLOYTYPE];
     }
   }
   return self;

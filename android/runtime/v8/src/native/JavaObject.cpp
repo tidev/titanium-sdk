@@ -76,8 +76,7 @@ jobject JavaObject::getJavaObject()
 	}
 	if (useGlobalRefs) {
 		return javaObject_;
-	} else {
-		ASSERT(refTableKey_ != 0);
+	} else if (refTableKey_ > 0) {
 		jobject ref = ReferenceTable::getReference(refTableKey_);
 		if (ref == NULL) {
 			// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
@@ -85,6 +84,7 @@ jobject JavaObject::getJavaObject()
 		}
 		return ref;
 	}
+	return NULL;
 }
 
 void JavaObject::unreferenceJavaObject(jobject ref) {

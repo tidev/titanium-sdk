@@ -6,7 +6,7 @@ description: |
     as using the device's camera and photo gallery, playing media files, or recording
     audio or video.
     For examples of using the Media APIs, refer to the
-    [Working with Media APIs guide](http://docs.appcelerator.com/platform/latest/#!/guide/Working_with_Media_APIs)
+    [Working with Media APIs guide](https://docs.appcelerator.com/platform/latest/#!/guide/Working_with_Media_APIs)
     in addition to the other media submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
@@ -68,7 +68,7 @@ methods:
     description: |
         In iOS 6, Apple introduced the Info.plist key `NSPhotoLibraryUsageDescription` that is used to display an
         own description while authorizing gallery permissions. In iOS 10, this key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
     platforms: [iphone, ipad, android]
     parameters:
@@ -163,7 +163,7 @@ methods:
         summary: A dictionary of camera options as described in <CameraOptionsType>.
         type: CameraOptionsType
   - name: hasMusicLibraryPermissions
-    summary: Returns `true` if the app has camera access.
+    summary: Returns `true` if the app has music library access.
     description: |
         Music-library permissions are only needed in iOS 9.3 and later and will be ignored on older
         iOS versions. Because of that, the method will return `true` for devices that run iOS < 9.3.
@@ -180,7 +180,7 @@ methods:
 
         Important: On iOS 10, Apple introduced the Info.plist key `NSAppleMusicUsageDescription` that is used to
         display an own description while authorizing the music library. This key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
     parameters:
       - name: callback
@@ -260,7 +260,7 @@ methods:
 
         In iOS 6, Apple introduced the Info.plist key `NSCameraUsageDescription` that is used to display an
         own description while authorizing camera permissions. In iOS 10, this key is mandatory when taking a photo
-        and the application will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        and the application will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information. When using the camera to take a video, you also need the `NSMicrophoneUsageDescription` key.
         In addition, the authorization dialog will only show if user has not made a decision, yet.
         If the user has, the callback will return the earlier decision. To change the permission the user needs to
@@ -285,12 +285,11 @@ methods:
     description: |
         In iOS 6, Apple introduced the Info.plist key `NSPhotoLibraryUsageDescription` that is used to display an
         own description while authorizing photo gallery permissions. In iOS 10, this key is mandatory when accessing the
-        photo gallery and the application will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        photo gallery and the application will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information. If the user has, the callback will return the earlier decision. To change the permission the
         user needs to change it in the device settings.
 
-        This API is available in iOS 8 and later. Earlier versions of iOS, as well as apps that do not include this method,
-        will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
+        iOS Apps that do not include this method, will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
     parameters:
       - name: callback
         summary: Function to call upon user decision to grant camera access.
@@ -352,14 +351,14 @@ methods:
   - name: requestAuthorization
     summary: Request the user's permission for audio recording.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
 
         In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
         own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
     platforms: [iphone, ipad]
     deprecated:
@@ -374,14 +373,14 @@ methods:
   - name: hasAudioPermissions
     summary: Returns `true` if the app has audio permissions.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
 
         In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
         own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
     returns:
         type: Boolean
@@ -394,14 +393,14 @@ methods:
   - name: hasAudioRecorderPermissions
     summary: Returns `true` if the app has audio permissions.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
 
         In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
         own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
     returns:
         type: Boolean
@@ -414,14 +413,14 @@ methods:
   - name: requestAudioPermissions
     summary: Request the user's permission for audio recording.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
 
         In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
         own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
     platforms: [iphone, ipad]
     deprecated:
@@ -436,14 +435,14 @@ methods:
   - name: requestAudioRecorderPermissions
     summary: Request the user's permission for audio recording.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
 
         In addition, Apple introduced the Info.plist key `NSMicrophoneUsageDescription` that is used to display an
         own description while authorizing microphone permissions. In iOS 10, this key is mandatory and the application
-        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+        will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
         for more information.
     platforms: [android, iphone, ipad]
     since:
@@ -550,7 +549,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ALAW
-    summary: Audio format 8-bit aLaw encoding.
+    summary: Audio format 8-bit [aLaw encoding](https://en.wikipedia.org/wiki/A-law_algorithm).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -560,7 +559,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ILBC
-    summary: Audio format iLBC encoding.
+    summary: Audio format [iLBC encoding](https://en.wikipedia.org/wiki/Internet_Low_Bitrate_Codec).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -570,12 +569,12 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_LINEAR_PCM
-    summary: Audio format 16-bit, linear PCM encoding.
+    summary: Audio format 16-bit, [linear PCM encoding](https://en.wikipedia.org/wiki/Pulse-code_modulation).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ULAW
-    summary: Audio format 8-bit muLaw encoding.
+    summary: Audio format 8-bit [muLaw encoding](https://en.wikipedia.org/wiki/M-law_algorithm).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -1136,14 +1135,16 @@ properties:
         Desktop using Image Capture; they are likely to be too large for transfer using Wi-Fi.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_LOW
     summary: Media type constant for low-quality video recording.
     description: |
         Recorded files can usually be transferred over the cellular network.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_MEDIUM
     summary: Media type constant for medium-quality video recording.
     description: |
@@ -1159,14 +1160,15 @@ properties:
         of 640x480).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
   - name: QUALITY_IFRAME_1280x720
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 1280x720 iFrame format.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: 6.0.0
+    platforms: [iphone, ipad, android]
+    since: { android: "7.4.0", iphone: "6.0.0", ipad: "6.0.0" }
   - name: QUALITY_IFRAME_960x540
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 960x540 iFrame format.
@@ -1655,6 +1657,8 @@ properties:
     permission: read-only
   - name: volume
     summary: Current volume of the playback device.
+    description: |
+        A value in the range `0.0` to `1.0`, with `0.0` representing the minimum volume and `1.0` representing the maximum volume.
     type: Number
     platforms: [iphone, ipad]
     permission: read-only
@@ -1983,14 +1987,17 @@ properties:
     platforms: [iphone, ipad]
   - name: mediaTypes
     summary: |
-        Array of media type constants to allow. If you want to allow live photos with
-        <Titanium.Media.MEDIA_TYPE_LIVEPHOTO> on iOS 9.1 and later, you also need to specify
+        Array of media type constants to allow.
+
+        Live photos is only supported on the iOS platform, starting with iOS 9.1. If you want
+        to allow live photos with <Titanium.Media.MEDIA_TYPE_LIVEPHOTO>, you also need to specify
         at least <Titanium.Media.MEDIA_TYPE_PHOTO> as a fallback. If you do not allow live
-        photos, they still can be selected, but will be represented as a normal photo (static).
+        photos, they still can be selected, but will be represented as a normal static photo.
     type: Array<String>
     constants: Titanium.Media.MEDIA_TYPE_*
     default: Only photo and video allowed.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: { android: "7.3.0", iphone: "0.8", ipad: "0.8" }
   - name: popoverView
     summary: View to position the photo gallery popover on top of.
     type: Titanium.UI.View

@@ -481,7 +481,7 @@ class SimpleFileCache {
 	 */
 	persist() {
 		var dataToWrite = JSON.stringify(this.data);
-		if (!fs.exists(path.dirname(this.cachePathAndFilename))) {
+		if (!fs.existsSync(path.dirname(this.cachePathAndFilename))) {
 			wrench.mkdirSyncRecursive(path.dirname(this.cachePathAndFilename));
 		}
 		fs.writeFileSync(this.cachePathAndFilename, dataToWrite);

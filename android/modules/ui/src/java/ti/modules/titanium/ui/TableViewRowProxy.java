@@ -273,13 +273,14 @@ public class TableViewRowProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		super.releaseViews();
+
 		if (tableViewItem != null) {
 			tableViewItem.release();
 			tableViewItem = null;
 		}
 		if (controls != null) {
 			for (TiViewProxy control : controls) {
-				control.releaseViews();
+				control.releaseKroll();
 			}
 		}
 	}
