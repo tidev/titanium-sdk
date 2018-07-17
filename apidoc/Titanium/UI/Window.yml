@@ -1320,7 +1320,7 @@ description: |
     window with the get method.
 
     Note that for Alloy projects, you can simply pass the context as the second argument of the
-    Alloy.createController method, then retrieve the data with the special variable `arguments[0]`
+    Alloy.createController method, then retrieve the data with the special variable `$.args`
     in the controller code.
 
     `app/lib/foo.js`:
@@ -1377,8 +1377,7 @@ description: |
         // For Alloy projects, you can also pass in context
         // with the Alloy.createController method and retrieve
         // it in the controller code.
-        // var args = arguments[0] || {};
-        // $.label.text = args.foobar;
+        // $.label.text = $.args.foobar;
 
     ### Modal Windows
 
