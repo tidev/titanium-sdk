@@ -617,6 +617,10 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			view.release();
 			view = null;
 		}
+		releaseKroll();
+		if (runtimeHandler != null) {
+			runtimeHandler = null;
+		}
 		setModelListener(null);
 		KrollRuntime.suggestGC();
 	}
