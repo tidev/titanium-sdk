@@ -1077,7 +1077,7 @@ properties:
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_DAY
-    summary: Specifies the expectation of a card expectation day.
+    summary: Specifies the expectation of a card expiration day.
     type: String
     platforms: [android]
     since: "6.3.0"
@@ -1085,7 +1085,7 @@ properties:
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_MONTH
-    summary: Specifies the expectation of a card expectation month.
+    summary: Specifies the expectation of a card expiration month.
     type: String
     platforms: [android]
     since: "6.3.0"
@@ -1093,11 +1093,27 @@ properties:
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_YEAR
-    summary: Specifies the expectation of a card expectation year.
+    summary: Specifies the expectation of a card expiration year.
     type: String
     platforms: [android]
     since: "6.3.0"
     osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_NEW_PASSWORD
+    summary: Specifies the expectation of a new password.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    osver: { ios: { min: "12.0" } }
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ONE_TIME_CODE
+    summary: Specifies the expectation of a single-factor SMS login code.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    osver: { ios: { min: "12.0" } }
     permission: read-only
 
   - name: AUTOLINK_MAP_ADDRESSES
