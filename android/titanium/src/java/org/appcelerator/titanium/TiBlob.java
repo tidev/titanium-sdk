@@ -787,7 +787,7 @@ public class TiBlob extends KrollProxy
 
 		try {
 			bos = new ByteArrayOutputStream();
-			if (image.compress(CompressFormat.JPEG, (int) (quality * 100), bos)) {
+			if (img.compress(CompressFormat.JPEG, (int) (quality * 100), bos)) {
 				byte[] data = bos.toByteArray();
 
 				BitmapFactory.Options bfOptions = new BitmapFactory.Options();
