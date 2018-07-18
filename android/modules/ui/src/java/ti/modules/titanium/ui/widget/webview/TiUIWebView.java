@@ -334,6 +334,20 @@ public class TiUIWebView extends TiUIView
 			settings.setAppCachePath(cacheDir.getAbsolutePath());
 		}
 
+		// mixed content mode, allow HTTP resource requests from HTTPS page
+		boolean mixedContentMode = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_MIXED_CONTENT_MODE), false);
+		if (mixedContentMode) {
+			// use reflection for compatiblity with Android 4.3 and below
+			try {
+				Method mixedContentModeMethod = WebSettings.class.getMethod("setMixedContentMode", int.class);
+				if (mixedContentModeMethod != null) {
+					mixedContentModeMethod.invoke(settings, 0); // MIXED_CONTENT_ALWAYS_ALLOW
+				}
+			} catch (Exception ex) {
+				// ignore...
+			}
+		}
+
 		// enable zoom controls by default
 		boolean enableZoom = true;
 
