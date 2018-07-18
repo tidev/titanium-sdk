@@ -2451,7 +2451,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 		// if running on Xcode < 10, do not use the new build system by default
 		this.useNewBuildSystem = false;
 	} else if (this.tiapp.ios.hasOwnProperty('use-new-build-system')) {
-		// if explicitely set via tiapp.xml, go with that one
+		// if explicitly set via tiapp.xml, go with that one
 		this.useNewBuildSystem = this.tiapp.ios['use-new-build-system'];
 	} else {
 		// if not set and Xcode >= 10, use the new build system
@@ -6554,14 +6554,11 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.sanitizedAppName(),
 		'-derivedDataPath', path.join(this.buildDir, 'DerivedData'),
+		'-UseNewBuildSystem', this.useNewBuildSystem ? 'YES' : 'NO',
 		'OBJROOT=' + path.join(this.buildDir, 'build', 'Intermediates'),
 		'SHARED_PRECOMPS_DIR=' + path.join(this.buildDir, 'build', 'Intermediates', 'PrecompiledHeaders'),
 		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products'),
 	];
-
-	if (!this.useNewBuildSystem) {
-		args.push('-UseNewBuildSystem=NO');
-	}
 
 	if (this.simHandle) {
 		// when building for the simulator, we need to specify a destination and a scheme (above)
