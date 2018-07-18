@@ -134,4 +134,16 @@ public final class ReferenceTable
 		}
 		return ref;
 	}
+
+	/**
+	 * Determines if the reference is strong
+	 *
+	 * @param key the key for the reference.
+	 * @return returns true if the reference is strong
+	 */
+	public static boolean isStrongReference(long key)
+	{
+		Object ref = getReference(key);
+		return !(ref instanceof WeakReference || ref instanceof SoftReference);
+	}
 }
