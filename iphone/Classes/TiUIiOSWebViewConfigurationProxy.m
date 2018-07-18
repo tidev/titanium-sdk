@@ -7,8 +7,6 @@
 
 #ifdef USE_TI_UIWEBVIEW
 
-#import <WebKit/WebKit.h>
-
 #import "TiUIiOSWebViewConfigurationProxy.h"
 #import "TiUIiOSWebViewProcessPoolProxy.h"
 #import "TiUtils.h"

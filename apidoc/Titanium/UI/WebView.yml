@@ -295,7 +295,6 @@ methods:
     summary: Takes a snapshot of the view's visible viewport.      
     platforms: [iphone, ipad]
     since: "8.0.0"
-    osver: {ios: {min: "11.0"}}
     parameters:
       - name: callback
         summary: Function to call upon snapshot captured.
@@ -352,7 +351,7 @@ methods:
     summary: |
         An object which maintains a list of visited pages used to go back and forward to the most recent page.     
     platforms: [iphone, ipad]
-    since: "7.4.0"
+    since: "8.0.0"
     returns:
         type: BackForwardList
 
