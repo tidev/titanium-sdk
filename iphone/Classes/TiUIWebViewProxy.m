@@ -437,27 +437,34 @@
 
   // If no argument is passed, return in sync (NOT recommended)
   if (callback == nil) {
-    return [self evalJSSync:@[ code ]];
+    __block id result = nil;
+    TiThreadPerformOnMainThread(^{
+      result = [[self evalJSSync:@[ code ]] retain];
+    },
+        YES);
+    return [result autorelease];
   }
 
-  [[[self webView] webView] evaluateJavaScript:code
-                             completionHandler:^(id result, NSError *error) {
-                               if (!callback) {
-                                 return;
-                               }
+  TiThreadPerformOnMainThread(^{
+    [[[self webView] webView] evaluateJavaScript:code
+                               completionHandler:^(id result, NSError *error) {
+                                 if (!callback) {
+                                   return;
+                                 }
 
-                               NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
-                                 @"result" : result ?: [NSNull null],
-                                 @"success" : NUMBOOL(error == nil)
+                                 NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
+                                   @"result" : result ?: [NSNull null],
+                                   @"success" : NUMBOOL(error == nil)
+                                 }];
+
+                                 if (error) {
+                                   [event setObject:[error localizedDescription] forKey:@"error"];
+                                 }
+
+                                 [callback call:[[NSArray alloc] initWithObjects:&event count:1] thisObject:self];
                                }];
-
-                               if (error) {
-                                 [event setObject:[error localizedDescription] forKey:@"error"];
-                               }
-
-                               [callback call:[[NSArray alloc] initWithObjects:&event count:1] thisObject:self];
-                             }];
-
+  },
+      NO);
   return nil;
 }
 

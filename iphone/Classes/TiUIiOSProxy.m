@@ -98,10 +98,10 @@
 #endif
 
 #ifdef USE_TI_UIWEBVIEW
-#import <WebKit/WebKit.h>
 #import "TiUIiOSWebViewConfigurationProxy.h"
-#import "TiUIiOSWebViewProcessPoolProxy.h"
 #import "TiUIiOSWebViewDecisionHandlerProxy.h"
+#import "TiUIiOSWebViewProcessPoolProxy.h"
+#import <WebKit/WebKit.h>
 #endif
 
 @implementation TiUIiOSProxy
@@ -818,11 +818,6 @@ MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_NEVER, UINavigationItemLargeTitleDispl
 - (id)createWebViewProcessPool:(id)args
 {
   return [[[TiUIiOSWebViewProcessPoolProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-
-- (id)createWebViewDecisionHandler:(id)args
-{
-  return [[[TiUIiOSWebViewDecisionHandlerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
 MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_NONE, NSURLCredentialPersistenceNone);
