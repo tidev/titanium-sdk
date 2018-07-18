@@ -1320,7 +1320,7 @@ description: |
     window with the get method.
 
     Note that for Alloy projects, you can simply pass the context as the second argument of the
-    Alloy.createController method, then retrieve the data with the special variable `arguments[0]`
+    Alloy.createController method, then retrieve the data with the special variable `$.args`
     in the controller code.
 
     `app/lib/foo.js`:
@@ -1377,8 +1377,7 @@ description: |
         // For Alloy projects, you can also pass in context
         // with the Alloy.createController method and retrieve
         // it in the controller code.
-        // var args = arguments[0] || {};
-        // $.label.text = args.foobar;
+        // $.label.text = $.args.foobar;
 
     ### Modal Windows
 
@@ -1813,7 +1812,7 @@ properties:
         On Android, before Titanium 3.2.0, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description
         of Titanium.UI.Window for more information.
-        On Windows Phone 8.1 and Windows 10 Mobile, this property does not take any effect.
+        On Windows Phone and Windows 10 Mobile, this property does not take any effect.
         On Windows 10 Store App, resizing Window takes no effect in following cases
         according to [Windows Runtime API document](https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.viewmanagement.applicationview.tryresizeview).
         * The requested size is larger than the available work area.
@@ -1888,7 +1887,7 @@ properties:
         On Android, before Titanium 3.2.0, this property only works with lightweight windows.
         See "Android Heavyweight and Lightweight Windows" in the main description
         of Titanium.UI.Window for more information.
-        On Windows Phone 8.1 and Windows 10 Mobile, this property does not take any effect.
+        On Windows Phone and Windows 10 Mobile, this property does not take any effect.
         On Windows 10 Store App, resizing Window takes no effect in following cases
         according to [Windows Runtime API document](https://msdn.microsoft.com/en-us/library/windows/apps/windows.ui.viewmanagement.applicationview.tryresizeview).
         * The requested size is larger than the available work area.

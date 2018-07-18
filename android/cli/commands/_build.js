@@ -4406,7 +4406,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 	this.logger.info(__('Creating unsigned apk'));
 
 	// merge files from the app.ap_ file as well as all titanium and 3rd party jar files
-	const archives = [this.ap_File].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+	const archives = [ this.ap_File ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
 
 	archives.forEach(function (file) {
 		const src = new AdmZip(file),

@@ -975,6 +975,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                                            @(statusCode), @"statusCode",
                                                            nil];
       [dict addEntriesFromDictionary:successResponse];
+      RELEASE_TO_NIL(responseText);
     }
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];
