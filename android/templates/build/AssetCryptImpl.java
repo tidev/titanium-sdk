@@ -3,6 +3,8 @@ package <%- appid %>;
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.CharBuffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -29,7 +31,32 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 
 	<%- encryptedAssets %>
 
+	@Override
+	public InputStream openAsset(String path)
+	{
+		byte[] bytes = fetchFilteredAssetBytes(path);
+		if (bytes == null) {
+			return null;
+		}
+		return new ByteArrayInputStream(bytes);
+	}
+
+	@Override
 	public String readAsset(String path)
+	{
+		byte[] bytes = fetchFilteredAssetBytes(path);
+		if (bytes == null) {
+			return null;
+		}
+		return new String(bytes);
+	}
+
+	@Override
+	public Collection<String> getAssetPaths() {
+		return assets.keySet();
+	}
+
+	private static byte[] fetchFilteredAssetBytes(String path)
 	{
 		TiApplication application = TiApplication.getInstance();
 		boolean isProduction = false;
@@ -46,11 +73,8 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 		if (range == null) {
 			return null;
 		}
-		return new String(filterDataInRange(assetsBytes, range.offset, range.length));
-	}
 
-	public Collection<String> getAssetPaths() {
-		return assets.keySet();
+		return filterDataInRange(assetsBytes, range.offset, range.length);
 	}
 
 	private static byte[] filterDataInRange(byte[] data, int offset, int length)

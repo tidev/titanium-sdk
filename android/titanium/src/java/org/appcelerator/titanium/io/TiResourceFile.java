@@ -68,12 +68,8 @@ public class TiResourceFile extends TiBaseFile
 	@Override
 	public InputStream getInputStream() throws IOException
 	{
-		Context context = TiApplication.getInstance();
-		if (context != null) {
-			String p = TiFileHelper2.joinSegments("Resources", path);
-			return context.getAssets().open(p);
-		}
-		return null;
+		String resourcePath = TiFileHelper2.getResourcesPath(this.path);
+		return KrollAssetHelper.openAsset(resourcePath);
 	}
 
 	@Override

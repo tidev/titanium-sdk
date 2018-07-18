@@ -37,6 +37,7 @@ public class KrollAssetHelper
 	private static DirectoryListingMap encrpytedDirectoryListingMap = new DirectoryListingMap(256);
 
 	public interface AssetCrypt {
+		InputStream openAsset(String path);
 		String readAsset(String path);
 		Collection<String> getAssetPaths();
 	}
@@ -111,6 +112,39 @@ public class KrollAssetHelper
 			}
 			Log.e(TAG, "Failed to fetch APK asset entries. Reason: " + message);
 		}
+	}
+
+	public static InputStream openAsset(String path)
+	{
+		// Validate argument.
+		if ((path == null) || path.isEmpty()) {
+			return null;
+		}
+
+		// First, attempt to open it as a Titanium encrypted asset.
+		if (assetCrypt != null) {
+			InputStream stream = assetCrypt.openAsset(normalizeAssetCryptPath(path));
+			if (stream != null) {
+				return stream;
+			}
+		}
+
+		// Next, try to open it from APK's "assets" folder.
+		try {
+			if (assetManager != null) {
+				InputStream stream = assetManager.open(path);
+				if (stream != null) {
+					return stream;
+				}
+			} else {
+				Log.e(TAG, "AssetManager is null, can't open asset: " + path);
+			}
+		} catch (Exception ex) {
+			Log.e(TAG, "Error while opening asset \"" + path + "\":", ex);
+		}
+
+		// Failed to find given asset.
+		return null;
 	}
 
 	public static String readAsset(String path)
