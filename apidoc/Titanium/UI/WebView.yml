@@ -608,6 +608,13 @@ properties:
     since: "1.8.0"
     default: true
 
+  - name: mixedContentMode
+    summary: If `true`, allows the loading of insecure resources from a secure origin.
+    type: Boolean
+    platforms: [android]
+    since: "7.4.0"
+    default: false
+
   - name: scalesPageToFit
     summary: If `true`, scale contents to fit the web view.
     description: |
