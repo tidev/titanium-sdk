@@ -560,10 +560,10 @@ properties:
   - name: onlink
     summary: Fired before navigating to a link.
     description: |
-        Android only. The callback will be called before navigating to the link. The Boolean return value of the
-        callback will determine if the link will be navigated.
-    type: Callback<Boolean>
-    platforms: [android]
+        The callback will be called before navigating to the link. The Boolean return value of the
+        callback will determine if the link will be navigated or discarded.
+    type: Callback<OnLinkURLResponse>
+    platforms: [iphone, ipad, android]
     since: "7.4.0"
 
   - name: overScrollMode
@@ -756,7 +756,8 @@ examples:
 ---
 name: OnLinkURLResponse
 summary: An object returned when the <Titanium.UI.WebView.onlink> callback is fired.
+platforms: [iphone, ipad, android]
 properties:
   - name: url
-    summary: The url of the link.
+    summary: The url of the link that should be navigated to.
     type: String
