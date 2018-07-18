@@ -116,7 +116,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
 - (void)setHandlePlatformUrl_:(id)arg
 {
-  DEPRECATED_REPLACED(@"UI.WebView.handlePlatformUrl", @"7.4.0", @"UI.WebView.allowedURLSchemes in conjuction with UI.WebView.handleurl event");
+  DEPRECATED_REPLACED(@"UI.WebView.handlePlatformUrl", @"8.0.0", @"Use UI.WebView.allowedURLSchemes in conjuction with UI.WebView.handleurl event");
 }
 
 - (void)setZoomLevel_:(id)zoomLevel
@@ -261,13 +261,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [[self webView] setCustomUserAgent:[TiUtils stringValue:value]];
 }
 
-- (void)setDisableZoom_:(id)value
+- (void)setEnableZoomControls_:(id)value
 {
   ENSURE_TYPE(value, NSNumber);
 
-  BOOL disableZoom = [TiUtils boolValue:value];
+  BOOL enableZoom = [TiUtils boolValue:value def:YES];
 
-  if (disableZoom) {
+  if (!enableZoom) {
     WKUserContentController *controller = [[[self webView] configuration] userContentController];
     [controller addUserScript:[self userScriptDisableZoom]];
   }
@@ -278,9 +278,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   ENSURE_TYPE(value, NSNumber);
 
   BOOL scalesPageToFit = [TiUtils boolValue:value];
-  BOOL disableZoom = [TiUtils boolValue:[[self proxy] valueForKey:@"disableZoom"]];
+  BOOL enableZoom = [TiUtils boolValue:[[self proxy] valueForKey:@"enableZoomControls"] def:YES];
 
-  if (scalesPageToFit && !disableZoom) {
+  if (scalesPageToFit && enableZoom) {
     WKUserContentController *controller = [[[self webView] configuration] userContentController];
     [controller addUserScript:[self userScriptScalesPageToFit]];
   }

@@ -1952,6 +1952,166 @@ properties:
     since: "6.0.0"
     default: Undefined (Uses the native defaults)
 
+  - name: CREDENTIAL_PERSISTENCE_NONE
+    summary: Credential should not be stored.
+    description: |
+        Use with <Titanium.UI.WebView.basicAuthentication.persistence>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CREDENTIAL_PERSISTENCE_FOR_SESSION
+    summary: Credential should be stored only for this session.
+    description: |
+        Use with <Titanium.UI.WebView.basicAuthentication.persistence>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CREDENTIAL_PERSISTENCE_PERMANENT
+    summary: Credential should be stored in the keychain.
+    description: |
+        Use with <Titanium.UI.WebView.basicAuthentication.persistence>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CREDENTIAL_PERSISTENCE_SYNCHRONIZABLE
+    summary: |
+        Credential should be stored permanently in the keychain, and in addition should be 
+        distributed to other devices based on the owning AppleID.
+    description: |
+        Use with <Titanium.UI.WebView.basicAuthentication.persistence>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: AUDIOVISUAL_MEDIA_TYPE_NONE
+    summary: No media types require a user gesture to begin playing.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewConfiguration.mediaTypesRequiringUserActionForPlayback>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: AUDIOVISUAL_MEDIA_TYPE_AUDIO
+    summary: Media types containing audio require a user gesture to begin playing.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewConfiguration.mediaTypesRequiringUserActionForPlayback>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: AUDIOVISUAL_MEDIA_TYPE_VIDEO
+    summary: Media types containing video require a user gesture to begin playing.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewConfiguration.mediaTypesRequiringUserActionForPlayback>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: AUDIOVISUAL_MEDIA_TYPE_ALL
+    summary: All media types require a user gesture to begin playing.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewConfiguration.mediaTypesRequiringUserActionForPlayback>
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CACHE_POLICY_USE_PROTOCOL_CACHE_POLICY
+    summary: |
+        Specifies that the caching logic defined in the protocol implementation, if any, 
+        is used for a particular URL load request.
+    description: |
+        Use with <Titanium.UI.WebView.cachePolicy>. This is the default policy for URL load requests.
+        If you are making HTTP or HTTPS byte-range requests, always use the 
+        <Titanium.UI.WebView.cachePolicy.CACHE_POLICY_RELOAD_IGNORING_LOCAL_CACHE_DATA> policy.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CACHE_POLICY_RELOAD_IGNORING_LOCAL_CACHE_DATA
+    summary: |
+        Specifies that the data for the URL load should be loaded from the originating source. 
+        No existing cache data should be used to satisfy a URL load request.
+    description: Use with <Titanium.UI.WebView.cachePolicy>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CACHE_POLICY_RETURN_CACHE_DATA_ELSE_LOAD
+    summary: |
+        Specifies that the existing cached data should be used to satisfy the request, 
+        regardless of its age or expiration date.
+    description: |
+        Use with <Titanium.UI.WebView.cachePolicy>. If there is no existing data in the cache 
+        corresponding the request, the data is loaded from the originating source.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: CACHE_POLICY_RETURN_CACHE_DATA_DONT_LOAD
+    summary: |
+        Specifies that the existing cache data should be used to satisfy a request, 
+        regardless of its age or expiration date.
+    description: |
+        Use with <Titanium.UI.WebView.cachePolicy>. If there is no existing data in the cache corresponding 
+        to a URL load request, no attempt is made to load the data from the originating source, and the load 
+        is considered to have failed. This constant specifies a behavior that is similar to an offline mode.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: SELECTION_GRANULARITY_DYNAMIC
+    summary: Selection granularity varies automatically depending on the selection.
+    description: |
+        Use with <Titanium.UI.WebView.selectionGranularity>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: SELECTION_GRANULARITY_CHARACTER
+    summary: Selection endpoints can be placed at any character boundary.
+    description: |
+        Use with <Titanium.UI.WebView.selectionGranularity>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: ACTION_POLICY_CANCEL
+    summary: Cancel the navigation.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewDecisionHandler.invoke>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: ACTION_POLICY_ALLOW
+    summary: Allow the navigation to continue.
+    description: |
+        Use with <Titanium.UI.iOS.WebViewDecisionHandler.invoke>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: INJECTION_TIME_DOCUMENT_START
+    summary: |
+        Inject the script after the document element is created, but before any other content is loaded.
+    description: |
+        Use with <Titanium.UI.WebView.addUserScript.injectionTime>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: INJECTION_TIME_DOCUMENT_END
+    summary: |
+        Inject the script after the document finishes loading, but before other subresources finish loading.
+    description: |
+        Use with <Titanium.UI.WebView.addUserScript.injectionTime>.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
 ---
 name: transitionAnimationParam
 summary: |

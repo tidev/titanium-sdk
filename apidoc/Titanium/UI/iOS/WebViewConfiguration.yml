@@ -1,54 +1,43 @@
 ---
-name: Titanium.UI.WebViewConfiguration
+name: Titanium.UI.iOS.WebViewConfiguration
 summary: A collection of properties used to initialize a web view.
 description: |
-    Use the <Titanium.UI.createWebViewConfiguration> method to create. Use it as parameter of <Titanium.UI.WebView.configuration>
+    Use the <Titanium.UI.iOS.createWebViewConfiguration> method to create and use as a parameter of <Titanium.UI.WebView.configuration>.
     Using this you can determine how soon a webpage is rendered, how media playback is handled, the granularity of items that the 
     user can select, and many other options. This property can only be set when creating the webview and will be ignored when set afterwards.
 
-    E.g.
+    See the example section "Usage of WebViewConfiguration with WebView in iOS".
 
-    var config = Ti.UI.createWebViewConfiguration({
-        allowsPictureInPictureMediaPlaback: true
-    });
-
-    var webView = WK.createWebView({
-        configuration: config
-    });
 
 extends: Titanium.Proxy
-since: "7.4.0"
+since: "8.0.0"
 platforms: [iphone, ipad]
 
 properties:
 
   - name: preferences
     summary: The preference settings to be used by the web view.
-    type: PreferencesObject
-    platforms: [iphone, ipad]
+    type: WebViewPreferencesObject
 
   - name: selectionGranularity
     summary: |
         The level of granularity with which the user can interactively select content in the web view.
     type: Number
-    platforms: [iphone, ipad]
-    constants: Titanium.UI.SELECTION_GRANULARITY_*
-    default: Titanium.UI.SELECTION_GRANULARITY_DYNAMIC
+    constants: Titanium.UI.iOS.SELECTION_GRANULARITY_*
+    default: Titanium.UI.iOS.SELECTION_GRANULARITY_DYNAMIC
 
   - name: mediaTypesRequiringUserActionForPlayback
     summary: Determines which media types require a user gesture to begin playing.
     type: Number
-    constants: Titanium.UI.AUDIOVISUAL_MEDIA_TYPE_*
+    constants: Titanium.UI.iOS.AUDIOVISUAL_MEDIA_TYPE_*
     osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]
-    default: Titanium.UI.AUDIOVISUAL_MEDIA_TYPE_NONE
+    default: Titanium.UI.iOS.AUDIOVISUAL_MEDIA_TYPE_NONE
 
   - name: suppressesIncrementalRendering
     summary: |
         A Boolean value indicating whether the web view suppresses content rendering until it is fully 
         loaded into memory.
     type: Boolean
-    platforms: [iphone, ipad]
     default: false
 
   - name: allowsInlineMediaPlayback
@@ -60,19 +49,16 @@ properties:
         to a HTML document on the iPhone, you must also include the playsinline attribute.
         The default value for iPhone is false and the default value for iPad is true.
     type: Boolean
-    platforms: [iphone, ipad]
     default: For iPhone false and for iPad true.
 
   - name: allowsAirPlayMediaPlayback
     summary: A Boolean value indicating whether AirPlay is allowed.
     type: Boolean
-    platforms: [iphone, ipad]
     default: true
 
   - name: allowsPictureInPictureMediaPlayback
     summary: A Boolean value indicating whether HTML5 videos can play picture-in-picture.
     type: Boolean
-    platforms: [iphone, ipad]
     default: true
 
   - name: processPool
@@ -80,14 +66,14 @@ properties:
     description: |
         When a web view is initialized, either a new web content process is created for it from the 
         specified pool or an existing process in that pool is used.
-    type: Titanium.UI.WebViewProcessPool
+    type: Titanium.UI.iOS.WebViewProcessPool
     platforms: [iphone, ipad]
 
 ---
-name: PreferencesObject
-summary: The parameter passed to the <Titanium.UI.WebViewConfiguration.preferences> method.
+name: WebViewPreferencesObject
+summary: The parameter passed to the <Titanium.UI.iOS.WebViewConfiguration.preferences> method.
 platforms: [iphone, ipad]
-since: "7.4.0"
+since: "8.0.0"
 properties:
   - name: minimumFontSize
     summary: The minimum font size in points.
@@ -105,3 +91,25 @@ properties:
         A Boolean value indicating whether JavaScript can open windows without user interaction.
     type: Boolean
     default: false
+
+examples:
+  - title: Usage of WebViewConfiguration with WebView in iOS
+    example:  |
+        Creates a configuration object and use it as property of webview.
+        
+            var config = Ti.UI.iOS.createWebViewConfiguration({ 
+                allowsPictureInPictureMediaPlayback: true,
+                preferences: { 
+                    minimumFontSize : 20,
+                }, 
+            });
+
+            var webView = Ti.UI.createWebView({
+                configuration: config,
+                url: 'https://www.google.com'
+            });
+            var window = Ti.UI.createWindow();
+            window.add(webView);
+            window.open();
+
+
