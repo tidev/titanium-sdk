@@ -2692,9 +2692,9 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
-		// check if the deployType flag has changed
+		// check if the deployType changed
 		if (this.deployType !== manifest.deployType) {
-			this.logger.info(__('Forcing rebuild: deployType flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: deployType changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.deployType));
 			this.logger.info('  ' + __('Now: %s', this.deployType));
 			return true;
