@@ -14,16 +14,25 @@
 - (id)_initWithPageContext:(id<TiEvaluator>)context andDecisionHandler:(nonnull void (^)(WKNavigationActionPolicy))decisionHandler
 {
   if (self = [super _initWithPageContext:pageContext]) {
-    _decisionHandler = decisionHandler;
+    _decisionHandler = [decisionHandler retain];
   }
-
+  
   return self;
+}
+
+- (void)dealloc
+{
+  RELEASE_TO_NIL(_decisionHandler);
+  [super dealloc];
 }
 
 - (void)invoke:(id)value
 {
   ENSURE_SINGLE_ARG(value, NSNumber);
-  _decisionHandler([TiUtils intValue:value]);
+  TiThreadPerformOnMainThread(^{
+    _decisionHandler([TiUtils intValue:value]);
+  },
+                              NO);
 }
 
 @end

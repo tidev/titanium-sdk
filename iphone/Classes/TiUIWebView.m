@@ -10,9 +10,9 @@
 #import "SBJSON.h"
 #import "TiApp.h"
 #import "TiFilesystemFileProxy.h"
+#import "TiUIWebViewProxy.h"
 #import "TiUIiOSWebViewConfigurationProxy.h"
 #import "TiUIiOSWebViewDecisionHandlerProxy.h"
-#import "TiUIWebViewProxy.h"
 #import "Webcolor.h"
 
 #import <objc/runtime.h>
@@ -767,11 +767,14 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
       // Event to return url to Titanium in order to handle OAuth and more
       if ([[self proxy] _hasListeners:@"handleurl"]) {
-        [[self proxy] fireEvent:@"handleurl"
-                     withObject:@{
-                       @"url" : [TiUtils stringValue:[[navigationAction request] URL]],
-                       @"handler" : [[[TiUIiOSWebViewDecisionHandlerProxy alloc] _initWithPageContext:[[self proxy] pageContext] andDecisionHandler:decisionHandler] autorelease]
-                     }];
+        TiThreadPerformOnMainThread(^{
+          [[self proxy] fireEvent:@"handleurl"
+                       withObject:@{
+                         @"url" : [TiUtils stringValue:[[navigationAction request] URL]],
+                         @"handler" : [[[TiUIiOSWebViewDecisionHandlerProxy alloc] _initWithPageContext:[[self proxy] pageContext] andDecisionHandler:decisionHandler] autorelease]
+                       }];
+        },
+            NO);
       } else {
         // DEPRECATED: Should use the "handleurl" event instead and call openURL on Ti.Platform.openURL instead
         DebugLog(@"[WARN] Please use the \"handleurl\" event together with \"allowedURLSchemes\" in Ti.UI.WebView.");
