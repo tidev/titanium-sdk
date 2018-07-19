@@ -6562,7 +6562,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.sanitizedAppName(),
 		'-derivedDataPath', path.join(this.buildDir, 'DerivedData'),
-		'-UseNewBuildSystem', this.useNewBuildSystem ? 'YES' : 'NO',
+		'-UseNewBuildSystem=' + this.useNewBuildSystem ? 'YES' : 'NO',
 		'OBJROOT=' + path.join(this.buildDir, 'build', 'Intermediates'),
 		'SHARED_PRECOMPS_DIR=' + path.join(this.buildDir, 'build', 'Intermediates', 'PrecompiledHeaders'),
 		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products'),
