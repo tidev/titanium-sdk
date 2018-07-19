@@ -16,7 +16,7 @@
   if (self = [super _initWithPageContext:pageContext]) {
     _decisionHandler = [decisionHandler retain];
   }
-  
+
   return self;
 }
 
@@ -32,7 +32,7 @@
   TiThreadPerformOnMainThread(^{
     _decisionHandler([TiUtils intValue:value]);
   },
-                              NO);
+      NO);
 }
 
 @end
