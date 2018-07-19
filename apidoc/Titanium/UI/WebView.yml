@@ -610,10 +610,12 @@ properties:
 
   - name: mixedContentMode
     summary: If `true`, allows the loading of insecure resources from a secure origin.
+    description: On iOS this functionality can be set in the tiapp.xml using `NSAllowsArbitraryLoads`.
     type: Boolean
     platforms: [android]
     since: "7.4.0"
     default: false
+    availability: creation
 
   - name: scalesPageToFit
     summary: If `true`, scale contents to fit the web view.
