@@ -66,7 +66,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     NSUInteger exceptionStackTraceLength = [exceptionStackTrace count];
 
     // re-size stack trace and format results. Starting at index = 4 to not include the script-error API's
-    for (NSInteger i = 4; i <= (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
+    for (NSInteger i = 4; i < (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
       NSString *line = [[exceptionStackTrace objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
       [formattedStackTrace addObject:line];
     }
