@@ -62,7 +62,8 @@
 			<#local signature>
 				<@getMethodSignature method.args, method.returnType, false/>
 			</#local>
-			<#nested methodName_index==0, methodName, method, signature, methodName_has_next>
+			<#local isDynamic = isDynamicProperty(methodName)>
+			<#nested methodName_index==0, methodName, method, signature, isDynamic, methodName_has_next>
 		</#list>
 	</#if>
 </#macro>
