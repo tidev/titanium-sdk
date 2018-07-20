@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -53,36 +53,35 @@ NSDictionary *TiBindingTiValueToNSDictionary(JSContextRef jsContext, JSValueRef 
 
   // if this looks like a JS Error object, get the message
   if ([dict objectForKey:@"line"] != nil && [dict objectForKey:@"column"] != nil) {
-    JSStringRef prop = JSStringCreateWithUTF8CString("message");
-    JSValueRef val = JSObjectGetProperty(jsContext, obj, prop, NULL);
-    id value = TiBindingTiValueToNSObject(jsContext, val);
-    if (value && ![value isEqual:[NSNull null]]) {
-      [dict setObject:value forKey:@"message"];
+    JSStringRef messageKeyRef = JSStringCreateWithUTF8CString("message");
+    JSStringRef stackKeyRef = JSStringCreateWithUTF8CString("stack");
+    JSValueRef messageRef = JSObjectGetProperty(jsContext, obj, messageKeyRef, NULL);
+    JSValueRef stackRef = JSObjectGetProperty(jsContext, obj, stackKeyRef, NULL);
+
+    id message = TiBindingTiValueToNSObject(jsContext, messageRef);
+    if (message && ![message isEqual:[NSNull null]]) {
+      [dict setObject:message forKey:@"message"];
     }
-    JSStringRelease(prop);
+    JSStringRelease(messageKeyRef);
+
+    id stack = TiBindingTiValueToNSObject(jsContext, stackRef);
+    if (stack && ![stack isEqual:[NSNull null]]) {
+
+      // lets re-format the stack similar to node.js
+      stack = [stack stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"file://%@", [[NSBundle mainBundle] bundlePath]] withString:@"("];
+      stack = [stack stringByReplacingOccurrencesOfString:@"\n" withString:@")\n    at "];
+      stack = [stack stringByReplacingOccurrencesOfString:@"])" withString:@"]"];
+      stack = [stack stringByReplacingOccurrencesOfString:@"@(" withString:@"("];
+      stack = [NSString stringWithFormat:@"    at %@)", stack];
+
+      [dict setObject:stack forKey:@"stack"];
+    }
+    JSStringRelease(stackKeyRef);
   }
 
   JSPropertyNameArrayRelease(props);
 
   return [dict autorelease];
-}
-
-BOOL JSValueIsArray(JSContextRef js_context_ref, JSValueRef js_value_ref)
-{
-  JSStringRef property_name = JSStringCreateWithUTF8CString("Array");
-  JSObjectRef js_object_ref = (JSObjectRef)JSObjectGetProperty(js_context_ref, JSContextGetGlobalObject(js_context_ref), property_name, NULL);
-  JSStringRelease(property_name);
-  BOOL isArray = JSValueIsInstanceOfConstructor(js_context_ref, js_value_ref, js_object_ref, NULL);
-  return isArray;
-}
-
-BOOL JSValueIsDate(JSContextRef js_context_ref, JSValueRef js_value_ref)
-{
-  JSStringRef property_name = JSStringCreateWithUTF8CString("Date");
-  JSObjectRef js_object_ref = (JSObjectRef)JSObjectGetProperty(js_context_ref, JSContextGetGlobalObject(js_context_ref), property_name, NULL);
-  JSStringRelease(property_name);
-  BOOL isDate = JSValueIsInstanceOfConstructor(js_context_ref, js_value_ref, js_object_ref, NULL);
-  return isDate;
 }
 
 //
@@ -259,12 +258,16 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
   if ([obj isKindOfClass:[NSDictionary class]]) {
     return TiBindingTiValueFromNSDictionary(jsContext, (NSDictionary *)obj);
   }
+
+  // Handle native errors
   if ([obj isKindOfClass:[NSException class]]) {
     JSStringRef jsString = JSStringCreateWithCFString((CFStringRef)[(NSException *)obj reason]);
     JSValueRef result = JSValueMakeString(jsContext, jsString);
     JSStringRelease(jsString);
     JSObjectRef excObject = JSObjectMakeError(jsContext, 1, &result, NULL);
     NSDictionary *details = [(NSException *)obj userInfo];
+
+    // Add "nativeReason" key
     NSString *subreason = [details objectForKey:kTiExceptionSubreason];
     if (subreason != nil) {
       JSStringRef propertyName = JSStringCreateWithUTF8CString("nativeReason");
@@ -273,6 +276,27 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
       JSStringRelease(propertyName);
       JSStringRelease(valueString);
     }
+
+    // Add "nativeStack" key
+    NSArray<NSString *> *nativeStack = [(NSException *)obj callStackSymbols];
+    if (nativeStack != nil) {
+      NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
+      NSUInteger exceptionStackTraceLength = [nativeStack count];
+
+      // re-size stack trace and format results. Starting at index = 4 to not include the script-error API's
+      for (NSInteger i = 3; i < (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
+        NSString *line = [[nativeStack objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
+        [formattedStackTrace addObject:line];
+      }
+
+      TiStringRef propertyName = TiStringCreateWithUTF8CString("nativeStack");
+      TiStringRef valueString = TiStringCreateWithCFString((CFStringRef)[formattedStackTrace componentsJoinedByString:@"\n"]);
+      TiObjectSetProperty(jsContext, excObject, propertyName, TiValueMakeString(jsContext, valueString), kTiPropertyAttributeReadOnly, NULL);
+      TiStringRelease(propertyName);
+      TiStringRelease(valueString);
+    }
+
+    // Add "nativeLocation" key
     NSString *location = [details objectForKey:kTiExceptionLocation];
     if (location != nil) {
       JSStringRef propertyName = JSStringCreateWithUTF8CString("nativeLocation");

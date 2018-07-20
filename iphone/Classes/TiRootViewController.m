@@ -780,7 +780,7 @@
     topVC = [topVC presentingViewController];
   }
 
-  if ([topVC isKindOfClass:[TiErrorController class]]) {
+  if ([topVC isKindOfClass:[TiErrorNavigationController class]]) {
     DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
     return;
   }
@@ -788,7 +788,7 @@
   if ([topVC isKindOfClass:[UIAlertController class]]) {
     if (((UIAlertController *)topVC).preferredStyle == UIAlertControllerStyleAlert) {
       trulyAnimated = NO;
-      if (![theController isKindOfClass:[TiErrorController class]]) {
+      if (![theController isKindOfClass:[TiErrorNavigationController class]]) {
         DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
         return;
       }
@@ -1341,6 +1341,12 @@
     [self refreshOrientationWithDuration:nil];
     [self updateStatusBar];
   }
+
+#if IS_XCODE_9
+  if ([TiUtils isIOS11OrGreater]) {
+    [self setNeedsUpdateOfHomeIndicatorAutoHidden];
+  }
+#endif
 }
 
 - (void)setParentOrientationController:(id<TiOrientationController>)newParent
@@ -1468,6 +1474,18 @@
   }
   [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
+
+#pragma mark - HomeIndicatorAutoHidden
+
+#if IS_XCODE_9
+- (BOOL)prefersHomeIndicatorAutoHidden
+{
+  if ([containedWindows count] > 0) {
+    return [[containedWindows lastObject] homeIndicatorAutoHide];
+  }
+  return NO;
+}
+#endif
 
 #pragma mark - Status Bar Appearance
 - (BOOL)prefersStatusBarHidden

@@ -470,4 +470,4 @@ public @interface Kroll {
 	@Target({ ElementType.METHOD })
 	public static @interface interceptor {
 	}
-}
+	}

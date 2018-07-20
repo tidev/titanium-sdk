@@ -106,7 +106,7 @@ methods:
     returns:
         type: Boolean
     platforms: [android, iphone, ipad]
-    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.2.0" }
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.3.0" }
   - name: copy
     summary: Copies the file identified by this file object to a new path.
     description: Returns `true` if the copy succeeds.
@@ -117,7 +117,7 @@ methods:
     returns:
         type: Boolean
     platforms: [android, iphone, ipad]
-    since: { iphone: "7.2.0", ipad: "7.2.0", android: "0.9.0" }
+    since: { iphone: "7.3.0", ipad: "7.3.0", android: "0.9.0" }
   - name: createDirectory
     summary: Creates a directory at the path identified by this file object.
     description: |
@@ -129,7 +129,7 @@ methods:
         summary: |
           Only available on iOS. Toggles whether to recursively create the directory structure (like mkdir -p).
           Pass `false` to avoid recursively creating the directory.
-          Defaults to true on SDK 7.2.0+, defaults to false on older SDK versions.
+          Defaults to true on SDK 7.3.0+, defaults to false on older SDK versions.
         type: Boolean
         optional: true
         default: true
@@ -154,7 +154,7 @@ methods:
     returns:
         type: Number
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.Filesystem.File.createdAt> instead.
 
   - name: createdAt
@@ -164,7 +164,7 @@ methods:
     returns:
         type: Date
     platforms: [iphone, ipad, android]
-    since: { iphone: "7.2.0", ipad: "7.2.0", android: "7.2.0" }
+    since: { iphone: "7.3.0", ipad: "7.3.0", android: "7.3.0" }
 
   - name: deleteDirectory
     summary: Deletes the directory identified by this file object.
@@ -245,7 +245,7 @@ methods:
     returns:
         type: Number
     deprecated:
-        since: "7.2.0"
+        since: "7.3.0"
         notes: Use <Titanium.Filesystem.File.modifiedAt> instead.
   - name: modifiedAt
     summary: Returns the last modification Date for the file identified by this file object.
@@ -254,7 +254,7 @@ methods:
     returns:
         type: Date
     platforms: [iphone, ipad, android]
-    since: { iphone: "7.2.0", ipad: "7.2.0", android: "7.2.0" }
+    since: { iphone: "7.3.0", ipad: "7.3.0", android: "7.3.0" }
 
   - name: move
     summary: Moves the file identified by this file object to another path.

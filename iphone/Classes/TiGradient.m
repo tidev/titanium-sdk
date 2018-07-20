@@ -99,7 +99,10 @@
 - (void)setType:(id)newType
 {
   ENSURE_TYPE(newType, NSString);
+
   [self clearCache];
+  [self replaceValue:newType forKey:@"type" notification:NO];
+
   if ([newType compare:@"linear" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
     type = TiGradientTypeLinear;
     return;
@@ -120,6 +123,7 @@
   } else {
     [startPoint setValues:newStart];
   }
+  [self replaceValue:newStart forKey:@"startPoint" notification:NO];
 }
 
 - (void)setEndPoint:(id)newEnd
@@ -129,16 +133,29 @@
   } else {
     [endPoint setValues:newEnd];
   }
+  [self replaceValue:newEnd forKey:@"endPoint" notification:NO];
 }
 
 - (void)setStartRadius:(id)newRadius
 {
   startRadius = [TiUtils dimensionValue:newRadius];
+  [self replaceValue:newRadius forKey:@"startRadius" notification:NO];
 }
 
 - (void)setEndRadius:(id)newRadius
 {
   endRadius = [TiUtils dimensionValue:newRadius];
+  [self replaceValue:newRadius forKey:@"endRadius" notification:NO];
+}
+
+- (id)endRadius
+{
+  return [self valueForUndefinedKey:@"endRadius"];
+}
+
+- (id)startRadius
+{
+  return [self valueForUndefinedKey:@"startRadius"];
 }
 
 - (void)setColors:(NSArray *)newColors;
@@ -190,6 +207,7 @@
     currentIndex++;
   }
   [self clearCache];
+  [self replaceValue:newColors forKey:@"colors" notification:NO];
 }
 
 #define PYTHAG(bounds) sqrt(bounds.width *bounds.width + bounds.height * bounds.height) / 2

@@ -1,28 +1,22 @@
-Appcelerator Titanium Mobile Module Project
-===========================================
+# Appcelerator Titanium Mobile Module Project
 
 This is a skeleton Titanium Mobile Mobile module project.
 
-
-MODULE NAMING
--------------
+## Module Naming
 
 Choose a unique module id for your module.  This ID usually follows a namespace
 convention using DNS notation.  For example, com.appcelerator.module.test.  This
 ID can only be used once by all public modules in Titanium.
 
+## Getting Started
 
-GET STARTED
-------------
-
-1. Edit manifest with the appropriate details about your module.
-2. Edit LICENSE to add your license details.
+1. Edit the `manifest` with the appropriate details about your module.
+2. Edit the `LICENSE` to add your license details.
 3. Place any assets (such as PNG files) that are required anywhere in the module folder.
-4. Edit the timodule.json and configure desired settings.
+4. Edit the `timodule.xml` and configure desired settings.
 5. Code and build.
 
-
-DOCUMENTATION FOR YOUR MODULE
+## Documentation
 -----------------------------
 
 You should provide at least minimal documentation for your module in `documentation` folder using the Markdown syntax.
@@ -31,76 +25,83 @@ For more information on the Markdown syntax, refer to this documentation at:
 
 <http://daringfireball.net/projects/markdown/>
 
-
-TEST HARNESS EXAMPLE FOR YOUR MODULE
-------------------------------------
+## Example
 
 The `example` directory contains a skeleton application test harness that can be
 used for testing and providing an example of usage to the users of your module.
 
+## Building
 
-BUILDING YOUR MODULE
---------------------
+Simply run `appc run -p [ios|android] --build-only` which will compile and package your module.
 
-Simply run `titanium build --platform <name of platform> --build-type production --dir /path/to/module`.
-You can omit the --dir option if your working directory is in the module's project directory.
+## Linting
 
+You can use `clang` to lint your code. A default Axway linting style is included inside the module main folder.
+Run `clang-format -style=file -i SRC_FILE` in the module root to lint the `SRC_FILE`. You can also patterns,
+like `clang-format -style=file -i Classes/*` 
 
-INSTALL YOUR MODULE
--------------------
+## Install
 
-Mac OS X
---------
+To use your module locally inside an app you can copy the zip file into the app root folder and compile your app.
+The file will automatically be extracted and copied into the correct `modules/` folder.
+
+If you want to use your module globally in all your apps you have to do the following:
+
+### macOS
+
 Copy the distribution zip file into the `~/Library/Application Support/Titanium` folder
 
-Linux
------
+### Linux
+
 Copy the distribution zip file into the `~/.titanium` folder
 
-Windows
--------
+### Windows
 Copy the distribution zip file into the `C:\ProgramData\Titanium` folder
 
-
-REGISTER YOUR MODULE
---------------------
+## Project Usage
 
 Register your module with your application by editing `tiapp.xml` and adding your module.
 Example:
 
 <modules>
-	<module version="0.1"><%- moduleId %></module>
+  <module version="1.0.0"><%- moduleId %></module>
 </modules>
 
 When you run your project, the compiler will combine your module along with its dependencies
 and assets into the application.
 
-
-USING YOUR MODULE IN CODE
--------------------------
+## Example Usage
 
 To use your module in code, you will need to require it.
 
-For example,
+### ES6+ (recommended)
 
-	var my_module = require('<%- moduleId %>');
-	my_module.foo();
+```js
+import MyModule from '<%- moduleId %>';
+MyModule.foo();
+```
 
+### ES5
 
-TESTING YOUR MODULE
--------------------
+```js
+var MyModule = require('<%- moduleId %>');
+MyModule.foo();
+```
 
-To test with the script, execute:
+## Testing
 
-	titanium run --dir=YOURMODULEDIR
+To test your module with the example, use:
 
-This will execute the app.js in the example folder as a Titanium application.
+```js
+appc run -p [ios|android]
+```
 
+This will execute the app.js in the example/ folder as a Titanium application.
 
-DISTRIBUTING YOUR MODULE
--------------------------
+## Distribution
 
-You can choose to manually distribute your module distribution zip file or through the Titanium Marketplace!
+You have a variety of choises for distributing your module
+- [Gitt.io](http://gitt.io/)
+- [Axway Marketplace](https://marketplace.axway.com/home)
 
-
-Cheers!
+Code strong!

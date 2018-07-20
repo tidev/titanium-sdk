@@ -7,13 +7,18 @@
 
 #ifndef DebugLog
 #if defined(DEBUG) || defined(DEVELOPER)
-#define DebugLog(...) { NSLog(__VA_ARGS__); }
+#define DebugLog(...)   \
+  {                     \
+    NSLog(__VA_ARGS__); \
+  }
 #else
-#define DebugLog(...) {}
+#define DebugLog(...) \
+  {                   \
+  }
 #endif
 #endif
 
+#import "APSHTTPHelper.h"
+#import "APSHTTPPostForm.h"
 #import "APSHTTPRequest.h"
 #import "APSHTTPResponse.h"
-#import "APSHTTPPostForm.h"
-#import "APSHTTPHelper.h"

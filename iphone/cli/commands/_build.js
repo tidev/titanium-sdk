@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -106,9 +106,13 @@ function iOSBuilder() {
 	// object of all used Titanium symbols, used to determine preprocessor statements, e.g. USE_TI_UIWINDOW
 	this.tiSymbols = {};
 
+	// when true, uses the new build system (Xcode 9+)
+	this.useNewBuildSystem = true;
+
 	// when false, JavaScript will run on its own thread - the Kroll Thread
 	this.runOnMainThread = true;
 
+	// when true, uses the AutoLayout engine
 	this.useAutoLayout = false;
 
 	// populated the first time getDeviceInfo() is called
@@ -1931,12 +1935,16 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 				const xcodeInfo = this.iosInfo.xcode;
 
 				function sortXcodeIds(a, b) {
-					return xcodeInfo[a].selected || appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
+					// prioritize selected xcode
+					if (xcodeInfo[b].selected) {
+						return 1;
+					}
+					return appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
 				}
 
 				if (this.iosSdkVersion) {
 					// find the Xcode for this version
-					Object.keys(this.iosInfo.xcode).sort(sortXcodeIds).reverse().some(function (ver) {
+					Object.keys(this.iosInfo.xcode).sort(sortXcodeIds).some(function (ver) {
 						if (this.iosInfo.xcode[ver].sdks.indexOf(this.iosSdkVersion) !== -1) {
 							this.xcodeEnv = this.iosInfo.xcode[ver];
 							return true;
@@ -1949,9 +1957,8 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 						logger.error(__('Unable to find any Xcode installations that support iOS SDK %s.', this.iosSdkVersion) + '\n');
 						process.exit(1);
 					}
-				} else if (cli.argv.target === 'simulator' && !cli.argv['build-only']) {
-					// we'll let ioslib suggest an iOS version
-				} else { // device, dist-appstore, dist-adhoc
+
+				} else { // device, simulator, dist-appstore, dist-adhoc
 					Object.keys(xcodeInfo)
 						.filter(function (id) { return xcodeInfo[id].supported; })
 						.sort(sortXcodeIds)
@@ -2324,7 +2331,6 @@ iOSBuilder.prototype.doAnalytics = function doAnalytics() {
 	}
 
 	cli.addAnalyticsEvent(eventName, {
-		dir:         cli.argv['project-dir'],
 		name:        this.tiapp.name,
 		publisher:   this.tiapp.publisher,
 		url:         this.tiapp.url,
@@ -2376,7 +2382,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS;
 	this.currentBuildManifest.showErrorController          = this.showErrorController;
 
-	// Remove this check on 7.0.0
 	if (this.tiapp.ios && (this.tiapp.ios.hasOwnProperty('run-on-main-thread'))) {
 		this.logger.warn(__('run-on-main-thread no longer set in the <ios> section of the tiapp.xml. Use <property name="run-on-main-thread" type="bool">true</property> instead'));
 		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.ios['run-on-main-thread'] === true);
@@ -2424,6 +2429,17 @@ iOSBuilder.prototype.initialize = function initialize() {
 	if (!this.tiapp.ios['enable-launch-screen-storyboard'] || appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
 		this.enableLaunchScreenStoryboard = false;
 		this.defaultLaunchScreenStoryboard = false;
+	}
+
+	if (!this.tiapp.ios.hasOwnProperty('use-new-build-system') && appc.version.lt(this.xcodeEnv.version, '10.0.0')) {
+		// if running on Xcode < 10, do not use the new build system by default
+		this.useNewBuildSystem = false;
+	} else if (this.tiapp.ios.hasOwnProperty('use-new-build-system')) {
+		// if explicitly set via tiapp.xml, go with that one
+		this.useNewBuildSystem = this.tiapp.ios['use-new-build-system'];
+	} else {
+		// if not set and Xcode >= 10, use the new build system
+		this.useNewBuildSystem = true;
 	}
 
 	if (this.enableLaunchScreenStoryboard && (fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard')))) {
@@ -2675,6 +2691,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
+		// check if the deployType changed
+		if (this.deployType !== manifest.deployType) {
+			this.logger.info(__('Forcing rebuild: deployType changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.deployType));
+			this.logger.info('  ' + __('Now: %s', this.deployType));
+			return true;
+		}
+
 		// check if the titanium sdk version changed
 		if (fs.existsSync(this.xcodeProjectConfigFile)) {
 			// we have a previous build, see if the Titanium SDK changed
@@ -2800,7 +2824,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use RunOnMainThread flag has changed
 		if (this.runOnMainThread !== manifest.runOnMainThread) {
-			this.logger.info(__('Forcing rebuild: use RunOnMainThread flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: run-on-main-thread flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.runOnMainThread));
 			this.logger.info('  ' + __('Now: %s', this.runOnMainThread));
 			return true;
@@ -2808,7 +2832,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use UserAutoLayout flag has changed
 		if (this.useAutoLayout !== manifest.useAutoLayout) {
-			this.logger.info(__('Forcing rebuild: use UserAutoLayout flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: use-autolayout flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useAutoLayout));
 			this.logger.info('  ' + __('Now: %s', this.useAutoLayout));
 			return true;
@@ -2816,9 +2840,17 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use use-app-thinning flag has changed
 		if (this.useAppThinning !== manifest.useAppThinning) {
-			this.logger.info(__('Forcing rebuild: use use-app-thinning flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: use-app-thinning flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useAppThinning));
 			this.logger.info('  ' + __('Now: %s', this.useAppThinning));
+			return true;
+		}
+
+		// check if the use use-new-build-system flag has changed
+		if (this.useNewBuildSystem !== manifest.useNewBuildSystem) {
+			this.logger.info(__('Forcing rebuild: use-new-build-system flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.useNewBuildSystem));
+			this.logger.info('  ' + __('Now: %s', this.useNewBuildSystem));
 			return true;
 		}
 
@@ -2900,7 +2932,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	this.logger.info(__('Creating Xcode project'));
 
 	const appName = this.tiapp.name,
-		scrubbedAppName = appName.replace(/[-\W]/g, '_'),
+		scrubbedAppName = this.sanitizedAppName(),
 		srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj'),
 		contents = fs.readFileSync(srcFile).toString(),
 		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
@@ -4361,7 +4393,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 	this.logger.info(__('Copying Titanium iOS files'));
 
 	const nameChanged = !this.previousBuildManifest || this.tiapp.name !== this.previousBuildManifest.name,
-		name = this.tiapp.name.replace(/[-\W]/g, '_'),
+		name = this.sanitizedAppName(),
 		extRegExp = /\.(c|cpp|h|m|mm)$/,
 
 		// files to watch for while copying
@@ -4641,7 +4673,7 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 	}
 
 	const exe = this.xcodeEnv.executables.xcodebuild,
-		args = [ 'clean' ];
+		args = [ 'clean', '-scheme', this.sanitizedAppName() ];
 	let tries = 0,
 		lastErr = null,
 		done = false;
@@ -5443,7 +5475,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								const buf = [];
 								this.pack()
 									.on('data', function (bytes) {
-										buf.push(new Buffer(bytes)); // eslint-disable-line security/detect-new-buffer
+										buf.push(Buffer.from(bytes));
 									})
 									.on('end', function (err) {
 										if (err) {
@@ -5765,9 +5797,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
-									targets: {
-										ios: this.minSupportedIosSdk // Target our min ios version
-									},
+									resourcesDir: this.xcodeAppDir
 								};
 
 								try {
@@ -6481,11 +6511,12 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'archive' : 'build',
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
-		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),
+		'-scheme', this.sanitizedAppName(),
 		'-derivedDataPath', path.join(this.buildDir, 'DerivedData'),
+		'-UseNewBuildSystem=' + (this.useNewBuildSystem ? 'YES' : 'NO'),
 		'OBJROOT=' + path.join(this.buildDir, 'build', 'Intermediates'),
 		'SHARED_PRECOMPS_DIR=' + path.join(this.buildDir, 'build', 'Intermediates', 'PrecompiledHeaders'),
-		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products')
+		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products'),
 	];
 
 	if (this.simHandle) {
@@ -6518,6 +6549,15 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})(this.currentBuildManifest, next);
+};
+
+/**
+ * Returns the sanitized app name to replace invalid characters.
+ *
+ * @returns {String}
+ */
+iOSBuilder.prototype.sanitizedAppName = function sanitizedAppName() {
+	return this.tiapp.name.replace(/[-\W]/g, '_');
 };
 
 function sha1(value) {
