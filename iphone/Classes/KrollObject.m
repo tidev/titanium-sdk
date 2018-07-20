@@ -160,27 +160,27 @@ void KrollInitializer(JSContextRef ctx, JSObjectRef object)
   }
 }
 
-bool KrollHasProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef propertyName)
+bool KrollHasProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef propertyName)
 {
   waitForMemoryPanicCleared();
 
   // Debugger may actually try to get properties off global Kroll property (which is a special case KrollContext singleton)
-  id privateObject = (id)TiObjectGetPrivate(object);
+  id privateObject = (id)JSObjectGetPrivate(object);
   if ([privateObject isKindOfClass:[KrollContext class]]) {
     return false;
   }
 
-  if (TiStringIsEqual(propertyName, kTiStringTiPropertyKey)) {
+  if (JSStringIsEqual(propertyName, kTiStringTiPropertyKey)) {
     return false;
   }
 
   KrollObject *o = (KrollObject *)privateObject;
-  TiObjectRef exports = [o objectForTiString:kTiStringExportsKey context:jsContext];
-  if ((exports != NULL) && TiObjectHasProperty(jsContext, exports, propertyName)) {
+  JSObjectRef exports = [o objectForTiString:kTiStringExportsKey context:jsContext];
+  if ((exports != NULL) && JSObjectHasProperty(jsContext, exports, propertyName)) {
     return true;
   }
 
-  NSString *name = (NSString *)TiStringCopyCFString(kCFAllocatorDefault, propertyName);
+  NSString *name = (NSString *)JSStringCopyCFString(kCFAllocatorDefault, propertyName);
   [name autorelease];
   id result = [o valueForKey:name];
   if (result != nil) {

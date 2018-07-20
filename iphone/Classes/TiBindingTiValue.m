@@ -289,11 +289,11 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
         [formattedStackTrace addObject:line];
       }
 
-      TiStringRef propertyName = TiStringCreateWithUTF8CString("nativeStack");
-      TiStringRef valueString = TiStringCreateWithCFString((CFStringRef)[formattedStackTrace componentsJoinedByString:@"\n"]);
-      TiObjectSetProperty(jsContext, excObject, propertyName, TiValueMakeString(jsContext, valueString), kTiPropertyAttributeReadOnly, NULL);
-      TiStringRelease(propertyName);
-      TiStringRelease(valueString);
+      JSStringRef propertyName = JSStringCreateWithUTF8CString("nativeStack");
+      JSStringRef valueString = JSStringCreateWithCFString((CFStringRef)[formattedStackTrace componentsJoinedByString:@"\n"]);
+      JSObjectSetProperty(jsContext, excObject, propertyName, JSValueMakeString(jsContext, valueString), kJSPropertyAttributeReadOnly, NULL);
+      JSStringRelease(propertyName);
+      JSStringRelease(valueString);
     }
 
     // Add "nativeLocation" key
