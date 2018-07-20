@@ -411,7 +411,7 @@
   BOOL deep = [TiUtils boolValue:recursive];
 
   if (theNodeToImport != nil) {
-    xmlElementType type = [[theNodeToImport node] XMLNode] -> type;
+    xmlElementType type = [[theNodeToImport node] XMLNode]->type;
     if ((type == XML_DOCUMENT_NODE) || (type == XML_DOCUMENT_TYPE_NODE)) {
       [self throwException:@"document/documenttype nodes can not be imported" subreason:nil location:CODELOCATION];
       return nil;
