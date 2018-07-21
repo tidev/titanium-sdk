@@ -743,40 +743,17 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   }
 }
 
-#ifdef TI_USE_KROLL_THREAD
-- (NSString *)threadName
-{
-  return [NSString stringWithFormat:@"KrollContext<%@>", krollContextId];
-}
-#endif
 - (id)init
 {
   if (self = [super init]) {
 #if CONTEXT_MEMORY_DEBUG == 1
     NSLog(@"[DEBUG] INIT: %@", self);
 #endif
-#ifdef TI_USE_KROLL_THREAD
-    krollContextId = [[NSString stringWithFormat:@"kroll$%d", ++KrollContextIdCounter] copy];
-    condition = [[NSCondition alloc] init];
-    queue = [[NSMutableArray alloc] init];
-    lock = [[NSRecursiveLock alloc] init];
-    [lock setName:[NSString stringWithFormat:@"%@ Lock", [self threadName]]];
-    timerLock = [[NSRecursiveLock alloc] init];
-    NSString *timerName = [NSString stringWithFormat:@"%@ Timer Lock", [self threadName]];
-    [timerLock setName:timerName];
-#endif
     stopped = YES;
     KrollContextCount++;
     debugger = NULL;
 
     WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
-#ifdef TI_USE_KROLL_THREAD
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(suspend:)
-                                                 name:kTiSuspendNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];
-#endif
   }
   return self;
 }
@@ -787,27 +764,9 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   NSLog(@"[DEBUG] DESTROY: %@", self);
 #endif
   [self stop];
-#ifdef TI_USE_KROLL_THREAD
-  RELEASE_TO_NIL(condition);
-  if (queue != nil) {
-    [queue removeAllObjects];
-  }
-  RELEASE_TO_NIL(queue);
-  RELEASE_TO_NIL(krollContextId);
-  RELEASE_TO_NIL(lock);
-  if (timerLock != nil) {
-    [timerLock lock];
-    if (timers != nil) {
-      [timers removeAllObjects];
-    }
-    [timerLock unlock];
-  }
-  RELEASE_TO_NIL(timerLock);
-#else
   if (timers != nil) {
     [timers removeAllObjects];
   }
-#endif
   RELEASE_TO_NIL(timers);
 }
 
@@ -842,32 +801,17 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   [super dealloc];
 }
 
-#ifdef TI_USE_KROLL_THREAD
-- (NSString *)krollContextId
-{
-  return [[krollContextId retain] autorelease];
-}
-#endif
 - (void)registerTimer:(id)timer timerId:(double)timerId
 {
-#ifdef TI_USE_KROLL_THREAD
-  [timerLock lock];
-#endif
   if (timers == nil) {
     timers = [[NSMutableDictionary alloc] init];
   }
   NSString *key = [[NSNumber numberWithDouble:timerId] stringValue];
   [timers setObject:timer forKey:key];
-#ifdef TI_USE_KROLL_THREAD
-  [timerLock unlock];
-#endif
 }
 
 - (void)unregisterTimer:(double)timerId
 {
-#ifdef TI_USE_KROLL_THREAD
-  [timerLock lock];
-#endif
   if (timers != nil) {
     NSString *timer = [[NSNumber numberWithDouble:timerId] stringValue];
     KrollTimer *t = [timers objectForKey:timer];
@@ -881,9 +825,6 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
       RELEASE_TO_NIL(timers);
     }
   }
-#ifdef TI_USE_KROLL_THREAD
-  [timerLock unlock];
-#endif
 }
 
 - (void)start
@@ -894,24 +835,15 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
                                  userInfo:nil];
   }
   stopped = NO;
-#ifdef TI_USE_KROLL_THREAD
-  [NSThread detachNewThreadSelector:@selector(main)
-                           toTarget:self
-                         withObject:nil];
-#else
   TiThreadPerformOnMainThread(^{
     [self main];
   },
       NO);
-#endif
 }
 
 - (void)stop
 {
   if (stopped == NO) {
-#ifdef TI_USE_KROLL_THREAD
-    [condition lock];
-#endif
     stopped = YES;
     if (debugger != NULL) {
       TiObjectRef globalRef = TiContextGetGlobalObject(context);
@@ -920,33 +852,8 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 #endif
       debugger = NULL;
     }
-#ifdef TI_USE_KROLL_THREAD
-    [condition signal];
-    [condition unlock];
-#endif
   }
 }
-
-#ifdef TI_USE_KROLL_THREAD
-- (void)suspend:(id)note
-{
-  [condition lock];
-  VerboseLog(@"Will suspend %@ %@", self, CODELOCATION);
-  suspended = YES;
-  VerboseLog(@"Did suspend %@ %@", self, CODELOCATION);
-  [condition unlock];
-}
-
-- (void)resume:(id)note
-{
-  [condition lock];
-  VerboseLog(@"Will resume-signalling %@ %@", self, CODELOCATION);
-  suspended = NO;
-  VerboseLog(@"Did resume; signalling %@ %@", self, CODELOCATION);
-  [condition signal];
-  [condition unlock];
-}
-#endif
 
 - (BOOL)running
 {
@@ -958,22 +865,9 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   return context;
 }
 
-#ifdef DEBUG
-#ifdef TI_USE_KROLL_THREAD
-- (NSUInteger)queueCount
-{
-  return [queue count];
-}
-#endif
-#endif
-
 - (BOOL)isKJSThread
 {
-#ifdef TI_USE_KROLL_THREAD
-  return (cachedThreadId == [NSThread currentThread] ? YES : NO);
-#else
   return [NSThread isMainThread];
-#endif
 }
 
 - (void)invoke:(id)object
@@ -991,51 +885,20 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 - (void)enqueue:(id)obj
 {
-#ifdef TI_USE_KROLL_THREAD
-  [condition lock];
-
-  BOOL mythread = [self isKJSThread];
-
-  if (!mythread) {
-    [lock lock];
-  }
-
-  [queue addObject:obj];
-
-  if (!mythread) {
-    [lock unlock];
-    [condition signal];
-  }
-
-  [condition unlock];
-#else
   dispatch_block_t block = ^{
     [self invoke:obj];
   };
   TiThreadPerformOnMainThread(block, [NSThread isMainThread]);
-#endif
 }
 
 - (void)evalJS:(NSString *)code
 {
   KrollEval *eval = [[[KrollEval alloc] initWithCode:code] autorelease];
-#ifdef TI_USE_KROLL_THREAD
-  if ([self isKJSThread]) {
-    [eval invoke:self];
-    return;
-  }
-#endif
   [self enqueue:eval];
 }
 
 - (id)evalJSAndWait:(NSString *)code
 {
-#ifdef TI_USE_KROLL_THREAD
-  if (![self isKJSThread]) {
-    DeveloperLog(@"[ERROR] attempted to evaluate JS and not on correct Thread! Aborting!");
-    @throw @"Invalid Thread Access";
-  }
-#endif
   KrollEval *eval = [[[KrollEval alloc] initWithCode:code] autorelease];
   return [eval invokeWithResult:self];
 }
@@ -1043,40 +906,17 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 - (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition *)condition_
 {
   KrollInvocation *invocation = [[[KrollInvocation alloc] initWithTarget:callback_ method:method_ withObject:obj condition:condition_] autorelease];
-#ifdef TI_USE_KROLL_THREAD
-  if ([self isKJSThread]) {
-    [invocation invoke:self];
-    return;
-  }
-  [self enqueue:invocation];
-#else
   [self invoke:invocation];
-#endif
 }
 
 - (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_
 {
   KrollInvocation *invocation = [[[KrollInvocation alloc] initWithTarget:callback_ method:method_ withObject:obj callback:callback selector:selector_] autorelease];
-#ifdef TI_USE_KROLL_THREAD
-  if ([self isKJSThread]) {
-    [invocation invoke:self];
-    return;
-  }
-  [self enqueue:invocation];
-#else
   [self invoke:invocation];
-#endif
 }
 
 - (void)invokeBlockOnThread:(void (^)())block
 {
-#ifdef TI_USE_KROLL_THREAD
-  if (![self isKJSThread]) {
-    NSBlockOperation *blockOp = [NSBlockOperation blockOperationWithBlock:block];
-    [self enqueue:blockOp];
-    return;
-  }
-#endif
   pthread_mutex_lock(&KrollEntryLock);
   block();
   pthread_mutex_unlock(&KrollEntryLock);
@@ -1108,16 +948,6 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 {
   // don't worry about locking, not that important
   gcrequest = YES;
-
-#ifdef TI_USE_KROLL_THREAD
-  // signal the waiting thread to wake up - since this
-  // is called on a possible low memory condition, we
-  // need to immediately force the thread to wake up
-  // and collect garbage asap
-  [condition lock];
-  [condition signal];
-  [condition unlock];
-#endif
 }
 
 - (int)forceGarbageCollectNow
@@ -1144,12 +974,6 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 
 - (void)main
 {
-#ifdef TI_USE_KROLL_THREAD
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-  [[NSThread currentThread] setName:[self threadName]];
-  cachedThreadId = [NSThread currentThread];
-  incrementKrollCounter();
-#endif
   pthread_mutex_lock(&KrollEntryLock);
   context = TiGlobalContextCreate(NULL);
   TiObjectRef globalRef = TiContextGetGlobalObject(context);
@@ -1254,213 +1078,11 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   }
 
   loopCount = 0;
-#define GC_LOOP_COUNT 5
 
   if (delegate != nil && [delegate respondsToSelector:@selector(didStartNewContext:)]) {
     [delegate performSelector:@selector(didStartNewContext:) withObject:self];
   }
   pthread_mutex_unlock(&KrollEntryLock);
-
-#ifdef TI_USE_KROLL_THREAD
-  BOOL exit_after_flush = NO;
-  while (1) {
-    NSAutoreleasePool *innerpool = [[NSAutoreleasePool alloc] init];
-    loopCount++;
-
-    // if we're suspended, we simply wait for resume
-    [condition lock];
-    if (suspended) {
-      //TODO: Suspended currently only is set on app pause/resume. We should have it happen whenever a JS thread
-      //should be paused. Paused being no timers waiting, no events being triggered, no code to execute.
-      if (suspended && ([queue count] == 0)) {
-        VerboseLog(@"Waiting: %@", self);
-        decrementKrollCounter();
-        [condition wait];
-        incrementKrollCounter();
-        VerboseLog(@"Resumed! %@", self)
-      }
-    }
-    [condition unlock];
-
-    // we're stopped, we need to check to see if we have stuff that needs to
-    // be executed before we can exit.  if we have stuff in the queue, we
-    // process just those events and then we immediately exit and clean up
-    // otherwise, we can just exit immediately from here
-
-    [condition lock];
-    if (stopped) {
-      [condition unlock];
-      exit_after_flush = YES;
-      NSUInteger queue_count = 0;
-
-      [lock lock];
-      queue_count = [queue count];
-      [lock unlock];
-
-#if CONTEXT_DEBUG == 1
-      NSLog(@"[DEBUG] CONTEXT<%@>: shutdown, queue_count = %d", self, queue_count);
-#endif
-
-      // we're stopped, nothing in the queue, time to bail
-      if (queue_count == 0) {
-        RELEASE_TO_NIL(innerpool);
-        break;
-      }
-    }
-    // If this is the case, then we were not halted, and must unlock the condition.
-    if (!exit_after_flush) {
-      [condition unlock];
-    }
-
-    BOOL stuff_in_queue = YES;
-    int internalLoopCount = 0;
-    // as long as we have stuff in the queue to process, we
-    // run our thread event pump and process events
-    while (stuff_in_queue) {
-      if (internalLoopCount > GC_LOOP_COUNT) {
-        [self gc]; //This only sets up the gcrequest variable.
-        internalLoopCount = 0;
-        loopCount = 0;
-      }
-      internalLoopCount++;
-      // we have a pending GC request to try and reclaim memory
-      if (gcrequest) {
-        [self forceGarbageCollectNow];
-      }
-
-      // don't hold the queue lock
-      // while we're processing an event so we
-      // can't deadlock on recursive callbacks
-      // removeObjectAtIndex sends an 'autorelease' message, so we need to drain the pool in the queue loop, NOT the invoke
-      NSAutoreleasePool *pool_ = [[NSAutoreleasePool alloc] init];
-      id entry = nil;
-      [lock lock];
-#if CONTEXT_DEBUG == 1
-      int queueSize = [queue count];
-#endif
-      if ([queue count] == 0) {
-        stuff_in_queue = NO;
-      } else {
-        entry = [[queue objectAtIndex:0] retain];
-        [queue removeObjectAtIndex:0];
-      }
-      [lock unlock];
-      if (entry != nil) {
-        @try {
-#if CONTEXT_DEBUG == 1
-          NSLog(@"[DEBUG] CONTEXT<%@>: before action event invoke: %@, queue size: %d", self, entry, queueSize - 1);
-#endif
-          [self invoke:entry];
-#if CONTEXT_DEBUG == 1
-          NSLog(@"[DEBUG] CONTEXT<%@>: after action event invoke: %@", self, entry);
-#endif
-        }
-        @catch (NSException *e) {
-          // this should never happen as we raise a JS exception inside the
-          // method above but this is a guard anyway
-          DebugLog(@"[ERROR] Application raised an exception: %@", e);
-        }
-        @finally {
-          [entry release];
-          entry = nil;
-        }
-      }
-      [pool_ release];
-    }
-
-    // TODO: experiment, attempt to collect more often than usual given our environment
-    if (loopCount == GC_LOOP_COUNT) {
-      [self forceGarbageCollectNow];
-    }
-
-    // check to see if we're already stopped and in the flush queue state, in which case,
-    // we can now immediately exit
-    if (exit_after_flush) {
-      RELEASE_TO_NIL(innerpool);
-      break;
-    }
-
-#if CONTEXT_DEBUG == 1
-    NSLog(@"[DEBUG] CONTEXT<%@>: waiting for new event (count=%d)", self, KrollContextCount);
-#endif
-
-    [condition lock];
-    [lock lock];
-    NSUInteger queue_count = [queue count];
-    [lock unlock];
-    if ((queue_count == 0) && !suspended) {
-      // wait only 10 seconds and then loop, this will allow us to garbage
-      // collect every so often
-      decrementKrollCounter();
-      [condition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:10]];
-      incrementKrollCounter();
-    }
-    [condition unlock];
-
-#if CONTEXT_DEBUG == 1
-    NSLog(@"[DEBUG] CONTEXT<%@>: woke up for new event (count=%d)", self, KrollContextCount);
-#endif
-
-    RELEASE_TO_NIL(innerpool);
-  }
-#if CONTEXT_DEBUG == 1
-  NSLog(@"[DEBUG] CONTEXT<%@>: is shutting down", self);
-#endif
-
-  // call before we start the shutdown while context and timers are alive
-  if (delegate != nil && [delegate respondsToSelector:@selector(willStopNewContext:)]) {
-    [delegate performSelector:@selector(willStopNewContext:) withObject:self];
-  }
-#ifdef TI_USE_KROLL_THREAD
-  [timerLock lock];
-#endif
-  // stop any running timers
-  if (timers != nil && [timers count] > 0) {
-    for (id timerId in [NSDictionary dictionaryWithDictionary:timers]) {
-      KrollTimer *t = [timers objectForKey:timerId];
-      [t cancel];
-    }
-    [timers removeAllObjects];
-  }
-#ifdef TI_USE_KROLL_THREAD
-  [timerLock unlock];
-#endif
-  [KrollCallback shutdownContext:self];
-
-  // now we can notify listeners we're done
-  if (delegate != nil && [delegate respondsToSelector:@selector(didStopNewContext:)]) {
-    [(NSObject *)delegate performSelector:@selector(didStopNewContext:) withObject:self];
-  }
-
-#if CONTEXT_MEMORY_DEBUG == 1
-  NSLog(@"[DEBUG] SHUTDOWN: %@", self);
-  NSLog(@"[DEBUG] KROLL RETAIN COUNT: %d", [kroll retainCount]);
-#endif
-  [self destroy];
-
-  TiObjectSetPrivate(krollObj, NULL); //Because we're unhooking the krollObj, we need to manually autorelease kroll later.
-  prop = TiStringCreateWithUTF8CString("Kroll");
-  TiObjectDeleteProperty(context, globalRef, prop, NULL); //TODO: This still needed?
-  TiStringRelease(prop);
-
-  TiThreadPerformOnMainThread(^{
-    [self unregisterForNotifications];
-  },
-      NO);
-  [self forceGarbageCollectNow];
-  // cause the global context to be released and all objects internally to be finalized
-  TiGlobalContextRelease(context);
-
-  decrementKrollCounter();
-
-  if (appJsKrollContext == self) {
-    appJsContextRef = NULL;
-    appJsKrollContext = nil;
-  }
-
-  [kroll autorelease];
-  [pool release];
-#endif
 }
 
 - (void *)debugger

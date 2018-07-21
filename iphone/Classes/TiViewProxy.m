@@ -242,60 +242,37 @@ static NSArray *touchEventsArray;
     children = [[NSMutableArray alloc] init];
   }
 
-#ifdef TI_USE_KROLL_THREAD
-  if ([NSThread isMainThread]) {
-#else
   [self rememberProxy:childView];
-#endif
-    // Lock the assignment of the position to prevent race-conditions
-    pthread_rwlock_wrlock(&childrenLock);
-    if (position < 0 || position > [children count]) {
-      position = (int)[children count];
+  // Lock the assignment of the position to prevent race-conditions
+  pthread_rwlock_wrlock(&childrenLock);
+  if (position < 0 || position > [children count]) {
+    position = (int)[children count];
+  }
+  [children insertObject:childView atIndex:position];
+  pthread_rwlock_unlock(&childrenLock);
+
+  [childView setParent:self];
+
+  if (windowOpened) {
+    // Turn on clipping because I have children
+    [[self view] updateClipping];
+    [self contentsWillChange];
+
+    if (parentVisible && !hidden) {
+      [childView parentWillShow];
     }
-    [children insertObject:childView atIndex:position];
-    pthread_rwlock_unlock(&childrenLock);
-
-    [childView setParent:self];
-
-    if (windowOpened) {
-      // Turn on clipping because I have children
-      [[self view] updateClipping];
-      [self contentsWillChange];
-
-      if (parentVisible && !hidden) {
-        [childView parentWillShow];
-      }
 
 #ifndef TI_USE_AUTOLAYOUT
-      // If layout is non absolute push this into the layout queue
-      // else just layout the child with current bounds
-      if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle)) {
-        [self contentsWillChange];
-      } else
+    // If layout is non absolute push this into the layout queue
+    // else just layout the child with current bounds
+    if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle)) {
+      [self contentsWillChange];
+    } else
 #endif
-      {
-        [self layoutChild:childView optimize:NO withMeasuredBounds:[[self view] bounds]];
-      }
+    {
+      [self layoutChild:childView optimize:NO withMeasuredBounds:[[self view] bounds]];
     }
-#ifdef TI_USE_KROLL_THREAD
-  } else {
-    [self rememberProxy:childView];
-    if (windowOpened) {
-      TiThreadPerformOnMainThread(^{
-        [self add:arg];
-      },
-          NO);
-      return;
-    }
-    pthread_rwlock_wrlock(&childrenLock);
-    if (position < 0 || position > [children count]) {
-      position = (int)[children count];
-    }
-    [children insertObject:childView atIndex:position];
-    pthread_rwlock_unlock(&childrenLock);
-    [childView setParent:self];
   }
-#endif
 }
 
 - (void)insertAt:(id)args
@@ -1639,15 +1616,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     if ([NSThread isMainThread]) {
       RELEASE_TO_NIL(barButtonItem);
     } else {
-#ifdef TI_USE_KROLL_THREAD
-      TiThreadReleaseOnMainThread(barButtonItem, NO);
-      barButtonItem = nil;
-#else
       TiThreadPerformOnMainThread(^{
         RELEASE_TO_NIL(barButtonItem);
       },
           NO);
-#endif
     }
   }
 
@@ -1656,15 +1628,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       [self detachView];
     } else {
       view.proxy = nil;
-#ifdef TI_USE_KROLL_THREAD
-      TiThreadReleaseOnMainThread(view, NO);
-      view = nil;
-#else
       TiThreadPerformOnMainThread(^{
         RELEASE_TO_NIL(view);
       },
           YES);
-#endif
     }
   }
   [destroyLock unlock];
@@ -2347,11 +2314,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       dispatch_block_t block = ^{
         [self fireEvent:@"postlayout" withObject:nil propagate:NO];
       };
-#ifdef TI_USE_KROLL_THREAD
-      block();
-#else
       TiThreadPerformOnMainThread(block, NO);
-#endif
     }
   }
 #ifdef VERBOSE
@@ -2781,9 +2744,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (void)layoutChild:(TiViewProxy *)child optimize:(BOOL)optimize withMeasuredBounds:(CGRect)bounds
 {
-#ifdef TI_USE_KROLL_THREAD
-  IGNORE_IF_NOT_OPENED
-#endif
   UIView *ourView = [self parentViewForChild:child];
 
   if (ourView == nil) {

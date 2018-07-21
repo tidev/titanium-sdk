@@ -41,15 +41,6 @@
   TiGlobalContextRef context;
   NSMutableDictionary *timers;
   void *debugger;
-
-#ifdef TI_USE_KROLL_THREAD
-  NSRecursiveLock *timerLock;
-  NSString *krollContextId;
-  NSRecursiveLock *lock;
-  NSCondition *condition;
-  NSMutableArray *queue;
-  id cachedThreadId;
-#endif
 }
 
 @property (nonatomic, readwrite, assign) id<KrollDelegate> delegate;
@@ -61,13 +52,6 @@
 - (TiGlobalContextRef)context;
 - (void *)debugger;
 - (BOOL)isKJSThread;
-
-#ifdef DEBUG
-// used during debugging only
-#ifdef TI_USE_KROLL_THREAD
-- (NSUInteger)queueCount;
-#endif
-#endif
 
 - (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition *)condition_;
 - (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
@@ -83,10 +67,7 @@
 - (void)unregisterTimer:(double)timerId;
 
 - (int)forceGarbageCollectNow;
-#ifdef TI_USE_KROLL_THREAD
-- (NSString *)krollContextId;
-- (NSString *)threadName;
-#endif
+
 @end
 
 //====================================================================================================================
