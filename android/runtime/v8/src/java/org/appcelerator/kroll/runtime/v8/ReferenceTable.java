@@ -61,10 +61,7 @@ public final class ReferenceTable
 	public static void destroyReference(long key)
 	{
 		Log.d(TAG, "Destroying reference under key: " + key, Log.DEBUG_MODE);
-		Object obj = references.remove(key);
-		if (obj instanceof Reference) {
-			obj = ((Reference<?>) obj).get();
-		}
+		Object obj = getReference(key);
 		// If it's an V8Object, set the ptr to 0, because the proxy is dead on C++ side
 		// This *should* prevent the native code from trying to reconstruct the proxy for any reason
 		if (obj instanceof KrollProxySupport) {
@@ -75,6 +72,10 @@ public final class ReferenceTable
 				v8.setPointer(0);
 			}
 		}
+		if (obj instanceof KrollProxy) {
+			((KrollProxy) obj).setReferenceKey(0);
+		}
+		references.remove(key);
 	}
 
 	/**
@@ -85,7 +86,7 @@ public final class ReferenceTable
 	public static void makeWeakReference(long key)
 	{
 		Log.d(TAG, "Downgrading to weak reference for key: " + key, Log.DEBUG_MODE);
-		Object ref = references.get(key);
+		Object ref = getReference(key);
 		references.remove(key);
 		references.put(key, new WeakReference<Object>(ref));
 	}
@@ -98,7 +99,7 @@ public final class ReferenceTable
 	public static void makeSoftReference(long key)
 	{
 		Log.d(TAG, "Downgrading to soft reference for key: " + key, Log.DEBUG_MODE);
-		Object ref = references.get(key);
+		Object ref = getReference(key);
 		references.remove(key);
 		references.put(key, new SoftReference<Object>(ref));
 	}
@@ -144,6 +145,6 @@ public final class ReferenceTable
 	public static boolean isStrongReference(long key)
 	{
 		Object ref = getReference(key);
-		return !(ref instanceof WeakReference || ref instanceof SoftReference);
+		return !(ref instanceof Reference);
 	}
 }
