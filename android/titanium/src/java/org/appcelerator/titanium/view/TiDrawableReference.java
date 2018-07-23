@@ -165,13 +165,8 @@ public class TiDrawableReference
 		if (url == null || url.length() == 0 || url.trim().length() == 0) {
 			return new TiDrawableReference(proxy.getActivity(), DrawableReferenceType.NULL);
 		}
-		boolean useCaches = false;
-		Object cacheProperty = proxy.getProperty(TiC.PROPERTY_CACHE);
-		if (cacheProperty != null) {
-			useCaches = TiConvert.toBoolean(cacheProperty);
-		}
 		TiDrawableReference ref = fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
-		ref.useCaches = useCaches;
+		ref.useCaches = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CACHE), false);
 		return ref;
 	}
 
@@ -248,14 +243,9 @@ public class TiDrawableReference
 			object = proxy.resolveUrl(null, (String) object);
 		}
 
-		boolean useCaches = false;
-		Object cacheProperty = proxy.getProperty(TiC.PROPERTY_CACHE);
-		if (cacheProperty != null) {
-			useCaches = TiConvert.toBoolean(cacheProperty);
-		}
 		// Create a drawable reference from the given object.
 		TiDrawableReference ref = TiDrawableReference.fromObject(activity, object);
-		ref.useCaches = useCaches;
+		ref.useCaches = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CACHE), false);
 		return ref;
 	}
 
