@@ -21,7 +21,7 @@ description: |
 extends: Titanium.Proxy
 platforms: [android]
 createable: false
-since: "7.1.0"
+since: "7.4.0"
 methods:
   - name: close
     summary: Uninstalls the cache and releases any active resources.
@@ -89,54 +89,17 @@ methods:
     returns:
         type: Number
 
-  - name: getHttpCachePath
-    summary: Gets relative path for cache.
-    description: |
-        Default value `http`.
-    returns:
-        type: String
-
-  - name: getHttpCacheSize
-    summary: Returns the maximum number of bytes that this cache should use to store its data.
-    description: |
-        Default value is 25MB. This could be redefined by
-        [setHttpCacheSize](Titanium.Android.HttpResponseCache.setHttpCacheSize) or by setting
-        `ti.android.cache.size.max` property in `tiapp.xml`
-        See also:
-        [maxSize](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#maxSize())
-        in the Android API Reference.
-    returns:
-        type: Number
-
-  - name: setHttpCachePath
-    summary: Sets relative path for cache.
-    description: |
-        Override default cache path.
-    parameters:
-      - name: path
-        summary: Relative path for cache.
-        type: String
-
-  - name: SetHttpCacheSize
-    summary: Sets the maximum number of bytes that this cache should use to store its data.
-    description: |
-        Should be set before calling [install](Titanium.Android.HttpResponseCache.install) method
-    parameters:
-      - name: size
-        summary: Maximum cache size in bytes.
-        type: Number
-
 properties:
 
-  - name: httpCacheSize
-    summary: Maximum  cache size in bytes.
+  - name: maxSize
+    summary: Maximum cache size in bytes.
     description: |
         See also:
         [maxSize](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#maxSize())
         in the Android API Reference.
     type: Number
 
-  - name: httpCachePath
+  - name: path
     summary: Relative path for cache
     description: |
         HTTP response cache will be stored on external storage if it exists on moment

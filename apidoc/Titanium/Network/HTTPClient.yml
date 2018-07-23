@@ -533,7 +533,7 @@ properties:
 
         This propery must be set before `open` is called.
     type: Boolean
-    since: {android: "7.1.0", iphone: "2.0.0", ipad: "2.0.0"}
+    since: {android: "7.4.0", iphone: "2.0.0", ipad: "2.0.0"}
     default: false
     platforms: [android, iphone, ipad]
 

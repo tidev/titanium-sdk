@@ -20,16 +20,15 @@ public class HttpResponseCacheModule extends KrollModule
 	private static final String CACHE_SIZE_KEY = "ti.android.cache.size.max";
 	private static final int DEFAULT_CACHE_SIZE = 25 * 1024; // 25MB
 
-	private String httpCachePath;
-	private long httpCacheSize;
+	private String path;
+	private long maxSize;
 	private File httpCacheDir;
 
 	public HttpResponseCacheModule()
 	{
 		super();
-		httpCachePath = "http";
-		httpCacheSize =
-			TiApplication.getInstance().getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024;
+		path = "http";
+		maxSize = TiApplication.getInstance().getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024;
 	}
 
 	@Kroll.method
@@ -45,7 +44,7 @@ public class HttpResponseCacheModule extends KrollModule
 		if (dir == null) {
 			dir = tiApp.getApplicationContext().getCacheDir();
 		}
-		httpCacheDir = new File(dir, httpCachePath);
+		httpCacheDir = new File(dir, path);
 		if (!httpCacheDir.exists()) {
 			if (!httpCacheDir.mkdir()) {
 				Log.e(TAG, "Failed to create cache directory");
@@ -55,7 +54,7 @@ public class HttpResponseCacheModule extends KrollModule
 			Log.e(TAG, "Failed to create cache directory. \"" + httpCacheDir.getPath() + "\" exists.");
 			return false;
 		}
-		cache = HttpResponseCache.install(httpCacheDir, httpCacheSize);
+		cache = HttpResponseCache.install(httpCacheDir, maxSize);
 		return true;
 	}
 
@@ -101,7 +100,7 @@ public class HttpResponseCacheModule extends KrollModule
 	{
 		HttpResponseCache cache = HttpResponseCache.getInstalled();
 		if (cache != null) {
-			cache.getNetworkCount();
+			return cache.getNetworkCount();
 		}
 		return 0;
 	}
@@ -126,40 +125,28 @@ public class HttpResponseCacheModule extends KrollModule
 		return 0;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
-	public String getHttpCachePath()
-	// clang-format on
+	public String getPath()
 	{
-		return httpCachePath;
+		return path;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.getProperty
-	public long getHttpCacheSize()
-	// clang-format on
+	public long getMaxSize()
 	{
-		return httpCacheSize;
+		return maxSize;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
-	public void setHttpCachePath(String value)
-	// clang-format on
+	public void setPath(String value)
 	{
-		httpCachePath = value;
+		path = value;
 	}
 
-	// clang-format off
-	@Kroll.method
 	@Kroll.setProperty
-	public void setHttpCacheSize(long value)
-	// clang-format on
+	public void setMaxSize(long value)
 	{
-		httpCacheSize = value;
+		maxSize = value;
 	}
 
 	@Override
