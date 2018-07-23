@@ -173,7 +173,7 @@ public class TiTempFileHelper
 			if (Environment.MEDIA_MOUNTED.equals(extState)
 				&& (Build.VERSION.SDK_INT < 23
 					|| (context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-							   == PackageManager.PERMISSION_GRANTED
+							== PackageManager.PERMISSION_GRANTED
 						&& context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
 							   == PackageManager.PERMISSION_GRANTED))) {
 
