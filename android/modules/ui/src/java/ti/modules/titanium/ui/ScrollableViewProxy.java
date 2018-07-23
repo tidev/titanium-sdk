@@ -243,9 +243,11 @@ public class ScrollableViewProxy extends TiViewProxy
 		getMainHandler().removeMessages(MSG_HIDE_PAGER);
 
 		int timeout = DEFAULT_PAGING_CONTROL_TIMEOUT;
-		Object o = getProperty(TiC.PROPERTY_PAGING_CONTROL_TIMEOUT);
-		if (o != null) {
-			timeout = TiConvert.toInt(o);
+		if (TiConvert.toBoolean(getProperty(USE_LEGACY_CONTROL))) {
+			Object o = getProperty(TiC.PROPERTY_PAGING_CONTROL_TIMEOUT);
+			if (o != null) {
+				timeout = TiConvert.toInt(o);
+			}
 		}
 
 		if (timeout > 0) {
