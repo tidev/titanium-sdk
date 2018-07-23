@@ -34,7 +34,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 	return {
 		def labels = 'git && osx'
 		if ('ios'.equals(os)) {
-			labels = 'git && osx && xcode-9' // test app fails to build with xcode-8.1 as far as I can tell
+			labels = 'git && osx && xcode-10' // Use xcode-10 to make use of ios 12 APIs
 		} else {
 			labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
 		}
