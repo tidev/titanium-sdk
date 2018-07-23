@@ -571,6 +571,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   [[TiApp app] setForceSplashAsSnapshot:flag];
 }
 
+- (NSNumber *)forceSplashAsSnapshot
+{
+  return @([[TiApp app] forceSplashAsSnapshot]);
+}
+
 #if defined(USE_TI_APPIOS)
 - (id)iOS
 {

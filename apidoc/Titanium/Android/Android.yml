@@ -225,7 +225,7 @@ methods:
             with dangerous protection level [here](https://developer.android.com/reference/android/Manifest.permission.html).
             For example, `android.permission.WRITE_CONTACTS`. 
 
-            Since Titanium 6.1.0, the method will also accept Array<String>
+            Since Titanium 6.1.0, the method will also accept `Array<String>`
         type: [String, Array<String>]
     returns:
         type: Boolean 

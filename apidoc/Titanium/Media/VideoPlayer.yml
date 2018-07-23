@@ -634,7 +634,7 @@ properties:
         Returns a dictionary with properties `width` and `height`. Returns 0 for both properties if not
         known or applicable.
 
-        The [naturalSizeAvailable](Titanium.Media.VideoPlayer.naturalSizeAvailable) event is
+        The [naturalSizeAvailable](Titanium.Media.VideoPlayer.naturalsizeavailable) event is
         fired when the natural size is known.
     platforms: [iphone, ipad]
     type: MovieSize
@@ -728,7 +728,7 @@ properties:
     description: |
         Specifying a playback type before playing the movie can result in faster load times.
 
-        The [sourceChange](Titanium.Media.VideoPlayer.sourceChange) event is fired when
+        The [sourceChange](Titanium.Media.VideoPlayer.sourcechange) event is fired when
         movie's source type is determined.
     platforms: [iphone, ipad]
     type: Number

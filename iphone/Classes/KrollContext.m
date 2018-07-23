@@ -1098,7 +1098,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     TiObjectRef global = TiContextGetGlobalObject(context);
     TiObjectSetProperty(context, global,
         invokerFnName, invoker,
-        kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,
+        kTiPropertyAttributeNone,
         NULL);
   }
   TiStringRelease(invokerFnName);
