@@ -8,6 +8,7 @@
 
 #import "TiUIWebViewProxy.h"
 #import "TiHost.h"
+#import "TiNetworkCookieProxy.h"
 #import "TiUIWebView.h"
 #import "TiUtils.h"
 
@@ -535,6 +536,135 @@
       return;
     }
   }
+}
+
+#pragma mark Cookies
+
+- (id<TiEvaluator>)evaluationContext
+{
+  id<TiEvaluator> context = [self executionContext];
+  if (context == nil) {
+    context = [self pageContext];
+  }
+  return context;
+}
+
+- (NSArray *)getHTTPCookiesForDomain:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSString);
+
+  __block NSMutableArray *returnArray = [NSMutableArray array];
+  __block BOOL finishedEvaluation = NO;
+  WKHTTPCookieStore *storage = [[[[(TiUIWebView *)[self view] webView] configuration] websiteDataStore] httpCookieStore];
+  [storage getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
+    NSMutableArray *allCookies = [NSMutableArray array];
+    for (NSHTTPCookie *cookie in cookies) {
+      if ([[cookie domain] isEqualToString:args]) {
+        [allCookies addObject:cookie];
+      }
+    }
+    for (NSHTTPCookie *cookie in allCookies) {
+      [returnArray addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self evaluationContext]] autorelease]];
+    }
+    finishedEvaluation = YES;
+  }];
+  while (!finishedEvaluation) {
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+  }
+  return returnArray;
+}
+
+- (void)addHTTPCookie:(id)args
+{
+  ENSURE_SINGLE_ARG(args, TiNetworkCookieProxy);
+  WKHTTPCookieStore *storage = [[[[(TiUIWebView *)[self view] webView] configuration] websiteDataStore] httpCookieStore];
+
+  NSHTTPCookie *cookie = [args newCookie];
+  if (cookie != nil) {
+    [storage setCookie:cookie completionHandler:nil];
+  }
+  RELEASE_TO_NIL(cookie);
+}
+
+- (NSArray *)getHTTPCookies:(id)args
+{
+  NSString *domain = [TiUtils stringValue:[args objectAtIndex:0]];
+  NSString *path = [TiUtils stringValue:[args objectAtIndex:1]];
+  NSString *name = [TiUtils stringValue:[args objectAtIndex:2]];
+  if (path == nil || [path isEqual:@""]) {
+    path = @"/";
+  }
+
+  __block NSMutableArray *returnArray = [NSMutableArray array];
+  __block BOOL finishedEvaluation = NO;
+
+  WKHTTPCookieStore *storage = [[[[(TiUIWebView *)[self view] webView] configuration] websiteDataStore] httpCookieStore];
+
+  [storage getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
+    for (NSHTTPCookie *cookie in cookies) {
+      if ([[cookie domain] isEqualToString:domain] &&
+          [[cookie path] isEqualToString:path] && ([[cookie name] isEqualToString:name] || name == nil)) {
+        TiNetworkCookieProxy *tempCookieProxy = [[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self evaluationContext]];
+        [returnArray addObject:tempCookieProxy];
+        RELEASE_TO_NIL(tempCookieProxy);
+      }
+    }
+    finishedEvaluation = YES;
+  }];
+  while (!finishedEvaluation) {
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+  }
+  return returnArray;
+}
+
+- (void)removeAllHTTPCookies:(id)args
+{
+  WKHTTPCookieStore *storage = [[[[(TiUIWebView *)[self view] webView] configuration] websiteDataStore] httpCookieStore];
+  [storage getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
+    for (NSHTTPCookie *cookie in cookies) {
+      [storage deleteCookie:cookie completionHandler:nil];
+    }
+  }];
+}
+
+- (void)removeHTTPCookie:(id)args
+{
+  NSArray *cookies = [self getHTTPCookies:args];
+  WKHTTPCookieStore *storage = [[[[(TiUIWebView *)[self view] webView] configuration] websiteDataStore] httpCookieStore];
+  for (TiNetworkCookieProxy *cookie in cookies) {
+    NSHTTPCookie *tempCookie = [cookie newCookie];
+    [storage deleteCookie:tempCookie completionHandler:nil];
+    RELEASE_TO_NIL(tempCookie);
+  }
+}
+
+- (void)removeHTTPCookiesForDomain:(id)args
+{
+  NSArray *cookies = [self getHTTPCookiesForDomain:args];
+  WKHTTPCookieStore *storage = [[[[(TiUIWebView *)[self view] webView] configuration] websiteDataStore] httpCookieStore];
+  for (TiNetworkCookieProxy *cookie in cookies) {
+    NSHTTPCookie *tempCookie = [cookie newCookie];
+    [storage deleteCookie:tempCookie completionHandler:nil];
+    RELEASE_TO_NIL(tempCookie);
+  }
+}
+
+- (NSArray *)allHTTPCookies
+{
+  __block NSMutableArray *returnArray = [NSMutableArray array];
+  __block BOOL finishedEvaluation = NO;
+
+  WKHTTPCookieStore *storage = [[[[(TiUIWebView *)[self view] webView] configuration] websiteDataStore] httpCookieStore];
+  [storage getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
+    for (NSHTTPCookie *cookie in cookies) {
+      [returnArray addObject:[[[TiNetworkCookieProxy alloc] initWithCookie:cookie andPageContext:[self evaluationContext]] autorelease]];
+    }
+    finishedEvaluation = YES;
+  }];
+  while (!finishedEvaluation) {
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+  }
+  return returnArray;
 }
 
 @end
