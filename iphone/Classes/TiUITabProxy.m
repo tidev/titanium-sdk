@@ -439,11 +439,6 @@
       }
     }
   }
-  if ([self _hasListeners:@"blur"]) {
-    DEPRECATED_REPLACED(@"UI.Tab.Event.blur", @"5.2.0", @"UI.Tab.Event.unselected");
-    [self fireEvent:@"blur" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-  }
-
   if ([self _hasListeners:@"unselected"]) {
     [self fireEvent:@"unselected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }

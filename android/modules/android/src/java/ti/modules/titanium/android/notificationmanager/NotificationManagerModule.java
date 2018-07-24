@@ -32,11 +32,6 @@ import java.util.HashMap;
 public class NotificationManagerModule extends KrollModule
 {
 	private static final String TAG = "TiNotification";
-	protected static final int PENDING_INTENT_FOR_ACTIVITY = 0;
-	protected static final int PENDING_INTENT_FOR_SERVICE = 1;
-	protected static final int PENDING_INTENT_FOR_BROADCAST = 2;
-	protected static final int PENDING_INTENT_MAX_VALUE = PENDING_INTENT_FOR_SERVICE;
-
 	private static NotificationManager notificationManager = null;
 	private static NotificationChannel defaultChannel = null;
 

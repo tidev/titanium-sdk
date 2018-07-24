@@ -527,47 +527,6 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
-  - name: rowAction
-    deprecated:
-        since: 5.0.0
-        removed: 5.0.0
-        notes: Use <Titanium.UI.ListView.editaction> instead.
-    summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
-    description: |
-        Do not rely on the `source` property to determine which item fired the event.  Use the
-        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
-        the event.
-
-        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
-        before the user action.
-    platforms: [iphone, ipad]
-    since: 4.1.0
-    osver: {ios: {min: "8.0"}}
-    properties:
-      - name: action
-        summary: The [title](RowActionType.title) as defined in the row action object.
-        type: String
-
-      - name: section
-        summary: List section from which the event was generated.
-        type: Titanium.UI.ListSection
-
-      - name: sectionIndex
-        summary: Section index.
-        type: Number
-
-      - name: itemIndex
-        summary: Item index.
-        type: Number
-
-      - name: itemId
-        summary: The item ID bound to the list item that generated the event.
-        type: String
-
-      - name: bubbles
-        summary: false. This event does not bubble.
-        type: Boolean
-
   - name: scrollstart
     summary: Fires when the list view starts scrolling by user interaction. Calling the `scrollTo` methods will not fire this event
     description: |
@@ -973,20 +932,6 @@ properties:
     since: 3.2.0
     platforms: [android, iphone, ipad]
 
-  - name: separatorInsets
-    summary: The insets for list view separators (applies to all cells).
-    deprecated:
-        since: "5.2.0"
-        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
-    description: |
-        Cell separators do not extend all the way to the edge of the list view. 
-        This property sets the default inset for all cells in the table. 
-        Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge. 
-    type: Dictionary
-    since: 3.2.0
-    osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
-
   - name: separatorStyle
     summary: Separator style constant. 
     type: Number
@@ -1003,24 +948,6 @@ properties:
     constants: Titanium.UI.iOS.ListViewStyle.*
     platforms: [iphone, ipad]
     availability: creation
-
-  - name: tableSeparatorInsets
-    deprecated:
-        since: "5.4.0"
-        notes: Use <Titanium.UI.ListView.listSeparatorInsets> instead.
-    summary: The insets for the table view header and footer.
-    description: |
-        Cell separators do not extend all the way to the edge of the list view. Set this to a
-        dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the
-        right edge. If the rowSeparatorInsets is not set, the tableSeparatorInsets will also set the cell insets.
- 
-        For example:
- 
-             listView.setTableSeparatorInsets({
-                 left:10,
-                 right:10
-             });
-
   
     type: Dictionary
     since: "5.2.0"

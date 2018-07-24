@@ -260,25 +260,6 @@ methods:
         optional: true
 events:
 
-  - name: create
-    summary: Fired from the activity's `onCreate` method.
-    deprecated:
-        since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onCreate> instead.
-    description: |
-        See also:
-        [onCreate](https://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
-        in the Android Developer Reference.
-
-  - name: destroy
-    summary: Fired from the activity's `onDestroy` method.
-    deprecated:
-        since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onDestroy> instead.
-    description: |
-        See also: [onDestroy](https://developer.android.com/reference/android/app/Activity.html#onDestroy())
-        in the Android Developer Reference.
-
   - name: newintent
     summary: Fired when the activity is already running and certain flags are set in its intent. 
     description: |
@@ -298,43 +279,6 @@ events:
         summary: The `Intent` used to launch the Activity.
         type: Titanium.Android.Intent
     since: '6.0.0'
-
-  - name: pause
-    summary: Fired when the activity is paused.
-    deprecated:
-        since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onPause> instead.
-    description: |
-        See also:
-        [onPause](https://developer.android.com/reference/android/app/Activity.html#onPause())
-        in the Android Developer Reference.
-
-  - name: resume
-    summary: Fired when the activity is resumed.
-    deprecated:
-        since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onResume> instead.
-    description: |
-        See also: [onResume](https://developer.android.com/reference/android/app/Activity.html#onResume())
-        in the Android Developer Reference.
-
-  - name: start
-    summary: Fired when the activity is started.
-    deprecated:
-        since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onStart> instead.
-    description: |
-        See also: [onStart](https://developer.android.com/reference/android/app/Activity.html#onStart())
-        in the Android Developer Reference.
-
-  - name: stop
-    summary: Fired when the activity is stopped.
-    deprecated:
-        since: "3.4.0"
-        notes: Use <Titanium.Android.Activity.onStop> instead.
-    description: |
-        See also: [onStop](https://developer.android.com/reference/android/app/Activity.html#onStop())
-        in the Android Developer Reference.
 
   - name: userleavehint
     summary: Fired when the activity is about to go into the background as a result of user choice.

@@ -51,16 +51,6 @@ methods:
          On iOS, soft keyboard would show when text is selected.
 
 properties:
-  - name: appearance
-    summary: Determines the appearance of the keyboard displayed when this field is focused.
-    type: Number
-    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
-    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        notes: Use <Titanium.UI.TextField.keyboardAppearance> instead.
-
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
     type: Number
@@ -438,22 +428,6 @@ properties:
     type: TextFieldPadding
     platforms: [android, iphone, ipad]
     since: 6.0.0
-
-  - name: paddingLeft
-    summary: Left padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: 6.1.0
-        notes: Use <Titanium.UI.TextField.padding> for parity instead.
-
-  - name: paddingRight
-    summary: Right padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: 6.1.0
-        notes: Use <Titanium.UI.TextField.padding> for parity instead.
 
   - name: passwordMask
     summary: Obscure the input text from the user.

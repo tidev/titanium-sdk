@@ -19,13 +19,6 @@ name: YQLResponse
 summary: Properties passed to a yql callback to report a success or failure.
 extends: ErrorResponse
 properties:
-  - name: message
-    summary: Error message, if any returned. Use `error` instead
-    description: Will be undefined if `success` is `true`.
-    type: String
-    deprecated:
-        since: "3.1.0"
-
   - name: data
     summary: The data payload received from the YQL.
     description: May be undefined if `success` is `false`.

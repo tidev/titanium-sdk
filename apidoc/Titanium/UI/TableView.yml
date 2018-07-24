@@ -1393,28 +1393,6 @@ properties:
     type: String
     default: platform-specific default color
 
-  - name: separatorInsets
-    summary: The insets for table view separators (applies to all cells).
-    deprecated:
-        since: "5.2.0"
-        notes: Use <Titanium.UI.TableView.tableSeparatorInsets> instead.
-    description: |
-        Cell separators do not extend all the way to the edge of the table view.
-        This property sets the default inset for all cells in the table. Set this to a dictionary
-        with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge.
-
-        For example:
-
-            tableView1.setSeparatorInsets({
-                left:10,
-                right:10
-            });
-
-    type: Dictionary
-    since: 3.2.0
-    osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
-
   - name: tableSeparatorInsets
     summary: The insets for the table view header and footer.
     description: |
