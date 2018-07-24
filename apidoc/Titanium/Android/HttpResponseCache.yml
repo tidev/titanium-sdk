@@ -13,8 +13,8 @@ description: |
     #### Usage example
 
             if(Ti.Platform.osname == "android") {
-                Ti.Android.HttpResponseCache.setHttpCachePath('_http_');
-                Ti.Android.HttpResponseCache.setHttpCacheSize(30 * 1024 * 1024);  // 30MB
+                Ti.Android.HttpResponseCache.path = '_http_';
+                Ti.Android.HttpResponseCache.maxSize = 30 * 1024 * 1024;  // 30MB
                 Ti.Android.HttpResponseCache.install();
             }
 
@@ -94,6 +94,8 @@ properties:
   - name: maxSize
     summary: Maximum cache size in bytes.
     description: |
+        To apply changes of this property to existing HttpResponseCache instance, you should call
+        [install](Titanium.Android.HttpResponseCache.install) method.
         See also:
         [maxSize](https://developer.android.com/reference/android/net/http/HttpResponseCache.html#maxSize())
         in the Android API Reference.
@@ -104,6 +106,8 @@ properties:
     description: |
         HTTP response cache will be stored on external storage if it exists on moment
         [install](Titanium.Android.HttpResponseCache.install) method is called.
+        To apply changes of this property to existing HttpResponseCache instance, you should call
+        [install](Titanium.Android.HttpResponseCache.install) method.
         See also:
         [getCacheDir](https://developer.android.com/reference/android/content/Context.html#getCacheDir()),
         [getExternalCacheDir](https://developer.android.com/reference/android/content/Context.html#getExternalCacheDir())

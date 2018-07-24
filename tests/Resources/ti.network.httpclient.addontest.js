@@ -13,6 +13,12 @@ var should = require('./utilities/assertions');
 describe('Titanium.Network.HTTPClient', function () {
 	this.timeout(6e4);
 
+	function disableCache() {
+		var cache = Ti.Android.HttpResponseCache;
+		cache.flush();
+		cache.remove();
+	}
+
 	it.android('HttpResponseCache xhr.cache default', function (finish) {
 		var cache = Ti.Android.HttpResponseCache,
 			url = 'http://www.httpbin.org/etag/default' + Math.random(),
@@ -27,6 +33,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = function () {
 			should(cache.getRequestCount()).be.eql(0);
 			should(cache.getHitCount()).be.eql(0);
+			disableCache();
 			finish();
 		};
 		xhr.onerror = function (e) {
@@ -35,6 +42,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				xhr.send();
 			} else {
 				Ti.API.debug(JSON.stringify(e, null, 2));
+				disableCache();
 				finish(new Error('failed to "' + url + '": ' + e));
 			}
 		};
@@ -75,20 +83,24 @@ describe('Titanium.Network.HTTPClient', function () {
 
 		makeRequest(url, { cache: true }, function (err) {
 			if (err) {
+				disableCache();
 				return finish(err);
 			}
 			should(cache.getRequestCount()).be.eql(1);
 			makeRequest(url, { cache: false }, function (err) {
 				if (err) {
+					disableCache();
 					return finish(err);
 				}
 				should(cache.getRequestCount()).be.eql(1);
 				makeRequest(url, { cache: true }, function (err) {
 					if (err) {
+						disableCache();
 						return finish(err);
 					}
 					should(cache.getRequestCount()).be.eql(2);
 					should(cache.getHitCount()).be.eql(1);
+					disableCache();
 					finish();
 				});
 			});

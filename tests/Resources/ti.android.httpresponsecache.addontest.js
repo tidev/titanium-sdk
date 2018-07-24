@@ -14,11 +14,6 @@ describe.android('Titanium.Android.HttpResponseCache', function () {
 	var cache = Ti.Android.HttpResponseCache;
 	this.timeout(6e4);
 
-	afterEach(function () {
-		cache.flush();
-		cache.remove();
-	});
-
 	it('apiName', function () {
 		should(cache).have.a.readOnlyProperty('apiName').which.is.a.String;
 		should(cache.apiName).be.eql('Ti.Android.HttpResponseCache');
@@ -85,5 +80,7 @@ describe.android('Titanium.Android.HttpResponseCache', function () {
 		result = cache.install();
 		should(result).be.a.Boolean;
 		should(result).be.true;
+		cache.flush();
+		cache.remove();
 	});
 });
