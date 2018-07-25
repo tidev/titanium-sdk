@@ -256,7 +256,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 
 	private void prepareColumn(PickerColumnProxy column)
 	{
-		column.setUseSpinner(false);
 		column.setColumnListener(this);
 	}
 
