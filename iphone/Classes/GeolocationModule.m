@@ -801,12 +801,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   return NUMBOOL(locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel);
 }
 
-- (void)requestAuthorization:(id)value
-{
-  DEPRECATED_REPLACED(@"Geolocation.requestAuthorization()", @"5.1.0", @"Geolocation.requestLocationPermissions()");
-  [self requestLocationPermissions:@[ value, [NSNull null] ]];
-}
-
 - (void)requestLocationPermissions:(id)args
 {
   id value = [args objectAtIndex:0];

@@ -751,7 +751,7 @@ methods:
             for `TableViewRow` objects, which _are_ added using the `add` method. The `add` method
             on `TableViewSection` can only be used to add `TableViewRow` objects.
 
-        *   [Toolbar](Titanium.UI.iOS.Toolbar) is designed to hold buttons and certain
+        *   [Toolbar](Titanium.UI.Toolbar) is designed to hold buttons and certain
             other controls, added to its `items` array. Views added using the `add` method are
             displayed on top of the controls in the `items` array.
 

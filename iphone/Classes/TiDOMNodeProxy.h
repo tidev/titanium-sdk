@@ -34,7 +34,6 @@
 @property (nonatomic, readonly) id nodeType;
 
 @property (nonatomic, readonly) id textContent;
-@property (nonatomic, readonly) id text; // deprecated, use textContent instead
 
 @property (nonatomic, readonly) id parentNode;
 @property (nonatomic, readonly) id childNodes;

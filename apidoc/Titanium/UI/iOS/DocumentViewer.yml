@@ -204,7 +204,7 @@ properties:
     description: |
         Only used with the `show` method.
 
-        Currently, this property can only be set to a button in the <Titanium.UI.iOS.Toolbar>,
+        Currently, this property can only be set to a button in the <Titanium.UI.Toolbar>,
         or the window's `leftNavButton` or `rightNavButton` property.
 
         If this property is not specified, the `show` method launches the document in the viewer

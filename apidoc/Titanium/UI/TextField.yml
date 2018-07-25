@@ -328,12 +328,12 @@ properties:
 
   - name: keyboardToolbar
     summary: |
-        Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the
+        Array of toolbar button objects or a [toolbar](Titanium.UI.Toolbar) to be used when the
         keyboard is displayed.
     description: |
-        As of Release 2.0, because iOS disallows a view (including toolbar buttons) to be in two places at
+        Because iOS disallows a view (including toolbar buttons) to be in two places at
         once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
-        can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
+        can instead use a single [toolbar](Titanium.UI.Toolbar) instead of having arrays sharing
         toolbar buttons.
 
         In Alloy, you can use a `<KeyboardToolbar>` element inside a `<TextField>` element to create
@@ -342,9 +342,9 @@ properties:
             <Alloy>
                 <TextField id="textfield" platform="ios" hintText="Tap here...">
                     <!-- Nested properties -->
-                    <KeyboardToolbar >
-                        <Toolbar >
-                            <Items >
+                    <KeyboardToolbar>
+                        <Toolbar>
+                            <Items>
                                 <Button>button 1</Button>
                                 <FlexSpace />
                                 <Button>button 2</Button>
@@ -353,7 +353,7 @@ properties:
                     </KeyboardToolbar>
                 </TextField>
             </Alloy>
-    type: [Array<Titanium.UI.View>, Titanium.UI.iOS.Toolbar]
+    type: [Array<Titanium.UI.View>, Titanium.UI.Toolbar]
     platforms: [iphone, ipad]
 
   - name: keyboardToolbarColor
@@ -612,7 +612,7 @@ examples:
   - title: Custom Keyboard Toolbar (iOS)
     example: |
         On iOS, a configurable toolbar can be displayed above the virtual keyboard.
-        Toolbars can be used with both text areas and text fields. See <Titanium.UI.iOS.Toolbar>
+        Toolbars can be used with both text areas and text fields. See <Titanium.UI.Toolbar>
         for more information.
 
         This code excerpt creates a text field with a toolbar:

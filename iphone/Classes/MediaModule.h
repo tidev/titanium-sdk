@@ -180,13 +180,6 @@
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_SHUFFLE_SONGS;
 @property (nonatomic, readonly) NSNumber *MUSIC_PLAYER_SHUFFLE_ALBUMS;
 
-// New constants
-@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_KEY;
-@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_FIT;
-@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE;
-@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE_ASPECT;
-@property (nonatomic, readonly) NSString *VIDEO_SCALE_MODE_RESIZE_ASPECT_FILL;
-
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_STOPPED;
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_PLAYING;
 @property (nonatomic, readonly) NSNumber *VIDEO_PLAYBACK_STATE_PAUSED;

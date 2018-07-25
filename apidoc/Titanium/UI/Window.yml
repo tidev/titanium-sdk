@@ -914,12 +914,12 @@ properties:
     description: |
         The toolbar is only shown when the window is inside a <Titanium.UI.iOS.NavigationWindow>.
         To display a toolbar when a window is not inside a NavigationWindow, add an instance of a
-        <Titanium.UI.iOS.Toolbar> to the window.
+        <Titanium.UI.Toolbar> to the window.
 
         To customize the toolbar, use the [setToolbar()](Titanium.UI.Window.setToolbar) method.
 
-        Since Alloy 1.6.0, you can specify this property using the `<WindowToolbar>` element as a
-        child of a `<Window>` element, for example:
+        You can specify this property using the `<WindowToolbar>` element as a child of a 
+        `<Window>` element, for example:
 
             <Alloy>
                 <NavigationWindow>

@@ -426,6 +426,21 @@ properties:
         (the natural end time), and changing the value has no effect.
     type: Number
 
+  - name: fullscreen
+    summary: |
+        Determines if the movie is presented in the entire screen (obscuring all other application content).
+    description: |
+        Note that this must be set at different times on different platforms:
+        On iOS, this property has been deprecated in Titanium SDK 7.0.0. It does not have an affect anymore,
+        since the new underlaying API determines fullscreen presentation automatically.
+        On Android, this property must be set at creation time. For example:
+            var player = Ti.Media.createVideoPlayer({ fullscreen: true });
+        On Android, setting this value to `true` means that the video will have its own Android Activity
+        rather than being embedded as a view.
+    type: Boolean
+    platforms: [android]
+    default: false
+
   - name: initialPlaybackTime
     summary: The start time of movie playback, in milliseconds.
     description: |
@@ -486,16 +501,13 @@ properties:
         The following code sample creates a video player with a background image:
 
             var videoPlayer = Ti.Media.createVideoPlayer({
-                height : 300,
-                width : 300,
-                overlayView : Ti.UI.createView({
-                    backgroundImage: 'videoPlayerBG.png
-                    width : 300,
-                    height : 300
-                }),
-                borderRadius : 20,
-                borderWidth : 2,
-                borderColor : 'blue',
+                height: 300,
+                width: 300,
+                overlayView: Ti.UI.createView({
+                    backgroundImage: 'videoPlayerBG.png',
+                    width: 300,
+                    height: 300
+                })
             });
     platforms: [iphone, ipad]
     type: Titanium.UI.View

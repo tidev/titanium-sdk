@@ -330,21 +330,14 @@ MAKE_SYSTEM_PROP(QUALITY_IFRAME_960x540, UIImagePickerControllerQualityTypeIFram
 MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_VIDEO, AVMediaTypeVideo);
 MAKE_SYSTEM_STR(VIDEO_MEDIA_TYPE_AUDIO, AVMediaTypeAudio);
 
-//Constants for MediaTypes in VideoPlayer
 #ifdef USE_TI_MEDIAVIDEOPLAYER
-//Constants for VideoPlayer mediaControlStyle
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_KEY, AVVideoScalingModeKey);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_FIT, AVVideoScalingModeFit);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE, AVVideoScalingModeResize);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE_ASPECT, AVVideoScalingModeResizeAspect);
-MAKE_SYSTEM_STR(VIDEO_SCALE_MODE_RESIZE_ASPECT_FILL, AVVideoScalingModeResizeAspectFill);
 
-//Constants for VideoPlayer scalingMode
+// Constants for VideoPlayer scalingMode
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE, AVLayerVideoGravityResize);
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT, AVLayerVideoGravityResizeAspect);
 MAKE_SYSTEM_STR(VIDEO_SCALING_RESIZE_ASPECT_FILL, AVLayerVideoGravityResizeAspectFill);
 
-//Constants for VideoPlayer loadState
+// Constants for VideoPlayer loadState
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_UNKNOWN, AVPlayerStatusUnknown);
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_PLAYABLE, AVPlayerStatusReadyToPlay);
 MAKE_SYSTEM_PROP(VIDEO_LOAD_STATE_FAILED, AVPlayerStatusFailed);
@@ -390,18 +383,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   return appMusicPlayer;
 }
 #endif
-
-- (void)setDefaultAudioSessionMode:(NSNumber *)mode
-{
-  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-  [self setAudioSessionMode:mode];
-}
-
-- (NSNumber *)defaultAudioSessionMode
-{
-  DEPRECATED_REPLACED(@"Media.defaultAudioSessionMode", @"7.0.0", @"Media.audioSessionCategory");
-  return [self audioSessionMode];
-}
 
 #if defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_MEDIASOUND) || defined(USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 - (void)setAudioSessionCategory:(NSString *)mode

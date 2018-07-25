@@ -211,12 +211,6 @@ NSArray *moviePlayerKeys = nil;
   }
 }
 
-- (void)setBackgroundView:(id)proxy
-{
-  DEPRECATED_REPLACED(@"Media.VideoPlayer.backgroundView", @"7.0.0", @"Media.VideoPlayer.overlayView")
-      [self setOverlayView:proxy];
-}
-
 - (NSNumber *)playing
 {
   return NUMBOOL(playing);
@@ -264,17 +258,6 @@ NSArray *moviePlayerKeys = nil;
   } else {
     RETURN_FROM_LOAD_PROPERTIES(@"allowsAirPlay", NUMBOOL(NO));
   }
-}
-
-- (void)setMediaControlStyle:(NSNumber *)value
-{
-  DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle", @"4.1.0", @"7.0.0", @"Media.VideoPlayer.showsControls");
-}
-
-- (NSNumber *)mediaControlStyle
-{
-  DEPRECATED_REPLACED_REMOVED(@"Media.VideoPlayer.mediaControlStyle", @"4.1.0", @"7.0.0", @"Media.VideoPlayer.showsControls");
-  return NUMINT(0);
 }
 
 - (void)setMedia:(id)media_
@@ -612,29 +595,12 @@ NSArray *moviePlayerKeys = nil;
   }
 }
 
-- (NSNumber *)fullscreen
-{
-  DEPRECATED_REMOVED(@"Media.VideoPlayer.fullscreen", @"7.0.0", @"7.0.0");
-  return NUMINT(-1);
-}
-
-- (void)setFullscreen:(id)value
-{
-  DEPRECATED_REMOVED(@"Media.VideoPlayer.fullscreen", @"7.0.0", @"7.0.0");
-}
-
 - (NSNumber *)moviePlayerStatus
 {
   if ([movie player] != nil) {
     return NUMINT([[movie player] status]);
   }
   return NUMINT(AVPlayerStatusUnknown);
-}
-
-- (NSNumber *)loadState
-{
-  DEPRECATED_REPLACED(@"Media.VideoPlayer.loadState", @"7.0.0", @"Media.VideoPlayer.moviePlayerStatus");
-  return [self moviePlayerStatus];
 }
 
 - (NSString *)mediaTypes
@@ -646,17 +612,6 @@ NSArray *moviePlayerKeys = nil;
   } else {
     return AVMediaTypeVideo;
   }
-}
-
-- (NSNumber *)sourceType
-{
-  DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"7.0.0", @"7.0.0");
-  return NUMINT(-1);
-}
-
-- (void)setSourceType:(id)type
-{
-  DEPRECATED_REMOVED(@"Media.VideoPlayer.sourceType", @"7.0.0", @"7.0.0");
 }
 
 - (NSNumber *)playbackState
@@ -727,13 +682,6 @@ NSArray *moviePlayerKeys = nil;
   }
 
   [player play];
-}
-
-// Synonym for 'play' from the docs
-- (void)start:(id)args
-{
-  DEPRECATED_REPLACED(@"Media.VideoPlayer.start", @"7.0.0", @"Media.VideoPlayer.play");
-  [self play:args];
 }
 
 - (void)pause:(id)args
@@ -834,12 +782,6 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)handleDurationAvailableNotification:(NSNotification *)note
 {
-  if ([self _hasListeners:@"durationAvailable"]) {
-    DEPRECATED_REPLACED(@"Media.VideoPlayer.Event.durationAvailable", @"7.0.0", @"Media.VideoPlayer.Event.durationavailable");
-    NSDictionary *event = [NSDictionary dictionaryWithObject:[self duration] forKey:@"duration"];
-    [self fireEvent:@"durationAvailable" withObject:event];
-  }
-
   if ([self _hasListeners:@"durationavailable"]) {
     NSDictionary *event = [NSDictionary dictionaryWithObject:[self duration] forKey:@"duration"];
     [self fireEvent:@"durationavailable" withObject:event];
@@ -857,10 +799,6 @@ NSArray *moviePlayerKeys = nil;
 
       if ([self _hasListeners:@"load"]) {
         [self fireEvent:@"load" withObject:nil];
-      }
-
-      if ([self _hasListeners:@"preload"]) {
-        DEPRECATED_REPLACED(@"Media.VideoPlayer.preload", @"7.0.0", @"Media.VideoPlayer.load");
       }
 
       // Seek to the initial playback time if set

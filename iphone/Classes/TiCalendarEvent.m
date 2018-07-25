@@ -235,12 +235,6 @@
   return NULL;
 }
 
-- (TiCalendarRecurrenceRule *)createRecurenceRule:(id)arg
-{
-  DEPRECATED_REPLACED(@"Calendar.createRecurenceRule()", @"5.0.0", @"Calendar.createRecurrenceRule()");
-  return [self createRecurrenceRule:arg];
-}
-
 - (TiCalendarRecurrenceRule *)createRecurrenceRule:(id)arg
 {
   ENSURE_ARRAY(arg);
@@ -412,12 +406,6 @@
   EKRecurrenceRule *rule = [ruleProxy ruleForRecurrence];
 
   [currEvent addRecurrenceRule:rule];
-}
-
-- (void)removeRecurenceRule:(id)arg
-{
-  DEPRECATED_REPLACED(@"Calendar.removeRecurenceRule()", @"5.0.0", @"Calendar.removeRecurrenceRule()");
-  [self removeRecurrenceRule:arg];
 }
 
 - (void)removeRecurrenceRule:(id)arg

@@ -11,6 +11,12 @@
 #import "TiModule.h"
 
 typedef enum {
+  READ_MODE = 1,
+  WRITE_MODE = 2,
+  READ_WRITE_MODE = 3 // Alias for READ | WRITE
+} SocketMode;
+
+typedef enum {
   // DEFAULT TLS is 0
   TLS_VERSION_1_0 = 1,
   TLS_VERSION_1_1,
