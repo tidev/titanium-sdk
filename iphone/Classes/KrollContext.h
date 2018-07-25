@@ -4,8 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiToJS.h"
 #import <Foundation/Foundation.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 
 @class KrollContext;
 @class KrollCallback;
@@ -38,9 +38,8 @@
 #ifndef __clang_analyzer__
   BOOL suspended;
 #endif
-  TiGlobalContextRef context;
+  JSGlobalContextRef context;
   NSMutableDictionary *timers;
-  void *debugger;
 
 #ifdef TI_USE_KROLL_THREAD
   NSRecursiveLock *timerLock;
@@ -58,8 +57,7 @@
 - (void)stop;
 - (BOOL)running;
 - (void)gc;
-- (TiGlobalContextRef)context;
-- (void *)debugger;
+- (JSGlobalContextRef)context;
 - (BOOL)isKJSThread;
 
 #ifdef DEBUG
@@ -92,13 +90,13 @@
 //====================================================================================================================
 
 @interface KrollUnprotectOperation : NSOperation {
-  TiContextRef jsContext;
-  TiObjectRef firstObject;
-  TiObjectRef secondObject;
+  JSContextRef jsContext;
+  JSObjectRef firstObject;
+  JSObjectRef secondObject;
 }
 
-- (id)initWithContext:(TiContextRef)newContext withJsobject:(TiObjectRef)newFirst;
-- (id)initWithContext:(TiContextRef)newContext withJsobject:(TiObjectRef)newFirst andJsobject:(TiObjectRef)newSecond;
+- (id)initWithContext:(JSContextRef)newContext withJsobject:(JSObjectRef)newFirst;
+- (id)initWithContext:(JSContextRef)newContext withJsobject:(JSObjectRef)newFirst andJsobject:(JSObjectRef)newSecond;
 
 @end
 
@@ -125,7 +123,7 @@
 - (id)initWithCode:(NSString *)code;
 - (id)initWithCode:(NSString *)code sourceURL:(NSURL *)sourceURL;
 - (id)initWithCode:(NSString *)code sourceURL:(NSURL *)sourceURL startingLineNo:(NSInteger)startingLineNo;
-- (TiValueRef)jsInvokeInContext:(KrollContext *)context exception:(TiValueRef *)exceptionPointer;
+- (JSValueRef)jsInvokeInContext:(KrollContext *)context exception:(JSValueRef *)exceptionPointer;
 - (void)invoke:(KrollContext *)context;
 - (id)invokeWithResult:(KrollContext *)context;
 @end
@@ -151,7 +149,7 @@
 - (void)setExecutionContext:(id<KrollDelegate>)delegate;
 @end
 
-KrollContext *GetKrollContext(TiContextRef context);
+KrollContext *GetKrollContext(JSContextRef context);
 
 //TODO: After 1.7, move to individual file and convert KrollInvocation and Callbacks to ExpandedInvocationOperation.
 @interface ExpandedInvocationOperation : NSOperation {

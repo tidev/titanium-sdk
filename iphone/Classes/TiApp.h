@@ -14,7 +14,7 @@
 #import "XHRBridge.h"
 #endif
 #import "TiRootViewController.h"
-#import "TiToJS.h"
+#import <JavaScriptCore/JavaScriptCore.h>
 
 extern BOOL applicationInMemoryPanic;
 
@@ -35,7 +35,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
   UIView *splashScreenView;
   BOOL loaded;
 
-  TiContextGroupRef contextGroup;
+  JSContextGroupRef contextGroup;
   KrollBridge *kjsBridge;
 
 #ifdef USE_TI_UIWEBVIEW
@@ -105,7 +105,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  */
 @property (nonatomic, retain) TiRootViewController *controller;
 
-@property (nonatomic, readonly) TiContextGroupRef contextGroup;
+@property (nonatomic, readonly) JSContextGroupRef contextGroup;
 
 @property (nonatomic, readonly) BOOL willTerminate;
 /**
@@ -125,7 +125,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  */
 + (TiRootViewController *)controller;
 
-+ (TiContextGroupRef)contextGroup;
++ (JSContextGroupRef)contextGroup;
 
 - (BOOL)windowIsKeyWindow;
 

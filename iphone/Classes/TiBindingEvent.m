@@ -10,11 +10,11 @@
 #import "TiBindingRunLoop.h"
 #import "TiBindingTiValue.h"
 #import "TiExceptionHandler.h"
-#include "TiToJS.h"
 #import "TiUtils.h"
+#import <JavaScriptCore/JavaScriptCore.h>
 #include <libkern/OSAtomic.h>
 
-extern TiStringRef kTiStringLength;
+extern JSStringRef kTiStringLength;
 
 /** Event lifecycle, a documentation.
  
@@ -54,33 +54,33 @@ struct TiBindingEventOpaque {
   NSDictionary *payloadDictionary; //Immutable
   NSString *errorMessageString; //Immutable
   //Immutable caching.
-  TiStringRef eventStringRef; //Immutable
-  TiStringRef errorMessageStringRef; //Immutable
+  JSStringRef eventStringRef; //Immutable
+  JSStringRef errorMessageStringRef; //Immutable
   //Mutable caching in future.
-  TiContextRef contextRef;
-  TiObjectRef eventObjectRef;
+  JSContextRef contextRef;
+  JSObjectRef eventObjectRef;
 };
 
 void TiBindingEventProcess(TiBindingRunLoop runloop, void *payload);
 
 pthread_once_t jsBindingRunOnce = PTHREAD_ONCE_INIT;
-TiStringRef jsEventCancelBubbleStringRef = NULL;
-TiStringRef jsEventTypeStringRef = NULL;
-TiStringRef jsEventSourceStringRef = NULL;
-TiStringRef jsEventBubblesStringRef = NULL;
-TiStringRef jsEventSuccessStringRef = NULL;
-TiStringRef jsEventErrorCodeStringRef = NULL;
-TiStringRef jsEventErrorMessageStringRef = NULL;
+JSStringRef jsEventCancelBubbleStringRef = NULL;
+JSStringRef jsEventTypeStringRef = NULL;
+JSStringRef jsEventSourceStringRef = NULL;
+JSStringRef jsEventBubblesStringRef = NULL;
+JSStringRef jsEventSuccessStringRef = NULL;
+JSStringRef jsEventErrorCodeStringRef = NULL;
+JSStringRef jsEventErrorMessageStringRef = NULL;
 
 void TiBindingInitialize()
 {
-  jsEventCancelBubbleStringRef = TiStringCreateWithUTF8CString("cancelBubble");
-  jsEventTypeStringRef = TiStringCreateWithUTF8CString("type");
-  jsEventSourceStringRef = TiStringCreateWithUTF8CString("source");
-  jsEventBubblesStringRef = TiStringCreateWithUTF8CString("bubbles");
-  jsEventSuccessStringRef = TiStringCreateWithUTF8CString("success");
-  jsEventErrorCodeStringRef = TiStringCreateWithUTF8CString("code");
-  jsEventErrorMessageStringRef = TiStringCreateWithUTF8CString("error");
+  jsEventCancelBubbleStringRef = JSStringCreateWithUTF8CString("cancelBubble");
+  jsEventTypeStringRef = JSStringCreateWithUTF8CString("type");
+  jsEventSourceStringRef = JSStringCreateWithUTF8CString("source");
+  jsEventBubblesStringRef = JSStringCreateWithUTF8CString("bubbles");
+  jsEventSuccessStringRef = JSStringCreateWithUTF8CString("success");
+  jsEventErrorCodeStringRef = JSStringCreateWithUTF8CString("code");
+  jsEventErrorMessageStringRef = JSStringCreateWithUTF8CString("error");
 }
 
 TiBindingEvent TiBindingEventCreateWithNSObjects(TiProxy *target, TiProxy *source, NSString *type, NSDictionary *payload)
@@ -97,7 +97,7 @@ TiBindingEvent TiBindingEventCreateWithNSObjects(TiProxy *target, TiProxy *sourc
   result->errorCode = 0;
   result->errorMessageString = nil;
   result->eventObjectRef = NULL;
-  result->eventStringRef = TiStringCreateWithCFString((CFStringRef)result->eventString);
+  result->eventStringRef = JSStringCreateWithCFString((CFStringRef)result->eventString);
   result->errorMessageStringRef = NULL;
   result->contextRef = NULL;
   return result;
@@ -139,10 +139,10 @@ void TiBindingEventSetErrorMessageWithNSString(TiBindingEvent event, NSString *m
   [event->errorMessageString autorelease];
   event->errorMessageString = [message copy];
   if (event->errorMessageStringRef != NULL) {
-    TiStringRelease(event->errorMessageStringRef);
+    JSStringRelease(event->errorMessageStringRef);
   }
   if (message != nil) {
-    event->errorMessageStringRef = TiStringCreateWithCFString((CFStringRef)message);
+    event->errorMessageStringRef = JSStringCreateWithCFString((CFStringRef)message);
   } else {
     event->errorMessageStringRef = NULL;
   }
@@ -200,23 +200,23 @@ void TiBindingEventFire(TiBindingEvent event)
 void TiBindingEventProcess(TiBindingRunLoop runloop, void *payload)
 {
   TiBindingEvent event = payload;
-  TiObjectRef eventObjectRef = NULL;
-  TiValueRef eventTargetRef = NULL;
-  TiValueRef eventStringRef = NULL;
-  TiValueRef eventSourceRef = NULL;
+  JSObjectRef eventObjectRef = NULL;
+  JSValueRef eventTargetRef = NULL;
+  JSValueRef eventStringRef = NULL;
+  JSValueRef eventSourceRef = NULL;
 
   KrollObject *targetKrollObject = [event->targetProxy krollObjectForContext:runloop];
-  TiObjectRef callbacksObjectRef = [targetKrollObject callbacksForEvent:event->eventStringRef];
+  JSObjectRef callbacksObjectRef = [targetKrollObject callbacksForEvent:event->eventStringRef];
   int callbackCount = 0;
-  TiContextRef context = [runloop context];
+  JSContextRef context = [runloop context];
 
   if (callbacksObjectRef != NULL) {
-    TiValueRef jsCallbackArrayLength = TiObjectGetProperty(context, callbacksObjectRef, kTiStringLength, NULL);
-    callbackCount = (int)TiValueToNumber(context, jsCallbackArrayLength, NULL);
+    JSValueRef jsCallbackArrayLength = JSObjectGetProperty(context, callbacksObjectRef, kTiStringLength, NULL);
+    callbackCount = (int)JSValueToNumber(context, jsCallbackArrayLength, NULL);
   }
 
   if (callbackCount > 0) {
-    //Convert to TIobjectrefs
+    //Convert to JSObjectRefs
     if (eventObjectRef == NULL) {
       eventObjectRef = TiBindingTiValueFromNSDictionary(context, event->payloadDictionary);
     }
@@ -227,43 +227,43 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void *payload)
       eventSourceRef = TiBindingTiValueFromProxy(context, event->sourceProxy);
     }
     if (eventStringRef == NULL) {
-      eventStringRef = TiValueMakeString(context, event->eventStringRef);
+      eventStringRef = JSValueMakeString(context, event->eventStringRef);
     }
-    TiValueRef bubblesValue = TiValueMakeBoolean(context, event->bubbles);
-    TiValueRef cancelBubbleValue = TiValueMakeBoolean(context, false);
+    JSValueRef bubblesValue = JSValueMakeBoolean(context, event->bubbles);
+    JSValueRef cancelBubbleValue = JSValueMakeBoolean(context, false);
 
-    TiObjectSetProperty(context, eventObjectRef, jsEventBubblesStringRef, bubblesValue, kTiPropertyAttributeReadOnly, NULL);
-    TiObjectSetProperty(context, eventObjectRef, jsEventTypeStringRef, eventStringRef, kTiPropertyAttributeReadOnly, NULL);
-    TiObjectSetProperty(context, eventObjectRef, jsEventSourceStringRef, eventSourceRef, kTiPropertyAttributeReadOnly, NULL);
+    JSObjectSetProperty(context, eventObjectRef, jsEventBubblesStringRef, bubblesValue, kJSPropertyAttributeReadOnly, NULL);
+    JSObjectSetProperty(context, eventObjectRef, jsEventTypeStringRef, eventStringRef, kJSPropertyAttributeReadOnly, NULL);
+    JSObjectSetProperty(context, eventObjectRef, jsEventSourceStringRef, eventSourceRef, kJSPropertyAttributeReadOnly, NULL);
 
     //Error reporting
     if (event->reportError) {
-      TiValueRef successValue = TiValueMakeBoolean(context, (event->errorCode == 0));
-      TiValueRef codeValue = TiValueMakeNumber(context, (double)event->errorCode);
+      JSValueRef successValue = JSValueMakeBoolean(context, (event->errorCode == 0));
+      JSValueRef codeValue = JSValueMakeNumber(context, (double)event->errorCode);
 
-      TiObjectSetProperty(context, eventObjectRef, jsEventSuccessStringRef, successValue, kTiPropertyAttributeReadOnly, NULL);
-      TiObjectSetProperty(context, eventObjectRef, jsEventErrorCodeStringRef, codeValue, kTiPropertyAttributeReadOnly, NULL);
+      JSObjectSetProperty(context, eventObjectRef, jsEventSuccessStringRef, successValue, kJSPropertyAttributeReadOnly, NULL);
+      JSObjectSetProperty(context, eventObjectRef, jsEventErrorCodeStringRef, codeValue, kJSPropertyAttributeReadOnly, NULL);
     }
 
     if (event->errorMessageStringRef != NULL) {
-      TiValueRef eventStringValueRef = TiValueMakeString(context, event->eventStringRef);
-      TiObjectSetProperty(context, eventObjectRef, jsEventErrorMessageStringRef, eventStringValueRef, kTiPropertyAttributeReadOnly, NULL);
+      JSValueRef eventStringValueRef = JSValueMakeString(context, event->eventStringRef);
+      JSObjectSetProperty(context, eventObjectRef, jsEventErrorMessageStringRef, eventStringValueRef, kJSPropertyAttributeReadOnly, NULL);
     }
 
-    TiObjectSetProperty(context, eventObjectRef, jsEventCancelBubbleStringRef, cancelBubbleValue, kTiPropertyAttributeNone, NULL);
+    JSObjectSetProperty(context, eventObjectRef, jsEventCancelBubbleStringRef, cancelBubbleValue, kJSPropertyAttributeNone, NULL);
 
     for (int i = 0; i < callbackCount; i++) {
       // Process event in context
-      TiValueRef currentCallback = TiObjectGetPropertyAtIndex(context, callbacksObjectRef, i, NULL);
-      if ((currentCallback == NULL) || (TiValueGetType(context, currentCallback) != kTITypeObject)
-          || !TiObjectIsFunction(context, (TiObjectRef)currentCallback)) {
+      JSValueRef currentCallback = JSObjectGetPropertyAtIndex(context, callbacksObjectRef, i, NULL);
+      if ((currentCallback == NULL) || (JSValueGetType(context, currentCallback) != kJSTypeObject)
+          || !JSObjectIsFunction(context, (JSObjectRef)currentCallback)) {
         continue;
       }
 #ifndef TI_USE_KROLL_THREAD
       TiThreadPerformOnMainThread(^{
 #endif
-        TiValueRef exception = NULL;
-        TiObjectCallAsFunction(context, (TiObjectRef)currentCallback, (TiObjectRef)eventTargetRef, 1, (TiValueRef *)&eventObjectRef, &exception);
+        JSValueRef exception = NULL;
+        JSObjectCallAsFunction(context, (JSObjectRef)currentCallback, (JSObjectRef)eventTargetRef, 1, (JSValueRef *)&eventObjectRef, &exception);
         if (exception != NULL) {
           id excm = TiBindingTiValueToNSObject(context, exception);
           [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
@@ -273,8 +273,8 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void *payload)
           [NSThread isMainThread]);
 #endif
       // Note cancel bubble
-      cancelBubbleValue = TiObjectGetProperty(context, eventObjectRef, jsEventCancelBubbleStringRef, NULL);
-      if (TiValueToBoolean(context, cancelBubbleValue)) {
+      cancelBubbleValue = JSObjectGetProperty(context, eventObjectRef, jsEventCancelBubbleStringRef, NULL);
+      if (JSValueToBoolean(context, cancelBubbleValue)) {
         event->cancelBubble = true; //Because we only set true, not read nor set false, there's no race condition?
       }
     }
@@ -304,13 +304,13 @@ void TiBindingEventDispose(TiBindingEvent event)
   [event->payloadDictionary release];
   [event->errorMessageString release];
   if (event->eventStringRef != NULL) {
-    TiStringRelease(event->eventStringRef);
+    JSStringRelease(event->eventStringRef);
   }
   if (event->errorMessageStringRef != NULL) {
-    TiStringRelease(event->errorMessageStringRef);
+    JSStringRelease(event->errorMessageStringRef);
   }
   if (event->eventObjectRef != NULL) {
-    TiValueUnprotect(event->contextRef, event->eventObjectRef);
+    JSValueUnprotect(event->contextRef, event->eventObjectRef);
   }
   if (event->contextRef != NULL) {
     //TODO: Do we protect and release the context ref?

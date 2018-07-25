@@ -23,10 +23,6 @@
 #include <unistd.h>
 #endif
 
-#ifndef USE_JSCORE_FRAMEWORK
-#import "TiDebugger.h"
-#endif
-
 NSMutableArray *TiCreateNonRetainingArray()
 {
   CFArrayCallBacks callbacks = kCFTypeArrayCallBacks;
@@ -72,13 +68,6 @@ void TiLogMessage(NSString *str, ...)
 #ifndef DISABLE_TI_LOG_SERVER
   // next we send the message to the log server to be sent or queued up
   [TiLogServer log:message];
-#endif
-
-#ifndef USE_JSCORE_FRAMEWORK
-  // lastly, if we're debugging the app, write the message to the debugger
-  if ([[TiApp app] debugMode]) {
-    TiDebuggerLogMessage(OUT, message);
-  }
 #endif
 }
 

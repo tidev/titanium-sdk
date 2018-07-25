@@ -262,7 +262,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
  */
 - (void)forgetProxy:(TiProxy *)forgottenProxy;
 
-//These are when, say, a window is opened, so you want to do tiValueProtect to make SURE it doesn't go away.
+//These are when, say, a window is opened, so you want to do JSValueProtect to make SURE it doesn't go away.
 
 /**
  Tells the proxy to retain associated JS object.

@@ -14,16 +14,13 @@
 #import "TiConsole.h"
 #import "TiExceptionHandler.h"
 #import "TiHost.h"
-#import "TiToJS.h"
 #import "TiUtils.h"
 #import "TopTiModule.h"
+#import <JavaScriptCore/JavaScriptCore.h>
 #import <libkern/OSAtomic.h>
 
 #ifdef KROLL_COVERAGE
 #include "KrollCoverage.h"
-#endif
-#ifndef USE_JSCORE_FRAMEWORK
-#import "TiDebugger.h"
 #endif
 extern BOOL const TI_APPLICATION_ANALYTICS;
 extern NSString *const TI_APPLICATION_DEPLOYTYPE;
@@ -369,9 +366,9 @@ CFMutableSetRef krollBridgeRegistry = nil;
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
   NSError *error = nil;
-  TiValueRef exception = NULL;
+  JSValueRef exception = NULL;
 
-  TiContextRef jsContext = [context_ context];
+  JSContextRef jsContext = [context_ context];
 
   NSURL *url_ = [path hasPrefix:@"file:"] ? [NSURL URLWithString:path] : [NSURL fileURLWithPath:path];
 
@@ -410,23 +407,11 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   const char *urlCString = [[url_ absoluteString] UTF8String];
 
-  TiStringRef jsCode = TiStringCreateWithCFString((CFStringRef)jcode);
-  TiStringRef jsURL = TiStringCreateWithUTF8CString(urlCString);
+  JSStringRef jsCode = JSStringCreateWithCFString((CFStringRef)jcode);
+  JSStringRef jsURL = JSStringCreateWithUTF8CString(urlCString);
 
   if (exception == NULL) {
-#ifndef USE_JSCORE_FRAMEWORK
-    if ([[self host] debugMode]) {
-      TiDebuggerBeginScript(context_, urlCString);
-    }
-#endif
-
-    TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
-
-#ifndef USE_JSCORE_FRAMEWORK
-    if ([[self host] debugMode]) {
-      TiDebuggerEndScript(context_);
-    }
-#endif
+    JSEvaluateScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
     if (exception == NULL) {
       evaluationError = NO;
     } else {
@@ -439,8 +424,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
     [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
   }
 
-  TiStringRelease(jsCode);
-  TiStringRelease(jsURL);
+  JSStringRelease(jsCode);
+  JSStringRelease(jsURL);
   [pool release];
 }
 
@@ -531,30 +516,30 @@ CFMutableSetRef krollBridgeRegistry = nil;
   NSString *basePath = (url == nil) ? [TiHost resourcePath] : [[[url path] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"."];
   titanium = [[TitaniumObject alloc] initWithContext:kroll host:host context:self baseURL:[NSURL fileURLWithPath:basePath]];
 
-  TiContextRef jsContext = [kroll context];
-  TiValueRef tiRef = [KrollObject toValue:kroll value:titanium];
+  JSContextRef jsContext = [kroll context];
+  JSValueRef tiRef = [KrollObject toValue:kroll value:titanium];
 
   NSString *titaniumNS = [NSString stringWithFormat:@"T%sanium", "it"];
-  TiStringRef prop = TiStringCreateWithCFString((CFStringRef)titaniumNS);
-  TiStringRef prop2 = TiStringCreateWithCFString((CFStringRef)[NSString stringWithFormat:@"%si", "T"]);
-  TiObjectRef globalRef = TiContextGetGlobalObject(jsContext);
-  TiObjectSetProperty(jsContext, globalRef, prop, tiRef,
-      kTiPropertyAttributeDontDelete | kTiPropertyAttributeDontEnum,
+  JSStringRef prop = JSStringCreateWithCFString((CFStringRef)titaniumNS);
+  JSStringRef prop2 = JSStringCreateWithCFString((CFStringRef)[NSString stringWithFormat:@"%si", "T"]);
+  JSObjectRef globalRef = JSContextGetGlobalObject(jsContext);
+  JSObjectSetProperty(jsContext, globalRef, prop, tiRef,
+      kJSPropertyAttributeDontDelete | kJSPropertyAttributeDontEnum,
       NULL);
-  TiObjectSetProperty(jsContext, globalRef, prop2, tiRef,
-      kTiPropertyAttributeDontDelete | kTiPropertyAttributeDontEnum,
+  JSObjectSetProperty(jsContext, globalRef, prop2, tiRef,
+      kJSPropertyAttributeDontDelete | kJSPropertyAttributeDontEnum,
       NULL);
-  TiStringRelease(prop);
-  TiStringRelease(prop2);
+  JSStringRelease(prop);
+  JSStringRelease(prop2);
 
   // Load the "console" object into the global scope
   console = [[KrollObject alloc] initWithTarget:[[[TiConsole alloc] _initWithPageContext:self] autorelease] context:kroll];
-  prop = TiStringCreateWithCFString((CFStringRef) @"console");
-  TiObjectSetProperty(jsContext, globalRef, prop, [KrollObject toValue:kroll value:console], kTiPropertyAttributeNone, NULL);
+  prop = JSStringCreateWithCFString((CFStringRef) @"console");
+  JSObjectSetProperty(jsContext, globalRef, prop, [KrollObject toValue:kroll value:console], kJSPropertyAttributeNone, NULL);
 
   // Make the global object itself available under the name "global"
-  TiStringRef globalPropertyName = TiStringCreateWithCFString((CFStringRef) @"global");
-  TiObjectSetProperty(jsContext, globalRef, globalPropertyName, globalRef, kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete, NULL);
+  JSStringRef globalPropertyName = JSStringCreateWithCFString((CFStringRef) @"global");
+  JSObjectSetProperty(jsContext, globalRef, globalPropertyName, globalRef, kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete, NULL);
 
   //if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
@@ -728,8 +713,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
 	 * done, we should have as little footprint
 	 */
   KrollEval *eval = [[KrollEval alloc] initWithCode:js sourceURL:sourceURL startingLineNo:1];
-  TiValueRef exception = NULL;
-  TiValueRef resultRef = [eval jsInvokeInContext:context exception:&exception];
+  JSValueRef exception = NULL;
+  JSValueRef resultRef = [eval jsInvokeInContext:context exception:&exception];
   [js release];
   [eval release];
 
@@ -745,7 +730,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   KrollWrapper *result = [[KrollWrapper alloc] init];
   [result setBridge:self];
-  [result setJsobject:(TiObjectRef)resultRef];
+  [result setJsobject:(JSObjectRef)resultRef];
   [result protectJsobject];
 
   return [result autorelease];
@@ -784,22 +769,22 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // are accessible. We store the exports object and then put references to its properties on the toplevel
   // object.
 
-  TiContextRef jsContext = [[self krollContext] context];
-  TiObjectRef jsObject = [wrapper jsobject];
+  JSContextRef jsContext = [[self krollContext] context];
+  JSObjectRef jsObject = [wrapper jsobject];
   KrollObject *moduleObject = [module krollObjectForContext:[self krollContext]];
   [moduleObject noteObject:jsObject forTiString:kTiStringExportsKey context:jsContext];
 
-  TiPropertyNameArrayRef properties = TiObjectCopyPropertyNames(jsContext, jsObject);
-  size_t count = TiPropertyNameArrayGetCount(properties);
+  JSPropertyNameArrayRef properties = JSObjectCopyPropertyNames(jsContext, jsObject);
+  size_t count = JSPropertyNameArrayGetCount(properties);
   for (size_t i = 0; i < count; i++) {
     // Mixin the property onto the module JS object if it's not already there
-    TiStringRef propertyName = TiPropertyNameArrayGetNameAtIndex(properties, i);
-    if (!TiObjectHasProperty(jsContext, [moduleObject jsobject], propertyName)) {
-      TiValueRef property = TiObjectGetProperty(jsContext, jsObject, propertyName, NULL);
-      TiObjectSetProperty([[self krollContext] context], [moduleObject jsobject], propertyName, property, kTiPropertyAttributeReadOnly, NULL);
+    JSStringRef propertyName = JSPropertyNameArrayGetNameAtIndex(properties, i);
+    if (!JSObjectHasProperty(jsContext, [moduleObject jsobject], propertyName)) {
+      JSValueRef property = JSObjectGetProperty(jsContext, jsObject, propertyName, NULL);
+      JSObjectSetProperty([[self krollContext] context], [moduleObject jsobject], propertyName, property, kJSPropertyAttributeReadOnly, NULL);
     }
   }
-  TiPropertyNameArrayRelease(properties);
+  JSPropertyNameArrayRelease(properties);
 
   return module;
 }
@@ -910,20 +895,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 - (KrollWrapper *)loadJavascriptText:(NSString *)data fromFile:(NSString *)filename withContext:(KrollContext *)kroll
 {
   NSURL *url_ = [TiHost resourceBasedURL:filename baseURL:NULL];
-#ifndef USE_JSCORE_FRAMEWORK
-  const char *urlCString = [[url_ absoluteString] UTF8String];
-  if ([[self host] debugMode]) {
-    TiDebuggerBeginScript([self krollContext], urlCString);
-  }
-#endif
-
   KrollWrapper *wrapper = [self loadCommonJSModule:data withSourceURL:url_];
-
-#ifndef USE_JSCORE_FRAMEWORK
-  if ([[self host] debugMode]) {
-    TiDebuggerEndScript([self krollContext]);
-  }
-#endif
 
   if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
     @throw [NSException exceptionWithName:@"org.appcelerator.kroll"
