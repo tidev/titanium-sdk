@@ -534,13 +534,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			getWindow().addFlags(windowFlags);
 		}
 
-		if (modal) {
-			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-				// This flag is deprecated in API 14. On ICS, the background is not blurred but straight black.
-				getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-			}
-		}
-
 		if (hasSoftInputMode) {
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);

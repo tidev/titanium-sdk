@@ -167,14 +167,6 @@ public class TiFileHelper implements Handler.Callback
 				if (TI_RESOURCE_PREFIX.equals(section)) {
 					is = TiFileHelper.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/" + resid
 																+ ".png");
-				} else if ("Sys".equals(section)) {
-					Log.e(TAG, "Accessing Android system icons is deprecated. Instead copy to res folder.");
-					Integer id = systemIcons.get(resid);
-					if (id != null) {
-						is = Resources.getSystem().openRawResource(id);
-					} else {
-						Log.w(TAG, "Drawable not found for system id: " + path);
-					}
 				} else {
 					Log.e(TAG, "Unknown section identifier: " + section);
 				}
@@ -412,14 +404,6 @@ public class TiFileHelper implements Handler.Callback
 							// Ignore
 						}
 					}
-				}
-			} else if ("Sys".equals(section)) {
-				Log.e(TAG, "Accessing Android system icons is deprecated. Instead copy to res folder.");
-				Integer id = systemIcons.get(resid);
-				if (id != null) {
-					d = Resources.getSystem().getDrawable(id);
-				} else {
-					Log.w(TAG, "Drawable not found for system id: " + s);
 				}
 			} else {
 				Log.e(TAG, "Unknown section identifier: " + section);

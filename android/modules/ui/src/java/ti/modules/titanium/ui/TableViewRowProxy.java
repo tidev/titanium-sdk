@@ -71,14 +71,6 @@ public class TableViewRowProxy extends TiViewProxy
 	public void handleCreationDict(KrollDict options)
 	{
 		super.handleCreationDict(options);
-		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
-			Log.w(TAG, "selectedBackgroundColor is deprecated, use backgroundSelectedColor instead");
-			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, options.get(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR));
-		}
-		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
-			Log.w(TAG, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead");
-			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, options.get(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE));
-		}
 		if (!options.containsKey(TiC.PROPERTY_COLOR)) {
 			if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
 				int color = TiColorHelper.parseColor((String) options.get(TiC.PROPERTY_BACKGROUND_COLOR));

@@ -147,19 +147,12 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		super.handleCreationDict(options);
 
 		Object mcStyle = options.get(TiC.PROPERTY_MEDIA_CONTROL_STYLE);
-		Object mcModeDeprecated = options.get(PROPERTY_MOVIE_CONTROL_MODE);
-		Object mcStyleDeprecated = options.get(PROPERTY_MOVIE_CONTROL_STYLE);
+		Object sMode = options.get(TiC.PROPERTY_SCALING_MODE);
+
 		if (mcStyle != null) {
 			mediaControlStyle = TiConvert.toInt(mcStyle);
-		} else if (mcModeDeprecated != null) {
-			Log.w(TAG, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
-			mediaControlStyle = TiConvert.toInt(mcModeDeprecated);
-		} else if (mcStyleDeprecated != null) {
-			Log.w(TAG, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
-			mediaControlStyle = TiConvert.toInt(mcStyleDeprecated);
 		}
 
-		Object sMode = options.get(TiC.PROPERTY_SCALING_MODE);
 		if (sMode != null) {
 			scalingMode = TiConvert.toInt(sMode);
 		}
@@ -478,52 +471,6 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 				getMainHandler().sendEmptyMessage(MSG_MEDIA_CONTROL_CHANGE);
 			}
 		}
-	}
-
-	// clang-format off
-	@Kroll.method
-	@Kroll.getProperty
-	public int getMovieControlMode()
-	// clang-format on
-	{
-		Log.w(TAG, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
-		return getMediaControlStyle();
-	}
-
-	// clang-format off
-	@Kroll.method
-	@Kroll.setProperty
-	public void setMovieControlMode(int style)
-	// clang-format on
-	{
-		Log.w(TAG, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
-		setMediaControlStyle(style);
-	}
-
-	/**
-	 * Our iOS implementation has been supporting this version of the property name as well,
-	 * possibly accidentally.  These "media/movieControl" property names should be properly
-	 * deprecated and cleaned up after TIMOB-2802 is resolved.
-	 * TODO
-	 */
-	// clang-format off
-	@Kroll.method
-	@Kroll.getProperty
-	public int getMovieControlStyle()
-	// clang-format on
-	{
-		Log.w(TAG, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
-		return getMediaControlStyle();
-	}
-
-	// clang-format off
-	@Kroll.method
-	@Kroll.setProperty
-	public void setMovieControlStyle(int style)
-	// clang-format on
-	{
-		Log.w(TAG, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
-		setMediaControlStyle(style);
 	}
 
 	// clang-format off
