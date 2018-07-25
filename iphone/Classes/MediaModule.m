@@ -552,7 +552,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#ifdefUSE_TI_MEDIACAMERAAUTHORIZATION
+#ifdef USE_TI_MEDIACAMERAAUTHORIZATION
 - (NSNumber *)cameraAuthorization
 {
   return NUMINTEGER([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo]);
@@ -900,14 +900,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#if defined(USE_TI_MEDIAREQUESTCAMERAPERMISSIONS) || defined(USE_TI_MEDIAREQUESTCAMERAACCESS)
-- (void)requestCameraAccess:(id)arg
-{
-  DEPRECATED_REPLACED(@"Media.requestCameraAccess", @"5.1.0", @"Media.requestCameraPermissions");
-  [self requestCameraPermissions:arg];
-}
-
-//request camera access. for >= IOS7
+#ifdef USE_TI_MEDIAREQUESTCAMERAPERMISSIONS
 - (void)requestCameraPermissions:(id)arg
 {
   ENSURE_SINGLE_ARG(arg, KrollCallback);

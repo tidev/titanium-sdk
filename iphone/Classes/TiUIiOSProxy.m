@@ -32,10 +32,6 @@
 #import "TiUIiOSCoverFlowViewProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSTOOLBAR
-#import "TiUIToolbarProxy.h"
-#endif
-
 #ifdef USE_TI_UIIOSTABBEDBAR
 #import "TiUIiOSTabbedBarProxy.h"
 #endif
@@ -473,14 +469,6 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 - (id)createAdView:(id)args
 {
   DebugLog(@"[ERROR] iAd has been deprecated in iOS 10 and SDK 5.5.0. It was removed as part of the SDK 7.0.0.");
-}
-#endif
-
-#ifdef USE_TI_UIIOSTOOLBAR
-- (id)createToolbar:(id)args
-{
-  DEPRECATED_REPLACED(@"UI.iOS.Toolbar", @"6.2.0", @"UI.Toolbar (parity with Android)")
-  return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.iOS.Toolbar"] autorelease];
 }
 #endif
 

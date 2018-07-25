@@ -31,7 +31,6 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	private static final int MSG_SET_ROWS = MSG_FIRST_ID + 102;
 	private static final int MSG_ADD_ARRAY = MSG_FIRST_ID + 103;
 	private PickerColumnListener columnListener = null;
-	private boolean useSpinner = false;
 	private boolean suppressListenerEvents = false;
 
 	// Indicate whether this picker column is not created by users.
@@ -48,10 +47,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	{
 		columnListener = listener;
 	}
-	public void setUseSpinner(boolean value)
-	{
-		useSpinner = value;
-	}
+
 	@Override
 	public boolean handleMessage(Message msg)
 	{
@@ -248,11 +244,7 @@ public class PickerColumnProxy extends TiViewProxy implements PickerRowListener
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		if (useSpinner) {
-			return new TiUISpinnerColumn(this);
-		} else {
-			return new TiUIPickerColumn(this);
-		}
+		return new TiUIPickerColumn(this);
 	}
 
 	public interface PickerColumnListener {

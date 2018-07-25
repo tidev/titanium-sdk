@@ -58,37 +58,7 @@ methods:
         summary: Day of the month of the events.
         type: Number
     platforms: [android, iphone, ipad]
-        
-  - name: getEventsInMonth
-    summary: Gets events that occur during a specified month.
-    returns:
-        type: Array<Titanium.Calendar.Event>
-    parameters:
-      - name: year
-        summary: Year of the events.
-        type: Number
-        
-      - name: month
-        summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
-        type: Number
-    platforms: [android, iphone, ipad]
-    deprecated:
-      since: "7.0.0"
-      notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
-        
-  - name: getEventsInYear
-    summary: Gets all events that occur during a specified year.
-    returns:
-        type: Array<Titanium.Calendar.Event>
-    parameters:
-      - name: year
-        summary: Year of the events.
-        type: Number
-    platforms: [android, iphone, ipad]
-    deprecated:
-      since: "7.0.0"
-      notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
-        
+
 properties:
   - name: hidden
     summary: Indicates whether this calendar can be edited or deleted.

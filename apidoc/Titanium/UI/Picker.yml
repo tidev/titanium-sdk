@@ -379,24 +379,6 @@ properties:
     constants: Titanium.UI.PICKER_TYPE_*
     default: <Titanium.UI.PICKER_TYPE_PLAIN>
 
-  - name: useSpinner
-    summary: |
-        Determines whether the non-native Android control, with a spinning wheel that looks and
-        behaves like the iOS picker, is invoked rather than the default native "dropdown" style.
-    description: |
-        If `true`, the spinner is enabled.
-
-        This property should be set either at picker creation, i.e.
-        `Titanium.UI.createPicker({ useSpinner:true });`, or before the picker is added to its parent.
-
-        This property must be enabled for multi-column pickers.
-    type: Boolean
-    default: false
-    platforms: [android]
-    deprecated:
-      since: 5.2.1
-      notes: This property is deprecated. Please use the default native "dropdown" style.
-
   - name: nativeSpinner
     summary: |
         Creates a native Android control for creating a Time Spinner with Type `Ti.UI.PICKER_TYPE_TIME`.
