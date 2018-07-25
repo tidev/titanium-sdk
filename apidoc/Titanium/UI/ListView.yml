@@ -937,7 +937,6 @@ properties:
     type: Number
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     since: {android: "5.2.0", iphone: "3.2.0", ipad: "3.2.0"} 
-
     platforms: [iphone, ipad]
 
   - name: style
@@ -948,11 +947,6 @@ properties:
     constants: Titanium.UI.iOS.ListViewStyle.*
     platforms: [iphone, ipad]
     availability: creation
-  
-    type: Dictionary
-    since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
 
   - name: listSeparatorInsets
     summary: The insets for the list view header and footer.
@@ -968,7 +962,6 @@ properties:
                  right:10
              });
 
-  
     type: Dictionary
     since: "5.4.0"
     osver: {ios: {min: "7.0"}}
