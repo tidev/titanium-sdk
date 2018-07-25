@@ -1271,6 +1271,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 				d = null;
 			}
+			if (!(nativeView instanceof AdapterView)) {
+				nativeView.setOnClickListener(null);
+			}
+			nativeView.setOnLongClickListener(null);
+			nativeView.setOnTouchListener(null);
+			nativeView.setOnDragListener(null);
 			nativeView.setOnFocusChangeListener(null);
 			nativeView = null;
 			borderView = null;

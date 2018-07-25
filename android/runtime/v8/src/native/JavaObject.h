@@ -59,6 +59,11 @@ public:
 	bool isDetached();
 
 	/**
+	 * Determines if our Java object maintains a weak reference
+	 */
+	bool isWeak();
+
+	/**
 	 * If possible call #unreferenceJavaObject() when done with the object so we can clean up the local JNI reference
 	 *
 	 * @return The wrapped jobject if it's still alive, NULL otherwise
