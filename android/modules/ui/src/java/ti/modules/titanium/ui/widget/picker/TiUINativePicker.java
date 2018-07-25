@@ -253,6 +253,8 @@ public class TiUINativePicker extends TiUIPicker
 		@Override
 		public void onItemSelected(AdapterView<?> parent, View view, int position, long itemId)
 		{
+			// if the user selects a new item form the picker
+			// it should overwrite the values stored in preselected rows
 			getPickerProxy().getPreselectedRows().clear();
 			getPickerProxy().setLastSelectedIndex(position);
 			fireSelectionChange(0, position);
