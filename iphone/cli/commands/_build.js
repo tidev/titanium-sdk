@@ -5797,7 +5797,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
-									resourcesDir: this.xcodeAppDir
+									resourcesDir: this.xcodeAppDir,
+									targets: {
+										ios: this.minSupportedIosSdk
+									}
 								};
 
 								try {
