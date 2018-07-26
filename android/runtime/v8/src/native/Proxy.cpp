@@ -154,12 +154,13 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 	jobject javaValue = TypeConverter::jsValueToJavaObject(isolate, env, value, &javaValueIsNew);
 
 	jobject javaProxy = proxy->getJavaObject();
-	env->CallVoidMethod(javaProxy,
-		JNIUtil::krollProxyOnPropertyChangedMethod,
-		javaProperty,
-		javaValue);
-
-	proxy->unreferenceJavaObject(javaProxy);
+	if (javaProxy != NULL) {
+		env->CallVoidMethod(javaProxy,
+			JNIUtil::krollProxyOnPropertyChangedMethod,
+			javaProperty,
+			javaValue);
+		proxy->unreferenceJavaObject(javaProxy);
+	}
 
 	env->DeleteLocalRef(javaProperty);
 	if (javaValueIsNew) {

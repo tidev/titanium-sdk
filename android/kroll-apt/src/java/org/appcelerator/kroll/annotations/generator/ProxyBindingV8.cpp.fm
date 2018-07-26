@@ -244,12 +244,18 @@ void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 	<@Proxy.initMethodID className=className name=name signature=signature logOnly=false/>
 
 	Local<Object> holder = args.Holder();
-	// If holder isn't the JavaObject wrapper we expect, look up the prototype chain
 	if (!JavaObject::isJavaObject(holder)) {
 		holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
 	}
-
+	if (holder.IsEmpty() || holder->IsNull()) {
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
+	}
 	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(holder);
+	if (!proxy) {
+		args.GetReturnValue().Set(Undefined(isolate));
+		return;
+	}
 
 	<#if method.args?size &gt; 0>
 	<@Proxy.verifyAndConvertArguments method.args method />
@@ -287,8 +293,15 @@ void ${className}::getter_${name}(Local<Name> property, const PropertyCallbackIn
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=property.getMethodName signature=getSignature logOnly=false/>
 
-	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(args.Holder());
-
+	Local<Object> holder = args.Holder();
+	if (!JavaObject::isJavaObject(holder)) {
+		holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
+	}
+	if (holder.IsEmpty() || holder->IsNull()) {
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
+	}
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(holder);
 	if (!proxy) {
 		args.GetReturnValue().Set(Undefined(isolate));
 		return;
@@ -324,7 +337,15 @@ void ${className}::setter_${name}(Local<Name> property, Local<Value> value, cons
 
 	<@Proxy.initMethodID className=className name=property.setMethodName signature=setSignature logOnly=true />
 
-	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(args.Holder());
+	Local<Object> holder = args.Holder();
+	if (!JavaObject::isJavaObject(holder)) {
+		holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
+	}
+	if (holder.IsEmpty() || holder->IsNull()) {
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
+	}
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(holder);
 	if (!proxy) {
 		return;
 	}
@@ -363,8 +384,15 @@ void ${className}::interceptor(Local<String> property, const v8::PropertyCallbac
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=interceptor.name signature="(Ljava/lang/String;)Ljava/lang/Object;" logOnly=false/>
 
-	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(args.Holder());
-
+	Local<Object> holder = args.Holder();
+	if (!JavaObject::isJavaObject(holder)) {
+		holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
+	}
+	if (holder.IsEmpty() || holder->IsNull()) {
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
+	}
+	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(holder);
 	if (!proxy) {
 		args.GetReturnValue().Set(Undefined(isolate));
 		return;
