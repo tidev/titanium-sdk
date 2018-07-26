@@ -24,7 +24,6 @@ const appc = require('node-appc'),
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
-	humanize = require('humanize'),
 	ioslib = require('ioslib'),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
@@ -106,9 +105,6 @@ function iOSBuilder() {
 
 	// object of all used Titanium symbols, used to determine preprocessor statements, e.g. USE_TI_UIWINDOW
 	this.tiSymbols = {};
-
-	// when true, uses the JavaScriptCore that ships with iOS instead of the original Titanium version
-	this.useJSCore = true;
 
 	// when true, uses the new build system (Xcode 9+)
 	this.useNewBuildSystem = true;
@@ -454,8 +450,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
 						},
 						'force-copy-all': {
-							desc: __('identical to the %s flag, except this will also copy the %s libTiCore.a file', '--force-copy',
-								humanize.filesize(fs.statSync(path.join(_t.platformPath, 'libTiCore.a')).size, 1024, 1).toUpperCase().cyan)
+							desc: __('removed in Titanium SDK 8.0.0 since TiCore was removed in favor of the built-in JavaScriptCore framework')
 						},
 						'launch-watch-app': {
 							desc: __('for %s builds, after installing an app with a watch extention, launch the watch app and the main app', 'simulator'.cyan)
@@ -2360,7 +2355,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.iosSdkVersion     = this.iosSdkVersion;
 	this.currentBuildManifest.deviceFamily      = this.deviceFamily;
 	this.currentBuildManifest.iosSdkPath        = this.platformPath;
-	this.currentBuildManifest.tiCoreHash        = this.libTiCoreHash            = this.hash(fs.readFileSync(path.join(this.platformPath, 'libTiCore.a')));
 	this.currentBuildManifest.developerName     = this.certDeveloperName        = argv['developer-name'];
 	this.currentBuildManifest.distributionName  = this.certDistributionName     = argv['distribution-name'];
 	this.currentBuildManifest.modulesHash       = this.modulesHash              = this.hash(!Array.isArray(this.tiapp.modules) ? '' : this.tiapp.modules.filter(function (m) {
@@ -2388,10 +2382,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS;
 	this.currentBuildManifest.showErrorController          = this.showErrorController;
 
-	// use native JSCore by default (TIMOB-23136)
-	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
-
-	// remove this check on 8.0.0
 	if (this.tiapp.ios && (this.tiapp.ios.hasOwnProperty('run-on-main-thread'))) {
 		this.logger.warn(__('run-on-main-thread no longer set in the <ios> section of the tiapp.xml. Use <property name="run-on-main-thread" type="bool">true</property> instead'));
 		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.ios['run-on-main-thread'] === true);
@@ -2400,13 +2390,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	}
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
-	// deprecate TiJSCore and leave a warning if used anyway
-	if (!this.useJSCore) {
-		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy JavaScriptCore library in favor of the built-in JavaScriptCore.'));
-		this.logger.warn(__('The legacy JavaScriptCore library will be removed in Titanium SDK 8.0.0.'));
-	}
-
-	// deprecate KrollThread and leave a warning if used anyway
+	// Deprecate KrollThread and leave a warning if used anyway
 	if (!this.runOnMainThread) {
 		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy UI-execution on Kroll-Thread in favor of the Main-Thread.'));
 		this.logger.warn(__('The legacy execution will be removed in Titanium SDK 8.0.0.'));
@@ -2782,20 +2766,6 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			}
 		}
 
-		// check that we have a libTiCore hash
-		if (!manifest.tiCoreHash) {
-			this.logger.info(__('Forcing rebuild: incomplete version file %s', cyan(this.buildVersionFile)));
-			return true;
-		}
-
-		// determine the libTiCore hash and check if the libTiCore hashes are different
-		if (this.libTiCoreHash !== manifest.tiCoreHash) {
-			this.logger.info(__('Forcing rebuild: libTiCore hash changed since last build'));
-			this.logger.info('  ' + __('Was: %s', cyan(manifest.tiCoreHash)));
-			this.logger.info('  ' + __('Now: %s', cyan(this.libTiCoreHash)));
-			return true;
-		}
-
 		// check if the titanium sdk paths are different
 		if (manifest.iosSdkPath !== this.platformPath) {
 			this.logger.info(__('Forcing rebuild: Titanium SDK path changed since last build'));
@@ -2849,14 +2819,6 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: provisioning profile changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.ppUuid));
 			this.logger.info('  ' + __('Now: %s', this.provisioningProfileUUID));
-			return true;
-		}
-
-		// check if the use JavaScriptCore flag has changed
-		if (this.useJSCore !== manifest.useJSCore) {
-			this.logger.info(__('Forcing rebuild: use-jscore-framework flag changed since last build'));
-			this.logger.info('  ' + __('Was: %s', manifest.useJSCore));
-			this.logger.info('  ' + __('Now: %s', this.useJSCore));
 			return true;
 		}
 
@@ -4309,9 +4271,8 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 			'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
 			'TI_APPID=' + this.tiapp.id,
 			'JSCORE_LD_FLAGS=-weak_framework JavaScriptCore',
-			'TICORE_LD_FLAGS=-weak-lti_ios_profiler -weak-lti_ios_debugger -weak-lTiCore',
-			'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) ' + (this.useJSCore ? '$(JSCORE_LD_FLAGS)' : '$(TICORE_LD_FLAGS)'),
-			'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) ' + (this.useJSCore ? '$(JSCORE_LD_FLAGS)' : '$(TICORE_LD_FLAGS)'),
+			'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(JSCORE_LD_FLAGS)',
+			'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)',
 			'OTHER_LDFLAGS[sdk=iphoneos9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
 			'OTHER_LDFLAGS[sdk=iphonesimulator9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
 			'#include "module"'
@@ -4381,7 +4342,7 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 	const libDir = path.join(this.buildDir, 'lib');
 	fs.existsSync(libDir) || wrench.mkdirSyncRecursive(libDir);
 
-	[ 'libTiCore.a', 'libtiverify.a', 'libti_ios_debugger.a', 'libti_ios_profiler.a' ].forEach(function (filename) {
+	[ 'libtiverify.a' ].forEach(function (filename) {
 		const src = path.join(this.platformPath, filename),
 			srcStat = fs.statSync(src),
 			srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
@@ -4393,7 +4354,7 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 
 		// note: we're skipping the hash check so that we don't have to read in 36MB of data
 		// this isn't going to be bulletproof, but hopefully the size and mtime will be enough to catch any changes
-		if (!fileChanged || !this.copyFileSync(src, dest, { forceSymlink: filename === 'libTiCore.a' ? !this.forceCopyAll : this.symlinkLibrariesOnCopy, forceCopy: filename === 'libTiCore.a' && this.forceCopyAll })) {
+		if (!fileChanged || !this.copyFileSync(src, dest, { forceSymlink: this.symlinkLibrariesOnCopy, forceCopy: false })) {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
 		}
 		this.currentBuildManifest.files[rel] = {
@@ -4490,7 +4451,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 					return null;
 				}
 
-				if (extRegExp.test(srcFile) && srcFile.indexOf('TiCore') === -1) {
+				if (extRegExp.test(srcFile)) {
 					// look up the file to see if the original source changed
 					const prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
 					if (destExists && !nameChanged && prev && prev.size === srcStat.size && prev.mtime === srcMtime && prev.hash === srcHash) {
@@ -5836,12 +5797,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
-									resourcesDir: this.xcodeAppDir
+									resourcesDir: this.xcodeAppDir,
+									targets: {
+										ios: this.minSupportedIosSdk
+									}
 								};
-								// generate our transpile target based on tijscore/jscore
-								if (this.useJSCore) {
-									analyzeOptions.targets = { ios: this.minSupportedIosSdk }; // if using jscore, target our min ios version
-								} // if not jscore, just transpile everything down (no target)
 
 								try {
 									const modified = jsanalyze.analyzeJs(source, analyzeOptions);
@@ -6211,9 +6171,6 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		if (this.useAutoLayout) {
 			contents += '\n#define TI_USE_AUTOLAYOUT';
 		}
-		if (this.useJSCore) {
-			contents += '\n#define USE_JSCORE_FRAMEWORK';
-		}
 	} else {
 		// build the defines.h file
 		contents = [
@@ -6246,9 +6203,6 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#endif'
 		);
 
-		if (this.useJSCore) {
-			contents.push('#define USE_JSCORE_FRAMEWORK');
-		}
 		if (!this.runOnMainThread) {
 			contents.push('#define TI_USE_KROLL_THREAD');
 		}

@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollContext.h"
-#import "TiToJS.h"
 #import <Foundation/Foundation.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 
 @class KrollBridge;
 //
@@ -17,9 +17,9 @@
 //
 @interface KrollCallback : NSObject {
   @private
-  TiContextRef jsContext;
-  TiObjectRef thisObj;
-  TiObjectRef function;
+  JSContextRef jsContext;
+  JSObjectRef thisObj;
+  JSObjectRef function;
   KrollContext *context;
   KrollBridge *bridge;
 #ifdef TI_USE_KROLL_THREAD
@@ -30,10 +30,10 @@
 
 @property (nonatomic, readwrite, retain) NSString *type;
 
-- (id)initWithCallback:(TiValueRef)function_ thisObject:(TiObjectRef)thisObject_ context:(KrollContext *)context_;
+- (id)initWithCallback:(JSValueRef)function_ thisObject:(JSObjectRef)thisObject_ context:(KrollContext *)context_;
 - (void)callAsync:(NSArray *)args thisObject:(id)thisObject_;
 - (id)call:(NSArray *)args thisObject:(id)thisObject_;
-- (TiObjectRef)function;
+- (JSObjectRef)function;
 - (KrollContext *)context;
 + (void)shutdownContext:(KrollContext *)context;
 
@@ -55,7 +55,7 @@
  *	NOTE: This is an object that is never made explicitly by TiIdToValue;
  *	instead, all JS functions become KrollCallbacks, and both KrollCallbacks
  *	and KrollObjectProperties will be converted into functions.
- *	(or TiObjectRefs at any rate)
+ *	(or JSObjectRefs at any rate)
  *	Instead, KrollWrapper is used in two places currently: When a function is
  *	retained as a property by a proxy (to avoid the above retain loop),
  *	and for JS-based modules which do not need proxy properties but do need to
@@ -67,12 +67,12 @@
 @class KrollBridge;
 
 @interface KrollWrapper : NSObject {
-  TiObjectRef jsobject;
+  JSObjectRef jsobject;
   KrollBridge *bridge;
   BOOL protecting;
 }
 
-@property (nonatomic, readwrite, assign) TiObjectRef jsobject;
+@property (nonatomic, readwrite, assign) JSObjectRef jsobject;
 @property (nonatomic, readwrite, assign) KrollBridge *bridge;
 
 - (void)protectJsobject;
