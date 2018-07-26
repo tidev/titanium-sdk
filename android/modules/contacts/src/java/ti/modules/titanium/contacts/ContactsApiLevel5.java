@@ -286,6 +286,8 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			return Im.PROTOCOL_QQ;
 		} else if (serviceName.equals("Skype")) {
 			return Im.PROTOCOL_SKYPE;
+		} else if (serviceName.equals("Yahoo")) {
+			return Im.PROTOCOL_YAHOO;
 		} else if (serviceName.equals("Jabber")) {
 			return Im.PROTOCOL_JABBER;
 		} else {
