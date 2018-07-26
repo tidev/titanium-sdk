@@ -1,8 +1,8 @@
 #!groovy
 library 'pipeline-library'
 
-// Keep logs/reports/etc of last 15 builds, only keep build artifacts of last 3 builds
-properties([buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '3'))])
+// Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
+properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))])
 
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
