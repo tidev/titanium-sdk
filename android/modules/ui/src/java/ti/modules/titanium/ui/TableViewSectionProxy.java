@@ -136,7 +136,7 @@ public class TableViewSectionProxy extends TiViewProxy
 		if (index > -1 && index < rows.size()) {
 			rows.set(index, row);
 			row.setParent(this);
-			if (oldRow.getParent() == this) {
+			if (oldRow.getParent() == this && !rows.contains(oldRow)) {
 				oldRow.setParent(null);
 			}
 		} else {
@@ -159,6 +159,19 @@ public class TableViewSectionProxy extends TiViewProxy
 			for (TableViewRowProxy row : rows) {
 				row.releaseViews();
 			}
+		}
+	}
+
+	@Override
+	public void release()
+	{
+		super.release();
+
+		releaseViews();
+
+		if (rows != null) {
+			rows.clear();
+			rows = null;
 		}
 	}
 
