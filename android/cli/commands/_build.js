@@ -3888,9 +3888,9 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		if (fs.existsSync(libraryManifestPath)) {
 			let libraryManifestContent = fs.readFileSync(libraryManifestPath).toString();
 
-			// handle injected build variables
+			// handle injected build variables such as ${applicationId}
 			// https://developer.android.com/studio/build/manifest-build-variables
-			libraryManifestContent = libraryManifestContent.replace('${applicationId}', this.appid); // eslint-disable-line no-template-curly-in-string
+			libraryManifestContent = libraryManifestContent.replace(/\$\{applicationId\}/g, this.appid); // eslint-disable-line no-template-curly-in-string
 
 			const libraryManifest = new AndroidManifest();
 			libraryManifest.parse(libraryManifestContent);
