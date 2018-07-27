@@ -401,15 +401,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   RELEASE_TO_NIL(baseURL);
   RELEASE_TO_NIL(krollDescription);
   if ((void *)modelDelegate != self) {
-#ifdef TI_USE_KROLL_THREAD
-    TiThreadReleaseOnMainThread(modelDelegate, YES);
-    modelDelegate = nil;
-#else
     TiThreadPerformOnMainThread(^{
       RELEASE_TO_NIL(modelDelegate);
     },
         YES);
-#endif
   }
   pageContext = nil;
   pageKrollObject = nil;

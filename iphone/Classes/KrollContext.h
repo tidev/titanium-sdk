@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -40,15 +40,6 @@
 #endif
   JSGlobalContextRef context;
   NSMutableDictionary *timers;
-
-#ifdef TI_USE_KROLL_THREAD
-  NSRecursiveLock *timerLock;
-  NSString *krollContextId;
-  NSRecursiveLock *lock;
-  NSCondition *condition;
-  NSMutableArray *queue;
-  id cachedThreadId;
-#endif
 }
 
 @property (nonatomic, readwrite, assign) id<KrollDelegate> delegate;
@@ -59,13 +50,6 @@
 - (void)gc;
 - (JSGlobalContextRef)context;
 - (BOOL)isKJSThread;
-
-#ifdef DEBUG
-// used during debugging only
-#ifdef TI_USE_KROLL_THREAD
-- (NSUInteger)queueCount;
-#endif
-#endif
 
 - (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition *)condition_;
 - (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
@@ -81,10 +65,7 @@
 - (void)unregisterTimer:(double)timerId;
 
 - (int)forceGarbageCollectNow;
-#ifdef TI_USE_KROLL_THREAD
-- (NSString *)krollContextId;
-- (NSString *)threadName;
-#endif
+
 @end
 
 //====================================================================================================================

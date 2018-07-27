@@ -109,9 +109,6 @@ function iOSBuilder() {
 	// when true, uses the new build system (Xcode 9+)
 	this.useNewBuildSystem = true;
 
-	// when false, JavaScript will run on its own thread - the Kroll Thread
-	this.runOnMainThread = true;
-
 	// when true, uses the AutoLayout engine
 	this.useAutoLayout = false;
 
@@ -2347,6 +2344,7 @@ iOSBuilder.prototype.doAnalytics = function doAnalytics() {
 
 iOSBuilder.prototype.initialize = function initialize() {
 	const argv = this.cli.argv;
+	const explicitelyUsingKrollThread = (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('run-on-main-thread') && this.tiapp.properties['run-on-main-thread'].value === false);
 
 	// populate the build manifest object
 	this.currentBuildManifest.target            = this.target;
@@ -2382,19 +2380,10 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS;
 	this.currentBuildManifest.showErrorController          = this.showErrorController;
 
-	if (this.tiapp.ios && (this.tiapp.ios.hasOwnProperty('run-on-main-thread'))) {
-		this.logger.warn(__('run-on-main-thread no longer set in the <ios> section of the tiapp.xml. Use <property name="run-on-main-thread" type="bool">true</property> instead'));
-		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.ios['run-on-main-thread'] === true);
-	} else {
-		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('run-on-main-thread') && this.tiapp.properties['run-on-main-thread'].value || false);
-	}
-	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
+	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
 
-	// Deprecate KrollThread and leave a warning if used anyway
-	if (!this.runOnMainThread) {
-		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy UI-execution on Kroll-Thread in favor of the Main-Thread.'));
-		this.logger.warn(__('The legacy execution will be removed in Titanium SDK 8.0.0.'));
-	}
+	// use Auto Layout if enabled via tiapp.xml
+	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
 	if (this.config.paths && Array.isArray(this.config.paths.modules)) {
@@ -2819,14 +2808,6 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: provisioning profile changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.ppUuid));
 			this.logger.info('  ' + __('Now: %s', this.provisioningProfileUUID));
-			return true;
-		}
-
-		// check if the use RunOnMainThread flag has changed
-		if (this.runOnMainThread !== manifest.runOnMainThread) {
-			this.logger.info(__('Forcing rebuild: run-on-main-thread flag changed since last build'));
-			this.logger.info('  ' + __('Was: %s', manifest.runOnMainThread));
-			this.logger.info('  ' + __('Now: %s', this.runOnMainThread));
 			return true;
 		}
 
@@ -6158,15 +6139,11 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		const definesFile = path.join(this.platformPath, 'Classes', 'defines.h');
 
 		contents = fs.readFileSync(definesFile).toString();
-		if (this.runOnMainThread && !this.useJSCore && !this.useAutoLayout && !hasRemoteNotification && !hasFetch) {
+		if (!this.useJSCore && !this.useAutoLayout && !hasRemoteNotification && !hasFetch) {
 			if ((destExists && contents === fs.readFileSync(dest).toString()) || !this.copyFileSync(definesFile, dest, { contents: contents })) {
 				this.logger.trace(__('No change, skipping %s', dest.cyan));
 			}
 			return;
-		}
-
-		if (!this.runOnMainThread) {
-			contents += '\n#define TI_USE_KROLL_THREAD';
 		}
 		if (this.useAutoLayout) {
 			contents += '\n#define TI_USE_AUTOLAYOUT';
@@ -6203,9 +6180,6 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#endif'
 		);
 
-		if (!this.runOnMainThread) {
-			contents.push('#define TI_USE_KROLL_THREAD');
-		}
 		if (this.useAutoLayout) {
 			contents.push('#define TI_USE_AUTOLAYOUT');
 		}

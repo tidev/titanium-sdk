@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -293,16 +293,10 @@ bool KrollSetProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef pr
     } else {
       [o forgetObjectForTiString:prop context:jsContext];
     }
-#ifdef TI_USE_KROLL_THREAD
-    [o setValue:v
-         forKey:name];
-#else
-
     TiThreadPerformOnMainThread(^{
       [o setValue:v forKey:name];
     },
         YES);
-#endif
     return true;
   }
   @catch (NSException *ex) {
@@ -940,14 +934,6 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
     return;
   }
 
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeProtect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(protectJsobject) object:nil];
-    [context enqueue:safeProtect];
-    [safeProtect release];
-    return;
-  }
-#endif
   protecting = YES;
   JSValueProtect(jscontext, jsobject);
 }
@@ -962,14 +948,6 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
     return;
   }
 
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeUnprotect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(unprotectJsobject) object:nil];
-    [context enqueue:safeUnprotect];
-    [safeUnprotect release];
-    return;
-  }
-#endif
   protecting = NO;
   JSValueUnprotect(jscontext, jsobject);
 }
@@ -1010,16 +988,6 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
   // by the queue processor). We need to seriously re-evaluate the memory model and thread
   // interactions during such.
 
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeProtect = [[NSInvocationOperation alloc] initWithTarget:self
-                                                                    selector:@selector(noteKeylessKrollObject:)
-                                                                      object:value];
-    [context enqueue:safeProtect];
-    [safeProtect release];
-    return;
-  }
-#endif
   JSStringRef nameRef = TiStringCreateWithPointerValue((int)value);
   [self noteObject:[value jsobject] forTiString:nameRef context:[context context]];
   JSStringRelease(nameRef);
@@ -1027,16 +995,6 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
 
 - (void)forgetKeylessKrollObject:(KrollObject *)value
 {
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeUnprotect = [[NSInvocationOperation alloc] initWithTarget:self
-                                                                      selector:@selector(forgetKeylessKrollObject:)
-                                                                        object:value];
-    [context enqueue:safeUnprotect];
-    [safeUnprotect release];
-    return;
-  }
-#endif
   JSStringRef nameRef = TiStringCreateWithPointerValue((int)value);
   [self forgetObjectForTiString:nameRef context:[context context]];
   JSStringRelease(nameRef);
@@ -1044,19 +1002,6 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
 
 - (void)noteCallback:(KrollCallback *)eventCallback forKey:(NSString *)key
 {
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    DeveloperLog(@"[WARN] %@ tried to protect callback for %@ in the wrong thead.", target, key);
-    NSOperation *safeInvoke = [[ExpandedInvocationOperation alloc]
-        initWithTarget:self
-              selector:_cmd
-                object:eventCallback
-                object:key];
-    [context enqueue:safeInvoke];
-    [safeInvoke release];
-    return;
-  }
-#endif
   JSStringRef nameRef = JSStringCreateWithCFString((CFStringRef)key);
   [self noteObject:[eventCallback function] forTiString:nameRef context:[context context]];
   JSStringRelease(nameRef);
@@ -1064,16 +1009,6 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
 
 - (void)forgetCallbackForKey:(NSString *)key
 {
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeForget = [[NSInvocationOperation alloc] initWithTarget:self
-                                                                   selector:@selector(forgetCallbackForKey:)
-                                                                     object:key];
-    [context enqueue:safeForget];
-    [safeForget release];
-    return;
-  }
-#endif
   JSStringRef nameRef = JSStringCreateWithCFString((CFStringRef)key);
   [self forgetObjectForTiString:nameRef context:[context context]];
   JSStringRelease(nameRef);
@@ -1090,67 +1025,46 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
     return;
   }
   __block id _thisObject = thisObject;
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeInvoke = [[ExpandedInvocationOperation alloc]
-        initWithTarget:self
-              selector:_cmd
-                object:key
-                object:eventData
-                object:thisObject];
-    [context enqueue:safeInvoke];
-    [safeInvoke release];
-
-    if (block != nil) {
-      block(nil);
-    }
-
-    return;
-  }
-#else
   void (^mainBlock)(void) = ^{
-#endif
-  if (![_thisObject isKindOfClass:[KrollObject class]]) {
-    _thisObject = [(KrollBridge *)[context delegate] registerProxy:thisObject];
-  }
-
-  JSValueRef exception = NULL;
-
-  JSObjectRef jsProxyHash = (JSObjectRef)JSObjectGetProperty(jsContext, propsObject, kTiStringPropertyKey, &exception);
-
-  jsProxyHash = JSValueToObject(jsContext, jsProxyHash, &exception);
-  if ((jsProxyHash == NULL) || (JSValueGetType(jsContext, jsProxyHash) != kJSTypeObject)) {
-    if (block != nil) {
-      block(nil);
+    if (![_thisObject isKindOfClass:[KrollObject class]]) {
+      _thisObject = [(KrollBridge *)[context delegate] registerProxy:thisObject];
     }
-    return;
-  }
 
-  JSStringRef nameRef = JSStringCreateWithCFString((CFStringRef)key);
-  JSObjectRef jsCallback = (JSObjectRef)JSObjectGetProperty(jsContext, jsProxyHash, nameRef, NULL);
-  JSStringRelease(nameRef);
+    JSValueRef exception = NULL;
 
-  if ((jsCallback == NULL) || (JSValueGetType(jsContext, jsCallback) != kJSTypeObject)) {
-    if (block != nil) {
-      block(nil);
+    JSObjectRef jsProxyHash = (JSObjectRef)JSObjectGetProperty(jsContext, propsObject, kTiStringPropertyKey, &exception);
+
+    jsProxyHash = JSValueToObject(jsContext, jsProxyHash, &exception);
+    if ((jsProxyHash == NULL) || (JSValueGetType(jsContext, jsProxyHash) != kJSTypeObject)) {
+      if (block != nil) {
+        block(nil);
+      }
+      return;
     }
-    return;
-  }
 
-  JSValueRef jsEventData = ConvertIdTiValue(context, eventData);
-  JSValueRef result = JSObjectCallAsFunction(jsContext, jsCallback, [_thisObject jsobject], 1, &jsEventData, &exception);
-  if (exception != NULL) {
-    id excm = [KrollObject toID:context value:exception];
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
-  }
+    JSStringRef nameRef = JSStringCreateWithCFString((CFStringRef)key);
+    JSObjectRef jsCallback = (JSObjectRef)JSObjectGetProperty(jsContext, jsProxyHash, nameRef, NULL);
+    JSStringRelease(nameRef);
 
-  if (block != nil) {
-    block(TiValueToId(context, result));
+    if ((jsCallback == NULL) || (JSValueGetType(jsContext, jsCallback) != kJSTypeObject)) {
+      if (block != nil) {
+        block(nil);
+      }
+      return;
+    }
+
+    JSValueRef jsEventData = ConvertIdTiValue(context, eventData);
+    JSValueRef result = JSObjectCallAsFunction(jsContext, jsCallback, [_thisObject jsobject], 1, &jsEventData, &exception);
+    if (exception != NULL) {
+      id excm = [KrollObject toID:context value:exception];
+      [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+    }
+
+    if (block != nil) {
+      block(TiValueToId(context, result));
+    };
   };
-#ifndef TI_USE_KROLL_THREAD
-};
-TiThreadPerformOnMainThread(mainBlock, NO);
-#endif
+  TiThreadPerformOnMainThread(mainBlock, NO);
 }
 
 - (void)noteKrollObject:(KrollObject *)value forKey:(NSString *)key
@@ -1160,19 +1074,6 @@ TiThreadPerformOnMainThread(mainBlock, NO);
     return;
   }
 
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    DeveloperLog(@"[WARN] %@ tried to note the callback for %@ in the wrong thead.", target, key);
-    NSOperation *safeInvoke = [[ExpandedInvocationOperation alloc]
-        initWithTarget:self
-              selector:_cmd
-                object:value
-                object:key];
-    [context enqueue:safeInvoke];
-    [safeInvoke release];
-    return;
-  }
-#endif
   JSStringRef nameRef = JSStringCreateWithCFString((CFStringRef)key);
   [self noteObject:[value jsobject] forTiString:nameRef context:[context context]];
   JSStringRelease(nameRef);
@@ -1180,16 +1081,6 @@ TiThreadPerformOnMainThread(mainBlock, NO);
 
 - (void)forgetKrollObjectforKey:(NSString *)key;
 {
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeForget = [[NSInvocationOperation alloc] initWithTarget:self
-                                                                   selector:_cmd
-                                                                     object:key];
-    [context enqueue:safeForget];
-    [safeForget release];
-    return;
-  }
-#endif
   JSStringRef nameRef = JSStringCreateWithCFString((CFStringRef)key);
   [self forgetObjectForTiString:nameRef context:[context context]];
   JSStringRelease(nameRef);

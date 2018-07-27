@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -49,9 +49,6 @@ static NSLock *callbackLock;
     thisObj = thisObject_;
     JSValueProtect(jsContext, function);
     JSValueProtect(jsContext, thisObj);
-#ifdef TI_USE_KROLL_THREAD
-    contextLock = [[NSLock alloc] init];
-#endif
     [callbacks addObject:self];
   }
   return self;
@@ -64,9 +61,6 @@ static NSLock *callbackLock;
   [callbackLock unlock];
 
   [type release];
-#ifdef TI_USE_KROLL_THREAD
-  [contextLock release];
-#endif
   if ([KrollBridge krollBridgeExists:bridge]) {
     if ([context isKJSThread]) {
       JSValueUnprotect(jsContext, function);
@@ -113,13 +107,7 @@ static NSLock *callbackLock;
 }
 - (id)call:(NSArray *)args thisObject:(id)thisObject_
 {
-#ifdef TI_USE_KROLL_THREAD
-  [contextLock lock];
-#endif
   if (context == nil) {
-#ifdef TI_USE_KROLL_THREAD
-    [contextLock unlock];
-#endif
     return nil;
   }
 
@@ -156,9 +144,6 @@ static NSLock *callbackLock;
 
   id val = [KrollObject toID:context value:retVal];
   [context release];
-#ifdef TI_USE_KROLL_THREAD
-  [contextLock unlock];
-#endif
   return val;
 }
 
@@ -174,13 +159,7 @@ static NSLock *callbackLock;
 
 - (void)setContext:(KrollContext *)context_
 {
-#ifdef TI_USE_KROLL_THREAD
-  [contextLock lock];
-#endif
   context = context_;
-#ifdef TI_USE_KROLL_THREAD
-  [contextLock unlock];
-#endif
 }
 
 @end

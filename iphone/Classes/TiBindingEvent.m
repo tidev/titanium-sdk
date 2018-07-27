@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -259,19 +259,15 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void *payload)
           || !JSObjectIsFunction(context, (JSObjectRef)currentCallback)) {
         continue;
       }
-#ifndef TI_USE_KROLL_THREAD
       TiThreadPerformOnMainThread(^{
-#endif
         JSValueRef exception = NULL;
         JSObjectCallAsFunction(context, (JSObjectRef)currentCallback, (JSObjectRef)eventTargetRef, 1, (JSValueRef *)&eventObjectRef, &exception);
         if (exception != NULL) {
           id excm = TiBindingTiValueToNSObject(context, exception);
           [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
         }
-#ifndef TI_USE_KROLL_THREAD
       },
           [NSThread isMainThread]);
-#endif
       // Note cancel bubble
       cancelBubbleValue = JSObjectGetProperty(context, eventObjectRef, jsEventCancelBubbleStringRef, NULL);
       if (JSValueToBoolean(context, cancelBubbleValue)) {
