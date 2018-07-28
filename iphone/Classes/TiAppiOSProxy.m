@@ -718,15 +718,6 @@
       [content setLaunchImageName:[TiUtils stringValue:alertLaunchImage]];
     }
 
-#if IS_XCODE_10
-    // Set the thread identifier to enable grouped notifications
-    if ([TiUtils isIOSVersionOrGreater:@"12.0"] && threadIdentifier != nil)
-       
-      {
-        [content setThreadIdentifier:threadIdentifier];
-      }
-#endif
-
     // Set additional user-info
     if (userInfo != nil) {
       if (identifier != nil && [userInfo objectForKey:@"id"] == nil) {
@@ -797,6 +788,10 @@
       // Set a number that indicates how many items in the summary are represented in the summary.
       if (summaryArgumentCount != nil) {
         [content setSummaryArgumentCount:[TiUtils intValue:summaryArgumentCount]];
+      }
+      // Set the thread identifier to enable grouped notifications
+      if (threadIdentifier != nil) {
+        [content setThreadIdentifier:threadIdentifier];
       }
     }
 #endif

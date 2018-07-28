@@ -64,12 +64,12 @@
 #if IS_XCODE_10
         // For iOS 12+, use the "hiddenPreviewsBodyPlaceholder" and "categorySummaryFormat" constructor
         if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-          _notificationCategory = [UNNotificationCategory categoryWithIdentifier:identifier
-                                                                         actions:defaultActions
-                                                               intentIdentifiers:intentIdentifiers
-                                                   hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
-                                                           categorySummaryFormat:categorySummaryFormat
-                                                                         options:options];
+          _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
+                                                                          actions:defaultActions
+                                                                intentIdentifiers:intentIdentifiers
+                                                    hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
+                                                            categorySummaryFormat:categorySummaryFormat
+                                                                          options:options] retain];
         } else {
 #else
         // For iOS 11, use the "hiddenPreviewsBodyPlaceholder" constructor
