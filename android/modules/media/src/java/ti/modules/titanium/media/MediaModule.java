@@ -726,7 +726,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		private void validateFile() throws Throwable
 		{
 			try {
-				if (intentType == MediaStore.ACTION_VIDEO_CAPTURE) {
+				if (MediaStore.ACTION_VIDEO_CAPTURE.equals(intentType)) {
 					// video
 				} else {
 					// bitmap
