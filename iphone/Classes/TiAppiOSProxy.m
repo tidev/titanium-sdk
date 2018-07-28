@@ -1075,7 +1075,7 @@
   if ([handlerIdentifier rangeOfString:@"Session"].location != NSNotFound) {
     [[TiApp app] performCompletionHandlerForBackgroundTransferWithKey:handlerIdentifier];
   } else {
-    [[TiApp app] performCompletionHandlerWithKey:handlerIdentifier andResult:UIBackgroundFetchResultNoData];
+    [[TiApp app] performCompletionHandlerWithKey:handlerIdentifier andResult:UIBackgroundFetchResultNoData removeAfterExecution:NO];
   }
 }
 

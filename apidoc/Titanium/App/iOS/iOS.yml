@@ -88,6 +88,9 @@ methods:
     since: "4.0.0"
   - name: cancelAllLocalNotifications
     summary: Cancels all scheduled local notifications.
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.removeAllPendingNotifications> instead.
 
   - name: cancelLocalNotification
     summary: Cancels a local notification.
@@ -98,6 +101,9 @@ methods:
             To create an ID for the notification, set the `id` property in the `userInfo` dictionary
             passed to the <Titanium.App.iOS.scheduleLocalNotification> method.
         type: [Number,String]
+    deprecated:
+        since: "7.3.0"
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotificationsWithIdentifiers> instead.
 
   - name: registerBackgroundService
     summary: Registers a service to run when the application is placed in the background.

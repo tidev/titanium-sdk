@@ -444,7 +444,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_GRADIENT);
 	}
 
-	private boolean hasBorder(KrollDict d)
+	protected boolean hasBorder(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
 			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
@@ -546,7 +546,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					public void callAsync(KrollObject krollObject, Object[] args)
 					{
 						bTransformPending.set(false);
-						proxy.handlePendingAnimation(true);
+						p.handlePendingAnimation(true);
 					}
 				});
 				animBuilder.start(p, v);
@@ -1271,6 +1271,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 				d = null;
 			}
+			if (!(nativeView instanceof AdapterView)) {
+				nativeView.setOnClickListener(null);
+			}
+			nativeView.setOnLongClickListener(null);
+			nativeView.setOnTouchListener(null);
+			nativeView.setOnDragListener(null);
 			nativeView.setOnFocusChangeListener(null);
 			nativeView = null;
 			borderView = null;

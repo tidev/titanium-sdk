@@ -3888,9 +3888,9 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		if (fs.existsSync(libraryManifestPath)) {
 			let libraryManifestContent = fs.readFileSync(libraryManifestPath).toString();
 
-			// handle injected build variables
+			// handle injected build variables such as ${applicationId}
 			// https://developer.android.com/studio/build/manifest-build-variables
-			libraryManifestContent = libraryManifestContent.replace('${applicationId}', this.appid); // eslint-disable-line no-template-curly-in-string
+			libraryManifestContent = libraryManifestContent.replace(/\$\{applicationId\}/g, this.appid); // eslint-disable-line no-template-curly-in-string
 
 			const libraryManifest = new AndroidManifest();
 			libraryManifest.parse(libraryManifestContent);
@@ -4406,7 +4406,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 	this.logger.info(__('Creating unsigned apk'));
 
 	// merge files from the app.ap_ file as well as all titanium and 3rd party jar files
-	const archives = [this.ap_File].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+	const archives = [ this.ap_File ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
 
 	archives.forEach(function (file) {
 		const src = new AdmZip(file),

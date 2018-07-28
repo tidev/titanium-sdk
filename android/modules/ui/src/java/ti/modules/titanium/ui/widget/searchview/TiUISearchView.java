@@ -162,4 +162,19 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
 	{
 		searchChangeListener = listener;
 	}
+
+	@Override
+	public void release()
+	{
+		if (searchView != null) {
+			searchView.setOnQueryTextListener(null);
+			searchView.setOnCloseListener(null);
+			searchView.setOnQueryTextFocusChangeListener(null);
+			searchView = null;
+		}
+		if (searchChangeListener != null) {
+			searchChangeListener = null;
+		}
+		super.release();
+	}
 }
