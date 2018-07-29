@@ -21,9 +21,10 @@
 + (NSString *)resourcePath
 {
   NSString *resourcePath = [[NSBundle mainBundle] bundlePath];
-  NSString *resourcesDir = [[TiSharedConfig defaultConfig] applicationResourcesDirectory];
 
 #if TARGET_IPHONE_SIMULATOR
+  NSString *resourcesDir = [[TiSharedConfig defaultConfig] applicationResourcesDirectory];
+
   if (resourcesDir != nil && ![resourcesDir isEqualToString:@""]) {
     // if the .local file exists and we're in the simulator, then force load from resources bundle
     NSString *localFilePath = [resourcePath stringByAppendingPathComponent:@".local"];

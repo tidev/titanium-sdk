@@ -541,10 +541,10 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
  */
 Creator.prototype.processTemplate = function processTemplate(next) {
 	// try to resolve the template dir
+	const template = this.cli.argv.template = this.cli.argv.template || 'default';
 	const additionalPaths = this.config.get('paths.templates');	
 	const builtinTemplateDir = appc.fs.resolvePath(this.sdk.path, 'templates', this.cli.argv.type, template);
 	const searchPaths = [];
-	const template = this.cli.argv.template = this.cli.argv.template || 'default';
 
 	// first check if the specified template is a built-in template name
 	if (fs.existsSync(builtinTemplateDir)) {

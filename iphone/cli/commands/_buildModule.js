@@ -46,6 +46,7 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.manifest      = cli.manifest;
 	this.moduleId      = cli.manifest.moduleid;
 	this.moduleName    = cli.manifest.name;
+	this.moduleIdAsIdentifier = this.moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) { return s.substring(0, 1).toUpperCase() + s.substring(1); }).join('');
 	this.moduleVersion = cli.manifest.version;
 	this.moduleGuid    = cli.manifest.guid;
 	this.isFramework   = parseInt(this.manifest.apiversion) >= 3 && fs.existsSync(path.join(this.projectDir, 'Info.plist'));
@@ -477,7 +478,7 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinary(next) {
 	this.logger.info(__('Creating universal library'));
 
-	const moduleId = this.isFramework ? this.moduleName + '.framework' : 'lib' + this.moduleId + '.a'
+	const moduleId = this.isFramework ? this.moduleIdAsIdentifier + '.framework' : 'lib' + this.moduleId + '.a'
 	const findLib = function (dest) {
 		let lib = path.join(this.projectDir, 'build', 'Release-' + dest, moduleId);
 		if (!fs.existsSync(lib)) {
@@ -507,6 +508,8 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 	}
 	args.push(lib);
 
+	// TODO: Do we still need the abvoe when building frameworks? Should probably be moved to the else-case
+
 	// Frameworks are handled differently. Based on https://gist.github.com/cromandini/1a9c4aeab27ca84f5d79
 	if (this.isFramework) {
 		const simFramework = args[0];
@@ -514,7 +517,8 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 		const basename = path.basename(simFramework); // Same for sim and dist
 		const universalFrameworkDir = path.join(this.projectDir, 'build', 'universal');
 		const universalFrameworkFile = path.join(universalFrameworkDir, basename)
-		const swiftModulesDir = path.join(this.projectDir, 'build', 'Release-iphonesimulator', basename, 'Modules', this.moduleName + '.swiftmodule');
+		const swiftModulesDir = path.join(this.projectDir, 'build', 'Release-iphonesimulator', basename, 'Modules', this.moduleIdAsIdentifier + '.swiftmodule');
+
  		// Create universal framework directory, e.g. <module-project>/build/universal
 		fs.emptyDirSync(universalFrameworkDir);
 		fs.copySync(deviceFramework, universalFrameworkFile); // Copy device framework to universal dir
@@ -525,14 +529,14 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 		
 		// Append executive name, e.g. <module-name>.framework/<module-name> 
 		// FIXME: Use less hacky approach here
-		args[0] += '/' + this.moduleName;
-		args[1] += '/' + this.moduleName;
+		args[0] += '/' + this.moduleIdAsIdentifier;
+		args[1] += '/' + this.moduleIdAsIdentifier;
 
 		// Prepare lipo build
 		args.push(
 			'-create',
 			'-output',
-			path.join(universalFrameworkFile, this.moduleName)
+			path.join(universalFrameworkFile, this.moduleIdAsIdentifier)
 		);
 
 		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
@@ -565,7 +569,7 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 };
 
 iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
-	const args = [ '-info', path.join(this.projectDir, 'build', this.isFramework ? this.moduleName + '.framework/' + this.moduleName : 'lib' + this.moduleId + '.a') ];
+	const args = [ '-info', path.join(this.projectDir, 'build', this.isFramework ? this.moduleIdAsIdentifier + '.framework/' + this.moduleIdAsIdentifier : 'lib' + this.moduleId + '.a') ];
 
 	this.logger.info(__('Verifying universal library'));
 	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
@@ -607,7 +611,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		moduleZipName = [ moduleId, '-iphone-', version, '.zip' ].join(''),
 		moduleZipFullPath = path.join(this.distDir, moduleZipName),
 		moduleFolders = path.join('modules', 'iphone', moduleId, version),
-		binarylibName = this.isFramework ? this.moduleName + '.framework' : 'lib' + moduleId + '.a',
+		binarylibName = this.isFramework ? this.moduleIdAsIdentifier + '.framework' : 'lib' + moduleId + '.a',
 		binarylibFile = path.join(this.projectDir, 'build', binarylibName);
 
 	this.moduleZipPath = moduleZipFullPath;
