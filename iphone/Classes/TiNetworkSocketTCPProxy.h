@@ -13,7 +13,7 @@
 #ifdef USE_TI_NETWORKSOCKET
 #import "AsyncSocket.h"
 #import "TiNetworkSocketProxy.h"
-#import "TiStreamProxy.h"
+#import <TitaniumKit/TiStreamProxy.h>
 #import <Foundation/Foundation.h>
 
 // Used to determine the type of processing

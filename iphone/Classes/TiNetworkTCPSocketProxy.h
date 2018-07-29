@@ -7,8 +7,8 @@
 #ifdef USE_TI_NETWORK
 
 #import "NetworkModule.h"
-#import "TiBlob.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiProxy.h>
 #import <Foundation/Foundation.h>
 
 @interface TiNetworkTCPSocketProxy : TiProxy {

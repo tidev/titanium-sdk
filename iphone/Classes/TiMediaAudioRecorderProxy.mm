@@ -7,10 +7,10 @@
 #ifdef USE_TI_MEDIAAUDIORECORDER
 
 #import "TiMediaAudioRecorderProxy.h"
-#import "TiFile.h"
-#import "TiFilesystemFileProxy.h"
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiFilesystemFileProxy.h>
 #import "TiMediaAudioSession.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #import <AudioToolbox/AudioFile.h>
 
 @implementation TiMediaAudioRecorderProxy

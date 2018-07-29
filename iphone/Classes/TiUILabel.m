@@ -8,8 +8,8 @@
 
 #import "TiUILabel.h"
 #import "TiUILabelProxy.h"
-#import "TiUtils.h"
-#import "UIImage+Resize.h"
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/UIImage+Resize.h>
 #import <CoreText/CoreText.h>
 
 #ifdef USE_TI_UIATTRIBUTEDSTRING

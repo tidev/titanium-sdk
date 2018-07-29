@@ -7,7 +7,7 @@
 #if defined(USE_TI_MEDIA) && (defined(USE_TI_MEDIAAUDIOPLAYER) || defined(USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIASOUND) || defined(USE_TI_MEDIAAUDIORECORDER))
 
 #import "TiMediaAudioSession.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #import <AVFoundation/AVFAudio.h>
 

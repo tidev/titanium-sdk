@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UIEMAILDIALOG
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 #import <MessageUI/MessageUI.h>
 
 @interface TiUIEmailDialogProxy : TiProxy <MFMailComposeViewControllerDelegate> {

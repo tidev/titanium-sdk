@@ -7,7 +7,7 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabGroupProxy.h"
-#import "TiApp.h"
+#import <TitaniumKit/TiApp.h>
 #import "TiUITabGroup.h"
 #import "TiUITabProxy.h"
 

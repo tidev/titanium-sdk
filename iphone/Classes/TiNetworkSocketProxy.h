@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 #import <Foundation/Foundation.h>
 #ifdef USE_TI_NETWORKSOCKET
 typedef enum {

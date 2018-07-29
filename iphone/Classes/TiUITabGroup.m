@@ -4,13 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UITAB
 
 #import "TiUITabGroup.h"
-#import "TiColor.h"
+#import <TitaniumKit/TiColor.h>
 #import "TiUITabGroupProxy.h"
 #import "TiUITabProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUITabGroup
 
@@ -647,5 +646,3 @@ DEFINE_EXCEPTIONS
 }
 
 @end
-
-#endif

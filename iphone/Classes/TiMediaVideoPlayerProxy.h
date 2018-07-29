@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 
-#import "TiColor.h"
-#import "TiFile.h"
+#import <TitaniumKit/TiColor.h>
+#import <TitaniumKit/TiFile.h>
 #import "TiMediaTypes.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/TiViewProxy.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
 #import <MediaPlayer/MediaPlayer.h>

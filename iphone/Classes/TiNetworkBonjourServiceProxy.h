@@ -9,7 +9,7 @@
 #ifdef USE_TI_NETWORK
 
 #import "TiNetworkTCPSocketProxy.h"
-#import "TiProxy.h"
+#import <TitaniumKit/TiProxy.h>
 #import <Foundation/Foundation.h>
 #import <Foundation/NSNetServices.h>
 

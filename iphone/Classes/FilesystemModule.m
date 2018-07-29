@@ -8,9 +8,9 @@
 
 #import "FilesystemModule.h"
 #import "TiFilesystemBlobProxy.h"
-#import "TiFilesystemFileProxy.h"
-#import "TiFilesystemFileStreamProxy.h"
-#import "TiHost.h"
+#import <TitaniumKit/TiFilesystemFileProxy.h>
+#import <TitaniumKit/TiFilesystemFileStreamProxy.h>
+#import <TitaniumKit/TiHost.h>
 #import <CommonCrypto/CommonDigest.h>
 
 #if TARGET_IPHONE_SIMULATOR

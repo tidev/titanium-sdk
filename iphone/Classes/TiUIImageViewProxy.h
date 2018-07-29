@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_UIIMAGEVIEW
 
-#import "ImageLoader.h"
-#import "TiViewProxy.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUIImageViewProxy : TiViewProxy <ImageLoaderDelegate> {
   ImageLoaderRequest *urlRequest;

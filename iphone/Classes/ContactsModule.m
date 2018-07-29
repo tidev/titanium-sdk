@@ -7,8 +7,8 @@
 #ifdef USE_TI_CONTACTS
 
 #import "ContactsModule.h"
-#import "TiApp.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBase.h>
 #import "TiContactsGroup.h"
 #import "TiContactsPerson.h"
 #import <AddressBookUI/AddressBookUI.h>

@@ -7,7 +7,7 @@
 
 #import "TiAppiOSUserNotificationCategoryProxy.h"
 #import "TiAppiOSUserNotificationActionProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
 

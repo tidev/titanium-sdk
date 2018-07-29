@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiNetworkSocketProxy.h"
-#import "TiBase.h"
+#import <TitaniumKit/TiBase.h>
 #import "TiNetworkSocketTCPProxy.h"
 
 #ifdef USE_TI_NETWORKSOCKET

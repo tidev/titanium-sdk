@@ -22,7 +22,7 @@
 #import "TiDOMPIProxy.h"
 #import "TiDOMTextNodeProxy.h"
 #import "TiDOMValidator.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 #include <libkern/OSAtomic.h>
 
 /*

@@ -9,9 +9,9 @@
 #import "TiUIiOSPreviewActionGroupProxy.h"
 #import "TiUIiOSPreviewActionProxy.h"
 #import "TiUIiOSPreviewContextProxy.h"
-#import "TiViewController.h"
-#import "TiViewProxy.h"
-#import "TiWindowProxy.h"
+#import <TitaniumKit/TiViewController.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/TiWindowProxy.h>
 #import <Foundation/Foundation.h>
 
 @class TiUIiOSPreviewContextProxy;

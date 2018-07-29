@@ -4,9 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UITAB
 
-#import "TiUIView.h"
+#import <TitaniumKit/TiUIView.h>
 
 //To handle the more tab, we're a delegate of it.
 @class TiUITabProxy;
@@ -35,5 +34,3 @@
 - (void)preferredContentSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container;
 
 @end
-
-#endif

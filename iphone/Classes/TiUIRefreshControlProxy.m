@@ -10,7 +10,7 @@
 #import "TiUIAttributedStringProxy.h"
 #endif
 #import "TiUIRefreshControlProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIRefreshControlProxy
 

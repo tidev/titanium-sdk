@@ -4,11 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiModule.h"
+#import <TitaniumKit/TiModule.h>
 
 #ifdef USE_TI_CONTACTS
 
-#import "KrollCallback.h"
+#import <TitaniumKit/KrollCallback.h>
 #import "TiContactsPerson.h"
 #import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>

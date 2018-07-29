@@ -4,10 +4,9 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UITAB
 
-#import "TiTabGroup.h"
-#import "TiWindowProxy.h"
+#import <TitaniumKit/TiTabGroup.h>
+#import <TitaniumKit/TiWindowProxy.h>
 
 @interface TiUITabGroupProxy : TiWindowProxy <TiTabGroup> {
   @private
@@ -20,5 +19,3 @@
 #pragma mark - internal use only
 - (BOOL)canFocusTabs;
 @end
-
-#endif
