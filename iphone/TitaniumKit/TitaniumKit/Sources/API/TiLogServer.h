@@ -5,9 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifndef TI_LOG_SERVER_H
-#define TI_LOG_SERVER_H
-
 #ifndef DISABLE_TI_LOG_SERVER
 
 @import Foundation;
@@ -19,6 +16,4 @@
 + (void)stopServer;
 @end
 
-#endif /* DISABLE_TI_LOG_SERVER */
-
-#endif /* TI_LOG_SERVER_H */
+#endif

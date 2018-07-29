@@ -6,7 +6,6 @@
  */
 #include <stdio.h>
 
-#import "ApplicationDefaults.h"
 #import "ImageLoader.h"
 #import "Mimetypes.h"
 #import "NSData+Additions.h"
@@ -191,7 +190,13 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)launchToUrl
 {
-  NSDictionary *launchDefaults = [ApplicationDefaults launchUrl];
+  Class ApplicationDefaults = NSClassFromString(@"ApplicationDefaults");
+
+  if (ApplicationDefaults == nil) {
+    return;
+  }
+
+  NSDictionary *launchDefaults = [ApplicationDefaults performSelector:@selector(launchUrl)];
   if (launchDefaults != nil) {
     UIApplication *app = [UIApplication sharedApplication];
     NSURL *url = [NSURL URLWithString:[launchDefaults objectForKey:@"application-launch-url"]];
