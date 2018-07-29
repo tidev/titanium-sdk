@@ -9,8 +9,8 @@
 #import "TiUITextField.h"
 #import "TiUITextFieldProxy.h"
 
-#import <TitaniumKit/TiApp.h>
 #import "TiUITextWidget.h"
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
 #ifdef USE_TI_UIATTRIBUTEDSTRING

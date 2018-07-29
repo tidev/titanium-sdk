@@ -6,9 +6,9 @@
  */
 
 #import "TiUITabGroup.h"
-#import <TitaniumKit/TiColor.h>
 #import "TiUITabGroupProxy.h"
 #import "TiUITabProxy.h"
+#import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiUtils.h>
 
 @implementation TiUITabGroup

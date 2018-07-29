@@ -7,8 +7,8 @@
 #ifdef USE_TI_CALENDAR
 
 #import "TiCalendarAlert.h"
-#import <TitaniumKit/TiBlob.h>
 #import "TiCalendarEvent.h"
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 
 @implementation TiCalendarAlert

@@ -7,11 +7,11 @@
 #ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableView.h"
+#import "TiUITableViewProxy.h"
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiLayoutQueue.h>
 #import <TitaniumKit/TiProxy.h>
-#import "TiUITableViewProxy.h"
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
 #import <TitaniumKit/TiWindowProxy.h>

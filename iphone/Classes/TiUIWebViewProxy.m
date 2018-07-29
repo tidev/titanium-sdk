@@ -7,8 +7,8 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import <TitaniumKit/TiBlob.h>
-#import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiHost.h>
+#import <TitaniumKit/TiUtils.h>
 
 #import "TiUIWebView.h"
 #import "TiUIWebViewProxy.h"

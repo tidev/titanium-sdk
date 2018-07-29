@@ -9,8 +9,8 @@
 #import "TiUIButton.h"
 #import "TiUIButtonProxy.h"
 
-#import <TitaniumKit/ImageLoader.h>
 #import "TiButtonUtil.h"
+#import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiUIView.h>
 #import <TitaniumKit/TiUtils.h>
 

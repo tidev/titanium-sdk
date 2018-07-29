@@ -7,8 +7,8 @@
 
 #ifdef USE_TI_APPIOS
 
-#import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/KrollBridge.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiAppiOSBackgroundServiceProxy : TiProxy {
 

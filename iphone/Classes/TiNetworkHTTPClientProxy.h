@@ -7,9 +7,9 @@
 
 #ifdef USE_TI_NETWORK
 
+#import "TiDOMDocumentProxy.h"
 #import <TitaniumKit/APSHTTPClient.h>
 #import <TitaniumKit/TiBlob.h>
-#import "TiDOMDocumentProxy.h"
 #import <TitaniumKit/TiProxy.h>
 
 @protocol SecurityManagerProtocol <NSObject>

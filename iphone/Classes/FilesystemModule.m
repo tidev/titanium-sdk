@@ -8,10 +8,10 @@
 
 #import "FilesystemModule.h"
 #import "TiFilesystemBlobProxy.h"
+#import <CommonCrypto/CommonDigest.h>
 #import <TitaniumKit/TiFilesystemFileProxy.h>
 #import <TitaniumKit/TiFilesystemFileStreamProxy.h>
 #import <TitaniumKit/TiHost.h>
-#import <CommonCrypto/CommonDigest.h>
 
 #if TARGET_IPHONE_SIMULATOR
 extern NSString *TI_APPLICATION_RESOURCE_DIR;

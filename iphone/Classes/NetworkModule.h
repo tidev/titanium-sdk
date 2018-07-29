@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_NETWORK
 
-#import <TitaniumKit/KrollCallback.h>
 #import "Reachability.h"
+#import <TitaniumKit/KrollCallback.h>
 #import <TitaniumKit/TiModule.h>
 
 typedef enum {

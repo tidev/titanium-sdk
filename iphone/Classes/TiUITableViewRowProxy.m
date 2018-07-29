@@ -7,12 +7,12 @@
 #ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableViewRowProxy.h"
-#import <TitaniumKit/ImageLoader.h>
-#import <TitaniumKit/TiLayoutQueue.h>
 #import "TiSelectedCellbackgroundView.h"
 #import "TiUITableView.h"
 #import "TiUITableViewAction.h"
 #import "TiUITableViewSectionProxy.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiLayoutQueue.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
 #import <TitaniumKit/Webcolor.h>

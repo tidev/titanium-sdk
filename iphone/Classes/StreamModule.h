@@ -4,10 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import <Foundation/Foundation.h>
 #import <TitaniumKit/TiBuffer.h>
 #import <TitaniumKit/TiModule.h>
 #import <TitaniumKit/TiStreamProxy.h>
-#import <Foundation/Foundation.h>
 #ifdef USE_TI_STREAM
 @interface StreamModule : TiModule {
 }

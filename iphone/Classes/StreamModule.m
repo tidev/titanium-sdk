@@ -6,8 +6,8 @@
  */
 
 #import "StreamModule.h"
-#import <TitaniumKit/TiBuffer.h>
 #import "TiDataStream.h"
+#import <TitaniumKit/TiBuffer.h>
 #import <TitaniumKit/TiStreamProxy.h>
 
 #ifdef USE_TI_STREAM

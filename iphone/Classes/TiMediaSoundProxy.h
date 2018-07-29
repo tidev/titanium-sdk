@@ -6,9 +6,9 @@
  */
 #ifdef USE_TI_MEDIASOUND
 
+#import <AVFoundation/AVFAudio.h>
 #import <TitaniumKit/TiFile.h>
 #import <TitaniumKit/TiProxy.h>
-#import <AVFoundation/AVFAudio.h>
 
 @interface TiMediaSoundProxy : TiProxy <AVAudioPlayerDelegate> {
   @private

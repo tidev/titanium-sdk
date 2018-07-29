@@ -7,10 +7,10 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabProxy.h"
+#import "TiUITabGroupProxy.h"
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiProxy.h>
-#import "TiUITabGroupProxy.h"
 #import <TitaniumKit/TiUtils.h>
 
 //NOTE: this proxy is a little different than normal Proxy/View pattern

@@ -10,10 +10,10 @@
 
 #import "UIModule.h"
 
-#import <TitaniumKit/TiDimension.h>
-#import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/Ti2DMatrix.h>
 #import <TitaniumKit/Ti3DMatrix.h>
+#import <TitaniumKit/TiDimension.h>
+#import <TitaniumKit/TiProxy.h>
 
 #ifdef USE_TI_UIANIMATION
 #import <TitaniumKit/TiAnimation.h>

@@ -7,14 +7,15 @@
 #ifdef USE_TI_MEDIA
 
 #import "MediaModule.h"
+#import "TiMediaAudioSession.h"
+#import "TiMediaItem.h"
+#import "TiMediaMusicPlayer.h"
+
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/Ti2DMatrix.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiFile.h>
-#import "TiMediaAudioSession.h"
-#import "TiMediaItem.h"
-#import "TiMediaMusicPlayer.h"
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
 

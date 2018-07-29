@@ -8,12 +8,12 @@
 
 #ifdef USE_TI_CONTACTS
 
-#import <TitaniumKit/KrollCallback.h>
 #import "TiContactsPerson.h"
 #import <AddressBook/AddressBook.h>
 #import <AddressBookUI/AddressBookUI.h>
 #import <Contacts/Contacts.h>
 #import <ContactsUI/ContactsUI.h>
+#import <TitaniumKit/KrollCallback.h>
 
 @interface ContactsModule : TiModule <ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate, CNContactViewControllerDelegate, TiContactsPersonUpdateObserver> {
   @private

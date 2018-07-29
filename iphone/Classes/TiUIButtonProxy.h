@@ -6,9 +6,9 @@
  */
 #ifdef USE_TI_UIBUTTON
 
-#import <TitaniumKit/TiToolbar.h>
 #import "TiToolbarButton.h"
 #import "TiUINavBarButton.h"
+#import <TitaniumKit/TiToolbar.h>
 #import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUIButtonProxy : TiViewProxy <TiToolbarButton> {

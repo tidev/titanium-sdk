@@ -30,10 +30,10 @@
 
 #import "LauncherButton.h"
 #import "LauncherItem.h"
+#import <QuartzCore/QuartzCore.h>
 #import <TitaniumKit/TiUIView.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import <QuartzCore/QuartzCore.h>
 
 @implementation LauncherButton
 

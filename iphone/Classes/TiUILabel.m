@@ -8,9 +8,9 @@
 
 #import "TiUILabel.h"
 #import "TiUILabelProxy.h"
+#import <CoreText/CoreText.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/UIImage+Resize.h>
-#import <CoreText/CoreText.h>
 
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
