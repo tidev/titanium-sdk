@@ -67,8 +67,9 @@ IOS.prototype.package = function (packager, next) {
 						__BUILD_DATE__: this.timestamp,
 						__BUILD_HASH__: this.gitHash
 					};
+					// TODO: DO we need this? The above constants are not even used so far.
 					const dest = path.join(DEST_IOS, 'main.m');
-					const contents = fs.readFileSync(path.join(DEST_IOS, 'main.m')).toString().replace(/(__.+?__)/g, function (match, key) {
+					const contents = fs.readFileSync(path.join(ROOT_DIR, 'support', 'iphone', 'main.m')).toString().replace(/(__.+?__)/g, function (match, key) {
 						const s = subs.hasOwnProperty(key) ? subs[key] : key;
 						return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
 					});
