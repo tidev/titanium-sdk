@@ -18,10 +18,10 @@
 #import "TiHost.h"
 #import "TiPoint.h"
 #import "TiProxy.h"
-#import "TiUIView.h"
-#import <TitaniumKit/TiUtils.h>
 #import "TiSharedConfig.h"
+#import "TiUIView.h"
 #import "WebFont.h"
+#import <TitaniumKit/TiUtils.h>
 
 // for checking version
 #import <sys/utsname.h>
@@ -1453,7 +1453,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
       // on simulator we want to keep slash since it's coming from file
       appurlstr = [@"/" stringByAppendingString:appurlstr];
     }
-    
+
     if (resourcesDirectory != nil && [resourcesDirectory isEqualToString:@""] == NO) {
       if ([appurlstr hasPrefix:resourcesDirectory]) {
         if ([[NSFileManager defaultManager] fileExistsAtPath:appurlstr]) {

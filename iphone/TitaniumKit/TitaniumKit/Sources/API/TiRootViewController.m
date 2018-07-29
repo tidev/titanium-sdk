@@ -5,10 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/TiRootViewController.h>
 #import "TiApp.h"
 #import "TiErrorController.h"
 #import "TiLayoutQueue.h"
+#import <TitaniumKit/TiRootViewController.h>
 #import <TitaniumKit/TiUtils.h>
 
 #ifdef FORCE_WITH_MODAL

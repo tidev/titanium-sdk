@@ -13,12 +13,12 @@
 #import "TiLocale.h"
 #import "TiStylesheet.h"
 #import "TiUIView.h"
+#import "TiUIViewProxy.h"
 #import "TiWindowProxy.h"
 #import <QuartzCore/QuartzCore.h>
+#import <TitaniumKit/TiUIWindowProxy.h>
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
-#import "TiUIViewProxy.h"
-#import <TitaniumKit/TiUIWindowProxy.h>
 
 #define IGNORE_IF_NOT_OPENED                 \
   if (!windowOpened || ![self viewAttached]) \
@@ -1368,7 +1368,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     NSLog(@"[WARN] 3DTouch is not available on this device.");
     return;
   }
-  
+
   Class TiUIiOSPreviewContextProxy = NSClassFromString(@"TiUIiOSPreviewContextProxy");
 
   ENSURE_TYPE(context, TiUIiOSPreviewContextProxy);

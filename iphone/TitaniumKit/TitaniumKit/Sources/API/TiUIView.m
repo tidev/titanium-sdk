@@ -6,15 +6,15 @@
  */
 #import "TiUIView.h"
 #import "ImageLoader.h"
-#import "TiBase.h"
-#import "TiColor.h"
-#import "TiRect.h"
-#import <TitaniumKit/TiUtils.h>
 #import "Ti2DMatrix.h"
 #import "Ti3DMatrix.h"
 #import "TiApp.h"
+#import "TiBase.h"
+#import "TiColor.h"
+#import "TiRect.h"
 #import "TiViewProxy.h"
 #import "UIImage+Resize.h"
+#import <TitaniumKit/TiUtils.h>
 
 void InsetScrollViewForKeyboard(UIScrollView *scrollView, CGFloat keyboardTop, CGFloat minimumContentHeight)
 {

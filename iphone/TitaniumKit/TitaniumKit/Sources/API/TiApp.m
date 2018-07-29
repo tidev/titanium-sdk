@@ -9,17 +9,17 @@
 #import "ApplicationDefaults.h"
 #import "ImageLoader.h"
 #import "Mimetypes.h"
-#import <TitaniumKit/NSData+Additions.h>
 #import "TiApp.h"
 #import "TiBase.h"
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
-#import "Webcolor.h"
 #import "TiSharedConfig.h"
+#import "Webcolor.h"
 #import <AVFoundation/AVFoundation.h>
 #import <CoreLocation/CoreLocation.h>
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <QuartzCore/QuartzCore.h>
+#import <TitaniumKit/NSData+Additions.h>
 #import <libkern/OSAtomic.h>
 #ifndef DISABLE_TI_LOG_SERVER
 #import "TiLogServer.h"
@@ -223,12 +223,13 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)boot
 {
   DebugLog(@"[INFO] %@/%@ (%s.%@)",
-           [[TiSharedConfig defaultConfig] applicationName],
-           [[TiSharedConfig defaultConfig] applicationVersion],
-           TI_VERSION_STR,
-           [[TiSharedConfig defaultConfig] sdkVersion])
+      [[TiSharedConfig defaultConfig] applicationName],
+      [[TiSharedConfig defaultConfig] applicationVersion],
+      TI_VERSION_STR,
+      [[TiSharedConfig defaultConfig] sdkVersion])
 
-  sessionId = [[TiUtils createUUID] retain];
+      sessionId
+      = [[TiUtils createUUID] retain];
   TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
 
   [self appBoot];
@@ -1014,7 +1015,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   applicationInMemoryPanic = YES;
   [Webcolor flushCache];
-// don't worry about KrollBridge since he's already listening
+  // don't worry about KrollBridge since he's already listening
   [xhrBridge gc];
   [self performSelector:@selector(clearMemoryPanic)
              withObject:nil

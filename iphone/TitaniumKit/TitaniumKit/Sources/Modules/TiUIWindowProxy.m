@@ -5,13 +5,13 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <TitaniumKit/TiUIWindowProxy.h>
 #import "ImageLoader.h"
 #import "TiApp.h"
 #import "TiComplexValue.h"
 #import "TiLayoutQueue.h"
 #import "TiUIViewProxy.h"
 #import "Webcolor.h"
+#import <TitaniumKit/TiUIWindowProxy.h>
 
 // this is how long we should wait on the new JS context to be loaded
 // holding the UI thread before we return during an window open. we

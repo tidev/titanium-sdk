@@ -11,8 +11,8 @@
 #import "KrollBridge.h"
 #import "TiHost.h"
 #import "XHRBridge.h"
-#import <TitaniumKit/TiRootViewController.h>
 #import <JavaScriptCore/JavaScriptCore.h>
+#import <TitaniumKit/TiRootViewController.h>
 
 extern BOOL applicationInMemoryPanic;
 

@@ -25,8 +25,8 @@
 
 #import "TiLogServer.h"
 #import <TitaniumKit/TiBase.h>
-#import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiSharedConfig.h>
+#import <TitaniumKit/TiUtils.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 
@@ -137,25 +137,25 @@ static void trySetNonBlocking(int socket, const char *type)
 {
   socket = _socket;
   readSource = nil;
-  
+
   // disable SIGPIPE signal
   setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &(int){ 1 }, sizeof(int));
-  
+
   trySetNonBlocking(socket, "connection\'s");
-  
+
   // the only way to know if the remote peer has disconnected is to read from
   // from the socket
   readSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ,
-                                      socket,
-                                      0, // mask not used
-                                      logDispatchQueue);
+      socket,
+      0, // mask not used
+      logDispatchQueue);
   dispatch_source_set_event_handler(readSource, ^{
     // remote peer disconnected
     forcedNSLog(@"[INFO] Remote peer disconnected");
     [self disconnect];
   });
   dispatch_resume(readSource);
-  
+
   return self;
 }
 
@@ -182,12 +182,12 @@ static void trySetNonBlocking(int socket, const char *type)
     close(socket);
     socket = -1;
   }
-  
+
   if (readSource != nil) {
     dispatch_release(readSource);
     readSource = nil;
   }
-  
+
   [connections removeObject:self];
   forcedNSLog(@"[INFO] Log server connections: %d", [connections count]);
 }
@@ -205,13 +205,13 @@ __unused static int counter = 0;
 + (void)log:(NSString *)message
 {
   NSString *msg = [message stringByAppendingString:@"\r\n"];
-  
+
   if ([connections count] > 0) {
     NSData *data = [msg dataUsingEncoding:NSUTF8StringEncoding];
     dispatch_data_t buffer = dispatch_data_create(data.bytes,
-                                                  data.length,
-                                                  logDispatchQueue,
-                                                  DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+        data.length,
+        logDispatchQueue,
+        DISPATCH_DATA_DESTRUCTOR_DEFAULT);
     for (id conn in connections) {
       [conn send:&buffer];
     }
@@ -233,71 +233,71 @@ __unused static int counter = 0;
   if (logServerSocket != -1) {
     return;
   }
-  
+
   // initialize our connections array
   if (connections == nil) {
     connections = [[NSMutableArray alloc] init];
   }
-  
+
   if (headers == nil) {
     NSDictionary *map = [[NSDictionary alloc] initWithObjectsAndKeys:
-                         [[TiSharedConfig defaultConfig] applicationName], @"name",
-                         [[TiSharedConfig defaultConfig] applicationID], @"appId",
-                         [[TiSharedConfig defaultConfig] applicationVersion], @"version",
-                         [[TiSharedConfig defaultConfig] applicationDeployType], @"deployType",
-                         [[TiSharedConfig defaultConfig] applicationGUID], @"guid",
-                         [[TiSharedConfig defaultConfig] sdkVersion], @"tiSDKVersion",
-                         [[TiSharedConfig defaultConfig] buildHash], @"githash",
-                         nil];
-    
+                                                  [[TiSharedConfig defaultConfig] applicationName], @"name",
+                                              [[TiSharedConfig defaultConfig] applicationID], @"appId",
+                                              [[TiSharedConfig defaultConfig] applicationVersion], @"version",
+                                              [[TiSharedConfig defaultConfig] applicationDeployType], @"deployType",
+                                              [[TiSharedConfig defaultConfig] applicationGUID], @"guid",
+                                              [[TiSharedConfig defaultConfig] sdkVersion], @"tiSDKVersion",
+                                              [[TiSharedConfig defaultConfig] buildHash], @"githash",
+                                              nil];
+
     headers = [[[[TiUtils jsonStringify:map] stringByAppendingString:@"\r\n"] dataUsingEncoding:NSUTF8StringEncoding] retain];
-    
+
     [map release];
   }
-  
+
   // create the listening socket
   logServerSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (logServerSocket == -1) {
     forcedNSLog(@"[ERROR] Failed to create log server TCP socket");
     return;
   }
-  
+
   // enable address reuse and disable SIGPIPE
   setsockopt(logServerSocket, SOL_SOCKET, SO_REUSEADDR, &(int){ 1 }, sizeof(int));
   setsockopt(logServerSocket, SOL_SOCKET, SO_NOSIGPIPE, &(int){ 1 }, sizeof(int));
-  
+
   trySetNonBlocking(logServerSocket, "log server\'s listening");
-  
+
   struct sockaddr_in addr;
   memset(&addr, 0, sizeof(addr));
   addr.sin_len = sizeof(addr);
   addr.sin_family = AF_INET;
   addr.sin_port = htons(TI_LOG_SERVER_PORT);
   addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-  
+
   // bind the socket to the listening port
   if (bind(logServerSocket, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
     forcedNSLog(@"[ERROR] Failed to bind listening socket on port %d", TI_LOG_SERVER_PORT);
     close(logServerSocket);
     return;
   }
-  
+
   // start listening!
   if (listen(logServerSocket, TI_LOG_SERVER_BACKLOG) != 0) {
     close(logServerSocket);
     forcedNSLog(@"[ERROR] Failed to start listening on port %d", TI_LOG_SERVER_PORT);
     return;
   }
-  
+
   // create a dispatch queue for our listening socket events
   logDispatchQueue = dispatch_queue_create("logDispatchQueue", DISPATCH_QUEUE_SERIAL);
-  
+
   // create the dispatch source for our listening socket
   logDispatchSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ,
-                                             logServerSocket,
-                                             0, // mask not used
-                                             logDispatchQueue);
-  
+      logServerSocket,
+      0, // mask not used
+      logDispatchQueue);
+
   // define the handler for when an incoming connection occurs
   dispatch_source_set_event_handler(logDispatchSource, ^{
     // accept the connection
@@ -305,42 +305,42 @@ __unused static int counter = 0;
     if (socket <= 0) {
       return;
     }
-    
+
     // create our connection object with the socket for the incoming connection
     Connection *conn = [[[Connection alloc] initWithSocket:socket] autorelease];
     if (!conn) {
       return;
     }
-    
+
     [connections addObject:conn];
     forcedNSLog(@"[INFO] Log server connections: %d", [connections count]);
-    
+
     // send the header
     dispatch_data_t buffer = dispatch_data_create(headers.bytes,
-                                                  headers.length,
-                                                  logDispatchQueue,
-                                                  DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+        headers.length,
+        logDispatchQueue,
+        DISPATCH_DATA_DESTRUCTOR_DEFAULT);
     [conn send:&buffer];
-    
+
     // if log queue exists, flush the whole thing and nuke it
     if (logQueue != nil) {
       for (id message in logQueue) {
         NSData *data = [message dataUsingEncoding:NSUTF8StringEncoding];
         dispatch_data_t buffer = dispatch_data_create(data.bytes,
-                                                      data.length,
-                                                      logDispatchQueue,
-                                                      DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+            data.length,
+            logDispatchQueue,
+            DISPATCH_DATA_DESTRUCTOR_DEFAULT);
         [conn send:&buffer];
       }
       RELEASE_TO_NIL(logQueue);
     }
   });
-  
+
   // set up a cancel handler, though I don't think this is ever called
   dispatch_source_set_cancel_handler(logDispatchSource, ^{
     [self stopServer];
   });
-  
+
   // start listening for events on our listening socket
   dispatch_resume(logDispatchSource);
 }
@@ -355,7 +355,7 @@ __unused static int counter = 0;
     close(logServerSocket);
     logServerSocket = -1;
   }
-  
+
   // hang up on all connections
   if (connections != nil) {
     for (id conn in connections) {
@@ -363,22 +363,22 @@ __unused static int counter = 0;
     }
     RELEASE_TO_NIL(connections);
   }
-  
+
   // release the headers buffer
   RELEASE_TO_NIL(headers);
-  
+
   // release the dispatch source
   if (logDispatchSource != nil) {
     dispatch_source_cancel(logDispatchSource);
     logDispatchSource = nil;
   }
-  
+
   // release the dispatch queue
   if (logDispatchQueue != nil) {
     dispatch_release(logDispatchQueue);
     logDispatchQueue = nil;
   }
-  
+
   // release any retained messages in the log queue
   RELEASE_TO_NIL(logQueue);
 }

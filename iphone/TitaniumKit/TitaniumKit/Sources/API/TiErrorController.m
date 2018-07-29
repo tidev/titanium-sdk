@@ -10,8 +10,8 @@
 #import "TiErrorController.h"
 #import "TiApp.h"
 #import "TiBase.h"
-#import <TitaniumKit/TiUtils.h>
 #import <QuartzCore/QuartzCore.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiErrorNavigationController
 

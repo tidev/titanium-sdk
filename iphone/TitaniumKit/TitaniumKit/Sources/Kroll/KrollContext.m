@@ -8,9 +8,9 @@
 #import "KrollCallback.h"
 #import "KrollObject.h"
 #import "KrollTimer.h"
+#import "TiApp.h"
 #import "TiLocale.h"
 #import <TitaniumKit/TiUtils.h>
-#import "TiApp.h"
 
 #import "TiExceptionHandler.h"
 #include <pthread.h>

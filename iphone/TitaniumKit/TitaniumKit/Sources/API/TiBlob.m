@@ -7,10 +7,10 @@
 
 #import "TiBlob.h"
 #import "Mimetypes.h"
-#import <TitaniumKit/TiUtils.h>
 #import "UIImage+Alpha.h"
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
+#import <TitaniumKit/TiUtils.h>
 
 //NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
 #import "TiFilesystemFileProxy.h"
