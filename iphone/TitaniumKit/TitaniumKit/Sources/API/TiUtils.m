@@ -20,8 +20,8 @@
 #import "TiProxy.h"
 #import "TiSharedConfig.h"
 #import "TiUIView.h"
+#import "TiUtils.h"
 #import "WebFont.h"
-#import <TitaniumKit/TiUtils.h>
 
 // for checking version
 #import <sys/utsname.h>

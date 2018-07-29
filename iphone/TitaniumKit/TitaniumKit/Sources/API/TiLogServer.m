@@ -24,9 +24,9 @@
 #ifndef DISABLE_TI_LOG_SERVER
 
 #import "TiLogServer.h"
-#import <TitaniumKit/TiBase.h>
-#import <TitaniumKit/TiSharedConfig.h>
-#import <TitaniumKit/TiUtils.h>
+#import "TiBase.h"
+#import "TiSharedConfig.h"
+#import "TiUtils.h"
 #include <netinet/in.h>
 #include <sys/socket.h>
 

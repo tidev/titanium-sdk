@@ -6,7 +6,7 @@
  */
 #import "TiEvaluator.h"
 #import "TiProxy.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 @class TiHost;
 

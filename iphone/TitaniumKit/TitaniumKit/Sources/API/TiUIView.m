@@ -12,9 +12,9 @@
 #import "TiBase.h"
 #import "TiColor.h"
 #import "TiRect.h"
+#import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "UIImage+Resize.h"
-#import <TitaniumKit/TiUtils.h>
 
 void InsetScrollViewForKeyboard(UIScrollView *scrollView, CGFloat keyboardTop, CGFloat minimumContentHeight)
 {

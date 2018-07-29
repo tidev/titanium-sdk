@@ -9,7 +9,7 @@
 #import "TiApp.h"
 #import "TiErrorController.h"
 #import "TiUIWindow.h"
-#import <TitaniumKit/TiUIWindowProxy.h>
+#import "TiUIWindowProxy.h"
 
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 #import "TiUIiOSNavWindowProxy.h"

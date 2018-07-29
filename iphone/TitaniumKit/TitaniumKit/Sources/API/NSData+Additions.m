@@ -5,8 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import "NSData+Additions.h"
 #import <CommonCrypto/CommonCryptor.h>
-#import <TitaniumKit/NSData+Additions.h>
 
 #pragma mark Hex
 

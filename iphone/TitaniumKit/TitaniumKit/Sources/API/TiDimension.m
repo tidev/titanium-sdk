@@ -9,7 +9,7 @@
 
 #import "TiDimension.h"
 #import "TiApp.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 const TiDimension TiDimensionZero = { TiDimensionTypeDip, 0 };
 const TiDimension TiDimensionAuto = { TiDimensionTypeAuto, 0 };

@@ -8,7 +8,7 @@
 #import "TiFilesystemFileStreamProxy.h"
 #import "TiFilesystemFileProxy.h"
 #import "TiStreamProxy.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 @interface TiFilesystemFileStreamProxy (Private)
 

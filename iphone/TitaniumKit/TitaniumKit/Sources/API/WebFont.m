@@ -7,7 +7,7 @@
 
 #import "WebFont.h"
 #import "TiBase.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 @implementation WebFont
 

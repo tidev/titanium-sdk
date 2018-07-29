@@ -9,8 +9,8 @@
 #import "LayoutConstraint.h"
 #import "Ti2DMatrix.h"
 #import "Ti3DMatrix.h"
+#import "TiUtils.h"
 #import "TiViewProxy.h"
-#import <TitaniumKit/TiUtils.h>
 
 #import <QuartzCore/QuartzCore.h>
 

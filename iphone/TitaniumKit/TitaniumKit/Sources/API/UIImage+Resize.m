@@ -3,10 +3,10 @@
 // Free for personal or commercial use, with or without modification.
 // No warranty is expressed or implied.
 
+#import "TiUtils.h"
 #import "UIImage+Alpha.h"
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
-#import <TitaniumKit/TiUtils.h>
 
 @implementation UIImageResize
 

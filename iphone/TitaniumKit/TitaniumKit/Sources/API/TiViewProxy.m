@@ -14,9 +14,9 @@
 #import "TiStylesheet.h"
 #import "TiUIView.h"
 #import "TiUIViewProxy.h"
+#import "TiUIWindowProxy.h"
 #import "TiWindowProxy.h"
 #import <QuartzCore/QuartzCore.h>
-#import <TitaniumKit/TiUIWindowProxy.h>
 #import <libkern/OSAtomic.h>
 #import <pthread.h>
 

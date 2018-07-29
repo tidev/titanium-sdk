@@ -9,6 +9,7 @@
 #import "ApplicationDefaults.h"
 #import "ImageLoader.h"
 #import "Mimetypes.h"
+#import "NSData+Additions.h"
 #import "TiApp.h"
 #import "TiBase.h"
 #import "TiErrorController.h"
@@ -19,7 +20,6 @@
 #import <CoreLocation/CoreLocation.h>
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <QuartzCore/QuartzCore.h>
-#import <TitaniumKit/NSData+Additions.h>
 #import <libkern/OSAtomic.h>
 #ifndef DISABLE_TI_LOG_SERVER
 #import "TiLogServer.h"

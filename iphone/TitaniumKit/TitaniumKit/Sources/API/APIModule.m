@@ -8,7 +8,7 @@
 #import "TiApp.h"
 #import "TiBase.h"
 #import "TiExceptionHandler.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 @implementation APIModule
 

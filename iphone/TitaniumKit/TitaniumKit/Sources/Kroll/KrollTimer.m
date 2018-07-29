@@ -8,7 +8,7 @@
 #import "KrollContext.h"
 #import "KrollObject.h"
 #import "TiExceptionHandler.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 @implementation KrollTimer
 

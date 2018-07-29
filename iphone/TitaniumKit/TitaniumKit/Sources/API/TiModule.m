@@ -10,7 +10,7 @@
 #import "TiHost.h"
 #import "TiModule.h"
 #import "TiProxy.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 @implementation TiModule
 

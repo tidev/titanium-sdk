@@ -5,11 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import "TiRootViewController.h"
 #import "TiApp.h"
 #import "TiErrorController.h"
 #import "TiLayoutQueue.h"
-#import <TitaniumKit/TiRootViewController.h>
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 #ifdef FORCE_WITH_MODAL
 @interface ForcingController : UIViewController {

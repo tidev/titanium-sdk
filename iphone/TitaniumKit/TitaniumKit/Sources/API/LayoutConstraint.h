@@ -6,7 +6,7 @@
  */
 
 #import "TiDimension.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 #import <UIKit/UIKit.h>
 
 @protocol LayoutAutosizing

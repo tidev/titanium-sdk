@@ -10,7 +10,7 @@
 #import "KrollTimer.h"
 #import "TiApp.h"
 #import "TiLocale.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 #import "TiExceptionHandler.h"
 #include <pthread.h>

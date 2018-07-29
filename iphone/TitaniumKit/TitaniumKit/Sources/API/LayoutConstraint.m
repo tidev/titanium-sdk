@@ -10,8 +10,8 @@
 #import "LayoutConstraint.h"
 #import "QuartzCore/QuartzCore.h"
 #import "TiUIView.h"
+#import "TiUtils.h"
 #import "TiViewProxy.h"
-#import <TitaniumKit/TiUtils.h>
 
 /* BEGIN PSEUDOCODE
 

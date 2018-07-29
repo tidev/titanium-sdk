@@ -8,9 +8,9 @@
 #import "ImageLoader.h"
 #import "OperationQueue.h"
 #import "TiApp.h"
+#import "TiUtils.h"
 #import "UIImage+Resize.h"
 #import <CommonCrypto/CommonDigest.h>
-#import <TitaniumKit/TiUtils.h>
 
 //#define DEBUG_IMAGE_CACHE
 

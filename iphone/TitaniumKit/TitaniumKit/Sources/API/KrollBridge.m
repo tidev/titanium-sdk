@@ -15,9 +15,9 @@
 #import "TiExceptionHandler.h"
 #import "TiHost.h"
 #import "TiSharedConfig.h"
+#import "TiUtils.h"
 #import "TopTiModule.h"
 #import <JavaScriptCore/JavaScriptCore.h>
-#import <TitaniumKit/TiUtils.h>
 #import <libkern/OSAtomic.h>
 
 NSString *TitaniumModuleRequireFormat = @"(function(exports){"

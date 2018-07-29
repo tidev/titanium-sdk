@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiUIWindow.h"
-#import <TitaniumKit/TiUIWindowProxy.h>
+#import "TiUIWindowProxy.h"
 
 @implementation TiUIWindow
 

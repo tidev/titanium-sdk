@@ -7,7 +7,7 @@
 
 #import "TiGradient.h"
 
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 @implementation TiGradientLayer
 @synthesize gradient;

@@ -9,7 +9,7 @@
 #import "TiBase.h"
 #import "TiBlob.h"
 #import "TiFilesystemFileStreamProxy.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 #include <sys/xattr.h>
 
 #define FILE_TOSTR(x) \

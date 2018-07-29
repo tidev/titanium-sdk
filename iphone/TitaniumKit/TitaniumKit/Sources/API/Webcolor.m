@@ -7,7 +7,7 @@
 
 #import "Webcolor.h"
 #import "TiBase.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 NSString *const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND = @"scrollview_textured";
 NSString *const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND = @"view_flipside";

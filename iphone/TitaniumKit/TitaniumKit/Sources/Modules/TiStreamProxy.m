@@ -6,7 +6,7 @@
  */
 
 #import "TiStreamProxy.h"
-#import <TitaniumKit/TiUtils.h>
+#import "TiUtils.h"
 
 @implementation TiStreamProxy
 
