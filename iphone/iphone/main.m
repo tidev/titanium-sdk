@@ -39,6 +39,8 @@ int main(int argc, char *argv[]) {
   [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
   [[TiSharedConfig defaultConfig] setAnalyticsEnabled:TI_APPLICATION_ANALYTICS];
   [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
+
+  // These are not yet compiled into the app !()
   [[TiSharedConfig defaultConfig] setBuildHash:TI_APPLICATION_BUILD_HASH];
   [[TiSharedConfig defaultConfig] setBuildDate:TI_APPLICATION_BUILD_DATE];
   [[TiSharedConfig defaultConfig] setSdkVersion:TI_APPLICATION_SDK_VERSION];

@@ -248,6 +248,8 @@
 		DB90749F1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */; };
 		DB90D7AB210DBF4F00B4BE69 /* TitaniumKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DB90D7AA210DBF4300B4BE69 /* TitaniumKit.framework */; };
 		DB90D7AF210DC53A00B4BE69 /* TiUITabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */; };
+		DBA2F944210E49FF00EC1FB1 /* ApplicationMods.m in Sources */ = {isa = PBXBuildFile; fileRef = 2478B2A411C447A4005814DF /* ApplicationMods.m */; };
+		DBA2F945210E49FF00EC1FB1 /* ApplicationDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1F65761431031E006C5D37 /* ApplicationDefaults.m */; };
 		EF0ADD1A143FA0CD00977386 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD19143FA0CD00977386 /* GeolocationModule.m */; };
 /* End PBXBuildFile section */
 
@@ -2367,6 +2369,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DBA2F944210E49FF00EC1FB1 /* ApplicationMods.m in Sources */,
+				DBA2F945210E49FF00EC1FB1 /* ApplicationDefaults.m in Sources */,
 				DB90D7AF210DC53A00B4BE69 /* TiUITabGroup.m in Sources */,
 				AD3174C21D015DA9000D5F1A /* TiCalendarAttendee.m in Sources */,
 				243ECCB21126984E00639DF4 /* TiUITableViewAction.m in Sources */,
