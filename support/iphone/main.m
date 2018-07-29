@@ -4,6 +4,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <TitaniumKit/TiSharedConfig.h>
 #define _QUOTEME(x) #x
 #define STRING(x) _QUOTEME(x)
 
@@ -25,8 +26,22 @@ NSString *const TI_APPLICATION_RESOURCE_DIR = @"__APP_RESOURCE_DIR__";
 #endif
 
 int main(int argc, char *argv[]) {
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-  int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");
-  [pool release];
-  return retVal;
+    [[TiSharedConfig defaultConfig] setApplicationName:TI_APPLICATION_NAME];
+    [[TiSharedConfig defaultConfig] setApplicationID:TI_APPLICATION_ID];
+    [[TiSharedConfig defaultConfig] setApplicationVersion:TI_APPLICATION_VERSION];
+    [[TiSharedConfig defaultConfig] setApplicationDeployType:TI_APPLICATION_DEPLOYTYPE];
+    [[TiSharedConfig defaultConfig] setApplicationGUID:TI_APPLICATION_GUID];
+    [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];
+    [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
+    [[TiSharedConfig defaultConfig] setAnalyticsEnabled:TI_APPLICATION_ANALYTICS];
+    [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
+    [[TiSharedConfig defaultConfig] setBuildHash:TI_APPLICATION_BUILD_HASH];
+    [[TiSharedConfig defaultConfig] setBuildDate:TI_APPLICATION_BUILD_DATE];
+    [[TiSharedConfig defaultConfig] setSdkVersion:TI_APPLICATION_SDK_VERSION];
+
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+
+    int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");
+    [pool release];
+    return retVal;
 }
