@@ -42,12 +42,12 @@ IOS.prototype.package = function (packager, next) {
 	async.parallel([
 		function (callback) {
 			async.series([
-				// Copy legacy copies of TiBase.h, TiApp.h etc into 'include/' to retain backwards compatibility in SDK 8.0.0 
+				// Copy legacy copies of TiBase.h, TiApp.h etc into 'include/' to retain backwards compatibility in SDK 8.0.0
 				// TODO: Inject a deprecation warning if used and remove in SDK 9.0.0
 				function copyLegacyCoreHeaders (cb) {
 					globCopyFlat('**/*.h', path.join(IOS_ROOT, 'TitaniumKit', 'TitaniumKit', 'Sources'), path.join(DEST_IOS, 'include'), cb);
 				},
-				// Copy legacy copies of APSAnalytics.h and APSHTTPClient.h into 'include/' to retain backwards compatibility in SDK 8.0.0 
+				// Copy legacy copies of APSAnalytics.h and APSHTTPClient.h into 'include/' to retain backwards compatibility in SDK 8.0.0
 				// TODO: Inject a deprecation warning if used and remove in SDK 9.0.0
 				function copyLegacyLibraryHeaders (cb) {
 					globCopy('**/*.h', path.join(IOS_ROOT, 'TitaniumKit', 'TitaniumKit', 'Libraries'), path.join(DEST_IOS, 'include'), cb);

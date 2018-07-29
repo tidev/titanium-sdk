@@ -46,7 +46,7 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.manifest      = cli.manifest;
 	this.moduleId      = cli.manifest.moduleid;
 	this.moduleName    = cli.manifest.name;
-	this.moduleIdAsIdentifier = this.moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) { return s.substring(0, 1).toUpperCase() + s.substring(1); }).join('');
+	this.moduleIdAsIdentifier = this.scrubbedModuleId();
 	this.moduleVersion = cli.manifest.version;
 	this.moduleGuid    = cli.manifest.guid;
 	this.isFramework   = parseInt(this.manifest.apiversion) >= 3 && fs.existsSync(path.join(this.projectDir, 'Info.plist'));
@@ -184,8 +184,8 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 iOSModuleBuilder.prototype.loginfo = function loginfo() {
 	this.logger.debug(__('Titanium SDK iOS directory: %s', this.platformPath.cyan));
 	this.logger.info(__('Project directory: %s', this.projectDir.cyan));
-	this.logger.info(__('Module ID: %s', this.moduleId.cyan));	
-	this.logger.info(__('Module Type: ' + (this.isFramework ? 'Framework (Swift)' : 'Static Library (Objective-C)')));	
+	this.logger.info(__('Module ID: %s', this.moduleId.cyan));
+	this.logger.info(__('Module Type: ' + (this.isFramework ? 'Framework (Swift)' : 'Static Library (Objective-C)')));
 };
 
 iOSModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
@@ -478,7 +478,7 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinary(next) {
 	this.logger.info(__('Creating universal library'));
 
-	const moduleId = this.isFramework ? this.moduleIdAsIdentifier + '.framework' : 'lib' + this.moduleId + '.a'
+	const moduleId = this.isFramework ? this.moduleIdAsIdentifier + '.framework' : 'lib' + this.moduleId + '.a';
 	const findLib = function (dest) {
 		let lib = path.join(this.projectDir, 'build', 'Release-' + dest, moduleId);
 		if (!fs.existsSync(lib)) {
@@ -516,18 +516,18 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 		const deviceFramework = args[1];
 		const basename = path.basename(simFramework); // Same for sim and dist
 		const universalFrameworkDir = path.join(this.projectDir, 'build', 'universal');
-		const universalFrameworkFile = path.join(universalFrameworkDir, basename)
+		const universalFrameworkFile = path.join(universalFrameworkDir, basename);
 		const swiftModulesDir = path.join(this.projectDir, 'build', 'Release-iphonesimulator', basename, 'Modules', this.moduleIdAsIdentifier + '.swiftmodule');
 
- 		// Create universal framework directory, e.g. <module-project>/build/universal
+		// Create universal framework directory, e.g. <module-project>/build/universal
 		fs.emptyDirSync(universalFrameworkDir);
 		fs.copySync(deviceFramework, universalFrameworkFile); // Copy device framework to universal dir
- 		// If exists, copy .swiftmodule directory to <module-project>/build/universal/<module-name>.framework/Modules/<module-name>.swiftmodule/
+		// If exists, copy .swiftmodule directory to <module-project>/build/universal/<module-name>.framework/Modules/<module-name>.swiftmodule/
 		if (fs.existsSync(swiftModulesDir)) {
 			wrench.copyDirSyncRecursive(swiftModulesDir, path.join(universalFrameworkFile, 'Modules', path.basename(swiftModulesDir)));
 		}
-		
-		// Append executive name, e.g. <module-name>.framework/<module-name> 
+
+		// Append executive name, e.g. <module-name>.framework/<module-name>
 		// FIXME: Use less hacky approach here
 		args[0] += '/' + this.moduleIdAsIdentifier;
 		args[1] += '/' + this.moduleIdAsIdentifier;
@@ -541,31 +541,31 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 
 		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
 		appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
-		   if (code) {
-			   this.logger.error(__('Failed to generate universal framework (code %s):', code));
-			   this.logger.error(err.trim() + '\n');
-			   process.exit(1);
-		   }
+			if (code) {
+				this.logger.error(__('Failed to generate universal framework (code %s):', code));
+				this.logger.error(err.trim() + '\n');
+				process.exit(1);
+			}
 			fs.copySync(universalFrameworkFile, path.join(this.projectDir, 'build', basename));
-		   fs.removeSync(universalFrameworkDir);
+			fs.removeSync(universalFrameworkDir);
 			next();
-	   }.bind(this));
-   } else {
-	   args.push(
-		   '-create',
-		   '-output',
-		   path.join(this.projectDir, 'build', 'lib' + moduleId + '.a')
-	   );
+		}.bind(this));
+	} else {
+		args.push(
+			'-create',
+			'-output',
+			path.join(this.projectDir, 'build', 'lib' + moduleId + '.a')
+		);
 		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
 		appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
-		   if (code) {
-			   this.logger.error(__('Failed to generate universal binary (code %s):', code));
-			   this.logger.error(err.trim() + '\n');
-			   process.exit(1);
-		   }
+			if (code) {
+				this.logger.error(__('Failed to generate universal binary (code %s):', code));
+				this.logger.error(err.trim() + '\n');
+				process.exit(1);
+			}
 			next();
-	   }.bind(this));
-   }
+		}.bind(this));
+	}
 };
 
 iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
@@ -716,10 +716,10 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		// 7. Append the framework/library file
 		// If it is a (Swift) framework, we handle it as a directory (which it acttually is)
 		if (this.isFramework) {
-			this.dirWalker(binarylibFile, function (file, name) {
+			this.dirWalker(binarylibFile, function (file) {
 				var stat = fs.statSync(file);
 				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, binarylibName, path.relative(binarylibFile, file)), mode: stat.mode });
-			}.bind(this));
+			});
 		} else {
 			dest.append(fs.createReadStream(binarylibFile), { name: path.join(moduleFolders, binarylibName) });
 		}
@@ -851,6 +851,12 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			);
 		}
 	], next);
+};
+
+iOSModuleBuilder.prototype.scrubbedModuleId = function () {
+	return this.moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) {
+		return s.substring(0, 1).toUpperCase() + s.substring(1);
+	}).join('');
 };
 
 // create the builder instance and expose the public api

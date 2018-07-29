@@ -252,17 +252,19 @@ Creator.prototype.configOptionId = function configOptionId(order) {
  * @returns {Object}
  */
 Creator.prototype.configOptionCodeBase = function configCodeBase(order) {
-	const cli = this.cli,
-		validTypes = ['swift', 'objc'],
-		logger = this.logger;
- 	function validate(value, callback) {
+	const cli = this.cli;
+	const validTypes = [ 'swift', 'objc' ];
+	const logger = this.logger;
+
+	function validate(value, callback) {
 		if (!value || !validTypes.includes(value)) {
 			logger.error(__('Please specify a valid code base') + '\n');
 			return callback(true);
 		}
- 		callback(null, value);
+		callback(null, value);
 	}
- 	return {
+
+	return {
 		abbr: 'c',
 		desc: __('the code base of the project'),
 		order: order,
@@ -542,7 +544,7 @@ Creator.prototype.configOptionWorkspaceDir = function configOptionWorkspaceDir(o
 Creator.prototype.processTemplate = function processTemplate(next) {
 	// try to resolve the template dir
 	const template = this.cli.argv.template = this.cli.argv.template || 'default';
-	const additionalPaths = this.config.get('paths.templates');	
+	const additionalPaths = this.config.get('paths.templates');
 	const builtinTemplateDir = appc.fs.resolvePath(this.sdk.path, 'templates', this.cli.argv.type, template);
 	const searchPaths = [];
 

@@ -95,7 +95,6 @@ ModuleCreator.prototype.run = function run(callback) {
 
 	const platforms = ti.scrubPlatforms(this.cli.argv.platforms),
 		projectName = this.cli.argv.name,
-		codeBase = this.codeBase = this.cli.argv['code-base'],
 		projectDir = this.projectDir = appc.fs.resolvePath(this.cli.argv['workspace-dir'], projectName),
 		id = this.cli.argv.id;
 

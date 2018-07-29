@@ -2151,14 +2151,14 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 								// For Obj-C static libraries, use the .a library or hashing
 								nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
- 								// Try to load native module as framework (Swift)
+								// Try to load native module as framework (Swift)
 							} else if (fs.existsSync(path.join(module.modulePath, module.manifest.name + '.framework'))) {
 								module.libName = module.manifest.name + '.framework';
 								module.libFile = path.join(module.modulePath, module.libName);
 								module.isFramework = true;
- 								// For Swift frameworks, use the binary inside the .framework for hashing
+								// For Swift frameworks, use the binary inside the .framework for hashing
 								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, module.manifest.name))));
- 								// Else - fail
+								// Else - fail
 							} else {
 								this.logger.error(__('Module %s (%s) is missing library or framework file.', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
 								this.logger.error(__('Please validate that your module has been packaged correctly and try it again.'));
@@ -2876,12 +2876,11 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	const srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj');
 	const xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'));
 	const relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
-	
+
 	let contents = fs.readFileSync(srcFile).toString();
-		
+
 	// Fix up TitaniumKit paths. Maybe place it differently on the long-tearm?
 	contents = contents.replace(/..\/TitaniumKit\//g, 'TitaniumKit/'); // Replace ../TitaniumKit/ with TitaniumKit/
-	
 
 	xcodeProject.hash = xcodeParser.parse(contents);
 	const xobjs = xcodeProject.hash.project.objects;
@@ -3267,7 +3266,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					// This returns a String by default, because the Xcode template is empty
 					// We need to map it to an array. Not sure if this is the correct way to handle it
 					if (!buildSettings.FRAMEWORK_SEARCH_PATHS || typeof buildSettings.FRAMEWORK_SEARCH_PATHS !== 'object') {
-						buildSettings.FRAMEWORK_SEARCH_PATHS = ['"$(inherited)"'];
+						buildSettings.FRAMEWORK_SEARCH_PATHS = [ '"$(inherited)"' ];
 					}
 					buildSettings.FRAMEWORK_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
 				} else {
