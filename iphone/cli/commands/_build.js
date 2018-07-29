@@ -4349,7 +4349,7 @@ iOSBuilder.prototype._scrubiOSSourceFile = function _scrubiOSSourceFile(contents
 			// note: order of regexps matters
 			[ /TitaniumViewController/g, namespace + '$ViewController' ],
 			[ /TitaniumModule/g, namespace + '$Module' ],
-			[ /Titanium|Appcelerator/g, namespace ],
+			[ /(?!TitaniumKit)(Titanium|Appcelerator)/g, namespace ],
 			[ /titanium/g, '_' + namespace.toLowerCase() ],
 			[ /(org|com)\.appcelerator/g, '$1.' + namespace.toLowerCase() ],
 			[ new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Appcelerator Titanium Mobile' ], // eslint-disable-line security/detect-non-literal-regexp
