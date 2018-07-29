@@ -43,7 +43,7 @@ IOS.prototype.package = function (packager, next) {
 		function (callback) {
 			async.series([
 				function (cb) {
-					globCopy('**/*.h', path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'include'), cb);
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates', 'TitaniumKit' ], cb);
 				},
 				function (cb) {
 					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates' ], cb);
@@ -51,16 +51,24 @@ IOS.prototype.package = function (packager, next) {
 				// Copy and inject values for special source files
 				function (cb) {
 					const subs = {
-						__VERSION__: this.sdkVersion,
-						__TIMESTAMP__: this.timestamp,
-						__GITHASH__: this.gitHash
+						__SDK_VERSION__: this.sdkVersion,
+						__BUILD_DATE__: this.timestamp,
+						__BUILD_HASH__: this.gitHash
 					};
-					copyAndModifyFiles(path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'Classes'), [ 'TopTiModule.m', 'TiApp.m' ], subs, cb);
+					const dest = path.join(DEST_IOS, 'main.m');
+					const contents = fs.readFileSync(path.join(DEST_IOS, 'main.m')).toString().replace(/(__.+?__)/g, function (match, key) {
+						const s = subs.hasOwnProperty(key) ? subs[key] : key;
+						return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
+					});
+					fs.writeFileSync(dest, contents);
+					cb();
 				}.bind(this),
+
+				// Copy Ti.Verify
 				function (cb) {
 					copyFiles(IOS_LIB, DEST_IOS, [ 'libtiverify.a' ], cb);
 				},
-				// copy iphone/package.json, but replace __VERSION__ with our version!
+				// Copy iphone/package.json, but replace __VERSION__ with our version!
 				function (cb) {
 					copyAndModifyFile(IOS_ROOT, DEST_IOS, 'package.json', { __VERSION__: this.sdkVersion }, cb);
 				}.bind(this),

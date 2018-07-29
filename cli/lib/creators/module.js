@@ -76,11 +76,12 @@ util.inherits(ModuleCreator, Creator);
 ModuleCreator.prototype.init = function init() {
 	return {
 		options: {
-			id:            this.configOptionId(150),
-			name:          this.configOptionName(140),
-			platforms:     this.configOptionPlatforms(120),
-			template:      this.configOptionTemplate(110),
-			'workspace-dir': this.configOptionWorkspaceDir(170)
+			id:              this.configOptionId(150),
+			name:            this.configOptionName(140),
+			platforms:       this.configOptionPlatforms(120),
+			template:        this.configOptionTemplate(110),
+			'workspace-dir': this.configOptionWorkspaceDir(170),
+			'code-base':	 this.configOptionCodeBase(150)
 		}
 	};
 };
@@ -94,6 +95,7 @@ ModuleCreator.prototype.run = function run(callback) {
 
 	const platforms = ti.scrubPlatforms(this.cli.argv.platforms),
 		projectName = this.cli.argv.name,
+		codeBase = this.codeBase = this.cli.argv['code-base'],
 		projectDir = this.projectDir = appc.fs.resolvePath(this.cli.argv['workspace-dir'], projectName),
 		id = this.cli.argv.id;
 
@@ -152,7 +154,7 @@ ModuleCreator.prototype.run = function run(callback) {
 		platforms.scrubbed.forEach(function (platform) {
 			// if we're using the built-in template, load the platform specific template hooks
 			const usingBuiltinTemplate = templateDir.indexOf(this.sdk.path) === 0,
-				platformTemplateDir = path.join(this.sdk.path, platform, 'templates', this.projectType, this.cli.argv.template);
+				platformTemplateDir = path.join(this.sdk.path, platform, 'templates', this.projectType, this.cli.argv['code-base'] || this.cli.argv.template);
 
 			if (usingBuiltinTemplate) {
 				this.cli.scanHooks(path.join(platformTemplateDir, 'hooks'));
