@@ -3,7 +3,7 @@
 //  WARNING: this is a generated file and should not be modified
 //
 
-#import <UIKit/UIKit.h>
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiLogServer.h>
 #import <TitaniumKit/TiSharedConfig.h>
 #define _QUOTEME(x) #x
@@ -30,22 +30,21 @@ NSString *const TI_APPLICATION_BUILD_TYPE = @"__APP_DEPLOY_TYPE__";
 NSString *const TI_APPLICATION_RESOURCE_DIR = @"__APP_RESOURCE_DIR__";
 #endif
 
-int main(int argc, char *argv[]) {
-    [[TiSharedConfig defaultConfig] setApplicationName:TI_APPLICATION_NAME];
-    [[TiSharedConfig defaultConfig] setApplicationID:TI_APPLICATION_ID];
-    [[TiSharedConfig defaultConfig] setApplicationVersion:TI_APPLICATION_VERSION];
-    [[TiSharedConfig defaultConfig] setApplicationDeployType:TI_APPLICATION_DEPLOYTYPE];
-    [[TiSharedConfig defaultConfig] setApplicationGUID:TI_APPLICATION_GUID];
-    [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];
-    [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
-    [[TiSharedConfig defaultConfig] setAnalyticsEnabled:TI_APPLICATION_ANALYTICS];
-    [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
+int main(int argc, char *argv[])
+{
+  [[TiSharedConfig defaultConfig] setApplicationName:TI_APPLICATION_NAME];
+  [[TiSharedConfig defaultConfig] setApplicationID:TI_APPLICATION_ID];
+  [[TiSharedConfig defaultConfig] setApplicationVersion:TI_APPLICATION_VERSION];
+  [[TiSharedConfig defaultConfig] setApplicationDeployType:TI_APPLICATION_DEPLOYTYPE];
+  [[TiSharedConfig defaultConfig] setApplicationGUID:TI_APPLICATION_GUID];
+  [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];
+  [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
+  [[TiSharedConfig defaultConfig] setAnalyticsEnabled:TI_APPLICATION_ANALYTICS];
+  [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
 
-    [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
+  [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
 
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-
-    int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");
-    [pool release];
-    return retVal;
+  int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");
+  [pool release];
+  return retVal;
 }

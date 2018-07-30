@@ -28,10 +28,6 @@
 
 #import "UIImage+Resize.h"
 
-#if TARGET_IPHONE_SIMULATOR
-extern NSString *const TI_APPLICATION_RESOURCE_DIR;
-#endif
-
 static NSDictionary *encodingMap = nil;
 static NSDictionary *typeMap = nil;
 static NSDictionary *sizeMap = nil;

@@ -13,10 +13,6 @@
 #import <TitaniumKit/TiFilesystemFileStreamProxy.h>
 #import <TitaniumKit/TiHost.h>
 
-#if TARGET_IPHONE_SIMULATOR
-extern NSString *TI_APPLICATION_RESOURCE_DIR;
-#endif
-
 @implementation FilesystemModule
 
 // internal
