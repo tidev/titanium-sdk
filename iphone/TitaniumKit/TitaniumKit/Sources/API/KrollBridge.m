@@ -19,6 +19,10 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 #import <libkern/OSAtomic.h>
 
+#ifndef TI_USE_NATIVE
+#define TI_USE_NATIVE 0
+#endif
+
 NSString *TitaniumModuleRequireFormat = @"(function(exports){"
                                          "var __OXP=exports;var module={'exports':exports};var __dirname=\"%@\";var __filename=\"%@\";%@;\n"
                                          "if(module.exports !== __OXP){return module.exports;}"
@@ -46,10 +50,15 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
     host = [host_ retain];
     [(KrollBridge *)pageContext_ registerProxy:module krollObject:self];
 
-    // pre-cache a few modules we always use
+    // Pre-cache a few modules we always use
+    // TODO: We actually support native apps if the "UI" namespace is wrapped out.
+    // We could move the UI-core to an own framework as well, plugging it in based
+    // on the API usage. This would be highly experimental, but a possible option
     TiModule *ui = [host moduleNamed:@"UI" context:pageContext_];
-    [self addModule:@"UI" module:ui];
     TiModule *api = [host moduleNamed:@"API" context:pageContext_];
+    if (!TI_USE_NATIVE) {
+      [self addModule:@"UI" module:ui];
+    }
     [self addModule:@"API" module:api];
 
     if ([[TiSharedConfig defaultConfig] isAnalyticsEnabled]) {
@@ -57,7 +66,7 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
       NSString *buildType = [[TiSharedConfig defaultConfig] applicationBuildType];
       NSString *deployType = [[TiSharedConfig defaultConfig] applicationDeployType];
       NSString *guid = [[TiSharedConfig defaultConfig] applicationGUID];
-      if (buildType != nil || (buildType.length > 0)) {
+      if (buildType != nil || buildType.length > 0) {
         [sharedAnalytics performSelector:@selector(setBuildType:) withObject:buildType];
       }
       [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@", [module performSelector:@selector(version)]]];

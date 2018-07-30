@@ -9,7 +9,7 @@
 
 @implementation TiSharedConfig
 
-+ (id)defaultConfig
++ (TiSharedConfig *)defaultConfig
 {
   static TiSharedConfig *sharedConfig = nil;
   static dispatch_once_t onceToken;

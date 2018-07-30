@@ -33,6 +33,6 @@
 
 @property (nonatomic, assign) BOOL showErrorController;
 
-+ (id)defaultConfig;
++ (TiSharedConfig *)defaultConfig;
 
 @end
