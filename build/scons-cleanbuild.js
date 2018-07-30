@@ -101,7 +101,7 @@ async.series([
 					}
 					console.log('Packaging version (%s) complete', versionTag);
 
-					utils.install(versionTag, function (err) {
+					utils.installSDK(versionTag, function (err) {
 						if (err) {
 							console.error(err);
 							process.exit(1);
