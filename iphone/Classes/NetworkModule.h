@@ -52,7 +52,6 @@ typedef enum {
 @property (nonatomic, readonly) NSNumber *NOTIFICATION_TYPE_SOUND;
 
 @property (readonly, nonatomic) NSNumber *READ_MODE;
-@property (readonly, nonatomic) NSNumber *WRITE_MODE;
 @property (readonly, nonatomic) NSNumber *READ_WRITE_MODE;
 
 @property (nonatomic, readonly) NSNumber *TLS_VERSION_1_0;

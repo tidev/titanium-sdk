@@ -146,17 +146,6 @@ properties:
     platforms: [iphone, ipad]
     accessors: false
 
-  - name: text
-    deprecated:
-        since: "2.0.0"
-        notes: Use <Titanium.XML.Node.textContent> instead.
-    summary: |
-        Content (value) of all text nodes within this node.
-    type: String
-    permission: read-only
-    platforms: [iphone, ipad]
-    accessors: false
-
   - name: nodeType
     type: Number
     summary: |

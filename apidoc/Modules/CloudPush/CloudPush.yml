@@ -124,15 +124,6 @@ methods:
     since: 3.1.2
 
 properties:
-  - name: enabled
-    summary: Whether or not this device will receive push notifications.
-    deprecated:
-        since: 3.2.0
-        notes: | 
-            This property was only required to enable push notifications for the legacy MQTT
-            protocol.
-    type: Boolean
-    default: false
 
   - name: showTrayNotification
     summary: Whether or not to show a tray notification when a new push is received.

@@ -580,8 +580,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   [self tryToInvokeSelector:@selector(application:handleWatchKitExtensionRequest:reply:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, reply, nil]];
-
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiWatchKitExtensionRequest object:self userInfo:dic];
 }
 
 - (void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary *)userInfo

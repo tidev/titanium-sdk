@@ -111,7 +111,6 @@ NSString *const kTiLocalNotificationAction = @"TiLocalNotificationAction";
 NSString *const kTiRemoteNotificationAction = @"TiRemoteNotificationAction";
 NSString *const kTiRemoteExtentionWillExpire = @"remoteextentionwillexpire";
 NSString *const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
-NSString *const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 NSString *const kTiContinueActivity = @"TiContinueActivity";
 NSString *const kTiApplicationShortcut = @"TiApplicationShortcut";
 NSString *const kTiApplicationLaunchedFromURL = @"TiApplicationLaunchedFromURL";

@@ -56,7 +56,7 @@ description: |
     such as the **Camera** or **Add** buttons, for use in toolbars and nav bars.
     Specifically, system buttons may be used in the following locations:
 
-    * <Titanium.UI.iOS.Toolbar>. The `items` array can contain system buttons.
+    * <Titanium.UI.Toolbar>. The `items` array can contain system buttons.
     * <Titanium.UI.iPad.Popover>. The `leftNavButton` and `rightNavButton` properties can
       refer to system buttons
     * <Titanium.UI.iPad.SplitWindow>. The `toolbar` array can contain system buttons.

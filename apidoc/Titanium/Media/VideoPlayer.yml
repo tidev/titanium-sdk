@@ -73,9 +73,7 @@ examples:
                 autoplay : true,
                 backgroundColor : 'blue',
                 height : 300,
-                width : 300,
-                mediaControlStyle : Titanium.Media.VIDEO_CONTROL_DEFAULT,
-                scalingMode : Titanium.Media.VIDEO_SCALING_ASPECT_FIT
+                width : 300
             });
 
             videoPlayer.url = 'movie.mp4';
@@ -115,8 +113,6 @@ examples:
                 var activeMovie = Titanium.Media.createVideoPlayer({
                     url : contentURL,
                     backgroundColor : 'blue',
-                    mediaControlStyle : Titanium.Media.VIDEO_CONTROL_DEFAULT,
-                    scalingMode : Titanium.Media.VIDEO_SCALING_ASPECT_FILL,
                     fullscreen : true,
                     autoplay : true
                 });
@@ -204,26 +200,6 @@ methods:
   - name: stop
     summary: Stops playing the video.
 
-  - name: thumbnailImageAtTime
-    deprecated:
-        since: '3.4.2'
-        notes: Use <Titanium.Media.VideoPlayer.requestThumbnailImagesAtTimes> instead.
-        removed: '3.6.0'
-    summary: Returns a thumbnail image for the video at the specified time.
-    platforms: [iphone, ipad]
-    returns:
-        type: Titanium.Blob
-    parameters:
-
-      - name: time
-        summary: Playback time, in **seconds**.
-        type: Number
-
-      - name: option
-        summary: Video time precision.
-        type: Number
-        constants: Titanium.Media.VIDEO_TIME_OPTION_*
-
 events:
 
   - name: complete
@@ -271,11 +247,6 @@ events:
   - name: error
     summary: Fired when movie playback encounters an error.
     properties:
-      - name: message
-        summary: Reason for error as a string.
-        type: String
-        deprecated:
-            since: "3.1.0"
       - name: success
         summary: Indicates a successful operation. Returns `false`.
         type: Boolean
@@ -293,30 +264,6 @@ events:
         platforms: [android]
     platforms: [android]
 
-  - name: fullscreen
-    deprecated:
-        since: "7.0.0"
-        notes: This event has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: Fired when a movie changes to or from fullscreen view.
-    description: |
-        On iOS, this event is fired at the beginning of the transition to
-        fullscreen mode. A `duration` property is provided, indicating the duration
-        of the animated transition to or from fullscreen mode.
-    platforms: [iphone, ipad]
-    properties:
-
-      - name: entering
-        summary: |
-            `true` if the player is entering fullscreen mode, `false` if it is leaving
-            fullscreen mode.
-        type: Boolean
-
-      - name: duration
-        summary: Duration of the animated transition to or from fullscreen mode, in seconds.
-        type: Number
-        platforms: [iphone, ipad]
-
   - name: load
     summary: Fired when the movie play loads.
 
@@ -327,20 +274,6 @@ events:
       - name: loadState
         summary: Current value of the [loadState](Titanium.Media.VideoPlayer.loadState) property.
         type: Number
-
-  - name: mediatypesavailable
-    deprecated:
-        since: "7.0.0"
-        notes: This event has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: Fired when the media types in the current movie are determined.
-    platforms: [iphone, ipad]
-    properties:
-      - name: mediaTypes
-        summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
-        type: Number
-        constants: Titanium.Media.VIDEO_MEDIA_TYPE_*
-    since: '3.0.0'
 
   - name: naturalsizeavailable
     summary: Fired when the natural size of the current movie is determined.
@@ -375,21 +308,6 @@ events:
   - name: resize
     summary: Fired when the movie player is resized.
     platforms: [iphone, ipad]
-
-  - name: sourcechange
-    deprecated:
-        since: "7.0.0"
-        notes: This event has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: |
-        Fired when the [sourceType](Titanium.Media.VideoPlayer.sourceType) property
-        changes.
-    platforms: [iphone, ipad]
-    properties:
-      - name: sourceType
-        summary: New `sourceType` value.
-        constants: Titanium.Media.VIDEO_SOURCE_TYPE_*
-    since: '3.0.0'
 
   - name: click
     summary: Fired when the device detects a click against the view.
@@ -484,50 +402,6 @@ properties:
     type: Boolean
     default: true
 
-  - name: backgroundView
-    deprecated:
-        since: "7.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.overlayView> instead.
-    summary: Sets the background view for customization which is always displayed behind movie content.
-    description: |
-        To create a background behind the movie content on iOS, you can specify a
-        background view. On iOS, you can set the `backgroundColor` property directly on
-        the video player, but not a background image or background gradient. For this kind
-        of effect, specify a background view.
-
-        Note that the background view must be sized explicitly: percentage sizes do not work properly.
-
-        The following code sample creates a video player with a background image:
-
-            var videoPlayer = Ti.Media.createVideoPlayer({
-                height : 300,
-                width : 300,
-                backgroundView : Ti.UI.createView({
-                    backgroundImage: 'videoPlayerBG.png
-                    width : 300,
-                    height : 300
-                }),
-                borderRadius : 20,
-                borderWidth : 2,
-                borderColor : 'blue',
-            });
-
-        Note that if [scalingMode](Titanium.Media.VideoPlayer.scalingMode) is set to
-        [VIDEO_SCALING_MODE_FILL](Titanium.Media.VIDEO_SCALING_MODE_FILL) or
-        [VIDEO_SCALING_ASPECT_FILL](Titanium.Media.VIDEO_SCALING_ASPECT_FILL),
-        the playing video will fill the entire video player area, obscuring any background
-        view.
-    platforms: [iphone, ipad]
-    type: Titanium.UI.View
-
-  - name: contentURL
-    summary: URL of the media to play.
-    deprecated:
-        since: "1.4.0"
-        removed: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.url> instead.
-    type: String
-
   - name: currentPlaybackTime
     summary: Current playback time of the current movie in milliseconds.
     type: Number
@@ -553,25 +427,18 @@ properties:
     type: Number
 
   - name: fullscreen
-    deprecated:
-        since: "7.0.0"
-        notes: This method has been removed for iOS in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
     summary: |
         Determines if the movie is presented in the entire screen (obscuring all other application content).
     description: |
         Note that this must be set at different times on different platforms:
-
-        On iOS, setting this property to `true` before the movie player's view is visible
-        has no effect.
-
+        On iOS, this property has been deprecated in Titanium SDK 7.0.0. It does not have an affect anymore,
+        since the new underlaying API determines fullscreen presentation automatically.
         On Android, this property must be set at creation time. For example:
-
-            var player = Ti.Media.createVideoPlayer({fullscreen: true});
-
+            var player = Ti.Media.createVideoPlayer({ fullscreen: true });
         On Android, setting this value to `true` means that the video will have its own Android Activity
         rather than being embedded as a view.
     type: Boolean
+    platforms: [android]
     default: false
 
   - name: initialPlaybackTime
@@ -580,14 +447,6 @@ properties:
         Defaults to NaN in iOS and 0 in Android, indicating the natural start time of the movie.
     type: Number
 
-  - name: loadState
-    deprecated:
-        since: "7.0.0"
-        notes: On iOS, use <Titanium.Media.VideoPlayer.moviePlayerStatus> instead.
-    summary: Returns the network load state of the movie player.
-    type: Number
-    permission: read-only
-
   - name: media
     summary: Media object to play, as either a `File`,  a `Blob`, or a URL.
     platforms: [iphone, ipad]
@@ -595,20 +454,14 @@ properties:
     permission: write-only
 
   - name: mediaControlStyle
-    deprecated:
-        since: "7.0.0"
-        notes: On iOS, use <Titanium.Media.VideoPlayer.showsControls> instead.
-        removed: "7.0.0"
     summary: The style of the playback controls.
-    description: |
-        Mobile web only supports <Titanium.Media.VIDEO_CONTROL_NONE> and
-        <Titanium.Media.VIDEO_CONTROL_DEFAULT>.
+    description: On iOS, use <Titanium.Media.VideoPlayer.showsControls> instead.
     type: Number
     constants: Titanium.Media.VIDEO_CONTROL_*
     default: System default video controls (<Titanium.Media.VIDEO_CONTROL_DEFAULT>).
 
   - name: mediaTypes
-    summary: The types of media in the movie, or <Titanium.Media.VIDEO_MEDIA_TYPE_NONE> if not known.
+    summary: The types of media in the movie.
     description: |
         A movie can contain video
         ([VIDEO_MEDIA_TYPE_VIDEO](Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO)),
@@ -620,6 +473,7 @@ properties:
             Titanium.Media.VIDEO_MEDIA_TYPE_VIDEO|Titanium.Media.VIDEO_MEDIA_TYPE_AUDIO
     platforms: [iphone, ipad]
     type: Number
+    permission: read-only
     constants: Titanium.Media.VIDEO_MEDIA_TYPE_*
 
   - name: moviePlayerStatus
@@ -647,16 +501,13 @@ properties:
         The following code sample creates a video player with a background image:
 
             var videoPlayer = Ti.Media.createVideoPlayer({
-                height : 300,
-                width : 300,
-                overlayView : Ti.UI.createView({
-                    backgroundImage: 'videoPlayerBG.png
-                    width : 300,
-                    height : 300
-                }),
-                borderRadius : 20,
-                borderWidth : 2,
-                borderColor : 'blue',
+                height: 300,
+                width: 300,
+                overlayView: Ti.UI.createView({
+                    backgroundImage: 'videoPlayerBG.png',
+                    width: 300,
+                    height: 300
+                })
             });
     platforms: [iphone, ipad]
     type: Titanium.UI.View
@@ -718,22 +569,6 @@ properties:
     type: Boolean
     default: true
     since: {android: "7.1.0", iphone: "7.0.0", ipad: "7.0.0"}
-
-  - name: sourceType
-    deprecated:
-        since: "7.0.0"
-        notes: This method has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: The playback type of the movie.
-    description: |
-        Specifying a playback type before playing the movie can result in faster load times.
-
-        The [sourceChange](Titanium.Media.VideoPlayer.sourcechange) event is fired when
-        movie's source type is determined.
-    platforms: [iphone, ipad]
-    type: Number
-    constants: Titanium.Media.VIDEO_SOURCE_TYPE_*
-    default: Titanium.Media.VIDEO_SOURCE_TYPE_UNKNOWN
 
   - name: url
     summary: URL of the media to play.

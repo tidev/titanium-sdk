@@ -530,19 +530,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
 	}
 
-	@Kroll.method
-	public void requestAudioRecorderPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
-	{
-		if (hasAudioRecorderPermissions()) {
-			return;
-		}
-		String[] permissions = new String[] { Manifest.permission.RECORD_AUDIO };
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_MICROPHONE, permissionCallback,
-														 getKrollObject());
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_MICROPHONE);
-	}
-
 	/*
 	 * Current implementation on Android limited to saving Images only to photo gallery
 	 */

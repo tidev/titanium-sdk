@@ -218,15 +218,6 @@ properties:
     type: String
     permission: read-only
 
-  - name: text
-    deprecated:
-        since: "2.0.0"
-        notes: Use <Titanium.XML.Element.textContent> instead.
-    summary: Content (value) of all text nodes within this node.
-    type: String
-    permission: read-only
-    platforms: [android, iphone, ipad]
-
   - name: textContent
     summary: Content (value) of all text nodes within this node.
     description: |

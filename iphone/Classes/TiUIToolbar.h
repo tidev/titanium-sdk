@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_UIIOSTOOLBAR) || defined(USE_TI_UITOOLBAR)
+#ifdef USE_TI_UITOOLBAR
 #import "TiUIView.h"
 
 @protocol TiToolbarLayoutDelegate

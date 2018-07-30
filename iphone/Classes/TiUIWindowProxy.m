@@ -196,14 +196,6 @@
   // to open a window within a tab, you'll need to call tab.open(window)
   //
 
-  NSURL *url = [TiUtils toURL:[self valueForKey:@"url"] proxy:self];
-
-  if (url != nil) {
-    DEPRECATED_REMOVED(@"UI.Window.url", @"2.0.0", @"6.0.0");
-    DebugLog(@"[ERROR] Please use require() to manage your application components.");
-    DebugLog(@"[ERROR] More infos: http://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium");
-  }
-
   return [super _handleOpen:args];
 }
 

@@ -347,14 +347,6 @@ public class AndroidModule extends KrollModule
 	public static final int URI_INTENT_SCHEME = Intent.URI_INTENT_SCHEME;
 
 	@Kroll.constant
-	public static final int PENDING_INTENT_FOR_ACTIVITY = IntentProxy.TYPE_ACTIVITY;
-	@Kroll.constant
-	public static final int PENDING_INTENT_FOR_SERVICE = IntentProxy.TYPE_SERVICE;
-	@Kroll.constant
-	public static final int PENDING_INTENT_FOR_BROADCAST = IntentProxy.TYPE_BROADCAST;
-	@Kroll.constant
-	public static final int PENDING_INTENT_MAX_VALUE = PENDING_INTENT_FOR_BROADCAST;
-	@Kroll.constant
 	public static final int FLAG_CANCEL_CURRENT = PendingIntent.FLAG_CANCEL_CURRENT;
 	@Kroll.constant
 	public static final int FLAG_NO_CREATE = PendingIntent.FLAG_NO_CREATE;

@@ -252,12 +252,6 @@
   return NUMBOOL([EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent] == EKAuthorizationStatusAuthorized);
 }
 
-- (void)requestEventsAuthorization:(id)args
-{
-  DEPRECATED_REPLACED(@"Calendar.requestEventsAuthorization()", @"5.1.0", @"Calendar.requestCalendarPermissions()");
-  [self requestCalendarPermissions:args];
-}
-
 - (void)requestCalendarPermissions:(id)args
 {
   ENSURE_SINGLE_ARG(args, KrollCallback);
@@ -269,12 +263,6 @@
 {
   ENSURE_SINGLE_ARG(args, KrollCallback);
   [self requestAuthorization:args forEntityType:EKEntityTypeReminder];
-}
-
-- (NSNumber *)eventsAuthorization
-{
-  DEPRECATED_REPLACED(@"Calendar.eventsAuthorization", @"5.2.0", @"Calendar.calendarAuthorization");
-  return [self calendarAuthorization];
 }
 
 - (NSNumber *)calendarAuthorization
@@ -289,7 +277,6 @@ MAKE_SYSTEM_PROP(STATUS_NONE, EKEventStatusNone);
 MAKE_SYSTEM_PROP(STATUS_CONFIRMED, EKEventStatusConfirmed);
 MAKE_SYSTEM_PROP(STATUS_TENTATIVE, EKEventStatusTentative);
 MAKE_SYSTEM_PROP(STATUS_CANCELED, EKEventStatusCanceled);
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(STATUS_CANCELLED, EKEventStatusCanceled, @"Calendar.STATUS_CANCELLED", @"5.2.0", @"Calendar.STATUS_CANCELED")
 
 MAKE_SYSTEM_PROP(AVAILABILITY_NOTSUPPORTED, EKEventAvailabilityNotSupported);
 MAKE_SYSTEM_PROP(AVAILABILITY_BUSY, EKEventAvailabilityBusy);

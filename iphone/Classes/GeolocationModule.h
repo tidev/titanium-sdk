@@ -77,7 +77,6 @@ NSString *const kTiGeolocationUsageDescriptionAlwaysAndWhenInUse = @"NSLocationA
 
 // Authorization to use location
 @property (nonatomic, readonly) NSNumber *AUTHORIZATION_UNKNOWN;
-@property (nonatomic, readonly) NSNumber *AUTHORIZATION_AUTHORIZED;
 @property (nonatomic, readonly) NSNumber *AUTHORIZATION_WHEN_IN_USE;
 @property (nonatomic, readonly) NSNumber *AUTHORIZATION_ALWAYS;
 @property (nonatomic, readonly) NSNumber *AUTHORIZATION_DENIED;

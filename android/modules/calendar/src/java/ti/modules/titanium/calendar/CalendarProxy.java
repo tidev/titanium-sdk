@@ -114,47 +114,6 @@ public class CalendarProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public EventProxy[] getEventsInYear(int year)
-	{
-		Log.w(
-			TAG,
-			"getEventsInYear(year) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
-
-		Calendar jan1 = Calendar.getInstance();
-		jan1.clear();
-		jan1.set(year, 0, 1);
-
-		long date1 = jan1.getTimeInMillis();
-		long date2 = date1 + DateUtils.YEAR_IN_MILLIS;
-		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(date1, date2, this);
-		return events.toArray(new EventProxy[events.size()]);
-	}
-
-	@Kroll.method
-	public EventProxy[] getEventsInMonth(int year, int month)
-	{
-		Log.w(
-			TAG,
-			"getEventsInMonth(year, month) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
-
-		Calendar firstOfTheMonth = Calendar.getInstance();
-		firstOfTheMonth.clear();
-		firstOfTheMonth.set(year, month, 1);
-		Calendar lastOfTheMonth = Calendar.getInstance();
-		lastOfTheMonth.clear();
-		lastOfTheMonth.set(year, month, 1, 23, 59, 59);
-
-		int lastDay = lastOfTheMonth.getActualMaximum(Calendar.DAY_OF_MONTH);
-		lastOfTheMonth.set(Calendar.DAY_OF_MONTH, lastDay);
-
-		long date1 = firstOfTheMonth.getTimeInMillis();
-		long date2 = lastOfTheMonth.getTimeInMillis();
-
-		ArrayList<EventProxy> events = EventProxy.queryEventsBetweenDates(date1, date2, this);
-		return events.toArray(new EventProxy[events.size()]);
-	}
-
-	@Kroll.method
 	public EventProxy[] getEventsInDate(int year, int month, int day)
 	{
 		Calendar beginningOfDay = Calendar.getInstance();

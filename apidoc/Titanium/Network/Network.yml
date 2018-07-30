@@ -127,19 +127,6 @@ description: |
 extends: Titanium.Module
 since: "0.1"
 methods:
-  - name: addConnectivityListener
-    deprecated:
-        since: "1.7.0"
-        removed: "3.0.0"
-        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
-    summary: |
-        Legacy method to add a connectivity listener to listen for network changes.
-    parameters:
-      - name: callback
-        summary: Callback function to invoke upon network connectivity changes.
-        type: Callback<Object>
-    platforms: [iphone, ipad]
-
   - name: addHTTPCookie
     summary: |
         Adds a cookie to the HTTP client cookie store.
@@ -213,35 +200,6 @@ methods:
             Dictionary object of properties defined in <Titanium.Network.BonjourService>.
         optional: true
         type: Dictionary<Titanium.Network.BonjourService>
-
-  - name: createTCPSocket
-    deprecated:
-        since: "1.7.0"
-        notes: Use <Titanium.Network.Socket.createTCP> instead.
-    summary: |
-        Legacy method to create and return an instance of <Titanium.Network.TCPSocket>.
-    description: |
-        Note that `TCPSocket` is still used with the Bonjour services. For other uses,
-        see <Titanium.Network.Socket.TCP>.
-    platforms: [iphone, ipad]
-    returns:
-        type: Titanium.Network.TCPSocket
-    parameters:
-      - name: hostName
-        summary: Host name to connect to/listen on.
-        type: String
-      - name: port
-        summary: Port for the socket.
-        type: Number
-      - name: mode
-        summary: |
-            Socket's mode; one of <Titanium.Network.READ_MODE>, <Titanium.Network.WRITE_MODE>,
-            <Titanium.Network.READ_WRITE_MODE>.
-        type: Number
-      - name: parameters
-        summary: |
-            Dictionary object with properties defined in <Titanium.Network.TCPSocket>.
-        type: Dictionary<Titanium.Network.TCPSocket>
 
   - name: decodeURIComponent
     summary: Returns a decoded version of a URI encoded value.
@@ -428,18 +386,6 @@ events:
         type: String
         platforms: [android]
 properties:
-  - name: INADDR_ANY
-    summary: |
-        Special hostname value for listening sockets, representing all
-        locally available network interfaces.
-
-    type: String
-    permission: read-only
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "1.7.0"
-        removed: "7.0.0"
-
   - name: NETWORK_LAN
     summary: |
         A [networkType](Titanium.Network.networkType) value indicating that the device is
@@ -515,110 +461,6 @@ properties:
 
   - name: NOTIFICATION_TYPE_NEWSSTAND
     summary: Constant value for a Newsstand style push notification. Only available on iOS5 and later
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: READ_MODE
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value specifying read-only mode for sockets.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: READ_WRITE_MODE
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value specifying read-write mode for sockets.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_CLOSED
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value representing a socket in the CLOSED state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_CONNECTED
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value representing a socket in the CONNECTED state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_ERROR
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value representing a socket in the ERROR state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_INITIALIZED
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value representing a socket in the INITIALIZED state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: SOCKET_LISTENING
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value representing a socket in the LISTENING state.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: WRITE_MODE
-    deprecated:
-        since: "1.7.0"
-        notes: |
-            Used with the deprecated <Titanium.Network.TCPSocket> only.
-
-            See <Titanium.Network.Socket> for constants used with
-            <Titanium.Network.Socket.TCP> sockets.
-    summary: Constant value specifying write-only mode for sockets.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]

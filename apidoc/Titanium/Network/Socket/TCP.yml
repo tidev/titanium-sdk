@@ -301,12 +301,6 @@ properties:
     summary: Socket that experienced the error.
     type: Titanium.Network.Socket.TCP
 
-  - name: errorCode
-    summary: The error code of the error (potentially system-dependent).
-    type: Number
-    deprecated:
-        since: "3.1.0"
-
   - name: success
     summary: Indicates if the operation succeeded. Returns `false`.
     description: Returns `false`.

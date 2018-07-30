@@ -53,15 +53,6 @@ methods:
 
 
 properties:
-  - name: appearance
-    summary: Determines the appearance of the keyboard displayed when this text area is focused.
-    type: Number
-    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
-    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        notes: Use <Titanium.UI.TextArea.keyboardAppearance> instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this text area is focused.
@@ -322,14 +313,14 @@ properties:
 
   - name: keyboardToolbar
     summary: |
-        Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the
+        Array of toolbar button objects or a [toolbar](Titanium.UI.Toolbar) to be used when the
         keyboard is displayed.
     description: |
-        As of Release 2.0, because iOS disallows a view (including toolbar buttons) to be in two places at
+        Because iOS disallows a view (including toolbar buttons) to be in two places at
         once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
-        can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
+        can instead use a single [toolbar](Titanium.UI.Toolbar) instead of having arrays sharing
         toolbar buttons.
-    type: [Array<Titanium.UI.View>, Titanium.UI.iOS.Toolbar]
+    type: [Array<Titanium.UI.View>, Titanium.UI.Toolbar]
     platforms: [iphone, ipad]
 
   - name: keyboardToolbarColor
@@ -549,7 +540,7 @@ examples:
   - title: Text Area with Custom Keyboard Toolbar (iOS)
     example: |
         On iOS, a configurable toolbar can be displayed above the virtual keyboard.
-        Toolbars can be used with both text areas and text fields. See <Titanium.UI.iOS.Toolbar>
+        Toolbars can be used with both text areas and text fields. See <Titanium.UI.Toolbar>
         for more information.
 
         This code excerpt creates a text area with a toolbar:

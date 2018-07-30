@@ -592,18 +592,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 #pragma mark - Public API
 
-- (void)setSeparatorInsets_:(id)arg
-{
-  DEPRECATED_REPLACED(@"UI.ListView.separatorInsets", @"5.2.0", @"UI.ListView.listSeparatorInsets");
-  [self setListSeparatorInsets_:arg];
-}
-
-- (void)setTableSeparatorInsets_:(id)arg
-{
-  DEPRECATED_REPLACED(@"UI.ListView.tableSeparatorInsets", @"5.4.0", @"UI.ListView.listSeparatorInsets");
-  [self setListSeparatorInsets_:arg];
-}
-
 - (void)setDimBackgroundForSearch_:(id)arg
 {
   ENSURE_SINGLE_ARG_OR_NIL(arg, NSNumber);

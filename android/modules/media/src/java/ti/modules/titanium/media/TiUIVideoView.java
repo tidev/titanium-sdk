@@ -118,17 +118,8 @@ public class TiUIVideoView
 		getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 
 		String url = d.getString(TiC.PROPERTY_URL);
-		if (url == null) {
-			url = d.getString(TiC.PROPERTY_CONTENT_URL);
-			if (url != null) {
-				Log.w(TAG, "contentURL is deprecated, use url instead");
-				proxy.setProperty(TiC.PROPERTY_URL, url);
-			}
-		}
-		if (url != null) {
-			videoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, url)));
-			seekIfNeeded();
-		}
+		videoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, url)));
+		seekIfNeeded();
 
 		// Proxy holds the scaling mode directly.
 		videoView.setScalingMode(getPlayerProxy().getScalingMode());
@@ -159,11 +150,6 @@ public class TiUIVideoView
 			} else {
 				videoView.stopPlayback();
 			}
-			if (key.equals(TiC.PROPERTY_CONTENT_URL)) {
-				Log.w(TAG, "contentURL is deprecated, use url instead");
-				proxy.setProperty(TiC.PROPERTY_URL, newValue);
-			}
-
 		} else if (key.equals(TiC.PROPERTY_SCALING_MODE)) {
 			videoView.setScalingMode(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_VOLUME)) {

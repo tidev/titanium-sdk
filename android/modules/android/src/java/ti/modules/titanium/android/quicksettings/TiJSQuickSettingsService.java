@@ -45,13 +45,6 @@ public class TiJSQuickSettingsService extends TileService
 		proxy.fireEvent(TiC.EVENT_TILE_REMOVED, null);
 	}
 
-	//Called by the system to notify a Service that it is no longer used and is being removed.
-	@Override
-	public void onDestroy()
-	{
-		proxy.fireEvent(TiC.EVENT_DESTROY, null);
-	}
-
 	//Called when this tile moves into a listening state.
 	@Override
 	public void onStartListening()

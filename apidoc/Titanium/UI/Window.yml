@@ -130,71 +130,6 @@ methods:
     since: "5.4.0"
 
 events:
-  - name: android:back
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidback> instead.
-    platforms: [android]
-    summary: Fired when the Back button is released.
-    description: |
-        Setting a listener disables the default key handling for the Back button.
-        To restore default behavior, remove the listener. It is recommended that you only
-        have one handler per heavyweight window.
-
-  - name: android:camera
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidcamera> instead.
-    summary: Fired when the Camera button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
-    platforms: [android]
-
-  - name: android:focus
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidfocus> instead.
-    summary: Fired when the Camera button is half-pressed then released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
-    platforms: [android]
-
-  - name: android:search
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidsearch> instead.
-    summary: Fired when the Search button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have
-        one handler per heavyweight window.
-    platforms: [android]
-
-  - name: android:voldown
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidvoldown> instead.
-    summary: Fired when the volume down button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
-    platforms: [android]
-
-  - name: android:volup
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.UI.Window.androidvolup> instead.
-    summary: Fired when the volume up button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per heavyweight window.
-    platforms: [android]
 
   - name: androidback
     platforms: [android]
@@ -217,13 +152,13 @@ events:
         As of 5.0.0, you can create an event that can prevent accidental closure of the
         app due to hitting the back button to many times.
 
-            var win = Ti.UI.createWindow(
-                { // some code... }
-            );
+            var win = Ti.UI.createWindow({
+                // some code ...
+            });
             // more code
-            win.addEventListener("windows:back", function()
-                { alert("Back pressed"); }
-            );
+            win.addEventListener('windows:back', function() {
+                alert('Back pressed');
+            });
 
     since: '3.0.0'
 
@@ -855,19 +790,6 @@ properties:
     type: String
     since: 3.2.0
 
-  - name: splitActionBar
-    summary: Boolean value to enable split action bar.
-    description: |
-        `splitActionBar` must be set **before** opening the window.
-        This property indicates if the window should use a [split action bar](https://developer.android.com/guide/topics/ui/actionbar.html#SplitBar)
-    platforms: [android]
-    type: Boolean
-    since: 3.6.0
-    availability: creation
-    deprecated:
-        since: 6.2.0
-        notes: Deprecated in AppCompat theme. The same behaviour can be achived by using Toolbar.
-
   - name: statusBarStyle
     summary: The status bar style associated with this window.
     description: |
@@ -992,12 +914,12 @@ properties:
     description: |
         The toolbar is only shown when the window is inside a <Titanium.UI.iOS.NavigationWindow>.
         To display a toolbar when a window is not inside a NavigationWindow, add an instance of a
-        <Titanium.UI.iOS.Toolbar> to the window.
+        <Titanium.UI.Toolbar> to the window.
 
         To customize the toolbar, use the [setToolbar()](Titanium.UI.Window.setToolbar) method.
 
-        Since Alloy 1.6.0, you can specify this property using the `<WindowToolbar>` element as a
-        child of a `<Window>` element, for example:
+        You can specify this property using the `<WindowToolbar>` element as a child of a 
+        `<Window>` element, for example:
 
             <Alloy>
                 <NavigationWindow>
@@ -1042,35 +964,6 @@ properties:
     platforms: [iphone, ipad]
     default: true on iOS7 and above, false otherwise.
     type: Boolean
-
-  - name: url
-    summary: Loads a JavaScript file from a local URL.
-    deprecated:
-        since: 3.5.0
-        removed: 6.0.0
-    description: |
-        **Note:** The recommended way of creating windows with their own context is to either use the
-        [Alloy Framework](https://docs.appcelerator.com/platform/latest/#!/guide/Alloy_Framework) or a
-        [CommonJS module](https://docs.appcelerator.com/platform/latest/#!/guide/CommonJS_Modules_in_Titanium)
-        than using this property.  One benefit of using a CommonJS module is that it consumes less
-        resources.
-
-        Use this property to have Windows load a JavaScript file in its own subcontext and thread,
-        separate from the `app.js` global context.
-        Reference a file relative to your project's `Resources` folder for classic Titanium
-        projects or `app/lib` folder for Alloy projects.
-
-        Note that Titanium will refuse to load JavaScript files from a remote URL. Loading
-        remote JavaScript from a URL and providing it with the full capabilities of the Titanium
-        API would be very dangerous.
-
-        When loading JavaScript files using this property, the special property
-        <Titanium.UI.currentWindow> is available inside a multi-context
-        application that points to the JavaScript instance by reference in the global context.
-
-    type: String
-    availability: creation
-
 
   - name: windowFlags
     summary: Additional flags to set on the Activity Window.

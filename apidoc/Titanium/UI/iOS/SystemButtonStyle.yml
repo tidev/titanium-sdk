@@ -20,7 +20,7 @@ description: |
     properties. For example, there is no indication that the button has been pressed unless you set 
     other properties for the selected state, such as `backgroundSelectedImage` and `selectedColor`.
     
-    When you add a button to a [Toolbar](Titanium.UI.iOS.Toolbar), the styles have a slightly 
+    When you add a button to a [Toolbar](Titanium.UI.Toolbar), the styles have a slightly 
     different effect:
     
     * `PLAIN` Button style for an undecorated button with large text and a *glow* effect when the 

@@ -534,13 +534,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			getWindow().addFlags(windowFlags);
 		}
 
-		if (modal) {
-			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-				// This flag is deprecated in API 14. On ICS, the background is not blurred but straight black.
-				getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-			}
-		}
-
 		if (hasSoftInputMode) {
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);
@@ -679,7 +672,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
-			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
 
 		// set the current activity back to what it was originally
@@ -919,27 +911,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		switch (event.getKeyCode()) {
-			case KeyEvent.KEYCODE_BACK: {
-
-				if (event.getAction() == KeyEvent.ACTION_UP) {
-					String backEvent = "android:back";
-					KrollProxy proxy = null;
-					//android:back could be fired from a tabGroup window (activityProxy)
-					//or hw window (window).This event is added specifically to the activity
-					//proxy of a tab group in window.js
-					if (activityProxy.hasListeners(backEvent)) {
-						proxy = activityProxy;
-					} else if (window.hasListeners(backEvent)) {
-						proxy = window;
-					}
-
-					if (proxy != null) {
-						proxy.fireEvent(backEvent, null);
-						handled = true;
-					}
-				}
-				break;
-			}
 			case KeyEvent.KEYCODE_CAMERA: {
 				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
@@ -947,14 +918,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					}
 					handled = true;
 				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:camera")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:camera", null);
-					}
-					handled = true;
-				}
-
 				break;
 			}
 			case KeyEvent.KEYCODE_FOCUS: {
@@ -964,14 +927,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					}
 					handled = true;
 				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:focus")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:focus", null);
-					}
-					handled = true;
-				}
-
 				break;
 			}
 			case KeyEvent.KEYCODE_SEARCH: {
@@ -981,14 +936,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					}
 					handled = true;
 				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:search")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:search", null);
-					}
-					handled = true;
-				}
-
 				break;
 			}
 			case KeyEvent.KEYCODE_VOLUME_UP: {
@@ -998,14 +945,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					}
 					handled = true;
 				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:volup")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:volup", null);
-					}
-					handled = true;
-				}
-
 				break;
 			}
 			case KeyEvent.KEYCODE_VOLUME_DOWN: {
@@ -1015,14 +954,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					}
 					handled = true;
 				}
-				// TODO: Deprecate old event
-				if (window.hasListeners("android:voldown")) {
-					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent("android:voldown", null);
-					}
-					handled = true;
-				}
-
 				break;
 			}
 		}
@@ -1657,9 +1588,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void fireOnDestroy()
 	{
 		if (!onDestroyFired) {
-			if (activityProxy != null) {
-				activityProxy.fireEvent(TiC.EVENT_DESTROY, null);
-			}
 			onDestroyFired = true;
 		}
 	}

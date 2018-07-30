@@ -126,16 +126,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_CREATE = "create";
-
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_DESTROY = "destroy";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_DISPOSE_HANDLE = "disposehandle";
 
 	/**
@@ -2357,11 +2347,6 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_ON_STOP_BLACKLISTED_URL = "onStopBlacklistedUrl"; // Deprecated in 6.1.0
-
-	/**
-	 * @module.api
-	 */
 	public static final String PROPERTY_TLS_VERSION = "tlsVersion";
 
 	/**
@@ -3223,11 +3208,6 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_USE_COMPAT_PADDING = "useCompatPadding";
-
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_USE_SPINNER = "useSpinner";
 
 	/**
 	 * @module.api

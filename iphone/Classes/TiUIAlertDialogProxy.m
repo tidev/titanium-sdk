@@ -215,21 +215,4 @@ static BOOL alertShowing = NO;
   }
 }
 
-- (void)setPlaceholder:(id)value
-{
-  DEPRECATED_REPLACED(@"UI.AlertDialog.placeholder", @"5.4.0", @"UI.AlertDialog.hintText");
-  [self setValue:value forKey:@"hintText"];
-}
-
-- (void)setLoginPlaceholder:(id)value
-{
-  DEPRECATED_REPLACED(@"UI.AlertDialog.loginPlaceholder", @"5.4.0", @"UI.AlertDialog.loginHintText");
-  [self setValue:value forKey:@"loginHintText"];
-}
-
-- (void)setPasswordPlaceholder:(id)value
-{
-  DEPRECATED_REPLACED(@"UI.AlertDialog.passwordPlaceholder", @"5.4.0", @"UI.AlertDialog.passwordHintText");
-  [self setValue:value forKey:@"passwordHintText"];
-}
 @end
