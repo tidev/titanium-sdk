@@ -7,18 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B63761541BC5A3650070A695 /* TiLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761531BC5A3650070A695 /* TiLabel.m */; settings = {ASSET_TAGS = (); }; };
-		B63761571BC5BE110070A695 /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761561BC5BE110070A695 /* TiToolbar.m */; settings = {ASSET_TAGS = (); }; };
-		B637615C1BC5BE6C0070A695 /* TiTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761591BC5BE6C0070A695 /* TiTableView.m */; settings = {ASSET_TAGS = (); }; };
-		B637615D1BC5BE6C0070A695 /* TiTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = B637615B1BC5BE6C0070A695 /* TiTextField.m */; settings = {ASSET_TAGS = (); }; };
-		B63761621BC5BE860070A695 /* TiSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = B637615F1BC5BE860070A695 /* TiSlider.m */; settings = {ASSET_TAGS = (); }; };
-		B63761631BC5BE860070A695 /* TiSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761611BC5BE860070A695 /* TiSwitch.m */; settings = {ASSET_TAGS = (); }; };
-		B63761681BC5BEA50070A695 /* TiScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761651BC5BEA50070A695 /* TiScrollableView.m */; settings = {ASSET_TAGS = (); }; };
-		B63761691BC5BEA50070A695 /* TiScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761671BC5BEA50070A695 /* TiScrollView.m */; settings = {ASSET_TAGS = (); }; };
-		B63761751BC6E0E50070A695 /* TiLayoutDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761721BC6E0E50070A695 /* TiLayoutDimension.m */; settings = {ASSET_TAGS = (); }; };
-		B63761761BC6E0E50070A695 /* TiLayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761741BC6E0E50070A695 /* TiLayoutView.m */; settings = {ASSET_TAGS = (); }; };
-		B6413FDA1BB9BF3E00C72716 /* TiButton.m in Sources */ = {isa = PBXBuildFile; fileRef = B6413FD91BB9BF3E00C72716 /* TiButton.m */; settings = {ASSET_TAGS = (); }; };
-		B66EC29A1C34A94E0038AC2E /* TiView.m in Sources */ = {isa = PBXBuildFile; fileRef = B66EC2991C34A94E0038AC2E /* TiView.m */; settings = {ASSET_TAGS = (); }; };
+		B63761541BC5A3650070A695 /* TiLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761531BC5A3650070A695 /* TiLabel.m */; };
+		B63761571BC5BE110070A695 /* TiToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761561BC5BE110070A695 /* TiToolbar.m */; };
+		B637615C1BC5BE6C0070A695 /* TiTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761591BC5BE6C0070A695 /* TiTableView.m */; };
+		B637615D1BC5BE6C0070A695 /* TiTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = B637615B1BC5BE6C0070A695 /* TiTextField.m */; };
+		B63761621BC5BE860070A695 /* TiSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = B637615F1BC5BE860070A695 /* TiSlider.m */; };
+		B63761631BC5BE860070A695 /* TiSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761611BC5BE860070A695 /* TiSwitch.m */; };
+		B63761681BC5BEA50070A695 /* TiScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761651BC5BEA50070A695 /* TiScrollableView.m */; };
+		B63761691BC5BEA50070A695 /* TiScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761671BC5BEA50070A695 /* TiScrollView.m */; };
+		B63761751BC6E0E50070A695 /* TiLayoutDimension.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761721BC6E0E50070A695 /* TiLayoutDimension.m */; };
+		B63761761BC6E0E50070A695 /* TiLayoutView.m in Sources */ = {isa = PBXBuildFile; fileRef = B63761741BC6E0E50070A695 /* TiLayoutView.m */; };
+		B6413FDA1BB9BF3E00C72716 /* TiButton.m in Sources */ = {isa = PBXBuildFile; fileRef = B6413FD91BB9BF3E00C72716 /* TiButton.m */; };
+		B66EC29A1C34A94E0038AC2E /* TiView.m in Sources */ = {isa = PBXBuildFile; fileRef = B66EC2991C34A94E0038AC2E /* TiView.m */; };
 		B6A0FECD1B7155BE00DF0FBC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FECC1B7155BE00DF0FBC /* main.m */; };
 		B6A0FED01B7155BE00DF0FBC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FECF1B7155BE00DF0FBC /* AppDelegate.m */; };
 		B6A0FED31B7155BE00DF0FBC /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0FED21B7155BE00DF0FBC /* ViewController.m */; };

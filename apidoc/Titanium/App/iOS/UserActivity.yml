@@ -13,7 +13,7 @@ description: |
       * Handoff broadcasts activities via Bluetooth LE signals, so both the broadcasting and receiving devices must have Bluetooth LE 4.0 support.
       * Connect all devices to the same Wi-Fi network.
 
-    Make sure you have two Handoff compatible devices running iOS 8 or later that are logged onto the same iCloud account.
+    Make sure you have two devices that are logged onto the same iCloud account.
 extends: Titanium.Proxy
 platforms: [iphone,ipad]
 since: "5.0.0"

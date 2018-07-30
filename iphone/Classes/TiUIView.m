@@ -802,6 +802,7 @@ DEFINE_EXCEPTIONS
   effect.maximumRelativeValue = @(max);
 
   [self addMotionEffect:effect];
+  RELEASE_TO_NIL(effect);
 }
 
 - (void)setVerticalMotionEffect_:(id)motionEffect
@@ -814,6 +815,7 @@ DEFINE_EXCEPTIONS
   effect.maximumRelativeValue = @(max);
 
   [self addMotionEffect:effect];
+  RELEASE_TO_NIL(effect);
 }
 
 - (void)updateViewShadowPath

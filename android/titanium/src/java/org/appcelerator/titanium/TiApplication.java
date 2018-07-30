@@ -19,7 +19,8 @@ import android.support.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalytics.DeployType;
+import com.appcelerator.aps.APSAnalyticsMeta;
+
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -32,11 +33,9 @@ import org.appcelerator.kroll.common.TiDeployData;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.kroll.util.TiTempFileHelper;
-import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageLruCache;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -45,7 +44,6 @@ import org.json.JSONObject;
 import ti.modules.titanium.TitaniumModule;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
@@ -192,7 +190,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		WeakReference<Activity> activityRef;
 		Activity currentActivity;
 
-		for (int i = activityStack.size() - 1; i >= 0; i--) {
+		for (int i = activityStack.size() - 1; i > 0; i--) {
 			// We need to check the stack size here again. Since we call finish(), that could potentially
 			// change the activity stack while we are looping through them. TIMOB-12487
 			if (i < activityStack.size()) {
@@ -201,11 +199,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 					currentActivity = activityRef.get();
 					if (currentActivity != null && !currentActivity.isFinishing()) {
 						currentActivity.finish();
+						activityStack.remove(activityRef);
 					}
 				}
 			}
 		}
-		activityStack.clear();
 	}
 
 	public boolean activityStackHasLaunchActivity()
@@ -311,7 +309,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		}
 
-		Log.e(TAG, "No valid root or current activity found for application instance");
 		return null;
 	}
 
@@ -393,6 +390,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
 
 		tempFileHelper = new TiTempFileHelper(this);
+
+		deployData = new TiDeployData(this);
 	}
 
 	@Override
@@ -428,31 +427,24 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		deployData = new TiDeployData(this);
 
-		TiPlatformHelper.getInstance().initialize();
-		// Fastdev has been deprecated
-		// TiFastDev.initFastDev(this);
-
 		if (isAnalyticsEnabled()) {
-
-			TiPlatformHelper.getInstance().initAnalytics();
-			TiPlatformHelper.getInstance().setSdkVersion("ti." + getTiBuildVersion());
-			TiPlatformHelper.getInstance().setAppName(getAppInfo().getName());
-			TiPlatformHelper.getInstance().setAppId(getAppInfo().getId());
-			TiPlatformHelper.getInstance().setAppVersion(getAppInfo().getVersion());
-
-			String deployType = appProperties.getString("ti.deploytype", "unknown");
-			String buildType = appInfo.getBuildType();
+			String deployType = this.appProperties.getString("ti.deploytype", "unknown");
 			if ("unknown".equals(deployType)) {
-				deployType = getDeployType();
+				deployType = this.appInfo.getDeployType();
 			}
-			if (buildType != null && !buildType.equals("")) {
-				TiPlatformHelper.getInstance().setBuildType(buildType);
-			}
-			// Just use type 'other' enum since it's open ended.
-			DeployType.OTHER.setName(deployType);
-			TiPlatformHelper.getInstance().setDeployType(DeployType.OTHER);
-			APSAnalytics.getInstance().sendAppEnrollEvent();
 
+			String buildType = this.appInfo.getBuildType();
+			if (buildType != null && !buildType.equals("")) {
+				APSAnalyticsMeta.setBuildType(buildType);
+			}
+
+			APSAnalyticsMeta.setAppId(this.appInfo.getId());
+			APSAnalyticsMeta.setAppName(this.appInfo.getName());
+			APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
+			APSAnalyticsMeta.setDeployType(deployType);
+			APSAnalyticsMeta.setSdkVersion("ti." + getTiBuildVersion());
+
+			APSAnalytics.getInstance().initialize(getAppGUID(), this);
 		} else {
 			Log.i(TAG, "Analytics have been disabled");
 		}

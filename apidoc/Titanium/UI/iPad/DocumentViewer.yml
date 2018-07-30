@@ -16,10 +16,9 @@ description: |
     
     For a code sample, see <Titanium.UI.iOS.DocumentViewer>.
 
-extends: Titanium.UI.View
 platforms: [ipad]
+extends: Titanium.Proxy
 since: "1.8"
-
 methods:
   - name: show
     summary: Displays the document viewer over the current view.
@@ -38,4 +37,3 @@ methods:
       - name: url
         summary: The new url
         type: String
-

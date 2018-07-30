@@ -62,6 +62,11 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 		return new String(filterDataInRange(assetsBytes, range.offset, range.length));
 	}
 
+	@Override
+	public String[] getAssetPaths() {
+		return new String[0];
+	}
+
 	private static byte[] filterDataInRange(byte[] data, int offset, int length)
 	{
 		try {

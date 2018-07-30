@@ -37,13 +37,13 @@ import android.webkit.URLUtil;
 // clang-format off
 @Kroll.proxy(creatableInModule = MediaModule.class,
 	propertyAccessors = {
-		"url",
-		"initialPlaybackTime",
-		"duration",
+		TiC.PROPERTY_URL,
+		TiC.PROPERTY_INITIAL_PLAYBACK_TIME,
+		TiC.PROPERTY_DURATION,
 		"contentURL",
-		"autoplay",
-		"endPlaybackTime",
-		"playableDuration",
+		TiC.PROPERTY_AUTOPLAY,
+		TiC.PROPERTY_END_PLAYBACK_TIME,
+		TiC.PROPERTY_PLAYABLE_DURATION,
 		TiC.PROPERTY_VOLUME,
 		TiC.PROPERTY_REPEAT_MODE,
 		TiC.PROPERTY_SHOWS_CONTROLS,
@@ -96,6 +96,10 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		super();
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
 		defaultValues.put(TiC.PROPERTY_SHOWS_CONTROLS, true);
+		defaultValues.put(TiC.PROPERTY_AUTOPLAY, true);
+		defaultValues.put(TiC.PROPERTY_DURATION, 0);
+		defaultValues.put(TiC.PROPERTY_END_PLAYBACK_TIME, 0); // match duration
+		defaultValues.put(TiC.PROPERTY_PLAYABLE_DURATION, 0); // match duration
 	}
 
 	@Override

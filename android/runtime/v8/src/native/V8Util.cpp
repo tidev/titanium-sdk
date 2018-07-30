@@ -269,7 +269,7 @@ void V8Util::dispose()
 
 std::string V8Util::stackTraceString(Local<StackTrace> frames) {
 	if (frames.IsEmpty()) {
-		return NULL;
+		return std::string();
 	}
 
 	std::stringstream stack;
@@ -286,10 +286,7 @@ std::string V8Util::stackTraceString(Local<StackTrace> frames) {
 		stack << "    at " << functionName << "(" << scriptName << ":" << frame->GetLineNumber() << ":" << frame->GetColumn() << ")" << std::endl;
 	}
 
-	if (!stack.str().empty()) {
-		return stack.str();
-	}
-	return NULL;
+	return stack.str();
 }
 
 }

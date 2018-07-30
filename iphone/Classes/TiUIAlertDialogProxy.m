@@ -197,12 +197,12 @@ static BOOL alertShowing = NO;
 
     if (style == UIAlertViewStylePlainTextInput || style == UIAlertViewStyleSecureTextInput) {
       NSString *theText = [[[alertController textFields] objectAtIndex:0] text];
-      [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText)forKey:@"text"];
+      [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"text"];
     } else if (style == UIAlertViewStyleLoginAndPasswordInput) {
       NSArray *textFields = [alertController textFields];
       for (UITextField *theField in textFields) {
         NSString *theText = [theField text];
-        [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText)forKey:([theField isSecureTextEntry] ? @"password" : @"login")];
+        [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:([theField isSecureTextEntry] ? @"password" : @"login")];
       }
     }
     TiThreadPerformOnMainThread(^{

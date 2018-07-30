@@ -780,7 +780,7 @@
     topVC = [topVC presentingViewController];
   }
 
-  if ([topVC isKindOfClass:[TiErrorController class]]) {
+  if ([topVC isKindOfClass:[TiErrorNavigationController class]]) {
     DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
     return;
   }
@@ -788,7 +788,7 @@
   if ([topVC isKindOfClass:[UIAlertController class]]) {
     if (((UIAlertController *)topVC).preferredStyle == UIAlertControllerStyleAlert) {
       trulyAnimated = NO;
-      if (![theController isKindOfClass:[TiErrorController class]]) {
+      if (![theController isKindOfClass:[TiErrorNavigationController class]]) {
         DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
         return;
       }

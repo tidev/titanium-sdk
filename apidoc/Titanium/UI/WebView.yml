@@ -137,7 +137,8 @@ description: |
 
 extends: Titanium.UI.View
 excludes:
-    methods: [ add, removeAllChildren ]
+    methods: [ add, remove, removeAllChildren, replaceAt ]
+    properties: [children]
 since: "0.8"
 methods:
 

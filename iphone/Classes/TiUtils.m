@@ -164,6 +164,11 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   return [TiUtils isIOSVersionOrGreater:@"8.0"];
 }
 
++ (BOOL)isIOS82rGreater
+{
+  return [TiUtils isIOSVersionOrGreater:@"8.2"];
+}
+
 + (BOOL)isIOS9OrGreater
 {
   return [TiUtils isIOSVersionOrGreater:@"9.0"];
@@ -181,25 +186,22 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (BOOL)isIOS10OrGreater
 {
-#if IS_XCODE_8
   return [TiUtils isIOSVersionOrGreater:@"10.0"];
-#else
-  return NO;
-#endif
 }
 
 + (BOOL)isIOS11OrGreater
 {
-#if IS_XCODE_9
   return [TiUtils isIOSVersionOrGreater:@"11.0"];
-#else
-  return NO;
-#endif
 }
 
 + (BOOL)isIOSVersionOrGreater:(NSString *)version
 {
   return [[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] != NSOrderedAscending;
+}
+
++ (BOOL)isIOSVersionLower:(NSString *)version
+{
+  return [[[UIDevice currentDevice] systemVersion] compare:version options:NSNumericSearch] == NSOrderedAscending;
 }
 
 + (BOOL)isIPad
@@ -462,6 +464,10 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (NSNumber *)numberFromObject:(id)obj
 {
+  if (obj == nil) {
+    return nil;
+  }
+
   if ([obj isKindOfClass:[NSNumber class]]) {
     return obj;
   }
@@ -589,7 +595,9 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   case TiDimensionTypeAuto:
     return @"auto";
   case TiDimensionTypeDip:
-    return [NSNumber numberWithFloat:dimension.value];
+    return @(dimension.value);
+  case TiDimensionTypePercent:
+    return [NSString stringWithFormat:@"%li%%", (long)(dimension.value * 100)];
   default: {
     break;
   }
@@ -2075,7 +2083,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
         DebugLog(@"[WARN] Found invalid attribute \"%@\" that cannot be serialized, skipping it ...", key)
       }
     }
-    return result;
+    return [result autorelease];
   } else if ([jsonPayload isKindOfClass:[NSArray class]]) {
     NSMutableArray *result = [NSMutableArray new];
     for (id value in [jsonPayload allObjects]) {
@@ -2088,7 +2096,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
         DebugLog(@"[WARN] Found invalid value \"%@\" that cannot be serialized, skipping it ...", value);
       }
     }
-    return result;
+    return [result autorelease];
   } else {
     DebugLog(@"[ERROR] Unhandled JSON type: %@", NSStringFromClass([jsonPayload class]));
   }

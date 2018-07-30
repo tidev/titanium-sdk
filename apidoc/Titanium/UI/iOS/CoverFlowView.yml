@@ -10,9 +10,10 @@ extends: Titanium.UI.View
 since: "0.8"
 platforms: [iphone, ipad]
 excludes:
-   events: ["dblclick", "doubletap", "longclick", "longpress", "pinch", "singletap", "swipe", 
-            "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap"]
-
+    events: [dblclick, doubletap, longclick, longpress, pinch, singletap, swipe, 
+            touchcancel, touchend, touchmove, touchstart, twofingertap]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 events:
   - name: change
     summary: Fired when the user changes the image using a gesture.

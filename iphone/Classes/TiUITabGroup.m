@@ -383,7 +383,6 @@ DEFINE_EXCEPTIONS
   [[controller tabBar] setTintColor:[[TiUtils colorValue:value] color]];
 }
 
-#if IS_XCODE_8
 - (void)setUnselectedItemTintColor_:(id)value
 {
   ENSURE_TYPE_OR_NIL(value, NSString);
@@ -395,7 +394,6 @@ DEFINE_EXCEPTIONS
 
   [[controller tabBar] setUnselectedItemTintColor:[[TiUtils colorValue:value] color]];
 }
-#endif
 
 - (void)setTabsTranslucent_:(id)value
 {
