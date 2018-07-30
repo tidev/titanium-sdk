@@ -887,6 +887,61 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
+  - name: AUDIO_STATE_BUFFERING
+    summary: Audio data is being buffered from the network.
+    type: Number
+    permission: read-only
+    since: "7.4.0"
+
+  - name: AUDIO_STATE_INITIALIZED
+    summary: Audio playback is being initialized.
+    type: Number
+    permission: read-only
+    since: "7.4.0"
+
+  - name: AUDIO_STATE_PAUSED
+    summary: Playback is paused.
+    type: Number
+    permission: read-only
+    since: "7.4.0"
+
+  - name: AUDIO_STATE_PLAYING
+    summary: Audio playback is active.
+    type: Number
+    permission: read-only
+    since: "7.4.0"
+
+  - name: AUDIO_STATE_STARTING
+    summary: Audio playback is starting.
+    type: Number
+    permission: read-only
+    since: "7.4.0"
+
+  - name: AUDIO_STATE_STOPPED
+    summary: Audio playback is stopped.
+    type: Number
+    permission: read-only
+    since: "7.4.0"
+
+  - name: AUDIO_STATE_STOPPING
+    summary: Audio playback is stopping.
+    type: Number
+    permission: read-only
+    since: "7.4.0"
+
+  - name: AUDIO_STATE_WAITING_FOR_DATA
+    summary: Player is waiting for audio data from the network.
+    type: Number
+    permission: read-only
+    since: "7.4.0"
+
+  - name: AUDIO_STATE_WAITING_FOR_QUEUE
+    summary: Player is waiting for audio data to fill the queue.
+    type: Number
+    permission: read-only
+    since: "7.4.0"
+
   - name: CAMERA_FLASH_AUTO
     summary: Constant specifying to have the device determine to use the flash or not.
     type: Number

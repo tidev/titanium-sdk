@@ -16,7 +16,6 @@
 #import "TiMediaAudioSession.h"
 #import "TiMediaItem.h"
 #import "TiMediaMusicPlayer.h"
-#import "TiMediaTypes.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 
@@ -244,7 +243,6 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD, AVAudioSessionCategoryPl
 
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNone);
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
-
 #endif
 
 // Constants for VideoPlayer.playbackState
@@ -252,6 +250,17 @@ MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_INTERRUPTED, TiVideoPlayerPlaybackStateInt
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PAUSED, TiVideoPlayerPlaybackStatePaused);
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PLAYING, TiVideoPlayerPlaybackStatePlaying);
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_STOPPED, TiVideoPlayerPlaybackStateStopped);
+
+// Constants for AudioPlayer
+MAKE_SYSTEM_PROP(AUDIO_STATE_INITIALIZED, TiAudioPlayerStateInitialized);
+MAKE_SYSTEM_PROP(AUDIO_STATE_STARTING, TiAudioPlayerStateStartingFileThread);
+MAKE_SYSTEM_PROP(AUDIO_STATE_WAITING_FOR_DATA, TiAudioPlayerStateWaitingForData);
+MAKE_SYSTEM_PROP(AUDIO_STATE_WAITING_FOR_QUEUE, TiAudioPlayerStateWaitingForQueueToStart);
+MAKE_SYSTEM_PROP(AUDIO_STATE_PLAYING, TiAudioPlayerStatePlaying);
+MAKE_SYSTEM_PROP(AUDIO_STATE_BUFFERING, TiAudioPlayerStateBuffering);
+MAKE_SYSTEM_PROP(AUDIO_STATE_STOPPING, TiAudioPlayerStateStopping);
+MAKE_SYSTEM_PROP(AUDIO_STATE_STOPPED, TiAudioPlayerStateStopped);
+MAKE_SYSTEM_PROP(AUDIO_STATE_PAUSED, TiAudioPlayerStatePaused);
 
 //Constants for Camera
 #if defined(USE_TI_MEDIACAMERA_FRONT) || defined(USE_TI_MEDIACAMERA_REAR) || defined(USE_TI_MEDIACAMERA_FLASH_OFF) || defined(USE_TI_MEDIACAMERA_FLASH_AUTO) || defined(USE_TI_MEDIACAMERA_FLASH_ON)
