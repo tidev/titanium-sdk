@@ -6,6 +6,11 @@
  */
 #import <UIKit/UIKit.h>
 #import <TitaniumKit/TiSharedConfig.h>
+#import <TitaniumKit/TiLogServer.h>
+
+#ifndef TI_LOG_SERVER_PORT
+#define TI_LOG_SERVER_PORT 10571
+#endif
 
 // NOTE: this main is only used inside Xcode. In the real SDK, it's
 // automatically replaced and built on the fly - when running in
@@ -44,6 +49,8 @@ int main(int argc, char *argv[]) {
   [[TiSharedConfig defaultConfig] setBuildHash:TI_APPLICATION_BUILD_HASH];
   [[TiSharedConfig defaultConfig] setBuildDate:TI_APPLICATION_BUILD_DATE];
   [[TiSharedConfig defaultConfig] setSdkVersion:TI_APPLICATION_SDK_VERSION];
+  
+  [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
   
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
   int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");

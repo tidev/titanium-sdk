@@ -4,9 +4,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <TitaniumKit/TiLogServer.h>
 #import <TitaniumKit/TiSharedConfig.h>
 #define _QUOTEME(x) #x
 #define STRING(x) _QUOTEME(x)
+
+#ifndef TI_LOG_SERVER_PORT
+#define TI_LOG_SERVER_PORT 10571
+#endif
 
 NSString *const TI_APPLICATION_DEPLOYTYPE = @"__DEPLOYTYPE__";
 NSString *const TI_APPLICATION_ID = @"__APP_ID__";
@@ -35,6 +40,8 @@ int main(int argc, char *argv[]) {
     [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
     [[TiSharedConfig defaultConfig] setAnalyticsEnabled:TI_APPLICATION_ANALYTICS];
     [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
+
+    [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
 
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 

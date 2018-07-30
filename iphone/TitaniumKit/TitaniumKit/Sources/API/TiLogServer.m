@@ -5,22 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-/**
- * Important: Do NOT call NSLog() from this file. The app will go into an
- * infinite loop of death. Use forcedNSLog() instead.
- */
-
-/**
- * iOS platform hackers: when you manually run this project from Xcode, it may
- * be handy, but not necessary, to connect to the log server and here's some
- * Node.js code to help:
- *
- *   require('net').connect(10571)
- *       .on('data', data => process.stdout.write(data.toString()))
- *       .on('error', err => console.log('Error:', err))
- *       .on('end', () => console.log('Disconnected from server'));
- */
-
 #ifndef DISABLE_TI_LOG_SERVER
 
 #import "TiLogServer.h"
@@ -33,9 +17,6 @@
 /**
  * These constants are available to allow xcodebuild to override them.
  */
-#ifndef TI_LOG_SERVER_PORT
-#define TI_LOG_SERVER_PORT 10571
-#endif
 
 #ifndef TI_LOG_SERVER_BACKLOG
 #define TI_LOG_SERVER_BACKLOG 4 // max simulataneous connections
@@ -52,8 +33,8 @@
 static dispatch_queue_t logDispatchQueue = nil;
 static dispatch_source_t logDispatchSource = nil;
 static int logServerSocket = -1;
-static NSMutableArray *connections = nil;
-static NSMutableArray *logQueue = nil;
+static NSMutableArray<TiLogServerConnection *> *connections = nil;
+static NSMutableArray<NSString *> *logQueue = nil;
 static NSData *headers = nil;
 
 /**
@@ -115,18 +96,7 @@ static void trySetNonBlocking(int socket, const char *type)
 }
 @end
 
-/**
- * Encapsulates connection state.
- */
-@interface Connection : NSObject {
-  int socket;
-  dispatch_source_t readSource;
-}
-- (id)initWithSocket:(int)_socket;
-- (void)send:(dispatch_data_t *)buffer;
-@end
-
-@implementation Connection
+@implementation TiLogServerConnection
 
 /**
  * Initializes a connection with a raw socket file descriptor. This function
@@ -198,11 +168,17 @@ static void trySetNonBlocking(int socket, const char *type)
 
 __unused static int counter = 0;
 
-/**
- * Writes the log message to all active connections. If there are no active
- * connections, then the message is added to the log queue.
- */
-+ (void)log:(NSString *)message
++ (TiLogServer *)defaultLogServer
+{
+  static TiLogServer *defaultLogServer = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    defaultLogServer = [[self alloc] init];
+  });
+  return defaultLogServer;
+}
+
+- (void)log:(NSString *)message
 {
   NSString *msg = [message stringByAppendingString:@"\r\n"];
 
@@ -223,11 +199,7 @@ __unused static int counter = 0;
   }
 }
 
-/**
- * Starts the log server. It only listens on the local loopback. This function
- * is re-entrant.
- */
-+ (void)startServer
+- (void)start
 {
   // check if we're already running
   if (logServerSocket != -1) {
@@ -272,12 +244,12 @@ __unused static int counter = 0;
   memset(&addr, 0, sizeof(addr));
   addr.sin_len = sizeof(addr);
   addr.sin_family = AF_INET;
-  addr.sin_port = htons(TI_LOG_SERVER_PORT);
+  addr.sin_port = htons(_port);
   addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
   // bind the socket to the listening port
   if (bind(logServerSocket, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
-    forcedNSLog(@"[ERROR] Failed to bind listening socket on port %d", TI_LOG_SERVER_PORT);
+    forcedNSLog(@"[ERROR] Failed to bind listening socket on port %d", _port);
     close(logServerSocket);
     return;
   }
@@ -285,7 +257,7 @@ __unused static int counter = 0;
   // start listening!
   if (listen(logServerSocket, TI_LOG_SERVER_BACKLOG) != 0) {
     close(logServerSocket);
-    forcedNSLog(@"[ERROR] Failed to start listening on port %d", TI_LOG_SERVER_PORT);
+    forcedNSLog(@"[ERROR] Failed to start listening on port %d", _port);
     return;
   }
 
@@ -307,7 +279,7 @@ __unused static int counter = 0;
     }
 
     // create our connection object with the socket for the incoming connection
-    Connection *conn = [[[Connection alloc] initWithSocket:socket] autorelease];
+    TiLogServerConnection *conn = [[[TiLogServerConnection alloc] initWithSocket:socket] autorelease];
     if (!conn) {
       return;
     }
@@ -338,17 +310,14 @@ __unused static int counter = 0;
 
   // set up a cancel handler, though I don't think this is ever called
   dispatch_source_set_cancel_handler(logDispatchSource, ^{
-    [self stopServer];
+    [[TiLogServer defaultLogServer] stop];
   });
 
   // start listening for events on our listening socket
   dispatch_resume(logDispatchSource);
 }
 
-/**
- * Stops the log server. This function is re-entrant.
- */
-+ (void)stopServer
+- (void)stop
 {
   // stop listening, active connections will still receive new log messages
   if (logServerSocket != -1) {

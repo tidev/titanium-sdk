@@ -67,7 +67,7 @@ void TiLogMessage(NSString *str, ...)
 
 #ifndef DISABLE_TI_LOG_SERVER
   // next we send the message to the log server to be sent or queued up
-  [TiLogServer log:message];
+  [[TiLogServer defaultLogServer] log:message];
 #endif
 }
 
