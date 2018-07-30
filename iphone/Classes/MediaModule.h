@@ -9,10 +9,10 @@
 #import "MediaPlayer/MediaPlayer.h"
 #import "TiMediaAudioSession.h"
 #import "TiMediaMusicPlayer.h"
+#import "TiMediaTypes.h"
 #import <TitaniumKit/KrollCallback.h>
 #import <TitaniumKit/TiModule.h>
 #import <TitaniumKit/TiViewProxy.h>
-#import "TiMediaTypes.h"
 
 @class AVAudioRecorder;
 

@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import "TiExceptionHandler.h"
 #import "TiUIWebView.h"
+#import "TiExceptionHandler.h"
 #import "TiUIWebViewProxy.h"
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/TiApp.h>
