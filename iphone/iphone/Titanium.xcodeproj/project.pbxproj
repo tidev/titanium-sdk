@@ -249,6 +249,7 @@
 		DB90D7AF210DC53A00B4BE69 /* TiUITabGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A4C111161FD0084E2DE /* TiUITabGroup.m */; };
 		DBA2F944210E49FF00EC1FB1 /* ApplicationMods.m in Sources */ = {isa = PBXBuildFile; fileRef = 2478B2A411C447A4005814DF /* ApplicationMods.m */; };
 		DBA2F945210E49FF00EC1FB1 /* ApplicationDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1F65761431031E006C5D37 /* ApplicationDefaults.m */; };
+		DBF30944210F37080001F770 /* TiWindowProxy+Addons.m in Sources */ = {isa = PBXBuildFile; fileRef = DBF30943210F37080001F770 /* TiWindowProxy+Addons.m */; };
 		EF0ADD1A143FA0CD00977386 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD19143FA0CD00977386 /* GeolocationModule.m */; };
 /* End PBXBuildFile section */
 
@@ -765,6 +766,8 @@
 		DB90749D1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSFeedbackGeneratorProxy.h; sourceTree = "<group>"; };
 		DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSFeedbackGeneratorProxy.m; sourceTree = "<group>"; };
 		DB90D7A4210DBF4300B4BE69 /* TitaniumKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TitaniumKit.xcodeproj; path = ../TitaniumKit/TitaniumKit.xcodeproj; sourceTree = "<group>"; };
+		DBF30942210F37080001F770 /* TiWindowProxy+Addons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TiWindowProxy+Addons.h"; sourceTree = "<group>"; };
+		DBF30943210F37080001F770 /* TiWindowProxy+Addons.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "TiWindowProxy+Addons.m"; sourceTree = "<group>"; };
 		EF0ADD19143FA0CD00977386 /* GeolocationModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeolocationModule.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -900,6 +903,7 @@
 		24CA8902111160BE0084E2DE /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				DBF30940210F36E10001F770 /* TitaniumKit Extensions */,
 				24CA8A0B111161E10084E2DE /* API */,
 				24EB07D1111D420D001DC2D1 /* DOM */,
 				24CA8A09111161D60084E2DE /* Modules */,
@@ -1941,6 +1945,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		DBF30940210F36E10001F770 /* TitaniumKit Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				DBF30942210F37080001F770 /* TiWindowProxy+Addons.h */,
+				DBF30943210F37080001F770 /* TiWindowProxy+Addons.m */,
+			);
+			name = "TitaniumKit Extensions";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2243,6 +2256,7 @@
 				DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */,
 				2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
+				DBF30944210F37080001F770 /* TiWindowProxy+Addons.m in Sources */,
 				1DCC542F13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */,
 				1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */,
 				0BF9338A1CA0948D0091C7EC /* TiUIiOSStepper.m in Sources */,
