@@ -62,6 +62,8 @@ extern "C" {
 
 #define TI_INLINE static __inline__
 
+#define TI_BACKGROUNDFETCH_MAX_INTERVAL 29
+
 // We need to overload NSLog as a macro so that we capture system messages as well.
 // It has to be a wrapper because other appc-libraries use TiBase's NSLog, and can't
 // spoof TiApp without symbol conflicts and other issues

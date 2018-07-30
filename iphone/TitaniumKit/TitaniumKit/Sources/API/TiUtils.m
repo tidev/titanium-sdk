@@ -2108,4 +2108,13 @@ If the new path starts with / and the base url is app://..., we have to massage 
       [fragment isKindOfClass:[NSDate class]] || [fragment isKindOfClass:[NSNull class]] || fragment == nil);
 }
 
++ (BOOL)isUsingLaunchScreenStoryboard
+{
+  @try {
+    return [UIStoryboard storyboardWithName:@"LaunchScreenTwo" bundle:[NSBundle mainBundle]] != nil;
+  } @catch (NSException *e) {
+    return NO;
+  }
+}
+
 @end

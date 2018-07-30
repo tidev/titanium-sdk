@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#import "TiFile.h"
 #import "TiProxy.h"
 
 typedef enum {
@@ -143,6 +144,12 @@ typedef enum {
  @return The file path.
  */
 - (NSString *)path;
+
+/**
+ Returns the blob file.
+ @return The file.
+ */
+- (TiFile *)file;
 
 /**
  Returns the blob native path (Android compatibility).

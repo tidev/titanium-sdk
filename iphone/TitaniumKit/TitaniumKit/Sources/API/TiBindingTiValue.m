@@ -121,8 +121,8 @@ NSObject *TiBindingTiValueToNSObject(JSContextRef jsContext, JSValueRef objRef)
     if ([privateObject isKindOfClass:[TiProxy class]]) {
       return privateObject;
     }
-#ifdef HYPERLOOP
-    // this is a special hyperloop wrapped object, unwrap it
+
+    // This is a special Hyperloop wrapped object, unwrap it
     if (privateObject == nil) {
       JSStringRef jsString = JSStringCreateWithUTF8CString("$native");
       JSValueRef jsValue = JSObjectGetProperty(jsContext, obj, jsString, NULL);
@@ -134,7 +134,7 @@ NSObject *TiBindingTiValueToNSObject(JSContextRef jsContext, JSValueRef objRef)
         }
       }
     }
-#endif
+
     if (JSValueIsArray(jsContext, obj)) {
       JSValueRef length = JSObjectGetProperty(jsContext, obj, kTiStringLength, NULL);
       double len = JSValueToNumber(jsContext, length, NULL);

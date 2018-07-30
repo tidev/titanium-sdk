@@ -68,6 +68,29 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
   UIApplicationShortcutItem *launchedShortcutItem;
 }
 
+/**
+ Returns or set the user agent string to use for network requests.
+ */
+@property (nonatomic, retain) NSString *userAgent;
+
+/**
+ Determines if the application finished booting.
+ */
+@property (nonatomic, readonly) BOOL appBooted;
+
+/**
+ Prevents network activity indicator from showing.
+ Setting this property to YES disables appearance of network activity indicator when startNetwork is called.
+ In case network activity indicator is currently visible, it will be hidden.
+
+ @see startNetwork
+ @see stopNetwork
+ */
+@property (nonatomic, assign) BOOL disableNetworkActivityIndicator;
+
+/**
+ TODO: Document this property!
+ */
 @property (nonatomic) BOOL forceSplashAsSnapshot;
 
 /**
@@ -77,7 +100,14 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  */
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 
+/**
+ TODO: Document this property!
+ */
 @property (nonatomic, readonly) NSMutableDictionary *pendingCompletionHandlers;
+
+/**
+ TODO: Document this property!
+ */
 @property (nonatomic, readonly) NSMutableDictionary *backgroundTransferCompletionHandlers;
 
 /**
@@ -92,7 +122,6 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  
  @return Dictionary containing details about local notification, or _nil_.
  */
-
 @property (nonatomic, readonly) NSDictionary *localNotification;
 
 /**
@@ -100,9 +129,16 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  */
 @property (nonatomic, retain) TiRootViewController *controller;
 
+/**
+ TODO: Document this property!
+ */
 @property (nonatomic, readonly) JSContextGroupRef contextGroup;
 
+/**
+ TODO: Document this property!
+ */
 @property (nonatomic, readonly) BOOL willTerminate;
+
 /**
  Returns singleton instance of TiApp application object.
  */
@@ -131,6 +167,13 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 - (void)registerApplicationDelegate:(id)applicationDelegate;
 
 - (void)unregisterApplicationDelegate:(id)applicationDelegate;
+
+/**
+ Returns the queued boot events scheduled with `tryToPostNotification:withNotificationName:completionHandler:``.
+ 
+ @return The dictionary of queued boot events.
+ */
+- (NSMutableDictionary *)queuedBootEvents;
 
 /**
  Returns application launch options
@@ -164,14 +207,17 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 - (void)stopNetwork;
 
 /**
- Prevents network activity indicator from showing.
- Setting this property to YES disables appearance of network activity indicator when startNetwork is called.
- In case network activity indicator is currently visible, it will be hidden.
- @see startNetwork
- @see stopNetwork
+ Generates a native notification from the given dictionary.
+ 
+ @param dict The dictionary to use to generate the native notification.
  */
-@property (nonatomic, assign) BOOL disableNetworkActivityIndicator;
+- (void)generateNotification:(NSDictionary *)dict;
 
+/**
+ Tells application to display modal error.
+ 
+ @param message The message to show in the modal error screen.
+ */
 - (void)showModalError:(NSString *)message;
 
 /**
@@ -223,14 +269,32 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier:(NSString *)identifier;
 
 /**
- Returns or set the user agent string to use for network requests.
+ Tries to invoke a given selector with the given arguments. If the app did not finish launching so far, it will be queued
+ and processed once the JSCore bridge is ready.
+ 
+ @param selector The selector to invoke.
+ @param arguments The arguments to pass to the selector.
  */
-@property (nonatomic, retain) NSString *userAgent;
+- (void)tryToInvokeSelector:(SEL)selector withArguments:(NSOrderedSet<id> *)arguments;
 
 /**
- Determines if the application finished booting.
+ Tries to post a given notification with the given name. If the app did not finish launching so far, it will be queued
+ and processed once the JSCore bridge is ready.
+ 
+ @param _notification The dictionary of user-info to pass to the notification.
+ @param _notificationName The name of the notification to schedule.
+ @param completionHandler The optional completion handler to invoke if requried.
  */
-@property (nonatomic, readonly) BOOL appBooted;
+- (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)())completionHandler;
+
+/**
+ Tries to post a given background-mode notification with the given name. If the app did not finish launching so far, it will be queued
+ and processed once the JSCore bridge is ready.
+ 
+ @param userInfo The dictionary of user-info to pass to the notification.
+ @param notificationName The name of the notification to schedule.
+ */
+- (void)tryToPostBackgroundModeNotification:(NSMutableDictionary *)userInfo withNotificationName:(NSString *)notificationName;
 
 - (void)registerBackgroundService:(TiProxy *)proxy;
 - (void)unregisterBackgroundService:(TiProxy *)proxy;
@@ -238,4 +302,5 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 - (void)performCompletionHandlerWithKey:(NSString *)key andResult:(UIBackgroundFetchResult)result removeAfterExecution:(BOOL)removeAfterExecution;
 - (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key;
 - (void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary *)userInfo;
+
 @end

@@ -16,10 +16,7 @@
   NSInteger curTransformAngle;
   BOOL forceLayout;
   UIImageView *defaultImageView;
-
-#ifdef LAUNCHSCREEN_STORYBOARD
   UIView *storyboardView;
-#endif
 
   //Keyboard stuff
   BOOL updatingAccessoryView;

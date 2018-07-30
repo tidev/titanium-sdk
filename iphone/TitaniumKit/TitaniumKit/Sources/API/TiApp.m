@@ -34,7 +34,6 @@ extern void UIColorFlushCache();
 
 #define SHUTDOWN_TIMEOUT_IN_SEC 3
 #define TIV @"TiVerify"
-#define TI_BACKGROUNDFETCH_MAX_INTERVAL 29
 
 BOOL applicationInMemoryPanic = NO;
 
@@ -299,27 +298,27 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (UIView *)splashScreenView
 {
   if (splashScreenView == nil) {
-#ifdef LAUNCHSCREEN_STORYBOARD
-    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
-    UIViewController *launchScreen = [sb instantiateInitialViewController];
+    if ([TiUtils isUsingLaunchScreenStoryboard]) {
+      UIStoryboard *launchScreen = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
+      UIViewController *launchScreenViewController = [launchScreen instantiateInitialViewController];
 
-    splashScreenView = [[launchScreen view] retain];
-#else
-    splashScreenView = [[UIImageView alloc] init];
-    [splashScreenView setBackgroundColor:[UIColor yellowColor]];
-    [splashScreenView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
-    [splashScreenView setContentMode:UIViewContentModeScaleToFill];
+      splashScreenView = [[launchScreenViewController view] retain];
+    } else {
+      splashScreenView = [[UIImageView alloc] init];
+      [splashScreenView setBackgroundColor:[UIColor yellowColor]];
+      [splashScreenView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+      [splashScreenView setContentMode:UIViewContentModeScaleToFill];
 
-    UIDeviceOrientation imageOrientation;
-    UIUserInterfaceIdiom imageIdiom;
+      UIDeviceOrientation imageOrientation;
+      UIUserInterfaceIdiom imageIdiom;
 
-    UIImage *defaultImage = [controller defaultImageForOrientation:
-                                            (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
-                                              resultingOrientation:&imageOrientation
-                                                             idiom:&imageIdiom];
-    [(UIImageView *)splashScreenView setImage:defaultImage];
-    [splashScreenView setFrame:[[UIScreen mainScreen] bounds]];
-#endif
+      UIImage *defaultImage = [controller defaultImageForOrientation:
+                                              (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
+                                                resultingOrientation:&imageOrientation
+                                                               idiom:&imageIdiom];
+      [(UIImageView *)splashScreenView setImage:defaultImage];
+      [splashScreenView setFrame:[[UIScreen mainScreen] bounds]];
+    }
   }
 
   return splashScreenView;

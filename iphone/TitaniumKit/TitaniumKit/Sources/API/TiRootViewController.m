@@ -100,37 +100,33 @@
 {
   self = [super init];
   if (self != nil) {
+    // Prefill orientation history
     orientationHistory[0] = UIInterfaceOrientationPortrait;
     orientationHistory[1] = UIInterfaceOrientationLandscapeLeft;
     orientationHistory[2] = UIInterfaceOrientationLandscapeRight;
     orientationHistory[3] = UIInterfaceOrientationPortraitUpsideDown;
 
-    //Keyboard initialization
+    // Keyboard initialization
     leaveCurve = UIViewAnimationCurveEaseIn;
     enterCurve = UIViewAnimationCurveEaseIn;
     leaveDuration = 0.3;
     enterDuration = 0.3;
     curTransformAngle = 0;
 
+    // Initialize default collections and confifs
     defaultOrientations = TiOrientationNone;
     containedWindows = [[NSMutableArray alloc] init];
     modalWindows = [[NSMutableArray alloc] init];
-/*
-         *	Default image view -- Since this goes away after startup, it's made here and
-         *	nowhere else. We don't do this during loadView because it's possible that
-         *	the view will be unloaded (by, perhaps a Memory warning while a modal view
-         *	controller and loaded at a later time.
-         */
-#ifndef LAUNCHSCREEN_STORYBOARD
+
+    // Initialize fallback view for non-Storyboard use cases
     defaultImageView = [[UIImageView alloc] init];
     [defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
     [defaultImageView setContentMode:UIViewContentModeScaleToFill];
-#endif
 
     [self processInfoPlist];
 
-    //Notifications
-    WARN_IF_BACKGROUND_THREAD; //NSNotificationCenter is not threadsafe!
+    // Orientation- and keyboard notifications
+    WARN_IF_BACKGROUND_THREAD;
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
     [nc addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
@@ -181,11 +177,11 @@
   hostView = [[UIView alloc] initWithFrame:[rootView bounds]];
   hostView.backgroundColor = [UIColor clearColor];
 
-#ifdef LAUNCHSCREEN_STORYBOARD
-  storyboardView = [[UIView alloc] initWithFrame:[rootView bounds]];
-  [storyboardView addSubview:[[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view]];
-  [hostView addSubview:storyboardView];
-#endif
+  if ([TiUtils isUsingLaunchScreenStoryboard]) {
+    storyboardView = [[UIView alloc] initWithFrame:[rootView bounds]];
+    [storyboardView addSubview:[[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view]];
+    [hostView addSubview:storyboardView];
+  }
 
   hostView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
   [rootView addSubview:hostView];
@@ -268,12 +264,10 @@
     RELEASE_TO_NIL(defaultImageView);
   }
 
-#ifdef LAUNCHSCREEN_STORYBOARD
-  if (storyboardView != nil) {
+  if ([TiUtils isUsingLaunchScreenStoryboard] && storyboardView != nil) {
     [storyboardView removeFromSuperview];
     RELEASE_TO_NIL(storyboardView);
   }
-#endif
 }
 
 - (UIImage *)defaultImageForOrientation:(UIDeviceOrientation)orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom *)imageIdiom
