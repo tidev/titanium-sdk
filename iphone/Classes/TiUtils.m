@@ -464,6 +464,10 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (NSNumber *)numberFromObject:(id)obj
 {
+  if (obj == nil) {
+    return nil;
+  }
+
   if ([obj isKindOfClass:[NSNumber class]]) {
     return obj;
   }
