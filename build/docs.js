@@ -23,7 +23,7 @@ Documentation.prototype.prepare = function (next) {
 
 Documentation.prototype.generateReport = function (format, filename, next) {
 	let args = [ path.join(DOC_DIR, 'docgen.js'), '-f', format, '-o', this.outputDir + path.sep ];
-	if (this.hasWindows) {
+	if (this.hasWindows && format !== 'typescript') {
 		args = args.concat([
 			'-a', path.join(ROOT_DIR, 'windows', 'doc', 'Titanium'),
 			'-a', path.join(ROOT_DIR, 'windows', 'doc', 'WindowsOnly'),
