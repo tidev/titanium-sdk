@@ -28,6 +28,7 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiComplexValue.h>
 #import <TitaniumKit/TiDefines.h>
+#import <TitaniumKit/TiExceptionHandler.h>
 #import <TitaniumKit/TiFilesystemFileProxy.h>
 #import <TitaniumKit/TiFilesystemFileStreamProxy.h>
 #import <TitaniumKit/TiLayoutQueue.h>

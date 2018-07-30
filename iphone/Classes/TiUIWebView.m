@@ -7,11 +7,11 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import "TiUIWebView.h"
-#import "TiExceptionHandler.h"
 #import "TiUIWebViewProxy.h"
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiExceptionHandler.h>
 #import <TitaniumKit/TiFile.h>
 #import <TitaniumKit/TiHost.h>
 #import <TitaniumKit/TiProxy.h>
