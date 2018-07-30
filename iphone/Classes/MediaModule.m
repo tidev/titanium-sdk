@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,6 @@
 
 #import "MediaModule.h"
 #import "Mimetypes.h"
-#import "SCListener.h"
 #import "Ti2DMatrix.h"
 #import "TiApp.h"
 #import "TiBlob.h"
@@ -679,28 +678,75 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)startMicrophoneMonitor:(id)args
 {
-  [[SCListener sharedListener] listen];
+  if (_microphoneRecorder != nil) {
+    DebugLog(@"[ERROR] Trying to start new microphone monitoring while the old one is still active. Call \"stopMicrophoneMonitor()\" before and try again.");
+    return;
+  }
+
+  if (![TiUtils boolValue:[self hasAudioRecorderPermissions:nil]]) {
+    DebugLog(@"[ERROR] Microphone permissions are required to use the microphone monitoring API.");
+  }
+
+  NSURL *url = [NSURL fileURLWithPath:@"/dev/null"];
+  NSDictionary *settings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                             [NSNumber numberWithFloat:44100.0], AVSampleRateKey,
+                                         [NSNumber numberWithInt:kAudioFormatAppleLossless], AVFormatIDKey,
+                                         [NSNumber numberWithInt:1], AVNumberOfChannelsKey,
+                                         [NSNumber numberWithInt:AVAudioQualityMax], AVEncoderAudioQualityKey,
+                                         nil];
+
+  NSError *error;
+
+  _microphoneRecorder = [[AVAudioRecorder alloc] initWithURL:url settings:settings error:&error];
+
+  if (_microphoneRecorder == nil) {
+    DebugLog(@"[ERROR] Error starting audio monitoring: %@", [error description]);
+    return;
+  }
+
+  [_microphoneRecorder prepareToRecord];
+  _microphoneRecorder.meteringEnabled = YES;
+  [_microphoneRecorder record];
+  _microphoneTimer = [NSTimer scheduledTimerWithTimeInterval:0.03
+                                                      target:self
+                                                    selector:@selector(_microphoneTimerChanged:)
+                                                    userInfo:nil
+                                                     repeats:YES];
+}
+
+- (void)_microphoneTimerChanged:(NSTimer *)timer
+{
+  [_microphoneRecorder updateMeters];
 }
 
 - (void)stopMicrophoneMonitor:(id)args
 {
-  [[SCListener sharedListener] stop];
+  if (_microphoneRecorder == nil) {
+    DebugLog(@"[ERROR] Trying to stop microphone monitoring which is not active. Call \"startMicrophoneMonitor()\" before and try again.");
+    return;
+  }
+
+  [_microphoneRecorder stop];
+  [_microphoneTimer invalidate];
+  _microphoneTimer = nil;
+
+  RELEASE_TO_NIL(_microphoneRecorder);
 }
 
 - (NSNumber *)peakMicrophonePower
 {
-  if ([[SCListener sharedListener] isListening]) {
-    return NUMFLOAT([[SCListener sharedListener] peakPower]);
+  if (_microphoneRecorder != nil && [_microphoneRecorder isRecording]) {
+    return @([_microphoneRecorder peakPowerForChannel:0]);
   }
-  return NUMFLOAT(-1);
+  return @(-1);
 }
 
 - (NSNumber *)averageMicrophonePower
 {
-  if ([[SCListener sharedListener] isListening]) {
-    return NUMFLOAT([[SCListener sharedListener] averagePower]);
+  if (_microphoneRecorder != nil && [_microphoneRecorder isRecording]) {
+    return @([_microphoneRecorder averagePowerForChannel:0]);
   }
-  return NUMFLOAT(-1);
+  return @(-1);
 }
 
 #endif

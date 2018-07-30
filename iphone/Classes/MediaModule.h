@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,6 +13,8 @@
 #import "TiMediaTypes.h"
 #import "TiModule.h"
 #import "TiViewProxy.h"
+
+@class AVAudioRecorder;
 
 @interface MediaModule : TiModule <
                              UINavigationControllerDelegate,
@@ -62,6 +64,9 @@
   KrollCallback *editorErrorCallback;
   KrollCallback *editorCancelCallback;
   UIPopoverArrowDirection arrowDirection;
+
+  AVAudioRecorder *_microphoneRecorder;
+  NSTimer *_microphoneTimer;
 }
 
 #if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
