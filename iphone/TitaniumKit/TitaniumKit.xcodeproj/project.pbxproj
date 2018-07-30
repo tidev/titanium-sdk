@@ -777,7 +777,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Run the universal build script\n./TitaniumKit/Scripts/build-universal-framework.sh";
+			shellScript = "# Run the universal build script\n./TitaniumKit/Scripts/build-universal-framework.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

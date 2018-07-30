@@ -5,25 +5,30 @@ and challenges are described below.
 ## About this Project
 
 ### Reasons
+
 - Improved compile-time (78+ headers will be precompiled)
 - Swift module-support (Swift requires [module-based](https://clang.llvm.org/docs/Modules.html) Obj-C sources)
 
 ### Challenges
+
 - Decouple circular dependencies
 - Migrate precompile-macros
 - Migrate `extern NSString * const` to use shared-config
 - Need to remove TiJSCore + Kroll-Thread
 
 ### Current State
+
 - [x] All relevant headers have been ported to the framework
 - [x] TiJSCore has been removed completely, using JSCore now
 - [x] Kroll-Thread has been removed completely, using Main-Thread now 
 - [x] Some public headers (`TiProxy`, `TiViewProxy`, `TiModule`, ...) have been exposed for testing
-- [ ] Migrating precompile-macros (in progress)
+- [x] Migrating precompile-macros
 
 ## Build from Source
-Either build through Xcode using the "Distribution" target, or go to `scripts/` and call
-`sh build-universal-framework.sh` directly. The framework will be built to `dist/`.
+Either build through Xcode using the "Distribution" target, or use Carthage to build a zipped version of the framework:
+```sh
+carthage build --archive
+```
 
 ## Authors
 [@hansemannn](https://github.com/hansemannn), Axway
