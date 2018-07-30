@@ -771,9 +771,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     // Use "onlink" callback property to decide the navigation policy
     KrollWrapper *onLink = [[self proxy] valueForKey:@"onlink"];
     if (onLink != nil) {
-      TiValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : newUrl.absoluteString } ]];
-      if (functionResult != NULL && TiValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
-        return TiValueToBoolean([onLink.bridge.krollContext context], functionResult);
+      JSValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : newUrl.absoluteString } ]];
+      if (functionResult != NULL && JSValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
+        return JSValueToBoolean([onLink.bridge.krollContext context], functionResult);
       }
     }
 
