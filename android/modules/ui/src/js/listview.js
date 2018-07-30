@@ -95,7 +95,10 @@ exports.bootstrap = function(Titanium) {
 	
 		// handle Alloy widgets
 		} else {
-			const widget = Module.main.require('/alloy/widgets/' + namespace + '/controllers/widget');
+			let widget = Module.main.require('/alloy/widgets/' + namespace + '/controllers/widget');
+			if (!widget) {
+					Module.main.require(namespace);
+			}
 			if (widget) {
 				return function (parameters) {
 					const obj = new widget(parameters);
