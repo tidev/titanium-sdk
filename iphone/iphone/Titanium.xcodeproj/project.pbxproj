@@ -921,7 +921,6 @@
 			children = (
 				242E967211BAD2E30046A0D0 /* AsyncSocket */,
 				24CA8909111161050084E2DE /* AFOpenFlow */,
-				24CA89A6111161230084E2DE /* Misc */,
 				24CA894D111161050084E2DE /* PlausibleDatabase */,
 				50115A9315D5DE0500122055 /* ThirdpartyNS.h */,
 			);
@@ -963,13 +962,6 @@
 			name = PlausibleDatabase;
 			path = ../Classes/PlausibleDatabase;
 			sourceTree = SOURCE_ROOT;
-		};
-		24CA89A6111161230084E2DE /* Misc */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Misc;
-			sourceTree = "<group>";
 		};
 		24CA8A09111161D60084E2DE /* Modules */ = {
 			isa = PBXGroup;
@@ -1583,7 +1575,6 @@
 				CEFFA0BB1A8A80810078F310 /* Extensions */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				DB30D3FB207384600070E895 /* Recovered References */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -2121,7 +2112,6 @@
 				24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */,
 				24CA8B8C111161FE0084E2DE /* TiUISwitchProxy.m in Sources */,
 				24CA8B8D111161FE0084E2DE /* TiUISwitch.m in Sources */,
-				DBCE968920FCEF1600B47572 /* KrollWrapper.m in Sources */,
 				24CA8B8F111161FE0084E2DE /* TiUISliderProxy.m in Sources */,
 				24CA8B90111161FE0084E2DE /* TiUISlider.m in Sources */,
 				24CA8B91111161FE0084E2DE /* TiUISearchBarProxy.m in Sources */,
@@ -2155,7 +2145,6 @@
 				24CA8BBC111161FE0084E2DE /* TiMediaVideoPlayerProxy.m in Sources */,
 				24CA8BBD111161FE0084E2DE /* TiMediaSoundProxy.m in Sources */,
 				0BFAD90F1CA1B86B00A04BF7 /* TiUIiOSStepperProxy.m in Sources */,
-				24CA8BBE111161FE0084E2DE /* TiMediaAudioPlayerProxy.m in Sources */,
 				24CA8BC8111161FE0084E2DE /* TiDatabaseResultSetProxy.m in Sources */,
 				24CA8BC9111161FE0084E2DE /* TiDatabaseProxy.m in Sources */,
 				24CA8BCA111161FE0084E2DE /* TiContactsPerson.m in Sources */,
