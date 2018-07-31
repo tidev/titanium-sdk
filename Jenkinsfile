@@ -1,8 +1,8 @@
 #!groovy
 library 'pipeline-library'
 
-// Keep logs/reports/etc of last 15 builds, only keep build artifacts of last 3 builds
-properties([buildDiscarder(logRotator(numToKeepStr: '15', artifactNumToKeepStr: '3'))])
+// Keep logs/reports/etc of last 30 builds, only keep build artifacts of last 3 builds
+properties([buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '3'))])
 
 // Some branch flags to alter behavior
 def isPR = env.CHANGE_ID || false // CHANGE_ID is set if this is a PR. (We used to look whether branch name started with PR-, which would not be true for a branch from origin filed as PR)
@@ -34,7 +34,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 	return {
 		def labels = 'git && osx'
 		if ('ios'.equals(os)) {
-			labels = 'git && osx && xcode-9' // test app fails to build with xcode-8.1 as far as I can tell
+			labels = 'git && osx && xcode-10' // Use xcode-10 to make use of ios 12 APIs
 		} else {
 			labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
 		}
