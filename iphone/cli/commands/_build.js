@@ -2142,6 +2142,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 							this.commonJsModules.push(module);
 						} else {
 							module.native = true;
+							const frameworkName = this.scrubbedModuleId(module.id) + '.framework';
 
 							// Try to load native module as static library (Obj-C)
 							if (fs.existsSync(path.join(module.modulePath, 'lib' + module.id.toLowerCase() + '.a'))) {
@@ -2152,12 +2153,13 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								// For Obj-C static libraries, use the .a library or hashing
 								nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
 								// Try to load native module as framework (Swift)
-							} else if (fs.existsSync(path.join(module.modulePath, module.manifest.name + '.framework'))) {
-								module.libName = module.manifest.name + '.framework';
+							} else if (fs.existsSync(path.join(module.modulePath, frameworkName))) {
+								module.libName = frameworkName;
 								module.libFile = path.join(module.modulePath, module.libName);
 								module.isFramework = true;
 								// For Swift frameworks, use the binary inside the .framework for hashing
-								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, module.manifest.name))));
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, this.scrubbedModuleId(module.id)))));
+
 								// Else - fail
 							} else {
 								this.logger.error(__('Module %s (%s) is missing library or framework file.', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
@@ -2186,6 +2188,13 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		});
 	}.bind(this); // end of function returned by validate()
 };
+
+iOSBuilder.prototype.scrubbedModuleId = function (moduleId) {
+	return moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) {
+		return s.substring(0, 1).toUpperCase() + s.substring(1);
+	}).join('');
+};
+
 
 /**
  * Performs the build operations.
