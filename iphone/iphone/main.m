@@ -28,30 +28,29 @@ NSString *const TI_APPLICATION_COPYRIGHT = @"Appcelerator";
 NSString *const TI_APPLICATION_GUID = @"25FE4B6E-7DA9-4344-B55B-25195570860F";
 BOOL const TI_APPLICATION_ANALYTICS = YES;
 BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER = YES;
-NSString *const TI_APPLICATION_RESOURCE_DIR = nil;
-NSString *const TI_APPLICATION_BUILD_TYPE = nil;
+NSString *const TI_APPLICATION_RESOURCE_DIR = @"";
+NSString *const TI_APPLICATION_BUILD_TYPE = @"";
+
+// Currently unused
 NSString *const TI_APPLICATION_SDK_VERSION = @"8.0.0";
 NSString *const TI_APPLICATION_BUILD_HASH = @"df92fbf";
 NSString *const TI_APPLICATION_BUILD_DATE = @"3/14/2018 20:46";
 
 int main(int argc, char *argv[])
 {
-  // Make config available to TitaniumKit
-  [[TiSharedConfig defaultConfig] setApplicationName:TI_APPLICATION_NAME];
-  [[TiSharedConfig defaultConfig] setApplicationID:TI_APPLICATION_ID];
-  [[TiSharedConfig defaultConfig] setApplicationVersion:TI_APPLICATION_VERSION];
   [[TiSharedConfig defaultConfig] setApplicationDeployType:TI_APPLICATION_DEPLOYTYPE];
+  [[TiSharedConfig defaultConfig] setApplicationID:TI_APPLICATION_ID];
+  [[TiSharedConfig defaultConfig] setApplicationPublisher:TI_APPLICATION_PUBLISHER];
+  [[TiSharedConfig defaultConfig] setApplicationURL:[NSURL URLWithString:TI_APPLICATION_URL]];
+  [[TiSharedConfig defaultConfig] setApplicationName:TI_APPLICATION_NAME];
+  [[TiSharedConfig defaultConfig] setApplicationVersion:TI_APPLICATION_VERSION];
+  [[TiSharedConfig defaultConfig] setApplicationDescription:TI_APPLICATION_DESCRIPTION];
+  [[TiSharedConfig defaultConfig] setApplicationCopyright:TI_APPLICATION_COPYRIGHT];
   [[TiSharedConfig defaultConfig] setApplicationGUID:TI_APPLICATION_GUID];
-  [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];
-  [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
   [[TiSharedConfig defaultConfig] setAnalyticsEnabled:TI_APPLICATION_ANALYTICS];
   [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
-
-  // These are not yet compiled into the app !()
-  [[TiSharedConfig defaultConfig] setBuildHash:TI_APPLICATION_BUILD_HASH];
-  [[TiSharedConfig defaultConfig] setBuildDate:TI_APPLICATION_BUILD_DATE];
-  [[TiSharedConfig defaultConfig] setSdkVersion:TI_APPLICATION_SDK_VERSION];
-
+  [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
+  [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];
   [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
   
   NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];

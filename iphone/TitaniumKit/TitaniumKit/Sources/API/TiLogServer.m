@@ -188,7 +188,7 @@ __unused static int counter = 0;
         data.length,
         logDispatchQueue,
         DISPATCH_DATA_DESTRUCTOR_DEFAULT);
-    for (id conn in connections) {
+    for (TiLogServerConnection *conn in connections) {
       [conn send:&buffer];
     }
   } else {
@@ -296,7 +296,7 @@ __unused static int counter = 0;
 
     // if log queue exists, flush the whole thing and nuke it
     if (logQueue != nil) {
-      for (id message in logQueue) {
+      for (NSString *message in logQueue) {
         NSData *data = [message dataUsingEncoding:NSUTF8StringEncoding];
         dispatch_data_t buffer = dispatch_data_create(data.bytes,
             data.length,
