@@ -463,16 +463,16 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 		if (this.isFramework) {
 			args.push('-scheme');
 			args.push(this.moduleIdAsIdentifier);
-			args.push('CONFIGURATION_BUILD_DIR=' + path.join(this.projectDir, 'build', 'Release-iphoneos'));
+			args.push('CONFIGURATION_BUILD_DIR=' + path.join(this.projectDir, 'build', 'Release-' + target));
 		}
 
 		return args;
 	}.bind(this);
 
 	// 1. Create a build for the simulator
-	xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphonesimulator'), opts, 'xcode-dist', () => {
+	xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphonesimulator'), opts, 'xcode-sim', () => {
 		// 2. Create a build for the device
-		xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphoneos'), opts, 'xcode-sim', next);
+		xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphoneos'), opts, 'xcode-dist', next);
 	});
 };
 
