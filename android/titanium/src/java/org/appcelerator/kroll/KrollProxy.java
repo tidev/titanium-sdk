@@ -1414,32 +1414,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void releaseKroll()
 	{
-		// TIMOB-25910: attempt to make any strong references into weak references
-		// NOTE: there is an issue where proxies created in another context (such as an event listener callback)
-		// may not be destroyed when the context has ended. This workaround allows the GC to free these objects
-		// if memory is constraint.
-		if (referenceKey != -1) {
-			try {
-				final Class referenceTableClass = Class.forName("org.appcelerator.kroll.runtime.v8.ReferenceTable");
-				final Method getReferenceMethod = referenceTableClass.getDeclaredMethod("getReference", long.class);
-
-				final Object reference = getReferenceMethod.invoke(null, this.referenceKey);
-				if (!(reference instanceof WeakReference || reference instanceof SoftReference)) {
-					final Method weakReferenceMethod =
-						referenceTableClass.getDeclaredMethod("makeWeakReference", long.class);
-					weakReferenceMethod.invoke(null, this.referenceKey);
-				} else {
-					if (krollObject != null) {
-						krollObject.release();
-					}
-				}
-			} catch (Exception e) {
-				// do nothing...
-			}
-		} else {
-			if (krollObject != null) {
-				krollObject.release();
-			}
+		if (krollObject != null) {
+			krollObject.release();
 		}
 	}
 

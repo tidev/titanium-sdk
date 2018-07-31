@@ -32,7 +32,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollV8Runtime";
 	private static final String NAME = "v8";
-	private static final int MAX_V8_IDLE_INTERVAL = 30 * 1000; // ms
+	private static final int MAX_V8_IDLE_INTERVAL = 5 * 1000; // ms
 
 	private boolean libLoaded = false;
 
@@ -44,6 +44,11 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	private ArrayList<String> loadedLibs = new ArrayList<String>();
 	private AtomicBoolean shouldGC = new AtomicBoolean(false);
 	private long lastV8Idle;
+
+	/**
+	 * Setup JVM garbage collection watcher to initiate V8 garbage collections
+	 */
+	private static GCWatcher watcher = new GCWatcher();
 
 	public static boolean isEmulator()
 	{
@@ -113,20 +118,12 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			@Override
 			public boolean queueIdle()
 			{
-				boolean willGC = shouldGC.getAndSet(false);
-				if (!willGC) {
-					// This means we haven't specifically been told to do
-					// a V8 GC (which is just a call to nativeIdle()), but nevertheless
-					// if more than the recommended time has passed since the last
-					// call to nativeIdle(), we'll want to do it anyways.
-					willGC = ((System.currentTimeMillis() - lastV8Idle) > MAX_V8_IDLE_INTERVAL);
-				}
-				if (willGC) {
-					boolean gcWantsMore = !nativeIdle();
+				// determine if we should suggest a V8 garbage collection
+				if (shouldGC.getAndSet(false) && (System.currentTimeMillis() - lastV8Idle) > MAX_V8_IDLE_INTERVAL) {
+
+					// attempt garbage collection
+					nativeIdle();
 					lastV8Idle = System.currentTimeMillis();
-					if (gcWantsMore) {
-						shouldGC.set(true);
-					}
 				}
 				return true;
 			}
