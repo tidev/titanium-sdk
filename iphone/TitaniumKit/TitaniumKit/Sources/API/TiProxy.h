@@ -17,23 +17,20 @@
 @class KrollBridge;
 @class KrollObject;
 
-//Common exceptions to throw when the function call was improper
+// Common exceptions to throw when the function call was improper
 extern NSString *const TiExceptionInvalidType;
 extern NSString *const TiExceptionNotEnoughArguments;
 extern NSString *const TiExceptionRangeError;
 
 extern NSString *const TiExceptionOSError;
 
-//This is when a normally allowed command is not allowed (Say, adding a row to a table when it already is added elsewhere)
+// This is when a normally allowed command is not allowed (Say, adding a row to a table when it already is added elsewhere)
 extern NSString *const TiExceptionInternalInconsistency;
 
-//Should be rare, but also useful if arguments are used improperly.
-extern NSString *const TiExceptionInternalInconsistency;
-
-//Rare exceptions to indicate a bug in the titanium code (Eg, function that a subclass should have implemented)
+// Rare exceptions to indicate a bug in the titanium code (Eg, function that a subclass should have implemented)
 extern NSString *const TiExceptionUnimplementedFunction;
 
-//Rare exception in the case of malloc failure
+// Rare exception in the case of malloc failure
 extern NSString *const TiExceptionMemoryFailure;
 
 @class TiHost;

@@ -529,7 +529,6 @@ enum {
 
 #define VAL_OR_NSNULL(foo) (((foo) != nil) ? ((id)foo) : [NSNull null])
 
-NSData *dataWithHexString(NSString *hexString);
 NSString *hexString(NSData *thedata);
 
 typedef enum {
@@ -592,7 +591,6 @@ extern NSString *const kTiLocalNotificationAction;
 extern NSString *const kTiRemoteNotificationAction;
 extern NSString *const kTiRemoteExtentionWillExpire;
 extern NSString *const kTiUserNotificationSettingsNotification;
-extern NSString *const kTiBackgroundTransfer;
 extern NSString *const kTiURLDownloadFinished;
 extern NSString *const kTiURLSessionCompleted;
 extern NSString *const kTiURLSessionEventsCompleted;
