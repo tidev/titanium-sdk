@@ -49,7 +49,7 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.moduleIdAsIdentifier = this.scrubbedModuleId();
 	this.moduleVersion = cli.manifest.version;
 	this.moduleGuid    = cli.manifest.guid;
-	this.isFramework   = parseInt(this.manifest.apiversion) >= 3 && fs.existsSync(path.join(this.projectDir, 'Info.plist'));
+	this.isFramework   = fs.existsSync(path.join(this.projectDir, 'Info.plist')); // TODO: There MUST be a better way to determine if it's a framework (Swift)
 
 	this.buildOnly     = cli.argv['build-only'];
 	this.xcodeEnv      = null;
@@ -449,30 +449,31 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 		}.bind(this));
 	}.bind(this));
 
-	let count = 0;
-	function done() {
-		if (++count === 2) {
-			next();
+	const xcBuild = this.xcodeEnv.executables.xcodebuild;
+
+	const xcodeBuildArgumentsForTarget = function (target) {
+		let args = [
+			'-configuration', 'Release',
+			'-sdk', target,
+			'-UseNewBuildSystem=NO',
+			'ONLY_ACTIVE_ARCH=NO',
+			'clean', 'build'
+		];
+
+		if (this.isFramework) {
+			args.push('-scheme');
+			args.push(this.moduleIdAsIdentifier);
+			args.push('CONFIGURATION_BUILD_DIR=' + path.join(this.projectDir, 'build', 'Release-iphoneos'));
 		}
-	}
 
-	// Create a build for the device
-	xcodebuildHook(this.xcodeEnv.executables.xcodebuild, [
-		'-configuration', 'Release',
-		'-sdk', 'iphoneos',
-		'-UseNewBuildSystem=NO',
-		'ONLY_ACTIVE_ARCH=NO',
-		'clean', 'build'
-	], opts, 'xcode-dist', done);
+		return args;
+	}.bind(this);
 
-	// Create a build for the simulator
-	xcodebuildHook(this.xcodeEnv.executables.xcodebuild, [
-		'-configuration', 'Release',
-		'-sdk', 'iphonesimulator',
-		'-UseNewBuildSystem=NO',
-		'ONLY_ACTIVE_ARCH=NO',
-		'clean', 'build'
-	], opts, 'xcode-sim', done);
+	// 1. Create a build for the simulator
+	xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphonesimulator'), opts, 'xcode-dist', () => {
+		// 2. Create a build for the device
+		xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('iphoneos'), opts, 'xcode-sim', next);
+	});
 };
 
 iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinary(next) {
@@ -484,7 +485,7 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 		if (!fs.existsSync(lib)) {
 			// unfortunately the initial module project template incorrectly
 			// used the camel-cased module id
-			lib = path.join(this.projectDir, 'build', 'Release-' + dest, 'lib' + this.moduleIdAsIdentifier + '.a');
+			lib = path.join(this.projectDir, 'build', 'Release-' + dest, moduleId);
 			this.logger.debug('Searching library: ' + lib);
 			if (!fs.existsSync(lib)) {
 				return new Error(__('Unable to find the built %s library', 'Release-' + dest));
@@ -507,8 +508,6 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 		return next(lib);
 	}
 	args.push(lib);
-
-	// TODO: Do we still need the abvoe when building frameworks? Should probably be moved to the else-case
 
 	// Frameworks are handled differently. Based on https://gist.github.com/cromandini/1a9c4aeab27ca84f5d79
 	if (this.isFramework) {
@@ -554,7 +553,7 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 		args.push(
 			'-create',
 			'-output',
-			path.join(this.projectDir, 'build', 'lib' + moduleId + '.a')
+			path.join(this.projectDir, 'build', moduleId)
 		);
 		this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
 		appc.subprocess.run(this.xcodeEnv.executables.lipo, args, function (code, out, err) {
