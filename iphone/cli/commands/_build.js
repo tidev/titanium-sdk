@@ -2195,7 +2195,6 @@ iOSBuilder.prototype.scrubbedModuleId = function (moduleId) {
 	}).join('');
 };
 
-
 /**
  * Performs the build operations.
  *
@@ -3236,13 +3235,18 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				fileRefUuid = this.generateXcodeUuid(xcodeProject),
 				buildFileUuid = this.generateXcodeUuid(xcodeProject);
 
+			// Framworks are handled by our framework manager!
+			if (isFramework) {
+				return;
+			}
+
 			// add the file reference
 			xobjs.PBXFileReference[fileRefUuid] = {
 				isa: 'PBXFileReference',
-				lastKnownFileType: isFramework ? 'wrapper.framework' : 'archive.ar',
+				lastKnownFileType: 'archive.ar',
 				name: lib.libName,
 				path: '"' + lib.libFile + '"',
-				sourceTree: isFramework ? 'BUILT_PRODUCTS_DIR' : '"<absolute>"'
+				sourceTree: '"<absolute>"'
 			};
 			xobjs.PBXFileReference[fileRefUuid + '_comment'] = lib.libName;
 
@@ -3270,18 +3274,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 				var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
 
-				// Use LIBRARY_SEARCH_PATHS for libraries and FRAMEWORK_SEARCH_PATHS for frameworks
-				if (isFramework) {
-					// This returns a String by default, because the Xcode template is empty
-					// We need to map it to an array. Not sure if this is the correct way to handle it
-					if (!buildSettings.FRAMEWORK_SEARCH_PATHS || typeof buildSettings.FRAMEWORK_SEARCH_PATHS !== 'object') {
-						buildSettings.FRAMEWORK_SEARCH_PATHS = [ '"$(inherited)"' ];
-					}
-					buildSettings.FRAMEWORK_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
-				} else {
-					buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
-					buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
-				}
+				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
+				buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
 			});
 		}, this);
 	} else {
