@@ -36,3 +36,4 @@ android/.idea/scopes/scope_settings.xml
 android/.idea/vcs.xml
 *.iml
 /iphone/TitaniumKit/Carthage
+/iphone/TitaniumKit/docs
