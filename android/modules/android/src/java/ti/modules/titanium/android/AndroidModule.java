@@ -580,26 +580,18 @@ public class AndroidModule extends KrollModule
 	public ActivityProxy getCurrentActivity()
 	// clang-format on
 	{
-		TiBaseActivity resultBaseActivity = (TiBaseActivity) TiApplication.getAppCurrentActivity();
-		if (resultBaseActivity != null) {
-			return resultBaseActivity.getActivityProxy();
-		} else {
-			Log.w(TAG, "Application instance no longer available. Unable to get current activity.");
-			return null;
+		Activity activity = TiApplication.getAppCurrentActivity();
+		if (activity instanceof TiBaseActivity) {
+			((TiBaseActivity) activity).getActivityProxy();
 		}
+		return null;
 	}
 
 	@Kroll.method
 	public void startService(IntentProxy intentProxy)
 	{
-		TiApplication app = TiApplication.getInstance();
-		if (app == null) {
-			Log.w(TAG, "Application instance no longer available. Unable to startService.");
-			return;
-		}
-
 		try {
-			app.startService(intentProxy.getIntent());
+			TiApplication.getInstance().startService(intentProxy.getIntent());
 		} catch (Exception ex) {
 			String message = ex.getMessage();
 			if (message == null) {
@@ -612,12 +604,7 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public void stopService(IntentProxy intentProxy)
 	{
-		TiApplication app = TiApplication.getInstance();
-		if (app != null) {
-			app.stopService(intentProxy.getIntent());
-		} else {
-			Log.w(TAG, "Application instance no longer available. Unable to stopService.");
-		}
+		TiApplication.getInstance().stopService(intentProxy.getIntent());
 	}
 
 	@Kroll.method
@@ -691,13 +678,6 @@ public class AndroidModule extends KrollModule
 		}
 
 		TiApplication app = TiApplication.getInstance();
-		if (app == null) {
-			Log.w(
-				TAG,
-				"Application instance is no longer available. Unable to check isServiceRunning. Returning false though value is meaningless.");
-			return false;
-		}
-
 		ActivityManager am = (ActivityManager) app.getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
 		if (am != null) {
 			List<RunningServiceInfo> services = am.getRunningServices(Integer.MAX_VALUE);
