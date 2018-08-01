@@ -150,8 +150,8 @@ public class TiImageHelper
 	{
 		// Validate argument.
 		if ((path == null) || path.isEmpty()) {
-			String message = "Path of image file could not determined. " +
-				"Could not create an exifInterface from an invalid path.";
+			String message = "Path of image file could not determined. "
+							 + "Could not create an exifInterface from an invalid path.";
 			Log.e(TAG, message);
 			return 0;
 		}
@@ -193,11 +193,11 @@ public class TiImageHelper
 		try {
 			if (stream != null) {
 				ExifInterface exifInterface = new ExifInterface(stream);
-				int exifOrientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-																	ExifInterface.ORIENTATION_NORMAL);
+				int exifOrientation =
+					exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
 				switch (exifOrientation) {
 					case ExifInterface.ORIENTATION_ROTATE_270:
-					case ExifInterface.ORIENTATION_TRANSVERSE:		// Rotated and mirrored.
+					case ExifInterface.ORIENTATION_TRANSVERSE: // Rotated and mirrored.
 						orientation = 270;
 						break;
 					case ExifInterface.ORIENTATION_ROTATE_180:
@@ -205,7 +205,7 @@ public class TiImageHelper
 						orientation = 180;
 						break;
 					case ExifInterface.ORIENTATION_ROTATE_90:
-					case ExifInterface.ORIENTATION_TRANSPOSE:		// Rotated and mirrored.
+					case ExifInterface.ORIENTATION_TRANSPOSE: // Rotated and mirrored.
 						orientation = 90;
 						break;
 				}

@@ -10,7 +10,6 @@ package org.appcelerator.titanium.io;
 import java.io.InputStream;
 import java.io.IOException;
 
-
 /**
  * Wraps an input stream, passing the calls through from this wrapper to the wrapped stream.
  * <p>
@@ -18,13 +17,13 @@ import java.io.IOException;
  * allowing the creator of the wrapper to perform additional cleanup. For example, the listener
  * could close an "HttpURLConnection" or "ZipFile" after the stream has been closed.
  */
-public class TiInputStreamWrapper extends InputStream {
+public class TiInputStreamWrapper extends InputStream
+{
 	/** The input stream that is being wrapped. Can be null. */
 	private InputStream inputStream;
 
 	/** The listener to be invoked after the input stream has been closed. Can be null. */
 	private ClosedListener closedListener;
-
 
 	/** Listener to be invoked after the input stream has been closed. */
 	public interface ClosedListener {
@@ -32,13 +31,13 @@ public class TiInputStreamWrapper extends InputStream {
 		void onClosed();
 	}
 
-
 	/**
 	 * Creates a new input stream wrapping the given input stream.
 	 * @param inputStream The stream to be wrapped. Can be null, in which case, this wrapper's methods will no-op.
 	 * @param closedListener Listener to be invoked after the stream has been closed. Can be null.
 	 */
-	public TiInputStreamWrapper(InputStream inputStream, ClosedListener closedListener) {
+	public TiInputStreamWrapper(InputStream inputStream, ClosedListener closedListener)
+	{
 		super();
 
 		this.inputStream = inputStream;
@@ -54,7 +53,8 @@ public class TiInputStreamWrapper extends InputStream {
 	 * or if the wrapper was given a null stream reference.
 	 */
 	@Override
-	public int available() throws IOException {
+	public int available() throws IOException
+	{
 		if (this.inputStream != null) {
 			return this.inputStream.available();
 		}
@@ -63,7 +63,8 @@ public class TiInputStreamWrapper extends InputStream {
 
 	/** Closes the input stream and releases any resources associated with it. */
 	@Override
-	public void close() throws IOException {
+	public void close() throws IOException
+	{
 		// Close the input stream.
 		if (this.inputStream != null) {
 			this.inputStream.close();
@@ -83,7 +84,8 @@ public class TiInputStreamWrapper extends InputStream {
 	 * @param The maximum number of bytes that can be read before the mark position becomes invalid.
 	 */
 	@Override
-	public void mark(int readLimit) {
+	public void mark(int readLimit)
+	{
 		if (this.inputStream != null) {
 			this.inputStream.mark(readLimit);
 		}
@@ -94,7 +96,8 @@ public class TiInputStreamWrapper extends InputStream {
 	 * @return Returns true if the mark() and reset() methods are supported. Returns false if not.
 	 */
 	@Override
-	public boolean markSupported() {
+	public boolean markSupported()
+	{
 		if (this.inputStream != null) {
 			return this.inputStream.markSupported();
 		}
@@ -110,7 +113,8 @@ public class TiInputStreamWrapper extends InputStream {
 	 * Returns -1 if the end of the stream was reached or if the wrapper was given a null stream reference.
 	 */
 	@Override
-	public int read() throws IOException {
+	public int read() throws IOException
+	{
 		if (this.inputStream != null) {
 			return this.inputStream.read();
 		}
@@ -155,7 +159,8 @@ public class TiInputStreamWrapper extends InputStream {
 	 * Returns -1 if there is no more data to be read from the stream.
 	 */
 	@Override
-	public int read(byte[] byteBuffer) throws IOException, NullPointerException {
+	public int read(byte[] byteBuffer) throws IOException, NullPointerException
+	{
 		if (this.inputStream != null) {
 			return this.inputStream.read(byteBuffer);
 		}
@@ -168,7 +173,8 @@ public class TiInputStreamWrapper extends InputStream {
 	 * This method does nothing if the stream's markSupported() method returns false.
 	 */
 	@Override
-	public void reset() throws IOException {
+	public void reset() throws IOException
+	{
 		if (this.inputStream != null) {
 			this.inputStream.reset();
 		}
@@ -185,7 +191,8 @@ public class TiInputStreamWrapper extends InputStream {
 	 * Will also return zero if this wrapper was given a null stream reference.
 	 */
 	@Override
-	public long skip(long byteCount) throws IOException {
+	public long skip(long byteCount) throws IOException
+	{
 		if (this.inputStream != null) {
 			return this.inputStream.skip(byteCount);
 		}

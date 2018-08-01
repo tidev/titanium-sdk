@@ -114,16 +114,19 @@ public class TiDownloadManager implements Handler.Callback
 		if (TiApplication.isUIThread()) {
 			// Anonymous class used to call this blockingDownload() method on another thread.
 			// Downloaded content will be made available via Titanium's "TiResponseCache".
-			class DownloadOperation implements Runnable {
+			class DownloadOperation implements Runnable
+			{
 				private boolean isDone;
 				private URI uri;
 
-				public DownloadOperation(URI uri) {
+				public DownloadOperation(URI uri)
+				{
 					this.uri = uri;
 				}
 
 				@Override
-				public void run() {
+				public void run()
+				{
 					try (InputStream stream = blockingDownload(this.uri)) {
 						if (stream != null) {
 							KrollStreamHelper.pump(stream, null);
@@ -134,7 +137,8 @@ public class TiDownloadManager implements Handler.Callback
 					}
 				}
 
-				public boolean isDone() {
+				public boolean isDone()
+				{
 					return this.isDone;
 				}
 			};
@@ -154,8 +158,7 @@ public class TiDownloadManager implements Handler.Callback
 			if (cachedUri != null) {
 				try {
 					inputStream = TiResponseCache.openCachedStream(cachedUri);
-				}
-				catch (Exception ex) {
+				} catch (Exception ex) {
 				}
 			}
 			return inputStream;
@@ -226,8 +229,7 @@ public class TiDownloadManager implements Handler.Callback
 			if ((inputStream == null) && (connection instanceof HttpURLConnection)) {
 				try {
 					((HttpURLConnection) connection).disconnect();
-				}
-				catch (Exception ex) {
+				} catch (Exception ex) {
 				}
 			}
 		}
@@ -238,11 +240,11 @@ public class TiDownloadManager implements Handler.Callback
 			final HttpURLConnection httpConnection = (HttpURLConnection) connection;
 			inputStream = new TiInputStreamWrapper(inputStream, new TiInputStreamWrapper.ClosedListener() {
 				@Override
-				public void onClosed() {
+				public void onClosed()
+				{
 					try {
 						httpConnection.disconnect();
-					}
-					catch (Exception ex) {
+					} catch (Exception ex) {
 					}
 				}
 			});
