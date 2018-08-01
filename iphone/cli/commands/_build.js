@@ -2431,6 +2431,8 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.useNewBuildSystem = true;
 	}
 
+	this.currentBuildManifest.useNewBuildSystem = this.useNewBuildSystem;
+
 	if (this.enableLaunchScreenStoryboard && (fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard')))) {
 		this.defaultLaunchScreenStoryboard = false;
 	}
