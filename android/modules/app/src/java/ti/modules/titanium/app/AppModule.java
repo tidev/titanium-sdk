@@ -54,8 +54,6 @@ public class AppModule extends KrollModule implements SensorEventListener
 	private boolean proximityState;
 	private int proximityEventListenerCount = 0;
 
-	private static final String APP_PATH = "Resources/app.js";
-
 	public AppModule()
 	{
 		super("App");
@@ -219,23 +217,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 	@Kroll.method(name = "_restart")
 	public void restart()
 	{
-		KrollRuntime runtime = KrollRuntime.getInstance();
-
-		// prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity()
-		TiBaseActivity.canFinishRoot = false;
-
-		// terminate all activities excluding root
-		TiApplication.terminateActivityStack();
-
-		// allow termination again
-		TiBaseActivity.canFinishRoot = true;
-
-		// restart kroll runtime
-		runtime.doDispose();
-		runtime.initRuntime();
-
-		// manually re-launch app
-		runtime.doRunModule(KrollAssetHelper.readAsset(APP_PATH), APP_PATH, getActivityProxy());
+		TiApplication.getInstance().softRestart();
 	}
 
 	@Kroll.method

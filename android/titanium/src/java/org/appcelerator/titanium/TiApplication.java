@@ -756,6 +756,28 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	public void softRestart()
+	{
+		KrollRuntime runtime = KrollRuntime.getInstance();
+
+		// prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity()
+		TiBaseActivity.canFinishRoot = false;
+
+		// terminate all activities excluding root
+		TiApplication.terminateActivityStack();
+
+		// allow termination again
+		TiBaseActivity.canFinishRoot = true;
+
+		// restart kroll runtime
+		runtime.doDispose();
+		runtime.initRuntime();
+
+		// manually re-launch app
+		runtime.doRunModule(KrollAssetHelper.readAsset(TiC.PATH_APP_JS), TiC.URL_APP_JS,
+							((TiBaseActivity) getRootOrCurrentActivity()).getActivityProxy());
+	}
+
 	public boolean isRestartPending()
 	{
 		return restartPending;
@@ -814,7 +836,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			@Override
 			public void onReceive(Context context, Intent intent)
 			{
-				TiApplication.getInstance().scheduleRestart(0);
+				TiApplication.getInstance().softRestart();
 			}
 		};
 
