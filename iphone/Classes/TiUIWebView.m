@@ -763,6 +763,20 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
                  }];
   }
 
+  // Use "onlink" callback property to decide the navigation policy
+  KrollWrapper *onLink = [[self proxy] valueForKey:@"onlink"];
+  if (onLink != nil) {
+    JSValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : webView.URL.absoluteString } ]];
+    if (functionResult != NULL && JSValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
+      if (JSValueToBoolean([onLink.bridge.krollContext context], functionResult)) {
+        decisionHandler(WKNavigationActionPolicyAllow);
+      } else {
+        decisionHandler(WKNavigationActionPolicyCancel);
+      }
+      return;
+    }
+  }
+  
   if ([allowedURLSchemes containsObject:navigationAction.request.URL.scheme]) {
     if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
       // Event to return url to Titanium in order to handle OAuth and more
