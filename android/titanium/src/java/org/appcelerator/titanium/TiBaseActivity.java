@@ -1571,15 +1571,20 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		//LW windows
 		if (window == null && view != null) {
-			view.releaseViews();
 			view.release();
+			view = null;
+		}
+		if (view != null) {
+			view.releaseViews();
 			view = null;
 		}
 
 		if (window != null) {
+			if (windowStack.contains(window)) {
+				removeWindowFromStack(window);
+			}
 			window.closeFromActivity(isFinishing);
 			window.releaseViews();
-			window.releaseKroll();
 			window = null;
 		}
 

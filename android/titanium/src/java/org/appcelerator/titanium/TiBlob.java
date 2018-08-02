@@ -260,7 +260,7 @@ public class TiBlob extends KrollProxy
 	{
 		String mt = guessContentTypeFromStream();
 		// Update mimetype based on the guessed MIME-type.
-		if (mt != null && mt != mimetype) {
+		if (mt != null && !mt.equals(mimetype)) {
 			mimetype = mt;
 		}
 
@@ -418,7 +418,7 @@ public class TiBlob extends KrollProxy
 				// we don't really know what it is, so assume the user-developer knows
 				// what she's doing.
 				if (mimetype != null && TiMimeTypeHelper.isBinaryMimeType(mimetype)
-					&& mimetype != "application/octet-stream") {
+					&& !mimetype.equals("application/octet-stream")) {
 					return null;
 				}
 				try {
@@ -787,7 +787,7 @@ public class TiBlob extends KrollProxy
 
 		try {
 			bos = new ByteArrayOutputStream();
-			if (image.compress(CompressFormat.JPEG, (int) (quality * 100), bos)) {
+			if (img.compress(CompressFormat.JPEG, (int) (quality * 100), bos)) {
 				byte[] data = bos.toByteArray();
 
 				BitmapFactory.Options bfOptions = new BitmapFactory.Options();

@@ -410,7 +410,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		if (pictureSize != null) {
 			param.setPictureSize(pictureSize.width, pictureSize.height);
 		}
-		if (mediaType == MEDIA_TYPE_VIDEO) {
+		if (MEDIA_TYPE_VIDEO.equals(mediaType)) {
 			param.setRecordingHint(true);
 		}
 		camera.setParameters(param);
@@ -679,7 +679,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			} else {
 				// Save the picture in the internal data directory so it is private to this application.
 				String extension = ".jpg";
-				if (mediaType == MEDIA_TYPE_VIDEO) {
+				if (MEDIA_TYPE_VIDEO.equals(mediaType)) {
 					extension = ".mp4";
 				}
 				imageFile = TiFileFactory.createDataFile("tia", extension);

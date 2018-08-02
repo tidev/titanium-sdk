@@ -71,7 +71,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
 	private static long mainThreadId = 0;
 
-	protected static WeakReference<TiApplication> tiApp = null;
+	protected static TiApplication tiApp = null;
 
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
@@ -140,10 +140,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		Log.checkpoint(TAG, "checkpoint, app created.");
 
+		// Keep a reference to this application object. Accessible via static getInstance() method.
+		tiApp = this;
+
 		loadBuildProperties();
 
 		mainThreadId = Looper.getMainLooper().getThread().getId();
-		tiApp = new WeakReference<TiApplication>(this);
 
 		modules = new HashMap<String, WeakReference<KrollModule>>();
 		TiMessenger.getMessenger(); // initialize message queue for main thread
@@ -156,15 +158,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 */
 	public static TiApplication getInstance()
 	{
-		if (tiApp != null) {
-			TiApplication tiAppRef = tiApp.get();
-			if (tiAppRef != null) {
-				return tiAppRef;
-			}
-		}
-
-		Log.e(TAG, "Unable to get the TiApplication instance");
-		return null;
+		return tiApp;
 	}
 
 	public static void addToActivityStack(Activity activity)
@@ -239,11 +233,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 */
 	public static Activity getAppCurrentActivity()
 	{
-		TiApplication tiApp = getInstance();
-		if (tiApp == null) {
-			return null;
-		}
-
 		return tiApp.getCurrentActivity();
 	}
 
@@ -255,11 +244,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 */
 	public static Activity getAppRootOrCurrentActivity()
 	{
-		TiApplication tiApp = getInstance();
-		if (tiApp == null) {
-			return null;
-		}
-
 		return tiApp.getRootOrCurrentActivity();
 	}
 

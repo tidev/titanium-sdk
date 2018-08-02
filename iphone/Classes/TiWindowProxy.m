@@ -425,7 +425,7 @@
   id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
   [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
   if (current != arg && [TiUtils isIOS11OrGreater]) {
-    [[self windowHoldingController] setNeedsUpdateOfHomeIndicatorAutoHidden];
+    [[[TiApp app] controller] setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }
 

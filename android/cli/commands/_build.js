@@ -126,7 +126,9 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 					_t.androidInfo = androidInfo;
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
 					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_CONFIG_SETTING_NOT_INSTALLED');
 					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_TOO_NEW');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_NOT_SUPPORTED');
 
 					if (!cli.argv.prompt) {
 						// check that the Android SDK is found and sane
@@ -3917,9 +3919,9 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		if (fs.existsSync(libraryManifestPath)) {
 			let libraryManifestContent = fs.readFileSync(libraryManifestPath).toString();
 
-			// handle injected build variables
+			// handle injected build variables such as ${applicationId}
 			// https://developer.android.com/studio/build/manifest-build-variables
-			libraryManifestContent = libraryManifestContent.replace('${applicationId}', this.appid); // eslint-disable-line no-template-curly-in-string
+			libraryManifestContent = libraryManifestContent.replace(/\$\{applicationId\}/g, this.appid); // eslint-disable-line no-template-curly-in-string
 
 			const libraryManifest = new AndroidManifest();
 			libraryManifest.parse(libraryManifestContent);
