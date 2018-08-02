@@ -600,12 +600,20 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                                     userInfo:@{ @"userNotificationSettings" : notificationSettings }];
 }
 
+// iOS 12+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center openSettingsForNotification:(UNNotification *)notification
+{
+  // Unused so far, may expose as an event in the future?
+}
+
+// iOS 10+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
   // TODO: Get desired options from notification?
   completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
 }
 
+// iOS 10+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response
              withCompletionHandler:(void (^)(void))completionHandler
 {

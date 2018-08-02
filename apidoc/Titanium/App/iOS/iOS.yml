@@ -90,7 +90,7 @@ methods:
     summary: Cancels all scheduled local notifications.
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.removeAllPendingNotifications> instead.
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
 
   - name: cancelLocalNotification
     summary: Cancels a local notification.
@@ -103,7 +103,7 @@ methods:
         type: [Number,String]
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotificationsWithIdentifiers> instead.
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
 
   - name: registerBackgroundService
     summary: Registers a service to run when the application is placed in the background.
@@ -270,6 +270,33 @@ properties:
     osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
+  - name: USER_NOTIFICATION_TYPE_CRITICAL_ALERT
+    summary: |
+        The ability to play sounds for critical alerts.
+        Use with the [types](UserNotificationSettings.types) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "12.0"}}
+    since: "7.4.0"
+
+  - name: USER_NOTIFICATION_TYPE_PROVISIONAL
+    summary: |
+        The ability to post non-interrupting notifications provisionally to the Notification Center.
+        Use with the [types](UserNotificationSettings.types) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "12.0"}}
+    since: "7.4.0"
+
+  - name: USER_NOTIFICATION_TYPE_PROVIDES_APP_NOTIFICATION_SETTINGS
+    summary: |
+        An option indicating the system should display a button for in-app notification settings.
+        Use with the [types](UserNotificationSettings.types) property.
+    type: Number
+    permission: read-only
+    osver: {ios: {min: "12.0"}}
+    since: "7.4.0"
+
   - name: USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
     summary: |
         The action will execute in background. Use with the
@@ -342,6 +369,17 @@ properties:
     permission: read-only
     osver: {ios: {min: "10.0"}}
     since: "7.3.0"
+
+
+  - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_PROVISIONAL
+    summary: The application is provisionally authorized to post non-interruptive user notifications.
+    description: |
+        Used to check the `authorizationStatus` attribute received in
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
+    type: Number
+    permission: read-only
+    osver: { ios: { min: "12.0" } }
+    since: "7.4.0"
 
   - name: USER_NOTIFICATION_SETTING_NOT_SUPPORTED
     summary: The application does not support this notification type.
@@ -792,7 +830,7 @@ events:
         type: String
 
       - name: timezone
-        summary: Timezone of the date when the notification was configured to fire.
+        summary: Timezone of the date when the notification was configured to fire. Available in Titanium SDK 7.4.0+.
         type: String
 
       - name: userInfo
@@ -800,8 +838,14 @@ events:
         type: Dictionary
 
       - name: inBackground
-        summary: Boolean indicating if notification was received while app was in background (since Titanium SDK 6.2.0).
+        summary: Boolean indicating if notification was received while app was in background. Available in Titanium SDK 6.2.0+.
         type: Boolean
+
+      - name: threadIdentifier
+        summary: |
+            The unique identifier for the thread or conversation related to this notification request.
+            It will be used to visually group notifications together. Available in Titanium SDK 7.4.0+ and iOS 12+.
+        type: String
 
   - name: localnotificationaction
     summary: Fired when a user selects an action for an interactive local notification.
@@ -1396,6 +1440,18 @@ properties:
     optional: true
     osver: {ios: {min: "8.0"}}
     since: "7.3.0"
+
+  - name: summaryArgument
+    summary: The string the notification adds to the category's summary format string.
+    type: String
+    osver: { ios: { min: "12.0" } }
+    since: "7.4.0"
+
+  - name: summaryArgumentCount
+    summary: The number of items the notification adds to the category's summary format string.
+    type: String
+    osver: { ios: { min: "12.0" } }
+    since: "7.4.0"
 
 ---
 name: UserNotificationAttachment

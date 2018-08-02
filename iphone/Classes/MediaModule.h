@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,8 +10,11 @@
 #import "MediaPlayer/MediaPlayer.h"
 #import "TiMediaAudioSession.h"
 #import "TiMediaMusicPlayer.h"
+#import "TiMediaTypes.h"
 #import "TiModule.h"
 #import "TiViewProxy.h"
+
+@class AVAudioRecorder;
 
 @interface MediaModule : TiModule <
                              UINavigationControllerDelegate,
@@ -61,6 +64,9 @@
   KrollCallback *editorErrorCallback;
   KrollCallback *editorCancelCallback;
   UIPopoverArrowDirection arrowDirection;
+
+  AVAudioRecorder *_microphoneRecorder;
+  NSTimer *_microphoneTimer;
 }
 
 #if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
@@ -227,6 +233,16 @@
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_BLUETOOTHHFP;
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_USBAUDIO;
 @property (nonatomic, readonly) NSString *AUDIO_SESSION_PORT_CARAUDIO;
+
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_INITIALIZED;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_STARTING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_WAITING_FOR_DATA;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_WAITING_FOR_QUEUE;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_PLAYING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_BUFFERING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_STOPPING;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_STOPPED;
+@property (nonatomic, readonly) NSNumber *AUDIO_STATE_PAUSED;
 
 @end
 

@@ -217,6 +217,22 @@ properties:
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
     osver: {ios: {min: "10.0"}}
 
+  - name: criticalAlertSetting
+    summary: |
+        The authorization status to play sounds for critical alerts.
+        Available in Titanium SDK 7.4.0 and later.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: { ios: { min: "12.0" } }
+
+  - name: providesAppNotificationSettings
+    summary: |
+        A Boolean value indicating the system displays a button for in-app notification settings.
+        Available in Titanium SDK 7.4.0 and later.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: { ios: { min: "12.0" } }
+
   - name: alertStyle
     summary: The current alert style used to display notifications.
     type: Number
