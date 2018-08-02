@@ -17,10 +17,9 @@ describe('Titanium.Locale', function () {
 		Ti.Locale.setLanguage('en-US');
 	});
 
-	it('#setLanguage(String) changes current local and language', function () {
+	it('#setLanguage(String) changes current language', function () {
 		should(Ti.Locale.setLanguage).be.a.Function;
 		Ti.Locale.setLanguage('fr');
-		should(Ti.Locale.currentLocale).eql('fr');
 		should(Ti.Locale.currentLanguage).eql('fr');
 	});
 });
