@@ -14,7 +14,9 @@ describe('Ti.UI.Picker', function () {
 
 	it('Selected index persistance', function (finish) {
 		var window = Ti.UI.createWindow();
-		var picker = Ti.UI.createPicker();
+		// workaround iOS triggering of 'postlayout' event
+		var containerView = Ti.UI.createView();
+		var picker = Ti.UI.createPicker({});
 		var rows = [];
 		var indexToTest = 2;
 
@@ -27,8 +29,9 @@ describe('Ti.UI.Picker', function () {
 
 		picker.addEventListener('change', function () {
 			window.remove(picker);
-			picker.addEventListener('postlayout', finishTest);
-			window.add(picker);
+			containerView.addEventListener('postlayout', finishTest);
+			containerView.add(picker);
+			window.add(containerView);
 		});
 
 		picker.addEventListener('postlayout', changeItem);
