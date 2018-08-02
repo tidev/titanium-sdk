@@ -3782,7 +3782,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		for (const activity in tiappAndroidManifest.application.activity) {
 			const parameters = tiappAndroidManifest.application.activity[activity];
 			if (parameters['launchMode']) {
-				this.logger.warn(__('Setting activity "%s" is not recommended.', 'android:launchMode'.red, activity.cyan));
+				this.logger.warn(__('Setting "%s" is not recommended for activity "%s"', 'android:launchMode'.red, activity.cyan));
 			}
 		}
 
