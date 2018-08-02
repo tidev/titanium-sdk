@@ -38,10 +38,15 @@
   // If the image does not have an alpha layer, add one
   UIImage *image = [UIImageAlpha imageWithAlpha:image_];
 
-  // Build a context that's the same dimensions as the new size
+  CGFloat scale = MAX(image.scale, 1.0f);
+  NSUInteger scaledBorderSize = borderSize * scale;
+  CGFloat scaledWidth = image.size.width * scale;
+  CGFloat scaledHeight = image.size.height * scale;
+
+  // Build a context that's the same dimensions as the new size (width + double border, height + double border)
   CGContextRef context = CGBitmapContextCreate(NULL,
-      image.size.width,
-      image.size.height,
+      scaledWidth + 2 * scaledBorderSize,
+      scaledHeight + 2 * scaledBorderSize,
       CGImageGetBitsPerComponent(image.CGImage),
       0,
       CGImageGetColorSpace(image.CGImage),
@@ -49,22 +54,23 @@
 
   // Create a clipping path with rounded corners
   CGContextBeginPath(context);
-  [self addRoundedRectToPath:CGRectMake(borderSize, borderSize, image.size.width - borderSize * 2, image.size.height - borderSize * 2)
+  [self addRoundedRectToPath:CGRectMake(scaledBorderSize, scaledBorderSize, scaledWidth, scaledHeight)
                      context:context
-                   ovalWidth:cornerSize
-                  ovalHeight:cornerSize];
+                   ovalWidth:cornerSize * scale
+                  ovalHeight:cornerSize * scale];
   CGContextClosePath(context);
   CGContextClip(context);
 
   // Draw the image to the context; the clipping path will make anything outside the rounded rect transparent
-  CGContextDrawImage(context, CGRectMake(0, 0, image.size.width, image.size.height), image.CGImage);
+  CGContextDrawImage(context, CGRectMake(scaledBorderSize, scaledBorderSize, scaledWidth, scaledHeight), image.CGImage);
 
   // Create a CGImage from the context
   CGImageRef clippedImage = CGBitmapContextCreateImage(context);
   CGContextRelease(context);
 
   // Create a UIImage from the CGImage
-  UIImage *roundedImage = [UIImage imageWithCGImage:clippedImage];
+  UIImage *roundedImage = [UIImage imageWithCGImage:clippedImage scale:image.scale orientation:UIImageOrientationUp];
+
   CGImageRelease(clippedImage);
 
   return roundedImage;

@@ -327,7 +327,7 @@ function generateAccessors(apis, className) {
 			rv.push({
 				name: 'get' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
 				summary: 'Gets the value of the <' + className + '.' + api.name + '> property.',
-				deprecated: api.deprecated || null,
+				deprecated: api.deprecated || { since: '8.0.0', notes: 'Access <' + className + '.' + api.name + '> instead.' },
 				platforms: api.platforms,
 				since: api.since,
 				returns: { type: api.type, __subtype: 'return' },
@@ -343,7 +343,7 @@ function generateAccessors(apis, className) {
 			rv.push({
 				name: 'set' + api.name.charAt(0).toUpperCase() + api.name.slice(1),
 				summary: 'Sets the value of the <' + className + '.' + api.name + '> property.',
-				deprecated: api.deprecated || null,
+				deprecated: api.deprecated || { since: '8.0.0', notes: 'Set the value using <' + className + '.' + api.name + '> instead.'  },
 				platforms: api.platforms,
 				since: api.since,
 				parameters: [ {

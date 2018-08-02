@@ -19,10 +19,6 @@
 @implementation TiUIImageViewProxy
 @synthesize imageURL;
 
-#ifdef TI_USE_KROLL_THREAD
-@synthesize loadEventState;
-#endif
-
 static NSArray *imageKeySequence;
 
 #pragma mark Internal
@@ -53,11 +49,6 @@ static NSArray *imageKeySequence;
   if ([self _hasListeners:@"load"]) {
     NSDictionary *event = [NSDictionary dictionaryWithObject:stateString forKey:@"state"];
     [self fireEvent:@"load" withObject:event];
-#ifdef TI_USE_KROLL_THREAD
-  } else {
-    RELEASE_TO_NIL(loadEventState);
-    loadEventState = [stateString copy];
-#endif
   }
 }
 
@@ -136,9 +127,6 @@ static NSArray *imageKeySequence;
   [self replaceValue:nil forKey:@"image" notification:NO];
 
   RELEASE_TO_NIL(imageURL);
-#ifdef TI_USE_KROLL_THREAD
-  RELEASE_TO_NIL(loadEventState);
-#endif
   [super dealloc];
 }
 

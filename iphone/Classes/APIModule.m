@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,10 +9,6 @@
 #import "TiBase.h"
 #import "TiExceptionHandler.h"
 #import "TiUtils.h"
-
-#ifndef USE_JSCORE_FRAMEWORK
-#import "TiDebugger.h"
-#endif
 
 extern NSString *const TI_APPLICATION_DEPLOYTYPE;
 
@@ -25,42 +21,7 @@ extern NSString *const TI_APPLICATION_DEPLOYTYPE;
 
 - (void)logMessage:(NSArray *)args severity:(NSString *)severity
 {
-
-#ifndef USE_JSCORE_FRAMEWORK
-  NSString *lcSeverity = [severity lowercaseString];
-  DebuggerLogLevel level = OUT;
-  if ([lcSeverity isEqualToString:@"warn"]) {
-    level = WARN;
-  } else if ([lcSeverity isEqualToString:@"error"] ||
-      [lcSeverity isEqualToString:@"critical"] ||
-      [lcSeverity isEqualToString:@"fatal"]) {
-    level = ERR;
-  } else if ([lcSeverity isEqualToString:@"trace"]) {
-    level = TRACE;
-  } else if ([lcSeverity isEqualToString:@"debug"]) {
-    level = LOG_DEBUG;
-  }
-
-  if ([[TiApp app] debugMode]) {
-    NSMutableArray *messages = [NSMutableArray arrayWithArray:args];
-
-    if (![lcSeverity isEqualToString:@"info"]) { // Custom severity, or just a badly-formed log; either way, debugger treats it as info
-      [messages insertObject:[NSString stringWithFormat:@"[%@]", severity] atIndex:0];
-    }
-
-    TiDebuggerLogMessage(level, [messages componentsJoinedByString:@" "]);
-  } else
-#endif
-  {
-#ifndef USE_JSCORE_FRAMEWORK
-    if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
-      if (level != ERR) {
-        return;
-      }
-    }
-#endif
-    NSLog(@"[%@] %@", [severity uppercaseString], [args componentsJoinedByString:@" "]);
-  }
+  NSLog(@"[%@] %@", [severity uppercaseString], [args componentsJoinedByString:@" "]);
 }
 
 - (id)transform:(id)arg

@@ -96,12 +96,14 @@ static Local<Value> getPropertyForProxy(Isolate* isolate, Local<Name> property, 
 	return Undefined(isolate);
 }
 
+// This variant is used when accessing a property in standard JS fashion (i.e. obj.text or obj['text'])
 void Proxy::getProperty(Local<Name> property, const PropertyCallbackInfo<Value>& args)
 {
 	Isolate* isolate = args.GetIsolate();
 	args.GetReturnValue().Set(getPropertyForProxy(isolate, property->ToString(isolate), args.Holder()));
 }
 
+// This variant is used when accessing a property through a getter method (i.e. obj.getText())
 void Proxy::getProperty(const FunctionCallbackInfo<Value>& args)
 {
 	Isolate* isolate = args.GetIsolate();
@@ -116,6 +118,10 @@ void Proxy::getProperty(const FunctionCallbackInfo<Value>& args)
 		JSException::Error(isolate, "Requires property name.");
 		return;
 	}
+
+	// Spit out deprecation notice to use normal property getter
+	v8::String::Utf8Value propertyKey(name);
+	LOGW(TAG, "Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please access the property in standard JS style: obj.%s; or obj['%s'];", *propertyKey, *propertyKey);
 
 	args.GetReturnValue().Set(getPropertyForProxy(isolate, name, args.Holder()));
 }
@@ -177,12 +183,14 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 	setPropertyOnProxy(isolate, property, value, proxyObject);
 }
 
+// This variant is used when accessing a property in a standard way and setting a value (i.e. obj.text = 'whatever')
 void Proxy::onPropertyChanged(Local<Name> property, Local<Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	Isolate* isolate = info.GetIsolate();
 	onPropertyChangedForProxy(isolate, property->ToString(isolate), value, info.Holder());
 }
 
+// This variant is used when accessing a property through a getter method (i.e. setText('whatever'))
 void Proxy::onPropertyChanged(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	Isolate* isolate = args.GetIsolate();
@@ -192,6 +200,10 @@ void Proxy::onPropertyChanged(const v8::FunctionCallbackInfo<v8::Value>& args)
 	}
 
 	Local<String> name = args.Data()->ToString(isolate);
+	// Spit out deprecation notice to use normal property setter, not setX() style method.
+	v8::String::Utf8Value propertyKey(name);
+	LOGW(TAG, "Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.%s = value; or obj['%s'] = value;", *propertyKey, *propertyKey);
+
 	Local<Value> value = args[0];
 	onPropertyChangedForProxy(isolate, name, value, args.Holder());
 }

@@ -7,8 +7,8 @@
 
 #import "KrollContext.h"
 #import "KrollWrapper.h"
-#import "TiToJS.h"
 #import <Foundation/Foundation.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 
 @class KrollBridge;
 
@@ -20,23 +20,20 @@
 //
 @interface KrollCallback : NSObject {
   @private
-  TiContextRef jsContext;
-  TiObjectRef thisObj;
-  TiObjectRef function;
+  JSContextRef jsContext;
+  JSObjectRef thisObj;
+  JSObjectRef function;
   KrollContext *context;
   KrollBridge *bridge;
-#ifdef TI_USE_KROLL_THREAD
-  NSLock *contextLock;
-#endif
   NSString *type;
 }
 
 @property (nonatomic, readwrite, retain) NSString *type;
 
-- (id)initWithCallback:(TiValueRef)function_ thisObject:(TiObjectRef)thisObject_ context:(KrollContext *)context_;
+- (id)initWithCallback:(JSValueRef)function_ thisObject:(JSObjectRef)thisObject_ context:(KrollContext *)context_;
 - (void)callAsync:(NSArray *)args thisObject:(id)thisObject_;
 - (id)call:(NSArray *)args thisObject:(id)thisObject_;
-- (TiObjectRef)function;
+- (JSObjectRef)function;
 - (KrollContext *)context;
 - (KrollWrapper *)toKrollWrapper;
 + (void)shutdownContext:(KrollContext *)context;

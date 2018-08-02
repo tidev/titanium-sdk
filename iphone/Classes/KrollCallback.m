@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -39,19 +39,16 @@ static NSLock *callbackLock;
   }
 }
 
-- (id)initWithCallback:(TiValueRef)function_ thisObject:(TiObjectRef)thisObject_ context:(KrollContext *)context_
+- (id)initWithCallback:(JSValueRef)function_ thisObject:(JSObjectRef)thisObject_ context:(KrollContext *)context_
 {
   if (self = [super init]) {
     context = context_;
     bridge = (KrollBridge *)[context_ delegate];
     jsContext = [context context];
-    function = TiValueToObject(jsContext, function_, NULL);
+    function = JSValueToObject(jsContext, function_, NULL);
     thisObj = thisObject_;
-    TiValueProtect(jsContext, function);
-    TiValueProtect(jsContext, thisObj);
-#ifdef TI_USE_KROLL_THREAD
-    contextLock = [[NSLock alloc] init];
-#endif
+    JSValueProtect(jsContext, function);
+    JSValueProtect(jsContext, thisObj);
     [callbacks addObject:self];
   }
   return self;
@@ -64,13 +61,10 @@ static NSLock *callbackLock;
   [callbackLock unlock];
 
   [type release];
-#ifdef TI_USE_KROLL_THREAD
-  [contextLock release];
-#endif
   if ([KrollBridge krollBridgeExists:bridge]) {
     if ([context isKJSThread]) {
-      TiValueUnprotect(jsContext, function);
-      TiValueUnprotect(jsContext, thisObj);
+      JSValueUnprotect(jsContext, function);
+      JSValueUnprotect(jsContext, thisObj);
     } else {
       KrollUnprotectOperation *delayedUnprotect = [[KrollUnprotectOperation alloc]
           initWithContext:jsContext
@@ -97,8 +91,8 @@ static NSLock *callbackLock;
   KrollCallback *otherCallback = (KrollCallback *)anObject;
   if (function != NULL) { //TODO: Is there ever two functions with diffent memory pointers
     // that represent the exact same function? I'm thinking not.
-    TiObjectRef ref1 = function;
-    TiObjectRef ref2 = [otherCallback function];
+    JSObjectRef ref1 = function;
+    JSObjectRef ref2 = [otherCallback function];
     return (ref2 == ref1);
   }
   return NO;
@@ -113,24 +107,18 @@ static NSLock *callbackLock;
 }
 - (id)call:(NSArray *)args thisObject:(id)thisObject_
 {
-#ifdef TI_USE_KROLL_THREAD
-  [contextLock lock];
-#endif
   if (context == nil) {
-#ifdef TI_USE_KROLL_THREAD
-    [contextLock unlock];
-#endif
     return nil;
   }
 
   [context retain];
 
-  TiValueRef _args[[args count]];
+  JSValueRef _args[[args count]];
   for (size_t c = 0; c < [args count]; c++) {
     _args[c] = [KrollObject toValue:context value:[args objectAtIndex:c]];
   }
-  TiObjectRef tp = thisObj;
-  TiValueRef top = NULL;
+  JSObjectRef tp = thisObj;
+  JSValueRef top = NULL;
   if (thisObject_ != nil) {
     // hold the this reference until this thread completes
     [[thisObject_ retain] autorelease];
@@ -139,30 +127,27 @@ static NSLock *callbackLock;
     // do fn.call(this,arg) or fn.apply(this,[args])
     //
     top = [KrollObject toValue:context value:thisObject_];
-    tp = TiValueToObject(jsContext, top, NULL);
-    TiValueProtect(jsContext, tp);
-    TiValueProtect(jsContext, top);
+    tp = JSValueToObject(jsContext, top, NULL);
+    JSValueProtect(jsContext, tp);
+    JSValueProtect(jsContext, top);
   }
-  TiValueRef exception = NULL;
-  TiValueRef retVal = TiObjectCallAsFunction(jsContext, function, tp, [args count], _args, &exception);
+  JSValueRef exception = NULL;
+  JSValueRef retVal = JSObjectCallAsFunction(jsContext, function, tp, [args count], _args, &exception);
   if (exception != NULL) {
     id excm = [KrollObject toID:context value:exception];
     [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
   }
   if (top != NULL) {
-    TiValueUnprotect(jsContext, tp);
-    TiValueUnprotect(jsContext, top);
+    JSValueUnprotect(jsContext, tp);
+    JSValueUnprotect(jsContext, top);
   }
 
   id val = [KrollObject toID:context value:retVal];
   [context release];
-#ifdef TI_USE_KROLL_THREAD
-  [contextLock unlock];
-#endif
   return val;
 }
 
-- (TiObjectRef)function
+- (JSObjectRef)function
 {
   return function;
 }
@@ -174,13 +159,7 @@ static NSLock *callbackLock;
 
 - (void)setContext:(KrollContext *)context_
 {
-#ifdef TI_USE_KROLL_THREAD
-  [contextLock lock];
-#endif
   context = context_;
-#ifdef TI_USE_KROLL_THREAD
-  [contextLock unlock];
-#endif
 }
 
 - (KrollWrapper *)toKrollWrapper

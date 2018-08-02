@@ -80,7 +80,6 @@
 		24CA89BD1111615D0084E2DE /* KrollObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B31111615D0084E2DE /* KrollObject.m */; };
 		24CA89BE1111615D0084E2DE /* KrollPropertyDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B51111615D0084E2DE /* KrollPropertyDelegate.m */; };
 		24CA89BF1111615D0084E2DE /* KrollTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89B71111615D0084E2DE /* KrollTimer.m */; };
-		24CA8B66111161FE0084E2DE /* YahooModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A0C111161FD0084E2DE /* YahooModule.m */; };
 		24CA8B68111161FE0084E2DE /* WebFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A10111161FD0084E2DE /* WebFont.m */; };
 		24CA8B6A111161FE0084E2DE /* UIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A14111161FD0084E2DE /* UIModule.m */; };
 		24CA8B6C111161FE0084E2DE /* TiViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8A18111161FD0084E2DE /* TiViewProxy.m */; };
@@ -470,8 +469,6 @@
 		24CA89B51111615D0084E2DE /* KrollPropertyDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollPropertyDelegate.m; path = ../Classes/KrollPropertyDelegate.m; sourceTree = SOURCE_ROOT; };
 		24CA89B61111615D0084E2DE /* KrollTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollTimer.h; path = ../Classes/KrollTimer.h; sourceTree = SOURCE_ROOT; };
 		24CA89B71111615D0084E2DE /* KrollTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KrollTimer.m; path = ../Classes/KrollTimer.m; sourceTree = SOURCE_ROOT; };
-		24CA8A0C111161FD0084E2DE /* YahooModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = YahooModule.m; path = ../Classes/YahooModule.m; sourceTree = SOURCE_ROOT; };
-		24CA8A0D111161FD0084E2DE /* YahooModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = YahooModule.h; path = ../Classes/YahooModule.h; sourceTree = SOURCE_ROOT; };
 		24CA8A10111161FD0084E2DE /* WebFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WebFont.m; path = ../Classes/WebFont.m; sourceTree = SOURCE_ROOT; };
 		24CA8A11111161FD0084E2DE /* WebFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebFont.h; path = ../Classes/WebFont.h; sourceTree = SOURCE_ROOT; };
 		24CA8A13111161FD0084E2DE /* Webcolor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Webcolor.h; path = ../Classes/Webcolor.h; sourceTree = SOURCE_ROOT; };
@@ -792,30 +789,14 @@
 		841CCAD01807395C00C8DB76 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		843FA58217BD4DFF0064E061 /* TiUIiOSNavWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSNavWindow.h; sourceTree = "<group>"; };
 		843FA58317BD4DFF0064E061 /* TiUIiOSNavWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSNavWindow.m; sourceTree = "<group>"; };
-		844812C31A1D49FB00FBE03A /* TiProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiProfiler.h; sourceTree = "<group>"; };
 		844E1F7C14883A3700F5424C /* TiDOMValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMValidator.h; sourceTree = "<group>"; };
 		844E1F7D14883A3700F5424C /* TiDOMValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMValidator.m; sourceTree = "<group>"; };
-		845DB6731AD574AC00A26E7A /* TiToJS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToJS.h; sourceTree = "<group>"; };
 		8465E6BB19F8644D008479E6 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		8484E39F17A8279500C24B02 /* TiRootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiRootViewController.h; sourceTree = "<group>"; };
 		8484E3A017A8279500C24B02 /* TiRootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiRootViewController.m; sourceTree = "<group>"; };
 		8484E3A417A82EE700C24B02 /* TiControllerProtocols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiControllerProtocols.h; sourceTree = "<group>"; };
 		8484E3A517A865F700C24B02 /* TiViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiViewController.h; sourceTree = "<group>"; };
 		8484E3A617A865F700C24B02 /* TiViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiViewController.m; sourceTree = "<group>"; };
-		8488C04F1A14079200B01A87 /* Ti.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ti.h; sourceTree = "<group>"; };
-		8488C0501A14079200B01A87 /* TiBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBase.h; sourceTree = "<group>"; };
-		8488C0511A14079200B01A87 /* TiContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiContext.h; sourceTree = "<group>"; };
-		8488C0521A14079200B01A87 /* TiContextRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiContextRef.h; sourceTree = "<group>"; };
-		8488C0531A14079200B01A87 /* TiCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCore.h; sourceTree = "<group>"; };
-		8488C0541A14079200B01A87 /* TiExport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiExport.h; sourceTree = "<group>"; };
-		8488C0551A14079200B01A87 /* TiManagedValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiManagedValue.h; sourceTree = "<group>"; };
-		8488C0561A14079200B01A87 /* TiObjectRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiObjectRef.h; sourceTree = "<group>"; };
-		8488C0571A14079200B01A87 /* TiStringRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStringRef.h; sourceTree = "<group>"; };
-		8488C0581A14079200B01A87 /* TiStringRefCF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStringRefCF.h; sourceTree = "<group>"; };
-		8488C0591A14079200B01A87 /* TiValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiValue.h; sourceTree = "<group>"; };
-		8488C05A1A14079200B01A87 /* TiValueRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiValueRef.h; sourceTree = "<group>"; };
-		8488C05B1A14079200B01A87 /* TiVirtualMachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiVirtualMachine.h; sourceTree = "<group>"; };
-		8488C05C1A14079200B01A87 /* WebKitAvailability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitAvailability.h; sourceTree = "<group>"; };
 		848C2592145F37A200E1B0F1 /* TiDOMCDATANodeProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMCDATANodeProxy.h; sourceTree = "<group>"; };
 		848C2593145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMCDATANodeProxy.m; sourceTree = "<group>"; };
 		848C2598145F3FE100E1B0F1 /* TiDOMCommentProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMCommentProxy.h; sourceTree = "<group>"; };
@@ -902,7 +883,6 @@
 		B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkCookieProxy.m; sourceTree = "<group>"; };
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
 		B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTransitionAnimationProxy.m; sourceTree = "<group>"; };
-		B6DFC5CE1A3B8FC200A857B7 /* TiDebugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TiDebugger.h; path = ../Classes/TiDebugger.h; sourceTree = "<group>"; };
 		BB26FC7C19AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserNotificationActionProxy.h; sourceTree = "<group>"; };
 		BB26FC7D19AB13B9007A35AF /* TiAppiOSUserNotificationActionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserNotificationActionProxy.m; sourceTree = "<group>"; };
 		BB26FC7E19AB13B9007A35AF /* TiAppiOSUserNotificationCategoryProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserNotificationCategoryProxy.h; sourceTree = "<group>"; };
@@ -1126,10 +1106,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
-				B6DFC5CE1A3B8FC200A857B7 /* TiDebugger.h */,
 				DBCFCB791F8261AB00A4CE61 /* SBJSON */,
-				844812C21A1D49FB00FBE03A /* TiProfiler */,
-				8488C04E1A14079200B01A87 /* JavaScriptCore */,
 				312E36BE190B06D9008EAB8D /* APSAnalytics */,
 				B606EF58190B42FB00663EFC /* APSHTTPClient */,
 				242E967211BAD2E30046A0D0 /* AsyncSocket */,
@@ -1241,7 +1218,6 @@
 				24CA8C18111164440084E2DE /* Media */,
 				24CA8C171111643E0084E2DE /* Network */,
 				24CA8C11111163C30084E2DE /* Platform */,
-				24CA8C16111164150084E2DE /* Yahoo */,
 				24CA8C14111164040084E2DE /* UI */,
 				24F29E781220D0DB0099351D /* Locale */,
 			);
@@ -1351,7 +1327,6 @@
 				24F29E2D12209C920099351D /* TiStylesheet.m */,
 				24CA8AAB111161FD0084E2DE /* TiTab.h */,
 				24DD0455116A6F02006FD6E1 /* TiTabGroup.h */,
-				845DB6731AD574AC00A26E7A /* TiToJS.h */,
 				24DD042A116A6C58006FD6E1 /* TiToolbar.h */,
 				24DD0977116D8E07006FD6E1 /* TiToolbarButton.h */,
 				24CA8A2D111161FD0084E2DE /* TiUIView.h */,
@@ -1445,15 +1420,6 @@
 				24CA8C591111653B0084E2DE /* Widgets */,
 			);
 			name = UI;
-			sourceTree = "<group>";
-		};
-		24CA8C16111164150084E2DE /* Yahoo */ = {
-			isa = PBXGroup;
-			children = (
-				24CA8A0C111161FD0084E2DE /* YahooModule.m */,
-				24CA8A0D111161FD0084E2DE /* YahooModule.h */,
-			);
-			name = Yahoo;
 			sourceTree = "<group>";
 		};
 		24CA8C171111643E0084E2DE /* Network */ = {
@@ -2176,37 +2142,6 @@
 			name = WatchSession;
 			sourceTree = "<group>";
 		};
-		844812C21A1D49FB00FBE03A /* TiProfiler */ = {
-			isa = PBXGroup;
-			children = (
-				844812C31A1D49FB00FBE03A /* TiProfiler.h */,
-			);
-			name = TiProfiler;
-			path = ../Classes/TiProfiler;
-			sourceTree = "<group>";
-		};
-		8488C04E1A14079200B01A87 /* JavaScriptCore */ = {
-			isa = PBXGroup;
-			children = (
-				8488C04F1A14079200B01A87 /* Ti.h */,
-				8488C0501A14079200B01A87 /* TiBase.h */,
-				8488C0511A14079200B01A87 /* TiContext.h */,
-				8488C0521A14079200B01A87 /* TiContextRef.h */,
-				8488C0531A14079200B01A87 /* TiCore.h */,
-				8488C0541A14079200B01A87 /* TiExport.h */,
-				8488C0551A14079200B01A87 /* TiManagedValue.h */,
-				8488C0561A14079200B01A87 /* TiObjectRef.h */,
-				8488C0571A14079200B01A87 /* TiStringRef.h */,
-				8488C0581A14079200B01A87 /* TiStringRefCF.h */,
-				8488C0591A14079200B01A87 /* TiValue.h */,
-				8488C05A1A14079200B01A87 /* TiValueRef.h */,
-				8488C05B1A14079200B01A87 /* TiVirtualMachine.h */,
-				8488C05C1A14079200B01A87 /* WebKitAvailability.h */,
-			);
-			name = JavaScriptCore;
-			path = ../headers/JavaScriptCore;
-			sourceTree = "<group>";
-		};
 		84A00FED17FB392E00D4BF94 /* Dynamics */ = {
 			isa = PBXGroup;
 			children = (
@@ -2555,7 +2490,6 @@
 				24CA89BE1111615D0084E2DE /* KrollPropertyDelegate.m in Sources */,
 				24CA89BF1111615D0084E2DE /* KrollTimer.m in Sources */,
 				B63761701BC5CA4A0070A695 /* TiLayoutView.m in Sources */,
-				24CA8B66111161FE0084E2DE /* YahooModule.m in Sources */,
 				CAC2255B1BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.m in Sources */,
 				24CA8B68111161FE0084E2DE /* WebFont.m in Sources */,
 				24CA8B6A111161FE0084E2DE /* UIModule.m in Sources */,
@@ -2850,6 +2784,8 @@
 					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = "-DDEBUG";
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = "$(inherited)";
+				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2885,6 +2821,8 @@
 					"\"$(SRCROOT)/../Classes/APSHTTPClient\"",
 				);
 				OTHER_CFLAGS = "-DNDEBUG";
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = "$(inherited)";
+				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.titanium;
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = "1,2";

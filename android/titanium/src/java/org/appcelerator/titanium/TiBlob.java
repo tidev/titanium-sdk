@@ -346,6 +346,7 @@ public class TiBlob extends KrollProxy
 				return ((byte[]) data).length;
 			default:
 				// this is probably overly expensive.. is there a better way?
+				// This should only happen for string types...
 				return getBytes().length;
 		}
 	}
@@ -372,28 +373,28 @@ public class TiBlob extends KrollProxy
 	@Kroll.method
 	public void append(TiBlob blob)
 	{
+		byte[] dataBytes = getBytes();
+		byte[] appendBytes = blob.getBytes();
+		byte[] newData = new byte[dataBytes.length + appendBytes.length];
+		System.arraycopy(dataBytes, 0, newData, 0, dataBytes.length);
+		System.arraycopy(appendBytes, 0, newData, dataBytes.length, appendBytes.length);
+
 		switch (type) {
 			case TYPE_STRING:
 				try {
-					String dataString = (String) data;
-					dataString += new String(blob.getBytes(), "utf-8");
+					data = new String(newData, "utf-8");
 				} catch (UnsupportedEncodingException e) {
 					Log.w(TAG, e.getMessage(), e);
 				}
 				break;
 			case TYPE_IMAGE:
 			case TYPE_DATA:
-				byte[] dataBytes = (byte[]) data;
-				byte[] appendBytes = blob.getBytes();
-				byte[] newData = new byte[dataBytes.length + appendBytes.length];
-				System.arraycopy(dataBytes, 0, newData, 0, dataBytes.length);
-				System.arraycopy(appendBytes, 0, newData, dataBytes.length, appendBytes.length);
-
 				data = newData;
 				break;
 			case TYPE_FILE:
-				throw new IllegalStateException("Not yet implemented. TYPE_FILE");
-				// break;
+				type = TYPE_DATA; // now it's a pure Data blob...
+				data = newData;
+				break;
 			default:
 				throw new IllegalArgumentException("Unknown Blob type id " + type);
 		}
@@ -475,6 +476,20 @@ public class TiBlob extends KrollProxy
 	// clang-format on
 	{
 		return width;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getSize()
+	// clang-format on
+	{
+		// if it's an image, return number of pixels (width * height)
+		if (width != 0) {
+			return width * height;
+		}
+		// Return number of bytes!
+		return getLength();
 	}
 
 	// clang-format off
@@ -834,9 +849,9 @@ public class TiBlob extends KrollProxy
 
 		int thumbnailSize = size.intValue();
 
-		float border = 1f;
+		int border = 1;
 		if (borderSize != null) {
-			border = borderSize.floatValue();
+			border = borderSize.intValue();
 		}
 		float radius = 0f;
 		if (cornerRadius != null) {
@@ -846,8 +861,8 @@ public class TiBlob extends KrollProxy
 		String nativePath = getNativePath();
 		String key = null;
 		if (nativePath != null) {
-			key = getNativePath() + "_imageAsThumbnail_" + rotation + "_" + thumbnailSize + "_" + Float.toString(border)
-				  + "_" + Float.toString(radius);
+			key = getNativePath() + "_imageAsThumbnail_" + rotation + "_" + thumbnailSize + "_"
+				  + Integer.toString(border) + "_" + Float.toString(radius);
 			Bitmap bitmap = mMemoryCache.get(key);
 			if (bitmap != null) {
 				if (!bitmap.isRecycled()) {
@@ -866,8 +881,16 @@ public class TiBlob extends KrollProxy
 				img = null;
 			}
 
-			if (border == 0 && radius == 0) {
-				imageFinal = imageThumbnail;
+			if (radius == 0) {
+				if (border == 0) {
+					imageFinal = imageThumbnail;
+				} else {
+					imageFinal = TiImageHelper.imageWithTransparentBorder(imageThumbnail, border);
+					if (imageThumbnail != image && imageThumbnail != imageFinal) {
+						imageThumbnail.recycle();
+						imageThumbnail = null;
+					}
+				}
 			} else {
 				imageFinal = TiImageHelper.imageWithRoundedCorner(imageThumbnail, radius, border);
 				if (imageThumbnail != image && imageThumbnail != imageFinal) {
@@ -877,6 +900,7 @@ public class TiBlob extends KrollProxy
 			}
 
 			if (rotation != 0) {
+				Log.w(TAG, "Rotating: " + rotation);
 				imageFinal = TiImageHelper.rotateImage(imageFinal, rotation);
 			}
 			if (key != null) {
