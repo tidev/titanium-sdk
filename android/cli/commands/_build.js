@@ -3775,14 +3775,14 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		}, this);
 	}, this);
 
-	// TIMOB-15253: Titanium Android cannot be used with 'android:launchMode' as it can dispose the KrollRuntime instance
-	// prevent 'android:launchMode' from being defined in the AndroidManifest.xml
+	// scan "AndroidManifest.xml" activities
 	if (tiappAndroidManifest && tiappAndroidManifest.application) {
+		// Log a warning if Activity "launchMode" is set. May make app behave in a manner Titanium does not expect.
+		// Note: Allow it since some developers want "singleTask" support and know how to deal with its repercussions.
 		for (const activity in tiappAndroidManifest.application.activity) {
 			const parameters = tiappAndroidManifest.application.activity[activity];
 			if (parameters['launchMode']) {
-				delete parameters['launchMode'];
-				this.logger.warn(__('%s should not be used. Ignoring definition from %s', 'android:launchMode'.red, activity.cyan));
+				this.logger.warn(__('Setting activity "%s" is not recommended.', 'android:launchMode'.red, activity.cyan));
 			}
 		}
 
