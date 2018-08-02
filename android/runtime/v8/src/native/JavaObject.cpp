@@ -80,7 +80,9 @@ jobject JavaObject::getJavaObject()
 		jobject ref = ReferenceTable::getReference(refTableKey_);
 		if (ref == NULL) {
 			// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
-			LOGE(TAG, "!!! OH NO! We tried to grab a Java Object back out of the reference table, but it must have been GC'd, because it's null! Key: %d", refTableKey_);
+			LOGW(TAG, "Could not obtain reference, java object has already been collected! (Key: %d)", refTableKey_);
+			refTableKey_ = 0;
+			javaObject_ = NULL;
 		}
 		return ref;
 	}
@@ -124,7 +126,7 @@ void JavaObject::MakeJSWeak()
 	// but this time, we say call us back as a finalizer so we can resurrect the
 	// object (save it from really being GCd by V8) and move it's Java object twin
 	// to a weak reference in the JVM. (where we can track when that gets GC'd by the JVM to call back and kill this)
-	if (!isDetached()) {
+	if (!isDetached() && !persistent().IsEmpty()) {
 		persistent().SetWeak(this, DetachCallback, v8::WeakCallbackType::kFinalizer); // MUST BE kFinalizer or our object cannot be resurrected!
 		persistent().MarkIndependent();
 	}
@@ -181,7 +183,9 @@ void JavaObject::MakeJavaStrong()
 			jobject stored = ReferenceTable::clearReference(refTableKey_);
 			if (stored == NULL) {
 				// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
-				LOGE(TAG, "!!! OH NO! We tried to move a weak Java object back to strong, but it's aleady been GC'd by JVM! We're in a bad state! Key: %d", refTableKey_);
+				LOGW(TAG, "Could not move weak reference to strong, java object has already been collected! (Key: %d)", refTableKey_);
+				refTableKey_ = 0;
+				javaObject_ = NULL;
 			} else {
 				env->DeleteLocalRef(stored);
 			}
@@ -238,15 +242,18 @@ void JavaObject::DeleteJavaRef()
 		} else {
 			env->DeleteGlobalRef(javaObject_);
 		}
-		javaObject_ = NULL;
 	} else {
 		LOGD(TAG, "Deleting ref in ReferenceTable for key: %d, pointer: %p", refTableKey_, this);
 		ReferenceTable::destroyReference(refTableKey_); // Kill the Java side
 		refTableKey_ = 0; // throw away the key
 	}
+	javaObject_ = NULL;
 	// When we're done we should be wrapping nothing!
 	ASSERT(javaObject_ == NULL);
 	ASSERT(refTableKey_ == 0);
+
+	// our java object can be collected, make our JS reference weak too
+	// MakeJSWeak();
 }
 
 }
