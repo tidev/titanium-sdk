@@ -21,9 +21,9 @@ Documentation.prototype.prepare = function (next) {
 	next();
 };
 
-Documentation.prototype.generateParityReport = function (next) {
-	let args = [ path.join(DOC_DIR, 'docgen.js'), '-f', 'parity' ];
-	if (this.hasWindows) {
+Documentation.prototype.generateReport = function (format, filename, next) {
+	let args = [ path.join(DOC_DIR, 'docgen.js'), '-f', format, '-o', this.outputDir + path.sep ];
+	if (this.hasWindows && format !== 'typescript') {
 		args = args.concat([
 			'-a', path.join(ROOT_DIR, 'windows', 'doc', 'Titanium'),
 			'-a', path.join(ROOT_DIR, 'windows', 'doc', 'WindowsOnly'),
@@ -31,7 +31,7 @@ Documentation.prototype.generateParityReport = function (next) {
 		]);
 	}
 
-	console.log('Generating parity report...');
+	console.log(`Generating ${format} report...`);
 
 	const prc = spawn('node', args, { cwd: DOC_DIR });
 	prc.stdout.on('data', function (data) {
@@ -42,55 +42,22 @@ Documentation.prototype.generateParityReport = function (next) {
 	});
 	prc.on('close', function (code) {
 		if (code !== 0) {
-			return next('Failed');
+			return next(`Failed to generate ${format} docs.`);
 		}
-		next();
-	});
+		next(null, path.join(this.outputDir, filename));
+	}.bind(this));
+};
+
+Documentation.prototype.generateParityReport = function (next) {
+	this.generateReport('parity', 'parity.html', next);
 };
 
 Documentation.prototype.generateJSCA = function (next) {
-	let args = [ path.join(DOC_DIR, 'docgen.js'), '-f', 'jsca', '-o', this.outputDir + path.sep ];
-	if (this.hasWindows) {
-		args = args.concat([
-			'-a', path.join(ROOT_DIR, 'windows', 'doc', 'Titanium'),
-			'-a', path.join(ROOT_DIR, 'windows', 'doc', 'WindowsOnly')
-		]);
-	}
-	console.log('Generating JSCA...');
-
-	const prc = spawn('node', args, { cwd: DOC_DIR });
-	prc.stdout.on('data', function (data) {
-		console.log(data.toString().trim());
-	});
-	prc.stderr.on('data', function (data) {
-		console.error(data.toString().trim());
-	});
-	prc.on('close', function (code) {
-		if (code !== 0) {
-			return next('Failed to generate JSCA JSON.');
-		}
-		next(null, path.join(this.outputDir, 'api.jsca'));
-	}.bind(this));
+	this.generateReport('jsca', 'api.jsca', next);
 };
 
 Documentation.prototype.generateTypeScriptTypeDefinitions = function (next) {
-	let args = [ path.join(DOC_DIR, 'docgen.js'), '-f', 'typescript', '-o', this.outputDir + path.sep ];
-
-	console.log('Generating TypeScript type definitions...');
-
-	const prc = spawn('node', args, { cwd: DOC_DIR });
-	prc.stdout.on('data', function (data) {
-		console.log(data.toString().trim());
-	});
-	prc.stderr.on('data', function (data) {
-		console.error(data.toString().trim());
-	});
-	prc.on('close', function (code) {
-		if (code !== 0) {
-			return next('Failed to generate ambient module with TypeScript type definitions.');
-		}
-		next(null, path.join(this.outputDir, 'index.d.ts'));
-	}.bind(this));
+	this.generateReport('typescript', 'index.d.ts', next);
 };
 
 Documentation.prototype.generate = function (next) {

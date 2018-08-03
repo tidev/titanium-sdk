@@ -185,6 +185,27 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int CAMERA_FLASH_AUTO = 2;
 
+	@Kroll.constant
+	public static final int AUDIO_STATE_BUFFERING = 0; // current playback is in the buffering from the network state
+	@Kroll.constant
+	public static final int AUDIO_STATE_INITIALIZED = 1; // current playback is in the initialization state
+	@Kroll.constant
+	public static final int AUDIO_STATE_PAUSED = 2; // current playback is in the paused state
+	@Kroll.constant
+	public static final int AUDIO_STATE_PLAYING = 3; // current playback is in the playing state
+	@Kroll.constant
+	public static final int AUDIO_STATE_STARTING = 4; // current playback is in the starting playback state
+	@Kroll.constant
+	public static final int AUDIO_STATE_STOPPED = 5; // current playback is in the stopped state
+	@Kroll.constant
+	public static final int AUDIO_STATE_STOPPING = 6; // current playback is in the stopping state
+	@Kroll.constant
+	public static final int AUDIO_STATE_WAITING_FOR_DATA =
+		7; // current playback is in the waiting for audio data from the network state
+	@Kroll.constant
+	public static final int AUDIO_STATE_WAITING_FOR_QUEUE =
+		8; //  current playback is in the waiting for audio data to fill the queue state
+
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static String extension = ".jpg";
 	private TiTempFileHelper tempFileHelper;
