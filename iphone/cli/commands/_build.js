@@ -2884,11 +2884,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	const srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj');
 	const xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'));
 	const relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
-
-	let contents = fs.readFileSync(srcFile).toString();
-
-	// Fix up TitaniumKit paths. Maybe place it differently on the long-tearm?
-	contents = contents.replace(/..\/TitaniumKit\//g, 'TitaniumKit/'); // Replace ../TitaniumKit/ with TitaniumKit/
+	const contents = fs.readFileSync(srcFile).toString();
 
 	xcodeProject.hash = xcodeParser.parse(contents);
 	const xobjs = xcodeProject.hash.project.objects;
@@ -3720,6 +3716,11 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	});
 
 	const hook = this.cli.createHook('build.ios.xcodeproject', this, function (xcodeProject, done) {
+
+		// clean up TitaniumKit project references
+		xcodeProject.removeFramework('TitaniumKit.framework', { customFramework: true, embed: true });
+		xcodeProject.addFramework(path.join(this.buildDir, 'Frameworks', 'TitaniumKit.framework'), { customFramework: true, embed: true });
+
 		const contents = xcodeProject.writeSync(),
 			dest = xcodeProject.filepath,
 			parent = path.dirname(dest);
@@ -4387,7 +4388,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		modules: this.modules
 	};
 
-	[ 'Classes', 'TitaniumKit' ].forEach(function (dir) {
+	[ 'Classes', 'Frameworks' ].forEach(function (dir) {
 		this.copyDirSync(path.join(this.platformPath, dir), path.join(this.buildDir, dir), {
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: /^(defines\.h|bridge\.txt|libTitanium\.a|\.gitignore|\.npmignore|\.cvsignore|\.DS_Store|\._.*|[Tt]humbs.db|\.vspscc|\.vssscc|\.sublime-project|\.sublime-workspace|\.project|\.tmproj)$/, // eslint-disable-line max-len
