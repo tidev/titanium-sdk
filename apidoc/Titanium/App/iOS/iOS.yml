@@ -90,7 +90,7 @@ methods:
     summary: Cancels all scheduled local notifications.
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.removeAllPendingNotifications> instead.
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
 
   - name: cancelLocalNotification
     summary: Cancels a local notification.
@@ -103,7 +103,7 @@ methods:
         type: [Number,String]
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotificationsWithIdentifiers> instead.
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
 
   - name: registerBackgroundService
     summary: Registers a service to run when the application is placed in the background.
@@ -375,7 +375,7 @@ properties:
     summary: The application is provisionally authorized to post non-interruptive user notifications.
     description: |
         Used to check the `authorizationStatus` attribute received in
-        <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: { ios: { min: "12.0" } }
