@@ -9,9 +9,25 @@
 
 extern const NSString *svgMimeType;
 
+/**
+ A static class to convert file extensions into mime-types and vice versa.
+ */
 @interface Mimetypes : NSObject
 
+/**
+ Converts a file extension into a mime type.
+ 
+ @param ext The extension to convert.
+ @return The mime-type converted from the extension.
+ */
 + (NSString *)mimeTypeForExtension:(NSString *)ext;
+
+/**
+ Converts a mime type into a file extension.
+ 
+ @param ext The mime type to convert.
+ @return The file extension converted from the mime-type.
+ */
 + (NSString *)extensionForMimeType:(NSString *)mimetype;
 
 @end

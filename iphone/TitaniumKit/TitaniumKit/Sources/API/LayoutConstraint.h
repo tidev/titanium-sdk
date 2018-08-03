@@ -9,6 +9,9 @@
 #import "TiUtils.h"
 #import <UIKit/UIKit.h>
 
+/**
+ A protocol to handle layout auto-sizing based on given sizes and rects.
+ */
 @protocol LayoutAutosizing
 
 @optional
@@ -33,6 +36,9 @@
 @end
 #ifndef TI_USE_AUTOLAYOUT
 
+/**
+ Layout options to determine absolute, vertical and horizontal layout.
+ */
 typedef enum {
   TiLayoutRuleAbsolute,
   TiLayoutRuleVertical,
@@ -101,10 +107,15 @@ TI_INLINE BOOL TiLayoutFlagsHasHorizontalWrap(LayoutConstraint *constraint)
 
 @class TiUIView;
 @class TiViewProxy;
+
 void ApplyConstraintToViewWithBounds(LayoutConstraint *constraint, TiUIView *subView, CGRect viewBounds);
+
 CGFloat WidthFromConstraintGivenWidth(LayoutConstraint *constraint, CGFloat viewWidth);
+
 CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NSObject<LayoutAutosizing> *autoSizer, CGSize referenceSize, UIViewAutoresizing *resultResizing);
+
 CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint *constraint, TiViewProxy *viewProxy, CGSize viewSize, CGPoint anchorPoint, CGSize referenceSize, CGSize sandboxSize, UIViewAutoresizing *resultResizing);
+
 BOOL IsLayoutUndefined(LayoutConstraint *constraint);
 
 #endif

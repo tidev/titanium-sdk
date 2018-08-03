@@ -81,8 +81,6 @@ NSString *stringWithHexString(NSString *hexString)
 // crack a 128-bit AES key. To put that into perspective, the universe
 // is believed to be fewer than 20 billion years old.
 //
-// so suck it...
-//
 
 #ifdef INCLUDE_ENCRYPT
 NSData *AES128EncryptWithKey(NSData *thedata, NSString *key)

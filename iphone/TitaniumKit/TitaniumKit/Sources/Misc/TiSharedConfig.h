@@ -7,6 +7,9 @@
 
 #import <Foundation/Foundation.h>
 
+/**
+ Contains information about the app and build-related meta data.
+ */
 @interface TiSharedConfig : NSObject
 
 NS_ASSUME_NONNULL_BEGIN

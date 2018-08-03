@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,6 +8,10 @@
 
 @class TiHost;
 
+/**
+ The default JavaScriptCore <-> Titanium bridge. Inherited by the XHRBridge and the KrollBridge.
+ It expects the "app.js" to be the entry point of the application.
+ */
 @interface Bridge : NSObject {
   @private
   id callback;
