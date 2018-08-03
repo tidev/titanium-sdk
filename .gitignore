@@ -37,3 +37,4 @@ android/.idea/vcs.xml
 *.iml
 /iphone/TitaniumKit/Carthage
 /iphone/TitaniumKit/docs
+/iphone/TitaniumKit/build

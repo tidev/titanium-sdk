@@ -4,6 +4,7 @@ const path = require('path'),
 	async = require('async'),
 	fs = require('fs-extra'),
 	utils = require('./utils'),
+	{ spawn } = require('child_process'),  // eslint-disable-line security/detect-child-process
 	copyFiles = utils.copyFiles,
 	copyAndModifyFile = utils.copyAndModifyFile,
 	globCopy = utils.globCopy,
@@ -30,8 +31,27 @@ IOS.prototype.clean = function (next) {
 };
 
 IOS.prototype.build = function (next) {
-	// no-op (used to fetch TiCore in the past)
-	next();
+	console.log('Building TitaniumKit ...');
+
+	const child = spawn(path.join(ROOT_DIR, 'support', 'iphone', 'build_titaniumkit.sh'));
+
+	child.stdout.on('data', (data) => {
+		console.log(`\n${data}`);
+	});
+
+	child.stderr.on('data', (data) => {
+		console.log(`\n${data}`);
+	});
+
+	child.on('exit', function (code, signal) {
+		if (code) {
+			console.log(`An error occurred: ${signal}`);
+			return next(signal);
+		}
+
+		console.log('TitaniumKit built successfully!');
+		return next();
+	});
 };
 
 IOS.prototype.package = function (packager, next) {
@@ -52,9 +72,13 @@ IOS.prototype.package = function (packager, next) {
 				function copyLegacyLibraryHeaders (cb) {
 					globCopy('**/*.h', path.join(IOS_ROOT, 'TitaniumKit', 'TitaniumKit', 'Libraries'), path.join(DEST_IOS, 'include'), cb);
 				},
+				// Copy meta files and directories
+				function copyMetaFiles (cb) {
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates' ], cb);
+				},
 				// Copy TitaniumKit
 				function copyTitaniumKit (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'Classes', 'cli', 'iphone', 'templates', 'TitaniumKit' ], cb);
+					copyFiles(path.join(IOS_ROOT, 'TitaniumKit', 'build', 'Release-iphoneuniversal'), path.join(DEST_IOS, 'Frameworks'), [ 'TitaniumKit.framework' ], cb);
 				},
 				// Copy module templates (Swift & Obj-C)
 				function copyModuleTemplates (cb) {
