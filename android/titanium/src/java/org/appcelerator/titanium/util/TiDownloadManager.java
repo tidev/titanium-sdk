@@ -88,7 +88,7 @@ public class TiDownloadManager implements Handler.Callback
 	 * <p>
 	 * Returns null if failed to download content or if given an invalid argument.
 	 */
-	public InputStream blockingDownload(URI uri)
+	public InputStream blockingDownload(final URI uri)
 	{
 		// Validate.
 		if (uri == null) {
@@ -112,44 +112,24 @@ public class TiDownloadManager implements Handler.Callback
 		// If running on main UI thread, then block this thread while doing download on another thread.
 		// Note: Using "HttpUrlConnection" on UI thread will cause a "NetworkOnMainThreadException" to be thrown.
 		if (TiApplication.isUIThread()) {
-			// Anonymous class used to call this blockingDownload() method on another thread.
+			// Perform the blocking download on another thread.
 			// Downloaded content will be made available via Titanium's "TiResponseCache".
-			class DownloadOperation implements Runnable
-			{
-				private boolean isDone;
-				private URI uri;
-
-				public DownloadOperation(URI uri)
-				{
-					this.uri = uri;
-				}
-
-				@Override
-				public void run()
-				{
-					try (InputStream stream = blockingDownload(this.uri)) {
-						if (stream != null) {
-							KrollStreamHelper.pump(stream, null);
-						}
-					} catch (Exception ex) {
-					} finally {
-						this.isDone = true;
-					}
-				}
-
-				public boolean isDone()
-				{
-					return this.isDone;
-				}
-			};
-
-			// Perform the blocking download.
 			try {
-				DownloadOperation downloadOperation = new DownloadOperation(uri);
-				(new Thread(downloadOperation)).start();
-				while (downloadOperation.isDone() == false) {
-					Thread.sleep(10);
-				}
+				Thread thread = new Thread(new Runnable() {
+					@Override
+					public void run()
+					{
+						try (InputStream stream = blockingDownload(uri)) {
+							if (stream != null) {
+								KrollStreamHelper.pump(stream, null);
+							}
+						} catch (Exception ex) {
+							Log.e(TAG, "Exception downloading from: " + uri.toString(), ex);
+						}
+					}
+				});
+				thread.start();
+				thread.join();
 			} catch (Exception ex) {
 			}
 
@@ -170,7 +150,7 @@ public class TiDownloadManager implements Handler.Callback
 		try {
 			url = new URL(uri.toString());
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			Log.e(TAG, "Failed to parse URL: " + uri.toString(), ex);
 			return null;
 		}
 
@@ -191,12 +171,12 @@ public class TiDownloadManager implements Handler.Callback
 					httpConnection.connect();
 					int responseCode = httpConnection.getResponseCode();
 					if (responseCode == 200) {
-						// A valid respoonse has been received. Fetch its download stream.
+						// A valid response has been received. Fetch its download stream.
 						inputStream = httpConnection.getInputStream();
 					} else if ((responseCode >= 300) && (responseCode < 400)) {
 						// A redirect response has been received.
-						// First, make sure we haven't been redirected too many times.
-						// Note: This is a rudimentary check to avoid recursive redirects.
+						// We have to handle redirects between HTTP/HTTPS protocols ourselves.
+						// First, make sure we haven't been redirected too many times. (Avoids recursive redirects.)
 						redirectCount++;
 						if (redirectCount > 10) {
 							break;
@@ -212,6 +192,9 @@ public class TiDownloadManager implements Handler.Callback
 						// Close the connection and attempt to connect to the redirect URL.
 						httpConnection.disconnect();
 						continue;
+					} else {
+						// Server did not provide the expected response, such as a 404.
+						Log.e(TAG, "Received unexpected response code " + responseCode + " from: " + uri);
 					}
 				} else {
 					// Connect to the endpoint and acquire the downloaded content.
@@ -364,7 +347,7 @@ public class TiDownloadManager implements Handler.Callback
 
 				// fire a download fail event if we are unable to download
 				sendMessage(uri, MSG_FIRE_DOWNLOAD_FAILED);
-				Log.e(TAG, "Exception downloading " + uri, e);
+				Log.e(TAG, "Exception downloading from: " + uri, e);
 			}
 		}
 	}
