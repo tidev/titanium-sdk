@@ -24,7 +24,7 @@
  
  @param args The message to log.
  */
-- (void)debug:(NSArray *)args
+- (void)debug:(NSArray *)args;
 
 /**
  Logs a new info message to the console.
