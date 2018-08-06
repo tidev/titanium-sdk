@@ -85,7 +85,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	protected KrollDict defaultValues = new KrollDict();
 	protected Handler mainHandler = null;
 	protected Handler runtimeHandler = null;
-	protected long referenceKey = -1;
 
 	private KrollDict langConversionTable = null;
 	private boolean bubbleParent = true;
@@ -145,11 +144,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 
 		return null;
-	}
-
-	public void setReferenceKey(long key)
-	{
-		this.referenceKey = key;
 	}
 
 	protected void initActivity(Activity activity)
