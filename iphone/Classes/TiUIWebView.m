@@ -326,44 +326,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   }
 
   if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    /*
-     To support cookie for iOS <11
-     https://stackoverflow.com/questions/26573137
-     https://github.com/haifengkao/YWebView
-     */
-
-    NSString *validDomain = request.URL.host;
-
-    WKUserContentController *controller = [[[self webView] configuration] userContentController];
-    [controller addUserScript:[self userScriptCookieInForDomain:validDomain]];
-    [controller addUserScript:[self userScriptCookieOut]];
-    [controller addScriptMessageHandler:self name:@"_Ti_Cookie_"];
-
-    BOOL requestIsSecure = [request.URL.scheme isEqualToString:@"https"];
-
-    NSMutableArray *array = [NSMutableArray array];
-    for (NSHTTPCookie *cookie in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies]) {
-      // Don't even bother with values containing a `'`
-      if ([cookie.name rangeOfString:@"'"].location != NSNotFound) {
-        continue;
-      }
-      // Check the cookie for current domain.
-      if (![validDomain hasSuffix:cookie.domain] && ![cookie.domain hasSuffix:validDomain]) {
-        continue;
-      }
-
-      if (cookie.secure && !requestIsSecure) {
-        continue;
-      }
-      NSString *value = [NSString stringWithFormat:@"%@=%@", cookie.name, cookie.value];
-      [array addObject:value];
-    }
-
-    NSString *header = [array componentsJoinedByString:@";"];
-    if (![header isEqualToString:@""]) {
-      [request setValue:header forHTTPHeaderField:@"Cookie"];
-    }
+    [self addCookieHeaderForRequest:request];
   }
+
   [[self webView] loadRequest:request];
 }
 
@@ -608,6 +573,50 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       ((void (*)(id, SEL, void *, BOOL, BOOL, id))original)(me, selector, arg0, !value, arg2, arg3);
     });
     method_setImplementation(method, override);
+  }
+}
+
+- (void)addCookieHeaderForRequest:(NSMutableURLRequest *)request
+{
+  /*
+   To support cookie for iOS <11
+   https://stackoverflow.com/questions/26573137
+   https://github.com/haifengkao/YWebView
+   */
+
+  NSString *validDomain = request.URL.host;
+
+  if (!_tiCookieHandlerAdded) {
+    _tiCookieHandlerAdded = YES;
+    WKUserContentController *controller = [[[self webView] configuration] userContentController];
+    [controller addUserScript:[self userScriptCookieInForDomain:validDomain]];
+    [controller addUserScript:[self userScriptCookieOut]];
+    [controller addScriptMessageHandler:self name:@"_Ti_Cookie_"];
+  }
+
+  BOOL requestIsSecure = [request.URL.scheme isEqualToString:@"https"];
+
+  NSMutableArray *array = [NSMutableArray array];
+  for (NSHTTPCookie *cookie in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies]) {
+    // Don't even bother with values containing a `'`
+    if ([cookie.name rangeOfString:@"'"].location != NSNotFound) {
+      continue;
+    }
+    // Check the cookie for current domain.
+    if (![validDomain hasSuffix:cookie.domain] && ![cookie.domain hasSuffix:validDomain]) {
+      continue;
+    }
+
+    if (cookie.secure && !requestIsSecure) {
+      continue;
+    }
+    NSString *value = [NSString stringWithFormat:@"%@=%@", cookie.name, cookie.value];
+    [array addObject:value];
+  }
+
+  NSString *header = [array componentsJoinedByString:@";"];
+  if (![header isEqualToString:@""]) {
+    [request setValue:header forHTTPHeaderField:@"Cookie"];
   }
 }
 
@@ -1117,7 +1126,7 @@ static NSString *UIKitLocalizedString(NSString *string)
   }
 }
 
-#pragma mark Utility
+#pragma mark Cookie Utility
 
 /*
  To support cookie for iOS <11

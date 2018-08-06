@@ -25,6 +25,7 @@
   NSURL *_currentURL;
   UIActivityIndicatorView *_loadingIndicator;
   BOOL _isViewDetached;
+  BOOL _tiCookieHandlerAdded;
 }
 
 // Used from the proxy
