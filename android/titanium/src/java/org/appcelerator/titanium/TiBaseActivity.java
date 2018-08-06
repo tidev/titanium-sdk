@@ -1444,7 +1444,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
-		KrollRuntime.suggestGC();
 	}
 
 	@Override
@@ -1597,7 +1596,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// Don't dispose the runtime if the activity is forced to destroy by Android,
 		// so we can recover the activity later.
 		KrollRuntime.decrementActivityRefCount(isFinishing);
-		KrollRuntime.suggestGC();
 	}
 
 	@Override
