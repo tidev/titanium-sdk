@@ -63,7 +63,6 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	@Override
 	public void initRuntime()
 	{
-		boolean useGlobalRefs = false;
 		KrollApplication application = getKrollApplication();
 		TiDeployData deployData = application.getDeployData();
 
@@ -97,7 +96,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 			jsDebugger = new JSDebugger(deployData.getDebuggerPort(), application.getSDKVersion());
 		}
 
-		nativeInit(useGlobalRefs, jsDebugger, DBG, deployData.isProfilerEnabled());
+		nativeInit(jsDebugger, DBG, deployData.isProfilerEnabled());
 
 		if (jsDebugger != null) {
 			jsDebugger.start();
@@ -222,7 +221,7 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	}
 
 	// JNI method prototypes
-	private native void nativeInit(boolean useGlobalRefs, JSDebugger jsDebugger, boolean DBG, boolean profilerEnabled);
+	private native void nativeInit(JSDebugger jsDebugger, boolean DBG, boolean profilerEnabled);
 
 	private native void nativeRunModule(String source, String filename, KrollProxySupport activityProxy);
 
