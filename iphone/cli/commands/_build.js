@@ -301,20 +301,14 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 					if (watchUDID) {
 						const isValid = Object
 							.keys(this.iosInfo.simulators.watchos)
-							.some(function (ver) {
-								return this.iosInfo.simulators.watchos[ver].some(function (wsim) {
-									return wsim.udid === watchUDID;
-								});
-							}, this);
+							.some(ver => this.iosInfo.simulators.watchos[ver].some(wsim => wsim.udid === watchUDID), this);
 
 						if (isValid) {
 							if (!Object.keys(sim.watchCompanion).length) {
 								return;
 							}
 
-							if (!Object.keys(sim.watchCompanion).some(function (xcodeId) {
-								return sim.watchCompanion[xcodeId][watchUDID];
-							})) {
+							if (!Object.keys(sim.watchCompanion).some(xcodeId => sim.watchCompanion[xcodeId][watchUDID])) {
 								return;
 							}
 						}
@@ -1306,15 +1300,7 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
 				maxName = 0;
 
 			if (cli.argv['device-id']) {
-				Object.keys(iosSims).some(function (ver) {
-					return iosSims[ver].some(function (sim) {
-						if (sim.udid === cli.argv['device-id']) {
-							iphoneSim = sim;
-							return true;
-						}
-						return false;
-					});
-				});
+				iphoneSim = Object.keys(iosSims).find(ver => iosSims[ver].find(sim => sim.udid === cli.argv['device-id']));
 			}
 
 			Object.keys(watchSims).forEach(function (sdk) {
@@ -1366,7 +1352,7 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
 			if (!cli.argv['build-only'] && cli.argv.target === 'simulator') {
 				if (!value || value === true) {
 					return callback(true);
-				} else if (!Object.keys(watchSims).some(function (ver) { return watchSims[ver].some(function (sim) { return sim.udid === value; }); })) { // eslint-disable-line max-statements-per-line
+				} else if (!Object.keys(watchSims).some(ver => watchSims[ver].some(sim => sim.udid === value))) {
 					return callback(new Error(__('Invalid Watch Simulator UDID "%s"', value)));
 				}
 			}
@@ -1428,7 +1414,7 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 	}
 
 	// make sure we have an app icon
-	if (!tiapp.icon || ![ 'Resources', 'Resources/iphone', 'Resources/ios' ].some(function (p) { return fs.existsSync(this.projectDir, p, tiapp.icon); }, this)) { // eslint-disable-line max-statements-per-line
+	if (!tiapp.icon || ![ 'Resources', 'Resources/iphone', 'Resources/ios' ].some(p => fs.existsSync(this.projectDir, p, tiapp.icon), this)) {
 		tiapp.icon = 'appicon.png';
 	}
 
@@ -2344,7 +2330,6 @@ iOSBuilder.prototype.doAnalytics = function doAnalytics() {
 
 iOSBuilder.prototype.initialize = function initialize() {
 	const argv = this.cli.argv;
-	const explicitelyUsingKrollThread = (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('run-on-main-thread') && this.tiapp.properties['run-on-main-thread'].value === false);
 
 	// populate the build manifest object
 	this.currentBuildManifest.target            = this.target;
@@ -2858,16 +2843,8 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			copyright:   'copyright',
 			guid:        'guid'
 		};
-		let changed = null;
 
-		Object.keys(tiappSettings).some(function (key) {
-			if (this.tiapp[key] !== manifest[key]) {
-				changed = key;
-				return true;
-			}
-			return false;
-		}, this);
-
+		const changed = Object.keys(tiappSettings).find(key => this.tiapp[key] !== manifest[key], this);
 		if (changed) {
 			this.logger.info(__('Forcing rebuild: tiapp.xml %s changed since last build', tiappSettings[changed]));
 			this.logger.info('  ' + __('Was: %s', cyan(manifest[changed])));
@@ -3341,21 +3318,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					targetUuid = extTarget.value,
 					targetName = extTarget.comment,
 					targetInfo = ext.targetInfo[targetName];
-				let target = null,
-					targetGroup = null,
+				let targetGroup = null,
 					extFrameworksGroup = null,
 					extFrameworkReference = null,
 					extResourcesGroup = null,
 					extResourceReference = null;
 
 				// do we care about this target?
-				ext.targets.some(function (t) {
-					if (t.name === targetName) {
-						target = t;
-						return true;
-					}
-					return false;
-				});
+				const target = ext.targets.find(t => t.name === targetName);
 				if (!target) {
 					return;
 				}
@@ -3535,9 +3505,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				xobjs.XCConfigurationList[buildConfigurationListUuid + '_comment'] = extObjs.XCConfigurationList[buildConfigurationListUuid + '_comment'];
 
 				let haveEntitlements = this.provisioningProfile
-					&& Object.keys(caps).some(function (cap) {
-						return /^(app-groups)$/.test(cap);
-					});
+					&& Object.keys(caps).some(cap => /^(app-groups)$/.test(cap));
 
 				xobjs.XCConfigurationList[buildConfigurationListUuid].buildConfigurations.forEach(function (conf) {
 					xobjs.XCBuildConfiguration[conf.value] = extObjs.XCBuildConfiguration[conf.value];
@@ -3882,7 +3850,7 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(ne
 			plist['get-task-allow'] = pp.getTaskAllow;
 		}
 		Array.isArray(plist['keychain-access-groups']) || (plist['keychain-access-groups'] = []);
-		if (!plist['keychain-access-groups'].some(function (id) { return id === plist['application-identifier']; })) { // eslint-disable-line max-statements-per-line
+		if (!plist['keychain-access-groups'].some(id => id === plist['application-identifier'])) {
 			plist['keychain-access-groups'].push(plist['application-identifier']);
 		}
 	}
@@ -5010,17 +4978,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						flattenIcons = [],
 						flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png'),
 						missingIcons = [];
-					let defaultIcon,
-						defaultIconChanged = false,
+					let defaultIconChanged = false,
 						defaultIconHasAlpha = false;
 
-					this.defaultIcons.some(function (icon) {
-						if (fs.existsSync(icon)) {
-							defaultIcon = icon;
-							return true;
-						}
-						return false;
-					});
+					const defaultIcon = this.defaultIcons.find(icon => fs.existsSync(icon));
 
 					if (defaultIcon) {
 						const defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
@@ -5031,7 +4992,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							defaultIconMtime = defaultIconExists && JSON.parse(JSON.stringify(defaultIconStat.mtime)),
 							defaultIconHash = this.hash(defaultIconContents);
 
-						if (!defaultIconExists || !defaultIconPrev || defaultIconPrev.size !== defaultIconStat.size || defaultIconPrev.mtime !== defaultIconMtime || defaultIconPrev.hash !== defaultIconHash) {
+						if (!defaultIconExists
+							|| !defaultIconPrev
+							|| defaultIconPrev.size !== defaultIconStat.size
+							|| defaultIconPrev.mtime !== defaultIconMtime
+							|| defaultIconPrev.hash !== defaultIconHash) {
 							defaultIconChanged = true;
 						}
 
@@ -5707,7 +5672,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							unsymlinkable = unsymlinkableFileRegExp.test(path.basename(file));
 						let contents = info.contents || null,
 							hash = null;
-						const fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src)));
+						const fileChanged = !destExists || !prev
+							|| prev.size !== srcStat.size
+							|| prev.mtime !== srcMtime
+							|| prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src)));
 
 						if (!fileChanged) {
 							this.logger.trace(__('No change, skipping %s', info.dest.cyan));
