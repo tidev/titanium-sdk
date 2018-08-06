@@ -4782,6 +4782,7 @@ iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(
 };
 
 iOSBuilder.prototype.copyResources = function copyResources(next) {
+	console.time('copyResources');
 	const filenameRegExp = /^(.*)\.(\w+)$/,
 
 		useAppThinning = this.useAppThinning,
@@ -5854,6 +5855,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 };
 
 iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
+	console.timeEnd('copyResources');
 	const rel = 'Classes/ApplicationRouting.m',
 		dest = path.join(this.buildDir, 'Classes', 'ApplicationRouting.m'),
 		destExists = fs.existsSync(dest),
