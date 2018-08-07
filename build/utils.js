@@ -176,4 +176,32 @@ Utils.downloadURL = function downloadURL(url, integrity, callback) {
 	}
 };
 
+/**
+ * @param  {String}   versionTag [description]
+ * @param  {Function} next        [description]
+ */
+Utils.installSDK = function (versionTag, next) {
+	let dest,
+		osName = os.platform();
+
+	if (osName === 'win32') {
+		dest = path.join(process.env.ProgramData, 'Titanium');
+	}
+
+	if (osName === 'darwin') {
+		osName = 'osx';
+		dest = path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
+	}
+
+	if (osName === 'linux') {
+		osName = 'linux';
+		dest = path.join(process.env.HOME, '.titanium');
+	}
+
+	const zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
+	console.log('Installing %s...', zipfile);
+
+	appc.zip.unzip(zipfile, dest, {}, next);
+};
+
 module.exports = Utils;

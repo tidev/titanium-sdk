@@ -432,42 +432,70 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [TiLogServer startServer];
 #endif
 
-  // nibless window
+  // Initialize the root-window
   window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 
-  [self initController];
-
-  // get the current remote device UUID if we have one
-  NSString *curKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
-  if (curKey != nil) {
-    remoteDeviceUUID = [curKey copy];
-  }
-
+  // Initialize the launch options to be used by the client
   launchOptions = [[NSMutableDictionary alloc] initWithDictionary:launchOptions_];
 
+  // Initialize the root-controller
+  [self initController];
+
+  // If we have a APNS-UUID, assign it
+  NSString *apnsUUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
+  if (apnsUUID != nil) {
+    remoteDeviceUUID = [apnsUUID copy];
+  }
+
+  // iOS 10+: Register our notification delegate
+  if ([TiUtils isIOS10OrGreater]) {
+    [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
+  }
+
+  // Get some launch options to validate before finish launching. Some of them
+  // need to be mapepd from native to JS-types to be used by the client
   NSURL *urlOptions = [launchOptions objectForKey:UIApplicationLaunchOptionsURLKey];
   NSString *sourceBundleId = [launchOptions objectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
-  NSDictionary *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+  NSDictionary *_remoteNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+  UILocalNotification *_localNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+  NSNumber *launchedLocation = [launchOptions objectForKey:UIApplicationLaunchOptionsLocationKey];
 
-  [launchOptions setObject:NUMBOOL([[launchOptions objectForKey:UIApplicationLaunchOptionsLocationKey] boolValue]) forKey:@"launchOptionsLocationKey"];
-  [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocationKey];
+  // Map background location key
+  if (launchedLocation != nil) {
+    [launchOptions setObject:launchedLocation forKey:@"launchOptionsLocationKey"];
+    [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocationKey];
+  }
 
-  localNotification = [[[self class] dictionaryWithLocalNotification:[launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey]] retain];
-  [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+  // Map local notification
+  if (_localNotification != nil) {
+    localNotification = [[[self class] dictionaryWithLocalNotification:_localNotification] retain];
+    [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
 
-  // reset these to be a little more common if we have them
+    // Queue the "localnotificationaction" event for iOS 9 and lower.
+    // For iOS 10+, the "userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler" delegate handles it
+    if ([TiUtils isIOSVersionLower:@"9.0"]) {
+      [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:nil];
+    }
+  }
+
+  // Map launched URL
   if (urlOptions != nil) {
     [launchOptions setObject:[urlOptions absoluteString] forKey:@"url"];
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
   }
+
+  // Map launched App-ID
   if (sourceBundleId != nil) {
     [launchOptions setObject:sourceBundleId forKey:@"source"];
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
   }
-  if (notification != nil) {
-    [self generateNotification:notification];
+
+  // Generate remote notification of available
+  if (_remoteNotification != nil) {
+    [self generateNotification:_remoteNotification];
   }
 
+  // iOS 9+: Map application shortcuts
   if ([TiUtils isIOS9OrGreater] == YES) {
     UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
 
@@ -476,12 +504,19 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     }
   }
 
+  // Queue selector for usage in modules / Hyperloop
   [self tryToInvokeSelector:@selector(application:didFinishLaunchingWithOptions:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, launchOptions_, nil]];
 
+  // If a "application-launch-url" is set, launch it directly
   [self launchToUrl];
+
+  // Boot our kroll-core
   [self boot];
+
+  // Create application support directory if not exists
   [self createDefaultDirectories];
+
   return YES;
 }
 
@@ -565,12 +600,20 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                                     userInfo:@{ @"userNotificationSettings" : notificationSettings }];
 }
 
+// iOS 12+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center openSettingsForNotification:(UNNotification *)notification
+{
+  // Unused so far, may expose as an event in the future?
+}
+
+// iOS 10+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
   // TODO: Get desired options from notification?
   completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
 }
 
+// iOS 10+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response
              withCompletionHandler:(void (^)(void))completionHandler
 {
@@ -975,6 +1018,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                                                            @(statusCode), @"statusCode",
                                                            nil];
       [dict addEntriesFromDictionary:successResponse];
+      RELEASE_TO_NIL(responseText);
     }
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiURLSessionCompleted object:self userInfo:dict];

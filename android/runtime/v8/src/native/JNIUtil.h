@@ -146,6 +146,7 @@ public:
 	static jmethodID referenceTableMakeSoftReferenceMethod;
 	static jmethodID referenceTableClearReferenceMethod;
 	static jmethodID referenceTableGetReferenceMethod;
+	static jmethodID referenceTableIsStrongReferenceMethod;
 
 	static jint krollRuntimeDontIntercept;
 	static jmethodID krollInvocationInitMethod;

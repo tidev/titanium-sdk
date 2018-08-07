@@ -26,6 +26,22 @@ function join(args) {
 	}).join(' ');
 }
 
+function logTime(label, logData) {
+	label = `${label}`;
+	const startTime = times.get(label);
+	if (!startTime) {
+		exports.warn(`Label "${label}" does not exist`);
+		return true;
+	}
+	const duration = Date.now() - startTime;
+	if (logData) {
+		exports.log(`${label}: ${duration}ms`, ...logData);
+	} else {
+		exports.log(`${label}: ${duration}ms`);
+	}
+	return false;
+}
+
 exports.log = function () {
 	Titanium.API.info(join(arguments));
 };
@@ -56,13 +72,12 @@ exports.time = function (label = 'default') {
 };
 
 exports.timeEnd = function (label = 'default') {
-	label = `${label}`;
-	const startTime = times.get(label);
-	if (!startTime) {
-		exports.warn(`Label "${label}" does not exist`);
-		return;
+	const warned = logTime(label);
+	if (!warned) {
+		times.delete(label);
 	}
-	const duration = Date.now() - startTime;
-	exports.log(`${label}: ${duration}ms`);
-	times.delete(label);
+};
+
+exports.timeLog = function (label = 'default', ...logData) {
+	logTime(label, logData);
 };
