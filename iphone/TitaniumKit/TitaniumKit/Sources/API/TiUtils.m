@@ -2111,7 +2111,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (BOOL)isUsingLaunchScreenStoryboard
 {
   @try {
-    return [UIStoryboard storyboardWithName:@"LaunchScreenTwo" bundle:[NSBundle mainBundle]] != nil;
+    return [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] != nil;
   } @catch (NSException *e) {
     return NO;
   }

@@ -119,7 +119,11 @@
     modalWindows = [[NSMutableArray alloc] init];
 
     // Initialize fallback view for non-Storyboard use cases
-    defaultImageView = [[UIImageView alloc] init];
+    if (![TiUtils isUsingLaunchScreenStoryboard]) {
+      defaultImageView = [[UIImageView alloc] init];
+    } else {
+      defaultImageView = [[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view];
+    }
     [defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
     [defaultImageView setContentMode:UIViewContentModeScaleToFill];
 
@@ -176,12 +180,6 @@
 
   hostView = [[UIView alloc] initWithFrame:[rootView bounds]];
   hostView.backgroundColor = [UIColor clearColor];
-
-  if ([TiUtils isUsingLaunchScreenStoryboard]) {
-    storyboardView = [[UIView alloc] initWithFrame:[rootView bounds]];
-    [storyboardView addSubview:[[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view]];
-    [hostView addSubview:storyboardView];
-  }
 
   hostView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
   [rootView addSubview:hostView];
@@ -262,11 +260,6 @@
     [defaultImageView setHidden:YES];
     [defaultImageView removeFromSuperview];
     RELEASE_TO_NIL(defaultImageView);
-  }
-
-  if ([TiUtils isUsingLaunchScreenStoryboard] && storyboardView != nil) {
-    [storyboardView removeFromSuperview];
-    RELEASE_TO_NIL(storyboardView);
   }
 }
 
@@ -390,9 +383,10 @@
 
 - (void)rotateDefaultImageViewToOrientation:(UIInterfaceOrientation)newOrientation;
 {
-  if (defaultImageView == nil) {
+  if (defaultImageView == nil || [TiUtils isUsingLaunchScreenStoryboard]) {
     return;
   }
+
   UIDeviceOrientation imageOrientation;
   UIUserInterfaceIdiom imageIdiom;
   UIUserInterfaceIdiom deviceIdiom = [[UIDevice currentDevice] userInterfaceIdiom];
@@ -449,7 +443,7 @@
     }
   }
   [defaultImageView setContentMode:contentMode];
-  [defaultImageView setImage:defaultImage];
+  [(UIImageView *)defaultImageView setImage:defaultImage];
   [defaultImageView setFrame:newFrame];
 }
 

@@ -15,8 +15,7 @@
   UIView *hostView;
   NSInteger curTransformAngle;
   BOOL forceLayout;
-  UIImageView *defaultImageView;
-  UIView *storyboardView;
+  UIView *defaultImageView;
 
   //Keyboard stuff
   BOOL updatingAccessoryView;
