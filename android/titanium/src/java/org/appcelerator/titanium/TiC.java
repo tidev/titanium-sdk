@@ -2242,6 +2242,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MIXED_CONTENT_MODE = "mixedContentMode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MOBILE = "mobile";
 
 	/**
