@@ -4,6 +4,14 @@ summary: The top-level Android module.
 description: |
     The Android module allows the application to manage various Android components.
 
+    #### Drawer Layout
+    
+    The drawer-layout components acts as a top-level container for window content that allows
+    for interactive "drawer" views to be pulled out from one or both vertical edges of the window.
+    It is represented by a `centerView` and optional `leftView` and `rightView` components that 
+    can be swiped in and out with additional configuration and transitions. Learn more about 
+    drawer-layouts in it's dedicated <Titanium.UI.Android.DrawerLayout> docs.
+
     #### Action Bar
 
     An action bar is a UI feature that identifies the application and user location, and
@@ -103,16 +111,15 @@ description: |
     Starting from Android 6.0 (API level 23), users need to grant certain permissions to apps while the
     app is running. You can read it more [here](https://developer.android.com/training/permissions/requesting.html).
 
-    In Titanium SDK, to support this, we have the method <Titanium.Android.requestPermissions>, starting
-    from Titanium SDK 5.4.0. It is used to request any permission you may need. An example of
-    using it is shown below.
+    In Titanium SDK, to support this, we have the <Titanium.Android.requestPermissions> method. It is used to 
+    request any permission you may need. An example of using it is shown below:
 
-        var permissions = ['android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE'];
-        Ti.Android.requestPermissions(permissions, function(e) {
+        var permissions = [ 'android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE' ];
+        Ti.Android.requestPermissions(permissions, function (e) {
             if (e.success) {
-                Ti.API.info("SUCCESS");
+                Ti.API.info('SUCCESS');
             } else {
-                Ti.API.info("ERROR: " + e.error);
+                Ti.API.info('ERROR: ' + e.error);
             }
         });
 
@@ -158,10 +165,10 @@ methods:
                     action: Ti.Android.ACTION_SEND,
                     type: 'text/plain'
                 });
-                intent.putExtra(Ti.Android.EXTRA_SUBJECT, "This is the subject.");
-                intent.putExtra(Ti.Android.EXTRA_TEXT, "This is some text to send.")
+                intent.putExtra(Ti.Android.EXTRA_SUBJECT, 'This is the subject.');
+                intent.putExtra(Ti.Android.EXTRA_TEXT, 'This is some text to send.')
 
-                var chooser = Ti.Android.createIntentChooser(intent, "Send Message");
+                var chooser = Ti.Android.createIntentChooser(intent, 'Send Message');
                 var activity = Ti.Android.currentActivity.startActivity(chooser);
 
   - name: createPendingIntent
@@ -2354,17 +2361,17 @@ properties:
 name: ServiceIntentOptions
 summary: Options passed to <Titanium.Android.createServiceIntent>.
 properties:
-
   - name: url
     summary: URL for the service's JavaScript.
     type: String
 
   - name: startMode
-    summary: One of the `START_` constants from <Titanium.Android> to specify the "stickiness" of the Service when Android shuts down the host application.
+    summary: One of the `START_*` constants from <Titanium.Android> to specify the "stickiness" of the Service when Android shuts down the host application.
     type: Number
     optional: true
     default: Titanium.Android.START_REDELIVER_INTENT
     constants: Titanium.Android.START_*
+
 ---    
 name: RequestPermissionAccessResult
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
