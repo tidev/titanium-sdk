@@ -1,6 +1,6 @@
 ---
 name: Titanium.UI.Label
-summary: A text label, with optional background image.
+summary: A text label, with an optional background image.
 description: Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label.
 extends: Titanium.UI.View
 since: "0.8"
@@ -190,7 +190,7 @@ properties:
         Use the backslash and letter `n` line feed character combination, ie `\n`, to force a new
         line.
 
-        Use unicode characters, such as those included in (but not limited to) the
+        Use Unicode characters, such as those included in (but not limited to) the
         [Unicode List of Useful Symbols](http://en.wikibooks.org/w/index.php?title=Unicode/List_of_useful_symbols)
         section of wikipedia, to insert special characters and symbols.
 
@@ -260,7 +260,7 @@ examples:
   - title: Basic Label
     example: |
         Create a center-aligned label with a text shadow and specified-size font, and another
-        containing forced line breaks and unicode symbols.
+        containing forced line breaks and Unicode symbols.
 
             var win = Ti.UI.createWindow({
               backgroundColor: 'white',
@@ -284,7 +284,7 @@ examples:
 
             var label2 = Ti.UI.createLabel({
               color:'blue',
-              text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
+              text: 'A long label with\na few line breaks\nand Unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
               textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
               top: 30,
               width: 300, height: 200
@@ -300,7 +300,7 @@ examples:
 
         The font and shadowOffset properties need to be defined in the TSS or controller file.
         These property values are dictionaries, rather than single values,
-        so they cannot be included in markup.
+        so they cannot be included in the markup.
 
             <Alloy>
                 <Window id="win" backgroundColor="white" exitOnClose="true" fullscreen="false" layout="vertical" title="Label Demo">
@@ -309,7 +309,7 @@ examples:
                     <Label id="label1" color="#900" shadowColor="#aaa" text="A simple label" textAlign="Ti.UI.TEXT_ALIGNMENT_CENTER"
                         top="30" width="Ti.UI.SIZE" height="Ti.UI.SIZE" />
                     <Label id="label2" color="blue" textAlign="Ti.UI.TEXT_ALIGNMENT_LEFT" top="30" width="300" height="200">
-                        A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n
+                        A long label with\na few line breaks\nand Unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n
                     </Label>
                 </Window>
             </Alloy>

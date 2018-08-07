@@ -1448,7 +1448,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
-		KrollRuntime.suggestGC();
 	}
 
 	@Override
@@ -1571,15 +1570,20 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		//LW windows
 		if (window == null && view != null) {
-			view.releaseViews();
 			view.release();
+			view = null;
+		}
+		if (view != null) {
+			view.releaseViews();
 			view = null;
 		}
 
 		if (window != null) {
+			if (windowStack.contains(window)) {
+				removeWindowFromStack(window);
+			}
 			window.closeFromActivity(isFinishing);
 			window.releaseViews();
-			window.releaseKroll();
 			window = null;
 		}
 
@@ -1596,7 +1600,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// Don't dispose the runtime if the activity is forced to destroy by Android,
 		// so we can recover the activity later.
 		KrollRuntime.decrementActivityRefCount(isFinishing);
-		KrollRuntime.suggestGC();
 	}
 
 	@Override

@@ -11,7 +11,9 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -48,6 +50,7 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	private static final int MSG_INVALIDATE_OPTIONS_MENU = MSG_FIRST_ID + 100;
 	private static final int MSG_OPEN_OPTIONS_MENU = MSG_FIRST_ID + 101;
+	private static final int MSG_GET_ACTIONBAR = MSG_FIRST_ID + 102;
 
 	protected Activity wrappedActivity;
 	protected IntentProxy intentProxy;
@@ -268,11 +271,10 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	public ActionBarProxy getActionBar()
 	// clang-format on
 	{
-		AppCompatActivity activity = (AppCompatActivity) getWrappedActivity();
-		if (actionBarProxy == null && activity != null) {
-			actionBarProxy = new ActionBarProxy(activity);
+		if (TiApplication.isUIThread()) {
+			return handleGetActionBar();
 		}
-		return actionBarProxy;
+		return (ActionBarProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_ACTIONBAR));
 	}
 
 	@Kroll.method
@@ -318,6 +320,15 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		if (activity != null && activity instanceof AppCompatActivity) {
 			((AppCompatActivity) activity).supportInvalidateOptionsMenu();
 		}
+	}
+
+	private ActionBarProxy handleGetActionBar()
+	{
+		AppCompatActivity activity = (AppCompatActivity) getWrappedActivity();
+		if (actionBarProxy == null && activity != null) {
+			actionBarProxy = new ActionBarProxy(activity);
+		}
+		return actionBarProxy;
 	}
 
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
@@ -372,6 +383,11 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 			}
 			case MSG_OPEN_OPTIONS_MENU: {
 				handleOpenOptionsMenu();
+				return true;
+			}
+			case MSG_GET_ACTIONBAR: {
+				AsyncResult result = (AsyncResult) msg.obj;
+				result.setResult(handleGetActionBar());
 				return true;
 			}
 		}
