@@ -64,20 +64,30 @@ NSArray *bufferKeySequence = nil;
   sourceOffset = (hasSourceOffset) ? sourceOffset : 0;
   sourceLength = (hasSourceLength) ? sourceLength : [[source data] length];
 
+  if ([source data] == nil) {
+    [self throwException:@"TiBoundsException"
+               subreason:[NSString stringWithFormat:@"Source dats is nil"]
+                location:CODELOCATION];
+    return @(-1);
+  }
+  
   if (hasSourceOffset && !hasSourceLength) {
     [self throwException:@"TiArgsException"
                subreason:@"Ti.Buffer.append(buf,offset,length) requires three arguments"
                 location:CODELOCATION];
+    return @(-1);
   }
 
   if (sourceOffset + sourceLength > [[source data] length]) {
     [self throwException:@"TiBoundsException"
                subreason:[NSString stringWithFormat:@"Source offset %lu plus sourceLength %lu extends past source bounds (length %lu)", (unsigned long)sourceOffset, (unsigned long)sourceLength, (unsigned long)[[source data] length]]
                 location:CODELOCATION];
+    return @(-1);
   }
 
   NSUInteger length = MIN(sourceLength, [[source data] length] - sourceOffset);
   const void *bytes = [[source data] bytes];
+
   if (data == nil) {
     data = [[NSMutableData alloc] initWithBytes:bytes + sourceOffset length:length];
   } else {
@@ -137,8 +147,10 @@ NSArray *bufferKeySequence = nil;
   [data replaceBytesInRange:NSMakeRange(offset + length, [data length] - (offset + length)) withBytes:(currentBytes + offset)];
 
   // 3.
-  const void *newBytes = [[source data] bytes];
-  [data replaceBytesInRange:NSMakeRange(offset, length) withBytes:(newBytes + sourceOffset)];
+  if ([source data] != nil) {
+    const void *newBytes = [[source data] bytes];
+    [data replaceBytesInRange:NSMakeRange(offset, length) withBytes:(newBytes + sourceOffset)];
+  }
 
   return NUMUINTEGER(length);
 }

@@ -304,6 +304,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
     [newData appendData:otherData];
 
     [self setData:newData];
+    RELEASE_TO_NIL(newData);
   }
 }
 

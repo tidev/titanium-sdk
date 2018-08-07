@@ -32,8 +32,10 @@
     NSArray *actionsForMinimalContext = [properties valueForKey:@"actionsForMinimalContext"];
     NSArray *intentIdentifiers = [properties valueForKey:@"intentIdentifiers"] ?: @[];
     NSString *hiddenPreviewsBodyPlaceholder = [properties valueForKey:@"hiddenPreviewsBodyPlaceholder"];
-    NSString *categorySummaryFormat = [properties valueForKey:@"categorySummaryFormat"];
     UNNotificationCategoryOptions options = [self categoryOptionsFromArray:[properties valueForKey:@"options"] ?: @[]];
+#if IS_XCODE_10
+    NSString *categorySummaryFormat = [properties valueForKey:@"categorySummaryFormat"];
+#endif
 
     NSMutableArray *defaultActions = [NSMutableArray new];
     NSMutableArray *minimalActions = [NSMutableArray new];
