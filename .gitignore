@@ -38,3 +38,4 @@ android/.idea/vcs.xml
 /iphone/TitaniumKit/Carthage
 /iphone/TitaniumKit/docs
 /iphone/TitaniumKit/build
+/iphone/lib/libTiCore.a
