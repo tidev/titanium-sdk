@@ -77,7 +77,7 @@ public class TiUIScrollableView extends TiUIView
 		mAdapter = new ViewPagerAdapter(activity, mViews);
 		mPager = buildViewPager(activity, mAdapter);
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_CLIP_VIEWS)) {
-			mPager.setClipToPadding(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_VIEWS)));
+			mPager.setClipToPadding(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_VIEWS), true));
 		}
 		mContainer.addView(mPager, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
