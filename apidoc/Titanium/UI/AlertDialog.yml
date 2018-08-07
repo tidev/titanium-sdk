@@ -199,6 +199,18 @@ properties:
     type: Number
     default: undefined (Android), -1 (iOS)
 
+  - name: buttonClickRequired
+    summary: |
+        Setting this to true requires the end-user to click a dialog button to close the dialog.
+    description: |
+        Set to true to prevent the dialog from being dismissed via back navigation or tapping outside of the dialog.
+        This requires the end-user to click on one of the dialog buttons provided by property buttonNames. Note that
+        if the dialog does not have any buttons, then the dialog can only be closed programmatically via the hide() method.
+    type: Boolean
+    default: false on Android
+    since: "7.4.0"
+    platforms: [android]
+
   - name: canceledOnTouchOutside
     summary: |
         When this is set to `true`, the dialog is canceled when touched outside the window's bounds.

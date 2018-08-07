@@ -625,6 +625,13 @@ typedef enum {
 + (BOOL)isIOSVersionOrGreater:(NSString *)version;
 
 /**
+ Whether or not the current OS version is lower than the specified version.
+ @param version The version to compare.
+ @return _YES_ if the current OS version is lower than the specified version, _NO_ otherwise.
+ */
++ (BOOL)isIOSVersionLower:(NSString *)version;
+
+/**
  Whether or not the current device is an iPhone 4.
  @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
  */

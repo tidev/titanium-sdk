@@ -223,19 +223,23 @@ public class TiHTTPClient
 			responseData = null;
 
 			int status = connection.getResponseCode();
+			// Stream holding the server's response
 			InputStream in;
-
+			// Stream holding the buffered response if there is one
+			InputStream is = null;
 			if (status >= 400) {
 				in = connection.getErrorStream();
 			} else {
 				in = connection.getInputStream();
 			}
 
-			if ("gzip".equalsIgnoreCase(contentEncoding)) {
-				in = new GZIPInputStream(in);
+			// Guard for null stream response from the server
+			if (in != null) {
+				if ("gzip".equalsIgnoreCase(contentEncoding)) {
+					in = new GZIPInputStream(in);
+				}
+				is = new BufferedInputStream(in);
 			}
-
-			InputStream is = new BufferedInputStream(in);
 
 			if (is != null) {
 				Log.d(TAG, "Content length: " + contentLength, Log.DEBUG_MODE);

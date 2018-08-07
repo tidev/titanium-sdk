@@ -139,6 +139,50 @@ methods:
         summary: Whether to disallow the interception of touch events.
         type: Boolean
 
+events:
+  - name: open
+    summary: Fired when the drawer view is opened.
+    properties:
+      - name: drawer
+        type: String
+        summary: Contains the drawer frame type. Either `left` or `right`.
+
+  - name: close
+    summary: Fired when the drawer view is closed.
+    properties:
+      - name: drawer
+        type: String
+        summary: Contains the drawer frame type. Either `left` or `right`.
+
+  - name: change
+    summary: Fired when the motion state of the drawer view changes.
+    properties:
+      - name: drawer
+        type: String
+        summary: Contains the drawer frame type. Either `left` or `right`.
+      - name: state
+        summary: The current drawer state.
+        type: Number
+      - name: idle
+        summary: Whether or not the drawer is currently idle.
+        type: Boolean
+      - name: dragging
+        summary: Whether or not the drawer is currently dragging.
+        type: Boolean
+      - name: settling
+        summary: Whether or not the drawer is currently settling.
+        type: Boolean
+
+  - name: slide
+    summary: Fired when the drawer view changes it's position.
+    properties:
+      - name: drawer
+        type: String
+        summary: Contains the drawer frame type. Either `left` or `right`.
+      - name: offset
+        type: Number
+        summary: The current drawer offset.
+
 examples:
   - title: Simple DrawerLayout
     example: |
