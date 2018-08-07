@@ -16,8 +16,6 @@ using namespace v8;
 
 namespace titanium {
 
-bool JavaObject::useGlobalRefs = false;
-
 #ifdef TI_DEBUG
 static struct {
 	int total;
@@ -74,9 +72,7 @@ jobject JavaObject::getJavaObject()
 		MakeJavaStrong(); // move back to strong reference on Java side
 		MakeJSWeak(); // ask V8 to let us know when it thinks it's dead again
 	}
-	if (useGlobalRefs) {
-		return javaObject_;
-	} else if (refTableKey_ > 0) {
+	if (refTableKey_ > 0) {
 		jobject ref = ReferenceTable::getReference(refTableKey_);
 		if (ref == NULL) {
 			// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
@@ -91,11 +87,9 @@ jobject JavaObject::getJavaObject()
 
 void JavaObject::unreferenceJavaObject(jobject ref) {
 	// Delete ref in JNI
-	if (!useGlobalRefs) {
-		JNIEnv *env = JNIUtil::getJNIEnv();
-		ASSERT(env != NULL);
-		env->DeleteLocalRef(ref);
-	}
+	JNIEnv *env = JNIUtil::getJNIEnv();
+	ASSERT(env != NULL);
+	env->DeleteLocalRef(ref);
 }
 
 // Attaches the Java object to this native wrapper.
@@ -155,7 +149,7 @@ bool JavaObject::isDetached()
 
 bool JavaObject::isWeak()
 {
-    if (!isWeakRef_ && (!useGlobalRefs && refTableKey_ > 0 && !ReferenceTable::isStrongReference(refTableKey_))) {
+    if (!isWeakRef_ && (refTableKey_ > 0 && !ReferenceTable::isStrongReference(refTableKey_))) {
         isWeakRef_ = true;
     }
     return isWeakRef_;
@@ -163,43 +157,30 @@ bool JavaObject::isWeak()
 
 void JavaObject::MakeJavaStrong()
 {
-	if (useGlobalRefs) {
-		ASSERT(javaObject_ != NULL);
+	
+	if (isWeak()) { // if we are weak, upgrade back to strong
 		JNIEnv *env = JNIUtil::getJNIEnv();
 		ASSERT(env != NULL);
-		jobject globalRef = env->NewGlobalRef(javaObject_);
-		if (isWeak()) { // if we're going from weak back to strong...
-			env->DeleteWeakGlobalRef(javaObject_); // delete the weak ref we had
-		}
-		javaObject_ = globalRef;
-
-		// When we're done we should always have an object, but no key
-		ASSERT(refTableKey_ == 0);
-		ASSERT(javaObject_ != NULL);
-	} else {
-		if (isWeak()) { // if we are weak, upgrade back to strong
-			JNIEnv *env = JNIUtil::getJNIEnv();
-			ASSERT(env != NULL);
-			jobject stored = ReferenceTable::clearReference(refTableKey_);
-			if (stored == NULL) {
-				// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
-				LOGW(TAG, "Could not move weak reference to strong, java object has already been collected! (Key: %d)", refTableKey_);
-				refTableKey_ = 0;
-				javaObject_ = NULL;
-			} else {
-				env->DeleteLocalRef(stored);
-			}
+		jobject stored = ReferenceTable::clearReference(refTableKey_);
+		if (stored == NULL) {
+			// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
+			LOGW(TAG, "Could not move weak reference to strong, java object has already been collected! (Key: %d)", refTableKey_);
+			refTableKey_ = 0;
+			javaObject_ = NULL;
 		} else {
-			// New entry, make sure we have no key, have an object, get a new key
-			ASSERT(javaObject_ != NULL);
-			ASSERT(refTableKey_ == 0); // make sure we haven't already stored something
-			refTableKey_ = ReferenceTable::createReference(javaObject_); // make strong ref on Java side
-			javaObject_ = NULL; // toss out the java object copy here, it's in ReferenceTable's HashMap
+			env->DeleteLocalRef(stored);
 		}
-		// When we're done we should always have a reference key, but no object
-		ASSERT(refTableKey_ != 0);
-		ASSERT(javaObject_ == NULL);
+	} else {
+		// New entry, make sure we have no key, have an object, get a new key
+		ASSERT(javaObject_ != NULL);
+		ASSERT(refTableKey_ == 0); // make sure we haven't already stored something
+		refTableKey_ = ReferenceTable::createReference(javaObject_); // make strong ref on Java side
+		javaObject_ = NULL; // toss out the java object copy here, it's in ReferenceTable's HashMap
 	}
+	// When we're done we should always have a reference key, but no object
+	ASSERT(refTableKey_ != 0);
+	ASSERT(javaObject_ == NULL);
+	
 	// no longer a weak reference
 	isWeakRef_ = false;
 	UPDATE_STATS(0, -1); // one less detached
@@ -209,20 +190,11 @@ void JavaObject::MakeJavaWeak()
 {
 	// Make sure we're not trying to make a weak reference weak again!
 	if (!isWeak()) {
-        if (useGlobalRefs) {
-            JNIEnv *env = JNIUtil::getJNIEnv();
-            ASSERT(env != NULL);
-            ASSERT(javaObject_ != NULL);
-            // Convert our global ref to a weak global ref
-            jweak weakRef = env->NewWeakGlobalRef(javaObject_);
-            env->DeleteGlobalRef(javaObject_);
-            javaObject_ = weakRef;
-        } else {
-            ASSERT(refTableKey_ != 0);
+        ASSERT(refTableKey_ != 0);
 
-            // create a weak reference
-            ReferenceTable::makeWeakReference(refTableKey_);
-        }
+        // create a weak reference
+        ReferenceTable::makeWeakReference(refTableKey_);
+        
         UPDATE_STATS(0, 1); // add one to "detached" counter
         isWeakRef_ = true; // remember that our ref on Java side is weak
 	}
@@ -230,30 +202,13 @@ void JavaObject::MakeJavaWeak()
 
 void JavaObject::DeleteJavaRef()
 {
-	if (useGlobalRefs) {
-		LOGD(TAG, "Deleting global ref");
-		JNIEnv *env = JNIUtil::getJNIEnv();
-		ASSERT(env != NULL);
-		ASSERT(javaObject_ != NULL);
-		// Wipe the V8Object ptr value back to 0, to denote that the native C++ proxy is gone
-		JNIUtil::removePointer(javaObject_);
-		if (isWeak()) {
-			env->DeleteWeakGlobalRef(javaObject_);
-		} else {
-			env->DeleteGlobalRef(javaObject_);
-		}
-	} else {
-		LOGD(TAG, "Deleting ref in ReferenceTable for key: %d, pointer: %p", refTableKey_, this);
-		ReferenceTable::destroyReference(refTableKey_); // Kill the Java side
-		refTableKey_ = 0; // throw away the key
-	}
+	LOGD(TAG, "Deleting ref in ReferenceTable for key: %d, pointer: %p", refTableKey_, this);
+	ReferenceTable::destroyReference(refTableKey_); // Kill the Java side
+	refTableKey_ = 0; // throw away the key
 	javaObject_ = NULL;
 	// When we're done we should be wrapping nothing!
 	ASSERT(javaObject_ == NULL);
 	ASSERT(refTableKey_ == 0);
-
-	// our java object can be collected, make our JS reference weak too
-	// MakeJSWeak();
 }
 
 }
