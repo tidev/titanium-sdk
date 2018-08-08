@@ -200,6 +200,9 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
     imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
     imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
     imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
+    imageArg = [imageArg lastPathComponent];
+
+    image = [UIImage imageNamed:imageArg];
 
     if (imageArg != nil) {
       unsigned char digest[CC_SHA1_DIGEST_LENGTH];

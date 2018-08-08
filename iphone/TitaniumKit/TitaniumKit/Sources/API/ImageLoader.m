@@ -465,11 +465,10 @@ DEFINE_EXCEPTIONS
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
-      
-      NSString *fileName = [imageArg lastPathComponent];
-      
-      resultImage = [UIImage imageNamed:fileName];
-      
+      imageArg = [imageArg lastPathComponent];
+
+      resultImage = [UIImage imageNamed:imageArg];
+
       if (resultImage == nil) {
         resultImage = [UIImage imageWithContentsOfFile:path];
       }

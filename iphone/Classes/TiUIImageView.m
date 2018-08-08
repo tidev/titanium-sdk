@@ -480,21 +480,20 @@ DEFINE_EXCEPTIONS
       if (range.location != NSNotFound) {
         imageArg = [pathStr substringFromIndex:range.location + 5];
       }
-      
+
       //remove suffixes.
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
-      
-      NSString *fileName = [imageArg lastPathComponent];
-      
-      image = [UIImage imageNamed:fileName];
-      
+      imageArg = [imageArg lastPathComponent];
+
+      image = [UIImage imageNamed:imageArg];
+
       if (image == nil) {
         image = [UIImage imageWithContentsOfFile:[img path]];
       }
-      
+
       if (image != nil) {
         UIImage *imageToUse = [self rotatedImage:image];
         autoWidth = imageToUse.size.width;
