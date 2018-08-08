@@ -38,7 +38,7 @@ describe('Titanium.UI.WebView', function () {
 		});
 
 		webView.startListeningToProperties([ 'title' ]);
-		webView.addEventListener('title', function (e) {
+		webView.addEventListener('title', function () {
 			finish();
 		});
 		win.add(webView);
@@ -54,7 +54,7 @@ describe('Titanium.UI.WebView', function () {
 			url: 'https://httpbin.org/basic-auth/user/password'
 		});
 
-		webView.addEventListener('sslerror', function (e) {
+		webView.addEventListener('sslerror', function () {
 			finish();
 		});
 		win.add(webView);
@@ -68,10 +68,10 @@ describe('Titanium.UI.WebView', function () {
 		win = Ti.UI.createWindow();
 		webView = Ti.UI.createWebView({
 			url: 'https://google.com',
-			blacklistedURLs: ['https://google.com']
+			blacklistedURLs: [ 'https://google.com' ]
 		});
 
-		webView.addEventListener('blacklisturl', function (e) {
+		webView.addEventListener('blacklisturl', function () {
 			finish();
 		});
 		win.add(webView);
@@ -85,14 +85,14 @@ describe('Titanium.UI.WebView', function () {
 		win = Ti.UI.createWindow();
 		webView = Ti.UI.createWebView({
 			url: 'https://httpbin.org/basic-auth/user/password',
-			basicAuthentication: {'username': 'user', 'password' : 'password'}
+			basicAuthentication: { username: 'user', password: 'password' }
 		});
 
-		webView.addEventListener('load', function (e) {
+		webView.addEventListener('load', function () {
 			finish();
 		});
 
-		webView.addEventListener('sslerror', function (e) {
+		webView.addEventListener('sslerror', function () {
 			finish(e);
 		});
 
@@ -110,11 +110,11 @@ describe('Titanium.UI.WebView', function () {
 			ignoreSslError: true
 		});
 
-		webView.addEventListener('load', function (e) {
+		webView.addEventListener('load', function () {
 			finish();
 		});
 
-		webView.addEventListener('sslerror', function (e) {
+		webView.addEventListener('sslerror', function () {
 			finish(e);
 		});
 
