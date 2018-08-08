@@ -93,7 +93,7 @@
   } while ([fm fileExistsAtPath:resultPath]);
 
   // create empty file
-  [[NSData data] writeToFile:resultPath options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&error];
+  [[NSData data] writeToFile:resultPath options:NSDataWritingFileProtectionNone | NSDataWritingAtomic error:&error];
 
   if (error != nil) {
     //TODO: ?
