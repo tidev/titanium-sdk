@@ -92,7 +92,7 @@ describe('Titanium.UI.WebView', function () {
 			finish();
 		});
 
-		webView.addEventListener('sslerror', function () {
+		webView.addEventListener('sslerror', function (e) {
 			finish(e);
 		});
 
@@ -114,7 +114,7 @@ describe('Titanium.UI.WebView', function () {
 			finish();
 		});
 
-		webView.addEventListener('sslerror', function () {
+		webView.addEventListener('sslerror', function (e) {
 			finish(e);
 		});
 
