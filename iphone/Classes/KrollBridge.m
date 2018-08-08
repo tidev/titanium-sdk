@@ -891,7 +891,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   NSError *jsonStringifyError = nil;
 
   // 1. Parse JSON
-  NSDictionary *nativeJSON = [TiUtils jsonParse:data error:&jsonParseError];
+  __unused NSDictionary *parsedJSON = [TiUtils jsonParse:data error:&jsonParseError];
 
   // 2. Validate parsed JSON
   if (jsonParseError != nil) {
@@ -899,16 +899,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     return nil;
   }
 
-  // 3. Stringify JSON for usage in exports
-  data = [TiUtils jsonStringify:nativeJSON error:&jsonStringifyError];
-
-  // 4. Validate stringified JSON
-  if (jsonStringifyError != nil) {
-    DebugLog(@"[ERROR] Unable to stringify JSON input!");
-    return nil;
-  }
-
-  // 5. assign module.exports as JSON.parse call on the JSON
+  // 3. Assign valid JSON to module.exports
   data = [NSString stringWithFormat:@"module.exports = %@;", data];
 
   return [self loadJavascriptText:data fromFile:filename withContext:kroll];
