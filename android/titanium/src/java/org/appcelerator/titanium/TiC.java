@@ -685,6 +685,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_USER_INTERACTION = "userinteraction";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROXIMITY = "proximity";
 
 	/**
