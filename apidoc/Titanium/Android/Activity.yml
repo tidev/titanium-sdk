@@ -352,7 +352,7 @@ events:
         manage status bar notifications intelligently; specifically, for helping activities determine the 
         proper time to cancel a notfication.
 
-        All calls to your activity's `userleavehint` event will be accompanied by calls to `userinteraction´.
+        All calls to your activity's "userleavehint" event will be accompanied by calls to "userinteraction".
         This ensures that your activity will be told of relevant user activity such as pulling down the 
         notification pane and touching an item there.
 
