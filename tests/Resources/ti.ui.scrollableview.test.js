@@ -73,13 +73,14 @@ describe('Titanium.UI.ScrollableView', function () {
 		this.timeout(5000);
 
 		var scrollableView = Ti.UI.createScrollableView({
-			padding: 20
+			padding: { left: 20, right: 20 }
 		});
 
 		win = Ti.UI.createWindow();
 		win.addEventListener('open', function () {
-			should(scrollableView.padding).be.a.Number;
-			should(scrollableView.padding).eql(20);
+			should(scrollableView.padding).be.an.Object;
+			should(scrollableView.padding.left).eql(20);
+			should(scrollableView.padding.right).eql(20);
 			finish();
 		});
 
