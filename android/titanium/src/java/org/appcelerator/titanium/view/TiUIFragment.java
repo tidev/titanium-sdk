@@ -12,13 +12,18 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
+
+import java.util.ArrayList;
 
 public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 {
 	private static int viewId = 1000;
 
 	private Fragment fragment;
+	private boolean fragmentCommitted = false;
 	protected boolean fragmentOnly = false;
+	private ArrayList<TiUIView> childrenToRealize = new ArrayList<>();
 
 	public TiUIFragment(TiViewProxy proxy, Activity activity)
 	{
@@ -44,9 +49,43 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 
 			FragmentManager manager = ((FragmentActivity) activity).getSupportFragmentManager();
 			FragmentTransaction transaction = manager.beginTransaction();
+			transaction.runOnCommit(onCommitRunnable);
 			fragment = createFragment();
 			transaction.add(container.getId(), fragment);
 			transaction.commitAllowingStateLoss();
+		}
+	}
+
+	private Runnable onCommitRunnable = new Runnable() {
+		@Override
+		public void run() {
+			// Draw all the children that have been added prior the fragment transaction commit.
+			realizeFragmentViews();
+			fragmentCommitted = true;
+		}
+	};
+
+	public void realizeFragmentViews() {
+		for (TiUIView tiUIView: childrenToRealize) {
+			// Draw the views
+			((ViewGroup) getNativeView()).addView(tiUIView.getOuterView(), tiUIView.getLayoutParams());
+			// Move them to the default children array
+			children.add(tiUIView);
+			// Clear and nullify the childrenToRealize array
+			childrenToRealize.clear();
+			childrenToRealize = null;
+		}
+	}
+
+	@Override
+	public void add(TiUIView child) {
+		// If the fragment transaction has been committed add the children the usual way
+		if (fragmentCommitted) {
+			super.add(child);
+		} else {
+			// If the fragment has not been added to the native view add the children in
+			// the array to be realized
+			childrenToRealize.add(child);
 		}
 	}
 
