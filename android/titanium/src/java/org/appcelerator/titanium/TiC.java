@@ -765,6 +765,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ACCEPT_THIRD_PARTY_COOKIES = "acceptThirdPartyCookies";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ACCESSIBILITY_HIDDEN = "accessibilityHidden";
 
 	/**

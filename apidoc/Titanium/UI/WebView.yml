@@ -621,6 +621,20 @@ events:
         type: String
 
 properties:
+  - name: acceptThirdPartyCookies
+    summary: |
+        A Boolean value that determines whether the webview should allow third party cookies to be set.
+    description: |
+        Set to true to allow third party cookies. This could be useful when you are loading a webview
+        from a html file and need to read some cookie that was set on the app using <Titanium.Network.addSystemCookie>
+
+        See also: [url](Titanium.UI.WebView.url)
+    type: Boolean
+    default: false
+    since: {android: "5.0.0"}
+    platforms: [android]
+    availability: creation
+
   - name: allowsLinkPreview
     summary: |
         A Boolean value that determines whether pressing on a link displays a preview of the
