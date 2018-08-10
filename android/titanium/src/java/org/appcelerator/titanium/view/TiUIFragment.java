@@ -58,15 +58,17 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 
 	private Runnable onCommitRunnable = new Runnable() {
 		@Override
-		public void run() {
+		public void run()
+		{
 			// Draw all the children that have been added prior the fragment transaction commit.
 			realizeFragmentViews();
 			fragmentCommitted = true;
 		}
 	};
 
-	public void realizeFragmentViews() {
-		for (TiUIView tiUIView: childrenToRealize) {
+	public void realizeFragmentViews()
+	{
+		for (TiUIView tiUIView : childrenToRealize) {
 			// Draw the views
 			((ViewGroup) getNativeView()).addView(tiUIView.getOuterView(), tiUIView.getLayoutParams());
 			// Move them to the default children array
@@ -78,7 +80,8 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	}
 
 	@Override
-	public void add(TiUIView child) {
+	public void add(TiUIView child)
+	{
 		// If the fragment transaction has been committed add the children the usual way
 		if (fragmentCommitted) {
 			super.add(child);
