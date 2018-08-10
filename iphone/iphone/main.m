@@ -27,7 +27,7 @@ NSString * const TI_APPLICATION_BUILD_TYPE = nil;
 int main(int argc, char *argv[]) {
 
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, argv, nil, @"TiApp");
+    int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");
     [pool release];
     return retVal;
 }
