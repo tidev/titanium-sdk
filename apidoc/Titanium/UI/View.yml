@@ -1990,3 +1990,23 @@ properties:
     type: Boolean
     default: false
     osver: {android: {min: 5.0}}
+
+---
+name: ViewPadding
+summary: Dictionary object of parameters for the padding applied to all kinds of views.
+properties:
+  - name: left
+    type: Number
+    summary: Left padding
+
+  - name: right
+    type: Number
+    summary: Right padding
+
+  - name: top
+    type: Number
+    summary: Top padding
+
+  - name: bottom
+    type: Number
+    summary: Bottom padding
