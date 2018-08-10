@@ -4,8 +4,7 @@
 
 - (void)sendEvent:(UIEvent *)event
 {
-    NSLog(@"UIEvent");
-    // Fire event towards Titanium
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"kTiUserInteraction" object:nil];
     [super sendEvent:event];
 }
 
