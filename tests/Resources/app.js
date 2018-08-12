@@ -31,7 +31,7 @@ describe('global', function () {
 
 // Must have __dirname in the global scope, even in our app.js
 describe('__dirname', function () {
-	it.ios('should be available as \'__dirname\'', function () {
+	it.windowsMissing('should be available as \'__dirname\'', function () {
 		should(__dirname).be.ok;
 		should(__dirname).be.a.String;
 		should(__dirname).be.eql('/');
@@ -40,7 +40,7 @@ describe('__dirname', function () {
 
 // Must have __filename in the global scope, even in our app.js
 describe('__filename', function () {
-	it.ios('should be available as \'__filename\'', function () {
+	it.windowsMissing('should be available as \'__filename\'', function () {
 		should(__filename).be.ok;
 		should(__filename).be.a.String;
 		should(__filename).be.eql('/app.js');
