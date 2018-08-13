@@ -8,7 +8,7 @@ description: |
     Use the <Titanium.UI.createShortcutItem> method to create a shortcut.
 
 extends: Titanium.Proxy
-since: "7.3.0"
+since: "7.4.0"
 methods:
   - name: show
     summary: Allow the shortcut to show.

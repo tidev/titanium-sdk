@@ -338,7 +338,7 @@ events:
         summary: Identifier of the clicked shortcut item.
         type: String
     platforms: [iphone, ipad, android]
-    since: '7.2.0'
+    since: '7.4.0'
 
 methods:
   - name: fireSystemEvent
