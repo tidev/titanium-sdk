@@ -555,6 +555,16 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // Make the global object itself available under the name "global"
   TiStringRef globalPropertyName = TiStringCreateWithCFString((CFStringRef) @"global");
   TiObjectSetProperty(jsContext, globalRef, globalPropertyName, globalRef, kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete, NULL);
+  TiStringRelease(globalPropertyName);
+
+  // Set the __dirname and __filename for the app.js.
+  // For other files, it will be injected via the `TitaniumModuleRequireFormat` property
+  TiStringRef dirnameProperty = TiStringCreateWithCFString((CFStringRef) @"__dirname");
+  TiStringRef filenameProperty = TiStringCreateWithCFString((CFStringRef) @"__filename");
+  TiObjectSetProperty(jsContext, globalRef, dirnameProperty, [KrollObject toValue:kroll value:@"/"], kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete, NULL);
+  TiObjectSetProperty(jsContext, globalRef, filenameProperty, [KrollObject toValue:kroll value:@"/app.js"], kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete, NULL);
+  TiStringRelease(dirnameProperty);
+  TiStringRelease(filenameProperty);
 
   //if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
