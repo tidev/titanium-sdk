@@ -1336,6 +1336,13 @@ events:
     osver: {ios: {min: "8.0"}}
     since: "6.0.0"
 
+     - name: userinteraction
+    summary: Called whenever a touch began event is handled by the application.
+    description: |
+        This event will be triggered each time a UITouchPhaseBegan event is handled by the UIApplication. For more information, see https://developer.apple.com/documentation/uikit/uiapplication/1623043-sendevent
+    osver: {ios: {min: "7.0"}}
+    since: "7.4.0"
+
 ---
 name: NotificationParams
 summary: |
