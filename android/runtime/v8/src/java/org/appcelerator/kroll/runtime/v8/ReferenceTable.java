@@ -44,12 +44,6 @@ public final class ReferenceTable
 		long key = lastKey++;
 		Log.d(TAG, "Creating strong reference for key: " + key, Log.DEBUG_MODE);
 		references.put(key, object);
-
-		// store reference key in proxy
-		if (object instanceof KrollProxy) {
-			((KrollProxy) object).setReferenceKey(key);
-		}
-
 		return key;
 	}
 
@@ -71,9 +65,6 @@ public final class ReferenceTable
 				V8Object v8 = (V8Object) ko;
 				v8.setPointer(0);
 			}
-		}
-		if (obj instanceof KrollProxy) {
-			((KrollProxy) obj).setReferenceKey(0);
 		}
 		references.remove(key);
 	}
