@@ -35,7 +35,7 @@
     "fs-extra": "^0.30.0",
     "glob": "^7.1.2",
     "humanize": "0.0.9",
-    "ioslib": "^1.7.4",
+    "ioslib": "^1.7.5",
     "lodash.defaultsdeep": "^4.6.0",
     "markdown": "0.5.0",
     "moment": "^2.22.2",
