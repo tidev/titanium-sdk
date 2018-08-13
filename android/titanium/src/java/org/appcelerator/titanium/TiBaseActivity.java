@@ -1490,6 +1490,22 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	@Override
 	/**
+	 * When a key, touch, or trackball event is dispatched to the activity, this method fires the
+	 * javascript 'userinteraction' event.
+	 */
+	public void onUserInteraction()
+	{
+		Log.d(TAG, "Activity " + this + " onUserInteraction", Log.DEBUG_MODE);
+
+		if (activityProxy != null) {
+			activityProxy.fireEvent(TiC.EVENT_USER_INTERACTION, null);
+		}
+
+		super.onUserInteraction();
+	}
+
+	@Override
+	/**
 	 * When the activity is about to go into the background as a result of user choice, this method fires the
 	 * javascript 'userleavehint' event.
 	 */
