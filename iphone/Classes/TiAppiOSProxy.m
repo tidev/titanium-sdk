@@ -126,9 +126,6 @@
                                                  name:kTiApplicationLaunchedFromURL
                                                object:nil];
   }
-  if (count == 1 && [type isEqual:@"userinteraction"]) {
-      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleUserInteraction:) name:@"kTiUserInteraction" object:nil];
-    }
 }
 
 - (void)_listenerRemoved:(NSString *)type count:(int)count
@@ -228,11 +225,6 @@
        withObject:@{
          @"launchOptions" : [info userInfo]
        }];
-}
-
-- (void)handleUserInteraction:(id)notification
-{
-  [self fireEvent:@"userinteraction"];
 }
 
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX

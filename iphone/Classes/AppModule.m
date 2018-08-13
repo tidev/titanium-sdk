@@ -103,6 +103,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                                            selector:@selector(accessibilityVoiceOverStatusChanged:)
                                                name:UIAccessibilityVoiceOverStatusChanged
                                              object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(handleUserInteraction:)
+                                           name:@"kTiUserInteraction"
+                                           object:nil];
 }
 
 - (NSString *)apiName
@@ -276,6 +280,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 - (NSNumber *)disableNetworkActivityIndicator
 {
   return NUMBOOL([TiApp app].disableNetworkActivityIndicator);
+}
+
+- (void)handleUserInteraction:(id)notification
+{
+  if ([self _hasListeners:@"userinteraction"]) {
+    [self fireEvent:@"userinteraction" withObject:nil];
+  }
 }
 
 //To fire the keyboard frame change event.

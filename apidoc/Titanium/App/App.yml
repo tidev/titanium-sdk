@@ -331,6 +331,22 @@ events:
     platforms: [iphone, ipad]
     since: '3.1.0'
 
+  - name: userinteraction
+    summary: Called whenever a key, touch, or trackball event is dispatched to the activity.
+    description: |
+        Implement this method if you wish to know that the user has interacted with the device in some 
+        way while your app is running. 
+
+        Note that this callback will be invoked for the touch down action that begins a touch gesture, 
+        but may not be invoked for the touch-moved and touch-up actions that follow.
+
+        See also:
+        [onUserInteraction](https://developer.android.com/reference/android/app/Activity.html#onUserInteraction()) for Android.
+
+        On iOS, this event will be triggered each time a UITouchPhaseBegan event is handled by the UIApplication. For more information, see [sendEvent](https://developer.apple.com/documentation/uikit/uiapplication/1623043-sendevent).
+    platforms: [android, iphone, ipad]
+    since: "7.4.0"
+
 methods:
   - name: fireSystemEvent
     summary: Fire a system-level event such as <Titanium.App.EVENT_ACCESSIBILITY_ANNOUNCEMENT>.
