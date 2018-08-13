@@ -1913,6 +1913,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_INDEX = "index";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_INCLUDE_FONT_PADDING = "includeFontPadding";
 
 	/**
@@ -1969,6 +1974,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_KIND = "kind";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LABELS = "labels";
 
 	/**
 	 * @module.api
