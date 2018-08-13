@@ -4,8 +4,14 @@
 
 - (void)sendEvent:(UIEvent *)event
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"kTiUserInteraction" object:nil];
     [super sendEvent:event];
+    
+    for (UITouch* touch in event.allTouches)
+    {
+        if (touch.phase == UITouchPhaseBegan) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"kTiUserInteraction" object:nil];
+        }
+    }
 }
 
 @end
