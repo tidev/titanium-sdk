@@ -99,6 +99,10 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 					activityOnCreate(savedInstanceState);
 					return;
 				}
+				// TIMOB-25048: fix shortcut intents when application is already running
+				if (intent.hasExtra(TiC.EVENT_PROPERTY_SHORTCUT)) {
+					intent.setAction(Intent.ACTION_MAIN);
+				}
 				rootActivity.setIntent(intent);
 			} else {
 
