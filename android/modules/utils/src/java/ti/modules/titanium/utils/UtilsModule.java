@@ -14,7 +14,9 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -87,7 +89,7 @@ public class UtilsModule extends KrollModule
 	{
 		byte[] data = convertToBytes(obj);
 		if (data != null) {
-			return DigestUtils.md5Hex(data);
+			return new String(Hex.encodeHex(DigestUtils.md5(data)));
 		}
 		return null;
 	}
