@@ -1448,7 +1448,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
-		KrollRuntime.suggestGC();
 	}
 
 	@Override
@@ -1487,6 +1486,22 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			// set the current activity back to what it was originally
 			tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
+	}
+
+	@Override
+	/**
+	 * When a key, touch, or trackball event is dispatched to the activity, this method fires the
+	 * javascript 'userinteraction' event.
+	 */
+	public void onUserInteraction()
+	{
+		Log.d(TAG, "Activity " + this + " onUserInteraction", Log.DEBUG_MODE);
+
+		if (activityProxy != null) {
+			activityProxy.fireEvent(TiC.EVENT_USER_INTERACTION, null);
+		}
+
+		super.onUserInteraction();
 	}
 
 	@Override
@@ -1601,7 +1616,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// Don't dispose the runtime if the activity is forced to destroy by Android,
 		// so we can recover the activity later.
 		KrollRuntime.decrementActivityRefCount(isFinishing);
-		KrollRuntime.suggestGC();
 	}
 
 	@Override
