@@ -201,9 +201,6 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 			this.logger.banner();
 			appc.string.wrap(issues[i].message, this.config.get('cli.width', 100)).split('\n').forEach(function (line, i, arr) {
 				this.logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-				if (!i && arr.length > 1) {
-					this.logger.log();
-				}
 			}, this);
 			this.logger.log();
 			process.exit(1);
@@ -375,7 +372,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SDKS');
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SIMS');
-		this.assertIssue(this.iosInfo.issues, 'IOS_XCODE_EULA_NOT_ACCEPTED');
 
 		callback();
 	}.bind(this));
@@ -2051,6 +2047,14 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 					next();
 				}.bind(this));
+			},
+
+			function checkEULA() {
+				if (!this.xcodeEnv.eulaAccepted) {
+					logger.error(__('Xcode %s end-user license agreement has not been accepted.', this.xcodeEnv.version));
+					logger.error(__('Please launch "%s" or run "sudo xcodebuild -license" to accept the license.', this.xcodeEnv.xcodeapp) + '\n');
+					process.exit(1);
+				}
 			},
 
 			function validateTeamId() {
