@@ -21,7 +21,7 @@
     <orderEntry type="module-library" scope="PROVIDED">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/commons-codec-1.10.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/commons-codec-1.11.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
