@@ -10,24 +10,25 @@
 //automatically replaced and built on the fly - when running in
 //XCode give some reasonable values
 
-NSString * const TI_APPLICATION_DEPLOYTYPE = @"development";
-NSString * const TI_APPLICATION_ID = @"com.appcelerator.kitchensink.xcode";
-NSString * const TI_APPLICATION_PUBLISHER = @"Appcelerator";
-NSString * const TI_APPLICATION_URL = @"http://www.appcelerator.com";
-NSString * const TI_APPLICATION_NAME = @"Kitchen Sink (XCode)";
-NSString * const TI_APPLICATION_VERSION = @"1.0";
-NSString * const TI_APPLICATION_DESCRIPTION = @"Kitchen Sink from XCode";
-NSString * const TI_APPLICATION_COPYRIGHT = @"Appcelerator";
-NSString * const TI_APPLICATION_GUID = @"25FE4B6E-7DA9-4344-B55B-25195570860F";
+NSString *const TI_APPLICATION_DEPLOYTYPE = @"development";
+NSString *const TI_APPLICATION_ID = @"com.appcelerator.kitchensink.xcode";
+NSString *const TI_APPLICATION_PUBLISHER = @"Appcelerator";
+NSString *const TI_APPLICATION_URL = @"http://www.appcelerator.com";
+NSString *const TI_APPLICATION_NAME = @"Kitchen Sink (XCode)";
+NSString *const TI_APPLICATION_VERSION = @"1.0";
+NSString *const TI_APPLICATION_DESCRIPTION = @"Kitchen Sink from XCode";
+NSString *const TI_APPLICATION_COPYRIGHT = @"Appcelerator";
+NSString *const TI_APPLICATION_GUID = @"25FE4B6E-7DA9-4344-B55B-25195570860F";
 BOOL const TI_APPLICATION_ANALYTICS = YES;
 BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER = YES;
-NSString * const TI_APPLICATION_RESOURCE_DIR = nil;
-NSString * const TI_APPLICATION_BUILD_TYPE = nil;
+NSString *const TI_APPLICATION_RESOURCE_DIR = nil;
+NSString *const TI_APPLICATION_BUILD_TYPE = nil;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");
-    [pool release];
-    return retVal;
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+  int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");
+  [pool release];
+  return retVal;
 }

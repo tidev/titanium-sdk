@@ -1497,7 +1497,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	{
 		Log.d(TAG, "Activity " + this + " onUserInteraction", Log.DEBUG_MODE);
 
-        TiApplication.getInstance().fireAppEvent(TiC.EVENT_USER_INTERACTION, null);
+		TiApplication.getInstance().fireAppEvent(TiC.EVENT_USER_INTERACTION, null);
 
 		super.onUserInteraction();
 	}
