@@ -160,6 +160,15 @@ methods:
                 // for Spanish locales, displays "You say adios and I say hola!"
                 Ti.API.info(String.format(L('phrase'), L('greeting', i18nMissingMsg), L('signoff', i18nMissingMsg)));
 
+events:
+  - name: change
+    summary: Fired when the device locale changes.
+    description: |
+        On Android, when a listener for this event is not present, by default the application will soft restart
+        upon a locale change. Once a listener for this event is present, the behaviour for a locale change is developer
+        defined.
+    since: "7.4.0"
+
 properties:
   - name: currentCountry
     summary: Country of the current system locale, as an ISO 2-letter code.
