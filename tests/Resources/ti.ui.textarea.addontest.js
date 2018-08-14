@@ -34,7 +34,7 @@ describe('Titanium.UI.TextArea', function () {
 		});
 
 		tabB = Ti.UI.createTab({
-			window:windowB,
+			window: windowB,
 			title: 'Tab B'
 		});
 
