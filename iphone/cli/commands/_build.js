@@ -1982,14 +1982,6 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 				}
 			},
 
-			function checkEULA() {
-				if (!this.xcodeEnv.eulaAccepted) {
-					logger.error(__('Xcode %s end-user license agreement has not been accepted.', this.xcodeEnv.version));
-					logger.error(__('Please launch "%s" or run "sudo xcodebuild -license" to accept the license.', this.xcodeEnv.xcodeapp) + '\n');
-					process.exit(1);
-				}
-			},
-
 			function selectDevice(next) {
 				if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
 					return next();
@@ -2055,6 +2047,14 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 					next();
 				}.bind(this));
+			},
+
+			function checkEULA() {
+				if (!this.xcodeEnv.eulaAccepted) {
+					logger.error(__('Xcode %s end-user license agreement has not been accepted.', this.xcodeEnv.version));
+					logger.error(__('Please launch "%s" or run "sudo xcodebuild -license" to accept the license.', this.xcodeEnv.xcodeapp) + '\n');
+					process.exit(1);
+				}
 			},
 
 			function validateTeamId() {
