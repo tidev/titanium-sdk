@@ -58,7 +58,10 @@ describe('Titanium.UI.TextArea', function () {
 			keyboardMessageView.add(keyboardMessage);
 			typingView.add(keyboardMessageView);
 			subwin.add(typingView);
-			tabA.open(subwin);
+
+			setTimeout(function () {
+				tabA.open(subwin);
+			}, 1000);
 		});
 
 		tabGroup.open();
