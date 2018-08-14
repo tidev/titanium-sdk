@@ -343,12 +343,12 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String
-
+    deprecated:
+        since: "8.0.0"
 
   - name: selectedBackgroundImage
     summary: Background image to render when the row is selected.
     type: String
-
 
   - name: selectedColor
     summary: Color of the row text when the row is selected, as a color name or hex triplet.
