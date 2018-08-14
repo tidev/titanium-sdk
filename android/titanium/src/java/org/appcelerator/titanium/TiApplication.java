@@ -836,7 +836,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			@Override
 			public void onReceive(Context context, Intent intent)
 			{
-				TiApplication.getInstance().softRestart();
+				final KrollModule locale = getModuleByName("Locale");
+				if (!locale.hasListeners(TiC.EVENT_CHANGE)) {
+					TiApplication.getInstance().softRestart();
+				} else {
+					locale.fireEvent(TiC.EVENT_CHANGE, null);
+				}
 			}
 		};
 
