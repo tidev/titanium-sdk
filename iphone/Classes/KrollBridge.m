@@ -544,8 +544,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   // Set the __dirname and __filename for the app.js.
   // For other files, it will be injected via the `TitaniumModuleRequireFormat` property
-  TiStringRef dirnameProperty = JSStringCreateWithCFString((CFStringRef) @"__dirname");
-  TiStringRef filenameProperty = JSStringCreateWithCFString((CFStringRef) @"__filename");
+  JSStringRef dirnameProperty = JSStringCreateWithCFString((CFStringRef) @"__dirname");
+  JSStringRef filenameProperty = JSStringCreateWithCFString((CFStringRef) @"__filename");
   JSObjectSetProperty(jsContext, globalRef, dirnameProperty, [KrollObject toValue:kroll value:@"/"], kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete, NULL);
   JSObjectSetProperty(jsContext, globalRef, filenameProperty, [KrollObject toValue:kroll value:@"/app.js"], kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete, NULL);
   JSStringRelease(dirnameProperty);
