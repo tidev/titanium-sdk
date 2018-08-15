@@ -11,11 +11,12 @@
 var should = require('./utilities/assertions');
 
 describe('Titanium.UI.AttributedString', function () {
-	it('Ti.UI.AttributedString', function () {
+
+	it.ios('Ti.UI.AttributedString', function () {
 		should(Ti.UI.AttributedString).not.be.undefined;
 	});
 
-	it('apiName', function () {
+	it.ios('apiName', function () {
 		var attributedString = Ti.UI.createAttributedString({
 			text: 'abc'
 		});
@@ -23,24 +24,22 @@ describe('Titanium.UI.AttributedString', function () {
 		should(attributedString.apiName).be.eql('Ti.UI.AttributedString');
 	});
 
-	it('createAttributedString', function () {
-		should(Ti.UI.createAttributedString).not.be.undefined;
-		should(Ti.UI.createAttributedString).be.a.Function;
-
+	it.ios('createAttributedString', function () {
+		
 		var attributedString = Ti.UI.createAttributedString({
 			text: 'abc'
 		});
+
 		should(attributedString).be.a.Object;
-		should(attributedString.apiName).be.a.String;
-		should(attributedString.apiName).be.eql('Ti.UI.AttributedString');
 		should(attributedString.text).be.a.String;
+		should(attributedString.text).be.eql('abc');
 	});
-	
-	it('attributes', function() {
+
+	it.ios('attributes', function () {
 		var str = 'Lorem ipsum dolor sit amet.';
 		var attributedString = Ti.UI.createAttributedString({
 			text: str,
-			attributes: [ {
+			attributes: [	{
 				type: Ti.UI.ATTRIBUTE_PARAGRAPH_STYLE,
 				value: {
 					alignment: Ti.UI.ATTRIBUTE_TEXT_ALIGNMENT_JUSTIFIED,
@@ -48,8 +47,8 @@ describe('Titanium.UI.AttributedString', function () {
 					headIndent: 5,
 					lineSpacing: 5
 				},
-				range: [ 0, str.length ]
-			} ]
+				range: [ 0, str.length]
+			}	]
 		});
 
 		should(attributedString.text).be.eql(str);
@@ -60,7 +59,7 @@ describe('Titanium.UI.AttributedString', function () {
 			value: {
 				fontSize: 16
 			},
-			range: [ 0, str.length ]
+			range: [ 0, str.length]
 		});
 		should(attributedString.attributes.length).be.eql(2);
 	});
