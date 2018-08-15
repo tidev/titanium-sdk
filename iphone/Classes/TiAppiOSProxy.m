@@ -1217,7 +1217,7 @@
   return NUMINT(0);
 }
 
-- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_TITLE
+- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_TITLE
 {
   if ([TiUtils isIOS10OrGreater]) {
     return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowTitle);
@@ -1226,7 +1226,7 @@
   return NUMINT(0);
 }
 
-- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_SUBTITLE
+- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_SUBTITLE
 {
   if ([TiUtils isIOS10OrGreater]) {
     return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowSubtitle);
