@@ -25,7 +25,6 @@ describe('Titanium.UI.AttributedString', function () {
 	});
 
 	it.ios('createAttributedString', function () {
-		
 		var attributedString = Ti.UI.createAttributedString({
 			text: 'abc'
 		});
@@ -47,7 +46,7 @@ describe('Titanium.UI.AttributedString', function () {
 					headIndent: 5,
 					lineSpacing: 5
 				},
-				range: [ 0, str.length]
+				range: [ 0, str.length ]
 			}	]
 		});
 
@@ -59,7 +58,7 @@ describe('Titanium.UI.AttributedString', function () {
 			value: {
 				fontSize: 16
 			},
-			range: [ 0, str.length]
+			range: [ 0, str.length ]
 		});
 		should(attributedString.attributes.length).be.eql(2);
 	});
