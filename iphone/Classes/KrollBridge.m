@@ -540,6 +540,16 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // Make the global object itself available under the name "global"
   JSStringRef globalPropertyName = JSStringCreateWithCFString((CFStringRef) @"global");
   JSObjectSetProperty(jsContext, globalRef, globalPropertyName, globalRef, kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete, NULL);
+  JSStringRelease(globalPropertyName);
+
+  // Set the __dirname and __filename for the app.js.
+  // For other files, it will be injected via the `TitaniumModuleRequireFormat` property
+  TiStringRef dirnameProperty = JSStringCreateWithCFString((CFStringRef) @"__dirname");
+  TiStringRef filenameProperty = JSStringCreateWithCFString((CFStringRef) @"__filename");
+  JSObjectSetProperty(jsContext, globalRef, dirnameProperty, [KrollObject toValue:kroll value:@"/"], kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete, NULL);
+  JSObjectSetProperty(jsContext, globalRef, filenameProperty, [KrollObject toValue:kroll value:@"/app.js"], kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete, NULL);
+  JSStringRelease(dirnameProperty);
+  JSStringRelease(filenameProperty);
 
   //if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
@@ -872,22 +882,20 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (KrollWrapper *)loadJavascriptObject:(NSString *)data fromFile:(NSString *)filename withContext:(KrollContext *)kroll
 {
-  // We could cheat and just do "module.exports = %data%", but that wouldn't validate that the passed in content was JSON
-  // and may open a security hole.
+  NSError *jsonParseError = nil;
+  NSError *jsonStringifyError = nil;
 
-  // TODO It'd be good to try and handle things more gracefully if the JSON is "bad"/malformed
+  // 1. Parse JSON
+  __unused NSDictionary *parsedJSON = [TiUtils jsonParse:data error:&jsonParseError];
 
-  // Take JSON and turn into JS program that assigns module.exports to the parsed JSON
-  // 1. trim leading and trailing newlines and whitespace from JSON file
-  data = [data stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-  // 2. Escape single quotes
-  data = [data stringByReplacingOccurrencesOfString:@"'" withString:@"\'"];
-  // 3. assign module.exports as JSON.parse call on the JSON
-  data = [@"module.exports = JSON.parse('" stringByAppendingString:data];
-  // 4. Replace newlines with "' +\n'"
-  data = [data stringByReplacingOccurrencesOfString:@"\n" withString:@"' +\n'"];
-  // 5. close the JSON string and end the JSON.parse call
-  data = [data stringByAppendingString:@"');"];
+  // 2. Validate parsed JSON
+  if (jsonParseError != nil) {
+    DebugLog(@"[ERROR] Unable to parse JSON input!");
+    return nil;
+  }
+
+  // 3. Assign valid JSON to module.exports
+  data = [NSString stringWithFormat:@"module.exports = %@;", data];
 
   return [self loadJavascriptText:data fromFile:filename withContext:kroll];
 }

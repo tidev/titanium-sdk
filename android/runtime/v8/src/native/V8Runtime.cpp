@@ -164,6 +164,11 @@ void V8Runtime::bootstrap(Local<Context> context)
 	// (Allows you to set stuff on `global` from anywhere in JavaScript.)
 	global->Set(NEW_SYMBOL(isolate, "global"), global);
 
+	// Set the __dirname and __filename for the app.js.
+	// For other files, it will be injected via the `NativeModule` JavaScript class
+	global->Set(NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
+	global->Set(NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
+
 	Local<Function> mainFunction = result.As<Function>();
 	Local<Value> args[] = { kroll };
 	mainFunction->Call(context, global, 1, args);
@@ -199,7 +204,7 @@ using namespace titanium;
  * Method:    nativeInit
  * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)J
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jobject debugger, jboolean DBG, jboolean profilerEnabled)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jobject debugger, jboolean DBG, jboolean profilerEnabled)
 {
 	if (!V8Runtime::initialized) {
 		// Initialize V8.
@@ -215,7 +220,6 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 
 	titanium::JNIScope jniScope(env);
 
-	JavaObject::useGlobalRefs = useGlobalRefs;
 	V8Runtime::DBG = DBG;
 
 	V8Runtime::javaInstance = env->NewGlobalRef(self);
@@ -348,9 +352,13 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nati
 	// while (v8::platform::PumpMessageLoop(V8Runtime::platform, V8Runtime:v8_isolate)) continue;
 	// v8::platform::RunIdleTasks(g_platform, isolate, 50.0 / base::Time::kMillisecondsPerSecond);
 
-	// FIXME What is a good value to use here? We're basically giving it 100 ms to run right now
-	double deadline_in_s = V8Runtime::platform->MonotonicallyIncreasingTime() + 0.1;
-	return V8Runtime::v8_isolate->IdleNotificationDeadline(deadline_in_s);
+	// notify V8 of low memory to suggest a full GC
+	V8Runtime::v8_isolate->LowMemoryNotification();
+	return true;
+
+	// give GC time to perform cleanup (1 second)
+	// double deadline_in_s = V8Runtime::platform->MonotonicallyIncreasingTime() + 1;
+	// return V8Runtime::v8_isolate->IdleNotificationDeadline(deadline_in_s);
 }
 
 /*
