@@ -38,7 +38,7 @@ describe('Titanium.UI.AttributedString', function () {
 		var str = 'Lorem ipsum dolor sit amet.';
 		var attributedString = Ti.UI.createAttributedString({
 			text: str,
-			attributes: [	{
+			attributes: [ {
 				type: Ti.UI.ATTRIBUTE_PARAGRAPH_STYLE,
 				value: {
 					alignment: Ti.UI.ATTRIBUTE_TEXT_ALIGNMENT_JUSTIFIED,
@@ -47,7 +47,7 @@ describe('Titanium.UI.AttributedString', function () {
 					lineSpacing: 5
 				},
 				range: [ 0, str.length ]
-			}	]
+			} ]
 		});
 
 		should(attributedString.text).be.eql(str);
