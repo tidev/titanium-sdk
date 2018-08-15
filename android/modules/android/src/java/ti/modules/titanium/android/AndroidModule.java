@@ -582,7 +582,7 @@ public class AndroidModule extends KrollModule
 	{
 		Activity activity = TiApplication.getAppCurrentActivity();
 		if (activity instanceof TiBaseActivity) {
-			((TiBaseActivity) activity).getActivityProxy();
+			return ((TiBaseActivity) activity).getActivityProxy();
 		}
 		return null;
 	}

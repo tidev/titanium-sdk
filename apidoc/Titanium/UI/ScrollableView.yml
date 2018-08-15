@@ -360,7 +360,8 @@ properties:
     type: Boolean
     availability: creation
     default: true
-    platforms: [iphone, ipad]
+    since: { iphone: 0.9, ipad: 0.9, android: 7.4.0 }
+    platforms: [iphone, ipad, android]
 
   - name: hitRect
     summary: Sets the region where this view responds to gestures.
@@ -374,6 +375,12 @@ properties:
     default: undefined (hit against size of view)
     platforms: [iphone, ipad]
     since: "2.1"
+
+  - name: padding
+    summary: The padding applied to the scrollable view.
+    platforms: [android]
+    type: ViewPadding
+    since: "7.4.0"
 
 examples:
   - title: Simple Scrollable View with 3 Views

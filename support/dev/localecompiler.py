@@ -88,7 +88,7 @@ class LocaleCompiler(object):
 		if not self.isStrings(file):
 			return
 		locale = self.get_locale(file)
-		# for andoird, we can simply copy into the right directory
+		# for android, we can simply copy into the right directory
 		if locale == 'en' or locale.lower() == 'en-us':
 			dir = os.path.join(self.android_dir,'values')
 		else:
@@ -137,10 +137,6 @@ class LocaleCompiler(object):
 					self.compile_for_ios(file)
 				elif self.platform == 'android':
 					self.compile_for_android(file)
-				elif self.platform == 'blackberry':
-					# TODO
-					pass
-			
 		
 		
 if __name__ == "__main__":
