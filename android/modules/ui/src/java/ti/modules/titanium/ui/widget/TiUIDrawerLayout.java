@@ -230,7 +230,6 @@ public class TiUIDrawerLayout extends TiUIView
 			return;
 		}
 		if (activity.getSupportActionBar() != null) {
-			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			activity.getSupportActionBar().setHomeButtonEnabled(true);
 		}
 

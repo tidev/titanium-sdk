@@ -608,6 +608,18 @@ properties:
     since: "1.8.0"
     default: true
 
+  - name: mixedContentMode
+    summary: If `true`, allows the loading of insecure resources from a secure origin.
+    description: |
+        On iOS this functionality can be set in the `<plist>` section of the tiapp.xml
+        using the `NSAllowsArbitraryLoads` key as part of the App Transport Security.
+        The plist key is enabled by default, allowing arbitrary loads to be processed.
+    type: Boolean
+    platforms: [android]
+    since: "7.4.0"
+    default: false
+    availability: creation
+
   - name: scalesPageToFit
     summary: If `true`, scale contents to fit the web view.
     description: |
