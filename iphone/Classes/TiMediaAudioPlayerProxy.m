@@ -316,7 +316,10 @@
 
   [[self player] pause];
   [[self player] seekToTime:kCMTimeZero];
-  [[TiMediaAudioSession sharedSession] stopAudioSession];
+
+  if ([[TiMediaAudioSession sharedSession] isActive]) {
+    [[TiMediaAudioSession sharedSession] stopAudioSession];
+  }
 }
 
 - (void)pause:(id)unused
