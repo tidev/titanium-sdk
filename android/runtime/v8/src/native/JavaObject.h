@@ -76,11 +76,6 @@ public:
 	 */
 	void unreferenceJavaObject(jobject ref);
 
-	// True when we use global refs for the wrapped jobject.
-	// This is false for the emulator since it has a low limit
-	// of how many global refs you can hold. Instead we use an internal
-	// hash map for holding onto references to avoid this limit.
-	static bool useGlobalRefs;
 private:
 	/**
 	 * If we're using global references, this will hold the wrapped object. Otherwise it's NULL

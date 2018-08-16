@@ -36,7 +36,7 @@
     NSArray *languages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
     NSString *preferredLang = [languages objectAtIndex:0];
     [TiLocale setLocale:preferredLang];
-    //[TIMOB-19566]:Truncate the current locale for parity between iOS versions
+    // TIMOB-19566: Truncate the current locale for parity between iOS versions
     [locale setCurrentLocale:[[locale currentLocale] substringToIndex:2]];
   }
   return locale.currentLocale;
@@ -52,6 +52,28 @@
   } else {
     l.bundle = [NSBundle bundleWithPath:path];
   }
+}
+
+- (void)setCurrentLocale:(NSString *)currentLocale
+{
+  [[NSUserDefaults standardUserDefaults] setObject:currentLocale forKey:kTiCurrentLocale];
+}
+
+- (NSString *)currentLocale
+{
+  return [[NSUserDefaults standardUserDefaults] stringForKey:kTiCurrentLocale];
+}
+
+- (NSBundle *)bundle
+{
+  NSString *locale = [[NSUserDefaults standardUserDefaults] stringForKey:kTiCurrentLocale];
+  NSString *path = [[NSBundle mainBundle] pathForResource:locale ofType:@"lproj"];
+
+  if (locale == nil || path == nil) {
+    return NSBundle.mainBundle;
+  }
+
+  return [NSBundle bundleWithPath:path];
 }
 
 + (NSString *)getString:(NSString *)key comment:(NSString *)comment

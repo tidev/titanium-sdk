@@ -435,7 +435,7 @@ properties:
 
   - name: padding
     summary: Sets the padding of this text field.
-    type: TextFieldPadding
+    type: ViewPadding
     platforms: [android, iphone, ipad]
     since: 6.0.0
 

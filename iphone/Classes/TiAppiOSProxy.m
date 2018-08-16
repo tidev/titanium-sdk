@@ -905,7 +905,7 @@
 {
   ENSURE_UI_THREAD(cancelAllLocalNotifications, unused);
 
-  DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications", @"7.3.0", @"App.iOS.UserNotificationCenter.removeAllPendingNotifications");
+  DEPRECATED_REPLACED(@"App.iOS.cancelAllLocalNotifications()", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotifications()");
 
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [[UNUserNotificationCenter currentNotificationCenter] removeAllPendingNotificationRequests];
@@ -919,7 +919,7 @@
   ENSURE_SINGLE_ARG(value, NSObject);
   ENSURE_UI_THREAD(cancelLocalNotification, value);
 
-  DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotificationsWithIdentifiers");
+  DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification(identifier)", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotifications(identifier)");
 
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     NSString *identifier = [TiUtils stringValue:value] ?: @"notification";
@@ -1193,7 +1193,7 @@
   return NUMINT(0);
 }
 
-- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_TITLE
+- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_TITLE
 {
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowTitle);
@@ -1202,7 +1202,7 @@
   return NUMINT(0);
 }
 
-- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_SUBTITLE
+- (NSNumber *)USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_SUBTITLE
 {
   if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     return NUMINT(UNNotificationCategoryOptionHiddenPreviewsShowSubtitle);

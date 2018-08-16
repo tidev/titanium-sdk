@@ -633,9 +633,6 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 			mainHandler = null;
 		}
 		setModelListener(null);
-
-		releaseKroll();
-		KrollRuntime.suggestGC();
 	}
 
 	@Override

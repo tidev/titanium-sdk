@@ -118,7 +118,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			@Override
 			public void postDownload(URI uri)
 			{
-				if (TiResponseCache.peek(uri)) {
+				if (TiResponseCache.peekFollowingRedirects(uri)) {
 					handleCacheAndSetImage(TiDrawableReference.fromUrl(imageViewProxy, uri.toString()));
 				}
 			}
@@ -739,7 +739,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				try {
 					String imageUrl = TiUrl.getCleanUri(imageref.getUrl()).toString();
 					uri = new URI(imageUrl);
-					isCachedInDisk = TiResponseCache.peek(uri);
+					isCachedInDisk = TiResponseCache.peekFollowingRedirects(uri);
 				} catch (URISyntaxException e) {
 					Log.e(TAG, "URISyntaxException for url " + imageref.getUrl(), e);
 				} catch (NullPointerException e) {
