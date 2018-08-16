@@ -30,9 +30,9 @@
       [[self player] pause];
       [[self player] seekToTime:kCMTimeZero];
       _state = TiAudioPlayerStateStopping;
-    }
-    if ([[TiMediaAudioSession sharedSession] isActive]) {
-      [[TiMediaAudioSession sharedSession] stopAudioSession];
+      if ([[TiMediaAudioSession sharedSession] isActive]) {
+        [[TiMediaAudioSession sharedSession] stopAudioSession];
+      }
     }
   },
       YES);
