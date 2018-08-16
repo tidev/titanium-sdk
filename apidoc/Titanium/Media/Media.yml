@@ -97,6 +97,10 @@ methods:
         files may be imported by saving them with the `.mov` extension.
 
         On Android this method *only supports saving images* to the device gallery prior to Titanium SDK 6.1.0.
+        
+        On iOS the `NSPhotoLibraryAddUsageDescription` plist key is required in the tiapp.xml in order
+        to use this API. Also make sure to check for the gallery permissions with <Titanium.Media.hasPhotoGalleryPermissions>
+        and request the permissions with <Titanium.Media.requestPhotoGalleryPermissions> if not granted so far.
 
     platforms: [iphone, ipad, android]
     parameters:
