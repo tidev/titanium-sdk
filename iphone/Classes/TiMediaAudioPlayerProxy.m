@@ -26,10 +26,16 @@
 - (void)_destroy
 {
   if (_state == TiAudioPlayerStatePlaying || _state == TiAudioPlayerStatePaused) {
-    [self stop:nil];
+    [[self player] pause];
+    [[self player] seekToTime:kCMTimeZero];
+    _state = TiAudioPlayerStateStopping;
+  }
+  if ([[TiMediaAudioSession sharedSession] isActive]) {
+    [[TiMediaAudioSession sharedSession] stopAudioSession];
   }
 
   [self removeNotificationObserver];
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 
   _player = nil;
   [super _destroy];
