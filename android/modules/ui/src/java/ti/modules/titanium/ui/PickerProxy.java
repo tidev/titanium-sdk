@@ -47,12 +47,14 @@ import android.widget.TimePicker;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
-		"locale",
+		TiC.PROPERTY_LOCALE,
 		TiC.PROPERTY_SELECTION_OPENS,
-		"visibleItems",
-		"value",
+		TiC.PROPERTY_VISIBLE_ITEMS,
+		TiC.PROPERTY_VALUE,
 		TiC.PROPERTY_CALENDAR_VIEW_SHOWN,
-		TiC.PROPERTY_FONT
+		TiC.PROPERTY_FONT,
+		TiC.PROPERTY_MIN_DATE,
+		TiC.PROPERTY_MAX_DATE
 })
 // clang-format on
 public class PickerProxy extends TiViewProxy implements PickerColumnListener
@@ -677,6 +679,13 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		if (settings.containsKey("title")) {
 			dialog.setTitle(TiConvert.toString(settings, "title"));
 		}
+		dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+			@Override
+			public void onShow(DialogInterface dialog)
+			{
+				fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
+			}
+		});
 		dialog.show();
 		if (settings.containsKey("okButtonTitle")) {
 			dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));

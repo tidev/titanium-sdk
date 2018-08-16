@@ -23,7 +23,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,7 +53,6 @@ public class TiLocation implements Handler.Callback
 	private String appGuid;
 	private String sessionId;
 	private String countryCode;
-	private long lastAnalyticsTimestamp = 0;
 	private List<String> knownProviders;
 	private Handler runtimeHandler;
 
@@ -66,9 +64,9 @@ public class TiLocation implements Handler.Callback
 	{
 		locationManager = (LocationManager) TiApplication.getInstance().getSystemService(Context.LOCATION_SERVICE);
 		knownProviders = locationManager.getAllProviders();
-		mobileId = TiPlatformHelper.getInstance().getMobileId();
+		mobileId = APSAnalytics.getInstance().getMachineId();
 		appGuid = TiApplication.getInstance().getAppInfo().getGUID();
-		sessionId = TiPlatformHelper.getInstance().getSessionId();
+		sessionId = APSAnalytics.getInstance().getCurrentSessionId();
 		countryCode = Locale.getDefault().getCountry();
 		runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}
@@ -95,17 +93,25 @@ public class TiLocation implements Handler.Callback
 
 	public boolean getLocationServicesEnabled()
 	{
+		// Fetch all enabled location providers.
 		List<String> providerNames = locationManager.getProviders(true);
+		if ((providerNames == null) || (providerNames.size() <= 0)) {
+			return false;
+		}
 
+		// Log all providers currently enabled.
 		if (Log.isDebugModeEnabled()) {
 			Log.i(TAG, "Enabled location provider count: " + providerNames.size());
-
 			for (String providerName : providerNames) {
 				Log.i(TAG, providerName + " service available");
 			}
 		}
 
-		return providerNames.size() != 0 && getLastKnownLocation() != null;
+		// Only return true if location can be obtained via GPS or WiFi/Cellular.
+		// Ignore "passive" provider and "test" providers.
+		boolean isEnabled = providerNames.contains(LocationManager.GPS_PROVIDER);
+		isEnabled |= providerNames.contains(LocationManager.NETWORK_PROVIDER);
+		return isEnabled;
 	}
 
 	public Location getLastKnownLocation()
@@ -134,16 +140,6 @@ public class TiLocation implements Handler.Callback
 		}
 
 		return latestKnownLocation;
-	}
-
-	public void doAnalytics(Location location)
-	{
-		long locationTime = location.getTime();
-		TiApplication application = TiApplication.getInstance();
-		if ((locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY)
-			&& application.isAnalyticsEnabled() && !application.isAnalyticsFiltered("ti.geo")) {
-			APSAnalytics.getInstance().sendAppGeoEvent(location);
-		}
 	}
 
 	public void forwardGeocode(String address, GeocodeResponseHandler responseHandler)

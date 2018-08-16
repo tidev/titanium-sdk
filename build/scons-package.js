@@ -16,9 +16,9 @@ const os = require('os'),
 	ALL_OSES = [ 'win32', 'linux', 'osx' ],
 	ALL_PLATFORMS = [ 'ios', 'android', 'windows' ],
 	OS_TO_PLATFORMS = {
-		'win32': [ 'android', 'windows' ],
-		'osx': [ 'android', 'ios' ],
-		'linux': [ 'android' ]
+		win32: [ 'android', 'windows' ],
+		osx: [ 'android', 'ios' ],
+		linux: [ 'android' ]
 	};
 
 program

@@ -418,7 +418,7 @@ function patchLogger(logger, cli) {
 		fs.existsSync(buildDir) || wrench.mkdirSyncRecursive(buildDir, 0o766);
 
 		// create our write stream
-		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { 'flags': 'w', 'encoding': 'utf8', 'mode': 0o666 });
+		logger.log.filestream = fs.createWriteStream(path.join(buildDir, 'build_' + platform + '.log'), { flags: 'w', encoding: 'utf8', mode: 0o666 });
 
 		function styleHeading(s) {
 			return ('' + s).bold;

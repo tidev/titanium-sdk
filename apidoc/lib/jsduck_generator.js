@@ -19,7 +19,7 @@ function convertAPIToLink(apiName) {
 	if ((apiName.match(/\./g) || []).length) {
 		const member = apiName.split('.').pop(),
 			cls = apiName.substring(0, apiName.lastIndexOf('.'));
-		if (!(cls in doc)) {
+		if (!(cls in doc) && !apiName.startsWith('Modules.')) {
 			common.log(common.LOG_WARN, 'Cannot find class: %s', cls);
 			return null;
 		}
@@ -34,7 +34,9 @@ function convertAPIToLink(apiName) {
 			return cls + '#event-' + member;
 		}
 	}
-	common.log(common.LOG_WARN, 'Cannot find API: %s', apiName);
+	if (!apiName.startsWith('Modules.')) {
+		common.log(common.LOG_WARN, 'Cannot find API: %s', apiName);
+	}
 	return null;
 }
 
@@ -221,7 +223,7 @@ function exportType(api) {
 		}
 		types.forEach(function (type) {
 			if (type.indexOf('Array') === 0) {
-				rv.push(exportType({ 'type': type.slice(type.indexOf('<') + 1, type.lastIndexOf('>')) }) + '[]');
+				rv.push(exportType({ type: type.slice(type.indexOf('<') + 1, type.lastIndexOf('>')) }) + '[]');
 			} else {
 				rv.push(type);
 			}
@@ -236,33 +238,32 @@ function exportType(api) {
 
 /**
  * Export method parameters or event properties field
- * @param {Object[]} apis full api tree
- * @return {string[]}
+ * This really just:
+ * - tweaks the summary property to format the markdown and concatenate constants listing.
+ * - normalizes the type property to be an Array of types
+ * @param {Object[]} apis original parameters/properties
+ * @return {object[]}
  */
 function exportParams(apis) {
-	const rv = [];
+	const parameters = [];
 	apis.forEach(function (member) {
-		let platforms = '',
-			optional = '',
-			str = '';
+	// 	let platforms = '';
 		if (!('type' in member) || !member.type) {
 			member.type = 'String';
 		}
 		if (!Array.isArray(member.type)) {
 			member.type = [ member.type ];
 		}
-		if ('platforms' in member) {
-			platforms = ' (' + member.platforms.join(' ') + ') ';
-		}
-		if ('optional' in member && member.optional === true) {
-			optional += ' (optional)';
-		}
-		str += '{' +  member.type.join('/') + '} ' + platforms + member.name + optional + '\n';
-		str += exportSummary(member);
-		str += exportConstants(member);
-		rv.push(str);
+		// 	if ('platforms' in member) {
+		// 		platforms = ' (' + member.platforms.join(' ') + ') ';
+		// 	}
+		// TODO Append the platform list to the summary!
+		let summary = exportSummary(member);
+		summary += exportConstants(member);
+		member.summary = summary;
+		parameters.push(member);
 	});
-	return rv;
+	return parameters;
 }
 
 /**
@@ -295,28 +296,12 @@ function exportReturns(api) {
 			}
 		});
 		if (constants.length) {
-			summary += exportConstants({ 'constants': constants });
+			summary += exportConstants({ constants: constants });
 		}
-		rv = '{' + exportType({ 'type': types }) + '}' + summary;
+		rv = '{' + exportType({ type: types }) + '}' + summary;
 	}
 	return rv;
 
-}
-
-/**
- * Export default field
- * @param {Object} api api object
- * @return {string}
- */
-function exportDefault(api) {
-	if ('default' in api && api['default'] !== 'undefined') {
-		if (typeof api['default'] === 'string') {
-			return convertLinks(api['default']);
-		} else {
-			return api['default'];
-		}
-	}
-	return '';
 }
 
 /**
@@ -408,11 +393,11 @@ function exportAPIs(api, type) {
 						}
 						member.properties = member.properties.concat(doc['Titanium.Event'].properties);
 					}
-					annotatedMember.properties = exportParams(member.properties, 'properties');
+					annotatedMember.properties = exportParams(member.properties);
 					break;
 				case 'methods':
 					if ('parameters' in member) {
-						annotatedMember.parameters = exportParams(member.parameters, 'parameters');
+						annotatedMember.parameters = exportParams(member.parameters);
 					}
 					if ('returns' in member) {
 						annotatedMember.returns = exportReturns(member);
@@ -421,7 +406,10 @@ function exportAPIs(api, type) {
 				case 'properties':
 					annotatedMember.availability = member.availability || null;
 					annotatedMember.constants = exportConstants(member);
-					annotatedMember.defaultValue = exportDefault(member);
+					// FIXME How can we handle setting empty string, false, or undefined as default values?
+					if ('default' in member) {
+						annotatedMember['default'] = member['default'];
+					}
 					annotatedMember.permission = member.permission || 'read-write';
 					annotatedMember.type = exportType(member);
 					annotatedMember.value = exportValue(member);

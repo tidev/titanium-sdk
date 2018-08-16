@@ -444,7 +444,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_GRADIENT);
 	}
 
-	private boolean hasBorder(KrollDict d)
+	protected boolean hasBorder(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
 			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
@@ -546,7 +546,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					public void callAsync(KrollObject krollObject, Object[] args)
 					{
 						bTransformPending.set(false);
-						proxy.handlePendingAnimation(true);
+						p.handlePendingAnimation(true);
 					}
 				});
 				animBuilder.start(p, v);
@@ -1157,7 +1157,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	/**
 	 * @param props View's property dictionary
-	 * @return true if touch feedback can be applied. 
+	 * @return true if touch feedback can be applied.
 	 */
 	protected boolean canApplyTouchFeedback(@NonNull KrollDict props)
 	{
@@ -1166,17 +1166,17 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	}
 
 	/**
-	 * Applies touch feedback. Should check canApplyTouchFeedback() before calling this. 
-	 * @param backgroundColor The background color of the view. 
+	 * Applies touch feedback. Should check canApplyTouchFeedback() before calling this.
+	 * @param backgroundColor The background color of the view.
 	 * @param rippleColor The ripple color.
 	 */
 	private void applyTouchFeedback(@NonNull Integer backgroundColor, @Nullable Integer rippleColor)
 	{
 		if (rippleColor == null) {
-			Context context = TiApplication.getInstance();
+			Context context = proxy.getActivity();
 			TypedValue attribute = new TypedValue();
 			if (context.getTheme().resolveAttribute(android.R.attr.colorControlHighlight, attribute, true)) {
-				rippleColor = context.getResources().getColor(attribute.resourceId);
+				rippleColor = attribute.data;
 			} else {
 				throw new RuntimeException("android.R.attr.colorControlHighlight cannot be resolved into Drawable");
 			}
@@ -1186,19 +1186,24 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		nativeView.setBackground(rippleDrawable);
 	}
 
+	@Override
 	public void onFocusChange(final View v, boolean hasFocus)
 	{
+		// Show/hide the virtual keyboard.
 		if (hasFocus) {
 			TiMessenger.postOnMain(new Runnable() {
+				@Override
 				public void run()
 				{
 					TiUIHelper.requestSoftInputChange(proxy, v);
 				}
 			});
-			fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus));
-		} else {
-			fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus));
 		}
+
+		// Fire a focus/blur event. (This event should not be bubbled.)
+		boolean isBubbled = false;
+		String eventName = hasFocus ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
+		fireEvent(eventName, getFocusEventObject(hasFocus), isBubbled);
 	}
 
 	protected KrollDict getFocusEventObject(boolean hasFocus)
@@ -1266,6 +1271,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 				d = null;
 			}
+			if (!(nativeView instanceof AdapterView)) {
+				nativeView.setOnClickListener(null);
+			}
+			nativeView.setOnLongClickListener(null);
+			nativeView.setOnTouchListener(null);
+			nativeView.setOnDragListener(null);
 			nativeView.setOnFocusChangeListener(null);
 			nativeView = null;
 			borderView = null;
@@ -1278,8 +1289,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				remove(child);
 			}
 			children.clear();
+			children = null;
 		}
-		children = null;
 		proxy = null;
 		layoutParams = null;
 	}
@@ -1355,13 +1366,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (gradientProperties != null) {
 			try {
 				gradientDrawable = new TiGradientDrawable(nativeView, gradientProperties);
-				if (gradientDrawable.getGradientType() == GradientType.RADIAL_GRADIENT) {
-					// TODO: Remove this once we support radial gradients.
-					Log.w(TAG, "Android does not support radial gradients.");
-					gradientDrawable = null;
+			} catch (Exception ex) {
+				String message = ex.getMessage();
+				if (message == null) {
+					message = "Unknown";
 				}
-			} catch (IllegalArgumentException e) {
-				gradientDrawable = null;
+				Log.e(TAG, "Failed to create '" + TiC.PROPERTY_BACKGROUND_GRADIENT + "'. Reason: " + message);
 			}
 		}
 
@@ -1599,7 +1609,18 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 					if (didScale) {
 						KrollDict data = new KrollDict();
+						data.put(TiC.EVENT_PROPERTY_CURRENT_SPAN, sgd.getCurrentSpan());
+						data.put(TiC.EVENT_PROPERTY_CURRENT_SPAN_X, sgd.getCurrentSpanX());
+						data.put(TiC.EVENT_PROPERTY_CURRENT_SPAN_Y, sgd.getCurrentSpanY());
+						data.put(TiC.EVENT_PROPERTY_TIME, sgd.getEventTime());
+						data.put(TiC.EVENT_PROPERTY_FOCUS_X, sgd.getFocusX());
+						data.put(TiC.EVENT_PROPERTY_FOCUS_Y, sgd.getFocusY());
+						data.put(TiC.EVENT_PROPERTY_PREVIOUS_SPAN, sgd.getPreviousSpan());
+						data.put(TiC.EVENT_PROPERTY_PREVIOUS_SPAN_X, sgd.getPreviousSpanX());
+						data.put(TiC.EVENT_PROPERTY_PREVIOUS_SPAN_Y, sgd.getPreviousSpanY());
 						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+						data.put(TiC.EVENT_PROPERTY_TIME_DELTA, sgd.getTimeDelta());
+						data.put(TiC.EVENT_PROPERTY_IN_PROGRESS, sgd.isInProgress());
 						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
 						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 

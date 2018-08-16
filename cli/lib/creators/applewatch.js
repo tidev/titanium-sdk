@@ -67,8 +67,8 @@ AppleWatchCreator.prototype.init = function init() {
 	return this.conf = {
 		options: {
 			'project-dir': this.configOptionProjectDir(130),
-			'name':        this.configOptionAppName(140),
-			'template':    this.configOptionTemplate(160, 'watchos3-swift')
+			name:        this.configOptionAppName(140),
+			template:    this.configOptionTemplate(160, 'watchos3-swift')
 		}
 	};
 };

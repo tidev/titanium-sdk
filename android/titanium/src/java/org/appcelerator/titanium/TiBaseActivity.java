@@ -150,6 +150,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
+	public static boolean canFinishRoot = true;
+
 	private boolean overridenLayout;
 
 	public class DialogWrapper
@@ -420,18 +422,24 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	// Subclasses can override to provide a custom layout
 	protected View createLayout()
 	{
+		// Set up the view's layout.
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
-
 		String layoutFromIntent = getIntentString(TiC.INTENT_PROPERTY_LAYOUT, "");
 		if (layoutFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
 			arrangement = LayoutArrangement.HORIZONTAL;
-
 		} else if (layoutFromIntent.equals(TiC.LAYOUT_VERTICAL)) {
 			arrangement = LayoutArrangement.VERTICAL;
 		}
 
-		// set to null for now, this will get set correctly in setWindowProxy()
-		return new TiCompositeLayout(this, arrangement, null);
+		// Create the root view to be used by the activity.
+		// - Set the layout's proxy to null for now. Will be set later via setWindowProxy().
+		// - Make it focusable so Android won't auto-focus on the first focusable child view in the window.
+		//   This makes it match iOS' behavior where no child view has the focus when a window is opened.
+		TiCompositeLayout compositeLayout = new TiCompositeLayout(this, arrangement, null);
+		compositeLayout.setFocusable(true);
+		compositeLayout.setFocusableInTouchMode(true);
+		compositeLayout.setDescendantFocusability(TiCompositeLayout.FOCUS_BEFORE_DESCENDANTS);
+		return compositeLayout;
 	}
 
 	@Override
@@ -663,7 +671,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 		super.onCreate(savedInstanceState);
 
-		windowCreated(savedInstanceState);
+		try {
+			windowCreated(savedInstanceState);
+		} catch (Throwable t) {
+			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+		}
 
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
@@ -710,9 +722,20 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private void setCustomActionBar()
 	{
 		if (activityProxy.hasProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)) {
-			this.setSupportActionBar(
-				((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR))
-					 .getToolbarInstance()));
+			try {
+				this.setSupportActionBar(
+					((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR))
+						 .getToolbarInstance()));
+			} catch (RuntimeException e) {
+				Log.e(
+					TAG,
+					"Attempting to use Toolbar as ActionBar without disabling the default ActionBar in the current theme.\n"
+						+ "You must set 'windowActionBar' to false in your current theme. Or use one of the following themes:\n"
+						+ " - Theme.Titanium\n - Theme.AppCompat.Translucent.NoTitleBar\n - Theme.AppCompat.NoTitleBar\n"
+						+ "Which have ActionBar disabled by default.");
+				TiApplication.terminateActivityStack();
+				finish();
+			}
 		}
 	}
 
@@ -1160,13 +1183,17 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		data.put("source", activityProxy);
 
 		final KrollDict d = data;
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run()
-			{
-				activityProxy.callPropertySync(name, new Object[] { d });
-			}
-		});
+		if (TiApplication.isUIThread()) {
+			activityProxy.callPropertyAsync(name, new Object[] { d });
+		} else {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run()
+				{
+					activityProxy.callPropertySync(name, new Object[] { d });
+				}
+			});
+		}
 	}
 
 	private void releaseDialogs(boolean finish)
@@ -1421,7 +1448,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
-		KrollRuntime.suggestGC();
 	}
 
 	@Override
@@ -1460,6 +1486,22 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			// set the current activity back to what it was originally
 			tiApp.setCurrentActivity(this, tempCurrentActivity);
 		}
+	}
+
+	@Override
+	/**
+	 * When a key, touch, or trackball event is dispatched to the activity, this method fires the
+	 * javascript 'userinteraction' event.
+	 */
+	public void onUserInteraction()
+	{
+		Log.d(TAG, "Activity " + this + " onUserInteraction", Log.DEBUG_MODE);
+
+		if (activityProxy != null) {
+			activityProxy.fireEvent(TiC.EVENT_USER_INTERACTION, null);
+		}
+
+		super.onUserInteraction();
 	}
 
 	@Override
@@ -1544,15 +1586,20 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		//LW windows
 		if (window == null && view != null) {
-			view.releaseViews();
 			view.release();
+			view = null;
+		}
+		if (view != null) {
+			view.releaseViews();
 			view = null;
 		}
 
 		if (window != null) {
+			if (windowStack.contains(window)) {
+				removeWindowFromStack(window);
+			}
 			window.closeFromActivity(isFinishing);
 			window.releaseViews();
-			window.releaseKroll();
 			window = null;
 		}
 
@@ -1569,7 +1616,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// Don't dispose the runtime if the activity is forced to destroy by Android,
 		// so we can recover the activity later.
 		KrollRuntime.decrementActivityRefCount(isFinishing);
-		KrollRuntime.suggestGC();
 	}
 
 	@Override
@@ -1634,7 +1680,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	protected boolean shouldFinishRootActivity()
 	{
-		return getIntentBoolean(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
+		return canFinishRoot && getIntentBoolean(TiC.INTENT_PROPERTY_FINISH_ROOT, false);
 	}
 
 	@Override

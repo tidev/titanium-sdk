@@ -2,6 +2,7 @@ package ti.modules.titanium.media;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
@@ -17,7 +18,6 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.webkit.URLUtil;
@@ -173,10 +173,10 @@ public class TiThumbnailRetriever implements Handler.Callback
 						}
 					} else {
 						mUri = TiUIHelper.getRedirectUri(mUri);
-						if (Build.VERSION.SDK_INT >= 14) {
-							mMediaMetadataRetriever.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri);
+						if (URLUtil.isNetworkUrl(mUri.toString())) {
+							mMediaMetadataRetriever.setDataSource(mUri.toString(), new HashMap<String, String>());
 						} else {
-							mMediaMetadataRetriever.setDataSource(mUri.toString());
+							mMediaMetadataRetriever.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri);
 						}
 					}
 				} catch (IOException ex) {

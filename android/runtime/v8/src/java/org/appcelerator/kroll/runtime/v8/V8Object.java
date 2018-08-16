@@ -84,7 +84,6 @@ public class V8Object extends KrollObject
 
 		if (!KrollRuntime.isDisposed() && nativeRelease(ptr)) {
 			ptr = 0;
-			KrollRuntime.suggestGC();
 		}
 	}
 

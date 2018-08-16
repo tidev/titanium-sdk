@@ -25,6 +25,7 @@ import ti.modules.titanium.ui.LabelProxy;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.TiUILabel;
+import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
@@ -357,7 +358,16 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		selectorSource = newSelectorSource;
 		if (selectorSource != null) {
-			rp.getTable().getTableView().getTableView().enableCustomSelector();
+			TableViewProxy tableViewProxy = rp.getTable();
+			if (tableViewProxy != null) {
+				TiUITableView tableView = tableViewProxy.getTableView();
+				if (tableViewProxy != null) {
+					TiTableView view = tableView.getTableView();
+					if (view != null) {
+						view.enableCustomSelector();
+					}
+				}
+			}
 		}
 
 		setBackgroundFromProxy(rp);
@@ -422,6 +432,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				height =
 					TiConvert.toTiDimension(TiConvert.toString(props, TiC.PROPERTY_HEIGHT), TiDimension.TYPE_HEIGHT);
 			}
+		}
+
+		if (content == null) {
+			this.content = new TiCompositeLayout(getRowProxy().getActivity());
+			addView(content, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		}
 
 		if (props.containsKey(TiC.PROPERTY_LAYOUT)) {
@@ -637,12 +652,15 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	@Override
 	public void release()
 	{
-		super.release();
 		if (views != null) {
 			for (TiUIView view : views) {
 				view.release();
 			}
+			views.clear();
 			views = null;
+		}
+		if (item != null) {
+			item = null;
 		}
 		if (content != null) {
 			content.removeAllViews();
@@ -656,5 +674,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			hasChildDrawable.setCallback(null);
 			hasChildDrawable = null;
 		}
+
+		super.release();
 	}
 }

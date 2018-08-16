@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.TiC;
 import org.json.JSONArray;
@@ -169,6 +170,11 @@ public class KrollDict extends HashMap<String, Object>
 		return TiConvert.toStringArray((Object[]) get(key));
 	}
 
+	public int[] getIntArray(String key)
+	{
+		return TiConvert.toIntArray((Object[]) get(key));
+	}
+
 	@SuppressWarnings("unchecked")
 	public KrollDict getKrollDict(String key)
 	{
@@ -180,6 +186,24 @@ public class KrollDict extends HashMap<String, Object>
 		} else {
 			return null;
 		}
+	}
+
+	public KrollDict[] getKrollDictArray(String key)
+	{
+		String[] value = getStringArray(key);
+		KrollDict[] result = new KrollDict[value.length];
+		int index = 0;
+		for (String record : value) {
+			KrollDict dictionary = null;
+			try {
+				dictionary = new KrollDict(new JSONObject(record));
+			} catch (JSONException e) {
+				e.printStackTrace();
+				Log.w(TAG, "Unable to parse dictionary.");
+			}
+			result[index++] = dictionary;
+		}
+		return result;
 	}
 
 	public boolean isNull(String key)

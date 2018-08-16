@@ -7,12 +7,15 @@
 # libv8 (for both ARMv5 and ARMv7a)
 LOCAL_PATH := $(call my-dir)
 
+define GetFromPkg
+$(shell node -p "require('$(LOCAL_PATH)/../../../../../package.json').$(1)")
+endef
+
 include $(CLEAR_VARS)
 
-# Read android/build/libv8.properties to get v8 version and mode (release or debug)
-include $(LOCAL_PATH)/../../../../../build/libv8.properties
-V8_VERSION=$(libv8.version)
-LIBV8_MODE := $(libv8.mode)
+# Read android/package.json to get v8 version and mode (release or debug)
+V8_VERSION=$(call GetFromPkg,v8.version)
+LIBV8_MODE := $(call GetFromPkg,v8.mode)
 LIBV8_DIR := $(TI_DIST_DIR)/android/libv8/$(V8_VERSION)/$(LIBV8_MODE)
 
 # https://jira.appcelerator.org/browse/TIMOB-15263

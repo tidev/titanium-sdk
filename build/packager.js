@@ -94,9 +94,9 @@ function Packager(outputDir, targetOS, platforms, version, versionTag, moduleApi
 	this.timestamp = '' + (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + (date.getUTCFullYear()) + ' ' + leftpad(date.getUTCHours(), 2, '0') + ':' + leftpad(date.getUTCMinutes(), 2, '0');
 	this.zipFile = path.join(this.outputDir, 'mobilesdk-' + this.versionTag + '-' + this.targetOS + '.zip');
 	this.packagers = {
-		'android': this.zipAndroid.bind(this),
-		'ios': this.zipIOS.bind(this),
-		'windows': this.zipWindows.bind(this)
+		android: this.zipAndroid.bind(this),
+		ios: this.zipIOS.bind(this),
+		windows: this.zipWindows.bind(this)
 	};
 	// Location where we build up the zip file contents
 	this.zipDir = path.join(this.outputDir, 'ziptmp');

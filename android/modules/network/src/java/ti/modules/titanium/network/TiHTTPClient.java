@@ -52,6 +52,7 @@ import javax.net.ssl.X509TrustManager;
 import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -222,19 +223,23 @@ public class TiHTTPClient
 			responseData = null;
 
 			int status = connection.getResponseCode();
+			// Stream holding the server's response
 			InputStream in;
-
+			// Stream holding the buffered response if there is one
+			InputStream is = null;
 			if (status >= 400) {
 				in = connection.getErrorStream();
 			} else {
 				in = connection.getInputStream();
 			}
 
-			if ("gzip".equalsIgnoreCase(contentEncoding)) {
-				in = new GZIPInputStream(in);
+			// Guard for null stream response from the server
+			if (in != null) {
+				if ("gzip".equalsIgnoreCase(contentEncoding)) {
+					in = new GZIPInputStream(in);
+				}
+				is = new BufferedInputStream(in);
 			}
-
-			InputStream is = new BufferedInputStream(in);
 
 			if (is != null) {
 				Log.d(TAG, "Content length: " + contentLength, Log.DEBUG_MODE);
@@ -289,8 +294,12 @@ public class TiHTTPClient
 		}
 
 		if (tiFile == null) {
-			outFile = TiFileFactory.createDataFile("tihttp", "tmp");
-			tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			TiApplication app = TiApplication.getInstance();
+			if (app != null) {
+				TiTempFileHelper tempFileHelper = app.getTempFileHelper();
+				outFile = tempFileHelper.createTempFile("tihttp", "tmp");
+				tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			}
 		}
 
 		if (dumpResponseOut) {
@@ -713,7 +722,7 @@ public class TiHTTPClient
 	public String getResponseHeader(String getHeaderName)
 	{
 		String result = "";
-		if (!responseHeaders.isEmpty()) {
+		if (responseHeaders != null && !responseHeaders.isEmpty()) {
 			boolean firstPass = true;
 			StringBuilder sb = new StringBuilder(256);
 			Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
@@ -895,14 +904,7 @@ public class TiHTTPClient
 				String mimeType = blob.getMimeType();
 				File tmpFile =
 					File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
-				if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
-					FileOutputStream fos = new FileOutputStream(tmpFile);
-					TiBaseFile.copyStream(blob.getInputStream(),
-										  new Base64OutputStream(fos, android.util.Base64.DEFAULT));
-					fos.close();
-				} else {
-					createFileFromBlob(blob, tmpFile);
-				}
+				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);
 

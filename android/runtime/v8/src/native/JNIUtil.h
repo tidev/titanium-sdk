@@ -91,6 +91,7 @@ public:
 	static jclass setClass;
 	static jclass outOfMemoryError;
 	static jclass throwableClass;
+	static jclass stackTraceElementClass;
 	static jclass nullPointerException;
 
 	// Titanium classes
@@ -128,6 +129,8 @@ public:
 	static jmethodID longInitMethod;
 	static jmethodID numberDoubleValueMethod;
 	static jmethodID throwableGetMessageMethod;
+	static jmethodID throwableGetStackTraceMethod;
+	static jmethodID stackTraceElementToStringMethod;
 
 	// Titanium methods and fields
 	static jfieldID v8ObjectPtrField;
@@ -140,8 +143,10 @@ public:
 	static jmethodID referenceTableCreateReferenceMethod;
 	static jmethodID referenceTableDestroyReferenceMethod;
 	static jmethodID referenceTableMakeWeakReferenceMethod;
-	static jmethodID referenceTableClearWeakReferenceMethod;
+	static jmethodID referenceTableMakeSoftReferenceMethod;
+	static jmethodID referenceTableClearReferenceMethod;
 	static jmethodID referenceTableGetReferenceMethod;
+	static jmethodID referenceTableIsStrongReferenceMethod;
 
 	static jint krollRuntimeDontIntercept;
 	static jmethodID krollInvocationInitMethod;

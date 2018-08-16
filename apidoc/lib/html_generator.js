@@ -46,7 +46,7 @@ function convertAPIToLink(apiName) {
 		return '<code>' + apiName + '</code>';
 	} else if (apiName in doc) {
 		if (remoteURL && !~doc.__modules.indexOf(apiName)) {
-			url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + apiName;
+			url = 'https://docs.appcelerator.com/platform/latest/#!/api/' + apiName;
 		} else {
 			url = exportClassFilename(apiName) + '.html';
 		}
@@ -54,14 +54,14 @@ function convertAPIToLink(apiName) {
 		const member = apiName.split('.').pop(),
 			cls = apiName.substring(0, apiName.lastIndexOf('.'));
 
-		if (!(cls in doc)) {
+		if (!(cls in doc) && !apiName.startsWith('Modules.')) {
 			common.log(common.LOG_WARN, 'Cannot find class: %s', cls);
 			return apiName;
 		} else {
 			if (common.findAPI(doc, cls, member, 'properties')) {
 				if (remoteURL) {
 					if (!~doc.__modules.indexOf(cls)) {
-						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-property-' + member;
+						url = 'https://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-property-' + member;
 					} else {
 						url = exportClassFilename(cls) + '.html#' + cleanAPIName(member);
 					}
@@ -72,7 +72,7 @@ function convertAPIToLink(apiName) {
 			if (common.findAPI(doc, cls, member, 'methods')) {
 				if (remoteURL) {
 					if (!~doc.__modules.indexOf(cls)) {
-						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-method-' + member;
+						url = 'https://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-method-' + member;
 					} else {
 						url = exportClassFilename(cls) + '.html#' + cleanAPIName(member);
 					}
@@ -83,7 +83,7 @@ function convertAPIToLink(apiName) {
 			if (common.findAPI(doc, cls, member, 'events')) {
 				if (remoteURL) {
 					if (!~doc.__modules.indexOf(cls)) {
-						url = 'http://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-event-' + member;
+						url = 'https://docs.appcelerator.com/platform/latest/#!/api/' + cls + '-event-' + member;
 					} else {
 						url = exportClassFilename(cls) + '.html#' + cleanAPIName(member);
 					}
@@ -97,7 +97,9 @@ function convertAPIToLink(apiName) {
 	if (url) {
 		return '<code><a href="' + url + '">' + apiName + '</a></code>';
 	}
-	common.log(common.LOG_WARN, 'Cannot find API: %s', apiName);
+	if (!apiName.startsWith('Modules.')) {
+		common.log(common.LOG_WARN, 'Cannot find API: %s', apiName);
+	}
 	return apiName;
 }
 
@@ -152,7 +154,7 @@ function markdownToHTML(text) {
 function exportClassFilename(name) {
 	if (assert(doc, name)) {
 		if (remoteURL && !~doc.__modules.indexOf(name)) {
-			return 'http://docs.appcelerator.com/platform/latest/#!/api/' + name;
+			return 'https://docs.appcelerator.com/platform/latest/#!/api/' + name;
 		} else {
 			return (doc[name].__subtype === 'module') ? name + '-module' : name + '-object';
 		}
@@ -230,7 +232,7 @@ function exportExamples(api) {
 				code = code.replace(/<p>/g, '').replace(/<\/p>/g, '');
 				code = '<pre><code>' + code + '</code></pre>';
 			}
-			rv.push({ 'title': example.title, 'code': code });
+			rv.push({ title: example.title, code: code });
 		});
 	}
 	return rv;
@@ -301,8 +303,8 @@ function exportParent(api) {
 	const cls = api.name.substring(0, api.name.lastIndexOf('.'));
 	if (cls !== '' && assert(doc, cls)) {
 		return {
-			'name': cls,
-			'filename': exportClassFilename(doc[cls].name)
+			name: cls,
+			filename: exportClassFilename(doc[cls].name)
 		};
 	}
 	return null;
@@ -321,7 +323,7 @@ function exportPlatforms(api) {
 	for (const key in api.since) {
 		rv.push({
 			name: key,
-			'pretty_name': common.PRETTY_PLATFORM[key],
+			pretty_name: common.PRETTY_PLATFORM[key],
 			since: api.since[key]
 		});
 	}
@@ -437,7 +439,7 @@ function exportType(api) {
 function exportUserAgents(api) {
 	const rv = [];
 	for (const platform in api.since) {
-		rv.push({ 'platform': platform });
+		rv.push({ platform: platform });
 	}
 	return rv;
 }
@@ -510,10 +512,10 @@ function exportAPIs(api, type) {
  */
 exports.exportData = function exportHTML(apis) {
 	const rv = {
-		'proxy': [],
-		'event': [],
-		'method': [],
-		'property': []
+		proxy: [],
+		event: [],
+		method: [],
+		property: []
 	};
 	doc = apis;
 

@@ -8,6 +8,7 @@ package <%= appid %>;
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 
 import org.appcelerator.kroll.KrollExternalModule;
+import org.appcelerator.kroll.common.KrollSourceCodeProvider;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollRuntime;
@@ -62,7 +63,7 @@ public final class <%= classname %>Application extends TiApplication
 			try {
 				runtime.addExternalCommonJsModule(
 						"<%- module.manifest.moduleid %>",
-						(Class<KrollExternalModule>) Class.forName(className));
+						(Class<KrollSourceCodeProvider>) Class.forName(className));
 			} catch (Throwable ex) {
 				Log.e(TAG, "Failed to add external CommonJS module: " + className);
 				if ((ex instanceof RuntimeException) == false) {

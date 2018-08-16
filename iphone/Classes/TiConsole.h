@@ -11,6 +11,7 @@
 // make it behave like standard console.log(). This can be removed once we
 // deprecate/remove/replace existing Ti.API.log() custom severity, which interferes
 // with the ability to correctly process log() requests with exactly two arguments.
-@interface TiConsole : APIModule
-
+@interface TiConsole : APIModule {
+  NSMutableDictionary *_times;
+}
 @end

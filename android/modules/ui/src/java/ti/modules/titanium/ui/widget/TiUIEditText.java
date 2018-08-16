@@ -19,6 +19,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 /**
  * EditText derived class used by Titanium's "Ti.UI.TextField" and "Ti.UI.TextArea" types.
@@ -97,6 +98,22 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	}
 
 	/**
+	 * Called when set text programmatically. Add setSection to move cursor to the last position.
+	 * The method is added for TIMOB-25655 Set textfield value by coding will make cursor to the beginning of textfield
+	 * @param text New text value to be set
+	 * @param type TextView.BufferType - characteristics of the text such as static, styleable, or editable.
+	 */
+	@Override
+	public void setText(CharSequence text, BufferType type)
+	{
+		// Update the field's text.
+		super.setText(text, type);
+
+		// Move the cursor to the end of the field. (Matches iOS' behavior.)
+		setSelection(length());
+	}
+
+	/**
 	 * Called when key input has been received, but before it has been processed by the IME.
 	 * @param keyCode Unique integer ID of the key that was pressed/released.
 	 * @param event Provides additional key event details.
@@ -117,6 +134,29 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 			view.requestFocus();
 		}
 		return super.onKeyPreIme(keyCode, event);
+	}
+
+	/**
+	 * Called when view's contents has scrolled by the given amount.
+	 * This method will be called when scrolling via touch events and method calls such as scrollBy().
+	 * @param currentX Current horizontal scroll position.
+	 * @param currentY Current vertical scroll position.
+	 * @param previousX Previous horizontal scroll position.
+	 * @param previousY Previous vertical scroll position.
+	 */
+	@Override
+	public void onScrollChanged(int currentX, int currentY, int previousX, int previousY)
+	{
+		// Handle scroll change event.
+		super.onScrollChanged(currentX, currentY, previousX, previousY);
+
+		// Disable parent view touch interception while the EditText is being scrolled.
+		// Prevents vertical scroll view from stealing touch events while horizontally scrolling single-line field.
+		// Note: Android will re-enable touch interception on next touch ACTION_DOWN or ACTION_UP event.
+		ViewParent parentView = getParent();
+		if (parentView != null) {
+			parentView.requestDisallowInterceptTouchEvent(true);
+		}
 	}
 
 	/**
