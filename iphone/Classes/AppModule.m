@@ -105,7 +105,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                                              object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(handleUserInteraction:)
-                                               name:@"kTiUserInteraction"
+                                               name:kTiUserInteraction
                                              object:nil];
 }
 

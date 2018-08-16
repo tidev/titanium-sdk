@@ -332,18 +332,18 @@ events:
     since: '3.1.0'
 
   - name: userinteraction
-    summary: Called whenever a key, touch, or trackball event is dispatched to the activity.
+    summary: Called whenever an interaction with the window occurred. To be used together with the <Titanium.App.trackUserInteraction> property.
     description: |
         Implement this method if you wish to know that the user has interacted with the device in some 
-        way while your app is running. 
+        way while your app is running.
 
         Note that this callback will be invoked for the touch down action that begins a touch gesture, 
         but may not be invoked for the touch-moved and touch-up actions that follow.
 
         See also:
-        [onUserInteraction](https://developer.android.com/reference/android/app/Activity.html#onUserInteraction()) for Android.
+          - Android: See the [onUserInteraction](https://developer.android.com/reference/android/app/Activity.html#onUserInteraction()) callback
+          - iOS: See the [sendEvent](https://developer.apple.com/documentation/uikit/uiapplication/1623043-sendevent) delegate
 
-        On iOS, this event will be triggered each time a UITouchPhaseBegan event is handled by the UIApplication. For more information, see [sendEvent](https://developer.apple.com/documentation/uikit/uiapplication/1623043-sendevent).
     platforms: [android, iphone, ipad]
     since: "7.4.0"
 
@@ -534,6 +534,16 @@ properties:
     summary: Indicates whether or not the soft keyboard is visible.
     type: Boolean
     permission: read-only
+    platforms: [iphone, ipad]
+
+  - name: trackUserInteraction
+    summary: Indicates whether or not the user interaction shoud be tracked.
+    description: |
+        Use the <Titanium.App.userinteraction> event to get notified about user interaction.
+        For Android, user-interactions are controlled by the event and do not require this
+        property to be set explicitely. For iOS, this is done to prevent additional overhead.
+    type: Boolean
+    accessors: false
     platforms: [iphone, ipad]
 
 ---
