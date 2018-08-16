@@ -108,11 +108,11 @@ description: |
     using this is shown below.
 
         var permissions = ['android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE'];
-        Ti.Android.requestPermissions(permissions, function(e) {
+        Titanium.Android.requestPermissions(permissions, function(e) {
             if (e.success) {
-                Ti.API.info("SUCCESS");
+                Titanium.API.info("SUCCESS");
             } else {
-                Ti.API.info("ERROR: " + e.error);
+                Titanium.API.info("ERROR: " + e.error);
             }
         });
 
