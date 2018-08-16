@@ -308,6 +308,19 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
   return NO;
 }
 
+- (void)append:(id)args
+{
+  id arg = [args objectAtIndex:0];
+  if ([arg isKindOfClass:[TiBlob class]]) {
+    NSData *otherData = [(TiBlob *)arg data]; // other Blob's data
+
+    NSMutableData *newData = [[NSMutableData alloc] initWithData:[self data]];
+    [newData appendData:otherData];
+
+    [self setData:newData];
+  }
+}
+
 #pragma mark Image Manipulations
 
 - (id)imageWithAlpha:(id)args

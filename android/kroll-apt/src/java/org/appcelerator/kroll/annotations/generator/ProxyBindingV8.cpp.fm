@@ -113,7 +113,7 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 		FunctionTemplate::New(isolate, titanium::Proxy::inherit<${className}>));
 
 	// Method bindings --------------------------------------------------------
-	<@Proxy.listMethods ; isFirst, name, method, signature>
+	<@Proxy.listMethods ; isFirst, name, method>
 	titanium::SetProtoMethod(isolate, t, "${method.apiName}", ${className}::${method.apiName});
 	</@Proxy.listMethods>
 
@@ -233,7 +233,7 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 }
 
 // Methods --------------------------------------------------------------------
-<@Proxy.listMethods ; isFirst, name, method, signature>
+<@Proxy.listMethods ; isFirst, name, method, signature, isDynamic>
 void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 {
 	LOGD(TAG, "${method.apiName}()");
@@ -254,6 +254,14 @@ void ${className}::${method.apiName}(const FunctionCallbackInfo<Value>& args)
 	<@Proxy.verifyAndConvertArguments method.args method />
 	<#else>
 	jvalue* jArguments = 0;
+	</#if>
+
+	<#if method.args?size == 0 && name[0..2] == "get" && isDynamic>
+		<#assign propertyName = name[3]?lower_case + name[4..]>
+	LOGW(TAG, "Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please access the property in standard JS style: obj.${propertyName}; or obj['${propertyName}'];");
+	<#elseif method.args?size == 1 && name[0..2] == "set" && isDynamic>
+		<#assign propertyName = name[3]?lower_case + name[4..]>
+	LOGW(TAG, "Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.${propertyName} = value; or obj['${propertyName}'] = value;");
 	</#if>
 
 	jobject javaProxy = proxy->getJavaObject();

@@ -29,15 +29,10 @@
 - (void)dealloc
 {
   if (controller != nil) {
-#ifdef TI_USE_KROLL_THREAD
-    TiThreadReleaseOnMainThread(controller, NO);
-    controller = nil;
-#else
     TiThreadPerformOnMainThread(^{
       RELEASE_TO_NIL(controller);
     },
         YES);
-#endif
   }
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
@@ -318,9 +313,7 @@
   }
 
   if (!opened) {
-#ifndef TI_USE_KROLL_THREAD
     DebugLog(@"Window is not open. Ignoring this close call");
-#endif
     return;
   }
 

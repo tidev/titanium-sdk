@@ -22,10 +22,6 @@
 #ifdef KROLL_COVERAGE
 #import "KrollCoverage.h"
 #endif
-#ifndef USE_JSCORE_FRAMEWORK
-#import "TiDebugger.h"
-#import "TiProfiler/TiProfiler.h"
-#endif
 #ifndef DISABLE_TI_LOG_SERVER
 #import "TiLogServer.h"
 #endif
@@ -72,13 +68,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 @synthesize appBooted;
 @synthesize userAgent;
 
-#ifdef TI_USE_KROLL_THREAD
-+ (void)initialize
-{
-  TiThreadInitalize();
-}
-#endif
-
 + (TiApp *)app
 {
   return sharedApp;
@@ -89,16 +78,16 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   return [sharedApp controller];
 }
 
-- (TiContextGroupRef)contextGroup
+- (JSContextGroupRef)contextGroup
 {
   if (contextGroup == nil) {
-    contextGroup = TiContextGroupCreate();
-    TiContextGroupRetain(contextGroup);
+    contextGroup = JSContextGroupCreate();
+    JSContextGroupRetain(contextGroup);
   }
   return contextGroup;
 }
 
-+ (TiContextGroupRef)contextGroup
++ (JSContextGroupRef)contextGroup
 {
   return [sharedApp contextGroup];
 }
@@ -245,68 +234,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   sessionId = [[TiUtils createUUID] retain];
   TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
-#ifndef USE_JSCORE_FRAMEWORK
-  NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
-  if (filePath != nil) {
-    NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
-    NSString *host = [params objectForKey:@"host"];
-    NSInteger port = [[params objectForKey:@"port"] integerValue];
-    if (([host length] > 0) && ![host isEqualToString:@"__DEBUGGER_HOST__"]) {
-      [self setDebugMode:YES];
-      TiDebuggerStart(host, port);
-    }
-#if !TARGET_IPHONE_SIMULATOR
-    else {
-      NSString *airkey = [params objectForKey:@"airkey"];
-      if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"]) {
-        NSArray *hosts = nil;
-        NSString *hostsString = [params objectForKey:@"hosts"];
-        if (![hostsString isEqualToString:@"__DEBUGGER_HOSTS__"]) {
-          hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-        }
-        TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-          if (host != nil) {
-            [self setDebugMode:YES];
-            TiDebuggerStart(host, port);
-          }
-          [self appBoot];
-        });
-        return;
-      }
-    }
-#endif
-  }
-  filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
-  if (!self.debugMode && filePath != nil) {
-    NSMutableDictionary *params = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
-    NSString *host = [params objectForKey:@"host"];
-    NSInteger port = [[params objectForKey:@"port"] integerValue];
-    if (([host length] > 0) && ![host isEqualToString:@"__PROFILER_HOST__"]) {
-      [self setProfileMode:YES];
-      TiProfilerStart(host, port);
-    }
-#if !TARGET_IPHONE_SIMULATOR
-    else {
-      NSString *airkey = [params objectForKey:@"airkey"];
-      if (([airkey length] > 0) && ![airkey isEqualToString:@"__PROFILER_AIRKEY__"]) {
-        NSArray *hosts = nil;
-        NSString *hostsString = [params objectForKey:@"hosts"];
-        if (![hostsString isEqualToString:@"__PROFILER_HOSTS__"]) {
-          hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-        }
-        TiProfilerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-          if (host != nil) {
-            [self setProfileMode:YES];
-            TiProfilerStart(host, port);
-          }
-          [self appBoot];
-        });
-        return;
-      }
-    }
-#endif
-  }
-#endif
+
   [self appBoot];
 }
 
@@ -1043,27 +971,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #pragma mark
 
-#ifdef TI_USE_KROLL_THREAD
-- (void)waitForKrollProcessing
-{
-  CGFloat timeLeft = [[UIApplication sharedApplication] backgroundTimeRemaining] - 1.0;
-  /*
-	 *	In the extreme edge case of having come back to the app while
-	 *	it's still waiting for Kroll Processing,
-	 *	backgroundTimeRemaining becomes undefined, and so we have
-	 *	to limit the time left to a sane number in that case.
-	 *	The other reason for the timeLeft limit is to not starve
-	 *	possible later calls for waitForKrollProcessing.
-	 */
-  if (timeLeft > 3.0) {
-    timeLeft = 3.0;
-  } else if (timeLeft < 0.0) {
-    return;
-  }
-  TiThreadProcessPendingMainThreadBlocks(timeLeft, NO, nil);
-}
-#endif
-
 - (void)applicationWillTerminate:(UIApplication *)application
 {
   [self tryToInvokeSelector:@selector(applicationWillTerminate:)
@@ -1100,9 +1007,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   //This will shut down the modules.
   [theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
-#ifdef TI_USE_KROLL_THREAD
-  [self waitForKrollProcessing];
-#endif
   RELEASE_TO_NIL(condition);
   RELEASE_TO_NIL(kjsBridge);
 #ifdef USE_TI_UIWEBVIEW
@@ -1146,9 +1050,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 #ifdef USE_TI_UIWEBVIEW
   [xhrBridge gc];
-#endif
-#ifdef TI_USE_KROLL_THREAD
-  [self waitForKrollProcessing];
 #endif
 }
 
@@ -1201,9 +1102,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     // Do the work associated with the task.
     [tiapp beginBackgrounding];
   });
-#ifdef TI_USE_KROLL_THREAD
-  [self waitForKrollProcessing];
-#endif
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -1369,11 +1267,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   RELEASE_TO_NIL(remoteDeviceUUID);
   RELEASE_TO_NIL(remoteNotification);
   RELEASE_TO_NIL(splashScreenView);
-#ifndef USE_JSCORE_FRAMEWORK
-  if ([self debugMode]) {
-    TiDebuggerStop();
-  }
-#endif
   RELEASE_TO_NIL(backgroundServices);
   RELEASE_TO_NIL(localNotification);
   RELEASE_TO_NIL(uploadTaskResponses);
