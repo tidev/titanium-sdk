@@ -74,17 +74,9 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 + (int)dpi
 {
   if ([TiUtils isIPad]) {
-    if ([TiUtils isRetinaDisplay]) {
-      return 260;
-    }
-    return 130;
+    return 130 * UIScreen.mainScreen.scale;
   } else {
-    if ([TiUtils isRetinaHDDisplay]) {
-      return 480;
-    } else if ([TiUtils isRetinaDisplay]) {
-      return 320;
-    }
-    return 160;
+    return 160 * UIScreen.mainScreen.scale;
   }
 }
 

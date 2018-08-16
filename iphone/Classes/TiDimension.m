@@ -39,96 +39,90 @@ CGFloat convertInchToPixels(CGFloat value)
 
 CGFloat convertPixelsToDip(CGFloat value)
 {
-  if ([TiUtils isRetinaHDDisplay]) {
-    return value / 3.0;
-  }
-  if ([TiUtils isRetinaDisplay]) {
-    return value / 2.0;
-  }
-  return value;
+  return value / UIScreen.mainScreen.scale;
 }
 
 CGFloat convertDipToInch(CGFloat value)
 {
-  if ([TiUtils isRetinaHDDisplay]) {
-    return (value * 3.0) / [TiUtils dpi];
-  }
-  if ([TiUtils isRetinaDisplay]) {
-    return (value * 2.0) / [TiUtils dpi];
-  }
-  return value / [TiUtils dpi];
+  return (value * UIScreen.mainScreen.scale) / [TiUtils dpi];
 }
 
 CGFloat convertDipToPixels(CGFloat value)
 {
-  if ([TiUtils isRetinaHDDisplay]) {
-    return (value * 3.0);
+  return value * UIScreen.mainScreen.scale;
+}
+
+BOOL hasValidUnit(id object)
+{
+  if (object == nil || [object respondsToSelector:@selector(floatValue)]) {
+    return NO;
   }
-  if ([TiUtils isRetinaDisplay]) {
-    return (value * 2.0);
-  }
-  return value;
+
+  return [object hasSuffix:kTiBehaviorAuto] ||
+      [object hasSuffix:kTiBehaviorFill] ||
+      [object hasSuffix:kTiBehaviorSize] ||
+      [object hasSuffix:kTiUnitPixel] ||
+      [object hasSuffix:kTiUnitCm] ||
+      [object hasSuffix:kTiUnitMm] ||
+      [object hasSuffix:kTiUnitInch] ||
+      [object hasSuffix:kTiUnitDip] ||
+      [object hasSuffix:kTiUnitDipAlternate];
 }
 
 TiDimension TiDimensionFromObject(id object)
 {
+  // First, check if a default unit is set
+  NSString *defaultUnit = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
+
+  // If there is no default unit, return dip
+  if (defaultUnit == nil) {
+    return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
+  }
+
+  // If the object is convertable to a number, e.g. 200 or '200', append the default value
+  if (!hasValidUnit(object)) {
+    object = [NSString stringWithFormat:@"%@%@", object, defaultUnit];
+  }
+
+  // If the object is not convertable to a number, e.g. '200cm', check for the suffix
   if ([object isKindOfClass:[NSString class]]) {
+    // Equals "auto"
     if ([object caseInsensitiveCompare:kTiBehaviorAuto] == NSOrderedSame) {
       return TiDimensionAuto;
     }
+    // Equals "Ti.UI.FILL"
     if ([object caseInsensitiveCompare:kTiBehaviorFill] == NSOrderedSame) {
       return TiDimensionAutoFill;
     }
+    // Equals "Ti.UI.SIZE"
     if ([object caseInsensitiveCompare:kTiBehaviorSize] == NSOrderedSame) {
       return TiDimensionAutoSize;
     }
-
+    // Has suffix "px"
     if ([object hasSuffix:kTiUnitPixel]) {
       return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip([object floatValue]));
+      // Has suffix "cm"
     } else if ([object hasSuffix:kTiUnitCm]) {
       float pixelVal = convertInchToPixels(([object floatValue] / INCH_IN_CM));
       return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
+      // Has suffix "mm"
     } else if ([object hasSuffix:kTiUnitMm]) {
       float pixelVal = convertInchToPixels(([object floatValue] / INCH_IN_MM));
       return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
+      // Has suffix "in"
     } else if ([object hasSuffix:kTiUnitInch]) {
       float pixelVal = convertInchToPixels([object floatValue]);
       return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
+      // Has suffix "dip" or "dip"
     } else if ([object hasSuffix:kTiUnitDip] || [object hasSuffix:kTiUnitDipAlternate]) {
       return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
+      // Has suffix "%"
     } else if ([object hasSuffix:kTiUnitPercent]) {
       return TiDimensionMake(TiDimensionTypePercent, ([object floatValue] / 100.0));
     }
   }
-  if ([object respondsToSelector:@selector(floatValue)]) {
-    id val = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
-    if (val == nil) {
-      return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
-    }
-    if ([val isKindOfClass:[NSString class]]) {
-      if (([val caseInsensitiveCompare:kTiUnitDip] == NSOrderedSame) || ([val caseInsensitiveCompare:kTiUnitDipAlternate] == NSOrderedSame)
-          || ([val caseInsensitiveCompare:kTiUnitSystem] == NSOrderedSame)) {
-        return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
-      } else if ([val caseInsensitiveCompare:kTiUnitPixel] == NSOrderedSame) {
-        return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip([object floatValue]));
-      } else if ([val caseInsensitiveCompare:kTiUnitInch] == NSOrderedSame) {
-        float pixelVal = convertInchToPixels([object floatValue]);
-        return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
-      } else if ([val caseInsensitiveCompare:kTiUnitCm] == NSOrderedSame) {
-        float pixelVal = convertInchToPixels([object floatValue] / INCH_IN_CM);
-        return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
-      } else if ([val caseInsensitiveCompare:kTiUnitMm] == NSOrderedSame) {
-        float pixelVal = convertInchToPixels([object floatValue] / INCH_IN_MM);
-        return TiDimensionMake(TiDimensionTypeDip, convertPixelsToDip(pixelVal));
-      } else {
-        DebugLog(@"[WARN] Property ti.ui.defaultunit is not valid value. Defaulting to system");
-        return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
-      }
-    } else {
-      DebugLog(@"[WARN] Property ti.ui.defaultunit is not of type string. Defaulting to system");
-      return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
-    }
-  }
+
+  // Anything else is not handled and returns undefined
   return TiDimensionUndefined;
 }
 
