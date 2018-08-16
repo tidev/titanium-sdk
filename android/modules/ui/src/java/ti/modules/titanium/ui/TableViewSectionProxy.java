@@ -163,6 +163,19 @@ public class TableViewSectionProxy extends TiViewProxy
 	}
 
 	@Override
+	public void release()
+	{
+		super.release();
+
+		releaseViews();
+
+		if (rows != null) {
+			rows.clear();
+			rows = null;
+		}
+	}
+
+	@Override
 	public String getApiName()
 	{
 		return "Ti.UI.TableViewSection";

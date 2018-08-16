@@ -327,14 +327,12 @@
 
   if (headerViewProxy != nil) {
     [headerViewProxy setProxyObserver:nil];
-    [[self proxy] forgetProxy:headerViewProxy];
-    headerViewProxy = nil;
+    [headerViewProxy windowWillClose];
   }
 
   if (footerViewProxy != nil) {
     [footerViewProxy setProxyObserver:nil];
-    [[self proxy] forgetProxy:footerViewProxy];
-    footerViewProxy = nil;
+    [footerViewProxy windowWillClose];
   }
 
   searchController.searchResultsUpdater = nil;
