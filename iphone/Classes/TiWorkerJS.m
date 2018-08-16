@@ -11,11 +11,12 @@
 
 @implementation TiWorkerJS
 
-- (TiClassRef)constructWithContext:(TiContextRef)context
+- (JSClassRef)constructWithContext:(JSContextRef)context
 {
-  static TiClassRef jsClass;
+  static JSClassRef jsClass;
+
   if (!jsClass) {
-    TiClassDefinition definition = kTiClassDefinitionEmpty;
+    JSClassDefinition definition = kJSClassDefinitionEmpty;
     definition.className = "Worker";
     definition.initialize = TiWorker_initialize;
     definition.finalize = TiWorker_finalize;
@@ -23,59 +24,54 @@
     definition.setProperty = TiWorker_setProperty;
     definition.callAsConstructor = TiWorker_construct;
 
-    jsClass = TiClassCreate(&definition);
+    jsClass = JSClassCreate(&definition);
   }
 
   return jsClass;
 }
 
 // Worker initializer
-void TiWorker_initialize(TiContextRef context, TiObjectRef object)
+void TiWorker_initialize(JSContextRef context, JSObjectRef object)
 {
-  TiWorkerProxy *worker = (__bridge TiWorkerProxy *)(TiObjectGetPrivate(object));
+  TiWorkerProxy *worker = (__bridge TiWorkerProxy *)(JSObjectGetPrivate(object));
   // TODO: What to do here?
 }
 
 // Worker finalizer
-void TiWorker_finalize(TiObjectRef object)
+void TiWorker_finalize(JSObjectRef object)
 {
-  TiWorkerProxy *worker = (__bridge TiWorkerProxy *)(TiObjectGetPrivate(object));
+  TiWorkerProxy *worker = (__bridge TiWorkerProxy *)(JSObjectGetPrivate(object));
   // TODO: Cleanup or manually terminate here?
 }
 
 // Expose public worker APIs
-TiStaticFunction TiWorker_staticFunctions[] = {
-  { "postMessage", TiWorker_postMessage, kTiPropertyAttributeDontDelete },
-  { "terminate", TiWorker_terminate, kTiPropertyAttributeDontDelete },
+JSStaticFunction TiWorker_staticFunctions[] = {
+  { "postMessage", TiWorker_postMessage, kJSPropertyAttributeDontDelete },
+  { "terminate", TiWorker_terminate, kJSPropertyAttributeDontDelete },
   { 0, 0, 0 }
 };
 
 // Generically set callbacks (onerror, onmessage, onmessageerror) on worker proxy
-bool TiWorker_setProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef prop, TiValueRef value, TiValueRef *exception)
+bool TiWorker_setProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef prop, JSValueRef value, JSValueRef *exception)
 {
-  id privateObject = (__bridge id)TiObjectGetPrivate(object);
+  id privateObject = (__bridge id)JSObjectGetPrivate(object);
   if ([privateObject isKindOfClass:[KrollContext class]]) {
     return false;
   }
 
   KrollObject *o = (KrollObject *)privateObject;
   @try {
-    NSString *name = (__bridge NSString *)TiStringCopyCFString(kCFAllocatorDefault, prop);
+    NSString *name = (__bridge NSString *)JSStringCopyCFString(kCFAllocatorDefault, prop);
 
     id v = TiBindingTiValueToNSObject(jsContext, value);
 
     if (![v isKindOfClass:[KrollCallback class]]) {
       return _ThrowException(jsContext, @"Invalid type provided, should be a callback", exception);
     }
-#ifdef TI_USE_KROLL_THREAD
-    [o setValue:v
-          forKey:name];
-#else
     TiThreadPerformOnMainThread(^{
       [o setValue:v forKey:name];
     },
         YES);
-#endif
     return true;
   }
   @catch (NSException *ex) {
@@ -85,43 +81,44 @@ bool TiWorker_setProperty(TiContextRef jsContext, TiObjectRef object, TiStringRe
 }
 
 // worker.postMessage(message);
-TiValueRef TiWorker_postMessage(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
+JSValueRef TiWorker_postMessage(JSContextRef context, JSObjectRef function, JSObjectRef thisObject, size_t argumentCount, const JSValueRef arguments[], JSValueRef *exception)
 {
-  TiWorkerProxy *worker = (__bridge TiWorkerProxy *)(TiObjectGetPrivate(thisObject));
+  TiWorkerProxy *worker = (__bridge TiWorkerProxy *)(JSObjectGetPrivate(thisObject));
   NSDictionary *message = TiBindingTiValueToNSDictionary(context, arguments[0]);
 
   [worker postMessage:message];
 
-  return TiValueMakeUndefined(context);
+  return JSValueMakeUndefined(context);
 }
 
 // worker.terminate();
-TiValueRef TiWorker_terminate(TiContextRef context, TiObjectRef function, TiObjectRef thisObject, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
+JSValueRef TiWorker_terminate(JSContextRef context, JSObjectRef function, JSObjectRef thisObject, size_t argumentCount, const JSValueRef arguments[], JSValueRef *exception)
 {
-  TiWorkerProxy *worker = (__bridge TiWorkerProxy *)(TiObjectGetPrivate(thisObject));
+  TiWorkerProxy *worker = (__bridge TiWorkerProxy *)(JSObjectGetPrivate(thisObject));
   [worker terminate:nil];
 
-  return TiValueMakeUndefined(context);
+  return JSValueMakeUndefined(context);
 }
 
 // Constructor: var worker = new Worker(message);
-TiObjectRef TiWorker_construct(TiContextRef context, TiObjectRef object, size_t argumentCount, const TiValueRef arguments[], TiValueRef *exception)
+JSObjectRef TiWorker_construct(JSContextRef context, JSObjectRef object, size_t argumentCount, const JSValueRef arguments[], JSValueRef *exception)
 {
   KrollContext *ctx = GetKrollContext(context);
-  NSString *path = ((__bridge NSString *)TiStringCopyCFString(kCFAllocatorDefault, TiValueToStringCopy(context, arguments[0], NULL)));
+  NSString *path = ((__bridge NSString *)JSStringCopyCFString(kCFAllocatorDefault, JSValueToStringCopy(context, arguments[0], NULL)));
   TiWorkerProxy *proxy = [[TiWorkerProxy alloc] initWithPath:path host:[(id<TiEvaluator>)[ctx delegate] host] pageContext:(id<TiEvaluator>)[ctx delegate]];
 
-  TiObjectSetPrivate(object, (__bridge void *)(proxy));
+  JSObjectSetPrivate(object, (__bridge void *)(proxy));
 
   return object;
 }
 
-TiValueRef _ThrowException(TiContextRef ctx, NSString *message, TiValueRef *exception)
+JSValueRef _ThrowException(JSContextRef ctx, NSString *message, JSValueRef *exception)
 {
-  TiStringRef jsString = TiStringCreateWithCFString((__bridge CFStringRef)message);
-  *exception = TiValueMakeString(ctx, jsString);
-  TiStringRelease(jsString);
-  return TiValueMakeUndefined(ctx);
+  JSStringRef jsString = JSStringCreateWithCFString((__bridge CFStringRef)message);
+  *exception = JSValueMakeString(ctx, jsString);
+  JSStringRelease(jsString);
+
+  return JSValueMakeUndefined(ctx);
 }
 
 @end

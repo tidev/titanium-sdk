@@ -151,7 +151,7 @@
     NSURL *tempurl = [NSURL fileURLWithPath:_tempFile isDirectory:NO];
 
     // start the boot which will run on its own thread automatically
-    [_bridge boot:self url:tempurl preload:@{ @"App" : @{ @"currentWorker" : _selfProxy } }];
+    [_bridge boot:self url:tempurl preload:@{@"App" : @{ @"currentWorker" : _selfProxy }}];
   }
   return self;
 }
