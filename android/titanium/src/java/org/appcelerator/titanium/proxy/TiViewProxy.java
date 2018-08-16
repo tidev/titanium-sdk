@@ -559,21 +559,30 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
 			}
 
-			TiBaseActivity activity = (TiBaseActivity) getActivity();
-			if (activity != null && activity.isDestroyed()) {
-				activity = (TiBaseActivity) activity.getParent();
-			}
-			if (activity == null || activity.isDestroyed()) {
-				activity = (TiBaseActivity) TiApplication.getAppRootOrCurrentActivity();
-			}
-			view = createView(activity);
-			if (isDecorView) {
-				if (activity != null) {
-					activity.setViewProxy(view.getProxy());
-				} else {
-					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
+			Activity activity = getActivity();
+			TiBaseActivity baseActivity = null;
+
+			if (activity instanceof TiBaseActivity) {
+				baseActivity = (TiBaseActivity) activity;
+
+				if (baseActivity != null && baseActivity.isDestroyed()) {
+					baseActivity = (TiBaseActivity) baseActivity.getParent();
 				}
+				if (baseActivity == null || baseActivity.isDestroyed()) {
+					baseActivity = (TiBaseActivity) TiApplication.getAppRootOrCurrentActivity();
+				}
+				activity = baseActivity;
+
+			} else if (activity == null) {
+				activity = TiApplication.getAppRootOrCurrentActivity();
 			}
+
+			view = createView(activity);
+
+			if (isDecorView && baseActivity != null) {
+				baseActivity.setViewProxy(view.getProxy());
+			}
+
 			realizeViews(view);
 			view.registerForTouch();
 			view.registerForKeyPress();
@@ -608,17 +617,35 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	public void releaseViews()
 	{
-		if (view != null) {
-			if (children != null) {
-				for (TiViewProxy p : children) {
-					p.releaseViews();
-				}
+		if (children != null) {
+			for (TiViewProxy p : children) {
+				p.releaseViews();
 			}
+		}
+		if (view != null) {
 			view.release();
 			view = null;
 		}
+		if (runtimeHandler != null) {
+			runtimeHandler = null;
+		}
+		if (mainHandler != null) {
+			mainHandler = null;
+		}
 		setModelListener(null);
-		KrollRuntime.suggestGC();
+	}
+
+	@Override
+	public void release()
+	{
+		releaseViews();
+
+		if (children != null) {
+			children.clear();
+			children = null;
+		}
+
+		super.release();
 	}
 
 	/**

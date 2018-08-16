@@ -5,8 +5,8 @@ description: |
     A list item is a combination of a <ListDataItem> and <ItemTemplate>.  The list data item
     represents the actual data, while the item template represents the style elements of the item.
 
-    You do not create `ListItem` objects with a JavaScript factory method, as you do other Titanium proxies.
-    Instead, you pass a <ListDataItem> array to the `setItems` method of a `ListSection`. The list data items 
+    You should not create `ListItem` objects with a JavaScript factory method, as you do other Titanium proxies.
+    Instead, you should pass a <ListDataItem> array to the `setItems` method of a `ListSection`. The list data items 
     contain the data you want to display in the list.
 
     Alloy applications can use **`<ListItem>`** elements to create `ListItem` objects. `<ListItem>` elements
@@ -23,10 +23,9 @@ description: |
         </Alloy>
 
     By default, only the `title`, `image` and `accessoryType` keys of the list data item's
-    `properties` dictionary are displayed if an item template is not defined.  See "Default List Item"
-    for an example of using the default template.
+    `properties` dictionary are displayed if an item template is not defined.  See "Default List Items" 
+    under "Examples" section for an example of using the default template.
 
-    See Examples below.
 
     #### Item Templates
 
@@ -93,14 +92,15 @@ description: |
     Use list view's [itemclick](Titanium.UI.ListView.itemclick) event to monitor click events on
     items in the list view. Do not rely on the `source` property to determine which item fired the
     event.  Either use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item
-    that generated the event, and use the `bindId` to check which child control fired the event.
-    See "Default List Item" for an example of using the `itemclick` event.
+    that generated the event and use the `bindId` to check which child control fired the event.
+    See "Default List Item" under "Examples" section for an example of using the `itemclick` event.
 
     To monitor events that bubble to the `ListItem` or to monitor events of the view subcomponents,
     bind them to the item by using the `events` dictionary of the item template or the child view
-    templates, respectively. Add the bindings as key-value pairs, where the key is the event name
+    templates respectively. Add the bindings as key-value pairs, where the key is the event name
     and the value is the callback (or array of callbacks for multiple bindings). See "List Items
-    with an Item Template" for an example of binding a `click` event to an item using an item template.
+    with an Item Template" under "Examples" section for an example of binding a `click` event to an 
+    item using an item template.
 
 platforms: [android, ipad, iphone]
 since: '3.1.0'

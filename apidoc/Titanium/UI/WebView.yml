@@ -137,7 +137,8 @@ description: |
 
 extends: Titanium.UI.View
 excludes:
-    methods: [ add, removeAllChildren ]
+    methods: [ add, remove, removeAllChildren, replaceAt ]
+    properties: [children]
 since: "0.8"
 methods:
 
@@ -607,6 +608,18 @@ properties:
     since: "1.8.0"
     default: true
 
+  - name: mixedContentMode
+    summary: If `true`, allows the loading of insecure resources from a secure origin.
+    description: |
+        On iOS this functionality can be set in the `<plist>` section of the tiapp.xml
+        using the `NSAllowsArbitraryLoads` key as part of the App Transport Security.
+        The plist key is enabled by default, allowing arbitrary loads to be processed.
+    type: Boolean
+    platforms: [android]
+    since: "7.4.0"
+    default: false
+    availability: creation
+
   - name: scalesPageToFit
     summary: If `true`, scale contents to fit the web view.
     description: |
@@ -684,9 +697,15 @@ properties:
         On Android you should avoid Calling `setRequestHeaders()` right after `createWebView()`. Use the `requestHeaders` property
         inside `createWebView()` or put it inside the window `open` event.
     type: Dictionary
-    platforms: [android,iphone,ipad]
+    platforms: [android, iphone, ipad]
     since: "6.1.0"
 
+  - name: zoomLevel
+    summary: Manage the zoom-level of the current page.
+    type: Number
+    default: undefined. Behaves as no zoom applied.
+    platforms: [android, iphone, ipad]
+    since: "7.3.0"
 
 examples:
   - title: Basic Web View to External URL

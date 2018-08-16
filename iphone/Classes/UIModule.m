@@ -164,6 +164,35 @@ MAKE_SYSTEM_PROP(PICKER_TYPE_DATE, UIDatePickerModeDate);
 MAKE_SYSTEM_PROP(PICKER_TYPE_TIME, UIDatePickerModeTime);
 MAKE_SYSTEM_PROP(PICKER_TYPE_COUNT_DOWN_TIMER, UIDatePickerModeCountDownTimer);
 
+MAKE_SYSTEM_PROP(BLEND_MODE_NORMAL, kCGBlendModeNormal);
+MAKE_SYSTEM_PROP(BLEND_MODE_MULTIPLY, kCGBlendModeMultiply);
+MAKE_SYSTEM_PROP(BLEND_MODE_SCREEN, kCGBlendModeScreen);
+MAKE_SYSTEM_PROP(BLEND_MODE_OVERLAY, kCGBlendModeOverlay);
+MAKE_SYSTEM_PROP(BLEND_MODE_DARKEN, kCGBlendModeDarken);
+MAKE_SYSTEM_PROP(BLEND_MODE_LIGHTEN, kCGBlendModeLighten);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR_DODGE, kCGBlendModeColorDodge);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR_BURN, kCGBlendModeColorBurn);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOFT_LIGHT, kCGBlendModeSoftLight);
+MAKE_SYSTEM_PROP(BLEND_MODE_HARD_LIGHT, kCGBlendModeHardLight);
+MAKE_SYSTEM_PROP(BLEND_MODE_DIFFERENCE, kCGBlendModeDifference);
+MAKE_SYSTEM_PROP(BLEND_MODE_EXCLUSION, kCGBlendModeExclusion);
+MAKE_SYSTEM_PROP(BLEND_MODE_HUE, kCGBlendModeHue);
+MAKE_SYSTEM_PROP(BLEND_MODE_SATURATION, kCGBlendModeSaturation);
+MAKE_SYSTEM_PROP(BLEND_MODE_COLOR, kCGBlendModeColor);
+MAKE_SYSTEM_PROP(BLEND_MODE_LUMINOSITY, kCGBlendModeLuminosity);
+MAKE_SYSTEM_PROP(BLEND_MODE_CLEAR, kCGBlendModeClear);
+MAKE_SYSTEM_PROP(BLEND_MODE_COPY, kCGBlendModeCopy);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_IN, kCGBlendModeSourceIn);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_OUT, kCGBlendModeSourceOut);
+MAKE_SYSTEM_PROP(BLEND_MODE_SOURCE_ATOP, kCGBlendModeSourceAtop);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_OVER, kCGBlendModeDestinationOver);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_IN, kCGBlendModeDestinationIn);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_OUT, kCGBlendModeDestinationOut);
+MAKE_SYSTEM_PROP(BLEND_MODE_DESTINATION_ATOP, kCGBlendModeDestinationAtop);
+MAKE_SYSTEM_PROP(BLEND_MODE_XOR, kCGBlendModeXOR);
+MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_DARKER, kCGBlendModePlusDarker);
+MAKE_SYSTEM_PROP(BLEND_MODE_PLUS_LIGHTER, kCGBlendModePlusLighter);
+
 MAKE_SYSTEM_PROP(URL_ERROR_AUTHENTICATION, NSURLErrorUserAuthenticationRequired);
 MAKE_SYSTEM_PROP(URL_ERROR_BAD_URL, NSURLErrorBadURL);
 MAKE_SYSTEM_PROP(URL_ERROR_CONNECT, NSURLErrorCannotConnectToHost);
@@ -465,11 +494,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
       if ([convertToUnits caseInsensitiveCompare:kTiUnitDip] == NSOrderedSame) {
         result = fromVal.value;
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitPixel] == NSOrderedSame) {
-        if ([TiUtils isRetinaDisplay]) {
-          result = fromVal.value * 2;
-        } else {
-          result = fromVal.value;
-        }
+        result = convertDipToPixels(fromVal.value);
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitInch] == NSOrderedSame) {
         result = convertDipToInch(fromVal.value);
       } else if ([convertToUnits caseInsensitiveCompare:kTiUnitCm] == NSOrderedSame) {
@@ -625,15 +650,17 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_CARD_NUMBER, UITextContentTypeCreditCardNumber);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_USERNAME, UITextContentTypeUsername);
 MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
 #endif
+#if IS_XCODE_10
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_NEW_PASSWORD, UITextContentTypeNewPassword);
+MAKE_SYSTEM_STR(AUTOFILL_TYPE_ONE_TIME_CODE, UITextContentTypeOneTimeCode);
+#endif
 #endif
 
 #ifdef USE_TI_UICLIPBOARD
 - (NSString *)CLIPBOARD_OPTION_LOCAL_ONLY
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return UIPasteboardOptionLocalOnly;
-#endif
   } else {
     return @"";
   }
@@ -641,9 +668,7 @@ MAKE_SYSTEM_STR(AUTOFILL_TYPE_PASSWORD, UITextContentTypePassword);
 - (NSString *)CLIPBOARD_OPTION_EXPIRATION_DATE
 {
   if ([TiUtils isIOS10OrGreater]) {
-#if IS_XCODE_8
     return UIPasteboardOptionExpirationDate;
-#endif
   } else {
     return @"";
   }

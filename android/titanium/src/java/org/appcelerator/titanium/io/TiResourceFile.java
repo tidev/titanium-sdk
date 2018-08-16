@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -29,7 +30,7 @@ public class TiResourceFile extends TiBaseFile
 {
 	private static final String TAG = "TiResourceFile";
 
-	private final String path;
+	private String path;
 	private boolean statsFetched = false;
 	private boolean exists = false;
 
@@ -190,6 +191,9 @@ public class TiResourceFile extends TiBaseFile
 
 	public String toURL()
 	{
+		if (!path.isEmpty() && !path.endsWith("/") && isDirectory()) {
+			path += "/";
+		}
 		return TiC.URL_ANDROID_ASSET_RESOURCES + path;
 	}
 
@@ -222,10 +226,12 @@ public class TiResourceFile extends TiBaseFile
 	{
 		List<String> listing = new ArrayList<String>();
 		try {
-			String lpath = TiFileHelper2.joinSegments("Resources", path);
+			String lpath = TiFileHelper2.getResourcesPath(path);
 			if (lpath.endsWith("/")) {
 				lpath = lpath.substring(0, lpath.lastIndexOf("/"));
 			}
+
+			// list application assets
 			String[] names = TiApplication.getInstance().getAssets().list(lpath);
 			if (names != null) {
 				int len = names.length;
@@ -233,6 +239,26 @@ public class TiResourceFile extends TiBaseFile
 					listing.add(names[i]);
 				}
 			}
+
+			// list encrypted assets
+			String[] assets = KrollAssetHelper.getEncryptedAssetPaths();
+			if (assets != null) {
+				for (String asset : assets) {
+					if (asset.startsWith(path)) {
+						String relativePath = asset.substring(path.length());
+						int dirIndex = relativePath.lastIndexOf('/');
+						if (dirIndex != -1) {
+							String dir = relativePath.substring(0, dirIndex);
+							if (dir.length() > 0 && !listing.contains(dir)) {
+								listing.add(dir);
+							}
+						} else if (relativePath.length() > 0) {
+							listing.add(relativePath);
+						}
+					}
+				}
+			}
+
 		} catch (IOException e) {
 			Log.e(TAG, "Error while getting a directory listing: " + e.getMessage(), e);
 		}
@@ -246,32 +272,22 @@ public class TiResourceFile extends TiBaseFile
 
 	private void fetchStats()
 	{
-		InputStream is = null;
-		try {
-			is = getInputStream();
+		if (KrollAssetHelper.assetExists(TiFileHelper2.getResourcesPath(path))) {
 			this.typeDir = false;
 			this.typeFile = true;
 			this.exists = true;
-		} catch (IOException e) {
-			this.typeFile = false; // definitely not a file
-			// getInputStream() will throw a FileNotFoundException if it is a
-			// directory. We check if there are directory listings. If there is,
-			// we can assume it is a directory and it exists.
+
+		} else {
+			this.typeFile = false;
+
 			if (!getDirectoryListing().isEmpty()) {
 				this.typeDir = true;
 				this.exists = true;
+
+				// does not exist; neither file or directory
 			} else {
-				// doesn't exist so neither file nor directory
 				this.typeDir = false;
 				this.exists = false;
-			}
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-					// Ignore
-				}
 			}
 		}
 		statsFetched = true;

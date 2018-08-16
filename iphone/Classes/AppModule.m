@@ -188,7 +188,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
     DebugLog(@"[DEBUG] Firing app event: %@", type);
 
-    NSArray *array = [appListeners objectForKey:type];
+    NSArray *array = [[appListeners objectForKey:type] copy];
 
     if (array != nil && [array count] > 0) {
       NSMutableDictionary *eventObject = nil;
@@ -209,6 +209,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         [host fireEvent:[entry listener] withObject:jsonObject remove:NO context:[entry context] thisObject:nil];
       }
     }
+    [array release];
   }
 }
 
@@ -568,6 +569,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
             notification:NO];
   BOOL flag = [TiUtils boolValue:args def:NO];
   [[TiApp app] setForceSplashAsSnapshot:flag];
+}
+
+- (NSNumber *)forceSplashAsSnapshot
+{
+  return @([[TiApp app] forceSplashAsSnapshot]);
 }
 
 #if defined(USE_TI_APPIOS)

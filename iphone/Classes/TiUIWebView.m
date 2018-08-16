@@ -10,6 +10,7 @@
 #import "Mimetypes.h"
 #import "TiApp.h"
 #import "TiBlob.h"
+#import "TiExceptionHandler.h"
 #import "TiFile.h"
 #import "TiHost.h"
 #import "TiProxy.h"
@@ -409,6 +410,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   [[self webview] setDataDetectorTypes:result];
 }
 
+- (void)setZoomLevel_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+  [[self webview] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.zoom = %@;", value]];
+}
+
 - (void)setHtml_:(NSString *)content withObject:(id)property
 {
   NSString *baseURLString = [TiUtils stringValue:@"baseURL" properties:property];
@@ -759,13 +767,27 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     if ([scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
       [LocalProtocolHandler setContentInjection:[self titaniumInjection]];
     }
+
+    // Use "onlink" callback property to decide the navigation policy
+    KrollWrapper *onLink = [[self proxy] valueForKey:@"onlink"];
+    if (onLink != nil) {
+      TiValueRef functionResult = [onLink executeWithArguments:@[ @{ @"url" : newUrl.absoluteString } ]];
+      if (functionResult != NULL && TiValueIsBoolean([onLink.bridge.krollContext context], functionResult)) {
+        return TiValueToBoolean([onLink.bridge.krollContext context], functionResult);
+      }
+    }
+
     return YES;
   }
 
   UIApplication *uiApp = [UIApplication sharedApplication];
 
   if ([uiApp canOpenURL:newUrl] && !willHandleUrl) {
-    [uiApp openURL:newUrl];
+    if ([TiUtils isIOS10OrGreater]) {
+      [uiApp openURL:newUrl options:@{} completionHandler:nil];
+    } else {
+      [uiApp openURL:newUrl];
+    }
     return NO;
   }
 

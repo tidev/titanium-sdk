@@ -77,7 +77,7 @@
         NSMutableArray *listeners = [[NSMutableArray alloc] initWithCapacity:[listener count]];
         [(NSArray *)listener enumerateObjectsUsingBlock:^(id callback, NSUInteger idx, BOOL *stop) {
           if ([callback isKindOfClass:[KrollCallback class]]) {
-            KrollWrapper *wrapper = ConvertKrollCallbackToWrapper(callback);
+            KrollWrapper *wrapper = [callback toKrollWrapper];
             [wrapper protectJsobject];
             [listeners addObject:wrapper];
           }

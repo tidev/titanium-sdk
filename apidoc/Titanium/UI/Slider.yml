@@ -29,8 +29,10 @@ description: |
 
 extends: Titanium.UI.View
 excludes:
-    events: [ 'pinch' ]
-    properties: ['height']
+    events: [pinch]
+    properties: [height, children]
+    methods: [add, remove, removeAllChildren, replaceAt]
+
 since: "0.8"
 examples:
   - title: Simple Slider
@@ -83,23 +85,6 @@ examples:
             $.window.open();
 
 methods:
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to a `Slider` is not supported on all platforms.
-
-        If you need to display views on top of this object, consider using
-        another view as a container for both this object and the views you want
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.Label.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
   - name: setValue
     summary: Sets the [value](Titanium.UI.Slider.value) property.
     description: |
@@ -121,7 +106,6 @@ methods:
         optional: true
 
 events:
-
   - name: change
     summary: Fired when the value of the slider changes.
     properties:
@@ -252,12 +236,6 @@ properties:
         interface elements. When an image with end caps is resized, the resizing occurs only in
         the middle of the image, in the region between the end caps. The end caps themselves keep
         their original size and appearance. This property specifies the size of the left end cap.
-
-        On iOS 6 and above the endCaps are used to compute a rectangle which is streched in
-        the strechable portion. On iOS 5.X, the computed rectangle is tiled in the strechable portion.
-        On earlier versions of iOS the strechable portion is assumed to be
-        1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap
-        and the middle portion together and then subtracting that value from the width of the image
     type: Number
     default: 1.0
     since: 3.0.0
@@ -274,12 +252,6 @@ properties:
         interface elements. When an image with end caps is resized, the resizing occurs only in
         the middle of the image, in the region between the end caps. The end caps themselves keep
         their original size and appearance. This property specifies the size of the top end cap.
-
-        On iOS 6 and above the endCaps are used to compute a rectangle which is streched in
-        the strechable portion. On iOS 5.X, the computed rectangle is tiled in the strechable portion.
-        On earlier versions of iOS the strechable portion is assumed to be
-        1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap
-        and the middle portion together and then subtracting that value from the height of the image
     type: Number
     default : 1.0
     since: 3.0.0
@@ -359,12 +331,6 @@ properties:
         interface elements. When an image with end caps is resized, the resizing occurs only in
         the middle of the image, in the region between the end caps. The end caps themselves keep
         their original size and appearance. This property specifies the size of the left end cap.
-
-        On iOS 6 and above the endCaps are used to compute a rectangle which is streched in
-        the strechable portion. On iOS 5.X, the computed rectangle is tiled in the strechable portion.
-        On earlier versions of iOS the strechable portion is assumed to be
-        1 pixel wide. The right end cap is therefore computed by adding the size of the left end cap
-        and the middle portion together and then subtracting that value from the width of the image
     type: Number
     default: 1.0
     since: 3.0.0
@@ -381,12 +347,6 @@ properties:
         interface elements. When an image with end caps is resized, the resizing occurs only in
         the middle of the image, in the region between the end caps. The end caps themselves keep
         their original size and appearance. This property specifies the size of the top end cap.
-
-        On iOS 6 and above the endCaps are used to compute a rectangle which is streched in
-        the strechable portion. On iOS 5.X, the computed rectangle is tiled in the strechable portion.
-        On earlier versions of iOS the strechable portion is assumed to be
-        1 pixel wide. The bottom end cap is therefore computed by adding the size of the top end cap
-        and the middle portion together and then subtracting that value from the height of the image
     type: Number
     default : 1.0
     since: 3.0.0

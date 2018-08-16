@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.ViewAttachmentBehavior
 summary: Dynamic behavior to support connections between two items.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     A view attachment behavior creates a dynamic connection between two items. To define a view
     attachment behavior:
 

@@ -12,8 +12,9 @@ deprecated:
     notes: Use <Titanium.UI.iOS.CoverFlowView> instead.
 platforms: [iphone, ipad]
 excludes:
-   events: [ "dblclick", "doubletap", "longclick", "longpress", "pinch", "singletap", "swipe", "touchcancel", "touchend", "touchmove", "touchstart", "twofingertap" ]
-
+    events: [dblclick, doubletap, longclick, longpress, pinch, singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
 methods:
   - name: setImage
     summary: Changes the image for a specified index.

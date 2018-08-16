@@ -43,6 +43,19 @@ methods:
   - name: openURL
     summary: |
         Opens this URL using the system's default application for its protocol.
+    description: |
+        **iOS Note**: For iOS 10 and later, this method is performed asynchronously 
+        and will call the function passed as an (optional) third parameter instead
+        of returning a boolean synchronously.
+        
+        Example:
+          
+            Ti.Platform.openURL('myapp://', {
+              'UIApplicationOpenURLOptionUniversalLinksOnly': true
+            }, function(e) {
+              Ti.API.info('URL open successfully? ' + e.success);
+            });
+
     platforms: [android, iphone, ipad]
     returns:
         type: Boolean
@@ -50,6 +63,19 @@ methods:
       - name: url
         summary: The url to open.
         type: String
+      - name: options
+        summary: |
+            The optional options to pass to the URL handling (iOS 10+). Pass a
+            dictionary with one or more of the following string-keys:
+                * `UIApplicationOpenURLOptionsSourceApplicationKey` (String value)
+                * `UIApplicationOpenURLOptionsAnnotationKey` (Array value)
+                * `UIApplicationOpenURLOptionsOpenInPlaceKey` (Boolean value)
+                * `UIApplicationOpenURLOptionUniversalLinksOnly` (Boolean value)
+            Read more about the available keys in the [Apple documentation](https://developer.apple.com/documentation/uikit/uiapplicationopenurloptionskey?language=objc).
+        type: Dictionary
+      - name: callback
+        summary: The optional callback that is called once the URL is opened (iOS 10+).
+        type: Callback
 
   - name: is24HourTimeFormat
     summary: Returns whether the system settings are configured to show times in 24-hour format.

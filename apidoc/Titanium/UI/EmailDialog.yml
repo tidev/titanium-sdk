@@ -18,8 +18,7 @@ description: |
 
     **iOS Platform Notes**
 
-    On iOS, you cannot test the e-mail dialog on the iOS 8.0 simulator or greater.  Test the email
-    dialog on device.
+    On iOS, you cannot test the e-mail dialog on the iOS Simulator. Test the email dialog on device.
 extends: Titanium.UI.View
 since: "0.8"
 excludes:

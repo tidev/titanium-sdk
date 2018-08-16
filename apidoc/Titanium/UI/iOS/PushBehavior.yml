@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.PushBehavior
 summary: Continuous or instantaneous force to apply to an item.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     A push behavior configures the continuous or instaneous force to apply to one or more items. To
     define a push behavior:
 

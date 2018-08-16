@@ -36,9 +36,7 @@ description: |
     #### iOS
 
     The `destructive` property may be set for an item, to give a visual cue that selecting it
-    results in an irreversible action.
-
-    Since iOS 4, option dialogs are automatically cancelled when the application is paused/suspended.
+    results in an irreversible action. Option dialogs are automatically cancelled when the application is paused/suspended.
 
     ##### iPhone
 
@@ -63,7 +61,7 @@ since: "0.8"
 excludes:
     events: [dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
-    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage]
+    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage, replaceAt]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter, backgroundColor,backgroundDisabledColor,
                  backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
