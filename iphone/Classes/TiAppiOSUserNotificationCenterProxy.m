@@ -14,6 +14,11 @@
 
 @implementation TiAppiOSUserNotificationCenterProxy
 
+- (NSString *)apiName
+{
+  return @"Ti.App.iOS.UserNotificationCenter";
+}
+
 - (void)getPendingNotifications:(id)callback
 {
   ENSURE_SINGLE_ARG(callback, KrollCallback);
