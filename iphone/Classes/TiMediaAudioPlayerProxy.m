@@ -25,17 +25,9 @@
 
 - (void)_destroy
 {
-  TiThreadPerformOnMainThread(^{
-    if (_state == TiAudioPlayerStatePlaying || _state == TiAudioPlayerStatePaused) {
-      [[self player] pause];
-      [[self player] seekToTime:kCMTimeZero];
-      _state = TiAudioPlayerStateStopping;
-      if ([[TiMediaAudioSession sharedSession] isActive]) {
-        [[TiMediaAudioSession sharedSession] stopAudioSession];
-      }
-    }
-  },
-      YES);
+  if (_state == TiAudioPlayerStatePlaying || _state == TiAudioPlayerStatePaused) {
+    [self stop:nil];
+  }
 
   [self removeNotificationObserver];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
