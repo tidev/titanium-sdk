@@ -7,7 +7,7 @@
 # Entry point Makefile for ndk-build
 
 APP_BUILD_SCRIPT = src/native/Android.mk
-TARGET_PLATFORM = android-10
+APP_PLATFORM := android-16
 APP_CPPFLAGS += -std=c++11
 APP_STL := c++_shared
 ifeq ($(BUILD_X86), 1)
@@ -16,6 +16,5 @@ else
 	APP_ABI := arm64-v8a armeabi-v7a
 endif
 
-TARGET_DEVICE := device
 APP_OPTIM := release
 #TI_DEBUG := 1
