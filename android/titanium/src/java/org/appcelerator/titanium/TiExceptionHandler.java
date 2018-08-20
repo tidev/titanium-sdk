@@ -101,13 +101,13 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			if (!jsStack.contains("Error:")) {
 				output += message + "\n";
 			}
-			output += jsStack + "\n\n";
+			output += jsStack + "\n";
 		}
 		if (javaStack != null) {
 			output += javaStack;
 
-		// no java stack, attempt to obtain last ten stack entries
-		// omitting our error handling entries
+			// no java stack, attempt to obtain last ten stack entries
+			// omitting our error handling entries
 		} else {
 			StackTraceElement[] trace = new Error().getStackTrace();
 			int startIndex = 0;
@@ -119,7 +119,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			}
 			int endIndex = startIndex + 10;
 			for (int i = startIndex; trace.length >= endIndex && i < endIndex; i++) {
-				output += trace[i].toString() + "\n";
+				output += "\n    " + trace[i].toString();
 			}
 		}
 
