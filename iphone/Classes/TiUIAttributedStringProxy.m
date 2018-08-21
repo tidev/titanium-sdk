@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -213,7 +213,7 @@
     break;
 
   case AttributeNameLineBreak:
-    DEPRECATED_REPLACED(@"UI.ATTRIBUTE_LINE_BREAK", @"UI.ATTRIBUTE_PARAGRAPH_STYLE.lineBreakMode", @"7.3.0");
+    DEPRECATED_REPLACED(@"UI.ATTRIBUTE_LINE_BREAK", @"UI.ATTRIBUTE_PARAGRAPH_STYLE.lineBreakMode", @"7.4.0");
     attrName = NSParagraphStyleAttributeName;
     NSMutableParagraphStyle *paragraphStyleObject = [[[NSMutableParagraphStyle alloc] init] autorelease];
     NSNumber *num = [TiUtils numberFromObject:value];
