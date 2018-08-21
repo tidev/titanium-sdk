@@ -489,9 +489,16 @@
                                                                             if (error) {
                                                                               [event setValue:[error localizedDescription] forKey:@"error"];
                                                                               [event setValue:NUMINTEGER([error code]) forKey:@"code"];
+                                                                              [self fireEvent:@"usernotificationsettings" withObject:event];
+                                                                            } else {
+                                                                              [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings *_Nonnull settings) {
+                                                                                // Assign the granted types
+                                                                                [event setDictionary:[self formatUserNotificationSettings:settings]];
+                                                                                // Assign the granted categories
+                                                                                [event setValue:categories forKey:@"categories"];
+                                                                                [self fireEvent:@"usernotificationsettings" withObject:event];
+                                                                              }];
                                                                             }
-
-                                                                            [self fireEvent:@"usernotificationsettings" withObject:event];
                                                                           }
                                                                         }];
   } else {
@@ -558,7 +565,7 @@
       CGRect rect = [TiUtils rectValue:options[key]];
       result[UNNotificationAttachmentOptionsThumbnailClippingRectKey] = CFBridgingRelease(CGRectCreateDictionaryRepresentation(rect));
     } else if ([key isEqualToString:@"thumbnailHidden"]) {
-      result[UNNotificationAttachmentOptionsThumbnailHiddenKey] = NUMBOOL(options[key]);
+      result[UNNotificationAttachmentOptionsThumbnailHiddenKey] = options[key];
     } else if ([key isEqualToString:@"thumbnailTime"]) {
       result[UNNotificationAttachmentOptionsThumbnailTimeKey] = @([TiUtils doubleValue:options[key]] / 1000); // Convert milli-seconds to seconds
     } else {
@@ -569,7 +576,7 @@
   return result;
 }
 
-- (NSDictionary *)formatUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
+- (NSDictionary *)formatUserNotificationSettings:(id)notificationSettings
 {
   if (![NSThread isMainThread]) {
     __block NSDictionary *result = nil;
@@ -582,26 +589,62 @@
   NSMutableArray *typesArray = [NSMutableArray array];
   NSMutableArray *categoriesArray = [NSMutableArray array];
 
-  NSUInteger types = notificationSettings.types;
-  NSSet *categories = notificationSettings.categories;
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    UNNotificationSetting alertSetting = [(UNNotificationSettings *)notificationSettings alertSetting];
+    UNNotificationSetting badgeSetting = [(UNNotificationSettings *)notificationSettings badgeSetting];
+    UNNotificationSetting soundSetting = [(UNNotificationSettings *)notificationSettings soundSetting];
+    UNNotificationSetting carPlaySetting = [(UNNotificationSettings *)notificationSettings carPlaySetting];
 
-  // Types
-  if ((types & UIUserNotificationTypeBadge) != 0) {
-    [typesArray addObject:NUMINT(UIUserNotificationTypeBadge)];
-  }
-  if ((types & UIUserNotificationTypeAlert) != 0) {
-    [typesArray addObject:NUMINT(UIUserNotificationTypeAlert)];
-  }
-  if ((types & UIUserNotificationTypeSound) != 0) {
-    [typesArray addObject:NUMINT(UIUserNotificationTypeSound)];
+    if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
+#if IS_XCODE_10
+      UNNotificationSetting criticalAlertSetting = [(UNNotificationSettings *)notificationSettings criticalAlertSetting];
+      BOOL providesAppNotificationSettings = [(UNNotificationSettings *)notificationSettings providesAppNotificationSettings];
+
+      if (criticalAlertSetting == UNNotificationSettingEnabled) {
+        [typesArray addObject:@(UNAuthorizationOptionCriticalAlert)];
+      }
+      if (providesAppNotificationSettings) {
+        [typesArray addObject:@(UNAuthorizationOptionProvidesAppNotificationSettings)];
+      }
+#endif
+    }
+
+    // Types
+    if (alertSetting == UNNotificationSettingEnabled) {
+      [typesArray addObject:@(UNAuthorizationOptionAlert)];
+    }
+    if (badgeSetting == UNNotificationSettingEnabled) {
+      [typesArray addObject:@(UNAuthorizationOptionBadge)];
+    }
+    if (soundSetting == UNNotificationSettingEnabled) {
+      [typesArray addObject:@(UNAuthorizationOptionSound)];
+    }
+    if (carPlaySetting == UNNotificationSettingEnabled) {
+      [typesArray addObject:@(UNAuthorizationOptionCarPlay)];
+    }
+  } else {
+    NSUInteger types = [(UIUserNotificationSettings *)notificationSettings types];
+    NSSet *categories = [(UIUserNotificationSettings *)notificationSettings categories];
+
+    // Types
+    if ((types & UIUserNotificationTypeBadge) != 0) {
+      [typesArray addObject:NUMINT(UIUserNotificationTypeBadge)];
+    }
+    if ((types & UIUserNotificationTypeAlert) != 0) {
+      [typesArray addObject:NUMINT(UIUserNotificationTypeAlert)];
+    }
+    if ((types & UIUserNotificationTypeSound) != 0) {
+      [typesArray addObject:NUMINT(UIUserNotificationTypeSound)];
+    }
+
+    // Categories
+    for (id cat in categories) {
+      TiAppiOSUserNotificationCategoryProxy *categoryProxy = [[[TiAppiOSUserNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+      categoryProxy.notificationCategory = cat;
+      [categoriesArray addObject:categoryProxy];
+    }
   }
 
-  // Categories
-  for (id cat in categories) {
-    TiAppiOSUserNotificationCategoryProxy *categoryProxy = [[[TiAppiOSUserNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-    categoryProxy.notificationCategory = cat;
-    [categoriesArray addObject:categoryProxy];
-  }
   return [NSDictionary dictionaryWithObjectsAndKeys:
                            typesArray, @"types",
                        categoriesArray, @"categories",
