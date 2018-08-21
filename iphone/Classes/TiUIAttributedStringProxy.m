@@ -86,23 +86,23 @@
       if ([key isEqualToString:@"alignment"]) {
         paragraphStyle.alignment = [[TiUtils numberFromObject:objectValue] unsignedIntegerValue];
       } else if ([key isEqual:@"firstLineHeadIndent"]) {
-        paragraphStyle.firstLineHeadIndent = [TiUtils floatValue:objectValue];
+        paragraphStyle.firstLineHeadIndent = [TiUtils dimensionValue:objectValue].value;
       } else if ([key isEqual:@"headIndent"]) {
-        paragraphStyle.headIndent = [TiUtils floatValue:objectValue];
+        paragraphStyle.headIndent = [TiUtils dimensionValue:objectValue].value;
       } else if ([key isEqual:@"tailIndent"]) {
-        paragraphStyle.tailIndent = [TiUtils floatValue:objectValue];
+        paragraphStyle.tailIndent = [TiUtils dimensionValue:objectValue].value;
       } else if ([key isEqual:@"lineBreakMode"]) {
         paragraphStyle.lineBreakMode = [[TiUtils numberFromObject:objectValue] unsignedIntegerValue];
       } else if ([key isEqualToString:@"maximumLineHeight"]) {
-        paragraphStyle.maximumLineHeight = [TiUtils floatValue:objectValue];
+        paragraphStyle.maximumLineHeight = [TiUtils dimensionValue:objectValue].value;
       } else if ([key isEqualToString:@"minimumLineHeight"]) {
-        paragraphStyle.minimumLineHeight = [TiUtils floatValue:objectValue];
+        paragraphStyle.minimumLineHeight = [TiUtils dimensionValue:objectValue].value;
       } else if ([key isEqualToString:@"lineSpacing"]) {
-        paragraphStyle.lineSpacing = [TiUtils floatValue:objectValue];
+        paragraphStyle.lineSpacing = [TiUtils dimensionValue:objectValue].value;
       } else if ([key isEqualToString:@"paragraphSpacingAfter"]) {
-        paragraphStyle.paragraphSpacing = [TiUtils floatValue:objectValue];
+        paragraphStyle.paragraphSpacing = [TiUtils dimensionValue:objectValue].value;
       } else if ([key isEqualToString:@"paragraphSpacingBefore"]) {
-        paragraphStyle.paragraphSpacingBefore = [TiUtils floatValue:objectValue];
+        paragraphStyle.paragraphSpacingBefore = [TiUtils dimensionValue:objectValue].value;
       } else if ([key isEqualToString:@"lineHeightMultiple"]) {
         paragraphStyle.lineHeightMultiple = [TiUtils floatValue:objectValue];
       } else if ([key isEqualToString:@"hyphenationFactor"]) {
