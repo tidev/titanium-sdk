@@ -58,8 +58,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 	{
 		super.onPageFinished(view, url);
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
-		if (proxy == null || webView.hasSetUserAgent) {
-			webView.hasSetUserAgent = false;
+		if (proxy == null) {
 			return;
 		}
 		webView.changeProxyUrl(url);
@@ -94,7 +93,7 @@ public class TiWebViewClient extends WebViewClientClassicExt
 	{
 		super.onPageStarted(view, url, favicon);
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
-		if (proxy == null || webView.hasSetUserAgent) {
+		if (proxy == null) {
 			return;
 		}
 		KrollDict data = new KrollDict();
@@ -312,8 +311,8 @@ public class TiWebViewClient extends WebViewClientClassicExt
 	public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error)
 	{
 		/*
-		 * in theory this should be checked to make sure it's not null but if there is some failure 
-		 * in the association then usage of proxy should trigger a NPE to make sure the issue 
+		 * in theory this should be checked to make sure it's not null but if there is some failure
+		 * in the association then usage of proxy should trigger a NPE to make sure the issue
 		 * is not ignored
 		 */
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
