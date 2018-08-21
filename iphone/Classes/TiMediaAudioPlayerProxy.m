@@ -30,6 +30,7 @@
   }
 
   [self removeNotificationObserver];
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 
   _player = nil;
   [super _destroy];
@@ -307,7 +308,10 @@
 
   [[self player] pause];
   [[self player] seekToTime:kCMTimeZero];
-  [[TiMediaAudioSession sharedSession] stopAudioSession];
+
+  if ([[TiMediaAudioSession sharedSession] isActive]) {
+    [[TiMediaAudioSession sharedSession] stopAudioSession];
+  }
 }
 
 - (void)pause:(id)unused

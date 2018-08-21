@@ -12,8 +12,6 @@
 #include "V8Runtime.h" // V8Runtime::platform and V8Runtime::v8_isolate
 #include "V8Util.h" // v8::String::Value
 
-#include "org_appcelerator_kroll_runtime_v8_JSDebugger.h"
-
 #define TAG "JSDebugger"
 
 namespace titanium {
@@ -138,9 +136,7 @@ bool JSDebugger::isActive__ = false;
 
 } // namespace titanium
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
 using namespace titanium;
 
@@ -199,6 +195,4 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_JSDebugger_nativeS
 	// TODO Wrap in try/catch and throw up to Java?
 }
 
-#ifdef __cplusplus
-}
-#endif
+} // extern "C"
