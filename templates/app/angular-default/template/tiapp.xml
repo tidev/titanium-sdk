@@ -45,7 +45,6 @@
 	<android xmlns:android="http://schemas.android.com/apk/res/android">
 		<manifest>
 			<application android:theme="@style/TitaniumAngular"/>
-			<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="25"/>
 		</manifest>
 	</android>
 	<modules>
