@@ -213,7 +213,7 @@
     break;
 
   case AttributeNameLineBreak:
-    DEPRECATED_REPLACED(@"UI.ATTRIBUTE_LINE_BREAK", @"UI.ATTRIBUTE_PARAGRAPH_STYLE.lineBreakMode", @"7.4.0");
+    DEPRECATED_REPLACED(@"UI.ATTRIBUTE_LINE_BREAK", @"UI.ATTRIBUTE_PARAGRAPH_STYLE.lineBreakMode", @"7.5.0");
     attrName = NSParagraphStyleAttributeName;
     NSMutableParagraphStyle *paragraphStyleObject = [[[NSMutableParagraphStyle alloc] init] autorelease];
     NSNumber *num = [TiUtils numberFromObject:value];
