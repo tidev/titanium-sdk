@@ -144,24 +144,25 @@ properties:
     description: |
       This property contains the distance (in points) from the leading margin 
       of a text container to the beginning of the first line of paragraph. 
-      This value is always nonnegative float value.
-    type: Number
+      This value is always nonnegative float value or dimension string (e.g. '10px').
+    type: [Number,String]
 
   - name: headIndent
     summary: The indentation of the lines of lines other than the first.
     description: |
       This property contains the distance (in points) from the leading margin 
       of a text container to the beginning of lines other than the first. 
-      This value is always nonnegative float value.
-    type: Number
+      This value is always nonnegative float value or dimension string (e.g. '10px').
+    type: [Number,String]
 
   - name: tailIndent
     summary: The trailing indentation of the receiver.
     description: |
       If positive, this value is the distance (in points) from the leading margin 
       (for example, the left margin in left-to-right text). If 0 or negative, 
-      it is the distance (in points) from the trailing margin. This is a float value.
-    type: Number
+      it is the distance (in points) from the trailing margin. This is a float value or 
+      dimension string (e.g. '10px').
+    type: [Number,String]
 
   - name: lineBreakMode
     summary: The mode that should be used to break lines in the receiver.
@@ -174,44 +175,46 @@ properties:
     summary: The maximum line height of receiver.
     description: |
       This property contains the maximum height in points that any line in the receiver will occupy, 
-      regardless of the font size or size of any attached graphic. This value is always nonnegative. 
-      The default value is 0. 
+      regardless of the font size or size of any attached graphic. This value is always nonnegative 
+      float value or dimension string (e.g. '10px'). The default value is 0. 
       Glyphs and graphics exceeding this height will overlap neighboring lines; however, a maximum 
       height of 0 implies no line height limit. Although this limit applies to the line itself, 
       line spacing adds extra space between adjacent lines.
-    type: Number
+    type: [Number,String]
 
   - name: minimumLineHeight
     summary: The minimum height of receiver.
     description: |
       This property contains the minimum height in points that any line in the receiver will occupy, 
-      regardless of the font size or size of any attached graphic. This value must be nonnegative.
+      regardless of the font size or size of any attached graphic. This value must be nonnegative float value 
+      or dimension string (e.g. '10px').
       E.g. If you have set minimum height 30 and font size 10. It will make line height 30 which have 
       smaller text size and more vertical sapcing between text. 
-    type: Number
+    type: [Number,String]
 
   - name: lineSpacing
     summary: The distance in points between the bottom of one line fragment and the top of the next.
     description: |
-      This value is always nonnegative. This value is included in the line fragment heights 
-      in the layout manager.
-    type: Number
+      This value is always nonnegative float value or dimension string (e.g. '10px'). This value is 
+      included in the line fragment heights in the layout manager.
+    type: [Number,String]
 
   - name: paragraphSpacingAfter
     summary: The space after the end of the paragraph.
     description: |
       This property contains the space (measured in points) added at the end of the paragraph 
-      to separate it from the following paragraph. This value must be nonnegative. The space 
-      between paragraphs is determined by adding the paragraphSpacingAfter of previous paragraph and 
-      the paragraphSpacingBefore of current paragraph.
-    type: Number
+      to separate it from the following paragraph. This value must be nonnegative float value or 
+      dimension string (e.g. '10px'). The space between paragraphs is determined by adding the paragraphSpacingAfter 
+      of previous paragraph and the paragraphSpacingBefore of current paragraph.
+    type: [Number,String]
 
   - name: paragraphSpacingBefore
     summary: The distance between the top of paragraph and the beginning of its text content.
     description: |
       This property contains the space (measured in points) between the top of paragraph and 
-      the beginning of its text content. The default value of this property is 0.0.
-    type: Number
+      the beginning of its text content. This value can be float value or dimension string (e.g. '10px').
+      The default value of this property is 0.0.
+    type: [Number,String]
 
   - name: lineHeightMultiple
     summary: The line height multiple.
