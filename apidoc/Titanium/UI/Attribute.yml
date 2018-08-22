@@ -131,7 +131,7 @@ description: |
     Attributes are added corresponding to value to create paragraph style, 
     which when used with attributed string will give styled text. 
 platforms: [iphone, ipad]
-since: "7.4.0"
+since: "7.5.0"
   
 properties:
   - name: alignment
