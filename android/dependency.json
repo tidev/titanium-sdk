@@ -43,7 +43,7 @@
 	},
 	"modulepackage":
 	{
-		"appcompat":"android.support.v7.appcompat",
+		"appcompat":"android.support.coreui:android.support.coreutils:android.support.exifinterface:android.support.fragment:android.support.graphics.drawable.animated:android.support.graphics.drawable:android.support.mediacompat:android.support.transition:android.support.v4:android.support.v7.appcompat:android.support.v7.recyclerview",
 		"cardview":"android.support.v7.cardview",
 		"compat":"android.support.compat",
 		"design":"android.support.design",
