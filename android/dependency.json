@@ -2,7 +2,7 @@
 	"min_api_level": "16",
 	"dependencies":
 	{
-		"appcompat":[],
+		"appcompat":["compat","design"],
 		"cardview":[],
 		"compat":[],
 		"design":[],
