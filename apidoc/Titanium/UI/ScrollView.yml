@@ -319,7 +319,7 @@ properties:
     summary: View positioned above the first row that is only revealed when the user drags the scroll view contents down.
     description: |
         An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples. Since Titanium
-        SDK 7.4.0, the RefreshControl API is also available on iOS < 10.
+        SDK 7.5.0, the RefreshControl API is also available on iOS < 10.
     type: Titanium.UI.RefreshControl
     platforms: [android, iphone, ipad]
     since: { android: "6.3.0", iphone: "6.0.0", ipad: "6.0.0" }
