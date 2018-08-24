@@ -144,7 +144,7 @@
     // Convert duration to milliseconds (parity with progress/Android)
     _duration = (int)(CMTimeGetSeconds([[[self player] currentItem] duration]) * 1000);
   }
-  
+
   return NUMDOUBLE(_duration);
 }
 
