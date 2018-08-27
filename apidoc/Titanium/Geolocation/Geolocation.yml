@@ -187,7 +187,7 @@ description: |
         }
         Ti.Geolocation.addEventListener('heading', compassHandler);
 
-    Note that Android did not include a `success` property in the `heading` event prior to SDK 7.4.0.
+    Note that Android did not include a `success` property in the `heading` event prior to SDK 7.5.0.
     Heading events are only generated on Android when heading data is available. So if
     `success` is undefined on prior SDK versions, we assume that the event contains valid compass data.
 
@@ -335,7 +335,7 @@ events:
         platforms: [android, iphone, ipad]
 
       - name: success
-        summary: Indicate if the heading event was successfully received. Android returns this since SDK 7.4.0.
+        summary: Indicate if the heading event was successfully received. Android returns this since SDK 7.5.0.
         type: Boolean
         platforms: [android, iphone, ipad]
 

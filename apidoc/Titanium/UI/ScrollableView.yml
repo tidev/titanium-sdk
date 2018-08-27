@@ -360,7 +360,7 @@ properties:
     type: Boolean
     availability: creation
     default: true
-    since: { iphone: 0.9, ipad: 0.9, android: 7.4.0 }
+    since: { iphone: 0.9, ipad: 0.9, android: 7.5.0 }
     platforms: [iphone, ipad, android]
 
   - name: hitRect
@@ -380,7 +380,7 @@ properties:
     summary: The padding applied to the scrollable view.
     platforms: [android]
     type: ViewPadding
-    since: "7.4.0"
+    since: "7.5.0"
 
 examples:
   - title: Simple Scrollable View with 3 Views

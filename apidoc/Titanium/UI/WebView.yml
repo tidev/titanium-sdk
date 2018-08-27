@@ -616,7 +616,7 @@ properties:
         The plist key is enabled by default, allowing arbitrary loads to be processed.
     type: Boolean
     platforms: [android]
-    since: "7.4.0"
+    since: "7.5.0"
     default: false
     availability: creation
 
