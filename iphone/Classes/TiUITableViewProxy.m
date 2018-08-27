@@ -1123,6 +1123,32 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
   NSLog(@"[ERROR] Cannot add sub-views to table views. Use \"appendRow\" or \"appendSection\" instead.");
 }
 
+#pragma mark Accessibility Overrides
+
+- (void)setAccessibilityLabel:(NSString *)accessibilityLabel
+{
+  [super setAccessibilityLabel:accessibilityLabel];
+
+  [[[self tableView] tableView] setAccessibilityLabel:accessibilityLabel];
+  [self replaceValue:accessibilityLabel forKey:@"accessibilityLabel" notification:NO];
+}
+
+- (void)setAccessibilityValue:(NSString *)accessibilityValue
+{
+  [super setAccessibilityValue:accessibilityValue];
+
+  [[[self tableView] tableView] setAccessibilityValue:accessibilityValue];
+  [self replaceValue:accessibilityValue forKey:@"accessibilityValue" notification:NO];
+}
+
+- (void)setAccessibilityHint:(NSString *)accessibilityHint
+{
+  [super setAccessibilityHint:accessibilityHint];
+
+  [[[self tableView] tableView] setAccessibilityHint:accessibilityHint];
+  [self replaceValue:accessibilityHint forKey:@"accessibilityHint" notification:NO];
+}
+
 @end
 
 #endif
