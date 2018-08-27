@@ -24,7 +24,7 @@ describe.ios('Titanium.App.iOS', function () {
 	});
 
 	it('supportedUserActivityTypes', function () {
-		should(Ti.App.iOS.supportedUserActivityTypes).be.null; // Only non-null if set via Info.plist NSUserActivityTypes key
+		should(Ti.App.iOS.supportedUserActivityTypes).be.undefined; // Only non-null if set via Info.plist NSUserActivityTypes key
 	});
 
 	// --- methods ---
@@ -34,8 +34,8 @@ describe.ios('Titanium.App.iOS', function () {
 		// TODO: Add more tests
 	});
 
-	it('#canceAlllLocalNotifications()', function () {
-		should(Ti.App.iOS.canceAlllLocalNotifications).be.a.Function;
+	it('#cancelAllLocalNotifications()', function () {
+		should(Ti.App.iOS.cancelAllLocalNotifications).be.a.Function;
 		// TODO: Add more tests
 	});
 
@@ -69,7 +69,7 @@ describe.ios('Titanium.App.iOS', function () {
 		});
 
 		var searchableItem = Ti.App.iOS.createSearchableItem({
-			uniqueIndentifier: 'my-id',
+			uniqueIdentifier: 'my-id',
 			domainIdentifier: 'com.mydomain',
 			attributeSet: itemAttr
 		});
@@ -115,19 +115,34 @@ describe.ios('Titanium.App.iOS', function () {
 	});
 
 	it('#createUserDefaults(args)', function (finish) {
-		this.timeout = 5000;
+		var userDefaults;
+
+		function finishTest() {
+			// This little hack is required to migrate from old tests where we
+			// did not flush all existing properties
+			if (!userDefaults || userDefaults.getString('test', null) !== 'tirocks') {
+				return;
+			}
+
+			userDefaults.removeEventListener('change', finishTest);
+			finish();
+		}
+
+		this.timeout(5000);
 
 		should(Ti.App.iOS.createUserDefaults).be.a.Function;
 
-		var userDefaults = Ti.App.iOS.createUserDefaults({
+		userDefaults = Ti.App.iOS.createUserDefaults({
 			suiteName: 'group.mySuite'
 		});
 
-		userDefaults.addEventListener('change', finish);
+		// Flush all old values for fresh results
+		userDefaults.removeAllProperties();
+
+		userDefaults.addEventListener('change', finishTest);
 
 		should(userDefaults).be.an.Object;
 		should(userDefaults.apiName).eql('Ti.App.iOS.UserDefaults');
-		should(userDefaults.suiteName).eql('group.mySuite');
 		should(userDefaults.getInt).be.a.Function;
 		should(userDefaults.setInt).be.a.Function;
 		should(userDefaults.getBool).be.a.Function;
@@ -174,8 +189,8 @@ describe.ios('Titanium.App.iOS', function () {
 		should(Ti.App.iOS.BACKGROUNDFETCHINTERVAL_MIN).be.a.Number;
 		should(Ti.App.iOS.BACKGROUNDFETCHINTERVAL_NEVER).be.a.Number;
 
-		should(Ti.App.iOS.EVENT_ACCESSIBILITY_LAYOUT_CHANGED).be.a.Number;
-		should(Ti.App.iOS.EVENT_ACCESSIBILITY_SCREEN_CHANGED).be.a.Number;
+		should(Ti.App.iOS.EVENT_ACCESSIBILITY_LAYOUT_CHANGED).be.a.String;
+		should(Ti.App.iOS.EVENT_ACCESSIBILITY_SCREEN_CHANGED).be.a.String;
 
 		should(Ti.App.iOS.USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND).be.a.Number;
 		should(Ti.App.iOS.USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND).be.a.Number;
@@ -192,6 +207,7 @@ describe.ios('Titanium.App.iOS', function () {
 		should(Ti.App.iOS.USER_NOTIFICATION_BEHAVIOR_TEXTINPUT).be.a.Number;
 
 		should(Ti.App.iOS.USER_NOTIFICATION_CATEGORY_OPTION_CUSTOM_DISMISS_ACTION).be.a.Number;
+		should(Ti.App.iOS.USER_NOTIFICATION_CATEGORY_OPTION_ALLOW_IN_CARPLAY).be.a.Number;
 		should(Ti.App.iOS.USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_TITLE).be.a.Number;
 		should(Ti.App.iOS.USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_SUBTITLE).be.a.Number;
 		should(Ti.App.iOS.USER_NOTIFICATION_CATEGORY_OPTION_NONE).be.a.Number;
@@ -208,7 +224,7 @@ describe.ios('Titanium.App.iOS', function () {
 		should(Ti.App.iOS.UTTYPE_AUDIO).be.a.String;
 		should(Ti.App.iOS.UTTYPE_BMP).be.a.String;
 		should(Ti.App.iOS.UTTYPE_FLAT_RTFD).be.a.String;
-		should(Ti.App.iOS.UTTYPE_GID).be.a.String;
+		should(Ti.App.iOS.UTTYPE_GIF).be.a.String;
 		should(Ti.App.iOS.UTTYPE_HTML).be.a.String;
 		should(Ti.App.iOS.UTTYPE_ICO).be.a.String;
 		should(Ti.App.iOS.UTTYPE_IMAGE).be.a.String;
