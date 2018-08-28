@@ -440,20 +440,19 @@
 }
 
 #if IS_XCODE_10
-
 - (NSNumber *)eligibleForPrediction
 {
   if (![TiUtils isIOSVersionLower:@"12.0"]) {
     return NUMBOOL(NO);
   }
 
-  return NUMBOOL(_userActivity.isEligibleForPrediction);
+  return @(_userActivity.isEligibleForPrediction);
 }
 
 - (void)setEligibleForPrediction:(NSNumber *)value
 {
-  ENSURE_TYPE(value, NSNumber);
   ENSURE_UI_THREAD(setEligibleForSearch, value);
+  ENSURE_TYPE(value, NSNumber);
   if (![TiUtils isIOSVersionLower:@"12.0"]) {
     return;
   }
@@ -480,7 +479,12 @@
 
 - (void)deleteSavedUserActivitiesForPersistentIdentifiers:(id)persistentIdentifiers
 {
-  ENSURE_ARRAY(persistentIdentifiers);
+  ENSURE_SINGLE_ARG(persistentIdentifiers, NSArray);
+
+  for (id object in persistentIdentifiers) {
+    ENSURE_TYPE(object, NSString);
+  }
+
   if ([TiUtils isIOSVersionLower:@"12.0"]) {
     return;
   }
@@ -503,8 +507,8 @@
     }
   }];
 }
-
 #endif
+
 @end
 
 #endif

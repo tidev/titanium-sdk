@@ -77,7 +77,7 @@ properties:
     summary: |
         A Boolean value that determines whether Siri can suggest the user activity as a shortcut to the user.
     description: |
-        To donate a user activity to Siri Shortcuts, set eligibleForPrediction to 'true' and make the 
+        To donate a user activity to Siri Shortcuts, set eligibleForPrediction to `true` and make the 
         user activity current. To make the user activity current, call the becomeCurrent method of activity.
         For more information, see https://developer.apple.com/documentation/sirikit/donating_shortcuts?language=objc.    
     type: Boolean
@@ -326,12 +326,12 @@ examples:
             </ti:app>
 
   - title: iOS 12+ Siri Shortcuts
-    example:
+    example: |
         The following example shows how to add and delete a UserActivity for Siri Shortcuts
         on iOS 12 and later.
 
-        ### app.js
-        
+        #### app.js
+
             var win = Ti.UI.createWindow({
                 backgroundColor: '#fff'
             });
@@ -379,7 +379,7 @@ examples:
             });
 
             btn.addEventListener('click', function () {
-                activity.deleteSavedUserActivitiesForPersistentIdentifiers('titanium_siri_identifier');
+                activity.deleteSavedUserActivitiesForPersistentIdentifiers(['titanium_siri_identifier']);
             });
 
             win.add(btn);

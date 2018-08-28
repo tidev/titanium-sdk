@@ -16,6 +16,13 @@
 - (id)initWithOptions:(NSDictionary *)props;
 @property (nonatomic, strong) NSUserActivity *userActivity;
 
+#if IS_XCODE_10
+- (void)setEligibleForPrediction:(NSNumber *)value;
+- (void)setPersistentIdentifier:(NSString *)value;
+- (void)deleteSavedUserActivitiesForPersistentIdentifiers:(id)persistentIdentifiers;
+- (void)deleteAllSavedUserActivities:(id)unused;
+#endif
+
 @end
 
 #endif
