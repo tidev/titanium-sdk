@@ -661,9 +661,9 @@
 
   // For iOS 10+, use the UserNotifications framework to manage notification
   if ([TiUtils isIOS10OrGreater]) {
-    NSString *identifier = [args objectForKey:@"identifier"];
-    NSString *alertSubtitle = [args objectForKey:@"alertSubtitle"];
-    NSString *category = [args objectForKey:@"category"];
+    NSString *identifier = [TiUtils stringValue:@"identifier" properties:args def:NSUUID.UUID.UUIDString];
+    NSString *alertSubtitle = [TiUtils stringValue:@"alertSubtitle" properties:args];
+    NSString *category = [TiUtils stringValue:@"category" properties:args];
     NSArray<NSDictionary<NSString *, id> *> *attachments = [args objectForKey:@"attachments"];
 
     UNNotificationTrigger *trigger = nil;
@@ -711,7 +711,7 @@
 
       CLRegion *circularRegion = [[CLCircularRegion alloc] initWithCenter:CLLocationCoordinate2DMake(latitude, longitude)
                                                                    radius:radius
-                                                               identifier:identifier ?: @"notification"];
+                                                               identifier:identifier];
 
       trigger = [UNLocationNotificationTrigger triggerWithRegion:circularRegion
                                                          repeats:triggersOnce];
@@ -749,13 +749,18 @@
 
     // Set additional user-info
     if (userInfo != nil) {
-      if (identifier != nil && [userInfo objectForKey:@"id"] == nil) {
+      // If user-info exists, but the "id" field does not, inject it
+      if ([userInfo objectForKey:@"id"] == nil) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:userInfo];
         [dict setObject:identifier forKey:@"id"];
         [content setUserInfo:dict];
       } else {
+        // If user-info and "id" field exist, simply assign
         [content setUserInfo:userInfo];
       }
+    } else {
+      // If no user-info exists at all, inject the "id" field
+      [content setUserInfo:@{ @"id" : identifier }];
     }
 
     // Set attachments
@@ -821,7 +826,7 @@
 #endif
 
     // Construct a new notiication request using our content and trigger (e.g. date or location)
-    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:[TiUtils stringValue:identifier] ?: @"notification"
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier
                                                                           content:content
                                                                           trigger:trigger];
 
@@ -951,21 +956,20 @@
   }
 }
 
-- (void)cancelLocalNotification:(id)value
+- (void)cancelLocalNotification:(id)identifier
 {
-  ENSURE_SINGLE_ARG(value, NSObject);
-  ENSURE_UI_THREAD(cancelLocalNotification, value);
+  ENSURE_UI_THREAD(cancelLocalNotification, identifier);
+  ENSURE_SINGLE_ARG(identifier, NSString);
 
   DEPRECATED_REPLACED(@"App.iOS.cancelLocalNotification", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotificationsWithIdentifiers");
 
   if ([TiUtils isIOS10OrGreater]) {
-    NSString *identifier = [TiUtils stringValue:value] ?: @"notification";
     [[UNUserNotificationCenter currentNotificationCenter] removePendingNotificationRequestsWithIdentifiers:@[ identifier ]];
   } else {
     NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
     if (notifications != nil) {
       for (UILocalNotification *notification in notifications) {
-        if ([[[notification userInfo] objectForKey:@"id"] isEqual:[TiUtils stringValue:value]]) {
+        if ([[[notification userInfo] objectForKey:@"id"] isEqual:identifier]) {
           [[UIApplication sharedApplication] cancelLocalNotification:notification];
           return;
         }
