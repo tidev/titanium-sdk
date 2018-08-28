@@ -374,7 +374,6 @@
       [[self scrollView] addSubview:refreshControl.control];
     }
   }
-#endif
 }
 
 - (void)setShowHorizontalScrollIndicator_:(id)value
