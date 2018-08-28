@@ -5,12 +5,12 @@ summary: |
 description: |
     On Android, when you are done playing a given audio file, you must call the
     [release](Titanium.Media.AudioPlayer.release) method to stop buffering audio data and
-    release associated system resources. Since 7.4.0, this method is available on iOS as well
+    release associated system resources. Since 7.5.0, this method is available on iOS as well
     and will release all audio-player related resources. After this method has been called,
     the object should not be accessed anymore.
 
     On iOS, you can control how the audio stream interacts with other system sounds
-    by setting <Titanium.Media.audioSessionCategory>. Since Titanium 7.4.0, this API
+    by setting <Titanium.Media.audioSessionCategory>. Since Titanium 7.5.0, this API
     uses the [AVPlayer API](https://developer.apple.com/documentation/avfoundation/avplayer) for a more modern
     and performant audio playback.
 
@@ -130,7 +130,7 @@ methods:
   - name: play
     summary: Starts or resumes audio playback.
     deprecated:
-        since: "7.4.0"
+        since: "7.5.0"
         notes: Use the cross-platform API [start](Titanium.Media.AudioPlayer.start) instead.
     description: |
         This method is identical to .
@@ -147,7 +147,7 @@ methods:
         summary: Pass `true` to pause the current playback temporarily, `false` to unpause it.
         type: Boolean
     deprecated:
-        since: "7.4.0"
+        since: "7.5.0"
         notes: Use the cross-platform API [pause](Titanium.Media.AudioPlayer.pause) instead.
     platforms: [iphone, ipad]
 
@@ -163,7 +163,7 @@ methods:
         Use this method to seek to a specified time for the current player item and 
         to be notified by the `seek` event when the seek operation is complete.  
     platforms: [iphone, ipad]
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: release
     summary: Stops buffering audio data and releases audio resources.
@@ -175,7 +175,7 @@ methods:
         instance and it's observers. Note: If you are listening to the `progress` event,
         you should remove and re-add the event listener.
     platforms: [android, iphone, ipad]
-    since: { "android": "0.9", "iphone": "7.4.0", "ipad": "7.4.0" }
+    since: { "android": "0.9", "iphone": "7.5.0", "ipad": "7.5.0" }
 
   - name: getAudioSessionId
     summary: Returns the audio session id.
@@ -189,7 +189,7 @@ methods:
   
   - name: restart
     summary: Restarts (stops and stars) audio playback.
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: stateDescription
     summary: |
@@ -239,7 +239,7 @@ events:
             Otherwise, this value will be -1.
         type: Number
     platforms: [android, iphone, ipad]
-    since: {"android": "0.9", "iphone": "7.4.0", "ipad": "7.4.0"}
+    since: {"android": "0.9", "iphone": "7.5.0", "ipad": "7.5.0"}
 
   - name: metadata
     summary: Fired when the timed metadata was encountered most recently within the media as it plays.
@@ -251,7 +251,7 @@ events:
         summary: An array of metadata items containing relevant information about the current media item.
         type: Array<TiMetadataItemType>  
     platforms: [iphone, ipad]
-    since: "7.4.0"
+    since: "7.5.0"
     
   - name: error
     summary: Fired when there's an error.
@@ -288,7 +288,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "7.4.0"
+        since: "7.5.0"
         notes: Use <Titanium.Media.AUDIO_STATE_BUFFERING> instead.
 
   - name: STATE_INITIALIZED
@@ -296,7 +296,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "7.4.0"
+        since: "7.5.0"
         notes: Use <Titanium.Media.AUDIO_STATE_INITIALIZED> instead.
 
   - name: STATE_PAUSED
@@ -304,7 +304,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "7.4.0"
+        since: "7.5.0"
         notes: Use <Titanium.Media.AUDIO_STATE_PAUSED> instead.
 
   - name: STATE_PLAYING
@@ -312,7 +312,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "7.4.0"
+        since: "7.5.0"
         notes: Use <Titanium.Media.AUDIO_STATE_PLAYING> instead.
 
   - name: STATE_STARTING
@@ -320,7 +320,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "7.4.0"
+        since: "7.5.0"
         notes: Use <Titanium.Media.AUDIO_STATE_STARTING> instead.
 
   - name: STATE_STOPPED
@@ -328,7 +328,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "7.4.0"
+        since: "7.5.0"
         notes: Use <Titanium.Media.AUDIO_STATE_STOPPED> instead.
 
   - name: STATE_STOPPING
@@ -336,7 +336,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "7.4.0"
+        since: "7.5.0"
         notes: Use <Titanium.Media.AUDIO_STATE_STOPPING> instead.
 
   - name: STATE_WAITING_FOR_DATA
@@ -344,7 +344,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "7.4.0"
+        since: "7.5.0"
         notes: Use <Titanium.Media.AUDIO_STATE_WAITING_FOR_DATA> instead.
 
   - name: STATE_WAITING_FOR_QUEUE
@@ -352,7 +352,7 @@ properties:
     type: Number
     permission: read-only
     deprecated:
-        since: "7.4.0"
+        since: "7.5.0"
         notes: Use <Titanium.Media.AUDIO_STATE_WAITING_FOR_QUEUE> instead.
 
   - name: AUDIO_TYPE_ALARM
@@ -455,20 +455,20 @@ properties:
     description: Only affects audio muting for the player instance and not for the device.
     platforms: [iphone, ipad, android]
     type: Boolean
-    since: "7.4.0"
+    since: "7.5.0"
     
   - name: externalPlaybackActive
     summary: Indicates whether the player is currently playing video in "external playback" mode.
     platforms: [iphone, ipad]
     type: Boolean
-    since: "7.4.0"    
+    since: "7.5.0"    
     permission: read-only
  
   - name: allowsExternalPlayback
     summary: Indicates whether the player allows switching to "external playback" mode.
     default: true
     type: Boolean
-    since: "7.4.0"    
+    since: "7.5.0"    
     platforms: [iphone, ipad]
     
   - name: rate
@@ -486,7 +486,7 @@ properties:
         default behavior of waiting in order to minimize stalling is permitted.
     default: 0.0
     type: Number
-    since: "7.4.0"    
+    since: "7.5.0"    
     platforms: [iphone, ipad]
 
   - name: paused
@@ -545,7 +545,7 @@ properties:
   - name: bufferSize
     summary: Size of the buffer used for streaming, in milliseconds.
     description: |
-        Prior to Titanium 7.4.0, this property was set in bytes. Since the internal iOS
+        Prior to Titanium 7.5.0, this property was set in bytes. Since the internal iOS
         API moved to the more modern AVPlayer, this property now works with milliseconds instead.
     type: Number
     platforms: [iphone, ipad]
@@ -565,7 +565,7 @@ description: |
     This type is key-value based and is returned inside an array of metadata items.
     Read more about timed metadata items in the [Apple docs](https://developer.apple.com/documentation/avfoundation/avmetadataitem?language=objc).
 platforms: [iphone, ipad]
-since: "7.4.0"
+since: "7.5.0"
 properties:
   - name: key
     summary: The key of the metadata item, e.g. "title".
