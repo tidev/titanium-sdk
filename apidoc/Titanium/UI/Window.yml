@@ -544,7 +544,7 @@ properties:
     platforms: [iphone, ipad]
     type: Boolean
     default: false
-    since: 7.4.0
+    since: 7.5.0
 
   - name: largeTitleEnabled
     summary: A Boolean value indicating whether the title should be displayed in a large format.

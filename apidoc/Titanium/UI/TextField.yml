@@ -473,7 +473,7 @@ properties:
       compatible with your service. You can learn more about the purpose of and syntax for these rules
       on the [Password Rules documentation guide](https://developer.apple.com/documentation/security/password_autofill/customizing_password_autofill_rules).
     type: String
-    since: "7.4.0"
+    since: "7.5.0"
     osver: { ios: { min: "12.0" } }
     platforms: [iphone, ipad]
 
