@@ -442,7 +442,7 @@
 #if IS_XCODE_10
 - (NSNumber *)eligibleForPrediction
 {
-  if (![TiUtils isIOSVersionLower:@"12.0"]) {
+  if ([TiUtils isIOSVersionLower:@"12.0"]) {
     return NUMBOOL(NO);
   }
 
@@ -453,7 +453,7 @@
 {
   ENSURE_UI_THREAD(setEligibleForSearch, value);
   ENSURE_TYPE(value, NSNumber);
-  if (![TiUtils isIOSVersionLower:@"12.0"]) {
+  if ([TiUtils isIOSVersionLower:@"12.0"]) {
     return;
   }
   [_userActivity setEligibleForPrediction:[TiUtils boolValue:value]];
@@ -461,7 +461,7 @@
 
 - (NSString *)persistentIdentifier
 {
-  if (![TiUtils isIOSVersionLower:@"12.0"]) {
+  if ([TiUtils isIOSVersionLower:@"12.0"]) {
     return nil;
   }
 
