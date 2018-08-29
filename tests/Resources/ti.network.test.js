@@ -8,8 +8,7 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+var should = require('./utilities/assertions');
 
 describe('Titanium.Network', function () {
 
