@@ -805,9 +805,6 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   return url;
 }
 
-const CFStringRef charactersThatNeedEscaping = NULL;
-const CFStringRef charactersToNotEscape = CFSTR(":[]@!$' ()*+,;\"<>%{}|\\^~`#");
-
 + (NSURL *)toURL:(NSString *)relativeString relativeToURL:(NSURL *)rootPath
 {
   /*
@@ -834,39 +831,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
     return [NSURL URLWithString:relativeString];
   }
 
-  NSURL *result = nil;
-
-  // don't bother if we don't at least have a path and it's not remote
-  //TODO: What is this mess? -BTH
-  if ([relativeString hasPrefix:@"http://"] || [relativeString hasPrefix:@"https://"]) {
-    NSRange range = [relativeString rangeOfString:@"/" options:0 range:NSMakeRange(7, [relativeString length] - 7)];
-    if (range.location != NSNotFound) {
-      NSString *firstPortion = [relativeString substringToIndex:range.location];
-      NSString *pathPortion = [relativeString substringFromIndex:range.location];
-      NSString *escapedPath = [pathPortion stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]];
-      relativeString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
-    }
-    result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
-  } else {
-    //only add percentescape if there are spaces in relativestring
-    if ([[relativeString componentsSeparatedByString:@" "] count] - 1 == 0) {
-      result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
-    } else {
-      result = [NSURL URLWithString:[relativeString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]
-                      relativeToURL:rootPath];
-    }
-  }
-  //TIMOB-18262
-  if (result && ([[result scheme] isEqualToString:@"file"])) {
-    BOOL isDir = NO;
-    BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:[result path] isDirectory:&isDir];
-
-    if (exists && !isDir) {
-      return [TiUtils checkFor2XImage:result];
-    }
-  }
-
-  //TODO: Make this less ugly.
+  NSURL *result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+  // If the path is absolute, actually make it relative to resource path
   if ([relativeString hasPrefix:@"/"]) {
     NSString *rootScheme = [rootPath scheme];
     NSString *resourcePath = [TiHost resourcePath];
@@ -875,20 +841,37 @@ If the new path starts with / and the base url is app://..., we have to massage 
       usesApp = [[rootPath path] hasPrefix:resourcePath];
     }
     if (usesApp) {
-      result = [NSURL fileURLWithPath:[resourcePath stringByAppendingPathComponent:relativeString]];
+      // FIXME: What if relativeString starts with prefix resourcePath?
+      if ([relativeString hasPrefix:resourcePath]) {
+        result = [NSURL fileURLWithPath:relativeString];
+      } else {
+        result = [NSURL fileURLWithPath:[resourcePath stringByAppendingPathComponent:relativeString]];
+      }
     }
   }
-
+  // Fall back if somehow the URL is bad
   if (result == nil) {
     //encoding problem - fail fast and make sure we re-escape
     NSRange range = [relativeString rangeOfString:@"?"];
     if (range.location != NSNotFound) {
       NSString *qs = [TiUtils encodeURIParameters:[relativeString substringFromIndex:range.location + 1]];
       NSString *newurl = [NSString stringWithFormat:@"%@?%@", [relativeString substringToIndex:range.location], qs];
-      return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
+      result = [NSURL URLWithString:newurl];
     }
   }
-  return [TiUtils checkFor2XImage:result];
+
+  // If we have a URL and it's a 'file:' one, check for 2x images
+  // TIMOB-18262
+  if (result && ([result isFileURL])) {
+    BOOL isDir = NO;
+    BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:[result path] isDirectory:&isDir];
+
+    if (exists && !isDir) {
+      return [TiUtils checkFor2XImage:result];
+    }
+  }
+
+  return result;
 }
 
 + (NSURL *)toURL:(NSString *)object proxy:(TiProxy *)proxy
