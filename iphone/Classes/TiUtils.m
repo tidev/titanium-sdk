@@ -832,8 +832,12 @@ If the new path starts with / and the base url is app://..., we have to massage 
   }
 
   NSURL *result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
-  // If the path is absolute, actually make it relative to resource path
+  // If the path looks absolute (but isn't valid), try to make it relative to resource path
   if ([relativeString hasPrefix:@"/"]) {
+    if (result == nil) {
+      // assume it's a file path with some funkiness in it that caused URL parsing to fail. Try standardizing the path
+      result = [NSURL fileURLWithPath:[relativeString stringByStandardizingPath]];
+    }
     NSString *rootScheme = [rootPath scheme];
     NSString *resourcePath = [TiHost resourcePath];
     BOOL usesApp = [rootScheme isEqualToString:@"app"];
@@ -841,17 +845,18 @@ If the new path starts with / and the base url is app://..., we have to massage 
       usesApp = [[rootPath path] hasPrefix:resourcePath];
     }
     if (usesApp) {
-      // FIXME: What if relativeString starts with prefix resourcePath?
-      if ([relativeString hasPrefix:resourcePath]) {
-        result = [NSURL fileURLWithPath:relativeString];
+      if (result && [result isFileURL] && [result checkResourceIsReachableAndReturnError:nil]) {
+        // good URL, no need to treat it like it's relative to resources dir
+        result = [result filePathURL];
       } else {
+        // bad URL, assume it's relative to app's resources dir
         result = [NSURL fileURLWithPath:[resourcePath stringByAppendingPathComponent:relativeString]];
       }
     }
   }
   // Fall back if somehow the URL is bad
   if (result == nil) {
-    //encoding problem - fail fast and make sure we re-escape
+    // encoding problem - fail fast and make sure we re-escape
     NSRange range = [relativeString rangeOfString:@"?"];
     if (range.location != NSNotFound) {
       NSString *qs = [TiUtils encodeURIParameters:[relativeString substringFromIndex:range.location + 1]];
