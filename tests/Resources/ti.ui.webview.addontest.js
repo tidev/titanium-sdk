@@ -8,7 +8,8 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'),
+	utilities = require('./utilities/utilities');
 
 describe('Ti.UI.WebView', function () {
 	var win;
@@ -32,7 +33,11 @@ describe('Ti.UI.WebView', function () {
 		});
 
 		webView.addEventListener('load', function (e) {
-			should(e.url).eql('file://' + Ti.Filesystem.resourcesDirectory + 'folder%20with%20spaces/comingSoon.html');
+			if (utilities.isAndroid()) {
+				should(e.url).eql('app:///folder with spaces/comingSoon.html');
+			} else if (utilities.isIOS()) {
+				should(e.url).eql('file://' + Ti.Filesystem.resourcesDirectory + 'folder%20with%20spaces/comingSoon.html');
+			}
 			finish();
 		});
 
