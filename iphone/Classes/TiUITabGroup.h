@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#ifdef USE_TI_UITAB
 
 #import <TitaniumKit/TiUIView.h>
 
@@ -34,3 +35,5 @@
 - (void)preferredContentSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container;
 
 @end
+
+#endif

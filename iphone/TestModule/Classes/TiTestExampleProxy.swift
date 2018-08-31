@@ -2,8 +2,7 @@
 //  TiTestExampleProxy.swift
 //  TestModule
 //
-//  Created by Hans Knöchel on 05.04.18.
-//  Copyright © 2018 Hans Knoechel. All rights reserved.
+//  Copyright © 2018-present by Appcelerator. All rights reserved.
 //
 
 import UIKit
