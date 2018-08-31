@@ -122,7 +122,7 @@
     if (![TiUtils isUsingLaunchScreenStoryboard]) {
       defaultImageView = [[UIImageView alloc] init];
     } else {
-      defaultImageView = [[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view];
+      defaultImageView = [[[[UIStoryboard storyboardWithName:@"LaunchScreen" bundle:[NSBundle mainBundle]] instantiateInitialViewController] view] retain];
     }
     [defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
     [defaultImageView setContentMode:UIViewContentModeScaleToFill];
