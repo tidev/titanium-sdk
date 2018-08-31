@@ -36,7 +36,8 @@ public class TiFileFactory
 	private static final String FILE_URL_PREFIX = FILE_URL_SCHEME + "://";
 	private static HashSet<String> localSchemeSet;
 
-	static {
+	static
+	{
 		localSchemeSet = new HashSet<String>();
 		localSchemeSet.add(TiC.URL_APP_SCHEME.toLowerCase());
 		localSchemeSet.add(APPDATA_URL_SCHEME.toLowerCase());
