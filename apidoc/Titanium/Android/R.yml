@@ -203,7 +203,7 @@ properties:
 
   - name: styleable
     summary: |
-        Styleable reosurces. See 
+        Styleable resources. See 
         [R.styleable](https://developer.android.com/reference/android/R.styleable.html)
         in the Android Developer Reference.
     type: Object
