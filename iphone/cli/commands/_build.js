@@ -3965,7 +3965,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 			__PROJECT_NAME__: this.tiapp.name,
 			__PROJECT_ID__: this.tiapp.id,
 			__URL__: this.tiapp.id,
-			__URLSCHEME__: this.tiapp.name.replace(/\./g, '_').replace(/ /g, '').toLowerCase(),
+			__URLSCHEME__: this.tiapp.name.replace(/[^0-9a-z]/gi, '').toLowerCase(),
 			__ADDITIONAL_URL_SCHEMES__: fbAppId ? '<string>fb' + fbAppId + '</string>' : ''
 		},
 		resourceDir = path.join(this.projectDir, 'Resources'),
