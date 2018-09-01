@@ -123,6 +123,19 @@
     }
   }
 
+#if IS_XCODE_10
+  if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
+    if ([props objectForKey:@"eligibleForPrediction"]) {
+      [_userActivity setEligibleForPrediction:[TiUtils boolValue:@"eligibleForPrediction" properties:props]];
+    }
+
+    if ([props objectForKey:@"persistentIdentifier"]) {
+      [_userActivity setPersistentIdentifier:[TiUtils stringValue:@"persistentIdentifier"
+                                                       properties:props]];
+    }
+  }
+#endif
+
   _userActivity.delegate = self;
 }
 
@@ -425,6 +438,77 @@
   }
   [_userActivity resignCurrent];
 }
+
+#if IS_XCODE_10
+- (NSNumber *)eligibleForPrediction
+{
+  if ([TiUtils isIOSVersionLower:@"12.0"]) {
+    return NUMBOOL(NO);
+  }
+
+  return @(_userActivity.isEligibleForPrediction);
+}
+
+- (void)setEligibleForPrediction:(NSNumber *)value
+{
+  ENSURE_UI_THREAD(setEligibleForSearch, value);
+  ENSURE_TYPE(value, NSNumber);
+  if ([TiUtils isIOSVersionLower:@"12.0"]) {
+    return;
+  }
+  [_userActivity setEligibleForPrediction:[TiUtils boolValue:value]];
+}
+
+- (NSString *)persistentIdentifier
+{
+  if ([TiUtils isIOSVersionLower:@"12.0"]) {
+    return nil;
+  }
+
+  return _userActivity.persistentIdentifier;
+}
+
+- (void)setPersistentIdentifier:(NSString *)value
+{
+  ENSURE_TYPE(value, NSString);
+  if ([TiUtils isIOSVersionLower:@"12.0"]) {
+    return;
+  }
+  [_userActivity setPersistentIdentifier:[TiUtils stringValue:value]];
+}
+
+- (void)deleteSavedUserActivitiesForPersistentIdentifiers:(id)persistentIdentifiers
+{
+  ENSURE_SINGLE_ARG(persistentIdentifiers, NSArray);
+
+  for (id object in persistentIdentifiers) {
+    ENSURE_TYPE(object, NSString);
+  }
+
+  if ([TiUtils isIOSVersionLower:@"12.0"]) {
+    return;
+  }
+  [NSUserActivity deleteSavedUserActivitiesWithPersistentIdentifiers:persistentIdentifiers
+                                                   completionHandler:^{
+                                                     if ([self _hasListeners:@"useractivitydeleted"]) {
+                                                       [self fireEvent:@"useractivitydeleted" withObject:nil];
+                                                     }
+                                                   }];
+}
+
+- (void)deleteAllSavedUserActivities:(id)unused
+{
+  if ([TiUtils isIOSVersionLower:@"12.0"]) {
+    return;
+  }
+  [NSUserActivity deleteAllSavedUserActivitiesWithCompletionHandler:^{
+    if ([self _hasListeners:@"useractivitydeleted"]) {
+      [self fireEvent:@"useractivitydeleted" withObject:nil];
+    }
+  }];
+}
+#endif
+
 @end
 
 #endif
