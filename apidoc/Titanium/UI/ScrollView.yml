@@ -28,7 +28,7 @@ description: |
     is natively supported by the UIScrollView class, but on Android, the native ScrollView class does
     not support this action.
 extends: Titanium.UI.View
-since: '0.9'
+since: "0.9"
 
 methods:
   - name: scrollTo
