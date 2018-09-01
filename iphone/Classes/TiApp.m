@@ -1524,6 +1524,35 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
     event[@"category"] = category;
   }
 
+  // If the notification is triggered from the background and remote-notifications are
+  // able to be handled in the background, process them there to be able to fire the
+  // "remotenotificationaction" properly.
+  //
+  // This works very similar to what we do with silent pushes.
+  NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+
+  if ([backgroundModes containsObject:@"remote-notification"]) {
+    // Generate unique key with timestamp.
+    NSString *key = [NSString stringWithFormat:@"CategoryPush-%f", [[NSDate date] timeIntervalSince1970]];
+
+    // Store the completionhandler till we can come back and send appropriate message.
+    if (pendingCompletionHandlers == nil) {
+      pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
+    }
+    [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease] forKey:key];
+
+    // Include the handlerId to be able to identify and finish the current background-handler
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil];
+    [dict addEntriesFromDictionary:event];
+    [self tryToPostBackgroundModeNotification:dict withNotificationName:kTiRemoteNotificationAction];
+
+    // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
+    NSTimer *flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO];
+    [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
+  } else {
+    [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
+  }
+
   [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
 }
 
