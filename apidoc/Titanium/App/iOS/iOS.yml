@@ -1427,7 +1427,14 @@ properties:
     optional: true
 
   - name: userInfo
-    summary: Data to pass to the application with the notification event.
+    summary: |
+        Data to pass to the application with the notification event.
+        
+        For iOS 10+, you can set the
+        `showInForeground` property to `true` which will allow you to present notifications to the
+        user while the app is in foreground. Please note that in that case, the notification event
+        will not be triggered, because the notification is already presented. The same can be applied
+        for remote push notifications, as long as they include this key to their payload.
     type: Dictionary
     optional: true
 

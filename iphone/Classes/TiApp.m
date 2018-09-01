@@ -609,8 +609,14 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 // iOS 10+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
-  // TODO: Get desired options from notification?
-  completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
+  // For backwards compatibility with iOS < 10, we do not show notifications in-app, but make it configurable
+  BOOL showInForeground = [TiUtils boolValue:notification.request.content.userInfo[@"showInForeground"] def:NO];
+
+  if (showInForeground) {
+    completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
+  } else {
+    completionHandler(UNNotificationPresentationOptionNone);
+  }
 }
 
 // iOS 10+
