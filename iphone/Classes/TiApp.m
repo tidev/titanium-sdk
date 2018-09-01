@@ -856,7 +856,15 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 {
   // Forward the callback
   if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
-    [self application:application didReceiveRemoteNotification:userInfo];
+    NSMutableDictionary *patchedUserInfo = [userInfo copy];
+    // For iOS 10+, the UserNotifications framework does not automatically pass the contents of the "aps
+    // dictionary into the top-level. For parity, we copy it over, so the registerForPushNotifications "callback"
+    // is able to receive the values identically on iOS < 10 and iOS 10+.
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+      [patchedUserInfo setValuesForKeysWithDictionary:[userInfo objectForKey:@"aps"]];
+    }
+    [self application:application didReceiveRemoteNotification:patchedUserInfo];
+    RELEASE_TO_NIL(patchedUserInfo);
   }
 
   [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
@@ -1290,7 +1298,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [self generateNotification:userInfo];
 
   [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, remoteNotification, nil]];
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
