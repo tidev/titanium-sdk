@@ -562,7 +562,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
   [self tryToInvokeSelector:@selector(application:performFetchWithCompletionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, [completionHandler copy], nil]];
 
   //Only for simulator builds
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
@@ -680,7 +680,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler
 {
   [self tryToInvokeSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:completionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, userInfo, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, userInfo, [completionHandler copy], nil]];
 
   [self handleRemoteNotificationWithIdentifier:identifier
                                    andUserInfo:userInfo
@@ -711,7 +711,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 
   [self tryToInvokeSelector:@selector(application:handleWatchKitExtensionRequest:reply:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, reply, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, [reply copy], nil]];
 
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiWatchKitExtensionRequest object:self userInfo:dic];
 }
@@ -763,7 +763,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
         [self invokeSelector:selector withArguments:arguments onDelegate:applicationDelegate];
       }
     }
-  } else {
+  } else if (!appBooted && _applicationDelegates == nil) {
     [[self queuedApplicationSelectors] setObject:arguments forKey:selectorString];
   }
 }
@@ -866,7 +866,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
 {
   [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, [completionHandler copy], nil]];
 
   //This only here for Simulator builds.
 
@@ -912,7 +912,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [backgroundTransferCompletionHandlers setObject:[[completionHandler copy] autorelease] forKey:key];
 
   [self tryToInvokeSelector:@selector(application:handleEventsForBackgroundURLSession:completionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, [completionHandler copy], nil]];
 
   NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionId",
                                                    key, @"handlerId", nil];
@@ -1271,7 +1271,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
 
   [self tryToInvokeSelector:@selector(application:continueUserActivity:restorationHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, userActivity, restorationHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, userActivity, [restorationHandler copy], nil]];
 
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
@@ -1563,7 +1563,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                completionHandler:(void (^)(BOOL succeeded))completionHandler
 {
   [self tryToInvokeSelector:@selector(application:performActionForShortcutItem:completionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, shortcutItem, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, shortcutItem, [completionHandler copy], nil]];
 
   BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem queueToBootIfNotLaunched:NO];
   completionHandler(handledShortCutItem);
