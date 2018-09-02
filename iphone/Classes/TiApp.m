@@ -1552,8 +1552,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   } else {
     [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
   }
-
-  [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
 }
 
 - (void)application:(UIApplication *)application
