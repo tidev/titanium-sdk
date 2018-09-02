@@ -866,19 +866,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 // Delegate callback for Silent Remote Notification.
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
 {
-  // Forward the callback
-  if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
-    NSMutableDictionary *patchedUserInfo = [userInfo copy];
-    // For iOS 10+, the UserNotifications framework does not automatically pass the contents of the "aps
-    // dictionary into the top-level. For parity, we copy it over, so the registerForPushNotifications "callback"
-    // is able to receive the values identically on iOS < 10 and iOS 10+.
-    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
-      [patchedUserInfo setValuesForKeysWithDictionary:[userInfo objectForKey:@"aps"]];
-    }
-    [self application:application didReceiveRemoteNotification:patchedUserInfo];
-    RELEASE_TO_NIL(patchedUserInfo);
-  }
-
   [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, completionHandler, nil]];
 
@@ -1309,6 +1296,12 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   RELEASE_TO_NIL(remoteNotification);
   [self generateNotification:userInfo];
 
+  // Do not fire "Ti.Network.registerForPushNotfications" callback for silent pushes. Use the "silentpush"
+  // event instead.
+  if (userInfo[@"aps"] != nil && [TiUtils boolValue:kTiSilentPushContentAvailable properties:userInfo[@"aps"]]) {
+    return;
+  }
+
   [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, remoteNotification, nil]];
 }
@@ -1660,6 +1653,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   return event;
 }
+  
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification
 {
   return [self dictionaryWithLocalNotification:notification withIdentifier:nil];
