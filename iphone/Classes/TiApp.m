@@ -609,7 +609,19 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 // iOS 10+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
-  // For backwards compatibility with iOS < 10, we do not show notifications in-app, but make it configurable
+  // There are two operations here that need to be done in order to receive backwards compatibility with iOS < 10:
+  //  1. We have the "callback" function from "Ti.Network.registerForPushNotfications" that was called when a new
+  //     remote notification was triggered via "application:didReceiveRemoteNotification:". iOS 10 does not trigger
+  //     that delegate anymore, so we need to trigger it.
+  //  2. iOS < 10 cannot display in-app notification banners like iOS 10+. For the default behavior, we need to do
+  //     the same, but offer the developer a way to show it if desired.
+
+  // 1
+  if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
+    [self application:UIApplication.sharedApplication didReceiveRemoteNotification:notification.request.content.userInfo];
+  }
+
+  // 2
   BOOL showInForeground = [TiUtils boolValue:notification.request.content.userInfo[@"showInForeground"] def:NO];
 
   if (showInForeground) {
