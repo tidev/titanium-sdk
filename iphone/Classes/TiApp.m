@@ -635,7 +635,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response
              withCompletionHandler:(void (^)(void))completionHandler
 {
-  if ([[[[[response notification] request] content] userInfo] valueForKey:@"isRemoteNotification"] != nil) {
+  if ([response.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
     RELEASE_TO_NIL(remoteNotification);
     remoteNotification = [[[self class] dictionaryWithUserNotification:response.notification
                                                         withIdentifier:response.actionIdentifier] retain];
