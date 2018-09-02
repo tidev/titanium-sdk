@@ -239,7 +239,7 @@
   if (request.content.userInfo[@"aps"] && request.content.userInfo[@"aps"][@"sound"]) {
     [event setObject:request.content.userInfo[@"aps"][@"sound"] forKey:@"sound"];
   }
-  
+
   if ([[request trigger] isKindOfClass:[UNCalendarNotificationTrigger class]]) {
     [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)[request trigger] nextTriggerDate]) forKey:@"date"];
   } else if ([[request trigger] isKindOfClass:[UNLocationNotificationTrigger class]]) {

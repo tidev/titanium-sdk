@@ -1626,18 +1626,18 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [event setObject:NULL_IF_NIL([[[notification request] content] userInfo]) forKey:@"userInfo"];
   [event setObject:NULL_IF_NIL([[[notification request] content] categoryIdentifier]) forKey:@"category"];
   [event setObject:NULL_IF_NIL([[notification request] identifier]) forKey:@"identifier"];
-  
+
   // iOS 10+ does have "soundName" but "sound" which is a native object. But if we find
   // a sound in the APS dictionary, we can provide that one for parity
   if (notification.request.content.userInfo[@"aps"] && notification.request.content.userInfo[@"aps"][@"sound"]) {
     [event setObject:notification.request.content.userInfo[@"aps"][@"sound"] forKey:@"sound"];
   }
-  
+
   if ([notification.request.trigger isKindOfClass:[UNCalendarNotificationTrigger class]]) {
     [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)notification.request.trigger nextTriggerDate]) forKey:@"date"];
   } else if ([notification.request.trigger isKindOfClass:[UNLocationNotificationTrigger class]]) {
     CLCircularRegion *region = (CLCircularRegion *)[(UNLocationNotificationTrigger *)notification.request.trigger region];
-    
+
     NSDictionary *dict = @{
       @"latitude" : NUMDOUBLE(region.center.latitude),
       @"longitude" : NUMDOUBLE(region.center.longitude),
@@ -1671,7 +1671,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
   return event;
 }
-  
+
 + (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification
 {
   return [self dictionaryWithLocalNotification:notification withIdentifier:nil];
