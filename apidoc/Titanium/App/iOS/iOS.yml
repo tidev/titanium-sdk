@@ -26,8 +26,8 @@ description: |
 
     ### Local Interactive Notifications
 
-    You can create interactive notifications, where users can respond to application notifications 
-    without launching the application to the foreground. The user needs to reveal notification 
+    You can create interactive notifications, where users can respond to application notifications
+    without launching the application to the foreground. The user needs to reveal notification
     actions in the notification, then press a notification action to respond to the notification.
 
     To create an interactive notification, the application needs to:
@@ -53,7 +53,7 @@ description: |
 
     ### Handoff User Activities
 
-    Handoff allows you to create and transfer user activies from one device to another. For example, you can start editing 
+    Handoff allows you to create and transfer user activies from one device to another. For example, you can start editing
     a document on your phone, then transfer the activity to your iPad to continue editing the document.
 
     To make an activity shareable, use the <Titanium.App.iOS.UserActivity> API to create the activity.
@@ -90,7 +90,7 @@ methods:
     summary: Cancels all scheduled local notifications.
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.removeAllPendingNotifications> instead.
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
 
   - name: cancelLocalNotification
     summary: Cancels a local notification.
@@ -103,7 +103,7 @@ methods:
         type: [Number,String]
     deprecated:
         since: "7.3.0"
-        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotificationsWithIdentifiers> instead.
+        notes: Use <Titanium.App.iOS.UserNotificationCenter.removePendingNotifications> instead.
 
   - name: registerBackgroundService
     summary: Registers a service to run when the application is placed in the background.
@@ -375,7 +375,7 @@ properties:
     summary: The application is provisionally authorized to post non-interruptive user notifications.
     description: |
         Used to check the `authorizationStatus` attribute received in
-        <Titanium.App.iOS.NotificationCenter.requestUserNotificationSettings>.
+        <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
     osver: { ios: { min: "12.0" } }
@@ -468,7 +468,7 @@ properties:
     osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
-  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_TITLE
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_TITLE
     summary: Show the notification's title, even if the user has disabled notification previews for the app.
     description: |
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
@@ -477,7 +477,7 @@ properties:
     osver: {ios: {min: "11.0"}}
     since: "7.3.0"
 
-  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDEEN_PREVIEWS_SHOW_SUBTITLE
+  - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_SUBTITLE
     summary: Show the notification's subtitle, even if the user has disabled notification previews for the app.
     description: |
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
