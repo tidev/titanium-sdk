@@ -267,7 +267,7 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
   }
   // check to see upon registration if we were started with a push
   // notification and if so, go ahead and trigger our callback
-  id currentNotification = [[TiApp app] remoteNotification];
+  NSDictionary *currentNotification = [[TiApp app] remoteNotification];
   if (currentNotification != nil && pushNotificationCallback != nil) {
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:currentNotification forKey:@"data"];
