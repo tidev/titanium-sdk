@@ -128,8 +128,6 @@ NSString *const kTiContinueActivity = @"TiContinueActivity";
 NSString *const kTiApplicationShortcut = @"TiApplicationShortcut";
 NSString *const kTiApplicationLaunchedFromURL = @"TiApplicationLaunchedFromURL";
 
-NSString *const kTiSilentPushContentAvailable = @"content-available";
-
 #ifndef TI_USE_AUTOLAYOUT
 NSString *const kTiBehaviorSize = @"SIZE";
 NSString *const kTiBehaviorFill = @"FILL";

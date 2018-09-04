@@ -220,7 +220,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 /**
  Returns a dictionary containing the native notification information (iOS 10 and later).
  */
-+ (NSDictionary *)dictionaryWithUserNotification:(UNNotification *)notification;
++ (NSDictionary *)dictionaryWithUserNotification:(UNNotification *)notification withIdentifier:(NSString *)identifier;
 
 /**
  Returns a dictionary containing the native notification information.
