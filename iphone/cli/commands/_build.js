@@ -1826,6 +1826,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+		this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
 
 		// check for blacklisted files in the Resources directory
@@ -5842,6 +5843,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
+									sourceMap: this.sourceMaps || this.deployType === 'development',
 									resourcesDir: this.xcodeAppDir
 								};
 								// generate our transpile target based on tijscore/jscore
