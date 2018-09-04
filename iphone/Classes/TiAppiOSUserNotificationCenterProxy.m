@@ -217,9 +217,6 @@
 
 #pragma mark Utilities
 
-// TODO: This method is quote similar to the TiApp class method "dictionaryWithUserNotification:"
-// We should merge them together if we find a way to pass the "date" here, which is currently not
-// possible
 - (NSDictionary *)dictionaryWithUserNotificationRequest:(UNNotificationRequest *)request
 {
   NSMutableDictionary *event = [NSMutableDictionary dictionary];
@@ -229,16 +226,11 @@
   [event setObject:NULL_IF_NIL([[request content] title]) forKey:@"alertTitle"];
   [event setObject:NULL_IF_NIL([[request content] subtitle]) forKey:@"alertSubtitle"];
   [event setObject:NULL_IF_NIL([[request content] launchImageName]) forKey:@"alertLaunchImage"];
+  [event setObject:NULL_IF_NIL([[request content] sound]) forKey:@"sound"];
   [event setObject:NULL_IF_NIL([[request content] badge]) forKey:@"badge"];
   [event setObject:NULL_IF_NIL([[request content] userInfo]) forKey:@"userInfo"];
   [event setObject:NULL_IF_NIL([[request content] categoryIdentifier]) forKey:@"category"];
   [event setObject:NULL_IF_NIL([request identifier]) forKey:@"identifier"];
-
-  // iOS 10+ does have "soundName" but "sound" which is a native object. But if we find
-  // a sound in the APS dictionary, we can provide that one for parity
-  if (request.content.userInfo[@"aps"] && request.content.userInfo[@"aps"][@"sound"]) {
-    [event setObject:request.content.userInfo[@"aps"][@"sound"] forKey:@"sound"];
-  }
 
   if ([[request trigger] isKindOfClass:[UNCalendarNotificationTrigger class]]) {
     [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)[request trigger] nextTriggerDate]) forKey:@"date"];
