@@ -24,8 +24,6 @@
 
 #include "V8Runtime.h"
 
-#include "org_appcelerator_kroll_runtime_v8_V8Runtime.h"
-
 #define TAG "V8Runtime"
 
 // The port number on which the V8 debugger will listen on.
@@ -164,6 +162,11 @@ void V8Runtime::bootstrap(Local<Context> context)
 	// (Allows you to set stuff on `global` from anywhere in JavaScript.)
 	global->Set(NEW_SYMBOL(isolate, "global"), global);
 
+	// Set the __dirname and __filename for the app.js.
+	// For other files, it will be injected via the `NativeModule` JavaScript class
+	global->Set(NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
+	global->Set(NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
+
 	Local<Function> mainFunction = result.As<Function>();
 	Local<Value> args[] = { kroll };
 	mainFunction->Call(context, global, 1, args);
@@ -188,9 +191,7 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 
 } // namespace titanium
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
 using namespace titanium;
 
@@ -474,6 +475,4 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 	return JNI_VERSION_1_4;
 }
 
-#ifdef __cplusplus
-}
-#endif
+} // extern "C"

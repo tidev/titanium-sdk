@@ -201,9 +201,6 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 			this.logger.banner();
 			appc.string.wrap(issues[i].message, this.config.get('cli.width', 100)).split('\n').forEach(function (line, i, arr) {
 				this.logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-				if (!i && arr.length > 1) {
-					this.logger.log();
-				}
 			}, this);
 			this.logger.log();
 			process.exit(1);
@@ -375,7 +372,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SDKS');
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SIMS');
-		this.assertIssue(this.iosInfo.issues, 'IOS_XCODE_EULA_NOT_ACCEPTED');
 
 		callback();
 	}.bind(this));
@@ -1830,6 +1826,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+		this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
 
 		// check for blacklisted files in the Resources directory
@@ -2051,6 +2048,14 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 					next();
 				}.bind(this));
+			},
+
+			function checkEULA() {
+				if (!this.xcodeEnv.eulaAccepted) {
+					logger.error(__('Xcode %s end-user license agreement has not been accepted.', this.xcodeEnv.version));
+					logger.error(__('Please launch "%s" or run "sudo xcodebuild -license" to accept the license.', this.xcodeEnv.xcodeapp) + '\n');
+					process.exit(1);
+				}
 			},
 
 			function validateTeamId() {
@@ -3961,7 +3966,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 			__PROJECT_NAME__: this.tiapp.name,
 			__PROJECT_ID__: this.tiapp.id,
 			__URL__: this.tiapp.id,
-			__URLSCHEME__: this.tiapp.name.replace(/\./g, '_').replace(/ /g, '').toLowerCase(),
+			__URLSCHEME__: this.tiapp.name.replace(/[^0-9a-z]/gi, '').toLowerCase(),
 			__ADDITIONAL_URL_SCHEMES__: fbAppId ? '<string>fb' + fbAppId + '</string>' : ''
 		},
 		resourceDir = path.join(this.projectDir, 'Resources'),
@@ -5838,6 +5843,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
+									sourceMap: this.sourceMaps || this.deployType === 'development',
 									resourcesDir: this.xcodeAppDir
 								};
 								// generate our transpile target based on tijscore/jscore
