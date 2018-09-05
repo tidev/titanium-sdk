@@ -28,6 +28,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	public TiUIFragment(TiViewProxy proxy, Activity activity)
 	{
 		super(proxy);
+		children.add(this);
 		// When 'fragmentOnly' property is enabled, we generate the standalone fragment, enabling
 		// us to add it directly to other fragment managers.
 		if (proxy.hasProperty(TiC.PROPERTY_FRAGMENT_ONLY)) {
@@ -68,15 +69,15 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 
 	public void realizeFragmentViews()
 	{
-		for (TiUIView tiUIView : childrenToRealize) {
+		for (TiUIView child : childrenToRealize) {
 			// Draw the views
-			((ViewGroup) getNativeView()).addView(tiUIView.getOuterView(), tiUIView.getLayoutParams());
+			((ViewGroup) getNativeView()).addView(child.getOuterView(), child.getLayoutParams());
 			// Move them to the default children array
-			children.add(tiUIView);
-			// Clear and nullify the childrenToRealize array
-			childrenToRealize.clear();
-			childrenToRealize = null;
+			children.add(child);
 		}
+		// Clear and nullify the childrenToRealize array
+		childrenToRealize.clear();
+		childrenToRealize = null;
 	}
 
 	@Override
@@ -89,6 +90,16 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 			// If the fragment has not been added to the native view add the children in
 			// the array to be realized
 			childrenToRealize.add(child);
+		}
+	}
+
+	@Override
+	public void insertAt(TiUIView child, int position) {
+		if (fragmentCommitted) {
+			// take into account the fragment added to the container
+			super.insertAt(child, position + 1);
+		} else {
+			childrenToRealize.add(position, child);
 		}
 	}
 
