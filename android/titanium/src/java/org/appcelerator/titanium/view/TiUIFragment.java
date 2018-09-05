@@ -94,7 +94,8 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	}
 
 	@Override
-	public void insertAt(TiUIView child, int position) {
+	public void insertAt(TiUIView child, int position)
+	{
 		if (fragmentCommitted) {
 			// take into account the fragment added to the container
 			super.insertAt(child, position + 1);
@@ -104,7 +105,8 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	}
 
 	@Override
-	public void remove(TiUIView child) {
+	public void remove(TiUIView child)
+	{
 		if (childrenToRealize != null && childrenToRealize.contains(child)) {
 			childrenToRealize.remove(child);
 		}
