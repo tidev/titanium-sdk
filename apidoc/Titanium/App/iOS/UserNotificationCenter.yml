@@ -8,6 +8,9 @@ extends: Titanium.Module
 platforms: [iphone, ipad]
 osver: {ios: {min: "8.0"}}
 since: "7.3.0"
+excludes:
+    properties: [bubbleParent]
+    methods: [addEventListener, applyProperties, fireEvent, removeEventListener,]
 
 methods:
   - name: getPendingNotifications
@@ -135,8 +138,10 @@ properties:
   - name: identifier
     summary: The notification identifier.
     description: |
-        This property is required in iOS 10 and later and will fallback
-        to "notification" if not set.
+        This property is required in iOS 10+ and will fallback to a generated 
+        UUID-string if not set. It is recommended to manage the identifier 
+        yourself, but you can also get the generated UUID by accessing via 
+        the "userInfo.id" field for parity with older iOS versions.
     optional: false
     since: "7.3.0"
     type: String
