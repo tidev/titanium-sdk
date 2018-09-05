@@ -103,6 +103,14 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 		}
 	}
 
+	@Override
+	public void remove(TiUIView child) {
+		if (childrenToRealize != null && childrenToRealize.contains(child)) {
+			childrenToRealize.remove(child);
+		}
+		super.remove(child);
+	}
+
 	public Fragment getFragment()
 	{
 		return fragment;
