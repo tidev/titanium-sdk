@@ -19,7 +19,7 @@ function convertAPIToLink(apiName) {
 	if ((apiName.match(/\./g) || []).length) {
 		const member = apiName.split('.').pop(),
 			cls = apiName.substring(0, apiName.lastIndexOf('.'));
-		if (!(cls in doc)) {
+		if (!(cls in doc) && !apiName.startsWith('Modules.')) {
 			common.log(common.LOG_WARN, 'Cannot find class: %s', cls);
 			return null;
 		}
@@ -34,7 +34,9 @@ function convertAPIToLink(apiName) {
 			return cls + '#event-' + member;
 		}
 	}
-	common.log(common.LOG_WARN, 'Cannot find API: %s', apiName);
+	if (!apiName.startsWith('Modules.')) {
+		common.log(common.LOG_WARN, 'Cannot find API: %s', apiName);
+	}
 	return null;
 }
 

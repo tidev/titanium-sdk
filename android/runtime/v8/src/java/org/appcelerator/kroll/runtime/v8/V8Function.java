@@ -95,7 +95,6 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 		}
 
 		nativeRelease(functionPointer);
-		KrollRuntime.suggestGC();
 	}
 
 	@Override

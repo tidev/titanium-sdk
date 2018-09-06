@@ -30,12 +30,12 @@ exports.bootstrap = function(Titanium) {
 	function processTemplate(properties) {
 	   	var cellProxy = Titanium.UI.createListItem();
 		properties.tiProxy = cellProxy;
-    	var events = properties.events;
-    	addEventListeners(events, cellProxy);
+		var events = properties.events;
+		addEventListeners(events, cellProxy);
 	}
 
-    //Recursive function that process childTemplates and append corresponding proxies to
-    //property 'tiProxy'. I.e: type: "Titanium.UI.Label" -> tiProxy: LabelProxy object
+	//Recursive function that process childTemplates and append corresponding proxies to
+	//property 'tiProxy'. I.e: type: "Titanium.UI.Label" -> tiProxy: LabelProxy object
 	function processChildTemplates(properties) {
 		if (!properties.hasOwnProperty('childTemplates')) return;
 		
@@ -80,13 +80,32 @@ exports.bootstrap = function(Titanium) {
 	
 	//convert name of UI elements into a constructor function.
 	//I.e: lookup("Titanium.UI.Label") returns Titanium.UI.createLabel function
-	function lookup(name) {
-		var lastDotIndex = name.lastIndexOf('.');
-		var proxy = eval(name.substring(0, lastDotIndex));
-		if (typeof(proxy) == undefined) return;
+	function lookup(namespace) {
 
-		var proxyName = name.slice(lastDotIndex + 1);
-		return proxy['create' + proxyName];
+		// handle Titanium widgets
+		if (/^(Ti|Titanium)/.test(namespace)) {
+			const namespaceIndex = namespace.lastIndexOf('.'),
+				  proxyName = namespace.slice(namespaceIndex + 1),
+				  parentNamespace = namespace.substring(0, namespaceIndex),
+				  parentProxy = eval(parentNamespace);
+	
+			if (parentProxy) {
+				return parentProxy['create' + proxyName];
+			}
+	
+		// handle Alloy widgets
+		} else {
+			let widget = Module.main.require('/alloy/widgets/' + namespace + '/controllers/widget');
+			if (!widget) {
+					Module.main.require(namespace);
+			}
+			if (widget) {
+				return function (parameters) {
+					const obj = new widget(parameters);
+					return obj.getView();
+				};
+			}
+		}
 	}
 
 	//overwrite list view constructor function with our own.

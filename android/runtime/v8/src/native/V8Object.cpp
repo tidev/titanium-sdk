@@ -17,16 +17,12 @@
 #include "V8Runtime.h"
 #include "V8Util.h"
 
-#include "org_appcelerator_kroll_runtime_v8_V8Object.h"
-
 #define TAG "V8Object"
 
 using namespace titanium;
 using namespace v8;
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
 JNIEXPORT void JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInitObject
@@ -98,8 +94,13 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 		emitter = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, jEmitter).As<Object>();
 	}
 
-	Local<Value> fireEventValue = emitter->Get(EventEmitter::emitSymbol.Get(V8Runtime::v8_isolate));
-	if (!fireEventValue->IsFunction()) {
+	Local<String> symbol = EventEmitter::emitSymbol.Get(V8Runtime::v8_isolate);
+	if (emitter.IsEmpty() || symbol.IsEmpty()) {
+		return JNI_FALSE;
+	}
+
+	Local<Value> fireEventValue = emitter->Get(symbol);
+	if (fireEventValue.IsEmpty() || !fireEventValue->IsFunction()) {
 		return JNI_FALSE;
 	}
 
@@ -271,6 +272,4 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetWindow
 	}
 }
 
-#ifdef __cplusplus
-}
-#endif
+} // extern "C"

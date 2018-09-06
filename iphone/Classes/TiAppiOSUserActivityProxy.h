@@ -16,6 +16,74 @@
 - (id)initWithOptions:(NSDictionary *)props;
 @property (nonatomic, strong) NSUserActivity *userActivity;
 
+- (id)isSupported:(id)unused;
+
+- (NSString *)activityType;
+
+- (void)setActivityType:(id)value;
+
+- (NSString *)title;
+
+- (void)setTitle:(id)value;
+
+- (NSDictionary *)userInfo;
+
+- (void)setUserInfo:(id)info;
+
+- (NSString *)webpageURL;
+
+- (void)setWebpageURL:(id)value;
+
+- (NSNumber *)needsSave;
+
+- (void)setNeedsSave:(id)value;
+
+- (void)becomeCurrent:(id)unused;
+
+- (void)invalidate:(id)unused;
+
+- (void)addContentAttributeSet:(id)contentAttributeSet;
+
+- (NSNumber *)eligibleForPublicIndexing;
+
+- (void)setEligibleForPublicIndexing:(id)value;
+
+- (NSNumber *)eligibleForSearch;
+
+- (void)setEligibleForSearch:(id)value;
+
+- (NSNumber *)eligibleForHandoff;
+
+- (void)setEligibleForHandoff:(id)value;
+
+- (NSString *)expirationDate;
+
+- (void)setExpirationDate:(id)UTCDateFormat;
+
+- (NSArray *)requiredUserInfoKeys;
+
+- (void)setRequiredUserInfoKeys:(id)keys;
+
+- (NSArray *)keywords;
+
+- (void)setKeywords:(id)keys;
+
+- (void)resignCurrent:(id)unused;
+
+#if IS_XCODE_10
+- (NSString *)persistentIdentifier;
+
+- (void)setPersistentIdentifier:(NSString *)value;
+
+- (NSNumber *)eligibleForPrediction;
+
+- (void)setEligibleForPrediction:(NSNumber *)value;
+
+- (void)deleteSavedUserActivitiesForPersistentIdentifiers:(id)persistentIdentifiers;
+
+- (void)deleteAllSavedUserActivities:(id)unused;
+#endif
+
 @end
 
 #endif

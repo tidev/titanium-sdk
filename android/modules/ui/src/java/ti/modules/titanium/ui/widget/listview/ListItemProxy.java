@@ -62,7 +62,7 @@ public class ListItemProxy extends TiViewProxy
 					String bindId = eventData.getString(TiC.PROPERTY_BIND_ID);
 					ListSectionProxy section = (ListSectionProxy) eventData.get(TiC.PROPERTY_SECTION);
 					KrollDict itemProperties = section.getItemAt(itemIndex);
-					if (itemProperties.containsKey(bindId)) {
+					if (itemProperties != null && itemProperties.containsKey(bindId)) {
 						KrollDict properties = itemProperties.getKrollDict(bindId);
 						for (String key : properties.keySet()) {
 							source.setProperty(key, properties.get(key));
