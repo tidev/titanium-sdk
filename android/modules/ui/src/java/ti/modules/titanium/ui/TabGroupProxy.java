@@ -26,7 +26,9 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
-import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigationTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
@@ -150,7 +152,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	private void handleDisableTabNavigation(boolean disable)
 	{
-		TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) view;
+		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		if (tabGroup != null) {
 			tabGroup.disableTabNavigation(disable);
 		}
@@ -204,12 +206,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	public void handleRemoveTab(TabProxy tab)
 	{
+		tabs.remove(tab);
+
 		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		if (tabGroup != null) {
 			tabGroup.removeTab(tab);
 		}
 
-		tabs.remove(tab);
 	}
 
 	@Kroll.method
@@ -375,11 +378,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		activity.setLayoutProxy(this);
 		setActivity(activity);
 
-		if (activity.getSupportActionBar() != null) {
-			view = new TiUIActionBarTabGroup(this, activity, savedInstanceState);
+		if (getProperty(TiC.PROPERTY_STYLE) == null || getProperty(TiC.PROPERTY_STYLE).toString().equals("default")) {
+			view = new TiUITabLayoutTabGroup(this, activity, savedInstanceState);
 		} else {
-			Log.e(TAG, "ActionBar not available for TabGroup");
-			return;
+			view = new TiUIBottomNavigationTabGroup(this, activity, savedInstanceState);
 		}
 
 		setModelListener(view);
