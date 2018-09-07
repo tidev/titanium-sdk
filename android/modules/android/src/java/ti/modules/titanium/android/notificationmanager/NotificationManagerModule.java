@@ -21,6 +21,8 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.pm.PackageManager;
+import android.Manifest;
 import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -151,14 +153,16 @@ public class NotificationManagerModule extends KrollModule
 			int wakeFlags = TiConvert.toInt(
 				wakeParams.get("flags"),
 				(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE));
-			PowerManager pm = (PowerManager) TiApplication.getInstance().getSystemService(
-				TiApplication.getInstance().getApplicationContext().POWER_SERVICE);
-			if (pm != null && !pm.isScreenOn()) {
-				try {
-					WakeLock wl = pm.newWakeLock(wakeFlags, "TiWakeLock");
-					wl.acquire(wakeTime);
-				} catch (IllegalArgumentException e) {
-					Log.e(TAG, e.getMessage());
+			TiApplication app = TiApplication.getInstance();
+			if (app.checkCallingOrSelfPermission(Manifest.permission.WAKE_LOCK) == PackageManager.PERMISSION_GRANTED) {
+				PowerManager pm = (PowerManager) app.getSystemService(TiApplication.POWER_SERVICE);
+				if (pm != null && !pm.isScreenOn()) {
+					try {
+						WakeLock wl = pm.newWakeLock(wakeFlags, "TiWakeLock");
+						wl.acquire(wakeTime);
+					} catch (Exception e) {
+						Log.e(TAG, e.getMessage());
+					}
 				}
 			}
 		}
