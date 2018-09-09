@@ -268,7 +268,7 @@ events:
         fired when the property [focusable](Titanium.UI.View.focusable) is set to true. On iOS the
         event is generated only when using [Ti.UI.TextArea](Titanium.UI.TextArea), [Ti.UI.TextField](Titanium.UI.TextField)
         and [Ti.UI.SearchBar](Titanium.UI.SearchBar).
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: {android: "3.1.0", iphone: "5.4.0", ipad: "5.4.0"}
     properties:
       - name: keyCode
@@ -332,7 +332,7 @@ events:
       - name: time
         summary: The event time of the current event being processed.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
         
       - name: timeDelta
@@ -340,7 +340,7 @@ events:
             The time difference in milliseconds between the previous accepted scaling event and the 
             current scaling event.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
         
       - name: currentSpan
@@ -348,7 +348,7 @@ events:
             The average distance between each of the pointers forming the gesture in progress through
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
         
       - name: currentSpanX
@@ -356,7 +356,7 @@ events:
             The average X distance between each of the pointers forming the gesture in progress through 
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
 
       - name: currentSpanY
@@ -364,7 +364,7 @@ events:
             The average Y distance between each of the pointers forming the gesture in progress through 
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
         
       - name: previousSpan
@@ -372,7 +372,7 @@ events:
             The previous average distance between each of the pointers forming the gesture in progress through 
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
         
       - name: previousSpanX
@@ -380,7 +380,7 @@ events:
             The previous average X distance between each of the pointers forming the gesture in progress through 
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
         
       - name: previousSpanY
@@ -388,27 +388,27 @@ events:
             The previous average Y distance between each of the pointers forming the gesture in progress through 
             the focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
         
       - name: focusX
         summary: |
             The X coordinate of the current gesture's focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
         
       - name: focusY
         summary: |
             The Y coordinate of the current gesture's focal point.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
         
       - name: inProgress
         summary: Returns `true` if a scale gesture is in progress, `false` otherwise.
         type: Number
-        since: "7.4.0"
+        since: "7.5.0"
         platforms: [android]
 
   - name: postlayout
