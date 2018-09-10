@@ -1826,6 +1826,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+		this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
 
 		// check for blacklisted files in the Resources directory
@@ -3965,7 +3966,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 			__PROJECT_NAME__: this.tiapp.name,
 			__PROJECT_ID__: this.tiapp.id,
 			__URL__: this.tiapp.id,
-			__URLSCHEME__: this.tiapp.name.replace(/\./g, '_').replace(/ /g, '').toLowerCase(),
+			__URLSCHEME__: this.tiapp.name.replace(/[^0-9a-z]/gi, '').toLowerCase(),
 			__ADDITIONAL_URL_SCHEMES__: fbAppId ? '<string>fb' + fbAppId + '</string>' : ''
 		},
 		resourceDir = path.join(this.projectDir, 'Resources'),
@@ -5851,6 +5852,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
+									sourceMap: this.sourceMaps || this.deployType === 'development',
 									resourcesDir: this.xcodeAppDir
 								};
 								// generate our transpile target based on tijscore/jscore

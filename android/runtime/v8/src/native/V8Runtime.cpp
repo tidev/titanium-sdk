@@ -24,8 +24,6 @@
 
 #include "V8Runtime.h"
 
-#include "org_appcelerator_kroll_runtime_v8_V8Runtime.h"
-
 #define TAG "V8Runtime"
 
 // The port number on which the V8 debugger will listen on.
@@ -193,9 +191,7 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 
 } // namespace titanium
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
 using namespace titanium;
 
@@ -479,6 +475,4 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 	return JNI_VERSION_1_4;
 }
 
-#ifdef __cplusplus
-}
-#endif
+} // extern "C"
