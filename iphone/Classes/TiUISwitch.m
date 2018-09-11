@@ -114,7 +114,7 @@
 
   // Don't rely on switchChanged: - isOn can report erroneous values immediately after the value is changed!
   // This only seems to happen in 4.2+ - could be an Apple bug.
-  if ((reproxying == NO) && configurationSet && [self.proxy _hasListeners:@"change"]) {
+  if (!reproxying && configurationSet && [self.proxy _hasListeners:@"change"]) {
     [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"]];
   }
 }

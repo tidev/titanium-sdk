@@ -28,7 +28,7 @@
 {
   DEPRECATED_REPLACED(@"App.iOS.LocalNotification.cancel", @"7.3.0", @"App.iOS.UserNotificationCenter.removePendingNotificationsWithIdentifiers");
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     NSString *identifier = @"notification";
     NSDictionary *userInfo = [(UNMutableNotificationContent *)self.notification userInfo];
 

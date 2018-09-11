@@ -54,13 +54,8 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (UIControl *)picker
 {
   if (picker == nil) {
-    float width = 320;
-    float height = 216;
-
-    if ([TiUtils isIOS9OrGreater]) {
-      width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
-      height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
-    }
+    CGFloat width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
+    CGFloat height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
 
     NSString *widthString = [TiUtils stringValue:[self.proxy valueForKey:@"width"]];
     NSString *heightString = [TiUtils stringValue:[self.proxy valueForKey:@"height"]];
@@ -184,7 +179,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
   if (picker == nil) {
     [[self proxy] replaceValue:value forKey:@"selectionIndicator" notification:NO];
-  } else if ([self isDatePicker] == NO) {
+  } else if (![self isDatePicker]) {
     [(UIPickerView *)[self picker] setShowsSelectionIndicator:[TiUtils boolValue:value]];
   }
 }

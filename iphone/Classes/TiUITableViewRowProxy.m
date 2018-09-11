@@ -393,7 +393,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   if (bgImage != nil) {
     NSURL *url = [TiUtils toURL:bgImage proxy:(TiProxy *)table.proxy];
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
-    if ([cell.backgroundView isKindOfClass:[UIImageView class]] == NO) {
+    if (![cell.backgroundView isKindOfClass:[UIImageView class]]) {
       UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
       cell.backgroundView = view_;
     }
@@ -408,7 +408,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   if (selBgImage != nil) {
     NSURL *url = [TiUtils toURL:selBgImage proxy:(TiProxy *)table.proxy];
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftCap topCap:topCap];
-    if ([cell.selectedBackgroundView isKindOfClass:[UIImageView class]] == NO) {
+    if (![cell.selectedBackgroundView isKindOfClass:[UIImageView class]]) {
       UIImageView *view_ = [[[UIImageView alloc] initWithFrame:CGRectZero] autorelease];
       cell.selectedBackgroundView = view_;
     }
@@ -779,7 +779,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
 
 - (void)contentsWillChange
 {
-  if (attaching == NO) {
+  if (!attaching) {
     [self triggerUpdateIfHeightChanged];
   }
 }

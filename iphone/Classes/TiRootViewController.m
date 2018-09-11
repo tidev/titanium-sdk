@@ -443,7 +443,7 @@
 
 - (void)adjustKeyboardHeight:(NSNumber *)_keyboardVisible
 {
-  if ((updatingAccessoryView == NO) && ([TiUtils boolValue:_keyboardVisible] == keyboardVisible)) {
+  if (!updatingAccessoryView && [TiUtils boolValue:_keyboardVisible] == keyboardVisible) {
     updatingAccessoryView = YES;
     [self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
     if (!keyboardVisible) {
@@ -1343,7 +1343,7 @@
   }
 
 #if IS_XCODE_9
-  if ([TiUtils isIOS11OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 #endif
@@ -1370,7 +1370,7 @@
   TiOrientationFlags result = TiOrientationNone;
   if (checkModal) {
     for (id<TiWindowProtocol> thisWindow in [modalWindows reverseObjectEnumerator]) {
-      if ([thisWindow closing] == NO) {
+      if (![thisWindow closing]) {
         result = [thisWindow orientationFlags];
         if (result != TiOrientationNone) {
           return result;
@@ -1379,7 +1379,7 @@
     }
   }
   for (id<TiWindowProtocol> thisWindow in [containedWindows reverseObjectEnumerator]) {
-    if ([thisWindow closing] == NO) {
+    if (![thisWindow closing]) {
       result = [thisWindow orientationFlags];
       if (result != TiOrientationNone) {
         return result;
@@ -1485,6 +1485,7 @@
 #endif
 
 #pragma mark - Status Bar Appearance
+
 - (BOOL)prefersStatusBarHidden
 {
   BOOL oldStatus = statusBarIsHidden;
@@ -1524,8 +1525,8 @@
   if (viewControllerControlsStatusBar) {
     [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate) withObject:nil];
   } else {
-    [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:UIStatusBarAnimationNone];
-    [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle] animated:NO];
+    [UIApplication sharedApplication].statusBarHidden = [self prefersStatusBarHidden];
+    [UIApplication sharedApplication].statusBarStyle = [self preferredStatusBarStyle];
     [self resizeView];
   }
 }

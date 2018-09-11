@@ -514,7 +514,7 @@
     UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
     [newItem setBadgeValue:badgeValue];
 
-    if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
+    if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
       [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
 
@@ -577,12 +577,12 @@
   }
 
   if (iconInsets != nil) {
-    if (UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets]) == NO) {
+    if (!UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets])) {
       [ourItem setImageInsets:[self calculateIconInsets:iconInsets]];
     }
   }
 
-  if (badgeColor != nil && [TiUtils isIOS10OrGreater]) {
+  if (badgeColor != nil && [TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
 

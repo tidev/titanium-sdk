@@ -156,7 +156,7 @@ DEFINE_EXCEPTIONS
     [self.proxy fireEvent:@"change" withObject:evt];
   }
 
-  if (repeatCount > 0 && ((reverse == NO && position == (loadTotal - 1)) || (reverse && position == 0))) {
+  if (repeatCount > 0 && ((!reverse && position == (loadTotal - 1)) || (reverse && position == 0))) {
     iterations++;
     if (iterations == repeatCount) {
       stopped = YES;

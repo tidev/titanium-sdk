@@ -443,7 +443,7 @@ FILENOOP(setHidden
     //We have a second argument, is it truthy?
     //If yes, we'll hand the args to -append:
     NSNumber *append = [args objectAtIndex:1];
-    if ([append boolValue] == YES) {
+    if ([append boolValue]) {
       return [self append:[args subarrayWithRange:NSMakeRange(0, 1)]];
     }
   }

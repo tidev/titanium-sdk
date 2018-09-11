@@ -693,7 +693,7 @@ DEFINE_EXCEPTIONS
 
   [[TiApp app] stopNetwork];
   ImageLoaderRequest *req = [[[request userInfo] objectForKey:@"request"] retain];
-  if ([req cancelled] == NO) {
+  if (![req cancelled]) {
     NSData *data = [response responseData];
     if (data == nil || [data length] == 0) {
       NSMutableDictionary *errorDetail = [NSMutableDictionary dictionary];

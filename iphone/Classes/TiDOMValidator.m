@@ -51,7 +51,7 @@
     return YES;
   }
 
-  NSURL *url = [NSURL URLWithString:[pName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+  NSURL *url = [NSURL URLWithString:[pName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
   return (url != nil);
 }
 

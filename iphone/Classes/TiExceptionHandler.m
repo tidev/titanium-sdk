@@ -168,7 +168,7 @@ static void TiUncaughtExceptionHandler(NSException *exception)
   static BOOL insideException = NO;
 
   // prevent recursive exceptions
-  if (insideException == YES) {
+  if (insideException) {
     exit(1);
     return;
   }

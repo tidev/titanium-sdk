@@ -154,8 +154,8 @@
 {
   ENSURE_TYPE_OR_NIL(value, NSString);
 
-  if (![TiUtils isIOS10OrGreater]) {
-    NSLog(@"[ERROR] The 'autofillType' property is only available on iOS 10 and later.");
+  if (![TiUtils isIOSVersionOrGreater:@"10.0"]) {
+    NSLog(@"[ERROR] The 'autofillHint' property is only available on iOS 10 and later.");
     return;
   }
 

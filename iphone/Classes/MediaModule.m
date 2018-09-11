@@ -640,7 +640,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
 
-  if ([TiUtils isIOS10OrGreater] && !microphonePermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !microphonePermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
   }
 
@@ -957,16 +957,10 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     if (cameraView != nil) {
       [cameraView windowWillClose];
     }
-    if (popover != nil) {
-      [popover dismissPopoverAnimated:animatedPicker];
-      RELEASE_TO_NIL(popover);
 
-      //Unregister for interface change notification
-      [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-    } else {
-      [[TiApp app] hideModalController:picker animated:animatedPicker];
-      [[TiApp controller] repositionSubviews];
-    }
+    [[TiApp app] hideModalController:picker animated:animatedPicker];
+    [[TiApp controller] repositionSubviews];
+
     if (cameraView != nil) {
       [cameraView windowDidClose];
       [self forgetProxy:cameraView];
@@ -1078,7 +1072,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   NSString *cameraPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCameraUsageDescription"];
 
-  if ([TiUtils isIOS10OrGreater] && !cameraPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !cameraPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCameraUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera. Please add the key and re-run the application.");
   }
 
@@ -1113,12 +1107,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   NSString *addToGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryAddUsageDescription"];
 
   // Reading (!) from gallery permissions are required on iOS 10 and later.
-  if ([TiUtils isIOS10OrGreater] && !readFromGalleryPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !readFromGalleryPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. It will be ignored on devices < iOS 10. Please add the key and re-run the application.");
   }
 
   // Writing (!) to gallery permissions are required on iOS 11 and later.
-  if ([TiUtils isIOS11OrGreater] && !addToGalleryPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && !addToGalleryPermission) {
     NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
   }
 
@@ -1222,7 +1216,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (NSNumber *)hasMusicLibraryPermissions:(id)unused
 {
   // Will return true for iOS < 9.3, since authorization was introduced in iOS 9.3
-  return NUMBOOL([TiUtils isIOS9_3OrGreater] == NO || [MPMediaLibrary authorizationStatus] == MPMediaLibraryAuthorizationStatusAuthorized);
+  return NUMBOOL(![TiUtils isIOSVersionOrGreater:@"9.3"] || [MPMediaLibrary authorizationStatus] == MPMediaLibraryAuthorizationStatusAuthorized);
 }
 #endif
 
@@ -1231,14 +1225,14 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
 
-  if ([TiUtils isIOS10OrGreater] && !musicPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !musicPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
   }
 
   ENSURE_SINGLE_ARG(args, KrollCallback);
   KrollCallback *callback = args;
 
-  if ([TiUtils isIOS9_3OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.3"]) {
     TiThreadPerformOnMainThread(^() {
       [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
         BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
@@ -1267,11 +1261,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
 
-  if ([TiUtils isIOS9_3OrGreater] && [MPMediaLibrary authorizationStatus] != MPMediaLibraryAuthorizationStatusAuthorized) {
+  if ([TiUtils isIOSVersionOrGreater:@"9.3"] && [MPMediaLibrary authorizationStatus] != MPMediaLibraryAuthorizationStatusAuthorized) {
     NSLog(@"[ERROR] It looks like you are accessing the music-library without sufficient permissions. Please use the Ti.Media.hasMusicLibraryPermissions() method to validate the permissions and only call this method if permissions are granted.");
   }
 
-  if ([TiUtils isIOS10OrGreater] && !musicPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !musicPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
   }
 
@@ -1390,7 +1384,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)destroyPicker
 {
-  RELEASE_TO_NIL(popover);
   [self forgetProxy:cameraView];
   RELEASE_TO_NIL(cameraView);
   RELEASE_TO_NIL(editorSuccessCallback);
@@ -1497,10 +1490,9 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)displayModalPicker:(UIViewController *)picker_ settings:(NSDictionary *)args
 {
   TiApp *tiApp = [TiApp app];
-  if ([TiUtils isIPad] == NO) {
+  if (![TiUtils isIPad]) {
     [tiApp showModalController:picker_ animated:animatedPicker];
   } else {
-    RELEASE_TO_NIL(popover);
     TiViewProxy *popoverViewProxy = [args objectForKey:@"popoverView"];
 
     if (![popoverViewProxy isKindOfClass:[TiViewProxy class]]) {
@@ -1514,13 +1506,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [self updatePopoverNow:picker_];
     },
         YES);
-  }
-}
-
-- (void)updatePopover:(NSNotification *)notification
-{
-  if (popover) {
-    [self performSelector:@selector(updatePopoverNow:) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
   }
 }
 
@@ -1541,13 +1526,10 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   if (cameraView != nil) {
     [cameraView windowWillClose];
   }
-  if (popover) {
-    [(UIPopoverController *)popover dismissPopoverAnimated:animatedPicker];
-    RELEASE_TO_NIL(popover);
-  } else {
-    [[TiApp app] hideModalController:picker_ animated:animatedPicker];
-    [[TiApp controller] repositionSubviews];
-  }
+
+  [[TiApp app] hideModalController:picker_ animated:animatedPicker];
+  [[TiApp controller] repositionSubviews];
+
   if (cameraView != nil) {
     [cameraView windowDidClose];
     [self forgetProxy:cameraView];
@@ -1622,20 +1604,20 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     }
 
     // if we require movie but not image and we don't support movie, bail...
-    if (movieRequired == YES && imageRequired == NO && ![sourceTypes containsObject:(NSString *)kUTTypeMovie]) {
+    if (movieRequired && !imageRequired && ![sourceTypes containsObject:(NSString *)kUTTypeMovie]) {
       // no movie type supported...
       [self sendPickerError:MediaModuleErrorNoCamera];
       return;
     }
 
     // iOS 10 requires a certain number of additional permissions declared in the Info.plist (<ios><plist/></ios>)
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
       NSString *readFromGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
       NSString *addToGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryAddUsageDescription"];
 
       // Microphone permissions are required when using the video-camera
-      if (movieRequired == YES && !microphonePermission) {
+      if (movieRequired && !microphonePermission) {
         NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera to take videos. Please add the key and re-run the application.");
       }
 
@@ -1645,7 +1627,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       }
 
       // Writing (!) to gallery permissions are also required on iOS 11 and later.
-      if ([TiUtils isIOS11OrGreater] && saveToRoll && !addToGalleryPermission) {
+      if ([TiUtils isIOSVersionOrGreater:@"11.0"] && saveToRoll && !addToGalleryPermission) {
         NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
       }
     }
@@ -1790,22 +1772,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#pragma mark UIPopoverControllerDelegate
-- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
-{
-#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
-  if ([popoverController contentViewController] == musicPicker) {
-    RELEASE_TO_NIL(musicPicker);
-  }
-#endif
-
-  RELEASE_TO_NIL(popover);
-  [self sendPickerCancel];
-  //Unregister for interface change notification
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
-}
-
 #pragma mark UIPopoverPresentationControllerDelegate
+
 - (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
 {
   if (self.popoverView != nil) {
@@ -1876,7 +1844,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   }
 
   BOOL isVideo = [mediaType isEqualToString:(NSString *)kUTTypeMovie];
-  BOOL isLivePhoto = ([TiUtils isIOS9_1OrGreater] == YES && [mediaType isEqualToString:(NSString *)kUTTypeLivePhoto]);
+  BOOL isLivePhoto = ([TiUtils isIOSVersionOrGreater:@"9.1"] && [mediaType isEqualToString:(NSString *)kUTTypeLivePhoto]);
 
   NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
 

@@ -1429,11 +1429,6 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 
 	// process min ios version
 	this.minIosVersion = tiapp.ios['min-ios-ver'] && appc.version.gt(tiapp.ios['min-ios-ver'], this.packageJson.minIosVersion) ? tiapp.ios['min-ios-ver'] : this.packageJson.minIosVersion;
-	if (this.hasWatchAppV2orNewer && appc.version.lt(this.minIosVersion, '9.0')) {
-		this.minIosVersion = '9.0';
-	} else if (tiapp.ios['enable-launch-screen-storyboard'] && appc.version.lt(this.minIosVersion, '8.0')) {
-		this.minIosVersion = '8.0';
-	}
 
 	// process device family
 	const deploymentTargets = tiapp['deployment-targets'];
@@ -2096,15 +2091,15 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 				// figure out the min-ios-ver that this app is going to support
 				let defaultMinIosSdk = this.packageJson.minIosVersion;
 
-				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(defaultMinIosSdk, '8.0')) {
-					defaultMinIosSdk = '8.0';
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(defaultMinIosSdk, '9.0')) {
+					defaultMinIosSdk = '9.0';
 				}
 
 				this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
 
-				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '8.0')) {
-					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '8.0'));
-					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '8.0'));
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '9.0')) {
+					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '9.0'));
+					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '9.0'));
 				} else if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
 					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosSdk.cyan));
 					this.minIosVer = defaultMinIosSdk;

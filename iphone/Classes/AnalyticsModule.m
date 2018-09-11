@@ -40,7 +40,7 @@ static const NSInteger ANALYTICS_DISABLED = -2;
 
 - (void)navEvent:(id)args
 {
-  if (TI_APPLICATION_ANALYTICS == NO) {
+  if (!TI_APPLICATION_ANALYTICS) {
     DebugLog(@"[ERROR] Analytics service is not enabled in your app. Please set analytics to true in the tiapp.xml. ");
     return;
   }
@@ -57,7 +57,7 @@ static const NSInteger ANALYTICS_DISABLED = -2;
 
 - (NSInteger)featureEvent:(id)args
 {
-  if (TI_APPLICATION_ANALYTICS == NO) {
+  if (!TI_APPLICATION_ANALYTICS) {
     DebugLog(@"[ERROR] Analytics service is not enabled in your app. Please set analytics to true in the tiapp.xml.");
     return ANALYTICS_DISABLED;
   }
@@ -66,9 +66,9 @@ static const NSInteger ANALYTICS_DISABLED = -2;
   }
   NSString *event = [args objectAtIndex:0];
   id data = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
-  if (data != nil && ([data isKindOfClass:[NSDictionary class]] == NO)) {
+  if (data != nil && ![data isKindOfClass:[NSDictionary class]]) {
     id value = nil;
-    if ([data isKindOfClass:[NSString class]] == YES) {
+    if ([data isKindOfClass:[NSString class]]) {
       value = [TiUtils jsonParse:data];
       if (value == nil)
         value = [NSDictionary dictionaryWithObject:data forKey:@"data"];

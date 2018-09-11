@@ -554,7 +554,7 @@
   showPageControl = [TiUtils boolValue:args];
 
   if (pageControl != nil) {
-    if (showPageControl == NO) {
+    if (!showPageControl) {
 #ifndef TI_USE_AUTOLAYOUT
       [pageControl removeFromSuperview];
       RELEASE_TO_NIL(pageControl);

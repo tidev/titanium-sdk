@@ -47,7 +47,7 @@
 
 - (void)cancel
 {
-  if (stopped == NO) {
+  if (!stopped) {
     stopped = YES;
     [condition lock];
     [condition signal];

@@ -14,7 +14,6 @@
 //If the view had the logic, you get some nasty dependency loops.
 @interface TiUIiPadPopoverProxy : TiProxy <UIPopoverControllerDelegate, UIPopoverPresentationControllerDelegate, TiProxyObserver> {
   @private
-  UIPopoverController *popoverController;
   UIViewController *viewController;
   TiViewProxy *contentViewProxy;
 

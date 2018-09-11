@@ -117,7 +117,7 @@ static char ctrl[0x24];
     // makes some cases not pull our query part correctly but this seems to work at all times
     NSRange range = [urlString rangeOfString:@"?"];
     NSString *prequery = range.location != NSNotFound ? [urlString substringFromIndex:range.location + 1] : urlString;
-    NSString *query = [prequery stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSString *query = [prequery stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     queryString = [NSString stringWithFormat:@"[%@]", query];
     SBJSON *jsonDecoder = [[SBJSON alloc] init];
     NSError *error = nil;
