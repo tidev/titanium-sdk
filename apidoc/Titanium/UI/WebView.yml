@@ -564,7 +564,7 @@ properties:
         callback will determine if the link will be navigated or discarded.
     type: Callback<OnLinkURLResponse>
     platforms: [iphone, ipad, android]
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: overScrollMode
     summary: Determines the behavior when the user overscrolls the view.
