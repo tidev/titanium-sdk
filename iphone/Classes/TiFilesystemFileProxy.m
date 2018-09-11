@@ -557,8 +557,13 @@ FILENOOP(setHidden
 {
   ENSURE_TYPE(value, NSNumber);
   BOOL isExcluded = ![TiUtils boolValue:value def:YES];
-
-  [self addSkipBackupAttributeToFolder:[NSURL fileURLWithPath:[self path]] withFlag:isExcluded];
+  NSNumber *isDirectory;
+  BOOL success = [[NSURL fileURLWithPath:[self path]] getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
+  if (success && [isDirectory boolValue]) {
+    [self addSkipBackupAttributeToFolder:[NSURL fileURLWithPath:[self path]] withFlag:isExcluded];
+  } else {
+    [self addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:[self path]] withFlag:isExcluded];
+  }
 }
 
 - (void)addSkipBackupAttributeToFolder:(NSURL *)folder withFlag:(BOOL)flag

@@ -576,9 +576,7 @@ function addOnMerge(baseObj, addObj) {
 					baseObj[key] = addOnMerge(base, add);
 					break;
 				case 'string':
-					if (!~[ 'name', 'since', '__file' ].indexOf(key)) {
-						baseObj[key] += ' ' + add;
-					} else if (key === 'since') {
+					if (key === 'since') {
 						const platforms = baseObj.platforms || Object.keys(common.DEFAULT_VERSIONS);
 						const since = {};
 
@@ -598,7 +596,6 @@ function addOnMerge(baseObj, addObj) {
 							common.log(common.LOG_WARN, 'Cannot set since version.  Set since as a dictionary or add the platforms property.');
 							break;
 						}
-
 						baseObj[key] = since;
 					}
 					break;
@@ -992,6 +989,7 @@ formats.forEach(function (format) {
 		case 'solr' :
 			render = JSON.stringify(exportData, null, '    ');
 			output = pathMod.join(outputPath, 'api_solr.json');
+			break;
 		case 'typescript':
 			render = exportData;
 			output = pathMod.join(outputPath, 'index.d.ts');
