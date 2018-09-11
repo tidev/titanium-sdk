@@ -459,7 +459,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
-			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR);
 	}
 
 	public float[] getPreTranslationValue(float[] points)
