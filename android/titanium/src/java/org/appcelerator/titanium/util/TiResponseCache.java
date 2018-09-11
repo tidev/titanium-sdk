@@ -34,6 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -205,7 +206,7 @@ public class TiResponseCache extends ResponseCache
 			if (rc.cacheDir == null) {
 				return false;
 			}
-			String hash = DigestUtils.shaHex(uri.toString());
+			String hash = new String(Hex.encodeHex(DigestUtils.sha(uri.toString())));
 			File hFile = new File(rc.cacheDir, hash + HEADER_SUFFIX);
 			File bFile = new File(rc.cacheDir, hash + BODY_SUFFIX);
 			if (!bFile.exists() || !hFile.exists()) {
@@ -338,7 +339,7 @@ public class TiResponseCache extends ResponseCache
 			if (rc.cacheDir == null) {
 				return null;
 			}
-			String hash = DigestUtils.shaHex(uri.toString());
+			String hash = new String(Hex.encodeHex(DigestUtils.sha(uri.toString())));
 			File hFile = new File(rc.cacheDir, hash + HEADER_SUFFIX);
 			File bFile = new File(rc.cacheDir, hash + BODY_SUFFIX);
 			if (!bFile.exists() || !hFile.exists()) {
@@ -386,11 +387,11 @@ public class TiResponseCache extends ResponseCache
 	{
 		synchronized (completeListeners)
 		{
-			String hash = DigestUtils.shaHex(uri.toString());
-			if (!completeListeners.containsKey(hash)) {
-				completeListeners.put(hash, new ArrayList<CompleteListener>());
+			String key = uri.toString();
+			if (!completeListeners.containsKey(key)) {
+				completeListeners.put(key, new ArrayList<CompleteListener>());
 			}
-			completeListeners.get(hash).add(listener);
+			completeListeners.get(key).add(listener);
 		}
 	}
 
@@ -426,7 +427,7 @@ public class TiResponseCache extends ResponseCache
 		}
 
 		// Get our key, which is a hash of the URI
-		String hash = DigestUtils.shaHex(uri.toString());
+		String hash = new String(Hex.encodeHex(DigestUtils.sha(uri.toString())));
 
 		// Make our cache files
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX);
@@ -567,7 +568,7 @@ public class TiResponseCache extends ResponseCache
 		}
 
 		// Get our key, which is a hash of the URI
-		String hash = DigestUtils.shaHex(uri.toString());
+		String hash = new String(Hex.encodeHex(DigestUtils.sha(uri.toString())));
 
 		// Make our cache files
 		File hFile = new File(cacheDir, hash + HEADER_SUFFIX);
@@ -600,12 +601,12 @@ public class TiResponseCache extends ResponseCache
 	{
 		synchronized (completeListeners)
 		{
-			String hash = DigestUtils.shaHex(uri.toString());
-			if (completeListeners.containsKey(hash)) {
-				for (CompleteListener listener : completeListeners.get(hash)) {
+			String key = uri.toString();
+			if (completeListeners.containsKey(key)) {
+				for (CompleteListener listener : completeListeners.get(key)) {
 					listener.cacheCompleted(uri);
 				}
-				completeListeners.remove(hash);
+				completeListeners.remove(key);
 			}
 		}
 	}

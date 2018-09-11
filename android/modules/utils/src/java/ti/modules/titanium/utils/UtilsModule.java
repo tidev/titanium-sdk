@@ -99,7 +99,7 @@ public class UtilsModule extends KrollModule
 	{
 		byte[] data = convertToBytes(obj);
 		if (data != null) {
-			return DigestUtils.shaHex(data);
+			return new String(Hex.encodeHex(DigestUtils.sha(data)));
 		}
 		return null;
 	}
