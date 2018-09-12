@@ -51,7 +51,7 @@ CFLAGS += -Os -ffunction-sections -fdata-sections
 LDLIBS += -Wl,--gc-sections,--strip-all
 
 # exclude v8 libraries
-LDLIBS += -Wl,--exclude-libs=libv8_monolith
+#LDLIBS += -Wl,--exclude-libs=libv8_monolith
 
 # tune for common architectures
 ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
