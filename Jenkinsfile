@@ -82,7 +82,14 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 								archiveArtifacts 'mocha_*.crash'
 								sh 'rm -f mocha_*.crash'
 							} else {
-								// FIXME gather crash reports/tombstones for Android?
+								// gather crash reports/tombstones for Android
+								sh 'adb pull /data/tombstones'
+								archiveArtifacts 'tombstones/'
+								sh 'rm -f tombstones/'
+								// wipe tombstones and re-build dir with proper permissions/ownership on emulator
+								sh 'adb shell rm -rf /data/tombstones'
+								sh 'adb shell mkdir -m 771 /data/tombstones'
+								sh 'adb shell chown system:system /data/tombstones'
 							}
 							throw e
 						} finally {
@@ -90,9 +97,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 							if ('android'.equals(os)) {
 								sh 'adb shell am force-stop com.appcelerator.testApp.testing'
 								sh 'adb uninstall com.appcelerator.testApp.testing'
-								sh 'killall -9 emulator || echo ""'
-								sh 'killall -9 emulator64-arm || echo ""'
-								sh 'killall -9 emulator64-x86 || echo ""'
+								killAndroidEmulators()
 							} // if
 						} // finally
 						// save the junit reports as artifacts explicitly so danger.js can use them later

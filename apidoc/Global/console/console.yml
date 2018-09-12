@@ -117,4 +117,4 @@ methods:
         summary: Extra log data to be provided when logging
         type: Object
         optional: true
-    since: 7.4.0
+    since: 7.5.0

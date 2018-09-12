@@ -186,7 +186,7 @@ properties:
       If this property is not specified, the default white background is used.
     type: String
     platforms: [iphone, ipad]
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: fieldBackgroundDisabledImage
     summary: Background image of the text field in disabled state, specified as a local file path or URL.
@@ -194,7 +194,7 @@ properties:
       If this property is not specified, the default white background is used.
     type: String
     platforms: [iphone, ipad]
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: hintText
     summary: Text to show when the search bar field is not focused.
