@@ -16,10 +16,10 @@
 
 - (id)density
 {
-  if ([TiUtils isRetinaHDDisplay]) {
+  if ([TiUtils is3xRetina]) {
     return @"xhigh";
   }
-  if ([TiUtils isRetinaDisplay]) {
+  if ([TiUtils is2xRetina]) {
     return @"high";
   }
   return @"medium";
