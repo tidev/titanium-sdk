@@ -60,8 +60,8 @@ describe('Titanium.UI.View', function () {
 			didFocus = true;
 
 			try {
-				view.backgroundDisabledColor = '#FFFFFF';
-				should(view.getBackgroundDisabledColor()).be.eql('#FFFFFF');
+				view.backgroundDisabledColor = '#88FFFFFF';
+				should(view.getBackgroundDisabledColor()).be.eql('#88FFFFFF');
 				finish();
 			} catch (err) {
 				finish(err);
