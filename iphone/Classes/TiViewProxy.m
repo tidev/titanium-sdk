@@ -1458,7 +1458,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
     TiStylesheet *stylesheet = [[[self pageContext] host] stylesheet];
     NSString *basename = [[self pageContext] basename];
-    NSString *density = [TiUtils isRetinaDisplay] ? @"high" : @"medium";
+    NSString *density = [TiUtils is2xRetina] ? @"high" : @"medium";
 
     if (objectId != nil || className != nil || classNames != nil || [stylesheet basename:basename density:density hasTag:type]) {
       // get classes from proxy
