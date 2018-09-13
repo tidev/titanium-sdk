@@ -329,6 +329,30 @@
       *imageOrientation = orientation;
       return image;
     }
+  } else if ([TiUtils isRetinaiPhoneXSMax]) {
+    if (UIDeviceOrientationIsPortrait(orientation)) {
+      // Portrait
+      image = [UIImage imageNamed:@"LaunchImage-1200-Portrait-2688h"];
+    } else if (UIDeviceOrientationIsLandscape(orientation)) {
+      // Landscape
+      image = [UIImage imageNamed:@"LaunchImage-1200-Landscape-2688h"];
+    }
+    if (image != nil) {
+      *imageOrientation = orientation;
+      return image;
+    }
+  } else if ([TiUtils isRetinaiPhoneXR]) {
+    if (UIDeviceOrientationIsPortrait(orientation)) {
+      // Portrait
+      image = [UIImage imageNamed:@"LaunchImage-1200-Portrait-1792h"];
+    } else if (UIDeviceOrientationIsLandscape(orientation)) {
+      // Landscape
+      image = [UIImage imageNamed:@"LaunchImage-1200-Landscape-1792h"];
+    }
+    if (image != nil) {
+      *imageOrientation = orientation;
+      return image;
+    }
   }
 
   // iPhone 6 Plus

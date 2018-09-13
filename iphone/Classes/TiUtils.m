@@ -112,6 +112,18 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   return (mainScreenBoundsSize.height == 812 || mainScreenBoundsSize.width == 812);
 }
 
++ (BOOL)isRetinaiPhoneXSMax
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 896 || mainScreenBoundsSize.width == 896) && [TiUtils isRetinaHDDisplay];
+}
+
++ (BOOL)isRetinaiPhoneXR
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 896 || mainScreenBoundsSize.width == 896) && ![TiUtils isRetinaHDDisplay];
+}
+
 + (BOOL)isRetinaHDDisplay
 {
   return [UIScreen mainScreen].scale == 3.0;

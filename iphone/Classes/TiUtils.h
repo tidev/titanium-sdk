@@ -662,10 +662,22 @@ typedef enum {
 + (BOOL)isRetinaiPhone6Plus;
 
 /**
- Whether or not the current device has a 5.8 inch retina display (iPhone X).
- @return _YES_ if the current device has a 5.8 inch retina display, _NO_ otherwise.
+ Whether or not the current device has a 5.8 inch super retina display (iPhone X).
+ @return _YES_ if the current device has a 5.8 inch super retina display, _NO_ otherwise.
  */
 + (BOOL)isRetinaiPhoneX;
+
+/**
+ Whether or not the current device has a 6.5 inch super retina display (iPhone X Max).
+ @return _YES_ if the current device has a 6.5 inch super retina display, _NO_ otherwise.
+ */
++ (BOOL)isRetinaiPhoneXSMax;
+
+/**
+ Whether or not the current device has a 6.1 inch retina display (iPhone X Max).
+ @return _YES_ if the current device has a 6.1 inch retina display, _NO_ otherwise.
+ */
++ (BOOL)isRetinaiPhoneXR;
 
 /**
  Whether or not the current device has HD retina display (@3X).
