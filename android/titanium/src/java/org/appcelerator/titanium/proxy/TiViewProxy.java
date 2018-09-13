@@ -1202,14 +1202,17 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					// Cast it as a ColorDrawable.
 					if (drawableFromLayer instanceof ColorDrawable) {
 						// Transcript the color int to HexString.
-						String strColor = String.format("#%08X", 0xFFFFFFFF & ((ColorDrawable) drawableFromLayer).getColor());
+						String strColor =
+							String.format("#%08X", 0xFFFFFFFF & ((ColorDrawable) drawableFromLayer).getColor());
 						return strColor;
 					} else {
-						Log.w(TAG, "Background drawable of unexpected type. Expected - ColorDrawable. Found - " + drawableFromLayer.getClass().toString());
+						Log.w(TAG, "Background drawable of unexpected type. Expected - ColorDrawable. Found - "
+									   + drawableFromLayer.getClass().toString());
 						return null;
 					}
 				} else {
-					Log.w(TAG, "Background drawable of unexpected type. Expected - LayerDrawable. Found - " + drawable.getClass().toString());
+					Log.w(TAG, "Background drawable of unexpected type. Expected - LayerDrawable. Found - "
+								   + drawable.getClass().toString());
 					return null;
 				}
 			} catch (NoSuchMethodException e) {
