@@ -1196,17 +1196,28 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 					(int) getStateDrawableIndexMethod.invoke(stateListDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
 				// Get the drawable at the index.
 				Drawable drawable = (Drawable) getStateDrawableMethod.invoke(stateListDrawable, index);
-				// Parse it as a ColorDrawable.
-				ColorDrawable colorDrawable = ((ColorDrawable) ((LayerDrawable) drawable).getDrawable(0));
-				// Transcript the color int to HexString.
-				String strColor = String.format("#%06X", 0xFFFFFF & colorDrawable.getColor());
-				return strColor;
+				// Try to get the 0 index of the result.
+				if (drawable instanceof LayerDrawable) {
+					Drawable drawableFromLayer = ((LayerDrawable) drawable).getDrawable(0);
+					// Cast it as a ColorDrawable.
+					if (drawableFromLayer instanceof ColorDrawable) {
+						// Transcript the color int to HexString.
+						String strColor = String.format("#%08X", 0xFFFFFFFF & ((ColorDrawable) drawableFromLayer).getColor());
+						return strColor;
+					} else {
+						Log.w(TAG, "Background drawable of unexpected type. Expected - ColorDrawable. Found - " + drawableFromLayer.getClass().toString());
+						return null;
+					}
+				} else {
+					Log.w(TAG, "Background drawable of unexpected type. Expected - LayerDrawable. Found - " + drawable.getClass().toString());
+					return null;
+				}
 			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
+				Log.w(TAG, "Unable to get a method for reflection.");
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				Log.w(TAG, "Unable to access a method for reflection.");
 			} catch (InvocationTargetException e) {
-				e.printStackTrace();
+				Log.w(TAG, "Unable to invoke a method for reflection.");
 			}
 			return null;
 		}
