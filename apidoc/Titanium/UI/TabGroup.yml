@@ -43,7 +43,7 @@ description: |
 extends: Titanium.UI.View
 since: "0.9"
 excludes:
-    methods: [add, remove, removeAllChildren]
+    methods: [add, remove, removeAllChildren, replaceAt]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter,backgroundColor,backgroundDisabledColor,backgroundDisabledImage,
                  backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,
@@ -51,6 +51,8 @@ excludes:
                  borderColor,borderRadius,borderWidth,bottom,children,enabled,focusable,height,
                  horizontalWrap,layout,left,opacity,right,softKeyboardOnFocus,
                  top,transform,width,zIndex]
+    events: [click, dblclick, doubletap, keypressed, longclick, longpress, pinch, postlayout, 
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
 
 events:
   - name: androidback
@@ -403,9 +405,8 @@ properties:
 
         A tab's [backgroundColor](Titanium.UI.Tab.backgroundColor) property takes precedence if set.
 
-        On iOS 5.0 or later, this property applies to all states and tabs, not just inactive
-        tabs. Furthermore, the inactive tab icons without activeIcon will be tinted this color;
-        property is ignored on earlier versions of iOS.
+        This property applies to all states and tabs, not just inactive tabs. Furthermore, the inactive 
+        tab icons without activeIcon will be tinted this color.
     type: String
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
     platforms: [android, iphone, ipad]
@@ -449,8 +450,6 @@ properties:
 
   - name: tabsBackgroundImage
     summary: Default background image for tabs.
-    description: |
-        On iOS, requires iOS 5.0 or later; ignored on earlier versions.
     type: String
     platforms: [iphone, ipad]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
@@ -470,18 +469,16 @@ properties:
   - name: shadowImage
     summary: Image of the shadow placed between the tab bar and the content area.
     description: |
-        On iOS, requires iOS 6.0 or later; ignored on earlier versions. TabsBackgroundImage
-        must also be set in order for this to take effect.
+        The <Titanium.UI.TabGroup.tabsBackgroundImage> property must also be set 
+        in order for this to take effect.
     type: String
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
-    osver: {ios: {min: "6.0"}}
 
   - name: activeTabIconTint
     summary: Color applied to active tabs icons, as a color name or hex triplet, where the tab's activeIcon was not defined.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-        On iOS, requires iOS 5.0 or later; ignored on earlier versions.
     type: String
     since: {iphone: "3.1.0", ipad: "3.1.0" }
     osver: {ios: {min: "5.0"}}

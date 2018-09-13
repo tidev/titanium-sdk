@@ -434,6 +434,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 		}
 
+		if (content == null) {
+			this.content = new TiCompositeLayout(getRowProxy().getActivity());
+			addView(content, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		}
+
 		if (props.containsKey(TiC.PROPERTY_LAYOUT)) {
 			content.setLayoutArrangement(TiConvert.toString(props, TiC.PROPERTY_LAYOUT));
 		}
@@ -647,12 +652,15 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	@Override
 	public void release()
 	{
-		super.release();
 		if (views != null) {
 			for (TiUIView view : views) {
 				view.release();
 			}
+			views.clear();
 			views = null;
+		}
+		if (item != null) {
+			item = null;
 		}
 		if (content != null) {
 			content.removeAllViews();
@@ -666,5 +674,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			hasChildDrawable.setCallback(null);
 			hasChildDrawable = null;
 		}
+
+		super.release();
 	}
 }

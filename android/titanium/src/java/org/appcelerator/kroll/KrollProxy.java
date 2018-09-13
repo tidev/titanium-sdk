@@ -6,8 +6,9 @@
  */
 package org.appcelerator.kroll;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -485,7 +486,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public void initKrollObject()
 	{
-		KrollRuntime.getInstance().initObject(this);
+		if (!KrollRuntime.isDisposed()) {
+			KrollRuntime.getInstance().initObject(this);
+		}
 	}
 
 	/**
@@ -1379,6 +1382,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void release()
 	{
+		releaseKroll();
+
 		if (eventListeners != null) {
 			eventListeners.clear();
 			eventListeners = null;

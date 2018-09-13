@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,6 @@
 
 #import "MediaModule.h"
 #import "Mimetypes.h"
-#import "SCListener.h"
 #import "Ti2DMatrix.h"
 #import "TiApp.h"
 #import "TiBlob.h"
@@ -16,7 +15,6 @@
 #import "TiMediaAudioSession.h"
 #import "TiMediaItem.h"
 #import "TiMediaMusicPlayer.h"
-#import "TiMediaTypes.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 
@@ -244,7 +242,6 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD, AVAudioSessionCategoryPl
 
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNone);
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
-
 #endif
 
 // Constants for VideoPlayer.playbackState
@@ -252,6 +249,17 @@ MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_INTERRUPTED, TiVideoPlayerPlaybackStateInt
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PAUSED, TiVideoPlayerPlaybackStatePaused);
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_PLAYING, TiVideoPlayerPlaybackStatePlaying);
 MAKE_SYSTEM_PROP(VIDEO_PLAYBACK_STATE_STOPPED, TiVideoPlayerPlaybackStateStopped);
+
+// Constants for AudioPlayer
+MAKE_SYSTEM_PROP(AUDIO_STATE_INITIALIZED, TiAudioPlayerStateInitialized);
+MAKE_SYSTEM_PROP(AUDIO_STATE_STARTING, TiAudioPlayerStateStartingFileThread);
+MAKE_SYSTEM_PROP(AUDIO_STATE_WAITING_FOR_DATA, TiAudioPlayerStateWaitingForData);
+MAKE_SYSTEM_PROP(AUDIO_STATE_WAITING_FOR_QUEUE, TiAudioPlayerStateWaitingForQueueToStart);
+MAKE_SYSTEM_PROP(AUDIO_STATE_PLAYING, TiAudioPlayerStatePlaying);
+MAKE_SYSTEM_PROP(AUDIO_STATE_BUFFERING, TiAudioPlayerStateBuffering);
+MAKE_SYSTEM_PROP(AUDIO_STATE_STOPPING, TiAudioPlayerStateStopping);
+MAKE_SYSTEM_PROP(AUDIO_STATE_STOPPED, TiAudioPlayerStateStopped);
+MAKE_SYSTEM_PROP(AUDIO_STATE_PAUSED, TiAudioPlayerStatePaused);
 
 //Constants for Camera
 #if defined(USE_TI_MEDIACAMERA_FRONT) || defined(USE_TI_MEDIACAMERA_REAR) || defined(USE_TI_MEDIACAMERA_FLASH_OFF) || defined(USE_TI_MEDIACAMERA_FLASH_AUTO) || defined(USE_TI_MEDIACAMERA_FLASH_ON)
@@ -656,7 +664,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   TiThreadPerformOnMainThread(^() {
     [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
       KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                             eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:nil]
+                                                             eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
                                                               thisObject:self];
       [[callback context] enqueue:invocationEvent];
       RELEASE_TO_NIL(invocationEvent);
@@ -670,28 +678,75 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)startMicrophoneMonitor:(id)args
 {
-  [[SCListener sharedListener] listen];
+  if (_microphoneRecorder != nil) {
+    DebugLog(@"[ERROR] Trying to start new microphone monitoring while the old one is still active. Call \"stopMicrophoneMonitor()\" before and try again.");
+    return;
+  }
+
+  if (![TiUtils boolValue:[self hasAudioRecorderPermissions:nil]]) {
+    DebugLog(@"[ERROR] Microphone permissions are required to use the microphone monitoring API.");
+  }
+
+  NSURL *url = [NSURL fileURLWithPath:@"/dev/null"];
+  NSDictionary *settings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                             [NSNumber numberWithFloat:44100.0], AVSampleRateKey,
+                                         [NSNumber numberWithInt:kAudioFormatAppleLossless], AVFormatIDKey,
+                                         [NSNumber numberWithInt:1], AVNumberOfChannelsKey,
+                                         [NSNumber numberWithInt:AVAudioQualityMax], AVEncoderAudioQualityKey,
+                                         nil];
+
+  NSError *error;
+
+  _microphoneRecorder = [[AVAudioRecorder alloc] initWithURL:url settings:settings error:&error];
+
+  if (_microphoneRecorder == nil) {
+    DebugLog(@"[ERROR] Error starting audio monitoring: %@", [error description]);
+    return;
+  }
+
+  [_microphoneRecorder prepareToRecord];
+  _microphoneRecorder.meteringEnabled = YES;
+  [_microphoneRecorder record];
+  _microphoneTimer = [NSTimer scheduledTimerWithTimeInterval:0.03
+                                                      target:self
+                                                    selector:@selector(_microphoneTimerChanged:)
+                                                    userInfo:nil
+                                                     repeats:YES];
+}
+
+- (void)_microphoneTimerChanged:(NSTimer *)timer
+{
+  [_microphoneRecorder updateMeters];
 }
 
 - (void)stopMicrophoneMonitor:(id)args
 {
-  [[SCListener sharedListener] stop];
+  if (_microphoneRecorder == nil) {
+    DebugLog(@"[ERROR] Trying to stop microphone monitoring which is not active. Call \"startMicrophoneMonitor()\" before and try again.");
+    return;
+  }
+
+  [_microphoneRecorder stop];
+  [_microphoneTimer invalidate];
+  _microphoneTimer = nil;
+
+  RELEASE_TO_NIL(_microphoneRecorder);
 }
 
 - (NSNumber *)peakMicrophonePower
 {
-  if ([[SCListener sharedListener] isListening]) {
-    return NUMFLOAT([[SCListener sharedListener] peakPower]);
+  if (_microphoneRecorder != nil && [_microphoneRecorder isRecording]) {
+    return @([_microphoneRecorder peakPowerForChannel:0]);
   }
-  return NUMFLOAT(-1);
+  return @(-1);
 }
 
 - (NSNumber *)averageMicrophonePower
 {
-  if ([[SCListener sharedListener] isListening]) {
-    return NUMFLOAT([[SCListener sharedListener] averagePower]);
+  if (_microphoneRecorder != nil && [_microphoneRecorder isRecording]) {
+    return @([_microphoneRecorder averagePowerForChannel:0]);
   }
-  return NUMFLOAT(-1);
+  return @(-1);
 }
 
 #endif
@@ -1008,7 +1063,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
                              completionHandler:^(BOOL granted) {
                                NSString *errorMessage = granted ? nil : @"The user denied access to use the camera.";
                                KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                                      eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:errorMessage]
+                                                                                      eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
                                                                                        thisObject:self];
                                [[callback context] enqueue:invocationEvent];
                                RELEASE_TO_NIL(invocationEvent);
@@ -1042,7 +1097,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       BOOL granted = (status == PHAuthorizationStatusAuthorized);
       NSString *errorMessage = granted ? @"" : @"The user denied access to use the photo gallery.";
       KrollEvent *invocationEvent = [[[KrollEvent alloc] initWithCallback:callback
-                                                              eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:errorMessage]
+                                                              eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
                                                                thisObject:self] autorelease];
       [[callback context] enqueue:invocationEvent];
     }];
@@ -1188,7 +1243,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
         BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
         KrollEvent *invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                               eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1)message:nil]
+                                                               eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
                                                                 thisObject:self];
         [[callback context] enqueue:invocationEvent];
         RELEASE_TO_NIL(invocationEvent);

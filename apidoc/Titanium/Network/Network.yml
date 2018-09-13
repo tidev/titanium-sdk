@@ -12,7 +12,7 @@ description: |
 
     For all other socket needs, use <Titanium.Network.Socket.TCP>.
 
-    ### iOS 9 Application Note
+    ### App Transport Security
 
     Starting with iOS 9, Apple introduced new security and compatibility guidelines for networking
     and connectivity, which include:
@@ -24,10 +24,11 @@ description: |
 
     Because of the new requirements, Titanium disables the App Transport Security (ATS)
     requirements, which only includes the TLS and certificate cipher requirements,
-    to allow all connections.
+    to allow all connections by default.
 
     If you wish to re-enable ATS, add the `NSAppTransportSecurity` dict to the `ios plist` section
-    of the `tiapp.xml` file, then add the `NSAllowArbitraryLoads` key and set it to true.
+    of the `tiapp.xml` file, then add the `NSAllowArbitraryLoads` key and set it to `false`, indicating
+    that you want to manage your whitelisted URL's yourself.
 
         <ti:app>
           ...
@@ -36,7 +37,8 @@ description: |
               <dict>
                 <key>NSAppTransportSecurity</key>
                 <dict>
-                  <key>NSAllowsArbitraryLoads</key><true/>
+                  <key>NSAllowsArbitraryLoads</key>
+                  <false/>
                 </dict>
               </dict>
             </plist>
@@ -81,11 +83,11 @@ description: |
               <dict>
                 <key>NSAppTransportSecurity</key>
                 <dict>
-                  <!-- Disable ATS completely -->
+                  <!-- 1) Default: Disable ATS completely -->
                   <key>NSAllowsArbitraryLoads</key>
                   <true/>
 
-                  <-- Alternative: Define whitelisted domains -->
+                  <-- 2) Alternative: Define whitelisted domains -->
                   <key>NSExceptionDomains</key>
                   <dict>
                     <!-- Loosen security measure for www.foo.com domain -->
@@ -115,7 +117,7 @@ description: |
     If you submit your application to the iTunes Store, you should setup an IPv6 DNS64/NAT64
     network to test your application to verify it is compatible with IPv6.
 
-    If you are running OS X 10.11 or greater, you can use your computer to setup a local IPv6 Wi-Fi
+    If you are running macOS 10.11 or greater, you can use your computer to setup a local IPv6 Wi-Fi
     network, which requires an Internet connection not through Wi-Fi.
 
     To create the network, from System Preferences, enable Internet sharing with NAT64 network
@@ -390,30 +392,14 @@ methods:
     description: |
         Call this method at application startup.
 
-        For iOS 8 and later, before calling this method, the application needs to call the
-        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
-        method and pass it the notification types to use.  Setting the notification types with this
-        method will have no effect on iOS 8 and later.
-
-        For iOS 7 and earlier, set the notification types to use with this method.
+        Before calling this method, the application needs to call the [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
+        method and pass it the notification types to use. Setting the notification types with this
+        method will have no effect and throws a warning.
     platforms: [iphone, ipad]
     parameters:
       - name: config
         summary: Dictionary specifying push-notification related options.
         type: PushNotificationConfig
-
-  - name: removeConnectivityListener
-    deprecated:
-        since: "1.7.0"
-        removed: "3.0.0"
-        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
-    summary: |
-        Legacy method to remove a connectivity listener.
-    parameters:
-      - name: callback
-        summary: Callback function to remove.
-        type: Callback<Object>
-    platforms: [iphone, ipad]
 
   - name: unregisterForPushNotifications
     summary: Unregisters the application for push notifications.
@@ -732,12 +718,9 @@ properties:
   - name: types
     summary: Array of `NOTIFICATION_TYPE` constants that the application would like to receive.
     description: |
-        For iOS 8 and later, setting the `types` property with the
-        <Titanium.Network.registerForPushNotifications> method has no effect.
+        Setting the `types` property with the <Titanium.Network.registerForPushNotifications> method has no effect.
 
-        For devices running iOS 8 and later, use the
-        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
-        method to register the notification types to receive.
+        Use the <Titanium.App.iOS.registerUserNotificationSettings> method to register the notification types to receive.
     type: Array<Number>
     constants: Titanium.Network.NOTIFICATION_TYPE_*
   - name: success

@@ -23,20 +23,12 @@ description:  |
     view before it can be shown. Unlike most views, `ActivityIndicator` is hidden by
     default and must be shown explicitly by calling its <Titanium.UI.ActivityIndicator.show> method.
 
-    #### Android Platform Notes
-
-    Prior to SDK 3.0, activity indicator on Android produced a modal dialog containing a spinner or
-    progress bar. In SDK 3.0, this legacy Android activity indicator was renamed to
-    <Titanium.UI.Android.ProgressIndicator>.
-
-    In SDK 3.0, use `ActivityIndicator` for a view that can be added as a child of another view.
-    Use `ProgressIndicator` to display a progress indicator in a modal dialog or window title bar.
 extends: Titanium.UI.View
 since: "0.8"
 excludes:
     events: [click, dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
-    methods: [animate, convertPointToView, removeAllChildren, toImage]
+    methods: [add, remove, replaceAt, animate, convertPointToView, removeAllChildren, toImage]
     properties: [accessibilityHidden,accessibilityHint,accessibilityLabel,accessibilityValue,
                  anchorPoint,animatedCenter, backgroundColor,backgroundDisabledColor,
                  backgroundDisabledImage,backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,
@@ -47,31 +39,15 @@ excludes:
                  viewShadowColor,viewShadowOffset,viewShadowRadius,visible,zIndex]
 
 methods:
-  - name: add
-    summary: Adds a child to this activity indicator's hierarchy.
-    description: |
-        Adding children to an `ActivityIndicator` is not supported on all platforms.
-
-        If you need to display views on top of this object, consider using
-        another view as a container for both this object and the views you want
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
   - name: hide
     summary: Hides the activity indicator and stops the animation.
 
-  - name: remove
-    summary: Removes a child from this activity indicator's hierarchy.
-    description: |
-        Adding children to an `ActivityIndicator` is not supported on all platforms.
-
-        See also: [add](Titanium.UI.ActivityIndicator.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
   - name: show
     summary: Shows the activity indicator and starts the animation.
+    description: |
+        Remember to add the activity indicator to a parent view first,
+        so it centers properly. This is optional for Android and required
+        for iOS.
 properties:
   - name: bottom
     summary: Bottom position of the view.
@@ -138,7 +114,7 @@ properties:
     summary: Color of the animated indicator.
     since: "2.1.0"
     type: String
-    default: <pre>#fff</pre>
+    default: white
     platforms: [iphone,ipad,android]
 
   - name: top
@@ -169,19 +145,17 @@ examples:
             });
 
             var win2 = Ti.UI.createWindow({
-              backgroundColor: 'yellow',
-              fullscreen: true
+              backgroundColor: 'yellow'
             });
 
             var activityIndicator = Ti.UI.createActivityIndicator({
               color: 'green',
-              font: {fontFamily:'Helvetica Neue', fontSize:26, fontWeight:'bold'},
-              message: 'Loading...',
+              message: 'Loading ...',
               style: Ti.UI.ActivityIndicatorStyle.DARK,
-              top:10,
-              left:10,
-              height:Ti.UI.SIZE,
-              width:Ti.UI.SIZE
+              top: 10,
+              left: 10,
+              height: Ti.UI.SIZE,
+              width: Ti.UI.SIZE
             });
 
             // The activity indicator must be added to a window or view for it to appear
@@ -193,7 +167,7 @@ examples:
               activityIndicator.show();
               // do some work that takes 6 seconds
               // ie. replace the following setTimeout block with your code
-              setTimeout(function(){
+              setTimeout(function() {
                 e.source.close();
                 activityIndicator.hide();
               }, 6000);
@@ -222,8 +196,7 @@ examples:
         win2.xml:
 
             <Alloy>
-                <Window onOpen="showIndicator" fullscreen="true" backgroundColor="yellow">
-
+                <Window onOpen="showIndicator" backgroundColor="yellow">
                     <!-- Define the styling properties in the TSS file -->
                     <ActivityIndicator id="activityIndicator" message="Loading..."/>
                 </Window>
@@ -231,11 +204,11 @@ examples:
 
         win2.js:
 
-            function showIndicator(e){
+            function showIndicator(e) {
                 $.activityIndicator.show();
                 // do some work that takes 6 seconds
                 // ie. replace the following setTimeout block with your code
-                setTimeout(function(){
+                setTimeout(function() {
                     e.source.close();
                     $.activityIndicator.hide();
                 }, 6000);

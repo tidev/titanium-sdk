@@ -19,7 +19,8 @@ import android.support.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalytics.DeployType;
+import com.appcelerator.aps.APSAnalyticsMeta;
+
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -32,11 +33,9 @@ import org.appcelerator.kroll.common.TiDeployData;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.kroll.util.TiTempFileHelper;
-import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageLruCache;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -45,7 +44,6 @@ import org.json.JSONObject;
 import ti.modules.titanium.TitaniumModule;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
@@ -73,7 +71,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
 	private static long mainThreadId = 0;
 
-	protected static WeakReference<TiApplication> tiApp = null;
+	protected static TiApplication tiApp = null;
 
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
@@ -142,10 +140,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		Log.checkpoint(TAG, "checkpoint, app created.");
 
+		// Keep a reference to this application object. Accessible via static getInstance() method.
+		tiApp = this;
+
 		loadBuildProperties();
 
 		mainThreadId = Looper.getMainLooper().getThread().getId();
-		tiApp = new WeakReference<TiApplication>(this);
 
 		modules = new HashMap<String, WeakReference<KrollModule>>();
 		TiMessenger.getMessenger(); // initialize message queue for main thread
@@ -160,15 +160,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 */
 	public static TiApplication getInstance()
 	{
-		if (tiApp != null) {
-			TiApplication tiAppRef = tiApp.get();
-			if (tiAppRef != null) {
-				return tiAppRef;
-			}
-		}
-
-		Log.e(TAG, "Unable to get the TiApplication instance");
-		return null;
+		return tiApp;
 	}
 
 	public static void addToActivityStack(Activity activity)
@@ -243,11 +235,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 */
 	public static Activity getAppCurrentActivity()
 	{
-		TiApplication tiApp = getInstance();
-		if (tiApp == null) {
-			return null;
-		}
-
 		return tiApp.getCurrentActivity();
 	}
 
@@ -259,11 +246,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 */
 	public static Activity getAppRootOrCurrentActivity()
 	{
-		TiApplication tiApp = getInstance();
-		if (tiApp == null) {
-			return null;
-		}
-
 		return tiApp.getRootOrCurrentActivity();
 	}
 
@@ -311,7 +293,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		}
 
-		Log.e(TAG, "No valid root or current activity found for application instance");
 		return null;
 	}
 
@@ -428,28 +409,26 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public void postAppInfo()
 	{
+		deployData = new TiDeployData(this);
+
 		if (isAnalyticsEnabled()) {
-
-			TiPlatformHelper.getInstance().initialize();
-			TiPlatformHelper.getInstance().initAnalytics();
-			TiPlatformHelper.getInstance().setSdkVersion("ti." + getTiBuildVersion());
-			TiPlatformHelper.getInstance().setAppName(getAppInfo().getName());
-			TiPlatformHelper.getInstance().setAppId(getAppInfo().getId());
-			TiPlatformHelper.getInstance().setAppVersion(getAppInfo().getVersion());
-
-			String deployType = appProperties.getString("ti.deploytype", "unknown");
-			String buildType = appInfo.getBuildType();
+			String deployType = this.appProperties.getString("ti.deploytype", "unknown");
 			if ("unknown".equals(deployType)) {
-				deployType = getDeployType();
+				deployType = this.appInfo.getDeployType();
 			}
-			if (buildType != null && !buildType.equals("")) {
-				TiPlatformHelper.getInstance().setBuildType(buildType);
-			}
-			// Just use type 'other' enum since it's open ended.
-			DeployType.OTHER.setName(deployType);
-			TiPlatformHelper.getInstance().setDeployType(DeployType.OTHER);
-			APSAnalytics.getInstance().sendAppEnrollEvent();
 
+			String buildType = this.appInfo.getBuildType();
+			if (buildType != null && !buildType.equals("")) {
+				APSAnalyticsMeta.setBuildType(buildType);
+			}
+
+			APSAnalyticsMeta.setAppId(this.appInfo.getId());
+			APSAnalyticsMeta.setAppName(this.appInfo.getName());
+			APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
+			APSAnalyticsMeta.setDeployType(deployType);
+			APSAnalyticsMeta.setSdkVersion("ti." + getTiBuildVersion());
+
+			APSAnalytics.getInstance().initialize(getAppGUID(), this);
 		} else {
 			Log.i(TAG, "Analytics have been disabled");
 		}

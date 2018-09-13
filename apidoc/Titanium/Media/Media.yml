@@ -97,6 +97,10 @@ methods:
         files may be imported by saving them with the `.mov` extension.
 
         On Android this method *only supports saving images* to the device gallery prior to Titanium SDK 6.1.0.
+        
+        On iOS the `NSPhotoLibraryAddUsageDescription` plist key is required in the tiapp.xml in order
+        to use this API. Also make sure to check for the gallery permissions with <Titanium.Media.hasPhotoGalleryPermissions>
+        and request the permissions with <Titanium.Media.requestPhotoGalleryPermissions> if not granted so far.
 
     platforms: [iphone, ipad, android]
     parameters:
@@ -163,7 +167,7 @@ methods:
         summary: A dictionary of camera options as described in <CameraOptionsType>.
         type: CameraOptionsType
   - name: hasMusicLibraryPermissions
-    summary: Returns `true` if the app has camera access.
+    summary: Returns `true` if the app has music library access.
     description: |
         Music-library permissions are only needed in iOS 9.3 and later and will be ignored on older
         iOS versions. Because of that, the method will return `true` for devices that run iOS < 9.3.
@@ -289,8 +293,7 @@ methods:
         for more information. If the user has, the callback will return the earlier decision. To change the permission the
         user needs to change it in the device settings.
 
-        This API is available in iOS 8 and later. Earlier versions of iOS, as well as apps that do not include this method,
-        will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
+        iOS Apps that do not include this method, will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
     parameters:
       - name: callback
         summary: Function to call upon user decision to grant camera access.
@@ -352,7 +355,7 @@ methods:
   - name: requestAuthorization
     summary: Request the user's permission for audio recording.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
@@ -374,7 +377,7 @@ methods:
   - name: hasAudioPermissions
     summary: Returns `true` if the app has audio permissions.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
@@ -394,7 +397,7 @@ methods:
   - name: hasAudioRecorderPermissions
     summary: Returns `true` if the app has audio permissions.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
@@ -414,7 +417,7 @@ methods:
   - name: requestAudioPermissions
     summary: Request the user's permission for audio recording.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
@@ -436,7 +439,7 @@ methods:
   - name: requestAudioRecorderPermissions
     summary: Request the user's permission for audio recording.
     description: |
-        On iOS 7.0, recording audio requires explicit permission from the user. After the user
+        Recording audio requires explicit permission from the user. After the user
         grants or denies permission, the system remembers the choice for future use in the same app.
         If permission is not granted, or if the user has not yet responded to the permission prompt,
         any audio recording sessions record only silence.
@@ -550,7 +553,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ALAW
-    summary: Audio format 8-bit aLaw encoding.
+    summary: Audio format 8-bit [aLaw encoding](https://en.wikipedia.org/wiki/A-law_algorithm).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -560,7 +563,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ILBC
-    summary: Audio format iLBC encoding.
+    summary: Audio format [iLBC encoding](https://en.wikipedia.org/wiki/Internet_Low_Bitrate_Codec).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -570,12 +573,12 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_LINEAR_PCM
-    summary: Audio format 16-bit, linear PCM encoding.
+    summary: Audio format 16-bit, [linear PCM encoding](https://en.wikipedia.org/wiki/Pulse-code_modulation).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
   - name: AUDIO_FORMAT_ULAW
-    summary: Audio format 8-bit muLaw encoding.
+    summary: Audio format 8-bit [muLaw encoding](https://en.wikipedia.org/wiki/M-law_algorithm).
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
@@ -888,6 +891,61 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
+
+  - name: AUDIO_STATE_BUFFERING
+    summary: Audio data is being buffered from the network.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+
+  - name: AUDIO_STATE_INITIALIZED
+    summary: Audio playback is being initialized.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+
+  - name: AUDIO_STATE_PAUSED
+    summary: Playback is paused.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+
+  - name: AUDIO_STATE_PLAYING
+    summary: Audio playback is active.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+
+  - name: AUDIO_STATE_STARTING
+    summary: Audio playback is starting.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+
+  - name: AUDIO_STATE_STOPPED
+    summary: Audio playback is stopped.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+
+  - name: AUDIO_STATE_STOPPING
+    summary: Audio playback is stopping.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+
+  - name: AUDIO_STATE_WAITING_FOR_DATA
+    summary: Player is waiting for audio data from the network.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+
+  - name: AUDIO_STATE_WAITING_FOR_QUEUE
+    summary: Player is waiting for audio data to fill the queue.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+
   - name: CAMERA_FLASH_AUTO
     summary: Constant specifying to have the device determine to use the flash or not.
     type: Number
@@ -1136,14 +1194,16 @@ properties:
         Desktop using Image Capture; they are likely to be too large for transfer using Wi-Fi.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.5.0" }
   - name: QUALITY_LOW
     summary: Media type constant for low-quality video recording.
     description: |
         Recorded files can usually be transferred over the cellular network.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.5.0" }
   - name: QUALITY_MEDIUM
     summary: Media type constant for medium-quality video recording.
     description: |
@@ -1159,14 +1219,15 @@ properties:
         of 640x480).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.5.0" }
   - name: QUALITY_IFRAME_1280x720
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 1280x720 iFrame format.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    since: 6.0.0
+    platforms: [iphone, ipad, android]
+    since: { android: "7.5.0", iphone: "6.0.0", ipad: "6.0.0" }
   - name: QUALITY_IFRAME_960x540
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 960x540 iFrame format.
@@ -1655,6 +1716,8 @@ properties:
     permission: read-only
   - name: volume
     summary: Current volume of the playback device.
+    description: |
+        A value in the range `0.0` to `1.0`, with `0.0` representing the minimum volume and `1.0` representing the maximum volume.
     type: Number
     platforms: [iphone, ipad]
     permission: read-only
@@ -1984,7 +2047,7 @@ properties:
   - name: mediaTypes
     summary: |
         Array of media type constants to allow.
-        
+
         Live photos is only supported on the iOS platform, starting with iOS 9.1. If you want
         to allow live photos with <Titanium.Media.MEDIA_TYPE_LIVEPHOTO>, you also need to specify
         at least <Titanium.Media.MEDIA_TYPE_PHOTO> as a fallback. If you do not allow live
