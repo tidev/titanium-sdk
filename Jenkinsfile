@@ -59,7 +59,7 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 					manager.addWarningBadge(msg)
 					throw e
 				}
-			}
+			} // dir
 			// copy over any overridden unit tests into this workspace
 			sh 'rm -rf tests'
 			unstash 'override-tests'
@@ -222,7 +222,7 @@ timestamps {
 					// TODO parallelize the iOS/Android/Mobileweb/Windows portions?
 					dir('build') {
 						timeout(15) {
-							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R12B} --android-sdk ${env.ANDROID_SDK}"
+							sh "node scons.js build --android-ndk ${env.ANDROID_NDK_R16B} --android-sdk ${env.ANDROID_SDK}"
 						} // timeout
 						ansiColor('xterm') {
 							timeout(15) {

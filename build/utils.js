@@ -138,6 +138,15 @@ function cachedDownloadPath(url) {
 }
 
 Utils.generateSSRIHashFromURL = function (url, callback) {
+	if (url.startsWith('file://')) {
+		// Generate integrity hash!
+		ssri.fromStream(fs.createReadStream(url.slice(7))).then(integrity => {
+			callback(null, integrity.toString());
+		}).catch(e => {
+			callback(e);
+		});
+		return;
+	}
 	const downloadPath = cachedDownloadPath(url);
 	fs.removeSync(downloadPath);
 	download(url, downloadPath, function (err, file) {
@@ -154,11 +163,23 @@ Utils.generateSSRIHashFromURL = function (url, callback) {
 };
 
 Utils.downloadURL = function downloadURL(url, integrity, callback) {
-	const downloadPath = cachedDownloadPath(url);
+	if (url.startsWith('file://')) {
+		if (!fs.existsSync(url.slice(7))) {
+			return callback(new Error('File URL does not exist on disk: %s', url));
+		}
+		// if it passes integrity check, we're all good, return path to file
+		ssri.checkStream(fs.createReadStream(url.slice(7)), integrity).then(() => {
+			// cached copy is still valid, integrity hash matches
+			callback(null, url.slice(7));
+		}).catch(e => callback(e));
+		return;
+	}
 
 	if (!integrity) {
 		return callback(new Error('No "integrity" value given for %s, may need to run "node scons.js modules-integrity" to generate new module listing with updated integrity hashes.', url));
 	}
+
+	const downloadPath = cachedDownloadPath(url);
 	// Check if file already exists and passes integrity check!
 	if (fs.existsSync(downloadPath)) {
 		// if it passes integrity check, we're all good, return path to file
