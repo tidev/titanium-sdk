@@ -652,7 +652,7 @@ public class TiUIHelper
 	private static final int[] BACKGROUND_FOCUSED_STATE = { android.R.attr.state_focused,
 															android.R.attr.state_window_focused,
 															android.R.attr.state_enabled };
-	private static final int[] BACKGROUND_DISABLED_STATE = { -android.R.attr.state_enabled };
+	public static final int[] BACKGROUND_DISABLED_STATE = { -android.R.attr.state_enabled };
 
 	public static StateListDrawable buildBackgroundDrawable(String image, boolean tileImage, String color,
 															String selectedImage, String selectedColor,
