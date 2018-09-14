@@ -36,9 +36,19 @@ properties:
     summary: Array of notification actions to display for non-dialog-style notification.
     description: |
         If not specified, the first two actions from `actionsForDefaultContent` are displayed.
+        Note: This property has been removed in iOS 10. iOS 10+ will handle the actions internally.
     type: Array<Titanium.App.iOS.UserNotificationAction>
     accessors: false
+    osver: {ios: {max: 9.3}}
     availability: creation
+
+  - name: categorySummaryFormat
+    summary: A format string for the summary description used when the system groups the category's notifications.
+    type: String
+    accessors: false
+    osver: { ios: { min: 12.0 } }
+    availability: creation
+    since: "7.4.0"
 
   - name: identifier
     summary: Identifier for this category.
@@ -48,3 +58,29 @@ properties:
     accessors: false
     availability: creation
 
+  - name: intentIdentifiers
+    summary: The intents related to notifications of this category.
+    description: |
+        When a notification is delivered, the presence of an intent identifier
+        lets the system know that the notification is potentially related to the
+        handling of a request made through Siri.
+    type: Array<String>
+    accessors: false
+    osver: {ios: {min: 10.0}}
+    availability: creation
+
+  - name: hiddenPreviewsBodyPlaceholder
+    summary: The placeholder text to display when notification previews are disabled for the app.
+    type: String
+    accessors: false
+    osver: {ios: {min: 11.0}}
+    availability: creation
+
+  - name: options
+    summary: Options for how to handle notifications of this type.
+    description: If not specified, defaults to <Titanium.App.iOS.USER_NOTIFICATION_CATEGORY_OPTION_NONE>.
+    type: Array<Number>
+    accessors: false
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_CATEGORY_OPTION_*]
+    osver: {ios: {min: 10.0}}
+    availability: creation

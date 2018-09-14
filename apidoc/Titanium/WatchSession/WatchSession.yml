@@ -291,13 +291,13 @@ events:
       - name: isActivated
         summary: | 
             If the apple watch is currently activated. Only available on iOS 9.3
-            and later. See <Ti.WatchSession.isActivated> for more infos.
+            and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
         platforms: [iphone]
       - name: activationState
         summary: | 
             Returns the current activation state of the watch.  Only available on iOS 9.3
-            and later. See <Ti.WatchSession.activationState> for more infos.
+            and later. See <Titanium.WatchSession.activationState> for more infos.
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]
@@ -324,13 +324,13 @@ events:
       - name: isActivated
         summary: | 
             If the apple watch is currently activated. Only available on iOS 9.3
-            and later. See <Ti.WatchSession.isActivated> for more infos.
+            and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
         platforms: [iphone]
       - name: activationState
         summary: | 
             Returns the current activation state of the watch.  Only available on iOS 9.3
-            and later. See <Ti.WatchSession.activationState> for more infos.
+            and later. See <Titanium.WatchSession.activationState> for more infos.
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]
@@ -403,13 +403,13 @@ events:
       - name: isActivated
         summary: | 
             If the apple watch is currently activated. Only available on iOS 9.3
-            and later. See <Ti.WatchSession.isActivated> for more infos.
+            and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
         platforms: [iphone]
       - name: activationState
         summary: | 
             Returns the current activation state of the watch.  Only available on iOS 9.3
-            and later. See <Ti.WatchSession.activationState> for more infos.
+            and later. See <Titanium.WatchSession.activationState> for more infos.
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]
@@ -439,25 +439,25 @@ events:
       - name: isActivated
         summary: | 
             If the apple watch is currently activated. Only available on iOS 9.3
-            and later. See <Ti.WatchSession.isActivated> for more infos.
+            and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
         platforms: [iphone]
       - name: hasContentPending
         summary: | 
             If the apple watch has currently content pending. Only available on iOS 10.0
-            and later. See <Ti.WatchSession.hasContentPending> for more infos.
+            and later. See <Titanium.WatchSession.hasContentPending> for more infos.
         type: Boolean
         platforms: [iphone]
       - name: remainingComplicationUserInfoTransfers
         summary: | 
             If the apple watch has complication userInfo transfers left. Only available on iOS 10.0
-            and later. See <Ti.WatchSession.remainingComplicationUserInfoTransfers> for more infos.
+            and later. See <Titanium.WatchSession.remainingComplicationUserInfoTransfers> for more infos.
         type: Boolean
         platforms: [iphone]
       - name: activationState
         summary: | 
             Returns the current activation state of the watch.  Only available on iOS 9.3
-            and later. See <Ti.WatchSession.activationState> for more infos.
+            and later. See <Titanium.WatchSession.activationState> for more infos.
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]
@@ -488,13 +488,13 @@ events:
       - name: isActivated
         summary: | 
             If the apple watch is currently activated. Only available on iOS 9.3
-            and later. See <Ti.WatchSession.isActivated> for more infos.
+            and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
         platforms: [iphone]
       - name: activationState
         summary: | 
             Returns the current activation state of the watch.  Only available on iOS 9.3
-            and later. See <Ti.WatchSession.activationState> for more infos.
+            and later. See <Titanium.WatchSession.activationState> for more infos.
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
         platforms: [iphone]

@@ -37,7 +37,6 @@
     NSString *preferredLang = [languages objectAtIndex:0];
     [TiLocale setLocale:preferredLang];
     if ([TiUtils isIOS9OrGreater]) {
-      //[TIMOB-19566]:Truncate the current locale for parity between iOS versions
       [l setCurrentLocale:[[l currentLocale] substringToIndex:2]];
     }
   }
@@ -54,6 +53,28 @@
   } else {
     l.bundle = [NSBundle bundleWithPath:path];
   }
+}
+
+- (void)setCurrentLocale:(NSString *)currentLocale
+{
+  [[NSUserDefaults standardUserDefaults] setObject:currentLocale forKey:kTiCurrentLocale];
+}
+
+- (NSString *)currentLocale
+{
+  return [[NSUserDefaults standardUserDefaults] stringForKey:kTiCurrentLocale];
+}
+
+- (NSBundle *)bundle
+{
+  NSString *locale = [[NSUserDefaults standardUserDefaults] stringForKey:kTiCurrentLocale];
+  NSString *path = [[NSBundle mainBundle] pathForResource:locale ofType:@"lproj"];
+
+  if (locale == nil || path == nil) {
+    return NSBundle.mainBundle;
+  }
+
+  return [NSBundle bundleWithPath:path];
 }
 
 + (NSString *)getString:(NSString *)key comment:(NSString *)comment

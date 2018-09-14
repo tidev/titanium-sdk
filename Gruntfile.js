@@ -46,9 +46,6 @@ module.exports = function (grunt) {
 
 		const validate = fork(path.join(apidoc, 'validate'), [], { cwd: apidoc, silent: true });
 		let output = '';
-		validate.stdout.on('data', function (data) {
-			output += data;
-		});
 
 		validate.stderr.on('data', function (data) {
 			output += data;
@@ -124,7 +121,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
 	// linting: run eslint against js, standard appc checks, check ios/android format via clang, run doc validation script
-	grunt.registerTask('lint', [ 'appcJs', 'checkFormat:ios', 'checkFormat:android', 'validate:docs' ]);
+	grunt.registerTask('lint', [ 'appcJs:src:lintOnly', 'checkFormat:ios', 'checkFormat:android', 'validate:docs' ]);
 
 	// Tasks for formatting the source code according to our clang/eslint rules
 	grunt.registerTask('format:js', [ 'appcJs:src:lint:fix' ]);

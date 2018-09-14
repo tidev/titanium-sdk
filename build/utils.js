@@ -157,7 +157,7 @@ Utils.downloadURL = function downloadURL(url, integrity, callback) {
 	const downloadPath = cachedDownloadPath(url);
 
 	if (!integrity) {
-		return callback(new Error('No "integrity" value given for %s, may need to run "scons update-modules-integrity" to generate new module listing with updated integrity hashes.', url));
+		return callback(new Error('No "integrity" value given for %s, may need to run "node scons.js modules-integrity" to generate new module listing with updated integrity hashes.', url));
 	}
 	// Check if file already exists and passes integrity check!
 	if (fs.existsSync(downloadPath)) {
@@ -174,6 +174,34 @@ Utils.downloadURL = function downloadURL(url, integrity, callback) {
 		// download and verify integrity
 		downloadWithIntegrity(url, downloadPath, integrity, callback);
 	}
+};
+
+/**
+ * @param  {String}   versionTag [description]
+ * @param  {Function} next        [description]
+ */
+Utils.installSDK = function (versionTag, next) {
+	let dest,
+		osName = os.platform();
+
+	if (osName === 'win32') {
+		dest = path.join(process.env.ProgramData, 'Titanium');
+	}
+
+	if (osName === 'darwin') {
+		osName = 'osx';
+		dest = path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
+	}
+
+	if (osName === 'linux') {
+		osName = 'linux';
+		dest = path.join(process.env.HOME, '.titanium');
+	}
+
+	const zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
+	console.log('Installing %s...', zipfile);
+
+	appc.zip.unzip(zipfile, dest, {}, next);
 };
 
 module.exports = Utils;

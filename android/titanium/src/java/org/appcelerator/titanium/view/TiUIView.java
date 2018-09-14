@@ -126,6 +126,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
 
+	public TiBackgroundDrawable getBackground()
+	{
+		return background;
+	}
+
 	protected KrollDict additionalEventData;
 
 	// Since Android doesn't have a property to check to indicate
@@ -444,7 +449,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_GRADIENT);
 	}
 
-	private boolean hasBorder(KrollDict d)
+	protected boolean hasBorder(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
 			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
@@ -459,7 +464,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
-			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR);
 	}
 
 	public float[] getPreTranslationValue(float[] points)
@@ -546,7 +551,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					public void callAsync(KrollObject krollObject, Object[] args)
 					{
 						bTransformPending.set(false);
-						proxy.handlePendingAnimation(true);
+						p.handlePendingAnimation(true);
 					}
 				});
 				animBuilder.start(p, v);
@@ -1186,19 +1191,24 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		nativeView.setBackground(rippleDrawable);
 	}
 
+	@Override
 	public void onFocusChange(final View v, boolean hasFocus)
 	{
+		// Show/hide the virtual keyboard.
 		if (hasFocus) {
 			TiMessenger.postOnMain(new Runnable() {
+				@Override
 				public void run()
 				{
 					TiUIHelper.requestSoftInputChange(proxy, v);
 				}
 			});
-			fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus));
-		} else {
-			fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus));
 		}
+
+		// Fire a focus/blur event. (This event should not be bubbled.)
+		boolean isBubbled = false;
+		String eventName = hasFocus ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR;
+		fireEvent(eventName, getFocusEventObject(hasFocus), isBubbled);
 	}
 
 	protected KrollDict getFocusEventObject(boolean hasFocus)
@@ -1266,6 +1276,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 				d = null;
 			}
+			if (!(nativeView instanceof AdapterView)) {
+				nativeView.setOnClickListener(null);
+			}
+			nativeView.setOnLongClickListener(null);
+			nativeView.setOnTouchListener(null);
+			nativeView.setOnDragListener(null);
 			nativeView.setOnFocusChangeListener(null);
 			nativeView = null;
 			borderView = null;
@@ -1598,7 +1614,18 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 					if (didScale) {
 						KrollDict data = new KrollDict();
+						data.put(TiC.EVENT_PROPERTY_CURRENT_SPAN, sgd.getCurrentSpan());
+						data.put(TiC.EVENT_PROPERTY_CURRENT_SPAN_X, sgd.getCurrentSpanX());
+						data.put(TiC.EVENT_PROPERTY_CURRENT_SPAN_Y, sgd.getCurrentSpanY());
+						data.put(TiC.EVENT_PROPERTY_TIME, sgd.getEventTime());
+						data.put(TiC.EVENT_PROPERTY_FOCUS_X, sgd.getFocusX());
+						data.put(TiC.EVENT_PROPERTY_FOCUS_Y, sgd.getFocusY());
+						data.put(TiC.EVENT_PROPERTY_PREVIOUS_SPAN, sgd.getPreviousSpan());
+						data.put(TiC.EVENT_PROPERTY_PREVIOUS_SPAN_X, sgd.getPreviousSpanX());
+						data.put(TiC.EVENT_PROPERTY_PREVIOUS_SPAN_Y, sgd.getPreviousSpanY());
 						data.put(TiC.EVENT_PROPERTY_SCALE, sgd.getCurrentSpan() / startSpan);
+						data.put(TiC.EVENT_PROPERTY_TIME_DELTA, sgd.getTimeDelta());
+						data.put(TiC.EVENT_PROPERTY_IN_PROGRESS, sgd.isInProgress());
 						data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
 						data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 

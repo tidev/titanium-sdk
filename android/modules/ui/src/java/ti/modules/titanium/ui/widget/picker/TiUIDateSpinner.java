@@ -90,7 +90,7 @@ public class TiUIDateSpinner extends TiUIView implements WheelView.OnItemSelecte
 		};
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 
-		if (proxy.hasProperty("dayBeforeMonth")) {
+		if (proxy.hasProperty(TiC.PROPERTY_DAY_BEFORE_MONTH)) {
 			// TODO dayBeforeMonth = TiConvert.toBoolean(proxy.getProperties(), "dayBeforeMonth");
 		}
 
@@ -119,33 +119,33 @@ public class TiUIDateSpinner extends TiUIView implements WheelView.OnItemSelecte
 
 		boolean valueExistsInProxy = false;
 
-		if (d.containsKey("value")) {
-			calendar.setTime((Date) d.get("value"));
+		if (d.containsKey(TiC.PROPERTY_VALUE)) {
+			calendar.setTime((Date) d.get(TiC.PROPERTY_VALUE));
 			valueExistsInProxy = true;
 		}
 
-		if (d.containsKey("minDate")) {
+		if (d.containsKey(TiC.PROPERTY_MIN_DATE)) {
 			Calendar c = Calendar.getInstance();
-			minDate.setTime(TiConvert.toDate(d, "minDate"));
+			minDate.setTime(TiConvert.toDate(d, TiC.PROPERTY_MIN_DATE));
 			c.setTime(minDate.getTime());
 		}
 
-		if (d.containsKey("maxDate")) {
+		if (d.containsKey(TiC.PROPERTY_MAX_DATE)) {
 			Calendar c = Calendar.getInstance();
-			maxDate.setTime(TiConvert.toDate(d, "maxDate"));
+			maxDate.setTime(TiConvert.toDate(d, TiC.PROPERTY_MAX_DATE));
 			c.setTime(maxDate.getTime());
 		}
 
-		if (d.containsKey("locale")) {
-			setLocale(TiConvert.toString(d, "locale"));
+		if (d.containsKey(TiC.PROPERTY_LOCALE)) {
+			setLocale(TiConvert.toString(d, TiC.PROPERTY_LOCALE));
 		}
 
-		if (d.containsKey("dayBeforeMonth")) {
-			dayBeforeMonth = TiConvert.toBoolean(d, "dayBeforeMonth");
+		if (d.containsKey(TiC.PROPERTY_DAY_BEFORE_MONTH)) {
+			dayBeforeMonth = TiConvert.toBoolean(d, TiC.PROPERTY_DAY_BEFORE_MONTH);
 		}
 
-		if (d.containsKey("numericMonths")) {
-			numericMonths = TiConvert.toBoolean(d, "numericMonths");
+		if (d.containsKey(TiC.PROPERTY_NUMERIC_MONTHS)) {
+			numericMonths = TiConvert.toBoolean(d, TiC.PROPERTY_NUMERIC_MONTHS);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
@@ -166,7 +166,7 @@ public class TiUIDateSpinner extends TiUIView implements WheelView.OnItemSelecte
 		setValue(calendar.getTimeInMillis(), true);
 
 		if (!valueExistsInProxy) {
-			proxy.setProperty("value", calendar.getTime());
+			proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
 		}
 	}
 
@@ -179,8 +179,14 @@ public class TiUIDateSpinner extends TiUIView implements WheelView.OnItemSelecte
 		} else if (TiC.PROPERTY_VALUE.equals(key)) {
 			Date date = (Date) newValue;
 			setValue(date.getTime());
-		} else if ("locale".equals(key)) {
+		} else if (TiC.PROPERTY_LOCALE.equals(key)) {
 			setLocale(TiConvert.toString(newValue));
+		} else if (TiC.PROPERTY_MIN_DATE.equals(key)) {
+			minDate.setTime(TiConvert.toDate(newValue));
+			setAdapters();
+		} else if (TiC.PROPERTY_MAX_DATE.equals(key)) {
+			maxDate.setTime(TiConvert.toDate(newValue));
+			setAdapters();
 		}
 		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
@@ -357,13 +363,13 @@ public class TiUIDateSpinner extends TiUIView implements WheelView.OnItemSelecte
 		setAdapters();
 
 		syncWheels();
-		proxy.setProperty("value", newVal);
+		proxy.setProperty(TiC.PROPERTY_VALUE, newVal);
 
 		if (isChanged && !suppressEvent) {
 			if (!suppressChangeEvent) {
 				KrollDict data = new KrollDict();
-				data.put("value", newVal);
-				fireEvent("change", data);
+				data.put(TiC.PROPERTY_VALUE, newVal);
+				fireEvent(TiC.EVENT_CHANGE, data);
 			}
 		}
 	}

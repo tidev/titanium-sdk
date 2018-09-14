@@ -2,7 +2,7 @@
 name: Titanium.XML.Document
 summary: The DOM Document returned from <Titanium.XML.parseString>.
 description: |
-    Implements the [DOM Level 2 API](http://www.w3.org/TR/DOM-Level-2-Core/core.html#i-Document) on
+    Implements the [DOM Level 2 API](https://www.w3.org/TR/DOM-Level-2-Core/core.html#i-Document) on
     Android and iOS.
 
     As of version 3.1, Android does not truly support DTDs.  A document with a DTD can be
@@ -215,7 +215,7 @@ methods:
         property that points to this document, but its [parentNode](Titanium.XML.Node.parentNode)
         property is `null`, since it has not been inserted into the current document.
 
-        For more on node ownership, see [ownerDocument issues](http://www.w3.org/DOM/faq.html#ownerdoc)
+        For more on node ownership, see [ownerDocument issues](https://www.w3.org/DOM/faq.html#ownerdoc)
         in the W3C DOM FAQ.
 
     returns:

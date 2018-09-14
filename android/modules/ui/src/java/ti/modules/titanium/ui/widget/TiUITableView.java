@@ -21,6 +21,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.TableViewProxy;
+import ti.modules.titanium.ui.widget.listview.TiNestedListView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
@@ -221,6 +222,14 @@ public class TiUITableView
 					TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
 			}
 		}
+
+		if (d.containsKey(TiC.PROPERTY_SCROLLABLE)) {
+			if (list instanceof TiNestedListView) {
+				boolean isScrollable = TiConvert.toBoolean(d.get(TiC.PROPERTY_SCROLLABLE), true);
+				((TiNestedListView) list).setTouchScrollable(isScrollable);
+			}
+		}
+
 		boolean filterCaseInsensitive = true;
 		if (d.containsKey(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {
 			filterCaseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_FILTER_CASE_INSENSITIVE);
@@ -314,18 +323,28 @@ public class TiUITableView
 			if (Build.VERSION.SDK_INT >= 9) {
 				getListView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 			}
+		} else if (TiC.PROPERTY_SCROLLABLE.equals(key)) {
+			ListView listView = getListView();
+			if (listView instanceof TiNestedListView) {
+				boolean isScrollable = TiConvert.toBoolean(newValue);
+				((TiNestedListView) listView).setTouchScrollable(isScrollable);
+			}
 		} else if (TiC.PROPERTY_MIN_ROW_HEIGHT.equals(key)) {
 			updateView();
 		} else if (TiC.PROPERTY_HEADER_VIEW.equals(key)) {
 			if (oldValue != null) {
 				tableView.removeHeaderView((TiViewProxy) oldValue);
 			}
-			tableView.setHeaderView();
+			if (newValue != null) {
+				tableView.setHeaderView();
+			}
 		} else if (TiC.PROPERTY_FOOTER_VIEW.equals(key)) {
 			if (oldValue != null) {
 				tableView.removeFooterView((TiViewProxy) oldValue);
 			}
-			tableView.setFooterView();
+			if (newValue != null) {
+				tableView.setFooterView();
+			}
 		} else if (key.equals(TiC.PROPERTY_FILTER_ANCHORED)) {
 			tableView.setFilterAnchored(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {

@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 'use strict';
 
-const async = require('async'),
-	utils = require('./utils'),
-	modules = require('../support/module/packaged/modules.json');
+const async = require('async');
+const utils = require('./utils');
+const fs = require('fs-extra');
+const path = require('path');
+const modulesPath = path.join('../support/module/packaged/modules.json');
+const modules = require(modulesPath); // eslint-disable-line security/detect-non-literal-require
 
 const platforms = Object.keys(modules);
 async.map(platforms, (platform, platformNext) => {
@@ -36,5 +39,23 @@ async.map(platforms, (platform, platformNext) => {
 	}
 	// Merge the platforms array into a single object
 	const merged = Object.assign({}, ...results);
-	console.log(JSON.stringify(merged));
+	const formattedJSON = JSON.stringify(merged, null, '\t');
+
+	console.log('\nUpdating modules.json ...');
+
+	// Guard against user errors
+	if (!fs.existsSync(modulesPath)) {
+		console.error('The modules.json does not exist, aborting ...');
+		return;
+	}
+
+	// Write updated modules.json to filesystem
+	fs.writeFile(modulesPath, formattedJSON, err => {
+		if (err) {
+			console.error(`Could not update modules.json. Error: ${err}`);
+			return;
+		}
+
+		console.log('Successfully updated modules.json!');
+	});
 });

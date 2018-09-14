@@ -199,6 +199,19 @@
   [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
 
+#pragma mark - HomeIndicatorAutoHidden
+
+#if IS_XCODE_9
+- (BOOL)prefersHomeIndicatorAutoHidden
+{
+  if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    return [(id<TiWindowProtocol>)_proxy homeIndicatorAutoHide];
+  } else {
+    return NO;
+  }
+}
+#endif
+
 #pragma mark - Status Bar Appearance
 
 - (BOOL)prefersStatusBarHidden
