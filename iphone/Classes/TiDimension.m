@@ -39,10 +39,10 @@ CGFloat convertInchToPixels(CGFloat value)
 
 CGFloat convertPixelsToDip(CGFloat value)
 {
-  if ([TiUtils isRetinaHDDisplay]) {
+  if ([TiUtils is3xRetina]) {
     return value / 3.0;
   }
-  if ([TiUtils isRetinaDisplay]) {
+  if ([TiUtils is2xRetina]) {
     return value / 2.0;
   }
   return value;
@@ -50,10 +50,10 @@ CGFloat convertPixelsToDip(CGFloat value)
 
 CGFloat convertDipToInch(CGFloat value)
 {
-  if ([TiUtils isRetinaHDDisplay]) {
+  if ([TiUtils is3xRetina]) {
     return (value * 3.0) / [TiUtils dpi];
   }
-  if ([TiUtils isRetinaDisplay]) {
+  if ([TiUtils is2xRetina]) {
     return (value * 2.0) / [TiUtils dpi];
   }
   return value / [TiUtils dpi];
@@ -61,10 +61,10 @@ CGFloat convertDipToInch(CGFloat value)
 
 CGFloat convertDipToPixels(CGFloat value)
 {
-  if ([TiUtils isRetinaHDDisplay]) {
+  if ([TiUtils is3xRetina]) {
     return (value * 3.0);
   }
-  if ([TiUtils isRetinaDisplay]) {
+  if ([TiUtils is2xRetina]) {
     return (value * 2.0);
   }
   return value;
