@@ -55,9 +55,7 @@ function fetchScriptsFromJson() {
  * Returns an empty array if no bootstrap files were found.
  */
 function fetchScriptsFromResourcesDirectory() {
-	var JS_EXTENSION = '.js',
-		BOOTSTRAP_SUFFIX = '.bootstrap' + JS_EXTENSION,
-		resourceDirectory = Ti.Filesystem.getFile(Ti.Filesystem.getResourcesDirectory()),
+	var resourceDirectory = Ti.Filesystem.getFile(Ti.Filesystem.getResourcesDirectory()),
 		resourceDirectoryPath = resourceDirectory.nativePath,
 		bootstrapScripts = [];
 
@@ -75,13 +73,13 @@ function fetchScriptsFromResourcesDirectory() {
 						loadFrom(Ti.Filesystem.getFile(file.nativePath, fileNameArray[index]));
 					}
 				}
-			} else if (file.name.endsWith(BOOTSTRAP_SUFFIX)) {
+			} else if (file.name.search(/.bootstrap.js$/) >= 0) {
 				// This is a bootstrap file.
 				// Convert its path to something loadable via require() and add it to the array.
 				bootstrapPath = file.nativePath;
 				bootstrapPath = bootstrapPath.substr(
 					resourceDirectoryPath.length,
-					(bootstrapPath.length - resourceDirectoryPath.length) - JS_EXTENSION.length);
+					(bootstrapPath.length - resourceDirectoryPath.length) - '.js'.length);
 				bootstrapScripts.push(bootstrapPath);
 			}
 		}
