@@ -126,6 +126,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
 
+	public TiBackgroundDrawable getBackground()
+	{
+		return background;
+	}
+
 	protected KrollDict additionalEventData;
 
 	// Since Android doesn't have a property to check to indicate
@@ -459,7 +464,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
-			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR);
 	}
 
 	public float[] getPreTranslationValue(float[] points)
@@ -1770,7 +1775,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
-			touchable.setEnabled(enabled);
+			touchable.setClickable(enabled);
 		}
 		//Checking and setting touch sound for view
 		if (proxy.hasProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED)) {
