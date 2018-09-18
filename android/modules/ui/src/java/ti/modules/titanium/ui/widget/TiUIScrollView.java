@@ -15,10 +15,12 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
+import org.xmlpull.v1.XmlPullParser;
 
 import ti.modules.titanium.ui.RefreshControlProxy;
 
@@ -28,6 +30,8 @@ import android.os.Build;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.widget.NestedScrollView;
+import android.util.AttributeSet;
+import android.util.Xml;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -50,6 +54,9 @@ public class TiUIScrollView extends TiUIView
 	private boolean mScrollingEnabled = true;
 	private boolean isScrolling = false;
 	private boolean isTouching = false;
+
+	private static int verticalAttrId = -1;
+	private static int horizontalAttrId = -1;
 
 	public class TiScrollViewLayout extends TiCompositeLayout
 	{
@@ -315,6 +322,26 @@ public class TiUIScrollView extends TiUIView
 		}
 	}
 
+	// TIMOB-26168: if 'android:scrollbars' is not defined then our scrollbars will never be initialized
+	// so we do this our selves
+	private AttributeSet getAttributeSet(Context context, int resourceId)
+	{
+		AttributeSet attr = null;
+		try {
+			XmlPullParser parser = context.getResources().getXml(resourceId);
+			try {
+				parser.next();
+				parser.nextTag();
+			} catch (Exception e) {
+				// ignore...
+			}
+			attr = Xml.asAttributeSet(parser);
+		} catch (Exception e) {
+			// ignore...
+		}
+		return attr;
+	}
+
 	// same code, different super-classes
 	private class TiVerticalScrollView extends NestedScrollView
 	{
@@ -322,7 +349,7 @@ public class TiUIScrollView extends TiUIView
 
 		public TiVerticalScrollView(Context context, LayoutArrangement arrangement)
 		{
-			super(context);
+			super(context, getAttributeSet(context, verticalAttrId));
 
 			// TIMOB-25359: allow window to re-size when keyboard is shown
 			if (context instanceof TiBaseActivity) {
@@ -334,7 +361,6 @@ public class TiUIScrollView extends TiUIView
 				}
 			}
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
-			setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS);
 			layout = new TiScrollViewLayout(context, arrangement);
 			FrameLayout.LayoutParams params =
 				new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -476,10 +502,9 @@ public class TiUIScrollView extends TiUIView
 
 		public TiHorizontalScrollView(Context context, LayoutArrangement arrangement)
 		{
-			super(context);
+			super(context, getAttributeSet(context, horizontalAttrId));
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 			setScrollContainer(true);
-			setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS);
 
 			// Set up nested scrolling. Improves "SwipeRefreshLayout" touch interception handling.
 			// Note: On Android 5.0 and above, all views support nested child scrolling. We just need to enable it.
@@ -692,6 +717,17 @@ public class TiUIScrollView extends TiUIView
 		super(proxy);
 		getLayoutParams().autoFillsHeight = true;
 		getLayoutParams().autoFillsWidth = true;
+
+		try {
+			if (verticalAttrId == -1) {
+				verticalAttrId = TiRHelper.getResource("xml.titanium_ui_vertical_nested_scrollview");
+			}
+			if (horizontalAttrId == -1) {
+				horizontalAttrId = TiRHelper.getResource("xml.titanium_ui_horizontal_nested_scrollview");
+			}
+		} catch (Exception e) {
+			Log.w(TAG, "could not load NestedScrollView attributes");
+		}
 	}
 
 	@Override

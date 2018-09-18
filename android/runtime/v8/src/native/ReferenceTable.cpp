@@ -64,4 +64,13 @@ jobject ReferenceTable::getReference(jlong key)
 		key);
 }
 
+jboolean ReferenceTable::isStrongReference(jlong key)
+{
+	JNIEnv* env = JNIUtil::getJNIEnv();
+	return env->CallStaticBooleanMethod(
+		JNIUtil::referenceTableClass,
+		JNIUtil::referenceTableIsStrongReferenceMethod,
+		key);
+}
+
 } // namespace titanium

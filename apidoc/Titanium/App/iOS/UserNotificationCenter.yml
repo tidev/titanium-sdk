@@ -8,6 +8,9 @@ extends: Titanium.Module
 platforms: [iphone, ipad]
 osver: {ios: {min: "8.0"}}
 since: "7.3.0"
+excludes:
+    properties: [bubbleParent]
+    methods: [addEventListener, applyProperties, fireEvent, removeEventListener,]
 
 methods:
   - name: getPendingNotifications
@@ -135,8 +138,10 @@ properties:
   - name: identifier
     summary: The notification identifier.
     description: |
-        This property is required in iOS 10 and later and will fallback
-        to "notification" if not set.
+        This property is required in iOS 10+ and will fallback to a generated 
+        UUID-string if not set. It is recommended to manage the identifier 
+        yourself, but you can also get the generated UUID by accessing via 
+        the "userInfo.id" field for parity with older iOS versions.
     optional: false
     since: "7.3.0"
     type: String
@@ -216,6 +221,22 @@ properties:
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
     osver: {ios: {min: "10.0"}}
+
+  - name: criticalAlertSetting
+    summary: |
+        The authorization status to play sounds for critical alerts.
+        Available in Titanium SDK 7.4.0 and later.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: { ios: { min: "12.0" } }
+
+  - name: providesAppNotificationSettings
+    summary: |
+        A Boolean value indicating the system displays a button for in-app notification settings.
+        Available in Titanium SDK 7.4.0 and later.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: { ios: { min: "12.0" } }
 
   - name: alertStyle
     summary: The current alert style used to display notifications.

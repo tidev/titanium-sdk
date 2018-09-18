@@ -84,6 +84,8 @@ import android.view.View.MeasureSpec;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+import com.appcelerator.aps.APSAnalyticsMeta;
+
 /**
  * A set of utility methods focused on UI and View operations.
  */
@@ -650,7 +652,7 @@ public class TiUIHelper
 	private static final int[] BACKGROUND_FOCUSED_STATE = { android.R.attr.state_focused,
 															android.R.attr.state_window_focused,
 															android.R.attr.state_enabled };
-	private static final int[] BACKGROUND_DISABLED_STATE = { -android.R.attr.state_enabled };
+	public static final int[] BACKGROUND_DISABLED_STATE = { -android.R.attr.state_enabled };
 
 	public static StateListDrawable buildBackgroundDrawable(String image, boolean tileImage, String color,
 															String selectedImage, String selectedColor,
@@ -1118,8 +1120,8 @@ public class TiUIHelper
 		if (imm != null) {
 			boolean useForce =
 				(Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT || Build.VERSION.SDK_INT >= 8) ? true : false;
-			String model = TiPlatformHelper.getInstance().getModel();
-			if (model != null && model.toLowerCase().startsWith("droid")) {
+			String model = APSAnalyticsMeta.getModel();
+			if (model.toLowerCase().startsWith("droid")) {
 				useForce = true;
 			}
 			if (show) {

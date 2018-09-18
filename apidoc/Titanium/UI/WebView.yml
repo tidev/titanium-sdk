@@ -608,6 +608,18 @@ properties:
     since: "1.8.0"
     default: true
 
+  - name: mixedContentMode
+    summary: If `true`, allows the loading of insecure resources from a secure origin.
+    description: |
+        On iOS this functionality can be set in the `<plist>` section of the tiapp.xml
+        using the `NSAllowsArbitraryLoads` key as part of the App Transport Security.
+        The plist key is enabled by default, allowing arbitrary loads to be processed.
+    type: Boolean
+    platforms: [android]
+    since: "7.5.0"
+    default: false
+    availability: creation
+
   - name: scalesPageToFit
     summary: If `true`, scale contents to fit the web view.
     description: |
@@ -636,6 +648,10 @@ properties:
     description: |
         On the iOS platform, this is not per-webview. Once you have set this property for a webview
         it will not change for same. But while creating new webview it can be changed to new user agent.
+
+        On Android, changing the user agent after the webview has begun loading content may cause
+        the webview to reload and fire multiple `load` or `beforeload` events. Developers should provide the
+        user agent value in the creation properties to avoid the reload and multiple events firing.
     type: String
     default: System default user-agent value.
     platforms: [android, iphone, ipad]
