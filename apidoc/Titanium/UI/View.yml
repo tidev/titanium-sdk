@@ -268,7 +268,7 @@ events:
         fired when the property [focusable](Titanium.UI.View.focusable) is set to true. On iOS the
         event is generated only when using [Ti.UI.TextArea](Titanium.UI.TextArea), [Ti.UI.TextField](Titanium.UI.TextField)
         and [Ti.UI.SearchBar](Titanium.UI.SearchBar).
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: {android: "3.1.0", iphone: "5.4.0", ipad: "5.4.0"}
     properties:
       - name: keyCode

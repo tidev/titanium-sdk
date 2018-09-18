@@ -1826,6 +1826,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+		this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
 
 		// check for blacklisted files in the Resources directory
@@ -4008,6 +4009,38 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 
 	[ {
 		orientation: 'Portrait',
+		'minimum-system-version': '12.0',
+		name: 'Default-Portrait',
+		subtype: '2688h',
+		scale: [ '3x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '12.0',
+		name: 'Default-Landscape',
+		subtype: '2688h',
+		scale: [ '3x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Portrait',
+		'minimum-system-version': '12.0',
+		name: 'Default-Portrait',
+		subtype: '1792h',
+		scale: [ '2x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '12.0',
+		name: 'Default-Landscape',
+		subtype: '1792h',
+		scale: [ '2x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Portrait',
 		'minimum-system-version': '11.0',
 		name: 'Default-Portrait',
 		subtype: '2436h',
@@ -5602,6 +5635,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					'Default-Landscape-736h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'landscape', width: 2208, height: 1242, scale: 3, subtype: '736h' },
 					// iPhone Landscape - iOS 11 - Retina HD iPhone X (2436x1125)
 					'Default-Landscape-2436h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'landscape', width: 2436, height: 1125, scale: 3, subtype: '2436h' },
+					// iPhone Landscape - iOS 12 - Retina HD iPhone X Max (2688x1242)
+					'Default-Landscape-2688h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 2688, height: 1242, scale: 3, subtype: '2688h' },
+					// iPhone Landscape - iOS 12 - Retina iPhone XR (1792x828)
+					'Default-Landscape-1792h@2x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 1792, height: 828, scale: 2, subtype: '1792h' },
 
 					// iPad Portrait - iOS 7-9 - 1x (????)
 					'Default-Portrait.png':          { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 768, height: 1024, scale: 1 },
@@ -5610,7 +5647,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					// iPhone Portrait - iOS 8,9 - Retina HD 5.5 (1242x2208)
 					'Default-Portrait-736h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'portrait', width: 1242, height: 2208, scale: 3, subtype: '736h' },
 					// iPhone Portrait - iOS 11 - Retina HD iPhone X (1125x2436)
-					'Default-Portrait-2436h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'portrait', width: 1125, height: 2436, scale: 3, subtype: '2436h' }
+					'Default-Portrait-2436h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'portrait', width: 1125, height: 2436, scale: 3, subtype: '2436h' },
+					// iPhone Portrait - iOS 12 - Retina HD iPhone X Max (1242x2688)
+					'Default-Portrait-2688h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 1242, height: 2688, scale: 3, subtype: '2688h' },
+					// iPhone Portrait - iOS 12 - Retina iPhone XR (828x1792)
+					'Default-Portrait-1792h@2x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 828, height: 1792, scale: 2, subtype: '1792h' }
 				},
 				found = {};
 
@@ -5842,6 +5883,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
+									sourceMap: this.sourceMaps || this.deployType === 'development',
 									resourcesDir: this.xcodeAppDir
 								};
 								// generate our transpile target based on tijscore/jscore
