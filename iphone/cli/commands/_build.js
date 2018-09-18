@@ -5816,6 +5816,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			const contents = JSON.stringify(props);
 			if (!fs.existsSync(appPropsFile) || contents !== fs.readFileSync(appPropsFile).toString()) {
 				this.logger.debug(__('Writing %s', appPropsFile.cyan));
+
+				if (this.encryptJS && !fs.existsSync(this.buildAssetsDir)) {
+					wrench.mkdirSyncRecursive(this.buildAssetsDir);
+				}
 				fs.writeFileSync(appPropsFile, contents);
 			} else {
 				this.logger.trace(__('No change, skipping %s', appPropsFile.cyan));
