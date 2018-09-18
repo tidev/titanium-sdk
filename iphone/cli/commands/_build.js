@@ -110,9 +110,13 @@ function iOSBuilder() {
 	// when true, uses the JavaScriptCore that ships with iOS instead of the original Titanium version
 	this.useJSCore = true;
 
+	// when true, uses the new build system (Xcode 9+)
+	this.useNewBuildSystem = true;
+
 	// when false, JavaScript will run on its own thread - the Kroll Thread
 	this.runOnMainThread = true;
 
+	// when true, uses the AutoLayout engine
 	this.useAutoLayout = false;
 
 	// populated the first time getDeviceInfo() is called
@@ -197,9 +201,6 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 			this.logger.banner();
 			appc.string.wrap(issues[i].message, this.config.get('cli.width', 100)).split('\n').forEach(function (line, i, arr) {
 				this.logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-				if (!i && arr.length > 1) {
-					this.logger.log();
-				}
 			}, this);
 			this.logger.log();
 			process.exit(1);
@@ -371,7 +372,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_SUPPORTED_XCODE_FOUND');
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SDKS');
 		this.assertIssue(this.iosInfo.issues, 'IOS_NO_IOS_SIMS');
-		this.assertIssue(this.iosInfo.issues, 'IOS_XCODE_EULA_NOT_ACCEPTED');
 
 		callback();
 	}.bind(this));
@@ -1826,6 +1826,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+		this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
 
 		// check for blacklisted files in the Resources directory
@@ -2047,6 +2048,14 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 					next();
 				}.bind(this));
+			},
+
+			function checkEULA() {
+				if (!this.xcodeEnv.eulaAccepted) {
+					logger.error(__('Xcode %s end-user license agreement has not been accepted.', this.xcodeEnv.version));
+					logger.error(__('Please launch "%s" or run "sudo xcodebuild -license" to accept the license.', this.xcodeEnv.xcodeapp) + '\n');
+					process.exit(1);
+				}
 			},
 
 			function validateTeamId() {
@@ -2384,10 +2393,10 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS;
 	this.currentBuildManifest.showErrorController          = this.showErrorController;
 
-	// Use native JSCore by default (TIMOB-23136)
+	// use native JSCore by default (TIMOB-23136)
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && this.tiapp.ios['use-jscore-framework'] !== false;
 
-	// Remove this check on 7.0.0
+	// remove this check on 8.0.0
 	if (this.tiapp.ios && (this.tiapp.ios.hasOwnProperty('run-on-main-thread'))) {
 		this.logger.warn(__('run-on-main-thread no longer set in the <ios> section of the tiapp.xml. Use <property name="run-on-main-thread" type="bool">true</property> instead'));
 		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.ios['run-on-main-thread'] === true);
@@ -2396,13 +2405,13 @@ iOSBuilder.prototype.initialize = function initialize() {
 	}
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
-	// Deprecate TiJSCore and leave a warning if used anyway
+	// deprecate TiJSCore and leave a warning if used anyway
 	if (!this.useJSCore) {
 		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy JavaScriptCore library in favor of the built-in JavaScriptCore.'));
 		this.logger.warn(__('The legacy JavaScriptCore library will be removed in Titanium SDK 8.0.0.'));
 	}
 
-	// Deprecate KrollThread and leave a warning if used anyway
+	// deprecate KrollThread and leave a warning if used anyway
 	if (!this.runOnMainThread) {
 		this.logger.warn(__('Titanium 7.0.0 deprecates the legacy UI-execution on Kroll-Thread in favor of the Main-Thread.'));
 		this.logger.warn(__('The legacy execution will be removed in Titanium SDK 8.0.0.'));
@@ -2442,6 +2451,19 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.enableLaunchScreenStoryboard = false;
 		this.defaultLaunchScreenStoryboard = false;
 	}
+
+	if (!this.tiapp.ios.hasOwnProperty('use-new-build-system') && appc.version.lt(this.xcodeEnv.version, '10.0.0')) {
+		// if running on Xcode < 10, do not use the new build system by default
+		this.useNewBuildSystem = false;
+	} else if (this.tiapp.ios.hasOwnProperty('use-new-build-system')) {
+		// if explicitly set via tiapp.xml, go with that one
+		this.useNewBuildSystem = this.tiapp.ios['use-new-build-system'];
+	} else {
+		// if not set and Xcode >= 10, use the new build system
+		this.useNewBuildSystem = true;
+	}
+
+	this.currentBuildManifest.useNewBuildSystem = this.useNewBuildSystem;
 
 	if (this.enableLaunchScreenStoryboard && (fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard')))) {
 		this.defaultLaunchScreenStoryboard = false;
@@ -2692,6 +2714,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
+		// check if the deployType changed
+		if (this.deployType !== manifest.deployType) {
+			this.logger.info(__('Forcing rebuild: deployType changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.deployType));
+			this.logger.info('  ' + __('Now: %s', this.deployType));
+			return true;
+		}
+
 		// check if the titanium sdk version changed
 		if (fs.existsSync(this.xcodeProjectConfigFile)) {
 			// we have a previous build, see if the Titanium SDK changed
@@ -2831,7 +2861,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use JavaScriptCore flag has changed
 		if (this.useJSCore !== manifest.useJSCore) {
-			this.logger.info(__('Forcing rebuild: use JSCore flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: use-jscore-framework flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useJSCore));
 			this.logger.info('  ' + __('Now: %s', this.useJSCore));
 			return true;
@@ -2839,7 +2869,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use RunOnMainThread flag has changed
 		if (this.runOnMainThread !== manifest.runOnMainThread) {
-			this.logger.info(__('Forcing rebuild: use RunOnMainThread flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: run-on-main-thread flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.runOnMainThread));
 			this.logger.info('  ' + __('Now: %s', this.runOnMainThread));
 			return true;
@@ -2847,7 +2877,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use UserAutoLayout flag has changed
 		if (this.useAutoLayout !== manifest.useAutoLayout) {
-			this.logger.info(__('Forcing rebuild: use UserAutoLayout flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: use-autolayout flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useAutoLayout));
 			this.logger.info('  ' + __('Now: %s', this.useAutoLayout));
 			return true;
@@ -2855,9 +2885,17 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 
 		// check if the use use-app-thinning flag has changed
 		if (this.useAppThinning !== manifest.useAppThinning) {
-			this.logger.info(__('Forcing rebuild: use use-app-thinning flag changed since last build'));
+			this.logger.info(__('Forcing rebuild: use-app-thinning flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useAppThinning));
 			this.logger.info('  ' + __('Now: %s', this.useAppThinning));
+			return true;
+		}
+
+		// check if the use use-new-build-system flag has changed
+		if (this.useNewBuildSystem !== manifest.useNewBuildSystem) {
+			this.logger.info(__('Forcing rebuild: use-new-build-system flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.useNewBuildSystem));
+			this.logger.info('  ' + __('Now: %s', this.useNewBuildSystem));
 			return true;
 		}
 
@@ -2939,7 +2977,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	this.logger.info(__('Creating Xcode project'));
 
 	const appName = this.tiapp.name,
-		scrubbedAppName = appName.replace(/[-\W]/g, '_'),
+		scrubbedAppName = this.sanitizedAppName(),
 		srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj'),
 		contents = fs.readFileSync(srcFile).toString(),
 		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
@@ -3928,7 +3966,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 			__PROJECT_NAME__: this.tiapp.name,
 			__PROJECT_ID__: this.tiapp.id,
 			__URL__: this.tiapp.id,
-			__URLSCHEME__: this.tiapp.name.replace(/\./g, '_').replace(/ /g, '').toLowerCase(),
+			__URLSCHEME__: this.tiapp.name.replace(/[^0-9a-z]/gi, '').toLowerCase(),
 			__ADDITIONAL_URL_SCHEMES__: fbAppId ? '<string>fb' + fbAppId + '</string>' : ''
 		},
 		resourceDir = path.join(this.projectDir, 'Resources'),
@@ -3970,6 +4008,38 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	});
 
 	[ {
+		orientation: 'Portrait',
+		'minimum-system-version': '12.0',
+		name: 'Default-Portrait',
+		subtype: '2688h',
+		scale: [ '3x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '12.0',
+		name: 'Default-Landscape',
+		subtype: '2688h',
+		scale: [ '3x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Portrait',
+		'minimum-system-version': '12.0',
+		name: 'Default-Portrait',
+		subtype: '1792h',
+		scale: [ '2x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '12.0',
+		name: 'Default-Landscape',
+		subtype: '1792h',
+		scale: [ '2x' ],
+		size: '{414, 896}'
+	},
+	{
 		orientation: 'Portrait',
 		'minimum-system-version': '11.0',
 		name: 'Default-Portrait',
@@ -4401,7 +4471,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 	this.logger.info(__('Copying Titanium iOS files'));
 
 	const nameChanged = !this.previousBuildManifest || this.tiapp.name !== this.previousBuildManifest.name,
-		name = this.tiapp.name.replace(/[-\W]/g, '_'),
+		name = this.sanitizedAppName(),
 		extRegExp = /\.(c|cpp|h|m|mm)$/,
 
 		// files to watch for while copying
@@ -4681,7 +4751,7 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 	}
 
 	const exe = this.xcodeEnv.executables.xcodebuild,
-		args = [ 'clean', '-UseNewBuildSystem=NO' ]; // Use old build system until www.openradar.me/40906897 is fixed
+		args = [ 'clean', '-scheme', this.sanitizedAppName() ];
 	let tries = 0,
 		lastErr = null,
 		done = false;
@@ -5565,6 +5635,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					'Default-Landscape-736h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'landscape', width: 2208, height: 1242, scale: 3, subtype: '736h' },
 					// iPhone Landscape - iOS 11 - Retina HD iPhone X (2436x1125)
 					'Default-Landscape-2436h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'landscape', width: 2436, height: 1125, scale: 3, subtype: '2436h' },
+					// iPhone Landscape - iOS 12 - Retina HD iPhone X Max (2688x1242)
+					'Default-Landscape-2688h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 2688, height: 1242, scale: 3, subtype: '2688h' },
+					// iPhone Landscape - iOS 12 - Retina iPhone XR (1792x828)
+					'Default-Landscape-1792h@2x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 1792, height: 828, scale: 2, subtype: '1792h' },
 
 					// iPad Portrait - iOS 7-9 - 1x (????)
 					'Default-Portrait.png':          { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 768, height: 1024, scale: 1 },
@@ -5573,7 +5647,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					// iPhone Portrait - iOS 8,9 - Retina HD 5.5 (1242x2208)
 					'Default-Portrait-736h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'portrait', width: 1242, height: 2208, scale: 3, subtype: '736h' },
 					// iPhone Portrait - iOS 11 - Retina HD iPhone X (1125x2436)
-					'Default-Portrait-2436h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'portrait', width: 1125, height: 2436, scale: 3, subtype: '2436h' }
+					'Default-Portrait-2436h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'portrait', width: 1125, height: 2436, scale: 3, subtype: '2436h' },
+					// iPhone Portrait - iOS 12 - Retina HD iPhone X Max (1242x2688)
+					'Default-Portrait-2688h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 1242, height: 2688, scale: 3, subtype: '2688h' },
+					// iPhone Portrait - iOS 12 - Retina iPhone XR (828x1792)
+					'Default-Portrait-1792h@2x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 828, height: 1792, scale: 2, subtype: '1792h' }
 				},
 				found = {};
 
@@ -5805,6 +5883,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
+									sourceMap: this.sourceMaps || this.deployType === 'development',
 									resourcesDir: this.xcodeAppDir
 								};
 								// generate our transpile target based on tijscore/jscore
@@ -6529,12 +6608,12 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'archive' : 'build',
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
-		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),
+		'-scheme', this.sanitizedAppName(),
 		'-derivedDataPath', path.join(this.buildDir, 'DerivedData'),
+		'-UseNewBuildSystem=' + (this.useNewBuildSystem ? 'YES' : 'NO'),
 		'OBJROOT=' + path.join(this.buildDir, 'build', 'Intermediates'),
 		'SHARED_PRECOMPS_DIR=' + path.join(this.buildDir, 'build', 'Intermediates', 'PrecompiledHeaders'),
 		'SYMROOT=' + path.join(this.buildDir, 'build', 'Products'),
-		'-UseNewBuildSystem=NO' // Use old build system until www.openradar.me/40906897 is fixed
 	];
 
 	if (this.simHandle) {
@@ -6567,6 +6646,15 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})(this.currentBuildManifest, next);
+};
+
+/**
+ * Returns the sanitized app name to replace invalid characters.
+ *
+ * @returns {String}
+ */
+iOSBuilder.prototype.sanitizedAppName = function sanitizedAppName() {
+	return this.tiapp.name.replace(/[-\W]/g, '_');
 };
 
 function sha1(value) {

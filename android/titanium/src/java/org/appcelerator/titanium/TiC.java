@@ -690,6 +690,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_USER_INTERACTION = "userinteraction";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_PROXIMITY = "proximity";
 
 	/**
@@ -1141,6 +1146,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_BUTTON_CLICK_REQUIRED = "buttonClickRequired";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_BYTE_ORDER = "byteOrder";
 
 	/**
@@ -1282,6 +1292,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CLEAR_ON_EDIT = "clearOnEdit";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CLIP_VIEWS = "clipViews";
 
 	/**
 	 * @module.api
@@ -2238,6 +2253,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MINUTE_INTERVAL = "minuteInterval";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MIXED_CONTENT_MODE = "mixedContentMode";
 
 	/**
 	 * @module.api
