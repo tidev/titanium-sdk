@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -77,8 +77,43 @@
     break;
 
   case AttributeNameParagraphStyle:
+    ENSURE_DICT(value);
     attrName = NSParagraphStyleAttributeName;
-    errorMessage = @"ATTRIBUTE_PARAGRAPH_STYLE not yet supported";
+    NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+
+    for (NSString *key in value) {
+      id objectValue = [value objectForKey:key];
+      if ([key isEqualToString:@"alignment"]) {
+        paragraphStyle.alignment = [[TiUtils numberFromObject:objectValue] unsignedIntegerValue];
+      } else if ([key isEqual:@"firstLineHeadIndent"]) {
+        paragraphStyle.firstLineHeadIndent = [TiUtils dimensionValue:objectValue].value;
+      } else if ([key isEqual:@"headIndent"]) {
+        paragraphStyle.headIndent = [TiUtils dimensionValue:objectValue].value;
+      } else if ([key isEqual:@"tailIndent"]) {
+        paragraphStyle.tailIndent = [TiUtils dimensionValue:objectValue].value;
+      } else if ([key isEqual:@"lineBreakMode"]) {
+        paragraphStyle.lineBreakMode = [[TiUtils numberFromObject:objectValue] unsignedIntegerValue];
+      } else if ([key isEqualToString:@"maximumLineHeight"]) {
+        paragraphStyle.maximumLineHeight = [TiUtils dimensionValue:objectValue].value;
+      } else if ([key isEqualToString:@"minimumLineHeight"]) {
+        paragraphStyle.minimumLineHeight = [TiUtils dimensionValue:objectValue].value;
+      } else if ([key isEqualToString:@"lineSpacing"]) {
+        paragraphStyle.lineSpacing = [TiUtils dimensionValue:objectValue].value;
+      } else if ([key isEqualToString:@"paragraphSpacingAfter"]) {
+        paragraphStyle.paragraphSpacing = [TiUtils dimensionValue:objectValue].value;
+      } else if ([key isEqualToString:@"paragraphSpacingBefore"]) {
+        paragraphStyle.paragraphSpacingBefore = [TiUtils dimensionValue:objectValue].value;
+      } else if ([key isEqualToString:@"lineHeightMultiple"]) {
+        paragraphStyle.lineHeightMultiple = [TiUtils floatValue:objectValue];
+      } else if ([key isEqualToString:@"hyphenationFactor"]) {
+        paragraphStyle.hyphenationFactor = (float)[TiUtils floatValue:objectValue];
+      } else if ([TiUtils isIOS9OrGreater] && [key isEqualToString:@"allowsDefaultTighteningForTruncation"]) {
+        paragraphStyle.allowsDefaultTighteningForTruncation = [TiUtils boolValue:objectValue];
+      } else {
+        DebugLog(@"[WARN] Ti.UI.ATTRIBUTE_PARAGRAPH_STYLE - Unsupported property %@", key);
+      }
+    }
+    attrValue = paragraphStyle;
     break;
 
   case AttributeNameForegroundColor:
@@ -178,11 +213,12 @@
     break;
 
   case AttributeNameLineBreak:
+    DEPRECATED_REPLACED(@"UI.ATTRIBUTE_LINE_BREAK", @"UI.ATTRIBUTE_PARAGRAPH_STYLE.lineBreakMode", @"7.5.0");
     attrName = NSParagraphStyleAttributeName;
-    NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+    NSMutableParagraphStyle *paragraphStyleObject = [[[NSMutableParagraphStyle alloc] init] autorelease];
     NSNumber *num = [TiUtils numberFromObject:value];
-    [paragraphStyle setLineBreakMode:[num unsignedIntegerValue]];
-    attrValue = paragraphStyle;
+    [paragraphStyleObject setLineBreakMode:[num unsignedIntegerValue]];
+    attrValue = paragraphStyleObject;
     break;
   }
   if (errorMessage != nil) {
