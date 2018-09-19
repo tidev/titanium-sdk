@@ -4894,6 +4894,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 		resourcesToCopy = {},
 		jsFiles = {},
+		jsBootstrapFiles = [],
 		cssFiles = {},
 		htmlJsFiles = {},
 		appIcons = {},
@@ -4984,6 +4985,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	this.logger.info(__('Analyzing Resources directory'));
+	walk(path.join(this.titaniumSdkPath, 'common', 'Resources'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources'),           this.xcodeAppDir, platformsRegExp);
 	walk(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources', 'ios'),    this.xcodeAppDir);
@@ -5852,6 +5854,13 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 			async.eachSeries(Object.keys(jsFiles), function (file, next) {
 				setImmediate(function () {
+					// A JS file ending with "*.bootstrap.js" is to be loaded before the "app.js".
+					// Add it as a require() compatible string to bootstrap array if it's a match.
+					const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
+					if (bootstrapPath.endsWith('.bootstrap')) {
+						jsBootstrapFiles.push(bootstrapPath);
+					}
+
 					const info = jsFiles[file];
 					if (this.encryptJS) {
 						if (file.indexOf('/') === 0) {
@@ -5931,6 +5940,25 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					}
 				}.bind(this));
 			}.bind(this), next);
+		},
+
+		function writeBootstrapJson() {
+			this.logger.info(__('Writing bootstrap json'));
+
+			const bootstrapJsonRelativePath = this.encryptJS ? path.join('ti_internal', 'bootstrap_json') : path.join('ti.internal', 'bootstrap.json'),
+				bootstrapJsonAbsolutePath = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, bootstrapJsonRelativePath),
+				bootstrapJsonString = JSON.stringify({ scripts: jsBootstrapFiles });
+
+			this.encryptJS && this.jsFilesToEncrypt.push(bootstrapJsonRelativePath);
+
+			if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath).toString())) {
+				this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
+				fs.writeFileSync(bootstrapJsonAbsolutePath, bootstrapJsonString);
+			} else {
+				this.logger.trace(__('No change, skipping %s', bootstrapJsonAbsolutePath.cyan));
+			}
+
+			this.unmarkBuildDirFile(bootstrapJsonAbsolutePath);
 		},
 
 		function writeAppProps() {
