@@ -340,6 +340,18 @@ properties:
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
+  - name: ATTRIBUTE_PARAGRAPH_STYLE
+    summary: |
+        Use with <Attribute.type> to manages the behaviour of string set.
+    description: |
+        Use <ParagraphAttribute> for the 'value' property in the attribute dictionary.
+        Range for this should be whole string.
+        See <Attribute> for more information on type modes.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "7.5.0"
+    permission: read-only
+
   - name: ATTRIBUTE_STROKE_WIDTH
     summary: |
         Use with <Attribute.type> to specify the width of the stroke text.
@@ -480,6 +492,9 @@ properties:
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK
+    deprecated:
+        since: "7.5.0"
+        notes: Use <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE.lineBreakMode> instead.  
     summary: |
         Use with <Attribute.type> to wrap and truncate the text.
     description: |
