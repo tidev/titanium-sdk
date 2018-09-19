@@ -546,7 +546,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					public void callAsync(KrollObject krollObject, Object[] args)
 					{
 						bTransformPending.set(false);
-						//TIMOB-26204
 						p.handlePendingAnimation(true);
 					}
 				});
