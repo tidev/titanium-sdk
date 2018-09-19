@@ -22,9 +22,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.CurrentActivityListener;
@@ -921,7 +918,7 @@ public class TiUIHelper
 		StringBuilder result = new StringBuilder(100);
 		result.append(cleanedWithoutExtension.substring(0, Math.min(cleanedWithoutExtension.length(), 80)));
 		result.append("_");
-		result.append(new String(Hex.encodeHex(DigestUtils.md5(forHash))).substring(0, 10));
+		result.append(TiDigestUtils.md5Hex(forHash).substring(0, 10));
 
 		String sResult = result.toString();
 		resourceImageKeys.put(url, sResult);

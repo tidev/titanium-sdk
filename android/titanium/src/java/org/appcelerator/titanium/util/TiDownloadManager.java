@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollStreamHelper;
 import org.appcelerator.titanium.io.TiInputStreamWrapper;
