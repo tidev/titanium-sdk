@@ -8,7 +8,8 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'),
+	utilities = require('./utilities/utilities');
 
 describe('Ti.UI.WebView', function () {
 	var win,
@@ -27,7 +28,7 @@ describe('Ti.UI.WebView', function () {
 		win = null;
 	});
 
-	it.iosMissing('#evalJS(string, function) - async variant', function (finish) {
+	it('#evalJS(string, function) - async variant', function (finish) {
 		var webview,
 			hadError = false;
 		win = Ti.UI.createWindow({
@@ -44,7 +45,11 @@ describe('Ti.UI.WebView', function () {
 			// FIXME: Android is dumb and assumes no trailing semicolon!
 			webview.evalJS('Ti.API.info("Hello, World!");"WebView.evalJS.TEST"', function (result) {
 				try {
-					should(result).be.eql('"WebView.evalJS.TEST"'); // FIXME: Why the double-quoting?
+					if (utilities.isAndroid()) {
+						should(result).be.eql('"WebView.evalJS.TEST"'); // FIXME: Why the double-quoting?
+					} else {
+						should(result).be.eql('WebView.evalJS.TEST');
+					}
 
 					finish();
 				} catch (err) {
