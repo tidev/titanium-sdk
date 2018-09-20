@@ -241,8 +241,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)boot
 {
-  DebugLog(@"[INFO] %@/%@ (%s.__GITHASH__)", TI_APPLICATION_NAME, TI_APPLICATION_VERSION, TI_VERSION_STR);
-
   sessionId = [[TiUtils createUUID] retain];
   TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
 #ifndef USE_JSCORE_FRAMEWORK
