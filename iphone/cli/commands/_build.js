@@ -199,7 +199,7 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 	for (let i = 0; i < issues.length; i++) {
 		if ((typeof name === 'string' && issues[i].id === name) || (typeof name === 'object' && name.test(issues[i].id))) {
 			this.logger.banner();
-			appc.string.wrap(issues[i].message, this.config.get('cli.width', 100)).split('\n').forEach(function (line, i, arr) {
+			appc.string.wrap(issues[i].message, this.config.get('cli.width', 100)).split('\n').forEach(function (line) {
 				this.logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
 			}, this);
 			this.logger.log();
