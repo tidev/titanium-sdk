@@ -31,16 +31,15 @@
 
 + (NSString *)defaultLocale
 {
-  TiLocale *l = [TiLocale instance];
-  if (l.currentLocale == nil) {
+  TiLocale *locale = [TiLocale instance];
+  if (locale.currentLocale == nil) {
     NSArray *languages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
     NSString *preferredLang = [languages objectAtIndex:0];
     [TiLocale setLocale:preferredLang];
-    if ([TiUtils isIOS9OrGreater]) {
-      [l setCurrentLocale:[[l currentLocale] substringToIndex:2]];
-    }
+    // TIMOB-19566: Truncate the current locale for parity between iOS versions
+    [locale setCurrentLocale:[[locale currentLocale] substringToIndex:2]];
   }
-  return l.currentLocale;
+  return locale.currentLocale;
 }
 
 + (void)setLocale:(NSString *)locale

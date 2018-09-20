@@ -932,7 +932,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   NSURL *requestedURL = navigationResponse.response.URL;
 
   // If we have request headers set, we do a little hack to persist them across different URL's,
-  // which is not officially supportted by iOS.
+  // which is not officially supported by iOS.
   if (requestHeaders != nil && requestedURL != nil && ![requestedURL.absoluteString isEqualToString:_currentURL.absoluteString]) {
     _currentURL = requestedURL;
     decisionHandler(WKNavigationResponsePolicyCancel);

@@ -137,7 +137,7 @@
     return;
   }
 
-  if ([self typeExists:key] == NO) {
+  if (![self typeExists:key]) {
     return;
   }
 
@@ -217,7 +217,7 @@
 {
   NSString *resultUrl = nil;
 
-  if ([url hasPrefix:@"/"] == YES) {
+  if ([url hasPrefix:@"/"]) {
     url = [url substringFromIndex:1];
   }
 

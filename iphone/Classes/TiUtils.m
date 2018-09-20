@@ -139,21 +139,6 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   return scale > 1.0;
 }
 
-+ (BOOL)isIOS4_2OrGreater
-{
-  return [TiUtils isIOSVersionOrGreater:@"4.2"];
-}
-
-+ (BOOL)isIOS5OrGreater
-{
-  return [TiUtils isIOSVersionOrGreater:@"5.0"];
-}
-
-+ (BOOL)isIOS6OrGreater
-{
-  return [TiUtils isIOSVersionOrGreater:@"6.0"];
-}
-
 + (BOOL)isIOS7OrGreater
 {
   return [TiUtils isIOSVersionOrGreater:@"7.0"];
@@ -211,10 +196,10 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (BOOL)isIPhone4
 {
-  static bool iphone_checked = NO;
-  static bool iphone4 = NO;
-  if (iphone_checked == NO) {
-    iphone_checked = YES;
+  static BOOL iphoneChecked = NO;
+  static BOOL isiPhone4 = NO;
+  if (!iphoneChecked) {
+    iphoneChecked = YES;
     // for now, this is all we know. we assume this
     // will continue to increase with new models but
     // for now we can't really assume
@@ -222,11 +207,11 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
       struct utsname u;
       uname(&u);
       if (!strcmp(u.machine, "iPhone3,1")) {
-        iphone4 = YES;
+        isiPhone4 = YES;
       }
     }
   }
-  return iphone4;
+  return isiPhone4;
 }
 
 + (NSString *)UTCDateForDate:(NSDate *)data
@@ -278,14 +263,7 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (NSString *)encodeQueryPart:(NSString *)unencodedString
 {
-  NSString *result = (NSString *)CFURLCreateStringByAddingPercentEscapes(
-      NULL,
-      (CFStringRef)unencodedString,
-      NULL,
-      (CFStringRef) @"!*'();:@+$,/?%#[]=",
-      kCFStringEncodingUTF8);
-  [result autorelease];
-  return result;
+  return [unencodedString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
 }
 
 + (NSString *)encodeURIParameters:(NSString *)unencodedString
@@ -827,9 +805,6 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
   return url;
 }
 
-const CFStringRef charactersThatNeedEscaping = NULL;
-const CFStringRef charactersToNotEscape = CFSTR(":[]@!$' ()*+,;\"<>%{}|\\^~`#");
-
 + (NSURL *)toURL:(NSString *)relativeString relativeToURL:(NSURL *)rootPath
 {
   /*
@@ -856,34 +831,43 @@ If the new path starts with / and the base url is app://..., we have to massage 
     return [NSURL URLWithString:relativeString];
   }
 
-  NSURL *result = nil;
-
-  // don't bother if we don't at least have a path and it's not remote
-  //TODO: What is this mess? -BTH
-  if ([relativeString hasPrefix:@"http://"] || [relativeString hasPrefix:@"https://"]) {
-    NSRange range = [relativeString rangeOfString:@"/" options:0 range:NSMakeRange(7, [relativeString length] - 7)];
-    if (range.location != NSNotFound) {
-      NSString *firstPortion = [relativeString substringToIndex:range.location];
-      NSString *pathPortion = [relativeString substringFromIndex:range.location];
-      CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-          (CFStringRef)pathPortion, charactersToNotEscape, charactersThatNeedEscaping,
-          kCFStringEncodingUTF8);
-      relativeString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
-      if (escapedPath != NULL) {
-        CFRelease(escapedPath);
+  NSURL *result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+  // If the path looks absolute (but isn't valid), try to make it relative to resource path
+  if ([relativeString hasPrefix:@"/"]) {
+    if (result == nil) {
+      // assume it's a file path with some funkiness in it that caused URL parsing to fail. Try standardizing the path
+      result = [NSURL fileURLWithPath:[relativeString stringByStandardizingPath]];
+    }
+    NSString *rootScheme = [rootPath scheme];
+    NSString *resourcePath = [TiHost resourcePath];
+    BOOL usesApp = [rootScheme isEqualToString:@"app"];
+    if (!usesApp && [rootScheme isEqualToString:@"file"]) {
+      usesApp = [[rootPath path] hasPrefix:resourcePath];
+    }
+    if (usesApp) {
+      if (result && [result isFileURL] && [result checkResourceIsReachableAndReturnError:nil]) {
+        // good URL, no need to treat it like it's relative to resources dir
+        result = [result filePathURL];
+      } else {
+        // bad URL, assume it's relative to app's resources dir
+        result = [NSURL fileURLWithPath:[resourcePath stringByAppendingPathComponent:relativeString]];
       }
     }
-    result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
-  } else {
-    //only add percentescape if there are spaces in relativestring
-    if ([[relativeString componentsSeparatedByString:@" "] count] - 1 == 0) {
-      result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
-    } else {
-      result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
+  }
+  // Fall back if somehow the URL is bad
+  if (result == nil) {
+    // encoding problem - fail fast and make sure we re-escape
+    NSRange range = [relativeString rangeOfString:@"?"];
+    if (range.location != NSNotFound) {
+      NSString *qs = [TiUtils encodeURIParameters:[relativeString substringFromIndex:range.location + 1]];
+      NSString *newurl = [NSString stringWithFormat:@"%@?%@", [relativeString substringToIndex:range.location], qs];
+      result = [NSURL URLWithString:newurl];
     }
   }
-  //TIMOB-18262
-  if (result && ([[result scheme] isEqualToString:@"file"])) {
+
+  // If we have a URL and it's a 'file:' one, check for 2x images
+  // TIMOB-18262
+  if (result && ([result isFileURL])) {
     BOOL isDir = NO;
     BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:[result path] isDirectory:&isDir];
 
@@ -892,29 +876,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
     }
   }
 
-  //TODO: Make this less ugly.
-  if ([relativeString hasPrefix:@"/"]) {
-    NSString *rootScheme = [rootPath scheme];
-    NSString *resourcePath = [TiHost resourcePath];
-    BOOL usesApp = [rootScheme isEqualToString:@"app"];
-    if (!usesApp && [rootScheme isEqualToString:@"file"]) {
-      usesApp = [[rootPath path] hasPrefix:resourcePath];
-    }
-    if (usesApp) {
-      result = [NSURL fileURLWithPath:[resourcePath stringByAppendingPathComponent:relativeString]];
-    }
-  }
-
-  if (result == nil) {
-    //encoding problem - fail fast and make sure we re-escape
-    NSRange range = [relativeString rangeOfString:@"?"];
-    if (range.location != NSNotFound) {
-      NSString *qs = [TiUtils encodeURIParameters:[relativeString substringFromIndex:range.location + 1]];
-      NSString *newurl = [NSString stringWithFormat:@"%@?%@", [relativeString substringToIndex:range.location], qs];
-      return [TiUtils checkFor2XImage:[NSURL URLWithString:newurl]];
-    }
-  }
-  return [TiUtils checkFor2XImage:result];
+  return result;
 }
 
 + (NSURL *)toURL:(NSString *)object proxy:(TiProxy *)proxy
@@ -1204,7 +1166,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
                                                      [NSNumber numberWithDouble:touch.timestamp], @"timestamp",
                                                      nil];
 
-    if ([self isIOS9_1OrGreater]) {
+    if ([self isIOSVersionOrGreater:@"9.1"]) {
       [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
     }
 
@@ -1227,7 +1189,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
     height = statusFrame.size.height;
   }
 
-  CGRect f = [[UIScreen mainScreen] applicationFrame];
+  CGRect f = UIApplication.sharedApplication.keyWindow.frame;
   return CGRectMake(f.origin.x, height, f.size.width, f.size.height);
 }
 
@@ -1446,11 +1408,11 @@ If the new path starts with / and the base url is app://..., we have to massage 
       appurlstr = [appurlstr substringFromIndex:1];
     }
 #if TARGET_IPHONE_SIMULATOR
-    if (app == YES && leadingSlashRemoved) {
+    if (app && leadingSlashRemoved) {
       // on simulator we want to keep slash since it's coming from file
       appurlstr = [@"/" stringByAppendingString:appurlstr];
     }
-    if (TI_APPLICATION_RESOURCE_DIR != nil && [TI_APPLICATION_RESOURCE_DIR isEqualToString:@""] == NO) {
+    if (TI_APPLICATION_RESOURCE_DIR != nil && ![TI_APPLICATION_RESOURCE_DIR isEqualToString:@""]) {
       if ([appurlstr hasPrefix:TI_APPLICATION_RESOURCE_DIR]) {
         if ([[NSFileManager defaultManager] fileExistsAtPath:appurlstr]) {
           return [NSData dataWithContentsOfFile:appurlstr];
@@ -1583,7 +1545,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 + (CGRect)frameForController:(UIViewController *)theController
 {
   CGRect mainScreen = [[UIScreen mainScreen] bounds];
-  CGRect rect = [[UIScreen mainScreen] applicationFrame];
+  CGRect rect = UIApplication.sharedApplication.keyWindow.frame;
   NSUInteger edges = [theController edgesForExtendedLayout];
   //Check if I cover status bar
   if (((edges & UIRectEdgeTop) != 0)) {
@@ -2015,15 +1977,12 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (BOOL)forceTouchSupported
 {
-  if ([self isIOS9OrGreater] == NO) {
-    return NO;
-  }
   return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
 }
 
 + (BOOL)livePhotoSupported
 {
-  return [self isIOS9_1OrGreater] == YES;
+  return [self isIOSVersionOrGreater:@"9.1"];
 }
 
 + (NSString *)currentArchitecture
@@ -2045,7 +2004,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (BOOL)validatePencilWithTouch:(UITouch *)touch
 {
-  if ([self isIOS9_1OrGreater]) {
+  if ([self isIOSVersionOrGreater:@"9.1"]) {
     return [touch type] == UITouchTypeStylus;
   } else {
     return NO;

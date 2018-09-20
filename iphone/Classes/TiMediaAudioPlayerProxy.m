@@ -30,6 +30,7 @@
   }
 
   [self removeNotificationObserver];
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 
   _player = nil;
   [super _destroy];
@@ -307,7 +308,10 @@
 
   [[self player] pause];
   [[self player] seekToTime:kCMTimeZero];
-  [[TiMediaAudioSession sharedSession] stopAudioSession];
+
+  if ([[TiMediaAudioSession sharedSession] isActive]) {
+    [[TiMediaAudioSession sharedSession] stopAudioSession];
+  }
 }
 
 - (void)pause:(id)unused
@@ -371,7 +375,7 @@
 
   // The AVPlayer does not properly support state management on iOS < 10.
   // Remove this once we bump the minimum iOS version to 10+.
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     // iOS 10+: For playbackState property / playbackstate event
     [[self player] addObserver:self forKeyPath:@"timeControlStatus" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
   } else {
@@ -404,7 +408,7 @@
     return;
   }
 
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     [[self player] removeObserver:self forKeyPath:@"timeControlStatus"];
   } else {
     [[self player] removeObserver:self forKeyPath:@"rate"];
@@ -416,7 +420,7 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
 {
-  if ([TiUtils isIOS10OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
     if (object == _player && [keyPath isEqualToString:@"timeControlStatus"]) {
       [self handleTimeControlStatusNotification:nil];
     }

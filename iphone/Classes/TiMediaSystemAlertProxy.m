@@ -46,7 +46,7 @@
   if ([url_ isKindOfClass:[NSString class]]) {
     url = [[TiUtils toURL:url_ proxy:self] retain];
 
-    if ([url isFileURL] == NO) {
+    if (![url isFileURL]) {
 #ifndef __clang_analyzer__
       // we need to download it and save it off into temp file
       NSData *data = [NSData dataWithContentsOfURL:url];

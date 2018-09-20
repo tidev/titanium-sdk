@@ -130,18 +130,14 @@ static NSOperationQueue *_operationQueue = nil;
 {
   id arg = [args objectAtIndex:0];
   NSString *unencodedString = [TiUtils stringValue:arg];
-  return [(NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
-      (CFStringRef)unencodedString,
-      NULL,
-      (CFStringRef) @"!*'();:@+$,/?%#[]=&",
-      kCFStringEncodingUTF8) autorelease];
+  return [unencodedString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 }
 
 - (id)decodeURIComponent:(id)args
 {
   id arg = [args objectAtIndex:0];
   NSString *encodedString = [TiUtils stringValue:arg];
-  return [(NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (CFStringRef)encodedString, CFSTR(""), kCFStringEncodingUTF8) autorelease];
+  return [encodedString stringByRemovingPercentEncoding];
 }
 
 // Socket submodule

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -25,8 +25,8 @@
 #import "TiUIWindowProxy.h"
 #endif
 
-#define IGNORE_IF_NOT_OPENED                      \
-  if (!windowOpened || [self viewAttached] == NO) \
+#define IGNORE_IF_NOT_OPENED                 \
+  if (!windowOpened || ![self viewAttached]) \
     return;
 
 static NSArray *touchEventsArray;
@@ -173,7 +173,7 @@ static NSArray *touchEventsArray;
 {
 #if IS_XCODE_9
   TiUIWindowProxy *windowProxy = nil;
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     windowProxy = (TiUIWindowProxy *)self;
     if (arg == windowProxy.safeAreaViewProxy) {
       // If adding the safeAreaViewProxy, it need to be add on window.
@@ -284,7 +284,7 @@ static NSArray *touchEventsArray;
 - (void)replaceAt:(id)args
 {
 #if IS_XCODE_9
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy replaceAt:args];
@@ -307,7 +307,7 @@ static NSArray *touchEventsArray;
 - (void)remove:(id)arg
 {
 #if IS_XCODE_9
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy remove:arg];
@@ -378,7 +378,7 @@ static NSArray *touchEventsArray;
 - (void)removeAllChildren:(id)arg
 {
 #if IS_XCODE_9
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy removeAllChildren:arg];
@@ -1219,7 +1219,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   // that this proxy is part of will open and is ready for
   // the views to be attached
 
-  if (windowOpened == YES) {
+  if (windowOpened) {
     pthread_rwlock_unlock(&childrenLock);
     return;
   }
@@ -1352,7 +1352,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (BOOL)viewReady
 {
-  return view != nil && CGRectIsEmpty(view.bounds) == NO && CGRectIsNull(view.bounds) == NO &&
+  return view != nil && !CGRectIsEmpty(view.bounds) && !CGRectIsNull(view.bounds) &&
       [view superview] != nil;
 }
 
@@ -1364,7 +1364,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)setPreviewContext:(id)context
 {
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
-  if ([TiUtils forceTouchSupported] == NO) {
+  if (![TiUtils forceTouchSupported]) {
     NSLog(@"[WARN] 3DTouch is not available on this device.");
     return;
   }
@@ -1494,7 +1494,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 #if IS_XCODE_9
 - (void)createSafeAreaViewProxyForWindowProperties:(NSDictionary *)properties
 {
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     /*
      Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
      */
@@ -2750,7 +2750,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     return;
   }
 
-  if (optimize == NO) {
+  if (!optimize) {
     TiUIView *childView = [child view];
     if ([childView superview] != ourView) {
       [self insertSubview:childView forProxy:child];
@@ -2776,7 +2776,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   horizontalLayoutBoundary = 0.0;
   horizontalLayoutRowHeight = 0.0;
 
-  if (optimize == NO) {
+  if (!optimize) {
     OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
   }
 
@@ -2796,7 +2796,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   }
   [childrenArray release];
 
-  if (optimize == NO) {
+  if (!optimize) {
     OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
   }
 #endif

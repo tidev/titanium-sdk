@@ -140,7 +140,7 @@ static BOOL alertShowing = NO;
     curIndex++;
   }
 
-  if ([TiUtils isIOS9OrGreater] && preferredIndex >= 0) {
+  if (preferredIndex >= 0) {
     [alertController setPreferredAction:[[alertController actions] objectAtIndex:preferredIndex]];
   }
 

@@ -156,7 +156,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
     viewAttached = [(TiViewProxy *)target viewAttached];
   }
 
-  BOOL useThisThread = isMainThread == YES || viewAttached == NO;
+  BOOL useThisThread = isMainThread || !viewAttached;
 
   for (NSString *thisKey in keySequence) {
     DoProxyDelegateReadKeyFromProxy(target, thisKey, proxy, nullObject, useThisThread);

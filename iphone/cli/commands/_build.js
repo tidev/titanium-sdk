@@ -1429,11 +1429,6 @@ iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
 
 	// process min ios version
 	this.minIosVersion = tiapp.ios['min-ios-ver'] && appc.version.gt(tiapp.ios['min-ios-ver'], this.packageJson.minIosVersion) ? tiapp.ios['min-ios-ver'] : this.packageJson.minIosVersion;
-	if (this.hasWatchAppV2orNewer && appc.version.lt(this.minIosVersion, '9.0')) {
-		this.minIosVersion = '9.0';
-	} else if (tiapp.ios['enable-launch-screen-storyboard'] && appc.version.lt(this.minIosVersion, '8.0')) {
-		this.minIosVersion = '8.0';
-	}
 
 	// process device family
 	const deploymentTargets = tiapp['deployment-targets'];
@@ -1804,6 +1799,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// Transpilation details
 		this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+		this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 		// this.minSupportedIosSdk holds the target ios version to transpile down to
 
 		// check for blacklisted files in the Resources directory
@@ -2096,15 +2092,15 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 				// figure out the min-ios-ver that this app is going to support
 				let defaultMinIosSdk = this.packageJson.minIosVersion;
 
-				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(defaultMinIosSdk, '8.0')) {
-					defaultMinIosSdk = '8.0';
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(defaultMinIosSdk, '9.0')) {
+					defaultMinIosSdk = '9.0';
 				}
 
 				this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosSdk;
 
-				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '8.0')) {
-					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '8.0'));
-					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '8.0'));
+				if (version.gte(this.iosSdkVersion, '10.0') && version.lt(this.minIosVer, '9.0')) {
+					logger.warn(__('The %s of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version %s', 'min-ios-ver', '9.0'));
+					logger.warn(__('Consider bumping the %s to at least %s', 'min-ios-ver', '9.0'));
 				} else if (version.gte(this.iosSdkVersion, '6.0') && version.lt(this.minIosVer, defaultMinIosSdk)) {
 					logger.info(__('Building for iOS %s; using %s as minimum iOS version', version.format(this.iosSdkVersion, 2).cyan, defaultMinIosSdk.cyan));
 					this.minIosVer = defaultMinIosSdk;
@@ -3876,7 +3872,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 			__PROJECT_NAME__: this.tiapp.name,
 			__PROJECT_ID__: this.tiapp.id,
 			__URL__: this.tiapp.id,
-			__URLSCHEME__: this.tiapp.name.replace(/\./g, '_').replace(/ /g, '').toLowerCase(),
+			__URLSCHEME__: this.tiapp.name.replace(/[^0-9a-z]/gi, '').toLowerCase(),
 			__ADDITIONAL_URL_SCHEMES__: fbAppId ? '<string>fb' + fbAppId + '</string>' : ''
 		},
 		resourceDir = path.join(this.projectDir, 'Resources'),
@@ -5756,6 +5752,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
+									sourceMap: this.sourceMaps || this.deployType === 'development',
 									resourcesDir: this.xcodeAppDir,
 									targets: {
 										ios: this.minSupportedIosSdk
@@ -5819,6 +5816,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			const contents = JSON.stringify(props);
 			if (!fs.existsSync(appPropsFile) || contents !== fs.readFileSync(appPropsFile).toString()) {
 				this.logger.debug(__('Writing %s', appPropsFile.cyan));
+
+				if (this.encryptJS && !fs.existsSync(this.buildAssetsDir)) {
+					wrench.mkdirSyncRecursive(this.buildAssetsDir);
+				}
 				fs.writeFileSync(appPropsFile, contents);
 			} else {
 				this.logger.trace(__('No change, skipping %s', appPropsFile.cyan));

@@ -38,12 +38,12 @@
         //If the mode is *not* TI_WRITE and the file path is non-existent, throw exception
         //Otherwise, create a blank file at the specified path
 
-        NSFileManager *fm = [NSFileManager defaultManager];
-        if ([fm fileExistsAtPath:filePath] == NO) {
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        if (![fileManager fileExistsAtPath:filePath]) {
           if (mode != TI_WRITE) {
             [NSException raise:NSInternalInconsistencyException format:@"File does not exist at path %@", filePath, nil];
           }
-          BOOL created = [fm createFileAtPath:filePath contents:[NSData data] attributes:nil];
+          BOOL created = [fileManager createFileAtPath:filePath contents:[NSData data] attributes:nil];
           if (!created) {
             [NSException raise:NSInternalInconsistencyException format:@"An error occurred while trying to create the file."];
           }

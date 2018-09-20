@@ -78,11 +78,6 @@ public class TiUIWebView extends TiUIView
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
 
-	// TIMOB-25462: minor 'hack' to prevent 'beforeload' and 'load' being
-	// called when the user-agent has been changed, this is a chromium bug
-	// https://bugs.chromium.org/p/chromium/issues/detail?id=315891
-	public boolean hasSetUserAgent = false;
-
 	private static enum reloadTypes { DEFAULT, DATA, HTML, URL }
 
 	private reloadTypes reloadMethod = reloadTypes.DEFAULT;
@@ -457,6 +452,11 @@ public class TiUIWebView extends TiUIView
 			}
 		}
 
+		// set user-agent befoe loading url to avoid immediate reload
+		if (d.containsKey(TiC.PROPERTY_USER_AGENT)) {
+			((WebViewProxy) getProxy()).setUserAgent(d.getString(TiC.PROPERTY_USER_AGENT));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_URL)
 			&& !TiC.URL_ANDROID_ASSET_RESOURCES.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
 			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
@@ -495,10 +495,6 @@ public class TiUIWebView extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_DISABLE_CONTEXT_MENU)) {
 			disableContextMenu = TiConvert.toBoolean(d, TiC.PROPERTY_DISABLE_CONTEXT_MENU);
-		}
-
-		if (d.containsKey(TiC.PROPERTY_USER_AGENT)) {
-			((WebViewProxy) getProxy()).setUserAgent(d.getString(TiC.PROPERTY_USER_AGENT));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ZOOM_LEVEL)) {
@@ -734,11 +730,11 @@ public class TiUIWebView extends TiUIView
 	}
 
 	/**
-	 * Loads HTML content into the web view.  Note that the "historyUrl" property 
-	 * must be set to non null in order for the web view history to work correctly 
-	 * when working with local files (IE:  goBack() and goForward() will not work if 
+	 * Loads HTML content into the web view.  Note that the "historyUrl" property
+	 * must be set to non null in order for the web view history to work correctly
+	 * when working with local files (IE:  goBack() and goForward() will not work if
 	 * null is used)
-	 * 
+	 *
 	 * @param html					HTML data to load into the web view
 	 * @param baseUrl				url to associate with the data being loaded
 	 * @param mimeType			mime type of the data being loaded
@@ -911,7 +907,6 @@ public class TiUIWebView extends TiUIView
 	{
 		WebView currWebView = getWebView();
 		if (currWebView != null) {
-			hasSetUserAgent = true;
 			currWebView.getSettings().setUserAgentString(userAgentString);
 		}
 	}

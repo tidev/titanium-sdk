@@ -471,7 +471,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   NSLog(@"[MEMORY DEBUG] DESTROY: %@", self);
 #endif
 
-  if (shutdown == NO) {
+  if (!shutdown) {
     shutdownCondition = [condition retain];
     shutdown = YES;
     // fire a notification event to our listeners
@@ -596,7 +596,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     [cls performSelector:@selector(willStopNewContext:bridge:) withObject:kroll withObject:self];
   }
 #endif
-  if (shutdown == NO) {
+  if (!shutdown) {
     shutdown = YES;
     // fire a notification event to our listeners
     WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!

@@ -245,7 +245,7 @@
 {
   NSString *calendarPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCalendarsUsageDescription"];
 
-  if ([TiUtils isIOS10OrGreater] && !calendarPermission) {
+  if ([TiUtils isIOSVersionOrGreater:@"10.0"] && !calendarPermission) {
     NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCalendarsUsageDescription\" inside the plist in your tiapp.xml when accessing the native calendar. Please add the key and re-run the application.");
   }
 

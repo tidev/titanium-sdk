@@ -58,7 +58,7 @@
     }
 
     // For iOS 10+, use the UserNotifications framerwork
-    if ([TiUtils isIOS10OrGreater]) {
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
       // For iOS 11+, offer new constructors
       if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
 #if IS_XCODE_10
