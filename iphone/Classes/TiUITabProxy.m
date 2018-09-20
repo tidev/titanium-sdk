@@ -256,10 +256,6 @@
   [window setTab:self];
   [window setParentOrientationController:self];
 
-  TiUIView *view = [window view];
-  TiViewController *controller = (TiViewController *)[window hostingController];
-  [view setFrame:controller.view.bounds];
-
   //Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
     args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
@@ -267,6 +263,10 @@
       args = [NSArray arrayWithObject:args];
     }
     [window open:args];
+
+    TiUIView *view = [window view];
+    TiViewController *controller = (TiViewController *)[window hostingController];
+    [view setFrame:controller.view.bounds];
     return;
   }
 

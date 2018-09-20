@@ -47,6 +47,16 @@
   return NUMBOOL(YES);
 }
 
+- (NSNumber *)isFile:(id)unused
+{
+  return NUMBOOL(YES);
+}
+
+- (NSNumber *)isDirectory:(id)unused
+{
+  return NUMBOOL(NO);
+}
+
 - (id)readonly
 {
   return NUMBOOL(YES);

@@ -21,7 +21,7 @@ def runSecurityChecks = isMainlineBranch // run security checks if on mainline b
 
 // Variables we can change
 def nodeVersion = '8.9.1' // NOTE that changing this requires we set up the desired version on jenkins master first!
-def npmVersion = '6.1.0' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
+def npmVersion = 'latest' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
 
 // Variables which we assign and share between nodes
 // Don't modify these yourself, these are generated during the build
@@ -39,66 +39,73 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 			labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
 		}
 		node(labels) {
-			timeout(20) {
-				// Unarchive the osx build of the SDK (as a zip)
-				sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
-				unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip'] // grab the osx zip from our current build
-				def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
-				// if our test suite already exists, delete it...
-				sh 'rm -rf titanium-mobile-mocha-suite'
-				// clone the tests suite fresh
-				// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
-				dir('titanium-mobile-mocha-suite') {
-					// TODO Do a shallow clone, using same credentials as from scm object
-					try {
+			// Unarchive the osx build of the SDK (as a zip)
+			sh 'rm -rf osx.zip' // delete osx.zip file if it already exists
+			unarchive mapping: ['dist/mobilesdk-*-osx.zip': 'osx.zip'] // grab the osx zip from our current build
+			def zipName = sh(returnStdout: true, script: 'ls osx.zip/dist/mobilesdk-*-osx.zip').trim()
+			// if our test suite already exists, delete it...
+			sh 'rm -rf titanium-mobile-mocha-suite'
+			// clone the tests suite fresh
+			// FIXME Clone once on initial node and use stash/unstash to ensure all OSes use exact same checkout revision
+			dir('titanium-mobile-mocha-suite') {
+				// TODO Do a shallow clone, using same credentials as from scm object
+				try {
+					timeout(5) {
 						git changelog: false, poll: false, credentialsId: 'd05dad3c-d7f9-4c65-9cb6-19fef98fc440', url: 'https://github.com/appcelerator/titanium-mobile-mocha-suite.git', branch: testSuiteBranch
-					} catch (e) {
-						def msg = "Failed to clone the titanium-mobile-mocha-suite test suite from branch ${testSuiteBranch}. Are you certain that the test suite repo has that branch created?"
-						echo msg
-						manager.addWarningBadge(msg)
-						throw e
 					}
+				} catch (e) {
+					def msg = "Failed to clone the titanium-mobile-mocha-suite test suite from branch ${testSuiteBranch}. Are you certain that the test suite repo has that branch created?"
+					echo msg
+					manager.addWarningBadge(msg)
+					throw e
 				}
-				// copy over any overridden unit tests into this workspace
-				sh 'rm -rf tests'
-				unstash 'override-tests'
-				sh 'cp -R tests/ titanium-mobile-mocha-suite'
-				// Now run the unit test suite
-				dir('titanium-mobile-mocha-suite') {
-					nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
-						ensureNPM(npmVersion)
-						sh 'npm ci'
-						dir('scripts') {
-							try {
+			}
+			// copy over any overridden unit tests into this workspace
+			sh 'rm -rf tests'
+			unstash 'override-tests'
+			sh 'cp -R tests/ titanium-mobile-mocha-suite'
+			// Now run the unit test suite
+			dir('titanium-mobile-mocha-suite') {
+				nodejs(nodeJSInstallationName: "node ${nodeVersion}") {
+					ensureNPM(npmVersion)
+					sh 'npm ci'
+					dir('scripts') {
+						try {
+							timeout(20) {
 								sh "node test.js -b ../../${zipName} -p ${os}"
-							} catch (e) {
-								if ('ios'.equals(os)) {
-									// Gather the crash report(s)
-									def home = sh(returnStdout: true, script: 'printenv HOME').trim()
-									sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
-									archiveArtifacts 'mocha_*.crash'
-									sh 'rm -f mocha_*.crash'
-								} else {
-									// FIXME gather crash reports/tombstones for Android?
-								}
-								throw e
-							} finally {
-								// Kill the emulators!
-								if ('android'.equals(os)) {
-									sh 'adb shell am force-stop com.appcelerator.testApp.testing'
-									sh 'adb uninstall com.appcelerator.testApp.testing'
-									sh 'killall -9 emulator || echo ""'
-									sh 'killall -9 emulator64-arm || echo ""'
-									sh 'killall -9 emulator64-x86 || echo ""'
-								} // if
-							} // finally
-							// save the junit reports as artifacts explicitly so danger.js can use them later
-							stash includes: 'junit.*.xml', name: "test-report-${os}"
-							junit 'junit.*.xml'
-						} // dir('scripts')
-					} // nodejs
-				} // dir('titanium-mobile-mocha-suite')
-			} // timeout
+							} // timeout
+						} catch (e) {
+							if ('ios'.equals(os)) {
+								// Gather the crash report(s)
+								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
+								sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
+								archiveArtifacts 'mocha_*.crash'
+								sh 'rm -f mocha_*.crash'
+							} else {
+								// gather crash reports/tombstones for Android
+								sh 'adb pull /data/tombstones'
+								archiveArtifacts 'tombstones/'
+								sh 'rm -f tombstones/'
+								// wipe tombstones and re-build dir with proper permissions/ownership on emulator
+								sh 'adb shell rm -rf /data/tombstones'
+								sh 'adb shell mkdir -m 771 /data/tombstones'
+								sh 'adb shell chown system:system /data/tombstones'
+							}
+							throw e
+						} finally {
+							// Kill the emulators!
+							if ('android'.equals(os)) {
+								sh 'adb shell am force-stop com.appcelerator.testApp.testing'
+								sh 'adb uninstall com.appcelerator.testApp.testing'
+								killAndroidEmulators()
+							} // if
+						} // finally
+						// save the junit reports as artifacts explicitly so danger.js can use them later
+						stash includes: 'junit.*.xml', name: "test-report-${os}"
+						junit 'junit.*.xml'
+					} // dir('scripts')
+				} // nodejs
+			} // dir('titanium-mobile-mocha-suite')
 		}
 	}
 }

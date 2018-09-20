@@ -616,7 +616,7 @@ properties:
         The plist key is enabled by default, allowing arbitrary loads to be processed.
     type: Boolean
     platforms: [android]
-    since: "7.4.0"
+    since: "7.5.0"
     default: false
     availability: creation
 
@@ -648,6 +648,10 @@ properties:
     description: |
         On the iOS platform, this is not per-webview. Once you have set this property for a webview
         it will not change for same. But while creating new webview it can be changed to new user agent.
+
+        On Android, changing the user agent after the webview has begun loading content may cause
+        the webview to reload and fire multiple `load` or `beforeload` events. Developers should provide the
+        user agent value in the creation properties to avoid the reload and multiple events firing.
     type: String
     default: System default user-agent value.
     platforms: [android, iphone, ipad]

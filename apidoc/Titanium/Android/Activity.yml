@@ -344,6 +344,26 @@ events:
         in the Android Developer Reference.
     since: "3.2.0"
 
+  - name: userinteraction
+    summary: Called whenever a key, touch, or trackball event is dispatched to the activity.
+    description: |
+        Implement this method if you wish to know that the user has interacted with the device in some 
+        way while your activity is running. This event and `userleavehint` are intended to help activities 
+        manage status bar notifications intelligently; specifically, for helping activities determine the 
+        proper time to cancel a notfication.
+
+        All calls to your activity's "userleavehint" event will be accompanied by calls to "userinteraction".
+        This ensures that your activity will be told of relevant user activity such as pulling down the 
+        notification pane and touching an item there.
+
+        Note that this callback will be invoked for the touch down action that begins a touch gesture, 
+        but may not be invoked for the touch-moved and touch-up actions that follow.
+
+        See also:
+        [onUserInteraction](https://developer.android.com/reference/android/app/Activity.html#onUserInteraction())
+        in the Android Developer Reference.
+    since: "7.5.0"
+
 properties:
 
   - name: actionBar
