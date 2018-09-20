@@ -30,6 +30,9 @@ using namespace v8;
 namespace titanium {
 
 Persistent<FunctionTemplate> Proxy::baseProxyTemplate;
+Persistent<String> Proxy::javaClassSymbol;
+Persistent<String> Proxy::constructorSymbol;
+Persistent<String> Proxy::inheritSymbol;
 Persistent<String> Proxy::propertiesSymbol;
 Persistent<String> Proxy::lengthSymbol;
 Persistent<String> Proxy::sourceUrlSymbol;
@@ -42,6 +45,10 @@ Proxy::Proxy() :
 void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 {
 	Isolate* isolate = context->GetIsolate();
+	Local<String> javaClass = NEW_SYMBOL(isolate, "__javaClass__");
+	javaClassSymbol.Reset(isolate, javaClass);
+	constructorSymbol.Reset(isolate, NEW_SYMBOL(isolate, "constructor"));
+	inheritSymbol.Reset(isolate, NEW_SYMBOL(isolate, "inherit"));
 	propertiesSymbol.Reset(isolate, NEW_SYMBOL(isolate, "_properties"));
 	lengthSymbol.Reset(isolate, NEW_SYMBOL(isolate, "length"));
 	sourceUrlSymbol.Reset(isolate, NEW_SYMBOL(isolate, "sourceUrl"));
@@ -147,7 +154,7 @@ void Proxy::setProperty(Local<Name> property, Local<Value> value, const Property
 	setPropertyOnProxy(isolate, property, value, info.This());
 }
 
-static void onPropertyChangedForProxy(Isolate* isolate, Local<Name> property, Local<Value> value, Local<Object> proxyObject)
+static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, Local<Value> value, Local<Object> proxyObject)
 {
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(proxyObject);
 
@@ -158,7 +165,7 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<Name> property, Lo
 	}
 	// FIXME how can we handle symbols?
 	Local<Context> context = isolate->GetCurrentContext();
-	jstring javaProperty = TypeConverter::jsStringToJavaString(isolate, env, property->ToString(context).FromMaybe(String::Empty(isolate)));
+	jstring javaProperty = TypeConverter::jsStringToJavaString(isolate, env, property);
 	bool javaValueIsNew;
 	jobject javaValue = TypeConverter::jsValueToJavaObject(isolate, env, value, &javaValueIsNew);
 
@@ -190,7 +197,7 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<Name> property, Lo
 void Proxy::onPropertyChanged(Local<Name> property, Local<Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	Isolate* isolate = info.GetIsolate();
-	onPropertyChangedForProxy(isolate, property, value, info.Holder());
+	onPropertyChangedForProxy(isolate, property->ToString(isolate), value, info.Holder());
 }
 
 // This variant is used when accessing a property through a getter method (i.e. setText('whatever'))
@@ -208,7 +215,7 @@ void Proxy::onPropertyChanged(const v8::FunctionCallbackInfo<v8::Value>& args)
 	LOGW(TAG, "Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.%s = value; or obj['%s'] = value;", *propertyKey, *propertyKey);
 
 	Local<Value> value = args[0];
-	onPropertyChangedForProxy(isolate, name, value, args.Holder());
+	onPropertyChangedForProxy(isolate, name->ToString(isolate), value, args.Holder());
 }
 
 void Proxy::getIndexedProperty(uint32_t index, const PropertyCallbackInfo<Value>& info)
@@ -364,7 +371,7 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 	Local<FunctionTemplate> superTemplate, jclass javaClass,
-	Local<String> className)
+	Local<String> className, Local<Function> callback)
 {
 	EscapableHandleScope scope(isolate);
 
@@ -557,6 +564,9 @@ void Proxy::proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& 
 void Proxy::dispose(Isolate* isolate)
 {
 	baseProxyTemplate.Reset();
+	javaClassSymbol.Reset();
+	constructorSymbol.Reset();
+	inheritSymbol.Reset();
 	propertiesSymbol.Reset();
 	lengthSymbol.Reset();
 	sourceUrlSymbol.Reset();

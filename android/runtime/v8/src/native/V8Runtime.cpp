@@ -145,7 +145,7 @@ void V8Runtime::bootstrap(Local<Context> context)
 	LOG_TIMER(TAG, "Executing kroll.js");
 
 	TryCatch tryCatch(isolate);
-	Local<Value> result = V8Util::executeString(context, KrollBindings::getMainSource(isolate), STRING_NEW(isolate, "ti:/kroll.js"));
+	Local<Value> result = V8Util::executeString(isolate, KrollBindings::getMainSource(isolate), STRING_NEW(isolate, "ti:/kroll.js"));
 
 	if (tryCatch.HasCaught()) {
 		V8Util::reportException(isolate, tryCatch, true);
