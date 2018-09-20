@@ -8,14 +8,12 @@
 /* global Ti */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions'),
-	utilities = require('./utilities/utilities');
+var should = require('./utilities/assertions');
 
 describe('Titanium.UI.View', function () {
 	var rootWindow,
 		win,
-		didFocus = false,
-		didPostLayout = false;
+		didFocus = false;
 
 	this.slow(2000);
 	this.timeout(10000);
@@ -37,7 +35,6 @@ describe('Titanium.UI.View', function () {
 
 	beforeEach(function () {
 		didFocus = false;
-		didPostLayout = false;
 	});
 
 	afterEach(function () {
