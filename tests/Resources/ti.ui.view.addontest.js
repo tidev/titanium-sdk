@@ -35,7 +35,6 @@ describe('Titanium.UI.View', function () {
 
 	beforeEach(function () {
 		didFocus = false;
-		didPostLayout = false;
 	});
 
 	afterEach(function () {
