@@ -147,9 +147,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if ([value hasPrefix:@"http"] || [value hasPrefix:@"https"]) {
     [self loadRequestWithURL:[NSURL URLWithString:[TiUtils stringValue:value]]];
   } else {
-    NSString *path = [[TiUtils toURL:value proxy:self.proxy] absoluteString];
-    [[self webView] loadFileURL:[NSURL fileURLWithPath:path]
-        allowingReadAccessToURL:[NSURL fileURLWithPath:[path stringByDeletingLastPathComponent]]];
+    NSURL *url = [TiUtils toURL:value proxy:self.proxy];
+    [[self webView] loadFileURL:url
+        allowingReadAccessToURL:[url URLByDeletingLastPathComponent]];
   }
 }
 
