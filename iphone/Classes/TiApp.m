@@ -16,6 +16,7 @@
 #import "TiExceptionHandler.h"
 #import "Webcolor.h"
 #import <AVFoundation/AVFoundation.h>
+#import <CoreLocation/CoreLocation.h>
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
@@ -1576,11 +1577,34 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [event setObject:NULL_IF_NIL([[[notification request] content] title]) forKey:@"alertTitle"];
   [event setObject:NULL_IF_NIL([[[notification request] content] subtitle]) forKey:@"alertSubtitle"];
   [event setObject:NULL_IF_NIL([[[notification request] content] launchImageName]) forKey:@"alertLaunchImage"];
-  [event setObject:NULL_IF_NIL([[[notification request] content] sound]) forKey:@"sound"];
   [event setObject:NULL_IF_NIL([[[notification request] content] badge]) forKey:@"badge"];
   [event setObject:NULL_IF_NIL([[[notification request] content] userInfo]) forKey:@"userInfo"];
   [event setObject:NULL_IF_NIL([[[notification request] content] categoryIdentifier]) forKey:@"category"];
   [event setObject:NULL_IF_NIL([[notification request] identifier]) forKey:@"identifier"];
+
+  // iOS 10+ does have "soundName" but "sound" which is a native object. But if we find
+  // a sound in the APS dictionary, we can provide that one for parity
+  if (notification.request.content.userInfo[@"aps"] && notification.request.content.userInfo[@"aps"][@"sound"]) {
+    [event setObject:notification.request.content.userInfo[@"aps"][@"sound"] forKey:@"sound"];
+  }
+
+  // Inject the trigger (time- or location-based) into the payload
+  UNNotificationTrigger *trigger = notification.request.trigger;
+
+  if (trigger != nil) {
+    if ([trigger isKindOfClass:[UNCalendarNotificationTrigger class]]) {
+      [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)trigger nextTriggerDate]) forKey:@"date"];
+    } else if ([trigger isKindOfClass:[UNLocationNotificationTrigger class]]) {
+      CLCircularRegion *region = (CLCircularRegion *)[(UNLocationNotificationTrigger *)trigger region];
+      NSDictionary *dict = @{
+        @"latitude" : NUMDOUBLE(region.center.latitude),
+        @"longitude" : NUMDOUBLE(region.center.longitude),
+        @"radius" : NUMDOUBLE(region.radius),
+        @"identifier" : region.identifier
+      };
+      [event setObject:dict forKey:@"region"];
+    }
+  }
 
   return event;
 }
