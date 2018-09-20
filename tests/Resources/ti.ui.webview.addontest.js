@@ -124,7 +124,8 @@ describe('Titanium.UI.WebView', function () {
 				top: 30
 			});
 
-		webView.addEventListener('error', function () {
+		webView.addEventListener('error', function (e) {
+			Ti.API.info(JSON.stringify(e));
 			finish('Failed to load HTML file from URL with spaces in path');
 		});
 
