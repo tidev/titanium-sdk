@@ -4,12 +4,12 @@ summary: |
     The top-level App module is mainly used for accessing information about the
     application at runtime, and for sending or listening for system events.
 description: |
-    The `App` module exposes a number of properties set in the `tiapp.xml` file.  
-    
-    Three of these properties, the application name, ID, and URL, must be specified when the 
-    application is created.  
-    
-    While most values may be changed by editing the `tiapp.xml` file after creating the project, 
+    The `App` module exposes a number of properties set in the `tiapp.xml` file.
+
+    Three of these properties, the application name, ID, and URL, must be specified when the
+    application is created.
+
+    While most values may be changed by editing the `tiapp.xml` file after creating the project,
     the GUID is automatically generated and should not be changed.
 
     To access other application properties set in the `tiapp.xml` file not exposed by the
@@ -18,59 +18,59 @@ description: |
     #### iOS Application Life Cycle
 
     At any given moment, you applications can be in one of the following possible states:
-    
+
     *   Not running: The app has not been launched or was running but was terminated by the system.
-    
-    *   Inactive: The app is running in the foreground but is currently not receiving events. 
-    An app usually stays in this state only briefly as it transitions to a different state. 
+
+    *   Inactive: The app is running in the foreground but is currently not receiving events.
+    An app usually stays in this state only briefly as it transitions to a different state.
     The `pause` event is fired during this state.
-    
-    *   Active: The app is running in the foreground and is receiving events. This is the normal 
-    mode for foreground apps. 
-    
-    *   Background: The app is in the background and executing code. Most apps enter this state 
-    briefly on their way to being suspended. 
-    
-    *   Suspended: The app is in the background but is not executing code. The system moves 
-    apps to this state automatically and does not notify them before doing so. While suspended, 
-    an app remains in memory but does not execute any code. The `paused` event is fired 
-    during this state. The system tries to keep as many apps in memory at the same time as it 
-    can, but when memory runs low it terminates suspended apps to reclaim that memory. Apps 
+
+    *   Active: The app is running in the foreground and is receiving events. This is the normal
+    mode for foreground apps.
+
+    *   Background: The app is in the background and executing code. Most apps enter this state
+    briefly on their way to being suspended.
+
+    *   Suspended: The app is in the background but is not executing code. The system moves
+    apps to this state automatically and does not notify them before doing so. While suspended,
+    an app remains in memory but does not execute any code. The `paused` event is fired
+    during this state. The system tries to keep as many apps in memory at the same time as it
+    can, but when memory runs low it terminates suspended apps to reclaim that memory. Apps
     that consume large amounts of memory while in the background are the first apps to be terminated.
-    
+
     **Responding To Interruptions**
-    
+
     ***System Alerts***
-    
-    When an **alert-based** interruption occurs, such as an incoming phone call, the app moves 
-    temporarily to the inactive state, and fires the `pause` event. The system then displays 
-    an alert to the user. The app remains in this state until the user dismisses the alert. 
-    At this point, the app either returns to the active state and fires the `resumed` event; 
+
+    When an **alert-based** interruption occurs, such as an incoming phone call, the app moves
+    temporarily to the inactive state, and fires the `pause` event. The system then displays
+    an alert to the user. The app remains in this state until the user dismisses the alert.
+    At this point, the app either returns to the active state and fires the `resumed` event;
     or moves to the background state and fires the `paused` event.
-    
-    Alert-based interruptions result in temporary loss of control by your app and results in `pause` 
-    event being fired. Your app continues to run in the foreground, but it does not recieve 
-    touch events from the system. (It does continue to receive notifications and other types 
-    of events, such as accelerometer events.) When your app is moved back to the 
-    active state, the `resumed` event is fired. 
-    
+
+    Alert-based interruptions result in temporary loss of control by your app and results in `pause`
+    event being fired. Your app continues to run in the foreground, but it does not recieve
+    touch events from the system. (It does continue to receive notifications and other types
+    of events, such as accelerometer events.) When your app is moved back to the
+    active state, the `resumed` event is fired.
+
     The same set of events takes place when user **double taps on the home button**.
-    
+
     ***Sleep/Wake Button***
-    
-    Pressing the **Sleep/Wake** button is another type of interruption that causes your app to 
-    move to an inactive state. When the app is in the foreground and the **Sleep/Wake button** 
-    is pressed, the the system fires the `pause` event followed by the `paused` event and 
-    becomes inactive. This is an intentionally behavioral change by Apple to conserve battery when 
-    the Sleep/Wake button is pressed. On waking up the app fires the `resume` event followed by the 
-    `resumed` event and returns the app to normal state. 
+
+    Pressing the **Sleep/Wake** button is another type of interruption that causes your app to
+    move to an inactive state. When the app is in the foreground and the **Sleep/Wake button**
+    is pressed, the the system fires the `pause` event followed by the `paused` event and
+    becomes inactive. This is an intentionally behavioral change by Apple to conserve battery when
+    the Sleep/Wake button is pressed. On waking up the app fires the `resume` event followed by the
+    `resumed` event and returns the app to normal state.
 
     ***Home Button***
-    
-    Pressing the **home button** is another kind of interruption. The app fires `pause` and 
-    `paused`events before going into background. When app is reopened it fires the `resume` 
+
+    Pressing the **home button** is another kind of interruption. The app fires `pause` and
+    `paused`events before going into background. When app is reopened it fires the `resume`
     event followed by the `resumed` event, returning the app to the normal state.
-    
+
     <table class="doc-table" summary="This table gives the order of events fired when the app is in normal state.">
     <caption><b>Lifecycle events fired during different interruptions</b></caption>
     <tr><th colspan="2">Type of Interruption<th colspan="2">Going into Background<th colspan="2">Coming into  Foreground</tr>
@@ -85,7 +85,7 @@ description: |
     respectively.  Instead, the application needs to monitor the `pause` and `resumed` events,
     which relies on the underlying iOS events to determine the application state rather than the
     UI events.
-    
+
     #### Application Level Events
 
     Application-level events are custom events that are defined globally for your
@@ -187,50 +187,50 @@ events:
 
   - name: pause
     summary: Fired when the application transitions from active to inactive state on a multitasked system.
-    description: |        
-        This event fires when the user leaves the application or for certain types of temporary interruptions 
+    description: |
+        This event fires when the user leaves the application or for certain types of temporary interruptions
         such as a notification or incoming phone call. On an iPad application with split view enabled,
         the event will be called once the application is put in the background and a different split view
         application is focused.
-        
-        See the `applicationWillResignActive` section of the official Apple documentation about 
-        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622950-applicationwillresignactive) 
+
+        See the `applicationWillResignActive` section of the official Apple documentation about
+        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622950-applicationwillresignactive)
         for the exact behavior that triggers this event.
-        
-        Note that calls to functions that modify the UI during this event may be partially executed, 
-        **up to** the UI call before the suspension. See [paused](Titanium.App.paused) event. If this happens, the remainder of the code will 
+
+        Note that calls to functions that modify the UI during this event may be partially executed,
+        **up to** the UI call before the suspension. See [paused](Titanium.App.paused) event. If this happens, the remainder of the code will
         be executed after the application is resumed, but before the `resume` event is triggered.
     platforms: [iphone, ipad]
-    
+
   - name: paused
     summary: Fired when the application transitions to the background on a multitasked system.
     description: |
-        This event fires when putting the application in the background using the home button 
+        This event fires when putting the application in the background using the home button
         or when using the sleep/wake or power button.
-        
+
         This event fires when the user leaves the application.
-        
-        See the `applicationDidEnterBackground` section of the official Apple documentation about 
-        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622997-applicationdidenterbackground?language=objc) 
+
+        See the `applicationDidEnterBackground` section of the official Apple documentation about
+        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622997-applicationdidenterbackground?language=objc)
         for the exact behavior that triggers this event.
-        
+
     platforms: [iphone, ipad]
     since: '2.1.0'
-    
+
   - name: proximity
     summary: Fired when the proximity sensor changes state.
     description: |
-        The proximity sensor detects whether the device is being held up to the user's ear, 
+        The proximity sensor detects whether the device is being held up to the user's ear,
         and shuts down the display.
 
-        Proximity events are only fired when [proximityDetection](Titanium.App.proximityDetection) 
+        Proximity events are only fired when [proximityDetection](Titanium.App.proximityDetection)
         is `true`.
     properties:
       - name: state
         summary: Proximity state value.
     platforms: [iphone, android]
     since: {android: "3.3.0"}
-    
+
   - name: uncaughtException
     summary: Fired when an uncaught JavaScript exception occurs.
     description: |
@@ -267,33 +267,33 @@ events:
         platforms: [android]
     platforms: [android, iphone, ipad]
     since: '4.1.0'
-    
+
   - name: resume
     summary: Fired when the application returns to the foreground on a multitasked system.
     description: |
         This event fires when putting the application in the background
         using the home button and when using the sleep/wake or power button.
-        
-        Note that this event does not fire for pauses resulting from notifications or incoming phone 
+
+        Note that this event does not fire for pauses resulting from notifications or incoming phone
         calls.
-        
-        See the `applicationWillEnterForeground` section of the official Apple documentation about 
-        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623076-applicationwillenterforeground) 
+
+        See the `applicationWillEnterForeground` section of the official Apple documentation about
+        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623076-applicationwillenterforeground)
         for the exact behavior that triggers this event.
     platforms: [iphone, ipad]
-    
+
   - name: resumed
     summary: Fired when the application returns to the foreground.
     description: |
-        This event fires when the application enters the foreground with the `resume` event or 
+        This event fires when the application enters the foreground with the `resume` event or
         returns to focus after a notification or incoming phone call. On an iPad with split view enabled,
         this event will be called every time the application resized.
 
-        See the `applicationDidBecomeActive` section of the official Apple documentation about 
-        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive) 
+        See the `applicationDidBecomeActive` section of the official Apple documentation about
+        [Monitoring Application State Changes](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive)
         for the exact behavior that triggers this event.
-        
-        Note: This event will not be fired for URL's in iOS 10+ that are handled by the <Modules.SafariDialog> 
+
+        Note: This event will not be fired for URL's in iOS 10+ that are handled by the <Modules.SafariDialog>
         or <Titanium.UI.WebView>, because Apple does not call the `applicationDidBecomeActive` for
         URL-handling anymore. Instead, use the `handleurl` event in <Titanium.App.iOS>.
     platforms: [iphone, ipad]
@@ -301,20 +301,20 @@ events:
   - name: keyboardframechanged
     summary: Fired when the soft keyboard is presented, on and off the screen.
     description: |
-        This event fires when the application presents the soft keyboard on/off the screen . The 
-        event returns the dictionary `keyboardFrame` containing `x`, `y`, `height` and `width` keys, 
-        corresponding to the frame of the keyboard with respect to the screen coordinates. 
+        This event fires when the application presents the soft keyboard on/off the screen . The
+        event returns the dictionary `keyboardFrame` containing `x`, `y`, `height` and `width` keys,
+        corresponding to the frame of the keyboard with respect to the screen coordinates.
 
         On Titanium SDK 4.0.0 and later the event also contains a second parameter `animationDuration` representing
         the duration of the animation for the presentation and dismissal of the soft keyboard.
-        
-        Note that the keyboard `height` and `width` properties will not be accurate when the keyboard 
+
+        Note that the keyboard `height` and `width` properties will not be accurate when the keyboard
         is being dissmissed.
     properties:
       - name: keyboardFrame
         summary: A dictionary with keys x, y, width and height representing the frame of keyboard on screen.
         type: Dictionary
-    
+
       - name: animationDuration
         summary: The duration of the keyboard animation. This parameter is only available on Titanium SDK 4.0.0 and later.
         type: Number
@@ -324,9 +324,9 @@ events:
   - name: significanttimechange
     summary: Fired when there is a significant change in the time.
     description: |
-        Examples of significant time changes include the arrival of midnight, an update to the time by a carrier, 
-        and the change to daylight savings time. If your application is currently in `paused` state, this message 
-        will be is queued until your application returns to the foreground, at which point it is delievered. If multiple 
+        Examples of significant time changes include the arrival of midnight, an update to the time by a carrier,
+        and the change to daylight savings time. If your application is currently in `paused` state, this message
+        will be is queued until your application returns to the foreground, at which point it is delievered. If multiple
         changes occur, only the most recent one is delievered.
     platforms: [iphone, ipad]
     since: '3.1.0'
@@ -334,10 +334,10 @@ events:
   - name: userinteraction
     summary: Called whenever an interaction with the window occurred. To be used together with the <Titanium.App.trackUserInteraction> property.
     description: |
-        Implement this method if you wish to know that the user has interacted with the device in some 
+        Implement this method if you wish to know that the user has interacted with the device in some
         way while your app is running.
 
-        Note that this callback will be invoked for the touch down action that begins a touch gesture, 
+        Note that this callback will be invoked for the touch down action that begins a touch gesture,
         but may not be invoked for the touch-moved and touch-up actions that follow.
 
         See also:
@@ -345,7 +345,7 @@ events:
           - iOS: See the [sendEvent](https://developer.apple.com/documentation/uikit/uiapplication/1623043-sendevent) delegate
 
     platforms: [android, iphone, ipad]
-    since: "7.4.0"
+    since: "7.5.0"
 
 methods:
   - name: fireSystemEvent
@@ -391,23 +391,23 @@ properties:
     type: Boolean
     permission: read-only
 
- 
+
   - name: analytics
     summary: Indicates whether Analytics is enabled, determined by `tiapp.xml`.
     type: Boolean
     permission: read-only
 
-    
+
   - name: copyright
     summary: Application copyright statement, determined by `tiapp.xml`.
     type: String
     permission: read-only
 
-    
+
   - name: deployType
     summary: |
         Build type that reflects how the application was packaged.
-        
+
         Returns one of the following values:
         * `development` (Simulator)
         * `test` (Device)
@@ -415,20 +415,20 @@ properties:
     type: String
     permission: read-only
 
-    
+
   - name: description
     summary: Application description, determined by `tiapp.xml`.
     type: String
     permission: read-only
 
-    
+
   - name: guid
     summary: Application globally-unique ID, determined by `tiapp.xml`.
     description: This value is system-generated and consistent through all versions.
     type: String
     permission: read-only
 
-    
+
   - name: forceSplashAsSnapshot
     summary: Shows the application's splash screen on app resume.
     description: |
@@ -440,13 +440,13 @@ properties:
     platforms: [iphone, ipad]
 
   - name: id
-    summary: Application ID, from `tiapp.xml`. 
+    summary: Application ID, from `tiapp.xml`.
     description: |
         The application ID is a required property that must be specified when creating a new project.
     type: String
     permission: read-only
 
-    
+
   - name: installId
     summary: The install ID for this application.
     description: |
@@ -458,35 +458,35 @@ properties:
     platforms: [iphone, ipad]
     permission: read-only
     since: "2.0.0"
-    
+
   - name: idleTimerDisabled
-    summary: Determines whether the screen is locked when the device is idle. 
+    summary: Determines whether the screen is locked when the device is idle.
     description: Set to `true` to disable the timer.
     type: Boolean
     platforms: [iphone, ipad]
-    
+
   - name: name
     summary: Application name, determined by `tiapp.xml`.
     type: String
     permission: read-only
 
-    
+
   - name: proximityDetection
-    summary: Determines whether proximity detection is enabled. 
+    summary: Determines whether proximity detection is enabled.
     description: |
         Set to `true` to receive <Titanium.App.proximity> events.
     type: Boolean
     default: false
     platforms: [iphone, ipad, android]
     since: {android: "3.3.0"}
-    
+
   - name: proximityState
     summary: |
-        Indicates the state of the device's proximity sensor, according to the 
+        Indicates the state of the device's proximity sensor, according to the
         <Titanium.App.proximity> event.
     description: |
-        This property is `true` when the proximity sensor is close to the user.  
-        
+        This property is `true` when the proximity sensor is close to the user.
+
         When <Titanium.App.proximityDetection> is disabled, the value of this property is undefined.
     type: Boolean
     permission: read-only
@@ -499,37 +499,37 @@ properties:
     description: |
         Setting this property to true disables display of the network activity indicator when network activity is in progress.
         If the network activity indicator is currently visible, it is hidden immediately.
-        
-        **NOTE: In general, the user should always be made aware of network activity. The network activity indicator should only be disabled for very brief network activity (a few seconds).** 
+
+        **NOTE: In general, the user should always be made aware of network activity. The network activity indicator should only be disabled for very brief network activity (a few seconds).**
     type: Boolean
     default: false
     platforms: [iphone, ipad]
     since: '3.0.0'
-    
+
   - name: publisher
     summary: Application publisher, from `tiapp.xml`.
     type: String
     permission: read-only
 
-    
+
   - name: sessionId
     summary: Unique session identifier for the current continuous run of the application.
     type: String
     permission: read-only
 
-    
+
   - name: url
     summary: Application URL, from `tiapp.xml`.
     type: String
     permission: read-only
 
-    
+
   - name: version
     summary: Application version, from `tiapp.xml`.
     type: String
     permission: read-only
 
-    
+
   - name: keyboardVisible
     summary: Indicates whether or not the soft keyboard is visible.
     type: Boolean
@@ -545,6 +545,7 @@ properties:
     type: Boolean
     accessors: false
     platforms: [iphone, ipad]
+    since: "7.5.0"
 
 ---
 name: launchOptions
