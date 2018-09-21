@@ -360,7 +360,6 @@
     }
   }
 
-  [(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
   return TRUE;
 }
 
