@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,6 +13,7 @@ import android.os.Message;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
+import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
@@ -69,10 +70,13 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static final int MSG_SET_HEADERS = MSG_FIRST_ID + 113;
 	private static final int MSG_GET_HEADERS = MSG_FIRST_ID + 114;
 	private static final int MSG_ZOOM_BY = MSG_FIRST_ID + 115;
+	private static final int MSG_EVAL_JS = MSG_FIRST_ID + 116;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
 	private static String fpassword;
+	private static int frequestID = 0;
+	private static Map<Integer, EvalJSRunnable> fevalJSRequests = new HashMap<Integer, EvalJSRunnable>();
 
 	private Message postCreateMessage;
 
@@ -122,53 +126,29 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			return null;
 		}
 		if (callback != null) {
+			EvalJSRunnable runnable = new EvalJSRunnable(view, getKrollObject(), code, callback);
 			// When on Android 19+ we can use the builtin evalAsync method!
 			if (Build.VERSION.SDK_INT >= 19) {
-				final KrollFunction theCallback = callback;
-				view.getWebView().evaluateJavascript(code, new ValueCallback<String>() {
-					public void onReceiveValue(String value)
-					{
-						theCallback.callAsync(getKrollObject(), new Object[] { value });
-					}
-				});
+				if (TiApplication.isUIThread()) {
+					runnable.runAsync();
+				} else {
+					// Stick the runnable in a static map so we can pull it out in handleMessage()
+					final int requestID = frequestID++;
+					fevalJSRequests.put(requestID, runnable);
+					Message message = getMainHandler().obtainMessage(MSG_EVAL_JS);
+					message.arg1 = requestID;
+					message.sendToTarget();
+				}
 			} else {
-				// Just do our sync eval in a separate Thread.
-				Thread clientThread = new Thread(new EvalJSRunnable(view, getKrollObject(), code, callback),
-												 "TiWebViewProxy-" + System.currentTimeMillis());
+				// Just do our sync eval in a separate Thread. Doesn't need to be done in UI
+				Thread clientThread = new Thread(runnable, "TiWebViewProxy-" + System.currentTimeMillis());
 				clientThread.setPriority(Thread.MIN_PRIORITY);
 				clientThread.start();
 			}
 			return null;
 		}
 		// TODO deprecate the sync variant?
-
 		return view.getJSValue(code);
-	}
-
-	private class EvalJSSyncCallable implements Callable<String>
-	{
-		private final TiUIWebView view;
-		private final String code;
-
-		public EvalJSSyncCallable(TiUIWebView view, String code)
-		{
-			this.view = view;
-			this.code = code;
-		}
-
-		public String call()
-		{
-			return view.getJSValue(code);
-		}
-	}
-
-	private class EvalJSSyncRunnable extends FutureTask<String>
-	{
-
-		public EvalJSSyncRunnable(TiUIWebView view, String code)
-		{
-			super(new EvalJSSyncCallable(view, code));
-		}
 	}
 
 	private class EvalJSRunnable implements Runnable
@@ -188,8 +168,20 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 
 		public void run()
 		{
+			// Runs the "old" API we built
 			String result = view.getJSValue(code);
 			callback.callAsync(krollObject, new Object[] { result });
+		}
+
+		public void runAsync()
+		{
+			// Runs the newer API provided by Android
+			view.getWebView().evaluateJavascript(code, new ValueCallback<String>() {
+				public void onReceiveValue(String value)
+				{
+					callback.callAsync(krollObject, new Object[] { value });
+				}
+			});
 		}
 	}
 
@@ -288,6 +280,13 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 					return true;
 				case MSG_ZOOM_BY:
 					getWebView().zoomBy(TiConvert.toFloat(getProperty(TiC.PROPERTY_ZOOM_LEVEL)));
+					return true;
+				case MSG_EVAL_JS:
+					final int evalJSRequestID = msg.arg1;
+					if (fevalJSRequests.containsKey(evalJSRequestID)) {
+						EvalJSRunnable runnable = fevalJSRequests.remove(evalJSRequestID);
+						runnable.runAsync();
+					}
 					return true;
 			}
 		}
