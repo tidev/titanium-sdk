@@ -180,7 +180,7 @@ methods:
     summary: |
         Evaluates a JavaScript expression inside the context of the web view and
         optionally, returns a result. If a callback function is passed in as second argument,
-        the evaluation will take place asynchornously and the the callback function will be called with the result.
+        the evaluation will take place asynchronously and the the callback function will be called with the result.
     description: |
         The JavaScript expression must be passed in as a string. If you are passing in any objects,
         you must serialize them to strings using [stringify](Global).
