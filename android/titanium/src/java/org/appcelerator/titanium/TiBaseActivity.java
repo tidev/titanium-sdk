@@ -1493,7 +1493,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	 * When a key, touch, or trackball event is dispatched to the activity, this method fires the
 	 * javascript 'userinteraction' event.
 	 */
-	protected void onUserInteraction()
+	public void onUserInteraction()
 	{
 		if (TiApplication.hasListeners(TiC.EVENT_USER_INTERACTION)) {
 			TiApplication.getInstance().fireAppEvent(TiC.EVENT_USER_INTERACTION, null);
