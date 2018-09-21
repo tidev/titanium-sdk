@@ -25,7 +25,6 @@ describe('Titanium.UI.WebView', function () {
 
 	it.ios('startListeningToProperties', function (finish) {
 		var webView;
-		this.timeout(10000);
 
 		win = Ti.UI.createWindow();
 		webView = Ti.UI.createWebView({
@@ -42,7 +41,6 @@ describe('Titanium.UI.WebView', function () {
 
 	it.ios('sslerror', function (finish) {
 		var webView;
-		this.timeout(10000);
 
 		win = Ti.UI.createWindow();
 		webView = Ti.UI.createWebView({
@@ -58,7 +56,6 @@ describe('Titanium.UI.WebView', function () {
 
 	it.ios('blacklisturl', function (finish) {
 		var webView;
-		this.timeout(10000);
 
 		win = Ti.UI.createWindow();
 		webView = Ti.UI.createWebView({
@@ -75,7 +72,6 @@ describe('Titanium.UI.WebView', function () {
 
 	it.ios('basicAuthentication', function (finish) {
 		var webView;
-		this.timeout(10000);
 
 		win = Ti.UI.createWindow();
 		webView = Ti.UI.createWebView({
@@ -97,7 +93,6 @@ describe('Titanium.UI.WebView', function () {
 
 	it.ios('ignoreSslError', function (finish) {
 		var webView;
-		this.timeout(10000);
 
 		win = Ti.UI.createWindow();
 		webView = Ti.UI.createWebView({
