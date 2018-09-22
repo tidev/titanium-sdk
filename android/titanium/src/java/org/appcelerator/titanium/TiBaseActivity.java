@@ -1495,9 +1495,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	 */
 	public void onUserInteraction()
 	{
-		if (TiApplication.hasListeners(TiC.EVENT_USER_INTERACTION)) {
-			TiApplication.getInstance().fireAppEvent(TiC.EVENT_USER_INTERACTION, null);
-		}
+		TiApplication.getInstance().fireAppEvent(TiC.EVENT_USER_INTERACTION, null);
 
 		super.onUserInteraction();
 	}
