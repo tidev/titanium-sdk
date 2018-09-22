@@ -1426,6 +1426,9 @@ public class TiAnimationBuilder
 		}
 		view.clearAnimation();
 		setAnimationRunningFor(view, false);
+		if (animationProxy != null) {
+			animationProxy.fireEvent(TiC.EVENT_CANCEL, null);
+		}
 	}
 
 	private void setAnchor(int width, int height)

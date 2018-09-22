@@ -49,6 +49,11 @@ since: "0.9"
 platforms: [android, iphone, ipad]
 
 events:
+  - name: cancel
+    summary: Fired when the animation is canceled.
+    since: "7.5.0"
+    platforms: [android]
+
   - name: complete
     summary: Fired when the animation completes.
 
@@ -242,7 +247,7 @@ examples:
               });
               box.animate(a);
             });
-            
+
             win.add(box);
 
   - title: Using an anchorPoint (Android and iOS)
