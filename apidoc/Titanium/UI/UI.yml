@@ -340,6 +340,18 @@ properties:
     osver: {ios: {min: "6.0"}}
     permission: read-only
 
+  - name: ATTRIBUTE_PARAGRAPH_STYLE
+    summary: |
+        Use with <Attribute.type> to manages the behaviour of string set.
+    description: |
+        Use <ParagraphAttribute> for the 'value' property in the attribute dictionary.
+        Range for this should be whole string.
+        See <Attribute> for more information on type modes.
+    type: Number
+    platforms: [iphone, ipad]
+    since: "7.5.0"
+    permission: read-only
+
   - name: ATTRIBUTE_STROKE_WIDTH
     summary: |
         Use with <Attribute.type> to specify the width of the stroke text.
@@ -480,6 +492,9 @@ properties:
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK
+    deprecated:
+        since: "7.5.0"
+        notes: Use <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE.lineBreakMode> instead.  
     summary: |
         Use with <Attribute.type> to wrap and truncate the text.
     description: |
@@ -1077,7 +1092,7 @@ properties:
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_DAY
-    summary: Specifies the expectation of a card expectation day.
+    summary: Specifies the expectation of a card expiration day.
     type: String
     platforms: [android]
     since: "6.3.0"
@@ -1085,7 +1100,7 @@ properties:
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_MONTH
-    summary: Specifies the expectation of a card expectation month.
+    summary: Specifies the expectation of a card expiration month.
     type: String
     platforms: [android]
     since: "6.3.0"
@@ -1093,11 +1108,27 @@ properties:
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_EXPIRATION_YEAR
-    summary: Specifies the expectation of a card expectation year.
+    summary: Specifies the expectation of a card expiration year.
     type: String
     platforms: [android]
     since: "6.3.0"
     osver: {android: {min: "8.0"}}
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_NEW_PASSWORD
+    summary: Specifies the expectation of a new password.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    osver: { ios: { min: "12.0" } }
+    permission: read-only
+
+  - name: AUTOFILL_TYPE_ONE_TIME_CODE
+    summary: Specifies the expectation of a single-factor SMS login code.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.4.0"
+    osver: { ios: { min: "12.0" } }
     permission: read-only
 
   - name: AUTOLINK_MAP_ADDRESSES

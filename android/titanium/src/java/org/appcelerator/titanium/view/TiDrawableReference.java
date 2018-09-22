@@ -10,10 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -402,40 +400,6 @@ public class TiDrawableReference
 							// Ignore
 						}
 						opts.inSampleSize = (int) Math.pow(2, i);
-					}
-				}
-				// If decoding fails, we try to get it from httpclient.
-				if (b == null) {
-					HttpURLConnection connection = null;
-					try {
-						URL mURL = new URL(url);
-						connection = (HttpURLConnection) mURL.openConnection();
-						connection.setInstanceFollowRedirects(true);
-						connection.setDoInput(true);
-						connection.connect();
-						int responseCode = connection.getResponseCode();
-						if (responseCode == 200) {
-							b = BitmapFactory.decodeStream(connection.getInputStream());
-						} else if (responseCode == HttpURLConnection.HTTP_MOVED_PERM
-								   || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
-							String location = connection.getHeaderField("Location");
-							URL nURL = new URL(location);
-							String prevProtocol = mURL.getProtocol();
-							//HttpURLConnection doesn't handle http to https redirects so we do it manually.
-							if (prevProtocol != null && !prevProtocol.equals(nURL.getProtocol())) {
-								b = BitmapFactory.decodeStream(nURL.openStream());
-							} else {
-								b = BitmapFactory.decodeStream(connection.getInputStream());
-							}
-						} else {
-							b = null;
-						}
-					} catch (Exception e) {
-						b = null;
-					} finally {
-						if (connection != null) {
-							connection.disconnect();
-						}
 					}
 				}
 			} else {
@@ -855,9 +819,7 @@ public class TiDrawableReference
 			return bounds;
 		}
 
-		InputStream stream = getInputStream();
-
-		try {
+		try (InputStream stream = getInputStream()) {
 			if (stream != null) {
 				BitmapFactory.Options bfo = new BitmapFactory.Options();
 				bfo.inJustDecodeBounds = true;
@@ -867,14 +829,8 @@ public class TiDrawableReference
 			} else {
 				Log.w(TAG, "Could not open stream for drawable, therefore bounds checking could not be completed");
 			}
-		} finally {
-			try {
-				if (stream != null) {
-					stream.close();
-				}
-			} catch (IOException e) {
-				Log.e(TAG, "problem closing stream: " + e.getMessage(), e);
-			}
+		} catch (Exception ex) {
+			Log.w(TAG, "Failed to access image bounds", ex);
 		}
 
 		boundsCache.put(hash, bounds);
@@ -980,22 +936,14 @@ public class TiDrawableReference
 
 	public int getOrientation()
 	{
-		String path = null;
 		int orientation = 0;
-
-		if (isTypeBlob() && blob != null) {
-			path = blob.getNativePath();
-		} else if (isTypeFile() && file != null) {
-			path = file.getNativeFile().getAbsolutePath();
-		} else {
-			InputStream is = getInputStream();
-			if (is != null) {
-				File file = TiFileHelper.getInstance().getTempFileFromInputStream(is, "EXIF-TMP", true);
-				path = file.getAbsolutePath();
+		try (InputStream inputStream = getInputStream()) {
+			if (inputStream != null) {
+				orientation = TiImageHelper.getOrientation(inputStream);
 			}
+		} catch (Exception ex) {
 		}
-
-		return TiImageHelper.getOrientation(path);
+		return orientation;
 	}
 
 	public void setAutoRotate(boolean autoRotate)

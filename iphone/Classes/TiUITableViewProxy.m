@@ -421,7 +421,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:newrow animation:anim type:TiUITableViewActionUpdateRow] autorelease];
     [table dispatchAction:action];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)deleteRow:(id)args
@@ -834,7 +834,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     }
     [oldSections release];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)setSections:(NSArray *)newSections
@@ -1016,7 +1016,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
         }
                             forceReload:NO];
   },
-      NO);
+      [NSThread isMainThread]);
 }
 
 - (void)insertSectionAfter:(id)args
@@ -1121,6 +1121,32 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
 - (void)add:(id)arg
 {
   NSLog(@"[ERROR] Cannot add sub-views to table views. Use \"appendRow\" or \"appendSection\" instead.");
+}
+
+#pragma mark Accessibility Overrides
+
+- (void)setAccessibilityLabel:(NSString *)accessibilityLabel
+{
+  [super setAccessibilityLabel:accessibilityLabel];
+
+  [[[self tableView] tableView] setAccessibilityLabel:accessibilityLabel];
+  [self replaceValue:accessibilityLabel forKey:@"accessibilityLabel" notification:NO];
+}
+
+- (void)setAccessibilityValue:(NSString *)accessibilityValue
+{
+  [super setAccessibilityValue:accessibilityValue];
+
+  [[[self tableView] tableView] setAccessibilityValue:accessibilityValue];
+  [self replaceValue:accessibilityValue forKey:@"accessibilityValue" notification:NO];
+}
+
+- (void)setAccessibilityHint:(NSString *)accessibilityHint
+{
+  [super setAccessibilityHint:accessibilityHint];
+
+  [[[self tableView] tableView] setAccessibilityHint:accessibilityHint];
+  [self replaceValue:accessibilityHint forKey:@"accessibilityHint" notification:NO];
 }
 
 @end

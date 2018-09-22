@@ -19,7 +19,7 @@ var tiBinding = kroll.binding('Titanium'),
 var TAG = "Titanium";
 
 // The app entry point
-Titanium.sourceUrl = "app://app.js";
+Titanium.sourceUrl = "app://ti.main.js";
 
 // A list of java APIs that need an invocation-specific URL
 // passed in as the first argument

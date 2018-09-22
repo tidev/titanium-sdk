@@ -1,13 +1,16 @@
 ---
 name: Titanium.App.iOS.UserNotificationCenter
 summary: |
-    The top-level App iOS Notification Center module, available only to iOS devices running iOS 8 or later. It is
-    used to control scheduled notifications and receive details about the system-wide notification settings.
+    The top-level App iOS Notification Center module. It is used to control scheduled notifications
+    and receive details about the system-wide notification settings.
 
 extends: Titanium.Module
 platforms: [iphone, ipad]
 osver: {ios: {min: "8.0"}}
 since: "7.3.0"
+excludes:
+    properties: [bubbleParent]
+    methods: [addEventListener, applyProperties, fireEvent, removeEventListener,]
 
 methods:
   - name: getPendingNotifications
@@ -35,7 +38,16 @@ methods:
     summary: |
         Removes the specified pending notifications to prevent them from being triggered.
         If no notifications are specified, all pending notifications will be removed.
+    description: |
+        Pending notifications can be obtained via a call to the <Titanium.App.iOS.UserNotificationCenter.getDeliveredNotifications> 
+        method.
     since: "7.3.0"
+    parameters:
+      - name: notifications
+        summary: |
+            The pending notification to remove. If none specified, all pending notifications
+            will be removed.
+        type: Array<Titanium.App.iOS.LocalNotification>
 
   - name: removeDeliveredNotifications
     summary: |
@@ -46,8 +58,7 @@ methods:
 
   - name: requestUserNotificationSettings
     summary: |
-        Notification types and user notification categories the application is registered to use
-        (available on iOS 8 and later).
+        Notification types and user notification categories the application is registered to use.
     parameters:
       - name: callback
         summary: The callback invoked when requesting user notification settings.
@@ -127,8 +138,10 @@ properties:
   - name: identifier
     summary: The notification identifier.
     description: |
-        This property is required in iOS 10 and later and will fallback
-        to "notification" if not set.
+        This property is required in iOS 10+ and will fallback to a generated 
+        UUID-string if not set. It is recommended to manage the identifier 
+        yourself, but you can also get the generated UUID by accessing via 
+        the "userInfo.id" field for parity with older iOS versions.
     optional: false
     since: "7.3.0"
     type: String
@@ -208,6 +221,22 @@ properties:
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
     osver: {ios: {min: "10.0"}}
+
+  - name: criticalAlertSetting
+    summary: |
+        The authorization status to play sounds for critical alerts.
+        Available in Titanium SDK 7.4.0 and later.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: { ios: { min: "12.0" } }
+
+  - name: providesAppNotificationSettings
+    summary: |
+        A Boolean value indicating the system displays a button for in-app notification settings.
+        Available in Titanium SDK 7.4.0 and later.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: { ios: { min: "12.0" } }
 
   - name: alertStyle
     summary: The current alert style used to display notifications.
