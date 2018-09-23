@@ -32,6 +32,7 @@ import android.os.Message;
 		TiC.PROPERTY_HEADER_TITLE,
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
+		TiC.PROPERTY_FAST_SCROLL,
 		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
 		TiC.PROPERTY_SEPARATOR_COLOR,
 		TiC.PROPERTY_SEARCH_TEXT,
@@ -83,6 +84,7 @@ public class ListViewProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
 		defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		defaultValues.put(TiC.PROPERTY_CAN_SCROLL, true);
+		defaultValues.put(TiC.PROPERTY_FAST_SCROLL, false);
 		super.handleCreationArgs(createdInModule, args);
 	}
 	public void handleCreationDict(KrollDict options)
