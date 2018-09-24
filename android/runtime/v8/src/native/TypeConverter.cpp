@@ -88,6 +88,15 @@ Local<Boolean> TypeConverter::javaBooleanToJsBoolean(Isolate* isolate, jboolean 
 	return Boolean::New(isolate, (bool) javaBoolean);
 }
 
+jstring TypeConverter::jsStringToJavaString(Local<String> jsString)
+{
+	JNIEnv *env = JNIScope::getEnv();
+	if (env == NULL) {
+		return NULL;
+	}
+	return TypeConverter::jsStringToJavaString(env, jsString);
+}
+
 jstring TypeConverter::jsStringToJavaString(Isolate* isolate, Local<String> jsString)
 {
 	JNIEnv *env = JNIScope::getEnv();
@@ -95,6 +104,12 @@ jstring TypeConverter::jsStringToJavaString(Isolate* isolate, Local<String> jsSt
 		return NULL;
 	}
 	return TypeConverter::jsStringToJavaString(isolate, env, jsString);
+}
+
+jstring TypeConverter::jsStringToJavaString(JNIEnv *env, Local<String> jsString)
+{
+	String::Value string(jsString);
+	return env->NewString(reinterpret_cast<const jchar*>(*string), string.length());
 }
 
 jstring TypeConverter::jsStringToJavaString(Isolate* isolate, JNIEnv *env, Local<String> jsString)

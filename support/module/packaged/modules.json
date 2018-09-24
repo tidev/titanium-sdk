@@ -43,20 +43,20 @@
 			"integrity": "sha512-fIR52VyFEFFr5HmJfnAQc6n1QCpZFifNa9ONrXWuZYd1f97PeEfmq/ggJztexe4NvMutQheWbysunkv2qZMCRA=="
 		},
 		"ti.map": {
-			"url": "https://s3.amazonaws.com/builds.appcelerator.com/mobile/custom/ti.map-android-5.0.0.zip",
-			"integrity": "sha512-OIDe/EJR0Us1Y9L8/XJ9bGHqxwufXzeU3iQmqoxVEu3uuT89kRPDp8T5yW52RbrG9vc/AXyHtHmRvOzvyrQlaA=="
+			"url": "https://github.com/appcelerator-modules/ti.map/releases/download/android-4.3.1/ti.map-android-4.3.1.zip",
+			"integrity": "sha512-g36WuxrRzdwi8DRbyLmJyiF53aUefDeExhNEc6POVi8elbbX17phtKwiMdF3foifxUdpdMTo31CVJQXnfxc75w=="
 		},
 		"ti.webdialog": {
 			"url": "https://github.com/appcelerator-modules/titanium-web-dialog/releases/download/android-1.1.0/ti.webdialog-android-1.1.0.zip",
 			"integrity": "sha512-aE5Y3Ll3yXyO7oo9RdbMRNpFfnxrfhHzddIJS0KPJ+eZyNtK/h2S7BstSkQkiQt4GBaGFALaEaWqyMCSuvailA=="
 		},
 		"ti.touchid": {
-			"url": "https://s3.amazonaws.com/builds.appcelerator.com/mobile/custom/ti.touchid-android-4.0.0.zip",
-			"integrity": "sha512-KW6yIGJUfhFBI2J2ZMEdWLi0EFr4wHW/PRHsr3dWbONvaVSnDksrv+eTpoetcKVPCPwWlB46NJMsv0p2KAoKaw=="
+			"url": "https://github.com/appcelerator-modules/ti.touchid/releases/download/android-3.0.1/ti.touchid-android-3.0.1.zip",
+			"integrity": "sha512-G30ZTwV1VI+GI5FmRWJLGZUQgckvMYTiX7mYhWDLCGZac8cSQDpG4xylJlSp6B/isNqa6TBX4ZPE3ieJ50p0mA=="
 		},
 		"ti.playservices": {
-			"url": "https://s3.amazonaws.com/builds.appcelerator.com/mobile/custom/ti.playservices-android-11.0.40.zip",
-			"integrity": "sha512-IvNvAGM8xX6PQPEauHaN6oPtxvEhng4n23j0wCTzaHdEnwF6Ek9sBOSHyH44aEVyCHj6dOrrCw3qtKU5pi3BVg=="
+			"url": "https://github.com/appcelerator-modules/ti.playservices/releases/download/android-11.0.40/ti.playservices-android-11.0.40.zip",
+			"integrity": "sha512-bLhpzOjnmiTWFRjMuFfvqf0ePd1kbTdXLMVZJ+EsPrfn4JmxvkINS9Nu6ivjV+fmH9cBYVjZ5k9nGCeUdqZOlQ=="
 		},
 		"ti.identity": {
 			"url": "https://github.com/appcelerator-modules/titanium-identity/releases/download/android-2.1.0/ti.identity-android-2.1.0.zip",

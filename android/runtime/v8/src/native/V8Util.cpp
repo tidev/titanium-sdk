@@ -20,9 +20,25 @@ using namespace v8;
 
 #define TAG "V8Util"
 
-Local<Value> V8Util::executeString(Local<Context> context, Local<String> source, Local<Value> filename)
+Utf8Value::Utf8Value(v8::Local<v8::Value> value) : length_(0), str_(str_st_)
 {
-	Isolate* isolate = context->GetIsolate();
+	if (value.IsEmpty()) return;
+ 	v8::Local<v8::String> string = value->ToString();
+	if (string.IsEmpty()) return;
+ 	// Allocate enough space to include the null terminator
+	size_t len = (3 * string->Length()) + 1;
+	if (len > sizeof(str_st_)) {
+		str_ = static_cast<char*>(malloc(len));
+		//CHECK_NE(str_, nullptr);
+	}
+ 	const int flags = v8::String::NO_NULL_TERMINATION | v8::String::REPLACE_INVALID_UTF8;
+	length_ = string->WriteUtf8(str_, len, 0, flags);
+	str_[length_] = '\0';
+}
+
+Local<Value> V8Util::executeString(Isolate* isolate, Local<String> source, Local<Value> filename)
+{
+	Local<Context> context = isolate->GetCurrentContext();
 	EscapableHandleScope scope(isolate);
 	TryCatch tryCatch(isolate);
 
@@ -68,6 +84,18 @@ Local<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTempl
 		return scope.Escape(Undefined(isolate));
 	}
 	return scope.Escape(instance);
+}
+
+void V8Util::objectExtend(Local<Object> dest, Local<Object> src)
+{
+	Local<Array> names = src->GetOwnPropertyNames();
+	int length = names->Length();
+
+	for (int i = 0; i < length; ++i) {
+		Local<Value> name = names->Get(i);
+		Local<Value> value = src->Get(name);
+		dest->Set(name, value);
+	}
 }
 
 #define EXC_TAG "V8Exception"

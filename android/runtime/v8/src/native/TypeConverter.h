@@ -88,10 +88,12 @@ public:
 	}
 
 	// string convert methods
+	static jstring jsStringToJavaString(v8::Local<v8::String> jsString);
 	static jstring jsStringToJavaString(v8::Isolate* isolate, v8::Local<v8::String> jsString);
 	static jstring jsValueToJavaString(v8::Isolate* isolate, v8::Local<v8::Value> jsValue);
 	static v8::Local<v8::Value> javaStringToJsString(v8::Isolate* isolate, jstring javaString);
 
+	static jstring jsStringToJavaString(JNIEnv *env, v8::Local<v8::String> jsString);
 	static jstring jsStringToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::String> jsString);
 	static jstring jsValueToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Value> jsValue);
 	static v8::Local<v8::Value> javaStringToJsString(v8::Isolate* isolate, JNIEnv *env, jstring javaString);

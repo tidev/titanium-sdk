@@ -24,9 +24,9 @@ public:
 	};
 
 	static v8::Persistent<v8::FunctionTemplate> baseProxyTemplate;
-	static v8::Persistent<v8::String> propertiesSymbol;
-	static v8::Persistent<v8::String> lengthSymbol;
-	static v8::Persistent<v8::String> sourceUrlSymbol;
+	static v8::Persistent<v8::String> javaClassSymbol, constructorSymbol;
+	static v8::Persistent<v8::String> inheritSymbol, propertiesSymbol;
+	static v8::Persistent<v8::String> lengthSymbol, sourceUrlSymbol;
 
 	Proxy();
 
@@ -111,6 +111,27 @@ public:
 	 */
 	static void onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args);
 
+	// This provides Javascript a way to extend one of our native / wrapped
+	// templates without needing to know about the internal java class.
+	//
+	// An example of what this might look like from JS:
+	// var MyProxy = Ti.UI.View.inherit(function MyView(options) {
+	//     // constructor code goes here.. (optional)
+	// });
+	template<typename ProxyClass>
+	static void inherit(const v8::FunctionCallbackInfo<v8::Value>& args)
+	{
+		v8::Isolate* isolate = args.GetIsolate();
+		v8::HandleScope scope(isolate);
+		v8::Local<v8::Function> fn = args[0].As<v8::Function>();
+ 		v8::Local<v8::FunctionTemplate> newType = inheritProxyTemplate(
+			isolate,
+			ProxyClass::getProxyTemplate(isolate),
+			ProxyClass::javaClass,
+			fn->GetName()->ToString(isolate), fn);
+		args.GetReturnValue().Set(newType->GetFunction());
+	}
+
 	/**
 	 * Inherit a built-in proxy template for use in Javascript (used by generated code)
 	 */
@@ -118,7 +139,8 @@ public:
 		v8::Isolate* isolate,
 		v8::Local<v8::FunctionTemplate> superTemplate,
 		jclass javaClass,
-		v8::Local<v8::String> className);
+		v8::Local<v8::String> className,
+		v8::Local<v8::Function> callback = v8::Local<v8::Function>());
 
 	static void dispose(v8::Isolate* isolate);
 
