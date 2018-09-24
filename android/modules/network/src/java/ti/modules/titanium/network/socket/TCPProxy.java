@@ -431,8 +431,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 			public void run()
 			{
 				try {
-					finalRunnableResult.streamedByteCount = TiStreamHelper.read(
-						clientSocket.getInputStream(), finalBufferProxy, finalOffset, finalLength);
+					finalRunnableResult.streamedByteCount =
+						TiStreamHelper.read(clientSocket.getInputStream(), finalBufferProxy, finalOffset, finalLength);
 				} catch (Exception ex) {
 					finalRunnableResult.exception = ex;
 				}
