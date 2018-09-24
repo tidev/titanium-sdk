@@ -29,13 +29,36 @@
   TiBuffer *buffer = nil;
   id offset = nil;
   id length = nil;
+  KrollCallback *callback = nil;
 
   ENSURE_ARG_AT_INDEX(buffer, args, 0, TiBuffer);
-  ENSURE_ARG_OR_NIL_AT_INDEX(offset, args, 1, NSObject);
-  ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSObject);
+  switch ([args count]) {
+  case 1:
+    // do nothing, just buffer
+    break;
+
+  case 2:
+    ENSURE_ARG_AT_INDEX(callback, args, 1, KrollCallback);
+    break;
+
+  case 3:
+    ENSURE_ARG_AT_INDEX(offset, args, 1, NSObject);
+    ENSURE_ARG_AT_INDEX(length, args, 2, NSObject);
+    break;
+
+  case 4:
+    ENSURE_ARG_AT_INDEX(offset, args, 1, NSObject);
+    ENSURE_ARG_AT_INDEX(length, args, 2, NSObject);
+    ENSURE_ARG_AT_INDEX(callback, args, 3, KrollCallback);
+    break;
+
+  default:
+    [self throwException:TiExceptionNotEnoughArguments subreason:[NSString stringWithFormat:@"expected %d-%d arguments, received: %lu", 1, 4, (unsigned long)[args count]] location:CODELOCATION];
+    break;
+  }
 
   if (offset == nil && length == nil) {
-    return NUMINTEGER([self readToBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
+    return NUMINTEGER([self readToBuffer:buffer offset:0 length:[[buffer data] length] callback:callback]);
   } else {
     if (offset == nil || length == nil) {
       // TODO: Codify behavior
@@ -58,7 +81,7 @@
       return NUMINT(-1);
     }
 
-    return NUMINTEGER([self readToBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
+    return NUMINTEGER([self readToBuffer:buffer offset:offsetValue length:lengthValue callback:callback]);
   }
 
   return NUMINT(-1);
@@ -76,13 +99,36 @@
   TiBuffer *buffer = nil;
   id offset = nil; // May need to perform type coercion from string->int
   id length = nil;
+  KrollCallback *callback = nil;
 
   ENSURE_ARG_AT_INDEX(buffer, args, 0, TiBuffer);
-  ENSURE_ARG_OR_NIL_AT_INDEX(offset, args, 1, NSObject);
-  ENSURE_ARG_OR_NIL_AT_INDEX(length, args, 2, NSObject);
+  switch ([args count]) {
+  case 1:
+    // do nothing, just buffer
+    break;
+
+  case 2:
+    ENSURE_ARG_AT_INDEX(callback, args, 1, KrollCallback);
+    break;
+
+  case 3:
+    ENSURE_ARG_AT_INDEX(offset, args, 1, NSObject);
+    ENSURE_ARG_AT_INDEX(length, args, 2, NSObject);
+    break;
+
+  case 4:
+    ENSURE_ARG_AT_INDEX(offset, args, 1, NSObject);
+    ENSURE_ARG_AT_INDEX(length, args, 2, NSObject);
+    ENSURE_ARG_AT_INDEX(callback, args, 3, KrollCallback);
+    break;
+
+  default:
+    [self throwException:TiExceptionNotEnoughArguments subreason:[NSString stringWithFormat:@"expected %d-%d arguments, received: %lu", 1, 4, (unsigned long)[args count]] location:CODELOCATION];
+    break;
+  }
 
   if (offset == nil && length == nil) {
-    return NUMINTEGER([self writeFromBuffer:buffer offset:0 length:[[buffer data] length] callback:nil]);
+    return NUMINTEGER([self writeFromBuffer:buffer offset:0 length:[[buffer data] length] callback:callback]);
   } else {
     if (offset == nil || length == nil) {
       // TODO: Codify behavior
@@ -105,7 +151,7 @@
       return NUMINT(-1);
     }
 
-    return NUMINTEGER([self writeFromBuffer:buffer offset:offsetValue length:lengthValue callback:nil]);
+    return NUMINTEGER([self writeFromBuffer:buffer offset:offsetValue length:lengthValue callback:callback]);
   }
 
   return NUMINT(-1);
