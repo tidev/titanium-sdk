@@ -110,11 +110,38 @@ inline void SetTemplateMethod(v8::Isolate* isolate, v8::Local<v8::FunctionTempla
 	t->SetClassName(name_string); // NODE_SET_METHOD() compatibility.
 }
 
+class Utf8Value {
+	public:
+	explicit Utf8Value(v8::Local<v8::Value> value);
+
+	~Utf8Value() {
+		if (str_ != str_st_) free(str_);
+	}
+
+	char* operator*() {
+		return str_;
+	};
+
+	const char* operator*() const {
+		return str_;
+	};
+
+	size_t length() const {
+		return length_;
+	};
+
+	private:
+	size_t length_;
+	char* str_;
+	char str_st_[1024];
+};
+
 class V8Util {
 public:
-	static v8::Local<v8::Value> executeString(v8::Local<v8::Context> context, v8::Local<v8::String> source, v8::Local<v8::Value> filename);
+	static v8::Local<v8::Value> executeString(v8::Isolate* isolate, v8::Local<v8::String> source, v8::Local<v8::Value> filename);
 	static v8::Local<v8::Value> newInstanceFromConstructorTemplate(v8::Persistent<v8::FunctionTemplate>& t,
 		const v8::FunctionCallbackInfo<v8::Value>& args);
+	static void objectExtend(v8::Local<v8::Object> dest, v8::Local<v8::Object> src);
 	static void reportException(v8::Isolate* isolate, v8::TryCatch &tryCatch, bool showLine = true);
 	static void openJSErrorDialog(v8::Isolate* isolate, v8::TryCatch &tryCatch);
 	static void fatalException(v8::Isolate* isolate, v8::TryCatch &tryCatch);
