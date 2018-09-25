@@ -113,9 +113,7 @@ description: |
     *   <Titanium.UI.SIZE> specifies that the view should adjust this size to fit its
         contents, such as a label's text or a view's children.
     *   'auto' specifies that the view should choose either `FILL` or `SIZE` behavior.
-        In 2.0, the behavior of the 'auto' value is specified by the UI Composite Layout
-        Spec. This value is not recommended for new development and will be deprecated in
-        the future.
+        The use of 'auto' is deprecated, and should be replaced with the SIZE or FILL constants if it is necessary to set the view's behavior explicitly.
 
     Sizes and positions can also be specified as a percentage of the parent's size, for
     example, '50%'.
@@ -1122,8 +1120,8 @@ properties:
     summary: Disabled background image for the view, specified as a local file path or URL.
     type: String
     default: |
-        If `backgroundDisabledImage` is undefined, and the normal background image
-        `backgroundImage` is set, the normal image is used when this view is disabled.
+        If `backgroundDisabledImage` is undefined, and the normal background image`backgroundImage`
+        is set, the normal image is used when this view is disabled.
     platforms: [android]
 
   - name: backgroundFocusedColor
@@ -1141,8 +1139,8 @@ properties:
     description: For normal views, the focused background is only used if `focusable` is `true`.
     type: String
     default: |
-        If `backgroundFocusedImage` is undefined, and the normal background image
-        `backgroundImage` is set, the normal image is used when this view is focused.
+        If `backgroundFocusedImage` is undefined, and the normal background image `backgroundImage`
+        is set, the normal image is used when this view is focused.
     platforms: [android]
 
   - name: backgroundGradient
@@ -1219,9 +1217,8 @@ properties:
     summary: Background image for the view, specified as a local file path or URL.
     type: String
     default: |
-        Default behavior when `backgroundImage` is unspecified depends on the type of view and
-        the platform. For generic views, no image is used. For most controls (buttons, text
-        fields, and so on), platform-specific default images are used.
+        Default behavior when `backgroundImage` is unspecified depends on the type of view and the platform.
+        For generic views, no image is used. For most controls (buttons, textfields, and so on), platform-specific default images are used.
 
   - name: backgroundRepeat
     summary: Determines whether to tile a background across a view.
@@ -1267,9 +1264,9 @@ properties:
     type: String
     platforms: [android]
     default: |
-        If `backgroundSelectedImage` is undefined, and the normal background image
-        `backgroundImage` is set, the normal image is used when this view is selected.
-
+        If `backgroundSelectedImage` is undefined, and the normal background image `backgroundImage` is set
+        the normal image is used when this view is selected.
+        
   - name: backgroundTopCap
     summary: Size of the top end cap.
     description: |
