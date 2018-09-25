@@ -53,8 +53,10 @@ public class ActivityIndicatorProxy extends TiViewProxy
 		return view;
 	}
 
-	@Kroll.getProperty(writableKeys=true) @Kroll.method
-	public Object getFont()
+	@Kroll
+		.getProperty(writableKeys = true)
+		@Kroll.method
+		public Object getFont()
 	{
 		return hasProperty(TiC.PROPERTY_FONT) ? getProperty(TiC.PROPERTY_FONT) : KrollRuntime.UNDEFINED;
 	}

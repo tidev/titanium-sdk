@@ -55,8 +55,10 @@ public class ButtonProxy extends TiViewProxy
 		return new TiUIButton(this);
 	}
 
-	@Kroll.getProperty(writableKeys=true) @Kroll.method
-	public Object getFont()
+	@Kroll
+		.getProperty(writableKeys = true)
+		@Kroll.method
+		public Object getFont()
 	{
 		return hasProperty(TiC.PROPERTY_FONT) ? getProperty(TiC.PROPERTY_FONT) : KrollRuntime.UNDEFINED;
 	}
