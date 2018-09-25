@@ -12,11 +12,13 @@ import org.appcelerator.kroll.annotations.Kroll;
 import android.support.v4.app.NotificationCompat.Style;
 
 @Kroll.proxy
-abstract class StyleProxy extends KrollProxy {
+abstract class StyleProxy extends KrollProxy
+{
 
 	protected Style style;
 
-	public Style getStyle() {
+	public Style getStyle()
+	{
 		return style;
 	}
 }

@@ -9,7 +9,6 @@
 #import "TiUITextWidgetProxy.h"
 
 @interface TiUITextAreaProxy : TiUITextWidgetProxy {
-	
 }
 
 @end

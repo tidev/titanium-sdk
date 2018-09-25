@@ -7,7 +7,6 @@
 
 #import <UIKit/UIKit.h>
 
-
 /**
  The tab group protocol
  */
@@ -17,6 +16,6 @@
  Returns the tab bar for the tag group.
  @return The tag bar.
  */
--(UITabBar*)tabbar;
+- (UITabBar *)tabbar;
 
 @end

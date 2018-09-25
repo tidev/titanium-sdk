@@ -8,9 +8,6 @@ description: |
     calling a method on the proxy object results in a method invokation on the native
     object.
 
-    In Mobile Web, there is no true `Proxy` type -- all Titanium objects are ordinary JavaScript
-    objects.
-
     Some Titanium objects are _createable_: new instances of these objects can be created using
     factory methods. For example, a [Window](Titanium.UI.Window) object can be created using the
     <Titanium.UI.createWindow> method.
@@ -32,15 +29,15 @@ methods:
   - name: removeEventListener
     summary: Removes the specified callback as an event listener for the named event.
     description: |
-        Multiple listeners can be registered for the same event, so the 
-        `callback` parameter is used to determine which listener to remove. 
-        
+        Multiple listeners can be registered for the same event, so the
+        `callback` parameter is used to determine which listener to remove.
+
         When adding a listener, you must save a reference to the callback function
         in order to remove the listener later:
 
             var listener = function() { Ti.API.info("Event listener called."); }
             window.addEventListener('click', listener);
-            
+
         To remove the listener, pass in a reference to the callback function:
 
             window.removeEventListener('click', listener);
@@ -70,7 +67,7 @@ methods:
       - name: props
         summary: A dictionary of properties to apply.
         type: Dictionary
-    since: {android: "3.0.0",  iphone: "3.0.0", ipad: "3.0.0", mobileweb: "3.0.0"}
+    since: {android: "3.0.0",  iphone: "3.0.0", ipad: "3.0.0"}
 
 properties:
 
@@ -94,7 +91,7 @@ properties:
       returns `Ti.UI.Button`.
     permission: read-only
     type: String
-    platforms: [android,  iphone, ipad, mobileweb]
+    platforms: [android,  iphone, ipad]
     since: "3.2.0"
 
   - name: lifecycleContainer

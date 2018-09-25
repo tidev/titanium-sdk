@@ -30,9 +30,7 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 
 import android.content.Context;
@@ -42,12 +40,10 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.webkit.URLUtil;
 
 @SuppressWarnings("deprecation")
-public class TiFileHelper implements Handler.Callback
+public class TiFileHelper
 {
 	private static final String TAG = "TiFileHelper";
 
@@ -55,13 +51,8 @@ public class TiFileHelper implements Handler.Callback
 	public static final String TI_DIR_JS = "tijs";
 	private static final String MACOSX_PREFIX = "__MACOSX";
 	private static final String TI_RESOURCE_PREFIX = "ti:";
-	
-	private static final int MSG_NETWORK_URL = 100;
-
 	public static final String RESOURCE_ROOT_ASSETS = "file:///android_asset/Resources";
 	public static final String SD_CARD_PREFIX = "/sdcard/Ti.debug";
-	
-	protected Handler runtimeHandler = null;
 
 	static HashMap<String, Integer> systemIcons;
 
@@ -69,12 +60,12 @@ public class TiFileHelper implements Handler.Callback
 	private TiNinePatchHelper nph;
 
 	private ArrayList<File> tempFiles = new ArrayList<File>();
-	
+
 	private static HashSet<String> resourcePathCache;
 	private static HashSet<String> foundResourcePathCache;
 	private static HashSet<String> notFoundResourcePathCache;
 	private static TiFileHelper _instance = null;
-	
+
 	public TiFileHelper(Context context)
 	{
 		softContext = new SoftReference<Context>(context);
@@ -91,7 +82,8 @@ public class TiFileHelper implements Handler.Callback
 			notFoundResourcePathCache = new HashSet<String>();
 		}
 
-		synchronized(TI_DIR) {
+		synchronized (TI_DIR)
+		{
 			if (systemIcons == null) {
 				systemIcons = new HashMap<String, Integer>();
 				systemIcons.put("ic_menu_camera", android.R.drawable.ic_menu_camera);
@@ -126,14 +118,6 @@ public class TiFileHelper implements Handler.Callback
 		}
 	}
 
-	private Handler getRuntimeHandler()
-	{
-		if (runtimeHandler == null) {
-			runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
-		}
-		return runtimeHandler;
-	}
-
 	/**
 	 * Creates or retrieves the TiFileHelper instance.
 	 * @return the TiFileHelper instance.
@@ -146,8 +130,7 @@ public class TiFileHelper implements Handler.Callback
 		return _instance;
 	}
 
-	public InputStream openInputStream(String path, boolean report)
-		throws IOException
+	public InputStream openInputStream(String path, boolean report) throws IOException
 	{
 		InputStream is = null;
 
@@ -165,38 +148,36 @@ public class TiFileHelper implements Handler.Callback
 				String resid = parts[2];
 
 				if (TI_RESOURCE_PREFIX.equals(section)) {
-					is = TiFileHelper.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/" + resid + ".png");
+					is = TiFileHelper.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/" + resid
+																+ ".png");
 				} else if ("Sys".equals(section)) {
-				    Log.e(TAG, "Accessing Android system icons is deprecated. Instead copy to res folder.");
-				    Integer id = systemIcons.get(resid);
-				    if (id != null) {
-				        is = Resources.getSystem().openRawResource(id);
-				    } else {
-				        Log.w(TAG, "Drawable not found for system id: " + path);
-				    }
+					Log.e(TAG, "Accessing Android system icons is deprecated. Instead copy to res folder.");
+					Integer id = systemIcons.get(resid);
+					if (id != null) {
+						is = Resources.getSystem().openRawResource(id);
+					} else {
+						Log.w(TAG, "Drawable not found for system id: " + path);
+					}
 				} else {
 					Log.e(TAG, "Unknown section identifier: " + section);
 				}
 			} else if (URLUtil.isNetworkUrl(path)) {
-				if (TiApplication.isUIThread()) {
-					is = (InputStream) TiMessenger.sendBlockingRuntimeMessage(getRuntimeHandler().obtainMessage(MSG_NETWORK_URL), path);
-				} else {
-					is = handleNetworkURL(path);
-				}
+				is = handleNetworkURL(path);
 			} else if (path.startsWith(RESOURCE_ROOT_ASSETS)) {
 				int len = "file:///android_asset/".length();
 				path = path.substring(len);
 				boolean found = false;
-				
+
 				if (foundResourcePathCache.contains(path)) {
 					found = true;
 				} else if (!notFoundResourcePathCache.contains(path)) {
 					String base = path.substring(0, path.lastIndexOf("/"));
-					
-					synchronized(resourcePathCache) {
+
+					synchronized (resourcePathCache)
+					{
 						if (!resourcePathCache.contains(base)) {
 							String[] paths = context.getAssets().list(base);
-							for(int i = 0; i < paths.length; i++) {
+							for (int i = 0; i < paths.length; i++) {
 								foundResourcePathCache.add(base + '/' + paths[i]);
 							}
 							resourcePathCache.add(base);
@@ -228,58 +209,22 @@ public class TiFileHelper implements Handler.Callback
 
 	private InputStream handleNetworkURL(String path) throws IOException
 	{
-		InputStream is = null;
-		try {
-			URI uri = new URI(path);
-			if (TiResponseCache.peek(uri)) {
-				InputStream stream = TiResponseCache.openCachedStream(uri);
-				if (stream != null) {
-					// Fallback to actual download when null
-					return stream;
-				}
-			}
-		} catch (URISyntaxException uriException) {
+		// Validate argument.
+		if ((path == null) || path.isEmpty()) {
+			return null;
 		}
 
-		URL u = new URL(path);
-		InputStream lis = u.openStream();
-		ByteArrayOutputStream bos = null;
+		// Do a blocking download.
+		// Note: The download manager will attempt to read from TiResponseCache first before sending an HTTP request.
+		InputStream inputStream = null;
 		try {
-			bos = new ByteArrayOutputStream(8192);
-			int count = 0;
-			byte[] buf = new byte[8192];
-
-			while((count = lis.read(buf)) != -1) {
-				bos.write(buf, 0, count);
-			}
-
-			is = new ByteArrayInputStream(bos.toByteArray());
-
-		} catch (IOException e) {
-
-			Log.e(TAG, "Problem pulling image data from " + path, e);
-			throw e;
-		} finally {
-			if (lis != null) {
-				try {
-					lis.close();
-					lis = null;
-				} catch (Exception e) {
-					// Ignore
-				}
-			}
-			if (bos != null) {
-				try {
-					bos.close();
-					bos = null;
-				} catch (Exception e) {
-					// ignore
-				}
-			}
+			inputStream = TiDownloadManager.getInstance().blockingDownload(URI.create(path));
+		} catch (Exception ex) {
+			Log.e(TAG, "Problem pulling image data from " + path, ex);
 		}
-		return is;
+		return inputStream;
 	}
-	
+
 	/**
 	 * This is a wrapper method.
 	 * Refer to {@link #loadDrawable(String, boolean, boolean)} for more details.
@@ -287,10 +232,11 @@ public class TiFileHelper implements Handler.Callback
 	 * @param report  this is not being used.
 	 * @return a Drawable instance.
 	 */
-	public Drawable loadDrawable(String path, boolean report) {
+	public Drawable loadDrawable(String path, boolean report)
+	{
 		return loadDrawable(path, report, false);
 	}
-	
+
 	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
 	{
 		return loadDrawable(path, report, checkForNinePatch, true);
@@ -316,8 +262,7 @@ public class TiFileHelper implements Handler.Callback
 			return d;
 		}
 
-		try
-		{
+		try {
 			if (checkForNinePatch && path != null && !URLUtil.isNetworkUrl(path)) {
 				if (path.endsWith(".png")) {
 					if (!path.endsWith(".9.png")) {
@@ -330,7 +275,7 @@ public class TiFileHelper implements Handler.Callback
 								path = apath;
 							}
 						} catch (IOException e) {
-								Log.d(TAG, "path not found: " + apath);
+							Log.d(TAG, "path not found: " + apath);
 						}
 					}
 				}
@@ -371,7 +316,8 @@ public class TiFileHelper implements Handler.Callback
 		return d;
 	}
 
-	public boolean isTitaniumResource(String s) {
+	public boolean isTitaniumResource(String s)
+	{
 		boolean result = false;
 		if (s != null && s.startsWith(TI_RESOURCE_PREFIX)) {
 			result = true;
@@ -380,7 +326,8 @@ public class TiFileHelper implements Handler.Callback
 		return result;
 	}
 
-	public Drawable getTitaniumResource(Context context, String s) {
+	public Drawable getTitaniumResource(Context context, String s)
+	{
 		Drawable d = null;
 
 		if (isTitaniumResource(s)) {
@@ -396,7 +343,8 @@ public class TiFileHelper implements Handler.Callback
 			if (TI_RESOURCE_PREFIX.equals(section)) {
 				InputStream is = null;
 				try {
-					is = TiFileHelper.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/" + resid + ".png");
+					is = TiFileHelper.class.getResourceAsStream("/org/appcelerator/titanium/res/drawable/" + resid
+																+ ".png");
 					d = new BitmapDrawable(is);
 				} finally {
 					if (is != null) {
@@ -408,13 +356,13 @@ public class TiFileHelper implements Handler.Callback
 					}
 				}
 			} else if ("Sys".equals(section)) {
-			    Log.e(TAG, "Accessing Android system icons is deprecated. Instead copy to res folder.");
-			    Integer id = systemIcons.get(resid);
-			    if (id != null) {
-			        d = Resources.getSystem().getDrawable(id);
-			    } else {
-			        Log.w(TAG, "Drawable not found for system id: " + s);
-			    }
+				Log.e(TAG, "Accessing Android system icons is deprecated. Instead copy to res folder.");
+				Integer id = systemIcons.get(resid);
+				if (id != null) {
+					d = Resources.getSystem().getDrawable(id);
+				} else {
+					Log.w(TAG, "Drawable not found for system id: " + s);
+				}
 			} else {
 				Log.e(TAG, "Unknown section identifier: " + section);
 			}
@@ -428,10 +376,11 @@ public class TiFileHelper implements Handler.Callback
 
 	public String getResourceUrl(String path)
 	{
-        return joinPaths(RESOURCE_ROOT_ASSETS, path);
+		return joinPaths(RESOURCE_ROOT_ASSETS, path);
 	}
 
-	public String joinPaths(String pre, String post) {
+	public String joinPaths(String pre, String post)
+	{
 		StringBuilder sb = new StringBuilder();
 		sb.append(pre);
 		if (pre.endsWith("/") && !post.startsWith("/")) {
@@ -446,8 +395,7 @@ public class TiFileHelper implements Handler.Callback
 		return sb.toString();
 	}
 
-	public void deployFromAssets(File dest)
-		throws IOException
+	public void deployFromAssets(File dest) throws IOException
 	{
 		Context ctx = softContext.get();
 		if (ctx != null) {
@@ -464,17 +412,17 @@ public class TiFileHelper implements Handler.Callback
 			byte[] buf = new byte[8096];
 			try {
 				int len = paths.size();
-				for(int i = 0; i < len; i++) {
+				for (int i = 0; i < len; i++) {
 					String path = paths.get(i);
 					File f = new File(path);
-					if(f.getName().indexOf(".") > -1) {
+					if (f.getName().indexOf(".") > -1) {
 						bis = new BufferedInputStream(am.open(path), 8096);
 						File df = new File(dest, path);
 						Log.d(TAG, "Copying to: " + df.getAbsolutePath(), Log.DEBUG_MODE);
 						fos = new FileOutputStream(df);
 
 						int read = 0;
-						while((read = bis.read(buf)) != -1) {
+						while ((read = bis.read(buf)) != -1) {
 							fos.write(buf, 0, read);
 						}
 
@@ -483,7 +431,7 @@ public class TiFileHelper implements Handler.Callback
 						fos.close();
 						fos = null;
 					} else {
-						File d = new File(dest,path);
+						File d = new File(dest, path);
 						Log.d(TAG, "Creating directory: " + d.getAbsolutePath());
 						d.mkdirs();
 					}
@@ -509,8 +457,7 @@ public class TiFileHelper implements Handler.Callback
 		}
 	}
 
-	public void deployFromZip(File fname, File dest)
-		throws IOException
+	public void deployFromZip(File fname, File dest) throws IOException
 	{
 		wipeDirectoryTree(dest);
 
@@ -529,7 +476,7 @@ public class TiFileHelper implements Handler.Callback
 
 			// Process the file
 			zis = getZipInputStream(new FileInputStream(fname));
-			while((ze = zis.getNextEntry()) != null) {
+			while ((ze = zis.getNextEntry()) != null) {
 				String name = ze.getName();
 				if (name.startsWith(MACOSX_PREFIX)) {
 					zis.closeEntry();
@@ -538,7 +485,7 @@ public class TiFileHelper implements Handler.Callback
 
 				name = name.substring(rootLen);
 
-				if(name.length() > 0) {
+				if (name.length() > 0) {
 					Log.d(TAG, "Extracting " + name, Log.DEBUG_MODE);
 					if (ze.isDirectory()) {
 						File d = new File(dest, name);
@@ -548,9 +495,9 @@ public class TiFileHelper implements Handler.Callback
 					} else {
 						FileOutputStream fos = null;
 						try {
-							fos = new FileOutputStream(new File(dest,name));
+							fos = new FileOutputStream(new File(dest, name));
 							int read = 0;
-							while((read = zis.read(buf)) != -1) {
+							while ((read = zis.read(buf)) != -1) {
 								fos.write(buf, 0, read);
 							}
 						} finally {
@@ -571,7 +518,7 @@ public class TiFileHelper implements Handler.Callback
 			if (zis != null) {
 				try {
 					zis.close();
-				}catch (Throwable t) {
+				} catch (Throwable t) {
 					//Ignore
 				}
 			}
@@ -580,16 +527,17 @@ public class TiFileHelper implements Handler.Callback
 
 	public void wipeDirectoryTree(File path)
 	{
-		TreeSet<String> dirs = new TreeSet<String>(new Comparator<String>(){
-
-			public int compare(String o1, String o2) {
+		TreeSet<String> dirs = new TreeSet<String>(new Comparator<String>() {
+			public int compare(String o1, String o2)
+			{
 				return o1.compareTo(o2) * -1;
-			}});
+			}
+		});
 
 		wipeDirectoryTree(path, dirs);
 
 		Iterator<String> d = dirs.iterator();
-		while(d.hasNext()) {
+		while (d.hasNext()) {
 			String fn = d.next();
 			File f = new File(fn);
 			Log.d(TAG, "Deleting Dir: " + f.getAbsolutePath(), Log.DEBUG_MODE);
@@ -597,27 +545,25 @@ public class TiFileHelper implements Handler.Callback
 		}
 	}
 
-	public File getTempFile(String suffix, boolean destroyOnExit)
-		throws IOException
+	public File getTempFile(String suffix, boolean destroyOnExit) throws IOException
 	{
 		File result = null;
 		Context context = softContext.get();
 
-		if(context != null) {
+		if (context != null) {
 			result = getTempFile(context.getCacheDir(), suffix, destroyOnExit);
 		}
 		return result;
 	}
 
-	public File getTempFile(File dir, String suffix, boolean destroyOnExit)
-		throws IOException
+	public File getTempFile(File dir, String suffix, boolean destroyOnExit) throws IOException
 	{
 		File result = null;
 		Context context = softContext.get();
 		if (context != null) {
 			if (!dir.exists()) {
 				Log.w(TAG, "getTempFile: Directory '" + dir.getAbsolutePath()
-					+ "' does not exist. Call to File.createTempFile() will fail.");
+							   + "' does not exist. Call to File.createTempFile() will fail.");
 			}
 			result = File.createTempFile("tia", suffix, dir);
 
@@ -653,6 +599,11 @@ public class TiFileHelper implements Handler.Callback
 		return null;
 	}
 
+	public void destroyOnExit(File file)
+	{
+		tempFiles.add(file);
+	}
+
 	// Destroys all temporary files that have been created.
 	// This is called when the application is exited/destroyed.
 	public void destroyTempFiles()
@@ -676,23 +627,20 @@ public class TiFileHelper implements Handler.Callback
 		Context context = softContext.get();
 		if (context != null) {
 
-			if (privateStorage)
-			{
-				f = context.getDir("appdata",0);
-			}
-			else
-			{
+			if (privateStorage) {
+				f = context.getDir("appdata", 0);
+			} else {
 				File storageDir = Environment.getExternalStorageDirectory();
 				f = new File(storageDir, context.getPackageName());
-				if (!f.exists())
-				{
+				if (!f.exists()) {
 					f.mkdirs();
 				}
 			}
 		}
 		return f;
 	}
-	private void wipeDirectoryTree(File path, SortedSet<String> dirs) {
+	private void wipeDirectoryTree(File path, SortedSet<String> dirs)
+	{
 		File[] files = path.listFiles();
 		if (files != null) {
 			int len = files.length;
@@ -714,7 +662,7 @@ public class TiFileHelper implements Handler.Callback
 		if (titaniumPath(path)) {
 			String[] files = am.list(path);
 			if (files.length > 0) {
-				for(int i = 0; i < files.length; i++) {
+				for (int i = 0; i < files.length; i++) {
 					String newPath = files[i];
 					String todo = path;
 					if (path.length() > 0) {
@@ -732,31 +680,30 @@ public class TiFileHelper implements Handler.Callback
 		}
 	}
 
-	private boolean titaniumPath(String path) {
+	private boolean titaniumPath(String path)
+	{
 		return path == "" || path.equals("tiapp.xml") || path.startsWith("Resources");
 	}
 
-	private ZipInputStream getZipInputStream(InputStream is)
-		throws FileNotFoundException, IOException
+	private ZipInputStream getZipInputStream(InputStream is) throws FileNotFoundException, IOException
 	{
 		return new ZipInputStream(is);
 	}
 
-	private String getRootDir(ZipInputStream zis)
-		throws FileNotFoundException, IOException
+	private String getRootDir(ZipInputStream zis) throws FileNotFoundException, IOException
 	{
 		String root = "";
 
 		ZipEntry ze = null;
-		while((ze = zis.getNextEntry()) != null) {
+		while ((ze = zis.getNextEntry()) != null) {
 			String name = ze.getName();
 			zis.closeEntry();
 
 			if (name.startsWith(MACOSX_PREFIX)) {
 				continue;
 			} else {
-				if(name.indexOf("tiapp.xml") > -1) {
-					String [] segments = name.split("\\/");
+				if (name.indexOf("tiapp.xml") > -1) {
+					String[] segments = name.split("\\/");
 					if (segments.length == 2) {
 						root = segments[0] + "/";
 						break;
@@ -768,20 +715,4 @@ public class TiFileHelper implements Handler.Callback
 		}
 		return root;
 	}
-
-	public boolean handleMessage(Message msg)
-	{		
-		switch (msg.what) {
-			case MSG_NETWORK_URL:
-				AsyncResult result = (AsyncResult) msg.obj;
-				try {
-					result.setResult(handleNetworkURL(TiConvert.toString(result.getArg())));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				return true;
-		}
-		return false;
-	}
 }
-

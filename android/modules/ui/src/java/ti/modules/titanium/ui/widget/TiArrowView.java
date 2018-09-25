@@ -21,12 +21,13 @@ public class TiArrowView extends View
 	private Path path;
 	private Paint p;
 
-	public TiArrowView(Context context) {
+	public TiArrowView(Context context)
+	{
 		super(context);
 		leftArrow = true;
 		setFocusable(false);
 		setFocusableInTouchMode(false);
-		if(android.os.Build.VERSION.SDK_INT >= 11) {
+		if (android.os.Build.VERSION.SDK_INT >= 11) {
 			//Paint.setStrokeCap not supported for lines in HW acceleration mode.
 			this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
@@ -34,12 +35,14 @@ public class TiArrowView extends View
 		configureDrawable();
 	}
 
-	public void setLeft(boolean leftArrow) {
+	public void setLeft(boolean leftArrow)
+	{
 		this.leftArrow = leftArrow;
 		configureDrawable();
 	}
 
-	private void configureDrawable() {
+	private void configureDrawable()
+	{
 		path = new Path();
 
 		if (leftArrow) {
@@ -58,24 +61,26 @@ public class TiArrowView extends View
 	}
 
 	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+	{
 
 		setMeasuredDimension(getSuggestedMinimumWidth(), getSuggestedMinimumHeight());
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(Canvas canvas)
+	{
 		super.onDraw(canvas);
 
 		if (path != null) {
-			int w = getWidth()/2;
-			int h = getHeight()/2;
+			int w = getWidth() / 2;
+			int h = getHeight() / 2;
 			canvas.save();
-			canvas.scale(w,h);
+			canvas.scale(w, h);
 			if (!leftArrow) {
 				canvas.translate(1, 0);
 			}
-			
+
 			p.setAntiAlias(false);
 			p.setARGB(175, 216, 216, 216);
 			p.setStyle(Paint.Style.FILL);

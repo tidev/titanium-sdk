@@ -44,19 +44,19 @@ public class MenuProxy extends KrollProxy
 	protected Menu menu;
 	protected HashMap<MenuItem, MenuItemProxy> menuMap;
 
-	public MenuProxy(Menu menu) 
+	public MenuProxy(Menu menu)
 	{
 		this.menu = menu;
-		menuMap = new HashMap<MenuItem,MenuItemProxy>();
+		menuMap = new HashMap<MenuItem, MenuItemProxy>();
 	}
 
 	@Override
-	public boolean handleMessage(Message msg) 
+	public boolean handleMessage(Message msg)
 	{
 		AsyncResult result = null;
 		result = (AsyncResult) msg.obj;
 
-		switch(msg.what) {
+		switch (msg.what) {
 			case MSG_ADD: {
 				result.setResult(handleAdd((KrollDict) result.getArg()));
 				return true;
@@ -91,7 +91,7 @@ public class MenuProxy extends KrollProxy
 				result.setResult(null);
 				return true;
 			}
-			default : {
+			default: {
 				return super.handleMessage(msg);
 			}
 		}
@@ -106,24 +106,25 @@ public class MenuProxy extends KrollProxy
 			mip = handleAdd(d);
 			return mip;
 		}
-		
+
 		if (!(d instanceof KrollDict) && (d instanceof HashMap)) {
 			d = new KrollDict(d);
 		}
 
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD), (KrollDict) d);
+		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD),
+																   (KrollDict) d);
 	}
 
-	public MenuItemProxy handleAdd(KrollDict d) 
+	public MenuItemProxy handleAdd(KrollDict d)
 	{
 		MenuItemProxy mip = null;
-		
+
 		String title = "";
 		int itemId = Menu.NONE;
 		int groupId = Menu.NONE;
 		int order = Menu.NONE;
-		
-		if(d.containsKey(TiC.PROPERTY_TITLE)) {
+
+		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			title = TiConvert.toString(d, TiC.PROPERTY_TITLE);
 		}
 		if (d.containsKey(TiC.PROPERTY_ITEM_ID)) {
@@ -135,19 +136,20 @@ public class MenuProxy extends KrollProxy
 		if (d.containsKey(TiC.PROPERTY_ORDER)) {
 			order = TiConvert.toInt(d, TiC.PROPERTY_ORDER);
 		}
-		
+
 		MenuItem item = menu.add(groupId, itemId, order, title);
 		mip = new MenuItemProxy(item);
 		//Appcompat for ICS+ wraps the menu object so here we want to set the wrapped object for look-up purposes
 		//since the wrapper will be copied when onOptionsItemSelected is invoked.
 		if (item instanceof MenuItemWrapperICS) {
-			MenuItemWrapperICS wrapper = (MenuItemWrapperICS)item;
+			MenuItemWrapperICS wrapper = (MenuItemWrapperICS) item;
 			item = wrapper.getWrappedObject();
 		}
-		synchronized(menuMap) {
+		synchronized (menuMap)
+		{
 			menuMap.put(item, mip);
 		}
-		
+
 		if (d.containsKey(TiC.PROPERTY_ACTION_VIEW)) {
 			//check if view has a parent. If not, add it as action view. Otherwise, log error.
 			Object viewProxy = d.get(TiC.PROPERTY_ACTION_VIEW);
@@ -155,7 +157,7 @@ public class MenuProxy extends KrollProxy
 				TiUIView view = ((TiViewProxy) viewProxy).getOrCreateView();
 				if (view != null) {
 					View nativeView = view.getNativeView();
-					ViewGroup viewParent = (ViewGroup)nativeView.getParent();
+					ViewGroup viewParent = (ViewGroup) nativeView.getParent();
 					if (viewParent != null) {
 						viewParent.removeView(nativeView);
 					}
@@ -198,10 +200,12 @@ public class MenuProxy extends KrollProxy
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLEAR));
 	}
 
-	public void handleClear() {
+	public void handleClear()
+	{
 		if (menu != null) {
 			menu.clear();
-			synchronized(menuMap) {
+			synchronized (menuMap)
+			{
 				menuMap.clear();
 			}
 		}
@@ -218,51 +222,54 @@ public class MenuProxy extends KrollProxy
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE));
 	}
 
-	public void handleClose() {
+	public void handleClose()
+	{
 		if (menu != null) {
 			menu.close();
 		}
 	}
-	
+
 	@Kroll.method
-	public MenuItemProxy findItem(int itemId) 
+	public MenuItemProxy findItem(int itemId)
 	{
 		MenuItemProxy mip = null;
 		MenuItem item = menu.findItem(itemId);
 		if (item != null) {
 			return findItem(item);
 		}
-		
+
 		return mip;
 	}
 
 	@Kroll.method
-	public MenuItemProxy getItem(int index) 
+	public MenuItemProxy getItem(int index)
 	{
 		MenuItemProxy mip = null;
 		MenuItem item = menu.getItem(index);
-		
+
 		if (item != null) {
 			mip = findItem(item);
 		}
-				
+
 		return mip;
 	}
-	
-	
-	public MenuItemProxy findItem(MenuItem item) {
+
+	public MenuItemProxy findItem(MenuItem item)
+	{
 		//Appcompat for ICS+ wraps the menu object so here we want to get the wrapped object.
 		if (item instanceof MenuItemWrapperICS) {
-			MenuItemWrapperICS wrapper = (MenuItemWrapperICS)item;
+			MenuItemWrapperICS wrapper = (MenuItemWrapperICS) item;
 			item = wrapper.getWrappedObject();
 		}
-		synchronized(menuMap) {
+		synchronized (menuMap)
+		{
 			return menuMap.get(item);
 		}
 	}
-	
+
 	@Kroll.method
-	public boolean hasVisibleItems() {
+	public boolean hasVisibleItems()
+	{
 		return menu.hasVisibleItems();
 	}
 
@@ -277,17 +284,19 @@ public class MenuProxy extends KrollProxy
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_GROUP), groupId);
 	}
 
-	public void handleRemoveGroup(int groupId) {
+	public void handleRemoveGroup(int groupId)
+	{
 		//TODO will get to get items in the group and remove them from our map
-		synchronized(menuMap) {
+		synchronized (menuMap)
+		{
 			menu.removeGroup(groupId);
-			HashMap<MenuItem,MenuItemProxy> mm = new HashMap<MenuItem,MenuItemProxy>(menu.size());
+			HashMap<MenuItem, MenuItemProxy> mm = new HashMap<MenuItem, MenuItemProxy>(menu.size());
 			int len = menu.size();
 			for (int i = 0; i < len; i++) {
 				MenuItem mi = menu.getItem(i);
 				//Appcompat for ICS+ wraps the menu object so here we want to get the wrapped object.
 				if (mi instanceof MenuItemWrapperICS) {
-					MenuItemWrapperICS wrapper = (MenuItemWrapperICS)mi;
+					MenuItemWrapperICS wrapper = (MenuItemWrapperICS) mi;
 					mi = wrapper.getWrappedObject();
 				}
 				MenuItemProxy mip = menuMap.get(mi);
@@ -309,14 +318,16 @@ public class MenuProxy extends KrollProxy
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_ITEM), itemId);
 	}
 
-	public void handleRemoveItem(int itemId) {
+	public void handleRemoveItem(int itemId)
+	{
 		//TODO remove item from list too
-		synchronized(menuMap) {
+		synchronized (menuMap)
+		{
 			MenuItem mi = menu.findItem(itemId);
 			if (mi != null) {
 				//Appcompat for ICS+ wraps the menu object so here we want to get the wrapped object.
 				if (mi instanceof MenuItemWrapperICS) {
-					MenuItemWrapperICS wrapper = (MenuItemWrapperICS)mi;
+					MenuItemWrapperICS wrapper = (MenuItemWrapperICS) mi;
 					mi = wrapper.getWrappedObject();
 				}
 				MenuItemProxy mip = menuMap.remove(mi);
@@ -327,9 +338,10 @@ public class MenuProxy extends KrollProxy
 			}
 		}
 	}
-	
+
 	@Kroll.method
-	public void setGroupCheckable(int groupId, boolean checkable, boolean exclusive) {
+	public void setGroupCheckable(int groupId, boolean checkable, boolean exclusive)
+	{
 	}
 
 	@Kroll.method
@@ -347,8 +359,10 @@ public class MenuProxy extends KrollProxy
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_GROUP_ENABLED), args);
 	}
 
-	public void handleSetGroupEnabled(HashMap args) {
-		menu.setGroupEnabled(((Integer)args.get("groupId")).intValue(), ((Boolean)args.get("enabled")).booleanValue());
+	public void handleSetGroupEnabled(HashMap args)
+	{
+		menu.setGroupEnabled(((Integer) args.get("groupId")).intValue(),
+							 ((Boolean) args.get("enabled")).booleanValue());
 	}
 
 	@Kroll.method
@@ -366,17 +380,24 @@ public class MenuProxy extends KrollProxy
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_GROUP_VISIBLE), args);
 	}
 
-	public void handleSetGroupVisible(HashMap args) {
-		menu.setGroupVisible(((Integer)args.get("groupId")).intValue(), ((Boolean)args.get("visible")).booleanValue());
+	public void handleSetGroupVisible(HashMap args)
+	{
+		menu.setGroupVisible(((Integer) args.get("groupId")).intValue(),
+							 ((Boolean) args.get("visible")).booleanValue());
 	}
 
 	@Kroll.method
-	public int size() {
+	public int size()
+	{
 		return menu.size();
 	}
-	
-	@Kroll.method @Kroll.getProperty
-	public MenuItemProxy[] getItems() {
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public MenuItemProxy[] getItems()
+	// clang-format on
+	{
 		int len = menu.size();
 		MenuItemProxy[] proxies = new MenuItemProxy[len];
 		for (int i = 0; i < len; i++) {
@@ -387,24 +408,27 @@ public class MenuProxy extends KrollProxy
 
 		return proxies;
 	}
-	
-	public Menu getMenu() {
+
+	public Menu getMenu()
+	{
 		return menu;
 	}
-	
-	public void setMenu(Menu menu) {
+
+	public void setMenu(Menu menu)
+	{
 		if (this.menu != null && this.menu != menu) {
 			Log.w(TAG, "A new menu has been set, cleaning up old menu first", Log.DEBUG_MODE);
 			release();
 		}
 		this.menu = menu;
 	}
-	
-//	public ArrayList<MenuItemProxy> getMenuItems() {
-//		return menuItems;
-//	}
-	
-	public void release() {	
+
+	//	public ArrayList<MenuItemProxy> getMenuItems() {
+	//		return menuItems;
+	//	}
+
+	public void release()
+	{
 		if (menu != null) {
 			menu.clear();
 			menu.close();

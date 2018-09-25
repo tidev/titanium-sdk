@@ -139,7 +139,7 @@ function toggleShowClass(clsName, show) {
 <%
 for (i in apis.proxies) {
 	var proxy = apis.proxies[i],
-		baseDocURI = "http://docs.appcelerator.com/platform/latest/#!/api/" + proxy.name,
+		baseDocURI = "https://docs.appcelerator.com/platform/latest/#!/api/" + proxy.name,
 		className = (proxy.pseudo ? "p" : "n"),
 		supported = false;
 -%>
@@ -194,7 +194,7 @@ for (i in apis.proxies) {
 	}
 
 	for (i in proxy.events) {
-		var event = proxy.properties[i];
+		var event = proxy.events[i];
 -%>
 	<tr>
 		<td class="title"><a href=<%= baseDocURI + "-event-" + event.name %>><%= event.name %></a> (<i>event</i>)</td>

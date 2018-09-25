@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 
 import android.Manifest;
@@ -28,23 +27,21 @@ import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 
-import com.appcelerator.aps.APSAnalyticsHelper;
-
 @SuppressWarnings("deprecation")
-public class TiPlatformHelper extends APSAnalyticsHelper
+public class TiPlatformHelper
 {
 	public static final String TAG = "TiPlatformHelper";
-	private static final Map<String, Locale> locales = java.util.Collections.synchronizedMap(new HashMap<String, Locale>());
-	private static final Map<Locale, String> currencyCodes = java.util.Collections
-		.synchronizedMap(new HashMap<Locale, String>());
-	private static final Map<Locale, String> currencySymbols = java.util.Collections
-		.synchronizedMap(new HashMap<Locale, String>());
-	private static final Map<String, String> currencySymbolsByCode = java.util.Collections
-		.synchronizedMap(new HashMap<String, String>());
+	private static final Map<String, Locale> locales =
+		java.util.Collections.synchronizedMap(new HashMap<String, Locale>());
+	private static final Map<Locale, String> currencyCodes =
+		java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
+	private static final Map<Locale, String> currencySymbols =
+		java.util.Collections.synchronizedMap(new HashMap<Locale, String>());
+	private static final Map<String, String> currencySymbolsByCode =
+		java.util.Collections.synchronizedMap(new HashMap<String, String>());
 
 	public static float applicationScaleFactor = 1.0F;
 	public static int applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
-	private static boolean applicationDisplayInfoInitialized = false;
 
 	private static class InstanceHolder
 	{
@@ -58,44 +55,29 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 
 	private TiPlatformHelper()
 	{
-
-	}
-
-	public void initialize()
-	{
-		APSAnalyticsHelper.getInstance().init(TiApplication.getInstance().getAppGUID(), TiApplication.getInstance());
 	}
 
 	public synchronized void intializeDisplayMetrics(Activity activity)
 	{
-		if (!applicationDisplayInfoInitialized) {
-			DisplayMetrics dm = new DisplayMetrics();
-			activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+		DisplayMetrics dm = new DisplayMetrics();
+		activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-			// Note: this isn't public API, so there should be lots of error checking here
-			try {
-				Method gciMethod = Resources.class.getMethod("getCompatibilityInfo");
-				Object compatInfo = gciMethod.invoke(activity.getResources());
-				applicationScaleFactor = (Float) compatInfo.getClass().getField("applicationScale").get(compatInfo);
-			} catch (Exception e) {
-				Log.w(TAG, "Unable to get application scale factor, using reported density and its factor", Log.DEBUG_MODE);
-			}
-
-			if (applicationScaleFactor == 1.0f) {
-				applicationLogicalDensity = dm.densityDpi;
-			} else if (applicationScaleFactor > 1.0f) {
-				applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
-			} else {
-				applicationLogicalDensity = DisplayMetrics.DENSITY_LOW;
-			}
-
-			applicationDisplayInfoInitialized = true;
+		// Note: this isn't public API, so there should be lots of error checking here
+		try {
+			Method gciMethod = Resources.class.getMethod("getCompatibilityInfo");
+			Object compatInfo = gciMethod.invoke(activity.getResources());
+			applicationScaleFactor = (Float) compatInfo.getClass().getField("applicationScale").get(compatInfo);
+		} catch (Exception e) {
+			Log.w(TAG, "Unable to get application scale factor, using reported density and its factor", Log.DEBUG_MODE);
 		}
-	}
 
-	public ITiAppInfo getAppInfo()
-	{
-		return TiApplication.getInstance().getAppInfo();
+		if (applicationScaleFactor == 1.0f) {
+			applicationLogicalDensity = dm.densityDpi;
+		} else if (applicationScaleFactor > 1.0f) {
+			applicationLogicalDensity = DisplayMetrics.DENSITY_MEDIUM;
+		} else {
+			applicationLogicalDensity = DisplayMetrics.DENSITY_LOW;
+		}
 	}
 
 	public String getLocale()
@@ -197,7 +179,8 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		String ipAddress = null;
 		TiApplication tiApp = TiApplication.getInstance();
 
-		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+			== PackageManager.PERMISSION_GRANTED) {
 			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
 			if (wifiManager != null) {
 				WifiInfo wifiInfo = wifiManager.getConnectionInfo();
@@ -222,7 +205,8 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 		String netmask = null;
 		TiApplication tiApp = TiApplication.getInstance();
 
-		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+		if (tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+			== PackageManager.PERMISSION_GRANTED) {
 			WifiManager wifiManager = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
 			if (wifiManager != null) {
 				DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
@@ -241,5 +225,4 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 
 		return netmask;
 	}
-
 }

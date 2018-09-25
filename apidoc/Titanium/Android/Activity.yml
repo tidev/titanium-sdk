@@ -19,7 +19,7 @@ description: |
     which you can use to call the various Activity methods. For example, to use the
     `invalidateOptionsMenu` method, you need to get the activity after the window or tab group opens.
 
-    See also [android.app.Activity](http://developer.android.com/reference/android/app/Activity.html)
+    See also [android.app.Activity](https://developer.android.com/reference/android/app/Activity.html)
     in the Android API Reference.
 
     #### Activity Lifecycle
@@ -38,7 +38,7 @@ description: |
       * [onRestart](Titanium.Android.Activity.onRestart)
 
     See also the "Understand the Lifecycle Callbacks" section in
-    [Android Developers: Activity Lifecycle](http://developer.android.com/training/basics/activity-lifecycle/starting.html).
+    [Android Developers: Activity Lifecycle](https://developer.android.com/training/basics/activity-lifecycle/starting.html).
 
     #### Handling Application Restarts 
 
@@ -115,7 +115,7 @@ methods:
     summary: Closes this activity.
     description: |
         See also:
-        [finish](http://developer.android.com/reference/android/app/Activity.html#finish())
+        [finish](https://developer.android.com/reference/android/app/Activity.html#finish())
         in the Android API Reference.
 
   - name: getString
@@ -136,11 +136,11 @@ methods:
             "Hello Bob, this is Doug."
 
         See also:
-        *   [getString](http://developer.android.com/reference/android/content/Context.html#getString(int))
+        *   [getString](https://developer.android.com/reference/android/content/Context.html#getString(int))
             in the Android Developer Reference
-        *   [Formatter](http://developer.android.com/reference/java/util/Formatter.html)
+        *   [Formatter](https://developer.android.com/reference/java/util/Formatter.html)
             in the Android Developer Reference
-        *   [String Resources](http://developer.android.com/guide/topics/resources/string-resource.html#String)
+        *   [String Resources](https://developer.android.com/guide/topics/resources/string-resource.html#String)
             in the Android Developer Guide
     returns:
         type: String
@@ -157,7 +157,7 @@ methods:
     summary: Declares that the option menu has changed and should be recreated.
     description: |
         This method needs to be used in Android 3.0 and above when changing menus at runtime.  See
-        [changingTheMenu](http://developer.android.com/guide/topics/ui/menus.html#ChangingTheMenu) in 
+        [changingTheMenu](https://developer.android.com/guide/topics/ui/menus.html#ChangingTheMenu) in 
         the Android API Reference for more details. 
     since: "3.0.0"
 
@@ -165,7 +165,7 @@ methods:
     summary: Sets the requested Activity orientation. 
     description: |
         See also:
-        [setRequestedOrientation](http://developer.android.com/reference/android/app/Activity.html#setRequestedOrientation(int))
+        [setRequestedOrientation](https://developer.android.com/reference/android/app/Activity.html#setRequestedOrientation(int))
         in the Android API Reference.
     parameters:
       - name: orientation
@@ -180,7 +180,7 @@ methods:
         [startActivityForResult](Titanium.Android.Activity.startActivityForResult). 
 
         Also see Android's documentation for
-        [setResult](http://developer.android.com/reference/android/app/Activity.html#setResult(int)).
+        [setResult](https://developer.android.com/reference/android/app/Activity.html#setResult(int)).
     parameters:
 
       - name: resultCode
@@ -193,10 +193,21 @@ methods:
         type: Titanium.Android.Intent
         optional: true
 
+  - name: setSupportActionBar
+    summary: Sets a toolbar instance to be used as an ActionBar.
+    description: |
+        This method is used if you want to add a Toolbar as an ActionBar after the Activity has been created.
+        If you want to set it up before that [supportToolbar](Titanium.Android.Activity.supportToolbar) must be used.
+    parameters:
+      - name: toolbar
+        summary: Instance of a toolbar to be used as an ActionBar
+        type: Titanium.UI.Toolbar  
+    since: 6.2.0
+
   - name: startActivity
     summary: Starts a new activity, using the passed in `Intent` as the description. 
     description: |
-        See also: [startActivity](http://developer.android.com/reference/android/app/Activity.html#startActivity(android.content.Intent))
+        See also: [startActivity](https://developer.android.com/reference/android/app/Activity.html#startActivity(android.content.Intent))
             in the Android Developer Reference.
     parameters:
       - name: intent
@@ -207,7 +218,7 @@ methods:
     summary: The same as `startActivity`, but also accepts a callback function for handling the result of the started Activity. 
     description:  |
         See also: 
-        [startActivityForResult](http://developer.android.com/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)) 
+        [startActivityForResult](https://developer.android.com/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)) 
         in the Android Developer Reference.
     parameters:
 
@@ -224,7 +235,7 @@ methods:
   - name: openOptionsMenu
     summary: Programmatically opens the options menu.
     description: |
-        See also: [onMenuOpened](http://developer.android.com/reference/android/app/Activity.html#onMenuOpened(int, android.view.Menu))
+        See also: [onMenuOpened](https://developer.android.com/reference/android/app/Activity.html#onMenuOpened(int, android.view.Menu))
         in the Android API Reference.
     since: "3.0.0"
     
@@ -256,7 +267,7 @@ events:
         notes: Use <Titanium.Android.Activity.onCreate> instead.
     description: |
         See also:
-        [onCreate](http://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
+        [onCreate](https://developer.android.com/reference/android/app/Activity.html#onCreate(android.os.Bundle))
         in the Android Developer Reference.
 
   - name: destroy
@@ -265,28 +276,14 @@ events:
         since: "3.4.0"
         notes: Use <Titanium.Android.Activity.onDestroy> instead.
     description: |
-        See also: [onDestroy](http://developer.android.com/reference/android/app/Activity.html#onDestroy())
+        See also: [onDestroy](https://developer.android.com/reference/android/app/Activity.html#onDestroy())
         in the Android Developer Reference.
-
-  - name: newIntent
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Android.Activity.newintent> instead.
-    summary: Fired when the activity is already running and certain flags are set in its intent. 
-    description: |
-        See also:
-        [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
-        in the Android Developer Reference.
-    properties:
-      - name: intent
-        summary: The `Intent` passed to the native `onNewIntent` method.
-        type: Titanium.Android.Intent
 
   - name: newintent
     summary: Fired when the activity is already running and certain flags are set in its intent. 
     description: |
         See also:
-        [onNewIntent](http://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
+        [onNewIntent](https://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
         in the Android Developer Reference.
     properties:
       - name: intent
@@ -309,7 +306,7 @@ events:
         notes: Use <Titanium.Android.Activity.onPause> instead.
     description: |
         See also:
-        [onPause](http://developer.android.com/reference/android/app/Activity.html#onPause())
+        [onPause](https://developer.android.com/reference/android/app/Activity.html#onPause())
         in the Android Developer Reference.
 
   - name: resume
@@ -318,7 +315,7 @@ events:
         since: "3.4.0"
         notes: Use <Titanium.Android.Activity.onResume> instead.
     description: |
-        See also: [onResume](http://developer.android.com/reference/android/app/Activity.html#onResume())
+        See also: [onResume](https://developer.android.com/reference/android/app/Activity.html#onResume())
         in the Android Developer Reference.
 
   - name: start
@@ -327,7 +324,7 @@ events:
         since: "3.4.0"
         notes: Use <Titanium.Android.Activity.onStart> instead.
     description: |
-        See also: [onStart](http://developer.android.com/reference/android/app/Activity.html#onStart())
+        See also: [onStart](https://developer.android.com/reference/android/app/Activity.html#onStart())
         in the Android Developer Reference.
 
   - name: stop
@@ -336,24 +333,43 @@ events:
         since: "3.4.0"
         notes: Use <Titanium.Android.Activity.onStop> instead.
     description: |
-        See also: [onStop](http://developer.android.com/reference/android/app/Activity.html#onStop())
+        See also: [onStop](https://developer.android.com/reference/android/app/Activity.html#onStop())
         in the Android Developer Reference.
 
   - name: userleavehint
     summary: Fired when the activity is about to go into the background as a result of user choice.
     description: |
         See also:
-        [onPause](http://developer.android.com/reference/android/app/Activity.html#onUserLeaveHint())
+        [onUserLeaveHint](https://developer.android.com/reference/android/app/Activity.html#onUserLeaveHint())
         in the Android Developer Reference.
     since: "3.2.0"
 
+  - name: userinteraction
+    summary: Called whenever a key, touch, or trackball event is dispatched to the activity.
+    description: |
+        Implement this method if you wish to know that the user has interacted with the device in some 
+        way while your activity is running. This event and `userleavehint` are intended to help activities 
+        manage status bar notifications intelligently; specifically, for helping activities determine the 
+        proper time to cancel a notfication.
+
+        All calls to your activity's "userleavehint" event will be accompanied by calls to "userinteraction".
+        This ensures that your activity will be told of relevant user activity such as pulling down the 
+        notification pane and touching an item there.
+
+        Note that this callback will be invoked for the touch down action that begins a touch gesture, 
+        but may not be invoked for the touch-moved and touch-up actions that follow.
+
+        See also:
+        [onUserInteraction](https://developer.android.com/reference/android/app/Activity.html#onUserInteraction())
+        in the Android Developer Reference.
+    since: "7.5.0"
 
 properties:
 
   - name: actionBar
     summary: The action bar for this activity.
     description: |
-        See also: [Action Bar](http://developer.android.com/guide/topics/ui/actionbar.html) in
+        See also: [Action Bar](https://developer.android.com/guide/topics/ui/actionbar.html) in
         the Android Developer Reference.
     type: Titanium.Android.ActionBar
     permission: read-only
@@ -377,7 +393,7 @@ properties:
          See the menu examples in <Titanium.Android.Menu>.
 
          See also: 
-         [Creating an Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) 
+         [Creating an Options Menu](https://developer.android.com/guide/topics/ui/menus.html#options-menu) 
          in the Android Developer's Guide.
     type: Callback<Object>
 
@@ -401,7 +417,7 @@ properties:
          See the menu examples in <Titanium.Android.Menu>.
 
          See also: 
-         [Creating an Options Menu](http://developer.android.com/guide/topics/ui/menus.html#options-menu) 
+         [Creating an Options Menu](https://developer.android.com/guide/topics/ui/menus.html#options-menu) 
          in the Android Developer's Guide.
     type: Callback<Object>
 
@@ -435,6 +451,14 @@ properties:
     type: Number
     permission: write-only
 
+  - name: supportToolbar
+    summary: Toolbar instance that serves as ActionBar
+    description: |
+         This property is used to set a toolbar as an ActionBar prior to the actual activity creation.
+         After the activity is created that must be done through the [setSupportActionBar()](Titanium.Android.Activity.setSupportActionBar) method.
+    type: Titanium.UI.Toolbar
+    since: 6.2.0
+    
 examples:
   - title: Callback Example
     example: |
@@ -445,7 +469,7 @@ examples:
                 // The request code used to start this Activity
                 var requestCode = e.requestCode;
                 // The result code returned from the activity 
-                // (http://developer.android.com/reference/android/app/Activity.html#StartingActivities)
+                // (https://developer.android.com/reference/android/app/Activity.html#StartingActivities)
                 var resultCode = e.resultCode;
                 // A Titanium.Android.Intent filled with data returned from the Activity
                 var intent = e.intent;

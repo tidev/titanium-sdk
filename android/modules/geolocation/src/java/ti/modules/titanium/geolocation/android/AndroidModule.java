@@ -24,7 +24,6 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Message;
 
-
 /**
  * AndroidModule exposes all Android specific methods and properties relating to geolocation behavior 
  * associated with Ti.Geolocation.Android to the Titanium developer.  Cross platform API points should 
@@ -34,15 +33,18 @@ import android.os.Message;
  * The main purpose of this class beyond providing a Android specific namespace under Ti.Geolocation is 
  * to support managing manual location providers and location rules.
  */
-@Kroll.module(parentModule=GeolocationModule.class)
-public class AndroidModule extends KrollModule
-	implements Handler.Callback
+@Kroll.module(parentModule = GeolocationModule.class)
+public class AndroidModule extends KrollModule implements Handler.Callback
 {
-	@Kroll.constant public static final String PROVIDER_PASSIVE = LocationManager.PASSIVE_PROVIDER;
-	@Kroll.constant public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
-	@Kroll.constant public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
+	@Kroll.constant
+	public static final String PROVIDER_PASSIVE = LocationManager.PASSIVE_PROVIDER;
+	@Kroll.constant
+	public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
+	@Kroll.constant
+	public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
 
-	public HashMap<String, LocationProviderProxy> manualLocationProviders = new HashMap<String, LocationProviderProxy>();
+	public HashMap<String, LocationProviderProxy> manualLocationProviders =
+		new HashMap<String, LocationProviderProxy>();
 	public ArrayList<LocationRuleProxy> manualLocationRules = new ArrayList<LocationRuleProxy>();
 	public boolean manualMode = false;
 
@@ -54,7 +56,6 @@ public class AndroidModule extends KrollModule
 
 	private GeolocationModule geolocationModule;
 	private TiLocation tiLocation;
-
 
 	/**
 	 * Constructor
@@ -219,7 +220,7 @@ public class AndroidModule extends KrollModule
 			manualLocationProviders.remove(providerName);
 
 			if (manualMode && (geolocationModule.numLocationListeners > 0)) {
-				tiLocation.locationManager.removeUpdates(existingLocationProvider);
+				geolocationModule.unregisterLocationProvider(existingLocationProvider);
 			}
 
 			manualLocationProviders.put(providerName, locationProvider);
@@ -227,7 +228,6 @@ public class AndroidModule extends KrollModule
 
 		if (manualMode && (geolocationModule.numLocationListeners > 0)) {
 			geolocationModule.registerLocationProvider(locationProvider);
-
 		}
 	}
 
@@ -257,7 +257,7 @@ public class AndroidModule extends KrollModule
 	{
 		manualLocationProviders.remove(locationProvider.getName());
 		if (manualMode && (geolocationModule.numLocationListeners > 0)) {
-			tiLocation.locationManager.removeUpdates(locationProvider);
+			geolocationModule.unregisterLocationProvider(locationProvider);
 		}
 	}
 
@@ -292,4 +292,3 @@ public class AndroidModule extends KrollModule
 		return "Ti.Geolocation.Android";
 	}
 }
-

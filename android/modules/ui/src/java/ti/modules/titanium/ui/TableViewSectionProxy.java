@@ -15,13 +15,15 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_HEADER_TITLE,
-	TiC.PROPERTY_HEADER_VIEW,
-	TiC.PROPERTY_FOOTER_TITLE,
-	TiC.PROPERTY_FOOTER_VIEW
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_HEADER_TITLE,
+		TiC.PROPERTY_HEADER_VIEW,
+		TiC.PROPERTY_FOOTER_TITLE,
+		TiC.PROPERTY_FOOTER_VIEW
 })
+// clang-format on
 public class TableViewSectionProxy extends TiViewProxy
 {
 	private static final String TAG = "TableViewSectionProxy";
@@ -34,7 +36,8 @@ public class TableViewSectionProxy extends TiViewProxy
 	}
 
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		return null;
 	}
 
@@ -49,14 +52,21 @@ public class TableViewSectionProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public TableViewRowProxy[] getRows()
+	// clang-format on
 	{
 		return rows.toArray(new TableViewRowProxy[rows.size()]);
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public double getRowCount() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public double getRowCount()
+	// clang-format on
+	{
 		return rows.size();
 	}
 
@@ -70,7 +80,8 @@ public class TableViewSectionProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void remove(TableViewRowProxy rowProxy) {
+	public void remove(TableViewRowProxy rowProxy)
+	{
 		if (rowProxy != null) {
 			rows.remove(rowProxy);
 			if (rowProxy.getParent() == this) {
@@ -125,7 +136,7 @@ public class TableViewSectionProxy extends TiViewProxy
 		if (index > -1 && index < rows.size()) {
 			rows.set(index, row);
 			row.setParent(this);
-			if (oldRow.getParent() == this) {
+			if (oldRow.getParent() == this && !rows.contains(oldRow)) {
 				oldRow.setParent(null);
 			}
 		} else {
@@ -134,7 +145,8 @@ public class TableViewSectionProxy extends TiViewProxy
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return "[object TableViewSectionProxy]";
 	}
 
@@ -142,10 +154,24 @@ public class TableViewSectionProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		super.releaseViews();
+
 		if (rows != null) {
 			for (TableViewRowProxy row : rows) {
 				row.releaseViews();
 			}
+		}
+	}
+
+	@Override
+	public void release()
+	{
+		super.release();
+
+		releaseViews();
+
+		if (rows != null) {
+			rows.clear();
+			rows = null;
 		}
 	}
 

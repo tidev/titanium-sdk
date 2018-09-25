@@ -9,21 +9,21 @@
 
 #import "KrollContext.h"
 
-typedef KrollContext * TiBindingRunLoop;
+typedef KrollContext *TiBindingRunLoop;
 
 #else
 
-typedef void * TiBindingRunLoop;
+typedef void *TiBindingRunLoop;
 
 #endif
 
-typedef void (*TiBindingCallback)(TiBindingRunLoop runLoop, void * payload);
+typedef void (*TiBindingCallback)(TiBindingRunLoop runLoop, void *payload);
 
 /*	TiBindingRunLoop's Enqueue will add a callback that will be run once
  *	during the run loop's idle. This is for things like events, callbacks,
  *	and other invocations from native into Javascript.
  */
-void TiBindingRunLoopEnqueue(TiBindingRunLoop runLoop, TiBindingCallback callback, void * payload);
+void TiBindingRunLoopEnqueue(TiBindingRunLoop runLoop, TiBindingCallback callback, void *payload);
 
 /*	TiBindingRunLoop's CallOnStart will add a callback that will be run
  *	every time a run loop is started, before the file is executed. Because
@@ -37,4 +37,4 @@ void TiBindingRunLoopEnqueue(TiBindingRunLoop runLoop, TiBindingCallback callbac
  *		A background service is started
  *		A window with an url property is being opened
  */
-void TiBindingRunLoopCallOnStart(TiBindingCallback callback, void * payload);
+void TiBindingRunLoopCallOnStart(TiBindingCallback callback, void *payload);

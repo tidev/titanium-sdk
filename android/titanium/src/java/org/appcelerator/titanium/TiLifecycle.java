@@ -103,7 +103,7 @@ public class TiLifecycle
 		public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data);
 	}
 
-    /**
+	/**
      * An interface to handle onCreateOptionsMenu events.
      */
 	public interface OnCreateOptionsMenuEvent {
@@ -146,22 +146,35 @@ public class TiLifecycle
 	public static void fireLifecycleEvent(Activity activity, OnLifecycleEvent listener, int which)
 	{
 		switch (which) {
-			case LIFECYCLE_ON_START: listener.onStart(activity); break;
-			case LIFECYCLE_ON_RESUME: listener.onResume(activity); break;
-			case LIFECYCLE_ON_PAUSE: listener.onPause(activity); break;
-			case LIFECYCLE_ON_STOP: listener.onStop(activity); break;
-			case LIFECYCLE_ON_DESTROY: listener.onDestroy(activity); break;
+			case LIFECYCLE_ON_START:
+				listener.onStart(activity);
+				break;
+			case LIFECYCLE_ON_RESUME:
+				listener.onResume(activity);
+				break;
+			case LIFECYCLE_ON_PAUSE:
+				listener.onPause(activity);
+				break;
+			case LIFECYCLE_ON_STOP:
+				listener.onStop(activity);
+				break;
+			case LIFECYCLE_ON_DESTROY:
+				listener.onDestroy(activity);
+				break;
 		}
 	}
 
-       public static void fireLifecycleEvent(Activity activity, OnLifecycleEvent listener, Bundle bundle, int which)
-        {
-                switch (which) {
-                        case LIFECYCLE_ON_CREATE: listener.onCreate(activity, bundle); break;
-                }
-        }
+	public static void fireLifecycleEvent(Activity activity, OnLifecycleEvent listener, Bundle bundle, int which)
+	{
+		switch (which) {
+			case LIFECYCLE_ON_CREATE:
+				listener.onCreate(activity, bundle);
+				break;
+		}
+	}
 
-	public static void fireOnActivityResultEvent(Activity activity, OnActivityResultEvent listener, int requestCode, int resultCode, Intent data)
+	public static void fireOnActivityResultEvent(Activity activity, OnActivityResultEvent listener, int requestCode,
+												 int resultCode, Intent data)
 	{
 		listener.onActivityResult(activity, requestCode, resultCode, data);
 	}
@@ -169,9 +182,12 @@ public class TiLifecycle
 	public static void fireInstanceStateEvent(Bundle bundle, OnInstanceStateEvent listener, int which)
 	{
 		switch (which) {
-			case ON_SAVE_INSTANCE_STATE: listener.onSaveInstanceState(bundle); break;
-			case ON_RESTORE_INSTANCE_STATE: listener.onRestoreInstanceState(bundle); break;	
+			case ON_SAVE_INSTANCE_STATE:
+				listener.onSaveInstanceState(bundle);
+				break;
+			case ON_RESTORE_INSTANCE_STATE:
+				listener.onRestoreInstanceState(bundle);
+				break;
 		}
 	}
 }
-

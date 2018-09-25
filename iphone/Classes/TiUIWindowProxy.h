@@ -6,29 +6,32 @@
  */
 #ifdef USE_TI_UIWINDOW
 
-#import "TiUIView.h"
-#import "TiWindowProxy.h"
 #import "KrollBridge.h"
+#import "TiUIView.h"
 #import "TiViewProxy.h"
+#import "TiWindowProxy.h"
 
 //TODO: we probably should split this ViewProxy into a a separate TiUIView like normal
 
-@interface TiUIWindowProxy : TiWindowProxy
-{
-@private
-	KrollBridge *context;
-	BOOL hasToolbar;
-	BOOL contextReady;
-	BOOL shouldUpdateNavBar;
-	UIImageView *barImageView;
-	NSURL *oldBaseURL;
-	id latch;
+@interface TiUIWindowProxy : TiWindowProxy {
+  @private
+  KrollBridge *context;
+  BOOL hasToolbar;
+  BOOL contextReady;
+  BOOL shouldUpdateNavBar;
+  UIImageView *barImageView;
+  NSURL *oldBaseURL;
+  id latch;
 }
 
--(void)refreshBackButton;
--(void)updateNavBar;
--(void)boot:(BOOL)timeout args:(id)args;
+- (void)refreshBackButton;
+- (void)updateNavBar;
+- (void)boot:(BOOL)timeout args:(id)args;
 
+#if IS_XCODE_9
+@property (nonatomic, assign) TiViewProxy *safeAreaViewProxy;
+@property (nonatomic) BOOL shouldExtendSafeArea;
+#endif
 @end
 
 #endif

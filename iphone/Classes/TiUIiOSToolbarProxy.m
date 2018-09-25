@@ -13,64 +13,59 @@
 
 USE_VIEW_FOR_VERIFY_HEIGHT
 
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
+- (UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
+  return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.Toolbar";
+  return @"Ti.UI.iOS.Toolbar";
 }
 
--(UIToolbar*)toolbar
+- (UIToolbar *)toolbar
 {
-	TiUIiOSToolbar *theview = (TiUIiOSToolbar*) [self view];
-	return [theview toolBar];
+  TiUIiOSToolbar *theview = (TiUIiOSToolbar *)[self view];
+  return [theview toolBar];
 }
 
--(void)setItems:(NSArray *)newItems
+- (void)setItems:(NSArray *)newItems
 {
-	NSArray * oldItems = [self valueForUndefinedKey:@"items"];
-	if (![oldItems isKindOfClass:[NSArray class]])
-	{
-		oldItems = nil;
-	}
+  NSArray *oldItems = [self valueForUndefinedKey:@"items"];
+  if (![oldItems isKindOfClass:[NSArray class]]) {
+    oldItems = nil;
+  }
 
-	BOOL newItemsIsArray = [newItems isKindOfClass:[NSArray class]];
-	if (newItemsIsArray)
-	{
-		for (TiViewProxy * currentItem in newItems)
-		{
-			if (![currentItem respondsToSelector:@selector(supportsNavBarPositioning)] || ![currentItem supportsNavBarPositioning])
-			{
-				NSString * errorString = [NSString stringWithFormat:@"%@ does not support being in a toolbar!",currentItem];
-				[self throwException:errorString subreason:nil location:CODELOCATION];
-				/*
+  BOOL newItemsIsArray = [newItems isKindOfClass:[NSArray class]];
+  if (newItemsIsArray) {
+    for (TiViewProxy *currentItem in newItems) {
+      if (![currentItem respondsToSelector:@selector(supportsNavBarPositioning)] || ![currentItem supportsNavBarPositioning]) {
+        NSString *errorString = [NSString stringWithFormat:@"%@ does not support being in a toolbar!", currentItem];
+        [self throwException:errorString subreason:nil location:CODELOCATION];
+        /*
 				 *	Note that this theoretically could mean proxies are improperly remembered
 				 *	if a later entry causes this exception to be thrown. However, the javascript
 				 *	should NOT be using nonproxy objects and the onus is on the Javascript
 				 */
-			}
+      }
 
-			if (![oldItems containsObject:currentItem])
-			{
-				[self rememberProxy:currentItem];
-			}
-		}
-	}
-	for (TiViewProxy * currentItem in oldItems) {
-		if (newItemsIsArray && [newItems containsObject:currentItem]) {
-			continue;
-		}
-		[self forgetProxy:currentItem];
-	}
-	[self replaceValue:newItems forKey:@"items" notification:YES];
+      if (![oldItems containsObject:currentItem]) {
+        [self rememberProxy:currentItem];
+      }
+    }
+  }
+  for (TiViewProxy *currentItem in oldItems) {
+    if (newItemsIsArray && [newItems containsObject:currentItem]) {
+      continue;
+    }
+    [self forgetProxy:currentItem];
+  }
+  [self replaceValue:newItems forKey:@"items" notification:YES];
 }
 
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 
 @end

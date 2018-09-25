@@ -1,12 +1,14 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#include <jni.h>
-#include <string.h>
+#include <cstring>
+#include <string>
+
 #include <v8.h>
+#include <jni.h>
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
@@ -35,8 +37,8 @@ Persistent<String> Proxy::propertiesSymbol;
 Persistent<String> Proxy::lengthSymbol;
 Persistent<String> Proxy::sourceUrlSymbol;
 
-Proxy::Proxy(jobject javaProxy) :
-	JavaObject(javaProxy)
+Proxy::Proxy() :
+	JavaObject()
 {
 }
 
@@ -57,7 +59,7 @@ void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 	proxyTemplate->SetClassName(proxySymbol);
 	proxyTemplate->Inherit(EventEmitter::constructorTemplate.Get(isolate));
 
-	proxyTemplate->Set(javaClass, External::New(isolate, JNIUtil::krollProxyClass),
+	proxyTemplate->Set(javaClass, ProxyFactory::getJavaClassName(isolate, JNIUtil::krollProxyClass),
 		static_cast<PropertyAttribute>(DontDelete | DontEnum));
 
 	SetProtoMethod(isolate, proxyTemplate, "_hasListenersForEventType", hasListenersForEventType);
@@ -66,7 +68,14 @@ void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 
 	baseProxyTemplate.Reset(isolate, proxyTemplate);
 
-	exports->Set(proxySymbol, proxyTemplate->GetFunction(context).ToLocalChecked());
+	v8::TryCatch tryCatch(isolate);
+	Local<Function> constructor;
+	MaybeLocal<Function> maybeConstructor = proxyTemplate->GetFunction(context);
+	if (maybeConstructor.ToLocal(&constructor)) {
+		exports->Set(proxySymbol, constructor);
+	} else {
+		V8Util::fatalException(isolate, tryCatch);
+	}
 }
 
 static Local<Value> getPropertyForProxy(Isolate* isolate, Local<Name> property, Local<Object> proxy)
@@ -145,18 +154,23 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 	jobject javaValue = TypeConverter::jsValueToJavaObject(isolate, env, value, &javaValueIsNew);
 
 	jobject javaProxy = proxy->getJavaObject();
-	env->CallVoidMethod(javaProxy,
-		JNIUtil::krollProxyOnPropertyChangedMethod,
-		javaProperty,
-		javaValue);
-
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
+	if (javaProxy != NULL) {
+		env->CallVoidMethod(javaProxy,
+			JNIUtil::krollProxyOnPropertyChangedMethod,
+			javaProperty,
+			javaValue);
+		proxy->unreferenceJavaObject(javaProxy);
 	}
 
 	env->DeleteLocalRef(javaProperty);
 	if (javaValueIsNew) {
 		env->DeleteLocalRef(javaValue);
+	}
+
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+		return;
 	}
 
 	// Store new property value on JS internal map.
@@ -197,8 +211,12 @@ void Proxy::getIndexedProperty(uint32_t index, const PropertyCallbackInfo<Value>
 		JNIUtil::krollProxyGetIndexedPropertyMethod,
 		index);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
+	proxy->unreferenceJavaObject(javaProxy);
+
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+		return;
 	}
 
 	Local<Value> result = TypeConverter::javaObjectToJsValue(isolate, env, value);
@@ -227,11 +245,15 @@ void Proxy::setIndexedProperty(uint32_t index, Local<Value> value, const Propert
 		index,
 		javaValue);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 	if (javaValueIsNew) {
 		env->DeleteLocalRef(javaValue);
+	}
+
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+		return;
 	}
 
 	info.GetReturnValue().Set(value);
@@ -260,9 +282,7 @@ void Proxy::hasListenersForEventType(const v8::FunctionCallbackInfo<v8::Value>& 
 	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
 	jstring javaEventType = TypeConverter::jsStringToJavaString(env, eventType);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 
 	env->CallVoidMethod(krollObject,
 		JNIUtil::krollObjectSetHasListenersForEventTypeMethod,
@@ -271,6 +291,12 @@ void Proxy::hasListenersForEventType(const v8::FunctionCallbackInfo<v8::Value>& 
 
 	env->DeleteLocalRef(krollObject);
 	env->DeleteLocalRef(javaEventType);
+
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+		return;
+	}
 }
 
 void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
@@ -296,12 +322,10 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
 
 	jstring javaEventType = TypeConverter::jsStringToJavaString(env, eventType);
-	jobject javaEventData = TypeConverter::jsValueToJavaObject(isolate, env, eventData);
+	bool isNew;
+	jobject javaEventData = TypeConverter::jsValueToJavaObject(isolate, env, eventData, &isNew);
 
-
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 
 	env->CallVoidMethod(krollObject,
 		JNIUtil::krollObjectOnEventFiredMethod,
@@ -310,7 +334,15 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 	env->DeleteLocalRef(krollObject);
 	env->DeleteLocalRef(javaEventType);
-	env->DeleteLocalRef(javaEventData);
+	if (isNew) {
+		env->DeleteLocalRef(javaEventData);
+	}
+
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+		return;
+	}
 }
 
 Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
@@ -319,10 +351,10 @@ Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 {
 	EscapableHandleScope scope(isolate);
 
-	Local<Value> wrappedClass = External::New(isolate, javaClass);
 	Local<FunctionTemplate> inheritedTemplate = FunctionTemplate::New(isolate, proxyConstructor, callback);
-
-	inheritedTemplate->Set(javaClassSymbol.Get(isolate), wrappedClass, static_cast<PropertyAttribute>(DontDelete | DontEnum));
+	inheritedTemplate->Set(javaClassSymbol.Get(isolate),
+		ProxyFactory::getJavaClassName(isolate, javaClass),
+		static_cast<PropertyAttribute>(DontDelete | DontEnum));
 
 	inheritedTemplate->InstanceTemplate()->SetInternalFieldCount(kInternalFieldCount);
 	inheritedTemplate->SetClassName(className);
@@ -331,10 +363,9 @@ Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 	return scope.Escape(inheritedTemplate);
 }
 
-
 void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	LOGD(TAG, "proxy constructor callback!");
+	LOGD(TAG, "Proxy::proxyConstructor");
 	Isolate* isolate = args.GetIsolate();
 	EscapableHandleScope scope(isolate);
 
@@ -342,29 +373,37 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 	Local<Object> jsProxy = args.This();
 
 	// First things first, we need to wrap the object in case future calls need to unwrap proxy!
-	Proxy* proxy = new Proxy(NULL);
-	proxy->wrap(isolate, jsProxy);
+	Proxy* proxy = new Proxy();
+	proxy->Wrap(jsProxy);
+	proxy->Ref(); // force a reference so we don't get GC'd before we can attach the Java object
 
 	// every instance gets a special "_properties" object for us to use internally for get/setProperty
 	jsProxy->DefineOwnProperty(isolate->GetCurrentContext(), propertiesSymbol.Get(isolate), Object::New(isolate), static_cast<PropertyAttribute>(DontEnum));
 
 	// Now we hook up a java Object from the JVM...
-	jobject javaProxy = ProxyFactory::unwrapJavaProxy(args); // do we already have one that got passed in?
+	jobject javaProxy = Proxy::unwrapJavaProxy(args); // do we already have one that got passed in?
 	bool deleteRef = false;
 	if (!javaProxy) {
 		// No passed in java object, so let's create an instance
 		// Look up java class from prototype...
 		Local<Object> prototype = jsProxy->GetPrototype()->ToObject(isolate);
 		Local<Function> constructor = prototype->Get(constructorSymbol.Get(isolate)).As<Function>();
-		Local<External> wrap = constructor->Get(javaClassSymbol.Get(isolate)).As<External>();
-		jclass javaClass = static_cast<jclass>(wrap->Value());
+		Local<String> javaClassName = constructor->Get(javaClassSymbol.Get(isolate)).As<String>();
+		v8::String::Utf8Value javaClassNameVal(javaClassName);
+		std::string javaClassNameString(*javaClassNameVal);
+		std::replace( javaClassNameString.begin(), javaClassNameString.end(), '.', '/');
+		// Create a copy of the char* since I'm seeing it get mangled when passed on to findClass later
+		const char* jniName = strdup(javaClassNameString.c_str());
+		jclass javaClass = JNIUtil::findClass(jniName);
 
 		// Now we create an instance of the class and hook it up
-		JNIUtil::logClassName("Creating java proxy for class %s", javaClass);
+		LOGD(TAG, "Creating java proxy for class %s", jniName);
 		javaProxy = ProxyFactory::createJavaProxy(javaClass, jsProxy, args);
+		env->DeleteGlobalRef(javaClass); // JNIUtil::findClass returns a global reference to a class
 		deleteRef = true;
 	}
 	proxy->attach(javaProxy);
+	proxy->Unref(); // get rid of our forced reference so this can become weak now
 
 	int length = args.Length();
 
@@ -372,7 +411,7 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		bool extend = true;
 		Local<Object> createProperties = args[0].As<Object>();
 		Local<String> constructorName = createProperties->GetConstructorName();
-		if (strcmp(*titanium::Utf8Value(constructorName), "Arguments") == 0) {
+		if (strcmp(*v8::String::Utf8Value(constructorName), "Arguments") == 0) {
 			extend = false;
 			int32_t argsLength = createProperties->Get(STRING_NEW(isolate, "length"))->Int32Value();
 			if (argsLength > 1) {
@@ -445,7 +484,7 @@ void Proxy::proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& 
 		return;
 	}
 
-	Proxy *proxy = unwrap(jsProxy);
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(jsProxy);
 	if (!proxy) {
 		JSException::Error(isolate, "Failed to unwrap Proxy instance");
 		return;
@@ -488,11 +527,12 @@ void Proxy::proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& 
 	env->CallVoidMethod(javaProxy, JNIUtil::krollProxyOnPropertiesChangedMethod, jChanges);
 	env->DeleteLocalRef(jChanges);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	proxy->unreferenceJavaObject(javaProxy);
 
-	return;
+	if (env->ExceptionCheck()) {
+		JSException::fromJavaException(isolate);
+		env->ExceptionClear();
+	}
 }
 
 void Proxy::writableKeys_getter(Local<Name> property, const PropertyCallbackInfo<Value>& args)
@@ -556,6 +596,16 @@ void Proxy::dispose(Isolate* isolate)
 	propertiesSymbol.Reset();
 	lengthSymbol.Reset();
 	sourceUrlSymbol.Reset();
+}
+
+jobject Proxy::unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args)
+{
+	LOGD(TAG, "Proxy::unwrapJavaProxy");
+	if (args.Length() != 1)
+		return NULL;
+
+	Local<Value> firstArgument = args[0];
+	return firstArgument->IsExternal() ? (jobject) (firstArgument.As<External>()->Value()) : NULL;
 }
 
 } // namespace titanium

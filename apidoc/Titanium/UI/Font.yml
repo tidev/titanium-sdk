@@ -28,7 +28,7 @@ description: |
     In Alloy applications, custom fonts must be placed in a "fonts" folder in the platform-specific assets folder (<strong>app/assets/android/fonts</strong>, for example).
     In classic Titanium applications, custom fonts must be placed in the **Resources/fonts** directory.
 
-    For an example of using custom fonts, see [Custom Fonts](http://docs.appcelerator.com/platform/#!/guide/Custom_Fonts).
+    For an example of using custom fonts, see [Custom Fonts](https://docs.appcelerator.com/platform/latest/#!/guide/Custom_Fonts).
 
 properties:
   - name: fontFamily
@@ -43,10 +43,10 @@ properties:
         For example, if you were using the "Burnstown Dam" font whose file name is
         named `burnstown_dam.ttf`, then you specify `fontFamily: 'burnstown_dam'`.
 
-        * On iOS you use the font's [PostScript name](http://docs.appcelerator.com/platform/latest/#!/guide/Custom_Fonts-section-29004935_CustomFonts-Findingafont%27sPostScriptname).
+        * On iOS you use the font's [PostScript name](https://docs.appcelerator.com/platform/latest/#!/guide/Custom_Fonts-section-src-29004935_safe-id-Q3VzdG9tRm9udHMtRmluZGluZ2Fmb250J3NQb3N0U2NyaXB0bmFtZQ).
         For example, the PostScript name for Burnstown Dam is "BurnstownDam-Regular so you'd specify: `fontFamily: 'BurnstownDam-Regular'`.
 
-        For an example of using a custom font, see [Custom Fonts](http://docs.appcelerator.com/platform/#!/guide/Custom_Fonts).
+        For an example of using a custom font, see [Custom Fonts](https://docs.appcelerator.com/platform/latest/#!/guide/Custom_Fonts).
 
         Notes:
 
@@ -60,7 +60,7 @@ properties:
   - name: fontSize
     summary: Font size, in platform-dependent units.
     description: |
-        On iOS and Mobile Web, font sizes are always specified in typographical points
+        On iOS, font sizes are always specified in typographical points
         (not to be confused with the Apple "points" used for other measurements on iOS).
 
         On Android the default font sizing is in pixels, but the size can also
@@ -75,11 +75,19 @@ properties:
         For example, "16dp" specifies a size of 16 density-independent pixels.
 
         iOS ignores any unit specifier after the size value.
+
+        On Windows, font sizing is in effective pixels, not actual physical pixels so you don't have to alter font sizes for different screens sizes or resolutions.
+        For more information about font sizing on Windows, see [Typography Size and Scaling](https://docs.microsoft.com/en-us/windows/uwp/design/style/typography#size-and-scaling).
     type: [ Number, String ]
     default: 15px
   - name: fontWeight
-    summary: Font weight. Valid values are "bold" or "normal".
-    description: The "semibold" weight is recognized on iOS only.
+    summary: |
+        Font weight. Valid values are "bold", "semibold", "normal", "thin", 
+        "light" and "ultralight".
+    description: |
+        The "semibold", "thin", "light" and "ultralight" weights are recognized 
+        on iOS only. "thin", "light" and "ultralight" are only available on iOS 8.2
+        and later.
     type: String
     default: normal
   - name: fontStyle
@@ -91,7 +99,7 @@ properties:
     summary: The text style for the font.
     description: |
         Use one of the TEXT_STYLE constants from <Titanium.UI> to set the font to a predefined system font.
-        When this property is set to a valid value, all other font properties are ignored. Avaliable on iOS 7 and above.
+        When this property is set to a valid value, all other font properties are ignored.
     type: String
     constants: Titanium.UI.TEXT_STYLE_*
     platforms: [iphone, ipad]

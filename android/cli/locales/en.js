@@ -58,6 +58,7 @@
 	"%s options have been %s, please use %s": "%s options have been %s, please use %s",
 	"Available Emulators:": "Available Emulators:",
 	"the password for the keystore private key (defaults to the store-password)": "the password for the keystore private key (defaults to the store-password)",
+	"the type of a digital signature algorithm. only used when overriding keystore signing algorithm": "the type of a digital signature algorithm. only used when overriding keystore signing algorithm",
 	"What is the keystore's __key password__?": "What is the keystore's __key password__?",
 	"(leave blank to use the store password)": "(leave blank to use the store password)",
 	"Bad key password": "Bad key password",

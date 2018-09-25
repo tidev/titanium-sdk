@@ -1,10 +1,7 @@
 ---
 name: Titanium.UI.Android.CardView
-summary: An elevated view with rounded corners.
+summary: CardView provides a layout container with rounded corners and a shadow indicating the view is elevated.
 description: |
-    CardView provides a layout container with rounded corners and a shadow indicating the
-    view is elevated.
-
     Use a CardView to layout content that:
 
       * Comprises multiple data types
@@ -18,8 +15,10 @@ description: |
     For design guidelines, see
     [Google Design Guidelines: Cards](http://www.google.com/design/spec/components/cards.html)
 
-    CardView does not support <Titanium.UI.View.backgroundImage> & <Titanium.UI.View.borderColor>.
+    CardView does not support <Titanium.UI.View.backgroundImage>, <Titanium.UI.View.borderColor>, or <Titanium.UI.View.backgroundGradient>.
 extends: Titanium.UI.View
+excludes:
+    properties: [backgroundImage, backgroundRepeat, borderColor, backgroundGradient]
 since: "5.1.0"
 platforms: [android]
 
@@ -178,33 +177,34 @@ examples:
         The following example creates a CardView used in a ScrollView.
 
             var win = Ti.UI.createWindow({
-                backgroundColor:'white',
                 title: 'Card Demo'
             });
-
-            function createRow(i) {
-                var card = Ti.UI.Android.createCardView({
-                    contentPadding: 20,
-                    cardCornerRadius: 10,
-                    cardUseCompatPadding: true
-                });
-                var label = Ti.UI.createLabel({
-                    color:'black',
-                    text: 'A long label with\na few line breaks\nand unicode (UTF8)\nsymbols such as\na white chess piece \u2655\nand the euro symbol \u20ac\nlooks like this!\n',
-                });
-                card.add(label);
-
-                return card;
-            }
-
             var scrollView = Ti.UI.createScrollView({
                 layout: 'vertical'
             });
-
-            for (var i = 0; i <= 20; i++) {
-                var row = createRow(i);
-                scrollView.add(row);
+            for (var index = 1; index <= 10; index++) {
+                var cardView = Ti.UI.Android.createCardView({
+                    layout: 'vertical',
+                    padding: '16dp',
+                    top: '10dp',
+                    left: '10dp',
+                    right: '10dp',
+                });
+                cardView.add(Ti.UI.createLabel({
+                    text: 'Card ' + index,
+                    maxLines: 1,
+                    font: {
+                        fontSize: '20dp',
+                        fontWeight: 'bold'
+                    },
+                    width: Ti.UI.FILL
+                }));
+                cardView.add(Ti.UI.createLabel({
+                    text: 'This is the card view description text.\nThis is the 2nd line of text.',
+                    textAlign: Ti.UI.TEXT_ALIGNMENT_LEFT,
+                    width: Ti.UI.FILL
+                }));
+                scrollView.add(cardView);
             }
-
             win.add(scrollView);
             win.open();

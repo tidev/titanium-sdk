@@ -17,9 +17,11 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 
-public abstract class TiUIAbstractTabGroup extends TiUIView {
+public abstract class TiUIAbstractTabGroup extends TiUIView
+{
 
-	public TiUIAbstractTabGroup(TabGroupProxy proxy, TiBaseActivity activity) {
+	public TiUIAbstractTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
+	{
 		super(proxy);
 	}
 
@@ -50,7 +52,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView {
 	 * Returns the currently selected tab.
 	 */
 	public abstract TabProxy getSelectedTab();
-	
+
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -66,5 +68,4 @@ public abstract class TiUIAbstractTabGroup extends TiUIView {
 
 		super.processProperties(d);
 	}
-
 }

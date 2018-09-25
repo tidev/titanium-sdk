@@ -28,29 +28,29 @@ import android.graphics.Typeface;
 
 public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelectedListener
 {
-	
+
 	private static final String TAG = "TiUISpinnerColumn";
 	private boolean suppressItemSelected = false;
-	
+
 	public TiUISpinnerColumn(TiViewProxy proxy)
 	{
 		super(proxy);
-		if (proxy instanceof PickerColumnProxy && ((PickerColumnProxy)proxy).getCreateIfMissing()) {
+		if (proxy instanceof PickerColumnProxy && ((PickerColumnProxy) proxy).getCreateIfMissing()) {
 			layoutParams.autoFillsWidth = true;
 		}
 		refreshNativeView();
 		preselectRow();
-		((WheelView)nativeView).setItemSelectedListener(this);
+		((WheelView) nativeView).setItemSelectedListener(this);
 	}
-	
+
 	private void preselectRow()
 	{
 		if (proxy.getParent() instanceof PickerProxy) {
-			ArrayList<Integer> preselectedRows = ((PickerProxy)proxy.getParent()).getPreselectedRows();
+			ArrayList<Integer> preselectedRows = ((PickerProxy) proxy.getParent()).getPreselectedRows();
 			if (preselectedRows == null || preselectedRows.size() == 0) {
 				return;
 			}
-			int columnIndex = ((PickerColumnProxy)proxy).getThisColumnIndex();
+			int columnIndex = ((PickerColumnProxy) proxy).getThisColumnIndex();
 			if (columnIndex >= 0 && columnIndex < preselectedRows.size()) {
 				Integer rowIndex = preselectedRows.get(columnIndex);
 				if (rowIndex != null && rowIndex.intValue() >= 0) {
@@ -61,28 +61,30 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 	}
 
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(KrollDict d)
+	{
 		super.processProperties(d);
 		if (d.containsKeyStartingWith("font")) {
 			setFontProperties();
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			((WheelView)nativeView).setTextColor(new Integer(TiConvert.toColor(d, TiC.PROPERTY_COLOR)));
+			((WheelView) nativeView).setTextColor(new Integer(TiConvert.toColor(d, TiC.PROPERTY_COLOR)));
 		}
 		if (d.containsKey(TiC.PROPERTY_VISIBLE_ITEMS)) {
-			((WheelView)nativeView).setVisibleItems(TiConvert.toInt(d, TiC.PROPERTY_VISIBLE_ITEMS));
+			((WheelView) nativeView).setVisibleItems(TiConvert.toInt(d, TiC.PROPERTY_VISIBLE_ITEMS));
 		} else {
-			((WheelView)nativeView).setVisibleItems(PickerProxy.DEFAULT_VISIBLE_ITEMS_COUNT);
+			((WheelView) nativeView).setVisibleItems(PickerProxy.DEFAULT_VISIBLE_ITEMS_COUNT);
 		}
 		if (d.containsKey(TiC.PROPERTY_SELECTION_INDICATOR)) {
-			((WheelView)nativeView).setShowSelectionIndicator(TiConvert.toBoolean(d, TiC.PROPERTY_SELECTION_INDICATOR));
+			((WheelView) nativeView)
+				.setShowSelectionIndicator(TiConvert.toBoolean(d, TiC.PROPERTY_SELECTION_INDICATOR));
 		}
 		refreshNativeView();
 	}
 
 	private void setFontProperties()
 	{
-		WheelView view = (WheelView)nativeView;
+		WheelView view = (WheelView) nativeView;
 		String fontFamily = null;
 		Float fontSize = null;
 		String fontWeight = null;
@@ -118,7 +120,7 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		if (fontWeight != null) {
 			typefaceWeight = new Integer(TiUIHelper.toTypefaceStyle(fontWeight, null));
 		}
-		
+
 		boolean dirty = false;
 		if (typeface != null) {
 			dirty = dirty || !typeface.equals(view.getTypeface());
@@ -134,33 +136,31 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			view.setTextSize(fontSize.intValue());
 		}
 		if (dirty) {
-			((PickerColumnProxy)proxy).parentShouldRequestLayout();
+			((PickerColumnProxy) proxy).parentShouldRequestLayout();
 		}
 	}
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy)
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.startsWith("font")) {
 			setFontProperties();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			((WheelView)nativeView).setTextColor(new Integer(TiConvert.toColor(TiConvert.toString(newValue))));
+			((WheelView) nativeView).setTextColor(new Integer(TiConvert.toColor(TiConvert.toString(newValue))));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE_ITEMS)) {
-			((WheelView)nativeView).setVisibleItems(TiConvert.toInt(newValue));
+			((WheelView) nativeView).setVisibleItems(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_SELECTION_INDICATOR)) {
-			((WheelView)nativeView).setShowSelectionIndicator(TiConvert.toBoolean(newValue));
+			((WheelView) nativeView).setShowSelectionIndicator(TiConvert.toBoolean(newValue));
 		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);	
+			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
-	
-	
+
 	public void refreshNativeView()
 	{
 		WheelView view = null;
 		if (nativeView instanceof WheelView) {
-			view = (WheelView)nativeView;
+			view = (WheelView) nativeView;
 		} else {
 			view = new WheelView(proxy.getActivity());
 			Float defaultFontSize = new Float(TiUIHelper.getSize(TiUIHelper.getDefaultFontSize(proxy.getActivity())));
@@ -168,7 +168,7 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			setNativeView(view);
 		}
 		int selectedRow = view.getCurrentItem();
-		PickerRowProxy[] rows = ((PickerColumnProxy)proxy).getRows();
+		PickerRowProxy[] rows = ((PickerColumnProxy) proxy).getRows();
 		int rowCount = (rows == null) ? 0 : rows.length;
 		if (selectedRow >= rowCount) {
 			suppressItemSelected = true;
@@ -185,11 +185,11 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		}
 		view.setAdapter(adapter);
 	}
-	
+
 	public void selectRow(int rowIndex)
 	{
 		if (nativeView instanceof WheelView) {
-			WheelView view = (WheelView)nativeView;
+			WheelView view = (WheelView) nativeView;
 			if (rowIndex < 0 || rowIndex >= view.getAdapter().getItemsCount()) {
 				Log.w(TAG, "Ignoring attempt to select out-of-bound row index " + rowIndex);
 				return;
@@ -204,14 +204,14 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		if (suppressItemSelected) {
 			return;
 		}
-		((PickerColumnProxy)proxy).onItemSelected(index);
+		((PickerColumnProxy) proxy).onItemSelected(index);
 	}
-	
+
 	public int getSelectedRowIndex()
 	{
 		int result = -1;
 		if (nativeView instanceof WheelView) {
-			result = ((WheelView)nativeView).getCurrentItem();
+			result = ((WheelView) nativeView).getCurrentItem();
 		}
 		return result;
 	}
@@ -219,8 +219,7 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 	public void forceRequestLayout()
 	{
 		if (nativeView instanceof WheelView) {
-			((WheelView)nativeView).fullLayoutReset();
+			((WheelView) nativeView).fullLayoutReset();
 		}
 	}
-
 }

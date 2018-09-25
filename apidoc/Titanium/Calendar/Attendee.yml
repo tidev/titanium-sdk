@@ -17,7 +17,8 @@ properties:
   - name: name
     summary: The attendee name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: email
     summary: The attendee email.
@@ -25,7 +26,8 @@ properties:
         Due to privacy concerns in iOS, this value will be empty if the attendee 
         is the device owner. 
     type: String
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: role
     summary: The role of the attendee.
@@ -37,10 +39,19 @@ properties:
     summary: The type of the attendee.
     type: Number
     constants: Titanium.Calendar.ATTENDEE_TYPE_*
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
 
   - name: status
     summary: The status of the attendee.
     type: Number
     constants: Titanium.Calendar.ATTENDEE_STATUS_*
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0"}
+
+  - name: relationship
+    summary: The relationship of the attendee to the user.
+    type: Number
+    constants: Titanium.Calendar.RELATIONSHIP_*
+    platforms: [android]
+    since: "6.2.0"

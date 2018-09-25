@@ -9,7 +9,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Posts: Create Post](http://docs.appcelerator.com/arrowdb/latest/#!/api/Posts-method-create)
+        See [Posts: Create Post](https://docs.appcelerator.com/arrowdb/latest/#!/api/Posts-method-create)
         for the request parameters supported by this method.
         
         Data is returned in the `posts` property of the parameter passed to the callback.
@@ -25,7 +25,7 @@ methods:
   - name: query
     summary: Retrieve a list of posts with sorting and pagination.
     description: |
-        See [Posts: Custom Query Posts](http://docs.appcelerator.com/arrowdb/latest/#!/api/Posts-method-query)
+        See [Posts: Custom Query Posts](https://docs.appcelerator.com/arrowdb/latest/#!/api/Posts-method-query)
         for the request parameters supported by this method.
         
         Data is returned in the `posts` property of the parameter passed to the callback.
@@ -44,7 +44,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Posts: Delete a Post](http://docs.appcelerator.com/arrowdb/latest/#!/api/Posts-method-delete)
+        See [Posts: Delete a Post](https://docs.appcelerator.com/arrowdb/latest/#!/api/Posts-method-delete)
         for the request parameters supported by this method.
     parameters:
       - name: parameters
@@ -58,7 +58,7 @@ methods:
   - name: show
     summary: Retrieve information about a post.
     description: |
-        See [Posts: Show a Post](http://docs.appcelerator.com/arrowdb/latest/#!/api/Posts-method-show)
+        See [Posts: Show a Post](https://docs.appcelerator.com/arrowdb/latest/#!/api/Posts-method-show)
         for the request parameters supported by this method.
         
         Data is returned in the `posts` property of the parameter passed to the callback.
@@ -76,7 +76,7 @@ methods:
     description: |
         Requires user login. 
         
-        See [Posts: Update a Post](http://docs.appcelerator.com/arrowdb/latest/#!/api/Posts-method-update)
+        See [Posts: Update a Post](https://docs.appcelerator.com/arrowdb/latest/#!/api/Posts-method-update)
         for the request parameters supported by this method.
         
         Data is returned in the `posts` property of the parameter passed to the callback.

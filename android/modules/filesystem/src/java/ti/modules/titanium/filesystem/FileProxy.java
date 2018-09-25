@@ -9,7 +9,7 @@ package ti.modules.titanium.filesystem;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiFileProxy;
 
-@Kroll.proxy(parentModule=FilesystemModule.class)
+@Kroll.proxy(parentModule = FilesystemModule.class)
 public class FileProxy extends TiFileProxy
 {
 

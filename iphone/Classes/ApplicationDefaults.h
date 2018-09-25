@@ -9,10 +9,8 @@
 
 #import <Foundation/Foundation.h>
 
-
 @interface ApplicationDefaults : NSObject {
-	
 }
-+ (NSMutableDictionary *) copyDefaults;
-+ (NSDictionary*) launchUrl;
++ (NSMutableDictionary *)copyDefaults;
++ (NSDictionary *)launchUrl;
 @end

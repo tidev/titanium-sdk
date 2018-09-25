@@ -48,7 +48,8 @@ public class V8Object extends KrollObject
 	}
 
 	@Override
-	public boolean fireEvent(KrollObject source, String type, Object data, boolean bubbles, boolean reportSuccess, int code, String message)
+	public boolean fireEvent(KrollObject source, String type, Object data, boolean bubbles, boolean reportSuccess,
+							 int code, String message)
 	{
 		if (!KrollRuntime.isInitialized()) {
 			Log.w(TAG, "Runtime disposed, cannot fire event '" + type + "'");
@@ -59,11 +60,12 @@ public class V8Object extends KrollObject
 		if (source instanceof V8Object) {
 			sourceptr = ((V8Object) source).getPointer();
 		}
-		return nativeFireEvent(ptr, source, sourceptr, type, data,bubbles,reportSuccess,code,message);
+		return nativeFireEvent(ptr, source, sourceptr, type, data, bubbles, reportSuccess, code, message);
 	}
 
 	@Override
-	public Object callProperty(String propertyName, Object[] args) {
+	public Object callProperty(String propertyName, Object[] args)
+	{
 		if (KrollRuntime.isDisposed()) {
 			if (Log.isDebugModeEnabled()) {
 				Log.w(TAG, "Runtime disposed, cannot call property '" + propertyName + "'");
@@ -80,9 +82,8 @@ public class V8Object extends KrollObject
 			return;
 		}
 
-		if (nativeRelease(ptr)) {
+		if (!KrollRuntime.isDisposed() && nativeRelease(ptr)) {
 			ptr = 0;
-			KrollRuntime.suggestGC();
 		}
 	}
 
@@ -104,11 +105,15 @@ public class V8Object extends KrollObject
 
 	// JNI method prototypes
 	protected static native void nativeInitObject(Class<?> proxyClass, Object proxyObject);
-	private static native Object nativeCallProperty(long ptr, String propertyName, Object[] args);
+
 	private static native boolean nativeRelease(long ptr);
 
+	private native Object nativeCallProperty(long ptr, String propertyName, Object[] args);
+
 	private native void nativeSetProperty(long ptr, String name, Object value);
-	private native boolean nativeFireEvent(long ptr, Object source, long sourcePtr, String event, Object data, boolean bubble, boolean reportSuccess, int code, String errorMessage);
+
+	private native boolean nativeFireEvent(long ptr, Object source, long sourcePtr, String event, Object data,
+										   boolean bubble, boolean reportSuccess, int code, String errorMessage);
+
 	private native void nativeSetWindow(long ptr, Object windowProxyObject);
 }
-

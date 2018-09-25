@@ -1,0 +1,24 @@
+{
+  "extends": [ "axway/env-node", "axway/+mocha"],
+  "parserOptions": {
+    "ecmaVersion": 2015,
+    "sourceType": "script"
+  },
+  "globals": {
+    "Ti": false,
+    "__filename": false,
+    "__dirname": false,
+  },
+  "rules": {
+    "strict": ["error", "global"]
+  },
+  "overrides": [
+    {
+      "files": [ "tests/Resources/es6.*.js" ],
+      "parserOptions": {
+        "ecmaVersion": 2015,
+        "sourceType": "module"
+      },
+    },
+  ]
+}

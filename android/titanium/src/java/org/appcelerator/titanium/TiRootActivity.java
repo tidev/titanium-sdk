@@ -21,13 +21,12 @@ import android.view.Window;
 
 import java.util.Set;
 
-public class TiRootActivity extends TiLaunchActivity
-	implements TiActivitySupport
+public class TiRootActivity extends TiLaunchActivity implements TiActivitySupport
 {
 	private static final String TAG = "TiRootActivity";
 	private boolean finishing = false;
 
-	private Drawable[] backgroundLayers = {null, null};
+	private Drawable[] backgroundLayers = { null, null };
 
 	public void setBackgroundColor(int color)
 	{
@@ -69,7 +68,10 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	public String getUrl()
 	{
-		return "app.js";
+		// The Titanium "ti.main.js" script is shared by all platforms.
+		// It will run the app developer's "app.js" script after loading all JS extensions.
+		// Script Location: titanium_mobile/common/Resources
+		return "ti.main.js";
 	}
 
 	@Override
@@ -100,7 +102,8 @@ public class TiRootActivity extends TiLaunchActivity
 				// TIMOB-24497: launching as CATEGORY_HOME or CATEGORY_DEFAULT prevents intent data from
 				// being passed to our resumed activity. Re-launch using CATEGORY_LAUNCHER.
 				Set<String> categories = intent.getCategories();
-				if (categories == null || categories.contains(Intent.CATEGORY_HOME) || !categories.contains(Intent.CATEGORY_LAUNCHER)) {
+				if (categories == null || categories.contains(Intent.CATEGORY_HOME)
+					|| !categories.contains(Intent.CATEGORY_LAUNCHER)) {
 					finish();
 
 					if (categories != null) {
@@ -120,10 +123,9 @@ public class TiRootActivity extends TiLaunchActivity
 			}
 
 			// TIMOB-15253: implement 'singleTask' like launchMode as android:launchMode cannot be used with Titanium
-			if (tiApp.intentFilterNewTask() &&
-				intent.getAction() != null && intent.getAction().equals(Intent.ACTION_VIEW) &&
-				intent.getDataString() != null &&
-				(intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != Intent.FLAG_ACTIVITY_NEW_TASK) {
+			if (tiApp.intentFilterNewTask() && intent.getAction() != null
+				&& intent.getAction().equals(Intent.ACTION_VIEW) && intent.getDataString() != null
+				&& (intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != Intent.FLAG_ACTIVITY_NEW_TASK) {
 
 				if (rootActivity == null) {
 					intent.setAction(Intent.ACTION_MAIN);
@@ -131,7 +133,7 @@ public class TiRootActivity extends TiLaunchActivity
 				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(intent);
 				finish();
-				
+
 				KrollRuntime.incrementActivityRefCount();
 				activityOnCreate(savedInstanceState);
 				return;
@@ -227,5 +229,4 @@ public class TiRootActivity extends TiLaunchActivity
 			super.finish();
 		}
 	}
-
 }

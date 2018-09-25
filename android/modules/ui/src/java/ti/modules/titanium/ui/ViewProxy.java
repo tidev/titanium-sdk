@@ -13,7 +13,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiView;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule=UIModule.class)
+@Kroll.proxy(creatableInModule = UIModule.class)
 public class ViewProxy extends TiViewProxy
 {
 	public ViewProxy()

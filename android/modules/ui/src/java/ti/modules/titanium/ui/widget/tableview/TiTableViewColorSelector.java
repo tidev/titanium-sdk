@@ -10,16 +10,19 @@ import android.graphics.Canvas;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 
-public class TiTableViewColorSelector extends ShapeDrawable {
+public class TiTableViewColorSelector extends ShapeDrawable
+{
 	protected int color;
 
-	public TiTableViewColorSelector(int color) {
+	public TiTableViewColorSelector(int color)
+	{
 		this.color = color;
 		setShape(new RectShape());
 	}
 
 	@Override
-	public void draw(Canvas canvas) {
+	public void draw(Canvas canvas)
+	{
 		getPaint().setColor(this.color);
 		super.draw(canvas);
 	}

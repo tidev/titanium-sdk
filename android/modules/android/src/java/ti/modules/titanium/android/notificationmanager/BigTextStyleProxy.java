@@ -15,9 +15,11 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.support.v4.app.NotificationCompat.BigTextStyle;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class)
-public class BigTextStyleProxy extends StyleProxy {
+public class BigTextStyleProxy extends StyleProxy
+{
 
-	public BigTextStyleProxy() {
+	public BigTextStyleProxy()
+	{
 		super();
 		style = new BigTextStyle();
 	}
@@ -44,21 +46,33 @@ public class BigTextStyleProxy extends StyleProxy {
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void setBigText(String text) {
-		((BigTextStyle)style).bigText(text);
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setBigText(String text)
+	// clang-format on
+	{
+		((BigTextStyle) style).bigText(text);
 		setProperty(TiC.PROPERTY_BIG_TEXT, text);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void setBigContentTitle(String title) {
-		((BigTextStyle)style).setBigContentTitle(title);
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setBigContentTitle(String title)
+	// clang-format on
+	{
+		((BigTextStyle) style).setBigContentTitle(title);
 		setProperty(TiC.PROPERTY_BIG_CONTENT_TITLE, title);
 	}
 
-	@Kroll.method @Kroll.setProperty
-	public void setSummaryText(String text) {
-		((BigTextStyle)style).setSummaryText(text);
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setSummaryText(String text)
+	// clang-format on
+	{
+		((BigTextStyle) style).setSummaryText(text);
 		setProperty(TiC.PROPERTY_SUMMARY_TEXT, text);
 	}
 }

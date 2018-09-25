@@ -6,8 +6,9 @@ description: |
       <tr>
         <td><img src="images/searchbar/searchbar_android.png" height="25" /></td>
         <td><img src="images/searchbar/searchbar_ios.png" height="25" /></td>
+        <td><img src="images/searchbar/searchbar_windows.png" height="25" /></td>
       </tr>
-      <tr><th>Android</th><th>iOS</th></tr>
+      <tr><th>Android</th><th>iOS</th><th>Windows</th></tr>
     </table>
 
     The `SearchBar` object is closely modeled on an iOS native search bar.
@@ -15,10 +16,11 @@ description: |
     consider using a <Titanium.UI.Android.SearchView> object instead.
     
     Search bars are most commonly used for filtering the rows in a [TableView](Titanium.UI.TableView).
-    You can add a search bar to a table view by setting the table view's 
-    [search](Titanium.UI.TableView.search) property. 
-
+    You can add a search bar to a table view by setting the table view's [search](Titanium.UI.TableView.search) property.
     A search bar can also be used without a table view.
+
+    You can also use a `SearchView` object as the <Titanium.UI.ListView.searchView>
+    property of a [ListView](Titanium.UI.ListView) object.
 
     Use the <Titanium.UI.createSearchBar> method or Alloy **`<SearchBar>`** element to create a search bar.
 
@@ -51,9 +53,13 @@ description: |
                 mySearchBar.show();
             }
             // standard click event handling here
+            
+    **Note**: Due to native limitations, the SearchBar's positional properties may not work properly 
+    when nested within a TableView or ListView (properties such as left, right, width and so on).
     
 extends: Titanium.UI.View
-excludes: { methods: [ add, removeAllChildren ] }
+excludes:
+    methods: [add, remove, removeAllChildren, replaceAt]
 since: "0.8"
 platforms: [android, iphone, ipad]
 methods:
@@ -139,7 +145,7 @@ properties:
     type: Number
     constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
     platforms: [iphone, ipad]
-    default: No autocapitalization.
+    default: Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE
 
   - name: autocorrect
     summary: Determines whether the text in the search bar is autocorrected during typing.
@@ -153,6 +159,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
         
         On iOS and Android, `barColor` specifies the color of the "frame" around the search text field.
+        On Windows, `barColor` specifies the color of the whole surrounding area of the search text field.
     type: String
     platforms: [android, iphone, ipad]
     default: System default bar color.
@@ -161,14 +168,47 @@ properties:
     summary: The title of the cancel button when the search bar field is focused.
     description: Use this property if you want to display a custom cancel title.
     type: String
-    default: System-localized "Cancel"
+    default: System-localized 'Cancel'
     since: "5.4.0"
     platforms: [iphone,ipad]
+
+  - name: color
+    summary: Color of the text in this text field, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: String
+    platforms: [android, iphone, ipad]
+    since: "7.1.0"
+
+  - name: fieldBackgroundImage
+    summary: Background image of the text field, specified as a local file path or URL.
+    description: |
+      If this property is not specified, the default white background is used.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.5.0"
+
+  - name: fieldBackgroundDisabledImage
+    summary: Background image of the text field in disabled state, specified as a local file path or URL.
+    description: |
+      If this property is not specified, the default white background is used.
+    type: String
+    platforms: [iphone, ipad]
+    since: "7.5.0"
 
   - name: hintText
     summary: Text to show when the search bar field is not focused.
     type: String
-    default: On iOS, "Search"; on Android, no hint text.
+    default: On iOS, System-localized 'Search'. On Android and Windows, no hint text.
+
+  - name: hintTextColor
+    summary: Hint text color to display when the field is empty.
+    platforms: [android, iphone, ipad]
+    since: "7.1.0"
+    description: |
+        Sets the color of the <Titanium.UI.SearchBar.hintText>.
+    type: String
+    default: The platform's default hint text color.
 
   - name: hinttextid
     summary: |
@@ -182,7 +222,7 @@ properties:
     type: Number
     platforms: [iphone, ipad]
     constants: Titanium.UI.KEYBOARD_TYPE_*
-    default: <Titanium.UI.KEYBOARD_TYPE_DEFAULT>
+    default: Titanium.UI.KEYBOARD_TYPE_DEFAULT
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard to be displayed the field is focused.
@@ -190,7 +230,7 @@ properties:
     since: 5.2.0
     platforms: [iphone, ipad]
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
-    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
+    default: Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT
 
   - name: prompt
     summary: Single line of text displayed at the top of the search bar.
@@ -226,7 +266,7 @@ properties:
     since: 5.4.0
     platforms: [iphone, ipad]
     constants: Titanium.UI.iOS.SEARCH_BAR_STYLE_*
-    default: <Titanium.UI.iOS.SEARCH_BAR_STYLE_PROMINENT>
+    default: Titanium.UI.iOS.SEARCH_BAR_STYLE_PROMINENT
 
   - name: value
     summary: Value of the search bar.
@@ -253,3 +293,23 @@ examples:
             <Alloy>
                 <SearchBar id="search" barColor="#000" showCancel="true" height="43" top="0" />
             </Alloy>
+
+  - title: Search Bar with TableView
+    example: |
+            var search = Ti.UI.createSearchBar({
+                showCancel: true
+            });
+            var tableview = Ti.UI.createTableView({
+                search: search
+            });
+
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+            <Alloy>
+                <TableView id="tableview">
+                    <SearchBar id="search" showCancel="true" />
+                </TableView>
+            </Alloy>
+

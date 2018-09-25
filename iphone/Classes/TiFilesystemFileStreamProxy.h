@@ -9,11 +9,11 @@
 
 #import "TiStreamProxy.h"
 
-@interface TiFilesystemFileStreamProxy : TiStreamProxy<TiStreamInternal> {
+@interface TiFilesystemFileStreamProxy : TiStreamProxy <TiStreamInternal> {
 
-@private
-	NSFileHandle *fileHandle;
-	TiStreamMode mode;
+  @private
+  NSFileHandle *fileHandle;
+  TiStreamMode mode;
 }
 
 @end

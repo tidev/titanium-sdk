@@ -3,9 +3,9 @@ name: Titanium.Calendar.Event
 summary: An object that represents a single event in a calendar.
 description: |
     The API supports retrieving information about existing events and creating new events.  
-    Be aware that modifying or deleting existing events and creating recurring rules for events 
-    are only supported on iOS.
-    
+    On iOS, existing events can be modified or deleted. On Android, only recurrence rules
+    can be modified.
+
     See <Titanium.Calendar> for examples of retrieving event information and creating events.
 extends: Titanium.Proxy
 platforms: [android, iphone, ipad]
@@ -66,7 +66,8 @@ methods:
       - name: data
         summary: Properties for the recurrence rule.
         type: Dictionary<Titanium.Calendar.RecurrenceRule>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, android]
+    since: {android: "7.1.0"}
 
   - name: save
     summary: Saves changes to an event permanently.
@@ -76,6 +77,9 @@ methods:
         When an event is saved, it is updated in the Calendar database. Any fields you did 
         not modify are updated to reflect the most recent value in the database. If the 
         event has been deleted from the database, it is re-created as a new event.
+
+        On Android, this method only updates the recurrence rule (if set). See [TIMOB-24248](https://jira.appcelerator.org/browse/TIMOB-24248)
+        to track this new feature.
     returns:
         type: Boolean
     parameters:
@@ -86,7 +90,8 @@ methods:
         type: Number
         constants: Titanium.Calendar.SPAN_*
         default: <Titanium.Calendar.SPAN_THISEVENT>
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
 
   - name: remove
     summary: Removes an event from the event store.
@@ -238,20 +243,15 @@ properties:
     type: String
     platforms: [android, iphone, ipad]
 
-  - name: recurrenceRule
-    summary: Recurrence rule associated with the event. (Available in iOS 4.0 through iOS 5.1.)
-    type: Titanium.Calendar.RecurrenceRule
-    osver: {ios: {max: "5.0"}}
-    deprecated:
-        since: "3.1.3"
-        removed: "3.2.0"
-    platforms: [iphone, ipad]
-    
   - name: recurrenceRules
-    summary: The recurrence rules for the calendar item. (Available in iOS 5.1 and above.)
+    summary: The recurrence rules for the calendar item.
+    description: |
+        On Android, only the first element of the recurrenceRules is taken into account 
+        due to the way it handles conditions for recurrence rules.
     type: Array<Titanium.Calendar.RecurrenceRule>
     osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad]
+    since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
 
   - name: visibility
     summary: Visibility of this event.

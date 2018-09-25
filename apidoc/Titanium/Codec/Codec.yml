@@ -3,16 +3,16 @@ name: Titanium.Codec
 summary: |
     A module for translating between primitive types and raw byte streams.
 description: |
-    The `Codec` module can be used for encoding strings and numbers into [Buffer](Titanium.Buffer) 
-    objects, and decoding primitive types from buffers. 
+    The `Codec` module can be used for encoding strings and numbers into [Buffer](Titanium.Buffer)
+    objects, and decoding primitive types from buffers.
 
     #### Byte Order
 
     Multi-byte data can be stored in two different byte orders: big-endian or
     little-endian. In big-endian byte order, the most significant or highest-value
     byte is stored first. For example, the 4-byte integer 0xFEDCBA98 is made up of the
-    bytes 0xFE, 0xDC, 0xBA and 0x98, from most-significant to least-significant.  
-    
+    bytes 0xFE, 0xDC, 0xBA and 0x98, from most-significant to least-significant.
+
     If we represent a buffer as an array of byte values, a big-endian encoding of
     0xFEDCBA98 would look like this:
 
@@ -21,7 +21,7 @@ description: |
     In little-endian order, the bytes would be stored in this order:
 
         [ 0x98, 0xBA, 0xDC, 0xFE ]
-        
+
     For 8-bit character encodings, including ASCII, Latin-1 and UTF-8, byte order is not
     significant: the text is a sequence of individual bytes.
 
@@ -37,10 +37,10 @@ description: |
 
     Note that the bytes for each character are stored least-significant byte first, but
     the order of the characters is unchanged.
-    
+
 extends: Titanium.Module
 since: "1.7"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 
 properties:
   - name: CHARSET_ASCII
@@ -162,8 +162,6 @@ methods:
         <Titanium.Codec.LITTLE_ENDIAN>).
     description: |
         See "Byte Order" in the main discussion of <Titanium.Codec> for more information.
-
-        On Mobile Web, this property always returns <Titanium.Codec.LITTLE_ENDIAN>.
     returns:
         type: Number
         summary: OS native byte order.
@@ -184,8 +182,6 @@ methods:
 
         *   If `byteOrder` is included in the `options` dictionary, the specified byte order
             is used -- otherwise, the native byte order is assumed.
-        
-        On Mobile Web, `position` is not supported.
     parameters:
       - name: options
         summary: Named parameters.
@@ -198,7 +194,7 @@ methods:
         example: |
             This example encodes a double-precision floating point value in 8 bytes using the OS byte
             order.
-            
+
                 var buffer = Ti.createBuffer({ length: 8 });
                 Ti.Codec.encodeNumber({
                   source: 1.23456789,
@@ -208,9 +204,9 @@ methods:
 
       - title: Encode an Integer Specifying Start Position and Byte Order
         example: |
-            This example encodes a 4-byte integer using big endian encoding, and 
+            This example encodes a 4-byte integer using big endian encoding, and
             writes it to the supplied buffer starting at index position 10.
-            
+
                 var buffer = Ti.createBuffer({ length: 100 });
                 Ti.Codec.encodeNumber({
                     source: 0x3456789a,
@@ -231,15 +227,13 @@ methods:
 
         Two optional parameters can also be specified in `options`:
 
-        *   If `position` is included in the `options` dictionary, reads data from the 
+        *   If `position` is included in the `options` dictionary, reads data from the
             buffer starting at `position`.
 
         *   If `byteOrder` is included in the `options` dictionary, the specified byte order
             is used -- otherwise, the native byte order is assumed.
 
         Throws an exception if `source` is null, or `position` is greater than `source.length`
-
-        On Mobile Web, `position` and `byteOrder` are not supported.
     parameters:
       - name: options
         summary: Named parameters.
@@ -250,22 +244,22 @@ methods:
 
     examples:
 
-      - title: Decode a Double-Precision Floating Point Number 
+      - title: Decode a Double-Precision Floating Point Number
         example: |
             This sample decodes an 8-byte double-precision floating point number using the
             OS byte order.
-            
+
                 var buffer = // a buffer containing (at least) one 8-byte floating-point number
                 var value = Ti.Codec.decodeNumber({
                     source: buffer,
                     type: Ti.Codec.TYPE_DOUBLE
                 });
-        
+
       - title: Decode an Integer Specifying Start Position and Byte Order
         example: |
             This sample decodes a 4-byte integer starting at index position 10 in the
             buffer, using big endian encoding.
-            
+
                 var buffer = // a buffer containing a 4-byte integer at position 10.
                 var value = Ti.Codec.decodeNumber({
                       source: buffer,
@@ -282,26 +276,24 @@ methods:
         Takes a set of named parameters in the `options` argument.
 
         The string is read from `source` and written to the buffer `dest`.
-        
+
         Several optional parameters can also be specified in `options`:
-        
+
         *   If `charset` is included, the string is encoded using the specified character
             encoding.
 
-        *   If `destPosition` is included, data is written into the buffer starting at 
-            the specified position. 
-        
-        *   If `sourcePosition` is included, a substring of the source string starting at the 
+        *   If `destPosition` is included, data is written into the buffer starting at
+            the specified position.
+
+        *   If `sourcePosition` is included, a substring of the source string starting at the
             specified position is encoded.
 
-        *   If `sourceLength` is included, at most the specified numer of characters 
+        *   If `sourceLength` is included, at most the specified numer of characters
             are encoded.
-        
+
         Throws an exception if `charset` is not a valid character set,
         `source` is null, or either `sourcePosition`, `sourceLength`, or
         `sourcePosition`+`sourceLength` is greater than `source.length`.
-
-        On Mobile Web, the `charset` option is not supported. All strings are treated as UTF-8.
     parameters:
 
       - name: options
@@ -316,7 +308,7 @@ methods:
     examples:
       - title: Encode String with Default Character Encoding
         example: |
-            This sample encodes a string using the default character encoding (UTF-8), then trims the 
+            This sample encodes a string using the default character encoding (UTF-8), then trims the
             buffer to the length of the encoded string.
 
                 var buffer = Ti.createBuffer({ length: 1024 });
@@ -325,10 +317,10 @@ methods:
                     dest: buffer
                 });
                 buffer.length = length;
-        
+
       - title: Encode Substring with Specified Character Encoding
         example: |
-            This sample encodes the first 10 characters of a string using UTF-16 character encoding. 
+            This sample encodes the first 10 characters of a string using UTF-16 character encoding.
 
                 // (10 * 2) + BOM = 22
                 var buffer = Ti.createBuffer({ length: 22 });
@@ -353,14 +345,12 @@ methods:
         *   If `position` is specified, bytes are read from `source` starting at `position`.
 
         *   If `length` is specified, no more than `length` bytes are read.
-        
+
         *   If `charset` is specified, it determines the character encoding used to decode the
             string. Otherwise, UTF-8 is assumed.
 
-        Throws an exception if `charset` is not a valid character set, `source` is null, 
+        Throws an exception if `charset` is not a valid character set, `source` is null,
         or either `position`, `length`, or `position`+`length` is greater than `source.length`.
-
-        On Mobile Web, `charset` is not supported. All strings are treated as UTF-8.
     parameters:
 
       - name: options
@@ -381,7 +371,7 @@ methods:
       - title: Decode a String with a Specified Character Encoding
         example: |
             This sample decodes a string using the UTF-16 character encoding.
-            
+
                 var buffer = // a buffer containing a UTF-16 encoded string
                 var string = Ti.Codec.decodeString({
                   source: buffer,

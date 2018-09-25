@@ -10,17 +10,13 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 
-@Kroll.proxy(propertyAccessors = {
-	TiC.PROPERTY_TYPE,
-	TiC.PROPERTY_VALUE,
-	TiC.PROPERTY_ATTRIBUTE_RANGE
-})
+@Kroll.proxy(propertyAccessors = { TiC.PROPERTY_TYPE, TiC.PROPERTY_VALUE, TiC.PROPERTY_ATTRIBUTE_RANGE })
 public class AttributeProxy extends KrollProxy
 {
 	protected AttributeProxy()
 	{
 	}
-	
+
 	@Override
 	public String getApiName()
 	{

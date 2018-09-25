@@ -28,13 +28,12 @@ import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
 
-@Kroll.module(parentModule=MediaModule.class)
+@Kroll.module(parentModule = MediaModule.class)
 public class AndroidModule extends KrollModule
 {
 	private static final String TAG = "TiMedia.Android";
 
 	protected static AndroidModule _instance = null;
-
 
 	public AndroidModule()
 	{
@@ -97,7 +96,7 @@ public class AndroidModule extends KrollModule
 		@Override
 		public void onMediaScannerConnected()
 		{
-			if (paths == null || paths.length == 0){
+			if (paths == null || paths.length == 0) {
 				connection.disconnect();
 				return;
 			}
@@ -107,7 +106,7 @@ public class AndroidModule extends KrollModule
 					path = path.substring("file://".length()); // the service doesn't like file://
 				}
 				String mimeType = null;
-				if (mimeTypes != null && mimeTypes.length > i){
+				if (mimeTypes != null && mimeTypes.length > i) {
 					mimeType = TiConvert.toString(mimeTypes[i]);
 				}
 				connection.scanFile(path, mimeType);

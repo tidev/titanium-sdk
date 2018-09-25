@@ -9,27 +9,25 @@
 #ifdef USE_TI_UIIPAD
 
 #ifdef USE_TI_UIIPADPOPOVER
-	#import "TiUIiPadPopoverProxy.h"
+#import "TiUIiPadPopoverProxy.h"
 #endif
 
 @interface TiUIiPadProxy : TiProxy {
 
-@private
-
+  @private
 }
 
 #ifdef USE_TI_UIIPADPOPOVER
-@property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_UP;
-@property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_DOWN;
-@property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_LEFT;
-@property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_RIGHT;
-@property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_ANY;
-@property(nonatomic,readonly) NSNumber* POPOVER_ARROW_DIRECTION_UNKNOWN;
+@property (nonatomic, readonly) NSNumber *POPOVER_ARROW_DIRECTION_UP;
+@property (nonatomic, readonly) NSNumber *POPOVER_ARROW_DIRECTION_DOWN;
+@property (nonatomic, readonly) NSNumber *POPOVER_ARROW_DIRECTION_LEFT;
+@property (nonatomic, readonly) NSNumber *POPOVER_ARROW_DIRECTION_RIGHT;
+@property (nonatomic, readonly) NSNumber *POPOVER_ARROW_DIRECTION_ANY;
+@property (nonatomic, readonly) NSNumber *POPOVER_ARROW_DIRECTION_UNKNOWN;
 
--(id)createPopover:(id)args;
+- (id)createPopover:(id)args;
 #endif
 
 @end
-
 
 #endif

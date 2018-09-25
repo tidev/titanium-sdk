@@ -6,29 +6,29 @@
  */
 #ifdef USE_TI_UIIOSANIMATOR
 #ifdef USE_TI_UIIOSGRAVITYBEHAVIOR
+#import "TiAnimatorProxy.h"
 #import "TiProxy.h"
 #import "TiViewProxy.h"
-#import "TiAnimatorProxy.h"
 @interface TiGravityBehavior : TiProxy <TiBehaviorProtocol> {
-    CGFloat _angle;
-    CGFloat _magnitude;
-    CGVector _vector;
-    UIGravityBehavior* _gravityBehavior;
-    NSMutableArray* _items;
-    BOOL _needsRefresh;
-    BOOL _vectorDefined;
+  CGFloat _angle;
+  CGFloat _magnitude;
+  CGVector _vector;
+  UIGravityBehavior *_gravityBehavior;
+  NSMutableArray *_items;
+  BOOL _needsRefresh;
+  BOOL _vectorDefined;
 }
 
 #pragma mark - Public API
--(void)addItem:(id)args;
--(void)removeItem:(id)args;
--(NSArray*)items;
--(void)setAngle:(id)args;
--(NSNumber*)angle;
--(void)setMagnitude:(id)args;
--(NSNumber*)magnitude;
--(void)setGravityDirection:(id)args;
--(NSDictionary*)gravityDirection;
+- (void)addItem:(id)args;
+- (void)removeItem:(id)args;
+- (NSArray *)items;
+- (void)setAngle:(id)args;
+- (NSNumber *)angle;
+- (void)setMagnitude:(id)args;
+- (NSNumber *)magnitude;
+- (void)setGravityDirection:(id)args;
+- (NSDictionary *)gravityDirection;
 @end
 #endif
 #endif

@@ -99,7 +99,7 @@ jstring TypeConverter::jsStringToJavaString(v8::Local<v8::String> jsString)
 
 jstring TypeConverter::jsStringToJavaString(JNIEnv *env, v8::Local<v8::String> jsString)
 {
-	titanium::TwoByteValue string(jsString);
+	v8::String::Value string(jsString);
 	return env->NewString(reinterpret_cast<const jchar*>(*string), string.length());
 }
 
@@ -114,7 +114,7 @@ jstring TypeConverter::jsValueToJavaString(v8::Isolate* isolate, v8::Local<v8::V
 
 jstring TypeConverter::jsValueToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Value> jsValue)
 {
-	if (jsValue->IsNull()) {
+	if (jsValue.IsEmpty() || jsValue->IsNullOrUndefined()) {
 		return NULL;
 	}
 
@@ -640,7 +640,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Isolate* isolate, JNIEnv *env, v8
 		v8::Local<v8::Object> jsObject = jsValue.As<Object>();
 
 		if (JavaObject::isJavaObject(jsObject)) {
-			*isNew = JavaObject::useGlobalRefs ? false : true;
+			*isNew = true;
 			JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);
 			return javaObject->getJavaObject();
 		} else {
@@ -650,7 +650,7 @@ jobject TypeConverter::jsValueToJavaObject(v8::Isolate* isolate, JNIEnv *env, v8
 				v8::Local<v8::Value> nativeObject = jsObject->GetRealNamedProperty(nativeString);
 				jsObject = nativeObject->ToObject(isolate);
 				if (JavaObject::isJavaObject(jsObject)) {
-					*isNew = JavaObject::useGlobalRefs ? false : true;
+					*isNew = true;
 					JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);
 					return javaObject->getJavaObject();
 				}
@@ -858,18 +858,18 @@ v8::Local<v8::Value> TypeConverter::javaObjectToJsValue(v8::Isolate* isolate, JN
 		return TypeConverter::javaHashMapToJsValue(isolate, env, javaObject);
 	} else if (env->IsInstanceOf(javaObject, JNIUtil::krollProxyClass)) {
 		jobject krollObject = env->GetObjectField(javaObject, JNIUtil::krollProxyKrollObjectField);
-		if (krollObject) {
+		if (krollObject && env->IsInstanceOf(krollObject, JNIUtil::v8ObjectClass)) {
 			jlong v8ObjectPointer = env->GetLongField(krollObject, JNIUtil::v8ObjectPtrField);
 			env->DeleteLocalRef(krollObject);
 
 			if (v8ObjectPointer != 0) {
 				titanium::Proxy* proxy = (titanium::Proxy*) v8ObjectPointer;
 				v8::Local<v8::Object> v8Object = proxy->handle(isolate);
-				jobject javaProxy = proxy->getJavaObject(); // Called to explicitly go from weak reference to strong!
-				if (!JavaObject::useGlobalRefs) {
-					// But then we need to delete the local reference to avoid JNI ref leak!
-					env->DeleteLocalRef(javaProxy);
-				}
+				// This is an ugly HACK
+				// We're basically just temporarily calling ClearWeak and MakeWeak again hoping to extend the lifetime of this object
+				// so it doesn't get GC'd
+				jobject javaProxy = proxy->getJavaObject();
+				proxy->unreferenceJavaObject(javaProxy);
 				return v8Object;
 			}
 		}

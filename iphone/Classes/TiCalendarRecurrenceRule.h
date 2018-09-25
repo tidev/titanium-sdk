@@ -12,14 +12,13 @@
 @class CalendarModule;
 
 @interface TiCalendarRecurrenceRule : TiProxy {
-@private
-    
-    EKRecurrenceRule* rule;
+  @private
+
+  EKRecurrenceRule *rule;
 }
 
-
--(id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule*)rule_ ;
--(EKRecurrenceRule*)ruleForRecurrence;
+- (id)_initWithPageContext:(id<TiEvaluator>)context rule:(EKRecurrenceRule *)rule_;
+- (EKRecurrenceRule *)ruleForRecurrence;
 @end
 
 #endif

@@ -7,8 +7,8 @@ description: |
 
     Further Reading:
 
-      * [Android Notifications guide](http://docs.appcelerator.com/platform/latest/#!/guide/Android_Notifications)
-      * [Android Developer: Notifications](http://developer.android.com/guide/topics/ui/notifiers/notifications.html)
+      * [Android Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Notifications)
+      * [Android Developer: Notifications](https://developer.android.com/guide/topics/ui/notifiers/notifications.html)
 
 extends: Titanium.Module
 platforms: [android]
@@ -18,7 +18,6 @@ methods:
   - name: cancel
     summary: Cancels a previously displayed notification.
     parameters:
-
       - name: id
         summary: The ID passed to [notify](Titanium.Android.NotificationManager.notify).
         type: Number
@@ -28,10 +27,8 @@ methods:
 
   - name: notify
     summary: Adds a persistent notification to the status bar.
-    description: |
-        The new notification *replaces* any previous notification with the same `id`.
+    description: The new notification *replaces* any previous notification with the same `id`.
     parameters:
-
       - name: id
         summary: An ID that may be used to cancel a shown notification.
         type: Number
@@ -39,6 +36,23 @@ methods:
       - name: notification
         summary: Notification to display.
         type: Titanium.Android.Notification
+
+  - name: createNotificationChannel
+    osver: {android: {min: "8.0"}}
+    summary: Create a notification channel.
+    description: This will return `null` when used on Android versions lower than 8.0.
+    parameters:
+      - name: parameters
+        summary: Properties to set on a new object, including any defined by <Titanium.Android.NotificationChannel> except those marked not-creation or read-only.
+        type: Dictionary<Titanium.Android.NotificationChannel>
+    returns:
+        type: Titanium.Android.NotificationChannel
+
+  - name: areNotificationsEnabled
+    summary: Returns whether showing notifications is enabled for the application.
+    returns:
+        type: Boolean
+    since: "7.1.0"
 
 properties:
 

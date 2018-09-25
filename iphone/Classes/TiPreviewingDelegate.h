@@ -6,13 +6,13 @@
  */
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
 
-#import <Foundation/Foundation.h>
-#import "TiWindowProxy.h"
+#import "TiUIiOSPreviewActionGroupProxy.h"
+#import "TiUIiOSPreviewActionProxy.h"
+#import "TiUIiOSPreviewContextProxy.h"
 #import "TiViewController.h"
 #import "TiViewProxy.h"
-#import "TiUIiOSPreviewContextProxy.h"
-#import "TiUIiOSPreviewActionProxy.h"
-#import "TiUIiOSPreviewActionGroupProxy.h"
+#import "TiWindowProxy.h"
+#import <Foundation/Foundation.h>
 
 @class TiUIiOSPreviewContextProxy;
 
@@ -22,17 +22,17 @@
     The preview context that holds actions
     and action groups.
  */
-@property(nonatomic, retain) TiUIiOSPreviewContextProxy *previewContext;
+@property (nonatomic, retain) TiUIiOSPreviewContextProxy *previewContext;
 
 /**
     The event to be set when source is a UITableView.
  */
-@property(nonatomic, retain) NSDictionary* listViewEvent;
+@property (nonatomic, retain) NSDictionary *listViewEvent;
 
 /**
     Initializes a new previewContext.
  */
-- (instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy*)previewContext;
+- (instancetype)initWithPreviewContext:(TiUIiOSPreviewContextProxy *)previewContext;
 
 /**
     Creates a new source rect that represents the

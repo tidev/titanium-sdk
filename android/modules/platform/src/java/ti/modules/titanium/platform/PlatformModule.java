@@ -22,18 +22,32 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.Manifest;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.Build;
+
+import com.appcelerator.aps.APSAnalytics;
+import com.appcelerator.aps.APSAnalyticsMeta;
+
+import java.util.UUID;
 
 @Kroll.module
 public class PlatformModule extends KrollModule
 {
 	private static final String TAG = "PlatformModule";
 
-	@Kroll.constant public static final int BATTERY_STATE_UNKNOWN = 0;
-	@Kroll.constant public static final int BATTERY_STATE_UNPLUGGED = 1;
-	@Kroll.constant public static final int BATTERY_STATE_CHARGING = 2;
-	@Kroll.constant public static final int BATTERY_STATE_FULL = 3;
+	@Kroll.constant
+	public static final int BATTERY_STATE_UNKNOWN = 0;
+	@Kroll.constant
+	public static final int BATTERY_STATE_UNPLUGGED = 1;
+	@Kroll.constant
+	public static final int BATTERY_STATE_CHARGING = 2;
+	@Kroll.constant
+	public static final int BATTERY_STATE_FULL = 3;
 
 	protected DisplayCapsProxy displayCaps;
 
@@ -51,23 +65,39 @@ public class PlatformModule extends KrollModule
 		batteryLevel = -1;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getName() {
-		return TiPlatformHelper.getInstance().getName();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getName()
+	// clang-format on
+	{
+		return "android";
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getOsname() {
-		return TiPlatformHelper.getInstance().getName();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getOsname()
+	// clang-format on
+	{
+		return "android";
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getLocale() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getLocale()
+	// clang-format on
+	{
 		return TiPlatformHelper.getInstance().getLocale();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public DisplayCapsProxy getDisplayCaps() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public DisplayCapsProxy getDisplayCaps()
+	// clang-format on
+	{
 		if (displayCaps == null) {
 			displayCaps = new DisplayCapsProxy();
 			displayCaps.setActivity(TiApplication.getInstance().getCurrentActivity());
@@ -75,54 +105,93 @@ public class PlatformModule extends KrollModule
 		return displayCaps;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getProcessorCount() {
-		return TiPlatformHelper.getInstance().getProcessorCount();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getProcessorCount()
+	// clang-format on
+	{
+		return Runtime.getRuntime().availableProcessors();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getUsername() {
-		return TiPlatformHelper.getInstance().getUsername();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getUsername()
+	// clang-format on
+	{
+		return Build.USER;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getVersion() {
-		return TiPlatformHelper.getInstance().getVersion();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getVersion()
+	// clang-format on
+	{
+		return APSAnalyticsMeta.getAppVersion();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public double getAvailableMemory() {
-		return TiPlatformHelper.getInstance().getAvailableMemory();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public double getAvailableMemory()
+	// clang-format on
+	{
+		return Runtime.getRuntime().freeMemory();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getModel() {
-		return TiPlatformHelper.getInstance().getModel();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getModel()
+	// clang-format on
+	{
+		return Build.MODEL;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getManufacturer() {
-		return TiPlatformHelper.getInstance().getManufacturer();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getManufacturer()
+	// clang-format on
+	{
+		return Build.MANUFACTURER;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getOstype() {
-		return TiPlatformHelper.getInstance().getOstype();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getOstype()
+	// clang-format on
+	{
+		return "32bit";
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getArchitecture() {
-		return TiPlatformHelper.getInstance().getArchitecture();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getArchitecture()
+	// clang-format on
+	{
+		return APSAnalyticsMeta.getArchitecture();
 	}
 
-
-	@Kroll.getProperty @Kroll.method
-	public String getAddress() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getAddress()
+	// clang-format on
+	{
 		return TiPlatformHelper.getInstance().getIpAddress();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getNetmask() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getNetmask()
+	// clang-format on
+	{
 		return TiPlatformHelper.getInstance().getNetmask();
 	}
 
@@ -137,42 +206,93 @@ public class PlatformModule extends KrollModule
 	}
 
 	@Kroll.method
-	public String createUUID() {
-		return TiPlatformHelper.getInstance().createUUID();
+	public String createUUID()
+	{
+		return UUID.randomUUID().toString();
 	}
 
 	@Kroll.method
-	public boolean openURL(String url) {
+	public boolean openURL(String url)
+	{
 		Log.d(TAG, "Launching viewer for: " + url, Log.DEBUG_MODE);
 		Uri uri = Uri.parse(url);
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		try {
 			Activity activity = TiApplication.getAppRootOrCurrentActivity();
 
-			if(activity != null) {
+			if (activity != null) {
 				activity.startActivity(intent);
 			} else {
 				throw new ActivityNotFoundException("No valid root or current activity found for application instance");
 			}
 			return true;
 		} catch (ActivityNotFoundException e) {
-			Log.e(TAG,"Activity not found: " + url, e);
+			Log.e(TAG, "Activity not found: " + url, e);
 		}
 		return false;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getMacaddress() {
-		return TiPlatformHelper.getInstance().getMacaddress();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getMacaddress()
+	// clang-format on
+	{
+		String macaddr = null;
+		TiApplication tiApp = TiApplication.getInstance();
+
+		if (tiApp.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+			== PackageManager.PERMISSION_GRANTED) {
+			WifiManager wm = (WifiManager) tiApp.getSystemService(Context.WIFI_SERVICE);
+			if (wm != null) {
+				WifiInfo wi = wm.getConnectionInfo();
+				if (wi != null) {
+					macaddr = wi.getMacAddress();
+					Log.d(TAG, "Found mac address " + macaddr);
+				} else {
+					Log.d(TAG, "Mo WifiInfo, enabling Wifi to get mac address");
+					if (!wm.isWifiEnabled()) {
+						if (wm.setWifiEnabled(true)) {
+							if ((wi = wm.getConnectionInfo()) != null) {
+								macaddr = wi.getMacAddress();
+							} else {
+								Log.d(TAG, "Still no WifiInfo, assuming no mac address");
+							}
+							Log.d(TAG, "Disabling wifi because we enabled it.");
+							wm.setWifiEnabled(false);
+						} else {
+							Log.d(TAG, "Enabling wifi failed, assuming no mac address");
+						}
+					} else {
+						Log.d(TAG, "Wifi already enabled, assuming no mac address");
+					}
+				}
+			}
+		} else {
+			Log.w(TAG, "Must have android.permission.ACCESS_WIFI_STATE to get mac address.");
+		}
+
+		if (macaddr == null) {
+			macaddr = getId(); // just make it the unique ID if not found
+		}
+
+		return macaddr;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getId() {
-		return TiPlatformHelper.getInstance().getMobileId();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getId()
+	// clang-format on
+	{
+		return APSAnalytics.getInstance().getMachineId();
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setBatteryMonitoring(boolean monitor)
+	// clang-format on
 	{
 		if (monitor && batteryStateReceiver == null) {
 			registerBatteryStateReceiver();
@@ -181,26 +301,38 @@ public class PlatformModule extends KrollModule
 			batteryStateReceiver = null;
 		}
 	}
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean getBatteryMonitoring()
+	// clang-format on
 	{
 		return batteryStateReceiver != null;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getBatteryState()
+	// clang-format on
 	{
 		return batteryState;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public double getBatteryLevel()
+	// clang-format on
 	{
 		return batteryLevel;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getRuntime()
+	// clang-format on
 	{
 		return KrollRuntime.getInstance().getRuntimeName();
 	}

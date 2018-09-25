@@ -167,7 +167,7 @@ properties:
         This property holds a value such as `US` or `GB`. See the 
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
         country codes section of wikipedia for reference.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     type: String
     permission: read-only
     

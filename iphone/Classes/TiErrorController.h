@@ -5,16 +5,19 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+@interface TiErrorNavigationController : UINavigationController
+
+@end
+
 @interface TiErrorController : UIViewController {
-	
-	NSString *error;
-    UILabel *disclosureLabel;
-    UILabel *messageLabel;
-    UIButton *dismissButton;
-    UIView *centerView;
-    UILabel *titleLabel;
+
+  NSString *error;
+
+  UIScrollView *scrollView;
+  UITextView *messageView;
+  UIButton *continueButton;
 }
 
--(id)initWithError:(NSString*)error_;
+- (id)initWithError:(NSString *)error_;
 
 @end

@@ -55,26 +55,25 @@ public class TiFileFactory
 
 		if (initial.startsWith("app://")) {
 			String path = initial.substring(6);
-			path = formPath(path,parts);
+			path = formPath(path, parts);
 			file = new TiResourceFile(path);
 		} else if (initial.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
 			String path = initial.substring(32);
-			path = formPath(path,parts);
+			path = formPath(path, parts);
 			file = new TiResourceFile(path);
 		} else if (initial.startsWith("appdata://")) {
 			String path = initial.substring(10);
-			path = formPath(path,parts);
-			if (path != null && path.length() > 0 && path.charAt(0)=='/')
-			{
+			path = formPath(path, parts);
+			if (path != null && path.length() > 0 && path.charAt(0) == '/') {
 				path = path.substring(1);
 			}
-			File f = new File(getDataDirectory(false),path);
-			file = new TiFile(f, "appdata://"+path, stream);
+			File f = new File(getDataDirectory(false), path);
+			file = new TiFile(f, "appdata://" + path, stream);
 		} else if (initial.startsWith("appdata-private://")) {
 			String path = initial.substring(18);
-			path = formPath(path,parts);
-			File f = new File(getDataDirectory(true),path);
-			file = new TiFile(f, "appdata-private://"+path, stream);
+			path = formPath(path, parts);
+			File f = new File(getDataDirectory(true), path);
+			file = new TiFile(f, "appdata-private://" + path, stream);
 		} else if (initial.startsWith("file://")) {
 			String path = initial.substring(7);
 			path = formPath(path, parts);
@@ -86,40 +85,38 @@ public class TiFileFactory
 		} else if (initial.startsWith("/")) {
 			String path = "";
 
-			path = formPath(path, insertBefore(path,parts));
+			path = formPath(path, insertBefore(path, parts));
 			file = new TiFile(new File(path), "file://" + path, stream);
 		} else {
 			String path = "";
-			path = formPath(path,insertBefore(path,parts));
-			File f = new File(getDataDirectory(true),path);
-			file = new TiFile(f, "appdata-private://"+path, stream);
+			path = formPath(path, insertBefore(path, parts));
+			File f = new File(getDataDirectory(true), path);
+			file = new TiFile(f, "appdata-private://" + path, stream);
 		}
 
 		return file;
 	}
 
-	private static String[] insertBefore(String path, String[] parts) {
+	private static String[] insertBefore(String path, String[] parts)
+	{
 		String[] p = new String[parts.length + 1];
 		p[0] = path;
-		for(int i = 0; i < parts.length; i++) {
-			p[i+1] = parts[i];
+		for (int i = 0; i < parts.length; i++) {
+			p[i + 1] = parts[i];
 		}
 		return p;
 	}
 
 	private static String formPath(String path, String parts[])
 	{
-		if (!path.endsWith("/") && path.length() > 0 && parts.length > 1)
-		{
-			path+="/";
+		if (!path.endsWith("/") && path.length() > 0 && parts.length > 1) {
+			path += "/";
 		}
-		for (int c=1;c<parts.length;c++)
-		{
+		for (int c = 1; c < parts.length; c++) {
 			String part = parts[c];
 			path += part;
-			if (c+1<parts.length && !part.endsWith("/"))
-			{
-				path+="/";
+			if (c + 1 < parts.length && !part.endsWith("/")) {
+				path += "/";
 			}
 		}
 		return path;
@@ -133,7 +130,7 @@ public class TiFileFactory
 	 * @return  the data directory.
 	 * @module.api
 	 */
-	public static File getDataDirectory (boolean privateStorage)
+	public static File getDataDirectory(boolean privateStorage)
 	{
 		TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
 		return tfh.getDataDirectory(privateStorage);
@@ -149,9 +146,8 @@ public class TiFileFactory
 		}
 
 		scheme = scheme.toLowerCase();
-		if ("app".equals(scheme) || "appdata".equals(scheme) || "appdata-private".equals(scheme) ||
-			"file".equals(scheme) || "content".equals(scheme) || "android.resource".equals(scheme))
-		{
+		if ("app".equals(scheme) || "appdata".equals(scheme) || "appdata-private".equals(scheme)
+			|| "file".equals(scheme) || "android.resource".equals(scheme)) {
 			return true;
 		}
 

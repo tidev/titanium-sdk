@@ -6,8 +6,7 @@
  */
 package org.appcelerator.titanium;
 
-public interface ITiAppInfo
-{
+public interface ITiAppInfo {
 	public String getId();
 	public String getName();
 	public String getVersion();

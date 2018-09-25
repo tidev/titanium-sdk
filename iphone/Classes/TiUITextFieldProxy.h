@@ -9,10 +9,7 @@
 #import "TiUITextWidgetProxy.h"
 
 @interface TiUITextFieldProxy : TiUITextWidgetProxy {
-
 }
-
-
 
 @end
 

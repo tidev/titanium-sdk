@@ -11,8 +11,8 @@
 extern "C" {
 #endif
 
-NSData * dataWithHexString (NSString * hexString);
-NSString *stringWithHexString (NSString * hexString);
+NSData *dataWithHexString(NSString *hexString);
+NSString *stringWithHexString(NSString *hexString);
 
 #if defined(__cplusplus)
 }

@@ -1,0 +1,27 @@
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/drawer_layout_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+           <android.support.v7.widget.Toolbar
+               xmlns:app="http://schemas.android.com/apk/res-auto"
+               android:id="@+id/drawer_layout_toolbar"
+               android:visibility="gone"
+               android:layout_height="wrap_content"
+               android:layout_width="match_parent"
+               android:minHeight="?attr/actionBarSize"
+               android:background="?attr/colorPrimary"
+               app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+               android:fitsSystemWindows="true"/>
+
+           <org.appcelerator.titanium.view.TiCompositeLayout
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"/>
+     </LinearLayout>
+</android.support.v4.widget.DrawerLayout>

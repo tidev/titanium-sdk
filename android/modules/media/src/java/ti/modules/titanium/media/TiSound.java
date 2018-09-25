@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.media.AudioManager;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
@@ -25,36 +24,51 @@ import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.webkit.URLUtil;
 
-public class TiSound
-	implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, KrollProxyListener,
-	MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener, MediaPlayer.OnPreparedListener
+public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, KrollProxyListener,
+								MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener,
+								MediaPlayer.OnPreparedListener
 {
 	private static final String TAG = "TiSound";
 
-	public static final int STATE_BUFFERING	= 0;	// current playback is in the buffering from the network state
-	public static final int STATE_INITIALIZED = 1;	// current playback is in the initialization state
-	public static final int STATE_PAUSED = 2;	// current playback is in the paused state
-	public static final int STATE_PLAYING = 3;	// current playback is in the playing state
-	public static final int STATE_STARTING = 4;	// current playback is in the starting playback state
-	public static final int STATE_STOPPED = 5; // current playback is in the stopped state
-	public static final int STATE_STOPPING = 6; // current playback is in the stopping state
-	public static final int STATE_WAITING_FOR_DATA = 7;  // current playback is in the waiting for audio data from the network state
-	public static final int STATE_WAITING_FOR_QUEUE	= 8; //	current playback is in the waiting for audio data to fill the queue state
+	public static final int STATE_BUFFERING = 0;   // current playback is in the buffering from the network state
+	public static final int STATE_INITIALIZED = 1; // current playback is in the initialization state
+	public static final int STATE_PAUSED = 2;      // current playback is in the paused state
+	public static final int STATE_PLAYING = 3;     // current playback is in the playing state
+	public static final int STATE_STARTING = 4;    // current playback is in the starting playback state
+	public static final int STATE_STOPPED = 5;     // current playback is in the stopped state
+	public static final int STATE_STOPPING = 6;    // current playback is in the stopping state
+	public static final int STATE_WAITING_FOR_DATA =
+		7; // current playback is in the waiting for audio data from the network state
+	public static final int STATE_WAITING_FOR_QUEUE =
+		8; //	current playback is in the waiting for audio data to fill the queue state
 
-	public static final String STATE_BUFFERING_DESC = "buffering";	// current playback is in the buffering from the network state
-	public static final String STATE_INITIALIZED_DESC = "initialized";	// current playback is in the initialization state
-	public static final String STATE_PAUSED_DESC = "paused";	// current playback is in the paused state
-	public static final String STATE_PLAYING_DESC = "playing";	// current playback is in the playing state
-	public static final String STATE_STARTING_DESC = "starting";	// current playback is in the starting playback state
-	public static final String STATE_STOPPED_DESC = "stopped"; // current playback is in the stopped state
+	public static final String STATE_BUFFERING_DESC =
+		"buffering"; // current playback is in the buffering from the network state
+	public static final String STATE_INITIALIZED_DESC =
+		"initialized";                                           // current playback is in the initialization state
+	public static final String STATE_PAUSED_DESC = "paused";     // current playback is in the paused state
+	public static final String STATE_PLAYING_DESC = "playing";   // current playback is in the playing state
+	public static final String STATE_STARTING_DESC = "starting"; // current playback is in the starting playback state
+	public static final String STATE_STOPPED_DESC = "stopped";   // current playback is in the stopped state
 	public static final String STATE_STOPPING_DESC = "stopping"; // current playback is in the stopping state
-	public static final String STATE_WAITING_FOR_DATA_DESC = "waiting for data";  // current playback is in the waiting for audio data from the network state
-	public static final String STATE_WAITING_FOR_QUEUE_DESC = "waiting for queue"; //	current playback is in the waiting for audio data to fill the queue state
+	public static final String STATE_WAITING_FOR_DATA_DESC =
+		"waiting for data"; // current playback is in the waiting for audio data from the network state
+	public static final String STATE_WAITING_FOR_QUEUE_DESC =
+		"waiting for queue"; //	current playback is in the waiting for audio data to fill the queue state
+
+	public static final int AUDIO_TYPE_MEDIA = 0;
+	public static final int AUDIO_TYPE_ALARM = 1;
+	public static final int AUDIO_TYPE_SIGNALLING = 2;
+	public static final int AUDIO_TYPE_RING = 3;
+	public static final int AUDIO_TYPE_VOICE = 4;
+	public static final int AUDIO_TYPE_NOTIFICATION = 5;
 
 	public static final String EVENT_COMPLETE = "complete";
 	public static final String EVENT_ERROR = "error";
@@ -62,7 +76,7 @@ public class TiSound
 	public static final String EVENT_PROGRESS = "progress";
 
 	public static final String EVENT_COMPLETE_JSON = "{ type : '" + EVENT_COMPLETE + "' }";
-	
+
 	private boolean paused = false;
 	private boolean looping = false;
 
@@ -72,13 +86,13 @@ public class TiSound
 	protected boolean playOnResume;
 	protected boolean remote;
 	protected Timer progressTimer;
-	
+
 	private boolean pausePending = false;
 	private boolean stopPending = false;
 	private boolean playPending = false;
 	private boolean prepareRequired = false;
 	public static boolean audioFocus;
-	
+
 	public TiSound(KrollProxy proxy)
 	{
 		this.proxy = proxy;
@@ -86,12 +100,69 @@ public class TiSound
 		this.remote = false;
 	}
 
-	protected void initializeAndPlay()
-		throws IOException
+	protected void initializeAndPlay() throws IOException
 	{
 		try {
 			mp = new MediaPlayer();
-			mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+			int audioType = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_AUDIO_TYPE));
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				int streamType = -1;
+				switch (audioType) {
+					case AUDIO_TYPE_ALARM:
+						streamType = AudioManager.STREAM_ALARM;
+						break;
+					case AUDIO_TYPE_SIGNALLING:
+						streamType = AudioManager.STREAM_DTMF;
+						break;
+					case AUDIO_TYPE_RING:
+						streamType = AudioManager.STREAM_RING;
+						break;
+					case AUDIO_TYPE_VOICE:
+						streamType = AudioManager.STREAM_VOICE_CALL;
+						break;
+					case AUDIO_TYPE_NOTIFICATION:
+						streamType = AudioManager.STREAM_NOTIFICATION;
+						break;
+					case AUDIO_TYPE_MEDIA:
+					default:
+						streamType = AudioManager.STREAM_MUSIC;
+				}
+				if (streamType != -1) {
+					mp.setAudioStreamType(streamType);
+				} else {
+					Log.w(TAG, "unable to set setAudioStreamType()");
+				}
+			} else {
+				int usage = -1;
+				switch (audioType) {
+					case AUDIO_TYPE_ALARM:
+						usage = AudioAttributes.USAGE_ALARM;
+						break;
+					case AUDIO_TYPE_SIGNALLING:
+						usage = AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
+						break;
+					case AUDIO_TYPE_RING:
+						usage = AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+						break;
+					case AUDIO_TYPE_VOICE:
+						usage = AudioAttributes.USAGE_VOICE_COMMUNICATION;
+						break;
+					case AUDIO_TYPE_NOTIFICATION:
+						usage = AudioAttributes.USAGE_NOTIFICATION;
+						break;
+					case AUDIO_TYPE_MEDIA:
+					default:
+						usage = AudioAttributes.USAGE_MEDIA;
+				}
+				if (usage != -1) {
+					AudioAttributes attributes = new AudioAttributes.Builder().setUsage(usage).build();
+					mp.setAudioAttributes(attributes);
+				} else {
+					Log.w(TAG, "unable to set setAudioAttributes()");
+				}
+			}
+
 			String url = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_URL));
 			boolean isAsset = URLUtil.isAssetUrl(url);
 			if (isAsset || url.startsWith("android.resource")) {
@@ -103,14 +174,15 @@ public class TiSound
 						afd = context.getAssets().openFd(path);
 					} else {
 						Uri uri = Uri.parse(url);
-						afd = context.getResources().openRawResourceFd(TiRHelper.getResource("raw." + uri.getLastPathSegment()));
+						afd = context.getResources().openRawResourceFd(
+							TiRHelper.getResource("raw." + uri.getLastPathSegment()));
 					}
 					mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
 				} catch (IOException e) {
 					// timob-24082: setDataSource throws exception on a few but not all 4.4 devices
 					if (Build.VERSION.SDK_INT == 19) {
 						try {
-							mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset()+1, afd.getLength());
+							mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset() + 1, afd.getLength());
 						} catch (IOException e2) {
 							Log.e(TAG, "Error setting file descriptor: ", e2);
 						}
@@ -148,7 +220,7 @@ public class TiSound
 					mp.setDataSource(url);
 				}
 			}
-			
+
 			String loop = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LOOPING));
 			if (loop != null) {
 				looping = Boolean.parseBoolean(loop);
@@ -158,7 +230,7 @@ public class TiSound
 			mp.setOnErrorListener(this);
 			mp.setOnInfoListener(this);
 			mp.setOnBufferingUpdateListener(this);
-			
+
 			if (remote) { // try async
 				mp.setOnPreparedListener(this);
 				mp.prepareAsync();
@@ -174,7 +246,7 @@ public class TiSound
 			}
 
 		} catch (Throwable t) {
-			Log.w(TAG, "Issue while initializing : " , t);
+			Log.w(TAG, "Issue while initializing : ", t);
 			release();
 			setState(STATE_STOPPED);
 		}
@@ -214,7 +286,7 @@ public class TiSound
 				}
 			}
 		} catch (Throwable t) {
-			Log.w(TAG, "Issue while pausing : " , t);
+			Log.w(TAG, "Issue while pausing : ", t);
 		}
 	}
 
@@ -232,7 +304,7 @@ public class TiSound
 				}
 			}
 		} catch (Throwable t) {
-			Log.w(TAG, "Issue while playing : " , t);
+			Log.w(TAG, "Issue while playing : ", t);
 			reset();
 		}
 	}
@@ -242,8 +314,7 @@ public class TiSound
 		prepareRequired = false;
 		if (remote) {
 			playPending = true;
-			mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener()
-			{
+			mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
 				@Override
 				public void onPrepared(MediaPlayer mp)
 				{
@@ -264,7 +335,7 @@ public class TiSound
 			startPlaying();
 		}
 	}
-	
+
 	public void reset()
 	{
 		try {
@@ -281,14 +352,15 @@ public class TiSound
 			Log.w(TAG, "Issue while resetting : ", t);
 		}
 	}
-    
-	public int  getAudioSessionId() {
+
+	public int getAudioSessionId()
+	{
 		if (mp != null) {
 			return mp.getAudioSessionId();
 		}
 		return 0;
 	}
-    
+
 	public void release()
 	{
 		try {
@@ -305,21 +377,21 @@ public class TiSound
 				remote = false;
 			}
 		} catch (Throwable t) {
-			Log.w(TAG, "Issue while releasing : " , t);
+			Log.w(TAG, "Issue while releasing : ", t);
 		}
 	}
 
 	public void setLooping(boolean loop)
 	{
 		try {
-			if(loop != looping) {
+			if (loop != looping) {
 				if (mp != null) {
 					mp.setLooping(loop);
 				}
 				looping = loop;
 			}
 		} catch (Throwable t) {
-			Log.w(TAG, "Issue while configuring looping : " , t);
+			Log.w(TAG, "Issue while configuring looping : ", t);
 		}
 	}
 
@@ -341,7 +413,7 @@ public class TiSound
 				mp.setVolume(scaledVolume, scaledVolume);
 			}
 		} catch (Throwable t) {
-			Log.w(TAG, "Issue while setting volume : " , t);
+			Log.w(TAG, "Issue while setting volume : ", t);
 		}
 	}
 
@@ -352,6 +424,22 @@ public class TiSound
 			duration = mp.getDuration(); // Can only get duration after the media player is initialized.
 		}
 		return duration;
+	}
+
+	public boolean isMuted()
+	{
+		AudioManager audioManager =
+			(AudioManager) TiApplication.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+
+		return audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT;
+	}
+
+	public void setMuted(boolean muted)
+	{
+		if (mp != null) {
+			float scale = muted ? 0.0f : 1.0f;
+			mp.setVolume(scale, scale);
+		}
 	}
 
 	public int getTime()
@@ -380,9 +468,9 @@ public class TiSound
 			}
 
 			try {
-			    if (mp.getDuration() >= 0) {
-			        mp.seekTo(position);
-			    }
+				if (mp.getDuration() >= 0) {
+					mp.seekTo(position);
+				}
 			} catch (IllegalStateException e) {
 				Log.w(TAG, "Error calling seekTo() in an incorrect state. Ignoring.");
 			}
@@ -396,32 +484,32 @@ public class TiSound
 		proxy.setProperty("state", state);
 		String stateDescription = "";
 
-		switch(state) {
-			case STATE_BUFFERING :
+		switch (state) {
+			case STATE_BUFFERING:
 				stateDescription = STATE_BUFFERING_DESC;
 				break;
-			case STATE_INITIALIZED :
+			case STATE_INITIALIZED:
 				stateDescription = STATE_INITIALIZED_DESC;
 				break;
-			case STATE_PAUSED :
+			case STATE_PAUSED:
 				stateDescription = STATE_PAUSED_DESC;
 				break;
-			case STATE_PLAYING :
+			case STATE_PLAYING:
 				stateDescription = STATE_PLAYING_DESC;
 				break;
-			case STATE_STARTING :
+			case STATE_STARTING:
 				stateDescription = STATE_STARTING_DESC;
 				break;
-			case STATE_STOPPED :
+			case STATE_STOPPED:
 				stateDescription = STATE_STOPPED_DESC;
 				break;
-			case STATE_STOPPING :
+			case STATE_STOPPING:
 				stateDescription = STATE_STOPPING_DESC;
 				break;
-			case STATE_WAITING_FOR_DATA :
+			case STATE_WAITING_FOR_DATA:
 				stateDescription = STATE_WAITING_FOR_DATA_DESC;
 				break;
-			case STATE_WAITING_FOR_QUEUE :
+			case STATE_WAITING_FOR_QUEUE:
 				stateDescription = STATE_WAITING_FOR_QUEUE_DESC;
 				break;
 		}
@@ -433,7 +521,6 @@ public class TiSound
 		data.put("state", state);
 		data.put("description", stateDescription);
 		proxy.fireEvent(EVENT_CHANGE, data);
-
 	}
 
 	public void stop()
@@ -474,17 +561,17 @@ public class TiSound
 	{
 		String msg = "Unknown media issue.";
 
-		switch(what) {
-			case MediaPlayer.MEDIA_INFO_BAD_INTERLEAVING :
+		switch (what) {
+			case MediaPlayer.MEDIA_INFO_BAD_INTERLEAVING:
 				msg = "Stream not interleaved or interleaved improperly.";
 				break;
-			case MediaPlayer.MEDIA_INFO_NOT_SEEKABLE :
+			case MediaPlayer.MEDIA_INFO_NOT_SEEKABLE:
 				msg = "Stream does not support seeking";
 				break;
-			case MediaPlayer.MEDIA_INFO_UNKNOWN :
+			case MediaPlayer.MEDIA_INFO_UNKNOWN:
 				msg = "Unknown media issue";
 				break;
-			case MediaPlayer.MEDIA_INFO_VIDEO_TRACK_LAGGING :
+			case MediaPlayer.MEDIA_INFO_VIDEO_TRACK_LAGGING:
 				msg = "Video is too complex for decoder, video lagging."; // shouldn't occur, but covering bases.
 				break;
 		}
@@ -500,7 +587,7 @@ public class TiSound
 	public boolean onError(MediaPlayer mp, int what, int extra)
 	{
 		int code = what;
-		if(what == 0) {
+		if (what == 0) {
 			code = -1;
 		}
 		String msg = "Unknown media error.";
@@ -532,10 +619,10 @@ public class TiSound
 			progressTimer = new Timer(true);
 		}
 
-		progressTimer.schedule(new TimerTask()
-		{
+		progressTimer.schedule(new TimerTask() {
 			@Override
-			public void run() {
+			public void run()
+			{
 				try {
 					if (mp != null && mp.isPlaying()) {
 						int position = mp.getCurrentPosition();
@@ -591,10 +678,14 @@ public class TiSound
 	}
 
 	@Override
-	public void listenerAdded(String type, int count, KrollProxy proxy) { }
+	public void listenerAdded(String type, int count, KrollProxy proxy)
+	{
+	}
 
 	@Override
-	public void listenerRemoved(String type, int count, KrollProxy proxy) { }
+	public void listenerRemoved(String type, int count, KrollProxy proxy)
+	{
+	}
 
 	@Override
 	public void processProperties(KrollDict d)
@@ -621,7 +712,7 @@ public class TiSound
 			propertyChanged(change.getName(), change.getOldValue(), change.getNewValue(), proxy);
 		}
 	}
-	
+
 	private void startPlaying()
 	{
 		if (mp != null) {
@@ -659,9 +750,14 @@ public class TiSound
 		stopPending = false;
 	}
 
-	private boolean requestAudioFocus(boolean focus) {
-		if (!focus) return false;
-		AudioManager audioManager = (AudioManager) TiApplication.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-		return audioManager != null && audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+	private boolean requestAudioFocus(boolean focus)
+	{
+		if (!focus)
+			return false;
+		AudioManager audioManager =
+			(AudioManager) TiApplication.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+		return audioManager != null
+			&& audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+				   == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 	}
 }

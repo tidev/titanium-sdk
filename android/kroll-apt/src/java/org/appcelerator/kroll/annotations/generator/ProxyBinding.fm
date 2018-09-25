@@ -667,9 +667,7 @@ beprovided to handle the result.
 	</#if>
 
 	<#-- Delete java proxy reference once done making the call. -->
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(${jobjectVar});
-	}
+	proxy->unreferenceJavaObject(${jobjectVar});
 
 	<@Proxy.cleanupMethodArguments args=methodArgs hasInvocation=hasInvocation/>
 
@@ -750,5 +748,17 @@ beprovided to handle the result.
 		data->Set(1, ${resultVar}Obj->Clone());
 		data->Set(2, propertyName);
 		v8ResultObj->SetAccessor(key, titanium::Proxy::writableKeys_getter, titanium::Proxy::writableKeys_setter, data);
+	}
+</#macro>
+
+<#macro getHolder>
+	Local<Object> holder = args.Holder();
+	if (!JavaObject::isJavaObject(holder)) {
+		holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
+	}
+	if (holder.IsEmpty() || holder->IsNull()) {
+		LOGE(TAG, "Couldn't obtain argument holder");
+		args.GetReturnValue().Set(v8::Undefined(isolate));
+		return;
 	}
 </#macro>

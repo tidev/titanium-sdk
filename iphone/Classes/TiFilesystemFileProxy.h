@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,23 +12,21 @@
 @class TiFilesystemFileStreamProxy;
 
 @interface TiFilesystemFileProxy : TiFile {
-@private
-	NSFileManager *fm;
 }
 
--(id)initWithFile:(NSString*)path;
+- (id)initWithFile:(NSString *)path;
 
--(TiFilesystemFileStreamProxy *) open:(id) args;
+- (TiFilesystemFileStreamProxy *)open:(id)args;
 
-+(id)makeTemp:(BOOL)isDirectory;
++ (TiFilesystemFileProxy *)makeTemp:(BOOL)isDirectory;
 
-@property(nonatomic,readonly) id name;
-@property(nonatomic,readonly) id nativePath;
-@property(nonatomic,readonly) id readonly;
-@property(nonatomic,readonly) id writable;
-@property(nonatomic,readonly) id symbolicLink;
-@property(nonatomic,readonly) id executable;
-@property(nonatomic,readonly) id hidden;
+@property (nonatomic, readonly) NSString *name;
+@property (nonatomic, readonly) NSString *nativePath;
+@property (nonatomic, readonly) NSNumber *readonly;
+@property (nonatomic, readonly) NSNumber *writable;
+@property (nonatomic, readonly) NSNumber *symbolicLink;
+@property (nonatomic, readonly) NSNumber *executable;
+@property (nonatomic, readonly) NSNumber *hidden;
 
 @end
 

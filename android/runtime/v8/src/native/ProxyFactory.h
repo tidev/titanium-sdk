@@ -13,7 +13,7 @@
 
 namespace titanium {
 
-// Titanium is split accross two runtime environments: Java and V8.
+// Titanium is split across two runtime environments: Java and V8.
 // Code must be exposed on both sides of the "bridge". To accomplish this
 // we create "proxy" objects on both sides.
 //
@@ -26,22 +26,32 @@ class ProxyFactory
 {
 public:
 
-	// Creates a proxy on the V8 side given an existing Java proxy.
 	static v8::Local<v8::Object> createV8Proxy(v8::Isolate* isolate, jclass javaClass, jobject javaProxy);
 
-	// Creates a proxy on the Java side given an existing V8 proxy.
+	/**
+	 * Creates a proxy on the V8 side given an existing Java proxy.
+	 * @param  isolate   The current V8 Isolate
+	 * @param  className The name of the Java class of the object we're wrapping
+	 * @param  javaProxy The actual Java object we're wrapping
+	 * @return           A JS Object that wraps/holds the Java object within
+	 */
+	static v8::Local<v8::Object> createV8Proxy(v8::Isolate* isolate, v8::Local<v8::Value> className, jobject javaProxy);
+
+	/**
+	 * Creates a proxy on the Java side given an existing V8 proxy.
+	 * @param  javaClass [description]
+	 * @param  v8Proxy   [description]
+	 * @param  args      [description]
+	 * @return           [description]
+	 */
 	static jobject createJavaProxy(jclass javaClass, v8::Local<v8::Object> v8Proxy, const v8::FunctionCallbackInfo<v8::Value>& args);
 
-	// Used by createV8Proxy() which invokes the ProxyBinding::Constructor
-	// callback to create a new V8 object. We need a way to pass the Java proxy
-	// jobject. This is done by passing it as an External value argument.
-	static jobject unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-	// Setup a new proxy pair for some Kroll type.
-	static void registerProxyPair(jclass javaProxyClass, v8::FunctionTemplate* factory);
-
-	// The generic constructor for all proxies
-	static void proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args);
+	/**
+	 * Given a jclass, get the name of the class and return it as a Local<Value>
+	 * (using typical java.lang.Names, rather than jni slash separated names)
+	 * @param javaClass
+	 */
+	static v8::Local<v8::Value> getJavaClassName(v8::Isolate* isolate, jclass javaClass);
 
 	static void dispose();
 };

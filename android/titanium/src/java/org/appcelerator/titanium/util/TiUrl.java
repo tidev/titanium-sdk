@@ -8,6 +8,7 @@ package org.appcelerator.titanium.util;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.common.Log;
@@ -31,11 +32,10 @@ public class TiUrl
 	public static final String CURRENT_PATH = ".";
 	public static final String PARENT_PATH_WITH_SEPARATOR = "../";
 	public static final String CURRENT_PATH_WITH_SEPARATOR = "./";
-    
 
 	public String baseUrl;
 	public String url;
-	
+
 	public TiUrl(String url)
 	{
 		this(TiC.URL_APP_PREFIX, url);
@@ -52,7 +52,7 @@ public class TiUrl
 		return normalizeWindowUrl(baseUrl, url).url;
 	}
 
-	protected static String parseRelativeBaseUrl(String path, String baseUrl, boolean checkAppPrefix) 
+	protected static String parseRelativeBaseUrl(String path, String baseUrl, boolean checkAppPrefix)
 	{
 		String[] right = path.split(PATH_SEPARATOR);
 		String[] left = null;
@@ -62,7 +62,7 @@ public class TiUrl
 					left = new String[0];
 				} else {
 					int idx = baseUrl.indexOf(SCHEME_SUFFIX);
-					left = baseUrl.substring(idx+3).split(PATH_SEPARATOR);
+					left = baseUrl.substring(idx + 3).split(PATH_SEPARATOR);
 				}
 			} else {
 				String[] tmp = baseUrl.split(SCHEME_SUFFIX);
@@ -78,10 +78,10 @@ public class TiUrl
 
 		int rIndex = 0;
 		int lIndex = left.length;
-		while(right[rIndex].equals(PARENT_PATH)) {
+		while (right[rIndex].equals(PARENT_PATH)) {
 			lIndex--;
 			rIndex++;
-			if (rIndex > right.length-1) {
+			if (rIndex > right.length - 1) {
 				break;
 			}
 		}
@@ -102,13 +102,13 @@ public class TiUrl
 		return bUrl;
 	}
 
-	private static HashMap<String,TiUrl> proxyUrlCache = new HashMap<String,TiUrl>(5);
+	private static HashMap<String, TiUrl> proxyUrlCache = new HashMap<String, TiUrl>(5);
 	public static TiUrl createProxyUrl(String url)
 	{
 		if (proxyUrlCache.containsKey(url)) {
 			return proxyUrlCache.get(url);
 		}
-	
+
 		if (url == null) {
 			return new TiUrl(null);
 		}
@@ -121,14 +121,14 @@ public class TiUrl
 
 		String path = url.substring(lastSlash + 1);
 		TiUrl result = new TiUrl(baseUrl, path);
-		proxyUrlCache.put(url,result);
+		proxyUrlCache.put(url, result);
 		return result;
 	}
 
-	public static TiUrl normalizeWindowUrl(String url) 
+	public static TiUrl normalizeWindowUrl(String url)
 	{
 		int lastSlash = url.lastIndexOf(PATH_SEPARATOR);
-		String baseUrl = url.substring(0, lastSlash+1);
+		String baseUrl = url.substring(0, lastSlash + 1);
 		if (baseUrl.length() == 0) {
 			baseUrl = TiC.URL_APP_PREFIX;
 		}
@@ -158,7 +158,7 @@ public class TiUrl
 				}
 				int lastIndex = path.lastIndexOf(PATH_SEPARATOR);
 				if (lastIndex > 0) {
-					fname = path.substring(lastIndex+1);
+					fname = path.substring(lastIndex + 1);
 					path = path.substring(0, lastIndex);
 				} else {
 					fname = path;
@@ -203,7 +203,7 @@ public class TiUrl
 	{
 		return resolve(baseUrl, path, null);
 	}
-	
+
 	public static String resolve(String baseUrl, String path, String scheme)
 	{
 		if (!TiFileFactory.isLocalScheme(path)) {
@@ -223,7 +223,6 @@ public class TiUrl
 			}
 			String newPath = path.substring(0, path.length() - fileName.length()) + fileNameWithoutExt;
 			return newPath;
-
 		}
 
 		String result = null;
@@ -277,8 +276,8 @@ public class TiUrl
 					// the url already has a scheme, so we ignore the
 					// baseUrl completely.
 					combined = url;
-				} else if (baseUrl.endsWith(PATH_SEPARATOR) && url.startsWith(PATH_SEPARATOR) 
-						&& !baseUrl.equals("file://")) {
+				} else if (baseUrl.endsWith(PATH_SEPARATOR) && url.startsWith(PATH_SEPARATOR)
+						   && !baseUrl.equals("file://")) {
 					if (baseUrl.length() == 1 && url.length() == 1) {
 						combined = PATH_SEPARATOR;
 					} else if (baseUrl.length() == 1) {
@@ -313,37 +312,177 @@ public class TiUrl
 			return url;
 		}
 	}
-	
-	public static Uri getCleanUri(String argString) 
+
+	/**
+	 * Converts the given URL string to a "Uri" object.
+	 * <p>
+	 * Will automatically encode characters in the given URL except for lone '%' characters.
+	 * '%' characters must be encoded by the caller as "%25". This method will also accept
+	 * a URL already containing %-encoded characters in it and they will be unaltered.
+	 * @param argString URL in string form.
+	 * @return
+	 * Returns the given URL string as a Uri encoded object.
+	 * <p>
+	 * Returns null if given an invalid URL or if the string is null/empty.
+	 */
+	public static Uri getCleanUri(String argString)
 	{
-		try {
-			if (argString == null) {
-				return null;
-			}
-			
-			Uri base = Uri.parse(argString);
-	
-			Uri.Builder builder = base.buildUpon();
-			builder.encodedQuery(Uri.encode(Uri.decode(base.getQuery()), "&="));
-			String encodedAuthority = Uri.encode(Uri.decode(base.getAuthority()),"/:@");
-			int firstAt = encodedAuthority.indexOf('@');
-			if (firstAt >= 0) {
-				int lastAt = encodedAuthority.lastIndexOf('@');
-				if (lastAt > firstAt) {
-					// We have a situation that might be like this:
-					// http://user@domain.com:password@api.mickey.com
-					// i.e., the user name is user@domain.com, and the host
-					// is api.mickey.com.  We need all at-signs prior to the final one (which
-					// indicates the host) to be encoded.
-					encodedAuthority = Uri.encode(encodedAuthority.substring(0, lastAt), "/:") + encodedAuthority.substring(lastAt);
-				}
-			}
-			builder.encodedAuthority(encodedAuthority);
-			builder.encodedPath(Uri.encode(Uri.decode(base.getPath()), "/:@$+&=;,"));
-			return builder.build();
-		} catch (Exception e) {
-			Log.e(TAG, "Exception in getCleanUri argString= " + argString);
+		// Validate argument.
+		if ((argString == null) || (argString.length() <= 0)) {
 			return null;
 		}
+
+		// Attempt to auto-encode and convert the given URL string to a Uri object.
+		// Note: The below should NEVER decode %-encoded characters in the given URL.
+		//       We can preserve the original %-encoded characters by allowing their '%' signs
+		//       to be encoded to "%25" and then doing a substring replace of "%25" back to '%'.
+		Uri encodedUri = null;
+		try {
+			// Parse the given URL string.
+			Uri uri = Uri.parse(argString);
+
+			// Start generating an encoded Uri.
+			Uri.Builder uriBuilder = new Uri.Builder();
+
+			// Copy the given URL scheme as-is.
+			uriBuilder.scheme(uri.getScheme());
+
+			// Copy and encode the "username:password@host:port" part of the URL.
+			String authority = uri.getEncodedAuthority();
+			if (authority != null) {
+				// We need to extract the following components from the URL's authority string.
+				// This is because they need to be encoded separately.
+				// Also because Google's "Uri" class parses these components incorrectly for IPv6 URLs.
+				String userInfoString = null;
+				String hostName = null;
+				String portNumberString = null;
+
+				// Copy the authority string to a mutable string builder.
+				// We do this because extracted URL compents will be deleted from this string builder.
+				StringBuilder stringBuilder = new StringBuilder(authority);
+
+				// Extract the optional "username:password" part.
+				// Note: This might be an e-mail address such as "http://user@domain.com:pwd@host.com".
+				//       This means we need to look for the last '@' sign in the authority string.
+				int index = stringBuilder.lastIndexOf("@");
+				if (index >= 0) {
+					userInfoString = (index > 0) ? stringBuilder.substring(0, index) : "";
+					stringBuilder.delete(0, index + 1);
+				}
+
+				// Extract the optional port number at the end of the authority string.
+				// Note: Make sure the ':' is to the right of an IPv6 address. Ex: "http://[::1]:80"
+				index = stringBuilder.lastIndexOf(":");
+				if ((index >= 0) && (stringBuilder.indexOf("]", index) < 0)) {
+					if ((index + 1) < stringBuilder.length()) {
+						portNumberString = stringBuilder.substring(index + 1);
+					}
+					stringBuilder.delete(index, stringBuilder.length());
+				}
+
+				// Extract the host name from the URL. (This must be done last.)
+				hostName = stringBuilder.toString();
+
+				// Clear the string builder and copy the authority part back to it in encoded form.
+				stringBuilder.delete(0, stringBuilder.length());
+				if (userInfoString != null) {
+					// Append the "username:password" part in encoded form.
+					// This will also encode an e-mail account's '@' sign, which is extremly important.
+					// Example: "user@domain.com:password@" -> "user%40domain.com:password@"
+					userInfoString = Uri.encode(userInfoString, "!$&'()*+,;=:");
+					userInfoString = userInfoString.replace("%25", "%"); // Restore %-encoded chars.
+					stringBuilder.append(userInfoString);
+					stringBuilder.append('@');
+				}
+				if (hostName != null) {
+					// Append the host name in encoded form.
+					// Do not encode IPv6 URL characters. Example: http://[2001:db8:a0b:12f0::1]
+					hostName = Uri.encode(hostName, ":[]");
+					hostName = hostName.replace("%25", "%"); // Restore %-encoded chars in original URL.
+					stringBuilder.append(hostName);
+				}
+				if (portNumberString != null) {
+					// Append the port number as-is.
+					stringBuilder.append(':');
+					stringBuilder.append(portNumberString);
+				}
+				uriBuilder.encodedAuthority(stringBuilder.toString());
+			}
+
+			// Copy and encode the URL's path.
+			// Example: <Scheme>://<Authority>/<Path>?<AueryParams>#<Fragment>
+			String path = uri.getEncodedPath();
+			if ((path != null) && (path.length() > 0)) {
+				// Encode the given path.
+				path = Uri.encode(path, "!$&'()*+,;=:@/");
+				path = path.replace("%25", "%"); // Restore %-encoded chars in original URL.
+				uriBuilder.encodedPath(path);
+			} else if (uri.getEncodedQuery() != null) {
+				// The URL has query params, but no path or slash. Inject a '/' before the '?'.
+				// --------------------------------------------------------------------------------
+				// This works-around a Java URL parsing bug where...
+				// > "http://test.com?test=abc/xyz"
+				// ...will be transmitted like this...
+				// > "http://test.com/xyz?test=abc/xyz"
+				// --------------------------------------------------------------------------------
+				uriBuilder.encodedPath("/");
+			}
+
+			// Copy and encode the URL's anchor tag.
+			// This is the part that proceeds the '#' part of the URL.
+			String fragment = uri.getEncodedFragment();
+			if (fragment != null) {
+				fragment = Uri.encode(fragment, "!$&'()*+,;=:@/?");
+				fragment = fragment.replace("%25", "%"); // Restore %-encoded chars in original URL.
+				uriBuilder.encodedFragment(fragment);
+			}
+
+			// Copy and encode the URL's query parameters.
+			// Note: Do not use Uri.encode() here. It encodes URL paths according to "RFC 2396".
+			//       Query parameters must be encoded via Java's URLEncoder instead which
+			//       encodes according to the "application/x-www-form-urlencoded" MIME format.
+			String queryString = uri.getEncodedQuery();
+			if ((queryString != null) && (queryString.length() > 0)) {
+				// Encode the query parameters string.
+				queryString = URLEncoder.encode(queryString, "utf8");
+
+				// The above is overly aggressive and encodes "legal" characters. Convert them back.
+				// This is important because some servers won't accept these characters in encoded form.
+				queryString = queryString.replace("%21", "!");
+				queryString = queryString.replace("%24", "$");
+				queryString = queryString.replace("%26", "&");
+				queryString = queryString.replace("%27", "'");
+				queryString = queryString.replace("%28", "(");
+				queryString = queryString.replace("%29", ")");
+				queryString = queryString.replace("%2B", "+");
+				queryString = queryString.replace("%2b", "+");
+				queryString = queryString.replace("%2C", ",");
+				queryString = queryString.replace("%2c", ",");
+				queryString = queryString.replace("%2F", "/");
+				queryString = queryString.replace("%2f", "/");
+				queryString = queryString.replace("%3A", ":");
+				queryString = queryString.replace("%3a", ":");
+				queryString = queryString.replace("%3B", ";");
+				queryString = queryString.replace("%3b", ";");
+				queryString = queryString.replace("%3D", "=");
+				queryString = queryString.replace("%3d", "=");
+				queryString = queryString.replace("%3F", "?");
+				queryString = queryString.replace("%3f", "?");
+				queryString = queryString.replace("%40", "@");
+
+				// Convert encoded '%' signs back. (This must be done after the conversions above.)
+				// This preserves the encoded characters in the original URL string.
+				queryString = queryString.replace("%25", "%");
+
+				// Copy the encoded query parameters to the URI builder.
+				uriBuilder.encodedQuery(queryString);
+			}
+
+			// Create an encoded Uri object.
+			encodedUri = uriBuilder.build();
+		} catch (Exception ex) {
+			Log.e(TAG, "Exception in getCleanUri argString= " + argString);
+		}
+		return encodedUri;
 	}
 }

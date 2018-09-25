@@ -9,7 +9,6 @@
 #import "TiViewProxy.h"
 
 @interface TiUICanvasViewProxy : TiViewProxy {
-
 }
 
 @end

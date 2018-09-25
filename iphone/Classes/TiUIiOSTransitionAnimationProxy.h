@@ -5,19 +5,17 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
-#import "TiProxy.h"
 #import "TiAnimation.h"
+#import "TiProxy.h"
 
-@interface TiUIiOSTransitionAnimationProxy : TiProxy<UIViewControllerAnimatedTransitioning, TiAnimationDelegate>
-{
-    id<UIViewControllerContextTransitioning> _transitionContext;
-    TiAnimation *_transitionTo;
-    TiAnimation *_transitionFrom;
-    BOOL _endedTo;
-    BOOL _endedFrom;
-    NSNumber *_duration;
+@interface TiUIiOSTransitionAnimationProxy : TiProxy <UIViewControllerAnimatedTransitioning, TiAnimationDelegate> {
+  id<UIViewControllerContextTransitioning> _transitionContext;
+  TiAnimation *_transitionTo;
+  TiAnimation *_transitionFrom;
+  BOOL _endedTo;
+  BOOL _endedFrom;
+  NSNumber *_duration;
 }
-
 
 @end
 #endif

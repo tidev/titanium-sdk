@@ -17,7 +17,8 @@ public class TiActivity extends TiBaseActivity
 	Intent intent = null;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
 		if (intent == null) {
@@ -84,5 +85,4 @@ public class TiActivity extends TiBaseActivity
 			return;
 		}
 	}
-
 }

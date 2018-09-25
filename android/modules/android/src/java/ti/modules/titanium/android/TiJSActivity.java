@@ -37,16 +37,16 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	}
 
 	@Override
- 	protected void onResume()
- 	{
- 		super.onResume();
- 		
- 		// launched alloy activity from intent
- 		// finish to prevent redundant activity
- 		if (this.alloyIntent) {
- 			this.finish();
- 		}
- 	}
+	protected void onResume()
+	{
+		super.onResume();
+
+		// launched alloy activity from intent
+		// finish to prevent redundant activity
+		if (this.alloyIntent) {
+			this.finish();
+		}
+	}
 
 	@Override
 	public String getUrl()
@@ -86,7 +86,7 @@ public abstract class TiJSActivity extends TiLaunchActivity
 		setLayoutProxy(window);
 
 		// The UIWindow needs to be created before we run the script
-		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy)window, this, getLayout());
+		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy) window, this, getLayout());
 		super.windowCreated(savedInstanceState);
 	}
 
@@ -95,5 +95,4 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	{
 		return true;
 	}
-
 }

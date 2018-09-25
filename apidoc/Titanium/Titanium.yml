@@ -3,8 +3,7 @@ name: Titanium
 summary: The top-level Titanium module.
 description: |
     The Titanium module provides the Titanium Mobile API, allowing developers to access native
-    features of each target environment. Currently, the Android, iOS and Mobile Web (beta)
-    environments are supported.
+    features of each target environment. Currently, the Android and iOSenvironments are supported.
 
     #### Titanium Namespace
 
@@ -40,9 +39,6 @@ properties:
 
     type: String
     summary: User-agent string used by Titanium.
-    description: |
-        On Mobile Web, the browser's user agent cannot be overridden. Writing to this property has no
-        effect and reading the property will always return the browser's user agent.
   - name: version
     type: String
     summary: Version of Titanium that is executing.
@@ -67,7 +63,7 @@ methods:
     returns:
         type: Titanium.Buffer
         summary: The new buffer.
-    platforms: [android, iphone, ipad, mobileweb]
+    platforms: [android, iphone, ipad]
     examples:
       - title: Create a buffer with 1K bytes
         example: |
@@ -90,7 +86,7 @@ methods:
 name: CreateBufferArgs
 summary: Arguments to be passed to createBuffer
 since: "1.7"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 
 properties:
   - name: value

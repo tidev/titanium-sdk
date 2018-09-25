@@ -13,17 +13,16 @@
 
 @implementation TiUIMaskedImageProxy
 
--(void)_initWithProperties:(NSDictionary *)properties
+- (void)_initWithProperties:(NSDictionary *)properties
 {
-	[self replaceValue:NUMINT(kCGBlendModeSourceIn) forKey:@"mode" notification:NO];
-	[super _initWithProperties:properties];
+  [self replaceValue:NUMINT(kCGBlendModeSourceIn) forKey:@"mode" notification:NO];
+  [super _initWithProperties:properties];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.MaskedImage";
+  return @"Ti.UI.MaskedImage";
 }
-
 
 @end
 

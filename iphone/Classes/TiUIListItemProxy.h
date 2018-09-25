@@ -11,13 +11,13 @@
 @class TiUIListItem;
 @class TiUIListViewProxy;
 
-@interface TiUIListItemProxy : TiViewProxy < TiViewEventOverrideDelegate, TiProxyDelegate >
+@interface TiUIListItemProxy : TiViewProxy <TiViewEventOverrideDelegate, TiProxyDelegate>
 
 @property (nonatomic, readwrite, assign) TiUIListItem *listItem;
 @property (nonatomic, readwrite, retain) NSIndexPath *indexPath;
 
 - (id)initWithListViewProxy:(TiUIListViewProxy *)listViewProxy inContext:(id<TiEvaluator>)context;
--(void)deregisterProxy:(id<TiEvaluator>)context;
+- (void)deregisterProxy:(id<TiEvaluator>)context;
 @end
 
 #endif

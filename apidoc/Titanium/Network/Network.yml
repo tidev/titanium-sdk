@@ -1,6 +1,6 @@
 ---
 name: Titanium.Network
-summary: The top level network module.  
+summary: The top level network module.
 description: |
     The `Network` module is used to access networking related functionality.
 
@@ -12,7 +12,7 @@ description: |
 
     For all other socket needs, use <Titanium.Network.Socket.TCP>.
 
-    ### iOS 9 Application Note
+    ### App Transport Security
 
     Starting with iOS 9, Apple introduced new security and compatibility guidelines for networking
     and connectivity, which include:
@@ -24,22 +24,24 @@ description: |
 
     Because of the new requirements, Titanium disables the App Transport Security (ATS)
     requirements, which only includes the TLS and certificate cipher requirements,
-    to allow all connections.
+    to allow all connections by default.
 
     If you wish to re-enable ATS, add the `NSAppTransportSecurity` dict to the `ios plist` section
-    of the `tiapp.xml` file, then add the `NSAllowArbitraryLoads` key and set it to true.
+    of the `tiapp.xml` file, then add the `NSAllowArbitraryLoads` key and set it to `false`, indicating
+    that you want to manage your whitelisted URL's yourself.
 
         <ti:app>
           ...
           <ios>
-            <plist>  
+            <plist>
               <dict>
-                <key>NSAppTransportSecurity</key>  
+                <key>NSAppTransportSecurity</key>
                 <dict>
-                  <key>NSAllowsArbitraryLoads</key><true/>
+                  <key>NSAllowsArbitraryLoads</key>
+                  <false/>
                 </dict>
-              </dict>  
-            </plist>  
+              </dict>
+            </plist>
           </ios>
           ...
         </ti:app>
@@ -70,18 +72,22 @@ description: |
     specific domains.
 
     For more information, see
-    [iOS Developer Library: App Transport Security Technote](https://developer.apple.com/library/prerelease/ios/technotes/App-Transport-Security-Technote/index.html).
+    [iOS Developer Library: App Transport Security](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW33).
 
     Example:
 
         <ti:app>
           ...
           <ios>
-            <plist>  
+            <plist>
               <dict>
-                <key>NSAppTransportSecurity</key>  
+                <key>NSAppTransportSecurity</key>
                 <dict>
-                  <key>NSAllowsArbitraryLoads</key><true/>
+                  <!-- 1) Default: Disable ATS completely -->
+                  <key>NSAllowsArbitraryLoads</key>
+                  <true/>
+
+                  <-- 2) Alternative: Define whitelisted domains -->
                   <key>NSExceptionDomains</key>
                   <dict>
                     <!-- Loosen security measure for www.foo.com domain -->
@@ -99,8 +105,8 @@ description: |
                     </dict>
                   </dict>
                 </dict>
-              </dict>  
-            </plist>  
+              </dict>
+            </plist>
           </ios>
           ...
         </ti:app>
@@ -111,14 +117,14 @@ description: |
     If you submit your application to the iTunes Store, you should setup an IPv6 DNS64/NAT64
     network to test your application to verify it is compatible with IPv6.
 
-    If you are running OS X 10.11 or greater, you can use your computer to setup a local IPv6 Wi-Fi
+    If you are running macOS 10.11 or greater, you can use your computer to setup a local IPv6 Wi-Fi
     network, which requires an Internet connection not through Wi-Fi.
 
     To create the network, from System Preferences, enable Internet sharing with NAT64 network
     enabled to share your Wi-Fi connection.
 
     For detailed instructions, see
-    [Mac Developer Library: Test for IPv6 DNS64/NAT64 Compatibility](https://developer.apple.com/library/prerelease/mac/documentation/NetworkingInternetWeb/Conceptual/NetworkingOverview/UnderstandingandPreparingfortheIPv6Transition/UnderstandingandPreparingfortheIPv6Transition.html#//apple_ref/doc/uid/TP40010220-CH213-SW16).
+    [Mac Developer Library: Test for IPv6 DNS64/NAT64 Compatibility](https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/NetworkingOverview/UnderstandingandPreparingfortheIPv6Transition/UnderstandingandPreparingfortheIPv6Transition.html#//apple_ref/doc/uid/TP40010220-CH213-SW16).
 
 extends: Titanium.Module
 since: "0.1"
@@ -144,7 +150,7 @@ methods:
         `expiryDate` property must be a date later than the creating date, otherwise the cookie will not persist in the
         cookie storage.
         On Android, any existing cookie with the same domain and name will be replaced with the new cookie. This is a bug
-        in [BasicCookieStore](http://developer.android.com/reference/org/apache/http/impl/cookie/BasicClientCookie.html)
+        in [BasicCookieStore](https://developer.android.com/reference/org/apache/http/impl/cookie/BasicClientCookie.html)
         because based on `RFC6265`, an existing cookie can be evicted and replaced only when it has the same cookie-name,
         domain-value and path-value with the new cookie.
     parameters:
@@ -158,7 +164,7 @@ methods:
     summary: |
         Adds a cookie to the system cookie store.
     description: |
-        On Android, <Titanium.UI.WebView> uses the system cookie store. Any existing cookie with the same 
+        On Android, <Titanium.UI.WebView> uses the system cookie store. Any existing cookie with the same
         domain, path and name will be replaced with the new cookie.
     parameters:
       - name: cookie
@@ -177,7 +183,7 @@ methods:
         summary: Service to search for, must include the protocol type suffix (._tcp).
         type: String
       - name: domain
-        summary: Bonjour service domain to conduct the search in. 
+        summary: Bonjour service domain to conduct the search in.
         default: |
             `local.` (The trailing period is intentional.)
         type: String
@@ -219,7 +225,7 @@ methods:
     description: |
         Note that `TCPSocket` is still used with the Bonjour services. For other uses,
         see <Titanium.Network.Socket.TCP>.
-    platforms: [iphone, ipad, mobileweb]
+    platforms: [iphone, ipad]
     returns:
         type: Titanium.Network.TCPSocket
     parameters:
@@ -231,7 +237,7 @@ methods:
         type: Number
       - name: mode
         summary: |
-            Socket's mode; one of <Titanium.Network.READ_MODE>, <Titanium.Network.WRITE_MODE>, 
+            Socket's mode; one of <Titanium.Network.READ_MODE>, <Titanium.Network.WRITE_MODE>,
             <Titanium.Network.READ_WRITE_MODE>.
         type: Number
       - name: parameters
@@ -252,7 +258,7 @@ methods:
   - name: encodeURIComponent
     summary: Returns a URI encoded version of the specified URI component.
     description: |
-        On iOS, this also escapes the following characters, which are allowed in a 
+        On iOS, this also escapes the following characters, which are allowed in a
         URL but may not be allowed or desirable inside a path component:
 
             !*'();:@+$,/?%#[]=&
@@ -386,40 +392,24 @@ methods:
     description: |
         Call this method at application startup.
 
-        For iOS 8 and later, before calling this method, the application needs to call the
-        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
-        method and pass it the notification types to use.  Setting the notification types with this
-        method will have no effect on iOS 8 and later.
-
-        For iOS 7 and earlier, set the notification types to use with this method.
+        Before calling this method, the application needs to call the [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
+        method and pass it the notification types to use. Setting the notification types with this
+        method will have no effect and throws a warning.
     platforms: [iphone, ipad]
     parameters:
       - name: config
-        summary: Dictionary specifying push-notification related options. 
+        summary: Dictionary specifying push-notification related options.
         type: PushNotificationConfig
 
-  - name: removeConnectivityListener
-    deprecated:
-        since: "1.7.0"
-        removed: "3.0.0"
-        notes: Use the <Titanium.Network.change> event to monitor connectivity changes.
-    summary: |
-        Legacy method to remove a connectivity listener.
-    parameters:
-      - name: callback
-        summary: Callback function to remove.
-        type: Callback<Object>
-    platforms: [iphone, ipad]
-    
   - name: unregisterForPushNotifications
     summary: Unregisters the application for push notifications.
 
     description: |
         Per Apple's documentation, it is rarely necessary to call this method. See:
         [unregisterForRemoteNotifications in the UIApplication Class
-        Reference](http://developer.apple.com/library/IOs/#documentation/UIKit/Reference/UIApplication_Class/Reference/Reference.html#//apple_ref/occ/instm/UIApplication/unregisterForRemoteNotifications) 
+        Reference](https://developer.apple.com/documentation/uikit/uiapplication/1623093-unregisterforremotenotifications)
 
-        For example, calling this method would be required if a new version of 
+        For example, calling this method would be required if a new version of
         your application no longer supports push notifications.
 events:
   - name: change
@@ -429,7 +419,7 @@ events:
         summary: New network type as a string.
         type: String
       - name: online
-        summary: Boolean to indicate if the device is online.
+        summary: Boolean indicating if the device is connected to the network.
         type: Boolean
       - name: networkType
         summary: New network type
@@ -438,7 +428,7 @@ events:
       - name: reason
         summary: Human-readable text describing the reason for the change.
         type: String
-        platforms: [android, mobileweb]
+        platforms: [android]
 properties:
   - name: INADDR_ANY
     summary: |
@@ -450,6 +440,7 @@ properties:
     platforms: [iphone, ipad]
     deprecated:
         since: "1.7.0"
+        removed: "7.0.0"
 
   - name: NETWORK_LAN
     summary: |
@@ -457,10 +448,7 @@ properties:
         communicating over a local-area network.
 
     description: |
-        This network type is only used by the Mobile Web platform, when the application
-        is running in a desktop browser attached to a LAN.
-
-        This constant is also a possible value for the `networkType` property of the 
+        This constant is also a possible value for the `networkType` property of the
         [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
@@ -471,40 +459,40 @@ properties:
         communicating over a mobile network.
 
     description: |
-        This constant is also a possible value for the `networkType` property of the 
+        This constant is also a possible value for the `networkType` property of the
         [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
 
   - name: NETWORK_NONE
     summary: |
-        A [networkType](Titanium.Network.networkType) value indicating that no 
+        A [networkType](Titanium.Network.networkType) value indicating that no
         network is available.
 
     description: |
-        This constant is also a possible value for the `networkType` property of the 
+        This constant is also a possible value for the `networkType` property of the
         [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
 
   - name: NETWORK_UNKNOWN
     summary: |
-        A [networkType](Titanium.Network.networkType) value indicating that the  
+        A [networkType](Titanium.Network.networkType) value indicating that the
         current network type is unknown.
 
     description: |
-        This constant is also a possible value for the `networkType` property of the 
+        This constant is also a possible value for the `networkType` property of the
         [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
 
   - name: NETWORK_WIFI
     summary: |
-        A [networkType](Titanium.Network.networkType) value indicating that the  
+        A [networkType](Titanium.Network.networkType) value indicating that the
         device is communicating over a WiFi network.
 
     description: |
-        This constant is also a possible value for the `networkType` property of the 
+        This constant is also a possible value for the `networkType` property of the
         [change](Titanium.Network.change) event.
     type: Number
     permission: read-only
@@ -688,10 +676,14 @@ properties:
     permission: read-only
 
   - name: online
-    summary: Boolean value indicating if the device can reach the Internet.
+    summary: Boolean value indicating if the device is connected to the network.
     description: |
-        The `online` property is `true` if the device can currently reach the Internet
-        using either WiFi, mobile network or LAN.
+        The `online` property is `true` if the device has network access via WiFi,
+        LAN, or mobile/cellular network.
+
+        Note that if the device is connected to a private network without Internet access,
+        then this property will be `true` as well. This means you cannot assume the device
+        has Internet access if it's connected to the network.
     type: Boolean
     permission: read-only
 
@@ -711,23 +703,11 @@ properties:
 
   - name: remoteNotificationsEnabled
     summary: |
-        Indicates whether push  notifications have been enabled using 
+        Indicates whether push  notifications have been enabled using
         [registerForPushNotifications](Titanium.Network.registerForPushNotifications).
     platforms: [iphone, ipad]
     type: Boolean
     permission: read-only
-
-  - name: httpURLFormatter
-    summary: User-defined function that is called everytime HTTPClient connects to a remote resource. 
-    description: |
-        The URL to connect to is passed in as the only function argument, and the function 
-        is expected to return a URL. The function should return `null` if an error occurs, 
-        which will cancel the HTTP request. 
-        
-        This function allows URLs to be formatted for use with the application's proxy to 
-        get around cross domain issues.
-    type: Callback<String>
-    platforms: [mobileweb]
 
 ---
 name: PushNotificationConfig
@@ -735,18 +715,15 @@ summary: |
     Simple object for specifying push notification options to
     [registerForPushNotifications](Titanium.Network.registerForPushNotifications).
 properties:
-  - name: types 
+  - name: types
     summary: Array of `NOTIFICATION_TYPE` constants that the application would like to receive.
     description: |
-        For iOS 8 and later, setting the `types` property with the
-        <Titanium.Network.registerForPushNotifications> method has no effect.
+        Setting the `types` property with the <Titanium.Network.registerForPushNotifications> method has no effect.
 
-        For devices running iOS 8 and later, use the
-        [Titanium.App.iOS.registerUserNotificationSettings](Titanium.App.iOS.registerUserNotificationSettings)
-        method to register the notification types to receive.
+        Use the <Titanium.App.iOS.registerUserNotificationSettings> method to register the notification types to receive.
     type: Array<Number>
     constants: Titanium.Network.NOTIFICATION_TYPE_*
-  - name: success 
+  - name: success
     summary: |
         Callback function called when the push registration is successfully completed.
     type: Callback<PushNotificationSuccessArg>
@@ -755,20 +732,20 @@ properties:
         Callback function called when an error occurs during registration.
     type: Callback<PushNotificationErrorArg>
   - name: callback
-    summary: Callback function invoked upon receiving a new push notification. 
+    summary: Callback function invoked upon receiving a new push notification.
     type: Callback<PushNotificationData>
 
 ---
 name: PushNotificationSuccessArg
 summary: |
-    A simple object passed to the 
+    A simple object passed to the
     [registerForPushNotifications](Titanium.Network.registerForPushNotifications) success callback.
 extends: SuccessResponse
-properties: 
+properties:
   - name: type
     summary: The value of this string is always "remote".
     type: String
-  - name: deviceToken 
+  - name: deviceToken
     summary: The device token which this device was registered for.
     type: String
 
@@ -783,7 +760,7 @@ properties:
     description: Will be undefined.
     type: String
     since: "3.1.0"
-    
+
   - name: code
     summary: Error code. Returns 0.
     description: Error code will be 0.
@@ -793,10 +770,10 @@ properties:
 ---
 name: PushNotificationErrorArg
 summary: |
-    A simple object passed to the 
+    A simple object passed to the
     [registerForPushNotifications](Titanium.Network.registerForPushNotifications) error callback.
 extends: FailureResponse
-properties: 
+properties:
   - name: type
     summary: The value of this string is always "remote".
     type: String
@@ -805,7 +782,7 @@ properties:
     description: Returns `false`.
     type: Boolean
     since: "3.1.0"
-    
+
   - name: code
     summary: Error code. Returns a non-zero value.
     description: |
@@ -817,17 +794,17 @@ properties:
 ---
 name: PushNotificationData
 summary: A simple object representing a push notification.
-properties: 
+properties:
   - name: data
     summary: The `userinfo` dictionary passed to the Apple Push Notification Service.
     description: |
         For more information, see the following item in the iOS Developer Library:
 
-        [application:didReceiveRemoteNotification in the UIApplicationDelegate Protocol
-        Reference](http://developer.apple.com/library/ios/#DOCUMENTATION/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:didReceiveRemoteNotification:)
+        [`application:didReceiveRemoteNotification:fetchCompletionHandler` in the UIApplicationDelegate Protocol
+        Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623013-application)
     type: Dictionary
   - name: inBackground
     summary: |
-        Boolean indicating if notification was received while app was in background. 
+        Boolean indicating if notification was received while app was in background.
         This property became available in Titanium Mobile 3.1.0 for iOS.
     type: Boolean

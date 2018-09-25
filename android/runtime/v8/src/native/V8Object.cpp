@@ -17,16 +17,12 @@
 #include "V8Runtime.h"
 #include "V8Util.h"
 
-#include "org_appcelerator_kroll_runtime_v8_V8Object.h"
-
 #define TAG "V8Object"
 
 using namespace titanium;
 using namespace v8;
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
 JNIEXPORT void JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeInitObject
@@ -50,7 +46,21 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 		titanium::Proxy* proxy = (titanium::Proxy*) ptr;
 		jsObject = proxy->handle(V8Runtime::v8_isolate);
 	} else {
-		jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, object).As<Object>();
+		LOGE(TAG, "!!! Attempting to set a property on a Java object with no/deleted Proxy on C++ side! Attempting to revive it from Java object.");
+
+		jobject proxySupportField = env->GetObjectField(object, JNIUtil::krollObjectProxySupportField);
+		if (!proxySupportField) {
+			return;
+		}
+		static jmethodID getMethodID = NULL;
+		if (!getMethodID) {
+			getMethodID = env->GetMethodID(env->FindClass("java/lang/ref/WeakReference"), "get", "()Ljava/lang/Object;");
+		}
+		jobject proxySupport = (jobject)env->CallObjectMethodA(proxySupportField, getMethodID, NULL);
+		if (!proxySupport) {
+			return;
+		}
+		jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, proxySupport).As<Object>();
 	}
 
 	Local<Object> properties = jsObject->Get(titanium::Proxy::propertiesSymbol.Get(V8Runtime::v8_isolate)).As<Object>();
@@ -72,7 +82,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	Local<Value> jsEvent = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, event);
 
 #ifdef TI_DEBUG
-	titanium::Utf8Value eventName(jsEvent);
+	v8::String::Utf8Value eventName(jsEvent);
 	LOGV(TAG, "firing event \"%s\"", *eventName);
 #endif
 
@@ -84,8 +94,13 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 		emitter = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, jEmitter).As<Object>();
 	}
 
-	Local<Value> fireEventValue = emitter->Get(EventEmitter::emitSymbol.Get(V8Runtime::v8_isolate));
-	if (!fireEventValue->IsFunction()) {
+	Local<String> symbol = EventEmitter::emitSymbol.Get(V8Runtime::v8_isolate);
+	if (emitter.IsEmpty() || symbol.IsEmpty()) {
+		return JNI_FALSE;
+	}
+
+	Local<Value> fireEventValue = emitter->Get(symbol);
+	if (fireEventValue.IsEmpty() || !fireEventValue->IsFunction()) {
 		return JNI_FALSE;
 	}
 
@@ -133,17 +148,40 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 
 JNIEXPORT jobject JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
-	(JNIEnv* env, jclass clazz, jlong ptr, jstring propertyName, jobjectArray args)
+	(JNIEnv* env, jobject javaObject, jlong ptr, jstring propertyName, jobjectArray args)
 {
 	HandleScope scope(V8Runtime::v8_isolate);
 	JNIScope jniScope(env);
 
 	Local<Value> jsPropertyName = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, propertyName);
 
-	titanium::Proxy* proxy = (titanium::Proxy*) ptr;
-	Local<Object> object = proxy->handle(V8Runtime::v8_isolate);
-	Local<Value> property = object->Get(jsPropertyName);
-	if (!property->IsFunction()) {
+	Local<Object> jsObject;
+	if (ptr != 0) {
+		titanium::Proxy* proxy = (titanium::Proxy*) ptr;
+		jsObject = proxy->handle(V8Runtime::v8_isolate);
+	} else {
+		LOGE(TAG, "!!! Attempting to call a property on a Java object with no/deleted Proxy on C++ side! Attempting to revive it from Java object.");
+		jobject proxySupportField = env->GetObjectField(javaObject, JNIUtil::krollObjectProxySupportField);
+		if (!proxySupportField) {
+			return JNIUtil::undefinedObject;
+		}
+		static jmethodID getMethodID = NULL;
+		if (!getMethodID) {
+			getMethodID = env->GetMethodID(env->FindClass("java/lang/ref/WeakReference"), "get", "()Ljava/lang/Object;");
+		}
+		jobject proxySupport = (jobject)env->CallObjectMethodA(proxySupportField, getMethodID, NULL);
+		if (proxySupport) {
+			jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, proxySupport).As<Object>();
+		}
+	}
+
+	if (jsObject.IsEmpty()) {
+		LOGW(TAG, "Unable to get the JSObject representing this Java object, returning undefined.");
+		return JNIUtil::undefinedObject;
+	}
+
+	Local<Value> property = jsObject->Get(jsPropertyName);
+	if (property.IsEmpty() || !property->IsFunction()) {
 		return JNIUtil::undefinedObject;
 	}
 
@@ -155,7 +193,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 
 	TryCatch tryCatch(V8Runtime::v8_isolate);
 	Local<Function> function = property.As<Function>();
-	MaybeLocal<Value> returnValue = function->Call(V8Runtime::v8_isolate->GetCurrentContext(), object, argc, argv);
+	MaybeLocal<Value> returnValue = function->Call(V8Runtime::v8_isolate->GetCurrentContext(), jsObject, argc, argv);
 
 	if (argv) {
 		delete[] argv;
@@ -177,18 +215,25 @@ JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeRelease
 	(JNIEnv *env, jclass clazz, jlong refPointer)
 {
+	LOGD(TAG, "V8Object::nativeRelease");
 	HandleScope scope(V8Runtime::v8_isolate);
 	JNIScope jniScope(env);
 
 	if (refPointer) {
+		// FIXME What's the right way to cast the long long int as a pointer?
+		// Maybe we can move to more correct smart pointer usage?
+		// http://stackoverflow.com/questions/26375215/c-shared-ptr-and-java-native-object-ownership
 		titanium::Proxy* proxy = (titanium::Proxy*) refPointer;
 		if (proxy && proxy->isDetached()) {
+			// if the proxy is detached, delete it
+			// This means we have already received notification from V8 that the JS side of the proxy can be deleted
+			LOGD(TAG, "deleting titanium::Proxy with pointer value: %p", refPointer);
 			delete proxy;
-			return true;
+			return JNI_TRUE;
 		}
 	}
 
-	return false;
+	return JNI_FALSE;
 }
 
 JNIEXPORT void JNICALL
@@ -227,6 +272,4 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetWindow
 	}
 }
 
-#ifdef __cplusplus
-}
-#endif
+} // extern "C"

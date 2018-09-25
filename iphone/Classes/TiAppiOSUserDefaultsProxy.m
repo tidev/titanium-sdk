@@ -10,212 +10,217 @@
 #import "TiUtils.h"
 
 @implementation TiAppiOSUserDefaultsProxy {
-	NSData *_defaultsNull;
+  NSData *_defaultsNull;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	TiThreadPerformOnMainThread(^{
-		[[NSNotificationCenter defaultCenter] removeObserver:self];
-	}, YES);
-	self.defaultsObject = nil;
-	RELEASE_TO_NIL(_defaultsNull);
-	[super dealloc];
+  TiThreadPerformOnMainThread(^{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+  },
+      YES);
+  self.defaultsObject = nil;
+  RELEASE_TO_NIL(_defaultsNull);
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.App.iOS.UserDefaults";
+  return @"Ti.App.iOS.UserDefaults";
 }
 
--(void)_listenerAdded:(NSString*)type count:(int)count
+- (void)_listenerAdded:(NSString *)type count:(int)count
 {
-	if (count == 1 && [type isEqual:@"change"])
-	{
-		TiThreadPerformOnMainThread(^{
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(NSUserDefaultsDidChange:) name:NSUserDefaultsDidChangeNotification object:nil];
-		}, YES);
-	}
+  if (count == 1 && [type isEqual:@"change"]) {
+    TiThreadPerformOnMainThread(^{
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(NSUserDefaultsDidChange:) name:NSUserDefaultsDidChangeNotification object:nil];
+    },
+        YES);
+  }
 }
 
--(void)_listenerRemoved:(NSString*)type count:(int)count
+- (void)_listenerRemoved:(NSString *)type count:(int)count
 {
-	if (count == 0 && [type isEqual:@"change"])
-	{
-		TiThreadPerformOnMainThread(^{
-			[[NSNotificationCenter defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:nil];
-		}, YES);
-	}
+  if (count == 0 && [type isEqual:@"change"]) {
+    TiThreadPerformOnMainThread(^{
+      [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:nil];
+    },
+        YES);
+  }
 }
 
--(void)_configure
+- (void)_configure
 {
-	_defaultsNull = [[NSData alloc] initWithBytes:"NULL" length:4];
-	[super _configure];
+  _defaultsNull = [[NSData alloc] initWithBytes:"NULL" length:4];
+  [super _configure];
 }
 
--(BOOL)propertyExists: (NSString *) key;
+- (BOOL)propertyExists:(NSString *)key;
 {
-	if (![key isKindOfClass:[NSString class]]) return NO;
-	[self.defaultsObject synchronize];
-	return ([self.defaultsObject objectForKey:key] != nil);
+  if (![key isKindOfClass:[NSString class]])
+    return NO;
+  [self.defaultsObject synchronize];
+  return ([self.defaultsObject objectForKey:key] != nil);
 }
 
-#define GETPROP \
-ENSURE_TYPE(args,NSArray);\
-NSString *key = [args objectAtIndex:0];\
-id defaultValue = [args count] > 1 ? [args objectAtIndex:1] : [NSNull null];\
-if (![self propertyExists:key]) return defaultValue; \
+#define GETPROP                                                                \
+  ENSURE_TYPE(args, NSArray);                                                  \
+  NSString *key = [args objectAtIndex:0];                                      \
+  id defaultValue = [args count] > 1 ? [args objectAtIndex:1] : [NSNull null]; \
+  if (![self propertyExists:key])                                              \
+    return defaultValue;
 
--(id)getBool:(id)args
+- (id)getBool:(id)args
 {
-	GETPROP
-	return [NSNumber numberWithBool:[self.defaultsObject boolForKey:key]];
+  GETPROP
+  return [NSNumber numberWithBool:[self.defaultsObject boolForKey:key]];
 }
 
--(id)getDouble:(id)args
+- (id)getDouble:(id)args
 {
-	GETPROP
-	return [NSNumber numberWithDouble:[self.defaultsObject doubleForKey:key]];
+  GETPROP
+  return [NSNumber numberWithDouble:[self.defaultsObject doubleForKey:key]];
 }
 
--(id)getInt:(id)args
+- (id)getInt:(id)args
 {
-	GETPROP
-	return NUMINTEGER([self.defaultsObject integerForKey:key]);
+  GETPROP
+  return NUMINTEGER([self.defaultsObject integerForKey:key]);
 }
 
--(id)getString:(id)args
+- (id)getString:(id)args
 {
-	GETPROP
-	return [self.defaultsObject stringForKey:key];
+  GETPROP
+  return [self.defaultsObject stringForKey:key];
 }
 
--(id)getList:(id)args
+- (id)getList:(id)args
 {
-	GETPROP
-	NSArray *value = [self.defaultsObject arrayForKey:key];
-	NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
-	[(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-		if ([obj isKindOfClass:[NSData class]] && [_defaultsNull isEqualToData:obj]) {
-			obj = [NSNull null];
-		}
-		[array addObject:obj];
-	}];
-	return array;
-}
-
--(id)getObject:(id)args
-{
-    GETPROP
-    id theObject = [self.defaultsObject objectForKey:key];
-    if ([theObject isKindOfClass:[NSData class]]) {
-        return [NSKeyedUnarchiver unarchiveObjectWithData:theObject];
+  GETPROP
+  NSArray *value = [self.defaultsObject arrayForKey:key];
+  NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
+  [(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+    if ([obj isKindOfClass:[NSData class]] && [_defaultsNull isEqualToData:obj]) {
+      obj = [NSNull null];
     }
-    else {
-        return theObject;
-    }
-    
+    [array addObject:obj];
+  }];
+  return array;
 }
 
-#define SETPROP \
-ENSURE_TYPE(args,NSArray);\
-NSString *key = [args objectAtIndex:0];\
-id value = [args count] > 1 ? [args objectAtIndex:1] : nil;\
-if (value==nil || value==[NSNull null]) {\
-    [self.defaultsObject removeObjectForKey:key];\
-	[self.defaultsObject synchronize]; \
-	return;\
-}\
-if ([self propertyExists:key] && [ [self.defaultsObject objectForKey:key] isEqual:value]) {\
-    return;\
-}\
-
--(void)setBool:(id)args
+- (id)getObject:(id)args
 {
-	SETPROP
-	[self.defaultsObject setBool:[TiUtils boolValue:value] forKey:key];
-	[self.defaultsObject synchronize];
+  GETPROP
+  id theObject = [self.defaultsObject objectForKey:key];
+  if ([theObject isKindOfClass:[NSData class]]) {
+    return [NSKeyedUnarchiver unarchiveObjectWithData:theObject];
+  } else {
+    return theObject;
+  }
 }
 
--(void)setDouble:(id)args
+#define SETPROP                                                                              \
+  ENSURE_TYPE(args, NSArray);                                                                \
+  NSString *key = [args objectAtIndex:0];                                                    \
+  id value = [args count] > 1 ? [args objectAtIndex:1] : nil;                                \
+  if (value == nil || value == [NSNull null]) {                                              \
+    [self.defaultsObject removeObjectForKey:key];                                            \
+    [self.defaultsObject synchronize];                                                       \
+    return;                                                                                  \
+  }                                                                                          \
+  if ([self propertyExists:key] && [[self.defaultsObject objectForKey:key] isEqual:value]) { \
+    return;                                                                                  \
+  }
+
+- (void)setBool:(id)args
 {
-	SETPROP
-	[self.defaultsObject setDouble:[TiUtils doubleValue:value] forKey:key];
-	[self.defaultsObject synchronize];
+  SETPROP
+      [self.defaultsObject setBool:[TiUtils boolValue:value]
+                            forKey:key];
+  [self.defaultsObject synchronize];
 }
 
--(void)setInt:(id)args
+- (void)setDouble:(id)args
 {
-	SETPROP
-	[self.defaultsObject setInteger:[TiUtils intValue:value] forKey:key];
-	[self.defaultsObject synchronize];
+  SETPROP
+      [self.defaultsObject setDouble:[TiUtils doubleValue:value]
+                              forKey:key];
+  [self.defaultsObject synchronize];
 }
 
--(void)setString:(id)args
+- (void)setInt:(id)args
 {
-	SETPROP
-	[self.defaultsObject setObject:[TiUtils stringValue:value] forKey:key];
-	[self.defaultsObject synchronize];
+  SETPROP
+      [self.defaultsObject setInteger:[TiUtils intValue:value]
+                               forKey:key];
+  [self.defaultsObject synchronize];
 }
 
--(void)setList:(id)args
+- (void)setString:(id)args
 {
-	SETPROP
-	if ([value isKindOfClass:[NSArray class]]) {
-		NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
-		[(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-			if ([obj isKindOfClass:[NSNull class]]) {
-				obj = _defaultsNull;
-			}
-			[array addObject:obj];
-		}];
-		value = array;
-	}
-	[self.defaultsObject setObject:value forKey:key];
-	[self.defaultsObject synchronize];
+  SETPROP
+      [self.defaultsObject setObject:[TiUtils stringValue:value]
+                              forKey:key];
+  [self.defaultsObject synchronize];
 }
 
--(void)setObject:(id)args
+- (void)setList:(id)args
 {
-    SETPROP
-    NSData* encoded = [NSKeyedArchiver archivedDataWithRootObject:value];
-    [self.defaultsObject setObject:encoded forKey:key];
-    [self.defaultsObject synchronize];
+  SETPROP
+  if ([value isKindOfClass:[NSArray class]]) {
+    NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
+    [(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+      if ([obj isKindOfClass:[NSNull class]]) {
+        obj = _defaultsNull;
+      }
+      [array addObject:obj];
+    }];
+    value = array;
+  }
+  [self.defaultsObject setObject:value forKey:key];
+  [self.defaultsObject synchronize];
 }
 
--(void)removeProperty:(id)args
+- (void)setObject:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSString);
-	[self.defaultsObject removeObjectForKey:[TiUtils stringValue:args]];
-	[self.defaultsObject synchronize];
+  SETPROP
+  NSData *encoded = [NSKeyedArchiver archivedDataWithRootObject:value];
+  [self.defaultsObject setObject:encoded forKey:key];
+  [self.defaultsObject synchronize];
 }
 
--(void)removeAllProperties:(id)unused
+- (void)removeProperty:(id)args
 {
-	NSArray *keys = [[self.defaultsObject dictionaryRepresentation] allKeys];
-	for(NSString *key in keys) {
-		[self.defaultsObject removeObjectForKey:key];
-	}
-	[self.defaultsObject synchronize];
+  ENSURE_SINGLE_ARG(args, NSString);
+  [self.defaultsObject removeObjectForKey:[TiUtils stringValue:args]];
+  [self.defaultsObject synchronize];
 }
 
--(id)hasProperty:(id)args
+- (void)removeAllProperties:(id)unused
 {
-    ENSURE_SINGLE_ARG(args,NSString);
-    return NUMBOOL([self propertyExists:[TiUtils stringValue:args]]);
+  NSArray *keys = [[self.defaultsObject dictionaryRepresentation] allKeys];
+  for (NSString *key in keys) {
+    [self.defaultsObject removeObjectForKey:key];
+  }
+  [self.defaultsObject synchronize];
 }
 
--(id)listProperties:(id)unused
+- (id)hasProperty:(id)args
 {
-    NSMutableArray *array = [NSMutableArray array];
-    [array addObjectsFromArray:[[self.defaultsObject dictionaryRepresentation] allKeys]];
-    return array;
+  ENSURE_SINGLE_ARG(args, NSString);
+  return NUMBOOL([self propertyExists:[TiUtils stringValue:args]]);
 }
 
--(void) NSUserDefaultsDidChange:(NSNotification*)note
+- (id)listProperties:(id)unused
 {
-	[self fireEvent:@"change" withObject:nil];
+  NSMutableArray *array = [NSMutableArray array];
+  [array addObjectsFromArray:[[self.defaultsObject dictionaryRepresentation] allKeys]];
+  return array;
+}
+
+- (void)NSUserDefaultsDidChange:(NSNotification *)note
+{
+  [self fireEvent:@"change" withObject:nil];
 }
 
 @end

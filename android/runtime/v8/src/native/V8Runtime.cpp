@@ -4,16 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#include <jni.h>
 #include <stdio.h>
-#include <string.h>
-#include <v8.h>
+#include <cstring>
+
+#include <v8-platform.h>
 #include <libplatform/libplatform.h>
-#include <v8-debug.h>
 
 #include "AndroidUtil.h"
 #include "EventEmitter.h"
-#include "JavaObject.h"
+#include "Proxy.h"
 #include "JNIUtil.h"
 #include "JSDebugger.h"
 #include "JSException.h"
@@ -24,8 +23,6 @@
 #include "V8Util.h"
 
 #include "V8Runtime.h"
-
-#include "org_appcelerator_kroll_runtime_v8_V8Runtime.h"
 
 #define TAG "V8Runtime"
 
@@ -49,9 +46,9 @@ bool V8Runtime::initialized = false;
 
 class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
  public:
-  virtual void* Allocate(size_t length) { return calloc(length, 1); }
-  virtual void* AllocateUninitialized(size_t length) { return malloc(length); }
-  virtual void Free(void* data, size_t) { free(data); }
+	virtual void* Allocate(size_t length) { return calloc(length, 1); }
+	virtual void* AllocateUninitialized(size_t length) { return malloc(length); }
+	virtual void Free(void* data, size_t) { free(data); }
 };
 
 // Make allocator global so it sticks around?
@@ -109,8 +106,8 @@ static void krollLog(const FunctionCallbackInfo<Value>& args)
 		message = String::Concat(String::Concat(message, space), args[i].As<String>());
 	}
 
-	titanium::Utf8Value tagValue(tag);
-	titanium::Utf8Value messageValue(message);
+	v8::String::Utf8Value tagValue(tag);
+	v8::String::Utf8Value messageValue(message);
 	__android_log_print(ANDROID_LOG_DEBUG, *tagValue, *messageValue);
 }
 
@@ -120,21 +117,30 @@ void V8Runtime::bootstrap(Local<Context> context)
 	Isolate* isolate = context->GetIsolate();
 	EventEmitter::initTemplate(context);
 
-	Local<Object> global = Object::New(isolate);
-	krollGlobalObject.Reset(isolate, global);
+	Local<Object> kroll = Object::New(isolate);
+	krollGlobalObject.Reset(isolate, kroll);
 	Local<Array> mc = Array::New(isolate);
 	moduleContexts.Reset(isolate, mc);
 
-	KrollBindings::initFunctions(global, context);
+	KrollBindings::initFunctions(kroll, context);
 
-	SetMethod(isolate, global, "log", krollLog);
+	SetMethod(isolate, kroll, "log", krollLog);
 	// Move this into the EventEmitter::initTemplate call?
 	Local<FunctionTemplate> eect = Local<FunctionTemplate>::New(isolate, EventEmitter::constructorTemplate);
-	global->Set(NEW_SYMBOL(isolate, "EventEmitter"), eect->GetFunction());
+	{
+		v8::TryCatch tryCatch(isolate);
+		Local<Function> eventEmitterConstructor;
+		MaybeLocal<Function> maybeEventEmitterConstructor = eect->GetFunction(context);
+		if (!maybeEventEmitterConstructor.ToLocal(&eventEmitterConstructor)) {
+			titanium::V8Util::fatalException(isolate, tryCatch);
+			return;
+		}
+		kroll->Set(NEW_SYMBOL(isolate, "EventEmitter"), eventEmitterConstructor);
+	}
 
-	global->Set(NEW_SYMBOL(isolate, "runtime"), STRING_NEW(isolate, "v8"));
-	global->Set(NEW_SYMBOL(isolate, "DBG"), v8::Boolean::New(isolate, V8Runtime::DBG));
-	global->Set(NEW_SYMBOL(isolate, "moduleContexts"), mc);
+	kroll->Set(NEW_SYMBOL(isolate, "runtime"), STRING_NEW(isolate, "v8"));
+	kroll->Set(NEW_SYMBOL(isolate, "DBG"), v8::Boolean::New(isolate, V8Runtime::DBG));
+	kroll->Set(NEW_SYMBOL(isolate, "moduleContexts"), mc);
 
 	LOG_TIMER(TAG, "Executing kroll.js");
 
@@ -149,9 +155,21 @@ void V8Runtime::bootstrap(Local<Context> context)
 		V8Util::reportException(isolate, tryCatch, true);
 	}
 
+	// Add a reference to the global object
+	Local<Object> global = context->Global();
+
+	// Expose the global object as a property on itself
+	// (Allows you to set stuff on `global` from anywhere in JavaScript.)
+	global->Set(NEW_SYMBOL(isolate, "global"), global);
+
+	// Set the __dirname and __filename for the app.js.
+	// For other files, it will be injected via the `NativeModule` JavaScript class
+	global->Set(NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
+	global->Set(NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
+
 	Local<Function> mainFunction = result.As<Function>();
-	Local<Value> args[] = { global };
-	mainFunction->Call(context, context->Global(), 1, args);
+	Local<Value> args[] = { kroll };
+	mainFunction->Call(context, global, 1, args);
 
 	if (tryCatch.HasCaught()) {
 		V8Util::reportException(isolate, tryCatch, true);
@@ -164,18 +182,16 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 	HandleScope scope(V8Runtime::v8_isolate);
 
 	// Log reason and location of the error.
-	LOGD(TAG, *titanium::Utf8Value(msg->Get()));
+	LOGD(TAG, *v8::String::Utf8Value(msg->Get()));
 	LOGD(TAG, "%s @ %d >>> %s",
-		*titanium::Utf8Value(msg->GetScriptResourceName()),
+		*v8::String::Utf8Value(msg->GetScriptResourceName()),
 		msg->GetLineNumber(),
-		*titanium::Utf8Value(msg->GetSourceLine()));
+		*v8::String::Utf8Value(msg->GetSourceLine()));
 }
 
 } // namespace titanium
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 
 using namespace titanium;
 
@@ -184,11 +200,12 @@ using namespace titanium;
  * Method:    nativeInit
  * Signature: (Lorg/appcelerator/kroll/runtime/v8/V8Runtime;)J
  */
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jboolean useGlobalRefs, jobject debugger, jboolean DBG, jboolean profilerEnabled)
+JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeInit(JNIEnv *env, jobject self, jobject debugger, jboolean DBG, jboolean profilerEnabled)
 {
 	if (!V8Runtime::initialized) {
 		// Initialize V8.
 		V8::InitializeICU();
+
 		// TODO Enable this when we use snapshots?
 		//V8::InitializeExternalStartupData(argv[0]);
 		V8Runtime::platform = platform::CreateDefaultPlatform();
@@ -197,15 +214,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		V8Runtime::initialized = true;
 	}
 
-	if (profilerEnabled) {
-		char* argv[] = { const_cast<char*>(""), const_cast<char*>("--expose-gc") };
-		int argc = sizeof(argv)/sizeof(*argv);
-		V8::SetFlagsFromCommandLine(&argc, argv, false);
-	}
-
 	titanium::JNIScope jniScope(env);
 
-	JavaObject::useGlobalRefs = useGlobalRefs;
 	V8Runtime::DBG = DBG;
 
 	V8Runtime::javaInstance = env->NewGlobalRef(self);
@@ -222,8 +232,11 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		V8Runtime::v8_isolate = isolate;
 
 		// Log all uncaught V8 exceptions.
-		V8::AddMessageListener(&logV8Exception);
-		V8::SetCaptureStackTraceForUncaughtExceptions(true);
+		isolate->AddMessageListener(logV8Exception);
+		// isolate->SetAbortOnUncaughtExceptionCallback(ShouldAbortOnUncaughtException);
+		// isolate->SetAutorunMicrotasks(false);
+		// isolate->SetFatalErrorHandler(OnFatalError);
+		isolate->SetCaptureStackTraceForUncaughtExceptions(true, 10, v8::StackTrace::kOverview);
 	} else {
 		isolate = V8Runtime::v8_isolate;
 		isolate->Enter();
@@ -235,7 +248,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 
 	V8Runtime::globalContext.Reset(isolate, context);
 
-	JSDebugger::init(env, isolate, debugger);
+	JSDebugger::init(env, debugger, context);
 	if (debugger != nullptr) {
 		V8Runtime::debuggerEnabled = true;
 	}
@@ -255,13 +268,32 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 {
 	HandleScope scope(V8Runtime::v8_isolate);
 	titanium::JNIScope jniScope(env);
+	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
 
 	if (V8Runtime::moduleObject.IsEmpty()) {
-		Local<Object> module = V8Runtime::Global()->Get(STRING_NEW(V8Runtime::v8_isolate, "Module")).As<Object>();
-		V8Runtime::moduleObject.Reset(V8Runtime::v8_isolate, module);
+		Local<Object> module;
+		{
+			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
+			Local<Value> moduleValue;
+			MaybeLocal<Value> maybeModule = V8Runtime::Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
+			if (!maybeModule.ToLocal(&moduleValue)) {
+				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
+				return;
+			}
+			module = moduleValue.As<Object>();
+			V8Runtime::moduleObject.Reset(V8Runtime::v8_isolate, module);
+		}
 
-		V8Runtime::runModuleFunction.Reset(V8Runtime::v8_isolate,
-			module->Get(STRING_NEW(V8Runtime::v8_isolate, "runModule")).As<Function>());
+		{
+			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
+			Local<Value> runModule;
+			MaybeLocal<Value> maybeRunModule = module->Get(context, STRING_NEW(V8Runtime::v8_isolate, "runModule"));
+			if (!maybeRunModule.ToLocal(&runModule)) {
+				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
+				return;
+			}
+			V8Runtime::runModuleFunction.Reset(V8Runtime::v8_isolate, runModule.As<Function>());
+		}
 	}
 
 	Local<Value> jsSource = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, source);
@@ -270,7 +302,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 
 	Local<Value> args[] = { jsSource, jsFilename, jsActivity };
 	TryCatch tryCatch(V8Runtime::v8_isolate);
-	V8Runtime::RunModuleFunction()->Call(V8Runtime::v8_isolate->GetCurrentContext(), V8Runtime::ModuleObject(), 3, args);
+	V8Runtime::RunModuleFunction()->Call(context, V8Runtime::ModuleObject(), 3, args);
 
 	if (tryCatch.HasCaught()) {
 		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
@@ -305,11 +337,6 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativ
 	return TypeConverter::jsValueToJavaObject(V8Runtime::v8_isolate, env, result);
 }
 
-JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeProcessDebugMessages(JNIEnv *env, jobject self)
-{
-	v8::Debug::ProcessDebugMessages();
-}
-
 JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIdle(JNIEnv *env, jobject self)
 {
 	// If we're closing up shop, return true, which is equivalent to V8 GC saying there's no more work to do
@@ -317,9 +344,17 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nati
 	//	return true;
 	//}
 
-	// FIXME What is a good value to use here? We're basically giving it 100 ms to run right now
-	double deadline_in_s = V8Runtime::platform->MonotonicallyIncreasingTime() + 0.1;
-	return V8Runtime::v8_isolate->IdleNotificationDeadline(deadline_in_s);
+	// TODO Pump the message loop/queues until it's empty?
+	// while (v8::platform::PumpMessageLoop(V8Runtime::platform, V8Runtime:v8_isolate)) continue;
+	// v8::platform::RunIdleTasks(g_platform, isolate, 50.0 / base::Time::kMillisecondsPerSecond);
+
+	// notify V8 of low memory to suggest a full GC
+	V8Runtime::v8_isolate->LowMemoryNotification();
+	return true;
+
+	// give GC time to perform cleanup (1 second)
+	// double deadline_in_s = V8Runtime::platform->MonotonicallyIncreasingTime() + 1;
+	// return V8Runtime::v8_isolate->IdleNotificationDeadline(deadline_in_s);
 }
 
 /*
@@ -340,6 +375,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeAd
 	}
 
 	jmethodID method = env->GetMethodID(cls, "getSourceCode", "(Ljava/lang/String;)Ljava/lang/String;");
+	env->DeleteLocalRef(cls);
 	if (!method) {
 		LOGE(TAG, "Could not find getSourceCode method in source code provider class for module: %s", mName);
 		return;
@@ -439,6 +475,4 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 	return JNI_VERSION_1_4;
 }
 
-#ifdef __cplusplus
-}
-#endif
+} // extern "C"

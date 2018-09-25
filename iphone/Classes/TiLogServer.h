@@ -12,7 +12,7 @@
 
 @interface TiLogServer : NSObject {
 }
-+ (void)log:(NSString*)message;
++ (void)log:(NSString *)message;
 + (void)startServer;
 + (void)stopServer;
 @end

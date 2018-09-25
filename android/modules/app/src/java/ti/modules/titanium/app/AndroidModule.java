@@ -21,7 +21,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 
-@Kroll.module(parentModule=AppModule.class)
+@Kroll.module(parentModule = AppModule.class)
 public class AndroidModule extends KrollModule
 {
 	protected RProxy r;
@@ -34,7 +34,7 @@ public class AndroidModule extends KrollModule
 		super();
 	}
 
-	@Kroll.getProperty(name="R")
+	@Kroll.getProperty(name = "R")
 	public RProxy getR()
 	{
 		if (r == null) {
@@ -64,15 +64,17 @@ public class AndroidModule extends KrollModule
 		}
 
 		if (activity instanceof TiBaseActivity) {
-			return ((TiBaseActivity)activity).getActivityProxy();
+			return ((TiBaseActivity) activity).getActivityProxy();
 		} else {
 			return null;
 		}
 	}
 
-	@Kroll.getProperty
+	// clang-format off
 	@Kroll.method
+	@Kroll.getProperty
 	public int getAppVersionCode()
+	// clang-format on
 	{
 		if (appVersionCode == -1) {
 			initializeVersionValues();
@@ -80,8 +82,11 @@ public class AndroidModule extends KrollModule
 		return appVersionCode;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public IntentProxy getLaunchIntent()
+	// clang-format on
 	{
 		TiApplication app = TiApplication.getInstance();
 		if (app != null) {
@@ -96,9 +101,11 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
-	@Kroll.getProperty
+	// clang-format off
 	@Kroll.method
+	@Kroll.getProperty
 	public String getAppVersionName()
+	// clang-format on
 	{
 		if (appVersionName == null) {
 			initializeVersionValues();
@@ -110,8 +117,8 @@ public class AndroidModule extends KrollModule
 	{
 		PackageInfo pInfo;
 		try {
-			pInfo = TiApplication.getInstance().getPackageManager()
-				.getPackageInfo(TiApplication.getInstance().getPackageName(), 0);
+			pInfo = TiApplication.getInstance().getPackageManager().getPackageInfo(
+				TiApplication.getInstance().getPackageName(), 0);
 			appVersionCode = pInfo.versionCode;
 			appVersionName = pInfo.versionName;
 		} catch (NameNotFoundException e) {

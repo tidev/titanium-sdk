@@ -24,7 +24,8 @@ import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.AttributeSet;
 
-public class TiBackgroundDrawable extends StateListDrawable {
+public class TiBackgroundDrawable extends StateListDrawable
+{
 
 	private Drawable background;
 	private RectF innerRect;
@@ -41,7 +42,8 @@ public class TiBackgroundDrawable extends StateListDrawable {
 	public void draw(Canvas canvas)
 	{
 		if (background != null) {
-			background.setBounds((int) innerRect.left, (int) innerRect.top, (int) innerRect.right, (int) innerRect.bottom);
+			background.setBounds((int) innerRect.left, (int) innerRect.top, (int) innerRect.right,
+								 (int) innerRect.bottom);
 		}
 
 		canvas.save();
@@ -64,15 +66,16 @@ public class TiBackgroundDrawable extends StateListDrawable {
 	}
 
 	@Override
-	protected boolean onStateChange(int[] stateSet) {
+	protected boolean onStateChange(int[] stateSet)
+	{
 		boolean changed = super.onStateChange(stateSet);
 		changed = setState(stateSet);
 		boolean drawableChanged = false;
 		if (background != null) {
-//			Log.e("TiBackground", "background="+background.getClass().getSimpleName()+",state.len="+stateSet.length);
-//			for (int i = 0; i < stateSet.length; i++) {
-//				Log.e("TiBackground", "    state[" + i + "]=" + stateSet[i]);
-//			}
+			//			Log.e("TiBackground", "background="+background.getClass().getSimpleName()+",state.len="+stateSet.length);
+			//			for (int i = 0; i < stateSet.length; i++) {
+			//				Log.e("TiBackground", "    state[" + i + "]=" + stateSet[i]);
+			//			}
 			drawableChanged = background.setState(stateSet);
 			if (drawableChanged) {
 				invalidateSelf();
@@ -83,71 +86,79 @@ public class TiBackgroundDrawable extends StateListDrawable {
 	}
 
 	@Override
-	public void addState(int[] stateSet, Drawable drawable) {
+	public void addState(int[] stateSet, Drawable drawable)
+	{
 		if (background instanceof StateListDrawable) {
-			((StateListDrawable)background).addState(stateSet, drawable);
+			((StateListDrawable) background).addState(stateSet, drawable);
 		}
 	}
 
 	@Override
-	protected boolean onLevelChange(int level) {
+	protected boolean onLevelChange(int level)
+	{
 		boolean changed = super.onLevelChange(level);
 		boolean backgroundChanged = false;
 		if (background instanceof StateListDrawable) {
-			backgroundChanged = ((StateListDrawable)background).setLevel(level);
+			backgroundChanged = ((StateListDrawable) background).setLevel(level);
 		}
 		return changed || backgroundChanged;
 	}
 
-	
 	@Override
-	public void invalidateSelf() {
+	public void invalidateSelf()
+	{
 		super.invalidateSelf();
 		if (background instanceof StateListDrawable) {
-			((StateListDrawable)background).invalidateSelf();			
+			((StateListDrawable) background).invalidateSelf();
 		}
 	}
 
 	@Override
-	public void invalidateDrawable(Drawable who) {
+	public void invalidateDrawable(Drawable who)
+	{
 		super.invalidateDrawable(who);
 		if (background instanceof StateListDrawable) {
-			((StateListDrawable)background).invalidateDrawable(who);
+			((StateListDrawable) background).invalidateDrawable(who);
 		}
 	}
 
 	@Override
 	public void inflate(Resources r, XmlPullParser parser, AttributeSet attrs)
-			throws XmlPullParserException, IOException {
+		throws XmlPullParserException, IOException
+	{
 		super.inflate(r, parser, attrs);
 		if (background != null) {
 			background.inflate(r, parser, attrs);
 		}
 	}
 
-	public void releaseDelegate() {
+	public void releaseDelegate()
+	{
 		if (background != null) {
 			if (background instanceof BitmapDrawable) {
-				((BitmapDrawable)background).getBitmap().recycle();
+				((BitmapDrawable) background).getBitmap().recycle();
 			}
 			background.setCallback(null);
 			background = null;
 		}
 	}
 
-	public void setBackgroundColor(int backgroundColor) {
+	public void setBackgroundColor(int backgroundColor)
+	{
 		//this.background = new ColorDrawable(backgroundColor);
 		releaseDelegate();
 		this.background = new PaintDrawable(backgroundColor);
 	}
 
 	@SuppressWarnings("deprecation")
-	public void setBackgroundImage(Bitmap backgroundImage) {
+	public void setBackgroundImage(Bitmap backgroundImage)
+	{
 		releaseDelegate();
 		this.background = new BitmapDrawable(backgroundImage);
 	}
 
-	public void setBackgroundDrawable(Drawable drawable) {
+	public void setBackgroundDrawable(Drawable drawable)
+	{
 		releaseDelegate();
 		this.background = drawable;
 		onStateChange(getState());
@@ -160,6 +171,11 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		this.alpha = alpha;
 	}
 
+	public Drawable getBackground()
+	{
+		return background;
+	}
+
 	@Override
 	public Drawable getCurrent()
 	{
@@ -168,5 +184,4 @@ public class TiBackgroundDrawable extends StateListDrawable {
 		}
 		return super.getCurrent();
 	}
-
 }

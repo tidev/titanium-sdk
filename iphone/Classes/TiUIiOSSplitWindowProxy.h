@@ -7,7 +7,7 @@
 #ifdef USE_TI_UIIOSSPLITWINDOW
 
 #import "TiWindowProxy.h"
-@interface TiUIiOSSplitWindowProxy : TiWindowProxy{
+@interface TiUIiOSSplitWindowProxy : TiWindowProxy {
 }
 
 @end

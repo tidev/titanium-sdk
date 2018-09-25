@@ -21,11 +21,11 @@ public class RProxy extends KrollProxy
 {
 	private static final String TAG = "TiAndroidRProxy";
 
-	private static final String[] RESOURCE_TYPES = {
-		"anim", "array", "attr", "color",
-		"dimen", "drawable", "id", "integer",
-		"layout", "string", "style", "styleable"
-	};
+	private static final String[] RESOURCE_TYPES = { "anim",      "animator", "array",        "attr",   "bool",
+													 "color",     "dimen",    "drawable",     "font",   "fraction",
+													 "id",        "integer",  "interpolator", "layout", "menu",
+													 "mipmap",    "plurals",  "raw",          "string", "style",
+													 "styleable", "xml" };
 
 	public static final int RESOURCE_TYPE_ANDROID = 0;
 	public static final int RESOURCE_TYPE_APPLICATION = 1;
@@ -83,7 +83,8 @@ public class RProxy extends KrollProxy
 
 	private Object getResourceValue(String name)
 	{
-		Log.d(TAG, "Getting resource " + (resourceType == RESOURCE_TYPE_ANDROID ? "android.R." : "R.") + name, Log.DEBUG_MODE);
+		Log.d(TAG, "Getting resource " + (resourceType == RESOURCE_TYPE_ANDROID ? "android.R." : "R.") + name,
+			  Log.DEBUG_MODE);
 
 		try {
 			if (resourceType == RESOURCE_TYPE_ANDROID) {

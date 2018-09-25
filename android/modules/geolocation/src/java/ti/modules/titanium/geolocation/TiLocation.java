@@ -23,7 +23,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,12 +53,10 @@ public class TiLocation implements Handler.Callback
 	private String appGuid;
 	private String sessionId;
 	private String countryCode;
-	private long lastAnalyticsTimestamp = 0;
 	private List<String> knownProviders;
 	private Handler runtimeHandler;
 
-	public interface GeocodeResponseHandler
-	{
+	public interface GeocodeResponseHandler {
 		public abstract void handleGeocodeResponse(KrollDict geocodeResponse);
 	}
 
@@ -67,9 +64,9 @@ public class TiLocation implements Handler.Callback
 	{
 		locationManager = (LocationManager) TiApplication.getInstance().getSystemService(Context.LOCATION_SERVICE);
 		knownProviders = locationManager.getAllProviders();
-		mobileId = TiPlatformHelper.getInstance().getMobileId();
+		mobileId = APSAnalytics.getInstance().getMachineId();
 		appGuid = TiApplication.getInstance().getAppInfo().getGUID();
-		sessionId = TiPlatformHelper.getInstance().getSessionId();
+		sessionId = APSAnalytics.getInstance().getCurrentSessionId();
 		countryCode = Locale.getDefault().getCountry();
 		runtimeHandler = new Handler(TiMessenger.getRuntimeMessenger().getLooper(), this);
 	}
@@ -96,17 +93,25 @@ public class TiLocation implements Handler.Callback
 
 	public boolean getLocationServicesEnabled()
 	{
+		// Fetch all enabled location providers.
 		List<String> providerNames = locationManager.getProviders(true);
+		if ((providerNames == null) || (providerNames.size() <= 0)) {
+			return false;
+		}
 
+		// Log all providers currently enabled.
 		if (Log.isDebugModeEnabled()) {
 			Log.i(TAG, "Enabled location provider count: " + providerNames.size());
-
 			for (String providerName : providerNames) {
 				Log.i(TAG, providerName + " service available");
 			}
 		}
 
-		return providerNames.size() != 0 && getLastKnownLocation() != null;
+		// Only return true if location can be obtained via GPS or WiFi/Cellular.
+		// Ignore "passive" provider and "test" providers.
+		boolean isEnabled = providerNames.contains(LocationManager.GPS_PROVIDER);
+		isEnabled |= providerNames.contains(LocationManager.NETWORK_PROVIDER);
+		return isEnabled;
 	}
 
 	public Location getLastKnownLocation()
@@ -137,20 +142,11 @@ public class TiLocation implements Handler.Callback
 		return latestKnownLocation;
 	}
 
-	public void doAnalytics(Location location)
-	{
-		long locationTime = location.getTime();
-		TiApplication application = TiApplication.getInstance();
-		if ((locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY)
-				&& application.isAnalyticsEnabled() && !application.isAnalyticsFiltered("ti.geo")) {
-			APSAnalytics.getInstance().sendAppGeoEvent(location);
-		}
-	}
-
 	public void forwardGeocode(String address, GeocodeResponseHandler responseHandler)
 	{
 		if (address != null) {
-			String geocoderUrl = buildGeocoderURL(TiC.PROPERTY_FORWARD, mobileId, appGuid, sessionId, address, countryCode);
+			String geocoderUrl =
+				buildGeocoderURL(TiC.PROPERTY_FORWARD, mobileId, appGuid, sessionId, address, countryCode);
 			if (geocoderUrl != null) {
 				Message message = runtimeHandler.obtainMessage(MSG_LOOKUP);
 				message.getData().putString(TiC.PROPERTY_DIRECTION, TiC.PROPERTY_FORWARD);
@@ -167,7 +163,8 @@ public class TiLocation implements Handler.Callback
 
 	public void reverseGeocode(double latitude, double longitude, GeocodeResponseHandler responseHandler)
 	{
-		String geocoderUrl = buildGeocoderURL(TiC.PROPERTY_REVERSE, mobileId, appGuid, sessionId, latitude + "," + longitude, countryCode);
+		String geocoderUrl = buildGeocoderURL(TiC.PROPERTY_REVERSE, mobileId, appGuid, sessionId,
+											  latitude + "," + longitude, countryCode);
 		if (geocoderUrl != null) {
 			Message message = runtimeHandler.obtainMessage(MSG_LOOKUP);
 			message.getData().putString(TiC.PROPERTY_DIRECTION, TiC.PROPERTY_REVERSE);
@@ -181,7 +178,8 @@ public class TiLocation implements Handler.Callback
 		}
 	}
 
-	private String buildGeocoderURL(String direction, String mid, String aguid, String sid, String query, String countryCode)
+	private String buildGeocoderURL(String direction, String mid, String aguid, String sid, String query,
+									String countryCode)
 	{
 		String url = null;
 
@@ -211,7 +209,8 @@ public class TiLocation implements Handler.Callback
 	{
 		AsyncTask<Object, Void, Integer> task = new AsyncTask<Object, Void, Integer>() {
 			@Override
-			protected Integer doInBackground(Object... args) {
+			protected Integer doInBackground(Object... args)
+			{
 				GeocodeResponseHandler geocodeResponseHandler = null;
 				KrollDict event = null;
 				try {
@@ -224,27 +223,27 @@ public class TiLocation implements Handler.Callback
 					String response;
 					StringBuilder result = new StringBuilder();
 					try {
-					    URL mURL = new URL(url);
-					    connection = (HttpURLConnection) mURL.openConnection();
-					    connection.setRequestProperty("Expect", "100-continue");
-					    connection.connect();
-					    int responseCode = connection.getResponseCode();
-					    if (responseCode == 200) {
-					        InputStream in = new BufferedInputStream(connection.getInputStream());
-			                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-			                String line;
-			                while ((line = reader.readLine()) != null) {
-			                    result.append(line);
-			                }
-			                response = result.toString();
-					    } else
-					        response = null;
+						URL mURL = new URL(url);
+						connection = (HttpURLConnection) mURL.openConnection();
+						connection.setRequestProperty("Expect", "100-continue");
+						connection.connect();
+						int responseCode = connection.getResponseCode();
+						if (responseCode == 200) {
+							InputStream in = new BufferedInputStream(connection.getInputStream());
+							BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+							String line;
+							while ((line = reader.readLine()) != null) {
+								result.append(line);
+							}
+							response = result.toString();
+						} else
+							response = null;
 					} catch (Exception e) {
-					    response = null;
+						response = null;
 					} finally {
-					    if (connection != null) {
-					        connection.disconnect();
-					    }
+						if (connection != null) {
+							connection.disconnect();
+						}
 					}
 					Log.i(TAG, "received Geo [" + response + "]", Log.DEBUG_MODE);
 
@@ -262,12 +261,14 @@ public class TiLocation implements Handler.Callback
 
 							} else {
 								event = new KrollDict();
-								String errorCode = "Unable to resolve message: Code (" + jsonObject.getString(TiC.ERROR_PROPERTY_ERRORCODE) + ")";
+								String errorCode = "Unable to resolve message: Code ("
+												   + jsonObject.getString(TiC.ERROR_PROPERTY_ERRORCODE) + ")";
 								event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, errorCode);
 							}
 
 						} catch (JSONException e) {
-							Log.e(TAG, "Error converting geo response to JSONObject [" + e.getMessage() + "]", e, Log.DEBUG_MODE);
+							Log.e(TAG, "Error converting geo response to JSONObject [" + e.getMessage() + "]", e,
+								  Log.DEBUG_MODE);
 						}
 					}
 
@@ -290,8 +291,7 @@ public class TiLocation implements Handler.Callback
 		return task;
 	}
 
-	private KrollDict buildForwardGeocodeResponse(JSONObject jsonResponse)
-		throws JSONException
+	private KrollDict buildForwardGeocodeResponse(JSONObject jsonResponse) throws JSONException
 	{
 		KrollDict address = new KrollDict();
 
@@ -302,8 +302,7 @@ public class TiLocation implements Handler.Callback
 		return address;
 	}
 
-	private KrollDict buildReverseGeocodeResponse(JSONObject jsonResponse)
-		throws JSONException
+	private KrollDict buildReverseGeocodeResponse(JSONObject jsonResponse) throws JSONException
 	{
 		JSONArray places = jsonResponse.getJSONArray(TiC.PROPERTY_PLACES);
 		ArrayList<KrollDict> addresses = new ArrayList<KrollDict>();
@@ -331,8 +330,9 @@ public class TiLocation implements Handler.Callback
 		address.put(TiC.PROPERTY_POSTAL_CODE, place.optString("zipcode", ""));
 		address.put(TiC.PROPERTY_COUNTRY, place.optString(TiC.PROPERTY_COUNTRY, ""));
 		address.put(TiC.PROPERTY_STATE, place.optString(TiC.PROPERTY_STATE, ""));
-		address.put("countryCode", place.optString(TiC.PROPERTY_COUNTRY_CODE, "")); // TIMOB-4478, remove this later, was old android name
-		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString(TiC.PROPERTY_COUNTRY_CODE, ""));		
+		address.put("countryCode", place.optString(TiC.PROPERTY_COUNTRY_CODE,
+												   "")); // TIMOB-4478, remove this later, was old android name
+		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString(TiC.PROPERTY_COUNTRY_CODE, ""));
 		address.put(TiC.PROPERTY_LONGITUDE, place.optString(TiC.PROPERTY_LONGITUDE, ""));
 		address.put(TiC.PROPERTY_LATITUDE, place.optString(TiC.PROPERTY_LATITUDE, ""));
 		address.put(TiC.PROPERTY_DISPLAY_ADDRESS, place.optString(TiC.PROPERTY_ADDRESS));

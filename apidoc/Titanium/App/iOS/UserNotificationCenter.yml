@@ -1,0 +1,245 @@
+---
+name: Titanium.App.iOS.UserNotificationCenter
+summary: |
+    The top-level App iOS Notification Center module. It is used to control scheduled notifications
+    and receive details about the system-wide notification settings.
+
+extends: Titanium.Module
+platforms: [iphone, ipad]
+osver: {ios: {min: "8.0"}}
+since: "7.3.0"
+excludes:
+    properties: [bubbleParent]
+    methods: [addEventListener, applyProperties, fireEvent, removeEventListener,]
+
+methods:
+  - name: getPendingNotifications
+    summary: Fetches the pending notifications asynchronously.
+    parameters:
+      - name: callback
+        summary: |
+            The function that is being called after the notifications
+            have been fetched.
+        type: Callback<UserNotificationCallbackResponse>
+    since: "7.3.0"
+
+  - name: getDeliveredNotifications
+    summary: Fetches the delivered notifications asynchronously.
+    parameters:
+      - name: callback
+        summary: |
+            The function that is being called after the notifications
+            have been fetched.
+        type: Callback<UserNotificationCallbackResponse>
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: removePendingNotifications
+    summary: |
+        Removes the specified pending notifications to prevent them from being triggered.
+        If no notifications are specified, all pending notifications will be removed.
+    description: |
+        Pending notifications can be obtained via a call to the <Titanium.App.iOS.UserNotificationCenter.getDeliveredNotifications> 
+        method.
+    since: "7.3.0"
+    parameters:
+      - name: notifications
+        summary: |
+            The pending notification to remove. If none specified, all pending notifications
+            will be removed.
+        type: Array<Titanium.App.iOS.LocalNotification>
+
+  - name: removeDeliveredNotifications
+    summary: |
+        Removes the specified delivered notifications from the notification-center.
+        If no notifications are specified, all delivered notifications will be removed.
+    osver: {ios: {min: "10.0"}}
+    since: "7.3.0"
+
+  - name: requestUserNotificationSettings
+    summary: |
+        Notification types and user notification categories the application is registered to use.
+    parameters:
+      - name: callback
+        summary: The callback invoked when requesting user notification settings.
+        type: Callback<GetUserNotificationSettings>
+    since: "7.3.0"
+
+---
+name: UserNotificationCallbackResponse
+summary: |
+    Response when receiving pending or local notifications
+    in <Titanium.App.iOS.UserNotificationCenter.getPendingNotifications> and
+    <Titanium.App.iOS.UserNotificationCenter.getDeliveredNotifications>.
+since: "7.3.0"
+properties:
+  - name: notifications
+    type: Array<UserNotificationDictionary>
+    summary: An array of identifiers used to create notifications.
+
+---
+name: UserNotificationDictionary
+summary: |
+    Dictionary of notification data used in the array of `notifications`
+    when receiving pending or local notifications in
+    <Titanium.App.iOS.UserNotificationCenter.getPendingNotifications> and
+    <Titanium.App.iOS.UserNotificationCenter.getDeliveredNotifications>.
+since: "7.3.0"
+properties:
+  - name: alertTitle
+    summary: Title of the notification.
+    type: String
+    osver: {ios: {min: "8.2"}}
+
+  - name: alertSubtitle
+    summary: Subtitle of the notification.
+    type: String
+    osver: {ios: {min: "10.0"}}
+
+  - name: alertAction
+    summary: |
+        Alert button text ('Open', by default) or home text ('Press Home to unlock', by default)
+        type: String
+    type: String
+
+  - name: alertBody
+    summary: Alert message.
+    type: String
+
+  - name: alertLaunchImage
+    summary: Image displayed instead of `Default.png` when launching the application.
+    type: String
+
+  - name: badge
+    summary: Application badge value.
+    type: Number
+
+  - name: date
+    summary: Date and time when the notification was configured to fire.
+    type: Date
+
+  - name: sound
+    summary: Path to the sound file configured to play when the notification was fired.
+    type: String
+
+  - name: timezone
+    summary: Timezone of the date when the notification was configured to fire.
+    type: String
+
+  - name: userInfo
+    summary: Custom data object.
+    type: Dictionary
+
+  - name: category
+    summary: Category identifier of the notification.
+    type: String
+    osver: {ios: {min: "8.0"}}
+
+  - name: identifier
+    summary: The notification identifier.
+    description: |
+        This property is required in iOS 10+ and will fallback to a generated 
+        UUID-string if not set. It is recommended to manage the identifier 
+        yourself, but you can also get the generated UUID by accessing via 
+        the "userInfo.id" field for parity with older iOS versions.
+    optional: false
+    since: "7.3.0"
+    type: String
+
+  - name: region
+    summary: Region of the notification.
+    description: |
+        The following keys are included:
+          - latitude: The latitude of the region.
+          - longitude: The longitude of the region.
+          - radius: The radius of the region.
+          - identifier: The identifier of the region.
+    type: Dictionary
+    osver: {ios: {min: "10.0"}}
+
+---
+name: GetUserNotificationSettings
+summary: |
+    Dictionary object of parameters used to register the application with local notifications using
+    the <Titanium.App.iOS.registerUserNotificationSettings> method.
+platforms: [iphone, ipad]
+
+properties:
+  - name: types
+    summary: Notification types to use.
+    description: |
+        Only available in iOS < 10. iOS 10 and later returns notification settings more detailed,
+        check the other attributes for more information.
+    type: Array<Number>
+    constants: Titanium.App.iOS.USER_NOTIFICATION_TYPE_*
+
+  - name: categories
+    summary: Set of categories of user notification actions required by the applicaiton to use.
+    type: Array<Titanium.App.iOS.UserNotificationCategory>
+    description: |
+        Only available in iOS < 10. iOS 10 and later returns notification settings more detailed,
+        check the other attributes for more information.
+
+  - name: authorizationStatus
+    summary: The current authorization status for using notifications.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_AUTHORIZATION_STATUS_*]
+    osver: {ios: {min: "10.0"}}
+
+  - name: soundSetting
+    summary: The current sound settings.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: {ios: {min: "10.0"}}
+
+  - name: badgeSetting
+    summary: The current badge settings.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: {ios: {min: "10.0"}}
+
+  - name: alertSetting
+    summary: The current alert settings.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: {ios: {min: "10.0"}}
+
+  - name: notificationCenterSetting
+    summary: The current notication-center settings.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: {ios: {min: "10.0"}}
+
+  - name: lockScreenSetting
+    summary: The current lock-screen settings.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: {ios: {min: "10.0"}}
+
+  - name: carPlaySetting
+    summary: The current CarPlay settings.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: {ios: {min: "10.0"}}
+
+  - name: criticalAlertSetting
+    summary: |
+        The authorization status to play sounds for critical alerts.
+        Available in Titanium SDK 7.4.0 and later.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: { ios: { min: "12.0" } }
+
+  - name: providesAppNotificationSettings
+    summary: |
+        A Boolean value indicating the system displays a button for in-app notification settings.
+        Available in Titanium SDK 7.4.0 and later.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
+    osver: { ios: { min: "12.0" } }
+
+  - name: alertStyle
+    summary: The current alert style used to display notifications.
+    type: Number
+    constants: [Titanium.App.iOS.USER_NOTIFICATION_ALERT_STYLE_*]
+    osver: {ios: {min: "10.0"}}

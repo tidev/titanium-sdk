@@ -5,14 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-extern const NSString * svgMimeType;
-
+extern const NSString *svgMimeType;
 
 @interface Mimetypes : NSObject {
-
 }
 + (NSString *)mimeTypeForExtension:(NSString *)ext;
 + (NSString *)extensionForMimeType:(NSString *)mimetype;
 
 @end
-

@@ -6,20 +6,19 @@
  */
 #ifdef USE_TI_UITAB
 
-#import "TiWindowProxy.h"
 #import "TiTabGroup.h"
+#import "TiWindowProxy.h"
 
-@interface TiUITabGroupProxy : TiWindowProxy<TiTabGroup>
-{
-@private
-	NSMutableArray *tabs;
+@interface TiUITabGroupProxy : TiWindowProxy <TiTabGroup> {
+  @private
+  NSMutableArray *tabs;
 }
 
--(UITabBar*)tabbar;
--(void)_resetTabArray:(NSArray*)newTabOrder; // Used in tab reordering 
+- (UITabBar *)tabbar;
+- (void)_resetTabArray:(NSArray *)newTabOrder; // Used in tab reordering
 
 #pragma mark - internal use only
--(BOOL)canFocusTabs;
+- (BOOL)canFocusTabs;
 @end
 
 #endif

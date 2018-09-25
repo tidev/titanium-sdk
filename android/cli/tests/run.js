@@ -2,20 +2,21 @@
  * Bootstraps mocha and handles code coverage testing setup.
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+'use strict';
 
 var fs = require('fs'),
 	path = require('path'),
 	colors = require('colors'),
-	should = require('should'),
+	should = require('should'), // eslint-disable-line no-unused-vars
 	Mocha = require('mocha/lib/mocha.js'),
 	Base = require('mocha/lib/reporters/base'),
-	mocha = new Mocha,
+	mocha = new Mocha(),
 	optimist = require('optimist'),
 	reporter = 'spec';
 
@@ -42,7 +43,7 @@ if (optimist.argv.hasOwnProperty('colors') && !optimist.argv.colors) {
 }
 
 if (!process.env.APPC_COV) {
-	console.log('Unit Test Tool'.cyan.bold + ' - Copyright (c) 2012-' + (new Date).getFullYear() + ', Appcelerator, Inc.  All Rights Reserved.');
+	console.log('Unit Test Tool'.cyan.bold + ' - Copyright (c) 2012-' + (new Date()).getFullYear() + ', Appcelerator, Inc.  All Rights Reserved.');
 }
 
 // display the help, if needed
@@ -54,7 +55,7 @@ if (optimist.argv.help || optimist.argv.h) {
 
 // load the config, if specified
 global.conf = {};
-var confFile = optimist.argv.conf || optimist.argv.c;
+let confFile = optimist.argv.conf || optimist.argv.c;
 if (confFile) {
 	if (!fs.existsSync(confFile = path.resolve(confFile))) {
 		console.error(('\nERROR: Config file "' + confFile + '" does not exist').red + '\n');
@@ -81,8 +82,8 @@ if (process.env.APPC_COV) {
 
 	reporter = function (runner) {
 		var jade = require('jade'),
-			JSONCov = require(__dirname + '/../node_modules/mocha/lib/reporters/json-cov'),
-			file = path.join(fs.existsSync(process.env.APPC_COV) ? process.env.APPC_COV : __dirname + '/templates', 'coverage.jade'),
+			JSONCov = require(path.join(__dirname, '../node_modules/mocha/lib/reporters/json-cov')), // eslint-disable-line security/detect-non-literal-require
+			file = path.join(fs.existsSync(process.env.APPC_COV) ? process.env.APPC_COV : path.join(__dirname, 'templates'), 'coverage.jade'),
 			fn = jade.compile(fs.readFileSync(file), { filename: file }),
 			packageJson = require('../package.json'),
 			self = this;
@@ -95,9 +96,15 @@ if (process.env.APPC_COV) {
 				version: packageJson.version,
 				cov: self.cov,
 				coverageClass: function (n) {
-					if (n >= 75) return 'high';
-					if (n >= 50) return 'medium';
-					if (n >= 25) return 'low';
+					if (n >= 75) {
+						return 'high';
+					}
+					if (n >= 50) {
+						return 'medium';
+					}
+					if (n >= 25) {
+						return 'low';
+					}
 					return 'terrible';
 				}
 			}));
@@ -110,11 +117,11 @@ Error.stackTraceLimit = Infinity;
 
 mocha.reporter(reporter);
 mocha.ui('bdd');
-mocha.globals(['conf', 'should']);
+mocha.globals([ 'conf', 'should' ]);
 mocha.checkLeaks();
 mocha.suite.slow('1s');
 
-var runTest = optimist.argv._.shift();
+const runTest = optimist.argv._.shift();
 if (runTest) {
 	// running a single test
 	mocha.files = [ path.join(__dirname, 'test-' + runTest + '.js') ];
@@ -128,10 +135,12 @@ if (runTest) {
 		var ff = [];
 		fs.readdirSync(dir).forEach(function (name) {
 			var file = path.join(dir, name);
-			if (!fs.existsSync(file)) return;
+			if (!fs.existsSync(file)) {
+				return;
+			}
 			if (fs.statSync(file).isDirectory()) {
 				ff = ff.concat(walk(file));
-			} else if ((runTest && name == runTest) || (!runTest && /^test\-.+\.js$/.test(name))) {
+			} else if ((runTest && name == runTest) || (!runTest && /^test-.+\.js$/.test(name))) { // eslint-disable-line eqeqeq
 				ff.push(file);
 			}
 		});

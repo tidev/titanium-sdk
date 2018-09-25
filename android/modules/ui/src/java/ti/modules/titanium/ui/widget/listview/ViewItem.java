@@ -13,36 +13,40 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
 
-public class ViewItem {
+public class ViewItem
+{
 	TiUIView view;
 	KrollDict properties;
 	KrollDict diffProperties;
-	
-	public ViewItem(TiUIView view, KrollDict props) {
-		properties = new KrollDict((HashMap<String, Object>)props.clone());
+
+	public ViewItem(TiUIView view, KrollDict props)
+	{
+		properties = new KrollDict((HashMap<String, Object>) props.clone());
 		this.view = view;
 		diffProperties = new KrollDict();
 	}
-	
-	public TiUIView getView() {
+
+	public TiUIView getView()
+	{
 		return view;
 	}
-	
+
 	/**
 	 * This method compares applied properties of a view and our data model to
 	 * generate a new set of properties we need to set. It is crucial for scrolling performance. 
 	 * @param properties The properties from our data model
 	 * @return The difference set of properties to set
 	 */
-	public KrollDict generateDiffProperties(KrollDict properties) {
+	public KrollDict generateDiffProperties(KrollDict properties)
+	{
 		diffProperties.clear();
 
 		for (String appliedProp : this.properties.keySet()) {
 			if (!properties.containsKey(appliedProp)) {
-				applyProperty(appliedProp, null);
+				applyProperty(appliedProp, this.properties.get(appliedProp));
 			}
 		}
-		
+
 		for (String property : properties.keySet()) {
 			Object value = properties.get(property);
 			if (TiListView.MUST_SET_PROPERTIES.contains(property)) {
@@ -58,25 +62,25 @@ public class ViewItem {
 		}
 
 		//backgroundImage and backgroundColor needs to be processed together
-		if (this.properties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR) && diffProperties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_IMAGE)
-				&& !diffProperties.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+		if (this.properties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)
+			&& diffProperties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_IMAGE)
+			&& !diffProperties.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			diffProperties.put(TiC.PROPERTY_BACKGROUND_COLOR, this.properties.get(TiC.PROPERTY_BACKGROUND_COLOR));
 		}
 
 		//if text is null, we can't filter out attributedString, otherwise we get an empty label. [TIMOB-20266]
 		if (this.properties.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING) && diffProperties.containsKey(TiC.PROPERTY_TEXT)
-				&& diffProperties.get(TiC.PROPERTY_TEXT) == null && !diffProperties.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			&& diffProperties.get(TiC.PROPERTY_TEXT) == null
+			&& !diffProperties.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
 			diffProperties.put(TiC.PROPERTY_ATTRIBUTED_STRING, this.properties.get(TiC.PROPERTY_ATTRIBUTED_STRING));
 		}
 
 		return diffProperties;
-		
 	}
-	
-	private void applyProperty(String key, Object value) {
+
+	private void applyProperty(String key, Object value)
+	{
 		diffProperties.put(key, value);
 		properties.put(key, value);
 	}
-	
-	
 }

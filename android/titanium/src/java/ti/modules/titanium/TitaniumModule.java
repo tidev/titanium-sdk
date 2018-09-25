@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -33,17 +33,19 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.SparseArray;
-
-@Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
+// clang-format off
+@Kroll.module
+@Kroll.topLevel({ "Ti", "Titanium" })
 public class TitaniumModule extends KrollModule
+// clang-format on
 {
 	private static final String TAG = "TitaniumModule";
 
 	private static final int MSG_ALERT = KrollProxy.MSG_LAST_ID + 100;
 
 	private Stack<String> basePath;
-	private Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(
-		new HashMap<String, NumberFormat>());
+	private Map<String, NumberFormat> numberFormats =
+		java.util.Collections.synchronizedMap(new HashMap<String, NumberFormat>());
 
 	private static final SparseArray<Timer> activeTimers = new SparseArray<TitaniumModule.Timer>();
 	private static int lastTimerId = 1;
@@ -60,46 +62,63 @@ public class TitaniumModule extends KrollModule
 		basePath.push(getCreationUrl().baseUrl);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getUserAgent()
+	// clang-format on
 	{
 		StringBuilder builder = new StringBuilder();
 		String httpAgent = System.getProperty("http.agent");
 		if (httpAgent != null) {
 			builder.append(httpAgent);
 		}
-		builder.append(" Titanium/")
-			.append(getVersion());
+		builder.append(" Titanium/").append(getVersion());
 		return builder.toString();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getVersion()
+	// clang-format on
 	{
 		return TiApplication.getInstance().getTiBuildVersion();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getBuildTimestamp()
+	// clang-format on
 	{
 		return TiApplication.getInstance().getTiBuildTimestamp();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getBuildDate()
+	// clang-format on
 	{
 		return TiApplication.getInstance().getTiBuildTimestamp();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getBuildHash()
+	// clang-format on
 	{
 		return TiApplication.getInstance().getTiBuildHash();
 	}
 
 	// For testing exception handling.  Can remove after ticket 2032
 	@Kroll.method
-	public void testThrow(){ throw new Error("Testing throwing throwables"); }
+	public void testThrow()
+	{
+		throw new Error("Testing throwing throwables");
+	}
 
 	private class Timer implements Runnable
 	{
@@ -134,11 +153,11 @@ public class TitaniumModule extends KrollModule
 
 			if (Log.isDebugModeEnabled()) {
 				StringBuilder message = new StringBuilder("calling ")
-					.append(interval ? "interval" : "timeout")
-					.append(" timer ")
-					.append(id)
-					.append(" @")
-					.append(new Date().getTime());
+											.append(interval ? "interval" : "timeout")
+											.append(" timer ")
+											.append(id)
+											.append(" @")
+											.append(new Date().getTime());
 
 				Log.d(TAG, message.toString());
 			}
@@ -197,44 +216,62 @@ public class TitaniumModule extends KrollModule
 		activeTimers.clear();
 	}
 
-	@Kroll.method @Kroll.topLevel
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel
 	public int setTimeout(KrollFunction krollFunction, long timeout, final Object[] args)
+	// clang-format on
 	{
 		return createTimer(krollFunction, timeout, args, false);
 	}
 
-	@Kroll.method @Kroll.topLevel
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel
 	public int setInterval(KrollFunction krollFunction, long timeout, final Object[] args)
+	// clang-format on
 	{
 		return createTimer(krollFunction, timeout, args, true);
 	}
 
-	@Kroll.method @Kroll.topLevel
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel
 	public void clearTimeout(int timerId)
+	// clang-format on
 	{
 		cancelTimer(timerId);
 	}
 
-	@Kroll.method @Kroll.topLevel
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel
 	public void clearInterval(int timerId)
+	// clang-format on
 	{
 		cancelTimer(timerId);
 	}
 
-	@Kroll.method @Kroll.topLevel
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel
 	public void alert(Object message)
+	// clang-format on
 	{
-		String msg = (message == null? null : message.toString());
+		String msg = (message == null ? null : message.toString());
 
 		if (TiApplication.isUIThread()) {
-			TiUIHelper.doOkDialog("Alert", msg, null);
+			TiUIHelper.doOkDialog("", msg, null);
 		} else {
 			getMainHandler().obtainMessage(MSG_ALERT, msg).sendToTarget();
 		}
 	}
 
-	@Kroll.method @Kroll.topLevel("String.format")
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel("String.format")
 	public String stringFormat(String format, Object args[])
+	// clang-format on
 	{
 		try {
 
@@ -254,8 +291,11 @@ public class TitaniumModule extends KrollModule
 		}
 	}
 
-	@Kroll.method @Kroll.topLevel("String.formatDate")
-	public String stringFormatDate(Date date, @Kroll.argument(optional=true) String format)
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel("String.formatDate")
+	public String stringFormatDate(Object date, @Kroll.argument(optional = true) String format)
+	// clang-format on
 	{
 		int style = DateFormat.SHORT;
 
@@ -269,26 +309,49 @@ public class TitaniumModule extends KrollModule
 				style = DateFormat.FULL;
 			}
 		}
-
-		return (DateFormat.getDateInstance(style)).format(date);
+		if (date instanceof Date) {
+			return (DateFormat.getDateInstance(style)).format(date);
+		} else {
+			Log.e(TAG, "The string.formatDate() function was given an invalid argument. Must be of type 'Date'.");
+			return null;
+		}
 	}
 
-	@Kroll.method @Kroll.topLevel("String.formatTime")
-	public String stringFormatTime(Date time)
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel("String.formatTime")
+	public String stringFormatTime(Object time)
+	// clang-format on
 	{
 		int style = DateFormat.SHORT;
 
-		return (DateFormat.getTimeInstance(style)).format(time);
+		if (time instanceof Date) {
+			try {
+				return (DateFormat.getTimeInstance(style)).format(time);
+			} catch (Exception ex) {
+				Log.e(TAG, "Error occurred while formatting time", ex);
+				return null;
+			}
+		} else {
+			Log.e(TAG, "The string.formatTime() function was given an invalid argument. Must be of type 'Date'.");
+			return null;
+		}
 	}
 
-	@Kroll.method @Kroll.topLevel("String.formatCurrency")
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel("String.formatCurrency")
 	public String stringFormatCurrency(double currency)
+	// clang-format on
 	{
 		return NumberFormat.getCurrencyInstance().format(currency);
 	}
 
-	@Kroll.method @Kroll.topLevel("String.formatDecimal")
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel("String.formatDecimal")
 	public String stringFormatDecimal(Object args[])
+	// clang-format on
 	{
 		String pattern = null;
 		String locale = null;
@@ -311,7 +374,7 @@ public class TitaniumModule extends KrollModule
 			pattern = TiConvert.toString(args[2]);
 		}
 
-		String key = (locale == null ? "" : locale ) + " keysep " + (pattern == null ? "": pattern);
+		String key = (locale == null ? "" : locale) + " keysep " + (pattern == null ? "" : pattern);
 
 		NumberFormat format;
 		if (numberFormats.containsKey(key)) {
@@ -326,13 +389,13 @@ public class TitaniumModule extends KrollModule
 			}
 
 			if (pattern != null && format instanceof DecimalFormat) {
-				((DecimalFormat)format).applyPattern(pattern);
+				((DecimalFormat) format).applyPattern(pattern);
 			}
 
 			numberFormats.put(key, format);
 		}
 
-		return format.format((Number)args[0]);
+		return format.format((Number) args[0]);
 	}
 
 	@Kroll.method
@@ -352,7 +415,8 @@ public class TitaniumModule extends KrollModule
 
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			if (Log.isDebugModeEnabled()) {
-				Log.d(TAG, "Resource string with key '" + key + "' not found.  Returning default value.", Log.DEBUG_MODE);
+				Log.d(TAG, "Resource string with key '" + key + "' not found.  Returning default value.",
+					  Log.DEBUG_MODE);
 			}
 
 			return defaultValue;
@@ -405,5 +469,4 @@ public class TitaniumModule extends KrollModule
 	{
 		return "Ti";
 	}
-
 }

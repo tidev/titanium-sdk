@@ -4,14 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <Foundation/Foundation.h>
 #import "TiToJS.h"
+#import <Foundation/Foundation.h>
 
 @class TiProxy;
 
-TiObjectRef TiBindingTiValueFromNSDictionary(TiContextRef jsContext,NSDictionary *obj);
-TiValueRef TiBindingTiValueFromProxy(TiContextRef jsContext, TiProxy * obj);
-TiValueRef TiBindingTiValueFromNSObject(TiContextRef jsContext, NSObject * obj);
+TiObjectRef TiBindingTiValueFromNSDictionary(TiContextRef jsContext, NSDictionary *obj);
+TiValueRef TiBindingTiValueFromProxy(TiContextRef jsContext, TiProxy *obj);
+TiValueRef TiBindingTiValueFromNSObject(TiContextRef jsContext, NSObject *obj);
 
-NSObject * TiBindingTiValueToNSObject(TiContextRef jsContext, TiValueRef objRef);
-NSDictionary * TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef objRef);
+NSObject *TiBindingTiValueToNSObject(TiContextRef jsContext, TiValueRef objRef);
+NSDictionary *TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef objRef);

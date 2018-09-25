@@ -16,27 +16,26 @@
 
 @required
 
-
 /**
  Returns the tag group associated with the tab.
  @return A tab group.
  */
--(TiProxy<TiTabGroup>*)tabGroup;
+- (TiProxy<TiTabGroup> *)tabGroup;
 
 /**
  Returns the navigation controller associated with the tab.
  @return A navigation controller.
  */
--(UINavigationController*)controller;
+- (UINavigationController *)controller;
 
--(void)openWindow:(NSArray*)args;
--(void)closeWindow:(NSArray*)args;
+- (void)openWindow:(NSArray *)args;
+- (void)closeWindow:(NSArray *)args;
 
 /**
  Tells the tab that its associated window is closing.
  @param window The window being closed.
  @param animated _YES_ if window close is anumated, _NO_ otherwise.
  */
--(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated;
+- (void)windowClosing:(TiWindowProxy *)window animated:(BOOL)animated;
 
 @end

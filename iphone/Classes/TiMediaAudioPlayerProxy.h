@@ -6,44 +6,81 @@
  */
 #ifdef USE_TI_MEDIAAUDIOPLAYER
 
-
-#import "AudioStreamer/AudioStreamer.h"
+#import "TiMediaTypes.h"
 #import "TiProxy.h"
 
-@interface TiMediaAudioPlayerProxy : TiProxy<AudioStreamerDelegate> {
-@private
-	NSURL *url;
-    UInt32 bufferSize;
-	double volume;
-    double duration;
-	AudioStreamer *player;
-	BOOL progress;
-	NSTimer *timer;
+@class AVPlayer;
+
+@interface TiMediaAudioPlayerProxy : TiProxy {
+  @private
+  AVPlayer *_player;
+  NSURL *_url;
+  double _duration;
+  id _timeObserver;
+  TiAudioPlayerState _state;
 }
 
-@property (nonatomic,readonly) NSURL *url;
-@property (nonatomic,readwrite,assign)  NSNumber *paused;
-@property (nonatomic,readonly) NSNumber *playing;
-@property (nonatomic,readonly) NSNumber *waiting;
-@property (nonatomic,readonly) NSNumber *idle;
-@property (nonatomic,readonly) NSNumber *bitRate;
-@property (nonatomic,readonly) NSNumber *progress;
-@property (nonatomic,readonly) NSNumber *state;
-@property (nonatomic,readonly) NSNumber *duration;
+- (void)setPaused:(NSNumber *)paused __deprecated_msg("Deprecated in favor of pause()");
 
-@property (nonatomic,copy)	NSNumber *volume;
+- (void)play:(id)unused __deprecated_msg("Deprecated in favor of start()");
 
-@property (nonatomic,readwrite,assign) NSNumber* bufferSize;
+- (NSNumber *)waiting;
 
-@property (nonatomic,readonly) NSNumber *STATE_INITIALIZED;
-@property (nonatomic,readonly) NSNumber *STATE_STARTING;
-@property (nonatomic,readonly) NSNumber *STATE_WAITING_FOR_DATA;
-@property (nonatomic,readonly) NSNumber *STATE_WAITING_FOR_QUEUE;
-@property (nonatomic,readonly) NSNumber *STATE_PLAYING;
-@property (nonatomic,readonly) NSNumber *STATE_BUFFERING;
-@property (nonatomic,readonly) NSNumber *STATE_STOPPING;
-@property (nonatomic,readonly) NSNumber *STATE_STOPPED;
-@property (nonatomic,readonly) NSNumber *STATE_PAUSED;
+- (NSNumber *)idle;
+
+- (NSNumber *)playing;
+
+- (NSNumber *)paused;
+
+- (NSNumber *)buffering;
+
+- (NSNumber *)bitRate;
+
+- (NSNumber *)progress;
+
+- (NSNumber *)state;
+
+- (NSNumber *)duration;
+
+- (NSNumber *)volume;
+
+- (void)setVolume:(NSNumber *)volume;
+
+- (void)setBufferSize:(NSNumber *)bufferSize;
+
+- (void)setAllowsExternalPlayback:(NSNumber *)allowsExternalPlayback;
+
+- (NSNumber *)allowsExternalPlayback;
+
+- (void)setRate:(NSNumber *)rate;
+
+- (NSNumber *)rate;
+
+- (void)setMuted:(NSNumber *)muted;
+
+- (NSNumber *)muted;
+
+- (void)externalPlaybackActive;
+
+- (NSNumber *)bufferSize;
+
+- (void)setUrl:(id)url;
+
+- (NSString *)url;
+
+- (void)seekToTime:(id)time;
+
+- (void)start:(id)unused;
+
+- (void)restart:(id)args;
+
+- (void)stop:(id)unused;
+
+- (void)pause:(id)unused;
+
+- (void)release:(id)unused;
+
+- (NSString *)stateDescription:(id)state;
 
 @end
 

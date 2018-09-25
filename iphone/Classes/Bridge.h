@@ -9,26 +9,26 @@
 @class TiHost;
 
 @interface Bridge : NSObject {
-@private
-	id callback;
-	NSString *basename;
-@protected
-	NSURL *url;
-	TiHost *host;
+  @private
+  id callback;
+  NSString *basename;
+  @protected
+  NSURL *url;
+  TiHost *host;
 }
 
--(id)initWithHost:(TiHost*)host;
+- (id)initWithHost:(TiHost *)host;
 
--(void)boot:(id)callback url:(NSURL*)url preload:(NSDictionary*)preload;
+- (void)boot:(id)callback url:(NSURL *)url preload:(NSDictionary *)preload;
 
--(void)booted;
+- (void)booted;
 
--(void)shutdown:(NSCondition*)condition;
+- (void)shutdown:(NSCondition *)condition;
 
--(void)gc;
+- (void)gc;
 
--(TiHost*)host;
+- (TiHost *)host;
 
-- (NSString*)basename;
+- (NSString *)basename;
 
 @end

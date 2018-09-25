@@ -2,39 +2,39 @@
 name: Titanium.UI.Clipboard
 summary: A module used for accessing clipboard data.
 description: |
-    The Clipboard is a temporary data store, used to save a single item of data that may then 
+    The Clipboard is a temporary data store, used to save a single item of data that may then
     be accessed by the user using UI copy and paste interactions within an app or between apps.
-    
-    On iOS and Mobile Web, the module's `*Data()` methods enable multiple representations of the 
-    same data item to be stored together with their respective 
-    [MIME type](http://en.wikipedia.org/wiki/Internet_media_type) to describe their format. For 
+
+    On iOS, the module's `*Data()` methods enable multiple representations of the
+    same data item to be stored together with their respective
+    [MIME type](http://en.wikipedia.org/wiki/Internet_media_type) to describe their format. For
     example, `'text'` and `'text/plain'` for text, and `'image/jpg'` and `'image/png'` for an image.
-    
-    When working with text, either the `*Data()` methods may be used with a `'text/plain'` type, or 
+
+    When working with text, either the `*Data()` methods may be used with a `'text/plain'` type, or
     the `*Text()` methods without the need to specify the type.
-    
-    Android currently only supports text type of data to be stored. 
-    
+
+    Android currently only supports text type of data to be stored.
+
     #### Clipboard Data Types
-    
-    The `*Text()` methods are equivalent to calling `*Data()` with a `'text'` or `'text/plain'` 
-    type. These work with plain Unicode strings. 
-    
-    An image is stored using the `'image'` type, or an explicit image MIME type, and is returned as 
-    a <Titanium.Blob> (binary) type. 
-    
-    A URL is stored with the `'url'` or `'text/uri-list'` type, and is returned as a string. 
-    
-    Any data type that is specified but not correctly mapped to a clipboard type by the system is 
-    retrieved as a <Titanium.Blob> type. 
+
+    The `*Text()` methods are equivalent to calling `*Data()` with a `'text'` or `'text/plain'`
+    type. These work with plain Unicode strings.
+
+    An image is stored using the `'image'` type, or an explicit image MIME type, and is returned as
+    a <Titanium.Blob> (binary) type.
+
+    A URL is stored with the `'url'` or `'text/uri-list'` type, and is returned as a string.
+
+    Any data type that is specified but not correctly mapped to a clipboard type by the system is
+    retrieved as a <Titanium.Blob> type.
 extends: Titanium.Module
 since: "1.5"
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 
 methods:
   - name: clearData
     summary: |
-        Deletes data of the specified MIME type stored in the clipboard. If MIME type omitted, all 
+        Deletes data of the specified MIME type stored in the clipboard. If MIME type omitted, all
         data is deleted.
     description: On Android, identical to `clearText` method.
     parameters:
@@ -42,13 +42,13 @@ methods:
         summary: MIME type. Ignored on Android.
         type: String
         optional: true
-        
+
   - name: clearText
     summary: Deletes all text data stored in the clipboard.
     description: |
-        This method deletes any data saved using the `setText` method, or that has a `text` or 
+        This method deletes any data saved using the `setText` method, or that has a `text` or
         `text/plain` MIME type.
-    
+
   - name: getData
     summary: Gets data of the specified MIME type stored in the clipboard.
     returns:
@@ -58,12 +58,12 @@ methods:
       - name: type
         summary: MIME type. Must be text type on Android.
         type: String
-        
+
   - name: getText
     summary: Gets text data stored in the clipboard.
     returns:
         type: String
-    
+
   - name: hasData
     summary: Indicates whether any data of the specified MIME type is stored in the clipboard.
     returns:
@@ -72,13 +72,13 @@ methods:
       - name: type
         summary: MIME type. Must be text type on Android.
         type: String
-        
+
   - name: hasText
     summary: Indicates whether any text data is stored in the clipboard.
     returns:
         type: Boolean
 
-      
+
   - name: hasURLs
     summary: Indicates whether any URLs are stored in the clipboard.
     since: "6.0.0"
@@ -86,7 +86,7 @@ methods:
     platforms: [iphone, ipad]
     returns:
         type: Boolean
-     
+
   - name: hasImages
     summary: Indicates whether any images are stored in the clipboard.
     since: "6.0.0"
@@ -94,7 +94,7 @@ methods:
     platforms: [iphone, ipad]
     returns:
         type: Boolean
-      
+
   - name: hasColors
     summary: Indicates whether any colors are stored in the clipboard.
     since: "6.0.0"
@@ -102,23 +102,23 @@ methods:
     platforms: [iphone, ipad]
     returns:
         type: Boolean
-    
+
   - name: setData
     summary: Stores data of the specified MIME type in the clipboard.
     description: |
-        This method will overwrite any existing data for the specified MIME type. 
-        
-        Note that the clipboard is intended to store only one item of data at a time. This method 
+        This method will overwrite any existing data for the specified MIME type.
+
+        Note that the clipboard is intended to store only one item of data at a time. This method
         enables different representations/formats of a data item to be saved.
     parameters:
       - name: type
         summary: MIME type. Must be text type on Android.
         type: String
-        
+
       - name: data
         summary: New item of data.
         type: Object
-        
+
   - name: setText
     summary: Stores text data in the clipboard.
     description: This method will overwrite any existing text data.
@@ -131,9 +131,9 @@ methods:
     summary: Adds an array of items to a clipboard, and sets privacy options for all included items.
     description: |
         You can pass multiple options to the options object. Note that this API is mime-type based.
-        The key must be a valid mime-type and the value must be the value that matches the given 
-        mime-type. If no valid mime-type is provided a a key, receiving items with 
-        <Titanium.UI.Clipboard.getItems> will crash the app. See the below example for more information 
+        The key must be a valid mime-type and the value must be the value that matches the given
+        mime-type. If no valid mime-type is provided a a key, receiving items with
+        <Titanium.UI.Clipboard.getItems> will crash the app. See the below example for more information
         on the usage.
     parameters:
       - name: items
@@ -170,7 +170,7 @@ properties:
   - name: unique
     summary: Create a new clipboard identified by a unique system-generated name.
     description: |
-        Create a new clipboard identified by a unique system-generated name. 
+        Create a new clipboard identified by a unique system-generated name.
         See the example on how to use this.
     since: "6.1.0"
     platforms: [iphone, ipad]
@@ -180,9 +180,9 @@ properties:
   - name: allowCreation
     summary: Create a clipboard identified by name if it doesn't exist.
     description: |
-        If "create" is false, it will return the existing named clipboard but will 
+        If "create" is false, it will return the existing named clipboard but will
         not create new one.
-        If "create" is true, it will return the existing clipboard (if exists). Otherwise 
+        If "create" is true, it will return the existing clipboard (if exists). Otherwise
         it will create new clipboard with given name.
     since: "6.1.0"
     platforms: [iphone, ipad]
@@ -192,11 +192,11 @@ properties:
 examples:
   - title: Copy Text to the Clipboard
     example: |
-        Clear the clipboard and output the resulting empty clipboard to console. 
-        
-        Then, store the string, "hello", to the clipboard and output it from the clipboard to the 
-        console. 
-        
+        Clear the clipboard and output the resulting empty clipboard to console.
+
+        Then, store the string, "hello", to the clipboard and output it from the clipboard to the
+        console.
+
             Ti.API.info('Deleting all text in Clipboard');
             Ti.UI.Clipboard.clearText();
             Ti.API.info('Clipboard.getText(): ' + Ti.UI.Clipboard.getText()); // returns empty string on Android and undefined on iOS
@@ -207,13 +207,13 @@ examples:
 
   - title: Set multiple items including privacy options (iOS 10 and later)
     example: |
-        The items are represented as an array that holds different objects of key-value items. Optionally, 
+        The items are represented as an array that holds different objects of key-value items. Optionally,
         you can set privacy options described in `Ti.UI.CLIPBOARD_OPTION_*`. Note that you can not have the
-        same two keys in one object and the key must match a valid mime-type. If no valid mime-type is specified 
-        
+        same two keys in one object and the key must match a valid mime-type. If no valid mime-type is specified
+
             var win = Ti.UI.createWindow({
                 backgroundColor : "#fff"
-            }); 
+            });
 
             var btn1 = Ti.UI.createButton({
                 title : "Set clipboard items",
@@ -224,11 +224,11 @@ examples:
                 title : "Get clipboard items",
                 top: 80
             });
-             
+
             btn1.addEventListener("click", function() {
             	var localOnly = Ti.UI.CLIPBOARD_OPTION_LOCAL_ONLY;
             	var expirationDate = Ti.UI.CLIPBOARD_OPTION_EXPIRATION_DATE;
-            	
+
                 Ti.UI.Clipboard.setItems({
             	    items: [{
             	        "text/plain": "John",
@@ -245,7 +245,7 @@ examples:
             btn2.addEventListener("click", function() {
                 alert(Ti.UI.Clipboard.getItems());
             });
-             
+
             win.add(btn1);
             win.add(btn2);
             win.open();
@@ -279,17 +279,17 @@ examples:
 
 ---
 name: ClipboardItemsType
-summary: Dictionary describing the items for <Titanium.UI.Clipboard.setItems>. 
+summary: Dictionary describing the items for <Titanium.UI.Clipboard.setItems>.
 properties:
   - name: items
-    summary: | 
+    summary: |
         An array of key-value items to add to the clipboard. The key must a valid mime-type
         matching the mime-type of the value.
     type: Array<Dictionary>
 
   - name: options
-    summary: | 
-        The privacy options to apply to all the items on the clipboard. The available options are 
+    summary: |
+        The privacy options to apply to all the items on the clipboard. The available options are
         described in `Ti.UI.CLIPBOARD_OPTION_*`. Depending on the key, the value can be a Date or
         Boolean.
     type: Dictionary

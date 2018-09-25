@@ -1,6 +1,5 @@
 package org.appcelerator.titanium.view;
 
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -21,7 +20,6 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	private Fragment fragment;
 	protected boolean fragmentOnly = false;
 
-
 	public TiUIFragment(TiViewProxy proxy, Activity activity)
 	{
 		super(proxy);
@@ -34,8 +32,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 		if (fragmentOnly) {
 			fragment = createFragment();
 		} else {
-			TiCompositeLayout container = new TiCompositeLayout(activity, proxy)
-			{
+			TiCompositeLayout container = new TiCompositeLayout(activity, proxy) {
 				@Override
 				public boolean dispatchTouchEvent(MotionEvent ev)
 				{
@@ -51,16 +48,15 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 			transaction.add(container.getId(), fragment);
 			transaction.commitAllowingStateLoss();
 		}
-
 	}
-
 
 	public Fragment getFragment()
 	{
 		return fragment;
 	}
 
-	public boolean handleMessage (Message msg) {
+	public boolean handleMessage(Message msg)
+	{
 		//overwriting so descendents don't have to
 		return true;
 	}
@@ -79,7 +75,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 				FragmentTransaction transaction = null;
 				Fragment tabFragment = fragmentManager.findFragmentById(android.R.id.tabcontent);
 				if (tabFragment != null) {
-					FragmentManager childManager = tabFragment.getChildFragmentManager();
+					FragmentManager childManager = fragment.getActivity().getSupportFragmentManager();
 					transaction = childManager.beginTransaction();
 				} else {
 					transaction = fragmentManager.beginTransaction();

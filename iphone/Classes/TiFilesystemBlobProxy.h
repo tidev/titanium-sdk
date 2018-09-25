@@ -5,18 +5,17 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-
 #ifdef USE_TI_FILESYSTEM
 
 #import "TiFile.h"
 
 @interface TiFilesystemBlobProxy : TiFile {
-@private
-	NSURL *url;
-	NSData *data;
+  @private
+  NSURL *url;
+  NSData *data;
 }
 
--(id)initWithURL:(NSURL*)url data:(NSData*)data;
+- (id)initWithURL:(NSURL *)url data:(NSData *)data;
 
 @end
 

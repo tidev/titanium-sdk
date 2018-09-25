@@ -18,11 +18,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.app.PendingIntent;
 import android.content.Context;
 
-@Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
-	TiC.PROPERTY_FLAGS,
-	TiC.PROPERTY_INTENT,
-	TiC.PROPERTY_UPDATE_CURRENT_INTENT
-})
+@Kroll.proxy(creatableInModule = AndroidModule.class,
+			 propertyAccessors = { TiC.PROPERTY_FLAGS, TiC.PROPERTY_INTENT, TiC.PROPERTY_UPDATE_CURRENT_INTENT })
 public class PendingIntentProxy extends KrollProxy
 {
 
@@ -61,19 +58,16 @@ public class PendingIntentProxy extends KrollProxy
 			throw new IllegalStateException("Creation arguments must contain intent");
 		}
 		switch (intent.getInternalType()) {
-			case IntentProxy.TYPE_ACTIVITY : {
-				pendingIntent = PendingIntent.getActivity(
-					pendingIntentContext, 0, intent.getIntent(), flags);
+			case IntentProxy.TYPE_ACTIVITY: {
+				pendingIntent = PendingIntent.getActivity(pendingIntentContext, 0, intent.getIntent(), flags);
 				break;
 			}
-			case IntentProxy.TYPE_BROADCAST : {
-				pendingIntent = PendingIntent.getBroadcast(
-					pendingIntentContext, 0, intent.getIntent(), flags);
+			case IntentProxy.TYPE_BROADCAST: {
+				pendingIntent = PendingIntent.getBroadcast(pendingIntentContext, 0, intent.getIntent(), flags);
 				break;
 			}
-			case IntentProxy.TYPE_SERVICE : {
-				pendingIntent = PendingIntent.getService(
-					pendingIntentContext, 0, intent.getIntent(), flags);
+			case IntentProxy.TYPE_SERVICE: {
+				pendingIntent = PendingIntent.getService(pendingIntentContext, 0, intent.getIntent(), flags);
 				break;
 			}
 		}
@@ -93,7 +87,7 @@ public class PendingIntentProxy extends KrollProxy
 
 		//add FLAG_UPDATE_CURRENT if updateCurrentIntent is true
 		if (updateCurrentIntent) {
-			flags =  flags | PendingIntent.FLAG_UPDATE_CURRENT;
+			flags = flags | PendingIntent.FLAG_UPDATE_CURRENT;
 		}
 
 		super.handleCreationDict(dict);

@@ -6,15 +6,8 @@
  *
  * Original code Copyright 2009 Ryan Dahl <ry@tinyclouds.org>
  */
-#include <jni.h>
-#include <v8.h>
-
-#include "AndroidUtil.h"
 #include "EventEmitter.h"
-#include "TypeConverter.h"
 #include "V8Util.h"
-#include "JNIUtil.h"
-#include "V8Runtime.h"
 
 #define TAG "EventEmitter"
 

@@ -10,108 +10,105 @@
 
 @implementation Ti3DMatrix
 
--(id)init
+- (id)init
 {
-	if (self = [super init])
-	{
-		matrix = CATransform3DIdentity;
-	}
-	return self;
+  if (self = [super init]) {
+    matrix = CATransform3DIdentity;
+  }
+  return self;
 }
 
--(id)initWithMatrix:(CATransform3D)matrix_
+- (id)initWithMatrix:(CATransform3D)matrix_
 {
-	if (self = [self init])
-	{
-		matrix = matrix_;
-	}
-	return self;
+  if (self = [self init]) {
+    matrix = matrix_;
+  }
+  return self;
 }
 
--(id)initWithProperties:(NSDictionary*)dict_
+- (id)initWithProperties:(NSDictionary *)dict_
 {
-	if (self = [self init])
-	{
-		if ([dict_ objectForKey:@"scale"]!=nil)
-		{
-			CGFloat xyz = [[dict_ objectForKey:@"scale"] floatValue];
-			matrix = CATransform3DScale(matrix,xyz,xyz,xyz);
-		}
-	}
-	return self;
+  if (self = [self init]) {
+    if ([dict_ objectForKey:@"scale"] != nil) {
+      CGFloat xyz = [[dict_ objectForKey:@"scale"] floatValue];
+      matrix = CATransform3DScale(matrix, xyz, xyz, xyz);
+    }
+  }
+  return self;
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.3DMatrix";
+  return @"Ti.UI.3DMatrix";
 }
 
--(CATransform3D)matrix
+- (CATransform3D)matrix
 {
-	return matrix;
+  return matrix;
 }
 
--(Ti3DMatrix*)translate:(id)args
+- (Ti3DMatrix *)translate:(id)args
 {
-	ENSURE_ARG_COUNT(args,3);
-	CGFloat tx = [[args objectAtIndex:0] floatValue];
-	CGFloat ty = [[args objectAtIndex:1] floatValue];
-	CGFloat tz = [[args objectAtIndex:2] floatValue];
-	CATransform3D newtransform = CATransform3DTranslate(matrix,tx,ty,tz);
-	return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
+  ENSURE_ARG_COUNT(args, 3);
+  CGFloat tx = [[args objectAtIndex:0] floatValue];
+  CGFloat ty = [[args objectAtIndex:1] floatValue];
+  CGFloat tz = [[args objectAtIndex:2] floatValue];
+  CATransform3D newtransform = CATransform3DTranslate(matrix, tx, ty, tz);
+  return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
--(Ti3DMatrix*)scale:(id)args
+- (Ti3DMatrix *)scale:(id)args
 {
-	CGFloat sx = [[args objectAtIndex:0] floatValue];
-	CGFloat sy = [args count] > 1 ? [[args objectAtIndex:1] floatValue] : sx;
-	CGFloat sz = [args count] > 2 ? [[args objectAtIndex:2] floatValue] : sy;
-	// if they pass in 0, they mean really small which requires at least a value!=0
-	if (sx==0) sx = 0.0001;
-	if (sy==0) sy = 0.0001;
-	if (sz==0) sz = 0.0001;
-	CATransform3D newtransform = CATransform3DScale(matrix,sx,sy,sz);
-	return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
+  CGFloat sx = [[args objectAtIndex:0] floatValue];
+  CGFloat sy = [args count] > 1 ? [[args objectAtIndex:1] floatValue] : sx;
+  CGFloat sz = [args count] > 2 ? [[args objectAtIndex:2] floatValue] : sy;
+  // if they pass in 0, they mean really small which requires at least a value!=0
+  if (sx == 0)
+    sx = 0.0001;
+  if (sy == 0)
+    sy = 0.0001;
+  if (sz == 0)
+    sz = 0.0001;
+  CATransform3D newtransform = CATransform3DScale(matrix, sx, sy, sz);
+  return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
--(Ti3DMatrix*)rotate:(id)args
+- (Ti3DMatrix *)rotate:(id)args
 {
-	ENSURE_ARG_COUNT(args,4);
-	
-	CGFloat angle = [[args objectAtIndex:0] floatValue];
-	CGFloat x = [[args objectAtIndex:1] floatValue];
-	CGFloat y = [[args objectAtIndex:2] floatValue];
-	CGFloat z = [[args objectAtIndex:3] floatValue];
-	CATransform3D newtransform = CATransform3DRotate(matrix,degreesToRadians(angle),x,y,z);
-	return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
+  ENSURE_ARG_COUNT(args, 4);
+
+  CGFloat angle = [[args objectAtIndex:0] floatValue];
+  CGFloat x = [[args objectAtIndex:1] floatValue];
+  CGFloat y = [[args objectAtIndex:2] floatValue];
+  CGFloat z = [[args objectAtIndex:3] floatValue];
+  CATransform3D newtransform = CATransform3DRotate(matrix, degreesToRadians(angle), x, y, z);
+  return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
--(Ti3DMatrix*)invert:(id)args
+- (Ti3DMatrix *)invert:(id)args
 {
-	return [[[Ti3DMatrix alloc] initWithMatrix:CATransform3DInvert(matrix)] autorelease];
+  return [[[Ti3DMatrix alloc] initWithMatrix:CATransform3DInvert(matrix)] autorelease];
 }
 
--(Ti3DMatrix*)multiply:(id)args
+- (Ti3DMatrix *)multiply:(id)args
 {
-	ENSURE_ARG_COUNT(args,1);
-	Ti3DMatrix *othermatrix = [args objectAtIndex:0];
-	ENSURE_TYPE(othermatrix,Ti3DMatrix);
-	CATransform3D newtransform = CATransform3DConcat(matrix,[othermatrix matrix]);
-	return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
+  ENSURE_ARG_COUNT(args, 1);
+  Ti3DMatrix *othermatrix = [args objectAtIndex:0];
+  ENSURE_TYPE(othermatrix, Ti3DMatrix);
+  CATransform3D newtransform = CATransform3DConcat(matrix, [othermatrix matrix]);
+  return [[[Ti3DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }
 
-#define MAKE_PROP(x) \
--(void)setM##x:(NSNumber*)m##x \
-{\
-	matrix.m##x = [m##x floatValue];\
-}\
-\
--(NSNumber*)m##x\
-{\
-	return [NSNumber numberWithFloat:matrix.m##x];\
-}\
-\
-
+#define MAKE_PROP(x)                               \
+  -(void)setM##x : (NSNumber *)m##x                \
+  {                                                \
+    matrix.m##x = [m##x floatValue];               \
+  }                                                \
+                                                   \
+  -(NSNumber *)m##x                                \
+  {                                                \
+    return [NSNumber numberWithFloat:matrix.m##x]; \
+  }
 
 MAKE_PROP(11)
 MAKE_PROP(12)
@@ -130,9 +127,9 @@ MAKE_PROP(42)
 MAKE_PROP(43)
 MAKE_PROP(44)
 
--(id)description
+- (id)description
 {
-	return @"[object Ti3DMatrix]";
+  return @"[object Ti3DMatrix]";
 }
 
 @end

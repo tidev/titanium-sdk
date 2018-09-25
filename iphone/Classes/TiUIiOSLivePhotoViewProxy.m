@@ -13,51 +13,51 @@
 
 #pragma mark Proxy lifecycle
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.LivePhotoView";
+  return @"Ti.UI.iOS.LivePhotoView";
 }
 
--(void)dealloc
+- (void)dealloc
 {
-    [super dealloc];
+  [super dealloc];
 }
 
 #pragma mark Public APIs
 
 - (TiUIiOSLivePhotoView *)livePhotoView
 {
-    return (TiUIiOSLivePhotoView *)self.view;
+  return (TiUIiOSLivePhotoView *)self.view;
 }
 
--(void)startPlaybackWithStyle:(id)args
+- (void)startPlaybackWithStyle:(id)args
 {
-    ENSURE_UI_THREAD(startPlaybackWithStyle, args);
-    ENSURE_TYPE_OR_NIL(args, NSArray);
-    id value = [args objectAtIndex:0];
-    ENSURE_TYPE_OR_NIL(value, NSNumber);
+  ENSURE_UI_THREAD(startPlaybackWithStyle, args);
+  ENSURE_TYPE_OR_NIL(args, NSArray);
+  id value = [args objectAtIndex:0];
+  ENSURE_TYPE_OR_NIL(value, NSNumber);
 
-    [[[self livePhotoView] livePhotoView] startPlaybackWithStyle:[TiUtils intValue:value def:PHLivePhotoViewPlaybackStyleFull]];
+  [[[self livePhotoView] livePhotoView] startPlaybackWithStyle:[TiUtils intValue:value def:PHLivePhotoViewPlaybackStyleFull]];
 }
 
--(void)stopPlayback:(id)unused
+- (void)stopPlayback:(id)unused
 {
-    ENSURE_UI_THREAD(stopPlayback, unused);
-    [[[self livePhotoView] livePhotoView] stopPlayback];
+  ENSURE_UI_THREAD(stopPlayback, unused);
+  [[[self livePhotoView] livePhotoView] stopPlayback];
 }
 
--(void)setMuted:(NSNumber*)value
+- (void)setMuted:(NSNumber *)value
 {
-    ENSURE_UI_THREAD(setMuted, value);
-    ENSURE_TYPE(value, NSNumber);
-    [self replaceValue:value forKey:@"muted" notification:YES];
+  ENSURE_UI_THREAD(setMuted, value);
+  ENSURE_TYPE(value, NSNumber);
+  [self replaceValue:value forKey:@"muted" notification:YES];
 
-    [[[self livePhotoView] livePhotoView] setMuted:[TiUtils boolValue:value]];
+  [[[self livePhotoView] livePhotoView] setMuted:[TiUtils boolValue:value]];
 }
 
--(NSNumber*)muted
+- (NSNumber *)muted
 {
-    return NUMBOOL([[[self livePhotoView] livePhotoView] isMuted]);
+  return NUMBOOL([[[self livePhotoView] livePhotoView] isMuted]);
 }
 
 #pragma mark Helper
@@ -66,14 +66,14 @@ USE_VIEW_FOR_CONTENT_WIDTH
 
 USE_VIEW_FOR_CONTENT_HEIGHT
 
--(TiDimension)defaultAutoWidthBehavior:(id)unused
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 
 @end

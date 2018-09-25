@@ -72,6 +72,9 @@ methods:
         summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
         type: Number
     platforms: [android, iphone, ipad]
+    deprecated:
+      since: "7.0.0"
+      notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
         
   - name: getEventsInYear
     summary: Gets all events that occur during a specified year.
@@ -82,6 +85,9 @@ methods:
         summary: Year of the events.
         type: Number
     platforms: [android, iphone, ipad]
+    deprecated:
+      since: "7.0.0"
+      notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
         
 properties:
   - name: hidden
@@ -92,7 +98,7 @@ properties:
     platforms: [android, iphone, ipad]
     
   - name: id
-    summary: Identifier of this calendar. Available only in iOS 5.0 and above.
+    summary: Identifier of this calendar.
     type: String
     permission: read-only
     osver: {ios: {min: "5.0"}}

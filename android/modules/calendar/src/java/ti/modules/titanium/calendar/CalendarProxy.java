@@ -27,8 +27,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.text.format.DateUtils;
 
-@Kroll.proxy(parentModule=CalendarModule.class)
-public class CalendarProxy extends KrollProxy {
+@Kroll.proxy(parentModule = CalendarModule.class)
+public class CalendarProxy extends KrollProxy
+{
 
 	protected String id, name;
 	private static final String TAG = "Calendar";
@@ -65,20 +66,19 @@ public class CalendarProxy extends KrollProxy {
 		Cursor cursor = null;
 		if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0
 			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
-				new String[] { "_id", "calendar_displayName", "visible"}, query, queryArgs, null);
-		}
-		else if (Build.VERSION.SDK_INT >= 11) { // HONEYCOMB, 3.0
+										   new String[] { "_id", "calendar_displayName", "visible" }, query, queryArgs,
+										   null);
+		} else if (Build.VERSION.SDK_INT >= 11) { // HONEYCOMB, 3.0
 			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
-				new String[] { "_id", "displayName", "selected"}, query, queryArgs, null);
-		}
-		else {
+										   new String[] { "_id", "displayName", "selected" }, query, queryArgs, null);
+		} else {
 			cursor = contentResolver.query(Uri.parse(getBaseCalendarUri() + "/calendars"),
-				new String[] { "_id", "displayName", "selected", "hidden" }, query, queryArgs, null);
+										   new String[] { "_id", "displayName", "selected", "hidden" }, query,
+										   queryArgs, null);
 		}
 
 		// calendars can be null
-		if (cursor!=null)
-		{
+		if (cursor != null) {
 			while (cursor.moveToNext()) {
 				String id = cursor.getString(0);
 				String name = cursor.getString(1);
@@ -96,14 +96,17 @@ public class CalendarProxy extends KrollProxy {
 		return calendars;
 	}
 
-	public static boolean hasCalendarPermissions() {
+	public static boolean hasCalendarPermissions()
+	{
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
 		Activity currentActivity = TiApplication.getAppCurrentActivity();
-		if (currentActivity != null &&
-				currentActivity.checkSelfPermission("android.permission.READ_CALENDAR") == PackageManager.PERMISSION_GRANTED &&
-				currentActivity.checkSelfPermission("android.permission.WRITE_CALENDAR") == PackageManager.PERMISSION_GRANTED) {
+		if (currentActivity != null
+			&& currentActivity.checkSelfPermission("android.permission.READ_CALENDAR")
+				   == PackageManager.PERMISSION_GRANTED
+			&& currentActivity.checkSelfPermission("android.permission.WRITE_CALENDAR")
+				   == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
 		Log.w(TAG, "Calendar permissions are missing");
@@ -113,6 +116,10 @@ public class CalendarProxy extends KrollProxy {
 	@Kroll.method
 	public EventProxy[] getEventsInYear(int year)
 	{
+		Log.w(
+			TAG,
+			"getEventsInYear(year) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
+
 		Calendar jan1 = Calendar.getInstance();
 		jan1.clear();
 		jan1.set(year, 0, 1);
@@ -126,6 +133,10 @@ public class CalendarProxy extends KrollProxy {
 	@Kroll.method
 	public EventProxy[] getEventsInMonth(int year, int month)
 	{
+		Log.w(
+			TAG,
+			"getEventsInMonth(year, month) has been deprecated in 7.0.0 in favor of getEventsBetweenDates(date1, date2) to avoid platform-differences of the month-index between iOS and Android");
+
 		Calendar firstOfTheMonth = Calendar.getInstance();
 		firstOfTheMonth.clear();
 		firstOfTheMonth.set(year, month, 1);
@@ -181,10 +192,11 @@ public class CalendarProxy extends KrollProxy {
 	@Kroll.method
 	public EventProxy getEventById(int id)
 	{
-		ArrayList<EventProxy> events = EventProxy.queryEvents("_id = ?", new String[] { ""+id });
+		ArrayList<EventProxy> events = EventProxy.queryEvents("_id = ?", new String[] { "" + id });
 		if (events.size() > 0) {
 			return events.get(0);
-		} else return null;
+		} else
+			return null;
 	}
 
 	@Kroll.method
@@ -193,26 +205,38 @@ public class CalendarProxy extends KrollProxy {
 		return EventProxy.createEvent(this, data);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getName()
+	// clang-format on
 	{
 		return name;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getId()
+	// clang-format on
 	{
 		return id;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean getSelected()
+	// clang-format on
 	{
 		return selected;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean getHidden()
+	// clang-format on
 	{
 		return hidden;
 	}

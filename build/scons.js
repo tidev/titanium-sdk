@@ -1,6 +1,7 @@
 #!/usr/bin/env node
+'use strict';
 
-var commander = require('commander'),
+const commander = require('commander'),
 	version = require('../package.json').version;
 
 commander
@@ -12,4 +13,6 @@ commander
 	.command('build [platforms]', 'build one or more platforms')
 	.command('test [platforms]', 'Runs our unit tests')
 	.command('update-node-deps', 'deletes and reinstalls node dependencies')
+	.command('ssri [urls]', 'generates ssri integrity hashes for URLs')
+	.command('modules-integrity', 'Regenerates ssri integrity hashes for all the modules in our pre-packaged listing under support/module/packged/modules.json given the current url values')
 	.parse(process.argv);

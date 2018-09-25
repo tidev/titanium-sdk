@@ -29,20 +29,29 @@ public class LocaleModule extends KrollModule
 		super();
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getCurrentLanguage()
+	// clang-format on
 	{
 		return Locale.getDefault().getLanguage();
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getCurrentCountry()
+	// clang-format on
 	{
 		return Locale.getDefault().getCountry();
 	}
 
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getCurrentLocale()
+	// clang-format on
 	{
 		return TiPlatformHelper.getInstance().getLocale();
 	}
@@ -80,8 +89,11 @@ public class LocaleModule extends KrollModule
 		return PhoneNumberUtils.formatNumber(telephoneNumber);
 	}
 
-	@Kroll.method @Kroll.setProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setLanguage(String language)
+	// clang-format on
 	{
 		try {
 			String[] parts = language.split("-");
@@ -98,18 +110,21 @@ public class LocaleModule extends KrollModule
 			Configuration config = new Configuration();
 			config.locale = locale;
 
-			Context ctx =  TiApplication.getInstance().getBaseContext();
+			Context ctx = TiApplication.getInstance().getBaseContext();
 			ctx.getResources().updateConfiguration(config, ctx.getResources().getDisplayMetrics());
 		} catch (Exception e) {
 			Log.e(TAG, "Error trying to set language '" + language + "':", e);
 		}
 	}
 
-	@Kroll.method  @Kroll.topLevel("L")
-	public String getString(String key, @Kroll.argument(optional=true) String defaultValue)
+	// clang-format off
+	@Kroll.method
+	@Kroll.topLevel("L")
+	public String getString(String key, @Kroll.argument(optional = true) String defaultValue)
+	// clang-format on
 	{
 		try {
-			int resid = TiRHelper.getResource("string." + key.replace(".","_"));
+			int resid = TiRHelper.getResource("string." + key.replace(".", "_"));
 			if (resid != 0) {
 				return TiApplication.getInstance().getString(resid);
 			} else {

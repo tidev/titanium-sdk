@@ -3,7 +3,7 @@
 ---
 name: Global.JSON
 summary: Global JSON object providing the [parse](Global.JSON.parse) and [stringify](Global.JSON.stringify) methods.
-platforms: [android, iphone, ipad, mobileweb]
+platforms: [android, iphone, ipad]
 methods:
 
   - name: stringify
@@ -48,7 +48,7 @@ methods:
         functions, will not be serialized. Such values in objects are
         dropped; in arrays they are replaced with null. You can use
         a replacer function to replace those with JSON values.
-        
+
         JSON.stringify(undefined) returns undefined.
 
         The optional space parameter produces a stringification of the
@@ -57,37 +57,37 @@ methods:
 
         If the space parameter is a non-empty string, then that string is
         used for indentation. If the space parameter is a number, then
-        each level is indented by the specified number of spaces. 
+        each level is indented by the specified number of spaces.
 
-    parameters: 
-    
+    parameters:
+
       - name: value
         summary: Any JavaScript value, usually an object or array.
         type: Object
-    
-      - name: replacer    
+
+      - name: replacer
         summary: |
             Determines how object values are stringified for objects. See main text for usage.
         type: [Callback, Array<String>]
         optional: true
-    
-      - name: space       
-        summary: Specifies how nested structures are indented. If it is a number, it specifies the number 
-                 of spaces to indent at each level. If it is a string (such as '\\t' or '&amp;nbsp;'), it 
+
+      - name: space
+        summary: Specifies how nested structures are indented. If it is a number, it specifies the number
+                 of spaces to indent at each level. If it is a string (such as '\\t' or '&amp;nbsp;'), it
                  specifies the characters used to indent at each level.
         type: [Number, String]
         optional: true
         default: Text is packed without linebreaks or extra whitespace.
-    
+
     returns:
         type: String
-        
+
     examples:
       - title: Formatting with a Replacer Function
         example: |
-            The following example produces a readable version of a Titanium event object, 
+            The following example produces a readable version of a Titanium event object,
             omitting the `source` and `type` properties and adding whitespace for readability:
-            
+
                 JSON.stringify(evt, function(key, value) {
                     if(key === 'source' || key === 'type') {
                         return undefined;
@@ -106,23 +106,23 @@ methods:
         and its return value is used instead of the original value.
         If it returns what it received, then the structure is not modified.
         If it returns undefined then the member is deleted.
-        
+
     parameters:
       - name: text
         summary: JSON text to parse.
         type: String
-        
+
       - name: reviver
-        summary: Function to filter and transform the results. 
+        summary: Function to filter and transform the results.
         type: Callback
-        
+
     returns:
         type: Object
-    
+
     examples:
       - title: Parse with Reviver Function
         example:
-            The following example parses the text, converting  values that look like ISO date 
+            The following example parses the text, converting  values that look like ISO date
             strings into Date objects.
 
                 myData = JSON.parse(text, function (key, value) {

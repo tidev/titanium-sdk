@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.CollisionBehavior
 summary: Dynamic behavior to support collisions between items and boundaries.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     A collision behavior specifies the behavior when items collide with each other and boundaries.
     To define a collision behavior:
 
@@ -17,7 +15,6 @@ description: |
 extends: Titanium.Proxy
 since: "3.2"
 platforms: [iphone, ipad]
-osver: {ios: {min: "7.0"}}
 
 properties:
   - name: boundaryIdentifiers

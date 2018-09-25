@@ -8,16 +8,16 @@
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 #import "TiWindowProxy.h"
 
-@interface TiUIiOSNavWindowProxy : TiWindowProxy<UINavigationControllerDelegate,UIGestureRecognizerDelegate, TiOrientationController,TiTab> {
-@private
-    UINavigationController *navController;
-    TiWindowProxy *rootWindow;
-    TiWindowProxy *current;
-    BOOL transitionIsAnimating;
-    BOOL transitionWithGesture;
+@interface TiUIiOSNavWindowProxy : TiWindowProxy <UINavigationControllerDelegate, UIGestureRecognizerDelegate, TiOrientationController, TiTab> {
+  @private
+  UINavigationController *navController;
+  TiWindowProxy *rootWindow;
+  TiWindowProxy *current;
+  BOOL transitionIsAnimating;
+  BOOL transitionWithGesture;
 }
 
 //Private API
--(void)setFrame:(CGRect)bounds;
+- (void)setFrame:(CGRect)bounds;
 @end
 #endif

@@ -9,9 +9,9 @@
 #import "TiDOMCommentProxy.h"
 
 @implementation TiDOMCommentProxy
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.XML.Comment";
+  return @"Ti.XML.Comment";
 }
 @end
 #endif

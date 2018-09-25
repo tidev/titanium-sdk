@@ -7,7 +7,6 @@
 package ti.modules.titanium.network.socket;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -19,12 +18,13 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.io.TiStream;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
 import ti.modules.titanium.BufferProxy;
 
-@Kroll.proxy(creatableInModule=SocketModule.class)
+@Kroll.proxy(creatableInModule = SocketModule.class)
 public class TCPProxy extends KrollProxy implements TiStream
 {
 	private static final String TAG = "TCPProxy";
@@ -35,8 +35,6 @@ public class TCPProxy extends KrollProxy implements TiStream
 	private boolean accepting = false;
 	private KrollDict acceptOptions = null;
 	private int state = 0;
-	private InputStream inputStream = null;
-
 
 	public TCPProxy()
 	{
@@ -50,7 +48,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 		if ((state != SocketModule.LISTENING) && (state != SocketModule.CONNECTED)) {
 			Object host = getProperty("host");
 			Object port = getProperty("port");
-			if((host != null) && (port != null) && (TiConvert.toInt(port) > 0)) {
+			if ((host != null) && (port != null) && (TiConvert.toInt(port) > 0)) {
 				new ConnectedSocketThread().start();
 
 			} else {
@@ -105,7 +103,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 		accepting = true;
 	}
 
-	private void closeSocket() throws IOException {
+	private void closeSocket() throws IOException
+	{
 		if (clientSocket != null) {
 			clientSocket.close();
 			clientSocket = null;
@@ -117,51 +116,75 @@ public class TCPProxy extends KrollProxy implements TiStream
 		}
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setHost(String host)
+	// clang-format on
 	{
 		setSocketProperty("host", host);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setPort(int port)
+	// clang-format on
 	{
 		setSocketProperty("port", port);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setTimeout(int timeout)
+	// clang-format on
 	{
 		setSocketProperty("timeout", timeout);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setOptions(KrollDict options)
+	// clang-format on
 	{
 		// not implemented yet - reserved for future use
 		Log.i(TAG, "setting options on socket is not supported yet");
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setListenQueueSize(int listenQueueSize)
+	// clang-format on
 	{
 		setSocketProperty("listenQueueSize", listenQueueSize);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setConnected(KrollFunction connected)
+	// clang-format on
 	{
 		setSocketProperty("connected", connected);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setError(KrollFunction error)
+	// clang-format on
 	{
 		setSocketProperty("error", error);
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setAccepted(KrollFunction accepted)
+	// clang-format on
 	{
 		setSocketProperty("accepted", accepted);
 	}
@@ -176,8 +199,11 @@ public class TCPProxy extends KrollProxy implements TiStream
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public int getState()
+	// clang-format on
 	{
 		return state;
 	}
@@ -208,7 +234,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
-				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, unknown host <" + host + ">", 0));
+				updateState(SocketModule.ERROR, "error",
+							buildErrorCallbackArgs("Unable to connect, unknown host <" + host + ">", 0));
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -226,8 +253,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 		public void run()
 		{
-			while(true) {
-				if(accepting) {
+			while (true) {
+				if (accepting) {
 					try {
 						// Check if serverSocket is valid, if not exit
 						if (serverSocket == null) {
@@ -237,15 +264,16 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 						TCPProxy acceptedTcpProxy = new TCPProxy();
 						acceptedTcpProxy.clientSocket = acceptedSocket;
-						acceptedTcpProxy.setProperty("host", acceptedTcpProxy.clientSocket.getInetAddress().getHostAddress());
+						acceptedTcpProxy.setProperty("host",
+													 acceptedTcpProxy.clientSocket.getInetAddress().getHostAddress());
 						acceptedTcpProxy.setProperty("port", acceptedTcpProxy.clientSocket.getPort());
 
 						Object optionValue;
-						if((optionValue = acceptOptions.get("timeout")) != null) {
+						if ((optionValue = acceptOptions.get("timeout")) != null) {
 							acceptedTcpProxy.setProperty("timeout", TiConvert.toInt(optionValue, 0));
 						}
-						if((optionValue = acceptOptions.get("error")) != null) {
-							if(optionValue instanceof KrollFunction) {
+						if ((optionValue = acceptOptions.get("error")) != null) {
+							if (optionValue instanceof KrollFunction) {
 								acceptedTcpProxy.setProperty("error", (KrollFunction) optionValue);
 							}
 						}
@@ -254,7 +282,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 						Object callback = getProperty("accepted");
 						if (callback instanceof KrollFunction) {
-							((KrollFunction) callback).callAsync(getKrollObject(), buildAcceptedCallbackArgs(acceptedTcpProxy));
+							((KrollFunction) callback)
+								.callAsync(getKrollObject(), buildAcceptedCallbackArgs(acceptedTcpProxy));
 						}
 
 						accepting = false;
@@ -262,7 +291,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 					} catch (IOException e) {
 						if (state == SocketModule.LISTENING) {
 							e.printStackTrace();
-							updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to accept new connection, IO error", 0));
+							updateState(SocketModule.ERROR, "error",
+										buildErrorCallbackArgs("Unable to accept new connection, IO error", 0));
 						}
 
 						break;
@@ -342,7 +372,6 @@ public class TCPProxy extends KrollProxy implements TiStream
 		return false;
 	}
 
-
 	// TiStream interface methods
 	@Kroll.method
 	public int read(Object args[]) throws IOException
@@ -355,9 +384,9 @@ public class TCPProxy extends KrollProxy implements TiStream
 		int offset = 0;
 		int length = 0;
 
-		if(args.length == 1 || args.length == 3) {
-			if(args.length > 0) {
-				if(args[0] instanceof BufferProxy) {
+		if (args.length == 1 || args.length == 3) {
+			if (args.length > 0) {
+				if (args[0] instanceof BufferProxy) {
 					bufferProxy = (BufferProxy) args[0];
 					length = bufferProxy.getLength();
 
@@ -366,22 +395,22 @@ public class TCPProxy extends KrollProxy implements TiStream
 				}
 			}
 
-			if(args.length == 3) {
-				if(args[1] instanceof Integer) {
-					offset = ((Integer)args[1]).intValue();
+			if (args.length == 3) {
+				if (args[1] instanceof Integer) {
+					offset = ((Integer) args[1]).intValue();
 
-				} else if(args[1] instanceof Double) {
-					offset = ((Double)args[1]).intValue();
+				} else if (args[1] instanceof Double) {
+					offset = ((Double) args[1]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid offset argument");
 				}
 
-				if(args[2] instanceof Integer) {
-					length = ((Integer)args[2]).intValue();
+				if (args[2] instanceof Integer) {
+					length = ((Integer) args[2]).intValue();
 
-				} else if(args[2] instanceof Double) {
-					length = ((Double)args[2]).intValue();
+				} else if (args[2] instanceof Double) {
+					length = ((Double) args[2]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid length argument");
@@ -392,28 +421,57 @@ public class TCPProxy extends KrollProxy implements TiStream
 			throw new IllegalArgumentException("Invalid number of arguments");
 		}
 
-		if (inputStream == null) {
-			inputStream = clientSocket.getInputStream();
-		}
-
-		try {
-			return TiStreamHelper.read(inputStream, bufferProxy, offset, length);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			if (state != SocketModule.CLOSED) {
-				closeSocket();
-				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to read from socket, IO error", 0));
+		// Attempt to read from the socket.
+		final BufferProxy finalBufferProxy = bufferProxy;
+		final int finalOffset = offset;
+		final int finalLength = length;
+		final RunnableResult finalRunnableResult = new RunnableResult();
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run()
+			{
+				try {
+					finalRunnableResult.streamedByteCount =
+						TiStreamHelper.read(clientSocket.getInputStream(), finalBufferProxy, finalOffset, finalLength);
+				} catch (Exception ex) {
+					finalRunnableResult.exception = ex;
+				}
 			}
-			throw new IOException("Unable to read from socket, IO error");
+		};
+		if (TiApplication.isUIThread()) {
+			try {
+				Thread thread = new Thread(runnable);
+				thread.start();
+				thread.join();
+			} catch (Exception ex) {
+				finalRunnableResult.exception = ex;
+			}
+		} else {
+			runnable.run();
 		}
+
+		// If the above read failed, then update the socket state and throw an exception.
+		if (finalRunnableResult.exception != null) {
+			finalRunnableResult.exception.printStackTrace();
+			String message = finalRunnableResult.exception.getMessage();
+			if (message == null) {
+				message = "Unknown Error";
+			}
+			IOException ex = new IOException("Unable to read from socket. Reason: " + message);
+			if (state != SocketModule.CLOSED) {
+				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs(ex.getMessage(), 0));
+			}
+			throw ex;
+		}
+
+		// The read was successful. Return the number of bytes read.
+		return finalRunnableResult.streamedByteCount;
 	}
 
 	@Kroll.method
 	public int write(Object args[]) throws IOException
 	{
-		if(!isConnected())
-		{
+		if (!isConnected()) {
 			throw new IOException("Unable to write to socket, not connected");
 		}
 
@@ -421,9 +479,9 @@ public class TCPProxy extends KrollProxy implements TiStream
 		int offset = 0;
 		int length = 0;
 
-		if(args.length == 1 || args.length == 3) {
-			if(args.length > 0) {
-				if(args[0] instanceof BufferProxy) {
+		if (args.length == 1 || args.length == 3) {
+			if (args.length > 0) {
+				if (args[0] instanceof BufferProxy) {
 					bufferProxy = (BufferProxy) args[0];
 					length = bufferProxy.getLength();
 
@@ -432,22 +490,22 @@ public class TCPProxy extends KrollProxy implements TiStream
 				}
 			}
 
-			if(args.length == 3) {
-				if(args[1] instanceof Integer) {
-					offset = ((Integer)args[1]).intValue();
+			if (args.length == 3) {
+				if (args[1] instanceof Integer) {
+					offset = ((Integer) args[1]).intValue();
 
-				} else if(args[1] instanceof Double) {
-					offset = ((Double)args[1]).intValue();
+				} else if (args[1] instanceof Double) {
+					offset = ((Double) args[1]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid offset argument");
 				}
 
-				if(args[2] instanceof Integer) {
-					length = ((Integer)args[2]).intValue();
+				if (args[2] instanceof Integer) {
+					length = ((Integer) args[2]).intValue();
 
-				} else if(args[2] instanceof Double) {
-					length = ((Double)args[2]).intValue();
+				} else if (args[2] instanceof Double) {
+					length = ((Double) args[2]).intValue();
 
 				} else {
 					throw new IllegalArgumentException("Invalid length argument");
@@ -458,15 +516,49 @@ public class TCPProxy extends KrollProxy implements TiStream
 			throw new IllegalArgumentException("Invalid number of arguments");
 		}
 
-		try {
-			return TiStreamHelper.write(clientSocket.getOutputStream(), bufferProxy, offset, length);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			closeSocket();
-			updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to write to socket, IO error", 0));
-			throw new IOException("Unable to write to socket, IO error");
+		// Write to the socket.
+		final BufferProxy finalBufferProxy = bufferProxy;
+		final int finalOffset = offset;
+		final int finalLength = length;
+		final RunnableResult finalRunnableResult = new RunnableResult();
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run()
+			{
+				try {
+					finalRunnableResult.streamedByteCount = TiStreamHelper.write(
+						clientSocket.getOutputStream(), finalBufferProxy, finalOffset, finalLength);
+				} catch (Exception ex) {
+					finalRunnableResult.exception = ex;
+				}
+			}
+		};
+		if (TiApplication.isUIThread()) {
+			try {
+				Thread thread = new Thread(runnable);
+				thread.start();
+				thread.join();
+			} catch (Exception ex) {
+				finalRunnableResult.exception = ex;
+			}
+		} else {
+			runnable.run();
 		}
+
+		// If the above write failed, then update the socket state and throw an exception.
+		if (finalRunnableResult.exception != null) {
+			finalRunnableResult.exception.printStackTrace();
+			String message = finalRunnableResult.exception.getMessage();
+			if (message == null) {
+				message = "Unknown Error";
+			}
+			IOException ex = new IOException("Unable to write to socket. Reason: " + message);
+			updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs(ex.getMessage(), 0));
+			throw ex;
+		}
+
+		// The write was successful. Return the number of bytes written.
+		return finalRunnableResult.streamedByteCount;
 	}
 
 	@Kroll.method
@@ -488,8 +580,9 @@ public class TCPProxy extends KrollProxy implements TiStream
 			return;
 		}
 
-		if((state != SocketModule.CONNECTED) && (state != SocketModule.LISTENING)) {
-			throw new IOException("Socket is not connected or listening, unable to call close on socket in <" + state + "> state");
+		if ((state != SocketModule.CONNECTED) && (state != SocketModule.LISTENING)) {
+			throw new IOException("Socket is not connected or listening, unable to call close on socket in <" + state
+								  + "> state");
 		}
 
 		try {
@@ -497,7 +590,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 			closeSocket();
 			state = SocketModule.CLOSED;
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new IOException("Error occured when closing socket");
 		}
@@ -507,5 +600,15 @@ public class TCPProxy extends KrollProxy implements TiStream
 	public String getApiName()
 	{
 		return "Ti.Network.Socket.TCP";
+	}
+
+	/** Private class used to capture async results of the "TCPProxy" read() and write() methods. */
+	private static class RunnableResult
+	{
+		/** The number of bytes read/written to/from the socket if successful. */
+		int streamedByteCount;
+
+		/** Provides the exception error that occurred if failed. Set to null if read/write was successful. */
+		Exception exception;
 	}
 }

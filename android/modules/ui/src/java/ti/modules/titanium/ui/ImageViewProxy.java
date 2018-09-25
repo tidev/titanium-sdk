@@ -13,18 +13,20 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIImageView;
 import android.app.Activity;
-
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_DECODE_RETRIES,
-	TiC.PROPERTY_AUTOROTATE,
-	TiC.PROPERTY_DEFAULT_IMAGE,
-	TiC.PROPERTY_DURATION,
-	TiC.PROPERTY_ENABLE_ZOOM_CONTROLS,
-	TiC.PROPERTY_IMAGE,
-	TiC.PROPERTY_IMAGES,
-	TiC.PROPERTY_REPEAT_COUNT,
-	TiC.PROPERTY_URL
+// clang-format off
+@Kroll.proxy(creatableInModule = UIModule.class,
+	propertyAccessors = {
+		TiC.PROPERTY_DECODE_RETRIES,
+		TiC.PROPERTY_AUTOROTATE,
+		TiC.PROPERTY_DEFAULT_IMAGE,
+		TiC.PROPERTY_DURATION,
+		TiC.PROPERTY_ENABLE_ZOOM_CONTROLS,
+		TiC.PROPERTY_IMAGE,
+		TiC.PROPERTY_IMAGES,
+		TiC.PROPERTY_REPEAT_COUNT,
+		TiC.PROPERTY_URL
 })
+// clang-format on
 public class ImageViewProxy extends ViewProxy
 {
 	public ImageViewProxy()
@@ -33,68 +35,104 @@ public class ImageViewProxy extends ViewProxy
 	}
 
 	@Override
-	public TiUIView createView(Activity activity) {
+	public TiUIView createView(Activity activity)
+	{
 		return new TiUIImageView(this);
 	}
 
-	private TiUIImageView getImageView() {
+	@Override
+	public TiBlob toImage()
+	{
+		return this.toBlob();
+	}
+
+	private TiUIImageView getImageView()
+	{
 		return (TiUIImageView) getOrCreateView();
 	}
 
 	@Kroll.method
-	public void start() {
+	public void start()
+	{
 		getImageView().start();
 	}
 
 	@Kroll.method
-	public void stop() {
+	public void stop()
+	{
 		getImageView().stop();
 	}
 
 	@Kroll.method
-	public void pause() {
+	public void pause()
+	{
 		getImageView().pause();
 	}
 
 	@Kroll.method
-	public void resume() {
+	public void resume()
+	{
 		getImageView().resume();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public boolean getAnimating() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getAnimating()
+	// clang-format on
+	{
 		return getImageView().isAnimating();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean getPaused()
+	// clang-format on
 	{
 		return getImageView().isPaused();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public boolean getReverse() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getReverse()
+	// clang-format on
+	{
 		return getImageView().isReverse();
 	}
 
-	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
-	public void setReverse(boolean reverse) {
+	// clang-format off
+	@Kroll.setProperty(runOnUiThread = true)
+	@Kroll.method(runOnUiThread = true)
+	public void setReverse(boolean reverse)
+	// clang-format on
+	{
 		getImageView().setReverse(reverse);
 	}
 
 	@Kroll.method
-	public TiBlob toBlob() {
+	public TiBlob toBlob()
+	{
 		return getImageView().toBlob();
 	}
 
-	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)
-	public void setTintColor(String color) {
+	// clang-format off
+	@Kroll.setProperty(runOnUiThread = true)
+	@Kroll.method(runOnUiThread = true)
+	public void setTintColor(String color)
+	// clang-format on
+	{
 		getImageView().setTintColor(color);
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getTintColor() {
-			return getImageView().getTintColor();
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public int getTintColor()
+	// clang-format on
+	{
+		return getImageView().getTintColor();
 	}
 
 	@Override

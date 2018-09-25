@@ -17,7 +17,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-
 /**
  * A messenger interface that maintains a {@link android.os.MessageQueue}, and
  * {@link android.os.Looper} but with better primitives for blocking and single
@@ -53,7 +52,8 @@ public class TiMessenger implements Handler.Callback
 		protected TiMessenger initialValue()
 		{
 			if (Looper.myLooper() == null) {
-				synchronized (threadLocalMessenger) {
+				synchronized (threadLocalMessenger)
+				{
 					if (Looper.myLooper() == null) {
 						Looper.prepare();
 					}
@@ -83,7 +83,6 @@ public class TiMessenger implements Handler.Callback
 	protected Handler handler;
 
 	public static final int DEFAULT_TIMEOUT = 50;
-
 
 	public static TiMessenger getMessenger()
 	{
@@ -207,7 +206,6 @@ public class TiMessenger implements Handler.Callback
 		return threadLocalMessenger.get().sendBlockingMessage(message, getRuntimeMessenger(), asyncArg, maxTimeout);
 	}
 
-
 	private TiMessenger()
 	{
 		looper = Looper.myLooper();
@@ -238,7 +236,8 @@ public class TiMessenger implements Handler.Callback
 	 * @param maxTimeout the maximum time to wait for a permit from the semaphore.
 	 * @return The getResult() value of the AsyncResult put on the message.
 	 */
-	private Object sendBlockingMessage(Message message, TiMessenger targetMessenger, Object asyncArg, final long maxTimeout)
+	private Object sendBlockingMessage(Message message, TiMessenger targetMessenger, Object asyncArg,
+									   final long maxTimeout)
 	{
 		@SuppressWarnings("serial")
 		AsyncResult wrappedAsyncResult = new AsyncResult(asyncArg) {
@@ -351,7 +350,7 @@ public class TiMessenger implements Handler.Callback
 	public boolean handleMessage(Message message)
 	{
 		if (message.what == MSG_RUN) {
-			((Runnable)message.obj).run();
+			((Runnable) message.obj).run();
 
 			return true;
 		}

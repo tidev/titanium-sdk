@@ -9,11 +9,10 @@
 #import "TiDOMNodeProxy.h"
 // Corresponds to Interface ProcessingInstruction of DOM2 Spec.
 
-@interface TiDOMPIProxy : TiDOMNodeProxy{   
+@interface TiDOMPIProxy : TiDOMNodeProxy {
 }
-@property(nonatomic,copy,readwrite) NSString * data;
-@property(nonatomic,readonly) NSString * target;
-
+@property (nonatomic, copy, readwrite) NSString *data;
+@property (nonatomic, readonly) NSString *target;
 
 @end
 #endif

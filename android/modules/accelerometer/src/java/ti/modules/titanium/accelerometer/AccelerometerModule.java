@@ -17,7 +17,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-
 @Kroll.module
 public class AccelerometerModule extends KrollModule implements SensorEventListener
 {
@@ -25,7 +24,6 @@ public class AccelerometerModule extends KrollModule implements SensorEventListe
 
 	private boolean accelerometerRegistered = false;
 	private long lastSensorEventTimestamp = 0;
-
 
 	public AccelerometerModule()
 	{

@@ -9,8 +9,9 @@ package ti.modules.titanium.xml;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.w3c.dom.DocumentType;
 
-@Kroll.proxy(parentModule=XMLModule.class)
-public class DocumentTypeProxy extends NodeProxy {
+@Kroll.proxy(parentModule = XMLModule.class)
+public class DocumentTypeProxy extends NodeProxy
+{
 
 	private DocumentType type;
 
@@ -20,38 +21,66 @@ public class DocumentTypeProxy extends NodeProxy {
 		this.type = type;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public DocumentType getDocumentType() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public DocumentType getDocumentType()
+	// clang-format on
+	{
 		return type;
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public NamedNodeMapProxy getEntities() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public NamedNodeMapProxy getEntities()
+	// clang-format on
+	{
 		return new NamedNodeMapProxy(type.getEntities());
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getInternalSubset() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getInternalSubset()
+	// clang-format on
+	{
 		return type.getInternalSubset();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getName() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getName()
+	// clang-format on
+	{
 		return type.getName();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public NamedNodeMapProxy getNotations() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public NamedNodeMapProxy getNotations()
+	// clang-format on
+	{
 		return new NamedNodeMapProxy(type.getNotations());
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getPublicId() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getPublicId()
+	// clang-format on
+	{
 		return type.getPublicId();
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public String getSystemId() {
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getSystemId()
+	// clang-format on
+	{
 		return type.getSystemId();
 	}
 

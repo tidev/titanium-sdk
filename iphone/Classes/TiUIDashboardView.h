@@ -6,19 +6,20 @@
  */
 #ifdef USE_TI_UIDASHBOARDVIEW
 
-#import "TiUIView.h"
 #import "LauncherView.h"
+#import "TiUIView.h"
 
-@interface TiUIDashboardView : TiUIView<LauncherViewDelegate> {
+@interface TiUIDashboardView : TiUIView <LauncherViewDelegate> {
 
-@private
-	LauncherView *launcher;
-
+  @private
+  LauncherView *launcher;
 }
 
--(LauncherView*)launcher;
--(void)setViewData_:(NSArray*)data;
-@end
+- (LauncherView *)launcher;
+- (void)setViewData_:(NSArray *)data;
+- (void)startEditing;
+- (void)stopEditing;
 
+@end
 
 #endif

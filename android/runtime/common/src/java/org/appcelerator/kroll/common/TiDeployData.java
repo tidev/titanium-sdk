@@ -45,7 +45,7 @@ public class TiDeployData
 		deployData = null;
 
 		try {
-			AssetManager assetManager = ((Context)app).getAssets();
+			AssetManager assetManager = ((Context) app).getAssets();
 
 			if (assetManager == null) {
 				Log.e(TAG, "AssetManager is null, can't read deploy.json");

@@ -10,32 +10,32 @@
 #import "TiBase.h"
 #import "TiUIiOSCoverFlowView.h"
 
-NSArray* coverflowKeySequence;
+NSArray *coverflowKeySequence;
 
 @implementation TiUIiOSCoverFlowViewProxy
 
 DEFINE_DEF_INT_PROP(selected, 0);
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.CoverFlowView";
+  return @"Ti.UI.iOS.CoverFlowView";
 }
 
--(NSArray*)keySequence
+- (NSArray *)keySequence
 {
-	if (coverflowKeySequence == nil) {
-		coverflowKeySequence = [[NSArray alloc] initWithObjects:@"images",nil];
-	}
-	return coverflowKeySequence;
+  if (coverflowKeySequence == nil) {
+    coverflowKeySequence = [[NSArray alloc] initWithObjects:@"images", nil];
+  }
+  return coverflowKeySequence;
 }
 
--(void)setImage:(id)args
+- (void)setImage:(id)args
 {
-	ENSURE_ARG_COUNT(args,2);
-	ENSURE_UI_THREAD(setImage,args);
-	int index = [TiUtils intValue:[args objectAtIndex:0]];
-	id image = [args objectAtIndex:1];
-	[(TiUIiOSCoverFlowView*)[self view] setImage:image forIndex:index];
+  ENSURE_ARG_COUNT(args, 2);
+  ENSURE_UI_THREAD(setImage, args);
+  int index = [TiUtils intValue:[args objectAtIndex:0]];
+  id image = [args objectAtIndex:1];
+  [(TiUIiOSCoverFlowView *)[self view] setImage:image forIndex:index];
 }
 
 @end

@@ -8,28 +8,27 @@
 
 #import "TiViewProxy.h"
 
-@interface TiUITextWidgetProxy : TiViewProxy<TiKeyboardFocusableView> {
+@interface TiUITextWidgetProxy : TiViewProxy <TiKeyboardFocusableView> {
 
-//We can't have this in the view, because it's possible for the view to go away despite there being a reason to hold onto the toolbar
-//Read: When a view in the toolbar has focus instead.
+  //We can't have this in the view, because it's possible for the view to go away despite there being a reason to hold onto the toolbar
+  //Read: When a view in the toolbar has focus instead.
 
-//Toolbar properties that are semi-exposed
-	TiUIView *keyboardTiView;
-	CGFloat keyboardAccessoryHeight;
-	NSArray *keyboardToolbarItems;
+  //Toolbar properties that are semi-exposed
+  TiUIView *keyboardTiView;
+  CGFloat keyboardAccessoryHeight;
+  NSArray *keyboardToolbarItems;
 
-//Toolbar properties derived from the exposed ones.
-	UIToolbar *keyboardUIToolbar;
+  //Toolbar properties derived from the exposed ones.
+  UIToolbar *keyboardUIToolbar;
 
-	BOOL suppressFocusEvents;
-@private
-
+  BOOL suppressFocusEvents;
+  @private
 }
 
 //Internal values
--(void)noteValueChange:(NSString *)newValue;
+- (void)noteValueChange:(NSString *)newValue;
 
-@property(nonatomic,readwrite,assign)	BOOL suppressFocusEvents;
+@property (nonatomic, readwrite, assign) BOOL suppressFocusEvents;
 
 @end
 

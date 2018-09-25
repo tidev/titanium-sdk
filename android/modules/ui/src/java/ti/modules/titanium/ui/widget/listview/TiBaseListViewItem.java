@@ -10,53 +10,59 @@ package ti.modules.titanium.ui.widget.listview;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.util.AttributeSet;
 
-public class TiBaseListViewItem extends TiCompositeLayout{
+public class TiBaseListViewItem extends TiCompositeLayout
+{
 
 	private HashMap<String, ViewItem> viewsMap;
 	private ViewItem viewItem;
-	public TiBaseListViewItem(Context context) {
+	public TiBaseListViewItem(Context context)
+	{
 		super(context);
 		viewsMap = new HashMap<String, ViewItem>();
 	}
-	
-	public TiBaseListViewItem(Context context, AttributeSet set) {
+
+	public TiBaseListViewItem(Context context, AttributeSet set)
+	{
 		super(context, set);
 		setId(TiListView.listContentId);
 		viewsMap = new HashMap<String, ViewItem>();
 		viewItem = new ViewItem(null, new KrollDict());
 	}
-	
-	public HashMap<String, ViewItem> getViewsMap() {
+
+	public HashMap<String, ViewItem> getViewsMap()
+	{
 		return viewsMap;
 	}
-	
-	public ViewItem getViewItem() {
+
+	public ViewItem getViewItem()
+	{
 		return viewItem;
 	}
-	
-	public void bindView(String binding, ViewItem view) {
+
+	public void bindView(String binding, ViewItem view)
+	{
 		viewsMap.put(binding, view);
 	}
-	
-	public TiUIView getViewFromBinding(String binding) {
+
+	public TiUIView getViewFromBinding(String binding)
+	{
 		ViewItem viewItem = viewsMap.get(binding);
 		if (viewItem != null) {
 			return viewItem.getView();
 		}
 		return null;
 	}
-	
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+	{
 		int h = MeasureSpec.getSize(heightMeasureSpec);
 		int hMode = MeasureSpec.getMode(heightMeasureSpec);
 		super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(h, hMode));
 	}
-	
 }

@@ -6,8 +6,9 @@
  */
 package org.appcelerator.kroll;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Bundle;
 import android.util.Pair;
@@ -122,14 +124,15 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		// Associate the activity with the proxy.  if the proxy needs activity association delayed until a
 		// later point then initActivity should be overridden to be a no-op and then call setActivity directly
 		// at the appropriate time
-		initActivity(TiApplication.getInstance().getCurrentActivity());
+		initActivity(TiApplication.getAppRootOrCurrentActivity());
 
 		// Setup the proxy according to the creation arguments TODO - pass in createdInModule
 		handleCreationArgs(null, creationArguments);
 	}
 
 	// entry point for generator code
-	public static KrollProxy createProxy(Class<? extends KrollProxy> proxyClass, KrollObject object, Object[] creationArguments, String creationUrl)
+	public static KrollProxy createProxy(Class<? extends KrollProxy> proxyClass, KrollObject object,
+										 Object[] creationArguments, String creationUrl)
 	{
 		try {
 			KrollProxy proxyInstance = proxyClass.newInstance();
@@ -150,6 +153,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public void setActivity(Activity activity)
 	{
+		// our proxy must always be associated with a valid activity
+		if (activity == null) {
+			initActivity(TiApplication.getAppRootOrCurrentActivity());
+			return;
+		}
 		this.activity = new WeakReference<Activity>(activity);
 	}
 
@@ -160,15 +168,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
 	/**
-	 * @return the activity associated with this proxy. It can be null.
+	 * @return the activity associated with this proxy.
 	 * @module.api
 	 */
 	public Activity getActivity()
 	{
-		if (activity == null) {
-			return null;
+		// our proxy must always be associated with a valid activity
+		if (this.activity == null || this.activity.get() == null) {
+			initActivity(TiApplication.getAppRootOrCurrentActivity());
 		}
-		return activity.get();
+		return this.activity.get();
 	}
 
 	/**
@@ -372,11 +381,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 					((TiWindowProxy) lifecycleProxy).addProxyWaitingForActivity(this);
 				}
 			} else {
-				Log.e(TAG, TiC.PROPERTY_LIFECYCLE_CONTAINER + " must be a WindowProxy or TabGroupProxy (TiWindowProxy)");
+				Log.e(TAG,
+					  TiC.PROPERTY_LIFECYCLE_CONTAINER + " must be a WindowProxy or TabGroupProxy (TiWindowProxy)");
 			}
 		}
 
-		properties.putAll(dict);
+		for (String key : dict.keySet()) {
+			setProperty(key, dict.get(key));
+		}
 		handleDefaultValues();
 		handleLocaleProperties();
 
@@ -401,6 +413,52 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 
 		return runtimeHandler;
+	}
+
+	/**
+	 * Invokes the given runnable on the main UI thread.
+	 * <p>
+	 * If this method was called on the main UI thread, then the given runnable is invoked immediately.
+	 * Otherwise, the runnable is posted to the main UI thread via the main "Handler".
+	 * <p>
+	 * This method is the equivalent to the Android Activity.runOnUiThread() method.
+	 * @param runnable The runnable to be invoked. Can be null, in which case this method will no-op.
+	 */
+	public void runOnMainThread(Runnable runnable)
+	{
+		runWithHandler(runnable, getMainHandler());
+	}
+
+	/**
+	 * Invokes the given runnable on the JavaScript runtime thread.
+	 * <p>
+	 * If this method was called on the runtime thread, then the given runnable is invoked immediately.
+	 * Otherwise, the runnable is posted to the runtime thread via a "Handler".
+	 * @param runnable The runnable to be invoked. Can be null, in which case this method will no-op.
+	 */
+	public void runOnRuntimeThread(Runnable runnable)
+	{
+		runWithHandler(runnable, getRuntimeHandler());
+	}
+
+	/**
+	 * Invokes the given runnable on the thread the given handler is attached to.
+	 * <p>
+	 * If this method was called on the handler's thread, then the runnable is invoked immediately.
+	 * Otherwise, handler.post() is called with the given runnable to be invoked on its thread.
+	 * @param runnable The runnable to be invoked. Can be null, in which case this method will no-op.
+	 * @param handler The handler to be used. Can be null, which case this method will no-op.
+	 */
+	private void runWithHandler(Runnable runnable, Handler handler)
+	{
+		if ((runnable != null) && (handler != null)) {
+			Looper looper = handler.getLooper();
+			if ((looper != null) && (looper.getThread().getId() == Thread.currentThread().getId())) {
+				runnable.run();
+			} else {
+				handler.post(runnable);
+			}
+		}
 	}
 
 	public void setKrollObject(KrollObject object)
@@ -428,7 +486,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public void initKrollObject()
 	{
-		KrollRuntime.getInstance().initObject(this);
+		if (!KrollRuntime.isDisposed()) {
+			KrollRuntime.getInstance().initObject(this);
+		}
 	}
 
 	/**
@@ -474,7 +534,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		Object[][] changeArray = new Object[changeSize][];
 		for (int i = 0; i < changeSize; i++) {
 			KrollPropertyChange propertyChange = propertyChanges.get(i);
-			changeArray[i] = new Object[] {propertyChange.name, propertyChange.oldValue, propertyChange.newValue};
+			changeArray[i] = new Object[] { propertyChange.name, propertyChange.oldValue, propertyChange.newValue };
 		}
 
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
@@ -528,7 +588,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public boolean hasProperty(String name)
 	{
-		return properties.containsKey(name);
+		if (properties != null) {
+			return properties.containsKey(name);
+		}
+		return false;
 	}
 
 	/**
@@ -538,7 +601,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public boolean hasPropertyAndNotNull(String name)
 	{
-		return properties.containsKeyAndNotNull(name);
+		if (properties != null) {
+			return properties.containsKeyAndNotNull(name);
+		}
+		return false;
 	}
 
 	/**
@@ -550,7 +616,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public Object getProperty(String name)
 	{
-		return properties.get(name);
+		if (properties != null) {
+			return properties.get(name);
+		}
+		return null;
 	}
 
 	/**
@@ -559,6 +628,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void setProperty(String name, Object value)
 	{
+		if (properties == null) {
+			return;
+		}
+
 		properties.put(name, value);
 
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
@@ -571,28 +644,32 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 	}
 
-	public class KrollPropertyChangeSet extends KrollPropertyChange {
+	public class KrollPropertyChangeSet extends KrollPropertyChange
+	{
 		public int entryCount;
 		public String[] keys;
 		public Object[] oldValues;
 		public Object[] newValues;
 
-		public KrollPropertyChangeSet(int capacity) {
-			super(null,null,null);
+		public KrollPropertyChangeSet(int capacity)
+		{
+			super(null, null, null);
 			entryCount = 0;
 			keys = new String[capacity];
 			oldValues = new Object[capacity];
 			newValues = new Object[capacity];
 		}
 
-		public void addChange(String key, Object oldValue, Object newValue){
+		public void addChange(String key, Object oldValue, Object newValue)
+		{
 			keys[entryCount] = key;
 			oldValues[entryCount] = oldValue;
 			newValues[entryCount] = newValue;
-			entryCount ++;
+			entryCount++;
 		}
 
-		public void fireEvent(KrollProxy proxy, KrollProxyListener listener) {
+		public void fireEvent(KrollProxy proxy, KrollProxyListener listener)
+		{
 			if (listener == null) {
 				return;
 			}
@@ -652,7 +729,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param name the property that references the function
 	 * @param args the arguments to pass when calling the function.
 	 */
-	public void callPropertyAsync(String name, Object[] args) {
+	public void callPropertyAsync(String name, Object[] args)
+	{
 		Message msg = getRuntimeHandler().obtainMessage(MSG_CALL_PROPERTY_ASYNC, args);
 		msg.getData().putString(PROPERTY_NAME, name);
 		msg.sendToTarget();
@@ -682,14 +760,20 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		getKrollObject().setProperty(name, value);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public boolean getBubbleParent()
+	// clang-format on
 	{
 		return bubbleParent;
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setBubbleParent(Object value)
+	// clang-format on
 	{
 		bubbleParent = TiConvert.toBoolean(value);
 	}
@@ -777,7 +861,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean doFireEvent(String event, Object data)
 	{
-		if (!hierarchyHasListener(event)) {
+		if (!hierarchyHasListener(event) || eventListeners == null) {
 			return false;
 		}
 
@@ -795,9 +879,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			if (dict == null) {
 				dict = new KrollDict();
 				dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
-			}
-			else if (dict instanceof HashMap)
-			{
+			} else if (dict instanceof HashMap) {
 				Object sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
 				if (sourceProxy == null) {
 					dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
@@ -811,13 +893,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				krollData = (KrollDict) data;
 			} else if (data instanceof HashMap) {
 				try {
-					krollData = new KrollDict((HashMap)data);
-				} catch(Exception e) {
+					krollData = new KrollDict((HashMap) data);
+				} catch (Exception e) {
 				}
 			} else if (data instanceof JSONObject) {
 				try {
-					krollData = new KrollDict((JSONObject)data);
-				} catch(Exception e) {
+					krollData = new KrollDict((JSONObject) data);
+				} catch (Exception e) {
 				}
 			}
 		}
@@ -830,41 +912,58 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			}
 			hashValue = krollData.get(TiC.PROPERTY_SUCCESS);
 			if (hashValue instanceof Boolean) {
-				boolean successValue = ((Boolean)hashValue).booleanValue();
+				boolean successValue = ((Boolean) hashValue).booleanValue();
 				hashValue = krollData.get(TiC.PROPERTY_CODE);
 				if (hashValue instanceof Integer) {
-					int codeValue = ((Integer)hashValue).intValue();
+					int codeValue = ((Integer) hashValue).intValue();
 					if (successValue == (codeValue == 0)) {
 						reportSuccess = true;
 						code = codeValue;
 						krollData.remove(TiC.PROPERTY_SUCCESS);
 						krollData.remove(TiC.PROPERTY_CODE);
 					} else {
-						Log.w(TAG, "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true if and only if code is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
+						Log.w(
+							TAG,
+							"DEPRECATION WARNING: Events with 'code' and 'success' should have success be true if and only if code is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
+							Log.DEBUG_MODE);
 					}
-				} else if ( successValue ) {
-					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property that is 0. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
+				} else if (successValue) {
+					Log.w(
+						TAG,
+						"DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property that is 0. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
+						Log.DEBUG_MODE);
 				} else {
-					Log.w(TAG, "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
+					Log.w(
+						TAG,
+						"DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
+						Log.DEBUG_MODE);
 				}
 			} else if (hashValue != null) {
-				Log.w(TAG, "DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
+				Log.w(
+					TAG,
+					"DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
+					Log.DEBUG_MODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
 			if (hashValue instanceof String) {
 				message = (String) hashValue;
 				krollData.remove(TiC.EVENT_PROPERTY_ERROR);
 			} else if (hashValue != null) {
-				Log.w(TAG, "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.", Log.DEBUG_MODE);
+				Log.w(
+					TAG,
+					"DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
+					Log.DEBUG_MODE);
 			}
 			hashValue = krollData.get(TiC.EVENT_PROPERTY_SOURCE);
 			if (hashValue instanceof KrollProxy) {
 				if (hashValue != this) {
-					source = ((KrollProxy)hashValue).getKrollObject();
+					source = ((KrollProxy) hashValue).getKrollObject();
 				}
 				krollData.remove(TiC.EVENT_PROPERTY_SOURCE);
+			} else {
+				source = this.getKrollObject();
 			}
-			if (krollData.size() == 0){
+			if (krollData.size() == 0) {
 				krollData = null;
 			}
 		}
@@ -923,7 +1022,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	public boolean shouldFireChange(Object oldValue, Object newValue)
 	{
 		if (!(oldValue == null && newValue == null)) {
-			if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null) || (!oldValue.equals(newValue))) {
+			if ((oldValue == null && newValue != null) || (newValue == null && oldValue != null)
+				|| (!oldValue.equals(newValue))) {
 				return true;
 			}
 		}
@@ -1042,83 +1142,87 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public boolean handleMessage(Message msg)
 	{
-		switch (msg.what) {
-			case MSG_MODEL_PROPERTY_CHANGE: {
-				((KrollPropertyChange) msg.obj).fireEvent(this, modelListener);
+		try {
+			switch (msg.what) {
+				case MSG_MODEL_PROPERTY_CHANGE: {
+					((KrollPropertyChange) msg.obj).fireEvent(this, modelListener);
 
-				return true;
-			}
-			case MSG_LISTENER_ADDED:
-			case MSG_LISTENER_REMOVED: {
-				if (modelListener == null) {
 					return true;
 				}
+				case MSG_LISTENER_ADDED:
+				case MSG_LISTENER_REMOVED: {
+					if (modelListener == null) {
+						return true;
+					}
 
-				String event = (String) msg.obj;
+					String event = (String) msg.obj;
 
-				if (msg.what == MSG_LISTENER_ADDED) {
-					eventListenerAdded(event, 1, this);
+					if (msg.what == MSG_LISTENER_ADDED) {
+						eventListenerAdded(event, 1, this);
 
-				} else {
-					eventListenerRemoved(event, 0, this);
+					} else {
+						eventListenerRemoved(event, 0, this);
+					}
+
+					return true;
 				}
-
-				return true;
-			}
-			case MSG_MODEL_PROCESS_PROPERTIES: {
-				if (modelListener != null) {
-					modelListener.processProperties(properties);
+				case MSG_MODEL_PROCESS_PROPERTIES: {
+					if (modelListener != null) {
+						modelListener.processProperties(properties);
+					}
+					return true;
 				}
-				return true;
-			}
-			case MSG_MODEL_PROPERTIES_CHANGED: {
-				firePropertiesChanged((Object[][])msg.obj);
+				case MSG_MODEL_PROPERTIES_CHANGED: {
+					firePropertiesChanged((Object[][]) msg.obj);
 
-				return true;
-			}
-			case MSG_INIT_KROLL_OBJECT: {
-				initKrollObject();
-				((AsyncResult) msg.obj).setResult(null);
+					return true;
+				}
+				case MSG_INIT_KROLL_OBJECT: {
+					initKrollObject();
+					((AsyncResult) msg.obj).setResult(null);
 
-				return true;
-			}
-			case MSG_SET_PROPERTY: {
-				Object value = msg.obj;
-				String property = msg.getData().getString(PROPERTY_NAME);
-				doSetProperty(property, value);
+					return true;
+				}
+				case MSG_SET_PROPERTY: {
+					Object value = msg.obj;
+					String property = msg.getData().getString(PROPERTY_NAME);
+					doSetProperty(property, value);
 
-				return true;
-			}
-			case MSG_FIRE_EVENT: {
-				Object data = msg.obj;
-				String event = msg.getData().getString(PROPERTY_NAME);
-				doFireEvent(event, data);
+					return true;
+				}
+				case MSG_FIRE_EVENT: {
+					Object data = msg.obj;
+					String event = msg.getData().getString(PROPERTY_NAME);
+					doFireEvent(event, data);
 
-				return true;
-			}
-			case MSG_FIRE_SYNC_EVENT: {
-				AsyncResult asyncResult = (AsyncResult) msg.obj;
-				boolean handled = doFireEvent(msg.getData().getString(PROPERTY_NAME), asyncResult.getArg());
-				asyncResult.setResult(handled);
+					return true;
+				}
+				case MSG_FIRE_SYNC_EVENT: {
+					AsyncResult asyncResult = (AsyncResult) msg.obj;
+					boolean handled = doFireEvent(msg.getData().getString(PROPERTY_NAME), asyncResult.getArg());
+					asyncResult.setResult(handled);
 
-				return handled;
-			}
-			case MSG_CALL_PROPERTY_ASYNC: {
-				String propertyName = msg.getData().getString(PROPERTY_NAME);
-				Object[] args = (Object[]) msg.obj;
-				getKrollObject().callProperty(propertyName, args);
+					return handled;
+				}
+				case MSG_CALL_PROPERTY_ASYNC: {
+					String propertyName = msg.getData().getString(PROPERTY_NAME);
+					Object[] args = (Object[]) msg.obj;
+					getKrollObject().callProperty(propertyName, args);
 
-				return true;
-			}
-			case MSG_CALL_PROPERTY_SYNC: {
-				String propertyName = msg.getData().getString(PROPERTY_NAME);
-				AsyncResult asyncResult = (AsyncResult) msg.obj;
-				Object[] args = (Object[]) asyncResult.getArg();
-				getKrollObject().callProperty(propertyName, args);
-				asyncResult.setResult(null);
+					return true;
+				}
+				case MSG_CALL_PROPERTY_SYNC: {
+					String propertyName = msg.getData().getString(PROPERTY_NAME);
+					AsyncResult asyncResult = (AsyncResult) msg.obj;
+					Object[] args = (Object[]) asyncResult.getArg();
+					getKrollObject().callProperty(propertyName, args);
+					asyncResult.setResult(null);
 
-				return true;
+					return true;
+				}
 			}
+		} catch (Throwable t) {
+			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
 		}
 
 		return false;
@@ -1188,7 +1292,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			throw new IllegalStateException("addEventListener expects a non-null listener");
 		}
 
-		synchronized (eventListeners) {
+		synchronized (eventListeners)
+		{
 			if (eventListeners.isEmpty()) {
 				setProperty(PROPERTY_HAS_JAVA_LISTENER, true);
 			}
@@ -1215,7 +1320,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			throw new IllegalStateException("removeEventListener expects a non-null eventName");
 		}
 
-		synchronized (eventListeners) {
+		synchronized (eventListeners)
+		{
 			HashMap<Integer, KrollEventCallback> listeners = eventListeners.get(eventName);
 			if (listeners != null) {
 				if (listeners.remove(listenerId) == null) {
@@ -1276,14 +1382,43 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void release()
 	{
+		releaseKroll();
+
+		if (eventListeners != null) {
+			eventListeners.clear();
+			eventListeners = null;
+		}
+		if (properties != null) {
+			properties.clear();
+			properties = null;
+		}
+		if (defaultValues != null) {
+			defaultValues.clear();
+			defaultValues = null;
+		}
+		if (krollObject != null) {
+			krollObject.release();
+			krollObject = null;
+		}
+	}
+
+	/**
+	 * Only release kroll, but maintain instance
+	 * @module.api
+	 */
+	public void releaseKroll()
+	{
 		if (krollObject != null) {
 			krollObject.release();
 		}
 	}
 
 	// For subclasses to override
-	@Kroll.method @Kroll.getProperty
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
 	public String getApiName()
+	// clang-format on
 	{
 		return "Ti.Proxy";
 	}
@@ -1293,7 +1428,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onCreate(Activity activity, Bundle savedInstanceState) {
+	public void onCreate(Activity activity, Bundle savedInstanceState)
+	{
 	}
 
 	/**
@@ -1301,7 +1437,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onResume(Activity activity) {
+	public void onResume(Activity activity)
+	{
 	}
 
 	/**
@@ -1309,7 +1446,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onPause(Activity activity) {
+	public void onPause(Activity activity)
+	{
 	}
 
 	/**
@@ -1317,7 +1455,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onDestroy(Activity activity) {
+	public void onDestroy(Activity activity)
+	{
 	}
 
 	/**
@@ -1325,7 +1464,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onStart(Activity activity) {
+	public void onStart(Activity activity)
+	{
 	}
 
 	/**
@@ -1333,6 +1473,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param activity the activity attached to this module.
 	 * @module.api
 	 */
-	public void onStop(Activity activity) {
+	public void onStop(Activity activity)
+	{
 	}
 }

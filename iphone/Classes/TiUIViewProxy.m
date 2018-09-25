@@ -8,11 +8,9 @@
 #import "TiUIViewProxy.h"
 
 @implementation TiUIViewProxy
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.View";
+  return @"Ti.UI.View";
 }
 
-
 @end
-

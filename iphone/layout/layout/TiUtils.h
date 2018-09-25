@@ -10,7 +10,11 @@
 #define DEFINE_EXCEPTIONS
 #define DebugLog NSLog
 
+#if DEBUG
 #define CODELOCATION	[NSString stringWithFormat:@"%s (%@:%d)",__FUNCTION__,[[NSString stringWithFormat:@"%s",__FILE__] lastPathComponent],__LINE__]
+#else
+#define CODELOCATION  @""
+#endif
 #define ENSURE_SINGLE_ARG(x,t) \
     if ([x isKindOfClass:[NSArray class]] && [x count]>0) \
     { \

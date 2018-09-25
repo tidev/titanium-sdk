@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UIIOSLIVEPHOTOVIEW
-#import "TiViewProxy.h"
 #import "TiUIiOSLivePhoto.h"
 #import "TiUIiOSLivePhotoView.h"
+#import "TiViewProxy.h"
 #import <PhotosUI/PhotosUI.h>
 
 @interface TiUIiOSLivePhotoViewProxy : TiViewProxy
@@ -15,22 +15,22 @@
 /**
  *  Starts the playback of the live photo view.
  */
--(void)startPlaybackWithStyle:(id)args;
+- (void)startPlaybackWithStyle:(id)args;
 
 /**
  *  Stops the current playback of the live photo view.
  */
--(void)stopPlayback:(id)unused;
+- (void)stopPlayback:(id)unused;
 
 /**
  *  Mutes/unmutes the current playback.
  */
--(void)setMuted:(id)value;
+- (void)setMuted:(id)value;
 
 /**
  *  Returns wheather or not the current playback is muted.
  */
--(NSNumber*)muted;
+- (NSNumber *)muted;
 
 @end
 #endif

@@ -9,20 +9,19 @@
 #import "TiProxy.h"
 #import <MessageUI/MessageUI.h>
 
-@interface TiUIEmailDialogProxy : TiProxy<MFMailComposeViewControllerDelegate> 
-{
-	NSMutableArray * attachments;
+@interface TiUIEmailDialogProxy : TiProxy <MFMailComposeViewControllerDelegate> {
+  NSMutableArray *attachments;
 }
 
 - (void)open:(id)args;
 - (void)addAttachment:(id)args;
 
-@property(nonatomic,readonly)	NSArray * attachments;
+@property (nonatomic, readonly) NSArray *attachments;
 
-@property(nonatomic,readonly)	NSNumber *SENT;
-@property(nonatomic,readonly)	NSNumber *SAVED;
-@property(nonatomic,readonly)	NSNumber *CANCELLED;
-@property(nonatomic,readonly)	NSNumber *FAILED;
+@property (nonatomic, readonly) NSNumber *SENT;
+@property (nonatomic, readonly) NSNumber *SAVED;
+@property (nonatomic, readonly) NSNumber *CANCELLED;
+@property (nonatomic, readonly) NSNumber *FAILED;
 
 @end
 

@@ -33,10 +33,9 @@ import android.net.ParseException;
  */
 public interface Header {
 
-    String getName();
-    
-    String getValue();
+	String getName();
 
-    HeaderElement[] getElements() throws ParseException;
-    
+	String getValue();
+
+	HeaderElement[] getElements() throws ParseException;
 }
