@@ -25,7 +25,7 @@
 
   CGFloat scale = [image scale];
   // Force scaling to 2.0
-  if ([TiUtils isRetinaDisplay] && hires) {
+  if ([TiUtils is2xRetina] && hires) {
     scale = 2.0;
   }
 

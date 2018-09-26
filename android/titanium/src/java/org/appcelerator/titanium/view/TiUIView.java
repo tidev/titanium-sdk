@@ -126,6 +126,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
 
+	public TiBackgroundDrawable getBackground()
+	{
+		return background;
+	}
+
 	protected KrollDict additionalEventData;
 
 	// Since Android doesn't have a property to check to indicate
@@ -459,7 +464,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)
-			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR);
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR);
 	}
 
 	public float[] getPreTranslationValue(float[] points)
@@ -938,6 +943,14 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			if (getOuterView() != null) {
 				ViewCompat.setElevation(getOuterView(), TiConvert.toFloat(newValue));
 			}
+		} else if (key.equals(TiC.PROPERTY_ANCHOR_POINT)) {
+			if (getOuterView() != null) {
+				if (newValue instanceof HashMap) {
+					setAnchor((HashMap) newValue);
+				} else {
+					Log.e(TAG, "Invalid argument type for anchorPoint property. Ignoring");
+				}
+			}
 		} else if (key.equals(TiC.PROPERTY_TRANSLATION_X)) {
 			if (getOuterView() != null) {
 				ViewCompat.setTranslationX(getOuterView(), TiConvert.toFloat(newValue));
@@ -1080,6 +1093,15 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			ViewCompat.setElevation(getOuterView(), TiConvert.toFloat(d, TiC.PROPERTY_ELEVATION));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_ANCHOR_POINT) && !nativeViewNull) {
+			Object value = d.get(TiC.PROPERTY_ANCHOR_POINT);
+			if (value instanceof HashMap) {
+				setAnchor((HashMap) d);
+			} else {
+				Log.e(TAG, "Invalid argument type for anchorPoint property. Ignoring");
+			}
+		}
+
 		if (d.containsKey(TiC.PROPERTY_ROTATION) && !nativeViewNull) {
 			ViewCompat.setRotation(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_ROTATION));
 		}
@@ -1115,6 +1137,19 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (LOLLIPOP_OR_GREATER && !nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
 			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
+	}
+
+	private void setAnchor(HashMap point)
+	{
+		View outerView = getOuterView();
+		if (outerView == null) {
+			return;
+		}
+		float pivotX = TiConvert.toFloat(point.get(TiC.PROPERTY_X), 0.5f);
+		float pivotY = TiConvert.toFloat(point.get(TiC.PROPERTY_Y), 0.5f);
+
+		ViewCompat.setPivotX(outerView, pivotX * outerView.getWidth());
+		ViewCompat.setPivotY(outerView, pivotY * outerView.getHeight());
 	}
 
 	// TODO dead code?
@@ -1770,7 +1805,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			boolean enabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
-			touchable.setEnabled(enabled);
+			touchable.setClickable(enabled);
 		}
 		//Checking and setting touch sound for view
 		if (proxy.hasProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED)) {
