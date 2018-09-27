@@ -463,7 +463,7 @@ FILENOOP(setHidden
   NSString *dataString = [TiUtils stringValue:arg];
   NSData *data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
   NSError *err = nil;
-  [data writeToFile:path options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&err];
+  [data writeToFile:path options:NSDataWritingFileProtectionNone | NSDataWritingAtomic error:&err];
   if (err != nil) {
     NSLog(@"[ERROR] Could not write data to file at path \"%@\" - details: %@", path, err);
   }

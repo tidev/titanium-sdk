@@ -7,12 +7,15 @@
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 
 #import "TiMediaVideoPlayer.h"
+#import "TiApp.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "Webcolor.h"
+#import "TiUIWindowProxy.h"
 
-@implementation TiMediaVideoPlayer
-
+@implementation TiMediaVideoPlayer {
+    UIViewController *videoControllerPresenter;
+}
 #ifdef TI_USE_AUTOLAYOUT
 - (void)initializeTiLayoutView
 {
@@ -61,7 +64,8 @@
     // don't add the movie more than once if the same
     return;
   }
-  [[controller view] removeFromSuperview];
+  // [[controller view] removeFromSuperview];
+  [controller removeObserver:self forKeyPath:@"view.frame"];
   [spinner removeFromSuperview];
   RELEASE_TO_NIL(spinner);
   RELEASE_TO_NIL(controller);
@@ -71,9 +75,30 @@
   }
   controller = [controller_ retain];
 
-  [TiUtils setView:[controller view] positionRect:self.bounds];
-  [self addSubview:[controller view]];
-  [self sendSubviewToBack:[controller view]];
+  // [TiUtils setView:[controller view] positionRect:self.bounds];
+  // [self addSubview:[controller view]];
+  // [self sendSubviewToBack:[controller view]];
+
+  //find the top level view controller to use as a modal presenter
+  if (!videoControllerPresenter) {
+    id proxy = [(TiViewProxy *)self.proxy parent];
+    while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+        proxy = [proxy parent];
+    }
+    if ([proxy isKindOfClass:[TiWindowProxy class]]) {
+        videoControllerPresenter = [[proxy windowHoldingController] retain];
+    } else {
+        videoControllerPresenter = [[[TiApp app] controller] retain];
+    }
+  }
+
+  //Present the video view controller as a modal over full screen.
+  controller.modalPresentationStyle = UIModalPresentationOverFullScreen;
+  [videoControllerPresenter presentViewController:controller animated:YES completion:^{
+      //watch for view frame changes as we cannot watch for "DONE" button click!
+      [controller addObserver:self forKeyPath:@"view.frame" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+  }];
+
 
   TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
   UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
@@ -118,17 +143,30 @@
 
 - (void)dealloc
 {
-  [[controller view] removeFromSuperview];
+  [controller removeObserver:self forKeyPath:@"view.frame"];
+  //[[controller view] removeFromSuperview];
   RELEASE_TO_NIL(controller);
   RELEASE_TO_NIL(spinner);
+  RELEASE_TO_NIL(videoControllerPresenter);
   [super dealloc];
 }
 
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
   self.frame = CGRectIntegral(self.frame);
-  [TiUtils setView:[controller view] positionRect:bounds];
+  //[TiUtils setView:[controller view] positionRect:bounds];
   [super frameSizeChanged:frame bounds:bounds];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *, id> *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"view.frame"]) {
+        // fired on orientation change and dismissal
+        if (controller.isBeingDismissed) {
+            //fire the complete event if we are dismissing.
+            [self.proxy fireEvent:@"complete" withObject:nil errorCode:0 message:nil];
+        }
+    }
 }
 
 @end

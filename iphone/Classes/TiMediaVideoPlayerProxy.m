@@ -156,6 +156,14 @@ NSArray *moviePlayerKeys = nil;
       return nil;
     }
     movie = [[AVPlayerViewController alloc] init];
+
+    //ADDED THIS TO ENSURE WE DON'T GET LEFT ON A BLANK SCREEN
+    //WITH NON-FUNCTIONING CONTROLS WHEN PLAYBACK ENDS IN FULLSCREEN
+    if (@available(iOS 11, *)) {
+        // iOS 11 ObjC code
+        movie.exitsFullScreenWhenPlaybackEnds=YES;
+    }
+
     [movie setPlayer:[AVPlayer playerWithURL:url]];
     [self configurePlayer];
   }

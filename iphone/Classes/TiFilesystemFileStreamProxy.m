@@ -51,7 +51,7 @@
           //If the file exists and the mode is TI_WRITE, truncate the file.
           if (mode == TI_WRITE) {
             NSError *error = nil;
-            [[NSData data] writeToFile:filePath options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&error];
+            [[NSData data] writeToFile:filePath options:NSDataWritingFileProtectionNone | NSDataWritingAtomic error:&error];
             if (error != nil) {
               [NSException raise:NSInternalInconsistencyException format:@"%@", error, nil];
             }
