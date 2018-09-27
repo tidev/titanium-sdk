@@ -5758,119 +5758,123 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			}, this);
 		},
 
-		function processJSFiles(next) {
-			this.logger.info(__('Processing JavaScript files'));
+		function (next) {
+			series(this, [
+				function processJSFiles(next) {
+					this.logger.info(__('Processing JavaScript files'));
 
-			async.eachSeries(Object.keys(jsFiles), function (file, next) {
-				setImmediate(function () {
-					// A JS file ending with "*.bootstrap.js" is to be loaded before the "app.js".
-					// Add it as a require() compatible string to bootstrap array if it's a match.
-					const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
-					if (bootstrapPath.endsWith('.bootstrap')) {
-						jsBootstrapFiles.push(bootstrapPath);
-					}
+					async.eachSeries(Object.keys(jsFiles), function (file, next) {
+						setImmediate(function () {
+							// A JS file ending with "*.bootstrap.js" is to be loaded before the "app.js".
+							// Add it as a require() compatible string to bootstrap array if it's a match.
+							const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
+							if (bootstrapPath.endsWith('.bootstrap')) {
+								jsBootstrapFiles.push(bootstrapPath);
+							}
 
-					const info = jsFiles[file];
-					if (this.encryptJS) {
-						if (file.indexOf('/') === 0) {
-							file = path.basename(file);
-						}
-						file = file.replace(/\./g, '_');
-						info.dest = path.join(this.buildAssetsDir, file);
-						this.jsFilesToEncrypt.push(file);
-					}
-
-					try {
-						this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-							const originalContents = fs.readFileSync(from).toString();
-							// Populate an initial object to pass in. This won't have modified
-							// contents or symbols populated, which it used to at this point,
-							// but I don't think any plugin relied on that behavior, while
-							// hyperloop would clobber the contents if we didn't do the mods
-							// inside the compile hook.
-							const r = {
-								original: originalContents,
-								contents: originalContents,
-								symbols: []
-							};
-							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-								// Read the possibly modified file contents
-								const source = r.contents;
-								// Analyze Ti API usage, possibly also minify/transpile
-								const analyzeOptions = {
-									filename: from,
-									minify: this.minifyJS,
-									transpile: this.transpile,
-									sourceMap: this.sourceMaps || this.deployType === 'development',
-									resourcesDir: this.xcodeAppDir,
-									targets: {
-										ios: this.minSupportedIosSdk
-									}
-								};
-
-								try {
-									const modified = jsanalyze.analyzeJs(source, analyzeOptions);
-									const newContents = modified.contents;
-
-									// we want to sort by the "to" filename so that we correctly handle file overwriting
-									this.tiSymbols[to] = modified.symbols;
-
-									const dir = path.dirname(to);
-									fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-									const exists = fs.existsSync(to);
-									// dest doesn't exist, or new contents differs from existing dest file
-									if (!exists || newContents !== fs.readFileSync(to).toString()) {
-										this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-										exists && fs.unlinkSync(to);
-										fs.writeFileSync(to, newContents);
-										this.jsFilesChanged = true;
-									} else {
-										this.logger.trace(__('No change, skipping %s', to.cyan));
-									}
-									cb2();
-								} catch (err) {
-									err.message.split('\n').forEach(this.logger.error);
-									if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
-										this.logger.log(err.codeFrame);
-									}
-									this.logger.log();
-									process.exit(1);
-								} finally {
-									this.unmarkBuildDirFile(to);
+							const info = jsFiles[file];
+							if (this.encryptJS) {
+								if (file.indexOf('/') === 0) {
+									file = path.basename(file);
 								}
-							})(r, from, to, cb);
-						})(info.src, info.dest, next);
-					} catch (ex) {
-						ex.message.split('\n').forEach(this.logger.error);
-						this.logger.log();
-						process.exit(1);
+								file = file.replace(/\./g, '_');
+								info.dest = path.join(this.buildAssetsDir, file);
+								this.jsFilesToEncrypt.push(file);
+							}
+
+							try {
+								this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+									const originalContents = fs.readFileSync(from).toString();
+									// Populate an initial object to pass in. This won't have modified
+									// contents or symbols populated, which it used to at this point,
+									// but I don't think any plugin relied on that behavior, while
+									// hyperloop would clobber the contents if we didn't do the mods
+									// inside the compile hook.
+									const r = {
+										original: originalContents,
+										contents: originalContents,
+										symbols: []
+									};
+									this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+										// Read the possibly modified file contents
+										const source = r.contents;
+										// Analyze Ti API usage, possibly also minify/transpile
+										const analyzeOptions = {
+											filename: from,
+											minify: this.minifyJS,
+											transpile: this.transpile,
+											sourceMap: this.sourceMaps || this.deployType === 'development',
+											resourcesDir: this.xcodeAppDir,
+											targets: {
+												ios: this.minSupportedIosSdk
+											}
+										};
+
+										try {
+											const modified = jsanalyze.analyzeJs(source, analyzeOptions);
+											const newContents = modified.contents;
+
+											// we want to sort by the "to" filename so that we correctly handle file overwriting
+											this.tiSymbols[to] = modified.symbols;
+
+											const dir = path.dirname(to);
+											fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+											const exists = fs.existsSync(to);
+											// dest doesn't exist, or new contents differs from existing dest file
+											if (!exists || newContents !== fs.readFileSync(to).toString()) {
+												this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+												exists && fs.unlinkSync(to);
+												fs.writeFileSync(to, newContents);
+												this.jsFilesChanged = true;
+											} else {
+												this.logger.trace(__('No change, skipping %s', to.cyan));
+											}
+											cb2();
+										} catch (err) {
+											err.message.split('\n').forEach(this.logger.error);
+											if (err.codeFrame) { // if we have a nicely formatted pointer to syntax error from babel, use it!
+												this.logger.log(err.codeFrame);
+											}
+											this.logger.log();
+											process.exit(1);
+										} finally {
+											this.unmarkBuildDirFile(to);
+										}
+									})(r, from, to, cb);
+								})(info.src, info.dest, next);
+							} catch (ex) {
+								ex.message.split('\n').forEach(this.logger.error);
+								this.logger.log();
+								process.exit(1);
+							}
+						}.bind(this));
+					}.bind(this), next);
+				},
+
+				function writeBootstrapJson() {
+					this.logger.info(__('Writing bootstrap json'));
+
+					const bootstrapJsonRelativePath = this.encryptJS ? path.join('ti_internal', 'bootstrap_json') : path.join('ti.internal', 'bootstrap.json'),
+						bootstrapJsonAbsolutePath = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, bootstrapJsonRelativePath),
+						bootstrapJsonString = JSON.stringify({ scripts: jsBootstrapFiles });
+
+					this.encryptJS && this.jsFilesToEncrypt.push(bootstrapJsonRelativePath);
+
+					if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath).toString())) {
+						this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
+
+						if (!fs.existsSync(path.dirname(bootstrapJsonAbsolutePath))) {
+							wrench.mkdirSyncRecursive(path.dirname(bootstrapJsonAbsolutePath));
+						}
+						fs.writeFileSync(bootstrapJsonAbsolutePath, bootstrapJsonString);
+					} else {
+						this.logger.trace(__('No change, skipping %s', bootstrapJsonAbsolutePath.cyan));
 					}
-				}.bind(this));
-			}.bind(this), next);
-		},
 
-		function writeBootstrapJson() {
-			this.logger.info(__('Writing bootstrap json'));
-
-			const bootstrapJsonRelativePath = this.encryptJS ? path.join('ti_internal', 'bootstrap_json') : path.join('ti.internal', 'bootstrap.json'),
-				bootstrapJsonAbsolutePath = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, bootstrapJsonRelativePath),
-				bootstrapJsonString = JSON.stringify({ scripts: jsBootstrapFiles });
-
-			this.encryptJS && this.jsFilesToEncrypt.push(bootstrapJsonRelativePath);
-
-			if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath).toString())) {
-				this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
-
-				if (!fs.existsSync(path.dirname(bootstrapJsonAbsolutePath))) {
-					wrench.mkdirSyncRecursive(path.dirname(bootstrapJsonAbsolutePath));
-				}
-				fs.writeFileSync(bootstrapJsonAbsolutePath, bootstrapJsonString);
-			} else {
-				this.logger.trace(__('No change, skipping %s', bootstrapJsonAbsolutePath.cyan));
-			}
-
-			this.unmarkBuildDirFile(bootstrapJsonAbsolutePath);
+					this.unmarkBuildDirFile(bootstrapJsonAbsolutePath);
+				},
+			], next);
 		},
 
 		function writeAppProps() {
