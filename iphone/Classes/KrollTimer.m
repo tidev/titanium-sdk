@@ -107,7 +107,7 @@
       TiThreadPerformOnMainThread(^{
         [kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
       },
-          NO);
+          YES);
     } else {
       // push the invocation to happen on the context thread
       [kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];

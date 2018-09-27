@@ -192,7 +192,7 @@ iOSBuilder.prototype.assertIssue = function assertIssue(issues, name) {
 	for (let i = 0; i < issues.length; i++) {
 		if ((typeof name === 'string' && issues[i].id === name) || (typeof name === 'object' && name.test(issues[i].id))) {
 			this.logger.banner();
-			appc.string.wrap(issues[i].message, this.config.get('cli.width', 100)).split('\n').forEach(function (line, i, arr) {
+			appc.string.wrap(issues[i].message, this.config.get('cli.width', 100)).split('\n').forEach(function (line) {
 				this.logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
 			}, this);
 			this.logger.log();
@@ -3915,6 +3915,38 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 
 	[ {
 		orientation: 'Portrait',
+		'minimum-system-version': '12.0',
+		name: 'Default-Portrait',
+		subtype: '2688h',
+		scale: [ '3x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '12.0',
+		name: 'Default-Landscape',
+		subtype: '2688h',
+		scale: [ '3x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Portrait',
+		'minimum-system-version': '12.0',
+		name: 'Default-Portrait',
+		subtype: '1792h',
+		scale: [ '2x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Landscape',
+		'minimum-system-version': '12.0',
+		name: 'Default-Landscape',
+		subtype: '1792h',
+		scale: [ '2x' ],
+		size: '{414, 896}'
+	},
+	{
+		orientation: 'Portrait',
 		'minimum-system-version': '11.0',
 		name: 'Default-Portrait',
 		subtype: '2436h',
@@ -4767,6 +4799,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 		resourcesToCopy = {},
 		jsFiles = {},
+		jsBootstrapFiles = [],
 		cssFiles = {},
 		htmlJsFiles = {},
 		appIcons = {},
@@ -4857,6 +4890,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	this.logger.info(__('Analyzing Resources directory'));
+	walk(path.join(this.titaniumSdkPath, 'common', 'Resources'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources'),           this.xcodeAppDir, platformsRegExp);
 	walk(path.join(this.projectDir, 'Resources', 'iphone'), this.xcodeAppDir);
 	walk(path.join(this.projectDir, 'Resources', 'ios'),    this.xcodeAppDir);
@@ -5507,6 +5541,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							'Default-Landscape-736h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'landscape', width: 2208, height: 1242, scale: 3, subtype: '736h' },
 							// iPhone Landscape - iOS 11 - Retina HD iPhone X (2436x1125)
 							'Default-Landscape-2436h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'landscape', width: 2436, height: 1125, scale: 3, subtype: '2436h' },
+							// iPhone Landscape - iOS 12 - Retina HD iPhone X Max (2688x1242)
+							'Default-Landscape-2688h@3x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 2688, height: 1242, scale: 3, subtype: '2688h' },
+							// iPhone Landscape - iOS 12 - Retina iPhone XR (1792x828)
+							'Default-Landscape-1792h@2x.png': { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'landscape', width: 1792, height: 828, scale: 2, subtype: '1792h' },
 
 							// iPad Portrait - iOS 7-9 - 1x (????)
 							'Default-Portrait.png':          { idiom: 'ipad',   extent: 'full-screen', minSysVer: '7.0', orientation: 'portrait', width: 768, height: 1024, scale: 1 },
@@ -5515,7 +5553,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							// iPhone Portrait - iOS 8,9 - Retina HD 5.5 (1242x2208)
 							'Default-Portrait-736h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '8.0', orientation: 'portrait', width: 1242, height: 2208, scale: 3, subtype: '736h' },
 							// iPhone Portrait - iOS 11 - Retina HD iPhone X (1125x2436)
-							'Default-Portrait-2436h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'portrait', width: 1125, height: 2436, scale: 3, subtype: '2436h' }
+							'Default-Portrait-2436h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '11.0', orientation: 'portrait', width: 1125, height: 2436, scale: 3, subtype: '2436h' },
+							// iPhone Portrait - iOS 12 - Retina HD iPhone X Max (1242x2688)
+							'Default-Portrait-2688h@3x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 1242, height: 2688, scale: 3, subtype: '2688h' },
+							// iPhone Portrait - iOS 12 - Retina iPhone XR (828x1792)
+							'Default-Portrait-1792h@2x.png':  { idiom: 'iphone', extent: 'full-screen', minSysVer: '12.0', orientation: 'portrait', width: 828, height: 1792, scale: 2, subtype: '1792h' }
 						},
 						found = {};
 
@@ -5721,6 +5763,13 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 			async.eachSeries(Object.keys(jsFiles), function (file, next) {
 				setImmediate(function () {
+					// A JS file ending with "*.bootstrap.js" is to be loaded before the "app.js".
+					// Add it as a require() compatible string to bootstrap array if it's a match.
+					const bootstrapPath = file.substr(0, file.length - 3);  // Remove the ".js" extension.
+					if (bootstrapPath.endsWith('.bootstrap')) {
+						jsBootstrapFiles.push(bootstrapPath);
+					}
+
 					const info = jsFiles[file];
 					if (this.encryptJS) {
 						if (file.indexOf('/') === 0) {
@@ -5799,6 +5848,25 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					}
 				}.bind(this));
 			}.bind(this), next);
+		},
+
+		function writeBootstrapJson() {
+			this.logger.info(__('Writing bootstrap json'));
+
+			const bootstrapJsonRelativePath = this.encryptJS ? path.join('ti_internal', 'bootstrap_json') : path.join('ti.internal', 'bootstrap.json'),
+				bootstrapJsonAbsolutePath = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, bootstrapJsonRelativePath),
+				bootstrapJsonString = JSON.stringify({ scripts: jsBootstrapFiles });
+
+			this.encryptJS && this.jsFilesToEncrypt.push(bootstrapJsonRelativePath);
+
+			if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath).toString())) {
+				this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
+				fs.writeFileSync(bootstrapJsonAbsolutePath, bootstrapJsonString);
+			} else {
+				this.logger.trace(__('No change, skipping %s', bootstrapJsonAbsolutePath.cyan));
+			}
+
+			this.unmarkBuildDirFile(bootstrapJsonAbsolutePath);
 		},
 
 		function writeAppProps() {
