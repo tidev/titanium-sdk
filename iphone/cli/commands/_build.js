@@ -5861,6 +5861,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 			if (!fs.existsSync(bootstrapJsonAbsolutePath) || (bootstrapJsonString !== fs.readFileSync(bootstrapJsonAbsolutePath).toString())) {
 				this.logger.debug(__('Writing %s', bootstrapJsonAbsolutePath.cyan));
+
+				if (!fs.existsSync(path.dirname(bootstrapJsonAbsolutePath))) {
+					wrench.mkdirSyncRecursive(path.dirname(bootstrapJsonAbsolutePath));
+				}
 				fs.writeFileSync(bootstrapJsonAbsolutePath, bootstrapJsonString);
 			} else {
 				this.logger.trace(__('No change, skipping %s', bootstrapJsonAbsolutePath.cyan));
