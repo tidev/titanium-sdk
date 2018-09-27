@@ -622,7 +622,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
       responseInfo = [NSMutableDictionary dictionary];
       [responseInfo setValue:((UNTextInputNotificationResponse *)response).userText forKey:UIUserNotificationActionResponseTypedTextKey];
     }
-    if ([UNNotificationDefaultActionIdentifier isEqualToString:response.actionIdentifier]){
+    if ([UNNotificationDefaultActionIdentifier isEqualToString:response.actionIdentifier]) {
         [self application:[UIApplication sharedApplication] didReceiveRemoteNotification:response.notification.request.content.userInfo];
         completionHandler();
     } else {
