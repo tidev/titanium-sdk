@@ -130,7 +130,7 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 + (BOOL)isRetina6_1Inch
 {
   CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
-  return (mainScreenBoundsSize.height == 896 || mainScreenBoundsSize.width == 896) && [TiUtils is2xRetina];
+  return (mainScreenBoundsSize.height == 896 || mainScreenBoundsSize.width == 896) && ![TiUtils is3xRetina];
 }
 
 + (BOOL)isSuperRetina6_5Inch
@@ -163,7 +163,7 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
     }
     scale = [[UIScreen mainScreen] scale];
   }
-  return scale > 1.0;
+  return scale > 1.0; // TODO: In the future (next major), this should be == 2.0 which is a breaking change
 }
 
 + (BOOL)isRetinaHDDisplay
