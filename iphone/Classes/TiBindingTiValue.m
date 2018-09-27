@@ -226,6 +226,9 @@ TiValueRef TiBindingTiValueFromProxy(TiContextRef jsContext, TiProxy *obj)
       return [[ourBridge registerProxy:obj] jsobject];
     }
     KrollObject *objKrollObject = [ourBridge krollObjectForProxy:obj];
+#ifdef USE_JSCORE_FRAMEWORK
+    [objKrollObject unprotectJsobject];
+#endif
     return [objKrollObject jsobject];
   }
 
