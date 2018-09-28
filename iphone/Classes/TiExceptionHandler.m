@@ -61,17 +61,26 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
   if (exceptionStackTrace == nil) {
     [[TiApp app] showModalError:[error description]];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification
+                                                        object:self
+                                                      userInfo:error.dictionaryValue];
   } else {
     NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
     NSUInteger exceptionStackTraceLength = [exceptionStackTrace count];
 
     // re-size stack trace and format results. Starting at index = 4 to not include the script-error API's
-    for (NSInteger i = 4; i <= (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
+    for (NSInteger i = 4; i < (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
       NSString *line = [[exceptionStackTrace objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
       [formattedStackTrace addObject:line];
     }
 
-    [[TiApp app] showModalError:[NSString stringWithFormat:@"%@\n\n%@", [error description], [formattedStackTrace componentsJoinedByString:@"\n"]]];
+    NSString *stackTrace = [formattedStackTrace componentsJoinedByString:@"\n"];
+    [[TiApp app] showModalError:[NSString stringWithFormat:@"%@\n\n%@", [error description], stackTrace]];
+    NSMutableDictionary *errorDict = [error.dictionaryValue mutableCopy];
+    [errorDict setObject:stackTrace forKey:@"stackTrace"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification
+                                                        object:self
+                                                      userInfo:errorDict];
   }
 }
 

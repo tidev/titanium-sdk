@@ -363,17 +363,17 @@
 - (void)setRefreshControl_:(id)args
 {
 #ifdef USE_TI_UIREFRESHCONTROL
-  if (![TiUtils isIOS10OrGreater]) {
-    NSLog(@"[WARN] Ti.UI.RefreshControl inside Ti.UI.ScrollView is only available in iOS 10 and later.");
-    return;
-  }
   ENSURE_SINGLE_ARG_OR_NIL(args, TiUIRefreshControlProxy);
   [[refreshControl control] removeFromSuperview];
   RELEASE_TO_NIL(refreshControl);
   [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
   if (args != nil) {
     refreshControl = [args retain];
-    [[self scrollView] setRefreshControl:[refreshControl control]];
+    if ([TiUtils isIOSVersionOrGreater:@"10.0"]) {
+      [[self scrollView] setRefreshControl:refreshControl.control];
+    } else {
+      [[self scrollView] addSubview:refreshControl.control];
+    }
   }
 #endif
 }

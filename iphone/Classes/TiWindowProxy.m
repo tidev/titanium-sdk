@@ -428,7 +428,7 @@
   id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
   [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
   if (current != arg && [TiUtils isIOS11OrGreater]) {
-    [[self windowHoldingController] setNeedsUpdateOfHomeIndicatorAutoHidden];
+    [[[TiApp app] controller] setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }
 
@@ -723,6 +723,7 @@
   id hidesBarsOnSwipe = [self valueForUndefinedKey:@"hidesBarsOnSwipe"];
   id hidesBarsOnTap = [self valueForUndefinedKey:@"hidesBarsOnTap"];
   id hidesBarsWhenKeyboardAppears = [self valueForUndefinedKey:@"hidesBarsWhenKeyboardAppears"];
+  id hidesBackButton = [self valueForUndefinedKey:@"hidesBackButton"];
 
   if (navBarHidden) {
     id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:@"animated"]];
@@ -740,6 +741,9 @@
   }
   if (hidesBarsWhenKeyboardAppears) {
     [self setHidesBarsWhenKeyboardAppears:hidesBarsWhenKeyboardAppears];
+  }
+  if (hidesBackButton) {
+    [self setHidesBackButton:hidesBackButton];
   }
 
   [self willShow];
@@ -800,6 +804,18 @@
 
   if ((controller != nil) && ([controller navigationController] != nil)) {
     [[controller navigationController] setHidesBarsWhenKeyboardAppears:[TiUtils boolValue:value def:NO]];
+  }
+}
+
+- (void)setHidesBackButton:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  ENSURE_UI_THREAD(setHidesBackButton, value);
+
+  [self replaceValue:value forKey:@"hidesBackButton" notification:NO];
+
+  if ((controller != nil) && ([controller navigationItem] != nil)) {
+    [[controller navigationItem] setHidesBackButton:[TiUtils boolValue:value def:NO]];
   }
 }
 

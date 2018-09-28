@@ -42,6 +42,14 @@ properties:
     osver: {ios: {max: 9.3}}
     availability: creation
 
+  - name: categorySummaryFormat
+    summary: A format string for the summary description used when the system groups the category's notifications.
+    type: String
+    accessors: false
+    osver: { ios: { min: 12.0 } }
+    availability: creation
+    since: "7.4.0"
+
   - name: identifier
     summary: Identifier for this category.
     description: |

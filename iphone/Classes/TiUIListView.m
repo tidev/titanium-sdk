@@ -13,7 +13,7 @@
 #import "TiUIListItemProxy.h"
 #import "TiUIListSectionProxy.h"
 #import "TiUISearchBarProxy.h"
-#import "TiUIWindowProxy.h"
+#import "TiWindowProxy.h"
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
@@ -411,6 +411,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     return theView;
   }
   return nil;
+}
+
+- (void)add:(id)arg
+{
+  NSLog(@"[ERROR] Cannot add sub-views to list views. Use \"appendSection\" instead.");
 }
 
 #pragma mark - Helper Methods

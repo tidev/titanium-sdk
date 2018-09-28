@@ -92,6 +92,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	private int maxLength = -1;
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
+	private int viewHeightInLines;
+	private int maxLines = Integer.MAX_VALUE;
 
 	protected TiUIEditText tv;
 	protected TextInputLayout textInputLayout;
@@ -251,7 +253,38 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
 			}
 		}
+
+		if (d.containsKey(TiC.PROPERTY_LINES)) {
+			if (!field) {
+				this.viewHeightInLines = TiConvert.toInt(d.get(TiC.PROPERTY_LINES), 0);
+				updateTextField();
+			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_MAX_LINES)) {
+			if (!field) {
+				int value = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LINES), Integer.MAX_VALUE);
+				if (value < 1) {
+					value = Integer.MAX_VALUE;
+				}
+				this.maxLines = value;
+				updateTextField();
+			}
+		}
+
 		disableChangeEvent = false;
+	}
+
+	private void updateTextField()
+	{
+		if (!field) {
+			if (this.viewHeightInLines > 0) {
+				tv.setLines(this.viewHeightInLines);
+			} else {
+				tv.setMinLines(0);
+			}
+			tv.setMaxLines((this.maxLines > 0) ? this.maxLines : 1);
+		}
 	}
 
 	private void setTextPadding(HashMap<String, Object> d)
@@ -370,6 +403,20 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			if (!TiConvert.toBoolean(newValue, true)) {
 				tv.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
 			}
+		} else if (key.equals(TiC.PROPERTY_LINES)) {
+			if (!field) {
+				this.viewHeightInLines = TiConvert.toInt(newValue, 0);
+				updateTextField();
+			}
+		} else if (key.equals(TiC.PROPERTY_MAX_LINES)) {
+			if (!field) {
+				int value = TiConvert.toInt(newValue, Integer.MAX_VALUE);
+				if (value < 1) {
+					value = Integer.MAX_VALUE;
+				}
+				this.maxLines = value;
+				updateTextField();
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -424,14 +471,21 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			// Can only set truncated text in afterTextChanged. Otherwise, it will crash.
 			return;
 		}
-		String newText = tv.getText().toString();
-		if (!disableChangeEvent
-			&& (!isTruncatingText
-				|| (isTruncatingText && proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText)))) {
-			KrollDict data = new KrollDict();
-			data.put(TiC.PROPERTY_VALUE, newText);
-			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
-			fireEvent(TiC.EVENT_CHANGE, data);
+
+		// Fire change events, but only if it's coming from the end-user (ignore programmatic text changes).
+		if (!disableChangeEvent) {
+			// Fire a text "change" event.
+			String newText = tv.getText().toString();
+			if (!isTruncatingText || proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText)) {
+				KrollDict data = new KrollDict();
+				data.put(TiC.PROPERTY_VALUE, newText);
+				proxy.setProperty(TiC.PROPERTY_VALUE, newText);
+				fireEvent(TiC.EVENT_CHANGE, data);
+			}
+
+			// Fire an app "userinteraction" event when the end-user is typing on the keyboard.
+			// Note: The Activity.onUserInteraction() method does not get called in this case.
+			TiApplication.getInstance().fireAppEvent(TiC.EVENT_USER_INTERACTION, null);
 		}
 	}
 

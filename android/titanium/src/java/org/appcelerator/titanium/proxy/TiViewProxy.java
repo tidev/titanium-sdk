@@ -8,11 +8,12 @@ package org.appcelerator.titanium.proxy;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -32,6 +33,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiAnimation;
+import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.animation.Animator;
@@ -39,6 +41,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -92,7 +98,8 @@ import android.view.ViewAnimationUtils;
 	TiC.PROPERTY_TOUCH_FEEDBACK,
 	TiC.PROPERTY_TOUCH_FEEDBACK_COLOR,
 	TiC.PROPERTY_TRANSITION_NAME,
-	TiC.PROPERTY_HIDDEN_BEHAVIOR
+	TiC.PROPERTY_HIDDEN_BEHAVIOR,
+	TiC.PROPERTY_ANCHOR_POINT
 })
 // clang-format on
 public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
@@ -617,17 +624,35 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 
 	public void releaseViews()
 	{
-		if (view != null) {
-			if (children != null) {
-				for (TiViewProxy p : children) {
-					p.releaseViews();
-				}
+		if (children != null) {
+			for (TiViewProxy p : children) {
+				p.releaseViews();
 			}
+		}
+		if (view != null) {
 			view.release();
 			view = null;
 		}
+		if (runtimeHandler != null) {
+			runtimeHandler = null;
+		}
+		if (mainHandler != null) {
+			mainHandler = null;
+		}
 		setModelListener(null);
-		KrollRuntime.suggestGC();
+	}
+
+	@Override
+	public void release()
+	{
+		releaseViews();
+
+		if (children != null) {
+			children.clear();
+			children = null;
+		}
+
+		super.release();
 	}
 
 	/**
@@ -1146,6 +1171,60 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 		}
 
 		return this.parent.get();
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public String getBackgroundDisabledColor()
+	// clang-format on
+	{
+		// Try to get the background drawable if one is available.
+		TiBackgroundDrawable backgroundDrawable = getOrCreateView().getBackground();
+		// Guard for views without color state backgrounds.
+		if (backgroundDrawable == null) {
+			return null;
+		} else {
+			try {
+				// Get the backgroundDrawable background as a StateListDrawable.
+				StateListDrawable stateListDrawable = ((StateListDrawable) backgroundDrawable.getBackground());
+				// Get the reflection methods.
+				Method getStateDrawableIndexMethod =
+					StateListDrawable.class.getMethod("getStateDrawableIndex", int[].class);
+				Method getStateDrawableMethod = StateListDrawable.class.getMethod("getStateDrawable", int.class);
+				// Get the disabled state's (as defined in TiUIHelper) index.
+				int index =
+					(int) getStateDrawableIndexMethod.invoke(stateListDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
+				// Get the drawable at the index.
+				Drawable drawable = (Drawable) getStateDrawableMethod.invoke(stateListDrawable, index);
+				// Try to get the 0 index of the result.
+				if (drawable instanceof LayerDrawable) {
+					Drawable drawableFromLayer = ((LayerDrawable) drawable).getDrawable(0);
+					// Cast it as a ColorDrawable.
+					if (drawableFromLayer instanceof ColorDrawable) {
+						// Transcript the color int to HexString.
+						String strColor =
+							String.format("#%08X", 0xFFFFFFFF & ((ColorDrawable) drawableFromLayer).getColor());
+						return strColor;
+					} else {
+						Log.w(TAG, "Background drawable of unexpected type. Expected - ColorDrawable. Found - "
+									   + drawableFromLayer.getClass().toString());
+						return null;
+					}
+				} else {
+					Log.w(TAG, "Background drawable of unexpected type. Expected - LayerDrawable. Found - "
+								   + drawable.getClass().toString());
+					return null;
+				}
+			} catch (NoSuchMethodException e) {
+				Log.w(TAG, "Unable to get a method for reflection.");
+			} catch (IllegalAccessException e) {
+				Log.w(TAG, "Unable to access a method for reflection.");
+			} catch (InvocationTargetException e) {
+				Log.w(TAG, "Unable to invoke a method for reflection.");
+			}
+			return null;
+		}
 	}
 
 	public void setParent(TiViewProxy parent)

@@ -14,6 +14,11 @@
 
 @implementation TiAppiOSUserNotificationCenterProxy
 
+- (NSString *)apiName
+{
+  return @"Ti.App.iOS.UserNotificationCenter";
+}
+
 - (void)getPendingNotifications:(id)callback
 {
   ENSURE_SINGLE_ARG(callback, KrollCallback);
@@ -183,6 +188,12 @@
           propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
         }
 #endif
+#if IS_XCODE_10
+        if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
+          propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);
+          propertiesDict[@"providesAppNotificationSettings"] = @([settings providesAppNotificationSettings]);
+        }
+#endif
         NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
         [callback call:invocationArray thisObject:self];
@@ -215,11 +226,16 @@
   [event setObject:NULL_IF_NIL([[request content] title]) forKey:@"alertTitle"];
   [event setObject:NULL_IF_NIL([[request content] subtitle]) forKey:@"alertSubtitle"];
   [event setObject:NULL_IF_NIL([[request content] launchImageName]) forKey:@"alertLaunchImage"];
-  [event setObject:NULL_IF_NIL([[request content] sound]) forKey:@"sound"];
   [event setObject:NULL_IF_NIL([[request content] badge]) forKey:@"badge"];
   [event setObject:NULL_IF_NIL([[request content] userInfo]) forKey:@"userInfo"];
   [event setObject:NULL_IF_NIL([[request content] categoryIdentifier]) forKey:@"category"];
   [event setObject:NULL_IF_NIL([request identifier]) forKey:@"identifier"];
+
+  // iOS 10+ does have "soundName" but "sound" which is a native object. But if we find
+  // a sound in the APS dictionary, we can provide that one for parity
+  if (request.content.userInfo[@"aps"] && request.content.userInfo[@"aps"][@"sound"]) {
+    [event setObject:request.content.userInfo[@"aps"][@"sound"] forKey:@"sound"];
+  }
 
   if ([[request trigger] isKindOfClass:[UNCalendarNotificationTrigger class]]) {
     [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)[request trigger] nextTriggerDate]) forKey:@"date"];

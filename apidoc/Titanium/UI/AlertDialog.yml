@@ -38,7 +38,7 @@ description: |
 
     Buttons are defined using the `buttonNames` property and are rendered vertically below
     the message. Alert dialogs are automatically cancelled when the application is
-    paused/suspended. This behavior can avoided by setting `persistent` property on alert dialog
+    paused/suspended. This behavior can be avoided by setting `persistent` property on alert dialog
     to be `true`.
 
     The `style` property can be used to allow the user to enter plain text,
@@ -199,6 +199,18 @@ properties:
     type: Number
     default: undefined (Android), -1 (iOS)
 
+  - name: buttonClickRequired
+    summary: |
+        Setting this to true requires the end-user to click a dialog button to close the dialog.
+    description: |
+        Set to true to prevent the dialog from being dismissed via back navigation or tapping outside of the dialog.
+        This requires the end-user to click on one of the dialog buttons provided by property buttonNames. Note that
+        if the dialog does not have any buttons, then the dialog can only be closed programmatically via the hide() method.
+    type: Boolean
+    default: false on Android
+    since: "7.5.0"
+    platforms: [android]
+
   - name: canceledOnTouchOutside
     summary: |
         When this is set to `true`, the dialog is canceled when touched outside the window's bounds.
@@ -210,8 +222,7 @@ properties:
   - name: destructive
     summary: Index to define the destructive button.
     platforms: [iphone, ipad]
-    description: |
-        Note that this property is only available on iOS 8 or above. Setting to -1 disables this option.
+    description: Setting this property to -1 disables this option.
     type: Number
     default: -1
     since: 3.5.0
@@ -567,7 +578,7 @@ examples:
             });
             win.open();
 
-  - title: Alert Dialog with Plain Text Input (iOS 5 and later)
+  - title: Alert Dialog with Plain Text Input
     example: |
         Create an alert dialog and allow the user enter plain text, which is invoked when the
         app window is clicked.
@@ -622,3 +633,5 @@ examples:
             function doClick(e) {
                 Ti.API.info('e.text: ' + e.text);
             }
+            
+            $.win.open();

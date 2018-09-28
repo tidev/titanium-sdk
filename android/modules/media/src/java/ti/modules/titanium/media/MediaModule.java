@@ -138,9 +138,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD = 5;
 
 	@Kroll.constant
-	public static final int VIDEO_QUALITY_LOW = CamcorderProfile.QUALITY_LOW;
+	public static final int QUALITY_LOW = CamcorderProfile.QUALITY_LOW;
 	@Kroll.constant
-	public static final int VIDEO_QUALITY_HIGH = CamcorderProfile.QUALITY_HIGH;
+	public static final int QUALITY_HIGH = CamcorderProfile.QUALITY_HIGH;
+	@Kroll.constant
+	public static final int QUALITY_640x480 = CamcorderProfile.QUALITY_480P;
+	@Kroll.constant
+	public static final int QUALITY_IFRAME_1280x720 = CamcorderProfile.QUALITY_720P;
 
 	@Kroll.constant
 	public static final int VIDEO_FINISH_REASON_PLAYBACK_ENDED = 0;
@@ -180,6 +184,27 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int CAMERA_FLASH_ON = 1;
 	@Kroll.constant
 	public static final int CAMERA_FLASH_AUTO = 2;
+
+	@Kroll.constant
+	public static final int AUDIO_STATE_BUFFERING = 0; // current playback is in the buffering from the network state
+	@Kroll.constant
+	public static final int AUDIO_STATE_INITIALIZED = 1; // current playback is in the initialization state
+	@Kroll.constant
+	public static final int AUDIO_STATE_PAUSED = 2; // current playback is in the paused state
+	@Kroll.constant
+	public static final int AUDIO_STATE_PLAYING = 3; // current playback is in the playing state
+	@Kroll.constant
+	public static final int AUDIO_STATE_STARTING = 4; // current playback is in the starting playback state
+	@Kroll.constant
+	public static final int AUDIO_STATE_STOPPED = 5; // current playback is in the stopped state
+	@Kroll.constant
+	public static final int AUDIO_STATE_STOPPING = 6; // current playback is in the stopping state
+	@Kroll.constant
+	public static final int AUDIO_STATE_WAITING_FOR_DATA =
+		7; // current playback is in the waiting for audio data from the network state
+	@Kroll.constant
+	public static final int AUDIO_STATE_WAITING_FOR_QUEUE =
+		8; //  current playback is in the waiting for audio data to fill the queue state
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static String extension = ".jpg";
@@ -248,7 +273,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		String[] mediaTypes = null;
 		String intentType = MediaStore.ACTION_IMAGE_CAPTURE;
 		int videoMaximumDuration = 0;
-		int videoQuality = VIDEO_QUALITY_HIGH;
+		int videoQuality = QUALITY_HIGH;
 		int cameraType = 0;
 
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
@@ -356,7 +381,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		boolean saveToPhotoGallery = false;
 		boolean autohide = true;
 		int videoMaximumDuration = 0;
-		int videoQuality = VIDEO_QUALITY_HIGH;
+		int videoQuality = QUALITY_HIGH;
 		int cameraType = 0;
 		String[] mediaTypes = null;
 		int flashMode = CAMERA_FLASH_OFF;
@@ -722,7 +747,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		private void validateFile() throws Throwable
 		{
 			try {
-				if (intentType == MediaStore.ACTION_VIDEO_CAPTURE) {
+				if (MediaStore.ACTION_VIDEO_CAPTURE.equals(intentType)) {
 					// video
 				} else {
 					// bitmap
