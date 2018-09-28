@@ -20,8 +20,9 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiConvert;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import ti.modules.titanium.geolocation.TiLocation.GeocodeResponseHandler;
 import ti.modules.titanium.geolocation.android.AndroidModule;
@@ -38,11 +39,8 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationProvider;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 /**
  * GeolocationModule exposes all common methods and properties relating to geolocation behavior
@@ -187,7 +185,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	private Context context;
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
-	private boolean sentAnalytics = false;
 	private ArrayList<LocationRuleProxy> simpleLocationRules = new ArrayList<LocationRuleProxy>();
 	private LocationRuleProxy simpleLocationGpsRule;
 	private LocationRuleProxy simpleLocationNetworkRule;
@@ -263,14 +260,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		return super.handleMessage(message);
 	}
 
-	private void doAnalytics(Location location)
-	{
-		if (!sentAnalytics) {
-			tiLocation.doAnalytics(location);
-			sentAnalytics = true;
-		}
-	}
-
 	/**
 	 * Called by a registered location provider when a location update is received
 	 *
@@ -285,7 +274,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			fireEvent(TiC.EVENT_LOCATION,
 					  buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
 			currentLocation = location;
-			doAnalytics(location);
 		}
 	}
 
@@ -583,7 +571,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 					fireEvent(TiC.EVENT_LOCATION,
 							  buildLocationEvent(lastLocation,
 												 tiLocation.locationManager.getProvider(lastLocation.getProvider())));
-					doAnalytics(lastLocation);
 				}
 			}
 		}
@@ -649,7 +636,23 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public String getLastGeolocation()
 	// clang-format on
 	{
-		return TiAnalyticsEventFactory.locationToJSONString(lastLocation);
+		JSONObject result = new JSONObject();
+
+		if (lastLocation != null) {
+			try {
+				result.put("latitude", lastLocation.getLatitude());
+				result.put("longitude", lastLocation.getLongitude());
+				result.put("altitude", lastLocation.getAltitude());
+				result.put("accuracy", lastLocation.getAccuracy());
+				result.put("heading", lastLocation.getBearing());
+				result.put("speed", lastLocation.getSpeed());
+				result.put("timestamp", lastLocation.getTime());
+			} catch (JSONException e) {
+				// safe to return empty object
+			}
+		}
+
+		return result.toString();
 	}
 
 	/**

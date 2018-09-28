@@ -7,9 +7,8 @@ description: |
     (especially CommonJS modules) to Titanium.
     
     Note that `console` does not currently implement the complete
-    [firebug specification](http://getfirebug.com/wiki/index.php/Console_API).
-    Our support is roughly equivalent to that offered by
-    [node.js's console](http://nodejs.org/api/stdio.html).
+    [Console](https://developer.mozilla.org/de/docs/Web/API/Console) specification.
+    See the following supported methods for details and submit a pull request to add more!
 since: "2.1.0"
 methods:
   - name: log
@@ -70,3 +69,52 @@ methods:
       - name: message
         summary: The message(s) to log.
         type: Object
+
+  - name: time
+    summary: Start a timer to track duration of an operation.
+    description: |
+          Begin a timer that can be used to track the duration of an operation.
+          If no label is passed to the function it will default to "default".
+          If a label already exists then the existing label will not be overwritten
+          and a warning will be logged to the console.
+    parameters:
+      - name: label
+        summary: The label to track the timer by
+        type: String
+        optional: true
+        default: "default"
+    since: 7.3.0
+
+  - name: timeEnd
+    summary: Stop a timer that was previously started.
+    description: |
+          Stop a timer that was started by calling [console.time](Global.console.time), and
+          output the time since the timer was begun to the console in milliseconds.
+          If no timer exists a warning will be logged to the console.
+    parameters:
+      - name: label
+        summary: The label to track the timer by
+        type: String
+        optional: true
+        default: "default"
+    since: 7.3.0
+
+  - name: timeLog
+    summary: Log duration taken so far for an operation.
+    description: |
+          Output the time since a timer was started by calling
+          [console.time](Global.console.time) to the console, as well as any
+          other `data` arguments provided. To log extra data a label must
+          be provided. If not timer exists a warning will be logged to the
+          console.
+    parameters:
+      - name: label
+        summary: The label to track the timer by
+        type: String
+        optional: true
+        default: "default"
+      - name: ...data
+        summary: Extra log data to be provided when logging
+        type: Object
+        optional: true
+    since: 7.5.0

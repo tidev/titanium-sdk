@@ -2,60 +2,59 @@
 name: Titanium.UI.MaskedImage
 summary: A control that displays an image composited with a background image or color.
 description: |
-    This is an iOS-specific control that can be used to display an image combined with 
+    This is a control that can be used to display an image combined with
     another image and/or color. The layers are drawn in the following order:
 
     * The `mask`, or background image.
     * The `image`, or foreground image.
     * The `tint`, or constant tint color.
 
-    The way the layers are combined depends on the value of the `mode` property. 
-    The `mode` value can be set to one of the <Titanium.UI.iOS> `BLEND_MODE` constants. 
-    These constants correspond directly to the iOS blend modes described in the iOS developer 
-    library:
+    The way the layers are combined depends on the value of the `mode` property.
+    The `mode` value can be set to one of the <Titanium.UI> `BLEND_MODE` constants.
+    These constants correspond directly to the blend modes described by Apple and Google here:
 
-    ["CGBlendMode" in CGContext Reference](http://developer.apple.com/library/ios/#documentation/GraphicsImaging/Reference/CGContext/Reference/reference.html#//apple_ref/c/tdef/CGBlendMode)
+    ["Bitmap Images and Image Masks" in Quartz2D Reference](https://developer.apple.com/library/content/documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101)
 
-    and:
+    ["PorterDuff.Mode" Android Reference](https://developer.android.com/reference/android/graphics/PorterDuff.Mode.html)
 
-    ["Using Blend Modes with Images" in Quartz2D
-    Reference](http://developer.apple.com/library/ios/#documentation/GraphicsImaging/Conceptual/drawingwithquartz2d/dq_images/dq_images.html#//apple_ref/doc/uid/TP30001066-CH212-TPXREF101)
-
-    When compositing two images, the `mask` property specifies the background, or 
-    destination (D) image, and the `image` property specifies the foreground, or 
+    When compositing two images, the `mask` property specifies the background, or
+    destination (D) image, and the `image` property specifies the foreground, or
     source (S) layer. For example, to use an image as an alpha mask for another image,
     you could use the following code:
 
         var imageMask = Titanium.UI.createMaskedImage({
             mask : 'mask.png', // alpha mask
             image : 'demo_image.png', // image to mask
-            mode : Titanium.UI.iOS.BLEND_MODE_SOURCE_OUT
+            mode : Titanium.UI.BLEND_MODE_SOURCE_OUT
         });
-        
-    Note that this legacy control lacks many of the features associated with a standard
+
+    Note that this control lacks many of the features associated with a standard
     [ImageView](Titanium.UI.ImageView) control.
 
     Use the <Titanium.UI.createMaskedImage> method to create a masked image view.
 extends: Titanium.UI.View
-platforms: [iphone,ipad]
-examples: 
-  - title: Luminosity Blend Mode
+excludes:
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
+since: { android: "7.3.0", iphone: "0.8", ipad: "0.8" }
+platforms: [android, iphone, ipad]
+examples:
+  - title: Lighten Blend Mode
     example: |
-        The following code excerpt creates a monochrome version of the background image,
-        using the luminosity from the background image and the specified `tint` color:
+        The following code excerpt blends the background image with the given `tint` color:
 
             var imageMask = Titanium.UI.createMaskedImage({
                 mask : 'demo_image.png', // background image
                 tint: 'red',
-                mode : Titanium.UI.iOS.BLEND_MODE_LUMINOSITY,
+                mode : Titanium.UI.BLEND_MODE_LIGHTEN,
             });
-properties: 
+properties:
   - name: mask
     summary: Image drawn as the background image.
     description: |
-        Specify a local file path. 
+        Specify a local file path.
 
-        Unlike the standard [ImageView](Titanium.UI.ImageView), images **cannot** be specified 
+        Unlike the standard [ImageView](Titanium.UI.ImageView), images **cannot** be specified
         using a remote URL, <Titanium.Blob>, or <Titanium.Filesystem.File> object.
     type: String
   - name: image
@@ -63,16 +62,16 @@ properties:
     description: |
         Specify a local file path.
 
-        Unlike the standard [ImageView](Titanium.UI.ImageView), images **cannot** be specified 
+        Unlike the standard [ImageView](Titanium.UI.ImageView), images **cannot** be specified
         using a remote URL, <Titanium.Blob>, or <Titanium.Filesystem.File> object.
     type: String
   - name: mode
     summary: Blend mode to use to combine layers.
     type: Number
-    constants: Titanium.UI.iOS.BLEND_MODE_*
-    default: Titanium.UI.iOS.BLEND_MODE_SOURCE_IN
+    constants: Titanium.UI.BLEND_MODE_*
+    default: Titanium.UI.BLEND_MODE_SOURCE_IN
   - name: tint
     summary: Color to combine with the image, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: String

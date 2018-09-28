@@ -129,7 +129,7 @@
   NSAttributedString *placeHolder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
 
   if ([TiUtils isIOS9OrGreater]) {
-    [[UITextField appearanceWhenContainedInInstancesOfClasses:@[ [UISearchBar class] ]] setAttributedPlaceholder:placeHolder];
+    [[UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]] setAttributedPlaceholder:placeHolder];
   } else {
     [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setAttributedPlaceholder:placeHolder];
   }
@@ -148,6 +148,18 @@
       *stop = YES;
     }
   }];
+}
+
+- (void)setFieldBackgroundImage_:(id)arg
+{
+  [[self searchBar] setSearchFieldBackgroundImage:[self loadImage:arg] forState:UIControlStateNormal];
+  [self.searchBar setSearchTextPositionAdjustment:UIOffsetMake(8.0, 0.0)];
+}
+
+- (void)setFieldBackgroundDisabledImage_:(id)arg
+{
+  [[self searchBar] setSearchFieldBackgroundImage:[self loadImage:arg] forState:UIControlStateDisabled];
+  [self.searchBar setSearchTextPositionAdjustment:UIOffsetMake(8.0, 0.0)];
 }
 
 - (void)setKeyboardType_:(id)value

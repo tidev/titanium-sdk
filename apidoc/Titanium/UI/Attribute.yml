@@ -45,7 +45,7 @@ properties:
                 range: [0, 100]
             }
 
-        On IOS, if you use <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>,
+        On iOS, if you use <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>,
         you must use one or more of these constants:
 
           * <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE>
@@ -67,7 +67,7 @@ properties:
                 range: [0, 100]
             }
 
-        On IOS, if you use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION>, you must use one or more of
+        On iOS, if you use the <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION>, you must use one or more of
         these constants:
 
           * <Titanium.UI.ATTRIBUTE_WRITING_DIRECTION_EMBEDDING>
@@ -78,7 +78,7 @@ properties:
 
         These can also be combined the same way as the underline styles.
 
-        On IOS, if you use the <Titanium.UI.ATTRIBUTE_SHADOW>, the `value` must be a JavaScript object containing
+        On iOS, if you use the <Titanium.UI.ATTRIBUTE_SHADOW>, the `value` must be a JavaScript object containing
         any of the `offset`, `blurRadius` or `color` properties:
 
             {
@@ -90,10 +90,18 @@ properties:
                 color: 'red'
             }
 
-        On IOS, if you use the <Titanium.UI.ATTRIBUTE_TEXT_EFFECT>, you must use the only supported iOS 7 constant
-        <Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE>.
+        On IOS, if you use the <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE>, the `value` must be ParagraphAttribute. 
+        E.g:
 
-        On IOS, if you use the <Titanium.UI.ATTRIBUTE_LINE_BREAK>, you must use one of
+            {
+                minimumLineHeight: 10.0,
+                tailIndent: 5,
+                lineBreakMode: Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
+            }
+
+        On iOS, if you use the <Titanium.UI.ATTRIBUTE_TEXT_EFFECT>, you must use the <Titanium.UI.ATTRIBUTE_LETTERPRESS_STYLE> constant.
+
+        On iOS, if you use the <Titanium.UI.ATTRIBUTE_LINE_BREAK>, you must use one of
         these constants:
 
           * <Titanium.UI.ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING>
@@ -115,3 +123,127 @@ properties:
         This specifies the range of text to apply the property to, as an array of two numbers: `[from, length]`.
     type: Array<Number>
     optional: false
+
+---
+name: ParagraphAttribute
+summary: An abstract datatype for specifying an Paragraph style attribute.
+description: |
+    Attributes are added corresponding to value to create paragraph style, 
+    which when used with attributed string will give styled text. 
+platforms: [iphone, ipad]
+since: "7.5.0"
+  
+properties:
+  - name: alignment
+    summary: The text alignment of the receiver.
+    type: Number
+    constants: [ Titanium.UI.TEXT_ALIGNMENT_* ]
+
+  - name: firstLineHeadIndent
+    summary: The indentation of the first line of the receiver.
+    description: |
+      This property contains the distance (in points) from the leading margin 
+      of a text container to the beginning of the first line of paragraph. 
+      This value is always nonnegative float value or dimension string (e.g. '10px').
+    type: [Number,String]
+
+  - name: headIndent
+    summary: The indentation of the lines of lines other than the first.
+    description: |
+      This property contains the distance (in points) from the leading margin 
+      of a text container to the beginning of lines other than the first. 
+      This value is always nonnegative float value or dimension string (e.g. '10px').
+    type: [Number,String]
+
+  - name: tailIndent
+    summary: The trailing indentation of the receiver.
+    description: |
+      If positive, this value is the distance (in points) from the leading margin 
+      (for example, the left margin in left-to-right text). If 0 or negative, 
+      it is the distance (in points) from the trailing margin. This is a float value or 
+      dimension string (e.g. '10px').
+    type: [Number,String]
+
+  - name: lineBreakMode
+    summary: The mode that should be used to break lines in the receiver.
+    description: |
+      This property contains the line break mode to be used laying out the text of paragraph.
+    type: Number
+    constants: [ Titanium.UI.ATTRIBUTE_LINE_BREAK_* ]
+
+  - name: maximumLineHeight
+    summary: The maximum line height of receiver.
+    description: |
+      This property contains the maximum height in points that any line in the receiver will occupy, 
+      regardless of the font size or size of any attached graphic. This value is always nonnegative 
+      float value or dimension string (e.g. '10px'). The default value is 0. 
+      Glyphs and graphics exceeding this height will overlap neighboring lines; however, a maximum 
+      height of 0 implies no line height limit. Although this limit applies to the line itself, 
+      line spacing adds extra space between adjacent lines.
+    type: [Number,String]
+
+  - name: minimumLineHeight
+    summary: The minimum height of receiver.
+    description: |
+      This property contains the minimum height in points that any line in the receiver will occupy, 
+      regardless of the font size or size of any attached graphic. This value must be nonnegative float value 
+      or dimension string (e.g. '10px').
+      E.g. If you have set minimum height 30 and font size 10. It will make line height 30 which have 
+      smaller text size and more vertical sapcing between text. 
+    type: [Number,String]
+
+  - name: lineSpacing
+    summary: The distance in points between the bottom of one line fragment and the top of the next.
+    description: |
+      This value is always nonnegative float value or dimension string (e.g. '10px'). This value is 
+      included in the line fragment heights in the layout manager.
+    type: [Number,String]
+
+  - name: paragraphSpacingAfter
+    summary: The space after the end of the paragraph.
+    description: |
+      This property contains the space (measured in points) added at the end of the paragraph 
+      to separate it from the following paragraph. This value must be nonnegative float value or 
+      dimension string (e.g. '10px'). The space between paragraphs is determined by adding the paragraphSpacingAfter 
+      of previous paragraph and the paragraphSpacingBefore of current paragraph.
+    type: [Number,String]
+
+  - name: paragraphSpacingBefore
+    summary: The distance between the top of paragraph and the beginning of its text content.
+    description: |
+      This property contains the space (measured in points) between the top of paragraph and 
+      the beginning of its text content. This value can be float value or dimension string (e.g. '10px').
+      The default value of this property is 0.0.
+    type: [Number,String]
+
+  - name: lineHeightMultiple
+    summary: The line height multiple.
+    description: |
+      The natural line height of the receiver is multiplied by this factor (if positive) 
+      before being constrained by minimum and maximum line height. The default value of 
+      this property is 0.0, which means nothing multiplied.
+    type: Number
+
+  - name: hyphenationFactor
+    summary: The threshold of paragraph for hyphenation.
+    description: |
+      Valid values lie between 0.0 and 1.0 inclusive. The default value is 0.0. Hyphenation 
+      is attempted when the ratio of the text width (as broken without hyphenation) to the 
+      width of the line fragment is less than the hyphenation factor. When the hyphenation 
+      factor of paragraph is 0.0, the hyphenation factor of layout manager is used instead. 
+      When both are 0.0, hyphenation is disabled. This property detects the user-selected 
+      language by examining the first item in preferredLanguages.
+    type: Number
+
+  - name: allowsDefaultTighteningForTruncation
+    summary: |
+      A Boolean value indicating whether the system may tighten inter-character spacing 
+      before truncating text.
+    description: |
+      When this property is set to true, the system tries to reduce the space between characters 
+      before truncating characters. The system performs this tightening in cases where the text 
+      would not otherwise fit in the available space. The maximum amount of tightening performed 
+      by the system is dependent on the font, line width, and other factors. The default value of 
+      this property is false.
+    type: Boolean
+    osver: {ios: {min: "9.0"}}

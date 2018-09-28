@@ -10,7 +10,7 @@ description: |
     On Android, the `useSpinner` property must be enabled to support multiple columns.
 
     See <Titanium.UI.Picker> for further examples of usage.
-extends: Titanium.UI.View
+extends: Titanium.Proxy
 since: "0.9"
 platforms: [android, iphone, ipad]
 

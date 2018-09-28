@@ -179,6 +179,13 @@
     }
 
     file = [[TiUtils createTempFile:extension] retain];
+
+    // Grant temporary permission on the specified file
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSDictionary *attributes = [NSDictionary dictionaryWithObject:NSFileProtectionNone
+                                                           forKey:NSFileProtectionKey];
+    [fileManager setAttributes:attributes ofItemAtPath:[file path] error:nil];
+
     NSURL *url = [NSURL URLWithString:[file path]];
 
     NSMutableDictionary *recordSettings = [[NSMutableDictionary alloc] initWithCapacity:6];

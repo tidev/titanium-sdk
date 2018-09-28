@@ -10,7 +10,7 @@ const os = require('os'),
 	Documentation = require('./docs'),
 	git = require('./git'),
 	Packager = require('./packager'),
-	appc = require('node-appc'),
+	utils = require('./utils'),
 	// TODO Move common constants somewhere?
 	ROOT_DIR = path.join(__dirname, '..'),
 	DIST_DIR = path.join(ROOT_DIR, 'dist'),
@@ -40,37 +40,13 @@ if (!platforms.length) {
 	platforms = OS_TO_PLATFORMS[thisOS];
 }
 
-function install(versionTag, next) {
-	let dest,
-		osName = os.platform();
-
-	if (osName === 'win32') {
-		dest = path.join(process.env.ProgramData, 'Titanium');
-	}
-
-	if (osName === 'darwin') {
-		osName = 'osx';
-		dest = path.join(process.env.HOME, 'Library', 'Application Support', 'Titanium');
-	}
-
-	if (osName === 'linux') {
-		osName = 'linux';
-		dest = path.join(process.env.HOME, '.titanium');
-	}
-
-	const zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
-	console.log('Installing %s...', zipfile);
-
-	appc.zip.unzip(zipfile, dest, {}, next);
-}
-
 const versionTag = program.versionTag || program.sdkVersion;
 
 async.series([
 	function (next) {
 		git.getHash(path.join(__dirname, '..'), function (err, hash) {
-			program.githash = hash;
-			console.log('Building MobileSDK version %s, githash %s', program.sdkVersion, program.githash);
+			program.gitHash = hash;
+			console.log('Building MobileSDK version %s, githash %s', program.sdkVersion, program.gitHash);
 			next(err);
 		});
 	}
@@ -117,7 +93,7 @@ async.series([
 						}
 					}
 
-					new Packager(DIST_DIR, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, program.githash).package(next);
+					new Packager(DIST_DIR, targetOS, filteredPlatforms, program.sdkVersion, versionTag, packageJSON.moduleApiVersion, program.gitHash).package(next);
 				}, function (err) {
 					if (err) {
 						console.error(err);
@@ -125,7 +101,7 @@ async.series([
 					}
 					console.log('Packaging version (%s) complete', versionTag);
 
-					install(versionTag, function (err) {
+					utils.installSDK(versionTag, function (err) {
 						if (err) {
 							console.error(err);
 							process.exit(1);

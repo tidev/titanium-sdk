@@ -355,6 +355,10 @@ public class TiConvert
 		} else if (value instanceof String) {
 			return Boolean.parseBoolean(((String) value));
 
+		} else if (value instanceof Integer) {
+			// in Javascript anything other than zero is 'true'
+			return ((Integer) value) != 0;
+
 		} else {
 			throw new IllegalArgumentException(
 				"Unable to convert " + (value == null ? "null" : value.getClass().getName()) + " to boolean.");

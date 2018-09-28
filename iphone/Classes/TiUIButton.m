@@ -14,6 +14,10 @@
 #import "TiUIView.h"
 #import "TiUtils.h"
 
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+#import "TiUIAttributedStringProxy.h"
+#endif
+
 @implementation TiUIButton
 
 #pragma mark Internal
@@ -250,6 +254,16 @@
 - (void)setTitle_:(id)value
 {
   [[self button] setTitle:[TiUtils stringValue:value] forState:UIControlStateNormal];
+}
+
+- (void)setAttributedString_:(id)arg
+{
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+  ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
+  [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
+  [[self button] setAttributedTitle:[arg attributedString] forState:UIControlStateNormal];
+  [(TiViewProxy *)[self proxy] contentsWillChange];
+#endif
 }
 
 - (void)setBackgroundImage_:(id)value

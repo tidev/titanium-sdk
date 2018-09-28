@@ -1098,7 +1098,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     TiObjectRef global = TiContextGetGlobalObject(context);
     TiObjectSetProperty(context, global,
         invokerFnName, invoker,
-        kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete,
+        kTiPropertyAttributeNone,
         NULL);
   }
   TiStringRelease(invokerFnName);
@@ -1123,6 +1123,7 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
 - (int)forceGarbageCollectNow
 {
 #ifdef USE_JSCORE_FRAMEWORK
+  JSGarbageCollect(context);
   gcrequest = NO;
   loopCount = 0;
 #else

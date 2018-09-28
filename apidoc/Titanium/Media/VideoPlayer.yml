@@ -260,17 +260,6 @@ events:
         type: Number
         platforms: [iphone, ipad, android]
 
-  - name: durationAvailable
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.durationavailable> instead.
-    summary: |
-        Fired when the video duration is available.
-    properties:
-      - name: duration
-        summary: Video duration, in milliseconds.
-        type: Number
-
   - name: durationavailable
     summary: Fired when the video duration is available.
     properties:
@@ -339,44 +328,6 @@ events:
         summary: Current value of the [loadState](Titanium.Media.VideoPlayer.loadState) property.
         type: Number
 
-  - name: mediaTypesAvailable
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.mediatypesavailable> instead.
-    summary: |
-        Fired when the media types in the current movie are determined.
-    platforms: [iphone, ipad]
-    properties:
-      - name: mediaTypes
-        summary: Current value of the [mediaTypes](Titanium.Media.VideoPlayer.mediaTypes) property.
-        type: Number
-
-  - name: naturalSizeAvailable
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.naturalsizeavailable> instead.
-    summary: |
-        Fired when the natural size of the current movie is determined.
-    description: |
-        On iOS 6.0, this event is not fired by the operating system.
-    platforms: [iphone, ipad]
-    properties:
-      - name: naturalSize
-        summary: Current value of the [naturalSize](Titanium.Media.VideoPlayer.naturalSize) property.
-        type: Number
-
-  - name: playbackState
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.playbackstate> instead.
-    summary: |
-        Fired when the [playbackState](Titanium.Media.VideoPlayer.playbackState) changes.
-    properties:
-      - name: playbackState
-        summary: Current value of the [playbackState](Titanium.Media.VideoPlayer.playbackState) property.
-        type: Number
-        constants: Titanium.Media.VIDEO_PLAYBACK_STATE_*
-
   - name: mediatypesavailable
     deprecated:
         since: "7.0.0"
@@ -393,8 +344,6 @@ events:
 
   - name: naturalsizeavailable
     summary: Fired when the natural size of the current movie is determined.
-    description: |
-        On iOS 6.0, this event is not fired by the operating system.
     platforms: [iphone, ipad]
     properties:
       - name: naturalSize
@@ -426,18 +375,6 @@ events:
   - name: resize
     summary: Fired when the movie player is resized.
     platforms: [iphone, ipad]
-
-  - name: sourceChange
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.VideoPlayer.sourcechange> instead.
-    summary: |
-        Fired when the [sourceType](Titanium.Media.VideoPlayer.sourceType) property
-        changes.
-    platforms: [iphone, ipad]
-    properties:
-      - name: sourceType
-        summary: New `sourceType` value.
 
   - name: sourcechange
     deprecated:
@@ -606,10 +543,10 @@ properties:
   - name: endPlaybackTime
     summary: The end time of movie playback, in milliseconds.
     description: |
-        On iOS, defaults to NaN, which indicates natural end time of the movie.
+        On iOS, defaults to 0, which indicates natural end time of the movie.
         Changing the value to a value less than `duration` causes the movie to
         stop playing at the specified point. On iOS, this value is not applicable to
-        streaming media, so NaN is returned if the current media is being streamed.
+        streaming media, so 0 is returned if the current media is being streamed.
 
         On Android, this is always the same as [duration](Titanium.Media.VideoPlayer.duration)
         (the natural end time), and changing the value has no effect.
@@ -685,34 +622,19 @@ properties:
     type: Number
     constants: Titanium.Media.VIDEO_MEDIA_TYPE_*
 
-  - name: movieControlMode
-    deprecated:
-        since: '1.8.0'
-        notes: Use <Titanium.Media.VideoPlayer.mediaControlStyle> instead.
-        removed: '6.0.0'
-    summary: Style of the media playback controls.
-    description: |
-        Provides the ability to set the control mode of the movie player.
-    platforms: [iphone, ipad]
-    type: Number
-    default: <Titanium.Media.VIDEO_CONTROL_DEFAULT>
-    osver:
-        ios:
-            max: "3.1"
-
   - name: moviePlayerStatus
     summary: Returns the status of the movie player.
     type: Number
     permission: read-only
     platforms: [iphone, ipad]
-  
+
   - name: naturalSize
     summary: Returns the natural size of the movie.
     description: |
         Returns a dictionary with properties `width` and `height`. Returns 0 for both properties if not
         known or applicable.
 
-        The [naturalSizeAvailable](Titanium.Media.VideoPlayer.naturalSizeAvailable) event is
+        The [naturalSizeAvailable](Titanium.Media.VideoPlayer.naturalsizeavailable) event is
         fired when the natural size is known.
     platforms: [iphone, ipad]
     type: MovieSize
@@ -770,7 +692,7 @@ properties:
     permission: read-only
 
   - name: repeatMode
-    summary: Determines how the movie player repeats when reaching the end of playback. 
+    summary: Determines how the movie player repeats when reaching the end of playback.
     platforms: [android, iphone, ipad]
     type: Number
     constants: Titanium.Media.VIDEO_REPEAT_MODE_*
@@ -787,11 +709,11 @@ properties:
     default: <Titanium.Media.VIDEO_SCALING_ASPECT_FIT>
 
   - name: showsControls
-    summary: Whether or not the receiver shows playback controls. Default is YES.
+    summary: Whether or not the receiver shows playback controls. Default is true.
     description: |
-        Clients can set this property to NO when they don't want to have any playback controls on top of 
+        Clients can set this property to false when they don't want to have any playback controls on top of
         the visual content (e.g. for a game splash screen). This property should not be used to temporarily
-         change the visibility of the playback controls since it will create or destroy UI elements.    
+         change the visibility of the playback controls since it will create or destroy UI elements.
     platforms: [android, iphone, ipad]
     type: Boolean
     default: true
@@ -802,11 +724,11 @@ properties:
         since: "7.0.0"
         notes: This method has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
         removed: "7.0.0"
-    summary: The playback type of the movie. 
+    summary: The playback type of the movie.
     description: |
         Specifying a playback type before playing the movie can result in faster load times.
 
-        The [sourceChange](Titanium.Media.VideoPlayer.sourceChange) event is fired when
+        The [sourceChange](Titanium.Media.VideoPlayer.sourcechange) event is fired when
         movie's source type is determined.
     platforms: [iphone, ipad]
     type: Number
@@ -818,23 +740,6 @@ properties:
     description: |
         URL identifying a local or remote video to play.
     type: [String, Array<String>]
-
-  - name: useApplicationAudioSession
-    summary: |
-        Indicates if the movie player should inherit the application's audio session
-        instead of creating a new session.
-    deprecated:
-        since: 3.5.0
-        notes: There is no replacement for this property and its use is discouraged.
-    description: |
-        Creating a new session interrupts the application's session.
-
-        Setting this property during playback will not take effect until playback is stopped
-        and started again.
-    platforms: [iphone, ipad]
-    type: Boolean
-    default: true
-    osver: {ios: {max: "6.0"}}
 
   - name: volume
     summary: |

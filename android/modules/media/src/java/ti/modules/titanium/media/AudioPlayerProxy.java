@@ -183,20 +183,29 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		return false;
 	}
 
-	// An alias for play so that
 	@Kroll.method
 	public void start()
-	{
-		play();
-	}
-
-	@Kroll.method
-	public void play()
 	{
 		TiSound s = getSound();
 		if (s != null) {
 			s.play();
 		}
+	}
+
+	@Kroll.method
+	public void restart()
+	{
+		stop();
+		start();
+	}
+
+	@Kroll.method
+	public void play()
+	{
+		Log.w(
+			TAG,
+			"The \"play()\" method has been deprecated in favor of the cross-platform \"start()\" method in Titanium 7.4.0.");
+		start();
 	}
 
 	@Kroll.method
@@ -241,6 +250,31 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 			return s.getAudioSessionId();
 		}
 		return 0;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getMuted()
+	// clang-format on
+	{
+		TiSound s = getSound();
+		if (s != null) {
+			return s.isMuted();
+		}
+		return false;
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setMuted(boolean muted)
+	// clang-format on
+	{
+		TiSound s = getSound();
+		if (s != null) {
+			s.setMuted(muted);
+		}
 	}
 
 	// clang-format off

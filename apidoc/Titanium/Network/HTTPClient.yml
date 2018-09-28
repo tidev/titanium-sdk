@@ -69,9 +69,7 @@ description: |
     <tr><th align="left">TLS 1.2</th><td>4.1+</td><td>5.0+</td></tr>
 
     In Titanium, if a connection with TLS 1.2 fails, Titanium will re-attempt the connection with
-    TLS 1.1 and TLS 1.0. By default, TLS 1.2 is only attempted first for devices running Android 4.1
-    and greater, or iOS 5.0 and greater. Prior to these versions, only TLS 1.0 is attempted since
-    1.0 is the only supported TLS version.
+    TLS 1.1 and TLS 1.0. By default, TLS 1.2 is attempted first.
 
     Use the <Titanium.Network.HTTPClient.tlsVersion> property to set the version of the TLS protocol
     if you know the version the server is running.  If you do not know, do not set this property.
@@ -107,7 +105,7 @@ methods:
         summary: The authentication scheme.
         type: String
       - name: factory
-        summary: The authentication factory. This factory must implement the [AuthSchemeFactory](http://developer.android.com/reference/org/apache/http/auth/AuthSchemeFactory.html) interface.
+        summary: The authentication factory. This factory must implement the [AuthSchemeFactory](https://developer.android.com/reference/org/apache/http/auth/AuthSchemeFactory.html) interface.
         type: Object
     platforms: [android]
     since: {android: "3.0.0"}
@@ -124,7 +122,7 @@ methods:
         property is ignored.
     parameters:
       - name: X509KeyManager
-        summary: X.509 key manager. This key manager must implement the [X509KeyManager](http://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) inteface.
+        summary: X.509 key manager. This key manager must implement the [X509KeyManager](https://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) inteface.
         type: Object
     platforms: [android]
     since: {android: "3.1.0"}
@@ -141,7 +139,7 @@ methods:
         property is ignored.
     parameters:
       - name: X509TrustManager
-        summary: X.509 trust manager. This trust manager must implement the [X509TrustManager](http://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) inteface.
+        summary: X.509 trust manager. This trust manager must implement the [X509TrustManager](https://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) inteface.
         type: Object
     platforms: [android]
     since: {android: "3.1.0"}
@@ -517,8 +515,7 @@ properties:
     constants: Titanium.Network.TLS_VERSION_*
     since: {android: "3.6.0", iphone: "1.8.0.1", ipad: "1.8.0.1"}
     default: |
-        undefined. <Titanium.Network.TLS_VERSION_1_2> for Android 4.1 and later, or iOS 5 and
-        later. <Titanium.Network.TLS_VERSION_1_0> for Android 4.0 and earlier, or iOS 4 and earlier.
+        undefined, behaves as `Ti.Network.TLS_VERSION_1_2`.
     platforms: [android, iphone, ipad]
 
   - name: cache
@@ -576,8 +573,8 @@ methods:
   - name: willHandleURL
     summary: Returns if the security manager will participate in authentication of this end point.
     description: |
-        The parameter passed to this method is a [NSURL](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSURL_Class/Reference/Reference.html)
-        on iOS and a [Uri](http://developer.android.com/reference/android/net/Uri.html) on android.
+        The parameter passed to this method is a [NSURL](https://developer.apple.com/documentation/foundation/nsurl?language=objc)
+        on iOS and a [Uri](https://developer.android.com/reference/android/net/Uri.html) on android.
 
         Return **true** to participate, **false** to allow default authentication flow.
     returns:
@@ -596,12 +593,12 @@ methods:
         type: APSConnectionDelegate
     parameters:
       - name: url
-        summary: The [NSURL](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSURL_Class/Reference/Reference.html) representing the end point of this connection.
+        summary: The [NSURL](https://developer.apple.com/documentation/foundation/nsurl?language=objc) representing the end point of this connection.
         type: Object
     platforms: [iphone, ipad]
 
   - name: getTrustManagers
-    summary: Returns an array of objects implementing the [X509TrustManager](http://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) protocol for the SSL Context.
+    summary: Returns an array of objects implementing the [X509TrustManager](https://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) protocol for the SSL Context.
     description: |
         This method is only called if <SecurityManagerProtocol.willHandleURL> returns true.
 
@@ -615,7 +612,7 @@ methods:
     platforms: [android]
 
   - name: getKeyManagers
-    summary: Returns an array of objects implementing the [X509KeyManager](http://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) protocol for the SSL Context.
+    summary: Returns an array of objects implementing the [X509KeyManager](https://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) protocol for the SSL Context.
     description: |
         This method is only called if <SecurityManagerProtocol.willHandleURL> returns true.
 

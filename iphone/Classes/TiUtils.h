@@ -13,6 +13,8 @@
 @class TiBuffer;
 @class WebFont;
 @class TiScriptError;
+@class TiUIView;
+@class TiViewProxy;
 
 /*	NOTE TO MODULE DEVELOPERS:
  *	The following 4 imports will be going away as it's better to simply
@@ -533,6 +535,8 @@ typedef enum {
  */
 + (void)setView:(UIView *)view positionRect:(CGRect)frameRect;
 
++ (void)applyConstraintToView:(TiUIView *)view forProxy:(TiViewProxy *)proxy withBounds:(CGRect)bounds;
+
 + (CGRect)viewPositionRect:(UIView *)view;
 
 + (BOOL)barTranslucencyForColor:(TiColor *)color;
@@ -578,6 +582,12 @@ typedef enum {
 + (BOOL)isIOS8OrGreater;
 
 /**
+ Whether or not the current OS version is equal to or greater than 8.2.
+ @return _YES_ if the current OS version is equal to or greater thann 8.2, _NO_ otherwise.
+ */
++ (BOOL)isIOS82rGreater;
+
+/**
  Whether or not the current OS version is equal to or greater than 9.0.
  @return _YES_ if the current OS version is equal to or greater than 9.0, _NO_ otherwise.
  */
@@ -615,16 +625,43 @@ typedef enum {
 + (BOOL)isIOSVersionOrGreater:(NSString *)version;
 
 /**
+ Whether or not the current OS version is lower than the specified version.
+ @param version The version to compare.
+ @return _YES_ if the current OS version is lower than the specified version, _NO_ otherwise.
+ */
++ (BOOL)isIOSVersionLower:(NSString *)version;
+
+/**
  Whether or not the current device is an iPhone 4.
  @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
  */
 + (BOOL)isIPhone4;
 
 /**
+ Whether or not the current device has HD retina display (@3x).
+ @return _YES_ if the current device has HD retina display, _NO_ otherwise.
+ @deprecated Use `[TiUtils is3xRetina]` instead.
+ */
++ (BOOL)isRetinaHDDisplay __deprecated_msg("Use `[TiUtils is3xRetina]` instead.");
+
+/**
  Whether or not the current device has retina display.
  @return _YES_ if the current device has retina display, _NO_ otherwise.
+ @deprecated Use `[TiUtils is2xRetina]` instead.
  */
-+ (BOOL)isRetinaDisplay;
++ (BOOL)isRetinaDisplay __deprecated_msg("Use `[TiUtils is2xRetina]` instead.");
+
+/**
+ Whether or not the current device has HD retina display (@3x).
+ @return _YES_ if the current device has HD retina display, _NO_ otherwise.
+ */
++ (BOOL)is3xRetina;
+
+/**
+ Whether or not the current device has retina display (@2x).
+ @return _YES_ if the current device has retina display, _NO_ otherwise.
+ */
++ (BOOL)is2xRetina;
 
 /**
  Whether or not the current device has a 4 inch retina display (iPhone5).
@@ -635,28 +672,57 @@ typedef enum {
 /**
  Whether or not the current device has a 4.7 inch retina display (iPhone 6).
  @return _YES_ if the current device has a 4.7 inch retina display, _NO_ otherwise.
+ @deprecated Use `[TiUtils isRetina4_7Inch]` instead.
  */
-+ (BOOL)isRetinaiPhone6;
++ (BOOL)isRetinaiPhone6 __deprecated_msg("Use `[TiUtils isRetina4_7Inch]` instead.");
+
+/**
+ Whether or not the current device has a 5.5 inch retina display (iPhone 6).
+ @return _YES_ if the current device has a 5.5 inch retina display, _NO_ otherwise.
+ @deprecated Use `[TiUtils isRetina5_5Inch]` instead.
+ */
++ (BOOL)isRetinaiPhone6Plus __deprecated_msg("Use `[TiUtils isRetina5_5Inch]` instead.");
+
+/**
+ Whether or not the current device has a 5.8 inch super retina display (iPhone X).
+ @return _YES_ if the current device has a 5.8 inch super retina display, _NO_ otherwise.
+ @deprecated Use `[TiUtils isSuperRetina5_8Inch]` instead.
+ */
++ (BOOL)isRetinaiPhoneX __deprecated_msg("Use `[TiUtils isSuperRetina5_8Inch]` instead.");
+
+/**
+ Whether or not the current device has a 4.7 inch retina display (iPhone 6).
+ @return _YES_ if the current device has a 4.7 inch retina display, _NO_ otherwise.
+ */
++ (BOOL)isRetina4_7Inch;
 
 /**
  Whether or not the current device has a 5.5 inch retina display (iPhone 6).
  @return _YES_ if the current device has a 5.5 inch retina display, _NO_ otherwise.
  */
-+ (BOOL)isRetinaiPhone6Plus;
++ (BOOL)isRetina5_5Inch;
 
 /**
- Whether or not the current device has a 5.8 inch retina display (iPhone X).
- @return _YES_ if the current device has a 5.8 inch retina display, _NO_ otherwise.
+ Whether or not the current device has a 5.8 inch super retina display (iPhone X).
+ @return _YES_ if the current device has a 5.8 inch super retina display, _NO_ otherwise.
  */
-+ (BOOL)isRetinaiPhoneX;
++ (BOOL)isSuperRetina5_8Inch;
+/**
+ Whether or not the current device has a 6.1 inch retina display (iPhone X Max).
+ @return _YES_ if the current device has a 6.1 inch retina display, _NO_ otherwise.
+ */
++ (BOOL)isRetina6_1Inch;
 
 /**
- Whether or not the current device has HD retina display (@3X).
- @return _YES_ if the current device has HD retina display, _NO_ otherwise.
+ Whether or not the current device has a 6.5 inch super retina display (iPhone X Max).
+ @return _YES_ if the current device has a 6.5 inch super retina display, _NO_ otherwise.
  */
-+ (BOOL)isRetinaHDDisplay;
++ (BOOL)isSuperRetina6_5Inch;
+
 + (void)setVolume:(float)volume onObject:(id)object;
+
 + (float)volumeFromObject:(id)theObject default:(float)def;
+
 + (void)configureController:(UIViewController *)controller withObject:(id)object;
 
 + (CGRect)frameForController:(UIViewController *)theController;

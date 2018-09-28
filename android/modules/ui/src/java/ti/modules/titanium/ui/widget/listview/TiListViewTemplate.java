@@ -138,7 +138,7 @@ public class TiListViewTemplate
 	{
 		Object proxy = null;
 		String id = null;
-		Object props = null;
+		KrollDict props = null;
 		DataItem item = null;
 		if (properties.containsKey(TiC.PROPERTY_TI_PROXY)) {
 			proxy = properties.get(TiC.PROPERTY_TI_PROXY);
@@ -162,14 +162,22 @@ public class TiListViewTemplate
 				parent.addChild(item);
 			}
 			dataItems.put(id, item);
+
+			props = viewProxy.getProperties();
 		}
 
 		if (properties.containsKey(TiC.PROPERTY_PROPERTIES)) {
-			props = properties.get(TiC.PROPERTY_PROPERTIES);
+			KrollDict templateProperties = properties.getKrollDict(TiC.PROPERTY_PROPERTIES);
+			if (templateProperties != null) {
+				if (props != null) {
+					props.putAll(templateProperties);
+				} else {
+					props = templateProperties;
+				}
+			}
 		}
-
-		if (props instanceof HashMap) {
-			item.setDefaultProperties(new KrollDict((HashMap) props));
+		if (props != null) {
+			item.setDefaultProperties(props);
 		}
 
 		return item;

@@ -45,6 +45,10 @@ public class ToolbarProxy extends TiToolbarProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
+		//fill the container width by default
+		if (!hasProperty(TiC.PROPERTY_WIDTH)) {
+			setProperty(TiC.PROPERTY_WIDTH, UIModule.FILL);
+		}
 		return new TiToolbar(this);
 	}
 

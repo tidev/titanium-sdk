@@ -77,35 +77,7 @@ methods:
         [seekBackward](Titanium.Media.MusicPlayer.seekBackward).
 
 events:
-  - name: playingChange
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.MusicPlayer.playingchange> instead.
-    summary: Fired when the currently playing media item changes.
-    description: |
-        See [nowPlaying](Titanium.Media.MusicPlayer.nowPlaying) to identify the current
-        media item.
-
-  - name: stateChange
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.MusicPlayer.statechange> instead.
-    summary: Fired when the music player's playback state changes.
-    description: |
-        See [playbackState](Titanium.Media.MusicPlayer.playbackState) to identify the current
-        playback state.
-
-  - name: volumeChange
-    deprecated:
-        since: "3.0.0"
-        notes: Use <Titanium.Media.MusicPlayer.volumechange> instead.
-    summary: Fired when the volume changes.
-    description: |
-        This event has been deprecated and renamed volumechange (lower case).
-
-        Use the [volume](Titanium.Media.MusicPlayer.volume) property to set or determine
-        the current volume level for this player.
-
+ 
   - name: playingchange
     summary: Fired when the currently playing media item changes.
     description: |
@@ -118,13 +90,6 @@ events:
     description: |
         See [playbackState](Titanium.Media.MusicPlayer.playbackState) to identify the current
         playback state.
-    since: '3.0.0'
-
-  - name: volumechange
-    summary: Fired when the volume changes.
-    description: |
-        Use the [volume](Titanium.Media.MusicPlayer.volume) property to set or determine
-        the current volume level for this player.
     since: '3.0.0'
 
 properties:
@@ -159,15 +124,3 @@ properties:
         Shuffle setting.
     type: Number
     constants: Titanium.Media.MUSIC_PLAYER_SHUFFLE_*
-
-  - name: volume
-    summary: Volume level for the music player from 0.0 (muted) to 1.0 (loudest).
-    description: |
-        This property has no effect on devices running iOS 8.0 and later.
-
-        This adjusts the volume of the application's session.
-
-        The iOS simulator ignores this volume setting. This is a known issue
-        with Apple's simulator.
-    type: Number
-    osver: {ios: {"max": "7.0"}}

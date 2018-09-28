@@ -13,8 +13,8 @@ import os, re, sys
 thisDir = os.path.abspath(os.path.dirname(__file__))
 androidDir = os.path.abspath(os.path.join(thisDir, "..", "..", ".."))
 
-# We package simplejson in the support/common directory.
-commonSupportDir = os.path.abspath(os.path.join(androidDir, "..", "support", "common"))
+# We package simplejson in our directory.
+commonSupportDir = os.path.abspath(os.path.join(thisDir))
 sys.path.append(commonSupportDir)
 
 try:

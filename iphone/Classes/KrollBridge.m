@@ -69,7 +69,7 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
         [sharedAnalytics performSelector:@selector(setBuildType:) withObject:TI_APPLICATION_BUILD_TYPE];
       }
       [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@", [module performSelector:@selector(version)]]];
-      [sharedAnalytics enableWithAppKey:TI_APPLICATION_GUID andDeployType:TI_APPLICATION_DEPLOYTYPE];
+      [sharedAnalytics performSelector:@selector(enableWithAppKey:andDeployType:) withObject:TI_APPLICATION_GUID withObject:TI_APPLICATION_DEPLOYTYPE];
     }
   }
   return self;
@@ -555,6 +555,16 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // Make the global object itself available under the name "global"
   TiStringRef globalPropertyName = TiStringCreateWithCFString((CFStringRef) @"global");
   TiObjectSetProperty(jsContext, globalRef, globalPropertyName, globalRef, kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete, NULL);
+  TiStringRelease(globalPropertyName);
+
+  // Set the __dirname and __filename for the app.js.
+  // For other files, it will be injected via the `TitaniumModuleRequireFormat` property
+  TiStringRef dirnameProperty = TiStringCreateWithCFString((CFStringRef) @"__dirname");
+  TiStringRef filenameProperty = TiStringCreateWithCFString((CFStringRef) @"__filename");
+  TiObjectSetProperty(jsContext, globalRef, dirnameProperty, [KrollObject toValue:kroll value:@"/"], kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete, NULL);
+  TiObjectSetProperty(jsContext, globalRef, filenameProperty, [KrollObject toValue:kroll value:@"/app.js"], kTiPropertyAttributeDontEnum | kTiPropertyAttributeReadOnly | kTiPropertyAttributeDontDelete, NULL);
+  TiStringRelease(dirnameProperty);
+  TiStringRelease(filenameProperty);
 
   //if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
@@ -668,6 +678,9 @@ CFMutableSetRef krollBridgeRegistry = nil;
   ourKrollObject = [[KrollCoverageObject alloc] initWithTarget:proxy context:context];
 #else
   ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
+#endif
+#ifdef USE_JSCORE_FRAMEWORK
+  [ourKrollObject protectJsobject];
 #endif
 
   [self registerProxy:proxy
@@ -887,22 +900,20 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (KrollWrapper *)loadJavascriptObject:(NSString *)data fromFile:(NSString *)filename withContext:(KrollContext *)kroll
 {
-  // We could cheat and just do "module.exports = %data%", but that wouldn't validate that the passed in content was JSON
-  // and may open a security hole.
+  NSError *jsonParseError = nil;
+  NSError *jsonStringifyError = nil;
 
-  // TODO It'd be good to try and handle things more gracefully if the JSON is "bad"/malformed
+  // 1. Parse JSON
+  __unused NSDictionary *parsedJSON = [TiUtils jsonParse:data error:&jsonParseError];
 
-  // Take JSON and turn into JS program that assigns module.exports to the parsed JSON
-  // 1. trim leading and trailing newlines and whitespace from JSON file
-  data = [data stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-  // 2. Escape single quotes
-  data = [data stringByReplacingOccurrencesOfString:@"'" withString:@"\'"];
-  // 3. assign module.exports as JSON.parse call on the JSON
-  data = [@"module.exports = JSON.parse('" stringByAppendingString:data];
-  // 4. Replace newlines with "' +\n'"
-  data = [data stringByReplacingOccurrencesOfString:@"\n" withString:@"' +\n'"];
-  // 5. close the JSON string and end the JSON.parse call
-  data = [data stringByAppendingString:@"');"];
+  // 2. Validate parsed JSON
+  if (jsonParseError != nil) {
+    DebugLog(@"[ERROR] Unable to parse JSON input!");
+    return nil;
+  }
+
+  // 3. Assign valid JSON to module.exports
+  data = [NSString stringWithFormat:@"module.exports = %@;", data];
 
   return [self loadJavascriptText:data fromFile:filename withContext:kroll];
 }

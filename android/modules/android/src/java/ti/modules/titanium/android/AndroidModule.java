@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -580,35 +580,31 @@ public class AndroidModule extends KrollModule
 	public ActivityProxy getCurrentActivity()
 	// clang-format on
 	{
-		TiBaseActivity resultBaseActivity = (TiBaseActivity) TiApplication.getAppCurrentActivity();
-		if (resultBaseActivity != null) {
-			return resultBaseActivity.getActivityProxy();
-		} else {
-			Log.w(TAG, "Application instance no longer available. Unable to get current activity.");
-			return null;
+		Activity activity = TiApplication.getAppCurrentActivity();
+		if (activity instanceof TiBaseActivity) {
+			return ((TiBaseActivity) activity).getActivityProxy();
 		}
+		return null;
 	}
 
 	@Kroll.method
 	public void startService(IntentProxy intentProxy)
 	{
-		TiApplication app = TiApplication.getInstance();
-		if (app != null) {
-			app.startService(intentProxy.getIntent());
-		} else {
-			Log.w(TAG, "Application instance no longer available. Unable to startService.");
+		try {
+			TiApplication.getInstance().startService(intentProxy.getIntent());
+		} catch (Exception ex) {
+			String message = ex.getMessage();
+			if (message == null) {
+				message = "startService() failed. Reason unknown.";
+			}
+			Log.w(TAG, message);
 		}
 	}
 
 	@Kroll.method
 	public void stopService(IntentProxy intentProxy)
 	{
-		TiApplication app = TiApplication.getInstance();
-		if (app != null) {
-			app.stopService(intentProxy.getIntent());
-		} else {
-			Log.w(TAG, "Application instance no longer available. Unable to stopService.");
-		}
+		TiApplication.getInstance().stopService(intentProxy.getIntent());
 	}
 
 	@Kroll.method
@@ -682,13 +678,6 @@ public class AndroidModule extends KrollModule
 		}
 
 		TiApplication app = TiApplication.getInstance();
-		if (app == null) {
-			Log.w(
-				TAG,
-				"Application instance is no longer available. Unable to check isServiceRunning. Returning false though value is meaningless.");
-			return false;
-		}
-
 		ActivityManager am = (ActivityManager) app.getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
 		if (am != null) {
 			List<RunningServiceInfo> services = am.getRunningServices(Integer.MAX_VALUE);

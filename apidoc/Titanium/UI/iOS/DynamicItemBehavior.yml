@@ -2,8 +2,6 @@
 name: Titanium.UI.iOS.DynamicItemBehavior
 summary: Base dynamic configuration for an item.
 description: |
-    The following APIs are supported on iOS 7 and later.
-
     A dynamic item behavior configures the physics attributes for one or more items. These
     attributes, such as density and resistance, affects the behavior of the object when other behaviors,
     such as push forces or collisions, are applied to it.  To define a dynamic behavior for an item:
