@@ -57,7 +57,7 @@ properties:
   - name: style
     type: Number
     summary: The style of the feedback generator you want to create. This property is only required when using <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
-    constants: Titanium.UI.iOS.FEEDBACK_GENERATOR_STYLE_*
+    constants: Titanium.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_*
     availability: creation
     optional: true    
     
