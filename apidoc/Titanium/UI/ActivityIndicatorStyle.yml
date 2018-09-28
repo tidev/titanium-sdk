@@ -15,7 +15,7 @@ properties:
         One of the group of activity indicator style constants
         [DARK](Titanium.UI.ActivityIndicatorStyle.DARK),
         [BIG](Titanium.UI.ActivityIndicatorStyle.BIG),
-        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
+        [BIG_DARK](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
@@ -29,7 +29,7 @@ properties:
         One of the group of activity indicator style constants
         [DARK](Titanium.UI.ActivityIndicatorStyle.DARK),
         [BIG](Titanium.UI.ActivityIndicatorStyle.BIG),
-        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
+        [BIG_DARK](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
@@ -48,7 +48,7 @@ properties:
         One of the group of activity indicator style constants
         [DARK](Titanium.UI.ActivityIndicatorStyle.DARK),
         [BIG](Titanium.UI.ActivityIndicatorStyle.BIG),
-        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
+        [BIG_DARK](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
@@ -62,7 +62,7 @@ properties:
         One of the group of activity indicator style constants
         [DARK](Titanium.UI.ActivityIndicatorStyle.DARK),
         [BIG](Titanium.UI.ActivityIndicatorStyle.BIG),
-        [BIG](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
+        [BIG_DARK](Titanium.UI.ActivityIndicatorStyle.BIG_DARK),
         and [PLAIN](Titanium.UI.ActivityIndicatorStyle.PLAIN).
     type: Number
     permission: read-only
