@@ -88,7 +88,7 @@ methods:
     summary: Gets events that occur during a specified month.
     deprecated:
         since: "7.0.0"
-        notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead to avaoid platform-differences of the month-index.
+        notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead to avoid platform-differences of the month-index.
     returns:
         type: Array<Titanium.Calendar.Event>
     parameters:
@@ -100,9 +100,6 @@ methods:
         summary: Month of the events, as a zero-based integer with January at 0 and December at 11.
         type: Number
     platforms: [android, iphone, ipad]
-    deprecated:
-      since: "7.0.0"
-      notes: Use <Titanium.Calendar.Calendar.getEventsBetweenDates> instead.
         
   - name: getEventsInYear
     summary: Gets all events that occur during a specified year.
