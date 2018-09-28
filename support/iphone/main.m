@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
   [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];
   [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
 
+  NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
   int retVal = UIApplicationMain(argc, argv, @"TiUIApplication", @"TiApp");
   [pool release];
   return retVal;
