@@ -72,12 +72,12 @@
                                                                           options:options] retain];
         } else {
 #endif
-        // For iOS 11, use the "hiddenPreviewsBodyPlaceholder" constructor
-        _notificationCategory = [UNNotificationCategory categoryWithIdentifier:identifier
-                                                                       actions:defaultActions
-                                                             intentIdentifiers:intentIdentifiers
-                                                 hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
-                                                                       options:options];
+          // For iOS 11, use the "hiddenPreviewsBodyPlaceholder" constructor
+          _notificationCategory = [UNNotificationCategory categoryWithIdentifier:identifier
+                                                                         actions:defaultActions
+                                                               intentIdentifiers:intentIdentifiers
+                                                   hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
+                                                                         options:options];
 #if IS_XCODE_10
         }
 #endif
