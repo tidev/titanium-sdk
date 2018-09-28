@@ -86,9 +86,7 @@ description: |
     The value for `ti.ui.defaultunit` can be any of the unit specifiers defined above, or
     `system` to specify that the platform's default unit should be used.
 
-    Note that prior to Release 2.0, iOS ignored any specified unit, so code that specifies
-    a unit may operate differently on iOS in Release 2.0. If you set the
-    `ti.ui.defaultunit` property to anything other than `system` or `dip`, your
+    On IOS if you set the `ti.ui.defaultunit` property to anything other than `system` or `dip`, your
     application should detect and handle Retina displays manually.
 
     Font sizes on iOS are treated differently than other sizes: font sizes are always
