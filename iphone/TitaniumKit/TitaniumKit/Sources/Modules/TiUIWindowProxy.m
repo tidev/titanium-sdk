@@ -372,7 +372,7 @@
   }
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
-    if ([TiUtils isIOS11OrGreater] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
       [[[controller navigationController] navigationBar] setLargeTitleTextAttributes:theAttributes];
     }
     [[[controller navigationController] navigationBar] setTitleTextAttributes:theAttributes];

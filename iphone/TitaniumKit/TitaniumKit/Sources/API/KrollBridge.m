@@ -886,7 +886,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
 - (KrollWrapper *)loadJavascriptObject:(NSString *)data fromFile:(NSString *)filename withContext:(KrollContext *)kroll
 {
   NSError *jsonParseError = nil;
-  NSError *jsonStringifyError = nil;
 
   // 1. Parse JSON
   __unused NSDictionary *parsedJSON = [TiUtils jsonParse:data error:&jsonParseError];
