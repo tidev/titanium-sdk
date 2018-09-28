@@ -196,19 +196,21 @@ public class CalendarModule extends KrollModule
 	}
 
 	@Kroll.method
-	public String createCalendar(KrollDict data) 
+	public String createCalendar(KrollDict data)
 	{
 		return CalendarProxy.create(data);
 	}
 
 	@Kroll.method
-	public Boolean deleteCalendarById(int id) {
-		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars("Calendars._id = ?", new String[] { "" + id });
+	public Boolean deleteCalendarById(int id)
+	{
+		ArrayList<CalendarProxy> calendars =
+			CalendarProxy.queryCalendars("Calendars._id = ?", new String[] { "" + id });
 
 		if (calendars.size() == 0) {
 			return false;
 		}
-			
+
 		CalendarProxy cal = calendars.get(0);
 		return cal.remove();
 	}

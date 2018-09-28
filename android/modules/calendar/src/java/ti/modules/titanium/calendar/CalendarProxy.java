@@ -62,7 +62,8 @@ public class CalendarProxy extends KrollProxy
 		return "content://calendar";
 	}
 
-	public static String getAccountName() {
+	public static String getAccountName()
+	{
 		return TiApplication.getInstance().getAppInfo().getId();
 	}
 
@@ -253,7 +254,7 @@ public class CalendarProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public static String create(KrollDict data) 
+	public static String create(KrollDict data)
 	{
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		if (!hasCalendarPermissions()) {
@@ -266,9 +267,11 @@ public class CalendarProxy extends KrollProxy
 		calendarValues.put(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
 
 		calendarValues.put(CalendarContract.Calendars.NAME, TiApplication.getInstance().getAppInfo().getName());
-		calendarValues.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, TiApplication.getInstance().getAppInfo().getName());
+		calendarValues.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
+						   TiApplication.getInstance().getAppInfo().getName());
 		calendarValues.put(CalendarContract.Calendars.VISIBLE, 1);
-		calendarValues.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
+		calendarValues.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL,
+						   CalendarContract.Calendars.CAL_ACCESS_OWNER);
 		calendarValues.put(CalendarContract.Calendars.SYNC_EVENTS, 1);
 
 		Uri.Builder builder = CalendarContract.Calendars.CONTENT_URI.buildUpon();
@@ -283,7 +286,7 @@ public class CalendarProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public Boolean remove() 
+	public Boolean remove()
 	{
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 		if (!hasCalendarPermissions()) {
@@ -295,7 +298,8 @@ public class CalendarProxy extends KrollProxy
 		builder.appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
 		builder.appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true");
 
-		int rows = contentResolver.delete(builder.build(), CalendarContract.Calendars._ID + "=?", new String[]{ this.id });
+		int rows =
+			contentResolver.delete(builder.build(), CalendarContract.Calendars._ID + "=?", new String[] { this.id });
 		return (rows == 1);
 	}
 
