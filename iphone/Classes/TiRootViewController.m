@@ -311,13 +311,13 @@
       return image;
     }
   }
+
   *imageOrientation = UIDeviceOrientationPortrait;
   *imageIdiom = UIUserInterfaceIdiomPhone;
-  // Default
   image = nil;
 
-  // iPhone X
-  if ([TiUtils isRetinaiPhoneX]) {
+  // iPhone X / iPhone XS
+  if ([TiUtils isSuperRetina5_8Inch]) {
     if (UIDeviceOrientationIsPortrait(orientation)) {
       // Portrait
       image = [UIImage imageNamed:@"LaunchImage-1100-Portrait-2436h@3x"];
@@ -331,8 +331,38 @@
     }
   }
 
+  // iPhone XR
+  if ([TiUtils isRetina6_1Inch]) {
+    if (UIDeviceOrientationIsPortrait(orientation)) {
+      // Portrait
+      image = [UIImage imageNamed:@"LaunchImage-1200-Portrait-1792h"];
+    } else if (UIDeviceOrientationIsLandscape(orientation)) {
+      // Landscape
+      image = [UIImage imageNamed:@"LaunchImage-1200-Landscape-1792h"];
+    }
+    if (image != nil) {
+      *imageOrientation = orientation;
+      return image;
+    }
+  }
+
+  // iPhone XS Max
+  if ([TiUtils isSuperRetina6_5Inch]) {
+    if (UIDeviceOrientationIsPortrait(orientation)) {
+      // Portrait
+      image = [UIImage imageNamed:@"LaunchImage-1200-Portrait-2688h"];
+    } else if (UIDeviceOrientationIsLandscape(orientation)) {
+      // Landscape
+      image = [UIImage imageNamed:@"LaunchImage-1200-Landscape-2688h"];
+    }
+    if (image != nil) {
+      *imageOrientation = orientation;
+      return image;
+    }
+  }
+
   // iPhone 6 Plus
-  if ([TiUtils isRetinaiPhone6Plus]) {
+  if ([TiUtils isRetina5_5Inch]) {
     if (UIDeviceOrientationIsPortrait(orientation)) {
       image = [UIImage imageNamed:@"LaunchImage-800-Portrait-736h@3x"];
     } else if (UIDeviceOrientationIsLandscape(orientation)) {
@@ -345,7 +375,7 @@
   }
 
   // iPhone 6
-  if ([TiUtils isRetinaiPhone6]) {
+  if ([TiUtils isRetina4_7Inch]) {
     image = [UIImage imageNamed:@"LaunchImage-800-667h"];
     if (image != nil) {
       return image;
@@ -443,7 +473,7 @@
 
 - (void)adjustKeyboardHeight:(NSNumber *)_keyboardVisible
 {
-  if ((updatingAccessoryView == NO) && ([TiUtils boolValue:_keyboardVisible] == keyboardVisible)) {
+  if (!updatingAccessoryView && [TiUtils boolValue:_keyboardVisible] == keyboardVisible) {
     updatingAccessoryView = YES;
     [self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
     if (!keyboardVisible) {
@@ -1178,8 +1208,15 @@
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
-    [self rotateHostingViewToOrientation:target
-                         fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils isIOSVersionLower:@"12.0"]) {
+      forcingStatusBarOrientation = YES;
+      [[UIApplication sharedApplication] setStatusBarOrientation:target animated:NO];
+      [UIViewController attemptRotationToDeviceOrientation];
+      forcingStatusBarOrientation = NO;
+    } else {
+      [self rotateHostingViewToOrientation:target
+                           fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    }
     forcingRotation = NO;
 #endif
   } else {
@@ -1343,7 +1380,7 @@
   }
 
 #if IS_XCODE_9
-  if ([TiUtils isIOS11OrGreater]) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 #endif
@@ -1370,7 +1407,7 @@
   TiOrientationFlags result = TiOrientationNone;
   if (checkModal) {
     for (id<TiWindowProtocol> thisWindow in [modalWindows reverseObjectEnumerator]) {
-      if ([thisWindow closing] == NO) {
+      if (![thisWindow closing]) {
         result = [thisWindow orientationFlags];
         if (result != TiOrientationNone) {
           return result;
@@ -1379,7 +1416,7 @@
     }
   }
   for (id<TiWindowProtocol> thisWindow in [containedWindows reverseObjectEnumerator]) {
-    if ([thisWindow closing] == NO) {
+    if (![thisWindow closing]) {
       result = [thisWindow orientationFlags];
       if (result != TiOrientationNone) {
         return result;
@@ -1400,9 +1437,6 @@
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 - (void)viewWillAppear:(BOOL)animated
 {
-#ifdef TI_USE_KROLL_THREAD
-  TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
-#endif
   for (id<TiWindowProtocol> thisWindow in containedWindows) {
     [thisWindow viewWillAppear:animated];
   }
@@ -1488,6 +1522,7 @@
 #endif
 
 #pragma mark - Status Bar Appearance
+
 - (BOOL)prefersStatusBarHidden
 {
   BOOL oldStatus = statusBarIsHidden;
@@ -1527,8 +1562,8 @@
   if (viewControllerControlsStatusBar) {
     [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate) withObject:nil];
   } else {
-    [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:UIStatusBarAnimationNone];
-    [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle] animated:NO];
+    [UIApplication sharedApplication].statusBarHidden = [self prefersStatusBarHidden];
+    [UIApplication sharedApplication].statusBarStyle = [self preferredStatusBarStyle];
     [self resizeView];
   }
 }

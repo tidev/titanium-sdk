@@ -111,9 +111,9 @@ properties:
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad]
     since:
-        android: 7.4.0
-        iphone: 7.4.0
-        ipad: 7.4.0
+        android: 7.5.0
+        iphone: 7.5.0
+        ipad: 7.5.0
 
   - name: backgroundImage
     summary: |

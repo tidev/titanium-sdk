@@ -359,7 +359,7 @@ properties:
     description: Sets the height of the text area by line height. Set to -1 to respect the view's height property instead.
     default: 1
     type: Number
-    since: { android: "7.4.0" }
+    since: { android: "7.5.0" }
     platforms: [android]
 
   - name: maxLength
@@ -377,7 +377,7 @@ properties:
     description: Sets the maximum of lines that the field will be extended to when pressing `Return`.
     default: -1
     type: Number
-    since: { android: "7.4.0" }
+    since: { android: "7.5.0" }
     platforms: [android]
 
   - name: padding

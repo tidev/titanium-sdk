@@ -156,7 +156,7 @@ DEFINE_EXCEPTIONS
     [self.proxy fireEvent:@"change" withObject:evt];
   }
 
-  if (repeatCount > 0 && ((reverse == NO && position == (loadTotal - 1)) || (reverse && position == 0))) {
+  if (repeatCount > 0 && ((!reverse && position == (loadTotal - 1)) || (reverse && position == 0))) {
     iterations++;
     if (iterations == repeatCount) {
       stopped = YES;
@@ -206,20 +206,6 @@ DEFINE_EXCEPTIONS
     timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain];
   }
 }
-
-#ifdef TI_USE_KROLL_THREAD
-- (void)listenerAdded:(NSString *)type count:(int)count
-{
-  if (count == 1 && [type isEqualToString:@"load"]) {
-    NSString *loadEventState = [(TiUIImageViewProxy *)[self proxy] loadEventState];
-    if (loadEventState) {
-      [[self proxy] fireEvent:@"load" withObject:@{ @"state" : loadEventState }];
-    }
-  } else {
-    [super listenerAdded:type count:count];
-  }
-}
-#endif
 
 - (void)stopTimerWithEvent:(NSString *)eventName
 {

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,35 +21,35 @@
 
 #import "TiApp.h"
 
-TiClassRef KrollObjectClassRef = NULL;
-TiClassRef JSObjectClassRef = NULL;
+JSClassRef KrollObjectClassRef = NULL;
+JSClassRef JSObjectClassRef = NULL;
 
 /*
- *	Since TiStringRefs are not tied to any particular context, and are
+ *	Since JSStringRefs are not tied to any particular context, and are
  *	immutable, they are threadsafe and more importantly, ones that are in
  *	constant use never need to garbage collected, but can be reused.
  */
 
-TiStringRef kTiStringGetTime;
-TiStringRef kTiStringLength;
-TiStringRef kTiStringTiPropertyKey;
-TiStringRef kTiStringPropertyKey;
-TiStringRef kTiStringEventKey;
-TiStringRef kTiStringExportsKey;
+JSStringRef kTiStringGetTime;
+JSStringRef kTiStringLength;
+JSStringRef kTiStringTiPropertyKey;
+JSStringRef kTiStringPropertyKey;
+JSStringRef kTiStringEventKey;
+JSStringRef kTiStringExportsKey;
 
-id TiValueToId(KrollContext *context, TiValueRef v);
+id TiValueToId(KrollContext *context, JSValueRef v);
 
 //
 // function to determine if the object passed is a JS Date
 //
-BOOL IsDateLike(TiContextRef jsContext, TiObjectRef object, TiValueRef *v)
+BOOL IsDateLike(JSContextRef jsContext, JSObjectRef object, JSValueRef *v)
 {
   BOOL result = NO;
-  if (TiObjectHasProperty(jsContext, object, kTiStringGetTime)) {
-    TiValueRef fn = TiObjectGetProperty(jsContext, object, kTiStringGetTime, NULL);
-    TiObjectRef fnObj = TiValueToObject(jsContext, fn, NULL);
-    if (TiObjectIsFunction(jsContext, fnObj)) {
-      *v = TiObjectCallAsFunction(jsContext, fnObj, object, 0, NULL, NULL);
+  if (JSObjectHasProperty(jsContext, object, kTiStringGetTime)) {
+    JSValueRef fn = JSObjectGetProperty(jsContext, object, kTiStringGetTime, NULL);
+    JSObjectRef fnObj = JSValueToObject(jsContext, fn, NULL);
+    if (JSObjectIsFunction(jsContext, fnObj)) {
+      *v = JSObjectCallAsFunction(jsContext, fnObj, object, 0, NULL, NULL);
       result = YES;
     }
   }
@@ -57,25 +57,25 @@ BOOL IsDateLike(TiContextRef jsContext, TiObjectRef object, TiValueRef *v)
 }
 
 //
-// function for converting a TiValueRef into a NSDictionary*
+// function for converting a JSValueRef into a NSDictionary*
 //
-NSDictionary *TiValueToDict(KrollContext *context, TiValueRef value)
+NSDictionary *TiValueToDict(KrollContext *context, JSValueRef value)
 {
   return TiBindingTiValueToNSDictionary([context context], value);
 }
 
 //
-// function for converting a TiValueRef into a JSON string as NSString*
+// function for converting a JSValueRef into a JSON string as NSString*
 //
-NSString *TiValueToJSON(KrollContext *context, TiValueRef value)
+NSString *TiValueToJSON(KrollContext *context, JSValueRef value)
 {
   return [TiUtils jsonStringify:TiValueToId(context, value)];
 }
 
 //
-// function for converting a TiValueRef into an NSObject* (as ID)
+// function for converting a JSValueRef into an NSObject* (as ID)
 //
-id TiValueToId(KrollContext *context, TiValueRef v)
+id TiValueToId(KrollContext *context, JSValueRef v)
 {
   return TiBindingTiValueToNSObject([context context], v);
 }
@@ -83,7 +83,7 @@ id TiValueToId(KrollContext *context, TiValueRef v)
 //
 // function for converting a TiValue to an NSObject* (as ID)
 //
-TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
+JSValueRef ConvertIdTiValue(KrollContext *context, id obj)
 {
   return TiBindingTiValueFromNSObject([context context], obj);
 }
@@ -91,10 +91,10 @@ TiValueRef ConvertIdTiValue(KrollContext *context, id obj)
 //
 // callback for handling finalization (in JS land)
 //
-void KrollFinalizer(TiObjectRef ref)
+void KrollFinalizer(JSObjectRef ref)
 {
   waitForMemoryPanicCleared();
-  id o = (id)TiObjectGetPrivate(ref);
+  id o = (id)JSObjectGetPrivate(ref);
 
   if ((o == nil) || [o isKindOfClass:[KrollContext class]]) {
     return;
@@ -122,12 +122,12 @@ void KrollFinalizer(TiObjectRef ref)
   o = nil;
 }
 
-bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef propertyName, TiValueRef *exception)
+bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propertyName, JSValueRef *exception)
 {
   waitForMemoryPanicCleared();
-  id o = (id)TiObjectGetPrivate(object);
+  id o = (id)JSObjectGetPrivate(object);
   if ([o isKindOfClass:[KrollObject class]]) {
-    NSString *name = (NSString *)TiStringCopyCFString(kCFAllocatorDefault, propertyName);
+    NSString *name = (NSString *)JSStringCopyCFString(kCFAllocatorDefault, propertyName);
     [o deleteKey:name];
     [o forgetObjectForTiString:propertyName context:ctx];
 
@@ -139,10 +139,10 @@ bool KrollDeleteProperty(TiContextRef ctx, TiObjectRef object, TiStringRef prope
 //
 // callback for handling creation (in JS land)
 //
-void KrollInitializer(TiContextRef ctx, TiObjectRef object)
+void KrollInitializer(JSContextRef ctx, JSObjectRef object)
 {
   waitForMemoryPanicCleared();
-  id o = (id)TiObjectGetPrivate(object);
+  id o = (id)JSObjectGetPrivate(object);
   if ([o isKindOfClass:[KrollContext class]]) {
     return;
   }
@@ -152,35 +152,35 @@ void KrollInitializer(TiContextRef ctx, TiObjectRef object)
 
   if ([o isKindOfClass:[KrollObject class]]) {
     [o retain];
-    TiObjectRef propsObject = TiObjectMake(ctx, NULL, NULL);
-    TiObjectSetProperty(ctx, object, kTiStringTiPropertyKey, propsObject, kTiPropertyAttributeDontEnum, NULL);
+    JSObjectRef propsObject = JSObjectMake(ctx, NULL, NULL);
+    JSObjectSetProperty(ctx, object, kTiStringTiPropertyKey, propsObject, kJSPropertyAttributeDontEnum, NULL);
     [o setPropsObject:propsObject];
   } else {
     DeveloperLog(@"[DEBUG] Initializer for %@", [o class]);
   }
 }
 
-bool KrollHasProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef propertyName)
+bool KrollHasProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef propertyName)
 {
   waitForMemoryPanicCleared();
 
   // Debugger may actually try to get properties off global Kroll property (which is a special case KrollContext singleton)
-  id privateObject = (id)TiObjectGetPrivate(object);
+  id privateObject = (id)JSObjectGetPrivate(object);
   if ([privateObject isKindOfClass:[KrollContext class]]) {
     return false;
   }
 
-  if (TiStringIsEqual(propertyName, kTiStringTiPropertyKey)) {
+  if (JSStringIsEqual(propertyName, kTiStringTiPropertyKey)) {
     return false;
   }
 
   KrollObject *o = (KrollObject *)privateObject;
-  TiObjectRef exports = [o objectForTiString:kTiStringExportsKey context:jsContext];
-  if ((exports != NULL) && TiObjectHasProperty(jsContext, exports, propertyName)) {
+  JSObjectRef exports = [o objectForTiString:kTiStringExportsKey context:jsContext];
+  if ((exports != NULL) && JSObjectHasProperty(jsContext, exports, propertyName)) {
     return true;
   }
 
-  NSString *name = (NSString *)TiStringCopyCFString(kCFAllocatorDefault, propertyName);
+  NSString *name = (NSString *)JSStringCopyCFString(kCFAllocatorDefault, propertyName);
   [name autorelease];
   id result = [o valueForKey:name];
   if (result != nil) {
@@ -195,29 +195,29 @@ bool KrollHasProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 //
 
 //TODO: We should fetch from the props object and shortcut some of this. Especially now that callbacks are CURRENTLY write-only.
-TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef prop, TiValueRef *exception)
+JSValueRef KrollGetProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef prop, JSValueRef *exception)
 {
   waitForMemoryPanicCleared();
   // Debugger may actually try to get properties off global Kroll property (which is a special case KrollContext singleton)
-  id privateObject = (id)TiObjectGetPrivate(object);
+  id privateObject = (id)JSObjectGetPrivate(object);
   if ([privateObject isKindOfClass:[KrollContext class]]) {
     return NULL;
   }
 
   KrollObject *o = (KrollObject *)privateObject;
   @try {
-    if (TiStringIsEqual(prop, kTiStringTiPropertyKey)) {
+    if (JSStringIsEqual(prop, kTiStringTiPropertyKey)) {
       return NULL;
     }
 
     // Attempt to retrieve the property from the exports, before going through
     // the routing
-    TiObjectRef exports = [o objectForTiString:kTiStringExportsKey context:jsContext];
-    if ((exports != NULL) && TiObjectHasProperty(jsContext, exports, prop)) {
-      return TiObjectGetProperty(jsContext, exports, prop, NULL);
+    JSObjectRef exports = [o objectForTiString:kTiStringExportsKey context:jsContext];
+    if ((exports != NULL) && JSObjectHasProperty(jsContext, exports, prop)) {
+      return JSObjectGetProperty(jsContext, exports, prop, NULL);
     }
 
-    NSString *name = (NSString *)TiStringCopyCFString(kCFAllocatorDefault, prop);
+    NSString *name = (NSString *)JSStringCopyCFString(kCFAllocatorDefault, prop);
     [name autorelease];
 
     id result = [o valueForKey:name];
@@ -228,8 +228,8 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
         [o deleteKey:name];
         result = nil;
       } else {
-        TiObjectRef cachedObject = [o objectForTiString:prop context:jsContext];
-        TiObjectRef remoteFunction = [(KrollWrapper *)result jsobject];
+        JSObjectRef cachedObject = [o objectForTiString:prop context:jsContext];
+        JSObjectRef remoteFunction = [(KrollWrapper *)result jsobject];
         if ((cachedObject != NULL) && (cachedObject != remoteFunction)) {
           [o forgetObjectForTiString:prop context:jsContext]; //Clean up the old property.
         }
@@ -240,15 +240,15 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
       }
     }
 
-    TiValueRef jsResult = ConvertIdTiValue([o context], result);
+    JSValueRef jsResult = ConvertIdTiValue([o context], result);
     if (([result isKindOfClass:[KrollObject class]] && ![result isKindOfClass:[KrollCallback class]] && [[result target] isKindOfClass:[TiProxy class]])
         || ([result isKindOfClass:[TiProxy class]])) {
-      [o noteObject:(TiObjectRef)jsResult forTiString:prop context:jsContext];
+      [o noteObject:(JSObjectRef)jsResult forTiString:prop context:jsContext];
     } else {
       [o forgetObjectForTiString:prop context:jsContext];
     }
     if (result == nil) {
-      TiValueRef jsResult2 = [o jsvalueForUndefinedKey:name];
+      JSValueRef jsResult2 = [o jsvalueForUndefinedKey:name];
       if (jsResult2 != NULL) {
         jsResult = jsResult2;
       }
@@ -262,26 +262,26 @@ TiValueRef KrollGetProperty(TiContextRef jsContext, TiObjectRef object, TiString
   @catch (NSException *ex) {
     *exception = [KrollObject toValue:[o context] value:ex];
   }
-  return TiValueMakeUndefined(jsContext);
+  return JSValueMakeUndefined(jsContext);
 }
 
 //
 // callback for handling a setter (in JS land)
 //
-bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef prop, TiValueRef value, TiValueRef *exception)
+bool KrollSetProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef prop, JSValueRef value, JSValueRef *exception)
 {
   waitForMemoryPanicCleared();
-  id privateObject = (id)TiObjectGetPrivate(object);
+  id privateObject = (id)JSObjectGetPrivate(object);
   if ([privateObject isKindOfClass:[KrollContext class]]) {
     return false;
   }
 
   KrollObject *o = (KrollObject *)privateObject;
   @try {
-    if (TiStringIsEqual(prop, kTiStringTiPropertyKey)) {
+    if (JSStringIsEqual(prop, kTiStringTiPropertyKey)) {
       return false;
     }
-    NSString *name = (NSString *)TiStringCopyCFString(kCFAllocatorDefault, prop);
+    NSString *name = (NSString *)JSStringCopyCFString(kCFAllocatorDefault, prop);
     [name autorelease];
 
     id v = TiValueToId([o context], value);
@@ -289,20 +289,14 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
     NSLog(@"[KROLL DEBUG] KROLL SET PROPERTY: %@=%@ against %@", name, v, o);
 #endif
     if ([v isKindOfClass:[TiProxy class]]) {
-      [o noteObject:(TiObjectRef)value forTiString:prop context:jsContext];
+      [o noteObject:(JSObjectRef)value forTiString:prop context:jsContext];
     } else {
       [o forgetObjectForTiString:prop context:jsContext];
     }
-#ifdef TI_USE_KROLL_THREAD
-    [o setValue:v
-         forKey:name];
-#else
-
     TiThreadPerformOnMainThread(^{
       [o setValue:v forKey:name];
     },
         YES);
-#endif
     return true;
   }
   @catch (NSException *ex) {
@@ -326,9 +320,9 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 //
 // handle property names which makes the object iterable
 //
-void KrollPropertyNames(TiContextRef ctx, TiObjectRef object, TiPropertyNameAccumulatorRef propertyNames)
+void KrollPropertyNames(JSContextRef ctx, JSObjectRef object, JSPropertyNameAccumulatorRef propertyNames)
 {
-  id privateObject = (id)TiObjectGetPrivate(object);
+  id privateObject = (id)JSObjectGetPrivate(object);
   if ([privateObject isKindOfClass:[KrollContext class]]) {
     return;
   }
@@ -339,15 +333,15 @@ void KrollPropertyNames(TiContextRef ctx, TiObjectRef object, TiPropertyNameAccu
 
     if ([o isKindOfClass:[TitaniumObject class]]) {
       for (NSString *key in [[(TitaniumObject *)o modules] allKeys]) {
-        TiStringRef value = TiStringCreateWithUTF8CString([key UTF8String]);
-        TiPropertyNameAccumulatorAddName(propertyNames, value);
-        TiStringRelease(value);
+        JSStringRef value = JSStringCreateWithUTF8CString([key UTF8String]);
+        JSPropertyNameAccumulatorAddName(propertyNames, value);
+        JSStringRelease(value);
       }
     } else if ([target isKindOfClass:[TiProxy class]]) {
       for (NSString *key in [target allKeys]) {
-        TiStringRef value = TiStringCreateWithUTF8CString([key UTF8String]);
-        TiPropertyNameAccumulatorAddName(propertyNames, value);
-        TiStringRelease(value);
+        JSStringRef value = JSStringCreateWithUTF8CString([key UTF8String]);
+        JSPropertyNameAccumulatorAddName(propertyNames, value);
+        JSStringRelease(value);
       }
     }
   }
@@ -356,19 +350,19 @@ void KrollPropertyNames(TiContextRef ctx, TiObjectRef object, TiPropertyNameAccu
 //
 // support casting
 //
-bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef possibleInstance, TiValueRef *exception)
+bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef possibleInstance, JSValueRef *exception)
 {
-  id privateObject = (id)TiObjectGetPrivate(constructor);
+  id privateObject = (id)JSObjectGetPrivate(constructor);
   if ([privateObject isKindOfClass:[KrollContext class]]) {
     return false;
   }
 
   KrollObject *o1 = (KrollObject *)privateObject;
   if (o1) {
-    TiValueRef ex = NULL;
-    TiObjectRef objTarget = TiValueToObject(ctx, possibleInstance, &ex);
+    JSValueRef ex = NULL;
+    JSObjectRef objTarget = JSValueToObject(ctx, possibleInstance, &ex);
     if (!ex) {
-      KrollObject *o2 = (KrollObject *)TiObjectGetPrivate(objTarget);
+      KrollObject *o2 = (KrollObject *)JSObjectGetPrivate(objTarget);
       if (o2) {
         id t1 = [o1 target];
         id t2 = [o2 target];
@@ -400,7 +394,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 + (void)initialize
 {
   if (KrollObjectClassRef == NULL) {
-    TiClassDefinition classDef = kTiClassDefinitionEmpty;
+    JSClassDefinition classDef = kJSClassDefinitionEmpty;
     classDef.className = "Object";
     classDef.initialize = KrollInitializer;
     classDef.finalize = KrollFinalizer;
@@ -410,18 +404,18 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
     classDef.deleteProperty = KrollDeleteProperty;
     classDef.getPropertyNames = KrollPropertyNames;
     classDef.hasInstance = KrollHasInstance;
-    KrollObjectClassRef = TiClassCreate(&classDef);
+    KrollObjectClassRef = JSClassCreate(&classDef);
 
-    kTiStringGetTime = TiStringCreateWithUTF8CString("getTime");
-    kTiStringLength = TiStringCreateWithUTF8CString("length");
-    kTiStringTiPropertyKey = TiStringCreateWithUTF8CString("__TI");
-    kTiStringPropertyKey = TiStringCreateWithUTF8CString("__PR");
-    kTiStringEventKey = TiStringCreateWithUTF8CString("__EV");
-    kTiStringExportsKey = TiStringCreateWithUTF8CString("__EX");
+    kTiStringGetTime = JSStringCreateWithUTF8CString("getTime");
+    kTiStringLength = JSStringCreateWithUTF8CString("length");
+    kTiStringTiPropertyKey = JSStringCreateWithUTF8CString("__TI");
+    kTiStringPropertyKey = JSStringCreateWithUTF8CString("__PR");
+    kTiStringEventKey = JSStringCreateWithUTF8CString("__EV");
+    kTiStringExportsKey = JSStringCreateWithUTF8CString("__EX");
   }
 }
 
-+ (TiClassRef)jsClassRef
++ (JSClassRef)jsClassRef
 {
   return KrollObjectClassRef;
 }
@@ -443,13 +437,13 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
     context = context_; // don't retain
     jsContext = [context context];
     bridge = (KrollBridge *)[context_ delegate];
-    jsobject = TiObjectMake(jsContext, [[self class] jsClassRef], self);
+    jsobject = JSObjectMake(jsContext, [[self class] jsClassRef], self);
     targetable = [target conformsToProtocol:@protocol(KrollTargetable)];
   }
   return self;
 }
 
-- (TiObjectRef)jsobject
+- (JSObjectRef)jsobject
 {
   return jsobject;
 }
@@ -465,9 +459,9 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 - (BOOL)isEqual:(id)anObject
 {
   if ([anObject isKindOfClass:[KrollObject class]]) {
-    TiObjectRef ref1 = jsobject;
-    TiObjectRef ref2 = [(KrollObject *)anObject jsobject];
-    return TiValueIsStrictEqual(jsContext, ref1, ref2);
+    JSObjectRef ref1 = jsobject;
+    JSObjectRef ref2 = [(KrollObject *)anObject jsobject];
+    return JSValueIsStrictEqual(jsContext, ref1, ref2);
   }
   return NO;
 }
@@ -499,9 +493,9 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 }
 
 //
-// create a JS TiValueRef from a NSObject* (as ID)
+// create a JS JSValueRef from a NSObject* (as ID)
 //
-+ (TiValueRef)create:(id)object context:(KrollContext *)context
++ (JSValueRef)create:(id)object context:(KrollContext *)context
 {
 #ifdef KROLL_COVERAGE
   KrollObject *ko = [[[KrollCoverageObject alloc] initWithTarget:object context:context] autorelease];
@@ -512,9 +506,9 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 }
 
 //
-// convert TiValueRef to ID
+// convert JSValueRef to ID
 //
-+ (id)toID:(KrollContext *)context value:(TiValueRef)ref
++ (id)toID:(KrollContext *)context value:(JSValueRef)ref
 {
   return TiValueToId(context, ref);
 }
@@ -528,9 +522,9 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 }
 
 //
-// convert ID to TiValueRef
+// convert ID to JSValueRef
 //
-+ (TiValueRef)toValue:(KrollContext *)context value:(id)obj
++ (JSValueRef)toValue:(KrollContext *)context value:(id)obj
 {
   return ConvertIdTiValue(context, obj);
 }
@@ -590,7 +584,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
       [[NSCharacterSet uppercaseLetterCharacterSet] characterIsMember:[key characterAtIndex:3]]) {
     // This is PROBABLY a request for an internal setter (either setX('a') or setX('a','b')). But
     // it could also be:
-    // * Pulling a user-defined property prefixed with 'get'
+    // * Pulling a user-defined property prefixed with 'set'
     // * Autogenerating a getter/setter
     // In the event of the former, we actually have to actually pull a jump to
     // returning the property's appropriate type, as below in the general case.
@@ -615,6 +609,12 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
     } else {
       selector = NSSelectorFromString([key stringByAppendingString:@":"]);
       if ([target respondsToSelector:selector]) {
+        // Assume that if there's a getter with same property name, that this is just exposing the property's setter method to JS when it shouldn't be
+        if ([target respondsToSelector:NSSelectorFromString(propertyKey)]) {
+          // This is the code path for delegating something like Ti.Filesystem.File#setHidden(), see KrollMethod for other cases (when type is KrollMethodPropertySetter, the last option in this if block below)
+          // Spit out a deprecation warning to use normal property setter!
+          DebugLog(@"[WARN] Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 9.0.0. Please modify the property in standard JS style: obj.%@ = value; or obj['%@'] = value;", propertyKey, propertyKey);
+        }
         [result setSelector:selector];
       } else {
         // Either a custom property, OR a request for an autogenerated setter
@@ -654,6 +654,9 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
     NSString *partkey = [self propercase:key index:3];
     SEL selector = NSSelectorFromString(partkey);
     if ([target respondsToSelector:selector]) {
+      // Spit out a deprecation warning to use normal property accessor!
+      // This is the code path for delegating something like Ti.Filesystem.File#getHidden(), see KrollMethod for other cases (when type is KrollMethodPropertyGetter, the last option in this if block below)
+      DebugLog(@"[WARN] Automatic getter methods for properties are in SDK 8.0.0 and will be removed in SDK 9.0.0. Please access the property in standard JS style: obj.%@ or obj['%@']", partkey, partkey);
       [result setSelector:selector];
       [result setType:KrollMethodGetter];
       return [result autorelease];
@@ -857,7 +860,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
   }
 }
 
-- (TiValueRef)jsvalueForUndefinedKey:(NSString *)key
+- (JSValueRef)jsvalueForUndefinedKey:(NSString *)key
 {
   return NULL;
 }
@@ -926,21 +929,13 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
     return;
   }
 
-  TiContextRef jscontext = [context context];
+  JSContextRef jscontext = [context context];
   if (finalized || (jscontext == NULL) || (jsobject == NULL)) {
     return;
   }
 
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeProtect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(protectJsobject) object:nil];
-    [context enqueue:safeProtect];
-    [safeProtect release];
-    return;
-  }
-#endif
   protecting = YES;
-  TiValueProtect(jscontext, jsobject);
+  JSValueProtect(jscontext, jsobject);
 }
 
 - (void)unprotectJsobject
@@ -948,24 +943,16 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
   if (!protecting) {
     return;
   }
-  TiContextRef jscontext = [context context];
+  JSContextRef jscontext = [context context];
   if (finalized || (jscontext == NULL) || (jsobject == NULL)) {
     return;
   }
 
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeUnprotect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(unprotectJsobject) object:nil];
-    [context enqueue:safeUnprotect];
-    [safeUnprotect release];
-    return;
-  }
-#endif
   protecting = NO;
-  TiValueUnprotect(jscontext, jsobject);
+  JSValueUnprotect(jscontext, jsobject);
 }
 
-TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
+TI_INLINE JSStringRef TiStringCreateWithPointerValue(int value)
 {
   /*
 	 *	When we note proxies, we need to come up with a property name
@@ -987,7 +974,7 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
   result[7] = '<' + ((value >> 24) & 0x3F);
   result[8] = '<' + ((value >> 30) & 0x3F);
   result[9] = 0;
-  return TiStringCreateWithUTF8CString(result);
+  return JSStringCreateWithUTF8CString(result);
 }
 
 - (void)noteKeylessKrollObject:(KrollObject *)value
@@ -1001,73 +988,30 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
   // by the queue processor). We need to seriously re-evaluate the memory model and thread
   // interactions during such.
 
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeProtect = [[NSInvocationOperation alloc] initWithTarget:self
-                                                                    selector:@selector(noteKeylessKrollObject:)
-                                                                      object:value];
-    [context enqueue:safeProtect];
-    [safeProtect release];
-    return;
-  }
-#endif
-  TiStringRef nameRef = TiStringCreateWithPointerValue((int)value);
+  JSStringRef nameRef = TiStringCreateWithPointerValue((int)value);
   [self noteObject:[value jsobject] forTiString:nameRef context:[context context]];
-  TiStringRelease(nameRef);
+  JSStringRelease(nameRef);
 }
 
 - (void)forgetKeylessKrollObject:(KrollObject *)value
 {
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeUnprotect = [[NSInvocationOperation alloc] initWithTarget:self
-                                                                      selector:@selector(forgetKeylessKrollObject:)
-                                                                        object:value];
-    [context enqueue:safeUnprotect];
-    [safeUnprotect release];
-    return;
-  }
-#endif
-  TiStringRef nameRef = TiStringCreateWithPointerValue((int)value);
+  JSStringRef nameRef = TiStringCreateWithPointerValue((int)value);
   [self forgetObjectForTiString:nameRef context:[context context]];
-  TiStringRelease(nameRef);
+  JSStringRelease(nameRef);
 }
 
 - (void)noteCallback:(KrollCallback *)eventCallback forKey:(NSString *)key
 {
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    DeveloperLog(@"[WARN] %@ tried to protect callback for %@ in the wrong thead.", target, key);
-    NSOperation *safeInvoke = [[ExpandedInvocationOperation alloc]
-        initWithTarget:self
-              selector:_cmd
-                object:eventCallback
-                object:key];
-    [context enqueue:safeInvoke];
-    [safeInvoke release];
-    return;
-  }
-#endif
-  TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)key);
+  JSStringRef nameRef = JSStringCreateWithCFString((CFStringRef)key);
   [self noteObject:[eventCallback function] forTiString:nameRef context:[context context]];
-  TiStringRelease(nameRef);
+  JSStringRelease(nameRef);
 }
 
 - (void)forgetCallbackForKey:(NSString *)key
 {
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeForget = [[NSInvocationOperation alloc] initWithTarget:self
-                                                                   selector:@selector(forgetCallbackForKey:)
-                                                                     object:key];
-    [context enqueue:safeForget];
-    [safeForget release];
-    return;
-  }
-#endif
-  TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)key);
+  JSStringRef nameRef = JSStringCreateWithCFString((CFStringRef)key);
   [self forgetObjectForTiString:nameRef context:[context context]];
-  TiStringRelease(nameRef);
+  JSStringRelease(nameRef);
 }
 
 - (void)invokeCallbackForKey:(NSString *)key withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject
@@ -1081,67 +1025,46 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
     return;
   }
   __block id _thisObject = thisObject;
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeInvoke = [[ExpandedInvocationOperation alloc]
-        initWithTarget:self
-              selector:_cmd
-                object:key
-                object:eventData
-                object:thisObject];
-    [context enqueue:safeInvoke];
-    [safeInvoke release];
-
-    if (block != nil) {
-      block(nil);
-    }
-
-    return;
-  }
-#else
   void (^mainBlock)(void) = ^{
-#endif
-  if (![_thisObject isKindOfClass:[KrollObject class]]) {
-    _thisObject = [(KrollBridge *)[context delegate] registerProxy:thisObject];
-  }
-
-  TiValueRef exception = NULL;
-
-  TiObjectRef jsProxyHash = (TiObjectRef)TiObjectGetProperty(jsContext, propsObject, kTiStringPropertyKey, &exception);
-
-  jsProxyHash = TiValueToObject(jsContext, jsProxyHash, &exception);
-  if ((jsProxyHash == NULL) || (TiValueGetType(jsContext, jsProxyHash) != kTITypeObject)) {
-    if (block != nil) {
-      block(nil);
+    if (![_thisObject isKindOfClass:[KrollObject class]]) {
+      _thisObject = [(KrollBridge *)[context delegate] registerProxy:thisObject];
     }
-    return;
-  }
 
-  TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)key);
-  TiObjectRef jsCallback = (TiObjectRef)TiObjectGetProperty(jsContext, jsProxyHash, nameRef, NULL);
-  TiStringRelease(nameRef);
+    JSValueRef exception = NULL;
 
-  if ((jsCallback == NULL) || (TiValueGetType(jsContext, jsCallback) != kTITypeObject)) {
-    if (block != nil) {
-      block(nil);
+    JSObjectRef jsProxyHash = (JSObjectRef)JSObjectGetProperty(jsContext, propsObject, kTiStringPropertyKey, &exception);
+
+    jsProxyHash = JSValueToObject(jsContext, jsProxyHash, &exception);
+    if ((jsProxyHash == NULL) || (JSValueGetType(jsContext, jsProxyHash) != kJSTypeObject)) {
+      if (block != nil) {
+        block(nil);
+      }
+      return;
     }
-    return;
-  }
 
-  TiValueRef jsEventData = ConvertIdTiValue(context, eventData);
-  TiValueRef result = TiObjectCallAsFunction(jsContext, jsCallback, [_thisObject jsobject], 1, &jsEventData, &exception);
-  if (exception != NULL) {
-    id excm = [KrollObject toID:context value:exception];
-    [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
-  }
+    JSStringRef nameRef = JSStringCreateWithCFString((CFStringRef)key);
+    JSObjectRef jsCallback = (JSObjectRef)JSObjectGetProperty(jsContext, jsProxyHash, nameRef, NULL);
+    JSStringRelease(nameRef);
 
-  if (block != nil) {
-    block(TiValueToId(context, result));
+    if ((jsCallback == NULL) || (JSValueGetType(jsContext, jsCallback) != kJSTypeObject)) {
+      if (block != nil) {
+        block(nil);
+      }
+      return;
+    }
+
+    JSValueRef jsEventData = ConvertIdTiValue(context, eventData);
+    JSValueRef result = JSObjectCallAsFunction(jsContext, jsCallback, [_thisObject jsobject], 1, &jsEventData, &exception);
+    if (exception != NULL) {
+      id excm = [KrollObject toID:context value:exception];
+      [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+    }
+
+    if (block != nil) {
+      block(TiValueToId(context, result));
+    };
   };
-#ifndef TI_USE_KROLL_THREAD
-};
-TiThreadPerformOnMainThread(mainBlock, NO);
-#endif
+  TiThreadPerformOnMainThread(mainBlock, NO);
 }
 
 - (void)noteKrollObject:(KrollObject *)value forKey:(NSString *)key
@@ -1151,92 +1074,69 @@ TiThreadPerformOnMainThread(mainBlock, NO);
     return;
   }
 
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    DeveloperLog(@"[WARN] %@ tried to note the callback for %@ in the wrong thead.", target, key);
-    NSOperation *safeInvoke = [[ExpandedInvocationOperation alloc]
-        initWithTarget:self
-              selector:_cmd
-                object:value
-                object:key];
-    [context enqueue:safeInvoke];
-    [safeInvoke release];
-    return;
-  }
-#endif
-  TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)key);
+  JSStringRef nameRef = JSStringCreateWithCFString((CFStringRef)key);
   [self noteObject:[value jsobject] forTiString:nameRef context:[context context]];
-  TiStringRelease(nameRef);
+  JSStringRelease(nameRef);
 }
 
 - (void)forgetKrollObjectforKey:(NSString *)key;
 {
-#ifdef TI_USE_KROLL_THREAD
-  if (![context isKJSThread]) {
-    NSOperation *safeForget = [[NSInvocationOperation alloc] initWithTarget:self
-                                                                   selector:_cmd
-                                                                     object:key];
-    [context enqueue:safeForget];
-    [safeForget release];
-    return;
-  }
-#endif
-  TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)key);
+  JSStringRef nameRef = JSStringCreateWithCFString((CFStringRef)key);
   [self forgetObjectForTiString:nameRef context:[context context]];
-  TiStringRelease(nameRef);
+  JSStringRelease(nameRef);
 }
 
-- (void)noteObject:(TiObjectRef)storedJSObject forTiString:(TiStringRef)keyString context:(TiContextRef)jsContextRef
+- (void)noteObject:(JSObjectRef)storedJSObject forTiString:(JSStringRef)keyString context:(JSContextRef)jsContextRef
 {
   if ((propsObject == NULL) || (storedJSObject == NULL) || finalized) {
     return;
   }
-  TiValueRef exception = NULL;
+  JSValueRef exception = NULL;
 
-  TiObjectRef jsProxyHash = (TiObjectRef)TiObjectGetProperty(jsContextRef, propsObject, kTiStringPropertyKey, &exception);
+  JSObjectRef jsProxyHash = (JSObjectRef)JSObjectGetProperty(jsContextRef, propsObject, kTiStringPropertyKey, &exception);
 
-  if ((jsProxyHash == NULL) || (TiValueGetType(jsContextRef, jsProxyHash) != kTITypeObject)) {
-    jsProxyHash = TiObjectMake(jsContextRef, NULL, &exception);
-    TiObjectSetProperty(jsContextRef, propsObject, kTiStringPropertyKey, jsProxyHash,
-        kTiPropertyAttributeDontEnum, &exception);
+  if ((jsProxyHash == NULL) || (JSValueGetType(jsContextRef, jsProxyHash) != kJSTypeObject)) {
+    jsProxyHash = JSObjectMake(jsContextRef, NULL, &exception);
+    JSObjectSetProperty(jsContextRef, propsObject, kTiStringPropertyKey, jsProxyHash,
+        kJSPropertyAttributeDontEnum, &exception);
   }
 
-  TiObjectSetProperty(jsContextRef, jsProxyHash, keyString, storedJSObject,
-      kTiPropertyAttributeDontEnum, &exception);
+  JSObjectSetProperty(jsContextRef, jsProxyHash, keyString, storedJSObject,
+      kJSPropertyAttributeDontEnum, &exception);
 }
 
-- (void)forgetObjectForTiString:(TiStringRef)keyString context:(TiContextRef)jsContextRef
+- (void)forgetObjectForTiString:(JSStringRef)keyString context:(JSContextRef)jsContextRef
 {
   if ((propsObject == NULL) || finalized) {
     return;
   }
-  TiValueRef exception = NULL;
+  JSValueRef exception = NULL;
 
-  TiObjectRef jsProxyHash = (TiObjectRef)TiObjectGetProperty(jsContextRef, propsObject, kTiStringPropertyKey, &exception);
+  JSObjectRef jsProxyHash = (JSObjectRef)JSObjectGetProperty(jsContextRef, propsObject, kTiStringPropertyKey, &exception);
 
-  if ((jsProxyHash == NULL) || (TiValueGetType(jsContextRef, jsProxyHash) != kTITypeObject)) {
+  if ((jsProxyHash == NULL) || (JSValueGetType(jsContextRef, jsProxyHash) != kJSTypeObject)) {
     return;
   }
 
-  TiObjectDeleteProperty(jsContextRef, jsProxyHash, keyString, &exception);
+  JSObjectDeleteProperty(jsContextRef, jsProxyHash, keyString, &exception);
 }
 
-- (TiObjectRef)objectForTiString:(TiStringRef)keyString context:(TiContextRef)jsContextRef
+- (JSObjectRef)objectForTiString:(JSStringRef)keyString context:(JSContextRef)jsContextRef
 {
   if (finalized) {
     return NULL;
   }
 
-  TiValueRef exception = NULL;
+  JSValueRef exception = NULL;
 
-  TiObjectRef jsProxyHash = (TiObjectRef)TiObjectGetProperty(jsContextRef, propsObject, kTiStringPropertyKey, &exception);
+  JSObjectRef jsProxyHash = (JSObjectRef)JSObjectGetProperty(jsContextRef, propsObject, kTiStringPropertyKey, &exception);
 
-  if ((jsProxyHash == NULL) || (TiValueGetType(jsContextRef, jsProxyHash) != kTITypeObject)) {
+  if ((jsProxyHash == NULL) || (JSValueGetType(jsContextRef, jsProxyHash) != kJSTypeObject)) {
     return NULL;
   }
 
-  TiObjectRef result = (TiObjectRef)TiObjectGetProperty(jsContextRef, jsProxyHash, keyString, NULL);
-  if ((result == NULL) || (TiValueGetType(jsContextRef, result) != kTITypeObject)) {
+  JSObjectRef result = (JSObjectRef)JSObjectGetProperty(jsContextRef, jsProxyHash, keyString, NULL);
+  if ((result == NULL) || (JSValueGetType(jsContextRef, result) != kJSTypeObject)) {
     return NULL;
   }
 
@@ -1249,25 +1149,25 @@ TiThreadPerformOnMainThread(mainBlock, NO);
     return;
   }
 
-  TiValueRef exception = NULL;
+  JSValueRef exception = NULL;
 
-  TiValueRef jsEventValue = TiObjectGetProperty(jsContext, propsObject, kTiStringEventKey, &exception);
+  JSValueRef jsEventValue = JSObjectGetProperty(jsContext, propsObject, kTiStringEventKey, &exception);
 
   // Grab event JSObject. Default to NULL if it isn't an object
-  TiObjectRef jsEventHash = NULL;
-  if (TiValueGetType(jsContext, jsEventValue) == kTITypeObject) {
-    jsEventHash = TiValueToObject(jsContext, jsEventValue, &exception);
+  JSObjectRef jsEventHash = NULL;
+  if (JSValueGetType(jsContext, jsEventValue) == kJSTypeObject) {
+    jsEventHash = JSValueToObject(jsContext, jsEventValue, &exception);
   }
 
   // Value wasn't an object (undefined, likely) - or conversion to JSObjectRef failed
   if (jsEventHash == NULL) {
-    jsEventHash = TiObjectMake(jsContext, NULL, &exception);
-    TiObjectSetProperty(jsContext, propsObject, kTiStringEventKey, jsEventHash,
-        kTiPropertyAttributeDontEnum, &exception);
+    jsEventHash = JSObjectMake(jsContext, NULL, &exception);
+    JSObjectSetProperty(jsContext, propsObject, kTiStringEventKey, jsEventHash,
+        kJSPropertyAttributeDontEnum, &exception);
   }
 
   // Grab the event callback we're adding
-  TiObjectRef callbackFunction = nil;
+  JSObjectRef callbackFunction = nil;
   if ([eventCallbackOrWrapper isKindOfClass:[KrollCallback class]]) {
     callbackFunction = [(KrollCallback *)eventCallbackOrWrapper function];
   } else if ([eventCallbackOrWrapper isKindOfClass:[KrollWrapper class]]) {
@@ -1275,57 +1175,57 @@ TiThreadPerformOnMainThread(mainBlock, NO);
   }
 
   // Grab the array of callbacks for our event type from global event hash
-  TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef)eventName);
-  TiValueRef jsCallbackArrayValue = TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, &exception);
+  JSStringRef jsEventTypeString = JSStringCreateWithCFString((CFStringRef)eventName);
+  JSValueRef jsCallbackArrayValue = JSObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, &exception);
 
   // Default to NULL array object, if value doesn't exist or isn't an object
-  TiObjectRef jsCallbackArray = NULL;
-  if (TiValueGetType(jsContext, jsCallbackArrayValue) == kTITypeObject) {
-    jsCallbackArray = TiValueToObject(jsContext, jsCallbackArrayValue, &exception);
+  JSObjectRef jsCallbackArray = NULL;
+  if (JSValueGetType(jsContext, jsCallbackArrayValue) == kJSTypeObject) {
+    jsCallbackArray = JSValueToObject(jsContext, jsCallbackArrayValue, &exception);
   }
 
   // No callback array existed for this event type, or it wasn't an object
   if (jsCallbackArray == NULL) {
     // Make a new array, add the first callback function to it
-    jsCallbackArray = TiObjectMakeArray(jsContext, 1, (TiValueRef *)&callbackFunction, &exception);
+    jsCallbackArray = JSObjectMakeArray(jsContext, 1, (JSValueRef *)&callbackFunction, &exception);
     // Store the array under the event name in our global event hash
-    TiObjectSetProperty(jsContext, jsEventHash, jsEventTypeString, jsCallbackArray,
-        kTiPropertyAttributeDontEnum, &exception);
+    JSObjectSetProperty(jsContext, jsEventHash, jsEventTypeString, jsCallbackArray,
+        kJSPropertyAttributeDontEnum, &exception);
   } else {
     // An array of callbacks already exists for this event type
     // Add the callback to it, unless it's already in the array
-    TiValueRef jsCallbackArrayLength = TiObjectGetProperty(jsContext, jsCallbackArray, kTiStringLength, &exception);
-    int arrayLength = (int)TiValueToNumber(jsContext, jsCallbackArrayLength, &exception);
+    JSValueRef jsCallbackArrayLength = JSObjectGetProperty(jsContext, jsCallbackArray, kTiStringLength, &exception);
+    int arrayLength = (int)JSValueToNumber(jsContext, jsCallbackArrayLength, &exception);
 
     for (uint i = 0; i < arrayLength; ++i) {
-      TiValueRef valueRef = TiObjectGetPropertyAtIndex(jsContext, jsCallbackArray, i, NULL);
+      JSValueRef valueRef = JSObjectGetPropertyAtIndex(jsContext, jsCallbackArray, i, NULL);
       if (valueRef == callbackFunction) {
-        TiStringRelease(jsEventTypeString);
+        JSStringRelease(jsEventTypeString);
         return;
       }
     }
 
-    TiObjectSetPropertyAtIndex(jsContext, jsCallbackArray, arrayLength, callbackFunction, &exception);
+    JSObjectSetPropertyAtIndex(jsContext, jsCallbackArray, arrayLength, callbackFunction, &exception);
   }
 
   //TODO: Call back to the proxy?
-  TiStringRelease(jsEventTypeString);
+  JSStringRelease(jsEventTypeString);
 }
 
-- (TiObjectRef)callbacksForEvent:(TiStringRef)jsEventTypeString
+- (JSObjectRef)callbacksForEvent:(JSStringRef)jsEventTypeString
 {
   if (finalized || (propsObject == NULL)) {
     return NULL;
   }
 
-  TiObjectRef jsEventHash = (TiObjectRef)TiObjectGetProperty(jsContext, propsObject, kTiStringEventKey, NULL);
-  if ((jsEventHash == NULL) || (TiValueGetType(jsContext, jsEventHash) != kTITypeObject)) { //We did not have any event listeners on this proxy. Perfectly normal.
+  JSObjectRef jsEventHash = (JSObjectRef)JSObjectGetProperty(jsContext, propsObject, kTiStringEventKey, NULL);
+  if ((jsEventHash == NULL) || (JSValueGetType(jsContext, jsEventHash) != kJSTypeObject)) { //We did not have any event listeners on this proxy. Perfectly normal.
     return NULL;
   }
 
-  TiObjectRef jsCallbackArray = (TiObjectRef)TiObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, NULL);
+  JSObjectRef jsCallbackArray = (JSObjectRef)JSObjectGetProperty(jsContext, jsEventHash, jsEventTypeString, NULL);
 
-  if ((jsCallbackArray == NULL) || (TiValueGetType(jsContext, jsCallbackArray) != kTITypeObject)) {
+  if ((jsCallbackArray == NULL) || (JSValueGetType(jsContext, jsCallbackArray) != kJSTypeObject)) {
     return NULL;
   }
 
@@ -1334,28 +1234,28 @@ TiThreadPerformOnMainThread(mainBlock, NO);
 
 - (void)removeListener:(KrollCallback *)eventCallback forEvent:(NSString *)eventName
 {
-  TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef)eventName);
-  TiObjectRef jsCallbackArray = [self callbacksForEvent:jsEventTypeString];
-  TiStringRelease(jsEventTypeString);
+  JSStringRef jsEventTypeString = JSStringCreateWithCFString((CFStringRef)eventName);
+  JSObjectRef jsCallbackArray = [self callbacksForEvent:jsEventTypeString];
+  JSStringRelease(jsEventTypeString);
 
   if (jsCallbackArray == NULL) {
     return;
   }
 
-  TiObjectRef callbackFunction = [eventCallback function];
+  JSObjectRef callbackFunction = [eventCallback function];
 
-  TiValueRef jsCallbackArrayLength = TiObjectGetProperty(jsContext, jsCallbackArray, kTiStringLength, NULL);
-  int arrayLength = (int)TiValueToNumber(jsContext, jsCallbackArrayLength, NULL);
+  JSValueRef jsCallbackArrayLength = JSObjectGetProperty(jsContext, jsCallbackArray, kTiStringLength, NULL);
+  int arrayLength = (int)JSValueToNumber(jsContext, jsCallbackArrayLength, NULL);
 
   if (arrayLength < 1) {
     return;
   }
 
   for (int currentCallbackIndex = 0; currentCallbackIndex < arrayLength; currentCallbackIndex++) {
-    TiValueRef currentCallback = TiObjectGetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, NULL);
+    JSValueRef currentCallback = JSObjectGetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, NULL);
     if (currentCallback == callbackFunction) {
-      TiValueRef undefined = TiValueMakeUndefined(jsContext);
-      TiObjectSetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, undefined, NULL);
+      JSValueRef undefined = JSValueMakeUndefined(jsContext);
+      JSObjectSetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, undefined, NULL);
     }
   }
 }
@@ -1366,31 +1266,31 @@ TiThreadPerformOnMainThread(mainBlock, NO);
     return;
   }
 
-  TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef)eventName);
-  TiObjectRef jsCallbackArray = [self callbacksForEvent:jsEventTypeString];
-  TiStringRelease(jsEventTypeString);
+  JSStringRef jsEventTypeString = JSStringCreateWithCFString((CFStringRef)eventName);
+  JSObjectRef jsCallbackArray = [self callbacksForEvent:jsEventTypeString];
+  JSStringRelease(jsEventTypeString);
 
   if (jsCallbackArray == NULL) {
     return;
   }
 
-  TiValueRef jsCallbackArrayLength = TiObjectGetProperty(jsContext, jsCallbackArray, kTiStringLength, NULL);
-  int arrayLength = (int)TiValueToNumber(jsContext, jsCallbackArrayLength, NULL);
+  JSValueRef jsCallbackArrayLength = JSObjectGetProperty(jsContext, jsCallbackArray, kTiStringLength, NULL);
+  int arrayLength = (int)JSValueToNumber(jsContext, jsCallbackArrayLength, NULL);
 
   if (arrayLength < 1) {
     return;
   }
 
-  TiValueRef jsEventData = ConvertIdTiValue(context, eventData);
+  JSValueRef jsEventData = ConvertIdTiValue(context, eventData);
 
   for (int currentCallbackIndex = 0; currentCallbackIndex < arrayLength; currentCallbackIndex++) {
-    TiValueRef currentCallback = TiObjectGetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, NULL);
-    currentCallback = TiValueToObject(jsContext, currentCallback, NULL);
-    if ((currentCallback == NULL) || !TiObjectIsFunction(jsContext, (TiObjectRef)currentCallback)) {
+    JSValueRef currentCallback = JSObjectGetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, NULL);
+    currentCallback = JSValueToObject(jsContext, currentCallback, NULL);
+    if ((currentCallback == NULL) || !JSObjectIsFunction(jsContext, (JSObjectRef)currentCallback)) {
       continue;
     }
-    TiValueRef exception = NULL;
-    TiObjectCallAsFunction(jsContext, (TiObjectRef)currentCallback, [thisObject jsobject], 1, &jsEventData, &exception);
+    JSValueRef exception = NULL;
+    JSObjectCallAsFunction(jsContext, (JSObjectRef)currentCallback, [thisObject jsobject], 1, &jsEventData, &exception);
     if (exception != NULL) {
       id excm = [KrollObject toID:context value:exception];
       [[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];

@@ -126,14 +126,9 @@
 {
   id hintText = [[self proxy] valueForUndefinedKey:@"hintText"] ?: @"";
 
-  NSAttributedString *placeHolder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
-
-  if ([TiUtils isIOS9OrGreater]) {
-    [[UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]] setAttributedPlaceholder:placeHolder];
-  } else {
-    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setAttributedPlaceholder:placeHolder];
-  }
-  RELEASE_TO_NIL(placeHolder);
+  NSAttributedString *placeholder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
+  [[UITextField appearanceWhenContainedInInstancesOfClasses:@ [[UISearchBar class]]] setAttributedPlaceholder:placeholder];
+  RELEASE_TO_NIL(placeholder);
 }
 
 - (void)setColor_:(id)value

@@ -64,7 +64,10 @@ extern NSString *const TI_APPLICATION_ID;
     modules = [[NSMutableDictionary alloc] init];
     contexts = TiCreateNonRetainingDictionary();
 
-    NSString *fn = @"app.js";
+    // The Titanium "ti.main.js" script is shared by all platforms.
+    // It will run the app developer's "app.js" script after loading all JS extensions.
+    // Script Location: titanium_mobile/common/Resources
+    NSString *fn = @"ti.main.js";
     const char *start = getenv("TI_STARTPAGE");
     if (start != NULL) {
       fn = [NSString stringWithCString:start encoding:NSUTF8StringEncoding];

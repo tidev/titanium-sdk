@@ -29,15 +29,10 @@
 - (void)dealloc
 {
   if (controller != nil) {
-#ifdef TI_USE_KROLL_THREAD
-    TiThreadReleaseOnMainThread(controller, NO);
-    controller = nil;
-#else
     TiThreadPerformOnMainThread(^{
       RELEASE_TO_NIL(controller);
     },
         YES);
-#endif
   }
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
@@ -102,7 +97,7 @@
 - (void)windowWillOpen
 {
   [super windowWillOpen];
-  if (tab == nil && (self.isManaged == NO)) {
+  if (tab == nil && !self.isManaged) {
     [[[[TiApp app] controller] topContainerController] willOpenWindow:self];
   }
 }
@@ -122,14 +117,14 @@
   [super windowDidOpen];
   [self forgetProxy:openAnimation];
   RELEASE_TO_NIL(openAnimation);
-  if (tab == nil && (self.isManaged == NO)) {
+  if (tab == nil && !self.isManaged) {
     [[[[TiApp app] controller] topContainerController] didOpenWindow:self];
   }
 }
 
 - (void)windowWillClose
 {
-  if (tab == nil && (self.isManaged == NO)) {
+  if (tab == nil && !self.isManaged) {
     [[[[TiApp app] controller] topContainerController] willCloseWindow:self];
   }
   [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -145,7 +140,7 @@
   }
   [self forgetProxy:closeAnimation];
   RELEASE_TO_NIL(closeAnimation);
-  if (tab == nil && (self.isManaged == NO)) {
+  if (tab == nil && !self.isManaged) {
     [[[[TiApp app] controller] topContainerController] didCloseWindow:self];
   }
   tab = nil;
@@ -171,10 +166,10 @@
     UIViewController* thisViewController = [self hostingController];
     UIView* theView = [thisViewController view];
     [theView setFrame:[rootView bounds]];
-    
+
     [thisViewController willMoveToParentViewController:topContainerController];
     [topContainerController addChildViewController:thisViewController];
-    
+
     [rootView addSubview:theView];
     [rootView bringSubviewToFront:theView];
     [thisViewController didMoveToParentViewController:topContainerController];
@@ -318,9 +313,7 @@
   }
 
   if (!opened) {
-#ifndef TI_USE_KROLL_THREAD
     DebugLog(@"Window is not open. Ignoring this close call");
-#endif
     return;
   }
 
@@ -407,7 +400,7 @@
 #if IS_XCODE_9
 - (NSNumber *)homeIndicatorAutoHidden
 {
-  if (![TiUtils isIOS11OrGreater]) {
+  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
     NSLog(@"[ERROR] This property is available on iOS 11 and above.");
     return @(NO);
   }
@@ -416,7 +409,7 @@
 
 - (void)setHomeIndicatorAutoHidden:(id)arg
 {
-  if (![TiUtils isIOS11OrGreater]) {
+  if (![TiUtils isIOSVersionOrGreater:@"11.0"]) {
     NSLog(@"[ERROR] This property is available on iOS 11 and above.");
     return;
   }
@@ -424,7 +417,7 @@
   ENSURE_TYPE(arg, NSNumber);
   id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
   [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
-  if (current != arg && [TiUtils isIOS11OrGreater]) {
+  if (current != arg && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     [[[TiApp app] controller] setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }
@@ -452,7 +445,7 @@
 
 - (void)gainFocus
 {
-  if (focussed == NO) {
+  if (!focussed) {
     focussed = YES;
     if ([self handleFocusEvents] && opened) {
       if ([self _hasListeners:@"focus"]) {
@@ -480,7 +473,7 @@
 
 - (void)resignFocus
 {
-  if (focussed == YES) {
+  if (focussed) {
     focussed = NO;
     if ([self handleFocusEvents]) {
       if ([self _hasListeners:@"blur"]) {
@@ -578,7 +571,7 @@
       [[TiApp app] showModalController:theController animated:animated];
     } else {
       [self windowWillOpen];
-      if ((self.isManaged == NO) && ((openAnimation == nil) || (![openAnimation isTransitionAnimation]))) {
+      if (!self.isManaged && ((openAnimation == nil) || (![openAnimation isTransitionAnimation]))) {
         [self attachViewToTopContainerController];
       }
       if (openAnimation != nil) {

@@ -80,7 +80,7 @@
   if (completed) {
     yn = YES;
   } else {
-    if ([lock waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:EXTERNAL_JS_WAIT_TIME]] == NO) {
+    if (![lock waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:EXTERNAL_JS_WAIT_TIME]]) {
       timeout = YES;
     } else {
       yn = YES;
@@ -103,17 +103,12 @@
         YES);
   }
 
-#ifdef TI_USE_KROLL_THREAD
-  TiThreadRemoveFromSuperviewOnMainThread(barImageView, NO);
-  TiThreadReleaseOnMainThread(barImageView, NO);
-  barImageView = nil;
-#else
   TiThreadPerformOnMainThread(^{
     [barImageView removeFromSuperview];
     RELEASE_TO_NIL(barImageView);
   },
       YES);
-#endif
+
   if (context != nil) {
     [context shutdown:nil];
     RELEASE_TO_NIL(context);
@@ -382,7 +377,7 @@
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
 #if IS_XCODE_9
-    if ([TiUtils isIOS11OrGreater] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
       [[[controller navigationController] navigationBar] setLargeTitleTextAttributes:theAttributes];
     }
 #endif
@@ -824,7 +819,7 @@
 
   [self replaceValue:value forKey:@"largeTitleEnabled" notification:NO];
 
-  if ([TiUtils isIOS11OrGreater] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [[[controller navigationController] navigationBar] setPrefersLargeTitles:[TiUtils boolValue:value def:NO]];
   }
 #endif
@@ -838,7 +833,7 @@
 
   [self replaceValue:value forKey:@"largeTitleDisplayMode" notification:NO];
 
-  if ([TiUtils isIOS11OrGreater] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [[controller navigationItem] setLargeTitleDisplayMode:[TiUtils intValue:value def:UINavigationItemLargeTitleDisplayModeAutomatic]];
   }
 #endif
@@ -894,13 +889,13 @@
           [array addObject:item];
         }
       }
-      hasToolbar = (array != nil && [array count] > 0) ? YES : NO;
+      hasToolbar = array != nil && [array count] > 0;
       BOOL translucent = [TiUtils boolValue:@"translucent" properties:properties def:YES];
       BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:hasToolbar];
       TiColor *toolbarColor = [TiUtils colorValue:@"barColor" properties:properties];
       UIColor *barColor = [TiUtils barColorForColor:toolbarColor];
       [controller setToolbarItems:array animated:animated];
-      [ourNC setToolbarHidden:(hasToolbar == NO ? YES : NO) animated:animated];
+      [ourNC setToolbarHidden:!hasToolbar animated:animated];
       [ourNC.toolbar setTranslucent:translucent];
       UIColor *tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
       [ourNC.toolbar setBarTintColor:barColor];
@@ -993,7 +988,7 @@
 
 - (void)processForSafeArea
 {
-  if (self.shouldExtendSafeArea || ![TiUtils isIOS11OrGreater]) {
+  if (self.shouldExtendSafeArea || ![TiUtils isIOSVersionOrGreater:@"11.0"]) {
     return;
   }
 

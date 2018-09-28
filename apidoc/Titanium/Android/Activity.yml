@@ -362,7 +362,7 @@ events:
         See also:
         [onUserInteraction](https://developer.android.com/reference/android/app/Activity.html#onUserInteraction())
         in the Android Developer Reference.
-    since: "7.4.0"
+    since: "7.5.0"
 
 properties:
 

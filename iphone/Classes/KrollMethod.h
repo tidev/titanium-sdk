@@ -7,7 +7,7 @@
 #import "KrollContext.h"
 #import "KrollObject.h"
 
-extern TiClassRef KrollMethodClassRef;
+extern JSClassRef KrollMethodClassRef;
 
 typedef enum KrollMethodType {
   KrollMethodSetter = 0x01,
@@ -47,7 +47,4 @@ typedef enum KrollMethodType {
 @property (nonatomic, assign) BOOL updatesProperty;
 @property (nonatomic, copy) NSString *propertyKey;
 
-#ifdef TI_USE_KROLL_THREAD
-- (NSString *)threadName;
-#endif
 @end

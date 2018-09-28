@@ -17,8 +17,6 @@
 
 @interface ContactsModule : TiModule <ABPeoplePickerNavigationControllerDelegate, CNContactPickerDelegate, CNContactViewControllerDelegate, TiContactsPersonUpdateObserver> {
   @private
-  ABAddressBookRef addressBook;
-  ABPeoplePickerNavigationController *picker;
   BOOL reloadAddressBook;
   BOOL animated;
   KrollCallback *cancelCallback;
@@ -29,7 +27,6 @@
   CNSaveRequest *saveRequest;
 }
 
-- (ABAddressBookRef)addressBook;
 - (CNContactStore *)contactStore;
 + (NSArray *)contactKeysWithImage;
 + (NSArray *)contactKeysWithoutImage;

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -25,8 +25,8 @@
 #import "TiUIWindowProxy.h"
 #endif
 
-#define IGNORE_IF_NOT_OPENED                      \
-  if (!windowOpened || [self viewAttached] == NO) \
+#define IGNORE_IF_NOT_OPENED                 \
+  if (!windowOpened || ![self viewAttached]) \
     return;
 
 static NSArray *touchEventsArray;
@@ -172,8 +172,9 @@ static NSArray *touchEventsArray;
 - (void)add:(id)arg
 {
 #if IS_XCODE_9
+#ifdef USE_TI_UIWINDOW
   TiUIWindowProxy *windowProxy = nil;
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     windowProxy = (TiUIWindowProxy *)self;
     if (arg == windowProxy.safeAreaViewProxy) {
       // If adding the safeAreaViewProxy, it need to be add on window.
@@ -181,18 +182,23 @@ static NSArray *touchEventsArray;
     }
   }
 #endif
+#endif
 
   // allow either an array of arrays or an array of single proxy
   if ([arg isKindOfClass:[NSArray class]]) {
     for (id a in arg) {
 #if IS_XCODE_9
+#ifdef USE_TI_UIWINDOW
       if (windowProxy.safeAreaViewProxy) {
         [windowProxy.safeAreaViewProxy add:a];
       } else {
 #endif
+#endif
         [self add:a];
 #if IS_XCODE_9
+#ifdef USE_TI_UIWINDOW
       }
+#endif
 #endif
     }
     return;
@@ -209,10 +215,12 @@ static NSArray *touchEventsArray;
 #endif
   if ([arg isKindOfClass:[NSDictionary class]]) {
 #if IS_XCODE_9
+#ifdef USE_TI_UIWINDOW
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy add:arg];
       return;
     }
+#endif
 #endif
     childView = [arg objectForKey:@"view"];
     position = [TiUtils intValue:[arg objectForKey:@"position"] def:-1];
@@ -242,60 +250,37 @@ static NSArray *touchEventsArray;
     children = [[NSMutableArray alloc] init];
   }
 
-#ifdef TI_USE_KROLL_THREAD
-  if ([NSThread isMainThread]) {
-#else
   [self rememberProxy:childView];
-#endif
-    // Lock the assignment of the position to prevent race-conditions
-    pthread_rwlock_wrlock(&childrenLock);
-    if (position < 0 || position > [children count]) {
-      position = (int)[children count];
+  // Lock the assignment of the position to prevent race-conditions
+  pthread_rwlock_wrlock(&childrenLock);
+  if (position < 0 || position > [children count]) {
+    position = (int)[children count];
+  }
+  [children insertObject:childView atIndex:position];
+  pthread_rwlock_unlock(&childrenLock);
+
+  [childView setParent:self];
+
+  if (windowOpened) {
+    // Turn on clipping because I have children
+    [[self view] updateClipping];
+    [self contentsWillChange];
+
+    if (parentVisible && !hidden) {
+      [childView parentWillShow];
     }
-    [children insertObject:childView atIndex:position];
-    pthread_rwlock_unlock(&childrenLock);
-
-    [childView setParent:self];
-
-    if (windowOpened) {
-      // Turn on clipping because I have children
-      [[self view] updateClipping];
-      [self contentsWillChange];
-
-      if (parentVisible && !hidden) {
-        [childView parentWillShow];
-      }
 
 #ifndef TI_USE_AUTOLAYOUT
-      // If layout is non absolute push this into the layout queue
-      // else just layout the child with current bounds
-      if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle)) {
-        [self contentsWillChange];
-      } else
+    // If layout is non absolute push this into the layout queue
+    // else just layout the child with current bounds
+    if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle)) {
+      [self contentsWillChange];
+    } else
 #endif
-      {
-        [self layoutChild:childView optimize:NO withMeasuredBounds:[[self view] bounds]];
-      }
+    {
+      [self layoutChild:childView optimize:NO withMeasuredBounds:[[self view] bounds]];
     }
-#ifdef TI_USE_KROLL_THREAD
-  } else {
-    [self rememberProxy:childView];
-    if (windowOpened) {
-      TiThreadPerformOnMainThread(^{
-        [self add:arg];
-      },
-          NO);
-      return;
-    }
-    pthread_rwlock_wrlock(&childrenLock);
-    if (position < 0 || position > [children count]) {
-      position = (int)[children count];
-    }
-    [children insertObject:childView atIndex:position];
-    pthread_rwlock_unlock(&childrenLock);
-    [childView setParent:self];
   }
-#endif
 }
 
 - (void)insertAt:(id)args
@@ -307,13 +292,15 @@ static NSArray *touchEventsArray;
 - (void)replaceAt:(id)args
 {
 #if IS_XCODE_9
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+#ifdef USE_TI_UIWINDOW
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy replaceAt:args];
       return;
     }
   }
+#endif
 #endif
 
   ENSURE_SINGLE_ARG(args, NSDictionary);
@@ -330,13 +317,15 @@ static NSArray *touchEventsArray;
 - (void)remove:(id)arg
 {
 #if IS_XCODE_9
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+#ifdef USE_TI_UIWINDOW
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy remove:arg];
       return;
     }
   }
+#endif
 #endif
 
   ENSURE_UI_THREAD_1_ARG(arg);
@@ -401,13 +390,15 @@ static NSArray *touchEventsArray;
 - (void)removeAllChildren:(id)arg
 {
 #if IS_XCODE_9
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+#ifdef USE_TI_UIWINDOW
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
     if (windowProxy.safeAreaViewProxy) {
       [windowProxy.safeAreaViewProxy removeAllChildren:arg];
       return;
     }
   }
+#endif
 #endif
 
   ENSURE_UI_THREAD_1_ARG(arg);
@@ -1242,7 +1233,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   // that this proxy is part of will open and is ready for
   // the views to be attached
 
-  if (windowOpened == YES) {
+  if (windowOpened) {
     pthread_rwlock_unlock(&childrenLock);
     return;
   }
@@ -1375,7 +1366,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (BOOL)viewReady
 {
-  return view != nil && CGRectIsEmpty(view.bounds) == NO && CGRectIsNull(view.bounds) == NO &&
+  return view != nil && !CGRectIsEmpty(view.bounds) && !CGRectIsNull(view.bounds) &&
       [view superview] != nil;
 }
 
@@ -1387,7 +1378,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)setPreviewContext:(id)context
 {
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
-  if ([TiUtils forceTouchSupported] == NO) {
+  if (![TiUtils forceTouchSupported]) {
     NSLog(@"[WARN] 3DTouch is not available on this device.");
     return;
   }
@@ -1458,7 +1449,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
     TiStylesheet *stylesheet = [[[self pageContext] host] stylesheet];
     NSString *basename = [[self pageContext] basename];
-    NSString *density = [TiUtils isRetinaDisplay] ? @"high" : @"medium";
+    NSString *density = [TiUtils is2xRetina] ? @"high" : @"medium";
 
     if (objectId != nil || className != nil || classNames != nil || [stylesheet basename:basename density:density hasTag:type]) {
       // get classes from proxy
@@ -1517,7 +1508,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 #if IS_XCODE_9
 - (void)createSafeAreaViewProxyForWindowProperties:(NSDictionary *)properties
 {
-  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOS11OrGreater]) {
+#ifdef USE_TI_UIWINDOW
+  if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     /*
      Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
      */
@@ -1541,6 +1533,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       [self add:windowProxy.safeAreaViewProxy];
     }
   }
+#endif
 }
 #endif
 
@@ -1639,15 +1632,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     if ([NSThread isMainThread]) {
       RELEASE_TO_NIL(barButtonItem);
     } else {
-#ifdef TI_USE_KROLL_THREAD
-      TiThreadReleaseOnMainThread(barButtonItem, NO);
-      barButtonItem = nil;
-#else
       TiThreadPerformOnMainThread(^{
         RELEASE_TO_NIL(barButtonItem);
       },
           NO);
-#endif
     }
   }
 
@@ -1656,15 +1644,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       [self detachView];
     } else {
       view.proxy = nil;
-#ifdef TI_USE_KROLL_THREAD
-      TiThreadReleaseOnMainThread(view, NO);
-      view = nil;
-#else
       TiThreadPerformOnMainThread(^{
         RELEASE_TO_NIL(view);
       },
           YES);
-#endif
     }
   }
   [destroyLock unlock];
@@ -2347,11 +2330,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       dispatch_block_t block = ^{
         [self fireEvent:@"postlayout" withObject:nil propagate:NO];
       };
-#ifdef TI_USE_KROLL_THREAD
-      block();
-#else
       TiThreadPerformOnMainThread(block, NO);
-#endif
     }
   }
 #ifdef VERBOSE
@@ -2781,16 +2760,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (void)layoutChild:(TiViewProxy *)child optimize:(BOOL)optimize withMeasuredBounds:(CGRect)bounds
 {
-#ifdef TI_USE_KROLL_THREAD
-  IGNORE_IF_NOT_OPENED
-#endif
   UIView *ourView = [self parentViewForChild:child];
 
   if (ourView == nil) {
     return;
   }
 
-  if (optimize == NO) {
+  if (!optimize) {
     TiUIView *childView = [child view];
     if ([childView superview] != ourView) {
       [self insertSubview:childView forProxy:child];
@@ -2816,7 +2792,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   horizontalLayoutBoundary = 0.0;
   horizontalLayoutRowHeight = 0.0;
 
-  if (optimize == NO) {
+  if (!optimize) {
     OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
   }
 
@@ -2836,7 +2812,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   }
   [childrenArray release];
 
-  if (optimize == NO) {
+  if (!optimize) {
     OSAtomicTestAndClearBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
   }
 #endif

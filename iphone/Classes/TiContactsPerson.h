@@ -21,22 +21,12 @@
 
 @interface TiContactsPerson : TiProxy {
   @private
-  ABRecordRef record;
-  ABRecordID recordId;
   CNMutableContact *person;
   ContactsModule *module;
   NSDictionary *iOS9contactProperties;
 }
 
 @property (readonly, nonatomic) NSNumber *recordId;
-@property (readonly, nonatomic) ABRecordRef record;
-
-+ (NSDictionary *)contactProperties;
-+ (NSDictionary *)multiValueProperties;
-+ (NSDictionary *)multiValueLabels;
-
-- (id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule *)module_;
-- (id)_initWithPageContext:(id<TiEvaluator>)context person:(ABRecordRef)person_ module:(ContactsModule *)module_;
 
 @property (readonly, nonatomic) NSString *identifier;
 @property (assign, nonatomic) id<TiContactsPersonUpdateObserver> observer;

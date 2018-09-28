@@ -208,7 +208,7 @@ properties:
         if the dialog does not have any buttons, then the dialog can only be closed programmatically via the hide() method.
     type: Boolean
     default: false on Android
-    since: "7.4.0"
+    since: "7.5.0"
     platforms: [android]
 
   - name: canceledOnTouchOutside

@@ -896,55 +896,55 @@ properties:
     summary: Audio data is being buffered from the network.
     type: Number
     permission: read-only
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: AUDIO_STATE_INITIALIZED
     summary: Audio playback is being initialized.
     type: Number
     permission: read-only
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: AUDIO_STATE_PAUSED
     summary: Playback is paused.
     type: Number
     permission: read-only
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: AUDIO_STATE_PLAYING
     summary: Audio playback is active.
     type: Number
     permission: read-only
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: AUDIO_STATE_STARTING
     summary: Audio playback is starting.
     type: Number
     permission: read-only
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: AUDIO_STATE_STOPPED
     summary: Audio playback is stopped.
     type: Number
     permission: read-only
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: AUDIO_STATE_STOPPING
     summary: Audio playback is stopping.
     type: Number
     permission: read-only
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: AUDIO_STATE_WAITING_FOR_DATA
     summary: Player is waiting for audio data from the network.
     type: Number
     permission: read-only
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: AUDIO_STATE_WAITING_FOR_QUEUE
     summary: Player is waiting for audio data to fill the queue.
     type: Number
     permission: read-only
-    since: "7.4.0"
+    since: "7.5.0"
 
   - name: CAMERA_FLASH_AUTO
     summary: Constant specifying to have the device determine to use the flash or not.
@@ -1195,7 +1195,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
-    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.5.0" }
   - name: QUALITY_LOW
     summary: Media type constant for low-quality video recording.
     description: |
@@ -1203,7 +1203,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
-    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.5.0" }
   - name: QUALITY_MEDIUM
     summary: Media type constant for medium-quality video recording.
     description: |
@@ -1220,14 +1220,14 @@ properties:
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
-    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.4.0" }
+    since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.5.0" }
   - name: QUALITY_IFRAME_1280x720
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 1280x720 iFrame format.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, android]
-    since: { android: "7.4.0", iphone: "6.0.0", ipad: "6.0.0" }
+    since: { android: "7.5.0", iphone: "6.0.0", ipad: "6.0.0" }
   - name: QUALITY_IFRAME_960x540
     summary: Media type constant for medium-quality video recording.
     description: If recording, specifies that you want to use 960x540 iFrame format.
