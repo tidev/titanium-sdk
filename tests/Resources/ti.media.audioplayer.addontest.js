@@ -20,7 +20,7 @@ describe('Titanium.Media.AudioPlayer', function () {
 	var audioPlayer;
 
 	beforeEach(function () {
-		audioPlayer = Ti.Media.createAudioPlayer({ url: 'sample.mp3' });
+		audioPlayer = Ti.Media.createAudioPlayer({ url: '/sample.mp3' });
 	});
 
 	afterEach(function () {
@@ -36,14 +36,15 @@ describe('Titanium.Media.AudioPlayer', function () {
 
 		// Re-set URL to test TIMOB-26334, this should not crash
 		try {
-			audioPlayer.url = 'sample.mp3';
+			audioPlayer.url = '/sample.mp3';
+			finish();
 		} catch (e) {
 			finish(e);
 		}
 	});
 
 	it('.duration', function (finish) {
-		this.timeout = 2000;
+		this.timeout(2000);
 		audioPlayer.start();
 
 		setTimeout(function () {
