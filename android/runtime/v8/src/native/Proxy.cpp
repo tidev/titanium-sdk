@@ -560,7 +560,7 @@ void Proxy::writableKeys_setter(Local<Name> property, Local<Value> value, const 
 		return;
 	}
 
-	Proxy* proxy = titanium::Proxy::unwrap(data->Get(0)->ToObject(isolate));
+	Proxy* proxy = NativeObject::Unwrap<Proxy>(data->Get(0)->ToObject(isolate));
 	if (!proxy) {
 		return;
 	}
@@ -578,9 +578,7 @@ void Proxy::writableKeys_setter(Local<Name> property, Local<Value> value, const 
 	// onPropertyChanged
 	env->CallVoidMethod(javaProxy, JNIUtil::krollProxyOnPropertyChangedMethod, javaProperty, javaValue);
 
-	if (!JavaObject::useGlobalRefs) {
-		env->DeleteLocalRef(javaProxy);
-	}
+	env->DeleteLocalRef(javaProxy);
 	if (isNew) {
 		env->DeleteLocalRef(javaValue);
 	}
