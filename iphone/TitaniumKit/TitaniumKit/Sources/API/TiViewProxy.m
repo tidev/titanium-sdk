@@ -1492,7 +1492,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (void)createSafeAreaViewProxyForWindowProperties:(NSDictionary *)properties
 {
-#ifdef USE_TI_UIWINDOW
   if ([self isKindOfClass:[TiUIWindowProxy class]] && [TiUtils isIOSVersionOrGreater:@"11.0"]) {
     /*
      Added a transparent safeAreaViewProxy above window for safe area layouts if shouldExtendSafeArea is false. All views added on window will be added on safeAreaViewProxy. Layouts of safeAreaViewProxy is getting modified wherever required.
@@ -1517,7 +1516,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       [self add:windowProxy.safeAreaViewProxy];
     }
   }
-#endif
 }
 
 - (void)dealloc
