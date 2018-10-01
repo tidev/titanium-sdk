@@ -679,6 +679,9 @@ CFMutableSetRef krollBridgeRegistry = nil;
 #else
   ourKrollObject = [[KrollObject alloc] initWithTarget:proxy context:context];
 #endif
+#ifdef USE_JSCORE_FRAMEWORK
+  [ourKrollObject protectJsobject];
+#endif
 
   [self registerProxy:proxy
           krollObject:ourKrollObject];
