@@ -48,10 +48,14 @@ describe('Titanium.Media.AudioPlayer', function () {
 		audioPlayer.start();
 
 		setTimeout(function () {
-			should(audioPlayer.duration).be.a.Number;
-			should(audioPlayer.duration).be.eql(6588);
-
-			finish();
+			try {
+				should(audioPlayer.duration).be.a.Number;
+				// give a tiny bit of fudge room here. iOS and Android differ by 5ms on this file
+				should(audioPlayer.duration).be.within(45250, 45500); // 45 seconds. iOS gives us 45322, Android gives 45327
+				finish();
+			} catch (e) {
+				finish(e);
+			}
 		}, 1000);
 	});
 });
