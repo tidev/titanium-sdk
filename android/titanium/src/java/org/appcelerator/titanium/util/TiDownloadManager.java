@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollStreamHelper;
 import org.appcelerator.titanium.io.TiInputStreamWrapper;
@@ -246,15 +245,15 @@ public class TiDownloadManager implements Handler.Callback
 
 	protected void startDownload(URI uri, TiDownloadListener listener)
 	{
-		String hash = DigestUtils.shaHex(uri.toString());
+		String key = uri.toString();
 		ArrayList<SoftReference<TiDownloadListener>> listenerList = null;
 		synchronized (listeners)
 		{
-			if (!listeners.containsKey(hash)) {
+			if (!listeners.containsKey(key)) {
 				listenerList = new ArrayList<SoftReference<TiDownloadListener>>();
-				listeners.put(hash, listenerList);
+				listeners.put(key, listenerList);
 			} else {
-				listenerList = listeners.get(hash);
+				listenerList = listeners.get(key);
 			}
 			// We only allow a listener once per URI
 			for (SoftReference<TiDownloadListener> l : listenerList) {
@@ -266,8 +265,8 @@ public class TiDownloadManager implements Handler.Callback
 		}
 		synchronized (downloadingURIs)
 		{
-			if (!downloadingURIs.contains(hash)) {
-				downloadingURIs.add(hash);
+			if (!downloadingURIs.contains(key)) {
+				downloadingURIs.add(key);
 				threadPool.execute(new DownloadJob(uri));
 			}
 		}
@@ -275,11 +274,10 @@ public class TiDownloadManager implements Handler.Callback
 
 	protected void handleFireDownloadMessage(URI uri, int what)
 	{
-		String hash = DigestUtils.shaHex(uri.toString());
 		ArrayList<SoftReference<TiDownloadListener>> listenerList;
 		synchronized (listeners)
 		{
-			listenerList = listeners.get(hash);
+			listenerList = listeners.get(uri.toString());
 		}
 		if (listenerList != null) {
 			for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext();) {
@@ -318,15 +316,14 @@ public class TiDownloadManager implements Handler.Callback
 
 				synchronized (downloadingURIs)
 				{
-					downloadingURIs.remove(DigestUtils.shaHex(uri.toString()));
+					downloadingURIs.remove(uri.toString());
 				}
 
 				// If there is additional background task, run it here.
-				String hash = DigestUtils.shaHex(uri.toString());
 				ArrayList<SoftReference<TiDownloadListener>> listenerList;
 				synchronized (listeners)
 				{
-					listenerList = listeners.get(hash);
+					listenerList = listeners.get(uri.toString());
 				}
 				if (listenerList != null) {
 					for (Iterator<SoftReference<TiDownloadListener>> i = listenerList.iterator(); i.hasNext();) {
@@ -342,7 +339,7 @@ public class TiDownloadManager implements Handler.Callback
 
 				synchronized (downloadingURIs)
 				{
-					downloadingURIs.remove(DigestUtils.shaHex(uri.toString()));
+					downloadingURIs.remove(uri.toString());
 				}
 
 				// fire a download fail event if we are unable to download

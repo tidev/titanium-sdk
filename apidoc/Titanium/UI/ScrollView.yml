@@ -1,7 +1,6 @@
 ---
 name: Titanium.UI.ScrollView
-summary: |
-    A view that contains a horizontally and/or vertically-scrollable region of content.
+summary: A view that contains a horizontally and/or vertically-scrollable region of content.
 description: |
     Use the <Titanium.UI.createScrollView> method or **`<ScrollView>`** Alloy element to create a scroll view.
 
@@ -56,13 +55,10 @@ methods:
         summary: |
             X and Y coordinates to which to reposition the top-left point of the scrollable region.
         type: Dictionary
-
       - name: animated
         summary: Determines whether the scrollable region reposition should be animated
         type: contentOffsetOption
         optional: true
-
-
   - name: setZoomScale
     summary: Sets the value of the [zoomScale](Titanium.UI.ScrollView.zoomScale) property.
     platforms: [iphone, ipad]
@@ -75,7 +71,6 @@ methods:
         summary: Determines whether the scrollable region reposition should be animated
         type: zoomScaleOption
         optional: true
-
 
   - name: scrollToBottom
     summary: Moves the end of the scrollable region into the viewable area.
@@ -227,14 +222,12 @@ properties:
         Measured in platform-specific units; pixels on Android, effective pixels on Windows and density-independent pixels (dip) on iOS.
     type: [Number, String]
 
-  - name: contentOffset
-    summary: |
-        X and Y coordinates to which to reposition the top-left point of the scrollable region.
-    type: Dictionary
+  - name: contentOffsetXY
+    summary: X and Y coordinates to which to reposition the top-left point of the scrollable region.
     description: |
         On iOS, a new value causes the scroll view to perform an animated scroll to the new offset.
         The <Titanium.UI.ScrollView.setContentOffset> method can be used to prevent this animation.
-
+    type: Dictionary
 
   - name: contentWidth
     summary: Width of the scrollable region.
@@ -319,7 +312,7 @@ properties:
     summary: View positioned above the first row that is only revealed when the user drags the scroll view contents down.
     description: |
         An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples. Since Titanium
-        SDK 7.4.0, the RefreshControl API is also available on iOS < 10.
+        SDK 7.5.0, the RefreshControl API is also available on iOS < 10.
     type: Titanium.UI.RefreshControl
     platforms: [android, iphone, ipad]
     since: { android: "6.3.0", iphone: "6.0.0", ipad: "6.0.0" }

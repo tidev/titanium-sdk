@@ -235,6 +235,7 @@
 		502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */; };
 		502A68EB16F0428500661EF6 /* TiViewTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68EA16F0428500661EF6 /* TiViewTemplate.m */; };
 		5081CEF815F8100E00C881D8 /* TiExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */; };
+		673144D6211DBAD7001BDBF2 /* TiUIApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 673144D5211DBAD7001BDBF2 /* TiUIApplication.m */; };
 		823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
 		838159E21B7A9632002EE811 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 838159EC1B7C3EFA002EE811 /* Assets.xcassets */; };
 		838267951D9DAD6800F99248 /* TiLogServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 838267941D9DAD6800F99248 /* TiLogServer.m */; };
@@ -776,6 +777,8 @@
 		502A68EA16F0428500661EF6 /* TiViewTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiViewTemplate.m; sourceTree = "<group>"; };
 		5081CEF615F8100E00C881D8 /* TiExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiExceptionHandler.h; sourceTree = "<group>"; };
 		5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiExceptionHandler.m; sourceTree = "<group>"; };
+		673144D4211DBAD7001BDBF2 /* TiUIApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIApplication.h; path = ../Classes/TiUIApplication.h; sourceTree = "<group>"; };
+		673144D5211DBAD7001BDBF2 /* TiUIApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIApplication.m; path = ../Classes/TiUIApplication.m; sourceTree = "<group>"; };
 		823CC8AA1B7F0E4D00D220C7 /* WatchSessionModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WatchSessionModule.h; sourceTree = "<group>"; };
 		823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WatchSessionModule.m; sourceTree = "<group>"; };
 		838159EC1B7C3EFA002EE811 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -2002,6 +2005,8 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				673144D4211DBAD7001BDBF2 /* TiUIApplication.h */,
+				673144D5211DBAD7001BDBF2 /* TiUIApplication.m */,
 				32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 				241EAA21118AB3BB0081A5BE /* defines.h */,
@@ -2509,7 +2514,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -Rf \"$PROJECT_DIR/../Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/dev/localecompiler.py\" \"$PROJECT_DIR/..\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"";
+			shellScript = "cp -Rf \"$PROJECT_DIR/../../common/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\ncp -Rf \"$PROJECT_DIR/../Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/dev/localecompiler.py\" \"$PROJECT_DIR/..\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2587,6 +2592,7 @@
 				159C599B1C383645009A8860 /* TiUIiOSTableViewCellSelectionStyleProxy.m in Sources */,
 				24CA8B95111161FE0084E2DE /* TiUIProgressBarProxy.m in Sources */,
 				24CA8B96111161FE0084E2DE /* TiUIProgressBar.m in Sources */,
+				673144D6211DBAD7001BDBF2 /* TiUIApplication.m in Sources */,
 				24CA8B97111161FE0084E2DE /* TiUIOptionDialogProxy.m in Sources */,
 				24CA8B98111161FE0084E2DE /* TiUINavBarButton.m in Sources */,
 				24CA8B99111161FE0084E2DE /* TiUILabelProxy.m in Sources */,

@@ -16,6 +16,7 @@
 #import "TiExceptionHandler.h"
 #import "Webcolor.h"
 #import <AVFoundation/AVFoundation.h>
+#import <CoreLocation/CoreLocation.h>
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
@@ -241,8 +242,6 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 
 - (void)boot
 {
-  DebugLog(@"[INFO] %@/%@ (%s.__GITHASH__)", TI_APPLICATION_NAME, TI_APPLICATION_VERSION, TI_VERSION_STR);
-
   sessionId = [[TiUtils createUUID] retain];
   TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
 #ifndef USE_JSCORE_FRAMEWORK
@@ -561,7 +560,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
   [self tryToInvokeSelector:@selector(application:performFetchWithCompletionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, [completionHandler copy], nil]];
 
   //Only for simulator builds
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
@@ -609,25 +608,40 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 // iOS 10+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
-  // TODO: Get desired options from notification?
-  completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
+  // For backwards compatibility with iOS < 10, we do not show notifications in-app, but make it configurable
+  BOOL showInForeground = [TiUtils boolValue:notification.request.content.userInfo[@"showInForeground"] def:NO];
+  if (showInForeground) {
+    completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
+  } else {
+    [self application:[UIApplication sharedApplication] didReceiveRemoteNotification:notification.request.content.userInfo];
+    completionHandler(UNNotificationPresentationOptionNone);
+  }
 }
 
 // iOS 10+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response
              withCompletionHandler:(void (^)(void))completionHandler
 {
-  if ([[[[[response notification] request] content] userInfo] valueForKey:@"isRemoteNotification"] != nil) {
-    RELEASE_TO_NIL(remoteNotification);
-    remoteNotification = [[[self class] dictionaryWithUserNotification:response.notification
-                                                        withIdentifier:response.actionIdentifier] retain];
-
-    [self tryToPostNotification:remoteNotification withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
+  if ([[[[[response notification] request] content] userInfo] valueForKey:@"aps"] != nil) {
+    NSMutableDictionary *responseInfo = nil;
+    if ([response isKindOfClass:[UNTextInputNotificationResponse class]]) {
+      responseInfo = [NSMutableDictionary dictionary];
+      [responseInfo setValue:((UNTextInputNotificationResponse *)response).userText forKey:UIUserNotificationActionResponseTypedTextKey];
+    }
+    if ([UNNotificationDefaultActionIdentifier isEqualToString:response.actionIdentifier]) {
+      [self application:[UIApplication sharedApplication] didReceiveRemoteNotification:response.notification.request.content.userInfo];
+      completionHandler();
+    } else {
+      [self application:[UIApplication sharedApplication] handleActionWithIdentifier:response.actionIdentifier forRemoteNotification:response.notification.request.content.userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
+    }
   } else {
+    //NOTE Local notifications should be handled similar to BG above which ultimately calls handleRemoteNotificationWithIdentifier as this will allow BG Actions to execute.
     RELEASE_TO_NIL(localNotification);
     localNotification = [[[self class] dictionaryWithUserNotification:response.notification
                                                        withIdentifier:response.actionIdentifier] retain];
-
+    if ([response isKindOfClass:[UNTextInputNotificationResponse class]]) {
+      [localNotification setValue:((UNTextInputNotificationResponse *)response).userText forKey:@"typedText"];
+    }
     [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:completionHandler];
   }
 }
@@ -663,7 +677,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler
 {
   [self tryToInvokeSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:completionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, userInfo, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, userInfo, [completionHandler copy], nil]];
 
   [self handleRemoteNotificationWithIdentifier:identifier
                                    andUserInfo:userInfo
@@ -694,7 +708,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   }
 
   [self tryToInvokeSelector:@selector(application:handleWatchKitExtensionRequest:reply:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, reply, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, [reply copy], nil]];
 
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiWatchKitExtensionRequest object:self userInfo:dic];
 }
@@ -746,7 +760,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
         [self invokeSelector:selector withArguments:arguments onDelegate:applicationDelegate];
       }
     }
-  } else {
+  } else if (!appBooted && _applicationDelegates == nil) {
     [[self queuedApplicationSelectors] setObject:arguments forKey:selectorString];
   }
 }
@@ -848,15 +862,8 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 // Delegate callback for Silent Remote Notification.
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler
 {
-  // Forward the callback
-  if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
-    [self application:application didReceiveRemoteNotification:userInfo];
-  }
-
   [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, completionHandler, nil]];
-
-  //This only here for Simulator builds.
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, [completionHandler copy], nil]];
 
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"remote-notification"]) {
@@ -900,7 +907,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [backgroundTransferCompletionHandlers setObject:[[completionHandler copy] autorelease] forKey:key];
 
   [self tryToInvokeSelector:@selector(application:handleEventsForBackgroundURLSession:completionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, identifier, [completionHandler copy], nil]];
 
   NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:identifier, @"sessionId",
                                                    key, @"handlerId", nil];
@@ -1259,7 +1266,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
 
   [self tryToInvokeSelector:@selector(application:continueUserActivity:restorationHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, userActivity, restorationHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, userActivity, [restorationHandler copy], nil]];
 
   if (appBooted) {
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
@@ -1509,8 +1516,26 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   if (category != nil) {
     event[@"category"] = category;
   }
+  NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+  if ([backgroundModes containsObject:@"remote-notification"]) {
+    // Generate unique key with timestamp.
+    id key = [NSString stringWithFormat:@"CategoryPush-%f", [[NSDate date] timeIntervalSince1970]];
+    // Store the completionhandler till we can come back and send appropriate message.
+    if (pendingCompletionHandlers == nil) {
+      pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
+    }
+    [pendingCompletionHandlers setObject:[[completionHandler copy] autorelease] forKey:key];
 
-  [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:key, @"handlerId", nil];
+    [dict addEntriesFromDictionary:event];
+    [self tryToPostBackgroundModeNotification:dict
+                         withNotificationName:kTiRemoteNotificationAction];
+    // We will go ahead and keeper a timer just in case the user returns the value too late - this is the worst case scenario.
+    NSTimer *flushTimer = [NSTimer timerWithTimeInterval:TI_BACKGROUNDFETCH_MAX_INTERVAL target:self selector:@selector(fireCompletionHandler:) userInfo:key repeats:NO];
+    [[NSRunLoop mainRunLoop] addTimer:flushTimer forMode:NSDefaultRunLoopMode];
+  } else {
+    [self tryToPostNotification:[event autorelease] withNotificationName:kTiRemoteNotificationAction completionHandler:completionHandler];
+  }
 }
 
 - (void)application:(UIApplication *)application
@@ -1518,7 +1543,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
                completionHandler:(void (^)(BOOL succeeded))completionHandler
 {
   [self tryToInvokeSelector:@selector(application:performActionForShortcutItem:completionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, shortcutItem, completionHandler, nil]];
+              withArguments:[NSOrderedSet orderedSetWithObjects:application, shortcutItem, [completionHandler copy], nil]];
 
   BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem queueToBootIfNotLaunched:NO];
   completionHandler(handledShortCutItem);
@@ -1577,11 +1602,34 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
   [event setObject:NULL_IF_NIL([[[notification request] content] title]) forKey:@"alertTitle"];
   [event setObject:NULL_IF_NIL([[[notification request] content] subtitle]) forKey:@"alertSubtitle"];
   [event setObject:NULL_IF_NIL([[[notification request] content] launchImageName]) forKey:@"alertLaunchImage"];
-  [event setObject:NULL_IF_NIL([[[notification request] content] sound]) forKey:@"sound"];
   [event setObject:NULL_IF_NIL([[[notification request] content] badge]) forKey:@"badge"];
   [event setObject:NULL_IF_NIL([[[notification request] content] userInfo]) forKey:@"userInfo"];
   [event setObject:NULL_IF_NIL([[[notification request] content] categoryIdentifier]) forKey:@"category"];
   [event setObject:NULL_IF_NIL([[notification request] identifier]) forKey:@"identifier"];
+
+  // iOS 10+ does have "soundName" but "sound" which is a native object. But if we find
+  // a sound in the APS dictionary, we can provide that one for parity
+  if (notification.request.content.userInfo[@"aps"] && notification.request.content.userInfo[@"aps"][@"sound"]) {
+    [event setObject:notification.request.content.userInfo[@"aps"][@"sound"] forKey:@"sound"];
+  }
+
+  // Inject the trigger (time- or location-based) into the payload
+  UNNotificationTrigger *trigger = notification.request.trigger;
+
+  if (trigger != nil) {
+    if ([trigger isKindOfClass:[UNCalendarNotificationTrigger class]]) {
+      [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)trigger nextTriggerDate]) forKey:@"date"];
+    } else if ([trigger isKindOfClass:[UNLocationNotificationTrigger class]]) {
+      CLCircularRegion *region = (CLCircularRegion *)[(UNLocationNotificationTrigger *)trigger region];
+      NSDictionary *dict = @{
+        @"latitude" : NUMDOUBLE(region.center.latitude),
+        @"longitude" : NUMDOUBLE(region.center.longitude),
+        @"radius" : NUMDOUBLE(region.radius),
+        @"identifier" : region.identifier
+      };
+      [event setObject:dict forKey:@"region"];
+    }
+  }
 
   return event;
 }
