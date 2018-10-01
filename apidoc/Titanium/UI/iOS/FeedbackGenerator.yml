@@ -26,8 +26,18 @@ description: |
          scrolling a picker wheel. This feedback is intended for communicating movement through a series of discrete values, not
          making or confirming a selection. This feedback type can be used when using the <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_NOTIFICATION>
          constant in the `type` property of the feedback generator.
+         
+    **Example**
+    When clicking a button you should trigger an impact feedback as displayed below.
 
+        var generator = Ti.UI.iOS.createFeedbackGenerator({
+          type: Ti.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT,
+          style: Ti.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT
+        });
+        generator.impactOccurred();     
       
+    We're not using `generator.prepare()` here because we're triggering the feedback immediately. When you know a feedback generator is triggered within a couple seconds you should use `prepare()` to know for sure the timing is correct.
+
     See also:
 
       * [iOS Developer Library: Haptic Feedback](https://developer.apple.com/ios/human-interface-guidelines/interaction/feedback/)
@@ -44,6 +54,13 @@ properties:
     constants: Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_*
     availability: creation
     optional: false
+  - name: style
+    type: Number
+    summary: The style of the feedback generator you want to create. This property is only required when using <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
+    constants: Titanium.UI.iOS.FEEDBACK_GENERATOR_IMPACT_STYLE_*
+    availability: creation
+    optional: true    
+    
     
 methods:
   - name: prepare
