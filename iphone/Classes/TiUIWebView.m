@@ -7,16 +7,16 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import "TiUIWebView.h"
-#import "Mimetypes.h"
-#import "TiApp.h"
-#import "TiBlob.h"
-#import "TiExceptionHandler.h"
-#import "TiFile.h"
-#import "TiHost.h"
-#import "TiProxy.h"
 #import "TiUIWebViewProxy.h"
-#import "TiUtils.h"
-#import "Webcolor.h"
+#import <TitaniumKit/Mimetypes.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiExceptionHandler.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiHost.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/Webcolor.h>
 
 extern NSString *const TI_APPLICATION_ID;
 static NSString *const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={};Ti.App._listener_id=1;Ti.App.id=Ti.appId;Ti.App._xhr=XMLHttpRequest;"

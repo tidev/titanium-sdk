@@ -7,8 +7,8 @@
 #ifdef USE_TI_UIIOSNAVIGATIONWINDOW
 
 #import "TiUIiOSNavWindowProxy.h"
-#import "TiApp.h"
 #import "TiUIiOSNavWindow.h"
+#import <TitaniumKit/TiApp.h>
 
 @implementation TiUIiOSNavWindowProxy
 

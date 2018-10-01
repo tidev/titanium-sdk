@@ -7,7 +7,7 @@
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
 #import "TiAppiOSSearchableIndexProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiAppiOSSearchableIndexProxy
 

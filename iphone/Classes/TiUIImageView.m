@@ -7,17 +7,17 @@
 #ifdef USE_TI_UIIMAGEVIEW
 
 #import "TiUIImageView.h"
-#import "ImageLoader.h"
-#import "OperationQueue.h"
-#import "TiBase.h"
-#import "TiBlob.h"
-#import "TiFile.h"
-#import "TiProxy.h"
 #import "TiUIImageViewProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "UIImage+Resize.h"
 #import <CommonCrypto/CommonDigest.h>
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/OperationQueue.h>
+#import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiFile.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/UIImage+Resize.h>
 
 #define IMAGEVIEW_DEBUG 0
 

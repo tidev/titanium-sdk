@@ -8,7 +8,7 @@
 #ifdef TI_USE_AUTOLAYOUT
 #import <UIKit/UIKit.h>
 #import "TiLayoutDimension.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiUtils.h>
 
 #define TI_CONSTR(FORMAT,VIEWS) [NSLayoutConstraint constraintsWithVisualFormat:FORMAT options:NSLayoutFormatDirectionLeftToRight metrics:nil views:VIEWS]
 #define TI_STRING(...) [NSString stringWithFormat:__VA_ARGS__]

@@ -7,10 +7,10 @@
 #ifdef USE_TI_UITAB
 
 #import "TiUITabGroup.h"
-#import "TiColor.h"
 #import "TiUITabGroupProxy.h"
 #import "TiUITabProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/TiColor.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUITabGroup
 

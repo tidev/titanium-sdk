@@ -436,9 +436,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'force-copy': {
 							desc: __('forces files to be copied instead of symlinked for %s builds only', 'simulator'.cyan)
 						},
-						'force-copy-all': {
-							desc: __('removed in Titanium SDK 8.0.0 since TiCore was removed in favor of the built-in JavaScriptCore framework')
-						},
 						'launch-watch-app': {
 							desc: __('for %s builds, after installing an app with a watch extention, launch the watch app and the main app', 'simulator'.cyan)
 						},
@@ -2062,30 +2059,8 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			},
 
 			function toSymlinkOrNotToSymlink() {
-				this.symlinkLibrariesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv['force-copy-all'];
+				this.symlinkLibrariesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'];
 				this.symlinkFilesOnCopy = false;
-
-				/* eslint-disable max-len */
-				/*
-				// since things are looking good, determine if files should be symlinked on copy
-				// note that iOS 9 simulator does not support symlinked files :(
-				this.symlinkFilesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv['force-copy-all'];
-
-				// iOS 9 Simulator does not like symlinks :(
-				if (cli.argv.target === 'simulator' && this.symlinkFilesOnCopy) {
-					if (cli.argv['build-only'] && this.symlinkFilesOnCopy) {
-						logger.warn(__('Files are being symlinked which is known to not work when running in an iOS 9 Simulators'));
-						logger.warn(__('You may want to specify the --force-copy flag'));
-					} else if (this.simHandle && appc.version.gte(this.simHandle.version, '9.0')) {
-						logger.info(__('Symlinked files not supported with iOS %s simulator, forcing files to be copied', this.simHandle.version));
-						this.symlinkFilesOnCopy = false;
-					}
-				} else if (this.symlinkFilesOnCopy && cli.argv.target === 'device' && (cli.argv['debug-host'] || cli.argv['profiler-host']) && version.gte(this.iosSdkVersion, '9.0')) {
-					logger.info(__('Symlinked files are not supported with iOS %s device %s builds, forcing files to be copied', version.format(this.iosSdkVersion, 2, 2), cli.argv['debug-host'] ? 'debug' : 'profiler'));
-					this.symlinkFilesOnCopy = false;
-				}
-				*/
-				/* eslint-enable max-len */
 			},
 
 			function determineMinIosVer() {
@@ -2159,7 +2134,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 								}
 
 								if (!module.libFile) {
-									this.logger.error(__('Module "%s" v%s is missing main file: %s, package.json with "main" entry, index.js, or index.json', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
+									this.logger.error(__('Module "%s" (%s) is missing main file: %s, package.json with "main" entry, index.js, or index.json', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
 									process.exit(1);
 								}
 							}
@@ -2167,16 +2142,31 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 							this.commonJsModules.push(module);
 						} else {
 							module.native = true;
+							const frameworkName = this.scrubbedModuleId(module.id) + '.framework';
 
-							module.libName = 'lib' + module.id.toLowerCase() + '.a';
-							module.libFile = path.join(module.modulePath, module.libName);
+							// Try to load native module as static library (Obj-C)
+							if (fs.existsSync(path.join(module.modulePath, 'lib' + module.id.toLowerCase() + '.a'))) {
+								module.libName = 'lib' + module.id.toLowerCase() + '.a';
+								module.libFile = path.join(module.modulePath, module.libName);
+								module.isFramework = false;
 
-							if (!fs.existsSync(module.libFile)) {
-								this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
+								// For Obj-C static libraries, use the .a library or hashing
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
+								// Try to load native module as framework (Swift)
+							} else if (fs.existsSync(path.join(module.modulePath, frameworkName))) {
+								module.libName = frameworkName;
+								module.libFile = path.join(module.modulePath, module.libName);
+								module.isFramework = true;
+								// For Swift frameworks, use the binary inside the .framework for hashing
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, this.scrubbedModuleId(module.id)))));
+
+								// Else - fail
+							} else {
+								this.logger.error(__('Module %s (%s) is missing library or framework file.', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
+								this.logger.error(__('Please validate that your module has been packaged correctly and try it again.'));
 								process.exit(1);
 							}
 
-							nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
 							this.nativeLibModules.push(module);
 						}
 
@@ -2197,6 +2187,12 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			callback();
 		});
 	}.bind(this); // end of function returned by validate()
+};
+
+iOSBuilder.prototype.scrubbedModuleId = function (moduleId) {
+	return moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) {
+		return s.substring(0, 1).toUpperCase() + s.substring(1);
+	}).join('');
 };
 
 /**
@@ -2350,7 +2346,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.ppUuid             = this.provisioningProfileUUID;
 	this.currentBuildManifest.outputDir          = this.cli.argv['output-dir'];
 	this.currentBuildManifest.forceCopy          = this.forceCopy               = !!argv['force-copy'];
-	this.currentBuildManifest.forceCopyAll       = this.forceCopyAll            = !!argv['force-copy-all'];
 	this.currentBuildManifest.name               = this.tiapp.name;
 	this.currentBuildManifest.id                 = this.tiapp.id;
 	this.currentBuildManifest.analytics          = this.tiapp.analytics;
@@ -2701,18 +2696,11 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
-		// check if the --force-copy or --force-copy-all flags were set
+		// check if the --force-copy flag was set
 		if (this.forceCopy !== manifest.forceCopy) {
 			this.logger.info(__('Forcing rebuild: force copy flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', cyan(manifest.forceCopy)));
 			this.logger.info('  ' + __('Now: %s', cyan(this.forceCopy)));
-			return true;
-		}
-
-		if (this.forceCopyAll !== manifest.forceCopyAll) {
-			this.logger.info(__('Forcing rebuild: force copy all flag changed since last build'));
-			this.logger.info('  ' + __('Was: %s', cyan(manifest.forceCopyAll)));
-			this.logger.info('  ' + __('Now: %s', cyan(this.forceCopyAll)));
 			return true;
 		}
 
@@ -2891,12 +2879,12 @@ iOSBuilder.prototype.generateXcodeUuid = function generateXcodeUuid(xcodeProject
 iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	this.logger.info(__('Creating Xcode project'));
 
-	const appName = this.tiapp.name,
-		scrubbedAppName = this.sanitizedAppName(),
-		srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj'),
-		contents = fs.readFileSync(srcFile).toString(),
-		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
-		relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
+	const appName = this.tiapp.name;
+	const scrubbedAppName = appName.replace(/[-\W]/g, '_');
+	const srcFile = path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.pbxproj');
+	const xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj'));
+	const relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
+	const contents = fs.readFileSync(srcFile).toString();
 
 	xcodeProject.hash = xcodeParser.parse(contents);
 	const xobjs = xcodeProject.hash.project.objects;
@@ -3082,10 +3070,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	}
 
-	if (/simulator|device|dist-adhoc/.test(this.target) && this.tiapp.ios.enablecoverage) {
-		gccDefs.push('KROLL_COVERAGE=1');
-	}
-
 	if (this.enableLaunchScreenStoryboard) {
 		gccDefs.push('LAUNCHSCREEN_STORYBOARD=1');
 	}
@@ -3243,8 +3227,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	if (this.nativeLibModules.length) {
 		this.logger.trace(__n('Adding %%d native module library', 'Adding %%d native module libraries', this.nativeLibModules.length === 1 ? 1 : 2, this.nativeLibModules.length));
 		this.nativeLibModules.forEach(function (lib) {
-			const fileRefUuid = this.generateXcodeUuid(xcodeProject),
+			const isFramework = lib.isFramework,
+				fileRefUuid = this.generateXcodeUuid(xcodeProject),
 				buildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+			// Framworks are handled by our framework manager!
+			if (isFramework) {
+				return;
+			}
 
 			// add the file reference
 			xobjs.PBXFileReference[fileRefUuid] = {
@@ -3276,9 +3266,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				comment: lib.libName + ' in Frameworks'
 			});
 
-			// add the library to the search paths
+			// add the library / framework to the dedicated search paths
 			xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 				var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+
 				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
 				buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
 			});
@@ -3725,6 +3716,11 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	});
 
 	const hook = this.cli.createHook('build.ios.xcodeproject', this, function (xcodeProject, done) {
+
+		// clean up TitaniumKit project references
+		xcodeProject.removeFramework('TitaniumKit.framework', { customFramework: true, embed: true });
+		xcodeProject.addFramework(path.join(this.buildDir, 'Frameworks', 'TitaniumKit.framework'), { customFramework: true, embed: true });
+
 		const contents = xcodeProject.writeSync(),
 			dest = xcodeProject.filepath,
 			parent = path.dirname(dest);
@@ -4357,7 +4353,7 @@ iOSBuilder.prototype._scrubiOSSourceFile = function _scrubiOSSourceFile(contents
 			// note: order of regexps matters
 			[ /TitaniumViewController/g, namespace + '$ViewController' ],
 			[ /TitaniumModule/g, namespace + '$Module' ],
-			[ /Titanium|Appcelerator/g, namespace ],
+			[ /(?!TitaniumKit)(Titanium|Appcelerator)/g, namespace ],
 			[ /titanium/g, '_' + namespace.toLowerCase() ],
 			[ /(org|com)\.appcelerator/g, '$1.' + namespace.toLowerCase() ],
 			[ new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Appcelerator Titanium Mobile' ], // eslint-disable-line security/detect-non-literal-regexp
@@ -4392,7 +4388,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		modules: this.modules
 	};
 
-	[ 'Classes', 'headers' ].forEach(function (dir) {
+	[ 'Classes', 'Frameworks' ].forEach(function (dir) {
 		this.copyDirSync(path.join(this.platformPath, dir), path.join(this.buildDir, dir), {
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: /^(defines\.h|bridge\.txt|libTitanium\.a|\.gitignore|\.npmignore|\.cvsignore|\.DS_Store|\._.*|[Tt]humbs.db|\.vspscc|\.vssscc|\.sublime-project|\.sublime-workspace|\.project|\.tmproj)$/, // eslint-disable-line max-len

@@ -133,13 +133,11 @@ Packager.prototype.generateManifestJSON = function (next) {
  */
 Packager.prototype.zipIOS = function (next) {
 	const IOS = require('./ios');
-	// FIXME Pass along the version/gitHash/options!
 	new IOS({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
 };
 
 Packager.prototype.zipWindows = function (next) {
 	const Windows = require('./windows');
-	// FIXME Pass along the version/gitHash/options!
 	new Windows({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
 };
 
@@ -149,7 +147,6 @@ Packager.prototype.zipWindows = function (next) {
  */
 Packager.prototype.zipAndroid = function (next) {
 	const Android = require('./android');
-	// FIXME Pass along the ndk/sdk/version/apiLevel/options!
 	new Android({ sdkVersion: this.version, gitHash: this.gitHash, timestamp: this.timestamp }).package(this, next);
 };
 
@@ -158,7 +155,7 @@ Packager.prototype.zipAndroid = function (next) {
  * @param  {Function} next callback function
  */
 Packager.prototype.cleanZipDir = function (next) {
-	console.log('Cleaning previous zipfile and tmp dir...');
+	console.log('Cleaning previous zipfile and tmp dir');
 	// IF zipDir exists, wipe it
 	if (fs.existsSync(this.zipDir)) {
 		fs.removeSync(this.zipDir);
@@ -175,7 +172,7 @@ Packager.prototype.cleanZipDir = function (next) {
  * @param  {Function} next callback function
  */
 Packager.prototype.includePackagedModules = function (next) {
-	console.log('Zipping packaged modules...');
+	console.log('Zipping packaged modules');
 	// Unzip all the zipfiles in support/module/packaged
 	let supportedPlatforms = this.platforms.concat([ 'commonjs' ]);
 	// Include aliases for ios/iphone/ipad
@@ -261,14 +258,16 @@ Packager.prototype.zip = function (next) {
  * @param {Function} next callback function
  */
 Packager.prototype.package = function (next) {
-	console.log('Zipping Mobile SDK...');
+	console.log('Zipping Mobile SDK');
 	async.series([
 		this.cleanZipDir.bind(this),
 		this.generateManifestJSON.bind(this),
 		function (cb) {
+			console.log('Writing JSCA');
 			fs.copy(path.join(this.outputDir, 'api.jsca'), path.join(this.zipSDKDir, 'api.jsca'), cb);
 		}.bind(this),
 		function (cb) {
+			console.log('Copying SDK files');
 			// Copy some root files, cli/, common/, templates/, node_modules minus .bin sub-dir
 			this.copy([ 'CREDITS', 'README.md', 'package.json', 'cli', 'common', 'node_modules', 'templates' ], cb);
 		}.bind(this),

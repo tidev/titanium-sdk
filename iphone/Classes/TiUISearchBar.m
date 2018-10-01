@@ -13,9 +13,9 @@
 #ifdef USE_TI_UISEARCHBAR
 
 #import "TiUISearchBar.h"
-#import "ImageLoader.h"
 #import "TiUISearchBarProxy.h"
-#import "TiUtils.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiUtils.h>
 
 @implementation TiUISearchBar
 

@@ -31,6 +31,20 @@ Utils.globCopy = function (pattern, srcFolder, destFolder, next) {
 	});
 };
 
+Utils.globCopyFlat = function (pattern, srcFolder, destFolder, next) {
+	glob(pattern, { cwd: srcFolder }, function (err, files) {
+		if (err) {
+			console.error(err);
+			return next(err);
+		}
+
+		async.each(files, function (filename, cb) {
+			const filenameWithoutDirectory = filename.split('/')[1]; // TODO: Refactor to simply copy without it's source directory
+			fs.copy(path.join(srcFolder, filename), path.join(destFolder, filenameWithoutDirectory), cb);
+		}, next);
+	});
+};
+
 Utils.copyAndModifyFile = function (srcFolder, destFolder, filename, substitutions, next) {
 	// FIXME If this is a directory, we need to recurse into directory!
 

@@ -7,16 +7,16 @@
 #ifdef USE_TI_UITABLEVIEW
 
 #import "TiUITableView.h"
-#import "ImageLoader.h"
-#import "TiApp.h"
-#import "TiLayoutQueue.h"
-#import "TiProxy.h"
 #import "TiUITableViewProxy.h"
-#import "TiUtils.h"
-#import "TiViewProxy.h"
-#import "TiWindowProxy.h"
-#import "WebFont.h"
-#import "Webcolor.h"
+#import <TitaniumKit/ImageLoader.h>
+#import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiLayoutQueue.h>
+#import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/TiWindowProxy.h>
+#import <TitaniumKit/WebFont.h>
+#import <TitaniumKit/Webcolor.h>
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 29.0
 #define GROUPED_MARGIN_WIDTH 18.0

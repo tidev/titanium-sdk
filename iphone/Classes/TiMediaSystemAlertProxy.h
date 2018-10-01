@@ -6,8 +6,8 @@
  */
 #ifdef USE_TI_MEDIASYSTEMALERT
 
-#import "TiProxy.h"
 #import <AudioToolbox/AudioServices.h>
+#import <TitaniumKit/TiProxy.h>
 
 @interface TiMediaSystemAlertProxy : TiProxy {
   NSURL *url;
