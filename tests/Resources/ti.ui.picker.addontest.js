@@ -12,7 +12,7 @@ var should = require('./utilities/assertions');
 
 describe('Ti.UI.Picker', function () {
 
-	it('Selected index persistance', function (finish) {
+	it.android('Selected index persistance', function (finish) {
 		var window = Ti.UI.createWindow();
 		// workaround iOS triggering of 'postlayout' event
 		var containerView = Ti.UI.createView();
