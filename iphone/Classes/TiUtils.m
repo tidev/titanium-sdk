@@ -74,14 +74,14 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 + (int)dpi
 {
   if ([TiUtils isIPad]) {
-    if ([TiUtils isRetinaDisplay]) {
+    if ([TiUtils is2xRetina]) {
       return 260;
     }
     return 130;
   } else {
-    if ([TiUtils isRetinaHDDisplay]) {
+    if ([TiUtils is3xRetina]) {
       return 480;
-    } else if ([TiUtils isRetinaDisplay]) {
+    } else if ([TiUtils is2xRetina]) {
       return 320;
     }
     return 160;
@@ -96,28 +96,55 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 + (BOOL)isRetinaiPhone6
 {
+  return [TiUtils isRetina4_7Inch];
+}
+
++ (BOOL)isRetinaiPhone6Plus
+{
+  return [TiUtils isRetina5_5Inch];
+}
+
++ (BOOL)isRetinaiPhoneX
+{
+  return [TiUtils isSuperRetina5_8Inch];
+}
+
++ (BOOL)isRetina4_7Inch
+{
   CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
   return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
 }
 
-+ (BOOL)isRetinaiPhone6Plus
++ (BOOL)isRetina5_5Inch
 {
   CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
   return (mainScreenBoundsSize.height == 736 || mainScreenBoundsSize.width == 736);
 }
 
-+ (BOOL)isRetinaiPhoneX
++ (BOOL)isSuperRetina5_8Inch
 {
   CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
   return (mainScreenBoundsSize.height == 812 || mainScreenBoundsSize.width == 812);
 }
 
-+ (BOOL)isRetinaHDDisplay
++ (BOOL)isRetina6_1Inch
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 896 || mainScreenBoundsSize.width == 896) && ![TiUtils is3xRetina];
+}
+
++ (BOOL)isSuperRetina6_5Inch
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 896 || mainScreenBoundsSize.width == 896) && [TiUtils is3xRetina];
+}
+
++ (BOOL)is3xRetina
 {
   return [UIScreen mainScreen].scale == 3.0;
 }
 
-+ (BOOL)isRetinaDisplay
++ (BOOL)is2xRetina
 {
   // since we call this alot, cache it
   static CGFloat scale = 0.0;
@@ -136,7 +163,17 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
     }
     scale = [[UIScreen mainScreen] scale];
   }
-  return scale > 1.0;
+  return scale > 1.0; // TODO: In the future (next major), this should be == 2.0 which is a breaking change
+}
+
++ (BOOL)isRetinaHDDisplay
+{
+  return [TiUtils is3xRetina];
+}
+
++ (BOOL)isRetinaDisplay
+{
+  return [TiUtils is2xRetina];
 }
 
 + (BOOL)isIOS4_2OrGreater
@@ -771,14 +808,14 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
   NSString *os = [TiUtils isIPad] ? @"~ipad" : @"~iphone";
 
-  if ([TiUtils isRetinaHDDisplay]) {
-    if ([TiUtils isRetinaiPhoneX]) {
+  if ([TiUtils is3xRetina]) {
+    if ([TiUtils isSuperRetina5_8Inch]) {
       // -2436h@3x iPhone X specific
       NSString *testpath = [NSString stringWithFormat:@"%@-2436h@3x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {
         return [NSURL fileURLWithPath:testpath];
       }
-    } else if ([TiUtils isRetinaiPhone6]) {
+    } else if ([TiUtils isRetina4_7Inch]) {
       // -736h@3x iPhone 6/7 Plus specific
       NSString *testpath = [NSString stringWithFormat:@"%@-736h@3x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {
@@ -792,8 +829,8 @@ static NSString *kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
       return [NSURL fileURLWithPath:testpath];
     }
   }
-  if ([TiUtils isRetinaDisplay]) {
-    if ([TiUtils isRetinaiPhone6]) {
+  if ([TiUtils is2xRetina]) {
+    if ([TiUtils isRetina4_7Inch]) {
       // -667h@2x iPhone 6/7 specific
       NSString *testpath = [NSString stringWithFormat:@"%@-667h@2x.%@", partial, ext];
       if ([fm fileExistsAtPath:testpath]) {

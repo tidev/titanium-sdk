@@ -920,6 +920,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// Transpilation details
 	this.transpile = cli.tiapp['transpile'] === true; // Transpiling is an opt-in process for now
+	this.sourceMaps = cli.tiapp['source-maps'] === true; // opt-in to generate inline source maps
 	// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
 	const v8Version = this.packageJson.v8.version;
 	const found = v8Version.match(V8_STRING_VERSION_REGEXP);
@@ -2326,6 +2327,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		drawableResources = {},
 		jsFiles = {},
 		jsFilesToEncrypt = this.jsFilesToEncrypt = [],
+		jsBootstrapFiles = [],
 		htmlJsFiles = this.htmlJsFiles = {},
 		symlinkFiles = process.platform !== 'win32' && this.config.get('android.symlinkResources', true),
 		_t = this;
@@ -2517,6 +2519,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 						if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
 							jsFiles[id] = from;
+
+							// JS files that end with "*.bootstrap.js" are loaded before the "app.js".
+							// Add it as a require() compatible string to bootstrap array if it's a match.
+							const bootstrapPath = id.substr(0, id.length - 3);  // Remove the ".js" extension.
+							if (bootstrapPath.endsWith('.bootstrap')) {
+								jsBootstrapFiles.push(bootstrapPath);
+							}
 						}
 
 						next();
@@ -2558,8 +2567,20 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	const tasks = [
-		// first task is to copy all files in the Resources directory, but ignore
-		// any directory that is the name of a known platform
+		// First copy all of the Titanium SDK's core JS files shared by all platforms.
+		function (cb) {
+			const src = path.join(this.titaniumSdkPath, 'common', 'Resources');
+			warnDupeDrawableFolders.call(this, src);
+			_t.logger.debug(__('Copying %s', src.cyan));
+			copyDir.call(this, {
+				src: src,
+				dest: this.buildBinAssetsResourcesDir,
+				ignoreRootDirs: ti.allPlatformNames
+			}, cb);
+		},
+
+		// Next, copy all files in the project's Resources directory,
+		// but ignore any directory that is the name of a known platform.
 		function (cb) {
 			const src = path.join(this.projectDir, 'Resources');
 			warnDupeDrawableFolders.call(this, src);
@@ -2571,7 +2592,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			}, cb);
 		},
 
-		// next copy all files from the Android specific Resources directory
+		// Last, copy all files from the Android specific Resources directory.
 		function (cb) {
 			const src = path.join(this.projectDir, 'Resources', 'android');
 			warnDupeDrawableFolders.call(this, src);
@@ -2730,6 +2751,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 									filename: from,
 									minify: this.minifyJS,
 									transpile: this.transpile,
+									sourceMap: this.sourceMaps || this.deployType === 'development',
 									targets: {
 										chrome: this.chromeVersion
 									},
@@ -2772,7 +2794,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			};
 		}), function () {
 			// write the properties file
-			const appPropsFile = path.join(this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir, '_app_props_.json'),
+			const buildAssetsPath = this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir,
+				appPropsFile = path.join(buildAssetsPath, '_app_props_.json'),
 				props = {};
 			Object.keys(this.tiapp.properties).forEach(function (prop) {
 				props[prop] = this.tiapp.properties[prop].value;
@@ -2783,6 +2806,14 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			);
 			this.encryptJS && jsFilesToEncrypt.push('_app_props_.json');
 			delete this.lastBuildFiles[appPropsFile];
+
+			// Write the "bootstrap.json" file, even if the bootstrap array is empty.
+			// Note: An empty array indicates the app has no bootstrap files.
+			const bootstrapJsonRelativePath = path.join('ti.internal', 'bootstrap.json'),
+				bootstrapJsonAbsolutePath = path.join(buildAssetsPath, bootstrapJsonRelativePath);
+			fs.writeFileSync(bootstrapJsonAbsolutePath, JSON.stringify({ scripts: jsBootstrapFiles }));
+			this.encryptJS && jsFilesToEncrypt.push(bootstrapJsonRelativePath);
+			delete this.lastBuildFiles[bootstrapJsonAbsolutePath];
 
 			if (!jsFilesToEncrypt.length) {
 				// nothing to encrypt, continue
@@ -3989,6 +4020,7 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 			'-S', this.buildResDir,
 			'-I', this.androidCompileSDK.androidJar,
 			'-F', this.ap_File,
+			'--ignore-assets', '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~',
 			'--output-text-symbols', bundlesPath,
 			'--no-version-vectors'
 		];
