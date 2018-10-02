@@ -743,12 +743,15 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
   }
 }
 
-#ifdef TI_USE_KROLL_THREAD
 - (NSString *)threadName
 {
+#ifdef TI_USE_KROLL_THREAD
   return [NSString stringWithFormat:@"KrollContext<%@>", krollContextId];
-}
+#else
+  return @"KrollContext<MainThread>";
 #endif
+}
+
 - (id)init
 {
   if (self = [super init]) {
