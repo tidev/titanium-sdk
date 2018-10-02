@@ -761,10 +761,10 @@ static TiValueRef StringFormatDecimalCallback(TiContextRef jsContext, TiObjectRe
     queue = [[NSMutableArray alloc] init];
     lock = [[NSRecursiveLock alloc] init];
     [lock setName:[NSString stringWithFormat:@"%@ Lock", [self threadName]]];
+#endif
     timerLock = [[NSRecursiveLock alloc] init];
     NSString *timerName = [NSString stringWithFormat:@"%@ Timer Lock", [self threadName]];
     [timerLock setName:timerName];
-#endif
     stopped = YES;
     KrollContextCount++;
     debugger = NULL;
