@@ -40,6 +40,7 @@
 #endif
   JSGlobalContextRef context;
   NSMutableDictionary *timers;
+  NSRecursiveLock *timerLock;
 }
 
 @property (nonatomic, readwrite, assign) id<KrollDelegate> delegate;

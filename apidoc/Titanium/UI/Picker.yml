@@ -349,7 +349,7 @@ properties:
     description: |
         If `true`, selection indicator is enabled.
 
-        Since iOS 7 and later you cannot customize the picker view's selection indicator. 
+        Since iOS 7 and later you cannot customize the picker view's selection indicator.
         The selection indicator is always shown, so setting this property to `false` has no effect.
     type: Boolean
     default: true (Android), false (iPhone, iPad)
@@ -491,6 +491,10 @@ examples:
                     </Picker>
                 </Window>
             </Alloy>
+
+        `app/controllers/index.js`:
+
+            $.win.open();
 
   - title: Date Picker using Alloy XML Markup
     example: |

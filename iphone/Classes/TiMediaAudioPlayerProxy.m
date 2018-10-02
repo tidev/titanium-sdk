@@ -144,6 +144,8 @@
     // Convert duration to milliseconds (parity with progress/Android)
     _duration = (int)(CMTimeGetSeconds([[[self player] currentItem] duration]) * 1000);
   }
+
+  return NUMDOUBLE(_duration);
 }
 
 - (NSNumber *)paused
@@ -416,6 +418,7 @@
 
   [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferEmpty"];
   [[[self player] currentItem] removeObserver:self forKeyPath:@"playbackBufferFull"];
+  [[[self player] currentItem] removeObserver:self forKeyPath:@"timedMetadata"];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context

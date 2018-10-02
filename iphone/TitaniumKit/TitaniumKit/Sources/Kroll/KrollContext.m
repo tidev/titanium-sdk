@@ -667,12 +667,24 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   }
 }
 
+- (NSString *)threadName
+{
+#ifdef TI_USE_KROLL_THREAD
+  return [NSString stringWithFormat:@"KrollContext<%@>", krollContextId];
+#else
+  return @"KrollContext<MainThread>";
+#endif
+}
+
 - (id)init
 {
   if (self = [super init]) {
 #if CONTEXT_MEMORY_DEBUG == 1
     NSLog(@"[DEBUG] INIT: %@", self);
 #endif
+    timerLock = [[NSRecursiveLock alloc] init];
+    NSString *timerName = [NSString stringWithFormat:@"%@ Timer Lock", [self threadName]];
+    [timerLock setName:timerName];
     stopped = YES;
     KrollContextCount++;
 
@@ -726,15 +738,18 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (void)registerTimer:(id)timer timerId:(double)timerId
 {
+  [timerLock lock];
   if (timers == nil) {
     timers = [[NSMutableDictionary alloc] init];
   }
   NSString *key = [[NSNumber numberWithDouble:timerId] stringValue];
   [timers setObject:timer forKey:key];
+  [timerLock unlock];
 }
 
 - (void)unregisterTimer:(double)timerId
 {
+  [timerLock lock];
   if (timers != nil) {
     NSString *timer = [[NSNumber numberWithDouble:timerId] stringValue];
     KrollTimer *t = [timers objectForKey:timer];
@@ -748,6 +763,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
       RELEASE_TO_NIL(timers);
     }
   }
+  [timerLock unlock];
 }
 
 - (void)start
