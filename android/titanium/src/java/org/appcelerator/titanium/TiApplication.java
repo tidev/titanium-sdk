@@ -149,8 +149,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		modules = new HashMap<String, WeakReference<KrollModule>>();
 		TiMessenger.getMessenger(); // initialize message queue for main thread
-
-		Log.i(TAG, "Titanium " + buildVersion + " (" + buildTimestamp + " " + buildHash + ")");
 	}
 
 	/**
@@ -366,9 +364,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		appProperties = new TiProperties(getApplicationContext(), APPLICATION_PREFERENCES_NAME, false);
 
-		baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
-
-		File fullPath = new File(baseUrl, getStartFilename("app.js"));
+		File fullPath = new File(TiC.URL_ANDROID_ASSET_RESOURCES, "app.js");
 		baseUrl = fullPath.getParent();
 
 		proxyMap = new HashMap<String, SoftReference<KrollProxy>>(5);
@@ -537,11 +533,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public String getStartUrl()
 	{
 		return startUrl;
-	}
-
-	private String getStartFilename(String defaultStartFile)
-	{
-		return defaultStartFile;
 	}
 
 	public void addAppEventProxy(KrollProxy appEventProxy)
