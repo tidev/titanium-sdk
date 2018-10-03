@@ -20,6 +20,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -68,16 +69,12 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup
 	@Override
 	public void addViews(TiBaseActivity activity) {
 
-		mTabLayout = new TabLayout(activity);
+		this.mTabLayout = new TabLayout(activity);
+
 		// Set the colorPrimary as backgroundColor by default
+		this.mTabLayout.setBackgroundColor(colorPrimaryInt);
 
-		mTabLayout.setBackgroundColor(colorPrimaryInt);
-
-		/*TypedArray textColorPrimary = activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.textColor });
-		int textColor = textColorPrimary.getColor(0, 0);
-		mTabLayout.setTabTextColors(Color.rgb(255, 255, 255), Color.rgb(255, 255, 255));*/
-
-		mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+		this.mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
 			@Override
 			public void onTabSelected(TabLayout.Tab tab) {
 				selectTab(mTabLayout.getSelectedTabPosition());
@@ -124,6 +121,12 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup
 			// Get the just added TabView as a LinearLayout in order to set the background.
 			LinearLayout tabLL = ((LinearLayout) stripLayout.getChildAt(mTabLayout.getTabCount() - 1));
 			tabLL.setBackground(backgroundRippleDrawable);
+			// Set the TextView textColor.
+			for (int i=0; i < tabLL.getChildCount(); i++) {
+				if ( tabLL.getChildAt(i) instanceof TextView ) {
+					((TextView) tabLL.getChildAt(i)).setTextColor(textColorStateList(tabProxy, android.R.attr.state_selected));
+				}
+			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
@@ -154,11 +157,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			//TODO: Deal with Title property
 		} else if (key.equals(TiC.PROPERTY_SWIPEABLE)) {
-			if (tabsDisabled) {
-				savedSwipeable = TiConvert.toBoolean(newValue);
-			} else {
-				swipeable = TiConvert.toBoolean(newValue);
-			}
+			swipeable = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
 		} else {
@@ -168,7 +167,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup
 
 	@Override
 	public void removeTabItemFromController(int position) {
-
+		this.mTabLayout.removeTab(this.mTabLayout.getTabAt(position));
 	}
 
 	@Override
@@ -185,16 +184,6 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup
 	@Override
 	public void setBackgroundDrawable(Drawable drawable) {
 		mTabLayout.setBackground(drawable);
-	}
-
-	@Override
-	public void onCreate(Activity activity, Bundle savedInstanceState)
-	{
-	}
-
-	@Override
-	public void onStart(Activity activity)
-	{
 	}
 
 }

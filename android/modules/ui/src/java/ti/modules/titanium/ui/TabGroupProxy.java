@@ -206,11 +206,16 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	public void handleRemoveTab(TabProxy tab)
 	{
+		int indexToRemove = tabs.indexOf(tab);
+		// Guard for trying to remove a Tab that has not been added.
+		if (indexToRemove < 0) {
+			return;
+		}
 		tabs.remove(tab);
 
 		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		if (tabGroup != null) {
-			tabGroup.removeTab(tab);
+			tabGroup.removeTabAt(indexToRemove);
 		}
 
 	}

@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.tabgroup;
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
@@ -46,7 +47,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 
-public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecycleEvent
+public abstract class TiUIAbstractTabGroup extends TiUIView
 {
 	/**
 	 * Adds the ViewPager and the Controller to the activity's layout.
@@ -90,21 +91,12 @@ public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecyc
 
 	protected static final String TAG = "TiUITabLayoutTabGroup";
 	protected static final String WARNING_LAYOUT_MESSAGE = "Trying to customize an unknown layout, sticking to the default one";
-	private static final String FRAGMENT_ID_ARRAY = "fragmentIdArray";
-	private static final String FRAGMENT_TAGS_ARRAYLIST = "fragmentTagsArrayList";
-	private static final String SAVED_INITIAL_FRAGMENT_ID = "savedInitialFragmentId";
-	private static final String TABS_DISABLED = "tabsDisabled";
 
-	private boolean activityPaused = false;
 	// Default value is true. Set it to false if the tab is selected using the selectTab() method.
 	private boolean tabClicked = true;
 	protected boolean swipeable = true;
 
 	protected boolean smoothScrollOnTabClick = true;
-	private AtomicLong fragmentIdGenerator = new AtomicLong();
-	private ArrayList<String> restoredFragmentTags;
-
-	private ArrayList<Long> restoredFragmentIds = new ArrayList<Long>();
 
 	// The tab to be selected once the activity resumes.
 	private TabLayout.Tab selectedTabOnResume;
@@ -115,21 +107,21 @@ public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecyc
 	protected boolean pendingDisableTabs = false;
 	protected boolean tempTabsDisabled = false;
 	protected int numTabsWhenDisabled;
-	protected boolean savedSwipeable = true;
-	protected ArrayList<Long> fragmentIds = new ArrayList<Long>();
-	protected ArrayList<String> fragmentTags = new ArrayList<String>();
 	protected int colorPrimaryInt;
+	private int textColorInt;
 
-	private ArrayList<TiUIAbstractTab> tabs = new ArrayList<>();
+	private ArrayList<TiUITab> tabs = new ArrayList<>();
 
 	public TiUIAbstractTabGroup(TabGroupProxy proxy, TiBaseActivity activity, Bundle savedInstanceState)
 	{
 		super(proxy);
 
-		TypedValue typedValue = new TypedValue();
-		TypedArray colorPrimary = activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.colorPrimary });
+		TypedValue colorPrimaryTypedValue = new TypedValue();
+		TypedArray colorPrimary = activity.obtainStyledAttributes(colorPrimaryTypedValue.data, new int[] { android.R.attr.colorPrimary });
 		colorPrimaryInt = colorPrimary.getColor(0, 0);
-
+		TypedValue typedValue = new TypedValue();
+		TypedArray textColor = activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.textColorPrimary });
+		textColorInt = textColor.getColor(0, 0);
 		tabGroupPagerAdapter =
 			new TabGroupFragmentPagerAdapter(((AppCompatActivity) activity).getSupportFragmentManager());
 
@@ -202,30 +194,11 @@ public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecyc
 	 */
 	public void addTab(TabProxy tabProxy) {
 		long itemId;
-
-		TiUIAbstractTab abstractTab = new TiUIAbstractTab(tabProxy);
+		TiUITab abstractTab = new TiUITab(tabProxy);
 		tabs.add(abstractTab);
 		boolean shouldUpdateTabsDisabled = false;
 
-		// First check if there are tabs to restore
-		// We will know if there are elements in restoredFragmentTagsIds/restoredFragmentTags
-		// addTab will be called for those tabs first, and in order
-		if (restoredFragmentIds.size() > 0) {
-			itemId = restoredFragmentIds.remove(0).longValue();
-			String restoredFragmentTag = restoredFragmentTags.remove(0);
-			FragmentManager fm = ((AppCompatActivity) proxy.getActivity()).getSupportFragmentManager();
-			if (restoredFragmentIds.size() == 0) {
-				// We finished restoring tabs. If the Activity was destroyed while tabs were disabled
-				// then we disable the tabs when recreating only after the tab group was fully initialized.
-				shouldUpdateTabsDisabled = true;
-			}
-		} else {
-			// make sure any new IDs are bigger than any previous ID
-			itemId = fragmentIdGenerator.getAndIncrement();
-		}
-
 		tabProxy.setView(abstractTab);
-		fragmentIds.add(new Long(itemId));
 
 		// Add the new tab, but don't select it just yet.
 		// The selected tab is set once the group is done opening.
@@ -239,6 +212,18 @@ public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecyc
 		}
 
 		addTabItemInController(tabProxy);
+	}
+
+	protected ColorStateList textColorStateList(TabProxy tabProxy, int stateToUse) {
+		int[][] textColorStates = new int[][] {
+			new int[] {-stateToUse},
+			new int[] {stateToUse}};
+		int[] textColors = {
+			tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE_COLOR) ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_TITLE_COLOR).toString()) : textColorInt,
+			tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TITLE_COLOR) ? TiColorHelper.parseColor(tabProxy.getProperty(TiC.PROPERTY_ACTIVE_TITLE_COLOR).toString()) : textColorInt
+		};
+		ColorStateList stateListDrawable = new ColorStateList(textColorStates, textColors);
+		return stateListDrawable;
 	}
 
 	protected RippleDrawable createBackgroundDrawableForState(TabProxy tabProxy, int stateToUse) {
@@ -277,8 +262,13 @@ public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecyc
 	 *
 	 * @param tabProxy the tab to remove from the group
 	 */
-	public void removeTab(TabProxy tabProxy) {
+	public void removeTabAt(int index) {
+		// Remove the reference in tabsMap.
+		tabs.remove(index);
+		// Update the ViewPager.
 		tabGroupPagerAdapter.notifyDataSetChanged();
+		// Remove the item from the controller.
+		removeTabItemFromController(index);
 	}
 
 	/**
@@ -287,7 +277,25 @@ public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecyc
 	 * @param tabIndex the index of the tab that will become selected
 	 */
 	public void selectTab(int tabIndex) {
+		// Release the OnPageChangeListener in order to calling an unnecessary item selection.
+		tabGroupViewPager.clearOnPageChangeListeners();
 		tabGroupViewPager.setCurrentItem(tabIndex);
+		tabGroupViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			@Override
+			public void onPageScrolled(int i, float v, int i1) {
+
+			}
+
+			@Override
+			public void onPageSelected(int i) {
+				selectTabItemInController(i);
+			}
+
+			@Override
+			public void onPageScrollStateChanged(int i) {
+
+			}
+		});
 	};
 
 	@Override
@@ -306,35 +314,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecyc
 		super.processProperties(d);
 	}
 
-	@Override
-	public void onPause(Activity activity)
-	{
-		activityPaused = true;
-	}
-
-	@Override
-	public void onStop(Activity activity) {
-
-	}
-
-	@Override
-	public void onDestroy(Activity activity) {
-
-	}
-
 	public TabProxy getSelectedTab() {
 		return new TabProxy();
-	}
-
-	@Override
-	public void onResume(Activity activity)
-	{
-		activityPaused = false;
-
-		if (selectedTabOnResume != null) {
-			selectedTabOnResume.select();
-			selectedTabOnResume = null;
-		}
 	}
 
 	private class TabGroupFragmentPagerAdapter extends FragmentPagerAdapter
@@ -363,7 +344,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecyc
 		@Override
 		public long getItemId(int position)
 		{
-			long id = fragmentIds.get(position).longValue();
+			long id = tabs.get(position).hashCode();
 			return id;
 		}
 
@@ -376,7 +357,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecyc
 				// we reenable the tabs.
 				return numTabsWhenDisabled;
 			} else {
-				return ((TabGroupProxy) proxy).getTabList().size();
+				return tabs.size();
 			}
 		}
 
@@ -389,9 +370,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecyc
 		@Override
 		public int getItemPosition(Object object)
 		{
-			Fragment fragment = (Fragment) object;
-			String tag = fragment.getTag();
-			int index = fragmentTags.indexOf(tag);
+			TabFragment fragment = (TabFragment) object;
+			int index = tabs.indexOf(((TabFragment) object).getTab());
+			// Notify the PagerAdapter that we have removed a tab.
 			if (index < 0) {
 				return POSITION_NONE;
 			}
@@ -423,14 +404,14 @@ public abstract class TiUIAbstractTabGroup extends TiUIView implements OnLifecyc
 
 	public static class TabFragment extends Fragment
 	{
-		private TiUIAbstractTab tab;
+		private TiUITab tab;
 
-		public void setTab(TiUIAbstractTab tab)
+		public void setTab(TiUITab tab)
 		{
 			this.tab = tab;
 		}
 
-		public TiUIAbstractTab getTab()
+		public TiUITab getTab()
 		{
 			return this.tab;
 		}

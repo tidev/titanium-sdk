@@ -782,6 +782,11 @@ public class TiC
 	public static final String PROPERTY_ACTIVE_TAB = "activeTab";
 
 	/**
+	 * @module.ape
+	 */
+	public static final String PROPERTY_ACTIVE_TITLE_COLOR = "activeTitleColor";
+
+	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_SWIPEABLE = "swipeable";
@@ -3120,6 +3125,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TITLE = "title";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TITLE_COLOR = "titleColor";
 
 	/**
 	 * @module.api

@@ -16,7 +16,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTab;
+import ti.modules.titanium.ui.widget.tabgroup.TiUITab;
 import android.app.Activity;
 // clang-format off
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -255,7 +255,7 @@ public class TabProxy extends TiViewProxy
 			}
 		}
 
-		((TiUIAbstractTab) view).onSelectionChange(selected);
+		((TiUITab) view).onSelectionChange(selected);
 	}
 
 	@Override

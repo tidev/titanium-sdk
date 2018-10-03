@@ -1,6 +1,7 @@
 package ti.modules.titanium.ui.widget.tabgroup;
 
 import android.app.Activity;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -8,10 +9,12 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
+import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.view.menu.MenuBuilder;
 import android.util.TypedValue;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,11 +26,13 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
@@ -54,11 +59,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		params.autoFillsWidth = true;
 		params.optionBottom = new TiDimension(mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
 
-		mBottomNavigationView = new BottomNavigationView(activity);
-
-		// Set the colorPrimary as backgroundColor by default
-		TypedValue typedValue = new TypedValue();
-		TypedArray a = activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.colorPrimary });
+		this.mBottomNavigationView = new BottomNavigationView(activity);
 
 		TiCompositeLayout.LayoutParams bottomNavigationParams = new TiCompositeLayout.LayoutParams();
 		bottomNavigationParams.autoFillsWidth = true;
@@ -84,23 +85,53 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 	@Override
 	public void addTabItemInController(TabProxy tabProxy) {
+		// Create a new item with id representing its index in mMenuItemsArray.
 		MenuItem menuItem = this.mBottomNavigationView.getMenu().add(null);
 		menuItem.setOnMenuItemClickListener(this);
 		Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
 		menuItem.setIcon(drawable);
 		menuItem.setTitle(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
 		this.mMenuItemsArray.add(menuItem);
+		setDrawables();
+		disableShiftMode();
+	}
 
+	private void setDrawables() {
 		try {
 			ArrayList<TabProxy> tabs = ((TabGroupProxy) proxy).getTabList();
 			BottomNavigationMenuView bottomMenuView = ((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			for (int i = 0; i < this.mMenuItemsArray.size(); i++) {
-				RippleDrawable backgroundRippleDrawable = createBackgroundDrawableForState(tabs.get(i), android.R.attr.state_checked);
+				TabProxy tabProxy = tabs.get(i);
+				RippleDrawable backgroundRippleDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
 				bottomMenuView.getChildAt(i).setBackground(backgroundRippleDrawable);
+				// Set the TextView textColor.
+				((BottomNavigationItemView) bottomMenuView.getChildAt(i)).setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
 			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
+		}
+	}
+
+	private void disableShiftMode() {
+		BottomNavigationMenuView menuView = ((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
+		try {
+			Field shiftingMode = menuView.getClass().getDeclaredField("mShiftingMode");
+			shiftingMode.setAccessible(true);
+			shiftingMode.setBoolean(menuView, false);
+			shiftingMode.setAccessible(false);
+			for (int i = 0; i < menuView.getChildCount(); i++) {
+				BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(i);
+				// noinspection RestrictedApi
+				item.setShiftingMode(false);
+				// set once again checked value, so view will be updated
+				// noinspection RestrictedApi
+				item.setChecked(item.getItemData().isChecked());
+			}
+		} catch (NoSuchFieldException e) {
+			Log.e(TAG, "Unable to get shift mode field", e);
+		} catch (IllegalAccessException e) {
+			Log.e(TAG, "Unable to change value of shift mode", e);
 		}
 	}
 
@@ -127,11 +158,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			//TODO: Deal with Title property
 		} else if (key.equals(TiC.PROPERTY_SWIPEABLE)) {
-			if (tabsDisabled) {
-				savedSwipeable = TiConvert.toBoolean(newValue);
-			} else {
-				swipeable = TiConvert.toBoolean(newValue);
-			}
+			swipeable = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK)) {
 			smoothScrollOnTabClick = TiConvert.toBoolean(newValue);
 		} else {
@@ -141,7 +168,11 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 	@Override
 	public void removeTabItemFromController(int position) {
-
+		this.mBottomNavigationView.getMenu().clear();
+		this.mMenuItemsArray.clear();
+		for (TabProxy tabProxy: ((TabGroupProxy) proxy).getTabList()) {
+			addTabItemInController(tabProxy);
+		}
 	}
 
 	@Override
@@ -161,19 +192,9 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	}
 
 	@Override
-	public void onCreate(Activity activity, Bundle savedInstanceState)
-	{
-	}
-
-	@Override
-	public void onStart(Activity activity)
-	{
-	}
-
-	@Override
 	public boolean onMenuItemClick(MenuItem item) {
 		int index = this.mMenuItemsArray.indexOf(item);
 		selectTab(index);
-		return true;
+		return false;
 	}
 }
