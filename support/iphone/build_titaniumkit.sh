@@ -23,8 +23,10 @@ FRAMEWORK="${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework"
 ######################
 
 xcodebuild -scheme TitaniumKit -sdk iphonesimulator -configuration Release clean build CONFIGURATION_BUILD_DIR=build/Release-iphonesimulator 2>&1
+[[ $? -ne 0 ]] && exit 1
 
 xcodebuild -scheme TitaniumKit -sdk iphoneos -configuration Release clean build CONFIGURATION_BUILD_DIR=build/Release-iphoneos 2>&1
+[[ $? -ne 0 ]] && exit 1
 
 ######################
 # Create directory for universal

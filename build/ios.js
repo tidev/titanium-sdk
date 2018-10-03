@@ -43,10 +43,11 @@ IOS.prototype.build = function (next) {
 		console.log(`\n${data}`);
 	});
 
-	child.on('exit', function (code, signal) {
+	child.on('exit', code => {
 		if (code) {
-			console.log(`An error occurred: ${signal}`);
-			return next(signal);
+			const err = new Error(`TitaniumKit build exited with code ${code}`);
+			console.error(err);
+			return next(err);
 		}
 
 		console.log('TitaniumKit built successfully!');
