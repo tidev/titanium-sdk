@@ -40,10 +40,10 @@
 #endif
   TiGlobalContextRef context;
   NSMutableDictionary *timers;
+  NSRecursiveLock *timerLock;
   void *debugger;
 
 #ifdef TI_USE_KROLL_THREAD
-  NSRecursiveLock *timerLock;
   NSString *krollContextId;
   NSRecursiveLock *lock;
   NSCondition *condition;
