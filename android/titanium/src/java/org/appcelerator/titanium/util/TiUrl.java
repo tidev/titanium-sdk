@@ -229,11 +229,11 @@ public class TiUrl
 		if (scheme == null) {
 			scheme = "app:";
 		}
-		if (path.startsWith(CURRENT_PATH_WITH_SEPARATOR)) {
-			if (path.length() == 2) {
+		while (path.startsWith(CURRENT_PATH_WITH_SEPARATOR)) {
+			if (path.length() <= CURRENT_PATH_WITH_SEPARATOR.length()) {
 				path = "";
 			} else {
-				path = path.substring(2);
+				path = path.substring(CURRENT_PATH_WITH_SEPARATOR.length());
 			}
 		}
 		if (path.contains(PARENT_PATH_WITH_SEPARATOR) || path.contains(CURRENT_PATH_WITH_SEPARATOR)) {
@@ -273,21 +273,21 @@ public class TiUrl
 			} else {
 				URI uri = new URI(url);
 				if (uri.getScheme() != null) {
-					// the url already has a scheme, so we ignore the
-					// baseUrl completely.
+					// The URL already has a scheme. So, we ignore the base URL completely.
 					combined = url;
-				} else if (baseUrl.endsWith(PATH_SEPARATOR) && url.startsWith(PATH_SEPARATOR)
-						   && !baseUrl.equals("file://")) {
-					if (baseUrl.length() == 1 && url.length() == 1) {
-						combined = PATH_SEPARATOR;
-					} else if (baseUrl.length() == 1) {
-						combined = url;
-					} else if (url.length() == 1) {
-						combined = baseUrl;
+				} else if (url.startsWith(PATH_SEPARATOR)) {
+					// The URL is an absolute path. Not relative to base URL.
+					// Note: A "file:///" URL needs 3 slashes to reference localhost.
+					if (defaultScheme != null) {
+						combined = defaultScheme + PATH_SEPARATOR;
+						if (defaultScheme.equals("file:")) {
+							combined += PATH_SEPARATOR;
+						}
+						combined += url;
 					} else {
-						combined = baseUrl + url.substring(1);
+						combined = url;
 					}
-				} else if (!baseUrl.endsWith(PATH_SEPARATOR) && !url.startsWith(PATH_SEPARATOR)) {
+				} else if (!baseUrl.endsWith(PATH_SEPARATOR)) {
 					combined = baseUrl + PATH_SEPARATOR + url;
 				} else {
 					combined = baseUrl + url;
