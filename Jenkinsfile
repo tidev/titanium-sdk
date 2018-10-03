@@ -78,7 +78,13 @@ def unitTests(os, nodeVersion, npmVersion, testSuiteBranch) {
 							if ('ios'.equals(os)) {
 								// Gather the crash report(s)
 								def home = sh(returnStdout: true, script: 'printenv HOME').trim()
-								sh "mv ${home}/Library/Logs/DiagnosticReports/mocha_*.crash ."
+								def crashFiles = sh(returnStdout: true, script: "ls -1 ${home}/Library/Logs/DiagnosticReports/").trim().readLines()
+								for (int i = 0; i < crashFiles.size(); i++) {
+									def crashFile = crashFiles[i]
+									if (crashFile =~ /^mocha_.*\.crash$/) {
+										sh "mv ${home}/Library/Logs/DiagnosticReports/${crashFile} ."
+									}
+								}
 								archiveArtifacts 'mocha_*.crash'
 								sh 'rm -f mocha_*.crash'
 							} else {
