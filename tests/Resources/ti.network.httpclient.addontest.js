@@ -21,13 +21,15 @@ describe('Titanium.Network.HTTPClient', function () {
 
 		xhr.onload = function (e) {
 			try {
-				const response = JSON.parse(e.source.responseText).json;
+				const response = e.source.responseDictionary ? e.source.responseDictionary.json : null;
 
-				if (response.count <= 8) {
-					xhr.send(JSON.stringify({ count: ++count }));
-					return;
+				if (response) {
+					if (response.count <= 8) {
+						return xhr.send(JSON.stringify({ count: ++count }));
+					}
+					return finish();
 				}
-				finish();
+				finish(new Error('invalid json response!\n\n' + JSON.stringify(response, null, 1)));
 			} catch (err) {
 				finish(err);
 			}

@@ -624,6 +624,15 @@ public class TiHTTPClient
 		return blob;
 	}
 
+	public KrollDict getResponseDict()
+	{
+		try {
+			return new KrollDict(new JSONObject(getResponseText()));
+		} catch (Exception e) {
+		}
+		return null;
+	}
+
 	public DocumentProxy getResponseXML()
 	{
 		// avoid eating up tons of memory if we have a large binary data blob
