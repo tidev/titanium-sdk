@@ -680,6 +680,14 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)unregisterProxy:(id)proxy
 {
+#ifdef USE_JSCORE_FRAMEWORK
+  KrollObject *ourKrollObject = [self krollObjectForProxy:proxy];
+
+  if (ourKrollObject != nil) {
+    [ourKrollObject unprotectJsobject];
+  }
+#endif
+
   OSSpinLockLock(&proxyLock);
   if (registeredProxies != NULL) {
     CFDictionaryRemoveValue(registeredProxies, proxy);
