@@ -2755,7 +2755,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 									targets: {
 										chrome: this.chromeVersion
 									},
-									resourcesDir: this.buildBinAssetsResourcesDir
+									resourcesDir: this.buildBinAssetsResourcesDir,
+									logger: this.logger
 								});
 								const newContents = modified.contents;
 

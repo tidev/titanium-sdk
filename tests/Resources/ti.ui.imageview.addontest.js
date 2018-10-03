@@ -10,7 +10,7 @@
 'use strict';
 var should = require('./utilities/assertions');
 
-describe('Ti.UI.ImageView', function () {
+describe('Titanium.UI.ImageView', function () {
 	var win;
 
 	afterEach(function () {
@@ -72,24 +72,5 @@ describe('Ti.UI.ImageView', function () {
 		win.open();
 
 		imageView.images = [ '/Logo.png' ];
-	});
-
-	// On Android, paths are relative to JS file.
-	// On iOS and Windows, paths are relative to app's "Resources" directory.
-	// The below works on all platforms because this JS file is in the "Resources" directory.
-	it('image (root-relative-path)', function (finish) {
-		this.slow(8000);
-		this.timeout(10000);
-
-		win = Ti.UI.createWindow();
-		let imageView = Ti.UI.createImageView({
-			image: 'Logo.png',
-			autorotate: true
-		});
-		imageView.addEventListener('load', function () {
-			finish();
-		});
-		win.add(imageView);
-		win.open();
 	});
 });
