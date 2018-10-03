@@ -93,7 +93,11 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		menuItem.setTitle(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
 		this.mMenuItemsArray.add(menuItem);
 		setDrawables();
-		disableShiftMode();
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_SHIFT_MODE)) {
+			if (!((Boolean) proxy.getProperty(TiC.PROPERTY_SHIFT_MODE))) {
+				disableShiftMode();
+			}
+		}
 	}
 
 	private void setDrawables() {
@@ -106,7 +110,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 				RippleDrawable backgroundRippleDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
 				bottomMenuView.getChildAt(i).setBackground(backgroundRippleDrawable);
 				// Set the TextView textColor.
-				((BottomNavigationItemView) bottomMenuView.getChildAt(i)).setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
+				 ((BottomNavigationItemView) bottomMenuView.getChildAt(i)).setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
 			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);

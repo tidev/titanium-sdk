@@ -2864,6 +2864,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_SHIFT_MODE = "shiftMode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_SHOW_AS_ACTION = "showAsAction";
 
 	/**

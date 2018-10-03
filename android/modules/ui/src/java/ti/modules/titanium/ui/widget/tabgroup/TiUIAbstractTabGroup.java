@@ -20,6 +20,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -122,6 +123,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		TypedValue typedValue = new TypedValue();
 		TypedArray textColor = activity.obtainStyledAttributes(typedValue.data, new int[] { android.R.attr.textColorPrimary });
 		textColorInt = textColor.getColor(0, 0);
+
 		tabGroupPagerAdapter =
 			new TabGroupFragmentPagerAdapter(((AppCompatActivity) activity).getSupportFragmentManager());
 
@@ -279,7 +281,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public void selectTab(int tabIndex) {
 		// Release the OnPageChangeListener in order to calling an unnecessary item selection.
 		tabGroupViewPager.clearOnPageChangeListeners();
-		tabGroupViewPager.setCurrentItem(tabIndex);
+		tabGroupViewPager.setCurrentItem(tabIndex, smoothScrollOnTabClick);
 		tabGroupViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			@Override
 			public void onPageScrolled(int i, float v, int i1) {

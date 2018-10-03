@@ -398,6 +398,22 @@ properties:
     availability: creation
     platforms: [android]
 
+  - name: shiftMode
+    summary: Determines whether the BOTTOM_NAVIGATION_VIEW_STYLE uses shiftMode.
+    description: |
+        In Android BottomNavigationView uses shiftMode by default. This mode changes
+        unselected tabs' properties - makes the title invisible and reduces the icon's
+        dimensions by half.
+
+        This property allows the user to choose whether they would use this design
+        behavior.
+
+        NOTE: This property only affects TabGroups with the BOTTOM_NAVIGATION_VIEW_STYLE.
+    type: Boolean
+    default: true
+    since: "7.5.0"
+    platforms: [android]
+
   - name: tabsBackgroundColor
     summary: Default background color for inactive tabs, as a color name or hex triplet.
     description: |
