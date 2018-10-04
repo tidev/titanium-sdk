@@ -108,7 +108,7 @@
       TiThreadPerformOnMainThread(^{
         [kroll invokeOnThread:self method:@selector(invokeWithCondition:) withObject:invokeCond condition:nil];
       },
-          YES);
+          NO);
     } else
 #endif
     {
