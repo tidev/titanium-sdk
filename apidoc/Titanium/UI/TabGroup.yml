@@ -40,7 +40,7 @@ description: |
     If using tab groups on iOS, see
     [iOS UI Element Usage Guidelines](https://developer.apple.com/ios/human-interface-guidelines/bars/tab-bars/).
 
-extends: Titanium.UI.View
+extends: Titanium.UI.Window
 since: "0.9"
 excludes:
     methods: [add, remove, removeAllChildren, replaceAt]
