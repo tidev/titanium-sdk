@@ -4376,7 +4376,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 				'-Pconfiguration=' + quotePath(baserules) + pathArraySeparator + quotePath(mainDexProGuardFilePath)
 			], { shell: true, windowsHide: true }, function (code, out, err) {
 				if (code) {
-					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error(__('Failed to run gradle:'));
 					this.logger.error();
 					err.trim().split('\n').forEach(this.logger.error);
 					this.logger.log();
