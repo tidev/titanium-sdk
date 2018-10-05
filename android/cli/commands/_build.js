@@ -4395,7 +4395,7 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
 			appc.subprocess.run(this.jdkInfo.executables.java, [ '-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injarsCore.join(pathArraySeparator) ], {}, function (code, out, err) {
 				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
 				if (code) {
-					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error(__('Failed to generate main class for dexer:'));
 					this.logger.error();
 					err.trim().split('\n').forEach(this.logger.error);
 					this.logger.log();
