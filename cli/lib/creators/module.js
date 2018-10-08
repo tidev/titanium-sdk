@@ -152,8 +152,9 @@ ModuleCreator.prototype.run = function run(callback) {
 
 		platforms.scrubbed.forEach(function (platform) {
 			// if we're using the built-in template, load the platform specific template hooks
-			const usingBuiltinTemplate = templateDir.indexOf(this.sdk.path) === 0,
-				platformTemplateDir = path.join(this.sdk.path, platform, 'templates', this.projectType, this.cli.argv['code-base'] || this.cli.argv.template);
+			const usingBuiltinTemplate = templateDir.indexOf(this.sdk.path) === 0;
+			const templateBaseDir = platform === 'iphone' ? this.cli.argv['code-base'] : this.cli.argv.template;
+			const platformTemplateDir = path.join(this.sdk.path, platform, 'templates', templateBaseDir);
 
 			if (usingBuiltinTemplate) {
 				this.cli.scanHooks(path.join(platformTemplateDir, 'hooks'));
