@@ -444,8 +444,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   [global defineProperty:@"Ti" descriptor:dictionary];
 
   // Hack the old-school way of doing a module here
-  NSArray *legacyModuleNames = @[ @"Accelerometer",
-    @"Analytics",
+  NSArray *legacyModuleNames = @[ @"Analytics",
     @"App",
     @"Calendar",
     @"Codec",
@@ -491,7 +490,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   // New JSExport based modules
   // Basically a whitelist of Ti.* modules to load lazily
-  NSArray *moduleNames = @[ @"API", @"Locale", @"Platform" ];
+  NSArray *moduleNames = @[ @"Accelerometer", @"API", @"Locale", @"Platform" ];
   for (NSString *name in moduleNames) {
     // We must generate the block and copy it to put it into heap or else every instance of the block shares
     // the same "name" value. See https://stackoverflow.com/questions/7750907/blocks-loops-and-local-variables
