@@ -1,12 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_ACCELEROMETER
 
 #import "AccelerometerModule.h"
+#import <TitaniumKit/TiUtils.h>
 
 @implementation AccelerometerModule
 
@@ -32,13 +33,13 @@
       [_motionManager startAccelerometerUpdatesToQueue:_motionQueue
                                            withHandler:^(CMAccelerometerData *accelerometerData, NSError *error) {
                                              if (error == nil) {
-                                               NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                                                                       NUMDOUBLE(accelerometerData.acceleration.x), @"x",
-                                                                                   NUMDOUBLE(accelerometerData.acceleration.y), @"y",
-                                                                                   NUMDOUBLE(accelerometerData.acceleration.z), @"z",
-                                                                                   NUMLONGLONG((CFAbsoluteTimeGetCurrent() - oldTime) * 1000), @"timestamp",
-                                                                                   nil];
-                                               [self fireEvent:@"update" withObject:event];
+                                               NSDictionary *event = @{
+                                                 @"x" : NUMDOUBLE(accelerometerData.acceleration.x),
+                                                 @"y" : NUMDOUBLE(accelerometerData.acceleration.y),
+                                                 @"z" : NUMDOUBLE(accelerometerData.acceleration.z),
+                                                 @"timestamp" : NUMLONGLONG((CFAbsoluteTimeGetCurrent() - oldTime) * 1000)
+                                               };
+                                               [self fireEvent:@"update" withDict:event];
                                              } else {
                                                DebugLog(@"Error in event - %@", [TiUtils messageFromError:error]);
                                              }
