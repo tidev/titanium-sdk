@@ -4007,7 +4007,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		i18nLaunchScreens[path.basename(p)] = 1;
 	});
 
-	[ {
+	[{
 		orientation: 'Portrait',
 		'minimum-system-version': '12.0',
 		name: 'Default-Portrait',
@@ -4109,7 +4109,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		name: 'Default-Landscape',
 		scale: [ '2x', '1x' ],
 		size: '{768, 1024}'
-	} ].forEach(function (asset) {
+	}].forEach(function (asset) {
 		asset.scale.some(function (scale) {
 			let key;
 			const basefilename = asset.name + (asset.subtype ? '-' + asset.subtype : ''),
@@ -4751,7 +4751,7 @@ iOSBuilder.prototype.cleanXcodeDerivedData = function cleanXcodeDerivedData(next
 	}
 
 	const exe = this.xcodeEnv.executables.xcodebuild,
-		args = [ 'clean', '-scheme', this.sanitizedAppName() ];
+		args = [ 'clean', '-UseNewBuildSystem=' + (this.useNewBuildSystem ? 'YES' : 'NO'), '-scheme', this.sanitizedAppName() ];
 	let tries = 0,
 		lastErr = null,
 		done = false;
@@ -5893,7 +5893,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									minify: this.minifyJS,
 									transpile: this.transpile,
 									sourceMap: this.sourceMaps || this.deployType === 'development',
-									resourcesDir: this.xcodeAppDir
+									resourcesDir: this.xcodeAppDir,
+									logger: this.logger
 								};
 								// generate our transpile target based on tijscore/jscore
 								if (this.useJSCore) {
