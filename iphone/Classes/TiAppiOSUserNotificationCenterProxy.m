@@ -66,11 +66,11 @@
 
   if ([TiUtils isIOS10OrGreater]) {
     TiThreadPerformOnMainThread(^{
-      [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotificationRequest *> *requests) {
-        NSMutableArray *result = [NSMutableArray arrayWithCapacity:[requests count]];
+      [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
+        NSMutableArray *result = [NSMutableArray arrayWithCapacity:[notifications count]];
 
-        for (UNNotificationRequest *request in requests) {
-          [result addObject:[self dictionaryWithUserNotificationRequest:request]];
+        for (UNNotification *notification in notifications) {
+          [result addObject:[self dictionaryWithUserNotificationRequest:[notification request]]];
         }
 
         NSDictionary *propertiesDict = @{
